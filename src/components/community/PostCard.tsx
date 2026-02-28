@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Post, Comment, Profile } from '@/types';
+import { Post, Comment } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { formatDistanceToNow } from '@/lib/utils';
+import Image from 'next/image';
 import { 
   Heart, 
   MessageCircle, 
@@ -28,7 +29,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps) {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [isExpanded, setIsExpanded] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -39,18 +40,17 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
   const [selectedPollOption, setSelectedPollOption] = useState<string | null>(null);
 
   const isAuthor = user?.id === post.author_id;
-  const isArtist = profile?.role === 'artist';
 
   const handleLike = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase.rpc('toggle_like', {
+    await supabase.rpc('toggle_like', {
       p_user_id: user.id,
       p_likeable_type: 'post',
       p_likeable_id: post.id
     });
 
-    if (!error && onUpdate) {
+    if (onUpdate) {
       onUpdate();
     }
   };
@@ -174,9 +174,11 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-crwn-elevated overflow-hidden">
             {post.author?.avatar_url ? (
-              <img 
+              <Image 
                 src={post.author.avatar_url} 
                 alt={post.author.display_name || ''}
+                width={40}
+                height={40}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -281,9 +283,11 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
           }`}>
             {post.media_urls.map((url, index) => (
               <div key={index} className="aspect-square rounded-lg overflow-hidden bg-crwn-elevated">
-                <img 
+                <Image 
                   src={url} 
                   alt={`Post image ${index + 1}`}
+                  width={300}
+                  height={300}
                   className="w-full h-full object-cover hover:scale-105 transition-transform"
                 />
               </div>
@@ -449,7 +453,7 @@ interface CommentItemProps {
 }
 
 function CommentItem({ comment, onReply, onUpdate }: CommentItemProps) {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [showReplies, setShowReplies] = useState(false);
 
@@ -482,9 +486,11 @@ function CommentItem({ comment, onReply, onUpdate }: CommentItemProps) {
     <div className="flex gap-3">
       <div className="w-8 h-8 rounded-full bg-crwn-elevated overflow-hidden flex-shrink-0">
         {comment.author?.avatar_url ? (
-          <img 
+          <Image 
             src={comment.author.avatar_url} 
             alt={comment.author.display_name || ''}
+            width={32}
+            height={32}
             className="w-full h-full object-cover"
           />
         ) : (

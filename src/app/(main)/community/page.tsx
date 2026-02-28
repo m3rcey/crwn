@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client';
 import { ArtistProfile } from '@/types';
 import { CommunityFeed } from '@/components/community';
 import { Loader2, Users } from 'lucide-react';
+import Image from 'next/image';
 
 export default function CommunityPage() {
   const { user, profile } = useAuth();
@@ -108,9 +109,11 @@ export default function CommunityPage() {
                   >
                     <div className="w-6 h-6 rounded-full bg-crwn-elevated overflow-hidden">
                       {artist.profile?.avatar_url ? (
-                        <img
+                        <Image
                           src={artist.profile.avatar_url}
                           alt=""
+                          width={24}
+                          height={24}
                           className="w-full h-full object-cover"
                         />
                       ) : (

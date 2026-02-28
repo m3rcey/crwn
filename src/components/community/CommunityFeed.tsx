@@ -7,6 +7,7 @@ import { Post, ArtistProfile } from '@/types';
 import { PostCard } from './PostCard';
 import { PostCreator } from './PostCreator';
 import { Loader2, Users, Filter } from 'lucide-react';
+import Image from 'next/image';
 
 interface CommunityFeedProps {
   artistCommunityId: string;
@@ -156,9 +157,11 @@ export function CommunityFeed({ artistCommunityId, artistProfile }: CommunityFee
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-crwn-elevated overflow-hidden">
             {artistProfile?.profile?.avatar_url ? (
-              <img 
+              <Image 
                 src={artistProfile.profile.avatar_url}
                 alt={artistProfile.profile.display_name || ''}
+                width={64}
+                height={64}
                 className="w-full h-full object-cover"
               />
             ) : (

@@ -5,9 +5,56 @@ import { GatedTrackPlayer } from '@/components/gating';
 import { SubscribeButton } from '@/components/artist/SubscribeButton';
 import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
+import type { Metadata } from 'next';
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createServerSupabaseClient();
+
+  const { data: artist } = await supabase
+    .from('artist_profiles')
+    .select('*, profile:profiles(*)')
+    .eq('slug', slug)
+    .single();
+
+  if (!artist) {
+    return {
+      title: 'Artist Not Found | CRWN',
+    };
+  }
+
+  const artistName = artist.profile?.display_name || 'Artist';
+  const description = artist.profile?.bio || `Check out ${artistName} on CRWN - the all-in-one platform for music artists to monetize, connect with fans, and build community.`;
+
+  return {
+    title: `${artistName} | CRWN`,
+    description,
+    openGraph: {
+      title: `${artistName} | CRWN`,
+      description,
+      type: 'profile',
+      url: `https://crwn.vercel.app/artist/${slug}`,
+      siteName: 'CRWN',
+      images: artist.profile?.avatar_url ? [
+        {
+          url: artist.profile.avatar_url,
+          width: 400,
+          height: 400,
+          alt: artistName,
+        }
+      ] : [],
+    },
+    twitter: {
+      card: 'summary',
+      title: `${artistName} | CRWN`,
+      description,
+      images: artist.profile?.avatar_url ? [artist.profile.avatar_url] : [],
+    },
+  };
 }
 
 export default async function ArtistPage({ params }: ArtistPageProps) {

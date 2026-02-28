@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
 import { PostType, AccessLevel } from '@/types';
+import Image from 'next/image';
 import { 
   Image as ImageIcon, 
   Music, 
@@ -19,7 +20,6 @@ import {
 interface PostCreatorProps {
   artistCommunityId: string;
   onPostCreated?: () => void;
-  availableTiers?: { id: string; name: string }[];
 }
 
 const POST_TYPES: { type: PostType; icon: React.ReactNode; label: string }[] = [
@@ -37,7 +37,7 @@ const ACCESS_LEVELS: { value: AccessLevel; label: string }[] = [
   { value: 'purchase', label: 'Purchasers Only' },
 ];
 
-export function PostCreator({ artistCommunityId, onPostCreated, availableTiers }: PostCreatorProps) {
+export function PostCreator({ artistCommunityId, onPostCreated }: PostCreatorProps) {
   const { user, profile } = useAuth();
   const [content, setContent] = useState('');
   const [postType, setPostType] = useState<PostType>('text');
@@ -49,8 +49,6 @@ export function PostCreator({ artistCommunityId, onPostCreated, availableTiers }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const isArtist = profile?.role === 'artist';
 
   const handleMediaUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -172,9 +170,11 @@ export function PostCreator({ artistCommunityId, onPostCreated, availableTiers }
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-crwn-elevated overflow-hidden">
             {profile?.avatar_url ? (
-              <img 
+              <Image 
                 src={profile.avatar_url} 
                 alt={profile.display_name || ''}
+                width={40}
+                height={40}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -258,7 +258,7 @@ export function PostCreator({ artistCommunityId, onPostCreated, availableTiers }
                     {mediaUrls.map((url, index) => (
                       <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-crwn-elevated">
                         {postType === 'image' ? (
-                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <Image src={url} alt="" width={150} height={150} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             {postType === 'audio' ? <Music className="w-8 h-8" /> : <Video className="w-8 h-8" />}
