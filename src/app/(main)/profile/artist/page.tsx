@@ -6,7 +6,7 @@ import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
 import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
 
 export default function ArtistDashboardPage() {
-  const { profile, isArtist } = useAuth();
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<'profile' | 'tracks'>('profile');
 
   if (!profile) {

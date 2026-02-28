@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { Track } from '@/types';
 import { Lock, Play } from 'lucide-react';
+import Image from 'next/image';
 
 interface TrackListProps {
   tracks: Track[];
-  artistSlug: string;
 }
 
-export function TrackList({ tracks, artistSlug }: TrackListProps) {
-  const [playingTrack, setPlayingTrack] = useState<string | null>(null);
+export function TrackList({ tracks }: TrackListProps) {
+  const [, setPlayingTrack] = useState<string | null>(null);
 
   const formatDuration = (seconds: number | null) => {
     if (!seconds) return '--:--';
@@ -53,12 +53,13 @@ export function TrackList({ tracks, artistSlug }: TrackListProps) {
           </div>
 
           {/* Album Art */}
-          <div className="w-12 h-12 bg-crwn-elevated rounded overflow-hidden flex-shrink-0">
+          <div className="w-12 h-12 bg-crwn-elevated rounded overflow-hidden flex-shrink-0 relative">
             {track.album_art_url ? (
-              <img
+              <Image
                 src={track.album_art_url}
                 alt={track.title}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary">

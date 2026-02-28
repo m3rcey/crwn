@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
+import { ArtistProfile } from '@/types';
 
 interface ArtistFormData {
   slug: string;
@@ -19,7 +20,7 @@ export function ArtistProfileForm() {
   const supabase = createBrowserSupabaseClient();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [artistProfile, setArtistProfile] = useState<any>(null);
+  const [artistProfile, setArtistProfile] = useState<ArtistProfile | null>(null);
   const [formData, setFormData] = useState<ArtistFormData>({
     slug: '',
     tagline: '',
@@ -29,22 +30,17 @@ export function ArtistProfileForm() {
     social_links: profile?.social_links || {},
   });
 
-  useEffect(() => {
-    if (user) {
-      fetchArtistProfile();
-    }
-  }, [user]);
-
-  const fetchArtistProfile = async () => {
+  const fetchArtistProfile = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     const { data } = await supabase
       .from('artist_profiles')
       .select('*')
-      .eq('user_id', user?.id)
+      .eq('user_id', user.id)
       .single();
 
     if (data) {
-      setArtistProfile(data);
+      setArtistProfile(data as ArtistProfile);
       setFormData(prev => ({
         ...prev,
         slug: data.slug || '',
@@ -53,7 +49,13 @@ export function ArtistProfileForm() {
       }));
     }
     setIsLoading(false);
-  };
+  }, [user, supabase]);
+
+  useEffect(() => {
+    if (user) {
+      fetchArtistProfile();
+    }
+  }, [user, fetchArtistProfile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

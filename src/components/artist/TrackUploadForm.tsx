@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Track } from '@/types';
+import Image from 'next/image';
 
 export function TrackUploadForm() {
   const { user } = useAuth();
@@ -266,9 +267,9 @@ export function TrackUploadForm() {
                 key={track.id}
                 className="flex items-center gap-4 p-4 bg-crwn-surface rounded-lg"
               >
-                <div className="w-12 h-12 bg-crwn-elevated rounded overflow-hidden">
+                <div className="w-12 h-12 bg-crwn-elevated rounded overflow-hidden relative">
                   {track.album_art_url ? (
-                    <img src={track.album_art_url} alt={track.title} className="w-full h-full object-cover" />
+                    <Image src={track.album_art_url} alt={track.title} fill className="object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary">🎵</div>
                   )}

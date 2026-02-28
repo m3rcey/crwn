@@ -1,7 +1,9 @@
 'use client';
 
+import { TierConfig } from '@/types';
+
 interface SubscribeButtonProps {
-  tiers: any[];
+  tiers: TierConfig[];
   artistSlug: string;
 }
 

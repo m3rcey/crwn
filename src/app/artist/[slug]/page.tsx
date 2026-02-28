@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Image from 'next/image';
 import { TrackList } from '@/components/player/TrackList';
 import { SubscribeButton } from '@/components/artist/SubscribeButton';
+import { TierConfig } from '@/types';
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
@@ -126,7 +127,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {tiers.map((tier: any) => (
+              {tiers.map((tier: TierConfig) => (
                 <div
                   key={tier.id}
                   className="bg-crwn-surface border border-crwn-elevated rounded-xl p-4"
@@ -157,7 +158,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         <section>
           <h2 className="text-xl font-semibold text-crwn-text mb-4">Music</h2>
           {tracks && tracks.length > 0 ? (
-            <TrackList tracks={tracks} artistSlug={slug} />
+            <TrackList tracks={tracks} />
           ) : (
             <p className="text-crwn-text-secondary">No tracks released yet.</p>
           )}
