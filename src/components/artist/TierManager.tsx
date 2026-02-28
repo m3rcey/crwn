@@ -38,7 +38,7 @@ export function TierManager() {
       .from('artist_profiles')
       .select('id')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (artistProfile) {
       const { data } = await supabase
@@ -62,7 +62,7 @@ export function TierManager() {
       .from('artist_profiles')
       .select('stripe_connect_id')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     setStripeConnected(!!data?.stripe_connect_id);
   }, [user, supabase]);
@@ -84,7 +84,7 @@ export function TierManager() {
         .from('artist_profiles')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (!artistProfile) {
         alert('Artist profile not found');

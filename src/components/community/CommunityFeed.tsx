@@ -70,7 +70,7 @@ export function CommunityFeed({ artistCommunityId, artistProfile }: CommunityFee
               .eq('likeable_type', 'post')
               .eq('likeable_id', post.id)
               .eq('user_id', user.id)
-              .single();
+              .maybeSingle();
             hasLiked = !!likeData;
           }
 

@@ -29,7 +29,7 @@ export function PayoutDashboard() {
         .from('artist_profiles')
         .select('id, stripe_connect_id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (!artistProfile) {
         setIsLoading(false);

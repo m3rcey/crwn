@@ -48,7 +48,7 @@ export function TrackUploadForm() {
         .from('artist_profiles')
         .select('id, slug')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (!artistProfile) {
         alert('You need to set up your artist profile first');

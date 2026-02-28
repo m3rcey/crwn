@@ -37,7 +37,7 @@ export function ArtistProfileForm() {
       .from('artist_profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (data) {
       setArtistProfile(data as ArtistProfile);
