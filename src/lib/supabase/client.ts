@@ -8,6 +8,9 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-key-
 export const createBrowserSupabaseClient = () => 
   createBrowserClient(supabaseUrl, supabaseAnonKey);
 
+// Default export for convenience (same as createBrowserSupabaseClient)
+export const supabase = createBrowserSupabaseClient();
+
 // Server client for API routes (no cookie handling needed there)
 export const supabaseServer = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
