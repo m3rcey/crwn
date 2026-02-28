@@ -1,12 +1,9 @@
 const CACHE_NAME = 'crwn-v1';
 const STATIC_ASSETS = [
-  '/',
-  '/login',
-  '/signup',
-  '/home',
-  '/explore',
-  '/library',
-  '/profile',
+  '/favicon.ico',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  '/manifest.json',
 ];
 
 // Install event - cache static assets
@@ -43,6 +40,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip cache entirely for navigation requests - let middleware handle redirects
+  if (event.request.mode === 'navigate') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       // Return cached response or fetch from network
@@ -53,8 +56,7 @@ self.addEventListener('fetch', (event) => {
         // Cache successful responses for static assets
         if (
           fetchResponse.ok &&
-          (fetchResponse.headers.get('content-type')?.includes('text/html') ||
-           fetchResponse.url.match(/\.(js|css|png|jpg|jpeg|svg|woff|woff2)$/i))
+          fetchResponse.url.match(/\.(js|css|png|jpg|jpeg|svg|woff|woff2)$/i)
         ) {
           const responseToCache = fetchResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -64,11 +66,8 @@ self.addEventListener('fetch', (event) => {
         return fetchResponse;
       });
     }).catch(() => {
-      // Return offline fallback for navigation requests
-      if (event.request.mode === 'navigate') {
-        return caches.match('/');
-      }
-      throw new Error('Network request failed');
+      // Return offline fallback for non-navigation requests
+      return caches.match('/favicon.ico');
     })
   );
 });

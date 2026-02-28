@@ -18,9 +18,10 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
 
-  // Check for auth cookie
-  const hasAuthCookie = request.cookies.has('sb-access-token') || 
-                        request.cookies.has('sb-refresh-token');
+  // Check for auth cookie - Supabase uses cookies named sb-REF-auth-token
+  const hasAuthCookie = request.cookies.getAll().some(cookie => 
+    cookie.name.includes('auth-token')
+  );
 
   if (isProtectedPath && !hasAuthCookie) {
     return NextResponse.redirect(new URL('/login', request.url));
