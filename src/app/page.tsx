@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-crwn-bg flex flex-col items-center justify-center p-4">
@@ -7,12 +9,12 @@ export default function Home() {
           The all-in-one platform for music artists
         </p>
         <div className="flex gap-4 justify-center">
-          <button className="px-6 py-3 bg-crwn-gold text-crwn-bg font-semibold rounded-lg hover:bg-crwn-gold-hover transition-colors">
+          <Link href="/signup" className="px-6 py-3 bg-crwn-gold text-crwn-bg font-semibold rounded-lg hover:bg-crwn-gold-hover transition-colors">
             Get Started
-          </button>
-          <button className="px-6 py-3 border border-crwn-gold text-crwn-gold font-semibold rounded-lg hover:bg-crwn-gold/10 transition-colors">
+          </Link>
+          <Link href="/login" className="px-6 py-3 border border-crwn-gold text-crwn-gold font-semibold rounded-lg hover:bg-crwn-gold/10 transition-colors">
             Learn More
-          </button>
+          </Link>
         </div>
       </div>
       
