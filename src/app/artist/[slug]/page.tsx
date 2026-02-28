@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Image from 'next/image';
-import { TrackList } from '@/components/player/TrackList';
+import { GatedTrackPlayer } from '@/components/gating';
 import { SubscribeButton } from '@/components/artist/SubscribeButton';
+import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
 
 interface ArtistPageProps {
@@ -154,11 +155,28 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           </section>
         )}
 
+        {/* Subscribe CTA */}
+        <section className="mb-8">
+          <SubscribeCTA
+            artistName={artist.profile?.display_name || 'this artist'}
+            artistSlug={slug}
+            tierPrice={tiers[0]?.price}
+          />
+        </section>
+
         {/* Tracks */}
         <section>
           <h2 className="text-xl font-semibold text-crwn-text mb-4">Music</h2>
           {tracks && tracks.length > 0 ? (
-            <TrackList tracks={tracks} />
+            <div className="space-y-2">
+              {tracks.map((track) => (
+                <GatedTrackPlayer
+                  key={track.id}
+                  track={track}
+                  artistId={artist.id}
+                />
+              ))}
+            </div>
           ) : (
             <p className="text-crwn-text-secondary">No tracks released yet.</p>
           )}
