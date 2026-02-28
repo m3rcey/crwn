@@ -11,7 +11,7 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (user && !isLoading) {
-      router.push('/home');
+      router.replace('/home');
     }
   }, [user, isLoading, router]);
 
@@ -33,7 +33,10 @@ export default function SignupPage() {
 
         <div className="bg-crwn-surface p-8 rounded-xl border border-crwn-elevated">
           <h2 className="text-xl font-semibold text-crwn-text mb-6 text-center">Sign Up</h2>
-          <AuthForm mode="signup" onSuccess={() => router.push('/home')} />
+          <AuthForm mode="signup" onSuccess={() => {
+            // Small delay to allow auth state to update
+            setTimeout(() => router.replace('/home'), 100);
+          }} />
           
           <p className="mt-6 text-center text-sm text-crwn-text-secondary">
             Already have an account?{' '}
