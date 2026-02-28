@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 import { Track } from '@/types';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,60 +8,44 @@ import { useAuth } from '@/hooks/useAuth';
 type RepeatMode = 'off' | 'all' | 'one';
 
 interface PlayerContextType {
-  // Current track
   currentTrack: Track | null;
   isPlaying: boolean;
   currentTime: number;
   duration: number;
   volume: number;
-  
-  // Queue
   queue: Track[];
   currentIndex: number;
-  
-  // Playback settings
   shuffle: boolean;
   repeat: RepeatMode;
-  
-  // Player state
   isExpanded: boolean;
-  
-  // Actions
   play: (track: Track) => void;
   pause: () => void;
   togglePlay: () => void;
   next: () => void;
   previous: () => void;
   seek: (time: number) => void;
-  setVolume: (volume: number) => void;
+  setVolume: (newVolume: number) => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
   toggleExpanded: () => void;
-  
-  // Queue actions
   addToQueue: (track: Track) => void;
   playNext: (track: Track) => void;
   removeFromQueue: (index: number) => void;
   clearQueue: () => void;
   reorderQueue: (startIndex: number, endIndex: number) => void;
-  
-  // Favorites
   isFavorite: (trackId: string) => boolean;
   toggleFavorite: (trackId: string) => Promise<void>;
   favorites: Set<string>;
-  
-  // Gating
   canPlayTrack: (track: Track) => { canPlay: boolean; isPreview: boolean };
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  // Player state
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -78,7 +62,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   // Initialize audio element
   useEffect(() => {
     audioRef.current = new Audio();
-    audioRef.current.volume = volume;
+    audioRef.current.volume = 0.8;
     
     return () => {
       if (audioRef.current) {
@@ -88,24 +72,88 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Load favorites
+  // Load favorites on user change
   useEffect(() => {
-    if (user) {
-      loadFavorites();
+    async function fetchFavorites() {
+      if (!user) return;
+      const { data } = await supabase
+        .from('favorites')
+        .select('track_id')
+        .eq('user_id', user.id);
+      
+      if (data) {
+        setFavorites(new Set(data.map(f => f.track_id)));
+      }
     }
-  }, [user]);
+    fetchFavorites();
+  }, [user, supabase]);
 
-  const loadFavorites = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('favorites')
-      .select('track_id')
-      .eq('user_id', user.id);
-    
-    if (data) {
-      setFavorites(new Set(data.map(f => f.track_id)));
+  // Can play track - declared before play
+  const canPlayTrack = useCallback((track: Track): { canPlay: boolean; isPreview: boolean } => {
+    if (track.access_level === 'free') {
+      return { canPlay: true, isPreview: false };
     }
-  };
+    const hasAccess = false;
+    return { canPlay: hasAccess, isPreview: !hasAccess };
+  }, []);
+
+  // Log play history - declared before play
+  const logPlayHistory = useCallback(async () => {
+    if (!user || !currentTrack || !playStartTime) return;
+    
+    const durationPlayed = Math.floor((Date.now() - playStartTime) / 1000);
+    const completed = duration >= 30 && durationPlayed >= duration * 0.8;
+    
+    await supabase.from('play_history').insert({
+      user_id: user.id,
+      track_id: currentTrack.id,
+      duration_played: durationPlayed,
+      completed,
+    });
+  }, [user, currentTrack, playStartTime, duration, supabase]);
+
+  // Next - declared before handleTrackEnd
+  const next = useCallback(() => {
+    if (queue.length === 0) return;
+    
+    let nextIndex: number;
+    if (shuffle) {
+      nextIndex = Math.floor(Math.random() * queue.length);
+    } else {
+      nextIndex = currentIndex + 1;
+      if (nextIndex >= queue.length && repeat === 'all') {
+        nextIndex = 0;
+      }
+    }
+    
+    if (nextIndex < queue.length) {
+      setCurrentIndex(nextIndex);
+      // play will be called from handleTrackEnd or UI
+      const nextTrack = queue[nextIndex];
+      if (nextTrack && audioRef.current) {
+        setCurrentTrack(nextTrack);
+        setCurrentTime(0);
+        setPlayStartTime(Date.now());
+        audioRef.current.src = nextTrack.audio_url_128 || '';
+        audioRef.current.play().then(() => setIsPlaying(true));
+      }
+    }
+  }, [queue, currentIndex, shuffle, repeat]);
+
+  // Handle track end - declared after next
+  const handleTrackEnd = useCallback(() => {
+    if (repeat === 'one') {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+    } else if (currentIndex < queue.length - 1 || repeat === 'all') {
+      next();
+    } else {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    }
+  }, [repeat, currentIndex, queue.length, next]);
 
   // Audio event handlers
   useEffect(() => {
@@ -125,81 +173,17 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [currentTrack, repeat, queue, currentIndex]);
+  }, [handleTrackEnd]);
 
-  // Update media session
-  useEffect(() => {
-    if ('mediaSession' in navigator && currentTrack) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentTrack.title,
-        artist: 'Artist Name', // TODO: Get from track.artist
-        album: 'Album Name',
-        artwork: currentTrack.album_art_url 
-          ? [{ src: currentTrack.album_art_url, sizes: '512x512', type: 'image/jpeg' }]
-          : undefined,
-      });
-
-      navigator.mediaSession.setActionHandler('play', () => play(currentTrack));
-      navigator.mediaSession.setActionHandler('pause', pause);
-      navigator.mediaSession.setActionHandler('previoustrack', previous);
-      navigator.mediaSession.setActionHandler('nexttrack', next);
-    }
-  }, [currentTrack]);
-
-  const handleTrackEnd = useCallback(() => {
-    if (repeat === 'one') {
-      // Replay current track
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play();
-      }
-    } else if (currentIndex < queue.length - 1 || repeat === 'all') {
-      next();
-    } else {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    }
-  }, [repeat, currentIndex, queue.length]);
-
-  const logPlayHistory = useCallback(async () => {
-    if (!user || !currentTrack || !playStartTime) return;
-    
-    const durationPlayed = Math.floor((Date.now() - playStartTime) / 1000);
-    const completed = duration >= 30 && durationPlayed >= duration * 0.8;
-    
-    await supabase.from('play_history').insert({
-      user_id: user.id,
-      track_id: currentTrack.id,
-      duration_played: durationPlayed,
-      completed,
-    });
-  }, [user, currentTrack, playStartTime, duration]);
-
-  const canPlayTrack = (track: Track): { canPlay: boolean; isPreview: boolean } => {
-    if (track.access_level === 'free') {
-      return { canPlay: true, isPreview: false };
-    }
-    
-    // TODO: Check user's subscription status for this artist
-    // For now, assume non-free tracks require subscription
-    const hasAccess = false; // Replace with actual subscription check
-    
-    return {
-      canPlay: hasAccess,
-      isPreview: !hasAccess, // Will play 30-second preview
-    };
-  };
-
-  const play = async (track: Track) => {
+  // Play - declared after dependencies
+  const play = useCallback(async (track: Track) => {
     const { canPlay, isPreview } = canPlayTrack(track);
     
     if (!canPlay && !isPreview) {
-      // Show subscription required message
       return;
     }
 
     if (currentTrack?.id !== track.id) {
-      // Log previous track if exists
       if (currentTrack && playStartTime) {
         await logPlayHistory();
       }
@@ -210,7 +194,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       
       if (audioRef.current) {
         audioRef.current.src = isPreview 
-          ? `${track.audio_url_128}#t=0,30` // 30 second preview
+          ? `${track.audio_url_128}#t=0,30`
           : track.audio_url_128 || '';
       }
     }
@@ -219,43 +203,27 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       await audioRef.current.play();
       setIsPlaying(true);
     }
-  };
+  }, [currentTrack, playStartTime, canPlayTrack, logPlayHistory]);
 
-  const pause = () => {
+  // Pause
+  const pause = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
     }
-  };
+  }, []);
 
-  const togglePlay = () => {
+  // Toggle play
+  const togglePlay = useCallback(() => {
     if (isPlaying) {
       pause();
     } else if (currentTrack) {
       play(currentTrack);
     }
-  };
+  }, [isPlaying, currentTrack, pause, play]);
 
-  const next = () => {
-    if (queue.length === 0) return;
-    
-    let nextIndex: number;
-    if (shuffle) {
-      nextIndex = Math.floor(Math.random() * queue.length);
-    } else {
-      nextIndex = currentIndex + 1;
-      if (nextIndex >= queue.length && repeat === 'all') {
-        nextIndex = 0;
-      }
-    }
-    
-    if (nextIndex < queue.length) {
-      setCurrentIndex(nextIndex);
-      play(queue[nextIndex]);
-    }
-  };
-
-  const previous = () => {
+  // Previous - declared after play
+  const previous = useCallback(() => {
     if (queue.length === 0) return;
     
     let prevIndex = currentIndex - 1;
@@ -268,56 +236,83 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
     
     setCurrentIndex(prevIndex);
-    play(queue[prevIndex]);
-  };
+    const prevTrack = queue[prevIndex];
+    if (prevTrack) {
+      play(prevTrack);
+    }
+  }, [queue, currentIndex, repeat, play]);
 
-  const seek = (time: number) => {
+  // Update media session
+  useEffect(() => {
+    if ('mediaSession' in navigator && currentTrack) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentTrack.title,
+        artist: 'Artist Name',
+        album: 'Album Name',
+        artwork: currentTrack.album_art_url 
+          ? [{ src: currentTrack.album_art_url, sizes: '512x512', type: 'image/jpeg' }]
+          : undefined,
+      });
+
+      navigator.mediaSession.setActionHandler('play', () => play(currentTrack));
+      navigator.mediaSession.setActionHandler('pause', pause);
+      navigator.mediaSession.setActionHandler('previoustrack', previous);
+      navigator.mediaSession.setActionHandler('nexttrack', next);
+    }
+  }, [currentTrack, play, pause, previous, next]);
+
+  // Seek
+  const seek = useCallback((time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
       setCurrentTime(time);
     }
-  };
+  }, []);
 
-  const setVolume = (newVolume: number) => {
+  // Set volume
+  const setVolume = useCallback((newVolume: number) => {
     setVolumeState(newVolume);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
-  };
+  }, []);
 
-  const toggleShuffle = () => setShuffle(!shuffle);
-  const toggleRepeat = () => {
+  // Toggle functions
+  const toggleShuffle = useCallback(() => setShuffle(prev => !prev), []);
+  
+  const toggleRepeat = useCallback(() => {
     const modes: RepeatMode[] = ['off', 'all', 'one'];
-    const currentIndex = modes.indexOf(repeat);
-    setRepeat(modes[(currentIndex + 1) % modes.length]);
-  };
-  const toggleExpanded = () => setIsExpanded(!isExpanded);
+    setRepeat(prev => modes[(modes.indexOf(prev) + 1) % modes.length]);
+  }, []);
+  
+  const toggleExpanded = useCallback(() => setIsExpanded(prev => !prev), []);
 
-  const addToQueue = (track: Track) => {
+  // Queue actions
+  const addToQueue = useCallback((track: Track) => {
     setQueue(prev => [...prev, track]);
-  };
+  }, []);
 
-  const playNext = (track: Track) => {
+  const playNext = useCallback((track: Track) => {
     setQueue(prev => {
       const newQueue = [...prev];
       newQueue.splice(currentIndex + 1, 0, track);
       return newQueue;
     });
-  };
+  }, [currentIndex]);
 
-  const removeFromQueue = (index: number) => {
+  const removeFromQueue = useCallback((index: number) => {
     setQueue(prev => prev.filter((_, i) => i !== index));
     if (index < currentIndex) {
       setCurrentIndex(prev => prev - 1);
     }
-  };
+  }, [currentIndex]);
 
-  const clearQueue = () => {
+  const clearQueue = useCallback(() => {
     setQueue([]);
     setCurrentIndex(0);
-  };
+  }, []);
 
-  const reorderQueue = (startIndex: number, endIndex: number) => {
+  const reorderQueue = useCallback((startIndex: number, endIndex: number) => {
     setQueue(prev => {
       const newQueue = [...prev];
       const [removed] = newQueue.splice(startIndex, 1);
@@ -325,7 +320,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       return newQueue;
     });
     
-    // Update current index if needed
     if (startIndex === currentIndex) {
       setCurrentIndex(endIndex);
     } else if (startIndex < currentIndex && endIndex >= currentIndex) {
@@ -333,14 +327,15 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     } else if (startIndex > currentIndex && endIndex <= currentIndex) {
       setCurrentIndex(prev => prev + 1);
     }
-  };
+  }, [currentIndex]);
 
-  const isFavorite = (trackId: string) => favorites.has(trackId);
+  // Favorites
+  const isFavorite = useCallback((trackId: string) => favorites.has(trackId), [favorites]);
 
-  const toggleFavorite = async (trackId: string) => {
+  const toggleFavorite = useCallback(async (trackId: string) => {
     if (!user) return;
     
-    const { data } = await supabase.rpc('toggle_favorite', {
+    await supabase.rpc('toggle_favorite', {
       p_user_id: user.id,
       p_track_id: trackId,
     });
@@ -354,7 +349,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       }
       return newSet;
     });
-  };
+  }, [user, supabase]);
 
   return (
     <PlayerContext.Provider value={{

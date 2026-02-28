@@ -14,8 +14,7 @@ import {
   Shuffle,
   Minimize2,
   ListMusic,
-  Heart,
-  X
+  Heart
 } from 'lucide-react';
 
 export function FullScreenPlayer() {
@@ -202,7 +201,7 @@ export function FullScreenPlayer() {
           <div className="w-full max-w-md mt-8">
             <h3 className="text-sm font-medium text-crwn-text-secondary mb-3">Up Next</h3>
             <div className="space-y-2 max-h-32 overflow-y-auto">
-              {queue.slice(currentIndex + 1, currentIndex + 4).map((track, idx) => (
+              {queue.slice(currentIndex + 1, currentIndex + 4).map((track) => (
                 <div 
                   key={track.id}
                   className="flex items-center gap-3 p-2 rounded-lg bg-crwn-surface/50"
