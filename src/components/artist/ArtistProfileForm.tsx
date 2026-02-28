@@ -83,8 +83,10 @@ export function ArtistProfileForm() {
     setIsSaving(true);
 
     try {
+      console.log('Saving profile with display_name:', formData.display_name);
+      
       // Update profile - save display_name and avatar_url
-      await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           display_name: formData.display_name,
@@ -93,6 +95,15 @@ export function ArtistProfileForm() {
           social_links: formData.social_links,
         })
         .eq('id', user?.id);
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        alert(`Failed to save profile: ${profileError.message}`);
+        setIsSaving(false);
+        return;
+      }
+      
+      console.log('Profile saved successfully');
 
       // Update or create artist profile
       if (artistProfile) {
@@ -139,32 +150,39 @@ export function ArtistProfileForm() {
     if (!user) return;
     
     try {
+      console.log('Uploading file:', type, file.name);
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${type}/${fileName}`;
       
       // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
       
       if (uploadError) {
         console.error('Upload error:', uploadError);
+        alert(`Failed to upload ${type}: ${uploadError.message}`);
         return;
       }
       
+      console.log('Upload success:', data);
+      
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
       
+      console.log('Public URL:', urlData.publicUrl);
+      
       if (type === 'avatar') {
-        setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
+        setFormData(prev => ({ ...prev, avatar_url: urlData.publicUrl }));
       } else {
-        setFormData(prev => ({ ...prev, banner_url: publicUrl }));
+        setFormData(prev => ({ ...prev, banner_url: urlData.publicUrl }));
       }
     } catch (error) {
       console.error('File upload error:', error);
+      alert(`Failed to upload ${type}. Please try again.`);
     }
   };
 

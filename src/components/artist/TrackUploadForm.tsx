@@ -5,10 +5,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Track } from '@/types';
 import Image from 'next/image';
+import { Trash2, Play, Pause } from 'lucide-react';
+import { usePlayer } from '@/hooks/usePlayer';
 
 export function TrackUploadForm() {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
+  const { currentTrack, isPlaying, play, pause } = usePlayer();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [tracks, setTracks] = useState<Track[]>([]);
@@ -20,6 +23,41 @@ export function TrackUploadForm() {
     audio_file: null as File | null,
     album_art: null as File | null,
   });
+
+  const handleDeleteTrack = async (track: Track) => {
+    if (!confirm(`Are you sure you want to delete "${track.title}"?`)) {
+      return;
+    }
+
+    try {
+      // Delete from database
+      const { error } = await supabase
+        .from('tracks')
+        .delete()
+        .eq('id', track.id);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setTracks(tracks.filter(t => t.id !== track.id));
+      alert('Track deleted');
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete track');
+    }
+  };
+
+  const handlePlayPause = (track: Track) => {
+    if (currentTrack?.id === track.id) {
+      if (isPlaying) {
+        pause();
+      } else {
+        play(track);
+      }
+    } else {
+      play(track);
+    }
+  };
 
   const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -132,6 +170,9 @@ export function TrackUploadForm() {
       clearInterval(progressInterval);
       setUploadProgress(100);
 
+      console.log('Saving track with audio URL:', audioUrl);
+      console.log('Duration:', duration);
+      
       // Save to Supabase
       const { data: track, error } = await supabase
         .from('tracks')
@@ -148,9 +189,12 @@ export function TrackUploadForm() {
         .select()
         .single();
 
-      if (error) throw error;
-
-      setTracks(prev => [track as Track, ...prev]);
+      if (error) {
+        console.error('Track insert error:', error);
+        throw error;
+      }
+      
+      console.log('Track saved:', track);
       
       // Reset form
       setFormData({
@@ -340,6 +384,24 @@ export function TrackUploadForm() {
                     <span>{formatDuration(track.duration)}</span>
                     {track.price && <span>${(track.price / 100).toFixed(2)}</span>}
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePlayPause(track)}
+                    className="p-2 bg-crwn-gold text-crwn-bg rounded-full hover:bg-crwn-gold-hover"
+                  >
+                    {currentTrack?.id === track.id && isPlaying ? (
+                      <Pause className="w-4 h-4" />
+                    ) : (
+                      <Play className="w-4 h-4" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleDeleteTrack(track)}
+                    className="p-2 text-crwn-error hover:bg-crwn-error/10 rounded-lg"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ))}
