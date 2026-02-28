@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ArtistProfile } from '@/types';
 
 interface ArtistFormData {
+  display_name: string;
   slug: string;
   tagline: string;
   bio: string;
@@ -22,6 +23,7 @@ export function ArtistProfileForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [artistProfile, setArtistProfile] = useState<ArtistProfile | null>(null);
   const [formData, setFormData] = useState<ArtistFormData>({
+    display_name: profile?.display_name || '',
     slug: '',
     tagline: '',
     bio: profile?.bio || '',
@@ -33,21 +35,40 @@ export function ArtistProfileForm() {
   const fetchArtistProfile = useCallback(async () => {
     if (!user) return;
     setIsLoading(true);
-    const { data } = await supabase
-      .from('artist_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
+
+    // Fetch both artist profile and user profile
+    const [artistResult, profileResult] = await Promise.all([
+      supabase
+        .from('artist_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('profiles')
+        .select('display_name, bio, avatar_url, social_links')
+        .eq('id', user.id)
+        .maybeSingle()
+    ]);
+
+    const data = artistResult.data;
+    const profile = profileResult.data;
 
     if (data) {
       setArtistProfile(data as ArtistProfile);
-      setFormData(prev => ({
-        ...prev,
-        slug: data.slug || '',
-        tagline: data.tagline || '',
-        banner_url: data.banner_url || '',
-      }));
     }
+    
+    // Set form data from both tables
+    setFormData(prev => ({
+      ...prev,
+      display_name: profile?.display_name || prev.display_name || '',
+      slug: data?.slug || '',
+      tagline: data?.tagline || '',
+      bio: profile?.bio || prev.bio || '',
+      avatar_url: profile?.avatar_url || prev.avatar_url || '',
+      banner_url: data?.banner_url || '',
+      social_links: profile?.social_links || prev.social_links || {},
+    }));
+    
     setIsLoading(false);
   }, [user, supabase]);
 
@@ -62,10 +83,11 @@ export function ArtistProfileForm() {
     setIsSaving(true);
 
     try {
-      // Update profile
+      // Update profile - save display_name and avatar_url
       await supabase
         .from('profiles')
         .update({
+          display_name: formData.display_name,
           bio: formData.bio,
           avatar_url: formData.avatar_url,
           social_links: formData.social_links,
@@ -187,6 +209,21 @@ export function ArtistProfileForm() {
             className="absolute inset-0 opacity-0 cursor-pointer"
           />
         </div>
+      </div>
+
+      {/* Display Name */}
+      <div>
+        <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+          Display Name
+        </label>
+        <input
+          type="text"
+          value={formData.display_name}
+          onChange={(e) => setFormData(prev => ({ ...prev, display_name: e.target.value }))}
+          placeholder="Your artist name"
+          className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
+          required
+        />
       </div>
 
       {/* Slug */}

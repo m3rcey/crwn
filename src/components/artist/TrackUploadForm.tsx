@@ -67,8 +67,28 @@ export function TrackUploadForm() {
       const timestamp = Date.now();
       const audioUrl = `https://crwn-media.r2.dev/${artistProfile.slug}/audio/${timestamp}-${formData.audio_file.name}`;
 
-      // Get duration (in production, use audio metadata)
-      const duration = 180; // placeholder
+      // Get actual duration from audio file
+      let duration = 180;
+      try {
+        const audioElement = new Audio();
+        const audioBlob = new Blob([formData.audio_file], { type: formData.audio_file.type });
+        const audioUrlObject = URL.createObjectURL(audioBlob);
+        
+        await new Promise<void>((resolve) => {
+          audioElement.addEventListener('loadedmetadata', () => {
+            duration = Math.round(audioElement.duration);
+            URL.revokeObjectURL(audioUrlObject);
+            resolve();
+          });
+          audioElement.addEventListener('error', () => {
+            URL.revokeObjectURL(audioUrlObject);
+            resolve();
+          });
+          audioElement.src = audioUrlObject;
+        });
+      } catch {
+        console.log('Could not read audio duration, using default');
+      }
 
       clearInterval(progressInterval);
       setUploadProgress(100);
