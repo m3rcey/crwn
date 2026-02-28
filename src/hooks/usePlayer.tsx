@@ -89,9 +89,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [user, supabase]);
 
   // Can play track - declared before play
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const canPlayTrack = useCallback((_track: Track): { canPlay: boolean; isPreview: boolean } => {
     // For now, allow all tracks to be played (access control can be added later)
-    // This is a temporary fix to make the player work
     return { canPlay: true, isPreview: false };
   }, []);
 

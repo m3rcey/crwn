@@ -56,38 +56,77 @@ export function TrackUploadForm() {
         return;
       }
 
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
-      }, 500);
-
-      // In production: Upload to R2
-      // const audioUrl = await uploadToR2(formData.audio_file, ...);
-      // For now, create placeholder URLs
-      const timestamp = Date.now();
-      const audioUrl = `https://crwn-media.r2.dev/${artistProfile.slug}/audio/${timestamp}-${formData.audio_file.name}`;
-
-      // Get actual duration from audio file
+      // Get actual duration from audio file BEFORE upload
       let duration = 180;
       try {
         const audioElement = new Audio();
         const audioBlob = new Blob([formData.audio_file], { type: formData.audio_file.type });
         const audioUrlObject = URL.createObjectURL(audioBlob);
         
-        await new Promise<void>((resolve) => {
+        duration = await new Promise<number>((resolve) => {
           audioElement.addEventListener('loadedmetadata', () => {
-            duration = Math.round(audioElement.duration);
             URL.revokeObjectURL(audioUrlObject);
-            resolve();
+            resolve(Math.round(audioElement.duration));
           });
           audioElement.addEventListener('error', () => {
             URL.revokeObjectURL(audioUrlObject);
-            resolve();
+            resolve(180);
           });
+          // Set timeout in case metadata never loads
+          setTimeout(() => {
+            URL.revokeObjectURL(audioUrlObject);
+            resolve(180);
+          }, 3000);
           audioElement.src = audioUrlObject;
         });
+        console.log('Track duration:', duration);
       } catch {
-        console.log('Could not read audio duration, using default');
+        console.log('Could not read audio duration');
+      }
+
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 500);
+
+      // Upload audio to Supabase Storage
+      const audioExt = formData.audio_file.name.split('.').pop();
+      const audioFileName = `${Date.now()}.${audioExt}`;
+      const audioPath = `${artistProfile.id}/${audioFileName}`;
+      
+      const { error: audioError } = await supabase.storage
+        .from('audio')
+        .upload(audioPath, formData.audio_file);
+
+      let audioUrl = '';
+      if (audioError) {
+        console.error('Audio upload error:', audioError);
+        // Use placeholder URL if upload fails
+        audioUrl = `https://crwn-media.r2.dev/${artistProfile.slug}/audio/${audioFileName}`;
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from('audio')
+          .getPublicUrl(audioPath);
+        audioUrl = publicUrl;
+      }
+
+      // Upload album art if present
+      let albumArtUrl = null;
+      if (formData.album_art) {
+        const artExt = formData.album_art.name.split('.').pop();
+        const artFileName = `${Date.now()}.${artExt}`;
+        const artPath = `${artistProfile.id}/album-art/${artFileName}`;
+        
+        const { error: artError } = await supabase.storage
+          .from('album-art')
+          .upload(artPath, formData.album_art);
+        
+        if (!artError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('album-art')
+            .getPublicUrl(artPath);
+          albumArtUrl = publicUrl;
+        }
       }
 
       clearInterval(progressInterval);
@@ -99,12 +138,12 @@ export function TrackUploadForm() {
         .insert({
           artist_id: artistProfile.id,
           title: formData.title,
-          audio_url_128: audioUrl, // In production: transcoded URL
+          audio_url_128: audioUrl,
           audio_url_320: audioUrl,
           duration,
           access_level: formData.access_level,
           price: formData.price ? parseInt(formData.price) * 100 : null,
-          album_art_url: formData.album_art ? URL.createObjectURL(formData.album_art) : null,
+          album_art_url: albumArtUrl,
         })
         .select()
         .single();

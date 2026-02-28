@@ -136,13 +136,35 @@ export function ArtistProfileForm() {
   };
 
   const handleFileUpload = async (file: File, type: 'avatar' | 'banner') => {
-    // In production, upload to R2 and return URL
-    // For now, simulate with object URL
-    const url = URL.createObjectURL(file);
-    if (type === 'avatar') {
-      setFormData(prev => ({ ...prev, avatar_url: url }));
-    } else {
-      setFormData(prev => ({ ...prev, banner_url: url }));
+    if (!user) return;
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${type}/${fileName}`;
+      
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        return;
+      }
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+      
+      if (type === 'avatar') {
+        setFormData(prev => ({ ...prev, avatar_url: publicUrl }));
+      } else {
+        setFormData(prev => ({ ...prev, banner_url: publicUrl }));
+      }
+    } catch (error) {
+      console.error('File upload error:', error);
     }
   };
 
