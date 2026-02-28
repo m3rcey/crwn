@@ -49,7 +49,8 @@ export function PayoutDashboard() {
         .select('price')
         .eq('artist_id', artistProfile.id);
 
-      const monthlyRevenue = tiers?.reduce((sum, tier) => sum + (tier.price || 0), 0) || 0;
+      const tiersArray = Array.isArray(tiers) ? tiers : [];
+      const monthlyRevenue = tiersArray.reduce((sum, tier) => sum + (tier.price || 0), 0);
       const platformFees = Math.round(monthlyRevenue * 0.08);
       const netRevenue = monthlyRevenue - platformFees;
 

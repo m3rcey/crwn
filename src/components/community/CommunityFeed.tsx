@@ -44,7 +44,7 @@ export function CommunityFeed({ artistCommunityId, artistProfile }: CommunityFee
 
     const { data, error } = await query;
 
-    if (!error && data) {
+    if (!error && Array.isArray(data)) {
       // Fetch like counts and user likes for each post
       const postsWithLikes = await Promise.all(
         data.map(async (post: Post) => {

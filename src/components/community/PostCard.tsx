@@ -161,8 +161,9 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
     }
   };
 
-  const totalPollVotes = post.poll_results 
-    ? Object.values(post.poll_results).reduce((a, b) => a + b, 0)
+  const pollResults = post.poll_results && typeof post.poll_results === 'object' ? post.poll_results : {};
+  const totalPollVotes = Array.isArray(Object.values(pollResults)) 
+    ? Object.values(pollResults).reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0)
     : 0;
 
   return (

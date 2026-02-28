@@ -81,7 +81,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         .select('track_id')
         .eq('user_id', user.id);
       
-      if (data) {
+      if (Array.isArray(data)) {
         setFavorites(new Set(data.map(f => f.track_id)));
       }
     }

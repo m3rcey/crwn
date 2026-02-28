@@ -8,13 +8,15 @@ interface SubscribeButtonProps {
 }
 
 export function SubscribeButton({ tiers }: SubscribeButtonProps) {
-  if (tiers.length === 0) {
+  const tiersArray = Array.isArray(tiers) ? tiers : [];
+  
+  if (tiersArray.length === 0) {
     return null;
   }
 
-  const lowestTier = tiers.reduce((lowest, tier) => 
+  const lowestTier = tiersArray.reduce((lowest, tier) => 
     tier.price < lowest.price ? tier : lowest
-  );
+  , tiersArray[0]);
 
   return (
     <button className="bg-crwn-gold text-crwn-bg px-6 py-2.5 rounded-full font-semibold hover:bg-crwn-gold-hover transition-colors">

@@ -82,8 +82,19 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('artist_id', artist.id)
     .order('created_at', { ascending: false });
 
-  // Fetch subscription tiers
-  const tiers = artist.tier_config || [];
+  // Parse tier_config - may be JSON string or object
+  let tiers: TierConfig[] = [];
+  if (artist.tier_config) {
+    if (typeof artist.tier_config === 'string') {
+      try {
+        tiers = JSON.parse(artist.tier_config);
+      } catch {
+        tiers = [];
+      }
+    } else if (Array.isArray(artist.tier_config)) {
+      tiers = artist.tier_config as TierConfig[];
+    }
+  }
 
   return (
     <div className="min-h-screen bg-crwn-bg">
@@ -151,7 +162,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         )}
 
         {/* Social Links */}
-        {artist.profile?.social_links && Object.keys(artist.profile.social_links).length > 0 && (
+        {artist.profile?.social_links && typeof artist.profile.social_links === 'object' && Object.keys(artist.profile.social_links).length > 0 && (
           <div className="mt-4 flex gap-3">
             {Object.entries(artist.profile.social_links).map(([platform, url]) => (
               <a
