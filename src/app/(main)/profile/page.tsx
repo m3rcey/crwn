@@ -3,10 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
+import Link from 'next/link';
 import { 
   Settings, 
   LogOut, 
-  User as UserIcon
+  User as UserIcon,
+  Music
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -18,6 +20,8 @@ export default function ProfilePage() {
     router.push('/login');
   };
 
+  const isArtist = profile?.role === 'artist';
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-crwn-bg flex items-center justify-center">
@@ -28,6 +32,24 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Artist Dashboard Link */}
+      {isArtist && (
+        <Link
+          href="/profile/artist"
+          className="flex items-center justify-between bg-crwn-surface hover:bg-crwn-elevated border border-crwn-gold/30 rounded-xl p-4 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-crwn-gold/20 flex items-center justify-center">
+              <Music className="w-5 h-5 text-crwn-gold" />
+            </div>
+            <div>
+              <p className="font-medium text-crwn-text">Artist Dashboard</p>
+              <p className="text-sm text-crwn-text-secondary">Manage your music, tiers, and earnings</p>
+            </div>
+          </div>
+        </Link>
+      )}
+
       {/* Profile Header */}
       <div className="bg-crwn-surface rounded-xl p-6">
         <div className="flex items-center gap-4">

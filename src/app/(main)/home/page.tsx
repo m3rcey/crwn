@@ -28,58 +28,68 @@ interface ArtistProfile {
   };
 }
 
-const quickActions = [
-  { 
-    href: '/explore', 
-    label: 'Explore Artists', 
-    icon: Compass, 
-    description: 'Discover new music',
-    color: 'bg-crwn-gold'
-  },
-  { 
-    href: '/library', 
-    label: 'My Library', 
-    icon: Library, 
-    description: 'Your saved tracks',
-    color: 'bg-crwn-elevated'
-  },
-  { 
-    href: '/community', 
-    label: 'Community', 
-    icon: Users, 
-    description: 'Join the conversation',
-    color: 'bg-crwn-elevated'
-  },
-  { 
-    href: '/profile/artist', 
-    label: 'Become an Artist', 
-    icon: Music, 
-    description: 'Start creating',
-    color: 'bg-crwn-elevated'
-  },
-];
-
 export default function HomePage() {
   const { profile } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [featuredArtists, setFeaturedArtists] = useState<ArtistProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasArtistProfile, setHasArtistProfile] = useState(false);
 
   useEffect(() => {
-    const fetchArtists = async () => {
-      const { data, error } = await supabase
+    const fetchData = async () => {
+      // Fetch featured artists
+      const { data: artistsData, error } = await supabase
         .from('artist_profiles')
         .select('*, profile:profiles(*)')
         .limit(6);
 
-      if (!error && data) {
-        setFeaturedArtists(data as ArtistProfile[]);
+      if (!error && artistsData) {
+        setFeaturedArtists(artistsData as ArtistProfile[]);
       }
+
+      // Check if current user has an artist profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: artistData } = await supabase
+          .from('artist_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        setHasArtistProfile(!!artistData);
+      }
+
       setIsLoading(false);
     };
 
-    fetchArtists();
+    fetchData();
   }, [supabase]);
+
+  const quickActions = [
+    { 
+      href: '/explore', 
+      label: 'Explore Artists', 
+      icon: Compass, 
+      description: 'Discover new music',
+      color: 'bg-crwn-gold'
+    },
+    { 
+      href: '/library', 
+      label: 'My Library', 
+      icon: Library, 
+      description: 'Your saved tracks',
+      color: 'bg-crwn-elevated'
+    },
+    { 
+      href: '/community', 
+      label: 'Community', 
+      icon: Users, 
+      description: 'Join the conversation',
+      color: 'bg-crwn-elevated'
+    },
+    hasArtistProfile 
+      ? { href: '/profile/artist', label: 'Artist Dashboard', icon: Music, description: 'Manage your music', color: 'bg-crwn-gold' }
+      : { href: '/profile/artist', label: 'Become an Artist', icon: Music, description: 'Start creating', color: 'bg-crwn-elevated' }
+  ];
 
   const getGreeting = () => {
     const hour = new Date().getHours();
