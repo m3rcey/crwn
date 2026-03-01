@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 interface Tier {
   id: string;
@@ -23,6 +24,8 @@ export function TierManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [stripeConnected, setStripeConnected] = useState(false);
+  const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
+  const [isConnectingStripe, setIsConnectingStripe] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -41,6 +44,7 @@ export function TierManager() {
       .maybeSingle();
 
     if (artistProfile) {
+      setArtistProfileId(artistProfile.id);
       const { data } = await supabase
         .from('subscription_tiers')
         .select('*')
@@ -66,6 +70,23 @@ export function TierManager() {
 
     setStripeConnected(!!data?.stripe_connect_id);
   }, [user, supabase]);
+
+  const handleStripeConnect = async () => {
+    if (!artistProfileId) {
+      alert('Artist profile not found');
+      return;
+    }
+    
+    setIsConnectingStripe(true);
+    try {
+      // This will redirect to Stripe onboarding
+      window.location.href = `/api/stripe/connect?artist_id=${artistProfileId}`;
+    } catch (error) {
+      console.error('Stripe connect error:', error);
+      alert('Failed to connect Stripe');
+      setIsConnectingStripe(false);
+    }
+  };
 
   useEffect(() => {
     loadTiers();
@@ -184,12 +205,20 @@ export function TierManager() {
           <p className="text-crwn-text-secondary mb-4">
             You need to connect a Stripe account to receive subscription payments.
           </p>
-          <a
-            href="/api/stripe/connect"
-            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg px-6 py-3 rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors"
+          <button
+            onClick={handleStripeConnect}
+            disabled={isConnectingStripe}
+            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg px-6 py-3 rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
           >
-            Connect with Stripe
-          </a>
+            {isConnectingStripe ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              'Connect with Stripe'
+            )}
+          </button>
         </div>
       )}
 
