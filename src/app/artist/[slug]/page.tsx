@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Image from 'next/image';
 import { GatedTrackPlayer } from '@/components/gating';
-import { SubscribeButton } from '@/components/artist/SubscribeButton';
+import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
 import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
 import type { Metadata } from 'next';
@@ -82,19 +82,38 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('artist_id', artist.id)
     .order('created_at', { ascending: false });
 
-  // Parse tier_config - may be JSON string or object
-  let tiers: TierConfig[] = [];
+  // Fetch subscription tiers from subscription_tiers table
+  const { data: dbTiers } = await supabase
+    .from('subscription_tiers')
+    .select('*')
+    .eq('artist_id', artist.id)
+    .eq('is_active', true)
+    .order('price', { ascending: true });
+
+  // Parse tier_config for legacy support
+  let tierConfigTiers: TierConfig[] = [];
   if (artist.tier_config) {
     if (typeof artist.tier_config === 'string') {
       try {
-        tiers = JSON.parse(artist.tier_config);
+        tierConfigTiers = JSON.parse(artist.tier_config);
       } catch {
-        tiers = [];
+        tierConfigTiers = [];
       }
     } else if (Array.isArray(artist.tier_config)) {
-      tiers = artist.tier_config as TierConfig[];
+      tierConfigTiers = artist.tier_config as TierConfig[];
     }
   }
+
+  // Use database tiers, fallback to tier_config
+  const tiers = dbTiers && dbTiers.length > 0 
+    ? dbTiers.map(t => ({
+        id: t.id,
+        name: t.name,
+        price: t.price,
+        description: t.description,
+        benefits: t.access_config?.benefits || [],
+      }))
+    : tierConfigTiers;
 
   return (
     <div className="min-h-screen bg-crwn-bg">
@@ -182,44 +201,17 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
       {/* Content */}
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         {/* Subscription Tiers */}
-        {tiers.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {tiers.map((tier: TierConfig) => (
-                <div
-                  key={tier.id}
-                  className="bg-crwn-surface border border-crwn-elevated rounded-xl p-4"
-                >
-                  <h3 className="font-semibold text-crwn-gold">{tier.name}</h3>
-                  <p className="text-2xl font-bold text-crwn-text mt-2">
-                    ${(tier.price / 100).toFixed(2)}/mo
-                  </p>
-                  <p className="text-crwn-text-secondary text-sm mt-2">
-                    {tier.description}
-                  </p>
-                  {tier.benefits && tier.benefits.length > 0 && (
-                    <ul className="mt-3 space-y-1">
-                      {tier.benefits.map((benefit: string, idx: number) => (
-                        <li key={idx} className="text-sm text-crwn-text-secondary flex items-center gap-2">
-                          <span className="text-crwn-gold">✓</span> {benefit}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Subscribe CTA */}
         <section className="mb-8">
-          <SubscribeCTA
-            artistName={artist.profile?.display_name || 'this artist'}
-            artistSlug={slug}
-            tierPrice={tiers[0]?.price}
-          />
+          <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
+          {tiers.length > 0 ? (
+            <TierCards tiers={tiers} artistSlug={slug} />
+          ) : (
+            <SubscribeCTA
+              artistName={artist.profile?.display_name || 'this artist'}
+              artistSlug={slug}
+              tierPrice={undefined}
+            />
+          )}
         </section>
 
         {/* Tracks */}
