@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Track } from '@/types';
@@ -15,6 +15,7 @@ export function TrackUploadForm() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [tracks, setTracks] = useState<Track[]>([]);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(true);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -23,6 +24,41 @@ export function TrackUploadForm() {
     audio_file: null as File | null,
     album_art: null as File | null,
   });
+
+  // Fetch tracks when component mounts
+  useEffect(() => {
+    async function fetchTracks() {
+      if (!user) return;
+      
+      // Get artist profile first
+      const { data: artistProfile } = await supabase
+        .from('artist_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!artistProfile) {
+        setIsLoadingTracks(false);
+        return;
+      }
+
+      // Fetch tracks
+      const { data: tracksData } = await supabase
+        .from('tracks')
+        .select('*')
+        .eq('artist_id', artistProfile.id)
+        .order('created_at', { ascending: false });
+
+      if (tracksData) {
+        setTracks(tracksData as Track[]);
+      }
+      setIsLoadingTracks(false);
+    }
+
+    fetchTracks();
+  }, [user, supabase]);
+
+  // Also refetch tracks after upload - handled in handleSubmit
 
   const handleDeleteTrack = async (track: Track) => {
     if (!confirm(`Are you sure you want to delete "${track.title}"?`)) {
@@ -210,6 +246,11 @@ export function TrackUploadForm() {
       
       console.log('Track saved:', track);
       
+      // Add new track to state
+      if (track) {
+        setTracks(prev => [track as Track, ...prev]);
+      }
+      
       // Reset form
       setFormData({
         title: '',
@@ -375,7 +416,11 @@ export function TrackUploadForm() {
       </form>
 
       {/* Track List */}
-      {tracks.length > 0 && (
+      {isLoadingTracks ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crwn-gold mx-auto" />
+        </div>
+      ) : tracks.length > 0 ? (
         <div>
           <h2 className="text-lg font-semibold text-crwn-text mb-4">Your Tracks</h2>
           <div className="space-y-2">
@@ -420,6 +465,10 @@ export function TrackUploadForm() {
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="text-center py-8 text-crwn-text-secondary">
+          No tracks uploaded yet
         </div>
       )}
     </div>
