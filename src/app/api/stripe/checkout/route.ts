@@ -7,13 +7,12 @@ const PLATFORM_FEE_PERCENT = 0.08; // 8%
 export async function POST(req: NextRequest) {
   try {
     const { tierId, fanId } = await req.json();
-
     const supabase = await createServerSupabaseClient();
 
     // Get tier details
     const { data: tier, error: tierError } = await supabase
       .from('subscription_tiers')
-      .select('*, artist:artist_profiles(stripe_connect_id, user_id)')
+      .select('*, artist:artist_profiles(stripe_connect_id, user_id, slug)')
       .eq('id', tierId)
       .single();
 
@@ -21,10 +20,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Tier not found' }, { status: 404 });
     }
 
-    // Get fan profile for customer email
+    // Get fan profile
     const { data: fan } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, display_name')
       .eq('id', fanId)
       .single();
 
@@ -32,9 +31,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Fan not found' }, { status: 404 });
     }
 
+    // Get fan email from auth
+    const { data: { user: authUser } } = await supabase.auth.admin.getUserById(fanId);
+    const fanEmail = authUser?.email || '';
+
+    // Create or retrieve Stripe customer
+    const existingCustomers = await stripe.customers.list({
+      email: fanEmail,
+      limit: 1,
+    });
+
+    let customer;
+    if (existingCustomers.data.length > 0) {
+      customer = existingCustomers.data[0];
+    } else {
+      customer = await stripe.customers.create({
+        email: fanEmail,
+        name: fan.display_name || undefined,
+        metadata: {
+          fan_id: fanId,
+        },
+      });
+    }
+
+    const artistSlug = tier.artist?.slug || tier.artist_id;
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
+      customer: customer.id,
       payment_method_types: ['card'],
       line_items: [
         {
@@ -50,8 +75,8 @@ export async function POST(req: NextRequest) {
             }
           : undefined,
       },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/artist/${tier.artist_id}?subscription=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/artist/${tier.artist_id}?subscription=canceled`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/artist/${artistSlug}?subscription=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/artist/${artistSlug}?subscription=canceled`,
       metadata: {
         fan_id: fanId,
         artist_id: tier.artist_id,
