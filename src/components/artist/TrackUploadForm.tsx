@@ -30,6 +30,20 @@ export function TrackUploadForm() {
     }
 
     try {
+      // Delete audio file from storage
+      if (track.audio_url_128) {
+        // Extract path from URL - format: https://xxx.supabase.co/storage/v1/object/public/audio/artistId/filename
+        try {
+          const urlParts = track.audio_url_128.split('/storage/v1/object/public/audio/');
+          if (urlParts.length > 1) {
+            const filePath = urlParts[1];
+            await supabase.storage.from('audio').remove([filePath]);
+          }
+        } catch (storageError) {
+          console.log('Could not delete audio file from storage:', storageError);
+        }
+      }
+
       // Delete from database
       const { error } = await supabase
         .from('tracks')
