@@ -5,7 +5,6 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 export async function POST(req: NextRequest) {
   try {
     const { name, price, description, artistId } = await req.json();
-
     const supabase = await createServerSupabaseClient();
 
     // Get artist's Stripe Connect ID
@@ -22,34 +21,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create Stripe Product
-    const product = await stripe.products.create(
-      {
-        name,
-        description,
-        metadata: {
-          artist_id: artistId,
-        },
+    // Create Stripe Product on PLATFORM account
+    const product = await stripe.products.create({
+      name,
+      description,
+      metadata: {
+        artist_id: artistId,
       },
-      {
-        stripeAccount: artist.stripe_connect_id,
-      }
-    );
+    });
 
-    // Create Stripe Price (recurring subscription)
-    const stripePrice = await stripe.prices.create(
-      {
-        product: product.id,
-        unit_amount: price,
-        currency: 'usd',
-        recurring: {
-          interval: 'month',
-        },
+    // Create Stripe Price on PLATFORM account (recurring subscription)
+    const stripePrice = await stripe.prices.create({
+      product: product.id,
+      unit_amount: price,
+      currency: 'usd',
+      recurring: {
+        interval: 'month',
       },
-      {
-        stripeAccount: artist.stripe_connect_id,
-      }
-    );
+    });
 
     return NextResponse.json({
       stripePriceId: stripePrice.id,
