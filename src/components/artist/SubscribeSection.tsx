@@ -17,7 +17,8 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   const supabase = createBrowserSupabaseClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
+  const [subscribedTierName, setSubscribedTierName] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
@@ -31,23 +32,28 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   }, []);
 
   useEffect(() => {
-    // Check if user is already subscribed
+    // Check if user is already subscribed - get the specific tier
     async function checkSubscription() {
       if (!user || !artistId) return;
       
       const { data } = await supabase
         .from('subscriptions')
-        .select('id')
+        .select('id, tier_id')
         .eq('fan_id', user.id)
         .eq('artist_id', artistId)
         .eq('status', 'active')
         .maybeSingle();
       
-      setIsSubscribed(!!data);
+      if (data) {
+        setSubscribedTierId(data.tier_id);
+        // Get tier name from tiers array
+        const currentTier = tiers.find(t => t.id === data.tier_id);
+        setSubscribedTierName(currentTier?.name || 'Current Tier');
+      }
     }
     
     checkSubscription();
-  }, [user, artistId, supabase]);
+  }, [user, artistId, supabase, tiers]);
 
   const handleSubscribe = async (tier: TierConfig) => {
     if (!user) {
@@ -55,8 +61,8 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
       return;
     }
 
-    if (isSubscribed) {
-      setError('You are already subscribed to this artist.');
+    if (subscribedTierId === tier.id) {
+      setError('You are already subscribed to this tier.');
       return;
     }
 
@@ -109,12 +115,13 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
       )}
       <div className="flex flex-wrap gap-2">
         {tiers.map((tier) => {
-          const isThisTierSubscribed = isSubscribed;
+          const isThisTierSubscribed = subscribedTierId === tier.id;
+          const currentTierName = subscribedTierName || 'Current Tier';
           return (
             <button
               key={tier.id}
               onClick={() => handleSubscribe(tier)}
-              disabled={isLoading || isThisTierSubscribed}
+              disabled={isLoading}
               className={`px-4 py-2 rounded-full font-semibold transition-colors disabled:opacity-50 flex items-center gap-2 ${
                 isThisTierSubscribed
                   ? 'bg-transparent border-2 border-crwn-gold text-crwn-gold'
@@ -148,7 +155,6 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const supabase = createBrowserSupabaseClient();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -162,7 +168,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   }, []);
 
   useEffect(() => {
-    // Check if user is already subscribed
+    // Check if user is already subscribed - get the specific tier
     async function checkSubscription() {
       if (!user || !artistId) return;
       
@@ -175,7 +181,6 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
         .maybeSingle();
       
       if (data) {
-        setIsSubscribed(true);
         setSubscribedTierId(data.tier_id);
       }
     }
@@ -189,13 +194,15 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       return;
     }
 
-    if (isSubscribed && subscribedTierId === tier.id) {
+    // If already subscribed to THIS tier, show message
+    if (subscribedTierId === tier.id) {
       setError('You are already subscribed to this tier.');
       return;
     }
-    
-    if (isSubscribed) {
-      setError('You are already subscribed to this artist.');
+
+    // If subscribed to a different tier, allow upgrade (show message for now)
+    if (subscribedTierId) {
+      setError('You are already subscribed to a different tier. Use the upgrade flow.');
       return;
     }
 
@@ -248,8 +255,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {tiers.map((tier) => {
-          const isThisTierSubscribed = isSubscribed && subscribedTierId === tier.id;
-          const isAnySubscribed = isSubscribed;
+          const isThisTierSubscribed = subscribedTierId === tier.id;
+          const isAnySubscribed = subscribedTierId !== null;
           
           return (
             <div

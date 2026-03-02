@@ -372,7 +372,7 @@ export function PlaylistManager() {
               <div className="p-3">
                 <h3 className="font-medium text-crwn-text truncate">{playlist.title}</h3>
                 <p className="text-sm text-crwn-text-secondary">
-                  {(playlist as any).track_count || 0} tracks
+                  {'track_count' in playlist ? (playlist as unknown as { track_count: number }).track_count : 0} tracks
                 </p>
               </div>
               <div className="flex justify-end gap-1 px-3 pb-3 opacity-0 group-hover:opacity-100 transition-opacity">
