@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Helper function to create notifications
 export async function createNotification(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   userId: string,
   type: string,
   title: string,
@@ -20,7 +20,7 @@ export async function createNotification(
 
 // Notify artist of new subscriber
 export async function notifyNewSubscriber(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   artistUserId: string,
   fanName: string,
   tierName: string
@@ -37,7 +37,7 @@ export async function notifyNewSubscriber(
 
 // Notify artist of new purchase
 export async function notifyNewPurchase(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   artistUserId: string,
   fanName: string,
   productTitle: string
@@ -54,7 +54,7 @@ export async function notifyNewPurchase(
 
 // Notify artist of canceled subscription
 export async function notifySubscriptionCanceled(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   artistUserId: string,
   fanName: string
 ) {
@@ -70,7 +70,7 @@ export async function notifySubscriptionCanceled(
 
 // Notify fan of new track from subscribed artist
 export async function notifyNewTrack(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   subscriberUserId: string,
   artistName: string,
   trackTitle: string,
@@ -88,7 +88,7 @@ export async function notifyNewTrack(
 
 // Notify fan of new post from subscribed artist
 export async function notifyNewPost(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   subscriberUserId: string,
   artistName: string
 ) {
@@ -103,7 +103,7 @@ export async function notifyNewPost(
 
 // Notify fan of new shop item from subscribed artist
 export async function notifyNewShopItem(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   subscriberUserId: string,
   artistName: string,
   productTitle: string,
@@ -120,7 +120,7 @@ export async function notifyNewShopItem(
 
 // Notify artist of new comment on their post
 export async function notifyNewComment(
-  supabaseAdmin: ReturnType<typeof createClient>,
+  supabaseAdmin: any,
   artistUserId: string,
   fanName: string
 ) {
