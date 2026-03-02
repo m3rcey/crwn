@@ -7,6 +7,25 @@ import { Product, ProductType } from '@/types';
 import Image from 'next/image';
 import { Loader2, Plus, Edit2, Trash2, X, Upload, Check } from 'lucide-react';
 
+const DIGITAL_SUBCATEGORIES = [
+  { value: 'stems', label: 'Stems / Multitracks' },
+  { value: 'instrumentals', label: 'Instrumentals / Beats' },
+  { value: 'sample-packs', label: 'Sample Packs' },
+  { value: 'acapellas', label: 'Acapellas' },
+  { value: 'preset-packs', label: 'Preset Packs' },
+  { value: 'lyric-book', label: 'Lyric Book / Songwriting Breakdown' },
+  { value: 'digital-art', label: 'Digital Art / Wallpapers' },
+  { value: 'video-content', label: 'Video Content' },
+];
+
+const EXPERIENCE_SUBCATEGORIES = [
+  { value: 'video-call', label: '1-on-1 Video Call' },
+  { value: 'custom-verse', label: 'Custom Verse / Feature' },
+  { value: 'song-critique', label: 'Song Critique / Feedback' },
+  { value: 'shoutout', label: 'Personalized Shoutout' },
+  { value: 'in-person', label: 'In-Person Experience' },
+];
+
 export function ShopManager() {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
@@ -15,6 +34,7 @@ export function ShopManager() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productType, setProductType] = useState<ProductType>('digital');
+  const [subcategory, setSubcategory] = useState('');
   const [existingProducts, setExistingProducts] = useState<Product[]>([]);
 
   const [formData, setFormData] = useState({
@@ -23,9 +43,14 @@ export function ShopManager() {
     imageFile: null as File | null,
     imageUrl: '',
     price: '',
-    deliveryType: 'instant' as 'instant' | 'scheduled' | 'custom',
-    fileUrl: '',
-    durationMinutes: '',
+    // Subcategory-specific fields
+    bpm: '',
+    key: '',
+    compatibleDaws: '',
+    turnaroundDays: '',
+    submissionInstructions: '',
+    location: '',
+    durationField: '',
     maxQuantity: '',
   });
 
@@ -34,7 +59,6 @@ export function ShopManager() {
   const loadData = useCallback(async () => {
     if (!user) return;
 
-    // Get artist profile
     const { data: artistProfile } = await supabase
       .from('artist_profiles')
       .select('id')
@@ -46,7 +70,6 @@ export function ShopManager() {
       return;
     }
 
-    // Load products
     const { data: productsData } = await supabase
       .from('products')
       .select('*')
@@ -58,7 +81,6 @@ export function ShopManager() {
       setProducts(productsData as Product[]);
     }
 
-    // Load existing products for bundles
     const { data: allProducts } = await supabase
       .from('products')
       .select('*')
@@ -98,7 +120,6 @@ export function ShopManager() {
 
       let imageUrl = formData.imageUrl;
 
-      // Upload image if provided
       if (formData.imageFile) {
         const ext = formData.imageFile.name.split('.').pop();
         const fileName = `${Date.now()}.${ext}`;
@@ -116,18 +137,33 @@ export function ShopManager() {
         }
       }
 
+      // Store subcategory in description as JSON for now (or create separate column)
+      const extraData: Record<string, string> = {};
+      if (subcategory) extraData.subcategory = subcategory;
+      if (formData.bpm) extraData.bpm = formData.bpm;
+      if (formData.key) extraData.key = formData.key;
+      if (formData.compatibleDaws) extraData.compatible_daws = formData.compatibleDaws;
+      if (formData.turnaroundDays) extraData.turnaround_days = formData.turnaroundDays;
+      if (formData.submissionInstructions) extraData.submission_instructions = formData.submissionInstructions;
+      if (formData.location) extraData.location = formData.location;
+      if (formData.durationField) extraData.duration = formData.durationField;
+
+      const descriptionWithExtra = extraData.subcategory 
+        ? `${formData.description || ''}\n\n<!--EXTRA:${JSON.stringify(extraData)}-->`
+        : formData.description;
+
       const productData = {
         artist_id: artistProfile.id,
         title: formData.title,
-        description: formData.description || null,
+        description: descriptionWithExtra || null,
         image_url: imageUrl || null,
         type: productType,
-        price: Math.round(parseFloat(formData.price) * 100) || 0,
+        price: parseInt(formData.price) || 0,
         access_level: 'public',
-        delivery_type: formData.deliveryType,
-        file_url: formData.fileUrl || null,
-        duration_minutes: formData.durationMinutes ? parseInt(formData.durationMinutes) : null,
-        max_quantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
+        delivery_type: productType === 'experience' ? 'scheduled' : 'instant',
+        file_url: null,
+        duration_minutes: formData.durationField ? parseInt(formData.durationField) : null,
+        max_quantity: null,
       };
 
       if (editingProduct) {
@@ -138,7 +174,6 @@ export function ShopManager() {
 
         if (error) throw error;
 
-        // Update bundle items
         if (productType === 'bundle') {
           await supabase.from('bundle_items').delete().eq('bundle_id', editingProduct.id);
           for (const productId of selectedBundleItems) {
@@ -159,7 +194,6 @@ export function ShopManager() {
 
         if (error) throw error;
 
-        // Add bundle items
         if (productType === 'bundle' && product) {
           for (const productId of selectedBundleItems) {
             await supabase.from('bundle_items').insert({
@@ -185,19 +219,36 @@ export function ShopManager() {
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setProductType(product.type);
+    
+    // Parse subcategory from description if stored
+    let parsedSubcategory = '';
+    let extraData: Record<string, string> = {};
+    if (product.description?.includes('<!--EXTRA:')) {
+      const match = product.description.match(/<!--EXTRA:({.*?})-->/);
+      if (match) {
+        try {
+          extraData = JSON.parse(match[1]);
+          parsedSubcategory = extraData.subcategory || '';
+        } catch {}
+      }
+    }
+    setSubcategory(parsedSubcategory);
+    
     setFormData({
       title: product.title,
-      description: product.description || '',
+      description: product.description?.replace(/<!--EXTRA:.*?-->/, '') || '',
       imageFile: null,
       imageUrl: product.image_url || '',
       price: (product.price / 100).toString(),
-      deliveryType: product.delivery_type,
-      fileUrl: product.file_url || '',
-      durationMinutes: product.duration_minutes?.toString() || '',
-      maxQuantity: product.max_quantity?.toString() || '',
+      bpm: extraData.bpm || '',
+      key: extraData.key || '',
+      compatibleDaws: extraData.compatible_daws || '',
+      turnaroundDays: extraData.turnaround_days || '',
+      submissionInstructions: extraData.submission_instructions || '',
+      location: extraData.location || '',
+      durationField: product.duration_minutes?.toString() || '',
     });
 
-    // Load bundle items
     if (product.type === 'bundle') {
       async function loadBundleItems() {
         const { data } = await supabase
@@ -217,17 +268,12 @@ export function ShopManager() {
   const handleDelete = async (productId: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
-    const { error } = await supabase
+    await supabase
       .from('products')
       .update({ is_active: false, updated_at: new Date().toISOString() })
       .eq('id', productId);
 
-    if (error) {
-      console.error('Delete error:', error);
-      alert('Failed to delete: ' + error.message);
-    } else {
-      loadData();
-    }
+    loadData();
   };
 
   const resetForm = () => {
@@ -235,35 +281,52 @@ export function ShopManager() {
     setEditingProduct(null);
     setSelectedBundleItems([]);
     setProductType('digital');
+    setSubcategory('');
     setFormData({
       title: '',
       description: '',
       imageFile: null,
       imageUrl: '',
       price: '',
-      deliveryType: 'instant',
-      fileUrl: '',
-      durationMinutes: '',
-      maxQuantity: '',
+      bpm: '',
+      key: '',
+      compatibleDaws: '',
+      turnaroundDays: '',
+      submissionInstructions: '',
+      location: '',
+      durationField: '',
     });
   };
 
   const getTypeBadge = (type: ProductType) => {
-    const colors = {
+    const colors: Record<ProductType, string> = {
       digital: 'bg-blue-500/20 text-blue-400',
       experience: 'bg-purple-500/20 text-purple-400',
       bundle: 'bg-crwn-gold/20 text-crwn-gold',
     };
-    const labels = {
-      digital: 'Digital',
-      experience: 'Experience',
-      bundle: 'Bundle',
-    };
     return (
       <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[type]}`}>
-        {labels[type]}
+        {type.charAt(0).toUpperCase() + type.slice(1)}
       </span>
     );
+  };
+
+  const getSubcategoryBadge = (description: string | null) => {
+    if (!description?.includes('<!--EXTRA:')) return null;
+    const match = description.match(/<!--EXTRA:({.*?})-->/);
+    if (!match) return null;
+    try {
+      const extra = JSON.parse(match[1]);
+      if (!extra.subcategory) return null;
+      const label = [...DIGITAL_SUBCATEGORIES, ...EXPERIENCE_SUBCATEGORIES].find(s => s.value === extra.subcategory)?.label;
+      return label ? (
+        <span className="px-2 py-0.5 rounded text-xs bg-crwn-elevated text-crwn-text-secondary">
+          {label}
+        </span>
+      ) : null;
+    } catch {
+      return null;
+    }
   };
 
   if (isLoading && products.length === 0) {
@@ -276,7 +339,6 @@ export function ShopManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-crwn-text">Shop</h2>
         <button
@@ -306,7 +368,7 @@ export function ShopManager() {
               {(['digital', 'experience', 'bundle'] as ProductType[]).map((type) => (
                 <button
                   key={type}
-                  onClick={() => setProductType(type)}
+                  onClick={() => { setProductType(type); setSubcategory(''); }}
                   className={`px-4 py-2 rounded-lg font-medium capitalize transition-colors ${
                     productType === type
                       ? 'bg-crwn-gold text-crwn-bg'
@@ -318,7 +380,28 @@ export function ShopManager() {
               ))}
             </div>
 
+            {/* Subcategory Selector */}
+            {productType !== 'bundle' && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Category</label>
+                <select
+                  value={subcategory}
+                  onChange={(e) => setSubcategory(e.target.value)}
+                  className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                >
+                  <option value="">Select a category</option>
+                  {productType === 'digital' && DIGITAL_SUBCATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                  {productType === 'experience' && EXPERIENCE_SUBCATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Always shown fields */}
               <div>
                 <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Title</label>
                 <input
@@ -366,80 +449,159 @@ export function ShopManager() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
-                    Price (USD)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-crwn-text-secondary">$</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => setFormData(p => ({ ...p, price: e.target.value }))}
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg pl-8 pr-4 py-2 text-crwn-text"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {productType === 'experience' && (
-                  <div>
-                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Duration (minutes)</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={formData.durationMinutes}
-                      onChange={(e) => setFormData(p => ({ ...p, durationMinutes: e.target.value }))}
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
-                    />
-                  </div>
-                )}
-
-                {productType !== 'bundle' && (
-                  <div>
-                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Delivery</label>
-                    <select
-                      value={formData.deliveryType}
-                      onChange={(e) => setFormData(p => ({ ...p, deliveryType: e.target.value as 'instant' | 'scheduled' | 'custom' }))}
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
-                    >
-                      <option value="instant">Instant Download</option>
-                      <option value="scheduled">Scheduled</option>
-                      <option value="custom">Custom / Contact</option>
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Max Quantity (optional)</label>
+              <div>
+                <label className="block text-smwn-text-secondary mb font-medium text-cr-1">Price (USD)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-crwn-text-secondary">$</span>
                   <input
                     type="number"
-                    min="1"
-                    value={formData.maxQuantity}
-                    onChange={(e) => setFormData(p => ({ ...p, maxQuantity: e.target.value }))}
-                    placeholder="Unlimited"
-                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    min="0"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => setFormData(p => ({ ...p, price: e.target.value }))}
+                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg pl-8 pr-4 py-2 text-crwn-text"
+                    required
                   />
                 </div>
               </div>
 
-              {productType === 'digital' && (
+              {/* DIGITAL: Instrumentals */}
+              {subcategory === 'instrumentals' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">BPM</label>
+                    <input
+                      type="number"
+                      value={formData.bpm}
+                      onChange={(e) => setFormData(p => ({ ...p, bpm: e.target.value }))}
+                      placeholder="e.g. 140"
+                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Key</label>
+                    <input
+                      type="text"
+                      value={formData.key}
+                      onChange={(e) => setFormData(p => ({ ...p, key: e.target.value }))}
+                      placeholder="e.g. C Minor"
+                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* DIGITAL: Preset Packs */}
+              {subcategory === 'preset-packs' && (
                 <div>
-                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">File URL (or leave blank)</label>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Compatible DAWs</label>
                   <input
-                    type="url"
-                    value={formData.fileUrl}
-                    onChange={(e) => setFormData(p => ({ ...p, fileUrl: e.target.value }))}
-                    placeholder="https://..."
+                    type="text"
+                    value={formData.compatibleDaws}
+                    onChange={(e) => setFormData(p => ({ ...p, compatibleDaws: e.target.value }))}
+                    placeholder="e.g. Serum, Massive"
                     className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
                   />
                 </div>
               )}
 
-              {/* Bundle Items Selection */}
+              {/* DIGITAL: Video Content */}
+              {subcategory === 'video-content' && (
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Duration (minutes)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.durationField}
+                    onChange={(e) => setFormData(p => ({ ...p, durationField: e.target.value }))}
+                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                  />
+                </div>
+              )}
+
+              {/* EXPERIENCE: 1-on-1 Video Call */}
+              {subcategory === 'video-call' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Duration (minutes)</label>
+                    <input
+                      type="number"
+                      min="15"
+                      value={formData.durationField}
+                      onChange={(e) => setFormData(p => ({ ...p, durationField: e.target.value }))}
+                      placeholder="e.g. 60"
+                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Max Spots</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.maxQuantity}
+                      onChange={(e) => setFormData(p => ({ ...p, maxQuantity: e.target.value }))}
+                      placeholder="Unlimited"
+                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* EXPERIENCE: Custom Verse, Song Critique, Shoutout */}
+              {['custom-verse', 'song-critique', 'shoutout'].includes(subcategory) && (
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Turnaround (days)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.turnaroundDays}
+                    onChange={(e) => setFormData(p => ({ ...p, turnaroundDays: e.target.value }))}
+                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                  />
+                </div>
+              )}
+
+              {/* EXPERIENCE: Song Critique */}
+              {subcategory === 'song-critique' && (
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Submission Instructions</label>
+                  <textarea
+                    value={formData.submissionInstructions}
+                    onChange={(e) => setFormData(p => ({ ...p, submissionInstructions: e.target.value }))}
+                    rows={2}
+                    placeholder="How should the fan submit their song?"
+                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text resize-none"
+                  />
+                </div>
+              )}
+
+              {/* EXPERIENCE: In-Person */}
+              {subcategory === 'in-person' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Location</label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData(p => ({ ...p, location: e.target.value }))}
+                      placeholder="City or venue"
+                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Max Spots</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.maxQuantity}
+                      onChange={(e) => setFormData(p => ({ ...p, maxQuantity: e.target.value }))}
+                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* BUNDLE: Select products */}
               {productType === 'bundle' && existingProducts.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-crwn-text-secondary mb-2">Include Products</label>
@@ -507,6 +669,7 @@ export function ShopManager() {
               <div className="p-3">
                 <div className="flex items-center gap-2 mb-1">
                   {getTypeBadge(product.type)}
+                  {getSubcategoryBadge(product.description)}
                 </div>
                 <h3 className="font-medium text-crwn-text truncate">{product.title}</h3>
                 <p className="text-sm text-crwn-text-secondary">
