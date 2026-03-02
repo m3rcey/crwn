@@ -292,7 +292,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
               
               <button
                 onClick={() => handleSubscribe(tier)}
-                disabled={isLoading === tier.id || isAnySubscribed}
+                disabled={isLoading === tier.id || isThisTierSubscribed}
                 className={`mt-4 w-full py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
                   isThisTierSubscribed
                     ? 'bg-transparent border-2 border-crwn-gold text-crwn-gold hover:bg-crwn-gold/10'
@@ -307,7 +307,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
                 ) : isThisTierSubscribed ? (
                   'Subscribed ✓'
                 ) : isAnySubscribed ? (
-                  'Already Subscribed'
+                  tier.price > (tiers.find(t => t.id === subscribedTierId)?.price || 0) ? 'Upgrade' : 'Downgrade'
                 ) : tier.price > 0 ? (
                   'Subscribe'
                 ) : (
