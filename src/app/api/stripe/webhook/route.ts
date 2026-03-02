@@ -45,7 +45,13 @@ export async function POST(req: NextRequest) {
         console.log('Checkout session metadata:', JSON.stringify(session.metadata));
         console.log('Checkout session subscription:', session.subscription);
         console.log('Checkout session customer:', session.customer);
-        await handleCheckoutCompleted(session);
+        
+        // Check if this is a subscription or product purchase
+        if (session.metadata?.product_id) {
+          await handleProductPurchase(session);
+        } else {
+          await handleCheckoutCompleted(session);
+        }
         break;
       }
 
@@ -178,4 +184,51 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       updated_at: new Date().toISOString(),
     })
     .eq('stripe_subscription_id', sub.id);
+}
+
+// Handle product purchases (one-time payments)
+async function handleProductPurchase(session: Stripe.Checkout.Session) {
+  const metadata = session.metadata;
+  if (!metadata?.product_id || !metadata?.fan_id || !metadata?.artist_id) {
+    console.log('No product purchase metadata found');
+    return;
+  }
+
+  const { product_id, fan_id, artist_id } = metadata;
+
+  // Get product price and quantity_sold
+  const { data: product } = await supabaseAdmin
+    .from('products')
+    .select('price, quantity_sold')
+    .eq('id', product_id)
+    .single();
+
+  if (!product) {
+    console.error('Product not found:', product_id);
+    return;
+  }
+
+  // Insert purchase record
+  await supabaseAdmin
+    .from('purchases')
+    .insert({
+      fan_id,
+      product_id,
+      artist_id,
+      stripe_payment_intent_id: session.payment_intent as string,
+      amount: product.price,
+      status: 'completed',
+      purchased_at: new Date().toISOString(),
+    });
+
+  // Increment quantity_sold
+  await supabaseAdmin
+    .from('products')
+    .update({
+      quantity_sold: (product.quantity_sold || 0) + 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', product_id);
+
+  console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
 }

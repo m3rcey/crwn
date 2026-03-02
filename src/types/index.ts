@@ -107,6 +107,54 @@ export interface PlaylistTrack {
   track?: Track;
 }
 
+export type ProductType = 'digital' | 'experience' | 'bundle';
+export type DeliveryType = 'instant' | 'scheduled' | 'custom';
+export type PurchaseStatus = 'pending' | 'completed' | 'refunded';
+
+export interface Product {
+  id: string;
+  artist_id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  type: ProductType;
+  price: number;
+  access_level: AccessLevel;
+  delivery_type: DeliveryType;
+  file_url: string | null;
+  duration_minutes: number | null;
+  max_quantity: number | null;
+  quantity_sold: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  artist?: ArtistProfile;
+  bundle_items?: Product[];
+}
+
+export interface BundleItem {
+  id: string;
+  bundle_id: string;
+  product_id: string;
+  created_at: string;
+  product?: Product;
+}
+
+export interface Purchase {
+  id: string;
+  fan_id: string;
+  product_id: string;
+  artist_id: string;
+  stripe_payment_intent_id: string | null;
+  amount: number;
+  status: PurchaseStatus;
+  purchased_at: string;
+  notes: string | null;
+  // Joined
+  product?: Product;
+}
+
 export interface AuthContextType {
   user: User | null;
   profile: Profile | null;

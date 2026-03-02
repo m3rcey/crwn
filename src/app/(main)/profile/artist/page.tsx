@@ -6,11 +6,12 @@ import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
 import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
 import { AlbumManager } from '@/components/artist/AlbumManager';
 import { TierManager } from '@/components/artist/TierManager';
+import { ShopManager } from '@/components/artist/ShopManager';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 
 export default function ArtistDashboardPage() {
   const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'tiers' | 'payouts'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'tiers' | 'payouts'>('profile');
 
   if (!profile) {
     return (
@@ -24,6 +25,7 @@ export default function ArtistDashboardPage() {
     { id: 'profile' as const, label: 'Profile' },
     { id: 'tracks' as const, label: 'Music' },
     { id: 'albums' as const, label: 'Albums' },
+    { id: 'shop' as const, label: 'Shop' },
     { id: 'tiers' as const, label: 'Tiers' },
     { id: 'payouts' as const, label: 'Payouts' },
   ];
@@ -62,6 +64,7 @@ export default function ArtistDashboardPage() {
         {activeTab === 'profile' && <ArtistProfileForm />}
         {activeTab === 'tracks' && <TrackUploadForm />}
         {activeTab === 'albums' && <AlbumManager />}
+        {activeTab === 'shop' && <ShopManager />}
         {activeTab === 'tiers' && <TierManager />}
         {activeTab === 'payouts' && <PayoutDashboard />}
       </div>
