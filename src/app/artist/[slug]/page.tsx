@@ -168,7 +168,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           </div>
 
           {/* Subscribe Button */}
-          <SubscribeButton tiers={tiers} artistSlug={slug} />
+          <SubscribeButton tiers={tiers} artistSlug={slug} artistId={artist.id} />
         </div>
 
         {/* Bio */}
@@ -204,7 +204,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         <section className="mb-8">
           <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
           {tiers.length > 0 ? (
-            <TierCards tiers={tiers} artistSlug={slug} />
+            <TierCards tiers={tiers} artistSlug={slug} artistId={artist.id} />
           ) : (
             <SubscribeCTA
               artistName={artist.profile?.display_name || 'this artist'}
