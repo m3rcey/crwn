@@ -32,7 +32,7 @@ export function AlbumCard({ album, artistId, artistSlug, hasAccess }: AlbumCardP
         .order('track_number');
       
       if (data) {
-        setTracks(data.map((d: any) => d.tracks as Track));
+        setTracks(data.map((d) => (d.tracks as unknown as Track)));
       }
     }
     
@@ -50,7 +50,7 @@ export function AlbumCard({ album, artistId, artistSlug, hasAccess }: AlbumCardP
         .order('track_number');
       
       if (data) {
-        const albumTracks = data.map((d: any) => d.tracks as Track);
+        const albumTracks = data.map((d) => d.tracks as unknown as Track);
         if (albumTracks.length > 0) {
           play(albumTracks[0]);
           // Queue rest of tracks

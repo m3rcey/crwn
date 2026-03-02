@@ -10,40 +10,32 @@ export default function VerifyEmailPage() {
   const params = useSearchParams();
   const supabase = createBrowserSupabaseClient();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [email, setEmail] = useState('');
+  
+  const emailParam = params.get('email') || '';
+  const email = emailParam;
 
   useEffect(() => {
-    const token = params.get('token');
-    const emailParam = params.get('email');
-    
-    if (emailParam) {
-      setEmail(emailParam);
-    }
-
     async function verifyEmail() {
       try {
-        // Get the session to verify the user
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (session) {
           setStatus('success');
-          // Redirect to home after 3 seconds
           setTimeout(() => {
             router.push('/home');
           }, 3000);
         } else if (error) {
           setStatus('error');
         } else {
-          // No session but no error - user might need to click the link
           setStatus('success');
         }
-      } catch (err) {
+      } catch {
         setStatus('error');
       }
     }
 
     verifyEmail();
-  }, [params, supabase, router]);
+  }, [supabase, router]);
 
   return (
     <div className="min-h-screen bg-crwn-bg flex flex-col items-center justify-center p-4">

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { GatedTrackPlayer } from '@/components/gating';
 import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
 import { AlbumsSection } from '@/components/artist/AlbumCard';
+import { ShopSection } from '@/components/artist/ShopSection';
 import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
 import type { Metadata } from 'next';
@@ -101,6 +102,14 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
       return { ...album, track_count: count || 0 };
     })
   );
+
+  // Fetch shop products
+  const { data: products } = await supabase
+    .from('products')
+    .select('*')
+    .eq('artist_id', artist.id)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
 
   // Fetch subscription tiers from subscription_tiers table
   const { data: dbTiers } = await supabase
@@ -241,6 +250,12 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             />
           )}
         </section>
+
+        {/* Shop */}
+        <ShopSection 
+          products={products || []} 
+          artistId={artist.id} 
+        />
 
         {/* Tracks */}
         <section>
