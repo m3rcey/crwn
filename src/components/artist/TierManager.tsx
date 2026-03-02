@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Edit2, Trash2, X } from 'lucide-react';
 
 interface Tier {
   id: string;
@@ -26,6 +26,7 @@ export function TierManager() {
   const [stripeConnected, setStripeConnected] = useState(false);
   const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
   const [isConnectingStripe, setIsConnectingStripe] = useState(false);
+  const [editingTier, setEditingTier] = useState<Tier | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -150,11 +151,26 @@ export function TierManager() {
       setIsCreating(false);
       alert('Tier created successfully!');
     } catch (error) {
-      console.error('Error creating tier:', error);
-      alert('Failed to create tier');
+      console.error('Error saving tier:', error);
+      alert('Failed to save tier');
     } finally {
       setIsCreating(false);
     }
+  };
+
+  const handleEdit = (tier: Tier) => {
+    setEditingTier(tier);
+    setFormData({
+      name: tier.name,
+      price: (tier.price / 100).toString(),
+      description: tier.description || '',
+      benefits: tier.access_config?.benefits || [''],
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTier(null);
+    setFormData({ name: '', price: '', description: '', benefits: [''] });
   };
 
   const handleDelete = async (tierId: string) => {

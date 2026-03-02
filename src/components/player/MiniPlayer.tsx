@@ -22,19 +22,33 @@ export function MiniPlayer() {
     toggleExpanded,
     isFavorite,
     toggleFavorite,
+    currentTime,
+    duration,
+    seek,
   } = usePlayer();
 
   if (!currentTrack) return null;
 
   const isTrackFavorite = isFavorite(currentTrack.id);
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    seek(percent * duration);
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-crwn-surface border-t border-crwn-elevated z-50">
       {/* Progress bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-crwn-elevated cursor-pointer group">
+      <div 
+        className="absolute top-0 left-0 right-0 h-1 bg-crwn-elevated cursor-pointer group"
+        onClick={handleProgressClick}
+      >
         <div 
-          className="h-full bg-crwn-gold relative"
-          style={{ width: '45%' }}
+          className="h-full bg-crwn-gold relative transition-all"
+          style={{ width: `${progress}%` }}
         >
           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-crwn-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>

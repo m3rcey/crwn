@@ -1,6 +1,17 @@
+import { redirect } from 'next/navigation';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 
-export default function Home() {
+export default async function LandingPage() {
+  // Check if user is already logged in
+  const supabase = await createServerSupabaseClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  // If logged in, redirect to home
+  if (session) {
+    redirect('/home');
+  }
+
   return (
     <main className="min-h-screen bg-crwn-bg flex flex-col items-center justify-center p-4">
       <div className="text-center">
@@ -12,7 +23,7 @@ export default function Home() {
           <Link href="/signup" className="px-6 py-3 bg-crwn-gold text-crwn-bg font-semibold rounded-lg hover:bg-crwn-gold-hover transition-colors">
             Get Started
           </Link>
-          <Link href="/login" className="px-6 py-3 border border-crwn-gold text-crwn-gold font-semibold rounded-lg hover:bg-crwn-gold/10 transition-colors">
+          <Link href="/about" className="px-6 py-3 border border-crwn-gold text-crwn-gold font-semibold rounded-lg hover:bg-crwn-gold/10 transition-colors">
             Learn More
           </Link>
         </div>
