@@ -5,9 +5,11 @@ import { createClient } from '@supabase/supabase-js';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy_key_for_build';
 
-// Create Supabase admin client for webhooks
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build';
+
+console.log('Webhook init - Supabase URL:', supabaseUrl);
+console.log('Webhook init - Service key starts with:', supabaseServiceKey.substring(0, 10));
 
 const supabaseAdmin = createClient(
   supabaseUrl,
@@ -34,10 +36,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
+  console.log('Webhook event received:', event.type);
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
+        console.log('Checkout session metadata:', JSON.stringify(session.metadata));
+        console.log('Checkout session subscription:', session.subscription);
+        console.log('Checkout session customer:', session.customer);
         await handleCheckoutCompleted(session);
         break;
       }
@@ -83,13 +90,14 @@ export async function POST(req: NextRequest) {
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const { fan_id, artist_id, tier_id } = session.metadata || {};
 
+  console.log('handleCheckoutCompleted - fan_id:', fan_id, 'artist_id:', artist_id, 'tier_id:', tier_id);
+
   if (!fan_id || !artist_id || !tier_id) {
     console.error('Missing metadata in checkout session');
     return;
   }
 
-  // Create subscription record
-  await supabaseAdmin.from('subscriptions').insert({
+  const insertData = {
     fan_id,
     artist_id,
     tier_id,
@@ -97,14 +105,23 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     stripe_customer_id: session.customer as string,
     status: 'active',
     started_at: new Date().toISOString(),
-  });
+  };
+
+  console.log('Inserting subscription:', JSON.stringify(insertData));
+
+  const { data, error } = await supabaseAdmin.from('subscriptions').insert(insertData).select();
+
+  if (error) {
+    console.error('Supabase insert error:', JSON.stringify(error));
+  } else {
+    console.log('Supabase insert success:', JSON.stringify(data));
+  }
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const subscriptionId = (invoice as unknown as { subscription?: string }).subscription;
   if (!subscriptionId) return;
 
-  // Update subscription with new period
   await supabaseAdmin
     .from('subscriptions')
     .update({
@@ -137,7 +154,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     current_period_end: number;
     id: string;
   };
-  
+
   await supabaseAdmin
     .from('subscriptions')
     .update({
@@ -152,7 +169,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const sub = subscription as unknown as { id: string };
-  
+
   await supabaseAdmin
     .from('subscriptions')
     .update({
