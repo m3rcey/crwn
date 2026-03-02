@@ -113,43 +113,85 @@ export function TierManager() {
         return;
       }
 
-      // Create Stripe price
-      const response = await fetch('/api/stripe/create-price', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          price: parseInt(formData.price) * 100, // Convert to cents
-          description: formData.description,
-          artistId: artistProfile.id,
-        }),
-      });
+      if (editingTier) {
+        // UPDATE existing tier
+        const priceChanged = parseInt(formData.price) * 100 !== editingTier.price;
+        let stripePriceId = editingTier.stripe_price_id;
 
-      const { stripePriceId, stripeProductId } = await response.json();
+        if (priceChanged) {
+          // Create new Stripe price if price changed
+          const response = await fetch('/api/stripe/create-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: formData.name,
+              price: parseInt(formData.price) * 100,
+              description: formData.description,
+              artistId: artistProfile.id,
+            }),
+          });
+          const data = await response.json();
+          stripePriceId = data.stripePriceId;
+        }
 
-      // Save tier to database
-      const { data: tier, error } = await supabase
-        .from('subscription_tiers')
-        .insert({
-          artist_id: artistProfile.id,
-          name: formData.name,
-          price: parseInt(formData.price) * 100,
-          description: formData.description,
-          access_config: {
-            benefits: formData.benefits.filter(b => b.trim() !== ''),
-          },
-          stripe_price_id: stripePriceId,
-          stripe_product_id: stripeProductId,
-        })
-        .select()
-        .single();
+        const { data: updated, error } = await supabase
+          .from('subscription_tiers')
+          .update({
+            name: formData.name,
+            price: parseInt(formData.price) * 100,
+            description: formData.description,
+            access_config: {
+              benefits: formData.benefits.filter(b => b.trim() !== ''),
+            },
+            stripe_price_id: stripePriceId,
+          })
+          .eq('id', editingTier.id)
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      setTiers(prev => [...prev, tier as Tier]);
-      setFormData({ name: '', price: '', description: '', benefits: [''] });
-      setIsCreating(false);
-      alert('Tier created successfully!');
+        setTiers(prev => prev.map(t => t.id === editingTier.id ? (updated as Tier) : t));
+        setEditingTier(null);
+        setFormData({ name: '', price: '', description: '', benefits: [''] });
+        alert('Tier updated successfully!');
+      } else {
+        // CREATE new tier
+        const response = await fetch('/api/stripe/create-price', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            price: parseInt(formData.price) * 100,
+            description: formData.description,
+            artistId: artistProfile.id,
+          }),
+        });
+
+        const { stripePriceId, stripeProductId } = await response.json();
+
+        const { data: tier, error } = await supabase
+          .from('subscription_tiers')
+          .insert({
+            artist_id: artistProfile.id,
+            name: formData.name,
+            price: parseInt(formData.price) * 100,
+            description: formData.description,
+            access_config: {
+              benefits: formData.benefits.filter(b => b.trim() !== ''),
+            },
+            stripe_price_id: stripePriceId,
+            stripe_product_id: stripeProductId,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        setTiers(prev => [...prev, tier as Tier]);
+        setFormData({ name: '', price: '', description: '', benefits: [''] });
+        alert('Tier created successfully!');
+      }
     } catch (error) {
       console.error('Error saving tier:', error);
       alert('Failed to save tier');
@@ -291,7 +333,12 @@ export function TierManager() {
       {/* Create New Tier */}
       {stripeConnected && (
         <form onSubmit={handleSubmit} className="bg-crwn-surface border border-crwn-elevated rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-crwn-text mb-4">Create New Tier</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-crwn-text">{editingTier ? 'Edit Tier' : 'Create New Tier'}</h3>
+            {editingTier && (
+              <button type="button" onClick={handleCancelEdit} className="text-crwn-text-secondary hover:text-crwn-text text-sm">Cancel Edit</button>
+            )}
+          </div>
           
           <div className="space-y-4">
             <div>
@@ -381,7 +428,7 @@ export function TierManager() {
               disabled={isCreating}
               className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
             >
-              {isCreating ? 'Creating...' : 'Create Tier'}
+              {isCreating ? 'Saving...' : editingTier ? 'Update Tier' : 'Create Tier'}
             </button>
           </div>
         </form>
