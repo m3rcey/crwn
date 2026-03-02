@@ -217,12 +217,17 @@ export function ShopManager() {
   const handleDelete = async (productId: string) => {
     if (!confirm('Are you sure you want to delete this product?')) return;
 
-    await supabase
+    const { error } = await supabase
       .from('products')
       .update({ is_active: false, updated_at: new Date().toISOString() })
       .eq('id', productId);
 
-    loadData();
+    if (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete: ' + error.message);
+    } else {
+      loadData();
+    }
   };
 
   const resetForm = () => {
