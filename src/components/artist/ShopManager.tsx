@@ -296,6 +296,7 @@ export function ShopManager() {
       submissionInstructions: '',
       location: '',
       durationField: '',
+      maxQuantity: '',
     });
   };
 
