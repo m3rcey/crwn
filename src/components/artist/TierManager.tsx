@@ -257,12 +257,20 @@ export function TierManager() {
                       ${(tier.price / 100).toFixed(2)}/mo
                     </p>
                   </div>
-                  <button
-                    onClick={() => handleDelete(tier.id)}
-                    className="text-crwn-text-secondary hover:text-crwn-error transition-colors"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(tier)}
+                      className="text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tier.id)}
+                      className="text-crwn-text-secondary hover:text-crwn-error transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
                 <p className="text-crwn-text-secondary mt-2">{tier.description}</p>
                 {tier.access_config?.benefits && tier.access_config.benefits.length > 0 && (
