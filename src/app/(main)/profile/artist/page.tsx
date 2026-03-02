@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
 import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
+import { AlbumManager } from '@/components/artist/AlbumManager';
 import { TierManager } from '@/components/artist/TierManager';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 
 export default function ArtistDashboardPage() {
   const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'tiers' | 'payouts'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'tiers' | 'payouts'>('profile');
 
   if (!profile) {
     return (
@@ -22,6 +23,7 @@ export default function ArtistDashboardPage() {
   const tabs = [
     { id: 'profile' as const, label: 'Profile' },
     { id: 'tracks' as const, label: 'Music' },
+    { id: 'albums' as const, label: 'Albums' },
     { id: 'tiers' as const, label: 'Tiers' },
     { id: 'payouts' as const, label: 'Payouts' },
   ];
@@ -59,6 +61,7 @@ export default function ArtistDashboardPage() {
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'profile' && <ArtistProfileForm />}
         {activeTab === 'tracks' && <TrackUploadForm />}
+        {activeTab === 'albums' && <AlbumManager />}
         {activeTab === 'tiers' && <TierManager />}
         {activeTab === 'payouts' && <PayoutDashboard />}
       </div>

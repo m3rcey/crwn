@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Image from 'next/image';
 import { GatedTrackPlayer } from '@/components/gating';
 import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
+import { AlbumsSection } from '@/components/artist/AlbumCard';
 import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
 import type { Metadata } from 'next';
@@ -81,6 +82,25 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .select('*')
     .eq('artist_id', artist.id)
     .order('created_at', { ascending: false });
+
+  // Fetch artist's albums
+  const { data: albums } = await supabase
+    .from('albums')
+    .select('*')
+    .eq('artist_id', artist.id)
+    .eq('is_active', true)
+    .order('release_date', { ascending: false });
+
+  // Get album track counts
+  const albumsWithCounts = await Promise.all(
+    (albums || []).map(async (album) => {
+      const { count } = await supabase
+        .from('album_tracks')
+        .select('*', { count: 'exact', head: true })
+        .eq('album_id', album.id);
+      return { ...album, track_count: count || 0 };
+    })
+  );
 
   // Fetch subscription tiers from subscription_tiers table
   const { data: dbTiers } = await supabase
@@ -200,6 +220,14 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
       {/* Content */}
       <div className="px-4 sm:px-6 lg:px-8 py-8">
+        {/* Albums */}
+        <AlbumsSection 
+          albums={albumsWithCounts} 
+          artistId={artist.id} 
+          artistSlug={slug}
+          hasAccess={true} // TODO: check subscription status
+        />
+
         {/* Subscription Tiers */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>

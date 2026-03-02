@@ -58,14 +58,53 @@ export interface Track {
 
 export interface Playlist {
   id: string;
-  artist_id: string;
+  user_id: string;
   title: string;
-  track_ids: string[];
-  access_level: AccessLevel;
+  description: string | null;
+  cover_url: string | null;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
   // Joined fields
   tracks?: Track[];
+  track_count?: number;
+}
+
+export interface Album {
+  id: string;
+  artist_id: string;
+  title: string;
+  description: string | null;
+  album_art_url: string | null;
+  release_date: string;
+  access_level: AccessLevel;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  artist?: ArtistProfile;
+  tracks?: Track[];
+  track_count?: number;
+}
+
+export interface AlbumTrack {
+  id: string;
+  album_id: string;
+  track_id: string;
+  track_number: number;
+  created_at: string;
+  // Joined
+  track?: Track;
+}
+
+export interface PlaylistTrack {
+  id: string;
+  playlist_id: string;
+  track_id: string;
+  position: number;
+  added_at: string;
+  // Joined
+  track?: Track;
 }
 
 export interface AuthContextType {
