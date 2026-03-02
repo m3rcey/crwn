@@ -122,7 +122,7 @@ export function ShopManager() {
         description: formData.description || null,
         image_url: imageUrl || null,
         type: productType,
-        price: parseInt(formData.price) || 0,
+        price: Math.round(parseFloat(formData.price) * 100) || 0,
         access_level: 'public',
         delivery_type: formData.deliveryType,
         file_url: formData.fileUrl || null,
