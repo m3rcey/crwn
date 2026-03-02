@@ -324,7 +324,7 @@ export function AnalyticsDashboard() {
                         <Cell key={index} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                    <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
                   </PieChart>
                 </ResponsiveContainer>
               )}
@@ -341,7 +341,7 @@ export function AnalyticsDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="month" stroke="#666" fontSize={12} />
                 <YAxis stroke="#666" fontSize={12} tickFormatter={(v) => `$${v/100}`} />
-                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
                 <Line type="monotone" dataKey="revenue" stroke="#D4AF37" strokeWidth={2} dot={{ fill: '#D4AF37' }} />
               </LineChart>
             </ResponsiveContainer>
