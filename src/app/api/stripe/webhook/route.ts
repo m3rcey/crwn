@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
+import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy_key_for_build';
 
@@ -121,6 +122,34 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     console.error('Supabase insert error:', JSON.stringify(error));
   } else {
     console.log('Supabase insert success:', JSON.stringify(data));
+
+    // Notify artist of new subscriber
+    const { data: artistProfile } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('user_id')
+      .eq('id', artist_id)
+      .single();
+
+    const { data: fanProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', fan_id)
+      .single();
+
+    const { data: tierData } = await supabaseAdmin
+      .from('subscription_tiers')
+      .select('name')
+      .eq('id', tier_id)
+      .single();
+
+    if (artistProfile) {
+      await notifyNewSubscriber(
+        supabaseAdmin,
+        artistProfile.user_id,
+        fanProfile?.display_name || 'A fan',
+        tierData?.name || 'a tier'
+      );
+    }
   }
 }
 
@@ -221,7 +250,7 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
   // Get product price and quantity_sold
   const { data: product } = await supabaseAdmin
     .from('products')
-    .select('price, quantity_sold')
+    .select('price, quantity_sold, title')
     .eq('id', product_id)
     .single();
 
