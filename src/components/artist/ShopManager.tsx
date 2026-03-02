@@ -247,6 +247,7 @@ export function ShopManager() {
       submissionInstructions: extraData.submission_instructions || '',
       location: extraData.location || '',
       durationField: product.duration_minutes?.toString() || '',
+      maxQuantity: product.max_quantity?.toString() || '',
     });
 
     if (product.type === 'bundle') {
