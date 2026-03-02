@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { 
   Home, 
   Compass, 
@@ -44,7 +45,13 @@ export function Navigation() {
     <>
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-crwn-surface border-t border-crwn-elevated z-50 md:hidden">
-        <div className="flex items-center justify-around py-2">
+        <div className="flex items-center justify-between px-2 py-1">
+          <Link href="/home" className="text-xl font-bold text-crwn-gold px-2">
+            CRWN
+          </Link>
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+          </div>
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -68,10 +75,11 @@ export function Navigation() {
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-crwn-surface border-r border-crwn-elevated flex-col z-50">
-        <div className="p-6">
+        <div className="p-6 flex items-center justify-between">
           <Link href="/home" className="text-2xl font-bold text-crwn-gold">
             CRWN
           </Link>
+          <NotificationBell />
         </div>
 
         <nav className="flex-1 px-4">

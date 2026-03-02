@@ -176,6 +176,13 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const sub = subscription as unknown as { id: string };
 
+  // Get subscription details before updating
+  const { data: subData } = await supabaseAdmin
+    .from('subscriptions')
+    .select('artist_id, fan_id')
+    .eq('stripe_subscription_id', sub.id)
+    .single();
+
   await supabaseAdmin
     .from('subscriptions')
     .update({
@@ -184,6 +191,21 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       updated_at: new Date().toISOString(),
     })
     .eq('stripe_subscription_id', sub.id);
+
+  // Notify artist of canceled subscription
+  if (subData) {
+    const { data: fanProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', subData.fan_id)
+      .single();
+
+    await notifySubscriptionCanceled(
+      supabaseAdmin,
+      subData.artist_id,
+      fanProfile?.display_name || 'A fan'
+    );
+  }
 }
 
 // Handle product purchases (one-time payments)
@@ -229,6 +251,29 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       updated_at: new Date().toISOString(),
     })
     .eq('id', product_id);
+
+  // Get artist user ID for notification
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id, profile:profiles(display_name)')
+    .eq('id', artist_id)
+    .single();
+
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name')
+    .eq('id', fan_id)
+    .single();
+
+  // Notify artist of new purchase
+  if (artistProfile) {
+    await notifyNewPurchase(
+      supabaseAdmin,
+      artistProfile.user_id,
+      fanProfile?.display_name || 'A fan',
+      product.title
+    );
+  }
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
 }
