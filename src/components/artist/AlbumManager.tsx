@@ -5,6 +5,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
+
+interface SubscriptionTier {
+  id: string;
+  name: string;
+  price: number;
+}
 import { 
   Loader2, Plus, Edit2, Trash2, X, Upload, GripVertical, 
   Eye, EyeOff, Check, ChevronUp, ChevronDown, Play, Pause 
@@ -16,7 +22,7 @@ interface AlbumFormData {
   albumArtFile: File | null;
   albumArtUrl: string;
   releaseDate: string;
-  accessLevel: 'free' | 'subscriber' | 'purchase';
+  accessLevel: string;
   isPublished: boolean;
 }
 
@@ -28,6 +34,7 @@ export function AlbumManager() {
   const [showForm, setShowForm] = useState(false);
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
   const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
+  const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
 
   const [formData, setFormData] = useState<AlbumFormData>({
     title: '',
@@ -63,6 +70,15 @@ export function AlbumManager() {
         .eq('artist_id', artistProfile.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
+
+      // Load subscription tiers
+      const { data: tiersData } = await supabase
+        .from('subscription_tiers')
+        .select('id, name, price')
+        .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
+        .order('price', { ascending: true });
+      if (tiersData) setTiers(tiersData);
 
       // Get track counts and tracks for each album
       const albumsWithData = await Promise.all(
@@ -360,22 +376,14 @@ export function AlbumManager() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Title & Slug */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Title */}
+              <div className="">
                 <div>
                   <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Title</label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))}
-                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Slug</label>
-                  <input
-                    type="text"
                     className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
                     required
                   />
@@ -434,11 +442,13 @@ export function AlbumManager() {
                   <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Access</label>
                   <select
                     value={formData.accessLevel}
-                    onChange={(e) => setFormData(p => ({ ...p, accessLevel: e.target.value as 'free' | 'subscriber' }))}
+                    onChange={(e) => setFormData(p => ({ ...p, accessLevel: e.target.value }))}
                     className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
                   >
                     <option value="free">Free</option>
-                    <option value="subscriber">Subscribers Only</option>
+                    {tiers.map(tier => (
+                      <option key={tier.id} value={tier.id}>{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</option>
+                    ))}
                   </select>
                 </div>
               </div>
