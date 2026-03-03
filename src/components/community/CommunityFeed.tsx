@@ -116,6 +116,7 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
               key={post.id}
               post={post}
               artistSlug={artistSlug}
+              artistId={artistId}
               artistTierId={tierId || undefined}
               isPostAuthor={user?.id === post.author_id}
               isArtistProfile={isArtistProfile}

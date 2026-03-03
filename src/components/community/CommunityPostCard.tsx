@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { CommunityPost, TierConfig } from '@/types';
+import { CommunityPost } from '@/types';
+import { CommentSection } from './CommentSection';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2 } from 'lucide-react';
@@ -12,6 +13,7 @@ import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2 } from 'lucid
 interface CommunityPostCardProps {
   post: CommunityPost;
   artistSlug: string;
+  artistId: string;
   artistTierId?: string;
   isPostAuthor?: boolean;
   isArtistProfile?: boolean;
@@ -22,6 +24,7 @@ interface CommunityPostCardProps {
 export function CommunityPostCard({
   post,
   artistSlug,
+  artistId,
   artistTierId,
   isPostAuthor,
   isArtistProfile,
@@ -35,6 +38,8 @@ export function CommunityPostCard({
   const [isLiked, setIsLiked] = useState(post.has_liked || false);
   const [likesCount, setLikesCount] = useState(post.likes_count || 0);
   const [showMenu, setShowMenu] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(post.comments_count || 0);
 
   // Check if user can view gated post
   const canView = post.is_free || (tierId && post.allowed_tier_ids?.includes(tierId));
@@ -84,6 +89,11 @@ export function CommunityPostCard({
     }
   };
 
+  const handleCommentClick = () => {
+    setShowComments(!showComments);
+    onCommentClicked?.();
+  };
+
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this post?')) return;
 
@@ -96,6 +106,10 @@ export function CommunityPostCard({
     } catch (error) {
       console.error('Delete error:', error);
     }
+  };
+
+  const handleCommentAdded = () => {
+    setCommentsCount(prev => prev + 1);
   };
 
   // Show locked state for gated posts
@@ -235,13 +249,22 @@ export function CommunityPostCard({
             </button>
 
             <button
-              onClick={onCommentClicked}
-              className="flex items-center gap-1 text-sm text-crwn-text-secondary"
+              onClick={handleCommentClick}
+              className={`flex items-center gap-1 text-sm ${showComments ? 'text-crwn-gold' : 'text-crwn-text-secondary'}`}
             >
-              <MessageCircle className="w-5 h-5" />
-              <span>{post.comments_count || 0}</span>
+              <MessageCircle className={`w-5 h-5 ${showComments ? 'fill-current' : ''}`} />
+              <span>{commentsCount}</span>
             </button>
           </div>
+
+          {/* Comments Section */}
+          <CommentSection
+            postId={post.id}
+            artistId={artistId}
+            isArtistProfile={isArtistProfile || false}
+            isOpen={showComments}
+            onCommentAdded={handleCommentAdded}
+          />
         </div>
       </div>
     </div>
