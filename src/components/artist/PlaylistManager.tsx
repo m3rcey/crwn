@@ -40,17 +40,27 @@ export function PlaylistManager() {
   });
 
   const loadPlaylists = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('No user, skipping playlist load');
+      return;
+    }
     setIsLoading(true);
 
     try {
+      console.log('Loading playlists for user:', user.id);
+      
       const { data: playlistsData, error } = await supabase
         .from('playlists')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading playlists:', error);
+        throw error;
+      }
+      
+      console.log('Playlists loaded:', playlistsData);
 
       // Get track counts for each playlist
       const playlistsWithCounts = await Promise.all(

@@ -35,12 +35,14 @@ export function AddToPlaylistMenu({ track }: AddToPlaylistMenuProps) {
       setIsLoading(true);
       try {
         // Load user's playlists
+        console.log('TrackListItem: Loading playlists for user:', user?.id);
         const { data: playlistsData } = await supabase
           .from('playlists')
           .select('*')
           .eq('user_id', user!.id)
           .order('title');
 
+        console.log('TrackListItem: Playlists loaded:', playlistsData);
         setPlaylists(playlistsData || []);
 
         // Load which playlists contain this track
@@ -106,6 +108,7 @@ export function AddToPlaylistMenu({ track }: AddToPlaylistMenuProps) {
     if (!title) return;
 
     try {
+      console.log('Creating playlist:', title, 'for user:', user?.id);
       const { data: newPlaylist, error } = await supabase
         .from('playlists')
         .insert({
@@ -116,7 +119,12 @@ export function AddToPlaylistMenu({ track }: AddToPlaylistMenuProps) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating playlist:', error);
+        throw error;
+      }
+      
+      console.log('Playlist created:', newPlaylist);
 
       setPlaylists((prev) => [...prev, newPlaylist as Playlist]);
       setTrackPlaylistIds((prev) => new Set([...prev, newPlaylist.id]));
