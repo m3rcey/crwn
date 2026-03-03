@@ -107,12 +107,12 @@ function SortableTrackItem({ track, index, onRemove, renderActions, showDragHand
       <button
         type="button"
         onClick={handlePlayPause}
-        className="p-2 bg-crwn-gold text-crwn-bg rounded-full hover:bg-crwn-gold-hover"
+        className="neu-icon-button p-2"
       >
         {currentTrack?.id === track.id && isPlaying ? (
-          <Pause className="w-4 h-4" />
+          <Pause className="w-4 h-4 text-crwn-bg" />
         ) : (
-          <Play className="w-4 h-4" />
+          <Play className="w-4 h-4 text-crwn-bg" />
         )}
       </button>
       {renderActions && renderActions()}

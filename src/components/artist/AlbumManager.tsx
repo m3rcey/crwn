@@ -470,7 +470,7 @@ export function AlbumManager() {
         <h2 className="text-xl font-semibold text-crwn-text">Albums</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
+          className="flex items-center gap-2 px-4 py-2 neu-button-accent text-crwn-bg"
         >
           <Plus className="w-4 h-4" />
           New Album
@@ -697,7 +697,7 @@ export function AlbumManager() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
+                className="w-full py-3 neu-button-accent text-crwn-bg"
               >
                 {editingAlbum ? 'Update Album' : 'Create Album'}
               </button>
@@ -710,7 +710,7 @@ export function AlbumManager() {
       {albums.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {albums.map((album) => (
-            <div key={album.id} className="bg-crwn-surface rounded-xl overflow-hidden border border-crwn-elevated group">
+            <div key={album.id} className="neu-raised neu-card-hover overflow-hidden">
               <div className="aspect-square relative bg-crwn-elevated">
                 {album.album_art_url ? (
                   <Image src={album.album_art_url} alt={album.title} fill className="object-cover" />

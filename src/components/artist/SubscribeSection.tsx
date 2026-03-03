@@ -116,16 +116,15 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
       <div className="flex flex-wrap gap-2">
         {tiers.map((tier) => {
           const isThisTierSubscribed = subscribedTierId === tier.id;
-          const currentTierName = subscribedTierName || 'Current Tier';
           return (
             <button
               key={tier.id}
               onClick={() => handleSubscribe(tier)}
               disabled={isLoading}
-              className={`px-4 py-2 rounded-full font-semibold transition-colors disabled:opacity-50 flex items-center gap-2 ${
+              className={`neu-button px-4 py-2 font-semibold disabled:opacity-50 flex items-center gap-2 ${
                 isThisTierSubscribed
-                  ? 'bg-transparent border-2 border-crwn-gold text-crwn-gold'
-                  : 'bg-crwn-gold text-crwn-bg hover:bg-crwn-gold-hover'
+                  ? 'text-crwn-gold'
+                  : 'neu-button-accent text-crwn-bg'
               }`}
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -261,8 +260,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           return (
             <div
               key={tier.id}
-              className={`bg-crwn-surface border rounded-xl p-6 flex flex-col ${
-                isThisTierSubscribed ? 'border-crwn-gold' : 'border-crwn-elevated'
+              className={`neu-raised neu-card-hover p-6 flex flex-col ${
+                isThisTierSubscribed ? 'ring-2 ring-crwn-gold' : ''
               }`}
             >
               {isThisTierSubscribed && (
@@ -295,8 +294,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
                 disabled={isLoading === tier.id || isThisTierSubscribed}
                 className={`mt-4 w-full py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
                   isThisTierSubscribed
-                    ? 'bg-transparent border-2 border-crwn-gold text-crwn-gold hover:bg-crwn-gold/10'
-                    : 'bg-crwn-gold text-crwn-bg hover:bg-crwn-gold-hover'
+                    ? 'neu-button text-crwn-gold'
+                    : 'neu-button-accent text-crwn-bg'
                 }`}
               >
                 {isLoading === tier.id ? (

@@ -346,7 +346,7 @@ export function ArtistPlaylistManager() {
         <h2 className="text-xl font-semibold text-crwn-text">Playlists</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
+          className="flex items-center gap-2 px-4 py-2 neu-button-accent text-crwn-bg"
         >
           <span>+</span>
           New Playlist
@@ -541,7 +541,7 @@ export function ArtistPlaylistManager() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
+                className="w-full py-3 neu-button-accent text-crwn-bg"
               >
                 {editingPlaylist ? 'Update Playlist' : 'Create Playlist'}
               </button>

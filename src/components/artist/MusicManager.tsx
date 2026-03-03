@@ -16,8 +16,8 @@ export function MusicManager() {
           onClick={() => setActiveSubTab('tracks')}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             activeSubTab === 'tracks'
-              ? 'bg-crwn-gold text-crwn-bg'
-              : 'bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
+              ? 'neu-button-accent text-crwn-bg'
+              : 'neu-button text-crwn-text-secondary'
           }`}
         >
           Tracks
@@ -26,8 +26,8 @@ export function MusicManager() {
           onClick={() => setActiveSubTab('albums')}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             activeSubTab === 'albums'
-              ? 'bg-crwn-gold text-crwn-bg'
-              : 'bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
+              ? 'neu-button-accent text-crwn-bg'
+              : 'neu-button text-crwn-text-secondary'
           }`}
         >
           Albums
@@ -36,8 +36,8 @@ export function MusicManager() {
           onClick={() => setActiveSubTab('playlists')}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             activeSubTab === 'playlists'
-              ? 'bg-crwn-gold text-crwn-bg'
-              : 'bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
+              ? 'neu-button-accent text-crwn-bg'
+              : 'neu-button text-crwn-text-secondary'
           }`}
         >
           Playlists

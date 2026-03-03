@@ -51,18 +51,17 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
   };
 
   // Check if user has access to this album
-  // Check access: free albums or fan has a matching tier
   const { tierId } = useSubscription(album.artist_id);
   const hasAccess = album.is_free || (tierId && album.allowed_tier_ids?.includes(tierId));
 
   return (
-    <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
+    <div className="neu-raised neu-card-hover overflow-hidden">
       {/* Album Header */}
       <div
-        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-crwn-elevated/50"
+        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-crwn-elevated/30"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative">
+        <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative shadow-inner">
           {album.album_art_url ? (
             <Image src={album.album_art_url} alt={album.title} fill className="object-cover" />
           ) : (
@@ -73,7 +72,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-crwn-text truncate">{album.title}</h3>
-            {!hasAccess && <Lock className="w-4 h-4 text-crwn-text-secondary flex-shrink-0" />}
+            {!hasAccess && <Lock className="w-4 h-4 text-crwn-gold flex-shrink-0" />}
           </div>
           <p className="text-sm text-crwn-text-secondary">
             {album.track_count || 0} tracks • {album.release_date}
@@ -83,7 +82,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
 
       {/* Expanded Track List */}
       {isExpanded && (
-        <div className="border-t border-crwn-elevated">
+        <div className="neu-inset mx-4 mb-4 p-2">
           {!hasAccess ? (
             <div className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 text-crwn-gold mb-2">
@@ -99,12 +98,12 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
               <Loader2 className="w-6 h-6 text-crwn-gold animate-spin" />
             </div>
           ) : tracks.length > 0 ? (
-            <div className="divide-y divide-crwn-elevated">
+            <div className="space-y-1">
               {tracks.map((track, index) => (
                 <Link
                   key={track.id}
                   href={`/artist/${artistSlug}`}
-                  className="flex items-center gap-3 p-3 hover:bg-crwn-elevated/50 transition-colors"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-crwn-elevated/50 transition-colors"
                 >
                   <span className="w-6 text-center text-crwn-text-secondary text-sm">
                     {index + 1}
@@ -141,7 +140,7 @@ export function AlbumsSection({ albums, artistSlug }: AlbumsSectionProps) {
   return (
     <section className="mb-8">
       <h2 className="text-xl font-semibold text-crwn-text mb-4">Albums</h2>
-      <div className="space-y-2">
+      <div className="space-y-4">
         {albums.map((album) => (
           <AlbumCard key={album.id} album={album} artistSlug={artistSlug} />
         ))}

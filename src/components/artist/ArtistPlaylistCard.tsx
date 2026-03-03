@@ -55,13 +55,13 @@ export function ArtistPlaylistCard({ playlist, artistSlug }: ArtistPlaylistCardP
   const hasAccess = playlist.is_free === true || (tierId && playlist.allowed_tier_ids?.includes(tierId));
 
   return (
-    <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
+    <div className="neu-raised neu-card-hover overflow-hidden">
       {/* Playlist Header - Click to navigate to full playlist */}
       <Link
         href={`/artist/${artistSlug}/playlist/${playlist.id}`}
-        className="flex items-center gap-4 p-4 hover:bg-crwn-elevated/50"
+        className="flex items-center gap-4 p-4 hover:bg-crwn-elevated/30"
       >
-        <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative">
+        <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative shadow-inner">
           {playlist.cover_url ? (
             <Image src={playlist.cover_url} alt={playlist.title} fill className="object-cover" />
           ) : (
@@ -72,7 +72,7 @@ export function ArtistPlaylistCard({ playlist, artistSlug }: ArtistPlaylistCardP
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-crwn-text truncate">{playlist.title}</h3>
-            {!hasAccess && <Lock className="w-4 h-4 text-crwn-text-secondary flex-shrink-0" />}
+            {!hasAccess && <Lock className="w-4 h-4 text-crwn-gold flex-shrink-0" />}
           </div>
           <p className="text-sm text-crwn-text-secondary">
             {playlist.track_count || 0} tracks
@@ -99,7 +99,7 @@ export function ArtistPlaylistsSection({ playlists, artistSlug }: ArtistPlaylist
   return (
     <section className="mb-8">
       <h2 className="text-xl font-semibold text-crwn-text mb-4">Playlists</h2>
-      <div className="space-y-2">
+      <div className="space-y-4">
         {playlists.map((playlist) => (
           <ArtistPlaylistCard 
             key={playlist.id} 
