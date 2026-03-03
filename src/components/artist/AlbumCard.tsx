@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
@@ -50,7 +51,9 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
   };
 
   // Check if user has access to this album
-  const hasAccess = album.access_level === 'free';
+  // Check access: free albums or fan has a matching tier
+  const { tierId } = useSubscription(album.artist_id);
+  const hasAccess = album.is_free || (tierId && album.allowed_tier_ids?.includes(tierId));
 
   return (
     <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
