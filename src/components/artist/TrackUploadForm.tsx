@@ -257,7 +257,7 @@ export function TrackUploadForm() {
           body: JSON.stringify({
             artistId: artistProfile.id,
             type: 'new_track',
-            title: (artistProfile.display_name || 'An artist') + ' dropped a new track!',
+            title: ((artistProfile as any).profile?.display_name || 'An artist') + ' dropped a new track!',
             message: formData.title,
             link: '/artist/' + (artistProfile.slug || ''),
           }),
