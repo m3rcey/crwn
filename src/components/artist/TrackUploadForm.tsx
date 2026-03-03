@@ -134,7 +134,7 @@ export function TrackUploadForm() {
       // Get artist profile
       const { data: artistProfile } = await supabase
         .from('artist_profiles')
-        .select('id, slug, display_name')
+        .select('id, slug')
         .eq('user_id', user?.id)
         .maybeSingle();
 
