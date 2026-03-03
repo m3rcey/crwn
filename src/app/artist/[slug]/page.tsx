@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { GatedTrackPlayer } from '@/components/gating';
 import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
 import { AlbumsSection } from '@/components/artist/AlbumCard';
+import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
 import { ShopSection } from '@/components/artist/ShopSection';
 import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
@@ -100,6 +101,26 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         .select('*', { count: 'exact', head: true })
         .eq('album_id', album.id);
       return { ...album, track_count: count || 0 };
+    })
+  );
+
+  // Fetch artist's playlists
+  const { data: playlists } = await supabase
+    .from('playlists')
+    .select('*')
+    .eq('artist_id', artist.id)
+    .eq('is_artist_playlist', true)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  // Get playlist track counts
+  const playlistsWithCounts = await Promise.all(
+    (playlists || []).map(async (playlist) => {
+      const { count } = await supabase
+        .from('playlist_tracks')
+        .select('*', { count: 'exact', head: true })
+        .eq('playlist_id', playlist.id);
+      return { ...playlist, track_count: count || 0 };
     })
   );
 
@@ -231,6 +252,12 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         {/* Albums */}
         <AlbumsSection 
           albums={albumsWithCounts} 
+          artistSlug={slug}
+        />
+
+        {/* Artist Playlists */}
+        <ArtistPlaylistsSection 
+          playlists={playlistsWithCounts || []} 
           artistSlug={slug}
         />
 

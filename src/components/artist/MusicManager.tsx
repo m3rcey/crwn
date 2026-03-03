@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
 import { AlbumManager } from '@/components/artist/AlbumManager';
-import { PlaylistManager } from '@/components/artist/PlaylistManager';
+import { ArtistPlaylistManager } from '@/components/artist/ArtistPlaylistManager';
 
 export function MusicManager() {
   const [activeSubTab, setActiveSubTab] = useState<'tracks' | 'albums' | 'playlists'>('tracks');
@@ -44,7 +44,13 @@ export function MusicManager() {
         </button>
       </div>
 
-      {activeSubTab === 'tracks' ? <TrackUploadForm /> : activeSubTab === 'albums' ? <AlbumManager /> : <PlaylistManager />}
+      {activeSubTab === 'tracks' ? (
+        <TrackUploadForm />
+      ) : activeSubTab === 'albums' ? (
+        <AlbumManager />
+      ) : (
+        <ArtistPlaylistManager />
+      )}
     </div>
   );
 }

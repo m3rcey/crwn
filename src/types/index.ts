@@ -65,6 +65,13 @@ export interface Playlist {
   is_public: boolean;
   created_at: string;
   updated_at: string;
+  // Artist playlist fields (may be null for fan playlists)
+  artist_id?: string;
+  is_artist_playlist?: boolean;
+  is_free?: boolean;
+  allowed_tier_ids?: string[];
+  price?: number | null;
+  is_active?: boolean;
   // Joined fields
   tracks?: Track[];
   track_count?: number;
