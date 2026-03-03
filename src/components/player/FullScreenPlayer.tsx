@@ -60,12 +60,12 @@ export function FullScreenPlayer() {
       <div className="flex items-center justify-between p-4">
         <button 
           onClick={toggleExpanded}
-          className="p-2 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+          className="neu-icon-button p-2"
         >
           <Minimize2 size={24} />
         </button>
         <span className="text-sm text-crwn-text-secondary">Now Playing</span>
-        <button className="p-2 text-crwn-text-secondary hover:text-crwn-text transition-colors">
+        <button className="neu-icon-button p-2">
           <ListMusic size={24} />
         </button>
       </div>
@@ -73,7 +73,7 @@ export function FullScreenPlayer() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8">
         {/* Album Art */}
-        <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-2xl overflow-hidden shadow-2xl mb-8">
+        <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-2xl overflow-hidden shadow-2xl mb-8" style={{ boxShadow: '8px 8px 16px rgba(0, 0, 0, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.03)' }}>
           {currentTrack.album_art_url ? (
             <Image
               src={currentTrack.album_art_url}
@@ -83,7 +83,7 @@ export function FullScreenPlayer() {
               priority
             />
           ) : (
-            <div className="w-full h-full bg-crwn-surface flex items-center justify-center text-6xl">
+            <div className="w-full h-full neu-raised flex items-center justify-center text-6xl">
               🎵
             </div>
           )}
@@ -100,7 +100,7 @@ export function FullScreenPlayer() {
         {/* Progress */}
         <div className="w-full max-w-md mb-6">
           <div 
-            className="h-2 bg-crwn-elevated rounded-full cursor-pointer mb-2"
+            className="h-2 neu-progress-track rounded-full cursor-pointer mb-2"
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const percent = (e.clientX - rect.left) / rect.width;
@@ -108,7 +108,7 @@ export function FullScreenPlayer() {
             }}
           >
             <div 
-              className="h-full bg-crwn-gold rounded-full transition-all"
+              className="h-full neu-progress-fill rounded-full transition-all"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -122,21 +122,21 @@ export function FullScreenPlayer() {
         <div className="flex items-center gap-6 mb-6">
           <button 
             onClick={toggleShuffle}
-            className={`p-2 transition-colors ${
-              shuffle ? 'text-crwn-gold' : 'text-crwn-text-secondary'
+            className={`neu-icon-button p-2 ${
+              shuffle ? 'text-crwn-gold' : ''
             }`}
           >
             <Shuffle size={20} />
           </button>
           <button 
             onClick={previous}
-            className="p-2 text-crwn-text hover:text-crwn-gold transition-colors"
+            className="neu-icon-button p-2"
           >
             <SkipBack size={32} fill="currentColor" />
           </button>
           <button 
             onClick={togglePlay}
-            className="w-16 h-16 rounded-full bg-crwn-gold text-crwn-bg flex items-center justify-center hover:bg-crwn-gold-hover transition-colors"
+            className="neu-icon-button w-16 h-16 flex items-center justify-center"
           >
             {isPlaying ? (
               <Pause size={32} fill="currentColor" />
@@ -146,14 +146,14 @@ export function FullScreenPlayer() {
           </button>
           <button 
             onClick={next}
-            className="p-2 text-crwn-text hover:text-crwn-gold transition-colors"
+            className="neu-icon-button p-2"
           >
             <SkipForward size={32} fill="currentColor" />
           </button>
           <button 
             onClick={toggleRepeat}
-            className={`p-2 transition-colors ${
-              repeat !== 'off' ? 'text-crwn-gold' : 'text-crwn-text-secondary'
+            className={`neu-icon-button p-2 ${
+              repeat !== 'off' ? 'text-crwn-gold' : ''
             }`}
           >
             {repeat === 'one' ? (
@@ -168,10 +168,8 @@ export function FullScreenPlayer() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => toggleFavorite(currentTrack.id)}
-            className={`p-3 rounded-full transition-colors ${
-              isTrackFavorite 
-                ? 'text-crwn-gold bg-crwn-gold/10' 
-                : 'text-crwn-text-secondary hover:text-crwn-text'
+            className={`neu-icon-button p-3 ${
+              isTrackFavorite ? 'text-crwn-gold' : ''
             }`}
           >
             <Heart size={24} fill={isTrackFavorite ? 'currentColor' : 'none'} />
@@ -180,7 +178,7 @@ export function FullScreenPlayer() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-              className="p-2 text-crwn-text-secondary"
+              className="neu-icon-button p-2"
             >
               {volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
             </button>
@@ -191,7 +189,7 @@ export function FullScreenPlayer() {
               step="0.01"
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="w-24 h-1 bg-crwn-elevated rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-crwn-gold [&::-webkit-slider-thumb]:rounded-full"
+              className="w-24 h-2 neu-progress-track rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:neu-toggle-thumb [&::-webkit-slider-thumb]:rounded-full"
             />
           </div>
         </div>
@@ -204,7 +202,7 @@ export function FullScreenPlayer() {
               {queue.slice(currentIndex + 1, currentIndex + 4).map((track) => (
                 <div 
                   key={track.id}
-                  className="flex items-center gap-3 p-2 rounded-lg bg-crwn-surface/50"
+                  className="flex items-center gap-3 p-2 neu-inset rounded-lg"
                 >
                   <div className="w-10 h-10 rounded bg-crwn-elevated overflow-hidden relative flex-shrink-0">
                     {track.album_art_url ? (

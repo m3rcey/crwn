@@ -154,9 +154,9 @@ export function GatedTrackPlayer({ track, artistId }: GatedTrackPlayerProps) {
       {/* Preview Modal */}
       {showPreviewModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 max-w-md w-full">
+          <div className="neu-modal p-6 max-w-md w-full">
             <div className="text-center">
-              <div className="w-16 h-16 bg-crwn-gold/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 neu-raised rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock size={32} className="text-crwn-gold" />
               </div>
               <h3 className="text-xl font-bold text-crwn-text mb-2">
@@ -169,14 +169,14 @@ export function GatedTrackPlayer({ track, artistId }: GatedTrackPlayerProps) {
               <div className="space-y-3">
                 <button
                   onClick={handlePreview}
-                  className="w-full py-3 bg-crwn-gold/10 border border-crwn-gold text-crwn-gold font-semibold rounded-lg hover:bg-crwn-gold/20 transition-colors"
+                  className="w-full neu-button text-crwn-gold"
                 >
                   Play 30-second preview
                 </button>
 
                 <a
                   href={`/artist/${artistId}?subscribe=true`}
-                  className="block w-full py-3 bg-crwn-gold text-crwn-bg font-semibold rounded-lg hover:bg-crwn-gold-hover transition-colors"
+                  className="block w-full py-3 neu-button-accent text-crwn-bg"
                 >
                   Subscribe to unlock
                 </a>

@@ -40,17 +40,17 @@ export function MiniPlayer() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-crwn-surface border-t border-crwn-elevated z-50">
+    <div className="fixed bottom-0 left-0 right-0 neu-raised z-50" style={{ borderRadius: '16px 16px 0 0' }}>
       {/* Progress bar */}
       <div 
-        className="absolute top-0 left-0 right-0 h-1 bg-crwn-elevated cursor-pointer group"
+        className="absolute top-0 left-0 right-0 h-1.5 neu-progress-track cursor-pointer rounded-none"
         onClick={handleProgressClick}
       >
         <div 
-          className="h-full bg-crwn-gold relative transition-all"
+          className="h-full neu-progress-fill relative transition-all"
           style={{ width: `${progress}%` }}
         >
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-crwn-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 neu-toggle-thumb rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
       </div>
 
@@ -58,7 +58,7 @@ export function MiniPlayer() {
         {/* Track Info */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div 
-            className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 cursor-pointer"
+            className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer shadow-inner"
             onClick={toggleExpanded}
           >
             {currentTrack.album_art_url ? (
@@ -89,13 +89,13 @@ export function MiniPlayer() {
         <div className="flex items-center gap-2">
           <button 
             onClick={previous}
-            className="p-2 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+            className="neu-icon-button p-2"
           >
             <SkipBack size={20} fill="currentColor" />
           </button>
           <button 
             onClick={togglePlay}
-            className="w-10 h-10 rounded-full bg-crwn-gold text-crwn-bg flex items-center justify-center hover:bg-crwn-gold-hover transition-colors"
+            className="neu-icon-button w-10 h-10 flex items-center justify-center"
           >
             {isPlaying ? (
               <Pause size={20} fill="currentColor" />
@@ -105,7 +105,7 @@ export function MiniPlayer() {
           </button>
           <button 
             onClick={next}
-            className="p-2 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+            className="neu-icon-button p-2"
           >
             <SkipForward size={20} fill="currentColor" />
           </button>
@@ -115,18 +115,18 @@ export function MiniPlayer() {
         <div className="hidden sm:flex items-center gap-2">
           <button
             onClick={() => toggleFavorite(currentTrack.id)}
-            className={`p-2 transition-colors ${
-              isTrackFavorite ? 'text-crwn-gold' : 'text-crwn-text-secondary hover:text-crwn-text'
+            className={`neu-icon-button p-2 ${
+              isTrackFavorite ? 'text-crwn-gold' : ''
             }`}
           >
             <Heart size={20} fill={isTrackFavorite ? 'currentColor' : 'none'} />
           </button>
-          <button className="p-2 text-crwn-text-secondary hover:text-crwn-text transition-colors">
+          <button className="neu-icon-button p-2">
             <ListMusic size={20} />
           </button>
           <button 
             onClick={toggleExpanded}
-            className="p-2 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+            className="neu-icon-button p-2"
           >
             <Maximize2 size={20} />
           </button>

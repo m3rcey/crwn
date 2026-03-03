@@ -44,7 +44,7 @@ export function Navigation() {
   return (
     <>
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-crwn-surface border-t border-crwn-elevated z-50 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 neu-raised z-50 md:hidden" style={{ borderRadius: '16px 16px 0 0' }}>
         <div className="flex items-center justify-between px-2 py-1">
           <Link href="/home" className="text-xl font-bold text-crwn-gold px-2">
             CRWN
@@ -61,8 +61,8 @@ export function Navigation() {
                 href={item.href}
                 className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
                   active 
-                    ? 'text-crwn-gold' 
-                    : 'text-crwn-text-secondary hover:text-crwn-text'
+                    ? 'neu-tab-active font-semibold' 
+                    : 'neu-tab-inactive hover:text-crwn-text'
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -74,7 +74,7 @@ export function Navigation() {
       </nav>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 bg-crwn-surface border-r border-crwn-elevated flex-col z-50">
+      <aside className="hidden md:flex fixed left-0 top-0 bottom-0 w-64 neu-raised flex-col z-50">
         <div className="p-6 flex items-center justify-between">
           <Link href="/home" className="text-2xl font-bold text-crwn-gold">
             CRWN
@@ -93,8 +93,8 @@ export function Navigation() {
                   href={item.href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                     active 
-                      ? 'bg-crwn-gold text-crwn-bg font-semibold' 
-                      : 'text-crwn-text-secondary hover:bg-crwn-elevated hover:text-crwn-text'
+                      ? 'neu-button-accent text-crwn-bg font-semibold' 
+                      : 'neu-button text-crwn-text-secondary'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -106,9 +106,9 @@ export function Navigation() {
         </nav>
 
         {/* User Section */}
-        <div className="p-4 border-t border-crwn-elevated">
+        <div className="p-4 neu-inset mx-4 mb-4 rounded-lg">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-crwn-elevated flex items-center justify-center overflow-hidden">
+            <div className="w-10 h-10 rounded-full neu-inset flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
                 <Image 
                   src={profile.avatar_url} 
@@ -135,10 +135,10 @@ export function Navigation() {
           
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-2 px-4 py-2 text-crwn-text-secondary hover:text-crwn-error hover:bg-crwn-error/10 rounded-lg transition-colors"
+            className="w-full neu-button text-crwn-text-secondary hover:text-crwn-error text-sm"
           >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
           </button>
         </div>
       </aside>
