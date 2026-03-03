@@ -251,13 +251,18 @@ export function TrackUploadForm() {
         setTracks(prev => [track as Track, ...prev]);
 
         // Notify subscribers of new track
+        const { data: artistName } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user?.id)
+          .maybeSingle();
         fetch('/api/notifications/notify-subscribers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             artistId: artistProfile.id,
             type: 'new_track',
-            title: ((artistProfile as any).profile?.display_name || 'An artist') + ' dropped a new track!',
+            title: (artistName?.display_name || 'An artist') + ' dropped a new track!',
             message: formData.title,
             link: '/artist/' + (artistProfile.slug || ''),
           }),
