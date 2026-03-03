@@ -6,6 +6,7 @@ export interface Profile {
   id: string;
   role: UserRole;
   display_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   bio: string | null;
   social_links: Record<string, string> | null;
@@ -226,4 +227,45 @@ export interface Like {
   likeable_type: 'post' | 'comment';
   likeable_id: string;
   created_at: string;
+}
+
+// Community Types
+export interface CommunityPost {
+  id: string;
+  artist_id: string;
+  author_id: string;
+  content: string;
+  media_urls: string[];
+  media_types: string[];
+  is_artist_post: boolean;
+  is_free: boolean;
+  allowed_tier_ids: string[];
+  likes_count: number;
+  comments_count: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  author?: {
+    username: string;
+    display_name: string;
+    avatar_url: string;
+  };
+  has_liked?: boolean;
+}
+
+export interface CommunityComment {
+  id: string;
+  post_id: string;
+  author_id: string;
+  content: string;
+  likes_count: number;
+  is_active: boolean;
+  created_at: string;
+  author?: {
+    username: string;
+    display_name: string;
+    avatar_url: string;
+  };
+  has_liked?: boolean;
 }

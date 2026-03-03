@@ -1,14 +1,12 @@
 import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Image from 'next/image';
-import { GatedTrackPlayer } from '@/components/gating';
 import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
-import { AlbumsSection } from '@/components/artist/AlbumCard';
-import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
 import { ShopSection } from '@/components/artist/ShopSection';
 import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
+import { ArtistProfileContent } from '@/components/artist/ArtistProfileContent';
 import type { Metadata } from 'next';
 
 interface ArtistPageProps {
@@ -26,38 +24,12 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
     .single();
 
   if (!artist) {
-    return {
-      title: 'Artist Not Found | CRWN',
-    };
+    return { title: 'Artist Not Found' };
   }
 
-  const artistName = artist.profile?.display_name || 'Artist';
-  const description = artist.profile?.bio || `Check out ${artistName} on CRWN - the all-in-one platform for music artists to monetize, connect with fans, and build community.`;
-
   return {
-    title: `${artistName} | CRWN`,
-    description,
-    openGraph: {
-      title: `${artistName} | CRWN`,
-      description,
-      type: 'profile',
-      url: `https://crwn.vercel.app/artist/${slug}`,
-      siteName: 'CRWN',
-      images: artist.profile?.avatar_url ? [
-        {
-          url: artist.profile.avatar_url,
-          width: 400,
-          height: 400,
-          alt: artistName,
-        }
-      ] : [],
-    },
-    twitter: {
-      card: 'summary',
-      title: `${artistName} | CRWN`,
-      description,
-      images: artist.profile?.avatar_url ? [artist.profile.avatar_url] : [],
-    },
+    title: `${artist.profile?.display_name || 'Artist'} | CRWN`,
+    description: artist.tagline || `Listen to ${artist.profile?.display_name || 'this artist'} on CRWN`,
   };
 }
 
@@ -65,19 +37,44 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   const { slug } = await params;
   const supabase = await createServerSupabaseClient();
 
-  // Fetch artist profile with user profile
+  // Check if user is logged in and if this is their profile
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  let isArtistProfile = false;
+  if (session?.user) {
+    const { data: artistProfile } = await supabase
+      .from('artist_profiles')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    
+    isArtistProfile = artistProfile?.id !== undefined;
+  }
+
+  // Fetch artist profile
   const { data: artist, error } = await supabase
     .from('artist_profiles')
-    .select(`
-      *,
-      profile:profiles(*)
-    `)
+    .select('*, profile:profiles(*)')
     .eq('slug', slug)
     .single();
 
   if (error || !artist) {
     notFound();
   }
+
+  // Parse tier config
+  const tierConfigTiers = (artist.tier_config || []) as TierConfig[];
+
+  // Build tiers array for subscriptions
+  const tiers = tierConfigTiers.length > 0
+    ? tierConfigTiers.map((t: TierConfig) => ({
+        id: t.id,
+        name: t.name,
+        price: t.price,
+        description: t.description,
+        benefits: t.benefits || [],
+      }))
+    : [];
 
   // Fetch artist's tracks
   const { data: tracks } = await supabase
@@ -132,38 +129,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('artist_id', artist.id)
     .eq('is_active', true)
     .order('created_at', { ascending: false });
-
-  const { data: dbTiers } = await supabase
-    .from('subscription_tiers')
-    .select('*')
-    .eq('artist_id', artist.id)
-    .eq('is_active', true)
-    .order('price', { ascending: true });
-
-  // Parse tier_config for legacy support
-  let tierConfigTiers: TierConfig[] = [];
-  if (artist.tier_config) {
-    if (typeof artist.tier_config === 'string') {
-      try {
-        tierConfigTiers = JSON.parse(artist.tier_config);
-      } catch {
-        tierConfigTiers = [];
-      }
-    } else if (Array.isArray(artist.tier_config)) {
-      tierConfigTiers = artist.tier_config as TierConfig[];
-    }
-  }
-
-  // Use database tiers, fallback to tier_config
-  const tiers = dbTiers && dbTiers.length > 0 
-    ? dbTiers.map(t => ({
-        id: t.id,
-        name: t.name,
-        price: t.price,
-        description: t.description,
-        benefits: t.access_config?.benefits || [],
-      }))
-    : tierConfigTiers;
 
   return (
     <div className="relative min-h-screen">
@@ -250,64 +215,16 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           )}
         </div>
 
-        {/* Content */}
-        <div className="px-4 sm:px-6 lg:px-8 py-8">
-          {/* Albums */}
-          <AlbumsSection 
-            albums={albumsWithCounts} 
-            artistSlug={slug}
-          />
-
-          {/* Artist Playlists */}
-          <ArtistPlaylistsSection 
-            playlists={playlistsWithCounts || []} 
-            artistSlug={slug}
-          />
-
-          {/* Subscription Tiers */}
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
-            {tiers.length > 0 ? (
-              <TierCards tiers={tiers} artistSlug={slug} artistId={artist.id} />
-            ) : (
-              <SubscribeCTA
-                artistName={artist.profile?.display_name || 'this artist'}
-                artistSlug={slug}
-                tierPrice={undefined}
-              />
-            )}
-          </section>
-
-          {/* Shop */}
-          <ShopSection 
-            products={products || []} 
-            artistId={artist.id} 
-          />
-
-          {/* Albums */}
-          <AlbumsSection 
-            albums={albumsWithCounts || []} 
-            artistSlug={slug}
-          />
-
-          {/* Tracks */}
-          <section>
-            <h2 className="text-xl font-semibold text-crwn-text mb-4">Music</h2>
-            {tracks && tracks.length > 0 ? (
-              <div className="space-y-2">
-                {tracks.map((track) => (
-                  <GatedTrackPlayer
-                    key={track.id}
-                    track={track}
-                    artistId={artist.id}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-crwn-text-secondary">No tracks released yet.</p>
-            )}
-          </section>
-        </div>
+        {/* Content with Tabs */}
+        <ArtistProfileContent
+          artist={artist}
+          tiers={tiers}
+          albums={albumsWithCounts}
+          playlists={playlistsWithCounts}
+          products={products || []}
+          tracks={tracks || []}
+          isArtistProfile={isArtistProfile}
+        />
       </div>
     </div>
   );
