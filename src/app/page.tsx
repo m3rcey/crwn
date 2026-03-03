@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { BackgroundImage } from '@/components/ui/BackgroundImage';
 
 export default async function LandingPage() {
   // Check if user is already logged in
@@ -13,7 +14,9 @@ export default async function LandingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-crwn-bg flex flex-col items-center justify-center p-4">
+    <>
+      <BackgroundImage src="/backgrounds/bg-home.jpg" />
+      <main className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="text-center">
         <h1 className="text-6xl font-bold text-crwn-gold mb-4">CRWN</h1>
         <p className="text-crwn-text-secondary text-xl mb-8">
@@ -47,5 +50,6 @@ export default async function LandingPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }
