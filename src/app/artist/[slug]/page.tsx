@@ -62,19 +62,21 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     notFound();
   }
 
-  // Parse tier config
-  const tierConfigTiers = (artist.tier_config || []) as TierConfig[];
+  // Fetch tiers from subscription_tiers table
+  const { data: subscriptionTiers } = await supabase
+    .from('subscription_tiers')
+    .select('*')
+    .eq('artist_id', artist.id)
+    .eq('is_active', true)
+    .order('price', { ascending: true });
 
-  // Build tiers array for subscriptions
-  const tiers = tierConfigTiers.length > 0
-    ? tierConfigTiers.map((t: TierConfig) => ({
-        id: t.id,
-        name: t.name,
-        price: t.price,
-        description: t.description,
-        benefits: t.benefits || [],
-      }))
-    : [];
+  const tiers: TierConfig[] = (subscriptionTiers || []).map((t) => ({
+    id: t.id,
+    name: t.name,
+    price: t.price,
+    description: t.description,
+    benefits: t.benefits || [],
+  }));
 
   // Fetch artist's tracks
   const { data: tracks } = await supabase
