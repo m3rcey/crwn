@@ -249,6 +249,19 @@ export function TrackUploadForm() {
       // Add new track to state
       if (track) {
         setTracks(prev => [track as Track, ...prev]);
+
+        // Notify subscribers of new track
+        fetch('/api/notifications/notify-subscribers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            artistId: artistProfile.id,
+            type: 'new_track',
+            title: 'New track dropped!',
+            message: formData.title,
+            link: '/artist/' + (artistProfile.slug || ''),
+          }),
+        }).catch(console.error);
       }
       
       // Reset form
