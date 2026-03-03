@@ -61,7 +61,7 @@ export function ShopManager() {
 
     const { data: artistProfile } = await supabase
       .from('artist_profiles')
-      .select('id')
+      .select('id, slug')
       .eq('user_id', user.id)
       .maybeSingle();
 
