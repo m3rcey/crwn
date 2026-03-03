@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
 import { Playlist, Track } from '@/types';
-import { Plus, Check, ChevronDown, ListMusic } from 'lucide-react';
+import { Plus, Check, ListMusic } from 'lucide-react';
 
 interface AddToPlaylistMenuProps {
   track: Track;

@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
-import { Playlist, PlaylistTrack, Track } from '@/types';
+import { Playlist, Track } from '@/types';
 import Image from 'next/image';
 import {
-  Loader2, Plus, Edit2, Trash2, X, Upload, Play, Pause,
-  GripVertical, Lock, Globe, Check, ChevronDown
+  Loader2, Plus, Edit2, Trash2, X, Upload,
+  Lock, Globe
 } from 'lucide-react';
 import { usePlayer } from '@/hooks/usePlayer';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
@@ -22,7 +22,7 @@ interface PlaylistFormData {
 
 export function PlaylistManager() {
   const { user } = useAuth();
-  const { currentTrack, isPlaying, play, pause } = usePlayer();
+  const { play, pause } = usePlayer();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

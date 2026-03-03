@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Track } from '@/types';
-import Image from 'next/image';
-import { Trash2, Play, Pause } from 'lucide-react';
 import { usePlayer } from '@/hooks/usePlayer';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
 import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
@@ -96,18 +94,6 @@ export function TrackUploadForm() {
     } catch (error) {
       console.error('Delete error:', error);
       alert('Failed to delete track');
-    }
-  };
-
-  const handlePlayPause = (track: Track) => {
-    if (currentTrack?.id === track.id) {
-      if (isPlaying) {
-        pause();
-      } else {
-        play(track);
-      }
-    } else {
-      play(track);
     }
   };
 
@@ -293,13 +279,6 @@ export function TrackUploadForm() {
   const handleReorderTracks = async (reorderedTracks: Track[]) => {
     setTracks(reorderedTracks);
     // Could save order to DB if there's a position column
-  };
-
-  const formatDuration = (seconds: number | null) => {
-    if (!seconds) return '--:--';
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (

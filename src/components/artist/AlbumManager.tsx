@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
-import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
 
 interface SubscriptionTier {
   id: string;
@@ -14,10 +13,9 @@ interface SubscriptionTier {
   price: number;
 }
 import { 
-  Loader2, Plus, Edit2, Trash2, X, Upload, GripVertical, 
-  Eye, EyeOff, Check, Play, Pause 
+  Loader2, Plus, Edit2, Trash2, X, Upload, 
+  Eye, EyeOff 
 } from 'lucide-react';
-import { usePlayer } from '@/hooks/usePlayer';
 
 interface AlbumFormData {
   title: string;
@@ -33,7 +31,6 @@ interface AlbumFormData {
 
 export function AlbumManager() {
   const { user } = useAuth();
-  const { play, pause, currentTrack, isPlaying } = usePlayer();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
