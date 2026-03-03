@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigation } from '@/components/layout/Navigation';
+import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { Loader2 } from 'lucide-react';
 
 export default function MainLayout({
@@ -33,11 +34,12 @@ export default function MainLayout({
   }
 
   return (
-    <div className="min-h-screen bg-crwn-bg">
+    <div className="relative min-h-screen bg-transparent">
+      <BackgroundImage src="/backgrounds/bg-home.jpg" />
       <Navigation />
       
       {/* Main Content - with padding for mobile nav and sidebar */}
-      <div className="md:pl-64 pb-20 md:pb-0">
+      <div className="relative z-10 md:pl-64 pb-20 md:pb-0">
         <main className="p-4 md:p-8">
           {children}
         </main>
