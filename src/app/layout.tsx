@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${inter.variable} font-sans antialiased bg-crwn-bg text-crwn-text min-h-screen pb-20`}
+        className={`${inter.variable} font-sans antialiased bg-transparent text-crwn-text min-h-screen pb-20`}
       >
         <AuthProvider>
           <PlayerProvider>
