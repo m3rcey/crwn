@@ -25,6 +25,7 @@ interface AlbumFormData {
   isFree: boolean;
   allowedTierIds: string[];
   isPublished: boolean;
+  price: string;
 }
 
 export function AlbumManager() {
@@ -45,6 +46,7 @@ export function AlbumManager() {
     releaseDate: new Date().toISOString().split('T')[0],
     isFree: true,
     allowedTierIds: [],
+    price: '',
     isPublished: false,
   });
 
@@ -181,7 +183,8 @@ export function AlbumManager() {
             release_date: formData.releaseDate,
             is_free: formData.isFree,
             allowed_tier_ids: formData.allowedTierIds,
-            is_active: formData.isPublished,
+            is_active: true,
+            price: formData.price ? Math.round(parseFloat(formData.price) * 100) : null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', editingAlbum.id);
@@ -203,7 +206,8 @@ export function AlbumManager() {
             release_date: formData.releaseDate,
             is_free: formData.isFree,
             allowed_tier_ids: formData.allowedTierIds,
-            is_active: formData.isPublished,
+            is_active: true,
+            price: formData.price ? Math.round(parseFloat(formData.price) * 100) : null,
           })
           .select()
           .single();
@@ -249,6 +253,7 @@ export function AlbumManager() {
       albumArtUrl: album.album_art_url || '',
       releaseDate: album.release_date,
       isFree: album.is_free ?? true,
+      price: album.price ? (album.price / 100).toString() : '',
       allowedTierIds: album.allowed_tier_ids ?? [],
       isPublished: album.is_active,
     });
@@ -316,6 +321,7 @@ export function AlbumManager() {
       isFree: true,
     allowedTierIds: [],
       isPublished: false,
+    price: '',
     });
   };
 
@@ -474,6 +480,23 @@ export function AlbumManager() {
                     ))}
                   </div>
                 </div>
+              </div>
+              {/* Price (one-time purchase) */}
+              <div>
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Price (optional one-time purchase)</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-crwn-text">$</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Leave empty if not for sale"
+                    value={formData.price}
+                    onChange={(e) => setFormData(p => ({ ...p, price: e.target.value }))}
+                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                  />
+                </div>
+                <p className="text-xs text-crwn-text-secondary mt-1">Fans can buy the album outright, in addition to tier access</p>
               </div>
 
               {/* Published Toggle */}

@@ -80,6 +80,7 @@ export interface Album {
   access_level: AccessLevel;
   is_free: boolean;
   allowed_tier_ids: string[];
+  price: number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
