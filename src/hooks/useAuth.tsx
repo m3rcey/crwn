@@ -10,6 +10,7 @@ interface Profile {
   id: string;
   role: UserRole;
   display_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   bio: string | null;
   social_links: Record<string, string> | null;
@@ -20,7 +21,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   isLoading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, username?: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
@@ -76,14 +77,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [fetchProfile, supabase]);
 
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, username?: string) => {
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/login`,
       },
     });
+
+    if (!error && data.user && username) {
+      // Update profile with username
+      await supabase
+        .from('profiles')
+        .update({ username: username.toLowerCase() })
+        .eq('id', data.user.id);
+    }
+
     return { error };
   };
 

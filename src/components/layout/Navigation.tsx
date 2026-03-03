@@ -8,7 +8,6 @@ import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { 
   Home, 
   Compass, 
-  Users, 
   Library, 
   User,
   LogOut
@@ -17,7 +16,6 @@ import {
 const navItems = [
   { href: '/home', label: 'Home', icon: Home },
   { href: '/explore', label: 'Explore', icon: Compass },
-  { href: '/community', label: 'Community', icon: Users },
   { href: '/library', label: 'Library', icon: Library },
   { href: '/profile', label: 'Profile', icon: User },
 ];

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { Check, X, Loader2 } from 'lucide-react';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
@@ -11,11 +13,71 @@ interface AuthFormProps {
 export function AuthForm({ mode, onSuccess }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, signInWithMagicLink, signInWithGoogle, signInWithApple } = useAuth();
+  const supabase = createBrowserSupabaseClient();
+
+  // Username validation
+  const validateUsername = (value: string): string | null => {
+    if (value.length < 3) return 'Username must be at least 3 characters';
+    if (value.length > 20) return 'Username must be 20 characters or less';
+    if (!/^[a-z0-9_]+$/.test(value)) return 'Only lowercase letters, numbers, and underscores allowed';
+    return null;
+  };
+
+  const checkUsername = async (value: string) => {
+    const validationError = validateUsername(value);
+    if (validationError) {
+      setUsernameError(validationError);
+      setUsernameStatus('idle');
+      return;
+    }
+
+    setUsernameError(null);
+    if (value.length === 0) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    setUsernameStatus('checking');
+    
+    // Check if username is taken
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', value.toLowerCase())
+      .maybeSingle();
+
+    if (error) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    if (data) {
+      setUsernameStatus('taken');
+      setUsernameError('Username already taken');
+    } else {
+      setUsernameStatus('available');
+    }
+  };
+
+  const handleUsernameChange = (value: string) => {
+    setUsername(value.toLowerCase());
+    setUsernameStatus('idle');
+    setUsernameError(null);
+  };
+
+  const handleUsernameBlur = () => {
+    if (username.length > 0) {
+      checkUsername(username);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +86,27 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
 
     try {
       if (mode === 'signup') {
-        const { error } = await signUp(email, password);
+        // Validate username for signup
+        if (!username) {
+          setError('Username is required');
+          setIsLoading(false);
+          return;
+        }
+
+        const validationError = validateUsername(username);
+        if (validationError) {
+          setError(validationError);
+          setIsLoading(false);
+          return;
+        }
+
+        if (usernameStatus === 'taken') {
+          setError('Username is already taken');
+          setIsLoading(false);
+          return;
+        }
+
+        const { error } = await signUp(email, password, username);
         if (error) throw error;
         setShowConfirmation(true);
       } else {
@@ -80,6 +162,45 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
   return (
     <div className="w-full max-w-md mx-auto">
       <form onSubmit={handleSubmit} className="space-y-4">
+        {mode === 'signup' && (
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-crwn-text-secondary mb-1">
+              Username
+            </label>
+            <div className="relative">
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                onBlur={handleUsernameBlur}
+                placeholder="your_username"
+                className={`neu-inset w-full px-4 py-3 text-crwn-text placeholder-crwn-text-secondary focus:outline-none pr-10 ${
+                  usernameStatus === 'available' ? 'border border-crwn-success' : ''
+                } ${usernameStatus === 'taken' || usernameError ? 'border border-crwn-error' : ''}`}
+                required={mode === 'signup'}
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                {usernameStatus === 'checking' && (
+                  <Loader2 className="w-5 h-5 text-crwn-text-secondary animate-spin" />
+                )}
+                {usernameStatus === 'available' && (
+                  <Check className="w-5 h-5 text-crwn-success" />
+                )}
+                {usernameStatus === 'taken' && (
+                  <X className="w-5 h-5 text-crwn-error" />
+                )}
+              </div>
+            </div>
+            {usernameError && (
+              <p className="text-sm text-crwn-error mt-1">{usernameError}</p>
+            )}
+            <p className="text-xs text-crwn-text-dim mt-1">
+              3-20 characters, lowercase letters, numbers, underscores
+            </p>
+          </div>
+        )}
+
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-crwn-text-secondary mb-1">
             Email
@@ -124,7 +245,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || (mode === 'signup' && usernameStatus === 'taken')}
           className="neu-button-accent w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Loading...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
