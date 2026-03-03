@@ -81,7 +81,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .from('tracks')
     .select('*')
     .eq('artist_id', artist.id)
-    .order('position', { ascending: true });
+    .order('position', { ascending: true, nullsFirst: false }).order('created_at', { ascending: false });
 
   // Fetch artist's albums
   const { data: albums } = await supabase
