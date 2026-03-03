@@ -8,7 +8,9 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const { artistId, type, title, message, link } = await req.json();
+  const body = await req.json();
+  const { artistId, type, title, message, link } = body;
+  console.log('Notify subscribers called:', JSON.stringify(body));
 
   if (!artistId || !type) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
@@ -20,6 +22,7 @@ export async function POST(req: NextRequest) {
     .eq('artist_id', artistId)
     .eq('status', 'active');
 
+  console.log('Subscribers found:', subs?.length || 0);
   if (!subs || subs.length === 0) {
     return NextResponse.json({ notified: 0 });
   }
@@ -39,5 +42,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  console.log('Notifications inserted for', subs.length, 'subscribers');
   return NextResponse.json({ notified: subs.length });
 }
