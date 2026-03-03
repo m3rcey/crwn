@@ -134,7 +134,7 @@ export function TrackUploadForm() {
       // Get artist profile
       const { data: artistProfile } = await supabase
         .from('artist_profiles')
-        .select('id, slug')
+        .select('id, slug, display_name')
         .eq('user_id', user?.id)
         .maybeSingle();
 
@@ -257,7 +257,7 @@ export function TrackUploadForm() {
           body: JSON.stringify({
             artistId: artistProfile.id,
             type: 'new_track',
-            title: 'New track dropped!',
+            title: (artistProfile.display_name || 'An artist') + ' dropped a new track!',
             message: formData.title,
             link: '/artist/' + (artistProfile.slug || ''),
           }),
