@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { usePlayer } from '@/hooks/usePlayer';
 import { 
@@ -44,6 +45,9 @@ export function FullScreenPlayer() {
   if (!currentTrack || !isExpanded) return null;
 
   const isTrackFavorite = isFavorite(currentTrack.id);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragTime, setDragTime] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   const formatTime = (seconds: number) => {
     if (!seconds) return '0:00';
@@ -52,7 +56,38 @@ export function FullScreenPlayer() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progress = duration ? (currentTime / duration) * 100 : 0;
+  const displayProgress = isDragging ? (dragTime / duration) * 100 : (duration ? (currentTime / duration) * 100 : 0);
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressRef.current || !duration) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    seek(percent * duration);
+  };
+
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return;
+    setIsDragging(true);
+    const rect = progressRef.current?.getBoundingClientRect();
+    if (rect) {
+      const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      setDragTime(percent * duration);
+    }
+  };
+
+  const handleDragMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !duration || !progressRef.current) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    setDragTime(percent * duration);
+  };
+
+  const handleDragEnd = () => {
+    if (isDragging && duration) {
+      seek(dragTime);
+      setIsDragging(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-crwn-bg z-[100] flex flex-col">
@@ -100,20 +135,21 @@ export function FullScreenPlayer() {
         {/* Progress */}
         <div className="w-full max-w-md mb-6">
           <div 
+            ref={progressRef}
             className="h-2 neu-progress-track rounded-full cursor-pointer mb-2"
-            onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const percent = (e.clientX - rect.left) / rect.width;
-              seek(percent * duration);
-            }}
+            onClick={handleProgressClick}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
           >
             <div 
               className="h-full neu-progress-fill rounded-full transition-all"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${displayProgress}%` }}
             />
           </div>
           <div className="flex justify-between text-sm text-crwn-text-secondary">
-            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(isDragging ? dragTime : currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>

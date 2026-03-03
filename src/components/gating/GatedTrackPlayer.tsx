@@ -10,9 +10,10 @@ import Image from 'next/image';
 interface GatedTrackPlayerProps {
   track: Track;
   artistId: string;
+  trackList?: Track[];
 }
 
-export function GatedTrackPlayer({ track, artistId }: GatedTrackPlayerProps) {
+export function GatedTrackPlayer({ track, artistId, trackList }: GatedTrackPlayerProps) {
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, isLoading } = useSubscription(artistId);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -31,10 +32,10 @@ export function GatedTrackPlayer({ track, artistId }: GatedTrackPlayerProps) {
       if (isPlaying) {
         pause();
       } else {
-        play(track);
+        play(track, trackList);
       }
     } else {
-      play(track);
+      play(track, trackList);
     }
   };
 
@@ -44,7 +45,7 @@ export function GatedTrackPlayer({ track, artistId }: GatedTrackPlayerProps) {
       ...track,
       audio_url_128: `${track.audio_url_128}#t=0,30`,
     };
-    play(previewTrack);
+    play(previewTrack, trackList);
     setShowPreviewModal(false);
   };
 

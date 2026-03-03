@@ -79,13 +79,6 @@ export default function HomePage() {
       description: 'Your saved tracks',
       color: 'bg-crwn-elevated'
     },
-    { 
-      href: '/community', 
-      label: 'Community', 
-      icon: Users, 
-      description: 'Join the conversation',
-      color: 'bg-crwn-elevated'
-    },
     hasArtistProfile 
       ? { href: '/profile/artist', label: 'Artist Dashboard', icon: Music, description: 'Manage your music', color: 'bg-crwn-gold' }
       : { href: '/profile/artist', label: 'Become an Artist', icon: Music, description: 'Start creating', color: 'bg-crwn-elevated' }

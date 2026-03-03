@@ -18,7 +18,8 @@ interface PlayerContextType {
   shuffle: boolean;
   repeat: RepeatMode;
   isExpanded: boolean;
-  play: (track: Track) => void;
+  play: (track: Track, trackList?: Track[]) => void;
+  playAll: (tracks: Track[], startIndex?: number) => void;
   pause: () => void;
   togglePlay: () => void;
   next: () => void;
@@ -51,7 +52,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.8);
-  const [queue, setQueue] = useState<Track[]>([]);
+  const [queue, setQueueState] = useState<Track[]>([]);
+  const [originalQueue, setOriginalQueue] = useState<Track[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>('off');
@@ -174,7 +176,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [handleTrackEnd]);
 
   // Play - declared after dependencies
-  const play = useCallback(async (track: Track) => {
+  const play = useCallback(async (track: Track, trackList?: Track[]) => {
     const { canPlay, isPreview } = canPlayTrack(track);
     
     if (!canPlay && !isPreview) {
@@ -183,6 +185,14 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
 
     console.log('Playing track:', track.title, 'URL:', track.audio_url_128);
+
+    // If trackList provided, set as queue
+    if (trackList && trackList.length > 0) {
+      setOriginalQueue(trackList);
+      setQueueState(trackList);
+      const startIndex = trackList.findIndex(t => t.id === track.id);
+      setCurrentIndex(startIndex !== -1 ? startIndex : 0);
+    }
 
     if (currentTrack?.id !== track.id) {
       if (currentTrack && playStartTime) {
@@ -211,6 +221,36 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }, [currentTrack, playStartTime, canPlayTrack, logPlayHistory]);
+
+  // Play all - plays a list of tracks starting from a specific index
+  const playAll = useCallback(async (tracks: Track[], startIndex = 0) => {
+    if (!tracks || tracks.length === 0) return;
+    
+    setOriginalQueue(tracks);
+    setQueueState(tracks);
+    setCurrentIndex(startIndex);
+    
+    const track = tracks[startIndex];
+    if (track) {
+      const { canPlay, isPreview } = canPlayTrack(track);
+      if (!canPlay && !isPreview) {
+        console.log('Track cannot be played:', track);
+        return;
+      }
+      
+      setCurrentTrack(track);
+      setCurrentTime(0);
+      setPlayStartTime(Date.now());
+      
+      if (audioRef.current) {
+        const audioSrc = isPreview 
+          ? `${track.audio_url_128}#t=0,30`
+          : track.audio_url_128 || '';
+        audioRef.current.src = audioSrc;
+        audioRef.current.play().then(() => setIsPlaying(true));
+      }
+    }
+  }, [canPlayTrack]);
 
   // Pause
   const pause = useCallback(() => {
@@ -284,8 +324,37 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Toggle functions
-  const toggleShuffle = useCallback(() => setShuffle(prev => !prev), []);
+  // Toggle shuffle - shuffles or restores queue
+  const toggleShuffle = useCallback(() => {
+    setShuffle(prev => {
+      const newShuffle = !prev;
+      if (newShuffle) {
+        // Shuffle the queue, keeping current track at current position
+        const currentTrackId = queue[currentIndex]?.id;
+        const otherTracks = queue.filter((_, i) => i !== currentIndex);
+        // Fisher-Yates shuffle
+        for (let i = otherTracks.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [otherTracks[i], otherTracks[j]] = [otherTracks[j], otherTracks[i]];
+        }
+        // Insert current track back at current position
+        const currentTrack = queue[currentIndex];
+        const newQueue = [...otherTracks];
+        newQueue.splice(currentIndex, 0, currentTrack);
+        setQueueState(newQueue);
+      } else {
+        // Restore original queue order
+        setQueueState([...originalQueue]);
+        // Find the current track in original queue
+        const currentTrackId = currentTrack?.id;
+        const originalIndex = originalQueue.findIndex(t => t.id === currentTrackId);
+        if (originalIndex !== -1) {
+          setCurrentIndex(originalIndex);
+        }
+      }
+      return newShuffle;
+    });
+  }, [queue, currentIndex, originalQueue, currentTrack]);
   
   const toggleRepeat = useCallback(() => {
     const modes: RepeatMode[] = ['off', 'all', 'one'];
@@ -296,11 +365,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   // Queue actions
   const addToQueue = useCallback((track: Track) => {
-    setQueue(prev => [...prev, track]);
+    setQueueState(prev => [...prev, track]);
   }, []);
 
   const playNext = useCallback((track: Track) => {
-    setQueue(prev => {
+    setQueueState(prev => {
       const newQueue = [...prev];
       newQueue.splice(currentIndex + 1, 0, track);
       return newQueue;
@@ -308,19 +377,19 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [currentIndex]);
 
   const removeFromQueue = useCallback((index: number) => {
-    setQueue(prev => prev.filter((_, i) => i !== index));
+    setQueueState(prev => prev.filter((_, i) => i !== index));
     if (index < currentIndex) {
       setCurrentIndex(prev => prev - 1);
     }
   }, [currentIndex]);
 
   const clearQueue = useCallback(() => {
-    setQueue([]);
+    setQueueState([]);
     setCurrentIndex(0);
   }, []);
 
   const reorderQueue = useCallback((startIndex: number, endIndex: number) => {
-    setQueue(prev => {
+    setQueueState(prev => {
       const newQueue = [...prev];
       const [removed] = newQueue.splice(startIndex, 1);
       newQueue.splice(endIndex, 0, removed);
@@ -371,6 +440,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       repeat,
       isExpanded,
       play,
+      playAll,
       pause,
       togglePlay,
       next,

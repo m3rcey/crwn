@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { usePlayer } from '@/hooks/usePlayer';
 import { 
@@ -30,25 +31,58 @@ export function MiniPlayer() {
   if (!currentTrack) return null;
 
   const isTrackFavorite = isFavorite(currentTrack.id);
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragTime, setDragTime] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+  
+  const displayProgress = isDragging && duration ? (dragTime / duration) * 100 : (duration > 0 ? (currentTime / duration) * 100 : 0);
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
+    if (!duration || !progressRef.current) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     seek(percent * duration);
+  };
+
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return;
+    setIsDragging(true);
+    const rect = progressRef.current?.getBoundingClientRect();
+    if (rect) {
+      const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      setDragTime(percent * duration);
+    }
+  };
+
+  const handleDragMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !duration || !progressRef.current) return;
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    setDragTime(percent * duration);
+  };
+
+  const handleDragEnd = () => {
+    if (isDragging && duration) {
+      seek(dragTime);
+      setIsDragging(false);
+    }
   };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 neu-raised z-50" style={{ borderRadius: '16px 16px 0 0' }}>
       {/* Progress bar */}
       <div 
+        ref={progressRef}
         className="absolute top-0 left-0 right-0 h-1.5 neu-progress-track cursor-pointer rounded-none"
         onClick={handleProgressClick}
+        onMouseDown={handleDragStart}
+        onMouseMove={handleDragMove}
+        onMouseUp={handleDragEnd}
+        onMouseLeave={handleDragEnd}
       >
         <div 
           className="h-full neu-progress-fill relative transition-all"
-          style={{ width: `${progress}%` }}
+          style={{ width: `${displayProgress}%` }}
         >
           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 neu-toggle-thumb rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
