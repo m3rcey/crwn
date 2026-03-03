@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
 import { AlbumManager } from '@/components/artist/AlbumManager';
+import { PlaylistManager } from '@/components/artist/PlaylistManager';
 
 export function MusicManager() {
-  const [activeSubTab, setActiveSubTab] = useState<'tracks' | 'albums'>('tracks');
+  const [activeSubTab, setActiveSubTab] = useState<'tracks' | 'albums' | 'playlists'>('tracks');
 
   return (
     <div>
@@ -31,9 +32,19 @@ export function MusicManager() {
         >
           Albums
         </button>
+        <button
+          onClick={() => setActiveSubTab('playlists')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeSubTab === 'playlists'
+              ? 'bg-crwn-gold text-crwn-bg'
+              : 'bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
+          }`}
+        >
+          Playlists
+        </button>
       </div>
 
-      {activeSubTab === 'tracks' ? <TrackUploadForm /> : <AlbumManager />}
+      {activeSubTab === 'tracks' ? <TrackUploadForm /> : activeSubTab === 'albums' ? <AlbumManager /> : <PlaylistManager />}
     </div>
   );
 }

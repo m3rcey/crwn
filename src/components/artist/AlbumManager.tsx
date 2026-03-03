@@ -5,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
+import { SortableTrackList } from '@/components/shared/SortableTrackList';
+import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
 
 interface SubscriptionTier {
   id: string;
@@ -13,8 +15,9 @@ interface SubscriptionTier {
 }
 import { 
   Loader2, Plus, Edit2, Trash2, X, Upload, GripVertical, 
-  Eye, EyeOff, Check, ChevronUp, ChevronDown, Play, Pause 
+  Eye, EyeOff, Check, Play, Pause 
 } from 'lucide-react';
+import { usePlayer } from '@/hooks/usePlayer';
 
 interface AlbumFormData {
   title: string;
@@ -30,6 +33,7 @@ interface AlbumFormData {
 
 export function AlbumManager() {
   const { user } = useAuth();
+  const { play, pause, currentTrack, isPlaying } = usePlayer();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +41,11 @@ export function AlbumManager() {
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
   const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
+  
+  // Track upload state
+  const [isUploadingTrack, setIsUploadingTrack] = useState(false);
+  const [newTrackFile, setNewTrackFile] = useState<File | null>(null);
+  const [newTrackTitle, setNewTrackTitle] = useState('');
 
   const [formData, setFormData] = useState<AlbumFormData>({
     title: '',
@@ -134,6 +143,104 @@ export function AlbumManager() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handleUploadTrackInForm = async () => {
+    if (!newTrackFile || !newTrackTitle || !user) return;
+
+    setIsUploadingTrack(true);
+
+    try {
+      // Get artist profile
+      const { data: artistProfile } = await supabase
+        .from('artist_profiles')
+        .select('id, slug')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!artistProfile) {
+        alert('Artist profile not found');
+        setIsUploadingTrack(false);
+        return;
+      }
+
+      // Get duration
+      let duration = 180;
+      try {
+        const audioElement = new Audio();
+        const audioBlob = new Blob([newTrackFile], { type: newTrackFile.type });
+        const audioUrlObject = URL.createObjectURL(audioBlob);
+        
+        duration = await new Promise<number>((resolve) => {
+          audioElement.addEventListener('loadedmetadata', () => {
+            URL.revokeObjectURL(audioUrlObject);
+            resolve(Math.round(audioElement.duration));
+          });
+          audioElement.addEventListener('error', () => {
+            URL.revokeObjectURL(audioUrlObject);
+            resolve(180);
+          });
+          setTimeout(() => {
+            URL.revokeObjectURL(audioUrlObject);
+            resolve(180);
+          }, 3000);
+          audioElement.src = audioUrlObject;
+        });
+      } catch {
+        console.log('Could not read audio duration');
+      }
+
+      // Upload audio
+      const audioExt = newTrackFile.name.split('.').pop();
+      const audioFileName = `${Date.now()}.${audioExt}`;
+      const audioPath = `${artistProfile.id}/${audioFileName}`;
+      
+      const { error: audioError } = await supabase.storage
+        .from('audio')
+        .upload(audioPath, newTrackFile);
+
+      let audioUrl = '';
+      if (audioError) {
+        console.error('Audio upload error:', audioError);
+        audioUrl = `https://crwn-media.r2.dev/${artistProfile.slug}/audio/${audioFileName}`;
+      } else {
+        const { data: { publicUrl } } = supabase.storage
+          .from('audio')
+          .getPublicUrl(audioPath);
+        audioUrl = publicUrl;
+      }
+
+      // Save track to DB
+      const { data: newTrack, error } = await supabase
+        .from('tracks')
+        .insert({
+          artist_id: artistProfile.id,
+          title: newTrackTitle,
+          audio_url_128: audioUrl,
+          audio_url_320: audioUrl,
+          duration,
+          access_level: 'free',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Add to selected tracks
+      if (newTrack) {
+        setSelectedTracks(prev => [...prev, newTrack as Track]);
+      }
+
+      // Reset upload fields
+      setNewTrackFile(null);
+      setNewTrackTitle('');
+      alert('Track uploaded and added to album!');
+    } catch (error) {
+      console.error('Error uploading track:', error);
+      alert('Failed to upload track');
+    } finally {
+      setIsUploadingTrack(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -319,20 +426,16 @@ export function AlbumManager() {
       albumArtUrl: '',
       releaseDate: new Date().toISOString().split('T')[0],
       isFree: true,
-    allowedTierIds: [],
+      allowedTierIds: [],
       isPublished: false,
-    price: '',
+      price: '',
     });
+    setNewTrackFile(null);
+    setNewTrackTitle('');
   };
 
-  const moveTrack = (index: number, direction: 'up' | 'down') => {
-    const newTracks = [...selectedTracks];
-    if (direction === 'up' && index > 0) {
-      [newTracks[index - 1], newTracks[index]] = [newTracks[index], newTracks[index - 1]];
-    } else if (direction === 'down' && index < newTracks.length - 1) {
-      [newTracks[index], newTracks[index + 1]] = [newTracks[index + 1], newTracks[index]];
-    }
-    setSelectedTracks(newTracks);
+  const handleReorderTracks = (reorderedTracks: Track[]) => {
+    setSelectedTracks(reorderedTracks);
   };
 
   const addTrack = (track: Track) => {
@@ -340,9 +443,12 @@ export function AlbumManager() {
     setAvailableTracks(availableTracks.filter(t => t.id !== track.id));
   };
 
-  const removeTrack = (track: Track) => {
-    setSelectedTracks(selectedTracks.filter(t => t.id !== track.id));
-    setAvailableTracks([...availableTracks, track]);
+  const removeTrack = (trackId: string) => {
+    const track = selectedTracks.find(t => t.id === trackId);
+    if (track) {
+      setSelectedTracks(selectedTracks.filter(t => t.id !== trackId));
+      setAvailableTracks([...availableTracks, track]);
+    }
   };
 
   const formatDuration = (seconds: number | null | undefined) => {
@@ -516,30 +622,64 @@ export function AlbumManager() {
                   Tracks ({selectedTracks.length} selected)
                 </label>
                 
-                {/* Selected Tracks - Reorderable */}
-                <div className="space-y-2 mb-4">
-                  {selectedTracks.map((track, index) => (
-                    <div key={track.id} className="flex items-center gap-2 bg-crwn-bg rounded-lg p-2">
-                      <button type="button" onClick={() => moveTrack(index, 'up')} disabled={index === 0} className="p-1 text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30">
-                        <ChevronUp className="w-4 h-4" />
-                      </button>
-                      <button type="button" onClick={() => moveTrack(index, 'down')} disabled={index === selectedTracks.length - 1} className="p-1 text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30">
-                        <ChevronDown className="w-4 h-4" />
-                      </button>
-                      <span className="w-6 text-center text-crwn-text-secondary text-sm">{index + 1}</span>
-                      <span className="flex-1 text-crwn-text truncate">{track.title}</span>
-                      <span className="text-crwn-text-secondary text-sm">{formatDuration(track.duration)}</span>
-                      <button type="button" onClick={() => removeTrack(track)} className="p-1 text-crwn-error hover:bg-crwn-error/10 rounded">
-                        <X className="w-4 h-4" />
-                      </button>
+                {/* Selected Tracks - Reorderable with DnD */}
+                <div className="mb-4">
+                  {selectedTracks.length > 0 ? (
+                    <SortableTrackList
+                      tracks={selectedTracks}
+                      onReorder={handleReorderTracks}
+                      onRemove={removeTrack}
+                      showDragHandle={true}
+                    />
+                  ) : (
+                    <div className="text-crwn-text-secondary text-sm py-4 text-center bg-crwn-bg rounded-lg">
+                      No tracks selected
                     </div>
-                  ))}
+                  )}
+                </div>
+
+                {/* Upload Track Inline */}
+                <div className="mb-4 p-3 bg-crwn-bg rounded-lg border border-crwn-elevated">
+                  <p className="text-sm font-medium text-crwn-text-secondary mb-2">Upload new track directly:</p>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => setNewTrackFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                      id="inline-track-upload"
+                    />
+                    <label
+                      htmlFor="inline-track-upload"
+                      className="flex items-center gap-2 px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg cursor-pointer text-sm"
+                    >
+                      <Upload className="w-4 h-4" />
+                      {newTrackFile ? newTrackFile.name.slice(0, 20) + '...' : 'Select Audio'}
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Track title"
+                      value={newTrackTitle}
+                      onChange={(e) => setNewTrackTitle(e.target.value)}
+                      className="flex-1 bg-crwn-surface border border-crwn-elevated rounded-lg px-3 py-2 text-crwn-text text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleUploadTrackInForm}
+                      disabled={!newTrackFile || !newTrackTitle || isUploadingTrack}
+                      className="px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg text-sm font-medium hover:bg-crwn-gold-hover disabled:opacity-50"
+                    >
+                      {isUploadingTrack ? 'Uploading...' : 'Upload'}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Available Tracks */}
                 {availableTracks.length > 0 && (
                   <>
-                    <p className="text-sm text-crwn-text-secondary mb-2">Add tracks:</p>
+                    <p className="text-sm text-crwn-text-secondary mb-2">Add existing tracks:</p>
                     <div className="max-h-32 overflow-y-auto bg-crwn-bg rounded-lg p-2 space-y-1">
                       {availableTracks.map((track) => (
                         <button

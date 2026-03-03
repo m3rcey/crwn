@@ -7,6 +7,8 @@ import { Track } from '@/types';
 import Image from 'next/image';
 import { Trash2, Play, Pause } from 'lucide-react';
 import { usePlayer } from '@/hooks/usePlayer';
+import { SortableTrackList } from '@/components/shared/SortableTrackList';
+import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
 
 export function TrackUploadForm() {
   const { user } = useAuth();
@@ -288,6 +290,11 @@ export function TrackUploadForm() {
     }
   };
 
+  const handleReorderTracks = async (reorderedTracks: Track[]) => {
+    setTracks(reorderedTracks);
+    // Could save order to DB if there's a position column
+  };
+
   const formatDuration = (seconds: number | null) => {
     if (!seconds) return '--:--';
     const mins = Math.floor(seconds / 60);
@@ -433,7 +440,7 @@ export function TrackUploadForm() {
         </button>
       </form>
 
-      {/* Track List */}
+      {/* Track List with Drag Reorder */}
       {isLoadingTracks ? (
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crwn-gold mx-auto" />
@@ -441,48 +448,18 @@ export function TrackUploadForm() {
       ) : tracks.length > 0 ? (
         <div>
           <h2 className="text-lg font-semibold text-crwn-text mb-4">Your Tracks</h2>
-          <div className="space-y-2">
-            {tracks.map((track) => (
-              <div
-                key={track.id}
-                className="flex items-center gap-4 p-4 bg-crwn-surface rounded-lg"
-              >
-                <div className="w-12 h-12 bg-crwn-elevated rounded overflow-hidden relative">
-                  {track.album_art_url ? (
-                    <Image src={track.album_art_url} alt={track.title} fill className="object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary">🎵</div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium text-crwn-text">{track.title}</h3>
-                  <div className="flex items-center gap-3 mt-1 text-sm text-crwn-text-secondary">
-                    <span className="capitalize">{track.access_level}</span>
-                    <span>{formatDuration(track.duration)}</span>
-                    {track.price && <span>${(track.price / 100).toFixed(2)}</span>}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handlePlayPause(track)}
-                    className="p-2 bg-crwn-gold text-crwn-bg rounded-full hover:bg-crwn-gold-hover"
-                  >
-                    {currentTrack?.id === track.id && isPlaying ? (
-                      <Pause className="w-4 h-4" />
-                    ) : (
-                      <Play className="w-4 h-4" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTrack(track)}
-                    className="p-2 text-crwn-error hover:bg-crwn-error/10 rounded-lg"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <SortableTrackList
+            tracks={tracks}
+            onReorder={handleReorderTracks}
+            onRemove={(trackId) => {
+              const track = tracks.find(t => t.id === trackId);
+              if (track) handleDeleteTrack(track);
+            }}
+            renderActions={(track) => (
+              <AddToPlaylistMenu track={track} />
+            )}
+            showDragHandle={true}
+          />
         </div>
       ) : (
         <div className="text-center py-8 text-crwn-text-secondary">
