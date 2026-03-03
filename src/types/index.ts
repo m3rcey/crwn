@@ -269,3 +269,30 @@ export interface CommunityComment {
   };
   has_liked?: boolean;
 }
+
+// Booking Types
+export interface BookingSession {
+  id: string;
+  artist_id: string;
+  title: string;
+  description: string | null;
+  duration_minutes: number;
+  price: number; // cents
+  calendly_event_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BookingPurchase {
+  id: string;
+  booking_session_id: string;
+  buyer_id: string;
+  artist_id: string;
+  stripe_checkout_session_id: string | null;
+  stripe_payment_intent_id: string | null;
+  amount: number; // cents
+  platform_fee: number; // cents
+  status: 'pending' | 'completed' | 'cancelled';
+  created_at: string;
+}

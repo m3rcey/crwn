@@ -7,6 +7,7 @@ import { ShopSection } from '@/components/artist/ShopSection';
 import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
 import { SubscribeCTA } from '@/components/gating';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
+import { CalendlyBooking } from '@/components/booking/CalendlyBooking';
 import { TierConfig, Album, Playlist, Product, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
 
@@ -23,6 +24,10 @@ interface ArtistProfileContentProps {
       avatar_url: string | null;
       social_links: Record<string, string> | null;
     } | null;
+    calendly_url: string | null;
+    booking_enabled: boolean;
+    booking_is_free: boolean;
+    booking_allowed_tier_ids: string[];
   };
   tiers: TierConfig[];
   albums: (Album & { track_count: number })[];
@@ -30,6 +35,7 @@ interface ArtistProfileContentProps {
   products: Product[];
   tracks: Track[];
   isArtistProfile: boolean;
+  hasBookingSessions?: boolean;
 }
 
 export function ArtistProfileContent({
@@ -40,11 +46,15 @@ export function ArtistProfileContent({
   products,
   tracks,
   isArtistProfile,
+  hasBookingSessions = false,
 }: ArtistProfileContentProps) {
-  const [activeTab, setActiveTab] = useState<'music' | 'community'>('music');
+  const [activeTab, setActiveTab] = useState<'music' | 'community' | 'book'>('music');
+
+  const showBookTab = artist.booking_enabled && (artist.calendly_url || hasBookingSessions);
 
   const tabs = [
     { id: 'music' as const, label: 'Music' },
+    ...(showBookTab ? [{ id: 'book' as const, label: 'Book' }] : []),
     { id: 'community' as const, label: 'Community' },
   ];
 
@@ -118,6 +128,19 @@ export function ArtistProfileContent({
             artistSlug={artist.slug}
             isArtistProfile={isArtistProfile}
             tiers={tiers}
+          />
+        )}
+
+        {activeTab === 'book' && (
+          <CalendlyBooking
+            artist={{
+              id: artist.id,
+              slug: artist.slug,
+              profile: artist.profile,
+            }}
+            calendlyUrl={artist.calendly_url}
+            bookingIsFree={artist.booking_is_free}
+            bookingAllowedTierIds={artist.booking_allowed_tier_ids || []}
           />
         )}
       </div>
