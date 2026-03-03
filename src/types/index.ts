@@ -78,6 +78,8 @@ export interface Album {
   album_art_url: string | null;
   release_date: string;
   access_level: AccessLevel;
+  is_free: boolean;
+  allowed_tier_ids: string[];
   is_active: boolean;
   created_at: string;
   updated_at: string;

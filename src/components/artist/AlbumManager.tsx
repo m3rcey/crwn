@@ -22,7 +22,8 @@ interface AlbumFormData {
   albumArtFile: File | null;
   albumArtUrl: string;
   releaseDate: string;
-  accessLevel: string;
+  isFree: boolean;
+  allowedTierIds: string[];
   isPublished: boolean;
 }
 
@@ -42,7 +43,8 @@ export function AlbumManager() {
     albumArtFile: null,
     albumArtUrl: '',
     releaseDate: new Date().toISOString().split('T')[0],
-    accessLevel: 'free',
+    isFree: true,
+    allowedTierIds: [],
     isPublished: false,
   });
 
@@ -177,7 +179,8 @@ export function AlbumManager() {
             description: formData.description || null,
             album_art_url: albumArtUrl || null,
             release_date: formData.releaseDate,
-            access_level: formData.accessLevel,
+            is_free: formData.isFree,
+            allowed_tier_ids: formData.allowedTierIds,
             is_active: formData.isPublished,
             updated_at: new Date().toISOString(),
           })
@@ -198,7 +201,8 @@ export function AlbumManager() {
             description: formData.description || null,
             album_art_url: albumArtUrl || null,
             release_date: formData.releaseDate,
-            access_level: formData.accessLevel,
+            is_free: formData.isFree,
+            allowed_tier_ids: formData.allowedTierIds,
             is_active: formData.isPublished,
           })
           .select()
@@ -244,7 +248,8 @@ export function AlbumManager() {
       albumArtFile: null,
       albumArtUrl: album.album_art_url || '',
       releaseDate: album.release_date,
-      accessLevel: album.access_level,
+      isFree: album.is_free ?? true,
+      allowedTierIds: album.allowed_tier_ids ?? [],
       isPublished: album.is_active,
     });
 
@@ -308,7 +313,8 @@ export function AlbumManager() {
       albumArtFile: null,
       albumArtUrl: '',
       releaseDate: new Date().toISOString().split('T')[0],
-      accessLevel: 'free',
+      isFree: true,
+    allowedTierIds: [],
       isPublished: false,
     });
   };
@@ -440,16 +446,33 @@ export function AlbumManager() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Access</label>
-                  <select
-                    value={formData.accessLevel}
-                    onChange={(e) => setFormData(p => ({ ...p, accessLevel: e.target.value }))}
-                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
-                  >
-                    <option value="free">Free</option>
+                  <div className="space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isFree}
+                        onChange={(e) => setFormData(p => ({ ...p, isFree: e.target.checked }))}
+                        className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                      />
+                      <span className="text-crwn-text text-sm">Free (anyone)</span>
+                    </label>
                     {tiers.map(tier => (
-                      <option key={tier.id} value={tier.id}>{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</option>
+                      <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={formData.allowedTierIds.includes(tier.id)}
+                          onChange={(e) => {
+                            const ids = e.target.checked
+                              ? [...formData.allowedTierIds, tier.id]
+                              : formData.allowedTierIds.filter(id => id !== tier.id);
+                            setFormData(p => ({ ...p, allowedTierIds: ids }));
+                          }}
+                          className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                        />
+                        <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
               </div>
 
