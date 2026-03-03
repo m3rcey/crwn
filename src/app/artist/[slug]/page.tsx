@@ -94,7 +94,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
   // Get album track counts
   const albumsWithCounts = await Promise.all(
-    (albums || []).map(async (album) => {
+    ( albums || []).map(async (album) => {
       const { count } = await supabase
         .from('album_tracks')
         .select('*', { count: 'exact', head: true })
@@ -111,27 +111,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 
-  // Fetch published albums with track counts
-  const { data: albums } = await supabase
-    .from('albums')
-    .select('*')
-    .eq('artist_id', artist.id)
-    .eq('is_active', true)
-    .eq('is_published', true)
-    .order('release_date', { ascending: false });
-
-  // Get track counts for each album
-  const albumsWithCounts = await Promise.all(
-    (albums || []).map(async (album) => {
-      const { count } = await supabase
-        .from('album_tracks')
-        .select('*', { count: 'exact', head: true })
-        .eq('album_id', album.id);
-      return { ...album, track_count: count || 0 };
-    })
-  );
-
-  // Fetch subscription tiers from subscription_tiers table
   const { data: dbTiers } = await supabase
     .from('subscription_tiers')
     .select('*')
@@ -252,9 +231,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         {/* Albums */}
         <AlbumsSection 
           albums={albumsWithCounts} 
-          artistId={artist.id} 
           artistSlug={slug}
-          hasAccess={true} // TODO: check subscription status
         />
 
         {/* Subscription Tiers */}

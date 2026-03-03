@@ -56,7 +56,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
     <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
       {/* Album Header */}
       <div
-        class-center gap-4 p-4 cursor-pointer hover:bg-crName="flex itemswn-elevated/50"
+        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-crwn-elevated/50"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative">

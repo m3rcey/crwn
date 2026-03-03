@@ -12,12 +12,11 @@ import {
 
 interface AlbumFormData {
   title: string;
-  slug: string;
   description: string;
   albumArtFile: File | null;
   albumArtUrl: string;
   releaseDate: string;
-  accessLevel: 'free' | 'subscriber';
+  accessLevel: 'free' | 'subscriber' | 'purchase';
   isPublished: boolean;
 }
 
@@ -32,7 +31,6 @@ export function AlbumManager() {
 
   const [formData, setFormData] = useState<AlbumFormData>({
     title: '',
-    slug: '',
     description: '',
     albumArtFile: null,
     albumArtUrl: '',
@@ -160,12 +158,11 @@ export function AlbumManager() {
           .from('albums')
           .update({
             title: formData.title,
-            slug: formData.slug,
             description: formData.description || null,
             album_art_url: albumArtUrl || null,
             release_date: formData.releaseDate,
             access_level: formData.accessLevel,
-            is_published: formData.isPublished,
+            is_active: formData.isPublished,
             updated_at: new Date().toISOString(),
           })
           .eq('id', editingAlbum.id);
@@ -182,12 +179,11 @@ export function AlbumManager() {
           .insert({
             artist_id: artistProfile.id,
             title: formData.title,
-            slug: formData.slug,
             description: formData.description || null,
             album_art_url: albumArtUrl || null,
             release_date: formData.releaseDate,
             access_level: formData.accessLevel,
-            is_published: formData.isPublished,
+            is_active: formData.isPublished,
           })
           .select()
           .single();
@@ -228,13 +224,12 @@ export function AlbumManager() {
     setEditingAlbum(album);
     setFormData({
       title: album.title,
-      slug: album.slug || '',
       description: album.description || '',
       albumArtFile: null,
       albumArtUrl: album.album_art_url || '',
       releaseDate: album.release_date,
       accessLevel: album.access_level,
-      isPublished: album.is_published,
+      isPublished: album.is_active,
     });
 
     // Load album tracks
@@ -279,7 +274,7 @@ export function AlbumManager() {
     await supabase
       .from('albums')
       .update({ 
-        is_published: !album.is_published,
+        is_active: !album.is_active,
         updated_at: new Date().toISOString(),
       })
       .eq('id', album.id);
@@ -293,7 +288,6 @@ export function AlbumManager() {
     setSelectedTracks([]);
     setFormData({
       title: '',
-      slug: '',
       description: '',
       albumArtFile: null,
       albumArtUrl: '',
@@ -382,8 +376,6 @@ export function AlbumManager() {
                   <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Slug</label>
                   <input
                     type="text"
-                    value={formData.slug}
-                    onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') }))}
                     className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
                     required
                   />
@@ -540,7 +532,7 @@ export function AlbumManager() {
                     <Trash2 className="w-4 h-4 text-white" />
                   </button>
                 </div>
-                {!album.is_published && (
+                {!album.is_active && (
                   <div className="absolute top-2 right-2 px-2 py-1 bg-crwn-elevated text-crwn-text-secondary text-xs rounded">
                     Draft
                   </div>
@@ -554,9 +546,9 @@ export function AlbumManager() {
                   </p>
                   <button
                     onClick={() => handleTogglePublish(album)}
-                    className={`p-1.5 rounded ${album.is_published ? 'text-green-400' : 'text-crwn-text-secondary hover:text-crwn-text'}`}
+                    className={`p-1.5 rounded ${album.is_active ? 'text-green-400' : 'text-crwn-text-secondary hover:text-crwn-text'}`}
                   >
-                    {album.is_published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    {album.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
