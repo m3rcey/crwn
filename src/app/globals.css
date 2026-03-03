@@ -3,10 +3,10 @@
 
 :root {
   /* CRWN Dark Mode ONLY - No light mode */
-  /* Updated to dark navy matte for neumorphic design */
-  --crwn-bg: #1a1a2e;
-  --crwn-surface: #252540;
-  --crwn-elevated: #2a2a45;
+  /* True dark charcoal/black - no purple tint */
+  --crwn-bg: #0f0f0f;
+  --crwn-surface: #1a1a1a;
+  --crwn-elevated: #222222;
   --crwn-gold: #D4AF37;
   --crwn-gold-hover: #C9A032;
   --crwn-gold-muted: #8B7536;

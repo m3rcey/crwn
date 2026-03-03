@@ -1,44 +1,45 @@
 /* Neumorphic Design System - Phase 1 */
 
 /* Base Neumorphic Shadows */
+/* All shadows use pure black and pure white - no color tint */
 
 /* Raised - cards, buttons, containers */
 .neu-raised {
-  background: #252540;
+  background: #1a1a1a;
   border-radius: 16px;
   box-shadow: 
-    8px 8px 16px rgba(0, 0, 0, 0.4),
+    8px 8px 16px rgba(0, 0, 0, 0.5),
     -8px -8px 16px rgba(255, 255, 255, 0.03);
 }
 
 /* Inset - inputs, wells, inactive toggles */
 .neu-inset {
-  background: #1a1a2e;
+  background: #0f0f0f;
   border-radius: 12px;
   box-shadow: 
-    inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+    inset 4px 4px 8px rgba(0, 0, 0, 0.5),
     inset -4px -4px 8px rgba(255, 255, 255, 0.03);
 }
 
 /* Button - raised default, inset on :active */
 .neu-button {
-  background: #2a2a45;
+  background: #222222;
   border-radius: 12px;
   box-shadow: 
-    4px 4px 8px rgba(0, 0, 0, 0.3),
+    4px 4px 8px rgba(0, 0, 0, 0.4),
     -4px -4px 8px rgba(255, 255, 255, 0.03);
   transition: all 0.2s ease;
 }
 
 .neu-button:hover {
   box-shadow: 
-    6px 6px 12px rgba(0, 0, 0, 0.35),
+    6px 6px 12px rgba(0, 0, 0, 0.45),
     -6px -6px 12px rgba(255, 255, 255, 0.04);
 }
 
 .neu-button:active {
   box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
     inset -2px -2px 4px rgba(255, 255, 255, 0.03);
 }
 
@@ -47,9 +48,9 @@
   background: linear-gradient(135deg, #9a7b2a 0%, #D4AF37 50%, #9a7b2a 100%);
   border-radius: 12px;
   box-shadow: 
-    4px 4px 8px rgba(0, 0, 0, 0.3),
+    4px 4px 8px rgba(0, 0, 0, 0.4),
     -4px -4px 8px rgba(212, 168, 67, 0.15);
-  color: #1a1a2e;
+  color: #0f0f0f;
   font-weight: 600;
   transition: all 0.2s ease;
 }
@@ -57,35 +58,35 @@
 .neu-button-accent:hover {
   background: linear-gradient(135deg, #a88530 0%, #e5c04a 50%, #a88530 100%);
   box-shadow: 
-    6px 6px 12px rgba(0, 0, 0, 0.35),
+    6px 6px 12px rgba(0, 0, 0, 0.45),
     -6px -6px 12px rgba(212, 168, 67, 0.2);
 }
 
 .neu-button-accent:active {
   box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.2),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
     inset -2px -2px 4px rgba(255, 255, 255, 0.1);
 }
 
 /* Circular icon buttons */
 .neu-icon-button {
-  background: #2a2a45;
+  background: #222222;
   border-radius: 50%;
   box-shadow: 
-    3px 3px 6px rgba(0, 0, 0, 0.3),
+    3px 3px 6px rgba(0, 0, 0, 0.4),
     -3px -3px 6px rgba(255, 255, 255, 0.03);
   transition: all 0.2s ease;
 }
 
 .neu-icon-button:hover {
   box-shadow: 
-    4px 4px 8px rgba(0, 0, 0, 0.35),
+    4px 4px 8px rgba(0, 0, 0, 0.45),
     -4px -4px 8px rgba(255, 255, 255, 0.04);
 }
 
 .neu-icon-button:active {
   box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
     inset -2px -2px 4px rgba(255, 255, 255, 0.03);
 }
 
@@ -96,7 +97,7 @@
 
 .neu-card-hover:hover {
   box-shadow: 
-    12px 12px 24px rgba(0, 0, 0, 0.45),
+    12px 12px 24px rgba(0, 0, 0, 0.55),
     -12px -12px 24px rgba(255, 255, 255, 0.04);
   transform: translateY(-2px);
 }
@@ -105,35 +106,35 @@
 .neu-input:focus {
   outline: none;
   box-shadow: 
-    inset 4px 4px 8px rgba(0, 0, 0, 0.4),
+    inset 4px 4px 8px rgba(0, 0, 0, 0.5),
     inset -4px -4px 8px rgba(255, 255, 255, 0.03),
     0 0 0 2px #D4AF37;
 }
 
 /* Neumorphic Panel */
 .neu-panel {
-  background: #252540;
+  background: #1a1a1a;
   border-radius: 16px;
   box-shadow: 
-    8px 8px 16px rgba(0, 0, 0, 0.4),
+    8px 8px 16px rgba(0, 0, 0, 0.5),
     -8px -8px 16px rgba(255, 255, 255, 0.03);
 }
 
 /* Neumorphic Modal */
 .neu-modal {
-  background: #252540;
+  background: #1a1a1a;
   border-radius: 20px;
   box-shadow: 
-    16px 16px 32px rgba(0, 0, 0, 0.5),
+    16px 16px 32px rgba(0, 0, 0, 0.6),
     -16px -16px 32px rgba(255, 255, 255, 0.03);
 }
 
 /* Neumorphic Progress Bar */
 .neu-progress-track {
-  background: #1a1a2e;
+  background: #0f0f0f;
   border-radius: 999px;
   box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.5),
     inset -2px -2px 4px rgba(255, 255, 255, 0.03);
 }
 
@@ -145,18 +146,18 @@
 
 /* Neumorphic Toggle */
 .neu-toggle-track {
-  background: #1a1a2e;
+  background: #0f0f0f;
   border-radius: 999px;
   box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.5),
     inset -2px -2px 4px rgba(255, 255, 255, 0.03);
 }
 
 .neu-toggle-thumb {
-  background: #2a2a45;
+  background: #222222;
   border-radius: 50%;
   box-shadow: 
-    2px 2px 4px rgba(0, 0, 0, 0.3),
+    2px 2px 4px rgba(0, 0, 0, 0.4),
     -2px -2px 4px rgba(255, 255, 255, 0.03);
 }
 
@@ -166,10 +167,10 @@
 
 /* Neumorphic Checkbox */
 .neu-checkbox {
-  background: #1a1a2e;
+  background: #0f0f0f;
   border-radius: 4px;
   box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.5),
     inset -2px -2px 4px rgba(255, 255, 255, 0.03);
 }
 
@@ -179,10 +180,10 @@
 
 /* Skeleton Loading */
 .neu-skeleton {
-  background: #1a1a2e;
+  background: #0f0f0f;
   border-radius: 8px;
   box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+    inset 2px 2px 4px rgba(0, 0, 0, 0.4),
     inset -2px -2px 4px rgba(255, 255, 255, 0.02);
   animation: neu-pulse 1.5s ease-in-out infinite;
 }
@@ -208,15 +209,15 @@
   color: #8a8a9a;
 }
 
-/* Dark navy matte backgrounds */
+/* Dark charcoal backgrounds - no purple tint */
 .neu-bg {
-  background-color: #1a1a2e;
+  background-color: #0f0f0f;
 }
 
 .neu-surface {
-  background-color: #252540;
+  background-color: #1a1a1a;
 }
 
 .neu-elevated {
-  background-color: #2a2a45;
+  background-color: #222222;
 }
