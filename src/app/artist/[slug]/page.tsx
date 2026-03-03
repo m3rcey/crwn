@@ -81,7 +81,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .from('tracks')
     .select('*')
     .eq('artist_id', artist.id)
-    .order('created_at', { ascending: false });
+    .order('position', { ascending: true });
 
   // Fetch artist's albums
   const { data: albums } = await supabase
@@ -109,7 +109,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('artist_id', artist.id)
     .eq('is_artist_playlist', true)
     .eq('is_active', true)
-    .order('created_at', { ascending: false });
+    .order('position', { ascending: true });
 
   // Get playlist track counts
   const playlistsWithCounts = await Promise.all(
@@ -128,7 +128,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .select('*')
     .eq('artist_id', artist.id)
     .eq('is_active', true)
-    .order('created_at', { ascending: false });
+    .order('position', { ascending: true });
 
   return (
     <div className="relative min-h-screen">
