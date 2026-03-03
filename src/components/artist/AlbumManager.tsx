@@ -1,94 +1,117 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
 import { 
-  Loader2, 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  X,
-  Upload,
-  GripVertical,
-  Play,
-  Pause,
-  Check
+  Loader2, Plus, Edit2, Trash2, X, Upload, GripVertical, 
+  Eye, EyeOff, Check, ChevronUp, ChevronDown, Play, Pause 
 } from 'lucide-react';
-import { usePlayer } from '@/hooks/usePlayer';
+
+interface AlbumFormData {
+  title: string;
+  slug: string;
+  description: string;
+  albumArtFile: File | null;
+  albumArtUrl: string;
+  releaseDate: string;
+  accessLevel: 'free' | 'subscriber';
+  isPublished: boolean;
+}
 
 export function AlbumManager() {
   const { user } = useAuth();
-  const supabase = createBrowserSupabaseClient();
-  const { play, currentTrack, isPlaying } = usePlayer();
   const [albums, setAlbums] = useState<Album[]>([]);
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
-  const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
+  const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AlbumFormData>({
     title: '',
+    slug: '',
     description: '',
-    albumArt: null as File | null,
+    albumArtFile: null,
     albumArtUrl: '',
     releaseDate: new Date().toISOString().split('T')[0],
-    accessLevel: 'free' as 'free' | 'subscriber',
+    accessLevel: 'free',
+    isPublished: false,
   });
 
   const loadData = useCallback(async () => {
     if (!user) return;
-    
-    // Get artist profile
-    const { data: artistProfile } = await supabase
-      .from('artist_profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    setIsLoading(true);
 
-    if (!artistProfile) {
-      setIsLoading(false);
-      return;
-    }
+    try {
+      // Get artist profile
+      const { data: artistProfile } = await supabase
+        .from('artist_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-    // Load albums
-    const { data: albumsData } = await supabase
-      .from('albums')
-      .select('*')
-      .eq('artist_id', artistProfile.id)
-      .eq('is_active', true)
-      .order('release_date', { ascending: false });
+      if (!artistProfile) {
+        setIsLoading(false);
+        return;
+      }
 
-    // Load tracks
-    const { data: tracksData } = await supabase
-      .from('tracks')
-      .select('*')
-      .eq('artist_id', artistProfile.id)
-      .order('created_at', { ascending: false });
+      // Load albums
+      const { data: albumsData } = await supabase
+        .from('albums')
+        .select('*')
+        .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-    if (albumsData) {
-      // Get track counts
-      const albumsWithCounts = await Promise.all(
-        albumsData.map(async (album) => {
-          const { count } = await supabase
+      // Get track counts and tracks for each album
+      const albumsWithData = await Promise.all(
+        (albumsData || []).map(async (album) => {
+          const { data: albumTracks } = await supabase
             .from('album_tracks')
-            .select('*', { count: 'exact', head: true })
-            .eq('album_id', album.id);
-          return { ...album, track_count: count || 0 };
+            .select('*, track:tracks(*)')
+            .eq('album_id', album.id)
+            .order('position');
+
+          const tracks = (albumTracks || [])
+            .filter(at => at.track)
+            .map(at => ({ ...at.track, position: at.position }));
+
+          return { 
+            ...album, 
+            tracks,
+            track_count: tracks.length 
+          };
         })
       );
-      setAlbums(albumsWithCounts as Album[]);
-    }
 
-    if (tracksData) {
-      setTracks(tracksData as Track[]);
-    }
+      setAlbums(albumsWithData as Album[]);
 
-    setIsLoading(false);
-  }, [user, supabase]);
+      // Load available tracks (not in any album)
+      const { data: allTracks } = await supabase
+        .from('tracks')
+        .select('*')
+        .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      // Filter out tracks already in albums
+      const trackIdsInAlbums = new Set(
+        albumsWithData.flatMap((a: Album) => 
+          (a.tracks || []).map((t: Track) => t.id)
+        )
+      );
+      const available = (allTracks || []).filter((t: Track) => !trackIdsInAlbums.has(t.id));
+      setAvailableTracks(available as Track[]);
+
+    } catch (error) {
+      console.error('Error loading albums:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     loadData();
@@ -97,8 +120,6 @@ export function AlbumManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-
-    setIsLoading(true);
 
     try {
       // Get artist profile
@@ -115,21 +136,21 @@ export function AlbumManager() {
 
       let albumArtUrl = formData.albumArtUrl;
 
-      // Upload album art if provided
-      if (formData.albumArt) {
-        const artExt = formData.albumArt.name.split('.').pop();
-        const artFileName = `${Date.now()}.${artExt}`;
-        const artPath = `${artistProfile.id}/albums/${artFileName}`;
+      // Upload album art if new file selected
+      if (formData.albumArtFile) {
+        const ext = formData.albumArtFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${ext}`;
+        const path = `${artistProfile.id}/albums/${fileName}`;
         
-        const { error: artError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('album-art')
-          .upload(artPath, formData.albumArt);
+          .upload(path, formData.albumArtFile);
         
-        if (!artError) {
-          const { data: { publicUrl } } = supabase.storage
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
             .from('album-art')
-            .getPublicUrl(artPath);
-          albumArtUrl = publicUrl;
+            .getPublicUrl(path);
+          albumArtUrl = urlData.publicUrl;
         }
       }
 
@@ -139,10 +160,12 @@ export function AlbumManager() {
           .from('albums')
           .update({
             title: formData.title,
-            description: formData.description,
-            album_art_url: albumArtUrl,
+            slug: formData.slug,
+            description: formData.description || null,
+            album_art_url: albumArtUrl || null,
             release_date: formData.releaseDate,
             access_level: formData.accessLevel,
+            is_published: formData.isPublished,
             updated_at: new Date().toISOString(),
           })
           .eq('id', editingAlbum.id);
@@ -150,16 +173,7 @@ export function AlbumManager() {
         if (updateError) throw updateError;
 
         // Update track associations
-        await supabase.from('album_tracks').delete().eq('album_id', editingAlbum.id);
-        
-        for (let i = 0; i < selectedTracks.length; i++) {
-          await supabase.from('album_tracks').insert({
-            album_id: editingAlbum.id,
-            track_id: selectedTracks[i],
-            track_number: i + 1,
-          });
-        }
-
+        await updateAlbumTracks(editingAlbum.id, selectedTracks);
         alert('Album updated!');
       } else {
         // Create album
@@ -168,23 +182,21 @@ export function AlbumManager() {
           .insert({
             artist_id: artistProfile.id,
             title: formData.title,
-            description: formData.description,
-            album_art_url: albumArtUrl,
+            slug: formData.slug,
+            description: formData.description || null,
+            album_art_url: albumArtUrl || null,
             release_date: formData.releaseDate,
             access_level: formData.accessLevel,
+            is_published: formData.isPublished,
           })
           .select()
           .single();
 
         if (albumError) throw albumError;
 
-        // Add tracks
-        for (let i = 0; i < selectedTracks.length; i++) {
-          await supabase.from('album_tracks').insert({
-            album_id: album.id,
-            track_id: selectedTracks[i],
-            track_number: i + 1,
-          });
+        // Add tracks to album
+        if (album && selectedTracks.length > 0) {
+          await updateAlbumTracks(album.id, selectedTracks);
         }
 
         alert('Album created!');
@@ -195,35 +207,60 @@ export function AlbumManager() {
     } catch (error) {
       console.error('Error saving album:', error);
       alert('Failed to save album');
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleEdit = (album: Album) => {
+  const updateAlbumTracks = async (albumId: string, tracks: Track[]) => {
+    // Remove all existing tracks
+    await supabase.from('album_tracks').delete().eq('album_id', albumId);
+
+    // Add tracks in order
+    for (let i = 0; i < tracks.length; i++) {
+      await supabase.from('album_tracks').insert({
+        album_id: albumId,
+        track_id: tracks[i].id,
+        position: i + 1,
+      });
+    }
+  };
+
+  const handleEdit = async (album: Album) => {
     setEditingAlbum(album);
     setFormData({
       title: album.title,
+      slug: album.slug || '',
       description: album.description || '',
-      albumArt: null,
+      albumArtFile: null,
       albumArtUrl: album.album_art_url || '',
       releaseDate: album.release_date,
-      accessLevel: album.access_level === 'subscriber' ? 'subscriber' : 'free',
+      accessLevel: album.access_level,
+      isPublished: album.is_published,
     });
 
     // Load album tracks
-    async function loadAlbumTracks() {
-      const { data } = await supabase
-        .from('album_tracks')
-        .select('track_id, track_number')
-        .eq('album_id', album.id)
-        .order('track_number');
-      
-      if (data) {
-        setSelectedTracks(data.map(t => t.track_id));
-      }
-    }
-    loadAlbumTracks();
+    const { data: albumTracks } = await supabase
+      .from('album_tracks')
+      .select('*, track:tracks(*)')
+      .eq('album_id', album.id)
+      .order('position');
+
+    const tracks = (albumTracks || [])
+      .filter(at => at.track)
+      .map(at => ({ ...at.track, position: at.position }));
+
+    setSelectedTracks(tracks as Track[]);
+
+    // Load available tracks
+    const { data: allTracks } = await supabase
+      .from('tracks')
+      .select('*')
+      .eq('artist_id', album.artist_id)
+      .eq('is_active', true);
+
+    const trackIdsInAlbum = new Set(tracks.map((t: Track) => t.id));
+    const available = (allTracks || []).filter((t: Track) => !trackIdsInAlbum.has(t.id));
+    setAvailableTracks(available as Track[]);
+
     setShowForm(true);
   };
 
@@ -238,26 +275,59 @@ export function AlbumManager() {
     loadData();
   };
 
+  const handleTogglePublish = async (album: Album) => {
+    await supabase
+      .from('albums')
+      .update({ 
+        is_published: !album.is_published,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', album.id);
+
+    loadData();
+  };
+
   const resetForm = () => {
     setShowForm(false);
     setEditingAlbum(null);
     setSelectedTracks([]);
     setFormData({
       title: '',
+      slug: '',
       description: '',
-      albumArt: null,
+      albumArtFile: null,
       albumArtUrl: '',
       releaseDate: new Date().toISOString().split('T')[0],
       accessLevel: 'free',
+      isPublished: false,
     });
   };
 
-  const toggleTrack = (trackId: string) => {
-    setSelectedTracks(prev => 
-      prev.includes(trackId) 
-        ? prev.filter(id => id !== trackId)
-        : [...prev, trackId]
-    );
+  const moveTrack = (index: number, direction: 'up' | 'down') => {
+    const newTracks = [...selectedTracks];
+    if (direction === 'up' && index > 0) {
+      [newTracks[index - 1], newTracks[index]] = [newTracks[index], newTracks[index - 1]];
+    } else if (direction === 'down' && index < newTracks.length - 1) {
+      [newTracks[index], newTracks[index + 1]] = [newTracks[index + 1], newTracks[index]];
+    }
+    setSelectedTracks(newTracks);
+  };
+
+  const addTrack = (track: Track) => {
+    setSelectedTracks([...selectedTracks, track]);
+    setAvailableTracks(availableTracks.filter(t => t.id !== track.id));
+  };
+
+  const removeTrack = (track: Track) => {
+    setSelectedTracks(selectedTracks.filter(t => t.id !== track.id));
+    setAvailableTracks([...availableTracks, track]);
+  };
+
+  const formatDuration = (seconds: number | null | undefined) => {
+    if (!seconds) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   if (isLoading) {
@@ -275,7 +345,7 @@ export function AlbumManager() {
         <h2 className="text-xl font-semibold text-crwn-text">Albums</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
         >
           <Plus className="w-4 h-4" />
           New Album
@@ -296,70 +366,83 @@ export function AlbumManager() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Title</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
-                  required
-                />
+              {/* Title & Slug */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))}
+                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Slug</label>
+                  <input
+                    type="text"
+                    value={formData.slug}
+                    onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') }))}
+                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    required
+                  />
+                </div>
               </div>
 
+              {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Description</label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
                   rows={3}
                   className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text resize-none"
                 />
               </div>
 
+              {/* Album Art */}
               <div>
                 <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Album Art</label>
                 <div className="flex items-center gap-4">
                   <div className="w-24 h-24 bg-crwn-elevated rounded-lg overflow-hidden flex items-center justify-center">
-                    {formData.albumArt ? (
-                      <Image src={URL.createObjectURL(formData.albumArt)} alt="" width={96} height={96} className="object-cover" />
+                    {formData.albumArtFile ? (
+                      <Image src={URL.createObjectURL(formData.albumArtFile)} alt="" width={96} height={96} className="object-cover" />
                     ) : formData.albumArtUrl ? (
                       <Image src={formData.albumArtUrl} alt="" width={96} height={96} className="object-cover" />
                     ) : (
                       <span className="text-3xl">🎵</span>
                     )}
                   </div>
-                  <label className="flex items-center gap-2 px-4 py-2 bg-crwn-bg border border-crwn-elevated rounded-lg cursor-pointer text-crwn-text hover:bg-crwn-elevated">
+                  <label className="flex items-center gap-2 px-4 py-2 bg-crwn-bg border border-crwn-elevated rounded-lg cursor-pointer">
                     <Upload className="w-4 h-4" />
                     Upload
                     <input
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        albumArt: e.target.files?.[0] || null 
-                      }))}
+                      onChange={(e) => setFormData(p => ({ ...p, albumArtFile: e.target.files?.[0] || null }))}
                     />
                   </label>
                 </div>
               </div>
 
+              {/* Release Date & Access */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Release Date</label>
                   <input
                     type="date"
                     value={formData.releaseDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, releaseDate: e.target.value }))}
+                    onChange={(e) => setFormData(p => ({ ...p, releaseDate: e.target.value }))}
                     className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Access Level</label>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Access</label>
                   <select
                     value={formData.accessLevel}
-                    onChange={(e) => setFormData(prev => ({ ...prev, accessLevel: e.target.value as 'free' | 'subscriber' }))}
+                    onChange={(e) => setFormData(p => ({ ...p, accessLevel: e.target.value as 'free' | 'subscriber' }))}
                     className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
                   >
                     <option value="free">Free</option>
@@ -368,47 +451,70 @@ export function AlbumManager() {
                 </div>
               </div>
 
+              {/* Published Toggle */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isPublished}
+                  onChange={(e) => setFormData(p => ({ ...p, isPublished: e.target.checked }))}
+                  className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                />
+                <span className="text-crwn-text">Published (visible to fans)</span>
+              </label>
+
+              {/* Track Selection */}
               <div>
-                <label className="block text-sm font-medium text-crwn-text-secondary mb-2">Select Tracks ({selectedTracks.length} selected)</label>
-                <div className="max-h-48 overflow-y-auto bg-crwn-bg rounded-lg p-2 space-y-1">
-                  {tracks.map(track => (
-                    <button
-                      key={track.id}
-                      type="button"
-                      onClick={() => toggleTrack(track.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                        selectedTracks.includes(track.id)
-                          ? 'bg-crwn-gold/20 text-crwn-text'
-                          : 'text-crwn-text-secondary hover:bg-crwn-elevated'
-                      }`}
-                    >
-                      <div className={`w-5 h-5 rounded border flex items-center justify-center ${
-                        selectedTracks.includes(track.id)
-                          ? 'bg-crwn-gold border-crwn-gold'
-                          : 'border-crwn-text-secondary'
-                      }`}>
-                        {selectedTracks.includes(track.id) && <Check className="w-3 h-3 text-crwn-bg" />}
-                      </div>
-                      <span className="flex-1 text-left">{track.title}</span>
-                      <span className="text-sm text-crwn-text-secondary">
-                        {Math.floor((track.duration || 0) / 60)}:{(track.duration || 0) % 60}
-                      </span>
-                    </button>
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+                  Tracks ({selectedTracks.length} selected)
+                </label>
+                
+                {/* Selected Tracks - Reorderable */}
+                <div className="space-y-2 mb-4">
+                  {selectedTracks.map((track, index) => (
+                    <div key={track.id} className="flex items-center gap-2 bg-crwn-bg rounded-lg p-2">
+                      <button type="button" onClick={() => moveTrack(index, 'up')} disabled={index === 0} className="p-1 text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30">
+                        <ChevronUp className="w-4 h-4" />
+                      </button>
+                      <button type="button" onClick={() => moveTrack(index, 'down')} disabled={index === selectedTracks.length - 1} className="p-1 text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30">
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                      <span className="w-6 text-center text-crwn-text-secondary text-sm">{index + 1}</span>
+                      <span className="flex-1 text-crwn-text truncate">{track.title}</span>
+                      <span className="text-crwn-text-secondary text-sm">{formatDuration(track.duration)}</span>
+                      <button type="button" onClick={() => removeTrack(track)} className="p-1 text-crwn-error hover:bg-crwn-error/10 rounded">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   ))}
-                  {tracks.length === 0 && (
-                    <p className="text-center text-crwn-text-secondary py-4">
-                      No tracks uploaded yet
-                    </p>
-                  )}
                 </div>
+
+                {/* Available Tracks */}
+                {availableTracks.length > 0 && (
+                  <>
+                    <p className="text-sm text-crwn-text-secondary mb-2">Add tracks:</p>
+                    <div className="max-h-32 overflow-y-auto bg-crwn-bg rounded-lg p-2 space-y-1">
+                      {availableTracks.map((track) => (
+                        <button
+                          key={track.id}
+                          type="button"
+                          onClick={() => addTrack(track)}
+                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-crwn-elevated text-left"
+                        >
+                          <Plus className="w-4 h-4 text-crwn-gold" />
+                          <span className="flex-1 text-crwn-text truncate">{track.title}</span>
+                          <span className="text-crwn-text-secondary text-sm">{formatDuration(track.duration)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full py-3 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
+                className="w-full py-3 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
               >
-                {isLoading ? 'Saving...' : editingAlbum ? 'Update Album' : 'Create Album'}
+                {editingAlbum ? 'Update Album' : 'Create Album'}
               </button>
             </form>
           </div>
@@ -418,11 +524,8 @@ export function AlbumManager() {
       {/* Albums Grid */}
       {albums.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {albums.map(album => (
-            <div
-              key={album.id}
-              className="bg-crwn-surface rounded-xl overflow-hidden border border-crwn-elevated group"
-            >
+          {albums.map((album) => (
+            <div key={album.id} className="bg-crwn-surface rounded-xl overflow-hidden border border-crwn-elevated group">
               <div className="aspect-square relative bg-crwn-elevated">
                 {album.album_art_url ? (
                   <Image src={album.album_art_url} alt={album.title} fill className="object-cover" />
@@ -430,25 +533,32 @@ export function AlbumManager() {
                   <div className="w-full h-full flex items-center justify-center text-4xl">🎵</div>
                 )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button
-                    onClick={() => handleEdit(album)}
-                    className="p-2 bg-crwn-gold text-crwn-bg rounded-full hover:bg-crwn-gold-hover"
-                  >
-                    <Edit2 className="w-4 h-4" />
+                  <button onClick={() => handleEdit(album)} className="p-2 bg-crwn-gold rounded-full">
+                    <Edit2 className="w-4 h-4 text-crwn-bg" />
                   </button>
-                  <button
-                    onClick={() => handleDelete(album.id)}
-                    className="p-2 bg-crwn-error text-white rounded-full hover:bg-crwn-error/80"
-                  >
-                    <Trash2 className="w-4 h-4" />
+                  <button onClick={() => handleDelete(album.id)} className="p-2 bg-crwn-error rounded-full">
+                    <Trash2 className="w-4 h-4 text-white" />
                   </button>
                 </div>
+                {!album.is_published && (
+                  <div className="absolute top-2 right-2 px-2 py-1 bg-crwn-elevated text-crwn-text-secondary text-xs rounded">
+                    Draft
+                  </div>
+                )}
               </div>
               <div className="p-3">
                 <h3 className="font-medium text-crwn-text truncate">{album.title}</h3>
-                <p className="text-sm text-crwn-text-secondary">
-                  {album.track_count || 0} tracks • {album.release_date}
-                </p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-sm text-crwn-text-secondary">
+                    {album.track_count || 0} tracks
+                  </p>
+                  <button
+                    onClick={() => handleTogglePublish(album)}
+                    className={`p-1.5 rounded ${album.is_published ? 'text-green-400' : 'text-crwn-text-secondary hover:text-crwn-text'}`}
+                  >
+                    {album.is_published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             </div>
           ))}

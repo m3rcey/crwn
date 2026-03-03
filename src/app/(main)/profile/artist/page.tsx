@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
-import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
+import { MusicManager } from '@/components/artist/MusicManager';
 import { AlbumManager } from '@/components/artist/AlbumManager';
 import { TierManager } from '@/components/artist/TierManager';
 import { ShopManager } from '@/components/artist/ShopManager';
@@ -64,7 +64,7 @@ export default function ArtistDashboardPage() {
       {/* Content */}
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'profile' && <ArtistProfileForm />}
-        {activeTab === 'tracks' && <TrackUploadForm />}
+        {activeTab === 'tracks' && <MusicManager />}
         {activeTab === 'albums' && <AlbumManager />}
         {activeTab === 'shop' && <ShopManager />}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
