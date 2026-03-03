@@ -452,7 +452,7 @@ export function PlaylistManager() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
-                  className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                  className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                   required
                 />
               </div>
@@ -463,7 +463,7 @@ export function PlaylistManager() {
                   value={formData.description}
                   onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
                   rows={3}
-                  className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text resize-none"
+                  className="w-full neu-inset w-full px-4 py-2 text-crwn-text resize-none"
                 />
               </div>
 

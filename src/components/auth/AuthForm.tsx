@@ -61,7 +61,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
   if (showConfirmation) {
     return (
       <div className="w-full max-w-md mx-auto text-center py-8">
-        <div className="w-16 h-16 bg-crwn-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 neu-raised rounded-full flex items-center justify-center mx-auto mb-4">
           <svg className="w-8 h-8 text-crwn-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
@@ -90,7 +90,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold transition-colors"
+            className="neu-inset w-full px-4 py-3 text-crwn-text placeholder-crwn-text-secondary focus:outline-none"
             required
           />
         </div>
@@ -105,19 +105,19 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold transition-colors"
+            className="neu-inset w-full px-4 py-3 text-crwn-text placeholder-crwn-text-secondary focus:outline-none"
             required={mode === 'signup'}
           />
         </div>
 
         {error && (
-          <div className="bg-crwn-error/10 border border-crwn-error/30 rounded-lg p-3 text-sm text-crwn-error">
+          <div className="neu-inset p-3 text-sm text-crwn-error">
             {error}
           </div>
         )}
 
         {magicLinkSent && (
-          <div className="bg-crwn-success/10 border border-crwn-success/30 rounded-lg p-3 text-sm text-crwn-success">
+          <div className="neu-inset p-3 text-sm text-crwn-success">
             Magic link sent! Check your email.
           </div>
         )}
@@ -125,7 +125,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="neu-button-accent w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Loading...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
         </button>
@@ -135,7 +135,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
             type="button"
             onClick={handleMagicLink}
             disabled={isLoading}
-            className="w-full border border-crwn-gold text-crwn-gold font-semibold py-3 rounded-lg hover:bg-crwn-gold/10 transition-colors disabled:opacity-50"
+            className="neu-button w-full text-crwn-gold disabled:opacity-50"
           >
             Send Magic Link
           </button>
@@ -155,7 +155,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
         <div className="mt-4 grid grid-cols-2 gap-3">
           <button
             onClick={() => signInWithGoogle()}
-            className="flex items-center justify-center gap-2 bg-crwn-bg border border-crwn-elevated text-crwn-text py-2.5 rounded-lg hover:bg-crwn-elevated transition-colors"
+            className="neu-button flex items-center justify-center gap-2 text-crwn-text"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -167,10 +167,10 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
           </button>
           <button
             onClick={() => signInWithApple()}
-            className="flex items-center justify-center gap-2 bg-crwn-bg border border-crwn-elevated text-crwn-text py-2.5 rounded-lg hover:bg-crwn-elevated transition-colors"
+            className="neu-button flex items-center justify-center gap-2 text-crwn-text"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.16 1.87-2.38 5.98.46 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+              <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.16 1.87-2.38 5.98.46 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.34-2.34 4.5-3.74 4.25z"/>
             </svg>
             Apple
           </button>

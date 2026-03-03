@@ -389,7 +389,7 @@ export function ShopManager() {
                 <select
                   value={subcategory}
                   onChange={(e) => setSubcategory(e.target.value)}
-                  className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                  className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                 >
                   <option value="">Select a category</option>
                   {productType === 'digital' && DIGITAL_SUBCATEGORIES.map((cat) => (
@@ -410,7 +410,7 @@ export function ShopManager() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))}
-                  className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                  className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                   required
                 />
               </div>
@@ -421,7 +421,7 @@ export function ShopManager() {
                   value={formData.description}
                   onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
                   rows={3}
-                  className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text resize-none"
+                  className="w-full neu-inset w-full px-4 py-2 text-crwn-text resize-none"
                 />
               </div>
 
@@ -477,7 +477,7 @@ export function ShopManager() {
                       value={formData.bpm}
                       onChange={(e) => setFormData(p => ({ ...p, bpm: e.target.value }))}
                       placeholder="e.g. 140"
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                      className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                     />
                   </div>
                   <div>
@@ -487,7 +487,7 @@ export function ShopManager() {
                       value={formData.key}
                       onChange={(e) => setFormData(p => ({ ...p, key: e.target.value }))}
                       placeholder="e.g. C Minor"
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                      className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                     />
                   </div>
                 </div>
@@ -502,7 +502,7 @@ export function ShopManager() {
                     value={formData.compatibleDaws}
                     onChange={(e) => setFormData(p => ({ ...p, compatibleDaws: e.target.value }))}
                     placeholder="e.g. Serum, Massive"
-                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                   />
                 </div>
               )}
@@ -516,7 +516,7 @@ export function ShopManager() {
                     min="1"
                     value={formData.durationField}
                     onChange={(e) => setFormData(p => ({ ...p, durationField: e.target.value }))}
-                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                   />
                 </div>
               )}
@@ -532,7 +532,7 @@ export function ShopManager() {
                       value={formData.durationField}
                       onChange={(e) => setFormData(p => ({ ...p, durationField: e.target.value }))}
                       placeholder="e.g. 60"
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                      className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                     />
                   </div>
                   <div>
@@ -543,7 +543,7 @@ export function ShopManager() {
                       value={formData.maxQuantity}
                       onChange={(e) => setFormData(p => ({ ...p, maxQuantity: e.target.value }))}
                       placeholder="Unlimited"
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                      className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                     />
                   </div>
                 </div>
@@ -558,7 +558,7 @@ export function ShopManager() {
                     min="1"
                     value={formData.turnaroundDays}
                     onChange={(e) => setFormData(p => ({ ...p, turnaroundDays: e.target.value }))}
-                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                   />
                 </div>
               )}
@@ -572,7 +572,7 @@ export function ShopManager() {
                     onChange={(e) => setFormData(p => ({ ...p, submissionInstructions: e.target.value }))}
                     rows={2}
                     placeholder="How should the fan submit their song?"
-                    className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text resize-none"
+                    className="w-full neu-inset w-full px-4 py-2 text-crwn-text resize-none"
                   />
                 </div>
               )}
@@ -587,7 +587,7 @@ export function ShopManager() {
                       value={formData.location}
                       onChange={(e) => setFormData(p => ({ ...p, location: e.target.value }))}
                       placeholder="City or venue"
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                      className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                     />
                   </div>
                   <div>
@@ -597,7 +597,7 @@ export function ShopManager() {
                       min="1"
                       value={formData.maxQuantity}
                       onChange={(e) => setFormData(p => ({ ...p, maxQuantity: e.target.value }))}
-                      className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                      className="w-full neu-inset w-full px-4 py-2 text-crwn-text"
                     />
                   </div>
                 </div>

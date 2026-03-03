@@ -37,7 +37,7 @@ export default function SignupPage() {
             <p className="text-crwn-text-secondary">Create your account</p>
           </div>
 
-          <div className="bg-crwn-surface p-8 rounded-xl border border-crwn-elevated">
+          <div className="neu-raised p-8">
             <h2 className="text-xl font-semibold text-crwn-text mb-6 text-center">Sign Up</h2>
             <AuthForm mode="signup" onSuccess={() => {
               setTimeout(() => router.replace('/home'), 100);
