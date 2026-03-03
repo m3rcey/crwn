@@ -25,6 +25,7 @@ export function PlaylistManager() {
   const { play, pause } = usePlayer();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingPlaylist, setEditingPlaylist] = useState<Playlist | null>(null);
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
@@ -40,14 +41,14 @@ export function PlaylistManager() {
   });
 
   const loadPlaylists = useCallback(async () => {
-    if (!user) {
-      console.log('No user, skipping playlist load');
+    if (!user || !user.id) {
+      console.log('No user or user.id, skipping playlist load', { user });
       return;
     }
     setIsLoading(true);
 
     try {
-      console.log('Loading playlists for user:', user.id);
+      console.log('Loading playlists for user.id:', user.id);
       
       const { data: playlistsData, error } = await supabase
         .from('playlists')
@@ -57,10 +58,12 @@ export function PlaylistManager() {
 
       if (error) {
         console.error('Error loading playlists:', error);
+        setError(error.message);
         throw error;
       }
       
       console.log('Playlists loaded:', playlistsData);
+      setError(null);
 
       // Get track counts for each playlist
       const playlistsWithCounts = await Promise.all(
@@ -401,14 +404,33 @@ export function PlaylistManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-crwn-text">Playlists</h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
-        >
-          <Plus className="w-4 h-4" />
-          New Playlist
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => loadPlaylists()}
+            className="flex items-center gap-2 px-3 py-2 bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text rounded-lg"
+            title="Refresh"
+          >
+            <Loader2 className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg font-semibold hover:bg-crwn-gold-hover"
+          >
+            <Plus className="w-4 h-4" />
+            New Playlist
+          </button>
+        </div>
       </div>
+
+      {/* Error display */}
+      {error && (
+        <div className="p-4 bg-crwn-error/10 border border-crwn-error rounded-lg">
+          <p className="text-crwn-error">Error loading playlists: {error}</p>
+          <button onClick={() => loadPlaylists()} className="text-crwn-gold underline mt-2">
+            Try again
+          </button>
+        </div>
+      )}
 
       {/* Form Modal */}
       {showForm && (
