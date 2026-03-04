@@ -74,8 +74,8 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${baseUrl}/profile/artist?platform=tier_success&tier=${tierId}`,
-      cancel_url: `${baseUrl}/profile/artist?platform=tier_cancelled`,
+      success_url: `${baseUrl}/profile/artist?tab=billing&upgrade=success`,
+      cancel_url: `${baseUrl}/profile/artist?tab=billing&upgrade=cancelled`,
       metadata: {
         artist_id: artist.id,
         user_id: user.id,

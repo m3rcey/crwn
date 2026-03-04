@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
           const { data: platformSub } = await supabaseAdmin
             .from('artist_profiles')
             .select('id')
-            .eq('platform_subscription_id', subscriptionId)
+            .eq('platform_stripe_subscription_id', subscriptionId)
             .maybeSingle();
           
           if (platformSub) {
@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
         const { data: platformSub } = await supabaseAdmin
           .from('artist_profiles')
           .select('id')
-          .eq('platform_subscription_id', subscription.id)
+          .eq('platform_stripe_subscription_id', subscription.id)
           .maybeSingle();
         
         if (platformSub) {
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
         const { data: platformSub } = await supabaseAdmin
           .from('artist_profiles')
           .select('id')
-          .eq('platform_subscription_id', subscription.id)
+          .eq('platform_stripe_subscription_id', subscription.id)
           .maybeSingle();
         
         if (platformSub) {
@@ -368,7 +368,7 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
     .from('artist_profiles')
     .update({
       platform_tier: tier,
-      platform_subscription_id: session.subscription as string,
+      platform_stripe_subscription_id: session.subscription as string,
       platform_subscription_status: 'active',
     })
     .eq('id', artist_id);
@@ -396,7 +396,7 @@ async function handlePlatformSubscriptionUpdated(subscription: Stripe.Subscripti
   const { data: artist } = await supabaseAdmin
     .from('artist_profiles')
     .select('id')
-    .eq('platform_subscription_id', sub.id)
+    .eq('platform_stripe_subscription_id', sub.id)
     .single();
 
   if (!artist) {
@@ -422,7 +422,7 @@ async function handlePlatformSubscriptionDeleted(subscription: Stripe.Subscripti
   const { data: artist } = await supabaseAdmin
     .from('artist_profiles')
     .select('id, user_id')
-    .eq('platform_subscription_id', sub.id)
+    .eq('platform_stripe_subscription_id', sub.id)
     .single();
 
   if (!artist) {
@@ -461,7 +461,7 @@ async function handlePlatformInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const { data: artist } = await supabaseAdmin
     .from('artist_profiles')
     .select('id')
-    .eq('platform_subscription_id', subscriptionId)
+    .eq('platform_stripe_subscription_id', subscriptionId)
     .single();
 
   if (!artist) return;

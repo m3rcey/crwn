@@ -73,17 +73,26 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
   const handleSelectTier = async (tier: PlatformTier) => {
     if (!user) return;
     
-    // Starter is free - just set it
+    // Starter is free - just set it and redirect to billing
     if (tier.price === 0) {
       setIsLoading(tier.id);
       try {
+        // Update artist_profiles
         const { error } = await supabase
           .from('artist_profiles')
           .update({ platform_tier: tier.id })
           .eq('user_id', user.id);
 
         if (error) throw error;
-        onComplete?.();
+        
+        // Also update profiles table
+        await supabase
+          .from('profiles')
+          .update({ platform_tier: tier.id })
+          .eq('id', user.id);
+        
+        // Redirect to billing tab
+        window.location.href = '/profile/artist?tab=billing';
       } catch (error) {
         console.error('Error setting platform tier:', error);
       } finally {

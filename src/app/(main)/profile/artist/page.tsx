@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
 import { MusicManager } from '@/components/artist/MusicManager';
 import { AlbumManager } from '@/components/artist/AlbumManager';
@@ -16,13 +17,17 @@ import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
+import { Check, X } from 'lucide-react';
 
-export default function ArtistDashboardPage() {
+function ArtistDashboardContent() {
   const { profile } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const supabase = createBrowserSupabaseClient();
   const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'booking' | 'analytics' | 'tiers' | 'payouts'>('profile');
   const [artistId, setArtistId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<TierConfig[]>([]);
+  const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
   const [bookingSettings, setBookingSettings] = useState({
     calendly_url: null as string | null,
@@ -31,6 +36,22 @@ export default function ArtistDashboardPage() {
     booking_allowed_tier_ids: [] as string[],
   });
   const [platformTier, setPlatformTier] = useState<string>('starter');
+
+  // Handle query params for tab and upgrade
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const upgrade = searchParams.get('upgrade');
+    
+    if (tab === 'billing') {
+      setActiveTab('billing');
+    }
+    
+    if (upgrade === 'success') {
+      setShowSuccess('Upgrade successful! Welcome to CRWN!');
+      // Clean URL
+      router.replace('/profile/artist?tab=billing', undefined);
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     async function loadArtistData() {
@@ -97,6 +118,16 @@ export default function ArtistDashboardPage() {
 
   return (
     <div className="relative min-h-screen">
+      {/* Success Toast */}
+      {showSuccess && (
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-crwn-gold/20 text-crwn-gold px-4 py-3 rounded-lg neu-raised">
+          <Check className="w-5 h-5" />
+          {showSuccess}
+          <button onClick={() => setShowSuccess(null)} className="ml-2 hover:text-crwn-gold/70">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
       <BackgroundImage src="/backgrounds/bg-dashboard.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
         {/* Header */}
@@ -155,5 +186,13 @@ export default function ArtistDashboardPage() {
         onComplete={() => setShowPlatformTierModal(false)}
       />
     </div>
+  );
+}
+
+export default function ArtistDashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-crwn-bg flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" /></div>}>
+      <ArtistDashboardContent />
+    </Suspense>
   );
 }
