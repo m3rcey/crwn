@@ -11,7 +11,7 @@ interface ArtistProfile {
   id: string;
   platform_tier: string | null;
   platform_subscription_status: string | null;
-  platform_subscription_id: string | null;
+  platform_stripe_subscription_id: string | null;
 }
 
 export function PlatformBilling() {
@@ -28,7 +28,7 @@ export function PlatformBilling() {
 
       const { data } = await supabase
         .from('artist_profiles')
-        .select('id, platform_tier, platform_subscription_status, platform_subscription_id')
+        .select('id, platform_tier, platform_subscription_status, platform_stripe_subscription_id')
         .eq('user_id', user.id)
         .single();
 
@@ -40,7 +40,7 @@ export function PlatformBilling() {
   }, [user]);
 
   const handleManageSubscription = async () => {
-    if (!artist?.platform_subscription_id) return;
+    if (!artist?.platform_stripe_subscription_id) return;
 
     setIsPortalLoading(true);
     try {
