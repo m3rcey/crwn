@@ -148,8 +148,8 @@ export function ShopManager() {
       if (formData.location) extraData.location = formData.location;
       if (formData.durationField) extraData.duration = formData.durationField;
 
-      const descriptionWithExtra = extraData.subcategory 
-        ? `${formData.description || ''}\n\n<!--EXTRA:${JSON.stringify(extraData)}-->`
+      const descriptionWithExtra = false 
+        ? formData.description
         : formData.description;
 
       const productData = {
