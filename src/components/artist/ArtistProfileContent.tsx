@@ -41,7 +41,7 @@ function TierCards({ tiers, artistSlug, artistId }: { tiers: any[]; artistSlug: 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {tiers.map((tier: any) => {
-        const benefits = tier.access_config?.benefits || [];
+        const benefits = tier.benefits || [];
         return (
           <div key={tier.id} className="neu-raised rounded-2xl p-6 flex flex-col">
             <h3 className="text-lg font-bold text-crwn-text">{tier.name}</h3>
