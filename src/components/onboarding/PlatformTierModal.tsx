@@ -78,7 +78,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
       setIsLoading(tier.id);
       try {
         const { error } = await supabase
-          .from('profiles')
+          .from('artist_profiles')
           .update({ platform_tier: tier.id })
           .eq('user_id', user.id);
 
