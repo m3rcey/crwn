@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
+import { getPlatformFeePercent } from '@/lib/platformTier';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Get product and artist info
     const { data: product, error: productError } = await supabase
       .from('products')
-      .select('*, artist:artist_profiles(id, user_id, stripe_connect_id, profile:profiles(display_name))')
+      .select('*, artist:artist_profiles(id, user_id, stripe_connect_id, platform_tier, profile:profiles(display_name))')
       .eq('id', productId)
       .eq('is_active', true)
       .single();
@@ -39,9 +40,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate fees (8% platform fee)
+    // Calculate fees (dynamic platform fee based on artist's platform tier)
+    const artistPlatformTier = (product.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
+    const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
     const price = product.price;
-    const platformFee = Math.round(price * 0.08);
+    const platformFee = Math.round(price * platformFeePercent);
 
     // Create Stripe checkout session for one-time payment
     const session = await stripe.checkout.sessions.create({

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-
-const PLATFORM_FEE_PERCENT = 0.08; // 8%
+import { getPlatformFeePercent } from '@/lib/platformTier';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,13 +11,17 @@ export async function POST(req: NextRequest) {
     // Get tier details
     const { data: tier, error: tierError } = await supabase
       .from('subscription_tiers')
-      .select('*, artist:artist_profiles(stripe_connect_id, user_id, slug)')
+      .select('*, artist:artist_profiles(stripe_connect_id, user_id, slug, platform_tier)')
       .eq('id', tierId)
       .single();
 
     if (tierError || !tier) {
       return NextResponse.json({ error: 'Tier not found' }, { status: 404 });
     }
+
+    // Get dynamic platform fee based on artist's platform tier
+    const artistPlatformTier = (tier.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
+    const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
 
     // Get fan profile
     const { data: fan } = await supabase
@@ -68,7 +71,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       subscription_data: {
-        application_fee_percent: PLATFORM_FEE_PERCENT * 100,
+        application_fee_percent: platformFeePercent * 100,
         transfer_data: tier.artist?.stripe_connect_id
           ? {
               destination: tier.artist.stripe_connect_id,

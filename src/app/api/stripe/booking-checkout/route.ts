@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
+import { getPlatformFeePercent } from '@/lib/platformTier';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
@@ -34,13 +35,15 @@ export async function POST(request: NextRequest) {
 
     // Check if artist has Stripe Connect
     const artistStripeAccountId = (session.artist as unknown as { stripe_account_id?: string }).stripe_account_id;
+    const artistPlatformTier = (session.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
 
     if (!artistStripeAccountId) {
       return NextResponse.json({ error: 'Artist not set up for payments' }, { status: 400 });
     }
 
-    // Calculate platform fee (8%)
-    const platformFee = Math.round(session.price * 0.08);
+    // Calculate dynamic platform fee based on artist's platform tier
+    const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
+    const platformFee = Math.round(session.price * platformFeePercent);
 
     // Create Stripe Checkout session
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://crwn-mauve.vercel.app';

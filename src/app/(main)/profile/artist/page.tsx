@@ -12,6 +12,7 @@ import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { BookingSettings } from '@/components/booking/BookingSettings';
 import { SessionManager } from '@/components/booking/SessionManager';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
+import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
@@ -19,7 +20,7 @@ import { TierConfig } from '@/types';
 export default function ArtistDashboardPage() {
   const { profile } = useAuth();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'booking' | 'analytics' | 'tiers' | 'payouts'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'booking' | 'analytics' | 'tiers' | 'payouts'>('profile');
   const [artistId, setArtistId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<TierConfig[]>([]);
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
@@ -29,6 +30,7 @@ export default function ArtistDashboardPage() {
     booking_is_free: false,
     booking_allowed_tier_ids: [] as string[],
   });
+  const [platformTier, setPlatformTier] = useState<string>('starter');
 
   useEffect(() => {
     async function loadArtistData() {
@@ -49,12 +51,13 @@ export default function ArtistDashboardPage() {
 
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, tier_config, calendly_url, booking_enabled, booking_is_free, booking_allowed_tier_ids')
+        .select('id, tier_config, calendly_url, booking_enabled, booking_is_free, booking_allowed_tier_ids, platform_tier')
         .eq('user_id', user.id)
         .single();
 
       if (artist) {
         setArtistId(artist.id);
+        setPlatformTier(artist.platform_tier || 'starter');
         setBookingSettings({
           calendly_url: artist.calendly_url,
           booking_enabled: artist.booking_enabled,
@@ -85,6 +88,7 @@ export default function ArtistDashboardPage() {
     { id: 'tracks' as const, label: 'Music' },
     { id: 'albums' as const, label: 'Albums' },
     { id: 'shop' as const, label: 'Shop' },
+    { id: 'billing' as const, label: 'Billing' },
     { id: 'booking' as const, label: 'Booking' },
     { id: 'analytics' as const, label: 'Analytics' },
     { id: 'tiers' as const, label: 'Tiers' },
@@ -128,6 +132,7 @@ export default function ArtistDashboardPage() {
           {activeTab === 'tracks' && <MusicManager />}
           {activeTab === 'albums' && <AlbumManager />}
           {activeTab === 'shop' && <ShopManager />}
+          {activeTab === 'billing' && <PlatformBilling />}
           {activeTab === 'booking' && artistId && (
             <div className="space-y-6">
               <BookingSettings
