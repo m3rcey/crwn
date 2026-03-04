@@ -158,7 +158,7 @@ export function ShopManager() {
         description: descriptionWithExtra || null,
         image_url: imageUrl || null,
         type: productType,
-        price: parseInt(formData.price) || 0,
+        price: Math.round(parseFloat(formData.price) * 100) || 0,
         access_level: 'public',
         delivery_type: productType === 'experience' ? 'scheduled' : 'instant',
         file_url: null,
