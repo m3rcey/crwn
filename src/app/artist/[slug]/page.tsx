@@ -83,7 +83,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .from('tracks')
     .select('*')
     .eq('artist_id', artist.id)
-    .order('position', { ascending: true });
+    .order('created_at', { ascending: false });
 
   // Fetch artist's albums
   const { data: albums } = await supabase
@@ -111,7 +111,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('artist_id', artist.id)
     .eq('is_artist_playlist', true)
     .eq('is_active', true)
-    .order('position', { ascending: true });
+    .order('created_at', { ascending: false });
 
   // Get playlist track counts
   const playlistsWithCounts = await Promise.all(
@@ -130,7 +130,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .select('*')
     .eq('artist_id', artist.id)
     .eq('is_active', true)
-    .order('position', { ascending: true });
+    .order('created_at', { ascending: false });
 
   // Fetch booking sessions
   const { data: bookingSessions } = await supabase

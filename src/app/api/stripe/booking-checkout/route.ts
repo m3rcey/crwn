@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if artist has Stripe Connect
-    const artistStripeAccountId = (session.artist as unknown as { stripe_account_id?: string }).stripe_account_id;
+    const artistStripeAccountId = (session.artist as unknown as { stripe_connect_id?: string }).stripe_connect_id;
     const artistPlatformTier = (session.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
 
     if (!artistStripeAccountId) {
