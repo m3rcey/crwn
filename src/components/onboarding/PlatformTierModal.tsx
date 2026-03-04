@@ -80,7 +80,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
         const { error } = await supabase
           .from('profiles')
           .update({ platform_tier: tier.id })
-          .eq('id', user.id);
+          .eq('user_id', user.id);
 
         if (error) throw error;
         onComplete?.();
