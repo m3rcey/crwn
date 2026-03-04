@@ -75,7 +75,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     name: t.name,
     price: t.price,
     description: t.description,
-    benefits: t.benefits || [],
+    benefits: t.access_config?.benefits || [],
   }));
 
   // Fetch artist's tracks

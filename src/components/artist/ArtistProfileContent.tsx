@@ -48,12 +48,13 @@ export function ArtistProfileContent({
   isArtistProfile,
   hasBookingSessions = false,
 }: ArtistProfileContentProps) {
-  const [activeTab, setActiveTab] = useState<'music' | 'community' | 'book'>('music');
+  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'community' | 'book'>('music');
 
   const showBookTab = artist.booking_enabled && (artist.calendly_url || hasBookingSessions);
 
   const tabs = [
     { id: 'music' as const, label: 'Music' },
+    { id: 'tiers' as const, label: 'Tiers' },
     ...(showBookTab ? [{ id: 'book' as const, label: 'Book' }] : []),
     { id: 'community' as const, label: 'Community' },
   ];
@@ -89,20 +90,6 @@ export function ArtistProfileContent({
             {/* Artist Playlists */}
             <ArtistPlaylistsSection playlists={playlists || []} artistSlug={artist.slug} />
 
-            {/* Subscription Tiers */}
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
-              {tiers.length > 0 ? (
-                <TierCards tiers={tiers} artistSlug={artist.slug} artistId={artist.id} />
-              ) : (
-                <SubscribeCTA
-                  artistName={artist.profile?.display_name || 'this artist'}
-                  artistSlug={artist.slug}
-                  tierPrice={undefined}
-                />
-              )}
-            </section>
-
             {/* Shop */}
             <ShopSection products={products || []} artistId={artist.id} />
 
@@ -120,6 +107,21 @@ export function ArtistProfileContent({
               )}
             </section>
           </>
+        )}
+
+        {activeTab === 'tiers' && (
+          <section>
+            <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
+            {tiers.length > 0 ? (
+              <TierCards tiers={tiers} artistSlug={artist.slug} artistId={artist.id} />
+            ) : (
+              <SubscribeCTA
+                artistName={artist.profile?.display_name || 'this artist'}
+                artistSlug={artist.slug}
+                tierPrice={undefined}
+              />
+            )}
+          </section>
         )}
 
         {activeTab === 'community' && (
