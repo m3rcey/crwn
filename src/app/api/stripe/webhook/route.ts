@@ -47,10 +47,16 @@ export async function POST(req: NextRequest) {
         console.log('Checkout session subscription:', session.subscription);
         console.log('Checkout session customer:', session.customer);
         
-        // Check if this is a subscription or product purchase
-        if (session.metadata?.product_id) {
+        // Check if this is a platform subscription (CRWN tier)
+        if (session.metadata?.tier && session.metadata?.artist_id) {
+          await handlePlatformCheckoutCompleted(session);
+        }
+        // Check if this is a product purchase
+        else if (session.metadata?.product_id) {
           await handleProductPurchase(session);
-        } else {
+        } 
+        // Otherwise it's an artist Connect subscription
+        else {
           await handleCheckoutCompleted(session);
         }
         break;
@@ -64,19 +70,58 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Stripe.Invoice;
-        await handleInvoicePaymentFailed(invoice);
+        
+        const subscriptionId = (invoice as unknown as { subscription?: string }).subscription;
+        if (subscriptionId) {
+          // Check if it's a platform subscription
+          const { data: platformSub } = await supabaseAdmin
+            .from('artist_profiles')
+            .select('id')
+            .eq('platform_subscription_id', subscriptionId)
+            .maybeSingle();
+          
+          if (platformSub) {
+            await handlePlatformInvoicePaymentFailed(invoice);
+          } else {
+            await handleInvoicePaymentFailed(invoice);
+          }
+        }
         break;
       }
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionUpdated(subscription);
+        
+        // Check if it's a platform subscription (has metadata or no artist associated)
+        const { data: platformSub } = await supabaseAdmin
+          .from('artist_profiles')
+          .select('id')
+          .eq('platform_subscription_id', subscription.id)
+          .maybeSingle();
+        
+        if (platformSub) {
+          await handlePlatformSubscriptionUpdated(subscription);
+        } else {
+          await handleSubscriptionUpdated(subscription);
+        }
         break;
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        await handleSubscriptionDeleted(subscription);
+        
+        // Check if it's a platform subscription
+        const { data: platformSub } = await supabaseAdmin
+          .from('artist_profiles')
+          .select('id')
+          .eq('platform_subscription_id', subscription.id)
+          .maybeSingle();
+        
+        if (platformSub) {
+          await handlePlatformSubscriptionDeleted(subscription);
+        } else {
+          await handleSubscriptionDeleted(subscription);
+        }
         break;
       }
 
@@ -305,4 +350,128 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
   }
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
+}
+
+// Handle platform (CRWN) tier subscriptions
+async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const { artist_id, tier, user_id } = session.metadata || {};
+
+  console.log('Platform checkout - artist_id:', artist_id, 'tier:', tier, 'user_id:', user_id);
+
+  if (!artist_id || !tier || !user_id) {
+    console.error('Missing platform checkout metadata');
+    return;
+  }
+
+  // Update artist profile with platform tier and subscription
+  await supabaseAdmin
+    .from('artist_profiles')
+    .update({
+      platform_tier: tier,
+      platform_subscription_id: session.subscription as string,
+      platform_subscription_status: 'active',
+    })
+    .eq('id', artist_id);
+
+  // Also update the user's profile
+  await supabaseAdmin
+    .from('profiles')
+    .update({
+      platform_tier: tier,
+    })
+    .eq('id', user_id);
+
+  console.log('Platform tier updated:', { artist_id, tier });
+}
+
+// Handle platform subscription updates
+async function handlePlatformSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const sub = subscription as unknown as {
+    id: string;
+    status: string;
+    cancel_at_period_end: boolean;
+  };
+
+  // Find artist by subscription ID
+  const { data: artist } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('id')
+    .eq('platform_subscription_id', sub.id)
+    .single();
+
+  if (!artist) {
+    console.log('Platform subscription not found:', sub.id);
+    return;
+  }
+
+  await supabaseAdmin
+    .from('artist_profiles')
+    .update({
+      platform_subscription_status: sub.status,
+    })
+    .eq('id', artist.id);
+
+  console.log('Platform subscription updated:', { artist_id: artist.id, status: sub.status });
+}
+
+// Handle platform subscription deletions/cancellations
+async function handlePlatformSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const sub = subscription as unknown as { id: string };
+
+  // Find artist by subscription ID
+  const { data: artist } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('id, user_id')
+    .eq('platform_subscription_id', sub.id)
+    .single();
+
+  if (!artist) {
+    console.log('Platform subscription not found for deletion:', sub.id);
+    return;
+  }
+
+  // Downgrade to starter
+  await supabaseAdmin
+    .from('artist_profiles')
+    .update({
+      platform_tier: 'starter',
+      platform_subscription_status: 'canceled',
+    })
+    .eq('id', artist.id);
+
+  // Also update user profile
+  if (artist.user_id) {
+    await supabaseAdmin
+      .from('profiles')
+      .update({
+        platform_tier: 'starter',
+      })
+      .eq('id', artist.user_id);
+  }
+
+  console.log('Platform subscription cancelled:', { artist_id: artist.id });
+}
+
+// Handle platform invoice payment failures
+async function handlePlatformInvoicePaymentFailed(invoice: Stripe.Invoice) {
+  const subscriptionId = (invoice as unknown as { subscription?: string }).subscription;
+  if (!subscriptionId) return;
+
+  // Find artist by subscription ID
+  const { data: artist } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('id')
+    .eq('platform_subscription_id', subscriptionId)
+    .single();
+
+  if (!artist) return;
+
+  await supabaseAdmin
+    .from('artist_profiles')
+    .update({
+      platform_subscription_status: 'past_due',
+    })
+    .eq('id', artist.id);
+
+  console.log('Platform payment failed:', { artist_id: artist.id });
 }

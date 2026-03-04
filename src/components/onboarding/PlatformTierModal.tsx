@@ -90,8 +90,28 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
         setIsLoading(null);
       }
     } else {
-      // Pro and Label - checkout not wired yet
-      alert('Checkout coming soon! For now, select Starter to continue.');
+      // Pro and Label - call checkout API
+      setIsLoading(tier.id);
+      try {
+        const response = await fetch('/api/stripe/platform-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tierId: tier.id }),
+        });
+
+        const data = await response.json();
+        
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert(data.error || 'Checkout failed. Please try again.');
+        }
+      } catch (error) {
+        console.error('Checkout error:', error);
+        alert('Failed to start checkout. Please try again.');
+      } finally {
+        setIsLoading(null);
+      }
     }
   };
 
@@ -165,8 +185,10 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
                   <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                 ) : tier.price === 0 ? (
                   'Start Free'
+                ) : tier.id === 'pro' ? (
+                  'Go Pro'
                 ) : (
-                  'Coming Soon'
+                  'Go Label'
                 )}
               </button>
             </div>
