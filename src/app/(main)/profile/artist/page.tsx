@@ -11,6 +11,7 @@ import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { BookingSettings } from '@/components/booking/BookingSettings';
 import { SessionManager } from '@/components/booking/SessionManager';
+import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
@@ -21,6 +22,7 @@ export default function ArtistDashboardPage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'booking' | 'analytics' | 'tiers' | 'payouts'>('profile');
   const [artistId, setArtistId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<TierConfig[]>([]);
+  const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
   const [bookingSettings, setBookingSettings] = useState({
     calendly_url: null as string | null,
     booking_enabled: false,
@@ -32,6 +34,18 @@ export default function ArtistDashboardPage() {
     async function loadArtistData() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      // Check platform_tier first
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('platform_tier')
+        .eq('id', user.id)
+        .single();
+
+      // Show modal if no platform tier selected
+      if (!userProfile?.platform_tier) {
+        setShowPlatformTierModal(true);
+      }
 
       const { data: artist } = await supabase
         .from('artist_profiles')
@@ -129,6 +143,12 @@ export default function ArtistDashboardPage() {
           {activeTab === 'payouts' && <PayoutDashboard />}
         </div>
       </div>
+
+      {/* Platform Tier Modal */}
+      <PlatformTierModal
+        isOpen={showPlatformTierModal}
+        onComplete={() => setShowPlatformTierModal(false)}
+      />
     </div>
   );
 }
