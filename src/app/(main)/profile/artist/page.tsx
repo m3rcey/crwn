@@ -91,7 +91,7 @@ function ArtistDashboardContent() {
       }
     }
     loadArtistData();
-  }, []);
+  }, [searchParams]);
 
   if (!profile) {
     return (
