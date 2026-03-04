@@ -39,9 +39,9 @@ export default function ArtistDashboardPage() {
 
       // Check platform_tier first
       const { data: userProfile } = await supabase
-        .from('profiles')
+        .from('artist_profiles')
         .select('platform_tier')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .single();
 
       // Show modal if no platform tier selected
