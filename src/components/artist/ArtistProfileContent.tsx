@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { AlbumsSection } from '@/components/artist/AlbumCard';
 import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
 import { ShopSection } from '@/components/artist/ShopSection';
-import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
 import { SubscribeCTA } from '@/components/gating';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
 import { CalendlyBooking } from '@/components/booking/CalendlyBooking';
@@ -38,6 +37,36 @@ interface ArtistProfileContentProps {
   hasBookingSessions?: boolean;
 }
 
+function TierCards({ tiers, artistSlug, artistId }: { tiers: any[]; artistSlug: string; artistId: string }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {tiers.map((tier: any) => {
+        const benefits = tier.access_config?.benefits || [];
+        return (
+          <div key={tier.id} className="neu-raised rounded-2xl p-6 flex flex-col">
+            <h3 className="text-lg font-bold text-crwn-text">{tier.name}</h3>
+            <div className="mt-2">
+              <span className="text-2xl font-bold text-crwn-gold">${(tier.price / 100).toFixed(2)}</span>
+              <span className="text-crwn-text-secondary">/mo</span>
+            </div>
+            {tier.description && <p className="text-sm text-crwn-text-dim mt-2">{tier.description}</p>}
+            {benefits.length > 0 && (
+              <ul className="mt-3 space-y-1.5 flex-1">
+                {benefits.map((b: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-crwn-text">
+                    <span className="text-crwn-gold mt-0.5">✓</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function ArtistProfileContent({
   artist,
   tiers,
@@ -48,13 +77,14 @@ export function ArtistProfileContent({
   isArtistProfile,
   hasBookingSessions = false,
 }: ArtistProfileContentProps) {
-  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'community' | 'book'>('music');
+  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book'>('music');
 
   const showBookTab = artist.booking_enabled && (artist.calendly_url || hasBookingSessions);
 
   const tabs = [
     { id: 'music' as const, label: 'Music' },
     { id: 'tiers' as const, label: 'Tiers' },
+    { id: 'shop' as const, label: 'Shop' },
     ...(showBookTab ? [{ id: 'book' as const, label: 'Book' }] : []),
     { id: 'community' as const, label: 'Community' },
   ];
@@ -90,8 +120,6 @@ export function ArtistProfileContent({
             {/* Artist Playlists */}
             <ArtistPlaylistsSection playlists={playlists || []} artistSlug={artist.slug} />
 
-            {/* Shop */}
-            <ShopSection products={products || []} artistId={artist.id} />
 
             {/* Tracks */}
             <section>
@@ -122,6 +150,9 @@ export function ArtistProfileContent({
               />
             )}
           </section>
+        )}
+        {activeTab === 'shop' && (
+          <ShopSection products={products || []} artistId={artist.id} />
         )}
 
         {activeTab === 'community' && (
