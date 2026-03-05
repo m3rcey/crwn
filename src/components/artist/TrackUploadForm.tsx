@@ -7,6 +7,8 @@ import { Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
 import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
+import UpgradePrompt from '@/components/shared/UpgradePrompt';
+import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 
 export function TrackUploadForm() {
   const { user } = useAuth();
@@ -16,6 +18,10 @@ export function TrackUploadForm() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoadingTracks, setIsLoadingTracks] = useState(true);
+  const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
+
+  const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
+  const trackLimitReached = limits.tracks !== -1 && usage.tracks >= limits.tracks;
 
   const [formData, setFormData] = useState({
     title: '',
@@ -41,6 +47,9 @@ export function TrackUploadForm() {
         setIsLoadingTracks(false);
         return;
       }
+
+      // Store artist profile ID for limits check
+      setArtistProfileId(artistProfile.id);
 
       // Fetch tracks
       const { data: tracksData } = await supabase
@@ -283,8 +292,19 @@ export function TrackUploadForm() {
 
   return (
     <div className="space-y-8">
+      {/* Track Limit Check */}
+      {trackLimitReached && (
+        <UpgradePrompt
+          currentTier={tier}
+          feature="Tracks"
+          current={usage.tracks}
+          limit={limits.tracks}
+          message={`You've uploaded ${usage.tracks}/${limits.tracks} tracks. Upgrade to Pro for unlimited uploads.`}
+        />
+      )}
+
       {/* Upload Form */}
-      <form onSubmit={handleSubmit} className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated">
+      <form onSubmit={handleSubmit} className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached ? 0.5 : 1, pointerEvents: trackLimitReached ? 'none' : 'auto' }}>
         <h2 className="text-lg font-semibold text-crwn-text mb-4">Upload New Track</h2>
 
         {/* Audio File */}

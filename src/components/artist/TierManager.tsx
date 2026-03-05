@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Edit2, Trash2, X } from 'lucide-react';
+import UpgradePrompt from '@/components/shared/UpgradePrompt';
+import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 
 interface Tier {
   id: string;
@@ -34,6 +36,10 @@ export function TierManager() {
     description: '',
     benefits: [''],
   });
+
+  // Platform limits
+  const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
+  const tierLimitReached = limits.fanTiers !== -1 && usage.fanTiers >= limits.fanTiers;
 
   const loadTiers = useCallback(async () => {
     if (!user) return;
@@ -332,7 +338,17 @@ export function TierManager() {
 
       {/* Create New Tier */}
       {stripeConnected && (
-        <form onSubmit={handleSubmit} className="bg-crwn-surface border border-crwn-elevated rounded-xl p-6">
+        <>
+          {tierLimitReached && (
+            <UpgradePrompt
+              currentTier={tier}
+              feature="Fan Tiers"
+              current={usage.fanTiers}
+              limit={limits.fanTiers}
+              message={`You've created ${usage.fanTiers}/${limits.fanTiers} fan tiers. Upgrade to create more.`}
+            />
+          )}
+          <form onSubmit={handleSubmit} className="bg-crwn-surface border border-crwn-elevated rounded-xl p-6" style={{ opacity: tierLimitReached ? 0.5 : 1, pointerEvents: tierLimitReached ? 'none' : 'auto' }}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-crwn-text">{editingTier ? 'Edit Tier' : 'Create New Tier'}</h3>
             {editingTier && (
@@ -432,6 +448,7 @@ export function TierManager() {
             </button>
           </div>
         </form>
+        </>
       )}
     </div>
   );
