@@ -233,8 +233,55 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     current_period_start: number;
     current_period_end: number;
     id: string;
+    items?: {
+      data: Array<{
+        price?: {
+          id?: string;
+        };
+      }>;
+    };
   };
 
+  // First, check if there's a pending tier change to apply
+  const { data: subData } = await supabaseAdmin
+    .from('subscriptions')
+    .select('*, tier:subscription_tiers(stripe_price_id)')
+    .eq('stripe_subscription_id', sub.id)
+    .single();
+
+  if (subData && subData.pending_tier_id) {
+    // Get the current price from Stripe subscription items
+    const currentPriceId = sub.items?.data[0]?.price?.id;
+    const pendingTierPriceId = (subData.tier as unknown as { stripe_price_id: string })?.stripe_price_id;
+
+    // If the current price matches the pending tier's price, the change has taken effect
+    if (currentPriceId === pendingTierPriceId) {
+      console.log('Applying pending tier change:', {
+        subscriptionId: subData.id,
+        pendingTierId: subData.pending_tier_id,
+        pendingChangeDate: subData.pending_change_date
+      });
+
+      await supabaseAdmin
+        .from('subscriptions')
+        .update({
+          tier_id: subData.pending_tier_id,
+          pending_tier_id: null,
+          pending_change_date: null,
+          status: sub.status,
+          cancel_at_period_end: sub.cancel_at_period_end,
+          current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
+          current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('stripe_subscription_id', sub.id);
+
+      console.log('Pending tier change applied successfully');
+      return;
+    }
+  }
+
+  // Normal subscription update (no pending tier change)
   await supabaseAdmin
     .from('subscriptions')
     .update({
