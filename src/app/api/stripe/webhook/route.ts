@@ -159,9 +159,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     started_at: new Date().toISOString(),
   };
 
-  console.log('Inserting subscription:', JSON.stringify(insertData));
+  console.log('Upserting subscription:', JSON.stringify(insertData));
 
-  const { data, error } = await supabaseAdmin.from('subscriptions').insert(insertData).select();
+  const { data, error } = await supabaseAdmin.from('subscriptions').upsert(insertData, { onConflict: 'fan_id,artist_id' }).select();
 
   if (error) {
     console.error('Supabase insert error:', JSON.stringify(error));

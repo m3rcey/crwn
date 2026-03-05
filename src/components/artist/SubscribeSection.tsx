@@ -232,20 +232,19 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     setIsLoading(tier.id);
     
     try {
-      const response = await fetch('/api/stripe/subscription-update', {
+      const response = await fetch('/api/stripe/fan-portal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          newTierId: tier.id,
           artistId,
+          artistSlug,
         }),
       });
       
       const data = await response.json();
       
-      if (data.success) {
-        // Refresh subscription state
-        window.location.reload();
+      if (data.url) {
+        window.location.href = data.url;
       } else if (data.error) {
         setError(data.error);
       }
