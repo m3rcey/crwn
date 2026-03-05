@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build';
+
+// Admin client bypasses RLS for server-side queries
+const supabaseAdmin = createClient(
+  supabaseUrl,
+  supabaseServiceKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,15 +32,18 @@ export async function POST(req: NextRequest) {
     }
 
     const fanId = authUser.id;
+    console.log('[subscription-update] fanId:', fanId, 'artistId:', artistId);
 
-    // Get the fan's current subscription
-    const { data: currentSubscription, error: subError } = await supabase
+    // Get the fan's current subscription using admin client (bypasses RLS)
+    const { data: currentSubscription, error: subError } = await supabaseAdmin
       .from('subscriptions')
       .select('*, tier:subscription_tiers(price)')
       .eq('fan_id', fanId)
       .eq('artist_id', artistId)
       .eq('status', 'active')
       .single();
+
+    console.log('[subscription-update] Subscription query:', { fanId, artistId, currentSubscription, subError });
 
     if (subError || !currentSubscription) {
       return NextResponse.json({ error: 'No active subscription found' }, { status: 404 });
