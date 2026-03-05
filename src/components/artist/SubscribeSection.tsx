@@ -189,19 +189,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
 
   const handleSubscribe = async (tier: TierConfig) => {
     if (!user) {
-      alert('Please sign in to subscribe');
-      return;
-    }
-
-    // If already subscribed to THIS tier, show message
-    if (subscribedTierId === tier.id) {
-      setError('You are already subscribed to this tier.');
-      return;
-    }
-
-    // If subscribed to a different tier, allow upgrade (show message for now)
-    if (subscribedTierId) {
-      setError('You are already subscribed to a different tier. Use the upgrade flow.');
+      window.location.href = '/login';
       return;
     }
 
@@ -232,6 +220,98 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     } finally {
       setIsLoading(null);
     }
+  };
+
+  const handleUpgradeOrDowngrade = async (tier: TierConfig) => {
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+
+    setError(null);
+    setIsLoading(tier.id);
+    
+    try {
+      const response = await fetch('/api/stripe/subscription-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          newTierId: tier.id,
+          artistId,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Refresh subscription state
+        window.location.reload();
+      } else if (data.error) {
+        setError(data.error);
+      }
+    } catch (err) {
+      console.error('Update error:', err);
+      setError('Failed to update subscription. Please try again.');
+    } finally {
+      setIsLoading(null);
+    }
+  };
+
+  const handleTierAction = (tier: TierConfig) => {
+    if (subscribedTierId === tier.id) {
+      return; // Already subscribed - no action
+    }
+    
+    if (subscribedTierId) {
+      // Has existing subscription - upgrade or downgrade
+      handleUpgradeOrDowngrade(tier);
+    } else {
+      // No subscription - new subscribe
+      handleSubscribe(tier);
+    }
+  };
+
+  const getButtonText = (tier: TierConfig): string => {
+    if (isLoading === tier.id) {
+      return 'Loading...';
+    }
+    if (subscribedTierId === tier.id) {
+      return 'Subscribed ✓';
+    }
+    if (subscribedTierId) {
+      const currentTier = tiers.find(t => t.id === subscribedTierId);
+      const currentPrice = currentTier?.price || 0;
+      if (tier.price > currentPrice) {
+        return 'Upgrade';
+      } else {
+        return 'Downgrade';
+      }
+    }
+    return tier.price > 0 ? 'Subscribe' : 'Join Free';
+  };
+
+  const getButtonClass = (tier: TierConfig): string => {
+    const isCurrentTier = subscribedTierId === tier.id;
+    const isSubbed = subscribedTierId !== null;
+    
+    if (isCurrentTier) {
+      return 'neu-button text-crwn-gold cursor-default';
+    }
+    
+    if (isSubbed) {
+      const currentTier = tiers.find(t => t.id === subscribedTierId);
+      const currentPrice = currentTier?.price || 0;
+      if (tier.price > currentPrice) {
+        // Upgrade - gold button
+        return 'neu-button-accent text-crwn-bg';
+      } else {
+        // Downgrade - subtle gray
+        return 'neu-button text-crwn-text-secondary border border-crwn-surface';
+      }
+    }
+    
+    // Not subscribed - gold subscribe button
+    return 'neu-button-accent text-crwn-bg';
   };
 
   if (tiers.length === 0) {
@@ -290,28 +370,12 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
               )}
               
               <button
-                onClick={() => handleSubscribe(tier)}
-                disabled={isLoading === tier.id || isThisTierSubscribed}
-                className={`mt-4 w-full py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
-                  isThisTierSubscribed
-                    ? 'neu-button text-crwn-gold'
-                    : 'neu-button-accent text-crwn-bg'
-                }`}
+                onClick={() => handleTierAction(tier)}
+                disabled={isLoading === tier.id || subscribedTierId === tier.id}
+                className={`mt-4 w-full py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${getButtonClass(tier)}`}
               >
-                {isLoading === tier.id ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Loading...
-                  </>
-                ) : isThisTierSubscribed ? (
-                  'Subscribed ✓'
-                ) : isAnySubscribed ? (
-                  tier.price > (tiers.find(t => t.id === subscribedTierId)?.price || 0) ? 'Upgrade' : 'Downgrade'
-                ) : tier.price > 0 ? (
-                  'Subscribe'
-                ) : (
-                  'Join Free'
-                )}
+                {isLoading === tier.id && <Loader2 className="w-4 h-4 animate-spin" />}
+                {getButtonText(tier)}
               </button>
             </div>
           );
