@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get the new tier details
-    const { data: newTier, error: tierError } = await supabase
+    const { data: newTier, error: tierError } = await supabaseAdmin
       .from('subscription_tiers')
       .select('id, name, price, stripe_price_id, stripe_product_id')
       .eq('id', newTierId)
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     const currentTierPrice = (currentSubscription.tier as unknown as { price: number })?.price || 0;
 
     // Get artist's stripe_connect_id
-    const { data: artistProfile, error: artistError } = await supabase
+    const { data: artistProfile, error: artistError } = await supabaseAdmin
       .from('artist_profiles')
       .select('stripe_connect_id')
       .eq('id', artistId)
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       );
 
       // Update DB with new tier
-      await supabase
+      await supabaseAdmin
         .from('subscriptions')
         .update({
           tier_id: newTierId,
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
       );
 
       // Update DB with pending tier change
-      await supabase
+      await supabaseAdmin
         .from('subscriptions')
         .update({
           pending_tier_id: newTierId,
