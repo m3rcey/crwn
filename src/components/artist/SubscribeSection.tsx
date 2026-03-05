@@ -84,8 +84,8 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
       
       const data = await response.json();
       
-      if (data.success) {
-        window.location.reload();
+      if (data.url) {
+        window.location.href = data.url;
       } else if (data.error) {
         setError(data.error);
       }
@@ -213,8 +213,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       
       const data = await response.json();
       
-      if (data.success) {
-        window.location.reload();
+      if (data.url) {
+        window.location.href = data.url;
       } else if (data.error) {
         setError(data.error);
       }
