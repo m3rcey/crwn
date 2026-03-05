@@ -20,6 +20,8 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
   const [subscribedTierName, setSubscribedTierName] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [confirmTier, setConfirmTier] = useState<TierConfig | null>(null);
+  const [confirmAction, setConfirmAction] = useState<'upgrade' | 'downgrade' | null>(null);
 
   useEffect(() => {
     // Check for success param in URL
@@ -82,8 +84,8 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
       
       const data = await response.json();
       
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.success) {
+        window.location.reload();
       } else if (data.error) {
         setError(data.error);
       }
@@ -156,6 +158,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const [error, setError] = useState<string | null>(null);
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [confirmTier, setConfirmTier] = useState<TierConfig | null>(null);
+  const [confirmAction, setConfirmAction] = useState<'upgrade' | 'downgrade' | null>(null);
 
   useEffect(() => {
     // Check for success param in URL
@@ -209,8 +213,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       
       const data = await response.json();
       
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.success) {
+        window.location.reload();
       } else if (data.error) {
         setError(data.error);
       }
@@ -232,19 +236,19 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     setIsLoading(tier.id);
     
     try {
-      const response = await fetch('/api/stripe/fan-portal', {
+      const response = await fetch('/api/stripe/subscription-update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          newTierId: tier.id,
           artistId,
-          artistSlug,
         }),
       });
       
       const data = await response.json();
       
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.success) {
+        window.location.reload();
       } else if (data.error) {
         setError(data.error);
       }
@@ -262,11 +266,22 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     }
     
     if (subscribedTierId) {
-      // Has existing subscription - upgrade or downgrade
-      handleUpgradeOrDowngrade(tier);
+      // Show confirmation modal for upgrade/downgrade
+      const currentTier = tiers.find(t => t.id === subscribedTierId);
+      const currentPrice = currentTier?.price || 0;
+      setConfirmTier(tier);
+      setConfirmAction(tier.price > currentPrice ? 'upgrade' : 'downgrade');
     } else {
       // No subscription - new subscribe
       handleSubscribe(tier);
+    }
+  };
+
+  const handleConfirm = () => {
+    if (confirmTier) {
+      handleUpgradeOrDowngrade(confirmTier);
+      setConfirmTier(null);
+      setConfirmAction(null);
     }
   };
 
@@ -380,6 +395,39 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           );
         })}
       </div>
+      {confirmTier && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="neu-raised rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-crwn-text mb-2">
+              {confirmAction === 'upgrade' ? 'Upgrade' : 'Downgrade'} Plan
+            </h3>
+            <p className="text-crwn-text-secondary mb-4">
+              {confirmAction === 'upgrade'
+                ? `Upgrade to ${confirmTier.name} for $${(confirmTier.price / 100).toFixed(2)}/mo. You'll be charged a prorated amount for the remainder of this billing period.`
+                : `Downgrade to ${confirmTier.name} for $${(confirmTier.price / 100).toFixed(2)}/mo. Your plan will change at the end of your current billing period.`
+              }
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setConfirmTier(null); setConfirmAction(null); }}
+                className="flex-1 py-2 rounded-lg neu-raised text-crwn-text font-semibold hover:opacity-80"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                className={`flex-1 py-2 rounded-lg font-semibold ${
+                  confirmAction === 'upgrade'
+                    ? 'neu-button-accent text-crwn-bg'
+                    : 'bg-crwn-text-secondary/20 text-crwn-text'
+                }`}
+              >
+                {confirmAction === 'upgrade' ? 'Confirm Upgrade' : 'Confirm Downgrade'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
