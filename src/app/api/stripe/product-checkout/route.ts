@@ -40,11 +40,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate fees (dynamic platform fee based on artist's platform tier)
+    const price = product.price;
     const artistPlatformTier = (product.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
     const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
-    const price = product.price;
-    const platformFee = Math.round(price * platformFeePercent);
+
+    // Calculate fee as percentage of price (in cents)
+    const platformFee = Math.round(price * (platformFeePercent / 100));
 
     // Create Stripe checkout session for one-time payment
     const session = await stripe.checkout.sessions.create({

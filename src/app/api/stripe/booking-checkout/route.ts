@@ -41,9 +41,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Artist not set up for payments' }, { status: 400 });
     }
 
-    // Calculate dynamic platform fee based on artist's platform tier
+    // Calculate dynamic platform fee based on artist's platform tier (in cents)
     const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
-    const platformFee = Math.round(session.price * platformFeePercent);
+    const platformFee = Math.round(session.price * (platformFeePercent / 100));
 
     // Create Stripe Checkout session
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://crwn-mauve.vercel.app';

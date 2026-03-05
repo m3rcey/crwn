@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       subscription_data: {
-        application_fee_percent: platformFeePercent * 100,
+        application_fee_percent: platformFeePercent,
         transfer_data: tier.artist?.stripe_connect_id
           ? {
               destination: tier.artist.stripe_connect_id,
