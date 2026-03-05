@@ -72,9 +72,7 @@ export async function POST(req: NextRequest) {
     const artistStripeConnectId = artistProfile.stripe_connect_id;
 
     // Get subscription items
-    const stripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId, {
-      stripeAccount: artistStripeConnectId,
-    });
+    const stripeSubscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
 
     const subscriptionItemId = stripeSubscription.items.data[0]?.id;
     if (!subscriptionItemId) {
@@ -88,8 +86,7 @@ export async function POST(req: NextRequest) {
         {
           items: [{ id: subscriptionItemId, price: newTier.stripe_price_id }],
           proration_behavior: 'create_prorations',
-        },
-        { stripeAccount: artistStripeConnectId }
+        }
       );
 
       await supabaseAdmin
