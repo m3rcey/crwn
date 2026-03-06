@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Bell, Check, UserPlus, ShoppingBag, MessageCircle, XCircle, Music, FileText, Package } from 'lucide-react';
+import { Bell, Check, UserPlus, ShoppingBag, MessageCircle, XCircle, Music, FileText, Package, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 
 interface Notification {
@@ -115,6 +115,7 @@ export function NotificationBell() {
       case 'new_track': return <Music className="w-4 h-4 text-purple-400" />;
       case 'new_post': return <FileText className="w-4 h-4 text-blue-400" />;
       case 'new_shop_item': return <Package className="w-4 h-4 text-crwn-gold" />;
+      case 'earning': return <DollarSign className="w-4 h-4 text-crwn-gold" />;
       default: return <Bell className="w-4 h-4 text-crwn-text-secondary" />;
     }
   };
