@@ -47,6 +47,17 @@ interface MusicData {
   topTracks: { title: string; plays: number }[];
 }
 
+interface MilestoneData {
+  key: string;
+  name: string;
+  emoji: string;
+  unlocked: boolean;
+  unlockedAt: string | null;
+  progress: number;
+  current: number;
+  target: number;
+}
+
 const COLORS = ['#D4AF37', '#3B82F6', '#8B5CF6', '#10B981'];
 
 export function AnalyticsDashboard() {
@@ -55,6 +66,7 @@ export function AnalyticsDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
   const [musicData, setMusicData] = useState<MusicData | null>(null);
+  const [milestones, setMilestones] = useState<MilestoneData[]>([]);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -99,6 +111,11 @@ export function AnalyticsDashboard() {
         topTracks
       });
 
+      // Fetch milestones
+      const msRes = await fetch(`/api/milestones?artistId=${artistId}`);
+      const msData = await msRes.json();
+      if (msData.milestones) setMilestones(msData.milestones);
+
     } catch (error) {
       console.error('Error loading analytics:', error);
     } finally {
@@ -142,6 +159,51 @@ export function AnalyticsDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* ========== MILESTONES SECTION ========== */}
+      {milestones.length > 0 && (
+        <section>
+          <h3 className="text-lg font-semibold text-crwn-text mb-4">Milestones</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {milestones.map(m => (
+              <div
+                key={m.key}
+                className={`rounded-xl p-4 text-center transition-all ${
+                  m.unlocked
+                    ? 'neu-raised border border-crwn-gold/40 bg-crwn-gold/5'
+                    : 'bg-crwn-surface border border-crwn-elevated opacity-60'
+                }`}
+              >
+                <div className={`text-3xl mb-2 ${m.unlocked ? '' : 'grayscale'}`}>
+                  {m.emoji}
+                </div>
+                <p className={`text-xs font-semibold ${
+                  m.unlocked ? 'text-crwn-gold' : 'text-crwn-text-secondary'
+                }`}>
+                  {m.name}
+                </p>
+                {m.unlocked ? (
+                  <p className="text-[10px] text-crwn-text-secondary mt-1">
+                    {new Date(m.unlockedAt!).toLocaleDateString()}
+                  </p>
+                ) : (
+                  <div className="mt-2">
+                    <div className="w-full h-1.5 bg-crwn-elevated rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-crwn-gold/50 rounded-full transition-all"
+                        style={{ width: `${m.progress}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-crwn-text-secondary mt-1">
+                      {m.progress}%
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* ========== REVENUE SECTION ========== */}
       <section>
         <h3 className="text-lg font-semibold text-crwn-text mb-4">Revenue</h3>
