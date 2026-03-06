@@ -163,6 +163,21 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
+  // Extract geo data from Stripe session
+  const address = (session as unknown as { customer_details?: { address?: { city?: string; state?: string; country?: string } } }).customer_details?.address;
+  const fanCity = address?.city || null;
+  const fanState = address?.state || null;
+  const fanCountryCode = address?.country || null;
+  
+  // Map country code to full name
+  const countryNames: Record<string, string> = {
+    US: 'United States', CA: 'Canada', GB: 'United Kingdom',
+    AU: 'Australia', DE: 'Germany', FR: 'France', JP: 'Japan',
+    BR: 'Brazil', MX: 'Mexico', NG: 'Nigeria', GH: 'Ghana',
+    KE: 'Kenya', ZA: 'South Africa', IN: 'India', KR: 'South Korea',
+  };
+  const fanCountry = countryNames[fanCountryCode || ''] || fanCountryCode || null;
+
   const insertData = {
     fan_id,
     artist_id,
@@ -220,6 +235,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         net_amount: netAmount,
         stripe_payment_id: session.payment_intent || session.id,
         metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName },
+        fan_city: fanCity,
+        fan_state: fanState,
+        fan_country: fanCountry,
+        fan_country_code: fanCountryCode,
       })
       .select('id')
       .single();
@@ -308,6 +327,22 @@ async function handleSubscriptionRenewal(invoice: Stripe.Invoice) {
   const platformFee = Math.round(grossAmount * 0.08);
   const netAmount = grossAmount - platformFee;
 
+  // Get geo from previous earnings for this artist+fan combo
+  const { data: prevEarning } = await supabaseAdmin
+    .from('earnings')
+    .select('fan_city, fan_state, fan_country, fan_country_code')
+    .eq('artist_id', sub.artist_id)
+    .eq('fan_id', sub.fan_id)
+    .not('fan_city', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+
+  const fanCity = prevEarning?.fan_city || null;
+  const fanState = prevEarning?.fan_state || null;
+  const fanCountry = prevEarning?.fan_country || null;
+  const fanCountryCode = prevEarning?.fan_country_code || null;
+
   // Write earnings record for renewal
   const invoiceWithPayment = invoice as unknown as { payment_intent?: string; id: string };
   const { data: earning } = await supabaseAdmin
@@ -322,6 +357,10 @@ async function handleSubscriptionRenewal(invoice: Stripe.Invoice) {
       net_amount: netAmount,
       stripe_payment_id: invoiceWithPayment.payment_intent || invoiceWithPayment.id,
       metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, renewal: true },
+      fan_city: fanCity,
+      fan_state: fanState,
+      fan_country: fanCountry,
+      fan_country_code: fanCountryCode,
     })
     .select('id')
     .single();
@@ -483,6 +522,21 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
 
   const { product_id, fan_id, artist_id } = metadata;
 
+  // Extract geo data from Stripe session
+  const address = (session as unknown as { customer_details?: { address?: { city?: string; state?: string; country?: string } } }).customer_details?.address;
+  const fanCity = address?.city || null;
+  const fanState = address?.state || null;
+  const fanCountryCode = address?.country || null;
+  
+  // Map country code to full name
+  const countryNames: Record<string, string> = {
+    US: 'United States', CA: 'Canada', GB: 'United Kingdom',
+    AU: 'Australia', DE: 'Germany', FR: 'France', JP: 'Japan',
+    BR: 'Brazil', MX: 'Mexico', NG: 'Nigeria', GH: 'Ghana',
+    KE: 'Kenya', ZA: 'South Africa', IN: 'India', KR: 'South Korea',
+  };
+  const fanCountry = countryNames[fanCountryCode || ''] || fanCountryCode || null;
+
   // Get product price and quantity_sold
   const { data: product } = await supabaseAdmin
     .from('products')
@@ -551,6 +605,10 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
       metadata: { productTitle, fanDisplayName: fanName },
+      fan_city: fanCity,
+      fan_state: fanState,
+      fan_country: fanCountry,
+      fan_country_code: fanCountryCode,
     })
     .select('id')
     .single();
@@ -588,6 +646,21 @@ async function handleBookingPurchase(session: Stripe.Checkout.Session) {
   }
 
   const { booking_session_id, buyer_id, artist_id } = metadata;
+
+  // Extract geo data from Stripe session
+  const address = (session as unknown as { customer_details?: { address?: { city?: string; state?: string; country?: string } } }).customer_details?.address;
+  const fanCity = address?.city || null;
+  const fanState = address?.state || null;
+  const fanCountryCode = address?.country || null;
+  
+  // Map country code to full name
+  const countryNames: Record<string, string> = {
+    US: 'United States', CA: 'Canada', GB: 'United Kingdom',
+    AU: 'Australia', DE: 'Germany', FR: 'France', JP: 'Japan',
+    BR: 'Brazil', MX: 'Mexico', NG: 'Nigeria', GH: 'Ghana',
+    KE: 'Kenya', ZA: 'South Africa', IN: 'India', KR: 'South Korea',
+  };
+  const fanCountry = countryNames[fanCountryCode || ''] || fanCountryCode || null;
 
   // Get booking session info
   const { data: booking } = await supabaseAdmin
@@ -645,6 +718,10 @@ async function handleBookingPurchase(session: Stripe.Checkout.Session) {
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
       metadata: { bookingTitle, durationMinutes: booking.duration_minutes, fanDisplayName: fanName },
+      fan_city: fanCity,
+      fan_state: fanState,
+      fan_country: fanCountry,
+      fan_country_code: fanCountryCode,
     })
     .select('id')
     .single();
