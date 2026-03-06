@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
+import { checkAndAwardMilestones } from '@/lib/milestones';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy_key_for_build';
 
@@ -268,6 +269,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           link: `/profile/artist?tab=payouts&earning=${earning.id}`,
         });
       }
+
+      // Check for milestone unlocks
+      try {
+        await checkAndAwardMilestones(artist_id, artistProfile.user_id);
+      } catch (err) {
+        console.error('Milestone check failed:', err);
+      }
     }
   }
 }
@@ -391,6 +399,13 @@ async function handleSubscriptionRenewal(invoice: Stripe.Invoice) {
       message: `${fanName} renewed subscription to ${tierName}`,
       link: `/profile/artist?tab=payouts&earning=${earning.id}`,
     });
+
+    // Check for milestone unlocks
+    try {
+      await checkAndAwardMilestones(sub.artist_id, artistProfile.user_id);
+    } catch (err) {
+      console.error('Milestone check failed:', err);
+    }
   }
 
   console.log('Subscription renewal processed:', { subscriptionId, artistId: sub.artist_id, netAmount });
@@ -632,6 +647,13 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
         link: `/profile/artist?tab=payouts&earning=${earning.id}`,
       });
     }
+
+    // Check for milestone unlocks
+    try {
+      await checkAndAwardMilestones(artist_id, artistProfile.user_id);
+    } catch (err) {
+      console.error('Milestone check failed:', err);
+    }
   }
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
@@ -745,6 +767,13 @@ async function handleBookingPurchase(session: Stripe.Checkout.Session) {
         message: `${fanName} booked: ${bookingTitle}`,
         link: `/profile/artist?tab=payouts&earning=${earning.id}`,
       });
+    }
+
+    // Check for milestone unlocks
+    try {
+      await checkAndAwardMilestones(artist_id, artistProfile.user_id);
+    } catch (err) {
+      console.error('Milestone check failed:', err);
     }
   }
 
