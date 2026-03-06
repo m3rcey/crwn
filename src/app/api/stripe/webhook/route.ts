@@ -54,7 +54,11 @@ export async function POST(req: NextRequest) {
         // Check if this is a product purchase
         else if (session.metadata?.product_id) {
           await handleProductPurchase(session);
-        } 
+        }
+        // Check if this is a booking purchase
+        else if (session.metadata?.booking_session_id) {
+          await handleBookingPurchase(session);
+        }
         // Otherwise it's an artist Connect subscription
         else {
           await handleCheckoutCompleted(session);
@@ -64,7 +68,17 @@ export async function POST(req: NextRequest) {
 
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice;
-        await handleInvoicePaid(invoice);
+        
+        // Check if this is a subscription renewal (not initial checkout)
+        const billingReason = (invoice as unknown as { billing_reason?: string }).billing_reason;
+        const subscriptionId = (invoice as unknown as { subscription?: string }).subscription;
+        
+        if (billingReason === 'subscription_cycle' && subscriptionId) {
+          // This is a recurring subscription renewal - write earnings
+          await handleSubscriptionRenewal(invoice);
+        } else {
+          await handleInvoicePaid(invoice);
+        }
         break;
       }
 
@@ -168,32 +182,73 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   } else {
     console.log('Supabase insert success:', JSON.stringify(data));
 
-    // Notify artist of new subscriber
-    const { data: artistProfile } = await supabaseAdmin
-      .from('artist_profiles')
-      .select('user_id')
-      .eq('id', artist_id)
-      .single();
-
+    // Get fan display name
     const { data: fanProfile } = await supabaseAdmin
       .from('profiles')
       .select('display_name')
       .eq('id', fan_id)
       .single();
 
+    const fanName = fanProfile?.display_name || 'A fan';
+
+    // Get tier name and price
     const { data: tierData } = await supabaseAdmin
       .from('subscription_tiers')
-      .select('name')
+      .select('name, price')
       .eq('id', tier_id)
+      .single();
+
+    const tierName = tierData?.name || 'Unknown tier';
+    const grossAmount = tierData?.price || 0;
+    
+    // Calculate fee - use application_fee_percent from session or default to 8%
+    const sessionWithFee = session as unknown as { subscription?: string; application_fee_percent?: number };
+    const feeRate = sessionWithFee.application_fee_percent ? sessionWithFee.application_fee_percent / 100 : 0.08;
+    const platformFee = Math.round(grossAmount * feeRate);
+    const netAmount = grossAmount - platformFee;
+
+    // Write earnings record
+    const { data: earning } = await supabaseAdmin
+      .from('earnings')
+      .insert({
+        artist_id,
+        fan_id,
+        type: 'subscription',
+        description: `${fanName} subscribed to ${tierName}`,
+        gross_amount: grossAmount,
+        platform_fee: platformFee,
+        net_amount: netAmount,
+        stripe_payment_id: session.payment_intent || session.id,
+        metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName },
+      })
+      .select('id')
+      .single();
+
+    // Notify artist of new subscriber and earning
+    const { data: artistProfile } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('user_id')
+      .eq('id', artist_id)
       .single();
 
     if (artistProfile) {
       await notifyNewSubscriber(
         supabaseAdmin,
         artistProfile.user_id,
-        fanProfile?.display_name || 'A fan',
-        tierData?.name || 'a tier'
+        fanName,
+        tierName
       );
+
+      // Send earning notification
+      if (earning) {
+        await supabaseAdmin.from('notifications').insert({
+          user_id: artistProfile.user_id,
+          type: 'earning',
+          title: `💰 +$${(netAmount / 100).toFixed(2)}`,
+          message: `${fanName} subscribed to ${tierName}`,
+          link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+        });
+      }
     }
   }
 }
@@ -211,6 +266,95 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       updated_at: new Date().toISOString(),
     })
     .eq('stripe_subscription_id', subscriptionId);
+}
+
+// Handle subscription renewals (recurring payments)
+async function handleSubscriptionRenewal(invoice: Stripe.Invoice) {
+  const subscriptionId = (invoice as unknown as { subscription?: string }).subscription;
+  if (!subscriptionId) return;
+
+  console.log('Handling subscription renewal:', subscriptionId);
+
+  // Look up the subscription in our DB
+  const { data: sub } = await supabaseAdmin
+    .from('subscriptions')
+    .select('artist_id, fan_id, tier_id')
+    .eq('stripe_subscription_id', subscriptionId)
+    .single();
+
+  if (!sub) {
+    console.log('Subscription not found for renewal:', subscriptionId);
+    return;
+  }
+
+  // Get fan name and tier info
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name')
+    .eq('id', sub.fan_id)
+    .single();
+
+  const { data: tier } = await supabaseAdmin
+    .from('subscription_tiers')
+    .select('name, price')
+    .eq('id', sub.tier_id)
+    .single();
+
+  const fanName = fanProfile?.display_name || 'A fan';
+  const tierName = tier?.name || 'Unknown tier';
+  const grossAmount = tier?.price || 0;
+
+  // Calculate fee (8% default)
+  const platformFee = Math.round(grossAmount * 0.08);
+  const netAmount = grossAmount - platformFee;
+
+  // Write earnings record for renewal
+  const invoiceWithPayment = invoice as unknown as { payment_intent?: string; id: string };
+  const { data: earning } = await supabaseAdmin
+    .from('earnings')
+    .insert({
+      artist_id: sub.artist_id,
+      fan_id: sub.fan_id,
+      type: 'subscription',
+      description: `${fanName} renewed subscription to ${tierName}`,
+      gross_amount: grossAmount,
+      platform_fee: platformFee,
+      net_amount: netAmount,
+      stripe_payment_id: invoiceWithPayment.payment_intent || invoiceWithPayment.id,
+      metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, renewal: true },
+    })
+    .select('id')
+    .single();
+
+  // Update subscription periods
+  await supabaseAdmin
+    .from('subscriptions')
+    .update({
+      status: 'active',
+      current_period_start: new Date(invoice.period_start * 1000).toISOString(),
+      current_period_end: new Date(invoice.period_end * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('stripe_subscription_id', subscriptionId);
+
+  // Send earning notification to artist
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', sub.artist_id)
+    .single();
+
+  if (artistProfile && earning) {
+    await supabaseAdmin.from('notifications').insert({
+      user_id: artistProfile.user_id,
+      type: 'earning',
+      title: `💰 +$${(netAmount / 100).toFixed(2)}`,
+      message: `${fanName} renewed subscription to ${tierName}`,
+      link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+    });
+  }
+
+  console.log('Subscription renewal processed:', { subscriptionId, artistId: sub.artist_id, netAmount });
 }
 
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
@@ -351,6 +495,27 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
     return;
   }
 
+  // Get fan and artist info for earnings
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name')
+    .eq('id', fan_id)
+    .single();
+
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', artist_id)
+    .single();
+
+  const fanName = fanProfile?.display_name || 'A fan';
+  const productTitle = product.title || 'Unknown product';
+  const grossAmount = product.price || 0;
+
+  // Calculate fee (8% default)
+  const platformFee = Math.round(grossAmount * 0.08);
+  const netAmount = grossAmount - platformFee;
+
   // Insert purchase record
   await supabaseAdmin
     .from('purchases')
@@ -373,30 +538,140 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
     })
     .eq('id', product_id);
 
-  // Get artist user ID for notification
-  const { data: artistProfile } = await supabaseAdmin
-    .from('artist_profiles')
-    .select('user_id, profile:profiles(display_name)')
-    .eq('id', artist_id)
+  // Write earnings record
+  const { data: earning } = await supabaseAdmin
+    .from('earnings')
+    .insert({
+      artist_id,
+      fan_id,
+      type: 'purchase',
+      description: `${fanName} purchased ${productTitle}`,
+      gross_amount: grossAmount,
+      platform_fee: platformFee,
+      net_amount: netAmount,
+      stripe_payment_id: session.payment_intent || session.id,
+      metadata: { productTitle, fanDisplayName: fanName },
+    })
+    .select('id')
     .single();
 
-  const { data: fanProfile } = await supabaseAdmin
-    .from('profiles')
-    .select('display_name')
-    .eq('id', fan_id)
-    .single();
-
-  // Notify artist of new purchase
+  // Notify artist of new purchase and earning
   if (artistProfile) {
     await notifyNewPurchase(
       supabaseAdmin,
       artistProfile.user_id,
-      fanProfile?.display_name || 'A fan',
-      product.title
+      fanName,
+      productTitle
     );
+
+    // Send earning notification
+    if (earning) {
+      await supabaseAdmin.from('notifications').insert({
+        user_id: artistProfile.user_id,
+        type: 'earning',
+        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
+        message: `${fanName} purchased ${productTitle}`,
+        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+      });
+    }
   }
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
+}
+
+// Handle booking purchases
+async function handleBookingPurchase(session: Stripe.Checkout.Session) {
+  const metadata = session.metadata;
+  if (!metadata?.booking_session_id || !metadata?.buyer_id || !metadata?.artist_id) {
+    console.log('No booking purchase metadata found');
+    return;
+  }
+
+  const { booking_session_id, buyer_id, artist_id } = metadata;
+
+  // Get booking session info
+  const { data: booking } = await supabaseAdmin
+    .from('booking_sessions')
+    .select('title, price, duration_minutes')
+    .eq('id', booking_session_id)
+    .single();
+
+  if (!booking) {
+    console.error('Booking session not found:', booking_session_id);
+    return;
+  }
+
+  // Get fan and artist info for earnings
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name')
+    .eq('id', buyer_id)
+    .single();
+
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', artist_id)
+    .single();
+
+  const fanName = fanProfile?.display_name || 'A fan';
+  const bookingTitle = booking.title || 'Booking session';
+  const grossAmount = booking.price || 0;
+
+  // Calculate fee (8% default)
+  const platformFee = Math.round(grossAmount * 0.08);
+  const netAmount = grossAmount - platformFee;
+
+  // Update booking purchase status
+  await supabaseAdmin
+    .from('booking_purchases')
+    .update({
+      status: 'completed',
+      stripe_payment_intent_id: session.payment_intent,
+    })
+    .eq('booking_session_id', booking_session_id)
+    .eq('buyer_id', buyer_id);
+
+  // Write earnings record
+  const { data: earning } = await supabaseAdmin
+    .from('earnings')
+    .insert({
+      artist_id,
+      fan_id: buyer_id,
+      type: 'booking',
+      description: `${fanName} booked: ${bookingTitle} (${booking.duration_minutes} min)`,
+      gross_amount: grossAmount,
+      platform_fee: platformFee,
+      net_amount: netAmount,
+      stripe_payment_id: session.payment_intent || session.id,
+      metadata: { bookingTitle, durationMinutes: booking.duration_minutes, fanDisplayName: fanName },
+    })
+    .select('id')
+    .single();
+
+  // Notify artist of booking and earning
+  if (artistProfile) {
+    await supabaseAdmin.from('notifications').insert({
+      user_id: artistProfile.user_id,
+      type: 'new_booking',
+      title: '📅 New Booking',
+      message: `${fanName} booked: ${bookingTitle}`,
+      link: `/profile/artist?tab=bookings`,
+    });
+
+    // Send earning notification
+    if (earning) {
+      await supabaseAdmin.from('notifications').insert({
+        user_id: artistProfile.user_id,
+        type: 'earning',
+        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
+        message: `${fanName} booked: ${bookingTitle}`,
+        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+      });
+    }
+  }
+
+  console.log('Booking purchase recorded:', { booking_session_id, buyer_id, artist_id, netAmount });
 }
 
 // Handle platform (CRWN) tier subscriptions
