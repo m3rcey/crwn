@@ -133,7 +133,7 @@ export function Navigation() {
           
           <button
             onClick={handleSignOut}
-            className="w-full neu-button text-crwn-text-secondary hover:text-crwn-error text-sm"
+            className="w-full neu-button flex items-center justify-center py-3 text-crwn-text-secondary hover:text-crwn-error text-sm"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Sign Out
