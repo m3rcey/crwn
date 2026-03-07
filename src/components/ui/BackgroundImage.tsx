@@ -7,7 +7,7 @@ interface BackgroundImageProps {
 
 export function BackgroundImage({ src, overlayOpacity = 'bg-black/70' }: BackgroundImageProps) {
   return (
-    <div className="fixed inset-0 -z-10">
+    <div className="absolute inset-0 overflow-hidden">
       <img
         src={src}
         alt=""
