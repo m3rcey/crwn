@@ -25,7 +25,7 @@ function ArtistDashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'booking' | 'analytics' | 'tiers' | 'payouts' | 'referrals'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'booking' | 'analytics' | 'tiers' | 'payouts' | 'referrals'>('analytics');
   const [artistId, setArtistId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<TierConfig[]>([]);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
