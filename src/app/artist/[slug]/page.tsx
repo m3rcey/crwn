@@ -7,6 +7,7 @@ import { SubscribeCTA } from '@/components/gating';
 import { TierConfig } from '@/types';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { ArtistProfileContent } from '@/components/artist/ArtistProfileContent';
+import { ShareButtons } from '@/components/shared/ShareButtons';
 import type { Metadata } from 'next';
 
 interface ArtistPageProps {
@@ -24,12 +25,57 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
     .single();
 
   if (!artist) {
-    return { title: 'Artist Not Found' };
+    return { title: 'Artist Not Found | CRWN' };
   }
 
+  const displayName = artist.profile?.display_name || 'Artist';
+  const tagline = artist.tagline || `Listen to ${displayName} on CRWN`;
+  const avatarUrl = artist.profile?.avatar_url || null;
+  const bannerUrl = artist.banner_url || null;
+  const ogImage = bannerUrl || avatarUrl || '/icon-512x512.png';
+  const artistUrl = `https://crwn-mauve.vercel.app/artist/${slug}`;
+
+  // Get track count and subscriber count for description
+  const { count: trackCount } = await supabase
+    .from('tracks')
+    .select('id', { count: 'exact', head: true })
+    .eq('artist_id', artist.id);
+
+  const { count: subCount } = await supabase
+    .from('subscriptions')
+    .select('id', { count: 'exact', head: true })
+    .eq('artist_id', artist.id)
+    .eq('status', 'active');
+
+  const description = `${tagline} • ${trackCount || 0} tracks • ${subCount || 0} supporters`;
+
   return {
-    title: `${artist.profile?.display_name || 'Artist'} | CRWN`,
-    description: artist.tagline || `Listen to ${artist.profile?.display_name || 'this artist'} on CRWN`,
+    title: `${displayName} | CRWN`,
+    description,
+    openGraph: {
+      title: `${displayName} on CRWN`,
+      description,
+      url: artistUrl,
+      siteName: 'CRWN',
+      images: ogImage ? [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${displayName} on CRWN`,
+        },
+      ] : [],
+      type: 'profile',
+    },
+    twitter: {
+      card: bannerUrl ? 'summary_large_image' : 'summary',
+      title: `${displayName} on CRWN`,
+      description,
+      images: ogImage ? [ogImage] : [],
+    },
+    other: {
+      'og:profile:username': slug,
+    },
   };
 }
 
@@ -224,6 +270,15 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
               ))}
             </div>
           )}
+
+          {/* Share Buttons */}
+          <div className="mt-4">
+            <ShareButtons
+              url={`https://crwn-mauve.vercel.app/artist/${slug}`}
+              title={artist.profile?.display_name || 'Artist'}
+              description={artist.tagline || undefined}
+            />
+          </div>
         </div>
 
         {/* Content with Tabs */}

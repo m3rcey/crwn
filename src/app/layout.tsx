@@ -13,10 +13,31 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CRWN | Music Artist Platform",
-  description: "The all-in-one platform for music artists to monetize, connect with fans, and build community.",
-  keywords: ["music", "artists", "monetization", "fans", "community"],
+  title: "CRWN | The AI Operating System for Independent Artists",
+  description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform. Join 217+ founding artists.",
+  keywords: ["music", "artists", "monetization", "fans", "community", "streaming", "independent"],
   manifest: "/manifest.json",
+  openGraph: {
+    title: "CRWN | The AI Operating System for Independent Artists",
+    description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform.",
+    url: "https://crwn-mauve.vercel.app",
+    siteName: "CRWN",
+    images: [
+      {
+        url: "/icon-512x512.png",
+        width: 512,
+        height: 512,
+        alt: "CRWN - Music Artist Platform",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "CRWN | The AI Operating System for Independent Artists",
+    description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform.",
+    images: ["/icon-512x512.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
