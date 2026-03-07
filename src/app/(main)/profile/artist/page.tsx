@@ -10,6 +10,7 @@ import { TierManager } from '@/components/artist/TierManager';
 import { ShopManager } from '@/components/artist/ShopManager';
 import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
+import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
 import { BookingSettings } from '@/components/booking/BookingSettings';
 import { SessionManager } from '@/components/booking/SessionManager';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
@@ -24,7 +25,7 @@ function ArtistDashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'booking' | 'analytics' | 'tiers' | 'payouts'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'booking' | 'analytics' | 'tiers' | 'payouts' | 'referrals'>('profile');
   const [artistId, setArtistId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<TierConfig[]>([]);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
@@ -114,6 +115,7 @@ function ArtistDashboardContent() {
     { id: 'analytics' as const, label: 'Analytics' },
     { id: 'tiers' as const, label: 'Tiers' },
     { id: 'payouts' as const, label: 'Payouts' },
+    { id: 'referrals' as const, label: 'Referrals' },
   ];
 
   return (
@@ -177,6 +179,7 @@ function ArtistDashboardContent() {
           {activeTab === 'analytics' && <AnalyticsDashboard />}
           {activeTab === 'tiers' && <TierManager />}
           {activeTab === 'payouts' && <PayoutDashboard />}
+          {activeTab === 'referrals' && <ArtistReferralStats />}
         </div>
       </div>
 
