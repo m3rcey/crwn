@@ -32,6 +32,54 @@ export async function GET(req: NextRequest) {
     .eq('artist_id', artistId)
     .eq('status', 'active');
 
+  // Get artist_community_id for this artist
+  const { data: community } = await supabaseAdmin
+    .from('posts')
+    .select('artist_community_id')
+    .eq('artist_community_id', artistId)
+    .limit(1)
+    .maybeSingle();
+
+  const communityId = community?.artist_community_id || artistId;
+
+  // Get all post IDs for this artist's community
+  const { data: posts } = await supabaseAdmin
+    .from('posts')
+    .select('id, author_id')
+    .eq('artist_community_id', communityId);
+
+  const postIds = (posts || []).map(p => p.id);
+
+  // Get comments on artist's posts (fan engagement)
+  let commentCounts: Record<string, number> = {};
+  if (postIds.length > 0) {
+    const { data: comments } = await supabaseAdmin
+      .from('comments')
+      .select('user_id')
+      .in('post_id', postIds);
+
+    (comments || []).forEach(c => {
+      if (c.user_id) {
+        commentCounts[c.user_id] = (commentCounts[c.user_id] || 0) + 1;
+      }
+    });
+  }
+
+  // Get likes on artist's posts (fan engagement)
+  let likeCounts: Record<string, number> = {};
+  if (postIds.length > 0) {
+    const { data: likes } = await supabaseAdmin
+      .from('likes')
+      .select('user_id')
+      .in('post_id', postIds);
+
+    (likes || []).forEach(l => {
+      if (l.user_id) {
+        likeCounts[l.user_id] = (likeCounts[l.user_id] || 0) + 1;
+      }
+    });
+  }
+
   // Calculate scores
   const fanSpend: Record<string, number> = {};
   const fanReferrals: Record<string, number> = {};
@@ -50,23 +98,39 @@ export async function GET(req: NextRequest) {
     allFanIds.add(r.referrer_fan_id);
   });
 
-  (subs || []).forEach((s: unknown) => {
-    const sub = s as { fan_id?: string; subscription_tiers?: { name?: string } };
-    if (sub.fan_id) {
-      fanTier[sub.fan_id] = sub.subscription_tiers?.name || 'Subscriber';
-      allFanIds.add(sub.fan_id);
+  (subs || []).forEach((s: any) => {
+    if (s.fan_id) {
+      fanTier[s.fan_id] = s.subscription_tiers?.name || 'Subscriber';
+      allFanIds.add(s.fan_id);
     }
   });
 
-  // Scoring: $1 spent = 1 point, 1 referral = 50 points
-  const fanScores: { fanId: string; score: number; spent: number; referralCount: number; tier: string }[] = [];
+  // Add engagement fans
+  Object.keys(commentCounts).forEach(id => allFanIds.add(id));
+  Object.keys(likeCounts).forEach(id => allFanIds.add(id));
+
+  // Scoring: $1 spent = 1pt, 1 referral = 50pts, 1 comment = 5pts, 1 like = 2pts
+  const fanScores: {
+    fanId: string;
+    score: number;
+    spent: number;
+    referralCount: number;
+    commentCount: number;
+    likeCount: number;
+    tier: string;
+  }[] = [];
 
   allFanIds.forEach(fanId => {
     const spent = fanSpend[fanId] || 0;
     const refs = fanReferrals[fanId] || 0;
-    const spendPoints = Math.round(spent / 100); // cents to dollars
+    const comments = commentCounts[fanId] || 0;
+    const likes = likeCounts[fanId] || 0;
+
+    const spendPoints = Math.round(spent / 100);
     const referralPoints = refs * 50;
-    const score = spendPoints + referralPoints;
+    const commentPoints = comments * 5;
+    const likePoints = likes * 2;
+    const score = spendPoints + referralPoints + commentPoints + likePoints;
 
     if (score > 0) {
       fanScores.push({
@@ -74,6 +138,8 @@ export async function GET(req: NextRequest) {
         score,
         spent,
         referralCount: refs,
+        commentCount: comments,
+        likeCount: likes,
         tier: fanTier[fanId] || '',
       });
     }
@@ -109,6 +175,8 @@ export async function GET(req: NextRequest) {
     score: f.score,
     spent: f.spent,
     referralCount: f.referralCount,
+    commentCount: f.commentCount,
+    likeCount: f.likeCount,
     tier: f.tier,
   }));
 

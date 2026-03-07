@@ -56,7 +56,7 @@ export function ArtistProfileContent({
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book'>('music');
+  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book' | 'leaderboard'>('music');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Check if user is subscribed to this artist
@@ -82,6 +82,7 @@ export function ArtistProfileContent({
     { id: 'shop' as const, label: 'Shop' },
     ...(showBookTab ? [{ id: 'book' as const, label: 'Book' }] : []),
     { id: 'community' as const, label: 'Community' },
+    { id: 'leaderboard' as const, label: 'Leaderboard' },
   ];
 
   return (
@@ -161,10 +162,13 @@ export function ArtistProfileContent({
           <ShopSection products={products || []} artistId={artist.id} />
         )}
 
+        {activeTab === 'leaderboard' && (
+          <FanLeaderboard artistId={artist.id} />
+        )}
+
         {activeTab === 'community' && (
           <div className="space-y-6">
-            <FanLeaderboard artistId={artist.id} />
-            <CommunityFeed
+                        <CommunityFeed
               artistId={artist.id}
               artistSlug={artist.slug}
               isArtistProfile={isArtistProfile}
