@@ -272,7 +272,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           )}
 
           {/* Share Buttons */}
-          <div className="mt-4">
+          <div className="mt-4 mb-6">
             <ShareButtons
               url={`https://crwn-mauve.vercel.app/artist/${slug}`}
               title={artist.profile?.display_name || 'Artist'}

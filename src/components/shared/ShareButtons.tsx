@@ -60,7 +60,7 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       {/* Copy Link */}
       <button
         onClick={handleCopyLink}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-crwn-surface border border-crwn-elevated hover:border-crwn-gold/50 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors"
         title="Copy link"
       >
         {copied ? (
@@ -80,7 +80,7 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       {typeof navigator !== 'undefined' && 'share' in navigator && (
         <button
           onClick={handleNativeShare}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-crwn-surface border border-crwn-elevated hover:border-crwn-gold/50 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors"
           title="Share"
         >
           <Share2 className="w-4 h-4" />
@@ -91,7 +91,7 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       {/* Twitter/X */}
       <button
         onClick={shareToTwitter}
-        className="flex items-center justify-center w-8 h-8 rounded-lg bg-crwn-surface border border-crwn-elevated hover:border-crwn-gold/50 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+        className="flex items-center justify-center w-9 h-9 rounded-lg neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors"
         title="Share on X"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -102,7 +102,7 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       {/* Facebook */}
       <button
         onClick={shareToFacebook}
-        className="flex items-center justify-center w-8 h-8 rounded-lg bg-crwn-surface border border-crwn-elevated hover:border-crwn-gold/50 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+        className="flex items-center justify-center w-9 h-9 rounded-lg neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors"
         title="Share on Facebook"
       >
         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
