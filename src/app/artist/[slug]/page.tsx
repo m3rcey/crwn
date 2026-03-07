@@ -291,6 +291,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           tracks={tracks || []}
           isArtistProfile={isArtistProfile}
           hasBookingSessions={hasBookingSessions}
+          commissionRate={artist.referral_commission_rate || 10}
         />
       </div>
     </div>

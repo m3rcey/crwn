@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { Check, Loader2, X } from 'lucide-react';
@@ -15,6 +16,8 @@ interface SubscribeButtonProps {
 export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButtonProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get('ref') || '';
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
@@ -79,6 +82,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
           tierId: tier.id,
           fanId: user.id,
           artistSlug,
+          referralCode,
         }),
       });
       
@@ -154,6 +158,8 @@ interface TierCardsProps {
 export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get('ref') || '';
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
@@ -208,6 +214,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           tierId: tier.id,
           fanId: user.id,
           artistSlug,
+          referralCode,
         }),
       });
       
