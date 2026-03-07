@@ -106,13 +106,13 @@ function ArtistDashboardContent() {
   }
 
   const tabs = [
+    { id: 'analytics' as const, label: 'Analytics' },
     { id: 'profile' as const, label: 'Profile' },
     { id: 'tracks' as const, label: 'Music' },
     { id: 'albums' as const, label: 'Albums' },
     { id: 'shop' as const, label: 'Shop' },
     { id: 'billing' as const, label: 'Billing' },
     { id: 'booking' as const, label: 'Booking' },
-    { id: 'analytics' as const, label: 'Analytics' },
     { id: 'tiers' as const, label: 'Tiers' },
     { id: 'payouts' as const, label: 'Payouts' },
     { id: 'referrals' as const, label: 'Referrals' },
