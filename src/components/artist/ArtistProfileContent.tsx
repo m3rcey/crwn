@@ -7,6 +7,7 @@ import { ShopSection } from '@/components/artist/ShopSection';
 import { TierCards } from '@/components/artist/SubscribeSection';
 import { SubscribeCTA } from '@/components/gating';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
+import { FanLeaderboard } from '@/components/community/FanLeaderboard';
 import { CalendlyBooking } from '@/components/booking/CalendlyBooking';
 import { TierConfig, Album, Playlist, Product, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
@@ -161,12 +162,15 @@ export function ArtistProfileContent({
         )}
 
         {activeTab === 'community' && (
-          <CommunityFeed
-            artistId={artist.id}
-            artistSlug={artist.slug}
-            isArtistProfile={isArtistProfile}
-            tiers={tiers}
-          />
+          <div className="space-y-6">
+            <FanLeaderboard artistId={artist.id} />
+            <CommunityFeed
+              artistId={artist.id}
+              artistSlug={artist.slug}
+              isArtistProfile={isArtistProfile}
+              tiers={tiers}
+            />
+          </div>
         )}
 
         {activeTab === 'book' && (
