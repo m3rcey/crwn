@@ -13,6 +13,8 @@ interface LeaderboardEntry {
   score: number;
   spent: number;
   referralCount: number;
+  commentCount: number;
+  likeCount: number;
   tier: string;
 }
 
@@ -127,6 +129,12 @@ export function FanLeaderboard({ artistId }: FanLeaderboardProps) {
               <div className="flex items-center gap-2 text-[10px] text-crwn-text-secondary">
                 {entry.referralCount > 0 && (
                   <span>{entry.referralCount} ref{entry.referralCount !== 1 ? 's' : ''}</span>
+                )}
+                {entry.commentCount > 0 && (
+                  <span>{entry.commentCount} 💬</span>
+                )}
+                {entry.likeCount > 0 && (
+                  <span>{entry.likeCount} ❤️</span>
                 )}
               </div>
             </div>
