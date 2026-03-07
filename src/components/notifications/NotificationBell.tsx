@@ -116,6 +116,7 @@ export function NotificationBell() {
       case 'new_post': return <FileText className="w-4 h-4 text-blue-400" />;
       case 'new_shop_item': return <Package className="w-4 h-4 text-crwn-gold" />;
       case 'earning': return <DollarSign className="w-4 h-4 text-crwn-gold" />;
+      case 'referral_earning': return <DollarSign className="w-4 h-4 text-green-400" />;
       case 'milestone': return <Trophy className="w-4 h-4 text-crwn-gold" />;
       default: return <Bell className="w-4 h-4 text-crwn-text-secondary" />;
     }

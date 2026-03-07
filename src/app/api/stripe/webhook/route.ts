@@ -4,6 +4,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { checkAndAwardMilestones } from '@/lib/milestones';
+import { processReferral } from '@/lib/referrals';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy_key_for_build';
 
@@ -276,6 +277,23 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       } catch (err) {
         console.error('Milestone check failed:', err);
       }
+
+      // Process referral if code provided
+      const referralCode = session.metadata?.referral_code;
+      if (referralCode && earning) {
+        try {
+          await processReferral({
+            artistId: artist_id,
+            referredFanId: fan_id,
+            subscriptionId: session.subscription as string,
+            referralCode,
+            earningId: earning.id,
+            grossAmount: grossAmount,
+          });
+        } catch (err) {
+          console.error('Referral processing failed:', err);
+        }
+      }
     }
   }
 }
@@ -405,6 +423,37 @@ async function handleSubscriptionRenewal(invoice: Stripe.Invoice) {
       await checkAndAwardMilestones(sub.artist_id, artistProfile.user_id);
     } catch (err) {
       console.error('Milestone check failed:', err);
+    }
+
+    // Process recurring referral commission
+    const { data: existingReferral } = await supabaseAdmin
+      .from('referrals')
+      .select('id, referrer_fan_id, commission_rate')
+      .eq('artist_id', sub.artist_id)
+      .eq('referred_fan_id', sub.fan_id)
+      .eq('status', 'active')
+      .single();
+
+    if (existingReferral && earning) {
+      const commissionAmount = Math.round(grossAmount * (existingReferral.commission_rate / 100));
+
+      await supabaseAdmin.from('referral_earnings').insert({
+        referral_id: existingReferral.id,
+        artist_id: sub.artist_id,
+        referrer_fan_id: existingReferral.referrer_fan_id,
+        earning_id: earning.id,
+        gross_amount: grossAmount,
+        commission_amount: commissionAmount,
+      });
+
+      // Notify referrer of recurring commission
+      await supabaseAdmin.from('notifications').insert({
+        user_id: existingReferral.referrer_fan_id,
+        type: 'referral_earning',
+        title: `💸 +$${(commissionAmount / 100).toFixed(2)} referral commission`,
+        message: `Recurring commission from your referral`,
+        link: '/library?tab=referrals',
+      });
     }
   }
 

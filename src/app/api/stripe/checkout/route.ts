@@ -5,7 +5,7 @@ import { getPlatformFeePercent } from '@/lib/platformTier';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tierId, fanId } = await req.json();
+    const { tierId, fanId, referralCode } = await req.json();
     const supabase = await createServerSupabaseClient();
 
     // Get tier details
@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
         fan_id: fanId,
         artist_id: tier.artist_id,
         tier_id: tierId,
+        referral_code: referralCode || '',
       },
     });
 
