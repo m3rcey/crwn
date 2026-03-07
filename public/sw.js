@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crwn-v2';
+const CACHE_NAME = 'crwn-v3';
 const STATIC_ASSETS = [
   '/favicon.ico',
   '/icon-192x192.png',
@@ -16,7 +16,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up ALL old caches and take control immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -25,49 +25,47 @@ self.addEventListener('activate', (event) => {
           .filter((name) => name !== CACHE_NAME)
           .map((name) => caches.delete(name))
       );
+    }).then(() => {
+      // Take control of all clients immediately
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// Fetch event - serve from cache or network
+// Fetch event - network first for everything except static assets
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip audio file requests - let them go to network
-  if (event.request.url.match(/\.(mp3|wav|flac|m4a|ogg)$/i)) {
-    return;
-  }
+  // Skip audio files
+  if (event.request.url.match(/\.(mp3|wav|flac|m4a|ogg)$/i)) return;
 
-  // Skip cache entirely for navigation requests - let middleware handle redirects
+  // Navigation requests - always network, never cache
   if (event.request.mode === 'navigate') {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // JS and CSS - network first, no caching (prevents stale chunk issues)
+  if (event.request.url.match(/\.(js|css)$/i)) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Only cache static assets (images, fonts)
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached response or fetch from network
-      if (response) {
-        return response;
+    fetch(event.request).then((fetchResponse) => {
+      if (
+        fetchResponse.ok &&
+        fetchResponse.url.match(/\.(png|jpg|jpeg|svg|woff|woff2|ico)$/i)
+      ) {
+        const responseToCache = fetchResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache);
+        });
       }
-      return fetch(event.request).then((fetchResponse) => {
-        // Cache successful responses for static assets
-        if (
-          fetchResponse.ok &&
-          fetchResponse.url.match(/\.(js|css|png|jpg|jpeg|svg|woff|woff2)$/i)
-        ) {
-          const responseToCache = fetchResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return fetchResponse;
-      });
+      return fetchResponse;
     }).catch(() => {
-      // Return offline fallback for non-navigation requests
-      return caches.match('/favicon.ico');
+      return caches.match(event.request);
     })
   );
 });
