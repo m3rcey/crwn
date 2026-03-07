@@ -9,26 +9,21 @@ interface BackgroundImageProps {
 
 export function BackgroundImage({ src, overlayOpacity = 'bg-black/70' }: BackgroundImageProps) {
   const [offset, setOffset] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Check if mobile (background-attachment: fixed doesn't work well on iOS)
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    
-    if (!isMobile) {
-      // Desktop: use CSS fixed attachment
-      return;
-    }
+    // Detect mobile/iOS inside useEffect to avoid hydration mismatch
+    const mobile = window.innerWidth < 768 || /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    setIsMobile(mobile);
 
-    // Mobile: use JS-based parallax
+    if (!mobile) return;
+
     const handleScroll = () => {
       setOffset(window.scrollY * 0.3);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div className="fixed inset-0 -z-10">
@@ -38,7 +33,7 @@ export function BackgroundImage({ src, overlayOpacity = 'bg-black/70' }: Backgro
           backgroundImage: `url('${src}')`,
           backgroundAttachment: isMobile ? 'scroll' : 'fixed',
           transform: isMobile ? `translateY(${offset}px)` : undefined,
-          willChange: 'transform',
+          willChange: isMobile ? 'transform' : undefined,
         }}
       />
       <div className={`absolute inset-0 ${overlayOpacity}`} />
