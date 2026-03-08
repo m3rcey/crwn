@@ -10,6 +10,22 @@ import { SortableTrackList } from '@/components/shared/SortableTrackList';
 import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
 import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
+import { Edit2, X } from 'lucide-react';
+
+interface SubscriptionTier {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface TrackFormData {
+  title: string;
+  isFree: boolean;
+  allowedTierIds: string[];
+  price: string;
+  audioFile: File | null;
+  albumArt: File | null;
+}
 
 export function TrackUploadForm() {
   const { user } = useAuth();
@@ -21,16 +37,19 @@ export function TrackUploadForm() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoadingTracks, setIsLoadingTracks] = useState(true);
   const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
+  const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
+  const [editingTrack, setEditingTrack] = useState<Track | null>(null);
 
   const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
   const trackLimitReached = limits.tracks !== -1 && usage.tracks >= limits.tracks;
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TrackFormData>({
     title: '',
-    access_level: 'free' as 'free' | 'subscriber' | 'purchase',
+    isFree: true,
+    allowedTierIds: [],
     price: '',
-    audio_file: null as File | null,
-    album_art: null as File | null,
+    audioFile: null,
+    albumArt: null,
   });
 
   // Fetch tracks when component mounts
@@ -52,6 +71,15 @@ export function TrackUploadForm() {
 
       // Store artist profile ID for limits check
       setArtistProfileId(artistProfile.id);
+
+      // Fetch subscription tiers
+      const { data: tiersData } = await supabase
+        .from('subscription_tiers')
+        .select('id, name, price')
+        .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
+        .order('price', { ascending: true });
+      if (tiersData) setTiers(tiersData);
 
       // Fetch tracks
       const { data: tracksData } = await supabase
@@ -132,23 +160,50 @@ export function TrackUploadForm() {
     }
   };
 
+  const handleEditTrack = (track: Track) => {
+    setEditingTrack(track);
+    setFormData({
+      title: track.title || '',
+      isFree: track.is_free !== false,
+      allowedTierIds: track.allowed_tier_ids || [],
+      price: track.price ? (track.price / 100).toString() : '',
+      audioFile: null,
+      albumArt: null,
+    });
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTrack(null);
+    setFormData({
+      title: '',
+      isFree: true,
+      allowedTierIds: [],
+      price: '',
+      audioFile: null,
+      albumArt: null,
+    });
+  };
+
   const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData(prev => ({ ...prev, audio_file: file }));
+      setFormData(prev => ({ ...prev, audioFile: file }));
     }
   };
 
   const handleArtSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData(prev => ({ ...prev, album_art: file }));
+      setFormData(prev => ({ ...prev, albumArt: file }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.audio_file || !formData.title) return;
+    if (!formData.title) return;
+    if (!editingTrack && !formData.audioFile) return;
 
     setIsUploading(true);
     setUploadProgress(0);
@@ -167,70 +222,73 @@ export function TrackUploadForm() {
         return;
       }
 
-      // Get actual duration from audio file BEFORE upload
-      let duration = 180;
-      try {
-        const audioElement = new Audio();
-        const audioBlob = new Blob([formData.audio_file], { type: formData.audio_file.type });
-        const audioUrlObject = URL.createObjectURL(audioBlob);
+      let audioUrl = editingTrack?.audio_url_128 || '';
+      let duration = editingTrack?.duration || 180;
+
+      // Only upload new audio if provided
+      if (formData.audioFile) {
+        // Get actual duration from audio file BEFORE upload
+        try {
+          const audioElement = new Audio();
+          const audioBlob = new Blob([formData.audioFile], { type: formData.audioFile.type });
+          const audioUrlObject = URL.createObjectURL(audioBlob);
+          
+          duration = await new Promise<number>((resolve) => {
+            audioElement.addEventListener('loadedmetadata', () => {
+              URL.revokeObjectURL(audioUrlObject);
+              resolve(Math.round(audioElement.duration));
+            });
+            audioElement.addEventListener('error', () => {
+              URL.revokeObjectURL(audioUrlObject);
+              resolve(180);
+            });
+            setTimeout(() => {
+              URL.revokeObjectURL(audioUrlObject);
+              resolve(180);
+            }, 3000);
+            audioElement.src = audioUrlObject;
+          });
+        } catch {
+          console.log('Could not read audio duration');
+        }
+
+        // Simulate upload progress
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => Math.min(prev + 10, 90));
+        }, 500);
+
+        // Upload audio to Supabase Storage
+        const audioExt = formData.audioFile.name.split('.').pop();
+        const audioFileName = `${Date.now()}.${audioExt}`;
+        const audioPath = `${artistProfile.id}/${audioFileName}`;
         
-        duration = await new Promise<number>((resolve) => {
-          audioElement.addEventListener('loadedmetadata', () => {
-            URL.revokeObjectURL(audioUrlObject);
-            resolve(Math.round(audioElement.duration));
-          });
-          audioElement.addEventListener('error', () => {
-            URL.revokeObjectURL(audioUrlObject);
-            resolve(180);
-          });
-          // Set timeout in case metadata never loads
-          setTimeout(() => {
-            URL.revokeObjectURL(audioUrlObject);
-            resolve(180);
-          }, 3000);
-          audioElement.src = audioUrlObject;
-        });
-        console.log('Track duration:', duration);
-      } catch {
-        console.log('Could not read audio duration');
-      }
-
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
-      }, 500);
-
-      // Upload audio to Supabase Storage
-      const audioExt = formData.audio_file.name.split('.').pop();
-      const audioFileName = `${Date.now()}.${audioExt}`;
-      const audioPath = `${artistProfile.id}/${audioFileName}`;
-      
-      const { error: audioError } = await supabase.storage
-        .from('audio')
-        .upload(audioPath, formData.audio_file);
-
-      let audioUrl = '';
-      if (audioError) {
-        console.error('Audio upload error:', audioError);
-        // Use placeholder URL if upload fails
-        audioUrl = `https://crwn-media.r2.dev/${artistProfile.slug}/audio/${audioFileName}`;
-      } else {
-        const { data: { publicUrl } } = supabase.storage
+        const { error: audioError } = await supabase.storage
           .from('audio')
-          .getPublicUrl(audioPath);
-        audioUrl = publicUrl;
+          .upload(audioPath, formData.audioFile);
+
+        if (audioError) {
+          console.error('Audio upload error:', audioError);
+          audioUrl = `https://crwn-media.r2.dev/${artistProfile.slug}/audio/${audioFileName}`;
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('audio')
+            .getPublicUrl(audioPath);
+          audioUrl = publicUrl;
+        }
+        clearInterval(progressInterval);
+        setUploadProgress(100);
       }
 
       // Upload album art if present
-      let albumArtUrl = null;
-      if (formData.album_art) {
-        const artExt = formData.album_art.name.split('.').pop();
+      let albumArtUrl = editingTrack?.album_art_url || null;
+      if (formData.albumArt) {
+        const artExt = formData.albumArt.name.split('.').pop();
         const artFileName = `${Date.now()}.${artExt}`;
         const artPath = `${artistProfile.id}/album-art/${artFileName}`;
         
         const { error: artError } = await supabase.storage
           .from('album-art')
-          .upload(artPath, formData.album_art);
+          .upload(artPath, formData.albumArt);
         
         if (!artError) {
           const { data: { publicUrl } } = supabase.storage
@@ -240,65 +298,91 @@ export function TrackUploadForm() {
         }
       }
 
-      clearInterval(progressInterval);
-      setUploadProgress(100);
+      // Calculate price in cents
+      const priceInCents = formData.price ? Math.round(parseFloat(formData.price) * 100) : null;
 
-      console.log('Saving track with audio URL:', audioUrl);
-      console.log('Duration:', duration);
-      
-      // Save to Supabase
-      const { data: track, error } = await supabase
-        .from('tracks')
-        .insert({
-          artist_id: artistProfile.id,
-          title: formData.title,
-          audio_url_128: audioUrl,
-          audio_url_320: audioUrl,
-          duration,
-          access_level: formData.access_level,
-          price: formData.price ? parseInt(formData.price) * 100 : null,
-          album_art_url: albumArtUrl,
-        })
-        .select()
-        .single();
+      if (editingTrack) {
+        // Update existing track
+        const { error: updateError } = await supabase
+          .from('tracks')
+          .update({
+            title: formData.title,
+            audio_url_128: audioUrl,
+            audio_url_320: audioUrl,
+            duration,
+            is_free: formData.isFree,
+            allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
+            price: formData.isFree ? null : priceInCents,
+            album_art_url: albumArtUrl,
+          })
+          .eq('id', editingTrack.id);
 
-      if (error) {
-        console.error('Track insert error:', error);
-        throw error;
-      }
-      
-      console.log('Track saved:', track);
-      
-      // Add new track to state
-      if (track) {
-        setTracks(prev => [track as Track, ...prev]);
+        if (updateError) throw updateError;
 
-        // Notify subscribers of new track
-        const { data: artistName } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('id', user?.id)
-          .maybeSingle();
-        fetch('/api/notifications/notify-subscribers', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            artistId: artistProfile.id,
-            type: 'new_track',
-            title: (artistName?.display_name || 'An artist') + ' dropped a new track!',
-            message: formData.title,
-            link: '/artist/' + (artistProfile.slug || ''),
-          }),
-        }).catch(console.error);
+        // Update local state
+        setTracks(prev => prev.map(t => 
+          t.id === editingTrack.id 
+            ? { ...t, title: formData.title, is_free: formData.isFree, allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds, price: formData.isFree ? null : priceInCents, album_art_url: albumArtUrl }
+            : t
+        ));
+        showToast('Track updated!', 'success');
+      } else {
+        // Insert new track
+        const { data: track, error } = await supabase
+          .from('tracks')
+          .insert({
+            artist_id: artistProfile.id,
+            title: formData.title,
+            audio_url_128: audioUrl,
+            audio_url_320: audioUrl,
+            duration,
+            is_free: formData.isFree,
+            allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
+            price: formData.isFree ? null : priceInCents,
+            album_art_url: albumArtUrl,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Track insert error:', error);
+          throw error;
+        }
+        
+        // Add new track to state
+        if (track) {
+          setTracks(prev => [track as Track, ...prev]);
+
+          // Notify subscribers of new track
+          const { data: artistName } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', user?.id)
+            .maybeSingle();
+          fetch('/api/notifications/notify-subscribers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              artistId: artistProfile.id,
+              type: 'new_track',
+              title: (artistName?.display_name || 'An artist') + ' dropped a new track!',
+              message: formData.title,
+              link: '/artist/' + (artistProfile.slug || ''),
+            }),
+          }).catch(console.error);
+        }
+        showToast('Track uploaded successfully!', 'success');
       }
       
       // Reset form
+      setEditingTrack(null);
       setFormData({
         title: '',
-        access_level: 'free',
+        isFree: true,
+        allowedTierIds: [],
         price: '',
-        audio_file: null,
-        album_art: null,
+        audioFile: null,
+        albumArt: null,
       });
 
       showToast('Track uploaded successfully!', 'success');
@@ -346,8 +430,8 @@ export function TrackUploadForm() {
               htmlFor="audio-upload"
               className="flex items-center justify-center gap-2 w-full bg-crwn-bg border-2 border-dashed border-crwn-elevated rounded-lg py-8 cursor-pointer hover:border-crwn-gold transition-colors"
             >
-              {formData.audio_file ? (
-                <span className="text-crwn-text">{formData.audio_file.name}</span>
+              {formData.audioFile ? (
+                <span className="text-crwn-text">{formData.audioFile.name}</span>
               ) : (
                 <>
                   <span className="text-2xl">🎵</span>
@@ -389,50 +473,63 @@ export function TrackUploadForm() {
           />
         </div>
 
-        {/* Access Level */}
+        {/* Access Level - Tier Gating */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-            Access Level
+            Access
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {(['free', 'subscriber', 'purchase'] as const).map((level) => (
-              <button
-                key={level}
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, access_level: level }))}
-                className={`py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                  formData.access_level === level
-                    ? 'bg-crwn-gold text-crwn-bg'
-                    : 'bg-crwn-bg text-crwn-text-secondary hover:text-crwn-text'
-                }`}
-              >
-                {level.charAt(0).toUpperCase() + level.slice(1)}
-              </button>
+          <div className="space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.isFree}
+                onChange={(e) => setFormData(p => ({ 
+                  ...p, 
+                  isFree: e.target.checked,
+                  allowedTierIds: e.target.checked ? [] : p.allowedTierIds,
+                  price: e.target.checked ? '' : p.price
+                }))}
+                className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+              />
+              <span className="text-crwn-text text-sm">Free to all</span>
+            </label>
+            {!formData.isFree && tiers.length > 0 && tiers.map(tier => (
+              <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
+                <input
+                  type="checkbox"
+                  checked={formData.allowedTierIds.includes(tier.id)}
+                  onChange={(e) => {
+                    const ids = e.target.checked
+                      ? [...formData.allowedTierIds, tier.id]
+                      : formData.allowedTierIds.filter(id => id !== tier.id);
+                    setFormData(p => ({ ...p, allowedTierIds: ids }));
+                  }}
+                  className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                />
+                <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+              </label>
             ))}
+            {!formData.isFree && (
+              <div className="ml-6 mt-2">
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
+                  Or set a one-time price (USD)
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-crwn-text">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Leave empty for tier access only"
+                    value={formData.price}
+                    onChange={(e) => setFormData(p => ({ ...p, price: e.target.value }))}
+                    className="w-full neu-inset px-3 py-2 text-crwn-text"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Price (if purchase) */}
-        {formData.access_level === 'purchase' && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-              Price (USD)
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-crwn-text-secondary">$</span>
-              <input
-                type="number"
-                min="0.99"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                placeholder="0.99"
-                className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg pl-8 pr-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
-                required
-              />
-            </div>
-          </div>
-        )}
 
         {/* Upload Progress */}
         {isUploading && (
@@ -451,13 +548,24 @@ export function TrackUploadForm() {
         )}
 
         {/* Submit */}
-        <button
-          type="submit"
-          disabled={isUploading || !formData.audio_file}
-          className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
-        >
-          {isUploading ? 'Uploading...' : 'Upload Track'}
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={isUploading || (!editingTrack && !formData.audioFile)}
+            className="flex-1 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
+          >
+            {isUploading ? 'Saving...' : editingTrack ? 'Update Track' : 'Upload Track'}
+          </button>
+          {editingTrack && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="px-6 py-3 bg-crwn-surface text-crwn-text-secondary font-medium rounded-lg hover:text-crwn-text transition-colors"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       </form>
 
       {/* Track List with Drag Reorder */}
@@ -476,7 +584,16 @@ export function TrackUploadForm() {
               if (track) handleDeleteTrack(track);
             }}
             renderActions={(track) => (
-              <AddToPlaylistMenu track={track} />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleEditTrack(track)}
+                  className="p-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+                  title="Edit track"
+                >
+                  <Edit2 size={16} />
+                </button>
+                <AddToPlaylistMenu track={track} />
+              </div>
             )}
             showDragHandle={true}
           />

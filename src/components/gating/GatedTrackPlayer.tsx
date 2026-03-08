@@ -16,10 +16,13 @@ interface GatedTrackPlayerProps {
 
 export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
   const { play, pause, currentTrack, isPlaying } = usePlayer();
-  const { isSubscribed, isLoading } = useSubscription(artistId);
+  const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  const isLocked = track.access_level !== 'free' && !isSubscribed;
+  // New gating logic: is_free !== false means free (null = free)
+  // Otherwise check if user has a tier that's in allowed_tier_ids
+  const canAccess = track.is_free !== false || (tierId && track.allowed_tier_ids?.includes(tierId));
+  const isLocked = !canAccess;
   const isCurrentTrack = currentTrack?.id === track.id;
   const isTrackPlaying = isCurrentTrack && isPlaying;
 
@@ -121,11 +124,11 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
               <span className="text-xs text-crwn-gold flex items-center gap-1">
                 <Lock size={12} /> Subscribe to unlock
               </span>
-            ) : track.access_level === 'subscriber' ? (
+            ) : track.is_free === false && track.allowed_tier_ids && track.allowed_tier_ids.length > 0 ? (
               <span className="text-xs text-crwn-gold flex items-center gap-1">
                 <LockOpen size={12} /> Subscriber exclusive
               </span>
-            ) : track.access_level === 'purchase' ? (
+            ) : track.is_free === false && track.price ? (
               <span className="text-xs text-crwn-text-secondary">
                 ${(track.price || 0) / 100}
               </span>

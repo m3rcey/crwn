@@ -47,6 +47,8 @@ export interface Track {
   audio_url_320: string | null;
   duration: number | null;
   access_level: AccessLevel;
+  is_free: boolean;
+  allowed_tier_ids: string[];
   price: number | null;
   album_art_url: string | null;
   release_date: string;
