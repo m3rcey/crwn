@@ -156,3 +156,36 @@ export function formatTierName(tier: string | null | undefined): string {
   if (!tier) return 'Starter';
   return tier.charAt(0).toUpperCase() + tier.slice(1);
 }
+
+/**
+ * Get artist's platform fee percent, checking for founding artist status.
+ * Founding artists get 5% fee (vs normal 8%/6%).
+ * This function queries the DB to check is_founding_artist status.
+ */
+export async function getArtistFeePercent(artistId: string): Promise<number> {
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('platform_tier, is_founding_artist, founding_artist_expires_at')
+    .eq('id', artistId)
+    .single();
+
+  if (!data) return 8;
+
+  // Founding artists with active status get 5%
+  if (data.is_founding_artist) {
+    const expiresAt = data.founding_artist_expires_at ? new Date(data.founding_artist_expires_at) : null;
+    if (!expiresAt || expiresAt > new Date()) {
+      return 5;
+    }
+  }
+
+  // Label gets 6%, everyone else 8%
+  const tier = data.platform_tier || 'starter';
+  return tier === 'label' ? 6 : 8;
+}

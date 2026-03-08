@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
-import { getPlatformFeePercent } from '@/lib/platformTier';
+import { getArtistFeePercent } from '@/lib/platformTier';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
     }
 
     const price = product.price;
-    const artistPlatformTier = (product.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
-    const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
+    const artistId = (product.artist as unknown as { id?: string }).id || '';
+    const platformFeePercent = await getArtistFeePercent(artistId);
 
     // Calculate fee as percentage of price (in cents)
     const platformFee = Math.round(price * (platformFeePercent / 100));

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { getPlatformFeePercent } from '@/lib/platformTier';
+import { getArtistFeePercent } from '@/lib/platformTier';
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,9 +19,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Tier not found' }, { status: 404 });
     }
 
-    // Get dynamic platform fee based on artist's platform tier
-    const artistPlatformTier = (tier.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
-    const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
+    // Get dynamic platform fee based on artist's founding status and platform tier
+    const artistId = (tier.artist as unknown as { id?: string })?.id;
+    const platformFeePercent = artistId ? await getArtistFeePercent(artistId) : 8;
 
     // Get fan profile
     const { data: fan } = await supabase

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
-import { getPlatformFeePercent } from '@/lib/platformTier';
+import { getArtistFeePercent } from '@/lib/platformTier';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
@@ -35,14 +35,14 @@ export async function POST(request: NextRequest) {
 
     // Check if artist has Stripe Connect
     const artistStripeAccountId = (session.artist as unknown as { stripe_connect_id?: string }).stripe_connect_id;
-    const artistPlatformTier = (session.artist as unknown as { platform_tier?: string })?.platform_tier || 'starter';
+    const artistIdFromArtist = (session.artist as unknown as { id?: string }).id || '';
 
     if (!artistStripeAccountId) {
       return NextResponse.json({ error: 'Artist not set up for payments' }, { status: 400 });
     }
 
-    // Calculate dynamic platform fee based on artist's platform tier (in cents)
-    const platformFeePercent = getPlatformFeePercent(artistPlatformTier);
+    // Calculate dynamic platform fee based on artist's founding status
+    const platformFeePercent = await getArtistFeePercent(artistIdFromArtist);
     const platformFee = Math.round(session.price * (platformFeePercent / 100));
 
     // Create Stripe Checkout session
