@@ -150,7 +150,7 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 bottom-full mb-2 md:bottom-auto md:top-full md:mb-0 md:mt-2 w-80 bg-crwn-surface border border-crwn-elevated rounded-xl shadow-xl z-50 overflow-hidden">
+        <div className="fixed left-2 right-2 bottom-16 md:absolute md:left-0 md:right-auto md:bottom-auto md:top-full md:mt-2 w-auto md:w-80 bg-crwn-surface border border-crwn-elevated rounded-xl shadow-xl z-50 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-crwn-elevated">
             <span className="font-semibold text-crwn-text">Notifications</span>
             {unreadCount > 0 && (
@@ -163,7 +163,7 @@ export function NotificationBell() {
             )}
           </div>
 
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-[60vh] md:max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-crwn-text-secondary">
                 No notifications yet
