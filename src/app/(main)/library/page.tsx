@@ -6,14 +6,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { PlaylistManager } from '@/components/library/PlaylistManager';
+import { LikedSongs } from '@/components/library/LikedSongs';
 import { ReferralDashboard } from '@/components/referrals/ReferralDashboard';
 
-type Tab = 'playlists' | 'referrals';
+type Tab = 'liked' | 'playlists' | 'referrals';
 
 export default function LibraryPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>('playlists');
+  const [activeTab, setActiveTab] = useState<Tab>('liked');
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -40,6 +41,16 @@ export default function LibraryPage() {
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
         <button
+          onClick={() => setActiveTab('liked')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'liked'
+              ? 'neu-button-accent text-crwn-bg'
+              : 'neu-button text-crwn-text-secondary'
+          }`}
+        >
+          Liked Songs
+        </button>
+        <button
           onClick={() => setActiveTab('playlists')}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             activeTab === 'playlists'
@@ -62,6 +73,7 @@ export default function LibraryPage() {
       </div>
 
       {/* Content */}
+      {activeTab === 'liked' && <LikedSongs />}
       {activeTab === 'playlists' && <PlaylistManager />}
       {activeTab === 'referrals' && <ReferralDashboard />}
     </div>
