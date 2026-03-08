@@ -25,7 +25,6 @@ export async function generateMetadata({ params }: TrackPageProps): Promise<Meta
     .from('tracks')
     .select('title, album_art_url, duration, is_free')
     .eq('id', id)
-    .eq('artist_id', artist.id)
     .single();
 
   if (!track) return { title: 'Track Not Found | CRWN' };
