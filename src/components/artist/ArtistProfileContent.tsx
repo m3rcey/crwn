@@ -134,7 +134,7 @@ export function ArtistProfileContent({
               {tracks && tracks.length > 0 ? (
                 <div className="space-y-2">
                   {tracks.map((track) => (
-                    <GatedTrackPlayer key={track.id} track={track} artistId={artist.id} trackList={tracks} />
+                    <GatedTrackPlayer key={track.id} track={track} artistId={artist.id} artistSlug={artist.slug} trackList={tracks} />
                   ))}
                 </div>
               ) : (

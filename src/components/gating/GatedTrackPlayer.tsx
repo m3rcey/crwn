@@ -4,16 +4,17 @@ import { useState } from 'react';
 import { Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useSubscription } from '@/hooks/useSubscription';
-import { Lock, Play, Pause, LockOpen } from 'lucide-react';
+import { Lock, Play, Pause, LockOpen, Link2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface GatedTrackPlayerProps {
   track: Track;
   artistId: string;
+  artistSlug?: string;
   trackList?: Track[];
 }
 
-export function GatedTrackPlayer({ track, artistId, trackList }: GatedTrackPlayerProps) {
+export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, isLoading } = useSubscription(artistId);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -148,6 +149,19 @@ export function GatedTrackPlayer({ track, artistId, trackList }: GatedTrackPlaye
             className="px-4 py-1.5 bg-crwn-gold/10 border border-crwn-gold text-crwn-gold text-sm font-medium rounded-full hover:bg-crwn-gold/20 transition-colors"
           >
             Preview
+          </button>
+        )}
+
+        {/* Share Button */}
+        {artistSlug && (
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(`https://crwn-mauve.vercel.app/artist/${artistSlug}/track/${track.id}`);
+            }}
+            className="text-crwn-text-secondary hover:text-crwn-gold transition-colors p-1"
+            title="Copy share link"
+          >
+            <Link2 className="w-3.5 h-3.5" />
           </button>
         )}
       </div>

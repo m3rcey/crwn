@@ -6,7 +6,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
-import { Play, Pause, Lock, Check, Loader2 } from 'lucide-react';
+import { Play, Pause, Lock, Check, Loader2, Link2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface AlbumCardProps {
@@ -73,6 +73,16 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-crwn-text truncate">{album.title}</h3>
             {!hasAccess && <Lock className="w-4 h-4 text-crwn-gold flex-shrink-0" />}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(`https://crwn-mauve.vercel.app/artist/${artistSlug}/album/${album.id}`);
+              }}
+              className="text-crwn-text-secondary hover:text-crwn-gold transition-colors p-1"
+              title="Copy share link"
+            >
+              <Link2 className="w-3.5 h-3.5" />
+            </button>
           </div>
           <p className="text-sm text-crwn-text-secondary">
             {album.track_count || 0} tracks • {album.release_date}
