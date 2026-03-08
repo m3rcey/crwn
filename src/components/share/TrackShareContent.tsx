@@ -36,7 +36,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
   const { tierId } = useSubscription(artist.id);
   const { play } = usePlayer();
 
-  const isFree = track.is_free;
+  const isFree = track.is_free !== false; // null or true = free
   const hasAccess = isFree || (tierId && track.allowed_tier_ids?.includes(tierId));
   const shareUrl = `https://crwn-mauve.vercel.app/artist/${artist.slug}/track/${track.id}`;
 
