@@ -376,7 +376,15 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
             <span className="text-sm">{post.comment_count || 0}</span>
           </button>
 
-          <button className="flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors ml-auto">
+          <button 
+            onClick={() => {
+              const artistSlug = post.artist?.slug;
+              if (artistSlug) {
+                navigator.clipboard.writeText(`https://crwn-mauve.vercel.app/artist/${artistSlug}/post/${post.id}`);
+              }
+            }}
+            className="flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors ml-auto"
+          >
             <Share2 className="w-5 h-5" />
           </button>
         </div>
