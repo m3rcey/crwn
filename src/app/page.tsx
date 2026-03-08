@@ -443,25 +443,38 @@ function FanRelationshipsSection() {
 
 // Section 7: Founding Artists
 function FoundingArtistSection() {
-  const [count, setCount] = useState(217);
+  const [count, setCount] = useState(0);
+  const [spotsLeft, setSpotsLeft] = useState(500);
+  const [isLoaded, setIsLoaded] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef as React.RefObject<HTMLElement>);
 
   useEffect(() => {
-    if (!isInView) return;
-    // Animate from 0 to 217
+    fetch('/api/founding-artist')
+      .then(res => res.json())
+      .then(data => {
+        setCount(data.foundingArtists || 0);
+        setSpotsLeft(data.spotsLeft || 500);
+        setIsLoaded(true);
+      })
+      .catch(() => setIsLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    if (!isInView || !isLoaded || count === 0) return;
+    // Animate from 0 to count
     let start = 0;
     const interval = setInterval(() => {
-      start += 5;
-      if (start >= 217) {
-        setCount(217);
+      start += Math.ceil(count / 30);
+      if (start >= count) {
+        setCount(count);
         clearInterval(interval);
       } else {
         setCount(start);
       }
     }, 30);
     return () => clearInterval(interval);
-  }, [isInView]);
+  }, [isInView, isLoaded, count]);
 
   return (
     <Section className="bg-crwn-bg">
@@ -480,15 +493,17 @@ function FoundingArtistSection() {
             <span className="text-2xl font-bold text-crwn-gold">Founding Artist</span>
           </div>
           <div className="text-6xl font-bold text-crwn-gold mb-4">
-            {count} / 500
+            {isLoaded ? count : '...'} / 500
           </div>
           <div className="w-64 mx-auto h-2 bg-crwn-surface rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-[#9a7b2a] to-crwn-gold transition-all duration-1000"
-              style={{ width: `${(count / 500) * 100}%` }}
+              style={{ width: `${isLoaded ? (count / 500) * 100 : 0}%` }}
             />
           </div>
-          <p className="text-crwn-text-dim mt-4">artists accepted</p>
+          <p className="text-crwn-text-dim mt-4">
+            {isLoaded ? spotsLeft : '...'} spots remaining
+          </p>
         </div>
       </div>
     </Section>

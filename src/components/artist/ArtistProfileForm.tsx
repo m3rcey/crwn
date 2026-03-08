@@ -134,6 +134,22 @@ export function ArtistProfileForm() {
             .from('profiles')
             .update({ role: 'artist' })
             .eq('id', user?.id);
+
+          // Check and assign founding artist status
+          try {
+            const faRes = await fetch('/api/founding-artist', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ artistId: data.id }),
+            });
+            const faData = await faRes.json();
+            if (faData.isFoundingArtist) {
+              alert(`🎉 Congratulations! You are Founding Artist #${faData.number}! You get free Pro features and a reduced 5% platform fee for one year.`);
+              return;
+            }
+          } catch (err) {
+            console.error('Founding artist check failed:', err);
+          }
         }
       }
 
