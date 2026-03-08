@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Get product and artist info
     const { data: product, error: productError } = await supabase
       .from('products')
-      .select('*, artist:artist_profiles(id, user_id, stripe_connect_id, platform_tier, profile:profiles(display_name))')
+      .select('*, artist:artist_profiles(id, user_id, slug, stripe_connect_id, platform_tier, profile:profiles(display_name))')
       .eq('id', productId)
       .eq('is_active', true)
       .single();
@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!product.stripe_connect_id) {
+    const artist = product.artist as any;
+    if (!artist?.stripe_connect_id) {
       return NextResponse.json(
         { error: 'Artist has not connected Stripe' },
         { status: 400 }
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const price = product.price;
-    const artistId = (product.artist as unknown as { id?: string }).id || '';
+    const artistId = artist?.id || '';
     const platformFeePercent = await getArtistFeePercent(artistId);
 
     // Calculate fee as percentage of price (in cents)
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       payment_intent_data: {
         application_fee_amount: platformFee,
         transfer_data: {
-          destination: product.stripe_connect_id,
+          destination: artist.stripe_connect_id,
         },
         metadata: {
           fan_id: fanId,
@@ -76,8 +77,8 @@ export async function POST(request: NextRequest) {
           artist_id: product.artist_id,
         },
       },
-      success_url: `${request.headers.get('origin')}/artist/${product.artist.slug}?purchase=success&product=${productId}`,
-      cancel_url: `${request.headers.get('origin')}/artist/${product.artist.slug}?purchase=cancelled`,
+      success_url: `${request.headers.get('origin')}/artist/${artist.slug}?purchase=success&product=${productId}`,
+      cancel_url: `${request.headers.get('origin')}/artist/${artist.slug}?purchase=cancelled`,
       metadata: {
         fan_id: fanId,
         product_id: productId,
