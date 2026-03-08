@@ -48,7 +48,7 @@ function ArtistDashboardContent() {
     }
     
     if (upgrade === 'success') {
-      setShowSuccess('Upgrade successful! Welcome to CRWN!');
+      setShowSuccess('Your plan is now active. Time to build your empire.');
       // Clean URL
       router.replace('/profile/artist?tab=billing', undefined);
     }
@@ -122,12 +122,18 @@ function ArtistDashboardContent() {
     <div className="relative min-h-screen">
       {/* Success Toast */}
       {showSuccess && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-crwn-gold/20 text-crwn-gold px-4 py-3 rounded-lg neu-raised">
-          <Check className="w-5 h-5" />
-          {showSuccess}
-          <button onClick={() => setShowSuccess(null)} className="ml-2 hover:text-crwn-gold/70">
-            <X className="w-4 h-4" />
-          </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowSuccess(null)}>
+          <div className="neu-modal p-8 text-center max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="text-5xl mb-4">👑</div>
+            <h2 className="text-xl font-bold text-crwn-gold mb-2">Welcome to CRWN!</h2>
+            <p className="text-crwn-text-secondary text-sm mb-6">{showSuccess}</p>
+            <button
+              onClick={() => setShowSuccess(null)}
+              className="neu-button-accent px-8 py-3 rounded-xl font-semibold"
+            >
+              Let's Go
+            </button>
+          </div>
         </div>
       )}
       <BackgroundImage src="/backgrounds/bg-dashboard.jpg" overlayOpacity="bg-black/80" />
