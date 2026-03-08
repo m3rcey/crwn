@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { supabase } from '@/lib/supabase/client';
 import { Playlist, Track } from '@/types';
 import Image from 'next/image';
@@ -25,6 +26,7 @@ interface PlaylistFormData {
 
 export function ArtistPlaylistManager() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,7 +139,7 @@ export function ArtistPlaylistManager() {
         .maybeSingle();
 
       if (!artistProfile) {
-        alert('Artist profile not found');
+        showToast('Artist profile not found', 'error');
         return;
       }
 
@@ -181,7 +183,7 @@ export function ArtistPlaylistManager() {
 
         // Update track associations
         await updatePlaylistTracks(editingPlaylist.id, selectedTracks);
-        alert('Playlist updated!');
+        showToast('Playlist updated!', 'success');
       } else {
         // Create playlist
         const { data: playlist, error: insertError } = await supabase
@@ -209,14 +211,14 @@ export function ArtistPlaylistManager() {
           await updatePlaylistTracks(playlist.id, selectedTracks);
         }
 
-        alert('Playlist created!');
+        showToast('Playlist created!', 'success');
       }
 
       resetForm();
       loadData();
     } catch (error) {
       console.error('Error saving playlist:', error);
-      alert('Failed to save playlist');
+      showToast('Failed to save playlist', 'error');
     }
   };
 

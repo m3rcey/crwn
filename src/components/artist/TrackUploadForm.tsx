@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
@@ -12,6 +13,7 @@ import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 
 export function TrackUploadForm() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const { currentTrack, isPlaying, play, pause } = usePlayer();
   const [isUploading, setIsUploading] = useState(false);
@@ -123,10 +125,10 @@ export function TrackUploadForm() {
 
       // Remove from local state
       setTracks(tracks.filter(t => t.id !== track.id));
-      alert('Track deleted');
+      showToast('Track deleted', 'success');
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Failed to delete track');
+      showToast('Failed to delete track', 'error');
     }
   };
 
@@ -160,7 +162,7 @@ export function TrackUploadForm() {
         .maybeSingle();
 
       if (!artistProfile) {
-        alert('You need to set up your artist profile first');
+        showToast('You need to set up your artist profile first', 'warning');
         setIsUploading(false);
         return;
       }
@@ -299,10 +301,10 @@ export function TrackUploadForm() {
         album_art: null,
       });
 
-      alert('Track uploaded successfully!');
+      showToast('Track uploaded successfully!', 'success');
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload track');
+      showToast('Failed to upload track', 'error');
     } finally {
       setIsUploading(false);
       setUploadProgress(0);

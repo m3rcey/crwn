@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/hooks/useAuth";
 import { PlayerProvider } from "@/hooks/usePlayer";
+import { ToastProvider } from "@/components/shared/Toast";
 import { MiniPlayer } from "@/components/player/MiniPlayer";
 import { FullScreenPlayer } from "@/components/player/FullScreenPlayer";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
@@ -65,10 +66,12 @@ export default function RootLayout({
       >
         <AuthProvider>
           <PlayerProvider>
-            {children}
-            <MiniPlayer />
-            <FullScreenPlayer />
-            <ServiceWorkerRegistration />
+            <ToastProvider>
+              {children}
+              <MiniPlayer />
+              <FullScreenPlayer />
+              <ServiceWorkerRegistration />
+            </ToastProvider>
           </PlayerProvider>
         </AuthProvider>
       </body>

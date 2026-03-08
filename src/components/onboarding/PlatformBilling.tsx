@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { getTierLimits, formatTierName, TierLimits } from '@/lib/platformTier';
 import { PlatformTierModal } from './PlatformTierModal';
@@ -19,6 +20,7 @@ interface ArtistProfile {
 
 export function PlatformBilling() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const [artist, setArtist] = useState<ArtistProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,11 +57,11 @@ export function PlatformBilling() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || 'Failed to open portal');
+        showToast(data.error || 'Failed to open portal', 'error');
       }
     } catch (error) {
       console.error('Portal error:', error);
-      alert('Failed to open billing portal');
+      showToast('Failed to open billing portal', 'error');
     } finally {
       setIsPortalLoading(false);
     }

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { supabase } from '@/lib/supabase/client';
 import { PostType, AccessLevel } from '@/types';
 import Image from 'next/image';
@@ -39,6 +40,7 @@ const ACCESS_LEVELS: { value: AccessLevel; label: string }[] = [
 
 export function PostCreator({ artistCommunityId, onPostCreated }: PostCreatorProps) {
   const { user, profile } = useAuth();
+  const { showToast } = useToast();
   const [content, setContent] = useState('');
   const [postType, setPostType] = useState<PostType>('text');
   const [accessLevel, setAccessLevel] = useState<AccessLevel>('free');
@@ -113,14 +115,14 @@ export function PostCreator({ artistCommunityId, onPostCreated }: PostCreatorPro
     if (postType === 'poll') {
       const validOptions = pollOptions.filter(opt => opt.trim() !== '');
       if (validOptions.length < 2) {
-        alert('Please provide at least 2 poll options');
+        showToast('Please provide at least 2 poll options', 'warning');
         return;
       }
     }
 
     // Validate link
     if (postType === 'link' && !linkUrl.trim()) {
-      alert('Please provide a link URL');
+      showToast('Please provide a link URL', 'warning');
       return;
     }
 

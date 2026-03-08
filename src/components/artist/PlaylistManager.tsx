@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { supabase } from '@/lib/supabase/client';
 import { Playlist, Track } from '@/types';
 import Image from 'next/image';
@@ -22,6 +23,7 @@ interface PlaylistFormData {
 
 export function PlaylistManager() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const { play, pause } = usePlayer();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +161,7 @@ export function PlaylistManager() {
           .eq('id', editingPlaylist.id);
 
         if (updateError) throw updateError;
-        alert('Playlist updated!');
+        showToast('Playlist updated!', 'success');
       } else {
         // Create playlist
         const { error: insertError } = await supabase
@@ -173,14 +175,14 @@ export function PlaylistManager() {
           });
 
         if (insertError) throw insertError;
-        alert('Playlist created!');
+        showToast('Playlist created!', 'success');
       }
 
       resetForm();
       loadPlaylists();
     } catch (error) {
       console.error('Error saving playlist:', error);
-      alert('Failed to save playlist');
+      showToast('Failed to save playlist', 'error');
     }
   };
 
@@ -201,7 +203,7 @@ export function PlaylistManager() {
       }
     } catch (error) {
       console.error('Error deleting playlist:', error);
-      alert('Failed to delete playlist');
+      showToast('Failed to delete playlist', 'error');
     }
   };
 
@@ -262,7 +264,7 @@ export function PlaylistManager() {
       handleViewPlaylist(selectedPlaylist);
     } catch (error) {
       console.error('Error adding track:', error);
-      alert('Failed to add track');
+      showToast('Failed to add track', 'error');
     }
   };
 
@@ -279,7 +281,7 @@ export function PlaylistManager() {
       handleViewPlaylist(selectedPlaylist);
     } catch (error) {
       console.error('Error removing track:', error);
-      alert('Failed to remove track');
+      showToast('Failed to remove track', 'error');
     }
   };
 

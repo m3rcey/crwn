@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { ArtistProfile } from '@/types';
@@ -19,6 +20,7 @@ interface ArtistFormData {
 export function ArtistProfileForm() {
   const { user, profile } = useAuth();
   const supabase = createBrowserSupabaseClient();
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [artistProfile, setArtistProfile] = useState<ArtistProfile | null>(null);
@@ -98,7 +100,7 @@ export function ArtistProfileForm() {
 
       if (profileError) {
         console.error('Profile update error:', profileError);
-        alert(`Failed to save profile: ${profileError.message}`);
+        showToast(`Failed to save profile: ${profileError.message}`, 'error');
         setIsSaving(false);
         return;
       }
@@ -144,7 +146,7 @@ export function ArtistProfileForm() {
             });
             const faData = await faRes.json();
             if (faData.isFoundingArtist) {
-              alert(`🎉 Congratulations! You are Founding Artist #${faData.number}! You get free Pro features and a reduced 5% platform fee for one year.`);
+              showToast(`🎉 Congratulations! You are Founding Artist #${faData.number}! You get free Pro features and a reduced 5% platform fee for one year.`, 'success');
               return;
             }
           } catch (err) {
@@ -153,10 +155,10 @@ export function ArtistProfileForm() {
         }
       }
 
-      alert('Profile saved successfully!');
+      showToast('Profile saved successfully!', 'success');
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to save profile');
+      showToast('Failed to save profile', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -178,7 +180,7 @@ export function ArtistProfileForm() {
       
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        alert(`Failed to upload ${type}: ${uploadError.message}`);
+        showToast(`Failed to upload ${type}: ${uploadError.message}`, 'error');
         return;
       }
       
@@ -198,7 +200,7 @@ export function ArtistProfileForm() {
       }
     } catch (error) {
       console.error('File upload error:', error);
-      alert(`Failed to upload ${type}. Please try again.`);
+      showToast(`Failed to upload ${type}. Please try again.`, 'error');
     }
   };
 

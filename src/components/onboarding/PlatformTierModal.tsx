@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Check, Crown } from 'lucide-react';
 
@@ -66,6 +67,7 @@ interface PlatformTierModalProps {
 export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
+  const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -113,11 +115,11 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
         if (data.url) {
           window.location.href = data.url;
         } else {
-          alert(data.error || 'Checkout failed. Please try again.');
+          showToast(data.error || 'Checkout failed. Please try again.', 'error');
         }
       } catch (error) {
         console.error('Checkout error:', error);
-        alert('Failed to start checkout. Please try again.');
+        showToast('Failed to start checkout. Please try again.', 'error');
       } finally {
         setIsLoading(null);
       }

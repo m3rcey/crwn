@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Playlist, Track } from '@/types';
 import Image from 'next/image';
@@ -20,6 +21,7 @@ import { usePlayer } from '@/hooks/usePlayer';
 
 export function PlaylistManager() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const { play, currentTrack, isPlaying } = usePlayer();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -97,7 +99,7 @@ export function PlaylistManager() {
           .eq('id', editingPlaylist.id);
 
         if (error) throw error;
-        alert('Playlist updated!');
+        showToast('Playlist updated!', 'success');
       } else {
         // Create playlist
         const { error } = await supabase
@@ -110,14 +112,14 @@ export function PlaylistManager() {
           });
 
         if (error) throw error;
-        alert('Playlist created!');
+        showToast('Playlist created!', 'success');
       }
 
       resetForm();
       loadData();
     } catch (error) {
       console.error('Error saving playlist:', error);
-      alert('Failed to save playlist');
+      showToast('Failed to save playlist', 'error');
     } finally {
       setIsLoading(false);
     }

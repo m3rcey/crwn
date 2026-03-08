@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
@@ -31,6 +32,7 @@ interface AlbumFormData {
 
 export function AlbumManager() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [albums, setAlbums] = useState<Album[]>([]);
   const [availableTracks, setAvailableTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -155,7 +157,7 @@ export function AlbumManager() {
         .maybeSingle();
 
       if (!artistProfile) {
-        alert('Artist profile not found');
+        showToast('Artist profile not found', 'error');
         setIsUploadingTrack(false);
         return;
       }
@@ -230,10 +232,10 @@ export function AlbumManager() {
       // Reset upload fields
       setNewTrackFile(null);
       setNewTrackTitle('');
-      alert('Track uploaded and added to album!');
+      showToast('Track uploaded and added to album!', 'success');
     } catch (error) {
       console.error('Error uploading track:', error);
-      alert('Failed to upload track');
+      showToast('Failed to upload track', 'error');
     } finally {
       setIsUploadingTrack(false);
     }
@@ -252,7 +254,7 @@ export function AlbumManager() {
         .maybeSingle();
 
       if (!artistProfile) {
-        alert('Artist profile not found');
+        showToast('Artist profile not found', 'error');
         return;
       }
 
@@ -297,7 +299,7 @@ export function AlbumManager() {
 
         // Update track associations
         await updateAlbumTracks(editingAlbum.id, selectedTracks);
-        alert('Album updated!');
+        showToast('Album updated!', 'success');
       } else {
         // Create album
         const { data: album, error: albumError } = await supabase
@@ -323,14 +325,14 @@ export function AlbumManager() {
           await updateAlbumTracks(album.id, selectedTracks);
         }
 
-        alert('Album created!');
+        showToast('Album created!', 'success');
       }
 
       resetForm();
       loadData();
     } catch (error) {
       console.error('Error saving album:', error);
-      alert('Failed to save album');
+      showToast('Failed to save album', 'error');
     }
   };
 

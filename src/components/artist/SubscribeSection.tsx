@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
@@ -15,6 +16,7 @@ interface SubscribeButtonProps {
 
 export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButtonProps) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get('ref') || '';
@@ -62,7 +64,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
 
   const handleSubscribe = async (tier: TierConfig) => {
     if (!user) {
-      alert('Please sign in to subscribe');
+      showToast('Please sign in to subscribe', 'warning');
       return;
     }
 
@@ -157,6 +159,7 @@ interface TierCardsProps {
 
 export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get('ref') || '';

@@ -8,6 +8,7 @@ import { BookingSession } from '@/types';
 import { InlineWidget } from 'react-calendly';
 import { Lock, Clock, DollarSign, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/shared/Toast';
 
 interface CalendlyBookingProps {
   artist: {
@@ -32,6 +33,7 @@ export function CalendlyBooking({
   const { tierId, isLoading: subLoading } = useSubscription(artist.id);
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
+  const { showToast } = useToast();
 
   const [sessions, setSessions] = useState<BookingSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,7 +89,7 @@ export function CalendlyBooking({
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Failed to start checkout. Please try again.');
+      showToast('Failed to start checkout. Please try again.', 'error');
     } finally {
       setIsCheckingOut(null);
     }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
@@ -28,6 +29,7 @@ const EXPERIENCE_SUBCATEGORIES = [
 
 export function ShopManager() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,7 +116,7 @@ export function ShopManager() {
         .maybeSingle();
 
       if (!artistProfile) {
-        alert('Artist profile not found');
+        showToast('Artist profile not found', 'error');
         return;
       }
 
@@ -184,7 +186,7 @@ export function ShopManager() {
           }
         }
 
-        alert('Product updated!');
+        showToast('Product updated!', 'success');
       } else {
         const { data: product, error } = await supabase
           .from('products')
@@ -203,14 +205,14 @@ export function ShopManager() {
           }
         }
 
-        alert('Product created!');
+        showToast('Product created!', 'success');
       }
 
       resetForm();
       loadData();
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Failed to save product');
+      showToast('Failed to save product', 'error');
     } finally {
       setIsLoading(false);
     }

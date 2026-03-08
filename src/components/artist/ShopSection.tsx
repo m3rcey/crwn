@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
@@ -14,6 +15,7 @@ interface ShopSectionProps {
 
 export function ShopSection({ products, artistId }: ShopSectionProps) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +57,7 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
 
   const handleBuy = async (product: Product) => {
     if (!user) {
-      alert('Please sign in to purchase');
+      showToast('Please sign in to purchase', 'warning');
       return;
     }
 
@@ -76,11 +78,11 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
       if (data.url) {
         window.location.href = data.url;
       } else if (data.error) {
-        alert(data.error);
+        showToast(data.error, 'error');
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      alert('Failed to start checkout');
+      showToast('Failed to start checkout', 'error');
     } finally {
       setIsLoading(false);
     }

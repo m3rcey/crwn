@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Edit2, Trash2, X } from 'lucide-react';
 import UpgradePrompt from '@/components/shared/UpgradePrompt';
@@ -21,6 +22,7 @@ interface Tier {
 
 export function TierManager() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const [tiers, setTiers] = useState<Tier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,7 +82,7 @@ export function TierManager() {
 
   const handleStripeConnect = async () => {
     if (!artistProfileId) {
-      alert('Artist profile not found');
+      showToast('Artist profile not found', 'error');
       return;
     }
     
@@ -90,7 +92,7 @@ export function TierManager() {
       window.location.href = `/api/stripe/connect?artist_id=${artistProfileId}`;
     } catch (error) {
       console.error('Stripe connect error:', error);
-      alert('Failed to connect Stripe');
+      showToast('Failed to connect Stripe', 'error');
       setIsConnectingStripe(false);
     }
   };
@@ -115,7 +117,7 @@ export function TierManager() {
         .maybeSingle();
 
       if (!artistProfile) {
-        alert('Artist profile not found');
+        showToast('Artist profile not found', 'error');
         return;
       }
 
@@ -160,7 +162,7 @@ export function TierManager() {
         setTiers(prev => prev.map(t => t.id === editingTier.id ? (updated as Tier) : t));
         setEditingTier(null);
         setFormData({ name: '', price: '', description: '', benefits: [''] });
-        alert('Tier updated successfully!');
+        showToast('Tier updated successfully!', 'success');
       } else {
         // CREATE new tier
         const response = await fetch('/api/stripe/create-price', {
@@ -196,11 +198,11 @@ export function TierManager() {
 
         setTiers(prev => [...prev, tier as Tier]);
         setFormData({ name: '', price: '', description: '', benefits: [''] });
-        alert('Tier created successfully!');
+        showToast('Tier created successfully!', 'success');
       }
     } catch (error) {
       console.error('Error saving tier:', error);
-      alert('Failed to save tier');
+      showToast('Failed to save tier', 'error');
     } finally {
       setIsCreating(false);
     }
