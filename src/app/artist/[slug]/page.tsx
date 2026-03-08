@@ -129,8 +129,17 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   const { data: tracks } = await supabase
     .from('tracks')
     .select('*')
-    .eq('artist_id', artist.id)
-    .order('created_at', { ascending: false });
+    .eq('artist_id', artist.id);
+
+  // Sort by position, then by created_at for tracks without position
+  const sortedTracks = (tracks || []).sort((a: unknown, b: unknown) => {
+    const trackA = a as { position: number | null; created_at: string };
+    const trackB = b as { position: number | null; created_at: string };
+    if (trackA.position != null && trackB.position != null) return trackA.position - trackB.position;
+    if (trackA.position != null) return -1;
+    if (trackB.position != null) return 1;
+    return new Date(trackB.created_at).getTime() - new Date(trackA.created_at).getTime();
+  });
 
   // Fetch artist's albums
   const { data: albums } = await supabase

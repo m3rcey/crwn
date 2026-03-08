@@ -51,6 +51,7 @@ export interface Track {
   album_art_url: string | null;
   release_date: string;
   play_count: number;
+  position: number | null; // For ordering tracks in artist dashboard
   created_at: string;
   updated_at: string;
   // Joined fields

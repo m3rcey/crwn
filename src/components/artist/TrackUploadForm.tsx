@@ -56,10 +56,17 @@ export function TrackUploadForm() {
         .from('tracks')
         .select('*')
         .eq('artist_id', artistProfile.id)
-        .order('created_at', { ascending: false });
+        .order('position', { ascending: true });
 
       if (tracksData) {
-        setTracks(tracksData as Track[]);
+        // Sort client-side to handle null positions (old tracks before migration)
+        const sorted = [...tracksData].sort((a: Track, b: Track) => {
+          if (a.position != null && b.position != null) return a.position - b.position;
+          if (a.position != null) return -1;
+          if (b.position != null) return 1;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        setTracks(sorted as Track[]);
       }
       setIsLoadingTracks(false);
     }
@@ -68,6 +75,23 @@ export function TrackUploadForm() {
   }, [user, supabase]);
 
   // Also refetch tracks after upload - handled in handleSubmit
+
+  const handleReorderTracks = async (reorderedTracks: Track[]) => {
+    // Update local state immediately for smooth UX
+    setTracks(reorderedTracks);
+
+    // Save positions to database
+    try {
+      for (let i = 0; i < reorderedTracks.length; i++) {
+        await supabase
+          .from('tracks')
+          .update({ position: i + 1 })
+          .eq('id', reorderedTracks[i].id);
+      }
+    } catch (error) {
+      console.error('Failed to save track order:', error);
+    }
+  };
 
   const handleDeleteTrack = async (track: Track) => {
     if (!confirm(`Are you sure you want to delete "${track.title}"?`)) {
@@ -283,11 +307,6 @@ export function TrackUploadForm() {
       setIsUploading(false);
       setUploadProgress(0);
     }
-  };
-
-  const handleReorderTracks = async (reorderedTracks: Track[]) => {
-    setTracks(reorderedTracks);
-    // Could save order to DB if there's a position column
   };
 
   return (
