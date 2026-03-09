@@ -276,6 +276,7 @@ export interface CommunityComment {
     avatar_url: string;
   };
   has_liked?: boolean;
+  tier_badge?: string | null;
 }
 
 // Booking Types

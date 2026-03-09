@@ -109,13 +109,18 @@ export function CommentItem({
 
         <div className="flex-1 min-w-0">
           {/* Header */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Link
               href={`/artist/${comment.author?.username || 'user'}`}
               className="font-medium text-crwn-text text-sm hover:underline"
             >
               {comment.author?.display_name || comment.author?.username || 'User'}
             </Link>
+            {comment.tier_badge && (
+              <span className="px-2 py-0.5 text-xs font-medium bg-crwn-gold/20 text-crwn-gold rounded-full">
+                {comment.tier_badge}
+              </span>
+            )}
             <span className="text-crwn-text-dim text-xs">•</span>
             <span className="text-crwn-text-dim text-xs">{formatTimestamp(comment.created_at)}</span>
             

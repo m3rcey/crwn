@@ -59,10 +59,46 @@ export function CommentSection({
 
       if (error) throw error;
 
+      const commentsData = data || [];
+
+      // Get unique author IDs
+      const authorIds = [...new Set(commentsData.map(c => c.author_id))];
+
+      // Fetch active subscriptions and tier benefits for all authors
+      const { data: subscriptions } = await supabase
+        .from('subscriptions')
+        .select('fan_id, tier_id, tier:tier_id(tier_benefits(benefit_type, config))')
+        .eq('artist_id', artistId)
+        .eq('status', 'active')
+        .in('fan_id', authorIds);
+
+      // Build a map of author_id -> badge_text
+      const authorBadgeMap: Record<string, string> = {};
+
+      if (subscriptions) {
+        for (const sub of subscriptions) {
+          const tier = sub.tier as any;
+          if (tier?.tier_benefits) {
+            const badgeBenefit = tier.tier_benefits.find(
+              (b: any) => b.benefit_type === 'community_badge' && b.config?.badge_text
+            );
+            if (badgeBenefit) {
+              authorBadgeMap[sub.fan_id] = badgeBenefit.config.badge_text;
+            }
+          }
+        }
+      }
+
+      // Add badge info to comments
+      const commentsWithBadge = commentsData.map(c => ({
+        ...c,
+        tier_badge: authorBadgeMap[c.author_id] || null,
+      }));
+
       // Check if user liked each comment
-      let commentsWithLikes = data || [];
+      let commentsWithLikes = commentsWithBadge;
       if (user) {
-        const commentIds = (data || []).map(c => c.id);
+        const commentIds = commentsData.map(c => c.id);
         if (commentIds.length > 0) {
           const { data: likesData } = await supabase
             .from('community_comment_likes')
@@ -71,7 +107,7 @@ export function CommentSection({
             .in('comment_id', commentIds);
 
           const likedIds = new Set((likesData || []).map(l => l.comment_id));
-          commentsWithLikes = (data || []).map(c => ({
+          commentsWithLikes = commentsWithBadge.map(c => ({
             ...c,
             has_liked: likedIds.has(c.id),
           }));
