@@ -96,11 +96,11 @@ export function MiniPlayer() {
   };
 
   return (
-    <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-[#1a1a1a] z-50" style={{ borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 12px rgba(0,0,0,0.5)' }}>
+    <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-[#1a1a1a] z-50 overflow-hidden" style={{ borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 12px rgba(0,0,0,0.5)' }}>
       {/* Progress bar - larger touch target */}
       <div 
         ref={progressRef}
-        className="absolute top-0 left-0 right-0 py-3 cursor-pointer rounded-none"
+        className="absolute top-0 left-0 right-0 pt-0 pb-4 cursor-pointer rounded-none"
         onClick={handleProgressClick}
         onMouseDown={handleDragStart}
         onMouseMove={handleDragMove}
