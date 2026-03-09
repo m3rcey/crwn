@@ -96,7 +96,7 @@ export function MiniPlayer() {
   };
 
   return (
-    <div className="fixed bottom-16 md:bottom-0 left-0 right-0 neu-raised z-50" style={{ borderRadius: '16px 16px 0 0' }}>
+    <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-[#1a1a1a] z-50" style={{ borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 12px rgba(0,0,0,0.5)' }}>
       {/* Progress bar - larger touch target */}
       <div 
         ref={progressRef}
