@@ -6,7 +6,8 @@ import { usePlayer } from '@/hooks/usePlayer';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useFavorites } from '@/hooks/useFavorites';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
-import { Lock, Play, Pause, LockOpen, Link2 } from 'lucide-react';
+import { TrackShareButton } from '@/components/shared/TrackShareButton';
+import { Lock, Play, Pause, LockOpen } from 'lucide-react';
 import Image from 'next/image';
 
 interface GatedTrackPlayerProps {
@@ -169,15 +170,12 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
 
         {/* Share Button */}
         {artistSlug && (
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(`https://crwn-mauve.vercel.app/artist/${artistSlug}/track/${track.id}`);
-            }}
-            className="text-crwn-text-secondary hover:text-crwn-gold transition-colors p-1"
-            title="Copy share link"
-          >
-            <Link2 className="w-3.5 h-3.5" />
-          </button>
+          <TrackShareButton
+            trackId={track.id}
+            trackTitle={track.title}
+            artistSlug={artistSlug}
+            size="sm"
+          />
         )}
       </div>
 

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { usePlayer } from '@/hooks/usePlayer';
+import { TrackShareButton } from '@/components/shared/TrackShareButton';
 import { 
   Play, 
   Pause, 
@@ -126,9 +127,19 @@ export function FullScreenPlayer() {
 
         {/* Track Info */}
         <div className="text-center mb-6 w-full">
-          <h2 className="text-2xl sm:text-3xl font-bold text-crwn-text mb-2">
-            {currentTrack.title}
-          </h2>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-crwn-text">
+              {currentTrack.title}
+            </h2>
+            {currentTrack.artist?.slug && (
+              <TrackShareButton
+                trackId={currentTrack.id}
+                trackTitle={currentTrack.title}
+                artistSlug={currentTrack.artist.slug}
+                size="md"
+              />
+            )}
+          </div>
           <p className="text-lg text-crwn-text-secondary">Artist Name</p>
         </div>
 

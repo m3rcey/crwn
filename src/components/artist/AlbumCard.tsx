@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
+import { TrackShareButton } from '@/components/shared/TrackShareButton';
 import { Play, Pause, Lock, Check, Loader2, Link2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -131,6 +132,12 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
                     size="sm" 
                     isLiked={isLiked(track.id)}
                     onToggleLike={() => toggleFavorite(track.id)}
+                  />
+                  <TrackShareButton
+                    trackId={track.id}
+                    trackTitle={track.title}
+                    artistSlug={artistSlug}
+                    size="sm"
                   />
                   <button
                     onClick={() => {
