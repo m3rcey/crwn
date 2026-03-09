@@ -259,15 +259,15 @@ export function FullScreenPlayer() {
           >
             <Heart size={24} fill={isTrackFavorite ? 'currentColor' : 'none'} />
           </button>
-          
-          {/* Volume slider - desktop only, mute button on all devices */}
+          {/* Mute button - all devices */}
+          <button
+            onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
+            className="neu-icon-button p-2"
+          >
+            {volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+          </button>
+          {/* Volume slider - desktop only */}
           <div className="hidden md:flex items-center gap-2">
-            <button 
-              onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
-              className="neu-icon-button p-2"
-            >
-              {volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
-            </button>
             <input
               type="range"
               min="0"
