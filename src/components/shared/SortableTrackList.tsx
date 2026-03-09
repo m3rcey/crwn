@@ -84,7 +84,7 @@ function SortableTrackItem({ track, tracks, index, onRemove, renderActions, show
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 bg-crwn-bg rounded-lg p-2 ${isDragging ? 'opacity-80 shadow-lg' : ''}`}
+      className={`flex items-center gap-2 bg-crwn-bg rounded-lg p-2 whitespace-nowrap min-w-max ${isDragging ? 'opacity-80 shadow-lg' : ''}`}
     >
       {showDragHandle && (
         <button
@@ -104,7 +104,7 @@ function SortableTrackItem({ track, tracks, index, onRemove, renderActions, show
           <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary text-sm">🎵</div>
         )}
       </div>
-      <span className="flex-1 text-crwn-text truncate">{track.title}</span>
+      <span className="text-crwn-text whitespace-nowrap">{track.title}</span>
       <span className="text-crwn-text-secondary text-sm">{formatDuration(track.duration)}</span>
       <button
         type="button"
@@ -175,7 +175,7 @@ export function SortableTrackList({
         items={tracks.map((t) => t.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="space-y-2">
+        <div className="overflow-x-auto"><div className="space-y-2 min-w-max">
           {tracks.map((track, index) => (
             <SortableTrackItem
               key={track.id}
@@ -188,7 +188,7 @@ export function SortableTrackList({
             />
           ))}
         </div>
-      </SortableContext>
+      </div></SortableContext>
     </DndContext>
   );
 }
