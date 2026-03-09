@@ -10,7 +10,8 @@ import { SortableTrackList } from '@/components/shared/SortableTrackList';
 import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
 import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
-import { Edit2, X } from 'lucide-react';
+import { BulkUploadForm } from './BulkUploadForm';
+import { Edit2, X, Upload } from 'lucide-react';
 
 interface SubscriptionTier {
   id: string;
@@ -39,6 +40,7 @@ export function TrackUploadForm() {
   const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [editingTrack, setEditingTrack] = useState<Track | null>(null);
+  const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('single');
 
   const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
   const trackLimitReached = limits.tracks !== -1 && usage.tracks >= limits.tracks;
@@ -408,7 +410,36 @@ export function TrackUploadForm() {
         />
       )}
 
-      {/* Upload Form */}
+      {/* Upload Mode Toggle */}
+      {!trackLimitReached && (
+        <div className="flex gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => setUploadMode('single')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+              uploadMode === 'single'
+                ? 'bg-crwn-gold text-crwn-bg'
+                : 'bg-crwn-surface text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            Single Upload
+          </button>
+          <button
+            type="button"
+            onClick={() => setUploadMode('bulk')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+              uploadMode === 'bulk'
+                ? 'bg-crwn-gold text-crwn-bg'
+                : 'bg-crwn-surface text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            Bulk Upload
+          </button>
+        </div>
+      )}
+
+      {/* Single Upload Form */}
+      {uploadMode === 'single' && (
       <form onSubmit={handleSubmit} className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached ? 0.5 : 1, pointerEvents: trackLimitReached ? 'none' : 'auto' }}>
         <h2 className="text-lg font-semibold text-crwn-text mb-4">Upload New Track</h2>
 
@@ -567,6 +598,38 @@ export function TrackUploadForm() {
           )}
         </div>
       </form>
+      )}
+
+      {/* Bulk Upload Form */}
+      {uploadMode === 'bulk' && artistProfileId && (
+        <div className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached ? 0.5 : 1, pointerEvents: trackLimitReached ? 'none' : 'auto' }}>
+          <h2 className="text-lg font-semibold text-crwn-text mb-4">Bulk Upload</h2>
+          <BulkUploadForm
+            artistProfileId={artistProfileId}
+            onComplete={() => {
+              // Refetch tracks after bulk upload
+              async function refetchTracks() {
+                if (!user) return;
+                const { data: tracksData } = await supabase
+                  .from('tracks')
+                  .select('*')
+                  .eq('artist_id', artistProfileId)
+                  .order('position', { ascending: true });
+                if (tracksData) {
+                  const sorted = [...tracksData].sort((a: Track, b: Track) => {
+                    if (a.position != null && b.position != null) return a.position - b.position;
+                    if (a.position != null) return -1;
+                    if (b.position != null) return 1;
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                  });
+                  setTracks(sorted as Track[]);
+                }
+              }
+              refetchTracks();
+            }}
+          />
+        </div>
+      )}
 
       {/* Track List with Drag Reorder */}
       {isLoadingTracks ? (
