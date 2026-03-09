@@ -260,7 +260,7 @@ export function FullScreenPlayer() {
             <Heart size={24} fill={isTrackFavorite ? 'currentColor' : 'none'} />
           </button>
           
-          {/* Desktop only - hidden on mobile */}
+          {/* Volume slider - desktop only, mute button on all devices */}
           <div className="hidden md:flex items-center gap-2">
             <button 
               onClick={() => setVolume(volume === 0 ? 0.8 : 0)}

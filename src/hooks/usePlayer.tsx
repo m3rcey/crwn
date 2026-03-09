@@ -323,13 +323,54 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   }, [queue, currentIndex, repeat, play]);
 
+  // Enrich current track with artist data if missing
+  useEffect(() => {
+    const enrichTrack = async () => {
+      const { data: artistData } = await supabase
+        .from('artist_profiles')
+        .select('id, slug, profile:profiles(display_name)')
+        .eq('id', currentTrack!.artist_id)
+        .single();
+      if (artistData) {
+        const profile = Array.isArray(artistData.profile) ? artistData.profile[0] : artistData.profile;
+        setCurrentTrack(prev => prev && prev.id === currentTrack?.id ? {
+          ...prev,
+          artist: { ...prev.artist, id: artistData.id, slug: artistData.slug, profile } as any,
+          artist_name: (profile as any)?.display_name || 'Unknown Artist',
+        } : prev);
+      }
+    };
+    enrichTrack();
+  }, [currentTrack?.id, currentTrack?.artist?.slug, currentTrack?.artist_id]);
+
+  // Enrich current track with artist data if missing
+  useEffect(() => {
+    if (!currentTrack || currentTrack.artist?.slug) return;
+    if (!currentTrack.artist_id) return;
+    const enrichTrack = async () => {
+      const { data: artistData } = await supabase
+        .from('artist_profiles')
+        .select('id, slug, profile:profiles(display_name)')
+        .eq('id', currentTrack.artist_id)
+        .single();
+      if (artistData) {
+        const profile = Array.isArray(artistData.profile) ? artistData.profile[0] : artistData.profile;
+        setCurrentTrack(prev => {
+          if (!prev || prev.id !== currentTrack?.id) return prev;
+          return { ...prev, artist: { ...(prev.artist || {}), id: artistData.id, slug: artistData.slug, profile } as any, artist_name: (profile as any)?.display_name || 'Unknown Artist' } as Track;
+        });
+      }
+    };
+    enrichTrack();
+  }, [currentTrack?.id, currentTrack?.artist?.slug, currentTrack?.artist_id]);
+
   // Update media session
   useEffect(() => {
     if ('mediaSession' in navigator && currentTrack) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: currentTrack.title,
-        artist: 'Artist Name',
-        album: 'Album Name',
+        artist: currentTrack.artist_name || currentTrack.artist?.profile?.display_name || 'Unknown Artist',
+        album: '',
         artwork: currentTrack.album_art_url 
           ? [{ src: currentTrack.album_art_url, sizes: '512x512', type: 'image/jpeg' }]
           : undefined,
