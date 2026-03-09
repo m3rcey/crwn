@@ -68,23 +68,58 @@ export function MiniPlayer() {
     }
   };
 
+  // Touch handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!duration || !progressRef.current) return;
+    e.preventDefault();
+    setIsDragging(true);
+    const touch = e.touches[0];
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+    setDragTime(percent * duration);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !duration || !progressRef.current) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+    setDragTime(percent * duration);
+  };
+
+  const handleTouchEnd = () => {
+    if (isDragging && duration) {
+      seek(dragTime);
+      setIsDragging(false);
+    }
+  };
+
   return (
     <div className="fixed bottom-16 md:bottom-0 left-0 right-0 neu-raised z-50" style={{ borderRadius: '16px 16px 0 0' }}>
-      {/* Progress bar */}
+      {/* Progress bar - larger touch target */}
       <div 
         ref={progressRef}
-        className="absolute top-0 left-0 right-0 h-1.5 neu-progress-track cursor-pointer rounded-none"
+        className="absolute top-0 left-0 right-0 py-3 cursor-pointer rounded-none"
         onClick={handleProgressClick}
         onMouseDown={handleDragStart}
         onMouseMove={handleDragMove}
         onMouseUp={handleDragEnd}
         onMouseLeave={handleDragEnd}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        <div 
-          className="h-full neu-progress-fill relative transition-all"
-          style={{ width: `${displayProgress}%` }}
-        >
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 neu-toggle-thumb rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+        {/* Track background */}
+        <div className="h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+          {/* Progress fill */}
+          <div 
+            className="h-full bg-crwn-gold rounded-full relative transition-all"
+            style={{ width: `${displayProgress}%` }}
+          >
+            {/* Thumb - always visible */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-crwn-gold rounded-full" />
+          </div>
         </div>
       </div>
 

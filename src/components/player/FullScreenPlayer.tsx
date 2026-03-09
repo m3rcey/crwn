@@ -90,6 +90,33 @@ export function FullScreenPlayer() {
     }
   };
 
+  // Touch handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!duration || !progressRef.current) return;
+    e.preventDefault();
+    setIsDragging(true);
+    const touch = e.touches[0];
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+    setDragTime(percent * duration);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || !duration || !progressRef.current) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const rect = progressRef.current.getBoundingClientRect();
+    const percent = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+    setDragTime(percent * duration);
+  };
+
+  const handleTouchEnd = () => {
+    if (isDragging && duration) {
+      seek(dragTime);
+      setIsDragging(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-crwn-bg z-[100] flex flex-col">
       {/* Header */}
@@ -143,21 +170,31 @@ export function FullScreenPlayer() {
           <p className="text-lg text-crwn-text-secondary">Artist Name</p>
         </div>
 
-        {/* Progress */}
+        {/* Progress - larger touch target */}
         <div className="w-full max-w-md mb-6">
           <div 
             ref={progressRef}
-            className="h-2 neu-progress-track rounded-full cursor-pointer mb-2"
+            className="py-3 cursor-pointer"
             onClick={handleProgressClick}
             onMouseDown={handleDragStart}
             onMouseMove={handleDragMove}
             onMouseUp={handleDragEnd}
             onMouseLeave={handleDragEnd}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <div 
-              className="h-full neu-progress-fill rounded-full transition-all"
-              style={{ width: `${displayProgress}%` }}
-            />
+            {/* Track background */}
+            <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+              {/* Progress fill */}
+              <div 
+                className="h-full bg-crwn-gold rounded-full relative transition-all"
+                style={{ width: `${displayProgress}%` }}
+              >
+                {/* Thumb - always visible */}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-crwn-gold rounded-full" />
+              </div>
+            </div>
           </div>
           <div className="flex justify-between text-sm text-crwn-text-secondary">
             <span>{formatTime(isDragging ? dragTime : currentTime)}</span>
@@ -211,7 +248,7 @@ export function FullScreenPlayer() {
           </button>
         </div>
 
-        {/* Volume & Actions */}
+        {/* Volume (desktop only - iOS doesn't support programmatic volume) */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => toggleFavorite(currentTrack.id)}
@@ -222,7 +259,8 @@ export function FullScreenPlayer() {
             <Heart size={24} fill={isTrackFavorite ? 'currentColor' : 'none'} />
           </button>
           
-          <div className="flex items-center gap-2">
+          {/* Desktop only - hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2">
             <button 
               onClick={() => setVolume(volume === 0 ? 0.8 : 0)}
               className="neu-icon-button p-2"
@@ -236,7 +274,7 @@ export function FullScreenPlayer() {
               step="0.01"
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
-              className="w-24 h-2 neu-progress-track rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:neu-toggle-thumb [&::-webkit-slider-thumb]:rounded-full"
+              className="w-24 h-2 bg-[#2A2A2A] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-crwn-gold [&::-webkit-slider-thumb]:rounded-full"
             />
           </div>
         </div>
