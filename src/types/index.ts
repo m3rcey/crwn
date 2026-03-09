@@ -134,6 +134,8 @@ export interface Product {
   type: ProductType;
   price: number;
   access_level: AccessLevel;
+  is_free: boolean;
+  allowed_tier_ids: string[];
   delivery_type: DeliveryType;
   file_url: string | null;
   duration_minutes: number | null;

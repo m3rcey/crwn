@@ -75,13 +75,17 @@ export function TrackUploadForm() {
       setArtistProfileId(artistProfile.id);
 
       // Fetch subscription tiers
-      const { data: tiersData } = await supabase
+      const { data: tiersData, error: tiersError } = await supabase
         .from('subscription_tiers')
         .select('id, name, price')
         .eq('artist_id', artistProfile.id)
         .eq('is_active', true)
         .order('price', { ascending: true });
-      if (tiersData) setTiers(tiersData);
+      if (tiersError) {
+        console.error('Error fetching tiers:', tiersError);
+      } else if (tiersData) {
+        setTiers(tiersData);
+      }
 
       // Fetch tracks
       const { data: tracksData } = await supabase

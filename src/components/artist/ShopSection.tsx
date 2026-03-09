@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
+import { useSubscription } from '@/hooks/useSubscription';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
-import { Check, Download } from 'lucide-react';
+import { Check, Download, Lock } from 'lucide-react';
 
 interface ShopSectionProps {
   products: Product[];
@@ -17,10 +18,16 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
+  const { tierId, isSubscribed } = useSubscription(artistId);
   const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [successProduct, setSuccessProduct] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Check tier access
+  const canAccessProduct = (product: Product) => {
+    return product.is_free !== false || (tierId && product.allowed_tier_ids?.includes(tierId));
+  };
 
   // Check for purchase success in URL
   useEffect(() => {
@@ -153,11 +160,12 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((product) => {
           const hasPurchased = purchasedIds.has(product.id);
+          const canAccess = canAccessProduct(product);
           
           return (
             <div
               key={product.id}
-              className="bg-crwn-surface rounded-xl overflow-hidden border border-crwn-elevated"
+              className={`bg-crwn-surface rounded-xl overflow-hidden border border-crwn-elevated ${!canAccess ? 'opacity-75' : ''}`}
             >
               <div className="aspect-square relative bg-crwn-elevated">
                 {product.image_url ? (
@@ -165,6 +173,16 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-4xl">
                     {product.type === 'digital' ? '💾' : product.type === 'experience' ? '🎫' : '📦'}
+                  </div>
+                )}
+                
+                {/* Lock overlay for gated products */}
+                {!canAccess && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-2 text-center px-4">
+                      <Lock className="w-8 h-8 text-crwn-gold" />
+                      <p className="text-sm text-crwn-gold font-medium">Subscribe to unlock</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -198,6 +216,8 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
                       <Check className="w-4 h-4" />
                       Purchased
                     </span>
+                  ) : !canAccess ? (
+                    <span className="text-crwn-text-secondary text-sm">Locked</span>
                   ) : (
                     <button
                       onClick={() => handleBuy(product)}

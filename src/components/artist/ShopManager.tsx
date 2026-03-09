@@ -38,6 +38,7 @@ export function ShopManager() {
   const [productType, setProductType] = useState<ProductType>('digital');
   const [subcategory, setSubcategory] = useState('');
   const [existingProducts, setExistingProducts] = useState<Product[]>([]);
+  const [tiers, setTiers] = useState<{id: string; name: string; price: number}[]>([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -45,6 +46,8 @@ export function ShopManager() {
     imageFile: null as File | null,
     imageUrl: '',
     price: '',
+    isFree: true,
+    allowedTierIds: [] as string[],
     // Subcategory-specific fields
     bpm: '',
     key: '',
@@ -93,6 +96,19 @@ export function ShopManager() {
 
     if (allProducts) {
       setExistingProducts(allProducts as Product[]);
+    }
+
+    // Fetch subscription tiers
+    const { data: tiersData, error: tiersError } = await supabase
+      .from('subscription_tiers')
+      .select('id, name, price')
+      .eq('artist_id', artistProfile.id)
+      .eq('is_active', true)
+      .order('price', { ascending: true });
+    if (tiersError) {
+      console.error('Error fetching tiers:', tiersError);
+    } else if (tiersData) {
+      setTiers(tiersData);
     }
 
     setIsLoading(false);
@@ -162,6 +178,8 @@ export function ShopManager() {
         type: productType,
         price: Math.round(parseFloat(formData.price) * 100) || 0,
         access_level: 'public',
+        is_free: formData.isFree,
+        allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
         delivery_type: productType === 'experience' ? 'scheduled' : 'instant',
         file_url: null,
         duration_minutes: formData.durationField ? parseInt(formData.durationField) : null,
@@ -242,6 +260,8 @@ export function ShopManager() {
       imageFile: null,
       imageUrl: product.image_url || '',
       price: (product.price / 100).toString(),
+      isFree: product.is_free !== false,
+      allowedTierIds: product.allowed_tier_ids || [],
       bpm: extraData.bpm || '',
       key: extraData.key || '',
       compatibleDaws: extraData.compatible_daws || '',
@@ -291,6 +311,8 @@ export function ShopManager() {
       imageFile: null,
       imageUrl: '',
       price: '',
+      isFree: true,
+      allowedTierIds: [],
       bpm: '',
       key: '',
       compatibleDaws: '',
@@ -454,7 +476,7 @@ export function ShopManager() {
               </div>
 
               <div>
-                <label className="block text-smwn-text-secondary mb font-medium text-cr-1">Price (USD)</label>
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Price (USD)</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-crwn-text-secondary">$</span>
                   <input
@@ -466,6 +488,42 @@ export function ShopManager() {
                     className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg pl-8 pr-4 py-2 text-crwn-text"
                     required
                   />
+                </div>
+              </div>
+
+              {/* Tier Gating */}
+              <div>
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-2">Access</label>
+                <div className="space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.isFree}
+                      onChange={(e) => setFormData(p => ({ 
+                        ...p, 
+                        isFree: e.target.checked,
+                        allowedTierIds: e.target.checked ? [] : p.allowedTierIds,
+                      }))}
+                      className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                    />
+                    <span className="text-crwn-text text-sm">Free to all</span>
+                  </label>
+                  {!formData.isFree && tiers.length > 0 && tiers.map(tier => (
+                    <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
+                      <input
+                        type="checkbox"
+                        checked={formData.allowedTierIds.includes(tier.id)}
+                        onChange={(e) => {
+                          const ids = e.target.checked
+                            ? [...formData.allowedTierIds, tier.id]
+                            : formData.allowedTierIds.filter(id => id !== tier.id);
+                          setFormData(p => ({ ...p, allowedTierIds: ids }));
+                        }}
+                        className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                      />
+                      <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
