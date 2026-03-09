@@ -69,12 +69,12 @@ export function CommunityPostCard({
 
     try {
       if (newLiked) {
-        await supabase.from('community_post_likes').insert({
+        const { error: deleteError } = await supabase.from('community_post_likes').insert({
           post_id: post.id,
           user_id: user.id,
         });
       } else {
-        await supabase
+        const { error: deleteError } = await supabase
           .from('community_post_likes')
           .delete()
           .eq('post_id', post.id)
@@ -98,10 +98,12 @@ export function CommunityPostCard({
     if (!confirm('Are you sure you want to delete this post?')) return;
 
     try {
-      await supabase
+      const { error: deleteError } = await supabase
         .from('community_posts')
         .update({ is_active: false })
         .eq('id', post.id);
+
+      if (deleteError) { console.error("Delete failed:", deleteError); return; }
       window.location.reload();
     } catch (error) {
       console.error('Delete error:', error);
