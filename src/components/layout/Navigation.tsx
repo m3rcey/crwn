@@ -42,7 +42,7 @@ export function Navigation() {
   return (
     <>
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 neu-raised z-50 md:hidden" style={{ borderRadius: '16px 16px 0 0' }}>
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#1a1a1a] z-50 md:hidden" style={{ borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 12px rgba(0,0,0,0.5)' }}>
         <div className="flex items-center justify-between px-2 py-1">
           <Link href="/home" className="text-xl font-bold text-crwn-gold px-2">
             CRWN
