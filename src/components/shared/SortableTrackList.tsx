@@ -104,7 +104,7 @@ function SortableTrackItem({ track, tracks, index, onRemove, renderActions, show
           <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary text-sm">🎵</div>
         )}
       </div>
-      <span className="text-crwn-text whitespace-nowrap">{track.title}</span>
+      <span className="flex-1 text-crwn-text whitespace-nowrap">{track.title}</span>
       <span className="text-crwn-text-secondary text-sm">{formatDuration(track.duration)}</span>
       <button
         type="button"
