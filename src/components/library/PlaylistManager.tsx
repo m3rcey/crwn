@@ -330,7 +330,7 @@ export function PlaylistManager() {
                     </p>
                   </div>
                   <button
-                    onClick={() => play(track)}
+                    onClick={() => play(track, tracks)}
                     className="p-2 text-crwn-text-secondary hover:text-crwn-text"
                   >
                     {isCurrentTrack && isPlaying ? (

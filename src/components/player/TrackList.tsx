@@ -43,10 +43,10 @@ export function TrackList({ tracks }: TrackListProps) {
       if (isPlaying) {
         pause();
       } else {
-        play(track);
+        play(track, tracks);
       }
     } else {
-      play(track);
+      play(track, tracks);
     }
   };
 

@@ -108,7 +108,7 @@ export function LikedSongs() {
           return (
             <div
               key={track.id}
-              onClick={() => play(track as any)}
+              onClick={() => play(track as any, tracks as any)}
               className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-crwn-elevated/30 transition-colors ${
                 i < tracks.length - 1 ? 'border-b border-crwn-elevated' : ''
               } ${isCurrentTrack ? 'bg-crwn-gold/5' : ''}`}

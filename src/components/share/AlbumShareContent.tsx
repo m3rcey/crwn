@@ -115,7 +115,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
                   className={`flex items-center gap-3 px-4 py-3 ${
                     i < tracks.length - 1 ? 'border-b border-crwn-elevated' : ''
                   } ${trackAccessible ? 'cursor-pointer hover:bg-crwn-elevated/30' : 'opacity-60'}`}
-                  onClick={() => trackAccessible && play(track as never)}
+                  onClick={() => trackAccessible && play(track as never, tracks as never)}
                 >
                   <span className="text-crwn-text-secondary text-xs w-5 text-right">{i + 1}</span>
                   {trackAccessible ? (

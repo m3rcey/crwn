@@ -33,6 +33,7 @@ interface SortableTrackListProps {
 }
 
 interface SortableTrackItemProps {
+  tracks: Track[];
   track: Track;
   index: number;
   onRemove?: () => void;
@@ -40,7 +41,7 @@ interface SortableTrackItemProps {
   showDragHandle?: boolean;
 }
 
-function SortableTrackItem({ track, index, onRemove, renderActions, showDragHandle = true }: SortableTrackItemProps) {
+function SortableTrackItem({ track, tracks, index, onRemove, renderActions, showDragHandle = true }: SortableTrackItemProps) {
   const {
     attributes,
     listeners,
@@ -65,10 +66,10 @@ function SortableTrackItem({ track, index, onRemove, renderActions, showDragHand
       if (isPlaying) {
         pause();
       } else {
-        play(track);
+        play(track, tracks);
       }
     } else {
-      play(track);
+      play(track, tracks);
     }
   };
 
@@ -179,6 +180,7 @@ export function SortableTrackList({
             <SortableTrackItem
               key={track.id}
               track={track}
+              tracks={tracks}
               index={index}
               onRemove={onRemove ? () => onRemove(track.id) : undefined}
               renderActions={renderActions ? () => renderActions(track) : undefined}
