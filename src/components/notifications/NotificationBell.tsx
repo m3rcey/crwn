@@ -138,7 +138,7 @@ export function NotificationBell() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { setIsOpen(!isOpen); if (!isOpen) markAllAsRead(); }}
         className="relative p-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors"
       >
         <Bell className="w-5 h-5" />
