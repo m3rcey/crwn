@@ -302,3 +302,14 @@ export interface BookingPurchase {
   status: 'pending' | 'completed' | 'cancelled';
   created_at: string;
 }
+
+export interface TierBenefit {
+  id: string;
+  tier_id: string;
+  benefit_type: string;
+  config: Record<string, any>;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
