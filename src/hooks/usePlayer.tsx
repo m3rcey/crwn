@@ -325,26 +325,6 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   // Enrich current track with artist data if missing
   useEffect(() => {
-    const enrichTrack = async () => {
-      const { data: artistData } = await supabase
-        .from('artist_profiles')
-        .select('id, slug, profile:profiles(display_name)')
-        .eq('id', currentTrack!.artist_id)
-        .single();
-      if (artistData) {
-        const profile = Array.isArray(artistData.profile) ? artistData.profile[0] : artistData.profile;
-        setCurrentTrack(prev => prev && prev.id === currentTrack?.id ? {
-          ...prev,
-          artist: { ...prev.artist, id: artistData.id, slug: artistData.slug, profile } as any,
-          artist_name: (profile as any)?.display_name || 'Unknown Artist',
-        } : prev);
-      }
-    };
-    enrichTrack();
-  }, [currentTrack?.id, currentTrack?.artist?.slug, currentTrack?.artist_id]);
-
-  // Enrich current track with artist data if missing
-  useEffect(() => {
     if (!currentTrack || currentTrack.artist?.slug) return;
     if (!currentTrack.artist_id) return;
     const enrichTrack = async () => {
