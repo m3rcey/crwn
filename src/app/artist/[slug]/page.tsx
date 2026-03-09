@@ -4,12 +4,13 @@ import Image from 'next/image';
 import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
 import { ShopSection } from '@/components/artist/ShopSection';
 import { SubscribeCTA } from '@/components/gating';
-import { TierConfig } from '@/types';
+import { TierConfig, TierBenefit } from '@/types';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { ArtistProfileContent } from '@/components/artist/ArtistProfileContent';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import type { Metadata } from 'next';
+import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
@@ -117,13 +118,47 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('is_active', true)
     .order('price', { ascending: true });
 
-  const tiers: TierConfig[] = (subscriptionTiers || []).map((t) => ({
-    id: t.id,
-    name: t.name,
-    price: t.price,
-    description: t.description,
-    benefits: t.access_config?.benefits || [],
-  }));
+  // Fetch tier benefits for structured benefits display
+  const tierIds = (subscriptionTiers || []).map((t) => t.id);
+  const { data: allTierBenefits } = tierIds.length > 0
+    ? await supabase
+        .from('tier_benefits')
+        .select('*')
+        .in('tier_id', tierIds)
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+    : { data: [] };
+
+  // Group benefits by tier_id
+  const benefitsByTierId: Record<string, TierBenefit[]> = {};
+  (allTierBenefits || []).forEach((benefit: TierBenefit) => {
+    if (!benefitsByTierId[benefit.tier_id]) {
+      benefitsByTierId[benefit.tier_id] = [];
+    }
+    benefitsByTierId[benefit.tier_id].push(benefit);
+  });
+
+  const tiers: TierConfig[] = (subscriptionTiers || []).map((t) => {
+    const tierBenefits = benefitsByTierId[t.id] || [];
+    // Convert tier benefits to display strings with icons
+    const benefitStrings = tierBenefits.map((tb) => {
+      const def = BENEFIT_CATALOG?.find((b) => b.type === tb.benefit_type);
+      const icon = def?.icon || '✓';
+      const text = getBenefitDisplayText(tb.benefit_type, tb.config);
+      return `${icon} ${text}`;
+    });
+    // Also include legacy benefits from access_config for backward compatibility
+    const legacyBenefits = t.access_config?.benefits || [];
+    
+    return {
+      id: t.id,
+      name: t.name,
+      price: t.price,
+      description: t.description,
+      benefits: [...benefitStrings, ...legacyBenefits],
+      tierBenefits: tierBenefits, // Store structured benefits for advanced features
+    };
+  });
 
   // Fetch artist's tracks
   const { data: tracks } = await supabase

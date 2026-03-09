@@ -35,6 +35,7 @@ export interface TierConfig {
   price: number;
   description: string;
   benefits: string[];
+  tierBenefits?: TierBenefit[];
 }
 
 export type AccessLevel = 'free' | 'subscriber' | 'purchase';
