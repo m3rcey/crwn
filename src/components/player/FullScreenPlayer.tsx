@@ -267,7 +267,7 @@ export function FullScreenPlayer() {
             {volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
           </button>
           {/* Volume slider - desktop only */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <input
               type="range"
               min="0"
