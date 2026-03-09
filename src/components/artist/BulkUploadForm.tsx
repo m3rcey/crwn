@@ -4,9 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Track } from '@/types';
-import { usePlatformLimits } from '@/hooks/usePlatformLimits';
-import { Loader2, X, Check, AlertCircle } from 'lucide-react';
+import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon } from 'lucide-react';
 
 interface SubscriptionTier {
   id: string;
@@ -14,10 +12,15 @@ interface SubscriptionTier {
   price: number;
 }
 
-interface FileQueueItem {
+interface UploadItem {
   id: string;
   file: File;
   title: string;
+  albumArtFile: File | null;
+  albumArtPreview: string | null;
+  isFree: boolean;
+  allowedTierIds: string[];
+  price: string;
   status: 'pending' | 'uploading' | 'complete' | 'error';
   error?: string;
   progress: number;
@@ -33,16 +36,18 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
-  const [queue, setQueue] = useState<FileQueueItem[]>([]);
+  const [queue, setQueue] = useState<UploadItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   
-  // Shared access settings for all tracks
-  const [isFree, setIsFree] = useState(true);
-  const [allowedTierIds, setAllowedTierIds] = useState<string[]>([]);
-  const [price, setPrice] = useState('');
+  // Default settings for new tracks
+  const [defaultIsFree, setDefaultIsFree] = useState(true);
+  const [defaultAllowedTierIds, setDefaultAllowedTierIds] = useState<string[]>([]);
+  const [defaultPrice, setDefaultPrice] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const artInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch tiers
   useEffect(() => {
@@ -72,38 +77,75 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     
     if (files.length === 0) return;
 
-    // Check for files > 50MB
     const oversizedFiles = files.filter(f => f.size > 50 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
       showToast(`${oversizedFiles.length} file(s) exceed 50MB limit`, 'error');
     }
 
-    const queueItems: FileQueueItem[] = files
+    const queueItems: UploadItem[] = files
       .filter(f => f.size <= 50 * 1024 * 1024)
       .map((file, idx) => ({
         id: `${Date.now()}-${idx}-${file.name}`,
         file,
-        title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+        title: file.name.replace(/\.[^/.]+$/, ''),
+        albumArtFile: null,
+        albumArtPreview: null,
+        isFree: defaultIsFree,
+        allowedTierIds: [...defaultAllowedTierIds],
+        price: defaultPrice,
         status: 'pending' as const,
         progress: 0,
       }));
 
     setQueue(prev => [...prev, ...queueItems]);
     
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
-  const removeFromQueue = (id: string) => {
-    setQueue(prev => prev.filter(item => item.id !== id));
+  const toggleExpanded = (id: string) => {
+    setExpandedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
-  const updateTitle = (id: string, title: string) => {
+  const applyToAll = () => {
+    setQueue(prev => prev.map(item => ({
+      ...item,
+      isFree: defaultIsFree,
+      allowedTierIds: [...defaultAllowedTierIds],
+      price: defaultPrice,
+    })));
+    showToast('Settings applied to all tracks', 'success');
+  };
+
+  const updateItem = (id: string, updates: Partial<UploadItem>) => {
     setQueue(prev => prev.map(item => 
-      item.id === id ? { ...item, title } : item
+      item.id === id ? { ...item, ...updates } : item
     ));
+  };
+
+  const handleAlbumArtSelect = (itemId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const preview = URL.createObjectURL(file);
+    updateItem(itemId, { albumArtFile: file, albumArtPreview: preview });
+  };
+
+  const removeFromQueue = (id: string) => {
+    const item = queue.find(q => q.id === id);
+    if (item?.albumArtPreview) {
+      URL.revokeObjectURL(item.albumArtPreview);
+    }
+    setQueue(prev => prev.filter(item => item.id !== id));
   };
 
   const getMaxPosition = async () => {
@@ -131,7 +173,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
       
       audio.addEventListener('error', () => {
         URL.revokeObjectURL(url);
-        resolve(180); // Default duration
+        resolve(180);
       });
       
       setTimeout(() => {
@@ -154,7 +196,6 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     let successCount = 0;
     let failCount = 0;
 
-    // Get artist profile for slug
     const { data: artistProfile } = await supabase
       .from('artist_profiles')
       .select('slug')
@@ -165,10 +206,8 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
       const item = queue[i];
       if (item.status !== 'pending') continue;
 
-      // Update current index for UI
       setCurrentIndex(i);
 
-      // Mark as uploading
       setQueue(prev => prev.map(q => 
         q.id === item.id ? { ...q, status: 'uploading', progress: 10 } : q
       ));
@@ -180,7 +219,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         const audioPath = `${artistProfileId}/${audioFileName}`;
         
         setQueue(prev => prev.map(q => 
-          q.id === item.id ? { ...q, progress: 30 } : q
+          q.id === item.id ? { ...q, progress: 20 } : q
         ));
 
         const { error: uploadError } = await supabase.storage
@@ -199,20 +238,43 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         }
 
         setQueue(prev => prev.map(q => 
+          q.id === item.id ? { ...q, progress: 40 } : q
+        ));
+
+        // 2. Upload album art if provided
+        let albumArtUrl: string | null = null;
+        if (item.albumArtFile) {
+          const artExt = item.albumArtFile.name.split('.').pop();
+          const artFileName = `${Date.now()}-${i}.${artExt}`;
+          const artPath = `${artistProfileId}/album-art/${artFileName}`;
+          
+          const { error: artError } = await supabase.storage
+            .from('album-art')
+            .upload(artPath, item.albumArtFile);
+          
+          if (!artError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('album-art')
+              .getPublicUrl(artPath);
+            albumArtUrl = publicUrl;
+          }
+        }
+
+        setQueue(prev => prev.map(q => 
           q.id === item.id ? { ...q, progress: 60 } : q
         ));
 
-        // 2. Get duration
+        // 3. Get duration
         const duration = await getAudioDuration(item.file);
 
         setQueue(prev => prev.map(q => 
-          q.id === item.id ? { ...q, progress: 80 } : q
+          q.id === item.id ? { ...q, progress: 75 } : q
         ));
 
-        // 3. Calculate price in cents
-        const priceInCents = isFree ? null : (price ? Math.round(parseFloat(price) * 100) : null);
+        // 4. Calculate price in cents
+        const priceInCents = item.isFree ? null : (item.price ? Math.round(parseFloat(item.price) * 100) : null);
 
-        // 4. Insert track metadata
+        // 5. Insert track metadata
         const { error: insertError } = await supabase
           .from('tracks')
           .insert({
@@ -221,15 +283,15 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             audio_url_128: audioUrl,
             audio_url_320: audioUrl,
             duration,
-            is_free: isFree,
-            allowed_tier_ids: isFree ? [] : allowedTierIds,
+            is_free: item.isFree,
+            allowed_tier_ids: item.isFree ? [] : item.allowedTierIds,
             price: priceInCents,
+            album_art_url: albumArtUrl,
             position: position++,
           });
 
         if (insertError) throw insertError;
 
-        // Mark complete
         setQueue(prev => prev.map(q => 
           q.id === item.id ? { ...q, status: 'complete', progress: 100 } : q
         ));
@@ -246,20 +308,24 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
 
     setIsUploading(false);
 
-    // Show summary toast
+    // Revoke object URLs
+    queue.forEach(item => {
+      if (item.albumArtPreview) {
+        URL.revokeObjectURL(item.albumArtPreview);
+      }
+    });
+
     if (failCount === 0) {
       showToast(`${successCount} track(s) uploaded successfully!`, 'success');
     } else {
       showToast(`${successCount} of ${pendingItems.length} tracks uploaded. ${failCount} failed.`, failCount > 0 ? 'error' : 'success');
     }
 
-    // Refresh track list
     onComplete();
   };
 
   const pendingCount = queue.filter(q => q.status === 'pending').length;
   const completedCount = queue.filter(q => q.status === 'complete').length;
-  const uploadingCount = queue.filter(q => q.status === 'uploading').length;
 
   return (
     <div className="space-y-6">
@@ -286,30 +352,41 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         </p>
       </div>
 
-      {/* Shared Access Settings */}
+      {/* Default Settings */}
       <div className="bg-crwn-bg border border-crwn-elevated rounded-lg p-4">
-        <h3 className="text-sm font-medium text-crwn-text mb-3">Access Settings (applies to all tracks)</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-crwn-text">Default Settings</h3>
+          {queue.length > 0 && (
+            <button
+              onClick={applyToAll}
+              className="text-xs text-crwn-gold hover:text-crwn-gold-hover"
+            >
+              Apply to all tracks
+            </button>
+          )}
+        </div>
+        
         <div className="space-y-3">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={isFree}
-              onChange={(e) => setIsFree(e.target.checked)}
+              checked={defaultIsFree}
+              onChange={(e) => setDefaultIsFree(e.target.checked)}
               className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
             />
             <span className="text-crwn-text text-sm">Free to all</span>
           </label>
           
-          {!isFree && tiers.length > 0 && tiers.map(tier => (
+          {!defaultIsFree && tiers.length > 0 && tiers.map(tier => (
             <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
               <input
                 type="checkbox"
-                checked={allowedTierIds.includes(tier.id)}
+                checked={defaultAllowedTierIds.includes(tier.id)}
                 onChange={(e) => {
                   const ids = e.target.checked
-                    ? [...allowedTierIds, tier.id]
-                    : allowedTierIds.filter(id => id !== tier.id);
-                  setAllowedTierIds(ids);
+                    ? [...defaultAllowedTierIds, tier.id]
+                    : defaultAllowedTierIds.filter(id => id !== tier.id);
+                  setDefaultAllowedTierIds(ids);
                 }}
                 className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
               />
@@ -317,7 +394,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             </label>
           ))}
           
-          {!isFree && (
+          {!defaultIsFree && (
             <div className="ml-6 mt-2">
               <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
                 Or set a one-time price (USD)
@@ -328,8 +405,8 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                   type="number"
                   min="0"
                   step="0.01"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  value={defaultPrice}
+                  onChange={(e) => setDefaultPrice(e.target.value)}
                   placeholder="Leave empty for tier access only"
                   className="w-full neu-inset px-3 py-2 text-crwn-text"
                 />
@@ -349,7 +426,12 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             </h3>
             {!isUploading && (
               <button
-                onClick={() => setQueue([])}
+                onClick={() => {
+                  queue.forEach(item => {
+                    if (item.albumArtPreview) URL.revokeObjectURL(item.albumArtPreview);
+                  });
+                  setQueue([]);
+                }}
                 className="text-xs text-crwn-text-secondary hover:text-red-400"
               >
                 Clear all
@@ -373,60 +455,188 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
           )}
 
           {/* Queue Items */}
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+          <div className="space-y-2 max-h-96 overflow-y-auto">
             {queue.map((item) => (
               <div
                 key={item.id}
-                className={`neu-raised p-3 rounded-lg flex items-center gap-3 ${
+                className={`neu-raised rounded-lg overflow-hidden ${
                   item.status === 'error' ? 'border border-red-400/30' : ''
                 } ${item.status === 'complete' ? 'opacity-60' : ''}`}
               >
-                {/* Status Icon */}
-                {item.status === 'pending' && !isUploading && (
-                  <button
-                    onClick={() => removeFromQueue(item.id)}
-                    className="text-crwn-text-secondary hover:text-red-400"
-                    title="Remove"
+                {/* Collapsed View */}
+                <div className="flex items-center gap-3 p-3">
+                  {/* Cover Art Thumbnail */}
+                  <div 
+                    className="w-10 h-10 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden relative cursor-pointer"
+                    onClick={() => toggleExpanded(item.id)}
                   >
-                    <X size={16} />
-                  </button>
-                )}
-                {item.status === 'uploading' && (
-                  <Loader2 size={16} className="text-crwn-gold animate-spin" />
-                )}
-                {item.status === 'complete' && (
-                  <Check size={16} className="text-crwn-success" />
-                )}
-                {item.status === 'error' && (
-                  <span title={item.error}>
-                    <AlertCircle size={16} className="text-red-400" />
-                  </span>
-                )}
+                    {item.albumArtPreview ? (
+                      <img src={item.albumArtPreview} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon size={16} className="text-crwn-text-secondary" />
+                      </div>
+                    )}
+                  </div>
 
-                {/* File Info */}
-                <div className="flex-1 min-w-0">
-                  <input
-                    type="text"
-                    value={item.title}
-                    onChange={(e) => updateTitle(item.id, e.target.value)}
-                    disabled={item.status !== 'pending' || isUploading}
-                    className="w-full bg-transparent text-crwn-text text-sm font-medium focus:outline-none border-b border-transparent focus:border-crwn-gold disabled:opacity-60"
-                    placeholder="Track title"
-                  />
-                  <p className="text-xs text-crwn-text-secondary">
-                    {formatFileSize(item.file.size)}
-                    {item.status === 'error' && <span className="text-red-400 ml-2">{item.error}</span>}
-                  </p>
+                  {/* Status Icon */}
+                  {item.status === 'pending' && !isUploading && (
+                    <button
+                      onClick={() => removeFromQueue(item.id)}
+                      className="text-crwn-text-secondary hover:text-red-400"
+                      title="Remove"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                  {item.status === 'uploading' && (
+                    <Loader2 size={16} className="text-crwn-gold animate-spin" />
+                  )}
+                  {item.status === 'complete' && (
+                    <Check size={16} className="text-crwn-success" />
+                  )}
+                  {item.status === 'error' && (
+                    <span title={item.error}>
+                      <AlertCircle size={16} className="text-red-400" />
+                    </span>
+                  )}
+
+                  {/* Title & Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-crwn-text text-sm font-medium truncate">{item.title}</p>
+                    <p className="text-xs text-crwn-text-secondary">
+                      {formatFileSize(item.file.size)}
+                      {!item.isFree && item.allowedTierIds.length > 0 && ' • Tier locked'}
+                      {item.price && !item.isFree && ' • Paid'}
+                    </p>
+                  </div>
+
+                  {/* Expand Button */}
+                  {item.status === 'pending' && (
+                    <button
+                      onClick={() => toggleExpanded(item.id)}
+                      className="p-1 text-crwn-text-secondary hover:text-crwn-text"
+                    >
+                      {expandedItems.has(item.id) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </button>
+                  )}
+
+                  {/* Progress Bar */}
+                  {item.status === 'uploading' && (
+                    <div className="w-16">
+                      <div className="w-full bg-crwn-bg rounded-full h-1.5">
+                        <div
+                          className="bg-gradient-to-r from-[#9a7b2a] to-crwn-gold h-1.5 rounded-full transition-all"
+                          style={{ width: `${item.progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Progress Bar (uploading only) */}
-                {item.status === 'uploading' && (
-                  <div className="w-20">
-                    <div className="w-full bg-crwn-bg rounded-full h-1.5">
-                      <div
-                        className="bg-gradient-to-r from-[#9a7b2a] to-crwn-gold h-1.5 rounded-full transition-all"
-                        style={{ width: `${item.progress}%` }}
+                {/* Expanded View - Per-Track Settings */}
+                {expandedItems.has(item.id) && item.status === 'pending' && (
+                  <div className="p-3 border-t border-crwn-elevated space-y-3 bg-crwn-bg/50">
+                    {/* Cover Art */}
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={artInputRef}
+                        className="hidden"
+                        id={`art-${item.id}`}
+                        onChange={(e) => handleAlbumArtSelect(item.id, e)}
                       />
+                      <label
+                        htmlFor={`art-${item.id}`}
+                        className="w-12 h-12 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden cursor-pointer flex items-center justify-center"
+                      >
+                        {item.albumArtPreview ? (
+                          <img src={item.albumArtPreview} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageIcon size={20} className="text-crwn-text-secondary" />
+                        )}
+                      </label>
+                      <div className="flex-1">
+                        <p className="text-xs text-crwn-text-secondary">Cover art (optional)</p>
+                        {item.albumArtFile && (
+                          <button
+                            onClick={() => {
+                              URL.revokeObjectURL(item.albumArtPreview!);
+                              updateItem(item.id, { albumArtFile: null, albumArtPreview: null });
+                            }}
+                            className="text-xs text-red-400 hover:text-red-300"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <div>
+                      <input
+                        type="text"
+                        value={item.title}
+                        onChange={(e) => updateItem(item.id, { title: e.target.value })}
+                        disabled={item.status !== 'pending' || isUploading}
+                        className="w-full bg-crwn-bg border border-crwn-elevated rounded px-3 py-2 text-crwn-text text-sm"
+                        placeholder="Track title"
+                      />
+                    </div>
+
+                    {/* Access Settings */}
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={item.isFree}
+                          onChange={(e) => updateItem(item.id, { 
+                            isFree: e.target.checked,
+                            allowedTierIds: e.target.checked ? [] : item.allowedTierIds,
+                            price: e.target.checked ? '' : item.price,
+                          })}
+                          className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                        />
+                        <span className="text-crwn-text text-sm">Free to all</span>
+                      </label>
+                      
+                      {!item.isFree && tiers.length > 0 && tiers.map(tier => (
+                        <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
+                          <input
+                            type="checkbox"
+                            checked={item.allowedTierIds.includes(tier.id)}
+                            onChange={(e) => {
+                              const ids = e.target.checked
+                                ? [...item.allowedTierIds, tier.id]
+                                : item.allowedTierIds.filter(id => id !== tier.id);
+                              updateItem(item.id, { allowedTierIds: ids });
+                            }}
+                            className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                          />
+                          <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+                        </label>
+                      ))}
+                      
+                      {!item.isFree && (
+                        <div className="ml-6">
+                          <label className="block text-xs font-medium text-crwn-text-secondary mb-1">
+                            Or set a one-time price (USD)
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-crwn-text">$</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={item.price}
+                              onChange={(e) => updateItem(item.id, { price: e.target.value })}
+                              placeholder="Leave empty for tier access only"
+                              className="w-full neu-inset px-3 py-2 text-crwn-text text-sm"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
