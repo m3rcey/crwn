@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image as ImageIcon } from 'lucide-react';
+import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image } from 'lucide-react';
 
 interface SubscriptionTier {
   id: string;
@@ -37,17 +37,17 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
   const supabase = createBrowserSupabaseClient();
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [queue, setQueue] = useState<UploadItem[]>([]);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isUploading, setIsUploading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   
-  // Default settings for new tracks
-  const [defaultIsFree, setDefaultIsFree] = useState(true);
-  const [defaultAllowedTierIds, setDefaultAllowedTierIds] = useState<string[]>([]);
-  const [defaultPrice, setDefaultPrice] = useState('');
+  // Shared settings for "Apply to All"
+  const [applyToAllIsFree, setApplyToAllIsFree] = useState(true);
+  const [applyToAllTierIds, setApplyToAllTierIds] = useState<string[]>([]);
+  const [applyToAllPrice, setApplyToAllPrice] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const artInputRef = useRef<HTMLInputElement>(null);
+  const artInputRefs = useRef<{ [key: string]: HTMLInputElement }>({});
 
   // Fetch tiers
   useEffect(() => {
@@ -90,9 +90,9 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         title: file.name.replace(/\.[^/.]+$/, ''),
         albumArtFile: null,
         albumArtPreview: null,
-        isFree: defaultIsFree,
-        allowedTierIds: [...defaultAllowedTierIds],
-        price: defaultPrice,
+        isFree: applyToAllIsFree,
+        allowedTierIds: [...applyToAllTierIds],
+        price: applyToAllPrice,
         status: 'pending' as const,
         progress: 0,
       }));
@@ -116,14 +116,17 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     });
   };
 
-  const applyToAll = () => {
-    setQueue(prev => prev.map(item => ({
-      ...item,
-      isFree: defaultIsFree,
-      allowedTierIds: [...defaultAllowedTierIds],
-      price: defaultPrice,
-    })));
-    showToast('Settings applied to all tracks', 'success');
+  const removeFromQueue = (id: string) => {
+    const item = queue.find(q => q.id === id);
+    if (item?.albumArtPreview) {
+      URL.revokeObjectURL(item.albumArtPreview);
+    }
+    setQueue(prev => prev.filter(item => item.id !== id));
+    setExpandedItems(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
   };
 
   const updateItem = (id: string, updates: Partial<UploadItem>) => {
@@ -132,7 +135,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     ));
   };
 
-  const handleAlbumArtSelect = (itemId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleArtSelect = (itemId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
@@ -140,12 +143,14 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     updateItem(itemId, { albumArtFile: file, albumArtPreview: preview });
   };
 
-  const removeFromQueue = (id: string) => {
-    const item = queue.find(q => q.id === id);
-    if (item?.albumArtPreview) {
-      URL.revokeObjectURL(item.albumArtPreview);
-    }
-    setQueue(prev => prev.filter(item => item.id !== id));
+  const applyToAll = () => {
+    setQueue(prev => prev.map(item => ({
+      ...item,
+      isFree: applyToAllIsFree,
+      allowedTierIds: [...applyToAllTierIds],
+      price: applyToAllPrice,
+    })));
+    showToast('Settings applied to all tracks', 'success');
   };
 
   const getMaxPosition = async () => {
@@ -237,15 +242,11 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
           audioUrl = publicUrl;
         }
 
-        setQueue(prev => prev.map(q => 
-          q.id === item.id ? { ...q, progress: 40 } : q
-        ));
-
         // 2. Upload album art if provided
         let albumArtUrl: string | null = null;
         if (item.albumArtFile) {
           const artExt = item.albumArtFile.name.split('.').pop();
-          const artFileName = `${Date.now()}-${i}.${artExt}`;
+          const artFileName = `${Date.now()}-art-${i}.${artExt}`;
           const artPath = `${artistProfileId}/album-art/${artFileName}`;
           
           const { error: artError } = await supabase.storage
@@ -261,20 +262,20 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         }
 
         setQueue(prev => prev.map(q => 
-          q.id === item.id ? { ...q, progress: 60 } : q
+          q.id === item.id ? { ...q, progress: 50 } : q
         ));
 
         // 3. Get duration
         const duration = await getAudioDuration(item.file);
 
         setQueue(prev => prev.map(q => 
-          q.id === item.id ? { ...q, progress: 75 } : q
+          q.id === item.id ? { ...q, progress: 70 } : q
         ));
 
         // 4. Calculate price in cents
         const priceInCents = item.isFree ? null : (item.price ? Math.round(parseFloat(item.price) * 100) : null);
 
-        // 5. Insert track metadata
+        // 5. Insert track metadata with per-track settings
         const { error: insertError } = await supabase
           .from('tracks')
           .insert({
@@ -308,7 +309,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
 
     setIsUploading(false);
 
-    // Revoke object URLs
+    // Clean up object URLs
     queue.forEach(item => {
       if (item.albumArtPreview) {
         URL.revokeObjectURL(item.albumArtPreview);
@@ -318,7 +319,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     if (failCount === 0) {
       showToast(`${successCount} track(s) uploaded successfully!`, 'success');
     } else {
-      showToast(`${successCount} of ${pendingItems.length} tracks uploaded. ${failCount} failed.`, failCount > 0 ? 'error' : 'success');
+      showToast(`${successCount} of ${pendingItems.length} tracks uploaded. ${failCount} failed.`, 'error');
     }
 
     onComplete();
@@ -352,41 +353,40 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         </p>
       </div>
 
-      {/* Default Settings */}
+      {/* Apply to All Settings */}
       <div className="bg-crwn-bg border border-crwn-elevated rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-crwn-text">Default Settings</h3>
-          {queue.length > 0 && (
-            <button
-              onClick={applyToAll}
-              className="text-xs text-crwn-gold hover:text-crwn-gold-hover"
-            >
-              Apply to all tracks
-            </button>
-          )}
+          <h3 className="text-sm font-medium text-crwn-text">Apply to All Tracks</h3>
+          <button
+            onClick={applyToAll}
+            disabled={queue.length === 0 || isUploading}
+            className="px-3 py-1 bg-crwn-gold text-crwn-bg text-xs font-medium rounded-lg hover:bg-crwn-gold-hover disabled:opacity-50"
+          >
+            Apply
+          </button>
         </div>
         
         <div className="space-y-3">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={defaultIsFree}
-              onChange={(e) => setDefaultIsFree(e.target.checked)}
+              checked={applyToAllIsFree}
+              onChange={(e) => setApplyToAllIsFree(e.target.checked)}
               className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
             />
             <span className="text-crwn-text text-sm">Free to all</span>
           </label>
           
-          {!defaultIsFree && tiers.length > 0 && tiers.map(tier => (
+          {!applyToAllIsFree && tiers.length > 0 && tiers.map(tier => (
             <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
               <input
                 type="checkbox"
-                checked={defaultAllowedTierIds.includes(tier.id)}
+                checked={applyToAllTierIds.includes(tier.id)}
                 onChange={(e) => {
                   const ids = e.target.checked
-                    ? [...defaultAllowedTierIds, tier.id]
-                    : defaultAllowedTierIds.filter(id => id !== tier.id);
-                  setDefaultAllowedTierIds(ids);
+                    ? [...applyToAllTierIds, tier.id]
+                    : applyToAllTierIds.filter(id => id !== tier.id);
+                  setApplyToAllTierIds(ids);
                 }}
                 className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
               />
@@ -394,7 +394,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             </label>
           ))}
           
-          {!defaultIsFree && (
+          {!applyToAllIsFree && (
             <div className="ml-6 mt-2">
               <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
                 Or set a one-time price (USD)
@@ -405,8 +405,8 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                   type="number"
                   min="0"
                   step="0.01"
-                  value={defaultPrice}
-                  onChange={(e) => setDefaultPrice(e.target.value)}
+                  value={applyToAllPrice}
+                  onChange={(e) => setApplyToAllPrice(e.target.value)}
                   placeholder="Leave empty for tier access only"
                   className="w-full neu-inset px-3 py-2 text-crwn-text"
                 />
@@ -431,6 +431,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                     if (item.albumArtPreview) URL.revokeObjectURL(item.albumArtPreview);
                   });
                   setQueue([]);
+                  setExpandedItems(new Set());
                 }}
                 className="text-xs text-crwn-text-secondary hover:text-red-400"
               >
@@ -455,7 +456,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
           )}
 
           {/* Queue Items */}
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="space-y-2 max-h-[500px] overflow-y-auto">
             {queue.map((item) => (
               <div
                 key={item.id}
@@ -464,17 +465,17 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                 } ${item.status === 'complete' ? 'opacity-60' : ''}`}
               >
                 {/* Collapsed View */}
-                <div className="flex items-center gap-3 p-3">
+                <div 
+                  className="flex items-center gap-3 p-3 cursor-pointer"
+                  onClick={() => toggleExpanded(item.id)}
+                >
                   {/* Cover Art Thumbnail */}
-                  <div 
-                    className="w-10 h-10 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden relative cursor-pointer"
-                    onClick={() => toggleExpanded(item.id)}
-                  >
+                  <div className="w-10 h-10 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden">
                     {item.albumArtPreview ? (
                       <img src={item.albumArtPreview} alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon size={16} className="text-crwn-text-secondary" />
+                        <Image size={16} className="text-crwn-text-secondary" />
                       </div>
                     )}
                   </div>
@@ -482,7 +483,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                   {/* Status Icon */}
                   {item.status === 'pending' && !isUploading && (
                     <button
-                      onClick={() => removeFromQueue(item.id)}
+                      onClick={(e) => { e.stopPropagation(); removeFromQueue(item.id); }}
                       className="text-crwn-text-secondary hover:text-red-400"
                       title="Remove"
                     >
@@ -501,143 +502,166 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                     </span>
                   )}
 
-                  {/* Title & Info */}
+                  {/* File Info */}
                   <div className="flex-1 min-w-0">
                     <p className="text-crwn-text text-sm font-medium truncate">{item.title}</p>
                     <p className="text-xs text-crwn-text-secondary">
                       {formatFileSize(item.file.size)}
-                      {!item.isFree && item.allowedTierIds.length > 0 && ' • Tier locked'}
-                      {item.price && !item.isFree && ' • Paid'}
+                      {item.status === 'error' && <span className="text-red-400 ml-2">{item.error}</span>}
                     </p>
                   </div>
 
-                  {/* Expand Button */}
-                  {item.status === 'pending' && (
-                    <button
-                      onClick={() => toggleExpanded(item.id)}
-                      className="p-1 text-crwn-text-secondary hover:text-crwn-text"
-                    >
-                      {expandedItems.has(item.id) ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                    </button>
-                  )}
+                  {/* Access Badge */}
+                  <div className="flex-shrink-0">
+                    {item.isFree ? (
+                      <span className="text-xs text-crwn-success">Free</span>
+                    ) : item.price ? (
+                      <span className="text-xs text-crwn-text-secondary">${item.price}</span>
+                    ) : (
+                      <span className="text-xs text-crwn-gold">Tier</span>
+                    )}
+                  </div>
 
-                  {/* Progress Bar */}
-                  {item.status === 'uploading' && (
-                    <div className="w-16">
-                      <div className="w-full bg-crwn-bg rounded-full h-1.5">
-                        <div
-                          className="bg-gradient-to-r from-[#9a7b2a] to-crwn-gold h-1.5 rounded-full transition-all"
-                          style={{ width: `${item.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  {/* Expand Button */}
+                  <ChevronDown 
+                    size={20} 
+                    className={`text-crwn-text-secondary transition-transform ${
+                      expandedItems.has(item.id) ? 'rotate-180' : ''
+                    }`}
+                  />
                 </div>
 
-                {/* Expanded View - Per-Track Settings */}
-                {expandedItems.has(item.id) && item.status === 'pending' && (
-                  <div className="p-3 border-t border-crwn-elevated space-y-3 bg-crwn-bg/50">
-                    {/* Cover Art */}
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={artInputRef}
-                        className="hidden"
-                        id={`art-${item.id}`}
-                        onChange={(e) => handleAlbumArtSelect(item.id, e)}
-                      />
-                      <label
-                        htmlFor={`art-${item.id}`}
-                        className="w-12 h-12 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden cursor-pointer flex items-center justify-center"
-                      >
-                        {item.albumArtPreview ? (
-                          <img src={item.albumArtPreview} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <ImageIcon size={20} className="text-crwn-text-secondary" />
-                        )}
-                      </label>
-                      <div className="flex-1">
-                        <p className="text-xs text-crwn-text-secondary">Cover art (optional)</p>
-                        {item.albumArtFile && (
-                          <button
-                            onClick={() => {
-                              URL.revokeObjectURL(item.albumArtPreview!);
-                              updateItem(item.id, { albumArtFile: null, albumArtPreview: null });
-                            }}
-                            className="text-xs text-red-400 hover:text-red-300"
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
+                {/* Expanded View */}
+                {expandedItems.has(item.id) && (
+                  <div className="px-4 pb-4 border-t border-crwn-elevated space-y-4">
                     {/* Title */}
                     <div>
+                      <label className="block text-xs font-medium text-crwn-text-secondary mb-1">Title</label>
                       <input
                         type="text"
                         value={item.title}
                         onChange={(e) => updateItem(item.id, { title: e.target.value })}
                         disabled={item.status !== 'pending' || isUploading}
-                        className="w-full bg-crwn-bg border border-crwn-elevated rounded px-3 py-2 text-crwn-text text-sm"
+                        className="w-full neu-inset px-3 py-2 text-crwn-text text-sm disabled:opacity-60"
                         placeholder="Track title"
                       />
                     </div>
 
+                    {/* Cover Art */}
+                    <div>
+                      <label className="block text-xs font-medium text-crwn-text-secondary mb-1">Cover Art</label>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-16 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden">
+                          {item.albumArtPreview ? (
+                            <img src={item.albumArtPreview} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Image size={24} className="text-crwn-text-secondary" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <input
+                            ref={(el) => { artInputRefs.current[item.id] = el!; }}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleArtSelect(item.id, e)}
+                            disabled={item.status !== 'pending' || isUploading}
+                            className="hidden"
+                            id={`art-${item.id}`}
+                          />
+                          <label
+                            htmlFor={`art-${item.id}`}
+                            className="inline-block px-3 py-2 bg-crwn-bg border border-crwn-elevated text-crwn-text text-sm rounded-lg hover:border-crwn-gold cursor-pointer disabled:opacity-50"
+                          >
+                            {item.albumArtPreview ? 'Change' : 'Select'}
+                          </label>
+                          {item.albumArtPreview && (
+                            <button
+                              onClick={() => {
+                                URL.revokeObjectURL(item.albumArtPreview!);
+                                updateItem(item.id, { albumArtFile: null, albumArtPreview: null });
+                              }}
+                              className="ml-2 px-3 py-2 text-red-400 text-sm hover:underline"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Access Settings */}
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={item.isFree}
-                          onChange={(e) => updateItem(item.id, { 
-                            isFree: e.target.checked,
-                            allowedTierIds: e.target.checked ? [] : item.allowedTierIds,
-                            price: e.target.checked ? '' : item.price,
-                          })}
-                          className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
-                        />
-                        <span className="text-crwn-text text-sm">Free to all</span>
-                      </label>
-                      
-                      {!item.isFree && tiers.length > 0 && tiers.map(tier => (
-                        <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
+                    <div>
+                      <label className="block text-xs font-medium text-crwn-text-secondary mb-2">Access</label>
+                      <div className="space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
-                            checked={item.allowedTierIds.includes(tier.id)}
-                            onChange={(e) => {
-                              const ids = e.target.checked
-                                ? [...item.allowedTierIds, tier.id]
-                                : item.allowedTierIds.filter(id => id !== tier.id);
-                              updateItem(item.id, { allowedTierIds: ids });
-                            }}
-                            className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                            checked={item.isFree}
+                            onChange={(e) => updateItem(item.id, { 
+                              isFree: e.target.checked,
+                              allowedTierIds: e.target.checked ? [] : item.allowedTierIds,
+                              price: e.target.checked ? '' : item.price,
+                            })}
+                            disabled={item.status !== 'pending' || isUploading}
+                            className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold disabled:opacity-50"
                           />
-                          <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+                          <span className="text-crwn-text text-sm">Free to all</span>
                         </label>
-                      ))}
-                      
-                      {!item.isFree && (
-                        <div className="ml-6">
-                          <label className="block text-xs font-medium text-crwn-text-secondary mb-1">
-                            Or set a one-time price (USD)
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <span className="text-crwn-text">$</span>
+                        
+                        {!item.isFree && tiers.length > 0 && tiers.map(tier => (
+                          <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
                             <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              value={item.price}
-                              onChange={(e) => updateItem(item.id, { price: e.target.value })}
-                              placeholder="Leave empty for tier access only"
-                              className="w-full neu-inset px-3 py-2 text-crwn-text text-sm"
+                              type="checkbox"
+                              checked={item.allowedTierIds.includes(tier.id)}
+                              onChange={(e) => {
+                                const ids = e.target.checked
+                                  ? [...item.allowedTierIds, tier.id]
+                                  : item.allowedTierIds.filter(id => id !== tier.id);
+                                updateItem(item.id, { allowedTierIds: ids });
+                              }}
+                              disabled={item.status !== 'pending' || isUploading}
+                              className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold disabled:opacity-50"
                             />
+                            <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+                          </label>
+                        ))}
+                        
+                        {!item.isFree && (
+                          <div className="ml-6 mt-2">
+                            <label className="block text-xs font-medium text-crwn-text-secondary mb-1">
+                              Or set a one-time price (USD)
+                            </label>
+                            <div className="flex items-center gap-2">
+                              <span className="text-crwn-text">$</span>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={item.price}
+                                onChange={(e) => updateItem(item.id, { price: e.target.value })}
+                                disabled={item.status !== 'pending' || isUploading}
+                                placeholder="Leave empty for tier access only"
+                                className="w-full neu-inset px-3 py-2 text-crwn-text text-sm disabled:opacity-60"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
+
+                    {/* Progress (when uploading) */}
+                    {item.status === 'uploading' && (
+                      <div>
+                        <div className="w-full bg-crwn-bg rounded-full h-1.5">
+                          <div
+                            className="bg-gradient-to-r from-[#9a7b2a] to-crwn-gold h-1.5 rounded-full transition-all"
+                            style={{ width: `${item.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
