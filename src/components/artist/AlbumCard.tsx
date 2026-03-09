@@ -3,9 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useFavorites } from '@/hooks/useFavorites';
 import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
+import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { Play, Pause, Lock, Check, Loader2, Link2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,6 +21,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const { isLiked, toggleFavorite } = useFavorites();
 
   const loadTracks = useCallback(async () => {
     if (!isExpanded) return;
@@ -110,10 +113,9 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
           ) : tracks.length > 0 ? (
             <div className="space-y-1">
               {tracks.map((track, index) => (
-                <Link
+                <div
                   key={track.id}
-                  href={`/artist/${artistSlug}`}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-crwn-elevated/50 transition-colors"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-crwn-elevated/50 transition-colors group"
                 >
                   <span className="w-6 text-center text-crwn-text-secondary text-sm">
                     {index + 1}
@@ -124,8 +126,21 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
                       {formatDuration(track.duration)}
                     </p>
                   </div>
-                  <Play className="w-4 h-4 text-crwn-text-secondary" />
-                </Link>
+                  <TrackActionButtons 
+                    trackId={track.id} 
+                    size="sm" 
+                    isLiked={isLiked(track.id)}
+                    onToggleLike={() => toggleFavorite(track.id)}
+                  />
+                  <button
+                    onClick={() => {
+                      // Play the track - would need to integrate with player
+                    }}
+                    className="p-1 text-crwn-text-secondary hover:text-crwn-gold opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Play className="w-4 h-4" />
+                  </button>
+                </div>
               ))}
             </div>
           ) : (

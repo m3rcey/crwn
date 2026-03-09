@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useFavorites } from '@/hooks/useFavorites';
+import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { Lock, Play, Pause, LockOpen, Link2 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -17,6 +19,7 @@ interface GatedTrackPlayerProps {
 export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
+  const { isLiked, toggleFavorite } = useFavorites();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // New gating logic: is_free !== false means free (null = free)
@@ -25,6 +28,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   const isLocked = !canAccess;
   const isCurrentTrack = currentTrack?.id === track.id;
   const isTrackPlaying = isCurrentTrack && isPlaying;
+  const trackIsLiked = isLiked(track.id);
 
   const handlePlay = () => {
     if (isLocked) {
@@ -154,6 +158,14 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
             Preview
           </button>
         )}
+
+        {/* Track Action Buttons (Like & Add to Playlist) */}
+        <TrackActionButtons 
+          trackId={track.id} 
+          size="sm" 
+          isLiked={trackIsLiked}
+          onToggleLike={() => toggleFavorite(track.id)}
+        />
 
         {/* Share Button */}
         {artistSlug && (
