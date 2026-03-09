@@ -199,7 +199,41 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         await logPlayHistory();
       }
       
-      setCurrentTrack(track);
+      // Fetch artist info if missing (Option B)
+      let trackWithArtist = track;
+      if (track.artist_id && !track.artist?.slug) {
+        const { data: artistData } = await supabase
+          .from('artist_profiles')
+          .select('id, slug, user_id, profile:profiles!inner(id, role, display_name, username, avatar_url, bio, social_links, created_at, updated_at)')
+          .eq('id', track.artist_id)
+          .single();
+        
+        if (artistData) {
+          const profileArray = (artistData.profile || []) as unknown as { id: string; role: string; display_name: string; username: string; avatar_url: string | null; bio: string | null; social_links: Record<string, unknown> | null; created_at: string; updated_at: string }[];
+          const profileData = Array.isArray(profileArray) ? profileArray[0] : profileArray;
+          
+          const artistProfile = {
+            id: artistData.id,
+            slug: artistData.slug,
+            user_id: artistData.user_id,
+            is_verified: false,
+            banner_url: null,
+            tagline: null,
+            stripe_connect_id: null,
+            tier_config: [],
+            created_at: '',
+            updated_at: '',
+            profile: profileData as any,
+          };
+          trackWithArtist = {
+            ...track,
+            artist: artistProfile,
+            artist_name: profileData?.display_name || 'Unknown Artist',
+          };
+        }
+      }
+      
+      setCurrentTrack(trackWithArtist);
       setCurrentTime(0);
       setPlayStartTime(Date.now());
       

@@ -58,6 +58,7 @@ export interface Track {
   updated_at: string;
   // Joined fields
   artist?: ArtistProfile;
+  artist_name?: string; // Denormalized for player display
 }
 
 export interface Playlist {

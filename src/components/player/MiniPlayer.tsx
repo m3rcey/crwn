@@ -150,7 +150,7 @@ export function MiniPlayer() {
             >
               {currentTrack.title}
             </h4>
-            <p className="text-xs text-crwn-text-secondary truncate">Artist Name</p>
+            <p className="text-xs text-crwn-text-secondary truncate">{currentTrack.artist_name || currentTrack.artist?.profile?.display_name || 'Unknown Artist'}</p>
           </div>
         </div>
 

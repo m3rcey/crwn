@@ -134,7 +134,7 @@ export function FullScreenPlayer() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-8 pb-8">
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-8 pb-8 overflow-y-auto">
         {/* Album Art */}
         <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-2xl overflow-hidden shadow-2xl mb-8" style={{ boxShadow: '8px 8px 16px rgba(0, 0, 0, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.03)' }}>
           {currentTrack.album_art_url ? (
@@ -163,11 +163,12 @@ export function FullScreenPlayer() {
                 trackId={currentTrack.id}
                 trackTitle={currentTrack.title}
                 artistSlug={currentTrack.artist.slug}
+                artistName={currentTrack.artist_name || currentTrack.artist?.profile?.display_name || 'Artist'}
                 size="md"
               />
             )}
           </div>
-          <p className="text-lg text-crwn-text-secondary">Artist Name</p>
+          <p className="text-lg text-crwn-text-secondary">{currentTrack.artist_name || currentTrack.artist?.profile?.display_name || 'Unknown Artist'}</p>
         </div>
 
         {/* Progress - larger touch target */}
@@ -298,7 +299,7 @@ export function FullScreenPlayer() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-crwn-text truncate">{track.title}</p>
-                    <p className="text-xs text-crwn-text-secondary truncate">Artist Name</p>
+                    <p className="text-xs text-crwn-text-secondary truncate">{track.artist_name || track.artist?.profile?.display_name || 'Unknown Artist'}</p>
                   </div>
                 </div>
               ))}
