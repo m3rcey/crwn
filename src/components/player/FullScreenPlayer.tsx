@@ -136,7 +136,7 @@ export function FullScreenPlayer() {
       {/* Main Content */}
       <div className="flex-1 min-h-0 flex flex-col items-center px-8 pt-4 pb-8 overflow-y-auto">
         {/* Album Art */}
-        <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-2xl overflow-hidden shadow-2xl mb-8" style={{ boxShadow: '8px 8px 16px rgba(0, 0, 0, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.03)' }}>
+        <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden shadow-2xl mb-8 flex-shrink-0" style={{ boxShadow: '8px 8px 16px rgba(0, 0, 0, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.03)' }}>
           {currentTrack.album_art_url ? (
             <Image
               src={currentTrack.album_art_url}
@@ -278,8 +278,8 @@ export function FullScreenPlayer() {
         {queue.length > 1 && (
           <div className="w-full max-w-md mt-8">
             <h3 className="text-sm font-medium text-crwn-text-secondary mb-3">Up Next</h3>
-            <div className="space-y-2 max-h-32 overflow-y-auto">
-              {queue.slice(currentIndex + 1, currentIndex + 4).map((track) => (
+            <div className="space-y-2">
+              {queue.slice(currentIndex + 1, currentIndex + 10).map((track) => (
                 <div 
                   key={track.id}
                   className="flex items-center gap-3 p-2 neu-inset rounded-lg"
