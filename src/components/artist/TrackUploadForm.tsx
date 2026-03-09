@@ -19,6 +19,13 @@ interface SubscriptionTier {
   price: number;
 }
 
+interface TierBenefit {
+  id: string;
+  tier_id: string;
+  benefit_type: string;
+  config: Record<string, any>;
+}
+
 interface TrackFormData {
   title: string;
   isFree: boolean;
@@ -26,6 +33,8 @@ interface TrackFormData {
   price: string;
   audioFile: File | null;
   albumArt: File | null;
+  enableEarlyAccess: boolean;
+  earlyAccessDays: number;
 }
 
 export function TrackUploadForm() {
@@ -52,7 +61,11 @@ export function TrackUploadForm() {
     price: '',
     audioFile: null,
     albumArt: null,
+    enableEarlyAccess: false,
+    earlyAccessDays: 7,
   });
+  const [tierBenefits, setTierBenefits] = useState<TierBenefit[]>([]);
+  const [maxEarlyAccessDays, setMaxEarlyAccessDays] = useState<number>(0);
 
   // Fetch tracks when component mounts
   useEffect(() => {
@@ -85,6 +98,24 @@ export function TrackUploadForm() {
         console.error('Error fetching tiers:', tiersError);
       } else if (tiersData) {
         setTiers(tiersData);
+      }
+
+      // Fetch tier benefits to check for early_access
+      const tierIds = tiersData?.map(t => t.id) || [];
+      if (tierIds.length > 0) {
+        const { data: benefitsData } = await supabase
+          .from('tier_benefits')
+          .select('*')
+          .in('tier_id', tierIds)
+          .eq('benefit_type', 'early_access')
+          .eq('is_active', true);
+        
+        if (benefitsData && benefitsData.length > 0) {
+          setTierBenefits(benefitsData);
+          // Get max days_early across all tiers
+          const maxDays = Math.max(...benefitsData.map((b: TierBenefit) => b.config?.days_early || 7));
+          setMaxEarlyAccessDays(maxDays);
+        }
       }
 
       // Fetch tracks
@@ -175,6 +206,8 @@ export function TrackUploadForm() {
       price: track.price ? (track.price / 100).toString() : '',
       audioFile: null,
       albumArt: null,
+      enableEarlyAccess: false,
+      earlyAccessDays: 7,
     });
     // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -189,6 +222,8 @@ export function TrackUploadForm() {
       price: '',
       audioFile: null,
       albumArt: null,
+      enableEarlyAccess: false,
+      earlyAccessDays: 7,
     });
   };
 
@@ -334,6 +369,14 @@ export function TrackUploadForm() {
         showToast('Track updated!', 'success');
       } else {
         // Insert new track
+        // Calculate public_release_date if early access is enabled
+        let publicReleaseDate: string | null = null;
+        if (formData.enableEarlyAccess && formData.earlyAccessDays > 0) {
+          const releaseDate = new Date();
+          releaseDate.setDate(releaseDate.getDate() + formData.earlyAccessDays);
+          publicReleaseDate = releaseDate.toISOString();
+        }
+
         const { data: track, error } = await supabase
           .from('tracks')
           .insert({
@@ -346,6 +389,7 @@ export function TrackUploadForm() {
             allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
             price: formData.isFree ? null : priceInCents,
             album_art_url: albumArtUrl,
+            public_release_date: publicReleaseDate,
           })
           .select()
           .single();
@@ -389,6 +433,8 @@ export function TrackUploadForm() {
         price: '',
         audioFile: null,
         albumArt: null,
+        enableEarlyAccess: false,
+        earlyAccessDays: 7,
       });
 
       showToast('Track uploaded successfully!', 'success');
@@ -565,6 +611,49 @@ export function TrackUploadForm() {
             )}
           </div>
         </div>
+
+        {/* Early Access Toggle */}
+        {maxEarlyAccessDays > 0 && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+              Early Access
+            </label>
+            <div className="space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.enableEarlyAccess}
+                  onChange={(e) => setFormData(p => ({ 
+                    ...p, 
+                    enableEarlyAccess: e.target.checked,
+                  }))}
+                  className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                />
+                <span className="text-crwn-text text-sm">Enable early access for subscribers</span>
+              </label>
+              {formData.enableEarlyAccess && (
+                <div className="ml-6 mt-2">
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
+                    Release publicly after:
+                  </label>
+                  <select
+                    value={formData.earlyAccessDays}
+                    onChange={(e) => setFormData(p => ({ ...p, earlyAccessDays: parseInt(e.target.value) }))}
+                    className="neu-inset px-3 py-2 text-crwn-text"
+                  >
+                    <option value={1}>1 day</option>
+                    <option value={3}>3 days</option>
+                    <option value={7}>1 week</option>
+                    <option value={14}>2 weeks</option>
+                  </select>
+                  <p className="text-xs text-crwn-text-secondary mt-1">
+                    Fans in tiers with early access will hear it immediately. Everyone else sees a countdown.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Upload Progress */}
         {isUploading && (

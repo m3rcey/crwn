@@ -53,6 +53,7 @@ export interface Track {
   price: number | null;
   album_art_url: string | null;
   release_date: string;
+  public_release_date: string | null; // For early access feature
   play_count: number;
   position: number | null; // For ordering tracks in artist dashboard
   created_at: string;
