@@ -227,11 +227,11 @@ export function CommunityPostCard({
               'grid-cols-2'
             }`}>
               {post.media_urls.map((url, index) => (
-                <div key={index} className="relative rounded-lg overflow-hidden aspect-video">
+                <div key={index} className="relative rounded-lg overflow-hidden max-h-[500px] flex items-center justify-center">
                   {post.media_types?.[index] === 'video' ? (
                     <video src={url} controls className="w-full h-full object-cover" />
                   ) : (
-                    <Image src={url} alt="" fill className="object-cover" />
+                    <Image src={url} alt="" width={600} height={800} className="w-full h-auto rounded-lg max-h-[500px] object-contain" />
                   )}
                 </div>
               ))}

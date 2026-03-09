@@ -283,13 +283,13 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
             'grid-cols-2 md:grid-cols-3'
           }`}>
             {post.media_urls.map((url, index) => (
-              <div key={index} className="aspect-square rounded-lg overflow-hidden bg-crwn-elevated">
+              <div key={index} className="rounded-lg overflow-hidden bg-crwn-elevated max-h-[500px]">
                 <Image 
                   src={url} 
                   alt={`Post image ${index + 1}`}
                   width={300}
                   height={300}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform"
+                  className="w-full h-auto max-h-[500px] object-contain hover:scale-105 transition-transform"
                 />
               </div>
             ))}
