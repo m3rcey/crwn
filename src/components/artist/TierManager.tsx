@@ -7,6 +7,8 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Edit2, Trash2, X } from 'lucide-react';
 import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
+import { TierBenefitsSelector } from './TierBenefitsSelector';
+import { TierBenefit } from '@/types';
 
 interface Tier {
   id: string;
@@ -18,6 +20,7 @@ interface Tier {
   };
   stripe_price_id?: string;
   is_active: boolean;
+  tierBenefits?: TierBenefit[];
 }
 
 export function TierManager() {
@@ -38,6 +41,8 @@ export function TierManager() {
     description: '',
     benefits: [''],
   });
+  const [selectedBenefits, setSelectedBenefits] = useState<TierBenefit[]>([]);
+  const [loadingBenefits, setLoadingBenefits] = useState(false);
 
   // Platform limits
   const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
@@ -159,9 +164,25 @@ export function TierManager() {
 
         if (error) throw error;
 
+        // Save benefits to tier_benefits table
+        if (selectedBenefits.length > 0) {
+          // Delete existing benefits
+          await supabase.from('tier_benefits').delete().eq('tier_id', editingTier.id);
+          // Insert new benefits
+          const benefitsToInsert = selectedBenefits.map((b, index) => ({
+            tier_id: editingTier.id,
+            benefit_type: b.benefit_type,
+            config: b.config || {},
+            is_active: true,
+            sort_order: index,
+          }));
+          await supabase.from('tier_benefits').insert(benefitsToInsert);
+        }
+
         setTiers(prev => prev.map(t => t.id === editingTier.id ? (updated as Tier) : t));
         setEditingTier(null);
         setFormData({ name: '', price: '', description: '', benefits: [''] });
+        setSelectedBenefits([]);
         showToast('Tier updated successfully!', 'success');
       } else {
         // CREATE new tier
@@ -196,8 +217,21 @@ export function TierManager() {
 
         if (error) throw error;
 
+        // Save benefits to tier_benefits table
+        if (selectedBenefits.length > 0 && tier) {
+          const benefitsToInsert = selectedBenefits.map((b, index) => ({
+            tier_id: tier.id,
+            benefit_type: b.benefit_type,
+            config: b.config || {},
+            is_active: true,
+            sort_order: index,
+          }));
+          await supabase.from('tier_benefits').insert(benefitsToInsert);
+        }
+
         setTiers(prev => [...prev, tier as Tier]);
         setFormData({ name: '', price: '', description: '', benefits: [''] });
+        setSelectedBenefits([]);
         showToast('Tier created successfully!', 'success');
       }
     } catch (error) {
@@ -208,7 +242,7 @@ export function TierManager() {
     }
   };
 
-  const handleEdit = (tier: Tier) => {
+  const handleEdit = async (tier: Tier) => {
     setEditingTier(tier);
     setFormData({
       name: tier.name,
@@ -216,11 +250,26 @@ export function TierManager() {
       description: tier.description || '',
       benefits: tier.access_config?.benefits || [''],
     });
+    
+    // Load existing benefits for this tier
+    setLoadingBenefits(true);
+    const { data: benefits } = await supabase
+      .from('tier_benefits')
+      .select('*')
+      .eq('tier_id', tier.id)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    
+    if (benefits) {
+      setSelectedBenefits(benefits as TierBenefit[]);
+    }
+    setLoadingBenefits(false);
   };
 
   const handleCancelEdit = () => {
     setEditingTier(null);
     setFormData({ name: '', price: '', description: '', benefits: [''] });
+    setSelectedBenefits([]);
   };
 
   const handleDelete = async (tierId: string) => {
@@ -232,24 +281,6 @@ export function TierManager() {
       .eq('id', tierId);
 
     setTiers(prev => prev.filter(t => t.id !== tierId));
-  };
-
-  const addBenefit = () => {
-    setFormData(prev => ({ ...prev, benefits: [...prev.benefits, ''] }));
-  };
-
-  const updateBenefit = (index: number, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      benefits: prev.benefits.map((b, i) => i === index ? value : b),
-    }));
-  };
-
-  const removeBenefit = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      benefits: prev.benefits.filter((_, i) => i !== index),
-    }));
   };
 
   if (isLoading) {
@@ -412,33 +443,21 @@ export function TierManager() {
               <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
                 Benefits
               </label>
-              {formData.benefits.map((benefit, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={benefit}
-                    onChange={(e) => updateBenefit(index, e.target.value)}
-                    placeholder="e.g., Exclusive tracks"
-                    className="flex-1 bg-crwn-bg border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
-                  />
-                  {formData.benefits.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeBenefit(index)}
-                      className="px-3 text-crwn-text-secondary hover:text-crwn-error"
-                    >
-                      Remove
-                    </button>
-                  )}
+              {loadingBenefits ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-crwn-gold" />
                 </div>
-              ))}
-              <button
-                type="button"
-                onClick={addBenefit}
-                className="text-sm text-crwn-gold hover:underline"
-              >
-                + Add benefit
-              </button>
+              ) : (
+                <TierBenefitsSelector
+                  tierId={editingTier?.id}
+                  initialBenefits={selectedBenefits.map(b => ({
+                    benefit_type: b.benefit_type as any,
+                    config: b.config || {},
+                    sort_order: b.sort_order,
+                  }))}
+                  onChange={(benefits) => setSelectedBenefits(benefits as TierBenefit[])}
+                />
+              )}
             </div>
 
             <button
