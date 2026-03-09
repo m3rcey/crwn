@@ -42,11 +42,38 @@ export async function POST(request: NextRequest) {
     }
 
     const price = product.price;
+    let unitAmount = price;
     const artistId = artist?.id || '';
     const platformFeePercent = await getArtistFeePercent(artistId);
 
-    // Calculate fee as percentage of price (in cents)
-    const platformFee = Math.round(price * (platformFeePercent / 100));
+    // Get fan's active subscription to check for shop_discount benefit
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('tier_id')
+      .eq('fan_id', fanId)
+      .eq('artist_id', product.artist_id)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (subscription?.tier_id) {
+      // Check if fan's tier has shop_discount benefit
+      const { data: benefits } = await supabase
+        .from('tier_benefits')
+        .select('config')
+        .eq('tier_id', subscription.tier_id)
+        .eq('benefit_type', 'shop_discount')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (benefits?.config?.discount_percent) {
+        const discountPercent = benefits.config.discount_percent;
+        unitAmount = Math.round(price * (1 - discountPercent / 100));
+        console.log(`Applied ${discountPercent}% shop discount: ${price} -> ${unitAmount}`);
+      }
+    }
+
+    // Calculate fee as percentage of discounted price (in cents)
+    const platformFee = Math.round(unitAmount * (platformFeePercent / 100));
 
     // Create Stripe checkout session for one-time payment
     const session = await stripe.checkout.sessions.create({
@@ -60,7 +87,7 @@ export async function POST(request: NextRequest) {
               description: product.description || undefined,
               images: product.image_url ? [product.image_url] : [],
             },
-            unit_amount: price,
+            unit_amount: unitAmount,
           },
           quantity: 1,
         },
