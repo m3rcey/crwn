@@ -198,7 +198,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   const hasBookingSessions = (bookingSessions || []).length > 0;
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen pb-20 md:pb-0">
       <BackgroundImage src="/backgrounds/bg-artist.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
         {/* Banner */}

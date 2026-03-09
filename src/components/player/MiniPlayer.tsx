@@ -69,7 +69,7 @@ export function MiniPlayer() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 neu-raised z-50" style={{ borderRadius: '16px 16px 0 0' }}>
+    <div className="fixed bottom-16 md:bottom-0 left-0 right-0 neu-raised z-50" style={{ borderRadius: '16px 16px 0 0' }}>
       {/* Progress bar */}
       <div 
         ref={progressRef}
