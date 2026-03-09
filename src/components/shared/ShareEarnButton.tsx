@@ -58,7 +58,7 @@ export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareE
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 transition-colors"
       >
         <Gift className="w-4 h-4" />
-        <span>Share & Earn {commissionRate}%</span>
+        <span>Share & Earn</span>
       </button>
 
       {isOpen && (
