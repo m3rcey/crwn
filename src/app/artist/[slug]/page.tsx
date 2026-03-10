@@ -189,11 +189,12 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   // Get album track counts
   const albumsWithCounts = await Promise.all(
     ( albums || []).map(async (album) => {
-      const { count } = await supabase
+      const { data: atData } = await supabase
         .from('album_tracks')
-        .select('*', { count: 'exact', head: true })
+        .select('track:tracks(is_active)')
         .eq('album_id', album.id);
-      return { ...album, track_count: count || 0 };
+      const activeCount = (atData || []).filter((at: any) => at.track?.is_active !== false).length;
+      return { ...album, track_count: activeCount };
     })
   );
 
@@ -209,11 +210,12 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   // Get playlist track counts
   const playlistsWithCounts = await Promise.all(
     (playlists || []).map(async (playlist) => {
-      const { count } = await supabase
+      const { data: ptData } = await supabase
         .from('playlist_tracks')
-        .select('*', { count: 'exact', head: true })
+        .select('track:tracks(is_active)')
         .eq('playlist_id', playlist.id);
-      return { ...playlist, track_count: count || 0 };
+      const activeCount = (ptData || []).filter((pt: any) => pt.track?.is_active !== false).length;
+      return { ...playlist, track_count: activeCount };
     })
   );
 
