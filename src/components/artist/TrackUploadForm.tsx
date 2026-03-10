@@ -11,7 +11,9 @@ import { AddToPlaylistMenu } from '@/components/artist/TrackListItem';
 import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { BulkUploadForm } from './BulkUploadForm';
-import { Edit2, X, Upload } from 'lucide-react';
+import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
+import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
+import { Edit2, X, Upload, Plus } from 'lucide-react';
 
 interface SubscriptionTier {
   id: string;
@@ -70,6 +72,8 @@ export function TrackUploadForm() {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [albums, setAlbums] = useState<{id: string; title: string}[]>([]);
   const [artistPlaylists, setArtistPlaylists] = useState<{id: string; title: string}[]>([]);
+  const [showQuickAlbumModal, setShowQuickAlbumModal] = useState(false);
+  const [showQuickPlaylistModal, setShowQuickPlaylistModal] = useState(false);
 
   // Fetch tracks when component mounts
   useEffect(() => {
@@ -808,12 +812,36 @@ export function TrackUploadForm() {
             </div>
             {selectedTrackIds.size > 0 && (
               <div className="flex items-center gap-2">
-                <select onChange={(e) => { if (e.target.value) handleBulkAddToAlbum(e.target.value); e.target.value = ""; }} className="neu-inset text-sm text-crwn-text px-2 py-1 rounded" defaultValue="">
+                <select 
+                  onChange={(e) => { 
+                    if (e.target.value === 'new') {
+                      setShowQuickAlbumModal(true);
+                    } else if (e.target.value) {
+                      handleBulkAddToAlbum(e.target.value);
+                    }
+                    e.target.value = "";
+                  }} 
+                  className="neu-inset text-sm text-crwn-text px-2 py-1 rounded" 
+                  defaultValue=""
+                >
                   <option value="" disabled>Add to Album</option>
+                  <option value="new" className="font-medium text-crwn-gold">+ Create New Album</option>
                   {albums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
                 </select>
-                <select onChange={(e) => { if (e.target.value) handleBulkAddToPlaylist(e.target.value); e.target.value = ""; }} className="neu-inset text-sm text-crwn-text px-2 py-1 rounded" defaultValue="">
+                <select 
+                  onChange={(e) => { 
+                    if (e.target.value === 'new') {
+                      setShowQuickPlaylistModal(true);
+                    } else if (e.target.value) {
+                      handleBulkAddToPlaylist(e.target.value);
+                    }
+                    e.target.value = "";
+                  }} 
+                  className="neu-inset text-sm text-crwn-text px-2 py-1 rounded" 
+                  defaultValue=""
+                >
                   <option value="" disabled>Add to Playlist</option>
+                  <option value="new" className="font-medium text-crwn-gold">+ Create New Playlist</option>
                   {artistPlaylists.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
                 </select>
                 <button onClick={handleBulkDelete} className="text-sm text-red-500 hover:text-red-400 px-2 py-1">Delete</button>
@@ -850,6 +878,57 @@ export function TrackUploadForm() {
         <div className="text-center py-8 text-crwn-text-secondary">
           No tracks uploaded yet
         </div>
+      )}
+
+      {/* Quick Create Album Modal */}
+      {artistProfileId && selectedTrackIds.size > 0 && (
+        <QuickCreateAlbumModal
+          isOpen={showQuickAlbumModal}
+          onClose={() => setShowQuickAlbumModal(false)}
+          selectedTrackIds={Array.from(selectedTrackIds)}
+          selectedTracks={tracks.filter(t => selectedTrackIds.has(t.id))}
+          artistProfileId={artistProfileId}
+          onAlbumCreated={() => {
+            // Refresh albums and clear selection
+            async function refreshAlbums() {
+              const { data: albumsData } = await supabase
+                .from('albums')
+                .select('id, title')
+                .eq('artist_id', artistProfileId)
+                .eq('is_active', true)
+                .order('created_at', { ascending: false });
+              if (albumsData) setAlbums(albumsData);
+            }
+            refreshAlbums();
+            setSelectedTrackIds(new Set());
+          }}
+        />
+      )}
+
+      {/* Quick Create Playlist Modal */}
+      {artistProfileId && selectedTrackIds.size > 0 && (
+        <QuickCreatePlaylistModal
+          isOpen={showQuickPlaylistModal}
+          onClose={() => setShowQuickPlaylistModal(false)}
+          selectedTrackIds={Array.from(selectedTrackIds)}
+          selectedTracks={tracks.filter(t => selectedTrackIds.has(t.id))}
+          artistProfileId={artistProfileId}
+          onPlaylistCreated={() => {
+            // Refresh playlists and clear selection
+            async function refreshPlaylists() {
+              const { data: playlistsData } = await supabase
+                .from('playlists')
+                .select('id, title')
+                .eq('artist_id', artistProfileId)
+                .eq('is_artist_playlist', true)
+                .eq('is_active', true)
+                .order('created_at', { ascending: false });
+              if (playlistsData) setArtistPlaylists(playlistsData);
+            }
+            refreshPlaylists();
+            setSelectedTrackIds(new Set());
+          }}
+        />
       )}
     </div>
   );
