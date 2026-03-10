@@ -59,7 +59,7 @@ export function ArtistProfileContent({
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book' | 'leaderboard'>('music');
+  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book' | 'leaderboard'>('community');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Check if user is subscribed to this artist
