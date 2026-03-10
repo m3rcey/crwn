@@ -36,7 +36,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
 
     if (data) {
       const albumTracks = data
-        .filter((at) => at.track)
+        .filter((at) => at.track && (at.track as any).is_active !== false)
         .map((at) => ({ ...at.track, position: at.track_number }));
       setTracks(albumTracks as Track[]);
     }

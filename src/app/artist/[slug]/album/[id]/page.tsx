@@ -98,7 +98,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
   return (
     <AlbumShareContent
       album={album}
-      tracks={(albumTracks || []).map((at: unknown) => (at as { track: never }).track).filter(Boolean)}
+      tracks={(albumTracks || []).map((at: unknown) => (at as { track: never }).track).filter((t: any) => t && t.is_active !== false)}
       artist={{
         id: artist.id,
         slug: artist.slug,

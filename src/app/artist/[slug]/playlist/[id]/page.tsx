@@ -48,7 +48,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
 
   // Order tracks by position
   const tracks = (playlist.playlist_tracks || [])
-    .filter((pt: { track: Track | null }) => pt.track)
+    .filter((pt: { track: Track | null }) => pt.track && (pt.track as any).is_active !== false)
     .sort((a: { position: number }, b: { position: number }) => a.position - b.position)
     .map((pt: { track: Track }) => pt.track);
 
