@@ -66,6 +66,10 @@ export function TrackUploadForm() {
   });
   const [tierBenefits, setTierBenefits] = useState<TierBenefit[]>([]);
   const [maxEarlyAccessDays, setMaxEarlyAccessDays] = useState<number>(0);
+  const [selectedTrackIds, setSelectedTrackIds] = useState<Set<string>>(new Set());
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [albums, setAlbums] = useState<{id: string; title: string}[]>([]);
+  const [artistPlaylists, setArtistPlaylists] = useState<{id: string; title: string}[]>([]);
 
   // Fetch tracks when component mounts
   useEffect(() => {
@@ -83,6 +87,24 @@ export function TrackUploadForm() {
         setIsLoadingTracks(false);
         return;
       }
+
+      // Fetch albums and playlists for bulk actions
+      const { data: albumsData } = await supabase
+        .from('albums')
+        .select('id, title')
+        .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      if (albumsData) setAlbums(albumsData);
+
+      const { data: playlistsData } = await supabase
+        .from('playlists')
+        .select('id, title')
+        .eq('artist_id', artistProfile.id)
+        .eq('is_artist_playlist', true)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      if (playlistsData) setArtistPlaylists(playlistsData);
 
       // Store artist profile ID for limits check
       setArtistProfileId(artistProfile.id);
@@ -136,6 +158,7 @@ export function TrackUploadForm() {
         setTracks(sorted as Track[]);
       }
       setIsLoadingTracks(false);
+
     }
 
     fetchTracks();
@@ -447,6 +470,53 @@ export function TrackUploadForm() {
     }
   };
 
+  const toggleTrackSelection = (trackId: string) => {
+    const newSet = new Set(selectedTrackIds);
+    if (newSet.has(trackId)) newSet.delete(trackId);
+    else newSet.add(trackId);
+    setSelectedTrackIds(newSet);
+  };
+
+  const selectAllTracks = () => {
+    if (selectedTrackIds.size === tracks.length) {
+      setSelectedTrackIds(new Set());
+    } else {
+      setSelectedTrackIds(new Set(tracks.map(t => t.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Delete ${selectedTrackIds.size} tracks?`)) return;
+    for (const trackId of selectedTrackIds) {
+      await supabase.from("tracks").update({ is_active: false }).eq("id", trackId);
+    }
+    setTracks(tracks.filter(t => !selectedTrackIds.has(t.id)));
+    setSelectedTrackIds(new Set());
+    showToast(`${selectedTrackIds.size} tracks deleted`, "success");
+  };
+
+  const handleBulkAddToAlbum = async (albumId: string) => {
+    const maxPos = await supabase.from("album_tracks").select("position").eq("album_id", albumId).order("position", { ascending: false }).limit(1);
+    let pos = (maxPos.data?.[0]?.position || 0) + 1;
+    for (const trackId of selectedTrackIds) {
+      await supabase.from("album_tracks").upsert({ album_id: albumId, track_id: trackId, position: pos }, { onConflict: "album_id,track_id" });
+      pos++;
+    }
+    setSelectedTrackIds(new Set());
+    showToast(`Added ${selectedTrackIds.size} tracks to album`, "success");
+  };
+
+  const handleBulkAddToPlaylist = async (playlistId: string) => {
+    const maxPos = await supabase.from("playlist_tracks").select("position").eq("playlist_id", playlistId).order("position", { ascending: false }).limit(1);
+    let pos = (maxPos.data?.[0]?.position || 0) + 1;
+    for (const trackId of selectedTrackIds) {
+      await supabase.from("playlist_tracks").upsert({ playlist_id: playlistId, track_id: trackId, position: pos }, { onConflict: "playlist_id,track_id" });
+      pos++;
+    }
+    setSelectedTrackIds(new Set());
+    showToast(`Added ${selectedTrackIds.size} tracks to playlist`, "success");
+  };
+
   return (
     <div className="space-y-8">
       {/* Track Limit Check */}
@@ -731,7 +801,25 @@ export function TrackUploadForm() {
         </div>
       ) : tracks.length > 0 ? (
         <div>
-          <h2 className="text-lg font-semibold text-crwn-text mb-4">Your Tracks</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <input type="checkbox" checked={selectedTrackIds.size === tracks.length && tracks.length > 0} onChange={selectAllTracks} className="w-4 h-4 accent-crwn-gold" />
+              <h2 className="text-lg font-semibold text-crwn-text">{selectedTrackIds.size > 0 ? `${selectedTrackIds.size} selected` : "Your Tracks"}</h2>
+            </div>
+            {selectedTrackIds.size > 0 && (
+              <div className="flex items-center gap-2">
+                <select onChange={(e) => { if (e.target.value) handleBulkAddToAlbum(e.target.value); e.target.value = ""; }} className="neu-inset text-sm text-crwn-text px-2 py-1 rounded" defaultValue="">
+                  <option value="" disabled>Add to Album</option>
+                  {albums.map(a => <option key={a.id} value={a.id}>{a.title}</option>)}
+                </select>
+                <select onChange={(e) => { if (e.target.value) handleBulkAddToPlaylist(e.target.value); e.target.value = ""; }} className="neu-inset text-sm text-crwn-text px-2 py-1 rounded" defaultValue="">
+                  <option value="" disabled>Add to Playlist</option>
+                  {artistPlaylists.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+                </select>
+                <button onClick={handleBulkDelete} className="text-sm text-red-500 hover:text-red-400 px-2 py-1">Delete</button>
+              </div>
+            )}
+          </div>
           <SortableTrackList
             tracks={tracks}
             onReorder={handleReorderTracks}
@@ -741,6 +829,8 @@ export function TrackUploadForm() {
             }}
             renderActions={(track) => (
               <div className="flex items-center gap-2">
+                <input type="checkbox" checked={selectedTrackIds.has(track.id)} onChange={() => toggleTrackSelection(track.id)} className="w-4 h-4 accent-crwn-gold" onClick={(e) => e.stopPropagation()} />
+
                 <button
                   onClick={() => handleEditTrack(track)}
                   className="p-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors"
