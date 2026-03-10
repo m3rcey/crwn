@@ -59,7 +59,7 @@ export function ArtistProfileContent({
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book' | 'leaderboard'>('community');
+  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book' | 'leaderboard'>('tiers');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Check if user is subscribed to this artist
@@ -76,6 +76,13 @@ export function ArtistProfileContent({
         setIsSubscribed(!!data);
       });
   }, [user, supabase, artist.id]);
+
+  // Default to community tab if subscribed, tiers if not
+  useEffect(() => {
+    if (isSubscribed) {
+      setActiveTab('community');
+    }
+  }, [isSubscribed]);
 
   const showBookTab = artist.booking_enabled && (artist.calendly_url || hasBookingSessions);
 
