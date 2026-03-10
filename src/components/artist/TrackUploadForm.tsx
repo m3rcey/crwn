@@ -492,7 +492,8 @@ export function TrackUploadForm() {
   const handleBulkDelete = async () => {
     if (!confirm(`Delete ${selectedTrackIds.size} tracks?`)) return;
     for (const trackId of selectedTrackIds) {
-      await supabase.from("tracks").update({ is_active: false }).eq("id", trackId);
+      const { error: delErr } = await supabase.from("tracks").update({ is_active: false }).eq("id", trackId);
+      if (delErr) console.error("Track delete failed:", trackId, delErr);
     }
     setTracks(tracks.filter(t => !selectedTrackIds.has(t.id)));
     setSelectedTrackIds(new Set());
