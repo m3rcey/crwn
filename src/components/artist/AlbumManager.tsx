@@ -99,11 +99,11 @@ export function AlbumManager() {
             .from('album_tracks')
             .select('*, track:tracks(*)')
             .eq('album_id', album.id)
-            .order('position');
+            .order('track_number');
 
           const tracks = (albumTracks || [])
             .filter(at => at.track)
-            .map(at => ({ ...at.track, position: at.position }));
+            .map(at => ({ ...at.track, position: at.track_number }));
 
           return { 
             ...album, 
@@ -345,7 +345,7 @@ export function AlbumManager() {
       await supabase.from('album_tracks').insert({
         album_id: albumId,
         track_id: tracks[i].id,
-        position: i + 1,
+        track_number: i + 1,
       });
     }
   };
@@ -369,11 +369,11 @@ export function AlbumManager() {
       .from('album_tracks')
       .select('*, track:tracks(*)')
       .eq('album_id', album.id)
-      .order('position');
+      .order('track_number');
 
     const tracks = (albumTracks || [])
       .filter(at => at.track)
-      .map(at => ({ ...at.track, position: at.position }));
+      .map(at => ({ ...at.track, position: at.track_number }));
 
     setSelectedTracks(tracks as Track[]);
 

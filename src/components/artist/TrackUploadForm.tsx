@@ -504,10 +504,10 @@ export function TrackUploadForm() {
   };
 
   const handleBulkAddToAlbum = async (albumId: string) => {
-    const maxPos = await supabase.from("album_tracks").select("position").eq("album_id", albumId).order("position", { ascending: false }).limit(1);
-    let pos = (maxPos.data?.[0]?.position || 0) + 1;
+    const maxPos = await supabase.from("album_tracks").select("track_number").eq("album_id", albumId).order("track_number", { ascending: false }).limit(1);
+    let pos = (maxPos.data?.[0]?.track_number || 0) + 1;
     for (const trackId of selectedTrackIds) {
-      await supabase.from("album_tracks").upsert({ album_id: albumId, track_id: trackId, position: pos }, { onConflict: "album_id,track_id" });
+      await supabase.from("album_tracks").upsert({ album_id: albumId, track_id: trackId, track_number: pos }, { onConflict: "album_id,track_id" });
       pos++;
     }
     setSelectedTrackIds(new Set());

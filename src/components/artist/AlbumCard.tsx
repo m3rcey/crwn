@@ -32,12 +32,12 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
       .from('album_tracks')
       .select('*, track:tracks(*)')
       .eq('album_id', album.id)
-      .order('position');
+      .order('track_number');
 
     if (data) {
       const albumTracks = data
         .filter((at) => at.track)
-        .map((at) => ({ ...at.track, position: at.position }));
+        .map((at) => ({ ...at.track, position: at.track_number }));
       setTracks(albumTracks as Track[]);
     }
     setIsLoading(false);
