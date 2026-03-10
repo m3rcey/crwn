@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform. Join 217+ founding artists.",
   keywords: ["music", "artists", "monetization", "fans", "community", "streaming", "independent"],
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "CRWN | The AI Operating System for Independent Artists",
     description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform.",
