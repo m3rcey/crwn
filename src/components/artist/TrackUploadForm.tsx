@@ -98,6 +98,7 @@ export function TrackUploadForm() {
         .select('id, title')
         .eq('artist_id', artistProfile.id)
         .eq('is_active', true)
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
       if (albumsData) setAlbums(albumsData);
 
@@ -105,6 +106,7 @@ export function TrackUploadForm() {
         .from('playlists')
         .select('id, title')
         .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
         .eq('is_artist_playlist', true)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
@@ -118,6 +120,7 @@ export function TrackUploadForm() {
         .from('subscription_tiers')
         .select('id, name, price')
         .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
         .eq('is_active', true)
         .order('price', { ascending: true });
       if (tiersError) {
@@ -143,12 +146,12 @@ export function TrackUploadForm() {
           setMaxEarlyAccessDays(maxDays);
         }
       }
-
       // Fetch tracks
       const { data: tracksData } = await supabase
         .from('tracks')
         .select('*')
         .eq('artist_id', artistProfile.id)
+        .eq('is_active', true)
         .order('position', { ascending: true });
 
       if (tracksData) {
