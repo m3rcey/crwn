@@ -184,7 +184,7 @@ export function QuickCreateAlbumModal({
       onAlbumCreated();
       onClose();
     } catch (error) {
-      console.error('Error creating album:', error);
+      console.error('Error creating album:', error); alert('Album error: ' + (error as any)?.message || JSON.stringify(error));
       showToast('Failed to create album', 'error');
     } finally {
       setIsSubmitting(false);
