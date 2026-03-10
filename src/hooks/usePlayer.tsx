@@ -103,13 +103,16 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     
     const durationPlayed = Math.floor((Date.now() - playStartTime) / 1000);
     const completed = duration >= 30 && durationPlayed >= duration * 0.8;
-    
     await supabase.from('play_history').insert({
       user_id: user.id,
       track_id: currentTrack.id,
       duration_played: durationPlayed,
       completed,
     });
+    // Increment play count on completed listen
+    if (completed) {
+      await supabase.rpc('increment_play_count', { track_id_input: currentTrack.id });
+    }
   }, [user, currentTrack, playStartTime, duration, supabase]);
 
   // Next - declared before handleTrackEnd
