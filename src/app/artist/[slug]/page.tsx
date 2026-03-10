@@ -41,7 +41,8 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
   const { count: trackCount } = await supabase
     .from('tracks')
     .select('id', { count: 'exact', head: true })
-    .eq('artist_id', artist.id);
+    .eq('artist_id', artist.id)
+    .eq('is_active', true);
 
   const { count: subCount } = await supabase
     .from('subscriptions')
@@ -164,6 +165,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   const { data: tracks } = await supabase
     .from('tracks')
     .select('*')
+    .eq('is_active', true)
     .eq('artist_id', artist.id);
 
   // Sort by position, then by created_at for tracks without position

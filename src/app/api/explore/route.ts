@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
   const { data: newReleases } = await supabaseAdmin
     .from('tracks')
     .select('id, title, album_art_url, duration, play_count, artist_id, created_at, is_free')
+    .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(12);
 
@@ -48,6 +49,7 @@ export async function GET(req: NextRequest) {
   const { data: popularTracks } = await supabaseAdmin
     .from('tracks')
     .select('id, title, album_art_url, duration, play_count, artist_id, is_free')
+    .eq('is_active', true)
     .order('play_count', { ascending: false })
     .limit(12);
 
