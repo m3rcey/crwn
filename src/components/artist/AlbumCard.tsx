@@ -60,10 +60,10 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
 
   return (
     <div className="neu-raised neu-card-hover overflow-hidden">
-      {/* Album Header */}
-      <div
-        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-crwn-elevated/30"
-        onClick={() => setIsExpanded(!isExpanded)}
+      {/* Album Header - Click to navigate to full album */}
+      <Link
+        href={`/artist/${artistSlug}/album/${album.id}`}
+        className="flex items-center gap-4 p-4 hover:bg-crwn-elevated/30"
       >
         <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative shadow-inner">
           {album.album_art_url ? (
@@ -92,7 +92,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
             {album.track_count || 0} tracks • {album.release_date}
           </p>
         </div>
-      </div>
+      </Link>
 
       {/* Expanded Track List */}
       {isExpanded && (
