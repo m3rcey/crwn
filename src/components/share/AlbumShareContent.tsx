@@ -6,7 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { usePlayer } from '@/hooks/usePlayer';
 import { ShareButtons } from '@/components/shared/ShareButtons';
-import { Play, Lock, ArrowLeft, Music } from 'lucide-react';
+import { Lock, ArrowLeft } from 'lucide-react';
+import { GatedTrackPlayer } from '@/components/gating';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 
 interface AlbumShareContentProps {
@@ -81,7 +82,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
                 {artist.displayName}
               </Link>
               <p className="text-crwn-text-secondary text-xs mt-1">
-                {tracks.length} track{tracks.length !== 1 ? 's' : ''}
+                {tracks.length} track{tracks.length !== 1 ? 's' : ''} • {formatDuration(tracks.reduce((sum, t) => sum + (t.duration || 0), 0))}
               </p>
             </div>
           </div>
@@ -106,32 +107,19 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
           )}
 
           {/* Tracklist */}
-          <div className="neu-raised rounded-xl overflow-hidden mb-6">
-            {tracks.map((track, i) => {
-              const trackAccessible = track.is_free || hasAccess;
-              return (
-                <div
+          {tracks.length > 0 ? (
+            <div className="space-y-2 mb-6">
+              {tracks.map((track) => (
+                <GatedTrackPlayer
                   key={track.id}
-                  className={`flex items-center gap-3 px-4 py-3 ${
-                    i < tracks.length - 1 ? 'border-b border-crwn-elevated' : ''
-                  } ${trackAccessible ? 'cursor-pointer hover:bg-crwn-elevated/30' : 'opacity-60'}`}
-                  onClick={() => trackAccessible && play(track as never, tracks as never)}
-                >
-                  <span className="text-crwn-text-secondary text-xs w-5 text-right">{i + 1}</span>
-                  {trackAccessible ? (
-                    <Play className="w-4 h-4 text-crwn-gold flex-shrink-0" />
-                  ) : (
-                    <Lock className="w-4 h-4 text-crwn-text-secondary flex-shrink-0" />
-                  )}
-                  <span className={`flex-1 text-sm truncate ${trackAccessible ? 'text-crwn-text' : 'text-crwn-text-secondary'}`}>
-                    {track.title}
-                  </span>
-                  <span className="text-xs text-crwn-text-secondary">{formatDuration(track.duration)}</span>
-                </div>
-              );
-            })}
-          </div>
-
+                  track={track as any}
+                  artistId={artist.id}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-crwn-text-secondary mb-6">No tracks in this album.</p>
+          )}
           {/* Share */}
           <div className="flex justify-center">
             <ShareButtons

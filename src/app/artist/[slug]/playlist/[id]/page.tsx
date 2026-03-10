@@ -6,6 +6,7 @@ import { Playlist, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Lock } from 'lucide-react';
+import { ShareButtons } from '@/components/shared/ShareButtons';
 
 interface PlaylistPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -134,6 +135,14 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         ) : (
           <p className="text-crwn-text-secondary mb-8">No tracks in this playlist.</p>
         )}
+        {/* Share */}
+        <div className="flex justify-center mb-8">
+          <ShareButtons
+            url={`https://crwn-mauve.vercel.app/artist/${slug}/playlist/${playlistId}`}
+            title={`${playlist.title} — ${artist.profile?.display_name || "Artist"}`}
+            description={`${tracks.length} tracks on CRWN`}
+          />
+        </div>
       </div>
     </div>
   );
