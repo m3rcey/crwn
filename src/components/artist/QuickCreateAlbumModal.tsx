@@ -170,7 +170,7 @@ export function QuickCreateAlbumModal({
         const albumTracks = selectedTrackIds.map((trackId, index) => ({
           album_id: album.id,
           track_id: trackId,
-          position: index + 1,
+          track_number: index + 1,
         }));
 
         const { error: tracksError } = await supabase
@@ -184,7 +184,7 @@ export function QuickCreateAlbumModal({
       onAlbumCreated();
       onClose();
     } catch (error) {
-      console.error('Error creating album:', error); alert('Album error: ' + (error as any)?.message || JSON.stringify(error));
+      console.error('Error creating album:', error);
       showToast('Failed to create album', 'error');
     } finally {
       setIsSubmitting(false);
