@@ -712,7 +712,7 @@ export function AlbumManager() {
       {albums.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {albums.map((album) => (
-            <div key={album.id} className="neu-raised neu-card-hover overflow-hidden">
+            <div key={album.id} className="neu-raised neu-card-hover overflow-hidden group">
               <div className="aspect-square relative bg-crwn-elevated">
                 {album.album_art_url ? (
                   <Image src={album.album_art_url} alt={album.title} fill className="object-cover" />
