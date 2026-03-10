@@ -829,7 +829,6 @@ export function TrackUploadForm() {
             }}
             renderActions={(track) => (
               <div className="flex items-center gap-2">
-                <input type="checkbox" checked={selectedTrackIds.has(track.id)} onChange={() => toggleTrackSelection(track.id)} className="w-4 h-4 accent-crwn-gold" onClick={(e) => e.stopPropagation()} />
 
                 <button
                   onClick={() => handleEditTrack(track)}
@@ -842,6 +841,9 @@ export function TrackUploadForm() {
               </div>
             )}
             showDragHandle={true}
+            renderPrefix={(track) => (
+              <input type="checkbox" checked={selectedTrackIds.has(track.id)} onChange={() => toggleTrackSelection(track.id)} className="w-4 h-4 accent-crwn-gold" onClick={(e) => e.stopPropagation()} />
+            )}
           />
         </div>
       ) : (

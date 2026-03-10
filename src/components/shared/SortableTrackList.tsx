@@ -29,6 +29,7 @@ interface SortableTrackListProps {
   onReorder: (tracks: Track[]) => void;
   onRemove?: (trackId: string) => void;
   renderActions?: (track: Track) => React.ReactNode;
+  renderPrefix?: (track: Track) => React.ReactNode;
   showDragHandle?: boolean;
 }
 
@@ -38,10 +39,11 @@ interface SortableTrackItemProps {
   index: number;
   onRemove?: () => void;
   renderActions?: () => React.ReactNode;
+  renderPrefix?: () => React.ReactNode;
   showDragHandle?: boolean;
 }
 
-function SortableTrackItem({ track, tracks, index, onRemove, renderActions, showDragHandle = true }: SortableTrackItemProps) {
+function SortableTrackItem({ track, tracks, index, onRemove, renderActions, renderPrefix, showDragHandle = true }: SortableTrackItemProps) {
   const {
     attributes,
     listeners,
@@ -96,6 +98,7 @@ function SortableTrackItem({ track, tracks, index, onRemove, renderActions, show
           <GripVertical className="w-4 h-4" />
         </button>
       )}
+      {renderPrefix && renderPrefix()}
       <span className="w-6 text-center text-crwn-text-secondary text-sm">{index + 1}</span>
       <div className="w-10 h-10 bg-crwn-elevated rounded overflow-hidden flex-shrink-0">
         {track.album_art_url ? (
@@ -136,6 +139,7 @@ export function SortableTrackList({
   onReorder,
   onRemove,
   renderActions,
+  renderPrefix,
   showDragHandle = true,
 }: SortableTrackListProps) {
   const sensors = useSensors(
@@ -184,6 +188,7 @@ export function SortableTrackList({
               index={index}
               onRemove={onRemove ? () => onRemove(track.id) : undefined}
               renderActions={renderActions ? () => renderActions(track) : undefined}
+              renderPrefix={renderPrefix ? () => renderPrefix(track) : undefined}
               showDragHandle={showDragHandle}
             />
           ))}
