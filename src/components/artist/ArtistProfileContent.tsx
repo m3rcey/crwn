@@ -99,7 +99,7 @@ export function ArtistProfileContent({
   return (
     <>
       {/* Tabs */}
-      <div className="px-4 sm:px-6 lg:px-8 mb-6">
+      <div className="px-4 sm:px-6 lg:px-8 mb-3">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <button
@@ -119,7 +119,7 @@ export function ArtistProfileContent({
 
       {/* Share & Earn for subscribed fans */}
       {isSubscribed && (
-        <div className="px-4 sm:px-6 lg:px-8 mb-4">
+        <div className="px-4 sm:px-6 lg:px-8 mb-2">
           <ShareEarnButton
             artistSlug={artist.slug}
             artistId={artist.id}
@@ -129,7 +129,7 @@ export function ArtistProfileContent({
       )}
 
       {/* Share Buttons */}
-      <div className="px-4 sm:px-6 lg:px-8 mb-4">
+      <div className="px-4 sm:px-6 lg:px-8 mb-3">
         <ShareButtons
           url={`https://thecrwn.app/artist/${artist.slug}`}
           title={artist.profile?.display_name || 'Artist'}
