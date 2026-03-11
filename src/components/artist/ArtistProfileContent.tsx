@@ -128,6 +128,14 @@ export function ArtistProfileContent({
         </div>
       )}
 
+      {/* Share Buttons */}
+      <div className="px-4 sm:px-6 lg:px-8 mb-4">
+        <ShareButtons
+          url={`https://thecrwn.app/artist/${artist.slug}`}
+          title={artist.profile?.display_name || 'Artist'}
+          description={artist.tagline || undefined}
+        />
+      </div>
       {/* Content */}
       <div className="px-4 sm:px-6 lg:px-8 pb-8">
         {activeTab === 'music' && (
