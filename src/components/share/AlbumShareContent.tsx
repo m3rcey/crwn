@@ -142,6 +142,8 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
                 key={track.id}
                 track={track as any}
                 artistId={artist.id}
+                artistSlug={artist.slug}
+                trackList={tracks as any}
               />
             ))}
           </div>
