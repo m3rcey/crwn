@@ -33,12 +33,12 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
   const artistName = artistProfile?.display_name || 'Artist';
   const description = `Listen to "${album.title}" by ${artistName} on CRWN`;
   const ogImage = album.cover_art_url || artistProfile?.avatar_url || '/icon-512x512.png';
-  const url = `https://crwn-mauve.vercel.app/artist/${slug}/album/${id}`;
+  const url = `https://thecrwn.app/artist/${slug}/album/${id}`;
 
   return {
     title: `${album.title} — ${artistName} | CRWN`,
     description,
-    metadataBase: new URL('https://crwn-mauve.vercel.app'),
+    metadataBase: new URL('https://thecrwn.app'),
     openGraph: {
       title: `${album.title} — ${artistName}`,
       description,

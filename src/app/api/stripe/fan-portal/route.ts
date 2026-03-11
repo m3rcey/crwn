@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No active subscription found' }, { status: 404 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://crwn-mauve.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://thecrwn.app';
 
     // Create a billing portal session
     const portalSession = await stripe.billingPortal.sessions.create({

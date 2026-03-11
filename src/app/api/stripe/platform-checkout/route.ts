@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create checkout session
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://crwn-mauve.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app';
     
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,

@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://crwn-mauve.vercel.app"),
+  metadataBase: new URL("https://thecrwn.app"),
   title: "CRWN | The AI Operating System for Independent Artists",
   description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform. Join 217+ founding artists.",
   keywords: ["music", "artists", "monetization", "fans", "community", "streaming", "independent"],
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CRWN | The AI Operating System for Independent Artists",
     description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform.",
-    url: "https://crwn-mauve.vercel.app",
+    url: "https://thecrwn.app",
     siteName: "CRWN",
     images: [
       {

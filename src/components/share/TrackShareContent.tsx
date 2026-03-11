@@ -38,7 +38,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
 
   const isFree = track.is_free !== false; // null or true = free
   const hasAccess = isFree || (tierId && track.allowed_tier_ids?.includes(tierId));
-  const shareUrl = `https://crwn-mauve.vercel.app/artist/${artist.slug}/track/${track.id}`;
+  const shareUrl = `https://thecrwn.app/artist/${artist.slug}/track/${track.id}`;
 
   const formatDuration = (seconds: number) => {
     const m = Math.floor(seconds / 60);

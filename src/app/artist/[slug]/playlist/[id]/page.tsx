@@ -138,7 +138,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         {/* Share */}
         <div className="flex justify-center mb-8">
           <ShareButtons
-            url={`https://crwn-mauve.vercel.app/artist/${slug}/playlist/${playlistId}`}
+            url={`https://thecrwn.app/artist/${slug}/playlist/${playlistId}`}
             title={`${playlist.title} — ${artist.profile?.display_name || "Artist"}`}
             description={`${tracks.length} tracks on CRWN`}
           />

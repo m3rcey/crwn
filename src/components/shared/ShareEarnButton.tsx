@@ -18,7 +18,7 @@ export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareE
   if (!user || !profile) return null;
 
   const referralCode = profile.username || user.id.replace(/-/g, '').substring(0, 8);
-  const referralUrl = `https://crwn-mauve.vercel.app/artist/${artistSlug}?ref=${referralCode}`;
+  const referralUrl = `https://thecrwn.app/artist/${artistSlug}?ref=${referralCode}`;
 
   const handleCopy = async () => {
     try {

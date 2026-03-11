@@ -43,7 +43,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
 
   const isFree = album.is_free !== false;
   const hasAccess = isFree || (tierId && album.allowed_tier_ids?.includes(tierId));
-  const shareUrl = `https://crwn-mauve.vercel.app/artist/${artist.slug}/album/${album.id}`;
+  const shareUrl = `https://thecrwn.app/artist/${artist.slug}/album/${album.id}`;
   const lowestTier = tiers[0];
   const coverUrl = album.album_art_url || album.cover_art_url || null;
   const totalDuration = tracks.reduce((sum, t) => sum + (t.duration || 0), 0);

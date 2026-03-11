@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
   const avatarUrl = artist.profile?.avatar_url || null;
   const bannerUrl = artist.banner_url || null;
   const ogImage = bannerUrl || avatarUrl || '/icon-512x512.png';
-  const artistUrl = `https://crwn-mauve.vercel.app/artist/${slug}`;
+  const artistUrl = `https://thecrwn.app/artist/${slug}`;
 
   // Get track count and subscriber count for description
   const { count: trackCount } = await supabase
@@ -300,7 +300,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           {/* Share Buttons */}
           <div className="mt-4 mb-2">
             <ShareButtons
-              url={`https://crwn-mauve.vercel.app/artist/${slug}`}
+              url={`https://thecrwn.app/artist/${slug}`}
               title={artist.profile?.display_name || 'Artist'}
               description={artist.tagline || undefined}
             />

@@ -40,12 +40,12 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   // Use first media as OG image if available, otherwise artist avatar
   const mediaUrls = post.media_urls || [];
   const ogImage = mediaUrls[0] || artistProfile?.avatar_url || '/icon-512x512.png';
-  const url = `https://crwn-mauve.vercel.app/artist/${slug}/post/${id}`;
+  const url = `https://thecrwn.app/artist/${slug}/post/${id}`;
 
   return {
     title: `${artistName} on CRWN`,
     description,
-    metadataBase: new URL('https://crwn-mauve.vercel.app'),
+    metadataBase: new URL('https://thecrwn.app'),
     openGraph: {
       title: `${artistName} on CRWN`,
       description,

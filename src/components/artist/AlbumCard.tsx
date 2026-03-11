@@ -80,7 +80,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(`https://crwn-mauve.vercel.app/artist/${artistSlug}/album/${album.id}`);
+                navigator.clipboard.writeText(`https://thecrwn.app/artist/${artistSlug}/album/${album.id}`);
               }}
               className="text-crwn-text-secondary hover:text-crwn-gold transition-colors p-1"
               title="Copy share link"

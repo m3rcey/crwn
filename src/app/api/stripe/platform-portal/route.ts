@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create portal session
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://crwn-mauve.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app';
     
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: artist.platform_stripe_customer_id,

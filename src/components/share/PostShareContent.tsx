@@ -35,7 +35,7 @@ export function PostShareContent({ post, artist, tiers, commentCount }: PostShar
 
   const isFree = post.access_level === 'free' || post.is_free === true;
   const hasAccess = isFree || (tierId && post.allowed_tier_ids?.includes(tierId));
-  const shareUrl = `https://crwn-mauve.vercel.app/artist/${artist.slug}/post/${post.id}`;
+  const shareUrl = `https://thecrwn.app/artist/${artist.slug}/post/${post.id}`;
   const lowestTier = tiers[0];
   const mediaUrls = post.media_urls || [];
 
