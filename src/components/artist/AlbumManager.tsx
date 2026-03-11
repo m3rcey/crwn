@@ -299,6 +299,13 @@ export function AlbumManager() {
 
         // Update track associations
         await updateAlbumTracks(editingAlbum.id, selectedTracks);
+        // Update album art on all tracks in this album
+        if (albumArtUrl && selectedTracks.length > 0) {
+          await supabase
+            .from('tracks')
+            .update({ album_art_url: albumArtUrl })
+            .in('id', selectedTracks.map(t => t.id));
+        }
         showToast('Album updated!', 'success');
       } else {
         // Create album
