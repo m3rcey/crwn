@@ -297,6 +297,14 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
           </div>
 
+          {/* Share Buttons */}
+          <div className="mt-4 mb-2">
+            <ShareButtons
+              url={`https://crwn-mauve.vercel.app/artist/${slug}`}
+              title={artist.profile?.display_name || 'Artist'}
+              description={artist.tagline || undefined}
+            />
+          </div>
           {/* Bio */}
           {artist.profile?.bio && (
             <div className="mt-6 max-w-2xl">
