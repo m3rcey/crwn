@@ -13,6 +13,8 @@ import { TierConfig, Album, Playlist, Product, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
 import { ShareEarnButton } from '@/components/shared/ShareEarnButton';
 import { ShareButtons } from '@/components/shared/ShareButtons';
+import { FadeIn } from '@/components/ui/FadeIn';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -99,6 +101,7 @@ export function ArtistProfileContent({
   return (
     <>
       {/* Tabs */}
+      <FadeIn delay={0}>
       <div className="px-4 sm:px-6 lg:px-8 mb-3">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
@@ -116,6 +119,7 @@ export function ArtistProfileContent({
           ))}
         </div>
       </div>
+      </FadeIn>
 
       {/* Share & Earn for subscribed fans */}
       {isSubscribed && (
@@ -137,6 +141,7 @@ export function ArtistProfileContent({
         />
       </div>
       {/* Content */}
+      <FadeIn delay={200}>
       <div className="px-4 sm:px-6 lg:px-8 pb-8">
         {activeTab === 'music' && (
           <>
@@ -157,7 +162,7 @@ export function ArtistProfileContent({
                   ))}
                 </div>
               ) : (
-                <p className="text-crwn-text-secondary">No tracks released yet.</p>
+                <EmptyState icon="🎵" title="No Music Yet" description="This artist hasn't uploaded any tracks yet. Check back soon!" />
               )}
             </section>
           </>
@@ -209,6 +214,7 @@ export function ArtistProfileContent({
           />
         )}
       </div>
+      </FadeIn>
     </>
   );
 }

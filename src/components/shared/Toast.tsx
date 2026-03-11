@@ -43,10 +43,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const getBorderColor = (type: ToastType) => {
     switch (type) {
-      case 'success': return 'border-green-400/30';
-      case 'error': return 'border-red-400/30';
-      case 'warning': return 'border-yellow-400/30';
-      case 'info': return 'border-crwn-gold/30';
+      case 'success': return 'border-l-4 border-l-green-400 border-green-400/30';
+      case 'error': return 'border-l-4 border-l-red-400 border-red-400/30';
+      case 'warning': return 'border-l-4 border-l-yellow-400 border-yellow-400/30';
+      case 'info': return 'border-l-4 border-l-crwn-gold border-crwn-gold/30';
     }
   };
 

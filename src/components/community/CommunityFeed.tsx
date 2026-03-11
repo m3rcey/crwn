@@ -6,6 +6,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { CommunityPost, TierConfig } from '@/types';
 import { PostComposer } from './PostComposer';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { CommunityPostCard } from './CommunityPostCard';
 import { Loader2 } from 'lucide-react';
 
@@ -126,7 +127,7 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
         </div>
       ) : (
         <div className="neu-raised p-8 text-center">
-          <p className="text-crwn-text-secondary mb-2">No posts yet</p>
+          <EmptyState icon="💬" title="No Posts Yet" description="Be the first to start a conversation!" />
           <p className="text-crwn-text-dim text-sm">Be the first to post!</p>
         </div>
       )}

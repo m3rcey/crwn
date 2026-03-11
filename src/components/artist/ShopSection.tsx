@@ -8,6 +8,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
 import { Check, Download, Lock } from 'lucide-react';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface ShopSectionProps {
   products: Product[];
@@ -108,7 +109,7 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
     );
   };
 
-  if (products.length === 0) return null;
+  if (products.length === 0) return <EmptyState icon="🛍️" title="Shop Coming Soon" description="This artist hasn't added any products yet." />;
 
   return (
     <section className="mb-8">
