@@ -60,7 +60,7 @@ export function ArtistProfileContent({
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book' | 'leaderboard'>('tiers');
+  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'book' | 'leaderboard'>('music');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Check if user is subscribed to this artist
@@ -81,7 +81,7 @@ export function ArtistProfileContent({
   // Default to community tab if subscribed, tiers if not
   useEffect(() => {
     if (isSubscribed) {
-      setActiveTab('community');
+      setActiveTab('music');
     }
   }, [isSubscribed]);
 
