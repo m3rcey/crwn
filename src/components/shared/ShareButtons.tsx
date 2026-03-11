@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Share2, Link2, Check } from 'lucide-react';
+import { hapticLight, hapticSuccess } from '@/lib/haptics';
 
 interface ShareButtonsProps {
   url: string;
@@ -13,9 +14,11 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
+    hapticLight();
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      hapticSuccess();
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback for mobile browsers
@@ -26,11 +29,13 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       document.execCommand('copy');
       document.body.removeChild(input);
       setCopied(true);
+      hapticSuccess();
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
   const handleNativeShare = async () => {
+    hapticLight();
     if (navigator.share) {
       try {
         await navigator.share({

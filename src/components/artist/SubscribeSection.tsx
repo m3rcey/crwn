@@ -6,6 +6,7 @@ import { useToast } from '@/components/shared/Toast';
 import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
+import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
 import { Check, Loader2, X } from 'lucide-react';
 
 interface SubscribeButtonProps {
@@ -33,6 +34,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
     const params = new URLSearchParams(window.location.search);
     if (params.get('subscription') === 'success') {
       setShowSuccess(true);
+      hapticSuccess();
       // Clear the param
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -63,6 +65,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   }, [user, artistId, supabase, tiers]);
 
   const handleSubscribe = async (tier: TierConfig) => {
+    hapticMedium();
     if (!user) {
       showToast('Please sign in to subscribe', 'warning');
       return;
@@ -70,6 +73,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
 
     if (subscribedTierId === tier.id) {
       setError('You are already subscribed to this tier.');
+      hapticError();
       return;
     }
 
@@ -181,6 +185,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     const params = new URLSearchParams(window.location.search);
     if (params.get('subscription') === 'success') {
       setShowSuccess(true);
+      hapticSuccess();
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
@@ -207,6 +212,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   }, [user, artistId, supabase]);
 
   const handleSubscribe = async (tier: TierConfig) => {
+    hapticMedium();
     if (!user) {
       window.location.href = '/login';
       return;
@@ -233,16 +239,19 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
         window.location.href = data.url;
       } else if (data.error) {
         setError(data.error);
+        hapticError();
       }
     } catch (err) {
       console.error('Checkout error:', err);
       setError('Failed to start checkout. Please try again.');
+      hapticError();
     } finally {
       setIsLoading(null);
     }
   };
 
   const handleUpgradeOrDowngrade = async (tier: TierConfig) => {
+    hapticMedium();
     if (!user) {
       window.location.href = '/login';
       return;
@@ -267,10 +276,12 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
         window.location.reload();
       } else if (data.error) {
         setError(data.error);
+        hapticError();
       }
     } catch (err) {
       console.error('Update error:', err);
       setError('Failed to update subscription. Please try again.');
+      hapticError();
     } finally {
       setIsLoading(null);
     }

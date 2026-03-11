@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { hapticLight } from '@/lib/haptics';
 import { 
   Home, 
   Compass, 
@@ -89,6 +90,7 @@ export function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => hapticLight()}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors press-scale ${
                     active 
                       ? 'neu-button-accent text-crwn-bg font-semibold' 
