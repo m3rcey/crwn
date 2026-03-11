@@ -322,7 +322,7 @@ export function TierManager() {
           <button
             onClick={handleStripeConnect}
             disabled={isConnectingStripe || !agreedToArtistTerms}
-            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg px-6 py-3 rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg px-6 py-3 rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors disabled:opacity-50 hover-glow"
           >
             {isConnectingStripe ? (
               <>
@@ -480,7 +480,7 @@ export function TierManager() {
             <button
               type="submit"
               disabled={isCreating}
-              className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
+              className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50 hover-glow"
             >
               {isCreating ? 'Saving...' : editingTier ? 'Update Tier' : 'Create Tier'}
             </button>

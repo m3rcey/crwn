@@ -132,7 +132,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
               className={`neu-button px-4 py-2 font-semibold disabled:opacity-50 flex items-center gap-2 ${
                 isThisTierSubscribed
                   ? 'text-crwn-gold'
-                  : 'neu-button-accent text-crwn-bg'
+                  : 'neu-button-accent text-crwn-bg hover-glow'
               }`}
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -333,15 +333,15 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       const currentPrice = currentTier?.price || 0;
       if (tier.price > currentPrice) {
         // Upgrade - gold button
-        return 'neu-button-accent text-crwn-bg';
+        return 'neu-button-accent text-crwn-bg hover-glow';
       } else {
         // Downgrade - subtle gray
-        return 'neu-button text-crwn-text-secondary border border-crwn-surface';
+        return 'neu-button text-crwn-text-secondary border border-crwn-surface press-scale';
       }
     }
     
     // Not subscribed - gold subscribe button
-    return 'neu-button-accent text-crwn-bg';
+    return 'neu-button-accent text-crwn-bg hover-glow';
   };
 
   if (tiers.length === 0) {
@@ -440,8 +440,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
                 onClick={handleConfirm}
                 className={`flex-1 py-2 rounded-lg font-semibold ${
                   confirmAction === 'upgrade'
-                    ? 'neu-button-accent text-crwn-bg'
-                    : 'bg-crwn-text-secondary/20 text-crwn-text'
+                    ? 'neu-button-accent text-crwn-bg hover-glow'
+                    : 'bg-crwn-text-secondary/20 text-crwn-text press-scale'
                 }`}
               >
                 {confirmAction === 'upgrade' ? 'Confirm Upgrade' : 'Confirm Downgrade'}

@@ -165,7 +165,7 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
           return (
             <div
               key={product.id}
-              className={`bg-crwn-surface rounded-xl overflow-hidden border border-crwn-elevated ${!canAccess ? 'opacity-75' : ''}`}
+              className={`bg-crwn-surface rounded-xl overflow-hidden border border-crwn-elevated card-hover ${!canAccess ? 'opacity-75' : ''}`}
             >
               <div className="aspect-square relative bg-crwn-elevated">
                 {product.image_url ? (

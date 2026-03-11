@@ -486,7 +486,7 @@ export function AlbumManager() {
         <h2 className="text-xl font-semibold text-crwn-text">Albums</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 neu-button-accent text-crwn-bg"
+          className="flex items-center gap-2 px-4 py-2 neu-button-accent text-crwn-bg hover-glow"
         >
           <Plus className="w-4 h-4" />
           New Album
@@ -682,7 +682,7 @@ export function AlbumManager() {
                       type="button"
                       onClick={handleUploadTrackInForm}
                       disabled={!newTrackFile || !newTrackTitle || isUploadingTrack}
-                      className="px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg text-sm font-medium hover:bg-crwn-gold-hover disabled:opacity-50"
+                      className="px-4 py-2 bg-crwn-gold text-crwn-bg rounded-lg text-sm font-medium hover:bg-crwn-gold-hover disabled:opacity-50 hover-glow"
                     >
                       {isUploadingTrack ? 'Uploading...' : 'Upload'}
                     </button>
@@ -713,7 +713,7 @@ export function AlbumManager() {
 
               <button
                 type="submit"
-                className="w-full py-3 neu-button-accent text-crwn-bg"
+                className="w-full py-3 neu-button-accent text-crwn-bg hover-glow"
               >
                 {editingAlbum ? 'Update Album' : 'Create Album'}
               </button>

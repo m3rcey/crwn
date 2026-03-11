@@ -3,36 +3,12 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-// Animation hook
-function useInView(ref: React.RefObject<HTMLElement>, threshold = 0.1) {
-  const [isInView, setIsInView] = useState(false);
-  
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-        }
-      },
-      { threshold }
-    );
-    
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-    
-    return () => observer.disconnect();
-  }, [threshold]);
-  
-  return isInView;
-}
+import { useInView } from '@/hooks/useInView';
 
 // Animated counter
 function AnimatedNumber({ end, duration = 2000 }: { end: number; duration?: number }) {
   const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref as React.RefObject<HTMLElement>);
+  const { ref, isInView } = useInView();
   
   useEffect(() => {
     if (!isInView) return;
@@ -89,8 +65,7 @@ function Navigation() {
 // Hero Section
 function HeroSection() {
   const [notifications, setNotifications] = useState<string[]>([]);
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref as React.RefObject<HTMLElement>);
+  const { ref, isInView } = useInView();
 
   useEffect(() => {
     if (!isInView) return;
@@ -173,8 +148,7 @@ function HeroSection() {
 
 // Section 2: Fans Math
 function FansMathSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef as React.RefObject<HTMLElement>);
+  const { ref: sectionRef, isInView } = useInView();
 
   const fans = [
     { fans: 100, revenue: 1000 },
@@ -446,8 +420,7 @@ function FoundingArtistSection() {
   const [count, setCount] = useState(0);
   const [spotsLeft, setSpotsLeft] = useState(500);
   const [isLoaded, setIsLoaded] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef as React.RefObject<HTMLElement>);
+  const { ref: sectionRef, isInView } = useInView();
 
   useEffect(() => {
     fetch('/api/founding-artist')

@@ -679,7 +679,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
           {pendingCount > 0 && !isUploading && (
             <button
               onClick={handleUpload}
-              className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors"
+              className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors hover-glow"
             >
               Upload {pendingCount} Track{pendingCount !== 1 ? 's' : ''}
             </button>

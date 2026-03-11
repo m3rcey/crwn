@@ -277,7 +277,7 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
         <button
           type="submit"
           disabled={isLoading || (mode === 'signup' && (usernameStatus === 'taken' || !agreedToTerms))}
-          className="neu-button-accent w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="neu-button-accent w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed hover-glow"
         >
           {isLoading ? 'Loading...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
         </button>

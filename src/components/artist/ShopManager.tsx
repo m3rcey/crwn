@@ -369,7 +369,7 @@ export function ShopManager() {
         <h2 className="text-xl font-semibold text-crwn-text">Shop</h2>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 neu-button-accent text-crwn-bg"
+          className="flex items-center gap-2 px-4 py-2 neu-button-accent text-crwn-bg hover-glow"
         >
           <Plus className="w-4 h-4" />
           Add Product
@@ -697,7 +697,7 @@ export function ShopManager() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 neu-button-accent text-crwn-bg disabled:opacity-50"
+                className="w-full py-3 neu-button-accent text-crwn-bg disabled:opacity-50 hover-glow"
               >
                 {isLoading ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product'}
               </button>

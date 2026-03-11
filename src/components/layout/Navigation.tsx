@@ -89,7 +89,7 @@ export function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors press-scale ${
                     active 
                       ? 'neu-button-accent text-crwn-bg font-semibold' 
                       : 'neu-button text-crwn-text-secondary'
