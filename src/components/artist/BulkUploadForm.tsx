@@ -668,6 +668,13 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             ))}
           </div>
 
+          <p className="text-xs text-crwn-text-secondary mb-2">
+            By uploading, you confirm you own or have the rights to distribute this content.{' '}
+            <a href="/artist-agreement" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+              Artist Agreement
+            </a>
+          </p>
+
           {/* Upload Button */}
           {pendingCount > 0 && !isUploading && (
             <button

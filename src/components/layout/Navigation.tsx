@@ -139,6 +139,21 @@ export function Navigation() {
             Sign Out
           </button>
         </div>
+
+        {/* Footer Links */}
+        <div className="px-4 pb-4 flex items-center justify-center gap-3 text-xs text-crwn-text-secondary">
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-crwn-gold transition-colors">
+            Terms
+          </a>
+          <span>·</span>
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-crwn-gold transition-colors">
+            Privacy
+          </a>
+          <span>·</span>
+          <a href="/dmca" target="_blank" rel="noopener noreferrer" className="hover:text-crwn-gold transition-colors">
+            DMCA
+          </a>
+        </div>
       </aside>
     </>
   );

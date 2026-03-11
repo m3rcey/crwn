@@ -749,6 +749,13 @@ export function TrackUploadForm() {
           </div>
         )}
 
+        <p className="text-xs text-crwn-text-secondary mb-4">
+          By uploading, you confirm you own or have the rights to distribute this content.{' '}
+          <a href="/artist-agreement" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+            Artist Agreement
+          </a>
+        </p>
+
         {/* Submit */}
         <div className="flex gap-3">
           <button

@@ -233,6 +233,12 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
           );
         })}
       </div>
+      <p className="text-xs text-crwn-text-secondary mt-3">
+        By purchasing, you agree to our{' '}
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+          Terms of Service
+        </a>
+      </p>
     </section>
   );
 }

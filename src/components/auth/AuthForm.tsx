@@ -20,6 +20,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { signIn, signUp, signInWithMagicLink, signInWithGoogle, signInWithApple } = useAuth();
   const supabase = createBrowserSupabaseClient();
 
@@ -102,6 +103,12 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
 
         if (usernameStatus === 'taken') {
           setError('Username is already taken');
+          setIsLoading(false);
+          return;
+        }
+
+        if (!agreedToTerms) {
+          setError('You must agree to the Terms of Service to create an account');
           setIsLoading(false);
           return;
         }
@@ -231,6 +238,28 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
           />
         </div>
 
+        {mode === 'signup' && (
+          <div className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              id="agree-terms"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-1 w-4 h-4 accent-[#D4AF37] cursor-pointer"
+            />
+            <label htmlFor="agree-terms" className="text-sm text-crwn-text-secondary">
+              I agree to the{' '}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+                Privacy Policy
+              </a>
+            </label>
+          </div>
+        )}
+
         {error && (
           <div className="neu-inset p-3 text-sm text-crwn-error">
             {error}
@@ -245,7 +274,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
 
         <button
           type="submit"
-          disabled={isLoading || (mode === 'signup' && usernameStatus === 'taken')}
+          disabled={isLoading || (mode === 'signup' && (usernameStatus === 'taken' || !agreedToTerms))}
           className="neu-button-accent w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Loading...' : mode === 'signup' ? 'Create Account' : 'Sign In'}

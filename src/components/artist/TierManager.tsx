@@ -34,6 +34,7 @@ export function TierManager() {
   const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
   const [isConnectingStripe, setIsConnectingStripe] = useState(false);
   const [editingTier, setEditingTier] = useState<Tier | null>(null);
+  const [agreedToArtistTerms, setAgreedToArtistTerms] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -302,9 +303,25 @@ export function TierManager() {
           <p className="text-crwn-text-secondary mb-4">
             You need to connect a Stripe account to receive subscription payments.
           </p>
+          <div className="flex items-start gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="agree-artist-terms"
+              checked={agreedToArtistTerms}
+              onChange={(e) => setAgreedToArtistTerms(e.target.checked)}
+              className="mt-1 w-4 h-4 accent-[#D4AF37] cursor-pointer"
+            />
+            <label htmlFor="agree-artist-terms" className="text-sm text-crwn-text-secondary">
+              I agree to the{' '}
+              <a href="/artist-agreement" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+                Artist Agreement
+              </a>
+              , including content licensing terms, platform fee schedule, and payout terms.
+            </label>
+          </div>
           <button
             onClick={handleStripeConnect}
-            disabled={isConnectingStripe}
+            disabled={isConnectingStripe || !agreedToArtistTerms}
             className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg px-6 py-3 rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
           >
             {isConnectingStripe ? (

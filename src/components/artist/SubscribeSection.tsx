@@ -147,6 +147,12 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
           );
         })}
       </div>
+      <p className="text-xs text-crwn-text-secondary mt-2">
+        By subscribing, you agree to our{' '}
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+          Terms of Service
+        </a>
+      </p>
     </div>
   );
 }
@@ -405,6 +411,12 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           );
         })}
       </div>
+      <p className="text-xs text-crwn-text-secondary mt-2 text-center">
+        By subscribing, you agree to our{' '}
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+          Terms
+        </a>
+      </p>
       {confirmTier && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="neu-raised rounded-xl p-6 max-w-md w-full">
