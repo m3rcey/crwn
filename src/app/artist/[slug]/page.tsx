@@ -294,7 +294,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             </div>
 
             {/* Subscribe Button */}
-            <SubscribeButton tiers={tiers} artistSlug={slug} artistId={artist.id} />
+
           </div>
 
           {/* Bio */}
@@ -306,31 +306,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             </div>
           )}
 
-          {/* Social Links */}
-          {artist.profile?.social_links && typeof artist.profile.social_links === 'object' && Object.keys(artist.profile.social_links).length > 0 && (
-            <div className="mt-4 flex gap-3">
-              {Object.entries(artist.profile.social_links).map(([platform, url]) => (
-                <a
-                  key={platform}
-                  href={url as string}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-crwn-gold hover:text-crwn-gold-hover text-sm capitalize"
-                >
-                  {platform}
-                </a>
-              ))}
-            </div>
-          )}
-
-          {/* Share Buttons */}
-          <div className="mt-4 mb-6">
-            <ShareButtons
-              url={`https://crwn-mauve.vercel.app/artist/${slug}`}
-              title={artist.profile?.display_name || 'Artist'}
-              description={artist.tagline || undefined}
-            />
-          </div>
         </div>
 
         {/* Content with Tabs */}
