@@ -8,9 +8,10 @@ import { Check, X, Loader2 } from 'lucide-react';
 interface AuthFormProps {
   mode: 'login' | 'signup';
   onSuccess?: () => void;
+  onSignupComplete?: () => void;
 }
 
-export function AuthForm({ mode, onSuccess }: AuthFormProps) {
+export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
@@ -115,6 +116,7 @@ export function AuthForm({ mode, onSuccess }: AuthFormProps) {
 
         const { error } = await signUp(email, password, username);
         if (error) throw error;
+        onSignupComplete?.();
         setShowConfirmation(true);
       } else {
         const { error } = await signIn(email, password);

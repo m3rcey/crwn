@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,12 +9,13 @@ import { BackgroundImage } from '@/components/ui/BackgroundImage';
 export default function SignupPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const [justSignedUp, setJustSignedUp] = useState(false);
 
   useEffect(() => {
-    if (user && !isLoading) {
+    if (user && !isLoading && !justSignedUp) {
       router.replace('/home');
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, justSignedUp]);
 
   if (isLoading) {
     return (
@@ -39,7 +40,7 @@ export default function SignupPage() {
 
           <div className="neu-raised p-8">
             <h2 className="text-xl font-semibold text-crwn-text mb-6 text-center">Sign Up</h2>
-            <AuthForm mode="signup" onSuccess={() => {
+            <AuthForm mode="signup" onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
               setTimeout(() => router.replace('/home'), 100);
             }} />
             
