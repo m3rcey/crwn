@@ -330,6 +330,13 @@ export function AlbumManager() {
         // Add tracks to album
         if (album && selectedTracks.length > 0) {
           await updateAlbumTracks(album.id, selectedTracks);
+          // Update album art on all tracks in this album
+          if (albumArtUrl) {
+            await supabase
+              .from('tracks')
+              .update({ album_art_url: albumArtUrl })
+              .in('id', selectedTracks.map(t => t.id));
+          }
         }
 
         showToast('Album created!', 'success');
