@@ -12,6 +12,7 @@ import { CalendlyBooking } from '@/components/booking/CalendlyBooking';
 import { TierConfig, Album, Playlist, Product, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
 import { ShareEarnButton } from '@/components/shared/ShareEarnButton';
+import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
