@@ -20,7 +20,7 @@ export default function DMCAPage() {
           <p>CRWN respects the intellectual property rights of others. If you believe that content on CRWN infringes your copyright, you may submit a DMCA takedown notice to our designated agent.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">DMCA Designated Agent</h2>
-          <p><strong>Email:</strong> dmca@crwn.app</p>
+          <p><strong>Email:</strong> dmca@thecrwn.app</p>
           <p><strong>Entity:</strong> JNW Creative Enterprises, Inc.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">Required Information</h2>
@@ -33,7 +33,7 @@ export default function DMCAPage() {
           <p>6. A statement, under penalty of perjury, that the information in the notice is accurate and that you are authorized to act on behalf of the copyright owner.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">Counter-Notification</h2>
-          <p>If you believe your content was removed by mistake or misidentification, you may submit a counter-notification to dmca@crwn.app with: your physical or electronic signature, identification of the removed material, a statement under penalty of perjury that you believe the material was removed by mistake, and your consent to the jurisdiction of federal court in Missouri.</p>
+          <p>If you believe your content was removed by mistake or misidentification, you may submit a counter-notification to dmca@thecrwn.app with: your physical or electronic signature, identification of the removed material, a statement under penalty of perjury that you believe the material was removed by mistake, and your consent to the jurisdiction of federal court in Missouri.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">Repeat Infringers</h2>
           <p>CRWN will terminate the accounts of users who are repeat copyright infringers.</p>

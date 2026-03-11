@@ -17,7 +17,7 @@ export default function PrivacyPage() {
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Introduction</h2>
-          <p>CRWN ("the Platform"), accessible at crwn.app, is operated by JNW Creative Enterprises, Inc. This Privacy Policy explains how we collect, use, share, retain, and protect personal information.</p>
+          <p>CRWN ("the Platform"), accessible at thecrwn.app, is operated by JNW Creative Enterprises, Inc. This Privacy Policy explains how we collect, use, share, retain, and protect personal information.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">2. Information We Collect</h2>
           <p><strong>Information You Provide:</strong> Email address, display name, authentication credentials, profile information, content you upload, and payment information processed by Stripe.</p>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
           <p>We use TLS/SSL encryption, access controls, row-level security, hashed passwords, and service role separation. No system is 100% secure.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">8. Your Rights</h2>
-          <p><strong>All Users:</strong> Access, correction, deletion (contact privacy@crwn.app), notification preferences, cookie controls.</p>
+          <p><strong>All Users:</strong> Access, correction, deletion (contact privacy@thecrwn.app), notification preferences, cookie controls.</p>
           <p><strong>California Residents (CCPA):</strong> Rights to know, delete, opt out of sale (we do not sell data), and non-discrimination.</p>
           <p><strong>European Users (GDPR):</strong> Rights to access, rectify, erase, restrict, port data, withdraw consent, and lodge complaints.</p>
 
@@ -49,8 +49,8 @@ export default function PrivacyPage() {
           <p>CRWN is intended only for individuals 18 years of age or older. We do not knowingly collect information from minors.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">10. Contact</h2>
-          <p><strong>Privacy:</strong> privacy@crwn.app</p>
-          <p><strong>Support:</strong> support@crwn.app</p>
+          <p><strong>Privacy:</strong> privacy@thecrwn.app</p>
+          <p><strong>Support:</strong> support@thecrwn.app</p>
           <p><strong>Entity:</strong> JNW Creative Enterprises, Inc.</p>
         </div>
 

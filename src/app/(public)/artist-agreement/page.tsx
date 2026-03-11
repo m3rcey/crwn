@@ -59,8 +59,8 @@ export default function ArtistAgreementPage() {
           <p>CRWN is not a record label, publisher, distributor, or manager. We do not guarantee any minimum revenue, subscribers, or exposure.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">9. Contact</h2>
-          <p><strong>Support:</strong> support@crwn.app</p>
-          <p><strong>DMCA:</strong> dmca@crwn.app</p>
+          <p><strong>Support:</strong> support@thecrwn.app</p>
+          <p><strong>DMCA:</strong> dmca@thecrwn.app</p>
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">

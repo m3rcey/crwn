@@ -27,7 +27,7 @@ export default function WelcomePage() {
             Sign In to Get Started
           </Link>
           <p className="mt-4 text-xs text-crwn-text-secondary">
-            Need help? Contact <a href="mailto:support@crwn.app" className="text-crwn-gold hover:underline">support@crwn.app</a>
+            Need help? Contact <a href="mailto:support@thecrwn.app" className="text-crwn-gold hover:underline">support@thecrwn.app</a>
           </p>
         </div>
       </div>

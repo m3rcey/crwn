@@ -17,7 +17,7 @@ export default function TermsPage() {
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Acceptance of Terms</h2>
-          <p>By creating an account on CRWN ("the Platform"), accessible at crwn.app, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Platform.</p>
+          <p>By creating an account on CRWN ("the Platform"), accessible at thecrwn.app, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Platform.</p>
           <p>CRWN is operated by JNW Creative Enterprises, Inc. ("we," "us," or "our"). These Terms constitute a legally binding agreement between you and JNW Creative Enterprises, Inc.</p>
           <p>We may update these Terms from time to time. Continued use of the Platform after changes constitutes acceptance of the revised Terms. We will notify you of material changes via email or in-app notification.</p>
 
@@ -41,7 +41,7 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-crwn-text">5. Content and Intellectual Property</h2>
           <p>You retain ownership of all content you upload to CRWN. By uploading content, you grant CRWN a non-exclusive, worldwide, royalty-free license to host, display, stream, distribute, and promote your content on the Platform.</p>
           <p>You are solely responsible for the content you upload and represent that you own or have obtained all necessary rights and permissions.</p>
-          <p><strong>DMCA:</strong> If you believe content on CRWN infringes your copyright, submit a DMCA notice to dmca@crwn.app.</p>
+          <p><strong>DMCA:</strong> If you believe content on CRWN infringes your copyright, submit a DMCA notice to dmca@thecrwn.app.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">6. Community Guidelines</h2>
           <p>Treat all users with respect. No harassment, hate speech, threats, spam, scams, impersonation, or illegal content. Artists may moderate their own communities. CRWN reserves the right to remove content or suspend accounts that violate these guidelines.</p>
@@ -63,7 +63,7 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-semibold text-crwn-text">12. General Provisions</h2>
           <p><strong>Governing Law:</strong> State of Missouri.</p>
-          <p><strong>Contact:</strong> support@crwn.app</p>
+          <p><strong>Contact:</strong> support@thecrwn.app</p>
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
