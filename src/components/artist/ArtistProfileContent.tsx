@@ -142,7 +142,7 @@ export function ArtistProfileContent({
         />
       </div>
       {/* Content */}
-      <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 page-fade-in">
+      <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 stagger-fade-in">
         {activeTab === 'music' && (
           <>
             {/* Albums */}

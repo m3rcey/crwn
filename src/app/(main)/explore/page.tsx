@@ -93,7 +93,7 @@ export default function ExplorePage() {
           </div>
         </div>
       ) : (
-        <FadeIn><div className="space-y-10">
+        <FadeIn><div className="space-y-10 stagger-fade-in">
           {/* Artists */}
           {artists.length > 0 && (
             <section>

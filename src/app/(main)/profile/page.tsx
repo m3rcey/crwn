@@ -31,7 +31,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 page-fade-in">
+    <div className="max-w-2xl mx-auto space-y-6 stagger-fade-in">
       {/* Artist Dashboard Link */}
       {isArtist && (
         <Link

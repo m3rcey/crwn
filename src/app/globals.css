@@ -219,18 +219,36 @@ body {
 
 /* === Page content fade in === */
 .page-fade-in {
-  animation: pageFadeIn 0.4s ease-out;
+  animation: pageFadeIn 0.5s ease-out both;
 }
 @keyframes pageFadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
+/* Staggered children — add to parent, children auto-stagger */
+.stagger-fade-in > * {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: pageFadeIn 0.5s ease-out both;
+}
+.stagger-fade-in > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-fade-in > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-fade-in > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-fade-in > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-fade-in > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-fade-in > *:nth-child(6) { animation-delay: 400ms; }
+.stagger-fade-in > *:nth-child(7) { animation-delay: 480ms; }
+.stagger-fade-in > *:nth-child(8) { animation-delay: 560ms; }
+.stagger-fade-in > *:nth-child(9) { animation-delay: 640ms; }
+.stagger-fade-in > *:nth-child(10) { animation-delay: 720ms; }
+.stagger-fade-in > *:nth-child(n+11) { animation-delay: 800ms; }
 
 /* Heart bounce for like */
 @keyframes heartBounce {

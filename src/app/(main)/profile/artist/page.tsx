@@ -167,7 +167,7 @@ function ArtistDashboardContent() {
         </div>
 
         {/* Content */}
-        <div key={activeTab} className="px-4 sm:px-6 lg:px-8 py-8 page-fade-in">
+        <div key={activeTab} className="px-4 sm:px-6 lg:px-8 py-8 stagger-fade-in">
           {activeTab === 'profile' && <ArtistProfileForm />}
           {activeTab === 'tracks' && <MusicManager />}
           {activeTab === 'albums' && <AlbumManager />}

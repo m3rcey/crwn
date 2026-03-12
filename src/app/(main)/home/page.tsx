@@ -94,7 +94,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 page-fade-in">
+    <div className="max-w-4xl mx-auto space-y-8 stagger-fade-in">
       {/* Greeting */}
       <div className="bg-crwn-surface rounded-xl p-6">
         <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
