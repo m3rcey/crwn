@@ -9,6 +9,7 @@ import { Product, ProductType } from '@/types';
 import Image from 'next/image';
 import { Check, Download, Lock } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { hapticMedium } from '@/lib/haptics';
 
 interface ShopSectionProps {
   products: Product[];
@@ -64,6 +65,7 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
   }, [user, artistId, supabase]);
 
   const handleBuy = async (product: Product) => {
+    hapticMedium();
     if (!user) {
       showToast('Please sign in to purchase', 'warning');
       return;

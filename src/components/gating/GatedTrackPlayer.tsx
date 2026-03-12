@@ -8,6 +8,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { TrackShareButton } from '@/components/shared/TrackShareButton';
 import { Lock, Play, Pause, LockOpen } from 'lucide-react';
+import { hapticMedium } from '@/lib/haptics';
 import Image from 'next/image';
 
 interface GatedTrackPlayerProps {
@@ -32,6 +33,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   const trackIsLiked = isLiked(track.id);
 
   const handlePlay = () => {
+    hapticMedium();
     if (isLocked) {
       setShowPreviewModal(true);
       return;

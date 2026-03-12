@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
+import { hapticMedium } from '@/lib/haptics';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image } from 'lucide-react';
 
@@ -191,6 +192,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
   };
 
   const handleUpload = async () => {
+    hapticMedium();
     if (queue.length === 0 || !user) return;
 
     const pendingItems = queue.filter(item => item.status === 'pending');

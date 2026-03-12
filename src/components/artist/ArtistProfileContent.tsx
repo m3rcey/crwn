@@ -14,6 +14,7 @@ import { GatedTrackPlayer } from '@/components/gating';
 import { ShareEarnButton } from '@/components/shared/ShareEarnButton';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FadeIn } from '@/components/ui/FadeIn';
+import { hapticLight } from '@/lib/haptics';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { useAuth } from '@/hooks/useAuth';
@@ -107,7 +108,7 @@ export function ArtistProfileContent({
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => { hapticLight(); setActiveTab(tab.id); }}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'neu-button-accent text-crwn-bg'

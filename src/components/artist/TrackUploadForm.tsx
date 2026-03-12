@@ -14,6 +14,7 @@ import { BulkUploadForm } from './BulkUploadForm';
 import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
 import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
 import { Edit2, X, Upload, Plus } from 'lucide-react';
+import { hapticMedium } from '@/lib/haptics';
 
 interface SubscriptionTier {
   id: string;
@@ -272,6 +273,7 @@ export function TrackUploadForm() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    hapticMedium();
     e.preventDefault();
     if (!formData.title) return;
     if (!editingTrack && !formData.audioFile) return;

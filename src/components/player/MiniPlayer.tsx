@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { usePlayer } from '@/hooks/usePlayer';
+import { hapticMedium } from '@/lib/haptics';
 import { 
   Play, 
   Pause, 
