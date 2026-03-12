@@ -94,7 +94,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 page-fade-in">
       {/* Greeting */}
       <div className="bg-crwn-surface rounded-xl p-6">
         <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
@@ -141,8 +141,8 @@ export default function HomePage() {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-8">
-            <Loader2 className="w-6 h-6 text-crwn-gold animate-spin mx-auto" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {[1,2,3].map(i => <div key={i} className="bg-crwn-surface rounded-xl overflow-hidden"><div className="h-24 md:h-32 bg-crwn-elevated animate-pulse" /><div className="p-3 space-y-2"><div className="h-4 bg-crwn-elevated rounded w-3/4 animate-pulse" /><div className="h-3 bg-crwn-elevated rounded w-1/2 animate-pulse" /></div></div>)}
           </div>
         ) : featuredArtists.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

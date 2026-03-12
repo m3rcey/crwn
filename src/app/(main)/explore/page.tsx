@@ -66,7 +66,7 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto page-fade-in">
       <h1 className="text-2xl font-bold text-crwn-text mb-6">Explore</h1>
 
       {/* Search */}
