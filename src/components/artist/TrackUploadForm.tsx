@@ -13,6 +13,7 @@ import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { BulkUploadForm } from './BulkUploadForm';
 import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
 import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Edit2, X, Upload, Plus } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
 
@@ -75,6 +76,8 @@ export function TrackUploadForm() {
   const [artistPlaylists, setArtistPlaylists] = useState<{id: string; title: string}[]>([]);
   const [showQuickAlbumModal, setShowQuickAlbumModal] = useState(false);
   const [showQuickPlaylistModal, setShowQuickPlaylistModal] = useState(false);
+  const [confirmDeleteTrack, setConfirmDeleteTrack] = useState<Track | null>(null);
+  const [confirmDeleteBulk, setConfirmDeleteBulk] = useState(false);
 
   // Fetch tracks when component mounts
   useEffect(() => {
@@ -192,10 +195,10 @@ export function TrackUploadForm() {
   };
 
   const handleDeleteTrack = async (track: Track) => {
-    if (!confirm(`Are you sure you want to delete "${track.title}"?`)) {
-      return;
-    }
+    setConfirmDeleteTrack(track);
+  };
 
+  const executeDeleteTrack = async (track: Track) => {
     try {
       // Delete audio file from storage
       if (track.audio_url_128) {
@@ -494,8 +497,12 @@ export function TrackUploadForm() {
     }
   };
 
-  const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selectedTrackIds.size} tracks?`)) return;
+  const handleBulkDelete = () => {
+    setConfirmDeleteBulk(true);
+  };
+
+  const executeBulkDelete = async () => {
+    setConfirmDeleteBulk(false);
     for (const trackId of selectedTrackIds) {
       const { error: delErr } = await supabase.from("tracks").update({ is_active: false }).eq("id", trackId);
       if (delErr) console.error("Track delete failed:", trackId, delErr);
@@ -941,6 +948,32 @@ export function TrackUploadForm() {
             refreshPlaylists();
             setSelectedTrackIds(new Set());
           }}
+        />
+      )}
+
+      {/* Confirm Delete Single Track Modal */}
+      {confirmDeleteTrack && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Track"
+          message={`Are you sure you want to delete "${confirmDeleteTrack.title}"?`}
+          confirmText="Delete"
+          variant="danger"
+          onConfirm={() => executeDeleteTrack(confirmDeleteTrack)}
+          onCancel={() => setConfirmDeleteTrack(null)}
+        />
+      )}
+
+      {/* Confirm Bulk Delete Modal */}
+      {confirmDeleteBulk && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Tracks"
+          message={`Are you sure you want to delete ${selectedTrackIds.size} tracks?`}
+          confirmText="Delete All"
+          variant="danger"
+          onConfirm={executeBulkDelete}
+          onCancel={() => setConfirmDeleteBulk(false)}
         />
       )}
     </div>

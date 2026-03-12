@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { usePlayer } from '@/hooks/usePlayer';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 interface PlaylistFormData {
   title: string;
@@ -41,6 +42,8 @@ export function PlaylistManager() {
     coverUrl: '',
     isPublic: false,
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingPlaylistId, setDeletingPlaylistId] = useState<string | null>(null);
 
   const loadPlaylists = useCallback(async () => {
     if (!user || !user.id) {
@@ -186,25 +189,33 @@ export function PlaylistManager() {
     }
   };
 
-  const handleDelete = async (playlistId: string) => {
-    if (!confirm('Are you sure you want to delete this playlist?')) return;
+  const handleDelete = async () => {
+    if (!deletingPlaylistId) return;
 
     try {
       const { error } = await supabase
         .from('playlists')
         .delete()
-        .eq('id', playlistId);
+        .eq('id', deletingPlaylistId);
 
       if (error) throw error;
       loadPlaylists();
-      if (selectedPlaylist?.id === playlistId) {
+      if (selectedPlaylist?.id === deletingPlaylistId) {
         setSelectedPlaylist(null);
         setPlaylistTracks([]);
       }
     } catch (error) {
       console.error('Error deleting playlist:', error);
       showToast('Failed to delete playlist', 'error');
+    } finally {
+      setShowDeleteModal(false);
+      setDeletingPlaylistId(null);
     }
+  };
+
+  const confirmDelete = (playlistId: string) => {
+    setDeletingPlaylistId(playlistId);
+    setShowDeleteModal(true);
   };
 
   const handleEdit = (playlist: Playlist) => {
@@ -349,7 +360,7 @@ export function PlaylistManager() {
             <Edit2 className="w-4 h-4" />
           </button>
           <button
-            onClick={() => handleDelete(selectedPlaylist.id)}
+            onClick={() => confirmDelete(selectedPlaylist.id)}
             className="p-2 text-crwn-error hover:bg-crwn-error/10 rounded"
           >
             <Trash2 className="w-4 h-4" />
@@ -556,7 +567,7 @@ export function PlaylistManager() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(playlist.id);
+                      confirmDelete(playlist.id);
                     }}
                     className="p-2 bg-crwn-error rounded-full"
                   >
@@ -583,6 +594,16 @@ export function PlaylistManager() {
           No playlists yet. Create your first playlist!
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Playlist"
+        message="Are you sure you want to delete this playlist? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => { setShowDeleteModal(false); setDeletingPlaylistId(null); }}
+      />
     </div>
   );
 }

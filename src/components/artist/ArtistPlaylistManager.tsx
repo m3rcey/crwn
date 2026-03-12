@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Playlist, Track } from '@/types';
 import Image from 'next/image';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 interface SubscriptionTier {
   id: string;
@@ -44,6 +45,8 @@ export function ArtistPlaylistManager() {
     allowedTierIds: [],
     price: '',
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingPlaylistId, setDeletingPlaylistId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -283,15 +286,22 @@ export function ArtistPlaylistManager() {
     setShowForm(true);
   };
 
-  const handleDelete = async (playlistId: string) => {
-    if (!confirm('Are you sure you want to delete this playlist?')) return;
+  const handleDelete = async () => {
+    if (!deletingPlaylistId) return;
 
     await supabase
       .from('playlists')
       .delete()
-      .eq('id', playlistId);
+      .eq('id', deletingPlaylistId);
 
     loadData();
+    setShowDeleteModal(false);
+    setDeletingPlaylistId(null);
+  };
+
+  const confirmDelete = (playlistId: string) => {
+    setDeletingPlaylistId(playlistId);
+    setShowDeleteModal(true);
   };
 
   const resetForm = () => {
@@ -581,7 +591,7 @@ export function ArtistPlaylistManager() {
                     <span className="text-crwn-bg">✏️</span>
                   </button>
                   <button
-                    onClick={() => handleDelete(playlist.id)}
+                    onClick={() => confirmDelete(playlist.id)}
                     className="p-2 bg-crwn-error rounded-full"
                   >
                     <span className="text-white">🗑️</span>
@@ -607,6 +617,16 @@ export function ArtistPlaylistManager() {
           No playlists yet. Create your first playlist!
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Playlist"
+        message="Are you sure you want to delete this playlist? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => { setShowDeleteModal(false); setDeletingPlaylistId(null); }}
+      />
     </div>
   );
 }

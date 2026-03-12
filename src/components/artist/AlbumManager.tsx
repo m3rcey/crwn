@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Album, Track } from '@/types';
 import Image from 'next/image';
 import { SortableTrackList } from '@/components/shared/SortableTrackList';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 interface SubscriptionTier {
   id: string;
@@ -45,6 +46,7 @@ export function AlbumManager() {
   const [isUploadingTrack, setIsUploadingTrack] = useState(false);
   const [newTrackFile, setNewTrackFile] = useState<File | null>(null);
   const [newTrackTitle, setNewTrackTitle] = useState('');
+  const [confirmDeleteAlbum, setConfirmDeleteAlbum] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<AlbumFormData>({
     title: '',
@@ -405,9 +407,15 @@ export function AlbumManager() {
     setShowForm(true);
   };
 
-  const handleDelete = async (albumId: string) => {
-    if (!confirm('Are you sure you want to delete this album?')) return;
+  const handleDelete = (albumId: string) => {
+    setConfirmDeleteAlbum(albumId);
+  };
 
+  const executeDeleteAlbum = async () => {
+    if (!confirmDeleteAlbum) return;
+    const albumId = confirmDeleteAlbum;
+    setConfirmDeleteAlbum(null);
+    
     await supabase
       .from('albums')
       .update({ is_active: false })
@@ -768,6 +776,19 @@ export function AlbumManager() {
         <div className="text-center py-12 text-crwn-text-secondary">
           No albums yet. Create your first album!
         </div>
+      )}
+
+      {/* Confirm Delete Album Modal */}
+      {confirmDeleteAlbum && (
+        <ConfirmModal
+          isOpen={true}
+          title="Delete Album"
+          message="Are you sure you want to delete this album?"
+          confirmText="Delete"
+          variant="danger"
+          onConfirm={executeDeleteAlbum}
+          onCancel={() => setConfirmDeleteAlbum(null)}
+        />
       )}
     </div>
   );

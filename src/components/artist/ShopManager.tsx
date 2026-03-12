@@ -6,6 +6,7 @@ import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Loader2, Plus, Edit2, Trash2, X, Upload, Check } from 'lucide-react';
 
 const DIGITAL_SUBCATEGORIES = [
@@ -60,6 +61,8 @@ export function ShopManager() {
   });
 
   const [selectedBundleItems, setSelectedBundleItems] = useState<string[]>([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -288,15 +291,22 @@ export function ShopManager() {
     setShowForm(true);
   };
 
-  const handleDelete = async (productId: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+  const handleDelete = async () => {
+    if (!deletingProductId) return;
 
     await supabase
       .from('products')
       .update({ is_active: false, updated_at: new Date().toISOString() })
-      .eq('id', productId);
+      .eq('id', deletingProductId);
 
     loadData();
+    setShowDeleteModal(false);
+    setDeletingProductId(null);
+  };
+
+  const confirmDelete = (productId: string) => {
+    setDeletingProductId(productId);
+    setShowDeleteModal(true);
   };
 
   const resetForm = () => {
@@ -723,7 +733,7 @@ export function ShopManager() {
                   <button onClick={() => handleEdit(product)} className="p-2 bg-crwn-gold rounded-full">
                     <Edit2 className="w-4 h-4 text-crwn-bg" />
                   </button>
-                  <button onClick={() => handleDelete(product.id)} className="p-2 bg-crwn-error rounded-full">
+                  <button onClick={() => confirmDelete(product.id)} className="p-2 bg-crwn-error rounded-full">
                     <Trash2 className="w-4 h-4 text-white" />
                   </button>
                 </div>
@@ -746,6 +756,16 @@ export function ShopManager() {
           No products yet. Add your first product!
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => { setShowDeleteModal(false); setDeletingProductId(null); }}
+      />
     </div>
   );
 }

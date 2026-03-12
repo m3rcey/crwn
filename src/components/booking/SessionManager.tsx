@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { BookingSession } from '@/types';
 import { Loader2, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 interface SessionManagerProps {
   artistId: string;
@@ -28,6 +29,8 @@ export function SessionManager({ artistId }: SessionManagerProps) {
   const [duration, setDuration] = useState(30);
   const [price, setPrice] = useState(0);
   const [calendlyEventUrl, setCalendlyEventUrl] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     loadSessions();
@@ -71,18 +74,26 @@ export function SessionManager({ artistId }: SessionManagerProps) {
     setShowForm(true);
   };
 
-  const handleDelete = async (sessionId: string) => {
-    if (!confirm('Are you sure you want to delete this session?')) return;
+  const handleDelete = async () => {
+    if (!deletingSessionId) return;
 
     try {
       await supabase
         .from('booking_sessions')
         .update({ is_active: false })
-        .eq('id', sessionId);
+        .eq('id', deletingSessionId);
       loadSessions();
     } catch (error) {
       console.error('Error deleting session:', error);
+    } finally {
+      setShowDeleteModal(false);
+      setDeletingSessionId(null);
     }
+  };
+
+  const confirmDelete = (sessionId: string) => {
+    setDeletingSessionId(sessionId);
+    setShowDeleteModal(true);
   };
 
   const handleSave = async () => {
@@ -242,7 +253,7 @@ export function SessionManager({ artistId }: SessionManagerProps) {
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => handleDelete(session.id)}
+                  onClick={() => confirmDelete(session.id)}
                   className="neu-icon-button p-2 text-crwn-error"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -254,6 +265,16 @@ export function SessionManager({ artistId }: SessionManagerProps) {
       ) : (
         <p className="text-crwn-text-dim text-center py-8">No sessions yet. Add one to sell 1-on-1 sessions!</p>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Session"
+        message="Are you sure you want to delete this session? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => { setShowDeleteModal(false); setDeletingSessionId(null); }}
+      />
     </div>
   );
 }

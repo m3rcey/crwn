@@ -9,6 +9,7 @@ import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { TierBenefitsSelector } from './TierBenefitsSelector';
 import { TierBenefit } from '@/types';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 interface Tier {
   id: string;
@@ -44,6 +45,8 @@ export function TierManager() {
   });
   const [selectedBenefits, setSelectedBenefits] = useState<TierBenefit[]>([]);
   const [loadingBenefits, setLoadingBenefits] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingTierId, setDeletingTierId] = useState<string | null>(null);
 
   // Platform limits
   const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
@@ -273,15 +276,22 @@ export function TierManager() {
     setSelectedBenefits([]);
   };
 
-  const handleDelete = async (tierId: string) => {
-    if (!confirm('Are you sure you want to delete this tier?')) return;
+  const handleDelete = async () => {
+    if (!deletingTierId) return;
 
     await supabase
       .from('subscription_tiers')
       .update({ is_active: false })
-      .eq('id', tierId);
+      .eq('id', deletingTierId);
 
-    setTiers(prev => prev.filter(t => t.id !== tierId));
+    setTiers(prev => prev.filter(t => t.id !== deletingTierId));
+    setShowDeleteModal(false);
+    setDeletingTierId(null);
+  };
+
+  const confirmDelete = (tierId: string) => {
+    setDeletingTierId(tierId);
+    setShowDeleteModal(true);
   };
 
   if (isLoading) {
@@ -363,7 +373,7 @@ export function TierManager() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(tier.id)}
+                      onClick={() => confirmDelete(tier.id)}
                       className="text-crwn-text-secondary hover:text-crwn-error transition-colors"
                     >
                       Delete
@@ -488,6 +498,16 @@ export function TierManager() {
         </form>
         </>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Tier"
+        message="Are you sure you want to delete this tier? This will remove it from all current subscribers."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => { setShowDeleteModal(false); setDeletingTierId(null); }}
+      />
     </div>
   );
 }

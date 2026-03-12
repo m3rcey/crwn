@@ -7,6 +7,7 @@ import { CommunityComment } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, Trash2 } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 interface CommentItemProps {
   comment: CommunityComment;
@@ -27,6 +28,7 @@ export function CommentItem({
   const [isLiked, setIsLiked] = useState(comment.has_liked || false);
   const [likesCount, setLikesCount] = useState(comment.likes_count || 0);
   const [showDelete, setShowDelete] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const isCommentAuthor = user?.id === comment.author_id;
   const canDelete = isCommentAuthor || isArtistProfile;
@@ -77,8 +79,6 @@ export function CommentItem({
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete this comment?')) return;
-
     try {
       await supabase
         .from('community_comments')
@@ -87,7 +87,13 @@ export function CommentItem({
       window.location.reload();
     } catch (error) {
       console.error('Delete error:', error);
+    } finally {
+      setShowDeleteModal(false);
     }
+  };
+
+  const confirmDelete = () => {
+    setShowDeleteModal(true);
   };
 
   return (
@@ -126,7 +132,7 @@ export function CommentItem({
             
             {canDelete && (
               <button
-                onClick={handleDelete}
+                onClick={confirmDelete}
                 className="ml-auto text-crwn-text-dim hover:text-crwn-error"
               >
                 <Trash2 className="w-3 h-3" />
@@ -147,6 +153,16 @@ export function CommentItem({
           </button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment?"
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

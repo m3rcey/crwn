@@ -9,6 +9,7 @@ import { CommentSection } from './CommentSection';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2 } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 interface CommunityPostCardProps {
   post: CommunityPost;
@@ -40,6 +41,7 @@ export function CommunityPostCard({
   const [showMenu, setShowMenu] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentsCount, setCommentsCount] = useState(post.comments_count || 0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Check if user can view gated post
   const canView = post.is_free || (tierId && post.allowed_tier_ids?.includes(tierId));
@@ -95,8 +97,6 @@ export function CommunityPostCard({
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
-
     try {
       const { error: deleteError } = await supabase
         .from('community_posts')
@@ -107,7 +107,14 @@ export function CommunityPostCard({
       window.location.reload();
     } catch (error) {
       console.error('Delete error:', error);
+    } finally {
+      setShowDeleteModal(false);
     }
+  };
+
+  const confirmDelete = () => {
+    setShowMenu(false);
+    setShowDeleteModal(true);
   };
 
   const handleCommentAdded = () => {
@@ -198,7 +205,7 @@ export function CommunityPostCard({
                 {showMenu && (
                   <div className="absolute right-0 top-full mt-1 neu-raised py-1 z-10">
                     <button
-                      onClick={handleDelete}
+                      onClick={confirmDelete}
                       className="flex items-center gap-2 px-4 py-2 text-crwn-error hover:bg-crwn-error/10 w-full"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -269,6 +276,16 @@ export function CommunityPostCard({
           />
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }
