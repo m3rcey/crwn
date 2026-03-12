@@ -159,7 +159,7 @@ export function MiniPlayer() {
         <div className="flex items-center gap-2">
           <button 
             onClick={previous}
-            className="neu-icon-button p-2"
+            className="neu-icon-button p-2 hidden md:flex"
           >
             <SkipBack size={20} fill="currentColor" />
           </button>
