@@ -55,7 +55,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
   };
 
   return (
-    <div className="min-h-screen bg-crwn-bg">
+    <div className="min-h-screen bg-crwn-bg stagger-fade-in">
       {/* Header */}
       <div className="relative h-48 sm:h-64 md:h-80 w-full">
         {coverUrl ? (
