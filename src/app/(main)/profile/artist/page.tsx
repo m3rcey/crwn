@@ -19,6 +19,7 @@ import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { Check, X } from 'lucide-react';
+import { FadeIn } from '@/components/ui/FadeIn';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -166,7 +167,7 @@ function ArtistDashboardContent() {
         </div>
 
         {/* Content */}
-        <div className="px-4 sm:px-6 lg:px-8 py-8">
+        <div key={activeTab} className="px-4 sm:px-6 lg:px-8 py-8 page-fade-in">
           {activeTab === 'profile' && <ArtistProfileForm />}
           {activeTab === 'tracks' && <MusicManager />}
           {activeTab === 'albums' && <AlbumManager />}
