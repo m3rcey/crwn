@@ -72,14 +72,14 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   return (
     <>
       <div
-        className={`flex items-center gap-4 p-3 rounded-lg transition-colors group ${
+        className={`flex items-center gap-4 p-3 rounded-lg transition-colors group cursor-pointer ${
           isCurrentTrack ? 'bg-crwn-elevated' : 'bg-crwn-surface hover:bg-crwn-elevated'
         } ${isLocked ? 'opacity-90' : ''}`}
+        onClick={handlePlay}
       >
         {/* Album Art */}
         <div
-          className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 cursor-pointer"
-          onClick={handlePlay} 
+          className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0" 
         >
           {track.album_art_url ? (
             <Image
@@ -155,7 +155,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
         {/* CTA Button */}
         {isLocked && (
           <button
-            onClick={() => setShowPreviewModal(true)}
+            onClick={(e) => { e.stopPropagation(); setShowPreviewModal(true); }}
             className="px-4 py-1.5 bg-crwn-gold/10 border border-crwn-gold text-crwn-gold text-sm font-medium rounded-full hover:bg-crwn-gold/20 transition-colors"
           >
             Preview
@@ -163,12 +163,14 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
         )}
 
         {/* Track Action Buttons (Like & Add to Playlist) */}
+        <div onClick={(e) => e.stopPropagation()}>
         <TrackActionButtons 
           trackId={track.id} 
           size="sm" 
           isLiked={trackIsLiked}
           onToggleLike={() => toggleFavorite(track.id)}
         />
+        </div>
 
         {/* Share Button */}
         {artistSlug && (

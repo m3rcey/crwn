@@ -74,9 +74,11 @@ export default function LibraryPage() {
       </div>
 
       {/* Content */}
-      {activeTab === 'liked' && <LikedSongs />}
-      {activeTab === 'playlists' && <PlaylistManager />}
-      {activeTab === 'referrals' && <ReferralDashboard />}
+      <div key={activeTab} className="page-fade-in">
+        {activeTab === 'liked' && <LikedSongs />}
+        {activeTab === 'playlists' && <PlaylistManager />}
+        {activeTab === 'referrals' && <ReferralDashboard />}
+      </div>
     </div>
   );
 }

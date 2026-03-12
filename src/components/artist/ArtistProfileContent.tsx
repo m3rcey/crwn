@@ -142,8 +142,7 @@ export function ArtistProfileContent({
         />
       </div>
       {/* Content */}
-      <FadeIn delay={200}>
-      <div className="px-4 sm:px-6 lg:px-8 pb-8">
+      <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 page-fade-in">
         {activeTab === 'music' && (
           <>
             {/* Albums */}
@@ -215,7 +214,6 @@ export function ArtistProfileContent({
           />
         )}
       </div>
-      </FadeIn>
     </>
   );
 }
