@@ -127,6 +127,7 @@ body {
 .animate-slide-down {
   animation: slide-down 0.2s ease-out;
 }
+@layer utilities {
 
 /* === UI/UX Polish: Hover & Press States === */
 
@@ -271,4 +272,5 @@ body {
     transform: translateY(0);
     opacity: 1;
   }
+}
 }
