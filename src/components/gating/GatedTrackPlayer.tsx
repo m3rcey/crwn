@@ -79,7 +79,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
         {/* Album Art */}
         <div
           className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0 cursor-pointer"
-          onClick={handlePlay}
+          onClick={handlePlay} 
         >
           {track.album_art_url ? (
             <Image

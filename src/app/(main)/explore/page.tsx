@@ -7,6 +7,8 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Search, Play, Users, Music, TrendingUp, Clock, Loader2 } from 'lucide-react';
+import { FadeIn } from '@/components/ui/FadeIn';
+import { SkeletonCardGrid } from '@/components/ui/Skeleton';
 
 interface ExploreArtist {
   id: string;
@@ -80,11 +82,18 @@ export default function ExplorePage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-crwn-gold animate-spin" />
+        <div className="space-y-10 py-4">
+          <div>
+            <div className="h-6 bg-crwn-elevated rounded w-32 mb-4 animate-pulse" />
+            <SkeletonCardGrid count={4} />
+          </div>
+          <div>
+            <div className="h-6 bg-crwn-elevated rounded w-40 mb-4 animate-pulse" />
+            <SkeletonCardGrid count={4} />
+          </div>
         </div>
       ) : (
-        <div className="space-y-10">
+        <FadeIn><div className="space-y-10">
           {/* Artists */}
           {artists.length > 0 && (
             <section>
@@ -217,7 +226,7 @@ export default function ExplorePage() {
               </p>
             </div>
           )}
-        </div>
+        </div></FadeIn>
       )}
     </div>
   );

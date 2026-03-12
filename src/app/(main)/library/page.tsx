@@ -7,6 +7,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { PlaylistManager } from '@/components/library/PlaylistManager';
 import { LikedSongs } from '@/components/library/LikedSongs';
+import { FadeIn } from '@/components/ui/FadeIn';
 import { ReferralDashboard } from '@/components/referrals/ReferralDashboard';
 
 type Tab = 'liked' | 'playlists' | 'referrals';
@@ -35,7 +36,7 @@ export default function LibraryPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto page-fade-in">
       <h1 className="text-2xl font-bold text-crwn-text mb-6">Your Library</h1>
       
       {/* Tabs */}

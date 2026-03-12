@@ -14,6 +14,8 @@ import {
   Loader2
 } from 'lucide-react';
 import Image from 'next/image';
+import { FadeIn } from '@/components/ui/FadeIn';
+import { SkeletonCardGrid } from '@/components/ui/Skeleton';
 
 interface ArtistProfile {
   id: string;

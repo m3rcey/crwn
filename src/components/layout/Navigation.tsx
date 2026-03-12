@@ -91,7 +91,7 @@ export function Navigation() {
                   key={item.href}
                   href={item.href}
                   onClick={() => hapticLight()}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors press-scale ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors press-scale tap-highlight ${
                     active 
                       ? 'neu-button-accent text-crwn-bg font-semibold' 
                       : 'neu-button text-crwn-text-secondary'
