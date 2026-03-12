@@ -374,7 +374,7 @@ export function ShopManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="page-fade-in space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-crwn-text">Shop</h2>
         <button

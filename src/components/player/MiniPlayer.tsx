@@ -182,7 +182,7 @@ export function MiniPlayer() {
         </div>
 
         {/* Volume & Actions */}
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <button
             onClick={() => toggleFavorite(currentTrack.id)}
             className={`neu-icon-button p-2 ${

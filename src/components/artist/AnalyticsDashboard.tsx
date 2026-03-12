@@ -158,7 +158,7 @@ export function AnalyticsDashboard() {
     }));
 
   return (
-    <div className="space-y-8">
+    <div className="page-fade-in space-y-8">
       {/* ========== MILESTONES SECTION ========== */}
 
 

@@ -102,8 +102,7 @@ export function ArtistProfileContent({
   return (
     <>
       {/* Tabs */}
-      <FadeIn delay={0}>
-      <div className="px-4 sm:px-6 lg:px-8 mb-3">
+      <div className="px-4 sm:px-6 lg:px-8 mb-3 page-fade-in">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <button
@@ -120,7 +119,6 @@ export function ArtistProfileContent({
           ))}
         </div>
       </div>
-      </FadeIn>
 
       {/* Share & Earn for subscribed fans */}
       {isSubscribed && (

@@ -74,7 +74,7 @@ export function FanLeaderboard({ artistId }: FanLeaderboardProps) {
   const isCurrentUser = (fanId: string) => user?.id === fanId;
 
   return (
-    <div className="neu-raised rounded-xl overflow-hidden">
+    <div className="page-fade-in neu-raised rounded-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-crwn-elevated flex items-center gap-2">
         <Trophy className="w-4 h-4 text-crwn-gold" />
         <h3 className="text-sm font-semibold text-crwn-text">Top Supporters</h3>
