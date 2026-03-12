@@ -45,6 +45,8 @@ export function ShopManager() {
     title: '',
     description: '',
     imageFile: null as File | null,
+    productFile: null as File | null,
+    productFileName: '',
     imageUrl: '',
     price: '',
     isFree: true,
@@ -161,6 +163,23 @@ export function ShopManager() {
       // Store subcategory in description as JSON for now (or create separate column)
       const extraData: Record<string, string> = {};
       if (subcategory) extraData.subcategory = subcategory;
+      // Upload product file for digital products
+      let fileUrl: string | null = null;
+      if (formData.productFile && productType === 'digital') {
+        const ext = formData.productFile.name.split('.').pop();
+        const fileName = `${Date.now()}-product.${ext}`;
+        const path = `${artistProfile.id}/product-files/${fileName}`;
+        const { error: fileUploadError } = await supabase.storage
+          .from('album-art')
+          .upload(path, formData.productFile);
+        if (!fileUploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('album-art')
+            .getPublicUrl(path);
+          fileUrl = publicUrl;
+        }
+      }
+
       if (formData.bpm) extraData.bpm = formData.bpm;
       if (formData.key) extraData.key = formData.key;
       if (formData.compatibleDaws) extraData.compatible_daws = formData.compatibleDaws;
@@ -184,7 +203,7 @@ export function ShopManager() {
         is_free: formData.isFree,
         allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
         delivery_type: productType === 'experience' ? 'scheduled' : 'instant',
-        file_url: null,
+        file_url: fileUrl || (editingProduct?.file_url ?? null),
         duration_minutes: formData.durationField ? parseInt(formData.durationField) : null,
         max_quantity: null,
       };
@@ -272,6 +291,8 @@ export function ShopManager() {
       submissionInstructions: extraData.submission_instructions || '',
       location: extraData.location || '',
       durationField: product.duration_minutes?.toString() || '',
+      productFile: null,
+      productFileName: product.file_url ? product.file_url.split('/').pop() || 'Existing file' : '',
       maxQuantity: product.max_quantity?.toString() || '',
     });
 
@@ -314,11 +335,14 @@ export function ShopManager() {
     setEditingProduct(null);
     setSelectedBundleItems([]);
     setProductType('digital');
+    // productFile reset handled in formData reset
     setSubcategory('');
     setFormData({
       title: '',
       description: '',
       imageFile: null,
+      productFile: null,
+      productFileName: '',
       imageUrl: '',
       price: '',
       isFree: true,
@@ -484,6 +508,42 @@ export function ShopManager() {
                   </label>
                 </div>
               </div>
+
+              {/* Digital Product File Upload */}
+              {productType === 'digital' && (
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Product File</label>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 neu-inset px-4 py-3 text-sm text-crwn-text-secondary truncate">
+                      {formData.productFile ? formData.productFile.name : formData.productFileName || 'No file selected'}
+                    </div>
+                    <label className="flex items-center gap-2 px-4 py-2 bg-crwn-bg border border-crwn-elevated rounded-lg cursor-pointer whitespace-nowrap">
+                      <Upload className="w-4 h-4" />
+                      {formData.productFile || formData.productFileName ? 'Change' : 'Upload'}
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => setFormData(p => ({ ...p, productFile: e.target.files?.[0] || null }))}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs text-crwn-text-dim mt-1">Upload the file your fans will receive after purchase (ZIP, PDF, WAV, MP3, etc.)</p>
+                </div>
+              )}
+
+              {/* Experience Delivery Info */}
+              {productType === 'experience' && (
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Delivery Instructions</label>
+                  <textarea
+                    value={formData.submissionInstructions}
+                    onChange={(e) => setFormData(p => ({ ...p, submissionInstructions: e.target.value }))}
+                    rows={2}
+                    placeholder="How will you deliver this experience? (e.g. 'You'll receive a Zoom link within 48 hours')"
+                    className="w-full neu-inset px-4 py-2 text-crwn-text resize-none"
+                  />
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Price (USD)</label>
