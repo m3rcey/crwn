@@ -24,6 +24,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
+    /* page-fade-in applied */
       <div className="min-h-screen bg-crwn-bg flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" />
       </div>

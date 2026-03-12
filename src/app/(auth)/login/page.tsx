@@ -31,7 +31,7 @@ export default function LoginPage() {
     <div className="relative min-h-screen">
       <BackgroundImage src="/backgrounds/bg-auth.jpg" />
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md page-fade-in">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-crwn-gold mb-2">CRWN</h1>
             <p className="text-crwn-text-secondary">Welcome back</p>

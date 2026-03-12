@@ -119,7 +119,7 @@ export function FullScreenPlayer() {
   };
 
   return (
-    <div className="fixed inset-0 bg-crwn-bg z-[100] flex flex-col">
+    <div className="fixed inset-0 bg-crwn-bg z-[100] flex flex-col" style={{ animation: "slideUpPlayer 0.35s ease-out" }}>
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <button 
