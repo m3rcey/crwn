@@ -82,7 +82,7 @@ export function ArtistReferralStats() {
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
   return (
-    <div className="page-fade-in space-y-6">
+    <div className="stagger-fade-in space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="neu-raised rounded-xl p-4">

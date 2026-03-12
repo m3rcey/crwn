@@ -488,7 +488,7 @@ export function AlbumManager() {
   }
 
   return (
-    <div className="page-fade-in space-y-6">
+    <div className="stagger-fade-in space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-crwn-text">Albums</h2>

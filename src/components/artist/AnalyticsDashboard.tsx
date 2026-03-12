@@ -158,7 +158,7 @@ export function AnalyticsDashboard() {
     }));
 
   return (
-    <div className="page-fade-in space-y-8">
+    <div className="stagger-fade-in space-y-8">
       {/* ========== MILESTONES SECTION ========== */}
 
 
