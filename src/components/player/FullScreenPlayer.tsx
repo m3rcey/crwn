@@ -51,6 +51,33 @@ export function FullScreenPlayer() {
   const [dragTime, setDragTime] = useState(0);
   const progressRef = useRef<HTMLDivElement>(null);
 
+  // Swipe-to-close state
+  const [swipeY, setSwipeY] = useState(0);
+  const [swipeStartY, setSwipeStartY] = useState<number | null>(null);
+  const swipeThreshold = 80;
+
+  const handleSwipeStart = (e: React.TouchEvent) => {
+    setSwipeStartY(e.touches[0].clientY);
+    setSwipeY(0);
+  };
+
+  const handleSwipeMove = (e: React.TouchEvent) => {
+    if (swipeStartY === null) return;
+    const delta = e.touches[0].clientY - swipeStartY;
+    if (delta > 0) {
+      setSwipeY(delta);
+    }
+  };
+
+  const handleSwipeEnd = () => {
+    if (swipeY > swipeThreshold) {
+      hapticMedium();
+      toggleExpanded();
+    }
+    setSwipeY(0);
+    setSwipeStartY(null);
+  };
+
   const formatTime = (seconds: number) => {
     if (!seconds) return '0:00';
     const mins = Math.floor(seconds / 60);
@@ -119,21 +146,36 @@ export function FullScreenPlayer() {
   };
 
   return (
-    <div className="fixed inset-0 bg-crwn-bg z-[100] flex flex-col" style={{ animation: "slideUpPlayer 0.35s ease-out" }}>
+    <div
+      className="fixed inset-0 bg-crwn-bg z-[100] flex flex-col"
+      style={{
+        animation: "slideUpPlayer 0.35s ease-out",
+        transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined,
+        opacity: swipeY > 0 ? Math.max(0.2, 1 - swipeY / 300) : 1,
+        transition: swipeStartY === null ? 'transform 0.2s ease, opacity 0.2s ease' : 'none',
+      }}
+      onTouchStart={handleSwipeStart}
+      onTouchMove={handleSwipeMove}
+      onTouchEnd={handleSwipeEnd}
+    >
+      {/* Swipe handle (mobile) */}
+      <div className="flex justify-center pt-3 pb-1 md:hidden">
+        <div className="w-10 h-1 rounded-full bg-crwn-text-secondary/40" />
+      </div>
       {/* Header */}
-      <div className="flex items-center justify-between p-4">
-        <button 
+      <div className="flex items-center justify-between px-4 py-2 md:p-4">
+        <button
           onClick={toggleExpanded}
-          className="neu-icon-button p-2"
+          className="neu-icon-button p-2 hidden md:block"
         >
           <Minimize2 size={24} />
         </button>
+        <div className="md:hidden w-8" />
         <span className="text-sm text-crwn-text-secondary">Now Playing</span>
         <button className="neu-icon-button p-2">
           <ListMusic size={24} />
         </button>
       </div>
-
       {/* Main Content */}
       <div className="flex-1 min-h-0 flex flex-col items-center px-8 pt-4 pb-8 overflow-y-auto">
         {/* Album Art */}
