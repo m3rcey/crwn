@@ -148,7 +148,7 @@ export default function ExplorePage() {
                   <div
                     key={track.id}
                     className="neu-raised rounded-xl overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
-                    onClick={() => play(track as any)}
+                    onClick={() => play(track as any, newReleases as any)}
                   >
                     <div className="aspect-square relative bg-crwn-elevated">
                       {track.albumArt ? (
@@ -187,7 +187,7 @@ export default function ExplorePage() {
                 {popularTracks.map((track, i) => (
                   <div
                     key={track.id}
-                    onClick={() => play(track as any)}
+                    onClick={() => play(track as any, popularTracks as any)}
                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-crwn-elevated/30 transition-colors ${
                       i < popularTracks.length - 1 ? 'border-b border-crwn-elevated' : ''
                     }`}
