@@ -367,8 +367,8 @@ export function ArtistPlaylistManager() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-crwn-surface rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 md:p-4 overflow-y-auto">
+          <div className="bg-crwn-surface rounded-t-xl md:rounded-xl p-6 w-full md:max-w-2xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-crwn-text">
                 {editingPlaylist ? 'Edit Playlist' : 'Create Playlist'}
