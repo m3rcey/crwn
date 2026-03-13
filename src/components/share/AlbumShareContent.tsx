@@ -77,7 +77,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
         {/* Back button */}
         <Link
           href={`/artist/${artist.slug}`}
-          className="inline-flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-text mb-4"
+          className="inline-flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-text mb-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm"
         >
           ← Back to {artist.displayName}
         </Link>
