@@ -24,12 +24,18 @@ interface ExploreTrack {
   id: string;
   title: string;
   albumArt: string | null;
+  album_art_url: string | null;
+  audio_url_128: string | null;
+  audio_url_320: string | null;
   duration: number;
   playCount: number;
+  play_count: number;
   artistName: string;
   artistSlug: string;
   artistId: string;
+  artist_id: string;
   isFree: boolean;
+  is_free: boolean;
 }
 
 export default function ExplorePage() {
@@ -142,7 +148,7 @@ export default function ExplorePage() {
                   <div
                     key={track.id}
                     className="neu-raised rounded-xl overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
-                    onClick={() => play(track as never)}
+                    onClick={() => play(track as any)}
                   >
                     <div className="aspect-square relative bg-crwn-elevated">
                       {track.albumArt ? (
@@ -181,7 +187,7 @@ export default function ExplorePage() {
                 {popularTracks.map((track, i) => (
                   <div
                     key={track.id}
-                    onClick={() => play(track as never)}
+                    onClick={() => play(track as any)}
                     className={`flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-crwn-elevated/30 transition-colors ${
                       i < popularTracks.length - 1 ? 'border-b border-crwn-elevated' : ''
                     }`}

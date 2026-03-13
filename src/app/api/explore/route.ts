@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
   // New releases - latest tracks across all artists
   const { data: newReleases } = await supabaseAdmin
     .from('tracks')
-    .select('id, title, album_art_url, duration, play_count, artist_id, created_at, is_free')
+    .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(12);
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
   // Popular tracks - by play count
   const { data: popularTracks } = await supabaseAdmin
     .from('tracks')
-    .select('id, title, album_art_url, duration, play_count, artist_id, is_free')
+    .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, is_free')
     .eq('is_active', true)
     .order('play_count', { ascending: false })
     .limit(12);
@@ -91,17 +91,23 @@ export async function GET(req: NextRequest) {
   });
 
   const formatTracks = (tracks: unknown[] | null) => (tracks || []).map((t: unknown) => {
-    const track = t as { id: string; title: string; album_art_url: string; duration: number; play_count: number; artist_id: string; is_free: boolean; created_at: string };
+    const track = t as { id: string; title: string; album_art_url: string; audio_url_128: string; audio_url_320: string; duration: number; play_count: number; artist_id: string; is_free: boolean; created_at: string };
     return {
       id: track.id,
       title: track.title,
       albumArt: track.album_art_url,
+      album_art_url: track.album_art_url,
+      audio_url_128: track.audio_url_128,
+      audio_url_320: track.audio_url_320,
       duration: track.duration,
       playCount: track.play_count || 0,
+      play_count: track.play_count || 0,
       artistName: trackArtistMap[track.artist_id]?.name || 'Artist',
       artistSlug: trackArtistMap[track.artist_id]?.slug || '',
       artistId: track.artist_id,
+      artist_id: track.artist_id,
       isFree: track.is_free,
+      is_free: track.is_free,
       createdAt: track.created_at,
     };
   });
