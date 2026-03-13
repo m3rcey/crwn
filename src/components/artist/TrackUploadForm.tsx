@@ -759,10 +759,10 @@ export function TrackUploadForm() {
         )}
 
         <p className="text-xs text-crwn-text-secondary mb-4">
-          By uploading, you confirm you own or have the rights to distribute this content.{' '}
+          By uploading, you agree to the{' '}
           <a href="/artist-agreement" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
             Artist Agreement
-          </a>
+          </a>{' '}and confirm you own or have the rights to distribute this content.
         </p>
 
         {/* Submit */}
