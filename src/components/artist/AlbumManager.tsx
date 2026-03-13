@@ -503,7 +503,7 @@ export function AlbumManager() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 md:p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-crwn-bg md:bg-black/50 md:flex md:items-center md:justify-center md:p-4">
           <div className="bg-crwn-bg md:bg-crwn-surface p-4 pt-12 pb-24 w-full md:max-w-2xl md:mx-auto md:my-8 md:rounded-xl md:p-6 md:pt-6 md:pb-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-crwn-text">
