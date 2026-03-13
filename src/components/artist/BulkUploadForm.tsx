@@ -674,7 +674,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             By uploading, you agree to the{' '}
             <a href="/artist-agreement" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
               Artist Agreement
-            </a>
+            </a>{' '}and confirm you own or have the rights to distribute this content.
           </p>
 
           {/* Upload Button */}
