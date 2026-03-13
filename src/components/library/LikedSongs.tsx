@@ -102,7 +102,7 @@ export function LikedSongs() {
         <span className="text-crwn-text-secondary text-sm">{tracks.length} song{tracks.length !== 1 ? 's' : ''}</span>
       </div>
 
-      <div className="neu-raised rounded-xl overflow-hidden">
+      <div className="neu-raised rounded-xl overflow-hidden stagger-fade-in">
         {tracks.map((track, i) => {
           const isCurrentTrack = currentTrack?.id === track.id;
           return (

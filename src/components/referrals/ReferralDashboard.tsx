@@ -64,7 +64,7 @@ export function ReferralDashboard() {
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 stagger-fade-in">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="neu-raised rounded-xl p-4">
