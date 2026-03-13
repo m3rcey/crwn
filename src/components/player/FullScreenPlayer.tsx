@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePlayer } from '@/hooks/usePlayer';
 import { hapticMedium } from '@/lib/haptics';
 import { TrackShareButton } from '@/components/shared/TrackShareButton';
+import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { 
   Play, 
   Pause, 
@@ -302,6 +303,8 @@ export function FullScreenPlayer() {
           >
             <Heart size={24} fill={isTrackFavorite ? 'currentColor' : 'none'} />
           </button>
+
+          <TrackActionButtons trackId={currentTrack.id} size="md" showLike={false} />
 
           {/* Volume slider - desktop only */}
           <div className="hidden md:flex items-center gap-2">

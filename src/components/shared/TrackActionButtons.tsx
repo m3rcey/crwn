@@ -11,9 +11,10 @@ interface TrackActionButtonsProps {
   size?: 'sm' | 'md';
   isLiked?: boolean;
   onToggleLike?: () => void;
+  showLike?: boolean;
 }
 
-export function TrackActionButtons({ trackId, size = 'sm', isLiked: initialLiked, onToggleLike }: TrackActionButtonsProps) {
+export function TrackActionButtons({ trackId, size = 'sm', isLiked: initialLiked, onToggleLike, showLike = true }: TrackActionButtonsProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
@@ -195,7 +196,7 @@ export function TrackActionButtons({ trackId, size = 'sm', isLiked: initialLiked
   return (
     <div className="flex items-center gap-1 relative" ref={menuRef}>
       {/* Heart/Like Button */}
-      <button
+      {showLike && <button
         onClick={handleToggleLike}
         disabled={isLoadingLike}
         className={`${buttonPadding} rounded-full hover:bg-crwn-elevated transition-colors ${
@@ -208,7 +209,7 @@ export function TrackActionButtons({ trackId, size = 'sm', isLiked: initialLiked
         ) : (
           <Heart size={iconSize} fill={isLiked ? 'currentColor' : 'none'} />
         )}
-      </button>
+      </button>}
 
       {/* Add to Playlist Button */}
       <div className="relative">
