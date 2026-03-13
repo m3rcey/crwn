@@ -9,7 +9,7 @@ export default function DMCAPage() {
   return (
     <div className="min-h-screen bg-crwn-bg">
       <div className="max-w-3xl mx-auto px-4 py-12">
-        <Link href="/" className="text-crwn-gold hover:underline text-sm mb-8 inline-block">
+        <Link href="/home" className="text-crwn-gold hover:underline text-sm mb-8 inline-block">
           ← Back to CRWN
         </Link>
         <h1 className="text-3xl font-bold text-crwn-gold mb-2">DMCA Takedown Policy</h1>
