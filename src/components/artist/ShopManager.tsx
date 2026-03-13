@@ -412,8 +412,8 @@ export function ShopManager() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="relative md:fixed md:inset-0 md:bg-black/50 md:flex md:items-center md:justify-center md:z-50 md:p-4 md:overflow-y-auto">
-          <div className="bg-crwn-surface p-6 w-full md:rounded-xl md:max-w-2xl md:max-h-[90vh] md:overflow-y-auto">
+        <div className="relative md:fixed md:inset-0 md:bg-black/50 md:flex md:items-center md:justify-center md:z-50 md:p-8">
+          <div className="bg-crwn-surface p-6 w-full md:rounded-xl md:max-w-2xl md:max-h-[80vh] md:overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-crwn-text">
                 {editingProduct ? 'Edit Product' : 'Add Product'}
