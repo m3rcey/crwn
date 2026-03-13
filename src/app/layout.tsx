@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   keywords: ["music", "artists", "monetization", "fans", "community", "streaming", "independent"],
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon-512x512.png",
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
