@@ -181,7 +181,7 @@ export function ArtistProfileContent({
           </section>
         )}
         {activeTab === 'shop' && (
-          <ShopSection products={products || []} artistId={artist.id} />
+          <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} />
         )}
 
         {activeTab === 'leaderboard' && (

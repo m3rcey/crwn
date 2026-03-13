@@ -1,5 +1,7 @@
 'use client';
 
+import { ShareButtons } from '@/components/shared/ShareButtons';
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
@@ -14,9 +16,10 @@ import { hapticMedium } from '@/lib/haptics';
 interface ShopSectionProps {
   products: Product[];
   artistId: string;
+  artistSlug: string;
 }
 
-export function ShopSection({ products, artistId }: ShopSectionProps) {
+export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
@@ -230,6 +233,13 @@ export function ShopSection({ products, artistId }: ShopSectionProps) {
                       Buy
                     </button>
                   )}
+                </div>
+                <div className="mt-2 pt-2 border-t border-crwn-elevated">
+                  <ShareButtons
+                    url={`https://thecrwn.app/artist/${artistSlug}`}
+                    title={product.title}
+                    description={product.description || `Check out ${product.title}`}
+                  />
                 </div>
               </div>
             </div>
