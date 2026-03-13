@@ -251,7 +251,7 @@ export function FullScreenPlayer() {
         <div className="flex items-center gap-6 mb-6">
           <button 
             onClick={toggleShuffle}
-            className={`neu-icon-button p-2 ${
+            className={`neu-icon-button p-2 press-scale ${
               shuffle ? 'text-crwn-gold' : ''
             }`}
           >
@@ -259,13 +259,13 @@ export function FullScreenPlayer() {
           </button>
           <button 
             onClick={previous}
-            className="neu-icon-button p-2"
+            className="neu-icon-button p-2 press-scale"
           >
             <SkipBack size={32} fill="currentColor" />
           </button>
           <button 
             onClick={togglePlay}
-            className="neu-icon-button w-16 h-16 flex items-center justify-center"
+            className="neu-icon-button w-16 h-16 flex items-center justify-center press-scale"
           >
             {isPlaying ? (
               <Pause size={32} fill="currentColor" />
@@ -275,13 +275,13 @@ export function FullScreenPlayer() {
           </button>
           <button 
             onClick={next}
-            className="neu-icon-button p-2"
+            className="neu-icon-button p-2 press-scale"
           >
             <SkipForward size={32} fill="currentColor" />
           </button>
           <button 
             onClick={toggleRepeat}
-            className={`neu-icon-button p-2 ${
+            className={`neu-icon-button p-2 press-scale ${
               repeat !== 'off' ? 'text-crwn-gold' : ''
             }`}
           >
