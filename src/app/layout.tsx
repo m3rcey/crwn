@@ -15,17 +15,21 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://thecrwn.app"),
-  title: "CRWN | The AI Operating System for Independent Artists",
-  description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform. Join 217+ founding artists.",
+  title: "CRWN | Where Artists Own the Stage",
+  description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
   keywords: ["music", "artists", "monetization", "fans", "community", "streaming", "independent"],
   manifest: "/manifest.json",
   icons: {
-    icon: "/icon-512x512.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "CRWN | The AI Operating System for Independent Artists",
-    description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform.",
+    title: "CRWN | Where Artists Own the Stage",
+    description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
     url: "https://thecrwn.app",
     siteName: "CRWN",
     images: [
@@ -40,8 +44,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "CRWN | The AI Operating System for Independent Artists",
-    description: "Stream music, build community, sell merch, and grow your fanbase — all in one platform.",
+    title: "CRWN | Where Artists Own the Stage",
+    description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
     images: ["/icon-512x512.png"],
   },
   appleWebApp: {
