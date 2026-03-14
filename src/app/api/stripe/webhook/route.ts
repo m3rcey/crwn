@@ -3,6 +3,8 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { subscriptionEmail } from '@/lib/emails/subscription';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 
@@ -276,6 +278,27 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         await checkAndAwardMilestones(artist_id, artistProfile.user_id);
       } catch (err) {
         console.error('Milestone check failed:', err);
+      }
+
+      // Send subscription confirmation email to fan
+      try {
+        const { data: artistNameData } = await supabaseAdmin
+          .from('profiles')
+          .select('display_name')
+          .eq('id', artistProfile.user_id)
+          .single();
+        const artistDisplayName = artistNameData?.display_name || 'an artist';
+        const fanEmail = session.customer_email || session.customer_details?.email;
+        if (fanEmail) {
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: fanEmail,
+            subject: `You're subscribed to ${artistDisplayName} 🎉`,
+            html: subscriptionEmail(fanName, artistDisplayName, tierName),
+          });
+        }
+      } catch (err) {
+        console.error('Subscription email failed:', err);
       }
 
       // Process referral if code provided

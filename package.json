@@ -23,6 +23,7 @@
     "react-calendly": "^4.4.0",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
+    "resend": "^6.9.3",
     "stripe": "^20.4.0"
   },
   "devDependencies": {
