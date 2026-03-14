@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { useSearchParams } from 'next/navigation';
-import { DollarSign, TrendingUp, Users, Filter, ChevronDown, ChevronUp, ShoppingBag, Calendar } from 'lucide-react';
+import { useToast } from '@/components/shared/Toast';
+import { DollarSign, TrendingUp, Users, Filter, ChevronDown, ChevronUp, ShoppingBag, Calendar, Banknote, Loader2 } from 'lucide-react';
 
 interface Earning {
   id: string;
@@ -43,6 +44,10 @@ export function PayoutDashboard() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [stripeLoginUrl, setStripeLoginUrl] = useState<string | null>(null);
+  const [availableBalance, setAvailableBalance] = useState<number | null>(null);
+  const [isCashingOut, setIsCashingOut] = useState(false);
+  const [artistId, setArtistId] = useState<string | null>(null);
+  const { showToast } = useToast();
   const highlightRef = useRef<HTMLDivElement>(null);
 
   const highlightEarningId = searchParams.get('earning');
@@ -110,6 +115,7 @@ export function PayoutDashboard() {
       });
 
       // Get Stripe login link if connected
+      setArtistId(artistProfile.id);
       if (artistProfile.stripe_connect_id) {
         try {
           const response = await fetch('/api/stripe/login-link', {
@@ -124,6 +130,20 @@ export function PayoutDashboard() {
           }
         } catch (err) {
           console.error('Failed to get Stripe login link:', err);
+        }
+        // Fetch available balance
+        try {
+          const balRes = await fetch('/api/stripe/balance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accountId: artistProfile.stripe_connect_id }),
+          });
+          if (balRes.ok) {
+            const { available } = await balRes.json();
+            setAvailableBalance(available);
+          }
+        } catch (err) {
+          console.error('Failed to fetch balance:', err);
         }
       }
 
@@ -221,6 +241,30 @@ export function PayoutDashboard() {
       </div>
     );
   }
+
+  const handleCashout = async () => {
+    if (!user || !artistId) return;
+    if (!confirm('Cash out your available balance? A $2.00 fee will be deducted.')) return;
+    setIsCashingOut(true);
+    try {
+      const res = await fetch('/api/stripe/cashout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artistId, userId: user.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || 'Cashout failed', 'error');
+        return;
+      }
+      showToast(`$${(data.amount / 100).toFixed(2)} is on its way to your bank! ($2.00 fee applied)`, 'success');
+      setAvailableBalance(0);
+    } catch (err) {
+      showToast('Cashout failed. Please try again.', 'error');
+    } finally {
+      setIsCashingOut(false);
+    }
+  };
 
   return (
     <div className="stagger-fade-in space-y-6">
@@ -361,6 +405,31 @@ export function PayoutDashboard() {
           ))}
         </div>
       )}
+
+      {/* Instant Cashout */}
+      <div className="neu-raised rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-crwn-text-secondary">Available Balance</p>
+            <p className="text-2xl font-bold text-crwn-gold">
+              {availableBalance !== null ? `$${(availableBalance / 100).toFixed(2)}` : '...'}
+            </p>
+          </div>
+          <button
+            onClick={handleCashout}
+            disabled={isCashingOut || !availableBalance || availableBalance <= 200}
+            className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg font-semibold rounded-lg hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"
+          >
+            {isCashingOut ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Banknote className="w-4 h-4" />
+            )}
+            Cash Out Now
+          </button>
+        </div>
+        <p className="text-xs text-crwn-text-secondary mt-2">$2.00 fee per instant cashout. Auto-payout every Monday is free.</p>
+      </div>
 
       {/* Stripe Dashboard Link */}
       {stripeLoginUrl && (
