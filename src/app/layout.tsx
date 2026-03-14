@@ -15,7 +15,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://thecrwn.app"),
-  title: "CRWN | Where Artists Own the Stage",
+  title: "CRWN | Music Monetization for Independent Artists",
   description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
   keywords: ["music", "artists", "monetization", "fans", "community", "streaming", "independent"],
   manifest: "/manifest.json",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "CRWN | Where Artists Own the Stage",
+    title: "CRWN | Music Monetization for Independent Artists",
     description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
     url: "https://thecrwn.app",
     siteName: "CRWN",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "CRWN | Where Artists Own the Stage",
+    title: "CRWN | Music Monetization for Independent Artists",
     description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
     images: ["/icon-512x512.png"],
   },
