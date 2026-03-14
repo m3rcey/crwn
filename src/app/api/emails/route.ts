@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { welcomeEmail } from '@/lib/emails/welcome';
 import { subscriptionEmail } from '@/lib/emails/subscription';
+import { artistTierEmail } from '@/lib/emails/artistTier';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +19,10 @@ export async function POST(req: NextRequest) {
       case 'subscription':
         subject = `You're subscribed to ${artistName} 🎉`;
         html = subscriptionEmail(displayName || 'there', artistName, tierName);
+        break;
+      case 'artist_tier':
+        subject = `Welcome to ${tierName} on CRWN 👑`;
+        html = artistTierEmail(displayName || 'there', tierName);
         break;
       default:
         return NextResponse.json({ error: 'Invalid email type' }, { status: 400 });

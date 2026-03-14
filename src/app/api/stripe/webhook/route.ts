@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { subscriptionEmail } from '@/lib/emails/subscription';
+import { artistTierEmail } from '@/lib/emails/artistTier';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 
@@ -880,6 +881,27 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
       platform_tier: tier,
     })
     .eq('id', user_id);
+
+  // Send artist tier welcome email
+  try {
+    const { data: artistUser } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', user_id)
+      .single();
+    const artistEmail = session.customer_email || session.customer_details?.email;
+    const tierLabel = tier === 'pro' ? 'Pro' : 'Label';
+    if (artistEmail) {
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: artistEmail,
+        subject: `Welcome to ${tierLabel} on CRWN 👑`,
+        html: artistTierEmail(artistUser?.display_name || 'there', tierLabel),
+      });
+    }
+  } catch (err) {
+    console.error('Artist tier email failed:', err);
+  }
 
   console.log('Platform tier updated:', { artist_id, tier });
 }
