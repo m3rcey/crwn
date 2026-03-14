@@ -198,10 +198,10 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
                   {getTypeBadge(product.type)}
                 </div>
                 
-                <h3 className="font-medium text-crwn-text truncate">{product.title}</h3>
+                <h3 className="font-medium text-crwn-text">{product.title}</h3>
                 
                 {product.description && (
-                  <p className="text-xs text-crwn-text-secondary line-clamp-2 mt-1">
+                  <p className="text-xs text-crwn-text-secondary line-clamp-3 mt-1">
                     {product.description}
                   </p>
                 )}
@@ -236,6 +236,7 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
                 </div>
                 <div className="mt-2 pt-2 border-t border-crwn-elevated">
                   <ShareButtons
+                    size="sm"
                     url={`https://thecrwn.app/artist/${artistSlug}`}
                     title={product.title}
                     description={product.description || `Check out ${product.title}`}

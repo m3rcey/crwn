@@ -8,9 +8,10 @@ interface ShareButtonsProps {
   url: string;
   title: string;
   description?: string;
+  size?: 'sm' | 'md';
 }
 
-export function ShareButtons({ url, title, description }: ShareButtonsProps) {
+export function ShareButtons({ url, title, description, size = 'md' }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = async () => {
@@ -54,17 +55,17 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
       {/* Copy Link */}
       <button
         onClick={handleCopyLink}
-        className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors"
+        className={`flex items-center gap-1 rounded-lg font-medium neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors ${size === 'sm' ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'}`}
         title="Copy link"
       >
         {copied ? (
           <>
-            <Check className="w-4 h-4 text-green-400" />
+            <Check className={`${size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} text-green-400`} />
             <span className="text-green-400">Copied!</span>
           </>
         ) : (
           <>
-            <Link2 className="w-4 h-4" />
+            <Link2 className={size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} />
             <span>Copy Link</span>
           </>
         )}
@@ -77,7 +78,7 @@ export function ShareButtons({ url, title, description }: ShareButtonsProps) {
           className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors"
           title="Share"
         >
-          <Share2 className="w-4 h-4" />
+          <Share2 className={size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} />
           <span>Share</span>
         </button>
       )}
