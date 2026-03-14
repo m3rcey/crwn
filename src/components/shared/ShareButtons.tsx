@@ -8,7 +8,7 @@ interface ShareButtonsProps {
   url: string;
   title: string;
   description?: string;
-  size?: 'sm' | 'md';
+  size?: 'xs' | 'sm' | 'md';
 }
 
 export function ShareButtons({ url, title, description, size = 'md' }: ShareButtonsProps) {
@@ -55,18 +55,18 @@ export function ShareButtons({ url, title, description, size = 'md' }: ShareButt
       {/* Copy Link */}
       <button
         onClick={handleCopyLink}
-        className={`flex items-center gap-1 rounded-lg font-medium neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors ${size === 'sm' ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'}`}
+        className={`flex items-center gap-1 rounded-lg font-medium neu-button text-crwn-text-secondary hover:text-crwn-text transition-colors ${size === 'xs' ? 'px-2 py-1.5' : size === 'sm' ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'}`}
         title="Copy link"
       >
         {copied ? (
           <>
             <Check className={`${size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} text-green-400`} />
-            <span className="text-green-400">Copied!</span>
+            {size !== 'xs' && <span className="text-green-400">Copied!</span>}
           </>
         ) : (
           <>
             <Link2 className={size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} />
-            <span>Copy Link</span>
+            {size !== 'xs' && <span>Copy Link</span>}
           </>
         )}
       </button>
@@ -79,7 +79,7 @@ export function ShareButtons({ url, title, description, size = 'md' }: ShareButt
           title="Share"
         >
           <Share2 className={size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} />
-          <span>Share</span>
+          {size !== 'xs' && <span>Share</span>}
         </button>
       )}
 

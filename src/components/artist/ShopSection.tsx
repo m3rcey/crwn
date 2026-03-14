@@ -236,7 +236,7 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
                 </div>
                 <div className="mt-2 pt-2 border-t border-crwn-elevated">
                   <ShareButtons
-                    size="sm"
+                    size="xs"
                     url={`https://thecrwn.app/artist/${artistSlug}`}
                     title={product.title}
                     description={product.description || `Check out ${product.title}`}
