@@ -319,8 +319,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           isArtistProfile={isArtistProfile}
           hasBookingSessions={hasBookingSessions}
           commissionRate={artist.referral_commission_rate || 10}
-          isFoundingArtist={artist.is_founding_artist || false}
-          foundingArtistNumber={artist.founding_artist_number || null}
         />
       </div>
     </div>

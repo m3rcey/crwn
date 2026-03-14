@@ -46,8 +46,6 @@ interface ArtistProfileContentProps {
   isArtistProfile: boolean;
   hasBookingSessions?: boolean;
   commissionRate?: number;
-  isFoundingArtist?: boolean;
-  foundingArtistNumber?: number | null;
 }
 
 export function ArtistProfileContent({
