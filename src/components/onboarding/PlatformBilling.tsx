@@ -100,14 +100,12 @@ export function PlatformBilling() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              tier === 'label' ? 'bg-crwn-gold/20' : tier === 'pro' ? 'bg-crwn-gold/20' : 'bg-crwn-surface'
+              tier === 'starter' ? 'bg-crwn-surface' : 'bg-crwn-gold/20'
             }`}>
-              {tier === 'label' ? (
-                <Crown className="w-6 h-6 text-crwn-gold" />
-              ) : tier === 'pro' ? (
-                <Crown className="w-6 h-6 text-crwn-gold" />
-              ) : (
+              {tier === 'starter' ? (
                 <span className="text-2xl">🎵</span>
+              ) : (
+                <Crown className="w-6 h-6 text-crwn-gold" />
               )}
             </div>
             <div>
@@ -117,7 +115,7 @@ export function PlatformBilling() {
                   tier === 'starter' ? 'bg-crwn-surface text-crwn-text-dim' :
                   'bg-crwn-gold/20 text-crwn-gold'
                 }`}>
-                  {tier === 'starter' ? 'Free' : tier === 'pro' ? 'Pro' : 'Label'}
+                  {tier === 'starter' ? 'Free' : formatTierName(tier)}
                 </span>
               </div>
               <p className="text-sm text-crwn-text-dim">
@@ -142,7 +140,7 @@ export function PlatformBilling() {
               Tracks: {limits.maxTracks === -1 ? 'Unlimited' : limits.maxTracks}
             </div>
             <div className="text-crwn-text">
-              Fan Tiers: {limits.maxFanTiers}
+              Fan Tiers: {limits.maxFanTiers === -1 ? 'Unlimited' : limits.maxFanTiers}
             </div>
             <div className="text-crwn-text">
               Bundles: {limits.allowsBundles ? '✓ Yes' : '✗ No'}
