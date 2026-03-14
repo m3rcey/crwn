@@ -6,6 +6,7 @@ import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } fr
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { subscriptionEmail } from '@/lib/emails/subscription';
 import { artistTierEmail } from '@/lib/emails/artistTier';
+import { purchaseEmail } from '@/lib/emails/purchase';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 
@@ -628,7 +629,7 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
   // Get product price and quantity_sold
   const { data: product } = await supabaseAdmin
     .from('products')
-    .select('price, quantity_sold, title')
+    .select('price, quantity_sold, title, type')
     .eq('id', product_id)
     .single();
 
@@ -727,6 +728,27 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
     } catch (err) {
       console.error('Milestone check failed:', err);
     }
+  }
+
+  // Send purchase confirmation email to fan
+  try {
+    const fanEmail = session.customer_email || session.customer_details?.email;
+    const { data: artistNameData } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', artistProfile?.user_id)
+      .single();
+    const artistDisplayName = artistNameData?.display_name || 'an artist';
+    if (fanEmail) {
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: fanEmail,
+        subject: `Purchase confirmed - ${productTitle}`,
+        html: purchaseEmail(fanName, artistDisplayName, productTitle, (grossAmount / 100).toFixed(2), product.type || 'product'),
+      });
+    }
+  } catch (err) {
+    console.error('Purchase email failed:', err);
   }
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
