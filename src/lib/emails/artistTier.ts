@@ -1,7 +1,15 @@
 export function artistTierEmail(displayName: string, tierName: string): string {
   const isPro = tierName.toLowerCase().includes('pro');
+  const isEmpire = tierName.toLowerCase().includes('empire');
 
-  const features = isPro ? [
+  const features = isEmpire ? [
+    { icon: '👑', label: 'Everything in Label', desc: 'All Label features included' },
+    { icon: '💰', label: '4% Platform Fee', desc: 'The lowest rate on CRWN' },
+    { icon: '🎤', label: 'Unlimited Artist Profiles', desc: 'No limits on your roster' },
+    { icon: '📊', label: 'Unlimited Fan Tiers', desc: 'Monetize however you want' },
+    { icon: '⚡', label: 'Priority Support', desc: 'Direct line when you need help' },
+    { icon: '🚀', label: 'Early Access', desc: 'First to get new features' },
+  ] : isPro ? [
     { icon: '🎵', label: 'Unlimited Uploads', desc: 'No more track limits' },
     { icon: '👥', label: 'Unlimited Community', desc: 'Grow without caps' },
     { icon: '📊', label: 'Advanced Analytics', desc: 'LTV, churn, ARPU, geo data, and more' },

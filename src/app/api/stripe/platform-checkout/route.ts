@@ -6,9 +6,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
-    const { tierId } = await request.json();
+    const { tierId, billingCycle = 'annual' } = await request.json();
 
-    if (!tierId || !['pro', 'label'].includes(tierId)) {
+    if (!tierId || !['pro', 'label', 'empire'].includes(tierId)) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
     }
 

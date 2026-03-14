@@ -1,3 +1,19 @@
+// Platform Tier Pricing
+export const TIER_PRICING = {
+  pro: { monthly: 4900, annual: 44100, monthlyDisplay: 49, annualMonthlyDisplay: 37, annualTotal: 441, savings: 147 },
+  label: { monthly: 14900, annual: 134100, monthlyDisplay: 149, annualMonthlyDisplay: 112, annualTotal: 1341, savings: 447 },
+  empire: { monthly: 34900, annual: 314100, monthlyDisplay: 349, annualMonthlyDisplay: 262, annualTotal: 3141, savings: 1047 },
+} as const;
+
+export const STRIPE_PRICE_IDS = {
+  pro_monthly: process.env.STRIPE_CRWN_PRO_PRICE_ID!,
+  pro_annual: process.env.STRIPE_CRWN_PRO_ANNUAL_PRICE_ID!,
+  label_monthly: process.env.STRIPE_CRWN_LABEL_PRICE_ID!,
+  label_annual: process.env.STRIPE_CRWN_LABEL_ANNUAL_PRICE_ID!,
+  empire_monthly: process.env.STRIPE_CRWN_EMPIRE_PRICE_ID!,
+  empire_annual: process.env.STRIPE_CRWN_EMPIRE_ANNUAL_PRICE_ID!,
+} as const;
+
 // Platform Tier Limits Configuration
 export interface TierLimits {
   maxTracks: number;
@@ -37,6 +53,15 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsLive: true,
     platformFeePercent: 6,
   },
+  empire: {
+    maxTracks: -1, // unlimited
+    maxMembers: -1, // unlimited
+    maxFanTiers: -1, // unlimited
+    allowsBundles: true,
+    allowsScheduling: true,
+    allowsLive: true,
+    platformFeePercent: 4,
+  },
 };
 
 // New simplified structure for server-side gating
@@ -74,9 +99,20 @@ export const TIER_LIMITS_V2 = {
     artistProfiles: 10,
     apiAccess: true,
   },
+  empire: {
+    tracks: -1,
+    fanTiers: -1,
+    members: -1,
+    bundles: true,
+    scheduling: true,
+    liveQA: true,
+    analytics: 'full' as const,
+    artistProfiles: -1,
+    apiAccess: true,
+  },
 } as const;
 
-export type PlatformTierName = 'starter' | 'pro' | 'label';
+export type PlatformTierName = 'starter' | 'pro' | 'label' | 'empire';
 
 export function getTierLimitsV2(tier: string | null) {
   const key = (tier || 'starter') as PlatformTierName;
@@ -185,7 +221,9 @@ export async function getArtistFeePercent(artistId: string): Promise<number> {
     }
   }
 
-  // Label gets 6%, everyone else 8%
+  // Empire 4%, Label 6%, everyone else 8%
   const tier = data.platform_tier || 'starter';
-  return tier === 'label' ? 6 : 8;
+  if (tier === 'empire') return 4;
+  if (tier === 'label') return 6;
+  return 8;
 }
