@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -100,6 +101,7 @@ interface PlatformTierModalProps {
 
 export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const supabase = createBrowserSupabaseClient();
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
@@ -122,7 +124,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
           .from('profiles')
           .update({ platform_tier: tier.id })
           .eq('id', user.id);
-        window.location.href = '/profile/artist?tab=billing';
+        router.push('/profile/artist?tab=billing');
       } catch (error) {
         console.error('Error setting platform tier:', error);
       } finally {

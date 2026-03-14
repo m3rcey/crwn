@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,6 +18,7 @@ interface SubscribeButtonProps {
 
 export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButtonProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
@@ -169,6 +171,7 @@ interface TierCardsProps {
 
 export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
@@ -214,7 +217,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const handleSubscribe = async (tier: TierConfig) => {
     hapticMedium();
     if (!user) {
-      window.location.href = '/login';
+      router.push('/login');
       return;
     }
 
@@ -253,7 +256,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const handleUpgradeOrDowngrade = async (tier: TierConfig) => {
     hapticMedium();
     if (!user) {
-      window.location.href = '/login';
+      router.push('/login');
       return;
     }
 

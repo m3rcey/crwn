@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { hapticLight } from '@/lib/haptics';
@@ -24,6 +25,7 @@ const navItems = [
 export function Navigation() {
   const pathname = usePathname();
   const { user, profile, signOut } = useAuth();
+  const router = useRouter();
 
   const isActive = (href: string) => {
     if (href === '/home') return pathname === '/home';
@@ -32,7 +34,7 @@ export function Navigation() {
 
   const handleSignOut = async () => {
     await signOut();
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   // Don't show nav on auth pages
