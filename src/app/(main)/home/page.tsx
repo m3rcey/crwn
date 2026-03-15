@@ -137,60 +137,34 @@ export default function HomePage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[1,2,3].map(i => <div key={i} className="bg-crwn-surface rounded-xl overflow-hidden"><div className="h-24 md:h-32 bg-crwn-elevated animate-pulse" /><div className="p-3 space-y-2"><div className="h-4 bg-crwn-elevated rounded w-3/4 animate-pulse" /><div className="h-3 bg-crwn-elevated rounded w-1/2 animate-pulse" /></div></div>)}
+          <div className="grid grid-cols-2 gap-3">
+            {[1,2].map(i => <div key={i}><div className="aspect-square bg-crwn-elevated rounded-xl animate-pulse" /><div className="h-4 bg-crwn-elevated rounded w-3/4 mx-auto mt-2 animate-pulse" /></div>)}
           </div>
         ) : featuredArtists.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {featuredArtists.map((artist) => (
               <Link
                 key={artist.id}
                 href={`/artist/${artist.slug}`}
-                className="bg-crwn-surface hover:bg-crwn-elevated border border-crwn-elevated rounded-xl overflow-hidden transition-colors group"
+                className="rounded-xl overflow-hidden press-scale"
               >
-                <div className="relative h-24 md:h-32 bg-crwn-elevated">
-                  {artist.banner_url ? (
+                <div className="aspect-square relative bg-crwn-elevated rounded-xl overflow-hidden">
+                  {artist.profile?.avatar_url ? (
                     <Image
-                      src={artist.banner_url}
-                      alt=""
+                      src={artist.profile.avatar_url}
+                      alt={artist.profile?.display_name || 'Artist'}
                       fill
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Sparkles className="w-8 h-8 text-crwn-gold/30" />
+                    <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary text-4xl font-semibold">
+                      {(artist.profile?.display_name || 'A').charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-crwn-elevated overflow-hidden flex-shrink-0">
-                      {artist.profile?.avatar_url ? (
-                        <Image
-                          src={artist.profile.avatar_url}
-                          alt=""
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary font-semibold">
-                          {(artist.profile?.display_name || 'A').charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-crwn-text truncate">
-                        {artist.profile?.display_name || 'Artist'}
-                      </p>
-                      {artist.tagline && (
-                        <p className="text-xs text-crwn-text-secondary truncate">
-                          {artist.tagline}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <p className="font-medium text-crwn-text text-sm mt-2 text-center">
+                  {artist.profile?.display_name || 'Artist'}
+                </p>
               </Link>
             ))}
           </div>
