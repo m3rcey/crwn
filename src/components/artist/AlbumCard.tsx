@@ -172,9 +172,22 @@ export function AlbumsSection({ albums, artistSlug }: AlbumsSectionProps) {
   return (
     <section className="mb-8">
       <h2 className="text-xl font-semibold text-crwn-text mb-4">Albums</h2>
-      <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {albums.map((album) => (
-          <AlbumCard key={album.id} album={album} artistSlug={artistSlug} />
+          <Link
+            key={album.id}
+            href={`/artist/${artistSlug}/album/${album.id}`}
+            className="overflow-hidden press-scale"
+          >
+            <div className="aspect-square relative bg-crwn-elevated rounded-xl overflow-hidden">
+              {album.album_art_url ? (
+                <Image src={album.album_art_url} alt={album.title} fill className="object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-4xl">\ud83c\udfb5</div>
+              )}
+            </div>
+            <p className="font-medium text-crwn-text text-sm mt-2 truncate">{album.title}</p>
+          </Link>
         ))}
       </div>
     </section>
