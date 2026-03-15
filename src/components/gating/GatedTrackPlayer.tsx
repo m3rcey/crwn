@@ -72,7 +72,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   return (
     <>
       <div
-        className={`flex items-center gap-4 py-3 px-1 transition-colors group cursor-pointer border-b border-crwn-elevated/50 ${
+        className={`flex items-center gap-4 py-3 px-1 transition-colors group cursor-pointer border-b border-crwn-elevated/50 active:bg-white/10 ${
           isCurrentTrack ? 'bg-crwn-elevated/30' : 'hover:bg-crwn-elevated/20'
         } ${isLocked ? 'opacity-90' : ''}`}
         onClick={handlePlay}
