@@ -19,9 +19,24 @@ export default function RecruiterDashboard() {
     if (!user) return;
     fetch(`/api/recruit/dashboard?userId=${user.id}`)
       .then(res => res.json())
-      .then(d => {
-        if (d.error) {
-          router.push('/recruit');
+      .then(async d => {
+        if (d.error === 'Not a recruiter') {
+          // Auto-register as recruiter
+          const signupRes = await fetch('/api/recruit/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id }),
+          });
+          const signupData = await signupRes.json();
+          if (signupData.error) {
+            showToast(signupData.error, 'error');
+            setIsLoading(false);
+            return;
+          }
+          // Fetch dashboard again
+          const res2 = await fetch(`/api/recruit/dashboard?userId=${user.id}`);
+          const d2 = await res2.json();
+          setData(d2);
         } else {
           setData(d);
         }
