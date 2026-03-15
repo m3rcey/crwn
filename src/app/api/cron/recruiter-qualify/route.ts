@@ -1,0 +1,155 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+const TIER_FLAT_FEES: Record<string, (count: number) => number> = {
+  starter: (count) => count === 1 ? 5000 : 2500,
+  connector: () => 5000,
+  ambassador: () => 7500,
+  partner: () => 0,
+};
+
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // Find pending referrals where artist has been on a paid plan for 30+ days
+  const { data: pendingReferrals } = await supabaseAdmin
+    .from('artist_referrals')
+    .select('id, recruiter_id, artist_id, artist_user_id, created_at')
+    .eq('status', 'pending')
+    .lte('created_at', thirtyDaysAgo.toISOString());
+
+  if (!pendingReferrals || pendingReferrals.length === 0) {
+    return NextResponse.json({ message: 'No referrals to qualify', processed: 0 });
+  }
+
+  let qualified = 0;
+  let churned = 0;
+
+  for (const referral of pendingReferrals) {
+    // Check if artist still has an active paid platform subscription
+    const { data: artist } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('platform_tier, platform_subscription_status')
+      .eq('id', referral.artist_id)
+      .single();
+
+    const isActivePaid = artist &&
+      artist.platform_subscription_status === 'active' &&
+      artist.platform_tier &&
+      artist.platform_tier !== 'starter';
+
+    if (isActivePaid) {
+      // Qualify the referral
+      const now = new Date();
+      const expiresAt = new Date(now);
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
+      // Get recruiter for tier info
+      const { data: recruiter } = await supabaseAdmin
+        .from('recruiters')
+        .select('id, tier, total_artists_referred, stripe_connect_id')
+        .eq('id', referral.recruiter_id)
+        .single();
+
+      if (!recruiter) continue;
+
+      // Calculate flat fee
+      const tier = recruiter.tier || 'starter';
+      const count = recruiter.total_artists_referred || 1;
+      const flatFee = TIER_FLAT_FEES[tier] ? TIER_FLAT_FEES[tier](count) : 2500;
+
+      // Determine recurring rate
+      let recurringRate = 0;
+      if (tier === 'connector') recurringRate = 5;
+      else if (tier === 'ambassador') recurringRate = 10;
+      else if (tier === 'partner') recurringRate = 0; // custom, handled manually
+
+      // Update referral to qualified
+      await supabaseAdmin
+        .from('artist_referrals')
+        .update({
+          status: 'qualified',
+          qualified_at: now.toISOString(),
+          flat_fee_amount: flatFee,
+          recurring_rate: recurringRate,
+          recurring_expires_at: recurringRate > 0 ? expiresAt.toISOString() : null,
+        })
+        .eq('id', referral.id);
+
+      // Create flat fee payout record
+      await supabaseAdmin
+        .from('recruiter_payouts')
+        .insert({
+          recruiter_id: recruiter.id,
+          artist_referral_id: referral.id,
+          type: 'flat_fee',
+          amount: flatFee,
+          description: `Flat fee - artist qualified after 30 days`,
+          status: recruiter.stripe_connect_id ? 'pending' : 'pending',
+        });
+
+      // Pay out flat fee via Stripe if connected
+      if (recruiter.stripe_connect_id) {
+        try {
+          const transfer = await stripe.transfers.create({
+            amount: flatFee,
+            currency: 'usd',
+            destination: recruiter.stripe_connect_id,
+            description: `CRWN Recruiter flat fee - artist referral`,
+          });
+
+          await supabaseAdmin
+            .from('recruiter_payouts')
+            .update({
+              status: 'paid',
+              stripe_transfer_id: transfer.id,
+            })
+            .eq('recruiter_id', recruiter.id)
+            .eq('artist_referral_id', referral.id)
+            .eq('type', 'flat_fee');
+
+          // Update recruiter total earned
+          await supabaseAdmin
+            .from('recruiters')
+            .update({
+              total_earned: (recruiter as any).total_earned + flatFee,
+            })
+            .eq('id', recruiter.id);
+        } catch (err) {
+          console.error('Flat fee transfer failed:', err);
+        }
+      }
+
+      // Mark flat fee as paid
+      await supabaseAdmin
+        .from('artist_referrals')
+        .update({ flat_fee_paid: true })
+        .eq('id', referral.id);
+
+      qualified++;
+    } else {
+      // Artist churned before 30 days
+      await supabaseAdmin
+        .from('artist_referrals')
+        .update({ status: 'churned' })
+        .eq('id', referral.id);
+
+      churned++;
+    }
+  }
+
+  return NextResponse.json({ message: 'Qualification check complete', qualified, churned });
+}

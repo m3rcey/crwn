@@ -3,6 +3,14 @@
     {
       "path": "/api/cron/weekly-payout",
       "schedule": "0 11 * * 1"
+    },
+    {
+      "path": "/api/cron/recruiter-qualify",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/recruiter-recurring",
+      "schedule": "0 13 1 * *"
     }
   ]
 }
