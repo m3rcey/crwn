@@ -183,7 +183,7 @@ export default function ExplorePage() {
                 <TrendingUp className="w-5 h-5 text-crwn-gold" />
                 Popular
               </h2>
-              <div className="neu-raised rounded-xl overflow-hidden">
+              <div>
                 {popularTracks.map((track, i) => (
                   <div
                     key={track.id}
