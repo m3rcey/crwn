@@ -67,23 +67,19 @@ export default function HomePage() {
   }, [supabase]);
 
   const quickActions = [
-    { 
-      href: '/explore', 
-      label: 'Explore Artists', 
-      icon: Compass, 
-      description: 'Discover new music',
-      color: 'bg-crwn-gold'
+    {
+      href: '/explore',
+      label: 'Explore Artists',
+      image: '/homepage_explore.png',
     },
-    { 
-      href: '/library', 
-      label: 'My Library', 
-      icon: Library, 
-      description: 'Your saved tracks',
-      color: 'bg-crwn-elevated'
+    {
+      href: '/library',
+      label: 'My Library',
+      image: '/homepage_library.png',
     },
-    hasArtistProfile 
-      ? { href: '/profile/artist', label: 'Artist Dashboard', icon: Music, description: 'Manage your music', color: 'bg-crwn-gold' }
-      : { href: '/profile/artist', label: 'Become an Artist', icon: Music, description: 'Start creating', color: 'bg-crwn-elevated' }
+    hasArtistProfile
+      ? { href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.png' }
+      : { href: '/profile/artist', label: 'Become an Artist', image: '/homepage_artistdashboard.png' }
   ];
 
   const getGreeting = () => {
@@ -108,23 +104,23 @@ export default function HomePage() {
       {/* Quick Actions */}
       <section>
         <h2 className="text-lg font-semibold text-crwn-text mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
-            return (
+        <div className="grid grid-cols-2 gap-3">
+          {quickActions.map((action) => (
               <Link
                 key={action.href}
                 href={action.href}
-                className="bg-crwn-surface hover:bg-crwn-elevated border border-crwn-elevated rounded-xl p-4 transition-colors group"
+                className="rounded-xl overflow-hidden press-scale"
               >
-                <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center mb-3`}>
-                  <Icon className="w-5 h-5 text-crwn-bg" />
+                <div className="aspect-square relative">
+                  <img
+                    src={action.image}
+                    alt={action.label}
+                    className="w-full h-full object-cover rounded-xl"
+                  />
                 </div>
-                <p className="font-medium text-crwn-text text-sm">{action.label}</p>
-                <p className="text-xs text-crwn-text-secondary mt-1">{action.description}</p>
+                <p className="font-medium text-crwn-text text-sm mt-2 text-center">{action.label}</p>
               </Link>
-            );
-          })}
+          ))}
         </div>
       </section>
 
