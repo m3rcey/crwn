@@ -17,7 +17,7 @@ export default function WelcomePage() {
       body: JSON.stringify({
         type: 'welcome',
         to: user.email,
-        displayName: user.user_metadata?.full_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'there',
+        displayName: (user.user_metadata?.full_name || user.user_metadata?.display_name || '').split(' ')[0] || user.email?.split('@')[0] || 'there',
       }),
     }).catch(console.error);
 
