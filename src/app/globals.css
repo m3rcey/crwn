@@ -5,7 +5,7 @@
   /* CRWN Dark Mode ONLY - No light mode */
   /* True dark charcoal/black - no purple tint */
   --crwn-bg: #0f0f0f;
-  --crwn-surface: #1a1a1a;
+  --crwn-surface: rgba(26, 26, 26, 0.4);
   --crwn-elevated: #222222;
   --crwn-gold: #D4AF37;
   --crwn-gold-hover: #C9A032;
