@@ -18,7 +18,7 @@ export function generateReferralCode(username: string | null, fanId: string): st
  * Build a referral URL for a specific artist.
  */
 export function buildReferralUrl(artistSlug: string, referralCode: string): string {
-  return `https://thecrwn.app/${artistSlug}?ref=${referralCode}`;
+  return `https://thecrwn.app/${artistSlug}/r/${referralCode}`;
 }
 
 /**
