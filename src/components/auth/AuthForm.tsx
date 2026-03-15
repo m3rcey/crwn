@@ -14,6 +14,7 @@ interface AuthFormProps {
 export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -113,7 +114,7 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
           return;
         }
 
-        const { error } = await signUp(email, password, username);
+        const { error } = await signUp(email, password, username, fullName);
         if (error) throw error;
         onSignupComplete?.();
         setShowConfirmation(true);
@@ -153,6 +154,22 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
   return (
     <div className="w-full max-w-md mx-auto">
       <form onSubmit={handleSubmit} className="space-y-4">
+        {mode === 'signup' && (
+          <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-crwn-text-secondary mb-1">
+              Full Name
+            </label>
+            <input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Your full name"
+              className="neu-inset w-full px-4 py-3 text-crwn-text placeholder-crwn-text-secondary focus:outline-none"
+              required
+            />
+          </div>
+        )}
         {mode === 'signup' && (
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-crwn-text-secondary mb-1">

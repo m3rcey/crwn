@@ -9,6 +9,7 @@ type UserRole = 'fan' | 'artist' | 'admin';
 interface Profile {
   id: string;
   role: UserRole;
+  full_name: string | null;
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
@@ -21,7 +22,7 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   isLoading: boolean;
-  signUp: (email: string, password: string, username?: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, username?: string, fullName?: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
@@ -79,21 +80,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [fetchProfile, supabase]);
 
-  const signUp = async (email: string, password: string, username?: string) => {
+  const signUp = async (email: string, password: string, username?: string, fullName?: string) => {
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/welcome`,
+        data: {
+          full_name: fullName || '',
+        },
       },
     });
 
-    if (!error && data.user && username) {
-      // Update profile with username
-      await supabase
-        .from('profiles')
-        .update({ username: username.toLowerCase() })
-        .eq('id', data.user.id);
+    if (!error && data.user) {
+      // Update profile with username and full_name
+      const updates: Record<string, string> = {};
+      if (username) updates.username = username.toLowerCase();
+      if (fullName) updates.full_name = fullName;
+      if (Object.keys(updates).length > 0) {
+        await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', data.user.id);
+      }
     }
 
     return { error };
