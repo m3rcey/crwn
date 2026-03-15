@@ -97,7 +97,7 @@ export default function HomePage() {
           {getGreeting()}{profile?.display_name ? `, ${profile.display_name}` : ''}!
         </h1>
         <p className="text-crwn-text-secondary mt-2">
-          Welcome to CRWN. Discover new music, connect with artists, and support the creative community.
+          Welcome to CRWN. Artists get supported. Fans get access. Everyone wins.
         </p>
       </div>
 
