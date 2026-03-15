@@ -112,9 +112,9 @@ export default function ExplorePage() {
                   <Link
                     key={artist.id}
                     href={`/artist/${artist.slug}`}
-                    className="neu-raised rounded-xl overflow-hidden hover:scale-[1.02] transition-transform"
+                    className="overflow-hidden hover:scale-[1.02] transition-transform press-scale"
                   >
-                    <div className="aspect-square relative bg-crwn-elevated">
+                    <div className="aspect-square relative bg-crwn-elevated rounded-xl">
                       {artist.avatarUrl ? (
                         <Image src={artist.avatarUrl} alt={artist.displayName} fill className="object-cover" />
                       ) : (
@@ -123,7 +123,7 @@ export default function ExplorePage() {
                         </div>
                       )}
                     </div>
-                    <div className="p-3">
+                    <div className="pt-2">
                       <p className="text-sm font-semibold text-crwn-text truncate">{artist.displayName}</p>
                       {artist.tagline && (
                         <p className="text-xs text-crwn-text-secondary truncate mt-0.5">{artist.tagline}</p>
@@ -147,10 +147,10 @@ export default function ExplorePage() {
                 {newReleases.map(track => (
                   <div
                     key={track.id}
-                    className="neu-raised rounded-xl overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform"
+                    className="overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform press-scale"
                     onClick={() => play(track as any, newReleases as any)}
                   >
-                    <div className="aspect-square relative bg-crwn-elevated">
+                    <div className="aspect-square relative bg-crwn-elevated rounded-xl">
                       {track.albumArt ? (
                         <Image src={track.albumArt} alt={track.title} fill className="object-cover" />
                       ) : (
@@ -160,7 +160,7 @@ export default function ExplorePage() {
                         <Play className="w-10 h-10 text-white" fill="white" />
                       </div>
                     </div>
-                    <div className="p-3">
+                    <div className="pt-2">
                       <p className="text-sm font-medium text-crwn-text truncate">{track.title}</p>
                       <Link
                         href={`/artist/${track.artistSlug}`}
