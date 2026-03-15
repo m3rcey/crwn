@@ -904,6 +904,61 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
     })
     .eq('id', user_id);
 
+  // Track recruiter referral if artist was recruited
+  try {
+    const { data: artistProfile } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('recruited_by')
+      .eq('id', artist_id)
+      .single();
+
+    if (artistProfile?.recruited_by) {
+      const { data: recruiter } = await supabaseAdmin
+        .from('recruiters')
+        .select('id, total_artists_referred, tier')
+        .eq('referral_code', artistProfile.recruited_by)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (recruiter) {
+        // Check if referral already exists
+        const { data: existingRef } = await supabaseAdmin
+          .from('artist_referrals')
+          .select('id')
+          .eq('recruiter_id', recruiter.id)
+          .eq('artist_user_id', user_id)
+          .maybeSingle();
+
+        if (!existingRef) {
+          await supabaseAdmin
+            .from('artist_referrals')
+            .insert({
+              recruiter_id: recruiter.id,
+              artist_id: artist_id,
+              artist_user_id: user_id,
+              status: 'pending',
+            });
+
+          // Update recruiter count
+          const newCount = (recruiter.total_artists_referred || 0) + 1;
+          let newTier = recruiter.tier;
+          if (newCount >= 16) newTier = 'ambassador';
+          else if (newCount >= 6) newTier = 'connector';
+
+          await supabaseAdmin
+            .from('recruiters')
+            .update({
+              total_artists_referred: newCount,
+              tier: newTier,
+            })
+            .eq('id', recruiter.id);
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Recruiter tracking error:', err);
+  }
+
   // Send artist tier welcome email
   try {
     const { data: artistUser } = await supabaseAdmin

@@ -119,6 +119,7 @@ export function ArtistProfileForm() {
           })
           .eq('id', artistProfile.id);
       } else {
+        const recruiterCode = typeof window !== 'undefined' ? localStorage.getItem('crwn_recruiter') : null;
         const { data } = await supabase
           .from('artist_profiles')
           .insert({
@@ -126,6 +127,7 @@ export function ArtistProfileForm() {
             slug: formData.slug,
             tagline: formData.tagline,
             banner_url: formData.banner_url,
+            ...(recruiterCode ? { recruited_by: recruiterCode } : {}),
           })
           .select()
           .single();
