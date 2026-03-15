@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { Lock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useRef } from 'react';
 import { GatedTrackPlayer } from '@/components/gating';
 
 interface AlbumShareContentProps {
@@ -38,6 +40,21 @@ interface AlbumShareContentProps {
 }
 
 export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareContentProps) {
+  const router = useRouter();
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const diff = touchEndX.current - touchStartX.current;
+    if (diff > 80) {
+      router.back();
+    }
+  };
   const { user } = useAuth();
   const { tierId } = useSubscription(artist.id);
 
@@ -55,7 +72,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
   };
 
   return (
-    <div className="min-h-screen bg-crwn-bg stagger-fade-in">
+    <div className="min-h-screen bg-crwn-bg stagger-fade-in" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Header */}
       <div className="relative h-48 sm:h-64 md:h-80 w-full">
         {coverUrl ? (
@@ -75,12 +92,12 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
       {/* Content */}
       <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
         {/* Back button */}
-        <Link
-          href={`/${artist.slug}`}
+        <button
+          onClick={() => router.back()}
           className="inline-flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-text mb-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm"
         >
           ← Back to {artist.displayName}
-        </Link>
+        </button>
 
         {/* Album Info */}
         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6 mb-8">
