@@ -62,7 +62,7 @@ export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareE
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-2 right-0 w-80 bg-crwn-surface border border-crwn-elevated rounded-xl shadow-xl z-50 p-4">
+        <div className="absolute top-full mt-2 left-0 w-[calc(100vw-2rem)] max-w-80 bg-[#1a1a1a] border border-crwn-elevated rounded-xl shadow-xl z-50 p-4">
           <p className="text-sm text-crwn-text font-medium mb-1">Your Referral Link</p>
           <p className="text-xs text-crwn-text-secondary mb-3">
             Earn {commissionRate}% recurring commission on every subscription through your link.
@@ -86,7 +86,7 @@ export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareE
           {typeof navigator !== 'undefined' && 'share' in navigator && (
             <button
               onClick={handleNativeShare}
-              className="w-full py-2 rounded-lg text-xs font-semibold bg-crwn-surface border border-crwn-elevated text-crwn-text hover:border-crwn-gold/50 transition-colors"
+              className="w-full py-2 rounded-lg text-xs font-semibold bg-[#222222] border border-crwn-elevated text-crwn-text hover:border-crwn-gold/50 transition-colors"
             >
               Share via...
             </button>
