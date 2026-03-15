@@ -9,6 +9,7 @@ import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { ArtistProfileContent } from '@/components/artist/ArtistProfileContent';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
+import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
 import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 
