@@ -289,6 +289,11 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                   <FoundingBadge number={artist.founding_artist_number} size="sm" />
                 )}
               </div>
+              <ShareEarnWrapper
+                artistSlug={artist.slug}
+                artistId={artist.id}
+                commissionRate={artist.referral_commission_rate || 10}
+              />
               {artist.tagline && (
                 <p className="text-crwn-text-secondary mt-1">{artist.tagline}</p>
               )}
