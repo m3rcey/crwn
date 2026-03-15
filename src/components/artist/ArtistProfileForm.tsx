@@ -6,6 +6,7 @@ import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { ArtistProfile } from '@/types';
+import { isReservedSlug } from '@/lib/reservedSlugs';
 
 interface ArtistFormData {
   display_name: string;
@@ -290,7 +291,7 @@ export function ArtistProfileForm() {
           Artist URL
         </label>
         <div className="flex items-center bg-crwn-surface rounded-lg px-4 py-3">
-          <span className="text-crwn-text-secondary">crwn.app/artist/</span>
+          <span className="text-crwn-text-secondary">thecrwn.app/</span>
           <input
             type="text"
             value={formData.slug}
@@ -300,6 +301,9 @@ export function ArtistProfileForm() {
             required
           />
         </div>
+        {formData.slug && isReservedSlug(formData.slug) && (
+          <p className="text-sm text-red-400 mt-1">This URL is reserved. Please choose a different one.</p>
+        )}
       </div>
 
       {/* Tagline */}

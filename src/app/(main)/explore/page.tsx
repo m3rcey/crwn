@@ -111,7 +111,7 @@ export default function ExplorePage() {
                 {artists.map(artist => (
                   <Link
                     key={artist.id}
-                    href={`/artist/${artist.slug}`}
+                    href={`/${artist.slug}`}
                     className="overflow-hidden hover:scale-[1.02] transition-transform press-scale"
                   >
                     <div className="aspect-square relative bg-crwn-elevated rounded-xl">
@@ -163,7 +163,7 @@ export default function ExplorePage() {
                     <div className="pt-2">
                       <p className="text-sm font-medium text-crwn-text truncate">{track.title}</p>
                       <Link
-                        href={`/artist/${track.artistSlug}`}
+                        href={`/${track.artistSlug}`}
                         onClick={(e) => e.stopPropagation()}
                         className="text-xs text-crwn-text-secondary hover:text-crwn-gold truncate block"
                       >
@@ -205,7 +205,7 @@ export default function ExplorePage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-crwn-text truncate">{track.title}</p>
                       <Link
-                        href={`/artist/${track.artistSlug}`}
+                        href={`/${track.artistSlug}`}
                         onClick={(e) => e.stopPropagation()}
                         className="text-xs text-crwn-text-secondary hover:text-crwn-gold truncate block"
                       >

@@ -43,7 +43,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
 
   const isFree = album.is_free !== false;
   const hasAccess = isFree || (tierId && album.allowed_tier_ids?.includes(tierId));
-  const shareUrl = `https://thecrwn.app/artist/${artist.slug}/album/${album.id}`;
+  const shareUrl = `https://thecrwn.app/${artist.slug}/album/${album.id}`;
   const lowestTier = tiers[0];
   const coverUrl = album.album_art_url || album.cover_art_url || null;
   const totalDuration = tracks.reduce((sum, t) => sum + (t.duration || 0), 0);
@@ -76,7 +76,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
       <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
         {/* Back button */}
         <Link
-          href={`/artist/${artist.slug}`}
+          href={`/${artist.slug}`}
           className="inline-flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-text mb-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-sm"
         >
           ← Back to {artist.displayName}
@@ -125,7 +125,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
             </p>
             {lowestTier && (
               <Link
-                href={`/artist/${artist.slug}`}
+                href={`/${artist.slug}`}
                 className="neu-button-accent inline-block px-6 py-2 rounded-lg text-sm font-semibold"
               >
                 Subscribe from ${(lowestTier.price / 100).toFixed(2)}/mo

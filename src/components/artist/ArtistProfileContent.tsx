@@ -132,7 +132,7 @@ export function ArtistProfileContent({
       {/* Share Buttons */}
       <div className="px-4 sm:px-6 lg:px-8 mb-3">
         <ShareButtons
-          url={`https://thecrwn.app/artist/${artist.slug}`}
+          url={`https://thecrwn.app/${artist.slug}`}
           title={artist.profile?.display_name || 'Artist'}
           description={artist.tagline || undefined}
         />

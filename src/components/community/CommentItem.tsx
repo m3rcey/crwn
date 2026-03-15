@@ -101,7 +101,7 @@ export function CommentItem({
       <div className="flex gap-2">
         {/* Avatar */}
         <Link
-          href={`/artist/${comment.author?.username || 'user'}`}
+          href={`/${comment.author?.username || 'user'}`}
           className="w-8 h-8 rounded-full neu-inset flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-crwn-gold"
         >
           {comment.author?.avatar_url ? (
@@ -117,7 +117,7 @@ export function CommentItem({
           {/* Header */}
           <div className="flex items-center gap-2 flex-wrap">
             <Link
-              href={`/artist/${comment.author?.username || 'user'}`}
+              href={`/${comment.author?.username || 'user'}`}
               className="font-medium text-crwn-text text-sm hover:underline"
             >
               {comment.author?.display_name || comment.author?.username || 'User'}

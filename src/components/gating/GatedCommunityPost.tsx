@@ -128,7 +128,7 @@ export function GatedCommunityPost({ post, artistId, artistSlug }: GatedCommunit
                 <Eye size={16} /> Show preview
               </button>
               <a
-                href={`/artist/${artistSlug}?subscribe=true`}
+                href={`/${artistSlug}?subscribe=true`}
                 className="bg-crwn-gold text-crwn-bg px-4 py-2 rounded-lg text-sm font-medium hover:bg-crwn-gold-hover transition-colors"
               >
                 Subscribe
@@ -171,7 +171,7 @@ export function GatedCommunityPost({ post, artistId, artistSlug }: GatedCommunit
                   👆 This is a preview. Subscribe for full access.
                 </p>
                 <a
-                  href={`/artist/${artistSlug}?subscribe=true`}
+                  href={`/${artistSlug}?subscribe=true`}
                   className="block w-full mt-3 bg-crwn-gold text-crwn-bg py-2 rounded-lg text-center font-medium hover:bg-crwn-gold-hover transition-colors"
                 >
                   Subscribe to unlock

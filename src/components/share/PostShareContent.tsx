@@ -35,7 +35,7 @@ export function PostShareContent({ post, artist, tiers, commentCount }: PostShar
 
   const isFree = post.access_level === 'free' || post.is_free === true;
   const hasAccess = isFree || (tierId && post.allowed_tier_ids?.includes(tierId));
-  const shareUrl = `https://thecrwn.app/artist/${artist.slug}/post/${post.id}`;
+  const shareUrl = `https://thecrwn.app/${artist.slug}/post/${post.id}`;
   const lowestTier = tiers[0];
   const mediaUrls = post.media_urls || [];
 
@@ -58,7 +58,7 @@ export function PostShareContent({ post, artist, tiers, commentCount }: PostShar
         <div className="w-full max-w-lg">
           {/* Back to artist */}
           <Link
-            href={`/artist/${artist.slug}`}
+            href={`/${artist.slug}`}
             className="flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-gold text-sm mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -79,7 +79,7 @@ export function PostShareContent({ post, artist, tiers, commentCount }: PostShar
                 )}
               </div>
               <div>
-                <Link href={`/artist/${artist.slug}`} className="text-crwn-text font-medium text-sm hover:text-crwn-gold">
+                <Link href={`/${artist.slug}`} className="text-crwn-text font-medium text-sm hover:text-crwn-gold">
                   {artist.displayName}
                 </Link>
                 <p className="text-crwn-text-secondary text-xs">{timeAgo(post.created_at)}</p>
@@ -116,7 +116,7 @@ export function PostShareContent({ post, artist, tiers, commentCount }: PostShar
                   </p>
                   {lowestTier && (
                     <Link
-                      href={`/artist/${artist.slug}`}
+                      href={`/${artist.slug}`}
                       className="neu-button-accent inline-block px-6 py-2 rounded-lg text-sm font-semibold"
                     >
                       Subscribe from ${(lowestTier.price / 100).toFixed(2)}/mo
@@ -147,7 +147,7 @@ export function PostShareContent({ post, artist, tiers, commentCount }: PostShar
           {/* CTA to view full community */}
           <div className="text-center mt-6">
             <Link
-              href={`/artist/${artist.slug}`}
+              href={`/${artist.slug}`}
               className="text-crwn-gold hover:underline text-sm"
             >
               View {artist.displayName}'s full community →

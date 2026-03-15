@@ -18,7 +18,7 @@ export function TrackShareButton({ trackId, trackTitle, artistSlug, artistName, 
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const shareUrl = `https://thecrwn.app/artist/${artistSlug}/track/${trackId}`;
+  const shareUrl = `https://thecrwn.app/${artistSlug}/track/${trackId}`;
   const shareTitle = artistName ? `${trackTitle} by ${artistName}` : trackTitle;
   const shareText = artistName 
     ? `Listen to ${trackTitle} by ${artistName} on CRWN 👑`

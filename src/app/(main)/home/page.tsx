@@ -147,7 +147,7 @@ export default function HomePage() {
             {featuredArtists.map((artist) => (
               <Link
                 key={artist.id}
-                href={`/artist/${artist.slug}`}
+                href={`/${artist.slug}`}
                 className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
               >
                 <div className="aspect-square relative bg-crwn-elevated rounded-xl overflow-hidden max-w-[200px] mx-auto w-full">

@@ -110,7 +110,7 @@ export function SupporterWall({ artistId }: SupporterWallProps) {
       {supporters.map((supporter) => (
         <Link
           key={supporter.id}
-          href={`/artist/${supporter.username || supporter.id}`}
+          href={`/${supporter.username || supporter.id}`}
           className="relative group"
           title={supporter.display_name || supporter.username || 'Supporter'}
         >

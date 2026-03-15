@@ -82,7 +82,7 @@ export async function notifyNewTrack(
     'new_track',
     `${artistName} dropped a new track`,
     trackTitle,
-    `/artist/${artistSlug}`
+    `/${artistSlug}`
   );
 }
 
@@ -114,7 +114,7 @@ export async function notifyNewShopItem(
     subscriberUserId,
     'new_shop_item',
     `${artistName} added ${productTitle} to the shop`,
-    `/artist/${artistSlug}`
+    `/${artistSlug}`
   );
 }
 

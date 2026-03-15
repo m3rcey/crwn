@@ -207,7 +207,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
                 </button>
 
                 <a
-                  href={`/artist/${artistId}?subscribe=true`}
+                  href={`/${artistId}?subscribe=true`}
                   className="block w-full py-3 neu-button-accent text-crwn-bg"
                 >
                   Subscribe to unlock

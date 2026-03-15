@@ -62,7 +62,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
     <div className="neu-raised neu-card-hover overflow-hidden">
       {/* Album Header - Click to navigate to full album */}
       <Link
-        href={`/artist/${artistSlug}/album/${album.id}`}
+        href={`/${artistSlug}/album/${album.id}`}
         className="flex items-center gap-4 p-4 hover:bg-crwn-elevated/30"
       >
         <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative shadow-inner">
@@ -80,7 +80,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(`https://thecrwn.app/artist/${artistSlug}/album/${album.id}`);
+                navigator.clipboard.writeText(`https://thecrwn.app/${artistSlug}/album/${album.id}`);
               }}
               className="text-crwn-text-secondary hover:text-crwn-gold transition-colors p-1"
               title="Copy share link"
@@ -176,7 +176,7 @@ export function AlbumsSection({ albums, artistSlug }: AlbumsSectionProps) {
         {albums.map((album) => (
           <Link
             key={album.id}
-            href={`/artist/${artistSlug}/album/${album.id}`}
+            href={`/${artistSlug}/album/${album.id}`}
             className="overflow-hidden press-scale"
           >
             <div className="aspect-square relative bg-crwn-elevated rounded-xl overflow-hidden">

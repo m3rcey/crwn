@@ -63,7 +63,7 @@ export function SubscribeCTA({
           </p>
           <div className="flex items-center gap-3">
             <a
-              href={`/artist/${artistSlug}?subscribe=true`}
+              href={`/${artistSlug}?subscribe=true`}
               className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg px-5 py-2.5 rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors"
             >
               <Crown size={18} />
@@ -108,7 +108,7 @@ export function LockedContentOverlay({
         Subscribe to {title} to unlock this and other exclusive content.
       </p>
       <a
-        href={`/artist/${artistSlug}?subscribe=true`}
+        href={`/${artistSlug}?subscribe=true`}
         className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg px-6 py-3 rounded-lg font-semibold hover:bg-crwn-gold-hover transition-colors"
       >
         <Crown size={18} />

@@ -70,8 +70,8 @@ export async function POST(request: NextRequest) {
         },
       },
       mode: 'payment',
-      success_url: `${baseUrl}/artist/${session.artist.slug}/book/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${session.id}`,
-      cancel_url: `${baseUrl}/artist/${session.artist.slug}?tab=book`,
+      success_url: `${baseUrl}/${session.artist.slug}/book/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${session.id}`,
+      cancel_url: `${baseUrl}/${session.artist.slug}?tab=book`,
       metadata: {
         booking_session_id: session.id,
         buyer_id: user.id,

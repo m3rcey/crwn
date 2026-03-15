@@ -164,7 +164,7 @@ export function CommunityPostCard({
       <div className="flex gap-3">
         {/* Avatar */}
         <Link
-          href={`/artist/${artistSlug}`}
+          href={`/${artistSlug}`}
           className="w-10 h-10 rounded-full neu-inset flex items-center justify-center flex-shrink-0 overflow-hidden hover:ring-2 hover:ring-crwn-gold"
         >
           {post.author?.avatar_url ? (
@@ -180,7 +180,7 @@ export function CommunityPostCard({
           {/* Header */}
           <div className="flex items-center gap-2 mb-1">
             <Link
-              href={`/artist/${artistSlug}`}
+              href={`/${artistSlug}`}
               className="font-medium text-crwn-text hover:underline"
             >
               {post.author?.display_name || post.author?.username || 'User'}

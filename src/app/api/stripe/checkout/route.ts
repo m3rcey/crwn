@@ -78,8 +78,8 @@ export async function POST(req: NextRequest) {
             }
           : undefined,
       },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/artist/${artistSlug}?subscription=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/artist/${artistSlug}?subscription=canceled`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=canceled`,
       metadata: {
         fan_id: fanId,
         artist_id: tier.artist_id,

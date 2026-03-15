@@ -380,7 +380,7 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
             onClick={() => {
               const artistSlug = post.artist?.slug;
               if (artistSlug) {
-                navigator.clipboard.writeText(`https://thecrwn.app/artist/${artistSlug}/post/${post.id}`);
+                navigator.clipboard.writeText(`https://thecrwn.app/${artistSlug}/post/${post.id}`);
               }
             }}
             className="flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors ml-auto"

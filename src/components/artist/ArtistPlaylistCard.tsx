@@ -58,7 +58,7 @@ export function ArtistPlaylistCard({ playlist, artistSlug }: ArtistPlaylistCardP
     <div className="neu-raised neu-card-hover overflow-hidden">
       {/* Playlist Header - Click to navigate to full playlist */}
       <Link
-        href={`/artist/${artistSlug}/playlist/${playlist.id}`}
+        href={`/${artistSlug}/playlist/${playlist.id}`}
         className="flex items-center gap-4 p-4 hover:bg-crwn-elevated/30"
       >
         <div className="w-16 h-16 rounded-lg bg-crwn-elevated overflow-hidden flex-shrink-0 relative shadow-inner">

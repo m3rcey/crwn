@@ -38,7 +38,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
 
   const isFree = track.is_free !== false; // null or true = free
   const hasAccess = isFree || (tierId && track.allowed_tier_ids?.includes(tierId));
-  const shareUrl = `https://thecrwn.app/artist/${artist.slug}/track/${track.id}`;
+  const shareUrl = `https://thecrwn.app/${artist.slug}/track/${track.id}`;
 
   const formatDuration = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -55,7 +55,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
         <div className="w-full max-w-md">
           {/* Back to artist */}
           <Link
-            href={`/artist/${artist.slug}`}
+            href={`/${artist.slug}`}
             className="flex items-center gap-2 text-crwn-text-secondary hover:text-crwn-gold text-sm mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -87,7 +87,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-crwn-text">{track.title}</h1>
             <Link
-              href={`/artist/${artist.slug}`}
+              href={`/${artist.slug}`}
               className="text-crwn-gold hover:underline text-sm"
             >
               {artist.displayName}
@@ -114,7 +114,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
               </p>
               {lowestTier && (
                 <Link
-                  href={`/artist/${artist.slug}`}
+                  href={`/${artist.slug}`}
                   className="neu-button-accent inline-block px-8 py-3 rounded-xl font-semibold"
                 >
                   Subscribe from ${(lowestTier.price / 100).toFixed(2)}/mo

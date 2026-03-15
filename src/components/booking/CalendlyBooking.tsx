@@ -174,7 +174,7 @@ export function CalendlyBooking({
                 Subscribe to unlock free booking with {artist.profile?.display_name || 'this artist'}
               </p>
               <button
-                onClick={() => router.push(`/artist/${artist.slug}?tab=music`)}
+                onClick={() => router.push(`/${artist.slug}?tab=music`)}
                 className="neu-button-accent px-6 py-3 rounded-xl font-semibold"
               >
                 View Subscription Tiers

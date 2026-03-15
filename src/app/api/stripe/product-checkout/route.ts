@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
           artist_id: product.artist_id,
         },
       },
-      success_url: `${request.headers.get('origin')}/artist/${artist.slug}?purchase=success&product=${productId}`,
-      cancel_url: `${request.headers.get('origin')}/artist/${artist.slug}?purchase=cancelled`,
+      success_url: `${request.headers.get('origin')}/${artist.slug}?purchase=success&product=${productId}`,
+      cancel_url: `${request.headers.get('origin')}/${artist.slug}?purchase=cancelled`,
       metadata: {
         fan_id: fanId,
         product_id: productId,
