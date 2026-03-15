@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { useAuth } from '@/hooks/useAuth';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const recruiterCode = searchParams.get('recruiter');
   const { user, isLoading } = useAuth();
   const [justSignedUp, setJustSignedUp] = useState(false);
 
