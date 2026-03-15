@@ -137,18 +137,18 @@ export default function HomePage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3">
-            {[1,2].map(i => <div key={i}><div className="aspect-square bg-crwn-elevated rounded-xl animate-pulse" /><div className="h-4 bg-crwn-elevated rounded w-3/4 mx-auto mt-2 animate-pulse" /></div>)}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
+            {[1,2].map(i => <div key={i}><div className="aspect-square max-w-[200px] mx-auto w-full bg-crwn-elevated rounded-xl animate-pulse" /><div className="h-4 bg-crwn-elevated rounded w-3/4 mx-auto mt-2 animate-pulse" /></div>)}
           </div>
         ) : featuredArtists.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
             {featuredArtists.map((artist) => (
               <Link
                 key={artist.id}
                 href={`/artist/${artist.slug}`}
                 className="rounded-xl overflow-hidden press-scale"
               >
-                <div className="aspect-square relative bg-crwn-elevated rounded-xl overflow-hidden">
+                <div className="aspect-square relative bg-crwn-elevated rounded-xl overflow-hidden max-w-[200px] mx-auto w-full">
                   {artist.profile?.avatar_url ? (
                     <Image
                       src={artist.profile.avatar_url}
