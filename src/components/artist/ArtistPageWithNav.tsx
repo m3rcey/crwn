@@ -6,7 +6,7 @@ export default function ArtistPageWithNav({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-crwn-bg">
+    <div className="min-h-screen">
       <Navigation />
       <div className="md:pl-64 pb-20 md:pb-0">
         <main>
