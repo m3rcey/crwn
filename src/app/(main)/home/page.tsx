@@ -102,20 +102,38 @@ export default function HomePage() {
       </div>
 
       {/* Program Links */}
-      <div className="flex flex-wrap gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
         {hasArtistProfile && (
           <Link
             href="/founding-artists"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-crwn-gold/10 border border-crwn-gold/20 text-crwn-gold text-sm font-medium hover:bg-crwn-gold/20 transition-colors"
+            className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
           >
-            <span>👑</span> Founding Artist Program
+            <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
+              <Image
+                src="/homepage_founding-artist.png"
+                alt="Founding Artist Program"
+                fill
+                className="object-cover opacity-0 transition-opacity duration-500"
+                onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
+              />
+            </div>
+            <p className="font-medium text-crwn-gold text-sm mt-2 text-center">Founding Artist Program</p>
           </Link>
         )}
         <Link
           href="/recruit"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium hover:bg-green-500/20 transition-colors"
+          className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
         >
-          <span>💰</span> Earn by Referring Artists
+          <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
+            <Image
+              src="/homepage_recruit.png"
+              alt="Earn by Referring Artists"
+              fill
+              className="object-cover opacity-0 transition-opacity duration-500"
+              onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
+            />
+          </div>
+          <p className="font-medium text-green-400 text-sm mt-2 text-center">Earn by Referring Artists</p>
         </Link>
       </div>
 
