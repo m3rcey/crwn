@@ -101,6 +101,24 @@ export default function HomePage() {
         </p>
       </div>
 
+      {/* Program Links */}
+      <div className="flex flex-wrap gap-3">
+        {hasArtistProfile && (
+          <Link
+            href="/founding-artists"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-crwn-gold/10 border border-crwn-gold/20 text-crwn-gold text-sm font-medium hover:bg-crwn-gold/20 transition-colors"
+          >
+            <span>👑</span> Founding Artist Program
+          </Link>
+        )}
+        <Link
+          href="/recruit"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium hover:bg-green-500/20 transition-colors"
+        >
+          <span>💰</span> Earn by Referring Artists
+        </Link>
+      </div>
+
       {/* Quick Actions */}
       <section>
         <h2 className="text-lg font-semibold text-crwn-text mb-4">Quick Actions</h2>
