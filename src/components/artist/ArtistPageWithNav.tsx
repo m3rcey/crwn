@@ -9,7 +9,7 @@ export default function ArtistPageWithNav({
     <div className="min-h-screen bg-crwn-bg">
       <Navigation />
       <div className="md:pl-64 pb-20 md:pb-0">
-        <main className="p-4 md:p-8">
+        <main>
           {children}
         </main>
       </div>
