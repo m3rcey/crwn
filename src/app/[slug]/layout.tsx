@@ -1,4 +1,5 @@
 'use client';
+
 import { Navigation } from '@/components/layout/Navigation';
 
 export default function ArtistLayout({
@@ -7,9 +8,11 @@ export default function ArtistLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      {children}
+    <div className="min-h-screen">
       <Navigation />
-    </>
+      <div className="md:pl-64 pb-20 md:pb-0">
+        {children}
+      </div>
+    </div>
   );
 }
