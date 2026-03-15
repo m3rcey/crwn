@@ -261,6 +261,7 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
         {mode === 'login' && (
           <div className="text-center">
             
+            <a
               href="/forgot-password"
               className="text-sm text-crwn-gold hover:underline"
             >
