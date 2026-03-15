@@ -1,3 +1,4 @@
+import { fanReferralEarningEmail } from "@/lib/emails/fanReferralEarning";
 /**
  * Referral system utilities for CRWN
  */
