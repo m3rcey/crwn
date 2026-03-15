@@ -127,16 +127,7 @@ export function ArtistProfileContent({
         </div>
       </div>
 
-      {/* Share & Earn for subscribed fans */}
-      {isSubscribed && (
-        <div className="px-4 sm:px-6 lg:px-8 mb-2">
-          <ShareEarnButton
-            artistSlug={artist.slug}
-            artistId={artist.id}
-            commissionRate={commissionRate}
-          />
-        </div>
-      )}
+
 
 
       {/* Content */}
