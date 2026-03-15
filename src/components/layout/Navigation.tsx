@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { usePlayer } from '@/hooks/usePlayer';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { hapticLight } from '@/lib/haptics';
 import { 
@@ -25,6 +26,7 @@ const navItems = [
 export function Navigation() {
   const pathname = usePathname();
   const { user, profile, signOut } = useAuth();
+  const { resetPlayer } = usePlayer();
   const router = useRouter();
 
   const isActive = (href: string) => {
@@ -33,6 +35,7 @@ export function Navigation() {
   };
 
   const handleSignOut = async () => {
+    resetPlayer();
     await signOut();
     router.push('/login');
   };

@@ -33,6 +33,7 @@ interface PlayerContextType {
   playNext: (track: Track) => void;
   removeFromQueue: (index: number) => void;
   clearQueue: () => void;
+  resetPlayer: () => void;
   reorderQueue: (startIndex: number, endIndex: number) => void;
   isFavorite: (trackId: string) => boolean;
   toggleFavorite: (trackId: string) => Promise<void>;
@@ -446,6 +447,17 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     setCurrentIndex(0);
   }, []);
 
+  const resetPlayer = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+    }
+    setCurrentTrack(null);
+    setIsPlaying(false);
+    setQueueState([]);
+    setCurrentIndex(0);
+  }, []);
+
   const reorderQueue = useCallback((startIndex: number, endIndex: number) => {
     setQueueState(prev => {
       const newQueue = [...prev];
@@ -512,6 +524,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       playNext,
       removeFromQueue,
       clearQueue,
+      resetPlayer,
       reorderQueue,
       isFavorite,
       toggleFavorite,
