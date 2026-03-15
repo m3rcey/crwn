@@ -128,7 +128,7 @@ export default function ExplorePage() {
                       {artist.tagline && (
                         <p className="text-xs text-crwn-text-secondary truncate mt-0.5">{artist.tagline}</p>
                       )}
-                      <p className="text-xs text-crwn-gold mt-1">{artist.subscribers} supporter{artist.subscribers !== 1 ? 's' : ''}</p>
+
                     </div>
                   </Link>
                 ))}
@@ -212,7 +212,6 @@ export default function ExplorePage() {
                         {track.artistName}
                       </Link>
                     </div>
-                    <span className="text-xs text-crwn-text-secondary">{track.playCount} plays</span>
                     <span className="text-xs text-crwn-text-secondary">{formatDuration(track.duration)}</span>
                   </div>
                 ))}
