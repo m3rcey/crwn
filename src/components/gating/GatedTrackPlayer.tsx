@@ -62,7 +62,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-4 p-3 bg-crwn-surface rounded-lg animate-pulse">
+      <div className="flex items-center gap-4 py-3 px-1 border-b border-crwn-elevated/50 animate-pulse">
         <div className="w-12 h-12 bg-crwn-elevated rounded" />
         <div className="flex-1 h-4 bg-crwn-elevated rounded" />
       </div>
@@ -72,8 +72,8 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   return (
     <>
       <div
-        className={`flex items-center gap-4 p-3 rounded-lg transition-colors group cursor-pointer ${
-          isCurrentTrack ? 'bg-crwn-elevated' : 'bg-crwn-surface hover:bg-crwn-elevated'
+        className={`flex items-center gap-4 py-3 px-1 transition-colors group cursor-pointer border-b border-crwn-elevated/50 ${
+          isCurrentTrack ? 'bg-crwn-elevated/30' : 'hover:bg-crwn-elevated/20'
         } ${isLocked ? 'opacity-90' : ''}`}
         onClick={handlePlay}
       >

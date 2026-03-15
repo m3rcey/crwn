@@ -152,7 +152,7 @@ export function ArtistProfileContent({
             <section>
               <h2 className="text-xl font-semibold text-crwn-text mb-4">Music</h2>
               {tracks && tracks.length > 0 ? (
-                <div className="space-y-2">
+                <div>
                   {tracks.map((track) => (
                     <GatedTrackPlayer key={track.id} track={track} artistId={artist.id} artistSlug={artist.slug} trackList={tracks} />
                   ))}

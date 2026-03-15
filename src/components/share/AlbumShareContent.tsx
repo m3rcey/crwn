@@ -136,7 +136,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
 
         {/* Track List */}
         {tracks.length > 0 ? (
-          <div className="space-y-2 mb-8">
+          <div className="mb-8">
             {tracks.map((track) => (
               <GatedTrackPlayer
                 key={track.id}
