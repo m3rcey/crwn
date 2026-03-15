@@ -15,7 +15,7 @@ export const RESERVED_SLUGS = new Set([
   // Brand protection
   'crwn', 'thecrwn', 'official', 'team', 'staff',
   // Recruiter system
-  'recruit', 'join', 'recruiter', 'recruiters',
+  'recruit', 'join', 'recruiter', 'recruiters', 'founding-artists',
 ]);
 
 export function isReservedSlug(slug: string): boolean {
