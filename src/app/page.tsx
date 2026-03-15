@@ -519,7 +519,7 @@ export default function Homepage() {
   return (
     <div className="min-h-screen bg-crwn-bg">
       <Navigation />
-      <main>
+      <main className="page-fade-in">
         <HeroSection />
         <FansMathSection />
         <MonetizeSection />
