@@ -98,7 +98,7 @@ export default function RecruitPitchPage() {
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">Get Paid to Bring Artists to CRWN</h1>
           <p className="text-lg md:text-xl text-[#999] max-w-2xl mx-auto mb-8">Know talented artists? Share your unique link. When they join a paid plan and stick around for 30 days, you earn cash. The more you refer, the more you make.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/signup" className="bg-green-500 text-white font-semibold px-8 py-4 rounded-full text-lg hover:bg-green-600 transition-colors inline-flex items-center justify-center gap-2">Become a Recruiter <ChevronRight className="w-5 h-5" /></Link>
+            <Link href="/recruit/dashboard" className="bg-green-500 text-white font-semibold px-8 py-4 rounded-full text-lg hover:bg-green-600 transition-colors inline-flex items-center justify-center gap-2">Become a Recruiter <ChevronRight className="w-5 h-5" /></Link>
             <a href="#how-it-works" className="px-8 py-4 text-lg text-[#999] hover:text-white transition-colors">See How It Works</a>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function RecruitPitchPage() {
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Start Earning Today</h2>
         <p className="text-[#999] text-lg mb-8 max-w-xl mx-auto">Free to join. No experience needed. If you know artists who deserve a better platform, this is how you help them and get paid doing it.</p>
-        <Link href="/signup" className="bg-green-500 text-white font-semibold px-10 py-4 rounded-full text-lg hover:bg-green-600 transition-colors inline-flex items-center gap-2">Become a Recruiter <ChevronRight className="w-5 h-5" /></Link>
+        <Link href="/recruit/dashboard" className="bg-green-500 text-white font-semibold px-10 py-4 rounded-full text-lg hover:bg-green-600 transition-colors inline-flex items-center gap-2">Become a Recruiter <ChevronRight className="w-5 h-5" /></Link>
         <p className="text-[#666] text-xs mt-4">Free to join. Just need a CRWN account and a Stripe account for payouts.</p>
       </div>
       <div className="border-t border-[#1a1a1a] py-8 text-center">
