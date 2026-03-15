@@ -305,7 +305,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
           {/* Bio */}
           {artist.profile?.bio && (
-            <div className="mt-4 mb-6 max-w-2xl">
+            <div className="mt-2 mb-6 max-w-2xl">
               <p className="text-crwn-text-secondary whitespace-pre-wrap">
                 {artist.profile.bio}
               </p>
