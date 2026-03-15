@@ -95,8 +95,8 @@ export function Navigation() {
                   onClick={() => hapticLight()}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors press-scale tap-highlight ${
                     active 
-                      ? 'neu-button-accent text-crwn-bg font-semibold' 
-                      : 'neu-button text-crwn-text-secondary'
+                      ? 'bg-crwn-gold text-crwn-bg font-semibold' 
+                      : 'text-crwn-text-secondary hover:bg-crwn-elevated/50'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
