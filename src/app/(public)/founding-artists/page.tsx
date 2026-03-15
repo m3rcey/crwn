@@ -144,7 +144,7 @@ export default function FoundingArtistsPage() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/signup" className="neu-button-accent px-8 py-4 text-lg">
+            <Link href="/profile/artist" className="neu-button-accent px-8 py-4 text-lg">
               Claim Your Spot
             </Link>
             <a href="#benefits" className="px-8 py-4 text-lg text-[#999] hover:text-white transition-colors">
@@ -246,7 +246,7 @@ export default function FoundingArtistsPage() {
         <p className="text-[#999] text-lg mb-8 max-w-xl mx-auto">
           Once all 500 founding artist spots are taken, these perks are gone forever. Do not wait.
         </p>
-        <Link href="/signup" className="neu-button-accent px-10 py-4 text-lg inline-flex items-center gap-2">
+        <Link href="/profile/artist" className="neu-button-accent px-10 py-4 text-lg inline-flex items-center gap-2">
           Claim Your Spot <ChevronRight className="w-5 h-5" />
         </Link>
         <p className="text-[#666] text-xs mt-4">Free to sign up. No credit card required.</p>
