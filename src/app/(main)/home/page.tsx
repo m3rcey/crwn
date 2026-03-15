@@ -109,7 +109,7 @@ export default function HomePage() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="rounded-xl overflow-hidden press-scale"
+                className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
               >
                 <div className="aspect-square relative max-w-[200px] mx-auto w-full">
                   <img
@@ -146,7 +146,7 @@ export default function HomePage() {
               <Link
                 key={artist.id}
                 href={`/artist/${artist.slug}`}
-                className="rounded-xl overflow-hidden press-scale"
+                className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
               >
                 <div className="aspect-square relative bg-crwn-elevated rounded-xl overflow-hidden max-w-[200px] mx-auto w-full">
                   {artist.profile?.avatar_url ? (
