@@ -27,14 +27,14 @@
 
 /* Accent button - gold gradient */
 .neu-button-accent {
-  background: linear-gradient(135deg, #9a7b2a 0%, #D4AF37 50%, #9a7b2a 100%);
+  background: #D4AF37;
   border-radius: 9999px;
   color: #0f0f0f;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 .neu-button-accent:hover {
-  background: linear-gradient(135deg, #a88530 0%, #e5c04a 50%, #a88530 100%);
+  background: #e5c04a;
 }
 .neu-button-accent:active {
   opacity: 0.9;
@@ -85,7 +85,7 @@
   border-radius: 999px;
 }
 .neu-progress-fill {
-  background: linear-gradient(135deg, #9a7b2a 0%, #D4AF37 50%, #9a7b2a 100%);
+  background: #D4AF37;
   border-radius: 999px;
 }
 
@@ -99,7 +99,7 @@
   border-radius: 50%;
 }
 .neu-toggle-thumb.active {
-  background: linear-gradient(135deg, #9a7b2a 0%, #D4AF37 50%, #9a7b2a 100%);
+  background: #D4AF37;
 }
 
 /* Checkbox */
@@ -108,7 +108,7 @@
   border-radius: 4px;
 }
 .neu-checkbox.checked {
-  background: linear-gradient(135deg, #9a7b2a 0%, #D4AF37 50%, #9a7b2a 100%);
+  background: #D4AF37;
 }
 
 /* Skeleton Loading */
@@ -124,7 +124,7 @@
 
 /* Tabs */
 .neu-tab-active {
-  background: linear-gradient(135deg, #9a7b2a 0%, #D4AF37 50%, #9a7b2a 100%);
+  background: #D4AF37;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -158,7 +158,7 @@
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  opacity: 0.9;
 }
 
 .card-hover {
