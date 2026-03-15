@@ -24,7 +24,7 @@
 /* Button - raised default, inset on :active */
 .neu-button {
   background: #222222;
-  border-radius: 12px;
+  border-radius: 9999px;
   box-shadow: 
     4px 4px 8px rgba(0, 0, 0, 0.4),
     -4px -4px 8px rgba(255, 255, 255, 0.03);
@@ -46,7 +46,7 @@
 /* Accent button - gold gradient, dark text */
 .neu-button-accent {
   background: linear-gradient(135deg, #9a7b2a 0%, #D4AF37 50%, #9a7b2a 100%);
-  border-radius: 12px;
+  border-radius: 9999px;
   box-shadow: 
     4px 4px 8px rgba(0, 0, 0, 0.4),
     -4px -4px 8px rgba(212, 168, 67, 0.15);
