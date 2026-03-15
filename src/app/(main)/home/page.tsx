@@ -111,11 +111,13 @@ export default function HomePage() {
                 href={action.href}
                 className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
               >
-                <div className="aspect-square relative max-w-[200px] mx-auto w-full">
-                  <img
+                <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
+                  <Image
                     src={action.image}
                     alt={action.label}
-                    className="w-full h-full object-cover rounded-xl"
+                    fill
+                    className="object-cover opacity-0 transition-opacity duration-500"
+                    onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
                   />
                 </div>
                 <p className="font-medium text-crwn-text text-sm mt-2 text-center">{action.label}</p>
