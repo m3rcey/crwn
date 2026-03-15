@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { recruiterWelcomeEmail } from '@/lib/emails/recruiterWelcome';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
@@ -44,6 +46,24 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Send welcome email
+  try {
+    const { data: userProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name')
+      .eq('id', userId)
+      .single();
+
+    const userEmail = (await supabaseAdmin.auth.admin.getUserById(userId)).data?.user?.email;
+    if (userEmail) {
+      const firstName = (userProfile?.full_name || '').split(' ')[0] || 'there';
+      const email = recruiterWelcomeEmail({ displayName: firstName, referralCode: data.referral_code });
+      await resend.emails.send({ from: FROM_EMAIL, to: userEmail, subject: email.subject, html: email.html });
+    }
+  } catch (err) {
+    console.error('Recruiter welcome email failed:', err);
   }
 
   return NextResponse.json({ id: data.id, referralCode: data.referral_code });

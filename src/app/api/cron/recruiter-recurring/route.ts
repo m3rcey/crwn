@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { recruiterRecurringEmail } from '@/lib/emails/recruiterRecurring';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
@@ -112,6 +114,35 @@ export async function GET(req: NextRequest) {
     }
 
     processed++;
+  }
+
+  // Send monthly summary emails to recruiters who got paid
+  try {
+    const paidRecruiters = new Map<string, number>();
+    const paidCounts = new Map<string, number>();
+
+    for (const referral of activeReferrals) {
+      const monthlyFee = TIER_PRICES[(await supabaseAdmin.from('artist_profiles').select('platform_tier').eq('id', referral.artist_id).single()).data?.platform_tier || ''] || 0;
+      const amount = Math.round(monthlyFee * (referral.recurring_rate / 100));
+      if (amount > 0) {
+        paidRecruiters.set(referral.recruiter_id, (paidRecruiters.get(referral.recruiter_id) || 0) + amount);
+        paidCounts.set(referral.recruiter_id, (paidCounts.get(referral.recruiter_id) || 0) + 1);
+      }
+    }
+
+    for (const [recruiterId, totalAmount] of paidRecruiters) {
+      const recruiterUserId = (await supabaseAdmin.from('recruiters').select('user_id').eq('id', recruiterId).single()).data?.user_id;
+      if (!recruiterUserId) continue;
+      const profile = (await supabaseAdmin.from('profiles').select('full_name').eq('id', recruiterUserId).single()).data;
+      const email = recruiterUserId ? (await supabaseAdmin.auth.admin.getUserById(recruiterUserId)).data?.user?.email : null;
+      if (email) {
+        const firstName = (profile?.full_name || '').split(' ')[0] || 'there';
+        const emailContent = recruiterRecurringEmail({ recruiterName: firstName, totalAmount, referralCount: paidCounts.get(recruiterId) || 0 });
+        await resend.emails.send({ from: FROM_EMAIL, to: email, subject: emailContent.subject, html: emailContent.html });
+      }
+    }
+  } catch (emailErr) {
+    console.error('Recurring email failed:', emailErr);
   }
 
   return NextResponse.json({

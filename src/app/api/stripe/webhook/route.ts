@@ -4,6 +4,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
+import { recruiterArtistSignupEmail } from '@/lib/emails/recruiterArtistSignup';
 import { subscriptionEmail } from '@/lib/emails/subscription';
 import { artistTierEmail } from '@/lib/emails/artistTier';
 import { purchaseEmail } from '@/lib/emails/purchase';
@@ -938,6 +939,33 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
               artist_user_id: user_id,
               status: 'pending',
             });
+
+          // Notify recruiter via email
+          try {
+            const { data: recruiterProfile } = await supabaseAdmin
+              .from('profiles')
+              .select('full_name')
+              .eq('id', (await supabaseAdmin.from('recruiters').select('user_id').eq('id', recruiter.id).single()).data?.user_id)
+              .single();
+
+            const recruiterUserId = (await supabaseAdmin.from('recruiters').select('user_id').eq('id', recruiter.id).single()).data?.user_id;
+            const recruiterEmail = recruiterUserId ? (await supabaseAdmin.auth.admin.getUserById(recruiterUserId)).data?.user?.email : null;
+
+            const { data: artistName } = await supabaseAdmin
+              .from('profiles')
+              .select('full_name, display_name')
+              .eq('id', user_id)
+              .single();
+
+            if (recruiterEmail) {
+              const firstName = (recruiterProfile?.full_name || '').split(' ')[0] || 'there';
+              const artName = artistName?.display_name || artistName?.full_name || 'An artist';
+              const emailContent = recruiterArtistSignupEmail({ recruiterName: firstName, artistName: artName });
+              await resend.emails.send({ from: FROM_EMAIL, to: recruiterEmail, subject: emailContent.subject, html: emailContent.html });
+            }
+          } catch (emailErr) {
+            console.error('Recruiter notification email failed:', emailErr);
+          }
 
           // Update recruiter count
           const newCount = (recruiter.total_artists_referred || 0) + 1;
