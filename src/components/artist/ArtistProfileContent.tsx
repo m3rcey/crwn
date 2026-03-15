@@ -12,7 +12,6 @@ import { CalendlyBooking } from '@/components/booking/CalendlyBooking';
 import { TierConfig, Album, Playlist, Product, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
 import { ShareEarnButton } from '@/components/shared/ShareEarnButton';
-import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { hapticLight } from '@/lib/haptics';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -99,6 +98,16 @@ export function ArtistProfileContent({
 
   return (
     <>
+      {/* Share & Earn */}
+      {isSubscribed && (
+        <div className="px-4 sm:px-6 lg:px-8 mb-3">
+          <ShareEarnButton
+            artistSlug={artist.slug}
+            artistId={artist.id}
+            commissionRate={commissionRate}
+          />
+        </div>
+      )}
       {/* Tabs */}
       <div className="px-4 sm:px-6 lg:px-8 mb-3 page-fade-in">
         <div className="flex gap-6 overflow-x-auto scrollbar-hide border-b border-crwn-elevated/50 pb-2">
@@ -129,14 +138,7 @@ export function ArtistProfileContent({
         </div>
       )}
 
-      {/* Share Buttons */}
-      <div className="px-4 sm:px-6 lg:px-8 mb-3">
-        <ShareButtons
-          url={`https://thecrwn.app/${artist.slug}`}
-          title={artist.profile?.display_name || 'Artist'}
-          description={artist.tagline || undefined}
-        />
-      </div>
+
       {/* Content */}
       <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 stagger-fade-in">
         {activeTab === 'music' && (
