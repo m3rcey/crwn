@@ -118,4 +118,28 @@ export async function processReferral(params: {
     message: `${referredName} subscribed through your link!`,
     link: '/library?tab=referrals',
   });
+
+  // Send referral earning email
+  try {
+    const { resend, FROM_EMAIL } = await import('@/lib/resend');
+    const referrerEmail = (await supabaseAdmin.auth.admin.getUserById(referrer.id)).data?.user?.email;
+    const { data: referrerProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('full_name')
+      .eq('id', referrer.id)
+      .single();
+    const { data: artistData } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('slug, profile:profiles(display_name)')
+      .eq('id', artistId)
+      .single();
+    if (referrerEmail) {
+      const firstName = (referrerProfile?.full_name || '').split(' ')[0] || 'there';
+      const artName = (artistData?.profile as any)?.display_name || 'an artist';
+      const emailContent = fanReferralEarningEmail({ fanName: firstName, artistName: artName, amount: commissionAmount, referredName });
+      await resend.emails.send({ from: FROM_EMAIL, to: referrerEmail, subject: emailContent.subject, html: emailContent.html });
+    }
+  } catch (emailErr) {
+    console.error('Fan referral email failed:', emailErr);
+  }
 }
