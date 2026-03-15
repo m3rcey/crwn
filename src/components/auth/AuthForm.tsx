@@ -17,12 +17,11 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
   const [username, setUsername] = useState('');
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [usernameError, setUsernameError] = useState<string | null>(null);
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const { signIn, signUp, signInWithMagicLink, signInWithGoogle, signInWithApple } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithApple } = useAuth();
   const supabase = createBrowserSupabaseClient();
 
   // Username validation
@@ -130,24 +129,7 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
     }
   };
 
-  const handleMagicLink = async () => {
-    if (!email) {
-      setError('Please enter your email');
-      return;
-    }
-    setError(null);
-    setIsLoading(true);
 
-    try {
-      const { error } = await signInWithMagicLink(email);
-      if (error) throw error;
-      setMagicLinkSent(true);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to send magic link');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (showConfirmation) {
     return (
@@ -268,12 +250,6 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
           </div>
         )}
 
-        {magicLinkSent && (
-          <div className="neu-inset p-3 text-sm text-crwn-success">
-            Magic link sent! Check your email.
-          </div>
-        )}
-
         <button
           type="submit"
           disabled={isLoading || (mode === 'signup' && (usernameStatus === 'taken' || !agreedToTerms))}
@@ -283,14 +259,14 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
         </button>
 
         {mode === 'login' && (
-          <button
-            type="button"
-            onClick={handleMagicLink}
-            disabled={isLoading}
-            className="neu-button w-full py-3 text-crwn-gold disabled:opacity-50"
-          >
-            Send Magic Link
-          </button>
+          <div className="text-center">
+            
+              href="/forgot-password"
+              className="text-sm text-crwn-gold hover:underline"
+            >
+              Forgot your password?
+            </a>
+          </div>
         )}
       </form>
 
