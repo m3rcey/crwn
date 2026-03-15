@@ -104,14 +104,14 @@ export default function HomePage() {
       {/* Quick Actions */}
       <section>
         <h2 className="text-lg font-semibold text-crwn-text mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
           {quickActions.map((action) => (
               <Link
                 key={action.href}
                 href={action.href}
                 className="rounded-xl overflow-hidden press-scale"
               >
-                <div className="aspect-square relative">
+                <div className="aspect-square relative max-w-[200px] mx-auto w-full">
                   <img
                     src={action.image}
                     alt={action.label}
