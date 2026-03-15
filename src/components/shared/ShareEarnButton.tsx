@@ -55,7 +55,7 @@ export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareE
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 transition-colors"
+        className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm bg-green-500 text-white font-medium hover:bg-green-600 transition-colors"
       >
         <Gift className="w-4 h-4" />
         <span>Share & Earn</span>

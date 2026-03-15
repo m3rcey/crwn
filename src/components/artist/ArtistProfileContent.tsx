@@ -101,15 +101,15 @@ export function ArtistProfileContent({
     <>
       {/* Tabs */}
       <div className="px-4 sm:px-6 lg:px-8 mb-3 page-fade-in">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide border-b border-crwn-elevated/50 pb-2">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => { hapticLight(); setActiveTab(tab.id); }}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`text-sm font-medium whitespace-nowrap pb-2 transition-colors border-b-2 ${
                 activeTab === tab.id
-                  ? 'neu-button-accent text-crwn-bg'
-                  : 'neu-button text-crwn-text-secondary'
+                  ? 'text-crwn-gold border-crwn-gold'
+                  : 'text-crwn-text-secondary border-transparent hover:text-crwn-text'
               }`}
             >
               {tab.label}
