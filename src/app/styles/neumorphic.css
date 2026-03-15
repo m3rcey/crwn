@@ -2,7 +2,7 @@
 
 /* Raised - cards, containers */
 .neu-raised {
-  background: #1a1a1a;
+  background: rgba(26, 26, 26, 0.4);
   border-radius: 16px;
 }
 
