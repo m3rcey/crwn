@@ -43,7 +43,7 @@ export function ConfirmModal({
               hapticMedium();
               onConfirm();
             }}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold press-scale ${
+            className={`flex-1 py-2.5 rounded-full text-sm font-semibold press-scale ${
               variant === 'danger'
                 ? 'bg-crwn-error text-white'
                 : 'neu-button-accent text-crwn-bg'

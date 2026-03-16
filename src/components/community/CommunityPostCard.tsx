@@ -1,4 +1,5 @@
 'use client';
+import { createPortal } from 'react-dom';
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +21,7 @@ interface CommunityPostCardProps {
   isArtistProfile?: boolean;
   onLikeChanged?: () => void;
   onCommentClicked?: () => void;
+  onPostDeleted?: () => void;
 }
 
 export function CommunityPostCard({
@@ -31,6 +33,7 @@ export function CommunityPostCard({
   isArtistProfile,
   onLikeChanged,
   onCommentClicked,
+  onPostDeleted,
 }: CommunityPostCardProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
@@ -104,7 +107,7 @@ export function CommunityPostCard({
         .eq('id', post.id);
 
       if (deleteError) { console.error("Delete failed:", deleteError); return; }
-      window.location.reload();
+      onPostDeleted?.();
     } catch (error) {
       console.error('Delete error:', error);
     } finally {
@@ -277,15 +280,18 @@ export function CommunityPostCard({
         </div>
       </div>
 
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        title="Delete Post"
-        message="Are you sure you want to delete this post? This action cannot be undone."
-        confirmText="Delete"
-        variant="danger"
-        onConfirm={handleDelete}
-        onCancel={() => setShowDeleteModal(false)}
-      />
+      {typeof document !== 'undefined' && createPortal(
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          title="Delete Post"
+          message="Are you sure you want to delete this post? This action cannot be undone."
+          confirmText="Delete"
+          variant="danger"
+          onConfirm={handleDelete}
+          onCancel={() => setShowDeleteModal(false)}
+        />,
+        document.body
+      )}
     </div>
   );
 }

@@ -122,6 +122,7 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
               isPostAuthor={user?.id === post.author_id}
               isArtistProfile={isArtistProfile}
               onLikeChanged={handleRefresh}
+              onPostDeleted={handleRefresh}
             />
           ))}
         </div>
