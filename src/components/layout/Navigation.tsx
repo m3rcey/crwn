@@ -63,7 +63,7 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${
                   active 
                     ? 'neu-tab-active font-semibold' 
                     : 'neu-tab-inactive hover:text-crwn-text'
