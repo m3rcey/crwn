@@ -113,7 +113,8 @@ export default function HomePage() {
                 src="/homepage_founding-artist.png"
                 alt="Founding Artist Program"
                 fill
-                className="object-cover opacity-0 transition-opacity duration-500"
+                priority
+                className="object-cover opacity-0 transition-opacity duration-700 ease-out"
                 onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
               />
             </div>
