@@ -143,7 +143,7 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
             } else if (product.type === 'experience') {
               return (
                 <p className="text-sm text-crwn-text-secondary">
-                  The artist will reach out to schedule your experience.
+                  Check your email for booking details, or visit your Library to book your session.
                 </p>
               );
             }

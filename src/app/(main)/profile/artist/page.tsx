@@ -11,8 +11,6 @@ import { ShopManager } from '@/components/artist/ShopManager';
 import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
-import { BookingSettings } from '@/components/booking/BookingSettings';
-import { SessionManager } from '@/components/booking/SessionManager';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -26,17 +24,11 @@ function ArtistDashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'booking' | 'analytics' | 'tiers' | 'payouts' | 'referrals'>('analytics');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals'>('analytics');
   const [artistId, setArtistId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<TierConfig[]>([]);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
-  const [bookingSettings, setBookingSettings] = useState({
-    calendly_url: null as string | null,
-    booking_enabled: false,
-    booking_is_free: false,
-    booking_allowed_tier_ids: [] as string[],
-  });
   const [platformTier, setPlatformTier] = useState<string>('starter');
 
   // Handle query params for tab and upgrade
@@ -74,19 +66,13 @@ function ArtistDashboardContent() {
 
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, tier_config, calendly_url, booking_enabled, booking_is_free, booking_allowed_tier_ids, platform_tier')
+        .select('id, tier_config, platform_tier')
         .eq('user_id', user.id)
         .single();
 
       if (artist) {
         setArtistId(artist.id);
         setPlatformTier(artist.platform_tier || 'starter');
-        setBookingSettings({
-          calendly_url: artist.calendly_url,
-          booking_enabled: artist.booking_enabled,
-          booking_is_free: artist.booking_is_free,
-          booking_allowed_tier_ids: artist.booking_allowed_tier_ids || [],
-        });
 
         const tierConfigTiers = (artist.tier_config || []) as TierConfig[];
         setTiers(tierConfigTiers);
@@ -113,7 +99,6 @@ function ArtistDashboardContent() {
     { id: 'albums' as const, label: 'Albums' },
     { id: 'shop' as const, label: 'Shop' },
     { id: 'billing' as const, label: 'Billing' },
-    { id: 'booking' as const, label: 'Booking' },
     { id: 'tiers' as const, label: 'Tiers' },
     { id: 'payouts' as const, label: 'Payouts' },
     { id: 'referrals' as const, label: 'Referrals' },
@@ -173,16 +158,7 @@ function ArtistDashboardContent() {
           {activeTab === 'albums' && <AlbumManager />}
           {activeTab === 'shop' && <ShopManager />}
           {activeTab === 'billing' && <PlatformBilling />}
-          {activeTab === 'booking' && artistId && (
-            <div className="space-y-6">
-              <BookingSettings
-                artistId={artistId}
-                tiers={tiers}
-                initialSettings={bookingSettings}
-              />
-              <SessionManager artistId={artistId} />
-            </div>
-          )}
+
           {activeTab === 'analytics' && <AnalyticsDashboard />}
           {activeTab === 'tiers' && <TierManager />}
           {activeTab === 'payouts' && <PayoutDashboard />}

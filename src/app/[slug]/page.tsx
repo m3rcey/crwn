@@ -228,14 +228,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 
-  // Fetch booking sessions
-  const { data: bookingSessions } = await supabase
-    .from('booking_sessions')
-    .select('*')
-    .eq('artist_id', artist.id)
-    .eq('is_active', true);
-
-  const hasBookingSessions = (bookingSessions || []).length > 0;
 
   return (
     <div className="relative min-h-screen pb-20 md:pb-0">
@@ -323,7 +315,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           products={products || []}
           tracks={tracks || []}
           isArtistProfile={isArtistProfile}
-          hasBookingSessions={hasBookingSessions}
           commissionRate={artist.referral_commission_rate || 10}
         />
       </div>
