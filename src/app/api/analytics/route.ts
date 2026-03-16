@@ -6,11 +6,46 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// Helper function for grouping by period
+function getPeriodsForRange(period: string, count: number): { label: string; start: Date; end: Date }[] {
+  const now = new Date();
+  const periods: { label: string; start: Date; end: Date }[] = [];
+
+  if (period === 'daily') {
+    for (let i = count - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
+      const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      periods.push({ label, start: d, end });
+    }
+  } else if (period === 'weekly') {
+    for (let i = count - 1; i >= 0; i--) {
+      const weekEnd = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000);
+      const weekStart = new Date(weekEnd.getTime() - 6 * 24 * 60 * 60 * 1000);
+      const label = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      periods.push({ label, start: weekStart, end: new Date(weekEnd.getFullYear(), weekEnd.getMonth(), weekEnd.getDate(), 23, 59, 59) });
+    }
+  } else {
+    // monthly (existing behavior)
+    for (let i = count - 1; i >= 0; i--) {
+      const mStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const mEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
+      const label = mStart.toLocaleDateString('en-US', { month: 'short' });
+      periods.push({ label, start: mStart, end: mEnd });
+    }
+  }
+  return periods;
+}
+
 export async function GET(req: NextRequest) {
   const artistId = req.nextUrl.searchParams.get('artistId');
   if (!artistId) {
     return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
   }
+
+  const period = req.nextUrl.searchParams.get('period') || 'monthly';
+  const trendCount = period === 'daily' ? 30 : period === 'weekly' ? 12 : 6;
+  const trendPeriods = getPeriodsForRange(period, trendCount);
 
   const now = new Date();
   const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -42,19 +77,17 @@ export async function GET(req: NextRequest) {
     revenueByType[e.type] = (revenueByType[e.type] || 0) + e.net_amount;
   });
 
-  // Monthly trend (last 6 months)
-  const monthlyTrend: { month: string; revenue: number; earnings_count: number }[] = [];
-  for (let i = 5; i >= 0; i--) {
-    const mStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const mEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
-    const label = mStart.toLocaleDateString('en-US', { month: 'short' });
-    const monthEarnings = earnings.filter(e => e.created_at >= mStart.toISOString() && e.created_at <= mEnd.toISOString());
-    monthlyTrend.push({
-      month: label,
-      revenue: monthEarnings.reduce((s, e) => s + e.net_amount, 0),
-      earnings_count: monthEarnings.length,
-    });
-  }
+  // Revenue trend (replaces monthlyTrend)
+  const revenueTrend = trendPeriods.map(p => {
+    const periodEarnings = earnings.filter(e =>
+      e.created_at >= p.start.toISOString() && e.created_at <= p.end.toISOString()
+    );
+    return {
+      label: p.label,
+      revenue: periodEarnings.reduce((s, e) => s + e.net_amount, 0),
+      earnings_count: periodEarnings.length,
+    };
+  });
 
   // ---- SUBSCRIPTION DATA ----
   const { data: allSubs } = await supabaseAdmin
@@ -90,7 +123,7 @@ export async function GET(req: NextRequest) {
 
   // LTV = ARPU / monthly churn rate (if churn > 0)
   const monthlyChurnDecimal = churnRate / 100;
-  const ltv = monthlyChurnDecimal > 0 ? Math.round(arpu / monthlyChurnDecimal) : arpu * 24; // fallback: 24 months
+  const ltv = monthlyChurnDecimal > 0 ? Math.round(arpu / monthlyChurnDecimal) : arpu * 24;
 
   // Subscribers by tier
   const subsByTier: Record<string, number> = {};
@@ -99,18 +132,51 @@ export async function GET(req: NextRequest) {
     subsByTier[tierName] = (subsByTier[tierName] || 0) + 1;
   });
 
-  // Subscriber growth (last 6 months)
-  const subGrowth: { month: string; total: number; new: number; churned: number }[] = [];
-  for (let i = 5; i >= 0; i--) {
-    const mStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const mEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
-    const label = mStart.toLocaleDateString('en-US', { month: 'short' });
-    const newInMonth = subs.filter(s => s.created_at >= mStart.toISOString() && s.created_at <= mEnd.toISOString()).length;
-    const churnedInMonth = subs.filter(s => s.canceled_at && s.canceled_at >= mStart.toISOString() && s.canceled_at <= mEnd.toISOString()).length;
-    const activeAtEnd = subs.filter(s =>
-      s.created_at <= mEnd.toISOString() && (s.status === 'active' || (s.canceled_at && s.canceled_at > mEnd.toISOString()))
+  // Subscriber trend (replaces growth)
+  const subscriberTrend = trendPeriods.map(p => {
+    const newInPeriod = subs.filter(s =>
+      s.created_at >= p.start.toISOString() && s.created_at <= p.end.toISOString()
     ).length;
-    subGrowth.push({ month: label, total: activeAtEnd, new: newInMonth, churned: churnedInMonth });
+    const churnedInPeriod = subs.filter(s =>
+      s.canceled_at && s.canceled_at >= p.start.toISOString() && s.canceled_at <= p.end.toISOString()
+    ).length;
+    const activeAtEnd = subs.filter(s =>
+      s.created_at <= p.end.toISOString() && (s.status === 'active' || (s.canceled_at && s.canceled_at > p.end.toISOString()))
+    ).length;
+    return { label: p.label, total: activeAtEnd, new: newInPeriod, churned: churnedInPeriod };
+  });
+
+  // ---- PLAYS DATA ----
+  // Get plays for this artist's tracks
+  const { data: artistTracks } = await supabaseAdmin
+    .from('tracks')
+    .select('id, play_count')
+    .eq('artist_id', artistId)
+    .eq('is_active', true);
+
+  const trackIds = (artistTracks || []).map(t => t.id);
+  const totalPlays = (artistTracks || []).reduce((s, t) => s + (t.play_count || 0), 0);
+
+  let playsTrend: { label: string; plays: number }[] = [];
+
+  if (trackIds.length > 0) {
+    const { data: allPlays } = await supabaseAdmin
+      .from('play_history')
+      .select('played_at, track_id')
+      .in('track_id', trackIds)
+      .gte('played_at', trendPeriods[0].start.toISOString())
+      .order('played_at', { ascending: true });
+
+    const plays = allPlays || [];
+
+    playsTrend = trendPeriods.map(p => {
+      const periodPlays = plays.filter(pl =>
+        pl.played_at >= p.start.toISOString() && pl.played_at <= p.end.toISOString()
+      ).length;
+      return { label: p.label, plays: periodPlays };
+    });
+  } else {
+    playsTrend = trendPeriods.map(p => ({ label: p.label, plays: 0 }));
   }
 
   // ---- TOP FANS ----
@@ -161,7 +227,7 @@ export async function GET(req: NextRequest) {
       lastMonth: revenueLastMonth,
       allTime: revenueAllTime,
       byType: revenueByType,
-      monthlyTrend,
+      trend: revenueTrend,
     },
     subscribers: {
       active: activeSubs.length,
@@ -172,7 +238,11 @@ export async function GET(req: NextRequest) {
       arpu,
       ltv,
       byTier: Object.entries(subsByTier).map(([tierName, count]) => ({ tierName, count })),
-      growth: subGrowth,
+      trend: subscriberTrend,
+    },
+    plays: {
+      total: totalPlays,
+      trend: playsTrend,
     },
     topFans,
     geography: {

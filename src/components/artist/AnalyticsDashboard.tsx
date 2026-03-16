@@ -9,7 +9,7 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, Legend 
 } from 'recharts';
 
-interface AnalyticsResponse {
+interface Analytics {
   revenue: {
     today: number;
     thisWeek: number;
@@ -17,7 +17,7 @@ interface AnalyticsResponse {
     lastMonth: number;
     allTime: number;
     byType: Record<string, number>;
-    monthlyTrend: { month: string; revenue: number; earnings_count: number }[];
+    trend: { label: string; revenue: number; earnings_count: number }[];
   };
   subscribers: {
     active: number;
@@ -28,7 +28,11 @@ interface AnalyticsResponse {
     arpu: number;
     ltv: number;
     byTier: { tierName: string; count: number }[];
-    growth: { month: string; total: number; new: number; churned: number }[];
+    trend: { label: string; total: number; new: number; churned: number }[];
+  };
+  plays: {
+    total: number;
+    trend: { label: string; plays: number }[];
   };
   topFans: { fanId: string; name: string; totalSpent: number }[];
   geography: {
@@ -60,13 +64,35 @@ interface MilestoneData {
 
 const COLORS = ['#D4AF37', '#3B82F6', '#8B5CF6', '#10B981'];
 
+// Period Toggle Component
+function PeriodToggle({ value, onChange }: { value: string; onChange: (v: 'daily' | 'weekly' | 'monthly') => void }) {
+  return (
+    <div className="flex gap-1 bg-crwn-elevated rounded-full p-0.5">
+      {(['daily', 'weekly', 'monthly'] as const).map((p) => (
+        <button
+          key={p}
+          onClick={() => onChange(p)}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+            value === p
+              ? 'bg-crwn-gold text-black'
+              : 'text-crwn-text-secondary hover:text-crwn-text'
+          }`}
+        >
+          {p.charAt(0).toUpperCase() + p.slice(1)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function AnalyticsDashboard() {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [isLoading, setIsLoading] = useState(true);
-  const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [musicData, setMusicData] = useState<MusicData | null>(null);
   const [milestones, setMilestones] = useState<MilestoneData[]>([]);
+  const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -87,8 +113,8 @@ export function AnalyticsDashboard() {
 
       const artistId = artistProfile.id;
 
-      // Fetch analytics from API
-      const res = await fetch(`/api/analytics?artistId=${artistId}`);
+      // Fetch analytics from API with period
+      const res = await fetch(`/api/analytics?artistId=${artistId}&period=${period}`);
       const analyticsData = await res.json();
       setAnalytics(analyticsData);
 
@@ -106,7 +132,7 @@ export function AnalyticsDashboard() {
 
       setMusicData({
         totalPlays,
-        thisMonth: 0, // Not tracked in current schema
+        thisMonth: 0,
         lastMonth: 0,
         topTracks
       });
@@ -121,7 +147,7 @@ export function AnalyticsDashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, supabase]);
+  }, [user, supabase, period]);
 
   useEffect(() => {
     loadData();
@@ -212,14 +238,17 @@ export function AnalyticsDashboard() {
           </div>
         </div>
 
-        {/* Revenue Trend Chart */}
+        {/* Revenue Trend Chart with Period Toggle */}
         <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-          <p className="text-sm text-crwn-text-secondary mb-2">Monthly Revenue Trend</p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-crwn-text-secondary">Revenue Trend</p>
+            <PeriodToggle value={period} onChange={setPeriod} />
+          </div>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analytics.revenue.monthlyTrend}>
+              <LineChart data={analytics.revenue.trend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="month" stroke="#666" fontSize={12} />
+                <XAxis dataKey="label" stroke="#666" fontSize={12} />
                 <YAxis stroke="#666" fontSize={12} tickFormatter={(v) => `$${v/100}`} />
                 <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
                 <Line type="monotone" dataKey="revenue" stroke="#D4AF37" strokeWidth={2} dot={{ fill: '#D4AF37' }} />
@@ -273,15 +302,18 @@ export function AnalyticsDashboard() {
           </div>
         )}
 
-        {/* Subscriber Growth Chart */}
-        {analytics.subscribers.growth.length > 0 && (
+        {/* Subscriber Growth Chart with Period Toggle */}
+        {analytics.subscribers.trend.length > 0 && (
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-sm text-crwn-text-secondary mb-2">Subscriber Growth (6 months)</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-crwn-text-secondary">Subscriber Growth</p>
+              <PeriodToggle value={period} onChange={setPeriod} />
+            </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={analytics.subscribers.growth}>
+                <BarChart data={analytics.subscribers.trend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="month" stroke="#666" fontSize={12} />
+                  <XAxis dataKey="label" stroke="#666" fontSize={12} />
                   <YAxis stroke="#666" fontSize={12} />
                   <Tooltip />
                   <Legend />
@@ -289,6 +321,36 @@ export function AnalyticsDashboard() {
                   <Bar dataKey="churned" fill="#EF4444" name="Churned" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="total" stroke="#3B82F6" fill="none" strokeWidth={2} name="Total" />
                 </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ========== PLAYS SECTION ========== */}
+      <section>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4">Song Plays</h3>
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary">Total Plays</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.plays.total.toLocaleString()}</p>
+          </div>
+        </div>
+        {analytics.plays.trend.length > 0 && (
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-crwn-text-secondary">Plays Trend</p>
+              <PeriodToggle value={period} onChange={setPeriod} />
+            </div>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={analytics.plays.trend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="label" stroke="#666" fontSize={12} />
+                  <YAxis stroke="#666" fontSize={12} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="plays" stroke="#3B82F6" strokeWidth={2} dot={{ fill: '#3B82F6' }} />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
