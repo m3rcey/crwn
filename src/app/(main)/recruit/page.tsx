@@ -87,7 +87,7 @@ export default function RecruitPitchPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] page-fade-in">
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent" />
         <div className="max-w-4xl mx-auto px-4 py-16 md:py-24 text-center relative z-10">

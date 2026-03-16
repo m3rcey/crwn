@@ -119,7 +119,7 @@ export default function FoundingArtistsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] page-fade-in">
       {/* Hero */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-crwn-gold/5 to-transparent" />
