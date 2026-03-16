@@ -5,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Eye } from 'lucide-react';
 import { ArtistProfile } from '@/types';
 import { isReservedSlug } from '@/lib/reservedSlugs';
 
@@ -383,14 +385,26 @@ export function ArtistProfileForm() {
         </p>
       </div>
 
-      {/* Submit */}
-      <button
-        type="submit"
-        disabled={isSaving}
-        className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
-      >
-        {isSaving ? 'Saving...' : 'Save Profile'}
-      </button>
+      {/* Submit + Preview */}
+      <div className="flex items-center gap-3">
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50"
+        >
+          {isSaving ? 'Saving...' : 'Save Profile'}
+        </button>
+        {formData.slug && (
+          <Link
+            href={`/${formData.slug}`}
+            target="_blank"
+            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold border border-crwn-elevated rounded-lg transition-colors"
+          >
+            <Eye className="w-4 h-4" />
+            View as fan
+          </Link>
+        )}
+      </div>
     </form>
   );
 }

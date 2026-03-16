@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
 import { MusicManager } from '@/components/artist/MusicManager';
 import { AlbumManager } from '@/components/artist/AlbumManager';
@@ -16,7 +17,7 @@ import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
-import { Check, X } from 'lucide-react';
+import { Check, X, Eye } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
 
 function ArtistDashboardContent() {
@@ -26,6 +27,7 @@ function ArtistDashboardContent() {
   const supabase = createBrowserSupabaseClient();
   const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals'>('analytics');
   const [artistId, setArtistId] = useState<string | null>(null);
+  const [artistSlug, setArtistSlug] = useState<string>('');
   const [tiers, setTiers] = useState<TierConfig[]>([]);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
@@ -66,12 +68,13 @@ function ArtistDashboardContent() {
 
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, tier_config, platform_tier')
+        .select('id, slug, tier_config, platform_tier')
         .eq('user_id', user.id)
         .single();
 
       if (artist) {
         setArtistId(artist.id);
+        setArtistSlug(artist.slug || '');
         setPlatformTier(artist.platform_tier || 'starter');
 
         const tierConfigTiers = (artist.tier_config || []) as TierConfig[];
@@ -133,7 +136,19 @@ function ArtistDashboardContent() {
             </p>
           </div>
 
-          {/* Tabs */}
+          {/* Preview + Tabs */}
+          {artistSlug && (
+            <div className="px-4 sm:px-6 lg:px-8 mb-2">
+              <Link
+                href={`/${artistSlug}`}
+                target="_blank"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold border border-crwn-elevated rounded-full transition-colors"
+              >
+                <Eye className="w-4 h-4" />
+                View as fan
+              </Link>
+            </div>
+          )}
           <div className="px-4 sm:px-6 lg:px-8 flex gap-6 overflow-x-auto">
             {tabs.map((tab) => (
               <button
