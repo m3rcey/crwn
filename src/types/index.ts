@@ -23,6 +23,7 @@ export interface ArtistProfile {
   stripe_connect_id: string | null;
   tier_config: TierConfig[];
   is_verified: boolean;
+  calendar_link?: string | null;
   created_at: string;
   updated_at: string;
   // Joined fields
@@ -315,4 +316,27 @@ export interface TierBenefit {
   sort_order: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface BookingToken {
+  id: string;
+  fan_id: string;
+  artist_id: string;
+  product_id: string;
+  purchase_id: string;
+  status: 'unused' | 'used' | 'expired';
+  used_at: string | null;
+  expires_at: string;
+  created_at: string;
+  // Joined fields (optional, for fan-facing queries)
+  products?: {
+    title: string;
+    image_url: string;
+    duration_minutes: number;
+  };
+  artist_profiles?: {
+    slug: string;
+    calendar_link: string;
+    user_id: string;
+  };
 }

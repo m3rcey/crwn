@@ -16,6 +16,7 @@ interface ArtistFormData {
   avatar_url: string;
   banner_url: string;
   social_links: Record<string, string>;
+  calendar_link?: string | null;
 }
 
 export function ArtistProfileForm() {
@@ -33,6 +34,7 @@ export function ArtistProfileForm() {
     avatar_url: profile?.avatar_url || '',
     banner_url: '',
     social_links: profile?.social_links || {},
+    calendar_link: null,
   });
 
   const fetchArtistProfile = useCallback(async () => {
@@ -70,6 +72,7 @@ export function ArtistProfileForm() {
       avatar_url: profile?.avatar_url || prev.avatar_url || '',
       banner_url: data?.banner_url || '',
       social_links: profile?.social_links || prev.social_links || {},
+      calendar_link: data?.calendar_link || null,
     }));
     
     setIsLoading(false);
@@ -116,6 +119,7 @@ export function ArtistProfileForm() {
             slug: formData.slug,
             tagline: formData.tagline,
             banner_url: formData.banner_url,
+            calendar_link: formData.calendar_link,
           })
           .eq('id', artistProfile.id);
       } else {
@@ -127,6 +131,7 @@ export function ArtistProfileForm() {
             slug: formData.slug,
             tagline: formData.tagline,
             banner_url: formData.banner_url,
+            calendar_link: formData.calendar_link,
             ...(recruiterCode ? { recruited_by: recruiterCode } : {}),
           })
           .select()
@@ -359,6 +364,23 @@ export function ArtistProfileForm() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Calendar Link */}
+      <div>
+        <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+          Cal.com Scheduling Link
+        </label>
+        <input
+          type="url"
+          value={formData.calendar_link || ''}
+          onChange={(e) => setFormData(prev => ({ ...prev, calendar_link: e.target.value }))}
+          placeholder="https://cal.com/yourname/1on1"
+          className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
+        />
+        <p className="text-xs text-crwn-text-secondary mt-1">
+          Paste your Cal.com link here. Fans who purchase a 1-on-1 session will see this link after payment.
+        </p>
       </div>
 
       {/* Submit */}

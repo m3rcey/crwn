@@ -8,6 +8,7 @@ import { recruiterArtistSignupEmail } from '@/lib/emails/recruiterArtistSignup';
 import { subscriptionEmail } from '@/lib/emails/subscription';
 import { artistTierEmail } from '@/lib/emails/artistTier';
 import { purchaseEmail } from '@/lib/emails/purchase';
+import { bookingTokenEmail } from '@/lib/emails/bookingToken';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 
@@ -660,8 +661,8 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
   const platformFee = Math.round(grossAmount * 0.08);
   const netAmount = grossAmount - platformFee;
 
-  // Insert purchase record
-  await supabaseAdmin
+  // Insert purchase record and get the ID
+  const { data: purchase } = await supabaseAdmin
     .from('purchases')
     .insert({
       fan_id,
@@ -671,7 +672,9 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       amount: product.price,
       status: 'completed',
       purchased_at: new Date().toISOString(),
-    });
+    })
+    .select()
+    .single();
 
   // Increment quantity_sold
   await supabaseAdmin
@@ -750,6 +753,48 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
     }
   } catch (err) {
     console.error('Purchase email failed:', err);
+  }
+
+  // === BOOKING TOKEN: Auto-create for experience products ===
+  if (product.type === 'experience' && purchase) {
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    
+    await supabaseAdmin.from('booking_tokens').insert({
+      fan_id,
+      artist_id,
+      product_id,
+      purchase_id: purchase.id,
+      status: 'unused',
+      expires_at: expiresAt,
+    });
+
+    // Send booking token email to fan
+    try {
+      const fanEmail = session.customer_email || session.customer_details?.email;
+      const { data: artistNameData } = await supabaseAdmin
+        .from('profiles')
+        .select('display_name')
+        .eq('id', artistProfile?.user_id)
+        .single();
+      const artistDisplayName = artistNameData?.display_name || 'an artist';
+      
+      if (fanEmail) {
+        const { subject, html } = bookingTokenEmail(
+          fanName.split(' ')[0] || 'there',
+          artistDisplayName,
+          productTitle,
+          expiresAt
+        );
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: fanEmail,
+          subject,
+          html,
+        });
+      }
+    } catch (err) {
+      console.error('Booking token email failed:', err);
+    }
   }
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
