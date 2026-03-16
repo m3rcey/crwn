@@ -9,6 +9,9 @@ import { subscriptionEmail } from '@/lib/emails/subscription';
 import { artistTierEmail } from '@/lib/emails/artistTier';
 import { purchaseEmail } from '@/lib/emails/purchase';
 import { bookingTokenEmail } from '@/lib/emails/bookingToken';
+import { artistNewSubscriberEmail } from '@/lib/emails/artistNewSubscriber';
+import { artistNewPurchaseEmail } from '@/lib/emails/artistNewPurchase';
+import { artistNewPostEmail } from '@/lib/emails/artistNewPost';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 
@@ -303,6 +306,29 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         }
       } catch (err) {
         console.error('Subscription email failed:', err);
+      }
+
+      // Send new subscriber email to artist
+      try {
+        const { data: { user: artistAuthUser } } = await supabaseAdmin.auth.admin.getUserById(artistProfile.user_id);
+        const artistEmail = artistAuthUser?.email;
+        if (artistEmail) {
+          const { data: artistNameForEmail } = await supabaseAdmin
+            .from('profiles')
+            .select('display_name')
+            .eq('id', artistProfile.user_id)
+            .single();
+          const artistDisplayNameForEmail = artistNameForEmail?.display_name || 'there';
+          const tierPrice = (grossAmount / 100).toFixed(2);
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: artistEmail,
+            subject: `New subscriber: ${fanName} joined ${tierName} 🎉`,
+            html: artistNewSubscriberEmail(artistDisplayNameForEmail, fanName, tierName, tierPrice),
+          });
+        }
+      } catch (err) {
+        console.error('Artist subscriber email failed:', err);
       }
 
       // Process referral if code provided
@@ -753,6 +779,30 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
     }
   } catch (err) {
     console.error('Purchase email failed:', err);
+  }
+
+  // Send new purchase email to artist
+  try {
+    if (artistProfile) {
+      const { data: { user: artistAuthUser } } = await supabaseAdmin.auth.admin.getUserById(artistProfile.user_id);
+      const artistEmail = artistAuthUser?.email;
+      if (artistEmail) {
+        const { data: artistNameForEmail } = await supabaseAdmin
+          .from('profiles')
+          .select('display_name')
+          .eq('id', artistProfile.user_id)
+          .single();
+        const artistDisplayNameForEmail = artistNameForEmail?.display_name || 'there';
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: artistEmail,
+          subject: `New sale: ${fanName} purchased ${productTitle} 💰`,
+          html: artistNewPurchaseEmail(artistDisplayNameForEmail, fanName, productTitle, (grossAmount / 100).toFixed(2), product.type || 'product'),
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Artist purchase email failed:', err);
   }
 
   // === BOOKING TOKEN: Auto-create for experience products ===

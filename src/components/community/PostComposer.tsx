@@ -111,6 +111,23 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
       setSelectedTiers([]);
       
       onPostCreated?.();
+
+      // Email artist about new community post (only if fan posted, not artist)
+      if (!isArtist) {
+        try {
+          await fetch('/api/emails/artist-new-post', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              artistId,
+              authorName: profile?.display_name || 'A fan',
+              postPreview: content.trim().substring(0, 150),
+            }),
+          });
+        } catch (e) {
+          // Non-critical, don't block UI
+        }
+      }
     } catch (err) {
       console.error('Post creation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to create post');
