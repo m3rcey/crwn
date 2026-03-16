@@ -498,7 +498,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
               
               <input
                 type="file"
-                accept="video/*"
+                accept="video/mp4,video/quicktime,video/*"
                 onChange={(e) => handleMediaSelect(e, 'video')}
                 className="hidden"
                 ref={videoInputRef}
