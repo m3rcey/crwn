@@ -118,21 +118,7 @@ export default function HomePage() {
             </div>
             <p className="font-medium text-crwn-gold text-sm mt-2 text-center">Founding Artist Program</p>
           </Link>
-        <Link
-          href="/recruit"
-          className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
-        >
-          <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
-            <Image
-              src="/homepage_recruit.png"
-              alt="Earn by Referring Artists"
-              fill
-              className="object-cover opacity-0 transition-opacity duration-500"
-              onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
-            />
-          </div>
-          <p className="font-medium text-green-400 text-sm mt-2 text-center">Earn by Referring Artists</p>
-        </Link>
+
       </div>
 
       {/* Quick Actions */}
