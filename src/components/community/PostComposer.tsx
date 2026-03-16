@@ -287,7 +287,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
               {uploadProgress.map((progress, i) => (
                 <div key={i} className="space-y-1">
                   <div className="flex justify-between text-xs text-crwn-text-secondary">
-                    <span>Uploading {mediaFiles[i]?.type.startsWith('video') ? 'video' : 'image'} {i + 1}/{uploadProgress.length}</span>
+                    <span>Uploading {mediaFiles[i]?.type.startsWith('video') ? 'video' : 'image'}{uploadProgress.length > 1 ? ` ${i + 1}/${uploadProgress.length}` : ''}</span>
                     <span>{progress}%</span>
                   </div>
                   <div className="w-full h-1.5 bg-crwn-elevated rounded-full overflow-hidden">
@@ -305,7 +305,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
           {mediaPreviews.length > 0 && (
             <div className="flex gap-2 mt-3 flex-wrap">
               {mediaPreviews.map((url, index) => (
-                <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden">
+                <div key={index} className={`relative ${mediaFiles[index]?.type.startsWith('video') && index === videoIndex ? 'w-full rounded-lg' : 'w-20 h-20 rounded-lg overflow-hidden'}`}>
                   {/* Feature 2: Video Thumbnail Scrubber */}
                   {mediaFiles[index]?.type.startsWith('video') && index === videoIndex ? (
                     <div className="w-full">
