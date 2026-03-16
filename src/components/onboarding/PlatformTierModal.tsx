@@ -1,11 +1,12 @@
 'use client';
+import { createPortal } from 'react-dom';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, Check, Crown } from 'lucide-react';
+import { Loader2, Check, Crown, X } from 'lucide-react';
 
 interface PlatformTier {
   id: string;
@@ -153,9 +154,17 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
     }
   };
 
-  return (
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4">
-      <div className="neu-raised rounded-2xl p-6 md:p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="neu-raised rounded-2xl p-6 md:p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto relative">
+        <button
+          onClick={onComplete}
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-crwn-elevated hover:bg-crwn-elevated/80 text-crwn-text-secondary hover:text-white transition-colors z-10"
+        >
+          <X className="w-5 h-5" />
+        </button>
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Crown className="w-8 h-8 text-crwn-gold" />
@@ -278,6 +287,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
           })}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
