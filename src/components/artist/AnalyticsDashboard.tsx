@@ -17,7 +17,7 @@ interface Analytics {
     lastMonth: number;
     allTime: number;
     byType: Record<string, number>;
-    trend: { label: string; revenue: number; earnings_count: number }[];
+    trend: { daily: { label: string; revenue: number; earnings_count: number }[]; weekly: { label: string; revenue: number; earnings_count: number }[]; monthly: { label: string; revenue: number; earnings_count: number }[] };
   };
   subscribers: {
     active: number;
@@ -28,11 +28,11 @@ interface Analytics {
     arpu: number;
     ltv: number;
     byTier: { tierName: string; count: number }[];
-    trend: { label: string; total: number; new: number; churned: number }[];
+    trend: { daily: { label: string; total: number; new: number; churned: number }[]; weekly: { label: string; total: number; new: number; churned: number }[]; monthly: { label: string; total: number; new: number; churned: number }[] };
   };
   plays: {
     total: number;
-    trend: { label: string; plays: number }[];
+    trend: { daily: { label: string; plays: number }[]; weekly: { label: string; plays: number }[]; monthly: { label: string; plays: number }[] };
   };
   topFans: { fanId: string; name: string; totalSpent: number }[];
   geography: {
@@ -114,7 +114,7 @@ export function AnalyticsDashboard() {
       const artistId = artistProfile.id;
 
       // Fetch analytics from API with period
-      const res = await fetch(`/api/analytics?artistId=${artistId}&period=${period}`);
+      const res = await fetch(`/api/analytics?artistId=${artistId}&period=all`);
       const analyticsData = await res.json();
       setAnalytics(analyticsData);
 
@@ -147,7 +147,7 @@ export function AnalyticsDashboard() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, supabase, period]);
+  }, [user, supabase]);
 
   useEffect(() => {
     loadData();
@@ -246,7 +246,7 @@ export function AnalyticsDashboard() {
           </div>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analytics.revenue.trend}>
+              <LineChart data={analytics.revenue.trend[period]}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="label" stroke="#666" fontSize={12} />
                 <YAxis stroke="#666" fontSize={12} tickFormatter={(v) => `$${v/100}`} />
@@ -303,7 +303,7 @@ export function AnalyticsDashboard() {
         )}
 
         {/* Subscriber Growth Chart with Period Toggle */}
-        {analytics.subscribers.trend.length > 0 && (
+        {analytics.subscribers.trend[period].length > 0 && (
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-crwn-text-secondary">Subscriber Growth</p>
@@ -311,7 +311,7 @@ export function AnalyticsDashboard() {
             </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={analytics.subscribers.trend}>
+                <BarChart data={analytics.subscribers.trend[period]}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                   <XAxis dataKey="label" stroke="#666" fontSize={12} />
                   <YAxis stroke="#666" fontSize={12} />
@@ -336,7 +336,7 @@ export function AnalyticsDashboard() {
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.plays.total.toLocaleString()}</p>
           </div>
         </div>
-        {analytics.plays.trend.length > 0 && (
+        {analytics.plays.trend[period].length > 0 && (
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-crwn-text-secondary">Plays Trend</p>
@@ -344,7 +344,7 @@ export function AnalyticsDashboard() {
             </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={analytics.plays.trend}>
+                <LineChart data={analytics.plays.trend[period]}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                   <XAxis dataKey="label" stroke="#666" fontSize={12} />
                   <YAxis stroke="#666" fontSize={12} />
