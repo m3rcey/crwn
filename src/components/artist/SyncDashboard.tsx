@@ -233,7 +233,7 @@ export function SyncDashboard({ artistId, platformTier }: SyncDashboardProps) {
                 <>
                   {/* Description */}
                   {opp.description && (
-                    <p className="text-sm text-crwn-text-secondary mt-2 line-clamp-2">{opp.description}</p>
+                    <p className="text-sm text-crwn-text-secondary mt-2">{opp.description}</p>
                   )}
 
                   {/* Brief details */}
