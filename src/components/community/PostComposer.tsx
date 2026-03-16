@@ -168,7 +168,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
               {mediaPreviews.map((url, index) => (
                 <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden">
                   {mediaFiles[index]?.type.startsWith('video') ? (
-                    <video src={url} className="w-full h-full object-cover" />
+                    <video src={url} playsInline className="w-full h-full object-cover" />
                   ) : (
                     <Image src={url} alt="" width={80} height={80} className="object-cover" />
                   )}
