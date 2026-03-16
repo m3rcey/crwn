@@ -8,7 +8,8 @@ import {
   Settings, 
   LogOut, 
   User as UserIcon,
-  Music
+  Music,
+  Eye
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -73,9 +74,6 @@ export default function ProfilePage() {
               {profile?.display_name || 'Your Profile'}
             </h1>
             <p className="text-crwn-text-secondary">{user?.email}</p>
-            <span className="inline-block mt-2 px-3 py-1 bg-crwn-elevated text-crwn-text-secondary text-sm rounded-full capitalize">
-              {profile?.role || 'Fan'}
-            </span>
           </div>
         </div>
       </div>
