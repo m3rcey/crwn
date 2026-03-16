@@ -577,8 +577,8 @@ export function TrackUploadForm() {
 
       {/* Single Upload Form */}
       {uploadMode === 'single' && (
-      <form onSubmit={handleSubmit} className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached ? 0.5 : 1, pointerEvents: trackLimitReached ? 'none' : 'auto' }}>
-        <h2 className="text-lg font-semibold text-crwn-text mb-4">Upload New Track</h2>
+      <form onSubmit={handleSubmit} className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached && !editingTrack ? 0.5 : 1, pointerEvents: trackLimitReached && !editingTrack ? 'none' : 'auto' }}>
+        <h2 className="text-lg font-semibold text-crwn-text mb-4">{editingTrack ? 'Edit Track' : 'Upload New Track'}</h2>
 
         {/* Audio File */}
         <div className="mb-4">
