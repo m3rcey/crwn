@@ -28,6 +28,17 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
   const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   
+  // Feature 1: Upload Progress
+  const [uploadProgress, setUploadProgress] = useState<number[]>([]);
+  const [currentUploadIndex, setCurrentUploadIndex] = useState<number>(-1);
+
+  // Feature 2: Video Thumbnail Scrubber
+  const [videoThumbnail, setVideoThumbnail] = useState<Blob | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [scrubTime, setScrubTime] = useState<number>(0);
+  const [videoDuration, setVideoDuration] = useState<number>(0);
+  const videoPreviewRef = useRef<HTMLVideoElement>(null);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,6 +63,91 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
   const removeMedia = (index: number) => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
+    // Reset thumbnail state when removing video
+    if (mediaFiles[index]?.type.startsWith('video')) {
+      setVideoThumbnail(null);
+      setThumbnailPreview(null);
+      setScrubTime(0);
+      setVideoDuration(0);
+    }
+  };
+
+  // Feature 2: Capture frame from video as thumbnail
+  const captureFrame = () => {
+    const video = videoPreviewRef.current;
+    if (!video) return;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (blob) {
+        setVideoThumbnail(blob);
+        setThumbnailPreview(canvas.toDataURL('image/jpeg', 0.8));
+      }
+    }, 'image/jpeg', 0.8);
+  };
+
+  // Feature 2: Handle scrub
+  const handleScrub = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    setScrubTime(time);
+    if (videoPreviewRef.current) {
+      videoPreviewRef.current.currentTime = time;
+    }
+  };
+
+  // Feature 2: Auto-capture frame when scrub stops
+  const handleScrubEnd = () => {
+    captureFrame();
+  };
+
+  // Feature 1: Upload with XHR progress tracking
+  const uploadFileWithProgress = async (file: File, path: string, index: number): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321';
+      const url = `${supabaseUrl}/storage/v1/object/community-media/${path}`;
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(prev => {
+            const next = [...prev];
+            next[index] = percent;
+            return next;
+          });
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('community-media')
+            .getPublicUrl(path);
+          resolve(publicUrl);
+        } else {
+          reject(new Error(`Upload failed: ${xhr.status}`));
+        }
+      });
+
+      xhr.addEventListener('error', () => reject(new Error('Upload failed')));
+
+      xhr.open('POST', url);
+      xhr.setRequestHeader('x-upsert', 'true');
+      
+      // Get access token for authorization
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.access_token) {
+          xhr.setRequestHeader('Authorization', `Bearer ${session.access_token}`);
+        }
+        xhr.send(file);
+      });
+    });
   };
 
   const handleSubmit = async () => {
@@ -61,31 +157,42 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
     setError(null);
 
     try {
-      // Upload media files
+      // Upload media files with progress tracking
       const uploadedUrls: string[] = [];
       const uploadedTypes: string[] = [];
 
-      for (const file of mediaFiles) {
+      // Initialize progress tracking
+      setUploadProgress(new Array(mediaFiles.length).fill(0));
+
+      for (let i = 0; i < mediaFiles.length; i++) {
+        setCurrentUploadIndex(i);
+        const file = mediaFiles[i];
         const ext = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random()}.${ext}`;
         const path = `${artistId}/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('community-media')
-          .upload(path, file);
-
-        if (uploadError) {
-          console.error('Media upload error:', uploadError);
-          throw new Error('Failed to upload media');
-        }
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('community-media')
-          .getPublicUrl(path);
-
+        
+        const publicUrl = await uploadFileWithProgress(file, path, i);
         uploadedUrls.push(publicUrl);
         uploadedTypes.push(file.type.startsWith('video') ? 'video' : 'image');
       }
+
+      // Feature 2: Upload thumbnail if exists
+      let thumbnailUrl: string | null = null;
+      if (videoThumbnail) {
+        const thumbPath = `${artistId}/thumb-${Date.now()}.jpg`;
+        const { error: thumbError } = await supabase.storage
+          .from('community-media')
+          .upload(thumbPath, videoThumbnail, { contentType: 'image/jpeg' });
+        if (!thumbError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('community-media')
+            .getPublicUrl(thumbPath);
+          thumbnailUrl = publicUrl;
+        }
+      }
+
+      setCurrentUploadIndex(-1);
+      setUploadProgress([]);
 
       // Create post
       const { error: insertError } = await supabase
@@ -96,6 +203,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
           content: content.trim(),
           media_urls: uploadedUrls,
           media_types: uploadedTypes,
+          thumbnail_url: thumbnailUrl,
           is_artist_post: isArtist,
           is_free: isFree,
           allowed_tier_ids: isFree ? [] : selectedTiers,
@@ -109,6 +217,12 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
       setMediaPreviews([]);
       setIsFree(true);
       setSelectedTiers([]);
+      
+      // Feature 2: Reset thumbnail state
+      setVideoThumbnail(null);
+      setThumbnailPreview(null);
+      setScrubTime(0);
+      setVideoDuration(0);
       
       onPostCreated?.();
 
@@ -131,10 +245,15 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
     } catch (err) {
       console.error('Post creation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to create post');
+      setUploadProgress([]);
+      setCurrentUploadIndex(-1);
     } finally {
       setIsUploading(false);
     }
   };
+
+  // Find video index for thumbnail scrubbing
+  const videoIndex = mediaFiles.findIndex(f => f.type.startsWith('video'));
 
   return (
     <div className="neu-raised p-4">
@@ -162,13 +281,79 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
           />
           <p className="text-xs text-crwn-text-dim text-right mt-1">{content.length}/2000</p>
 
+          {/* Feature 1: Upload Progress Indicator */}
+          {isUploading && uploadProgress.length > 0 && (
+            <div className="px-4 py-3 space-y-2">
+              {uploadProgress.map((progress, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between text-xs text-crwn-text-secondary">
+                    <span>Uploading {mediaFiles[i]?.type.startsWith('video') ? 'video' : 'image'} {i + 1}/{uploadProgress.length}</span>
+                    <span>{progress}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-crwn-elevated rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-crwn-gold rounded-full transition-all duration-300"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Media previews */}
           {mediaPreviews.length > 0 && (
             <div className="flex gap-2 mt-3 flex-wrap">
               {mediaPreviews.map((url, index) => (
                 <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden">
-                  {mediaFiles[index]?.type.startsWith('video') ? (
-                    <video src={url} playsInline className="w-full h-full object-cover" />
+                  {/* Feature 2: Video Thumbnail Scrubber */}
+                  {mediaFiles[index]?.type.startsWith('video') && index === videoIndex ? (
+                    <div className="w-full">
+                      <video
+                        ref={videoPreviewRef}
+                        src={url}
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover"
+                        onLoadedMetadata={(e) => {
+                          const vid = e.currentTarget;
+                          setVideoDuration(vid.duration);
+                          // Auto-capture first frame as default thumbnail
+                          vid.currentTime = 0;
+                          setTimeout(() => captureFrame(), 200);
+                        }}
+                      />
+                      <div className="mt-2 px-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-crwn-text-secondary">
+                            {Math.floor(scrubTime / 60)}:{String(Math.floor(scrubTime % 60)).padStart(2, '0')}
+                          </span>
+                          <input
+                            type="range"
+                            min={0}
+                            max={videoDuration || 0}
+                            step={0.1}
+                            value={scrubTime}
+                            onChange={handleScrub}
+                            onMouseUp={handleScrubEnd}
+                            onTouchEnd={handleScrubEnd}
+                            className="flex-1 h-1 accent-crwn-gold cursor-pointer"
+                          />
+                          <span className="text-xs text-crwn-text-secondary">
+                            {Math.floor(videoDuration / 60)}:{String(Math.floor(videoDuration % 60)).padStart(2, '0')}
+                          </span>
+                        </div>
+                        <p className="text-xs text-crwn-text-secondary text-center mt-1">
+                          Scrub to select thumbnail
+                        </p>
+                        {thumbnailPreview && (
+                          <div className="mt-2 flex items-center gap-2">
+                            <img src={thumbnailPreview} alt="Thumbnail" className="w-16 h-16 rounded object-cover" />
+                            <span className="text-xs text-crwn-gold">Thumbnail selected</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   ) : (
                     <Image src={url} alt="" width={80} height={80} className="object-cover" />
                   )}

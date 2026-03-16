@@ -246,6 +246,7 @@ export interface CommunityPost {
   content: string;
   media_urls: string[];
   media_types: string[];
+  thumbnail_url?: string | null;
   is_artist_post: boolean;
   is_free: boolean;
   allowed_tier_ids: string[];
