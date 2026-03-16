@@ -37,7 +37,7 @@ export function Navigation() {
   const handleSignOut = async () => {
     resetPlayer();
     await signOut();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   // Don't show nav on auth pages
