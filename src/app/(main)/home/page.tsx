@@ -103,7 +103,7 @@ export default function HomePage() {
 
       {/* Program Links */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl stagger-fade-in">
-        {!hasArtistProfile && (
+        {!isLoading && !hasArtistProfile && (
           <Link
             href="/founding-artists"
             className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform page-fade-in"
