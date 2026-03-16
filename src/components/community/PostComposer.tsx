@@ -32,15 +32,101 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
   const [uploadProgress, setUploadProgress] = useState<number[]>([]);
   const [currentUploadIndex, setCurrentUploadIndex] = useState<number>(-1);
 
-  // Feature 2: Video Thumbnail Scrubber
+  // Feature 2: Video Thumbnail Filmstrip
+  const [videoFrames, setVideoFrames] = useState<string[]>([]);
+  const [selectedFrameIndex, setSelectedFrameIndex] = useState<number>(0);
   const [videoThumbnail, setVideoThumbnail] = useState<Blob | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [scrubTime, setScrubTime] = useState<number>(0);
-  const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [isExtractingFrames, setIsExtractingFrames] = useState(false);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+
+  // Extract frames from video for filmstrip
+  const extractFrames = async (videoUrl: string, numFrames: number = 10) => {
+    setIsExtractingFrames(true);
+    
+    return new Promise<void>((resolve) => {
+      const video = document.createElement('video');
+      video.src = videoUrl;
+      video.crossOrigin = 'anonymous';
+      video.muted = true;
+      video.playsInline = true;
+      
+      video.addEventListener('loadedmetadata', async () => {
+        const duration = video.duration;
+        const canvas = document.createElement('canvas');
+        // Use smaller dimensions for thumbnails (performance)
+        const scale = Math.min(1, 200 / video.videoHeight);
+        canvas.width = video.videoWidth * scale;
+        canvas.height = video.videoHeight * scale;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { setIsExtractingFrames(false); resolve(); return; }
+        
+        const frames: string[] = [];
+        
+        for (let i = 0; i < numFrames; i++) {
+          const time = (duration / numFrames) * i;
+          video.currentTime = time;
+          
+          await new Promise<void>((seekResolve) => {
+            video.addEventListener('seeked', () => {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              frames.push(canvas.toDataURL('image/jpeg', 0.6));
+              seekResolve();
+            }, { once: true });
+          });
+        }
+        
+        setVideoFrames(frames);
+        // Auto-select first frame as default thumbnail
+        if (frames.length > 0) {
+          setSelectedFrameIndex(0);
+          setThumbnailPreview(frames[0]);
+          // Create blob for upload
+          canvas.toBlob((blob) => {
+            if (blob) setVideoThumbnail(blob);
+          }, 'image/jpeg', 0.8);
+        }
+        
+        setIsExtractingFrames(false);
+        resolve();
+      });
+      
+      video.addEventListener('error', () => {
+        console.error('Failed to load video for frame extraction');
+        setIsExtractingFrames(false);
+        resolve();
+      });
+    });
+  };
+
+  // Handle frame selection from filmstrip
+  const selectFrame = (index: number) => {
+    setSelectedFrameIndex(index);
+    setThumbnailPreview(videoFrames[index]);
+    
+    // Create full-resolution thumbnail from the video at this timestamp
+    const video = videoPreviewRef.current;
+    if (!video) return;
+    
+    const duration = video.duration;
+    const time = (duration / videoFrames.length) * index;
+    video.currentTime = time;
+    
+    video.addEventListener('seeked', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(video, 0, 0);
+      canvas.toBlob((blob) => {
+        if (blob) setVideoThumbnail(blob);
+      }, 'image/jpeg', 0.8);
+    }, { once: true });
+  };
 
   const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
     const files = e.target.files;
@@ -54,6 +140,11 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
     newFiles.forEach(file => {
       const url = URL.createObjectURL(file);
       setMediaPreviews(prev => [...prev, url]);
+      
+      // Extract frames if it's a video
+      if (file.type.startsWith('video')) {
+        extractFrames(url);
+      }
     });
 
     setMediaFiles(prev => [...prev, ...newFiles]);
@@ -61,49 +152,15 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
   };
 
   const removeMedia = (index: number) => {
+    const isVideo = mediaFiles[index]?.type.startsWith('video');
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
-    // Reset thumbnail state when removing video
-    if (mediaFiles[index]?.type.startsWith('video')) {
+    if (isVideo) {
+      setVideoFrames([]);
+      setSelectedFrameIndex(0);
       setVideoThumbnail(null);
       setThumbnailPreview(null);
-      setScrubTime(0);
-      setVideoDuration(0);
     }
-  };
-
-  // Feature 2: Capture frame from video as thumbnail
-  const captureFrame = () => {
-    const video = videoPreviewRef.current;
-    if (!video) return;
-    
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
-      if (blob) {
-        setVideoThumbnail(blob);
-        setThumbnailPreview(canvas.toDataURL('image/jpeg', 0.8));
-      }
-    }, 'image/jpeg', 0.8);
-  };
-
-  // Feature 2: Handle scrub
-  const handleScrub = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = parseFloat(e.target.value);
-    setScrubTime(time);
-    if (videoPreviewRef.current) {
-      videoPreviewRef.current.currentTime = time;
-    }
-  };
-
-  // Feature 2: Auto-capture frame when scrub stops
-  const handleScrubEnd = () => {
-    captureFrame();
   };
 
   // Feature 1: Upload with XHR progress tracking
@@ -219,10 +276,11 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
       setSelectedTiers([]);
       
       // Feature 2: Reset thumbnail state
+      setVideoFrames([]);
+      setSelectedFrameIndex(0);
       setVideoThumbnail(null);
       setThumbnailPreview(null);
-      setScrubTime(0);
-      setVideoDuration(0);
+      setIsExtractingFrames(false);
       
       onPostCreated?.();
 
@@ -252,7 +310,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
     }
   };
 
-  // Find video index for thumbnail scrubbing
+  // Find video index for thumbnail filmstrip
   const videoIndex = mediaFiles.findIndex(f => f.type.startsWith('video'));
 
   return (
@@ -305,63 +363,72 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
           {mediaPreviews.length > 0 && (
             <div className="flex gap-2 mt-3 flex-wrap">
               {mediaPreviews.map((url, index) => (
-                <div key={index} className={`relative ${mediaFiles[index]?.type.startsWith('video') && index === videoIndex ? 'w-full rounded-lg' : 'w-20 h-20 rounded-lg overflow-hidden'}`}>
-                  {/* Feature 2: Video Thumbnail Scrubber */}
+                <div key={index} className={`relative ${mediaFiles[index]?.type.startsWith('video') && index === videoIndex ? 'w-full' : 'w-20 h-20 rounded-lg overflow-hidden'}`}>
+                  {/* Feature 2: Video Thumbnail Filmstrip */}
                   {mediaFiles[index]?.type.startsWith('video') && index === videoIndex ? (
-                    <div className="w-full">
-                      <video
-                        ref={videoPreviewRef}
-                        src={url}
-                        playsInline
-                        muted
-                        className="w-full h-full object-cover"
-                        onLoadedMetadata={(e) => {
-                          const vid = e.currentTarget;
-                          setVideoDuration(vid.duration);
-                          // Auto-capture first frame as default thumbnail
-                          vid.currentTime = 0;
-                          setTimeout(() => captureFrame(), 200);
-                        }}
-                      />
-                      <div className="mt-2 px-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-crwn-text-secondary">
-                            {Math.floor(scrubTime / 60)}:{String(Math.floor(scrubTime % 60)).padStart(2, '0')}
-                          </span>
-                          <input
-                            type="range"
-                            min={0}
-                            max={videoDuration || 0}
-                            step={0.1}
-                            value={scrubTime}
-                            onChange={handleScrub}
-                            onMouseUp={handleScrubEnd}
-                            onTouchEnd={handleScrubEnd}
-                            className="flex-1 h-1 accent-crwn-gold cursor-pointer"
-                          />
-                          <span className="text-xs text-crwn-text-secondary">
-                            {Math.floor(videoDuration / 60)}:{String(Math.floor(videoDuration % 60)).padStart(2, '0')}
-                          </span>
-                        </div>
-                        <p className="text-xs text-crwn-text-secondary text-center mt-1">
-                          Scrub to select thumbnail
-                        </p>
-                        {thumbnailPreview && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <img src={thumbnailPreview} alt="Thumbnail" className="w-16 h-16 rounded object-cover" />
-                            <span className="text-xs text-crwn-gold">Thumbnail selected</span>
+                    <div className="w-full space-y-3">
+                      {/* Video preview - shows selected frame */}
+                      <div className="relative rounded-lg overflow-hidden">
+                        <video
+                          ref={videoPreviewRef}
+                          src={url}
+                          playsInline
+                          muted
+                          className="w-full rounded-lg"
+                          onLoadedMetadata={(e) => {
+                            const vid = e.currentTarget;
+                            vid.currentTime = 0;
+                          }}
+                        />
+                        {/* Play button overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M8 5v14l11-7z" />
+                            </svg>
                           </div>
-                        )}
+                        </div>
                       </div>
+                      
+                      {/* Filmstrip thumbnail picker */}
+                      {isExtractingFrames ? (
+                        <div className="flex items-center justify-center py-3">
+                          <div className="animate-spin w-5 h-5 border-2 border-crwn-gold/30 border-t-crwn-gold rounded-full" />
+                          <span className="text-xs text-crwn-text-secondary ml-2">Extracting frames...</span>
+                        </div>
+                      ) : videoFrames.length > 0 ? (
+                        <div>
+                          <p className="text-xs text-crwn-text-secondary mb-2">Select cover frame</p>
+                          <div className="flex gap-1 overflow-x-auto pb-2 scrollbar-hide">
+                            {videoFrames.map((frame, i) => (
+                              <button
+                                key={i}
+                                onClick={() => selectFrame(i)}
+                                className={`flex-shrink-0 rounded-md overflow-hidden transition-all ${
+                                  selectedFrameIndex === i
+                                    ? 'ring-2 ring-crwn-gold scale-105'
+                                    : 'opacity-70 hover:opacity-100'
+                                }`}
+                              >
+                                <img
+                                  src={frame}
+                                  alt={`Frame ${i + 1}`}
+                                  className="w-16 h-16 object-cover"
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <Image src={url} alt="" width={80} height={80} className="object-cover" />
                   )}
                   <button
                     onClick={() => removeMedia(index)}
-                    className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center"
+                    className="absolute top-2 right-2 w-6 h-6 bg-black/70 rounded-full flex items-center justify-center"
                   >
-                    <X className="w-3 h-3 text-white" />
+                    <X className="w-4 h-4 text-white" />
                   </button>
                 </div>
               ))}
