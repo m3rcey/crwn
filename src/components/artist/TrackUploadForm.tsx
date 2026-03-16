@@ -592,7 +592,7 @@ export function TrackUploadForm() {
               onChange={handleAudioSelect}
               className="hidden"
               id="audio-upload"
-              required
+
             />
             <label
               htmlFor="audio-upload"
