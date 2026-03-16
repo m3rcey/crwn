@@ -230,7 +230,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
 
 
   return (
-    <div className="relative min-h-screen pb-20 md:pb-0">
+    <div className="relative min-h-screen pb-20 md:pb-0 page-fade-in">
       <BackgroundImage src="/backgrounds/bg-artist.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
         {/* Banner */}
