@@ -10,6 +10,13 @@ import { Eye } from 'lucide-react';
 import { ArtistProfile } from '@/types';
 import { isReservedSlug } from '@/lib/reservedSlugs';
 
+const GENRE_OPTIONS = [
+  'Pop', 'R&B', 'Hip-Hop', 'Rap', 'Rock', 'Alternative', 'Indie',
+  'Electronic', 'Dance', 'Country', 'Folk', 'Jazz', 'Blues', 'Soul',
+  'Funk', 'Reggae', 'Latin', 'Classical', 'Ambient', 'Lo-Fi',
+  'Cinematic', 'Gospel', 'Metal', 'Punk', 'World',
+];
+
 interface ArtistFormData {
   display_name: string;
   slug: string;
@@ -19,6 +26,9 @@ interface ArtistFormData {
   banner_url: string;
   social_links: Record<string, string>;
   calendar_link?: string | null;
+  city?: string;
+  state?: string;
+  genres: string[];
 }
 
 export function ArtistProfileForm() {
@@ -37,6 +47,9 @@ export function ArtistProfileForm() {
     banner_url: '',
     social_links: profile?.social_links || {},
     calendar_link: null,
+    city: '',
+    state: '',
+    genres: [],
   });
 
   const fetchArtistProfile = useCallback(async () => {
@@ -75,6 +88,9 @@ export function ArtistProfileForm() {
       banner_url: data?.banner_url || '',
       social_links: profile?.social_links || prev.social_links || {},
       calendar_link: data?.calendar_link || null,
+      city: data?.city || '',
+      state: data?.state || '',
+      genres: data?.genres || [],
     }));
     
     setIsLoading(false);
@@ -122,6 +138,9 @@ export function ArtistProfileForm() {
             tagline: formData.tagline,
             banner_url: formData.banner_url,
             calendar_link: formData.calendar_link,
+            city: formData.city,
+            state: formData.state,
+            genres: formData.genres,
           })
           .eq('id', artistProfile.id);
       } else {
@@ -134,6 +153,9 @@ export function ArtistProfileForm() {
             tagline: formData.tagline,
             banner_url: formData.banner_url,
             calendar_link: formData.calendar_link,
+            city: formData.city,
+            state: formData.state,
+            genres: formData.genres,
             ...(recruiterCode ? { recruited_by: recruiterCode } : {}),
           })
           .select()
@@ -383,6 +405,60 @@ export function ArtistProfileForm() {
         <p className="text-xs text-crwn-text-secondary mt-1">
           Paste your Cal.com link here. Fans who purchase a 1-on-1 session will see this link after payment.
         </p>
+      </div>
+
+      {/* Location */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-crwn-text-secondary mb-1">City</label>
+          <input
+            type="text"
+            value={formData.city || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+            placeholder="e.g. Atlanta"
+            className="w-full bg-crwn-elevated border border-crwn-elevated rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-crwn-gold"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-crwn-text-secondary mb-1">State</label>
+          <input
+            type="text"
+            value={formData.state || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value.toUpperCase().slice(0, 2) }))}
+            placeholder="e.g. GA"
+            maxLength={2}
+            className="w-full bg-crwn-elevated border border-crwn-elevated rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-crwn-gold"
+          />
+        </div>
+      </div>
+
+      {/* Genres */}
+      <div>
+        <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Genres</label>
+        <p className="text-xs text-crwn-text-secondary mb-2">Select all that apply to your music</p>
+        <div className="flex flex-wrap gap-2">
+          {GENRE_OPTIONS.map((genre) => (
+            <button
+              key={genre}
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  genres: prev.genres.includes(genre)
+                    ? prev.genres.filter(g => g !== genre)
+                    : [...prev.genres, genre],
+                }));
+              }}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                formData.genres.includes(genre)
+                  ? 'bg-crwn-gold text-black'
+                  : 'bg-crwn-elevated text-crwn-text-secondary hover:text-white'
+              }`}
+            >
+              {genre}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Submit */}

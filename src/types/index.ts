@@ -24,6 +24,9 @@ export interface ArtistProfile {
   tier_config: TierConfig[];
   is_verified: boolean;
   calendar_link?: string | null;
+  city?: string | null;
+  state?: string | null;
+  genres?: string[];
   created_at: string;
   updated_at: string;
   // Joined fields
@@ -340,4 +343,31 @@ export interface BookingToken {
     calendar_link: string;
     user_id: string;
   };
+}
+
+export interface SyncOpportunity {
+  id: string;
+  title: string;
+  description: string | null;
+  type: 'event' | 'brief';
+  location_city: string | null;
+  location_state: string | null;
+  is_online: boolean;
+  event_url: string | null;
+  registration_url: string | null;
+  price_min: number;
+  price_max: number;
+  event_date: string | null;
+  event_end_date: string | null;
+  deadline: string | null;
+  genres: string[];
+  moods: string[];
+  project_type: string | null;
+  brief_details: string | null;
+  looking_for: string | null;
+  source: string | null;
+  source_url: string | null;
+  is_featured: boolean;
+  is_active: boolean;
+  created_at: string;
 }

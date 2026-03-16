@@ -12,6 +12,7 @@ import { ShopManager } from '@/components/artist/ShopManager';
 import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
+import { SyncDashboard } from '@/components/artist/SyncDashboard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -25,7 +26,7 @@ function ArtistDashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals'>('analytics');
+  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals' | 'sync'>('analytics');
   const [artistId, setArtistId] = useState<string | null>(null);
   const [artistSlug, setArtistSlug] = useState<string>('');
   const [tiers, setTiers] = useState<TierConfig[]>([]);
@@ -97,6 +98,7 @@ function ArtistDashboardContent() {
 
   const tabs = [
     { id: 'analytics' as const, label: 'Analytics' },
+    { id: 'sync' as const, label: 'Sync' },
     { id: 'profile' as const, label: 'Profile' },
     { id: 'tracks' as const, label: 'Music' },
     { id: 'albums' as const, label: 'Albums' },
@@ -175,6 +177,9 @@ function ArtistDashboardContent() {
           {activeTab === 'billing' && <PlatformBilling />}
 
           {activeTab === 'analytics' && <AnalyticsDashboard />}
+          {activeTab === 'sync' && artistId && (
+            <SyncDashboard artistId={artistId} platformTier={platformTier} />
+          )}
           {activeTab === 'tiers' && <TierManager />}
           {activeTab === 'payouts' && <PayoutDashboard />}
           {activeTab === 'referrals' && <ArtistReferralStats />}
