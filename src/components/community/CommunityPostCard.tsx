@@ -1,7 +1,7 @@
 'use client';
 import { createPortal } from 'react-dom';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -11,6 +11,42 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+
+function AutoPlayVideo({ src, poster }: { src: string; poster?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      controls
+      playsInline
+      muted
+      loop
+      poster={poster}
+      className="w-full h-full object-cover"
+    />
+  );
+}
 
 interface CommunityPostCardProps {
   post: CommunityPost;
@@ -241,7 +277,7 @@ export function CommunityPostCard({
               {post.media_urls.map((url, index) => (
                 <div key={index} className="relative rounded-lg overflow-hidden max-h-[500px] flex items-center justify-center">
                   {post.media_types?.[index] === 'video' ? (
-                    <video src={url} controls playsInline poster={post.thumbnail_url || undefined} className="w-full h-full object-cover" />
+                    <AutoPlayVideo src={url} poster={post.thumbnail_url || undefined} />
                   ) : (
                     <Image src={url} alt="" width={600} height={800} className="w-full h-auto rounded-lg max-h-[500px] object-contain" />
                   )}
