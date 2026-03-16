@@ -114,8 +114,7 @@ export default function HomePage() {
                 alt="Founding Artist Program"
                 fill
                 priority
-                className="object-cover opacity-0 transition-opacity duration-700 ease-out"
-                onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
+                className="object-cover"
               />
             </div>
             <p className="font-medium text-crwn-gold text-sm mt-2 text-center">Founding Artist Program</p>
