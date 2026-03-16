@@ -50,11 +50,11 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
     return new Promise<void>((resolve) => {
       const video = document.createElement('video');
       video.src = videoUrl;
-      video.crossOrigin = 'anonymous';
       video.muted = true;
       video.playsInline = true;
       
-      video.addEventListener('loadedmetadata', async () => {
+      video.preload = 'auto';
+      video.addEventListener('loadeddata', async () => {
         const duration = video.duration;
         const canvas = document.createElement('canvas');
         // Use smaller dimensions for thumbnails (performance)
