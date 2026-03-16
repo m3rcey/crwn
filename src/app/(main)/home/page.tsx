@@ -106,7 +106,7 @@ export default function HomePage() {
         {hasArtistProfile && (
           <Link
             href="/founding-artists"
-            className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
+            className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform page-fade-in"
           >
             <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
               <Image
