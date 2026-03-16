@@ -533,16 +533,23 @@ export function ShopManager() {
 
               {/* Experience Delivery Info */}
               {productType === 'experience' && (
+                <>
+                <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 mb-3">
+                  <p className="text-sm text-purple-300">
+                    Fans who purchase this will receive a booking token and access to your Cal.com scheduling link. Make sure you{"'"}ve set your Cal.com link in your <a href="/profile/artist?tab=profile" className="text-crwn-gold underline">Profile Settings</a>.
+                  </p>
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Delivery Instructions</label>
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Note to Fan (optional)</label>
                   <textarea
                     value={formData.submissionInstructions}
                     onChange={(e) => setFormData(p => ({ ...p, submissionInstructions: e.target.value }))}
                     rows={2}
-                    placeholder="How will you deliver this experience? (e.g. 'You'll receive a Zoom link within 48 hours')"
+                    placeholder="Any additional details for the fan after purchase (e.g. 'Looking forward to connecting with you!')"
                     className="w-full neu-inset px-4 py-2 text-crwn-text resize-none"
                   />
                 </div>
+                </>
               )}
 
               <div>
