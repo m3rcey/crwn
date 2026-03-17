@@ -30,6 +30,16 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // Handle PKCE code exchange (email verification, password reset)
+  const code = request.nextUrl.searchParams.get('code');
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code);
+    // Remove code from URL after exchange
+    const url = request.nextUrl.clone();
+    url.searchParams.delete('code');
+    return NextResponse.redirect(url);
+  }
+
   // Refresh session if expired
   await supabase.auth.getUser();
 
