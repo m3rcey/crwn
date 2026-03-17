@@ -66,7 +66,7 @@ function ArtistDashboardContent() {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [shouldShowDashboardTour, artistId, isFoundingArtist, markDashboardTourComplete]);
+  }, [shouldShowDashboardTour, artistId]);
   useEffect(() => {
     const tab = searchParams.get('tab');
     const upgrade = searchParams.get('upgrade');
@@ -104,7 +104,7 @@ function ArtistDashboardContent() {
 
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, slug, tier_config, platform_tier')
+        .select('id, slug, tier_config, platform_tier, is_founding_artist')
         .eq('user_id', user.id)
         .single();
 
@@ -112,6 +112,7 @@ function ArtistDashboardContent() {
         setArtistId(artist.id);
         setArtistSlug(artist.slug || '');
         setPlatformTier(artist.platform_tier || 'starter');
+        setIsFoundingArtist(artist.is_founding_artist ?? false);
 
         const tierConfigTiers = (artist.tier_config || []) as TierConfig[];
         setTiers(tierConfigTiers);
