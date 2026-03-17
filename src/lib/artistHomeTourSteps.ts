@@ -35,12 +35,12 @@ export const artistHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="nav-profile"]',
+    element: '[data-tour="home-artist-dashboard"]',
     popover: {
       title: 'Your artist dashboard',
       description: 'Ready to build your page? Tap here to open your artist dashboard. That is where we will set everything up.',
-      side: 'top',
-      align: 'center',
+      side: 'bottom',
+      align: 'start',
     },
   },
 ];
