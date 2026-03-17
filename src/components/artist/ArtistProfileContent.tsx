@@ -18,7 +18,7 @@ import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { startTour } from '@/lib/tour';
-import { artistPageTourSteps } from '@/lib/artistPageTourSteps';
+import { getArtistPageTourSteps } from '@/lib/artistPageTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
 
 interface ArtistProfileContentProps {
@@ -89,18 +89,18 @@ export function ArtistProfileContent({
     if (!isOwnPage || !shouldShowArtistPageTour) return;
     
     const timer = setTimeout(() => {
-      startTour(artistPageTourSteps, markArtistPageTourComplete, saveArtistPageStep, artistPageStartStep);
+      startTour(getArtistPageTourSteps(artist.slug), markArtistPageTourComplete, saveArtistPageStep, artistPageStartStep);
     }, 1000);
 
     return () => clearTimeout(timer);
   }, [isOwnPage, shouldShowArtistPageTour, markArtistPageTourComplete]);
 
   const tabs = [
-    { id: 'music' as const, label: 'Music' },
-    { id: 'tiers' as const, label: 'Tiers' },
-    { id: 'shop' as const, label: 'Shop' },
-    { id: 'community' as const, label: 'Community' },
-    { id: 'leaderboard' as const, label: 'Leaderboard' },
+    { id: 'music' as const, label: 'Music', tourId: 'fan-tab-music' },
+    { id: 'tiers' as const, label: 'Tiers', tourId: 'fan-tab-tiers' },
+    { id: 'shop' as const, label: 'Shop', tourId: 'fan-tab-shop' },
+    { id: 'community' as const, label: 'Community', tourId: 'fan-tab-community' },
+    { id: 'leaderboard' as const, label: 'Leaderboard', tourId: 'fan-tab-leaderboard' },
   ];
 
   return (
@@ -112,6 +112,7 @@ export function ArtistProfileContent({
           {tabs.map((tab) => (
             <button
               key={tab.id}
+              data-tour={tab.tourId}
               onClick={() => { hapticLight(); setActiveTab(tab.id); }}
               className={`text-sm font-medium whitespace-nowrap pb-2 transition-colors border-b-2 ${
                 activeTab === tab.id

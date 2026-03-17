@@ -1,6 +1,6 @@
 import { DriveStep } from 'driver.js';
 
-export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
+export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string = 'yourname'): DriveStep[] {
   const foundingNote = isFoundingArtist
     ? ' As a Founding Artist, you have free Pro access, so all features are unlocked for you.'
     : '';
@@ -257,7 +257,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       element: '[data-tour="music-upload"]',
       popover: {
         title: 'Upload your music',
-        description: 'Upload tracks and set each one as free for everyone or exclusive to specific tiers. Keep at least 2 to 3 tracks free so new fans can discover your sound.',
+        description: 'Upload tracks here. Each track starts as free. Uncheck the free toggle to select which subscription tiers can access it. Keep at least 2 to 3 tracks free so new fans can discover your sound.',
         side: 'bottom',
         align: 'start',
       },
