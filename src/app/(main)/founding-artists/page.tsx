@@ -111,7 +111,7 @@ export default function FoundingArtistsPage() {
 
   const benefits = [
     { icon: Percent, title: '1% Off Your Platform Fee', desc: 'Permanently lower fees than any other artist on CRWN. Stacks with every tier you upgrade to.' },
-    { icon: Crown, title: 'Free Pro Plan for 1 Year', desc: 'Unlimited tracks, fan tiers, community, shop, and analytics. No monthly fee for your first year.' },
+    { icon: Crown, title: 'Free Pro Plan for 3 Months', desc: 'Unlimited tracks, fan tiers, community, shop, and analytics. No monthly fee for your first 3 months.' },
     { icon: Star, title: 'Founding Artist Badge', desc: 'A permanent badge on your profile showing you were one of the first. Early believers get recognized.' },
     { icon: TrendingUp, title: 'Priority Placement', desc: 'Featured on the Explore page and recommended to new fans joining the platform.' },
     { icon: Shield, title: 'Shape the Platform', desc: 'Direct input on new features. We build what founding artists need first.' },
