@@ -275,6 +275,8 @@
   border-radius: 9999px !important;
   font-weight: 600 !important;
   padding: 8px 20px !important;
+  text-decoration: none !important;
+  text-shadow: none !important;
 }
 
 .crwn-tour-popover button.driver-popover-prev-btn {
@@ -283,6 +285,14 @@
   border: 1px solid #333 !important;
   border-radius: 9999px !important;
   padding: 8px 20px !important;
+  text-decoration: none !important;
+  text-shadow: none !important;
+}
+
+.crwn-tour-popover button {
+  text-decoration: none !important;
+  text-shadow: none !important;
+  -webkit-text-stroke: 0 !important;
 }
 
 .crwn-tour-popover button.driver-popover-close-btn {
@@ -294,8 +304,8 @@
 }
 
 .driver-active-element {
-  background-color: #1A1A1A !important;
-  box-shadow: 0 0 0 4px #D4AF37, 0 0 20px rgba(212, 175, 55, 0.3) !important;
-  border-radius: 12px !important;
+  outline: 2px solid #D4AF37 !important;
+  outline-offset: 4px !important;
+  border-radius: 8px !important;
   z-index: 10001 !important;
 }
