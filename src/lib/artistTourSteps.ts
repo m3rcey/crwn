@@ -32,7 +32,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       popover: {
         title: 'Set your name and bio',
         description: 'First, set your artist name and write a short bio. This is the first thing fans read when they find you.',
-        side: 'bottom',
+        side: 'top',
         align: 'start',
       },
     },
@@ -43,7 +43,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       popover: {
         title: 'Upload your photos',
         description: 'Upload a profile photo and banner image. High quality visuals make a big difference in first impressions.',
-        side: 'bottom',
+        side: 'top',
         align: 'start',
       },
     },
@@ -54,7 +54,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       popover: {
         title: 'Location and genres',
         description: 'Add your city, state, and genres. Once you have done that, we can match you with sync licensing opportunities near you.',
-        side: 'bottom',
+        side: 'top',
         align: 'start',
       },
     },

@@ -83,13 +83,13 @@ export function ArtistProfileContent({
 
   // Trigger artist page tour on first visit (only when viewing own page)
   const isOwnPage = isArtistProfile;
-  const { shouldShowTour: shouldShowArtistPageTour, markComplete: markArtistPageTourComplete } = useTourCheck('artist_page', user?.id);
+  const { shouldShowTour: shouldShowArtistPageTour, startStep: artistPageStartStep, markComplete: markArtistPageTourComplete, saveStep: saveArtistPageStep } = useTourCheck('artist_page', user?.id);
 
   useEffect(() => {
     if (!isOwnPage || !shouldShowArtistPageTour) return;
     
     const timer = setTimeout(() => {
-      startTour(artistPageTourSteps, markArtistPageTourComplete);
+      startTour(artistPageTourSteps, markArtistPageTourComplete, saveArtistPageStep, artistPageStartStep);
     }, 1000);
 
     return () => clearTimeout(timer);

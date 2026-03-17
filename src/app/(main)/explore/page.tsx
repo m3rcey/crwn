@@ -76,13 +76,13 @@ export default function ExplorePage() {
 
   // Trigger explore tour on first visit
   const { profile } = useAuth();
-  const { shouldShowTour: shouldShowExploreTour, markComplete: markExploreTourComplete } = useTourCheck('explore', profile?.id);
+  const { shouldShowTour: shouldShowExploreTour, startStep: exploreStartStep, markComplete: markExploreTourComplete, saveStep: saveExploreStep } = useTourCheck('explore', profile?.id);
 
   useEffect(() => {
     if (!shouldShowExploreTour) return;
     
     const timer = setTimeout(() => {
-      startTour(exploreTourSteps, markExploreTourComplete);
+      startTour(exploreTourSteps, markExploreTourComplete, saveExploreStep, exploreStartStep);
     }, 1000);
 
     return () => clearTimeout(timer);

@@ -56,13 +56,13 @@ function ArtistDashboardContent() {
   }, [supabase]);
 
   // Trigger artist tour on first visit
-  const { shouldShowTour: shouldShowDashboardTour, markComplete: markDashboardTourComplete } = useTourCheck('dashboard', profile?.id);
+  const { shouldShowTour: shouldShowDashboardTour, startStep: dashboardStartStep, markComplete: markDashboardTourComplete, saveStep: saveDashboardStep } = useTourCheck('dashboard', profile?.id);
 
   useEffect(() => {
     if (!shouldShowDashboardTour || !artistId) return;
     
     const timer = setTimeout(() => {
-      startTour(getArtistTourSteps(isFoundingArtist), markDashboardTourComplete);
+      startTour(getArtistTourSteps(isFoundingArtist), markDashboardTourComplete, saveDashboardStep, dashboardStartStep);
     }, 1500);
 
     return () => clearTimeout(timer);

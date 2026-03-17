@@ -71,16 +71,16 @@ export default function HomePage() {
   }, [supabase]);
 
   // Trigger tour on first visit (split by role)
-  const { shouldShowTour: shouldShowHomeTour, markComplete: markHomeTourComplete } = useTourCheck('home', profile?.id);
+  const { shouldShowTour: shouldShowHomeTour, startStep: homeStartStep, markComplete: markHomeTourComplete, saveStep: saveHomeStep } = useTourCheck('home', profile?.id);
 
   useEffect(() => {
     if (!shouldShowHomeTour || !profile) return;
     
     const timer = setTimeout(() => {
       if (profile.role === 'artist') {
-        startTour(artistHomeTourSteps, markHomeTourComplete);
+        startTour(artistHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
       } else {
-        startTour(fanHomeTourSteps, markHomeTourComplete);
+        startTour(fanHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
       }
     }, 1500);
 

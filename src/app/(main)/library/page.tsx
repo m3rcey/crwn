@@ -22,13 +22,13 @@ export default function LibraryPage() {
   const [activeTab, setActiveTab] = useState<Tab>('purchases');
 
   // Trigger library tour on first visit
-  const { shouldShowTour: shouldShowLibraryTour, markComplete: markLibraryTourComplete } = useTourCheck('library', profile?.id);
+  const { shouldShowTour: shouldShowLibraryTour, startStep: libraryStartStep, markComplete: markLibraryTourComplete, saveStep: saveLibraryStep } = useTourCheck('library', profile?.id);
 
   useEffect(() => {
     if (!shouldShowLibraryTour) return;
     
     const timer = setTimeout(() => {
-      startTour(libraryTourSteps, markLibraryTourComplete);
+      startTour(libraryTourSteps, markLibraryTourComplete, saveLibraryStep, libraryStartStep);
     }, 1000);
 
     return () => clearTimeout(timer);

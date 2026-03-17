@@ -14,7 +14,14 @@ function waitForElement(selector: string, timeout = 3000): Promise<HTMLElement |
   });
 }
 
-export function startTour(steps: DriveStep[], onComplete?: () => void) {
+export function startTour(
+  steps: DriveStep[],
+  onComplete?: () => void,
+  onDismiss?: (stepIndex: number) => void,
+  startIndex?: number
+) {
+  let currentStep = startIndex || 0;
+
   const driverObj = driver({
     showProgress: true,
     animate: true,
@@ -23,10 +30,13 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
     stagePadding: 0,
     stageRadius: 0,
     popoverClass: 'crwn-tour-popover',
+    allowClose: false,
     nextBtnText: 'Next',
     prevBtnText: 'Back',
     doneBtnText: 'Got it',
-    onHighlighted: (element: any) => {
+    showButtons: ['next', 'previous', 'close'],
+    onHighlighted: (element: any, step: any, opts: any) => {
+      currentStep = opts?.state?.activeIndex ?? currentStep;
       const el = element?.element || element;
       if (el && el instanceof HTMLElement) {
         const tourAttr = el.getAttribute('data-tour');
@@ -37,13 +47,18 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
       }
     },
     onDestroyStarted: () => {
+      const isLastStep = currentStep >= steps.length - 1;
       driverObj.destroy();
-      onComplete?.();
+      if (isLastStep) {
+        onComplete?.();
+      } else {
+        onDismiss?.(currentStep);
+      }
     },
   });
 
   driverObj.setSteps(steps);
-  driverObj.drive();
+  driverObj.drive(startIndex || 0);
 }
 
 export { waitForElement };
