@@ -47,6 +47,7 @@ export default function ExplorePage() {
   const [artists, setArtists] = useState<ExploreArtist[]>([]);
   const [newReleases, setNewReleases] = useState<ExploreTrack[]>([]);
   const [popularTracks, setPopularTracks] = useState<ExploreTrack[]>([]);
+  const [searchTracks, setSearchTracks] = useState<ExploreTrack[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -65,6 +66,7 @@ export default function ExplorePage() {
     setArtists(data.artists || []);
     setNewReleases(data.newReleases || []);
     setPopularTracks(data.popularTracks || []);
+    setSearchTracks(data.searchTracks || []);
     setIsLoading(false);
   }
 
@@ -153,6 +155,45 @@ export default function ExplorePage() {
             </section>
           )}
 
+          {/* Search Track Results */}
+          {searchQuery && searchTracks.length > 0 && (
+            <section>
+              <h2 className="text-lg font-semibold text-crwn-text mb-4 flex items-center gap-2">
+                <Music className="w-5 h-5 text-crwn-gold" />
+                Tracks
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {searchTracks.map(track => (
+                  <div
+                    key={track.id}
+                    className="overflow-hidden cursor-pointer hover:scale-[1.02] transition-transform press-scale"
+                    onClick={() => play(track as any, searchTracks as any)}
+                  >
+                    <div className="aspect-square relative bg-crwn-elevated rounded-xl">
+                      {track.albumArt ? (
+                        <Image src={track.albumArt} alt={track.title} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl">🎵</div>
+                      )}
+                      <div className="absolute inset-0 bg-black/0 hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
+                        <Play className="w-10 h-10 text-white" fill="white" />
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <p className="text-sm font-medium text-crwn-text truncate">{track.title}</p>
+                      <Link
+                        href={`/${track.artistSlug}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-xs text-crwn-text-secondary hover:text-crwn-gold truncate block"
+                      >
+                        {track.artistName}
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
           {/* New Releases */}
           {!searchQuery && newReleases.length > 0 && (
             <section>

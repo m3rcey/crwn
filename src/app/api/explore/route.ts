@@ -82,10 +82,24 @@ export async function GET(req: NextRequest) {
     .order('play_count', { ascending: false })
     .limit(12);
 
+  // Search tracks by title if search query provided
+  let searchTracks: typeof newReleases = [];
+  if (search) {
+    const { data: matchedTracks } = await supabaseAdmin
+      .from('tracks')
+      .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
+      .eq('is_active', true)
+      .ilike('title', `%${search}%`)
+      .order('play_count', { ascending: false })
+      .limit(12);
+    searchTracks = matchedTracks || [];
+  }
+
   // Get artist names for tracks
   const trackArtistIds = [...new Set([
     ...(newReleases || []).map(t => t.artist_id),
     ...(popularTracks || []).map(t => t.artist_id),
+    ...(searchTracks || []).map(t => t.artist_id),
   ])];
 
   let trackArtistMap: Record<string, { name: string; slug: string }> = {};
@@ -145,5 +159,6 @@ export async function GET(req: NextRequest) {
     artists: formatArtists,
     newReleases: formatTracks(newReleases),
     popularTracks: formatTracks(popularTracks),
+    searchTracks: formatTracks(searchTracks),
   });
 }
