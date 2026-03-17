@@ -770,7 +770,7 @@ export function TrackUploadForm() {
           <button
             type="submit"
             disabled={isUploading || (!editingTrack && !formData.audioFile)}
-            className="flex-1 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-lg hover:bg-crwn-gold-hover transition-colors disabled:opacity-50 hover-glow"
+            className="flex-1 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-full hover:bg-crwn-gold-hover transition-colors disabled:opacity-50 hover-glow"
           >
             {isUploading ? 'Saving...' : editingTrack ? 'Update Track' : 'Upload Track'}
           </button>

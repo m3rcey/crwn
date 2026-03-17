@@ -419,7 +419,7 @@ export function PayoutDashboard() {
             data-tour="payout-cashout"
             onClick={handleCashout}
             disabled={isCashingOut || !availableBalance || availableBalance <= 200}
-            className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg font-semibold rounded-lg hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg font-semibold rounded-full hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"
           >
             {isCashingOut ? (
               <Loader2 className="w-4 h-4 animate-spin" />
