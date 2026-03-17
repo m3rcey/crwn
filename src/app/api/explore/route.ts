@@ -16,11 +16,40 @@ export async function GET(req: NextRequest) {
     .not('slug', 'is', null);
 
   if (search) {
-    // Search by artist name or slug
-    artistQuery.or(`slug.ilike.%${search}%,profile.display_name.ilike.%${search}%`);
+    // Search by slug directly
+    artistQuery.ilike('slug', `%${search}%`);
   }
 
-  const { data: artists } = await artistQuery.limit(20);
+  const { data: slugArtists } = await artistQuery.limit(20);
+
+  // Also search by display_name in profiles table
+  let nameArtists: typeof slugArtists = [];
+  if (search) {
+    const { data: matchingProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .ilike('display_name', `%${search}%`)
+      .limit(20);
+
+    if (matchingProfiles && matchingProfiles.length > 0) {
+      const userIds = matchingProfiles.map(p => p.id);
+      const { data: nameMatches } = await supabaseAdmin
+        .from('artist_profiles')
+        .select('id, slug, tagline, banner_url, profile:profiles(display_name, avatar_url)')
+        .in('user_id', userIds)
+        .not('slug', 'is', null)
+        .limit(20);
+      nameArtists = nameMatches || [];
+    }
+  }
+
+  // Merge and deduplicate
+  const seenIds = new Set<string>();
+  const artists = [...(slugArtists || []), ...(nameArtists || [])].filter(a => {
+    if (seenIds.has(a.id)) return false;
+    seenIds.add(a.id);
+    return true;
+  });
 
   // Get subscriber counts per artist
   const artistIds = (artists || []).map(a => a.id);
