@@ -11,6 +11,7 @@ export interface Profile {
   bio: string | null;
   social_links: Record<string, string> | null;
   has_completed_tour?: boolean;
+  phone?: string | null;
   created_at: string;
   updated_at: string;
 }
