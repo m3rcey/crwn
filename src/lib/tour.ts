@@ -14,13 +14,12 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
     prevBtnText: 'Back',
     doneBtnText: 'Done',
     onHighlighted: (element: any) => {
-      // Click the tab to make it active and scroll into view
       const el = element?.element || element;
       if (el && el instanceof HTMLElement) {
         const tourAttr = el.getAttribute('data-tour');
         if (tourAttr && tourAttr.startsWith('tab-')) {
-          el.click();
           el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          setTimeout(() => el.click(), 300);
         }
       }
     },
