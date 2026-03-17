@@ -43,7 +43,7 @@ function AutoPlayVideo({ src, poster }: { src: string; poster?: string }) {
       muted
       loop
       poster={poster}
-      className="w-full h-full object-cover"
+      className="w-full h-auto max-h-[500px] object-contain rounded-lg"
     />
   );
 }
@@ -275,7 +275,7 @@ export function CommunityPostCard({
               'grid-cols-2'
             }`}>
               {post.media_urls.map((url, index) => (
-                <div key={index} className="relative rounded-lg overflow-hidden max-h-[500px] flex items-center justify-center">
+                <div key={index} className="relative rounded-lg overflow-hidden max-h-[500px] max-w-[600px] mx-auto flex items-center justify-center">
                   {post.media_types?.[index] === 'video' ? (
                     <AutoPlayVideo src={url} poster={post.thumbnail_url || undefined} />
                   ) : (
