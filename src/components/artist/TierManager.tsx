@@ -313,6 +313,11 @@ export function TierManager() {
           <p className="text-crwn-text-secondary mb-4">
             You need to connect a Stripe account to receive subscription payments.
           </p>
+          <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3 mb-4">
+            <p className="text-sm text-crwn-gold">
+              💡 Stripe will ask for a website — use your CRWN page: <strong>thecrwn.app/yourname</strong>
+            </p>
+          </div>
           <div className="flex items-start gap-3 mb-4">
             <input
               type="checkbox"
