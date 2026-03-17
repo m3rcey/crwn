@@ -10,66 +10,102 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
     {
       popover: {
         title: 'Your artist dashboard',
-        description: `This is where you manage everything. Let's walk through each step to get your page live and ready for fans.${foundingNote}`,
+        description: `This is where you manage everything. Let us walk through each step to get your page live and ready for fans.${foundingNote}`,
       },
     },
 
-    // 2. Profile: Name/Bio
+    // --- PROFILE TAB ---
+    // 2. Switch to Profile tab
     {
-      element: '[data-tour="profile-basics"]',
+      element: '[data-tour="tab-profile"]',
       popover: {
-        title: 'Set your name and bio',
-        description: 'First, set your artist name and write a short bio. This is the first thing fans read when they find you.',
-        side: 'right',
-        align: 'start',
-      },
-    },
-
-    // 3. Profile: Avatar/Banner
-    {
-      element: '[data-tour="profile-media"]',
-      popover: {
-        title: 'Upload your photos',
-        description: 'Upload a profile photo and banner image. High quality visuals make a big difference in first impressions.',
-        side: 'right',
-        align: 'start',
-      },
-    },
-
-    // 4. Profile: Location/Genres
-    {
-      element: '[data-tour="profile-location"]',
-      popover: {
-        title: 'Location and genres',
-        description: 'Add your city, state, and genres. Once you have done that, we can match you with sync licensing opportunities near you.',
-        side: 'right',
-        align: 'start',
-      },
-    },
-
-    // 5. Tiers: Connect Stripe
-    {
-      element: '[data-tour="tiers-stripe"]',
-      popover: {
-        title: 'Connect Stripe',
-        description: "Now let's get you paid. Connect your Stripe account here. This takes about 2 minutes and is required before fans can pay you.",
+        title: 'Profile setup',
+        description: 'Let us start with your profile. This is the foundation of your artist page.',
         side: 'bottom',
         align: 'start',
       },
     },
 
-    // 6. Tiers: Create Tiers
+    // 3. Profile: Name/Bio
+    {
+      element: '[data-tour="profile-basics"]',
+      popover: {
+        title: 'Set your name and bio',
+        description: 'First, set your artist name and write a short bio. This is the first thing fans read when they find you.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 4. Profile: Avatar/Banner
+    {
+      element: '[data-tour="profile-media"]',
+      popover: {
+        title: 'Upload your photos',
+        description: 'Upload a profile photo and banner image. High quality visuals make a big difference in first impressions.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 5. Profile: Location/Genres
+    {
+      element: '[data-tour="profile-location"]',
+      popover: {
+        title: 'Location and genres',
+        description: 'Add your city, state, and genres. Once you have done that, we can match you with sync licensing opportunities near you.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // --- TIERS TAB ---
+    // 6. Switch to Tiers tab
+    {
+      element: '[data-tour="tab-tiers"]',
+      popover: {
+        title: 'Subscription tiers',
+        description: 'Next, set up how fans can support you. This is where you connect payments and create your subscription options.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 7. Tiers: Connect Stripe
+    {
+      element: '[data-tour="tiers-stripe"]',
+      popover: {
+        title: 'Connect Stripe',
+        description: 'Connect your Stripe account here. This takes about 2 minutes and is required before fans can pay you.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 8. Tiers: Create Tiers
     {
       element: '[data-tour="tiers-list"]',
       popover: {
-        title: 'Create subscription tiers',
+        title: 'Create your tiers',
         description: 'With Stripe connected, create 2 to 3 subscription tiers. A good range is $5 to $200 per month depending on what you offer.',
         side: 'bottom',
         align: 'start',
       },
     },
 
-    // 7. Sync: Opportunities
+    // --- SYNC TAB ---
+    // 9. Switch to Sync tab
+    {
+      element: '[data-tour="tab-sync"]',
+      popover: {
+        title: 'Sync licensing',
+        description: 'CRWN connects you with real sync licensing opportunities. Let us take a look.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 10. Sync: Opportunities
     {
       element: '[data-tour="sync-opportunities"]',
       popover: {
@@ -80,7 +116,19 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 8. Payouts: Balance
+    // --- PAYOUTS TAB ---
+    // 11. Switch to Payouts tab
+    {
+      element: '[data-tour="tab-payouts"]',
+      popover: {
+        title: 'Payouts',
+        description: 'Here is where you track your earnings and get paid.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 12. Payouts: Balance
     {
       element: '[data-tour="payout-balance"]',
       popover: {
@@ -91,7 +139,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 9. Payouts: Cashout
+    // 13. Payouts: Cashout
     {
       element: '[data-tour="payout-cashout"]',
       popover: {
@@ -102,18 +150,30 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 10. Referrals: Commission Rate
+    // --- REFERRALS TAB ---
+    // 14. Switch to Referrals tab
+    {
+      element: '[data-tour="tab-referrals"]',
+      popover: {
+        title: 'Fan referrals',
+        description: 'Your fans can earn money by referring new subscribers to you. Here is where you manage that.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 15. Referrals: Commission Rate
     {
       element: '[data-tour="referral-commission"]',
       popover: {
-        title: 'Fan referral program',
+        title: 'Commission rate',
         description: 'Set the commission rate your fans earn when they refer new subscribers to you. Higher rates motivate more sharing.',
         side: 'bottom',
         align: 'start',
       },
     },
 
-    // 11. Referrals: Referral List
+    // 16. Referrals: Referral List
     {
       element: '[data-tour="referral-list"]',
       popover: {
@@ -124,7 +184,19 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 12. Analytics: Revenue
+    // --- ANALYTICS TAB ---
+    // 17. Switch to Analytics tab
+    {
+      element: '[data-tour="tab-analytics"]',
+      popover: {
+        title: 'Analytics',
+        description: 'Your command center. Revenue, subscribers, plays, and fan data all in one place.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 18. Analytics: Revenue
     {
       element: '[data-tour="analytics-revenue"]',
       popover: {
@@ -135,7 +207,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 13. Analytics: Subscribers
+    // 19. Analytics: Subscribers
     {
       element: '[data-tour="analytics-subscribers"]',
       popover: {
@@ -146,7 +218,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 14. Analytics: Plays
+    // 20. Analytics: Plays
     {
       element: '[data-tour="analytics-plays"]',
       popover: {
@@ -157,7 +229,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 15. Analytics: Top Fans
+    // 21. Analytics: Top Fans
     {
       element: '[data-tour="analytics-top-fans"]',
       popover: {
@@ -168,40 +240,54 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 16. Music: Upload
+    // --- MUSIC TAB ---
+    // 22. Switch to Music tab
+    {
+      element: '[data-tour="tab-tracks"]',
+      popover: {
+        title: 'Your music',
+        description: 'Time to add your music. This is what fans come to hear.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // 23. Music: Upload
     {
       element: '[data-tour="music-upload"]',
       popover: {
         title: 'Upload your music',
-        description: "Now let's add your music. Upload tracks and set each one as free for everyone or exclusive to specific tiers. Keep at least 2 to 3 tracks free so new fans can discover your sound.",
+        description: 'Upload tracks and set each one as free for everyone or exclusive to specific tiers. Keep at least 2 to 3 tracks free so new fans can discover your sound.',
         side: 'bottom',
         align: 'start',
       },
     },
 
-    // 17. Music: Track List
+    // --- SHOP TAB ---
+    // 24. Switch to Shop tab
     {
-      element: '[data-tour="music-tracklist"]',
+      element: '[data-tour="tab-shop"]',
       popover: {
-        title: 'Your track list',
-        description: 'Your uploaded tracks appear here. You can edit, reorder, or change access settings anytime.',
+        title: 'Your shop',
+        description: 'Sell digital products and experiences directly to your fans.',
         side: 'bottom',
         align: 'start',
       },
     },
 
-    // 18. Shop: Create Product
+    // 25. Shop: Create Product
     {
       element: '[data-tour="shop-create"]',
       popover: {
-        title: 'Your shop',
+        title: 'Create products',
         description: 'Sell digital products like beat packs or experiences like 1-on-1 video calls. For booking sessions, connect a free Cal.com calendar.',
         side: 'bottom',
         align: 'start',
       },
     },
 
-    // 19. View as Fan
+    // --- VIEW AS FAN ---
+    // 26. View as Fan
     {
       element: '[data-tour="view-as-fan"]',
       popover: {
@@ -212,11 +298,11 @@ export function getArtistTourSteps(isFoundingArtist: boolean): DriveStep[] {
       },
     },
 
-    // 20. Closing
+    // 27. Closing
     {
       popover: {
         title: 'Almost there!',
-        description: `Click "View as Fan" to see your page from a fan's perspective. We will show you a few more things there.${isFoundingArtist ? ' As a Founding Artist, all your Pro features are active now. Make the most of them.' : ''}`,
+        description: `Click "View as Fan" to see your page from a fan perspective. We will show you a few more things there.${isFoundingArtist ? ' As a Founding Artist, all your Pro features are active now. Make the most of them.' : ''}`,
       },
     },
   ];
