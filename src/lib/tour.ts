@@ -40,7 +40,7 @@ export function startTour(
       const el = element?.element || element;
       if (el && el instanceof HTMLElement) {
         const tourAttr = el.getAttribute('data-tour');
-        if (tourAttr && tourAttr.startsWith('tab-')) {
+        if (tourAttr && (tourAttr.startsWith('tab-') || tourAttr.startsWith('fan-tab-'))) {
           el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
           setTimeout(() => el.click(), 300);
         }
