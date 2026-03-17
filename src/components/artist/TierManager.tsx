@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -35,6 +35,7 @@ export function TierManager() {
   const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
   const [isConnectingStripe, setIsConnectingStripe] = useState(false);
   const [editingTier, setEditingTier] = useState<Tier | null>(null);
+  const tierFormRef = useRef<HTMLDivElement>(null);
   const [agreedToArtistTerms, setAgreedToArtistTerms] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -268,6 +269,7 @@ export function TierManager() {
       setSelectedBenefits(benefits as TierBenefit[]);
     }
     setLoadingBenefits(false);
+    setTimeout(() => tierFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   };
 
   const handleCancelEdit = () => {
@@ -415,7 +417,7 @@ export function TierManager() {
           )}
           <form onSubmit={handleSubmit} className="bg-crwn-surface border border-crwn-elevated rounded-xl p-6" style={{ opacity: tierLimitReached ? 0.5 : 1, pointerEvents: tierLimitReached ? 'none' : 'auto' }}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-crwn-text">{editingTier ? 'Edit Tier' : 'Create New Tier'}</h3>
+            <h3 ref={tierFormRef} className="text-lg font-semibold text-crwn-text page-fade-in">{editingTier ? 'Edit Tier' : 'Create New Tier'}</h3>
             {editingTier && (
               <button type="button" onClick={handleCancelEdit} className="text-crwn-text-secondary hover:text-crwn-text text-sm">Cancel Edit</button>
             )}
