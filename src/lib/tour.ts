@@ -13,10 +13,15 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
     nextBtnText: 'Next',
     prevBtnText: 'Back',
     doneBtnText: 'Done',
-    onHighlightStarted: (element: any) => {
+    onHighlighted: (element: any) => {
+      // Click the tab to make it active and scroll into view
       const el = element?.element || element;
-      if (el && typeof el.scrollIntoView === 'function') {
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      if (el && el instanceof HTMLElement) {
+        const tourAttr = el.getAttribute('data-tour');
+        if (tourAttr && tourAttr.startsWith('tab-')) {
+          el.click();
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
       }
     },
     onDestroyStarted: () => {
