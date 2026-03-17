@@ -34,10 +34,15 @@ export async function updateSession(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   if (code) {
     await supabase.auth.exchangeCodeForSession(code);
-    // Remove code from URL after exchange
+    // Remove code from URL after exchange, but keep the cookies from supabaseResponse
     const url = request.nextUrl.clone();
     url.searchParams.delete('code');
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    // Copy auth cookies from the exchange to the redirect response
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+    });
+    return redirectResponse;
   }
 
   // Refresh session if expired
