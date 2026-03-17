@@ -77,9 +77,12 @@ export function getArtistPageTourSteps(artistSlug: string): DriveStep[] {
       },
     },
     {
+      element: '[data-tour="artist-page-header"]',
       popover: {
         title: 'You are ready!',
         description: `Share thecrwn.app/${artistSlug} with your fans and start building your community. Your page is live and ready to go.`,
+        side: 'bottom',
+        align: 'center',
       },
     },
   ];
