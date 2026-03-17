@@ -304,8 +304,5 @@
 }
 
 .driver-active-element {
-  outline: 2px solid #D4AF37 !important;
-  outline-offset: 4px !important;
-  border-radius: 8px !important;
   z-index: 10001 !important;
 }

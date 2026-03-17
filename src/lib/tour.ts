@@ -7,12 +7,18 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
     animate: true,
     smoothScroll: true,
     overlayColor: 'rgba(0, 0, 0, 0)',
-    stagePadding: 10,
-    stageRadius: 12,
+    stagePadding: 0,
+    stageRadius: 0,
     popoverClass: 'crwn-tour-popover',
     nextBtnText: 'Next',
     prevBtnText: 'Back',
     doneBtnText: 'Done',
+    onHighlightStarted: (element: any) => {
+      const el = element?.element || element;
+      if (el && typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    },
     onDestroyStarted: () => {
       driverObj.destroy();
       onComplete?.();
