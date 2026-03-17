@@ -6,12 +6,13 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
     showProgress: true,
     animate: true,
     smoothScroll: true,
-    stagePadding: 8,
+    overlayColor: 'rgba(0, 0, 0, 0)',
+    stagePadding: 10,
     stageRadius: 12,
     popoverClass: 'crwn-tour-popover',
-    nextBtnText: 'Next →',
-    prevBtnText: '← Back',
-    doneBtnText: 'Let\'s go! 👑',
+    nextBtnText: 'Next',
+    prevBtnText: 'Back',
+    doneBtnText: 'Done',
     onDestroyStarted: () => {
       driverObj.destroy();
       onComplete?.();

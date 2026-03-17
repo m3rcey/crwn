@@ -290,5 +290,12 @@
 }
 
 .driver-overlay {
-  background-color: rgba(0, 0, 0, 0.2) !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.driver-active-element {
+  background-color: #1A1A1A !important;
+  box-shadow: 0 0 0 4px #D4AF37, 0 0 20px rgba(212, 175, 55, 0.3) !important;
+  border-radius: 12px !important;
+  z-index: 10001 !important;
 }
