@@ -275,7 +275,7 @@ export function ArtistProfileForm() {
       </div>
 
       {/* Avatar */}
-      <div>
+      <div data-tour="profile-media">
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
           Avatar
         </label>
@@ -302,7 +302,7 @@ export function ArtistProfileForm() {
       </div>
 
       {/* Display Name */}
-      <div>
+      <div data-tour="profile-basics">
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
           Display Name
         </label>
@@ -353,7 +353,7 @@ export function ArtistProfileForm() {
       </div>
 
       {/* Bio */}
-      <div>
+      <div data-tour="profile-basics">
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
           Bio
         </label>
@@ -408,7 +408,7 @@ export function ArtistProfileForm() {
       </div>
 
       {/* Location */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4" data-tour="profile-location">
         <div>
           <label className="block text-sm font-medium text-crwn-text-secondary mb-1">City</label>
           <input

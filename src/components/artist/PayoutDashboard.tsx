@@ -407,7 +407,7 @@ export function PayoutDashboard() {
       )}
 
       {/* Instant Cashout */}
-      <div className="neu-raised rounded-xl p-4">
+      <div className="neu-raised rounded-xl p-4" data-tour="payout-balance">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-crwn-text-secondary">Available Balance</p>
@@ -416,6 +416,7 @@ export function PayoutDashboard() {
             </p>
           </div>
           <button
+            data-tour="payout-cashout"
             onClick={handleCashout}
             disabled={isCashingOut || !availableBalance || availableBalance <= 200}
             className="flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg font-semibold rounded-lg hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"

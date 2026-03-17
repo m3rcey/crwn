@@ -190,7 +190,7 @@ export function AnalyticsDashboard() {
 
       {/* ========== REVENUE SECTION ========== */}
       <section>
-        <h3 className="text-lg font-semibold text-crwn-text mb-4">Revenue</h3>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-revenue">Revenue</h3>
         
         {/* Top Stats - MRR, This Month, All Time, Revenue Split */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -260,7 +260,7 @@ export function AnalyticsDashboard() {
 
       {/* ========== SUBSCRIBERS SECTION ========== */}
       <section>
-        <h3 className="text-lg font-semibold text-crwn-text mb-4">Subscribers</h3>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-subscribers">Subscribers</h3>
         
         {/* Top Stats - Active, ARPU, Churn Rate, LTV */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -329,7 +329,7 @@ export function AnalyticsDashboard() {
 
       {/* ========== PLAYS SECTION ========== */}
       <section>
-        <h3 className="text-lg font-semibold text-crwn-text mb-4">Song Plays</h3>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-plays">Song Plays</h3>
         <div className="grid grid-cols-1 gap-4 mb-4">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-sm text-crwn-text-secondary">Total Plays</p>
@@ -359,7 +359,7 @@ export function AnalyticsDashboard() {
 
       {/* ========== TOP FANS SECTION ========== */}
       <section>
-        <h3 className="text-lg font-semibold text-crwn-text mb-4">Top Fans</h3>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-top-fans">Top Fans</h3>
         <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
           {analytics.topFans.length > 0 ? (
             <div className="space-y-3">

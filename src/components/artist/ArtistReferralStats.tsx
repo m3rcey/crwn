@@ -97,7 +97,7 @@ export function ArtistReferralStats() {
           <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Commissions Paid</p>
           <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(data?.totalCommissionPaid || 0)}</p>
         </div>
-        <div className="neu-raised rounded-xl p-4">
+        <div className="neu-raised rounded-xl p-4" data-tour="referral-commission">
           <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Commission Rate</p>
           {editingRate ? (
             <div className="flex items-center gap-2 mt-1">
@@ -139,7 +139,7 @@ export function ArtistReferralStats() {
       </div>
 
       {/* Top Referrers */}
-      <div className="neu-raised rounded-xl p-4">
+      <div className="neu-raised rounded-xl p-4" data-tour="referral-list">
         <p className="text-sm text-crwn-text-secondary mb-3">Top Referrers</p>
         {data?.topReferrers && data.topReferrers.length > 0 ? (
           <div className="space-y-3">

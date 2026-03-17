@@ -21,7 +21,8 @@ import { TierConfig } from '@/types';
 import { Check, X, Eye } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { startTour } from '@/lib/tour';
-import { artistTourSteps } from '@/lib/artistTourSteps';
+import { getArtistTourSteps } from '@/lib/artistTourSteps';
+import { useTourCheck } from '@/hooks/useTourCheck';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -35,8 +36,37 @@ function ArtistDashboardContent() {
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
   const [platformTier, setPlatformTier] = useState<string>('starter');
+  const [isFoundingArtist, setIsFoundingArtist] = useState(false);
 
-  // Handle query params for tab and upgrade
+  // Check for founding artist status
+  useEffect(() => {
+    async function checkFoundingArtist() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data: artistProfile } = await supabase
+        .from('artist_profiles')
+        .select('is_founding_artist')
+        .eq('user_id', user.id)
+        .single();
+      
+      setIsFoundingArtist(artistProfile?.is_founding_artist ?? false);
+    }
+    checkFoundingArtist();
+  }, [supabase]);
+
+  // Trigger artist tour on first visit
+  const { shouldShowTour: shouldShowDashboardTour, markComplete: markDashboardTourComplete } = useTourCheck('dashboard', profile?.id);
+
+  useEffect(() => {
+    if (!shouldShowDashboardTour || !artistId) return;
+    
+    const timer = setTimeout(() => {
+      startTour(getArtistTourSteps(isFoundingArtist), markDashboardTourComplete);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [shouldShowDashboardTour, artistId, isFoundingArtist, markDashboardTourComplete]);
   useEffect(() => {
     const tab = searchParams.get('tab');
     const upgrade = searchParams.get('upgrade');
@@ -89,32 +119,6 @@ function ArtistDashboardContent() {
     }
     loadArtistData();
   }, [searchParams]);
-
-  // Trigger artist tour on first visit
-  useEffect(() => {
-    const checkTour = async () => {
-      if (!profile) return;
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('has_completed_tour')
-        .eq('id', profile.id)
-        .single();
-
-      if (userProfile && !userProfile.has_completed_tour && artistId) {
-        // Small delay to let the UI render
-        setTimeout(() => {
-          startTour(artistTourSteps, async () => {
-            // Mark tour as complete
-            await supabase
-              .from('profiles')
-              .update({ has_completed_tour: true })
-              .eq('id', profile.id);
-          });
-        }, 1000);
-      }
-    };
-    if (artistId) checkTour();
-  }, [artistId, profile, supabase]);
 
   if (!profile) {
     return (

@@ -18,7 +18,8 @@ import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { startTour } from '@/lib/tour';
-import { DriveStep } from 'driver.js';
+import { artistPageTourSteps } from '@/lib/artistPageTourSteps';
+import { useTourCheck } from '@/hooks/useTourCheck';
 
 interface ArtistProfileContentProps {
   artist: {
@@ -80,25 +81,19 @@ export function ArtistProfileContent({
     }
   }, [isSubscribed]);
 
-  // Trigger Share & Earn tour after first subscription
+  // Trigger artist page tour on first visit (only when viewing own page)
+  const isOwnPage = isArtistProfile;
+  const { shouldShowTour: shouldShowArtistPageTour, markComplete: markArtistPageTourComplete } = useTourCheck('artist_page', user?.id);
+
   useEffect(() => {
-    if (isSubscribed && user && !localStorage.getItem('crwn_share_earn_tip')) {
-      setTimeout(() => {
-        const shareEarnStep: DriveStep[] = [{
-          element: '[data-tour="share-earn"]',
-          popover: {
-            title: 'Earn by Sharing! 💰',
-            description: 'Love this artist? Share your unique referral link with friends. When someone subscribes through your link, you earn a percentage of their subscription — every month.',
-            side: 'bottom',
-            align: 'center',
-          },
-        }];
-        startTour(shareEarnStep, () => {
-          localStorage.setItem('crwn_share_earn_tip', 'true');
-        });
-      }, 2000);
-    }
-  }, [isSubscribed, user]);
+    if (!isOwnPage || !shouldShowArtistPageTour) return;
+    
+    const timer = setTimeout(() => {
+      startTour(artistPageTourSteps, markArtistPageTourComplete);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [isOwnPage, shouldShowArtistPageTour, markArtistPageTourComplete]);
 
   const tabs = [
     { id: 'music' as const, label: 'Music' },
@@ -112,7 +107,7 @@ export function ArtistProfileContent({
     <>
 
       {/* Tabs */}
-      <div className="px-4 sm:px-6 lg:px-8 mb-3 page-fade-in">
+      <div className="px-4 sm:px-6 lg:px-8 mb-3 page-fade-in" data-tour="artist-page-tabs">
         <div className="flex gap-6 overflow-x-auto scrollbar-hide border-b border-crwn-elevated/50 pb-2">
           {tabs.map((tab) => (
             <button
@@ -136,7 +131,7 @@ export function ArtistProfileContent({
       {/* Content */}
       <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 stagger-fade-in">
         {activeTab === 'music' && (
-          <>
+          <div data-tour="artist-page-music">
             {/* Albums */}
             <AlbumsSection albums={albums} artistSlug={artist.slug} />
 
@@ -157,11 +152,11 @@ export function ArtistProfileContent({
                 <EmptyState icon="🎵" title="No Music Yet" description="This artist hasn't uploaded any tracks yet. Check back soon!" />
               )}
             </section>
-          </>
+          </div>
         )}
 
         {activeTab === 'tiers' && (
-          <section>
+          <section data-tour="artist-page-tiers">
             <h2 className="text-xl font-semibold text-crwn-text mb-4">Subscription Tiers</h2>
             {tiers.length > 0 ? (
               <TierCards tiers={tiers} artistSlug={artist.slug} artistId={artist.id} />
@@ -183,7 +178,7 @@ export function ArtistProfileContent({
         )}
 
         {activeTab === 'community' && (
-          <div className="space-y-6">
+          <div className="space-y-6" data-tour="artist-page-community">
                         <CommunityFeed
               artistId={artist.id}
               artistSlug={artist.slug}

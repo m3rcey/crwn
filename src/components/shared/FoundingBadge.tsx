@@ -11,7 +11,7 @@ export function FoundingBadge({ number, size = 'sm' }: FoundingBadgeProps) {
     : 'text-xs px-3 py-1';
 
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full bg-crwn-gold/15 text-crwn-gold font-semibold ${sizeClasses}`}>
+    <span data-tour="founding-badge" className={`inline-flex items-center gap-1 rounded-full bg-crwn-gold/15 text-crwn-gold font-semibold ${sizeClasses}`}>
       👑 Founding Artist #{number}
     </span>
   );

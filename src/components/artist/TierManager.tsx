@@ -308,7 +308,7 @@ export function TierManager() {
     <div className="space-y-8">
       {/* Stripe Connect Status */}
       {!stripeConnected && (
-        <div className="bg-crwn-surface border border-crwn-gold/30 rounded-xl p-6">
+        <div className="bg-crwn-surface border border-crwn-gold/30 rounded-xl p-6" data-tour="tiers-stripe">
           <h3 className="text-lg font-semibold text-crwn-text mb-2">
             Connect Stripe Account
           </h3>
@@ -355,7 +355,7 @@ export function TierManager() {
 
       {/* Existing Tiers */}
       <div>
-        <h3 className="text-lg font-semibold text-crwn-text mb-4">Your Tiers</h3>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="tiers-list">Your Tiers</h3>
         {tiers.length === 0 ? (
           <p className="text-crwn-text-secondary">No tiers created yet.</p>
         ) : (

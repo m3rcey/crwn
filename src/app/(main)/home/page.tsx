@@ -17,7 +17,9 @@ import Image from 'next/image';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { SkeletonCardGrid } from '@/components/ui/Skeleton';
 import { startTour } from '@/lib/tour';
-import { fanTourSteps } from '@/lib/fanTourSteps';
+import { fanHomeTourSteps } from '@/lib/fanTourSteps';
+import { artistHomeTourSteps } from '@/lib/artistHomeTourSteps';
+import { useTourCheck } from '@/hooks/useTourCheck';
 
 interface ArtistProfile {
   id: string;
@@ -68,24 +70,22 @@ export default function HomePage() {
     fetchData();
   }, [supabase]);
 
-  // Trigger fan tour on first visit
-  useEffect(() => {
-    const checkTour = async () => {
-      if (!profile) return;
-      if (profile.has_completed_tour) return;
-      if (profile.role === 'artist') return; // Artists get their tour on the dashboard
+  // Trigger tour on first visit (split by role)
+  const { shouldShowTour: shouldShowHomeTour, markComplete: markHomeTourComplete } = useTourCheck('home', profile?.id);
 
-      setTimeout(() => {
-        startTour(fanTourSteps, async () => {
-          await supabase
-            .from('profiles')
-            .update({ has_completed_tour: true })
-            .eq('id', profile.id);
-        });
-      }, 1500);
-    };
-    checkTour();
-  }, [profile, supabase]);
+  useEffect(() => {
+    if (!shouldShowHomeTour || !profile) return;
+    
+    const timer = setTimeout(() => {
+      if (profile.role === 'artist') {
+        startTour(artistHomeTourSteps, markHomeTourComplete);
+      } else {
+        startTour(fanHomeTourSteps, markHomeTourComplete);
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [shouldShowHomeTour, profile, markHomeTourComplete]);
 
   const quickActions = [
     {
@@ -147,7 +147,7 @@ export default function HomePage() {
       {/* Quick Actions */}
       <section>
         <h2 className="text-lg font-semibold text-crwn-text mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl" data-tour="home-quick-actions">
           {quickActions.map((action) => (
               <Link
                 key={action.href}
@@ -170,7 +170,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured Artists */}
-      <section>
+      <section data-tour="home-feed">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-crwn-text">Featured Artists</h2>
           <Link 

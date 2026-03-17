@@ -113,7 +113,7 @@ export default function ProfilePage() {
             onClick={async () => {
               await supabase
                 .from('profiles')
-                .update({ has_completed_tour: false })
+                .update({ completed_tours: {} })
                 .eq('id', user?.id);
               window.location.href = profile?.role === 'artist' ? '/profile/artist' : '/home';
             }}

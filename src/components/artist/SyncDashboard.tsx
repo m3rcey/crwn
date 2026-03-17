@@ -150,7 +150,7 @@ export function SyncDashboard({ artistId, platformTier }: SyncDashboardProps) {
       )}
 
       {/* Opportunities List */}
-      <div className="space-y-3">
+      <div className="space-y-3" data-tour="sync-opportunities">
         {filtered.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-crwn-text-secondary">No sync opportunities available right now. Check back soon!</p>

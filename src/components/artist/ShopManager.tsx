@@ -400,7 +400,7 @@ export function ShopManager() {
   return (
     <div className="stagger-fade-in space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-crwn-text">Shop</h2>
+        <h2 className="text-xl font-semibold text-crwn-text" data-tour="shop-create">Shop</h2>
         <button
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 px-4 py-2 neu-button-accent text-crwn-bg hover-glow"

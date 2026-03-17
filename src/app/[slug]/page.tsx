@@ -250,7 +250,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         </div>
 
         {/* Profile Header */}
-        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10" data-tour="artist-page-header">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6">
             {/* Avatar */}
             <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-crwn-bg overflow-hidden bg-crwn-surface">

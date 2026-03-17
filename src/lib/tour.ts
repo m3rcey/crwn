@@ -1,6 +1,19 @@
 import { driver, DriveStep } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
+function waitForElement(selector: string, timeout = 3000): Promise<HTMLElement | null> {
+  return new Promise((resolve) => {
+    const el = document.querySelector(selector) as HTMLElement;
+    if (el) return resolve(el);
+    const observer = new MutationObserver(() => {
+      const el = document.querySelector(selector) as HTMLElement;
+      if (el) { observer.disconnect(); resolve(el); }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => { observer.disconnect(); resolve(null); }, timeout);
+  });
+}
+
 export function startTour(steps: DriveStep[], onComplete?: () => void) {
   const driverObj = driver({
     showProgress: true,
@@ -12,7 +25,7 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
     popoverClass: 'crwn-tour-popover',
     nextBtnText: 'Next',
     prevBtnText: 'Back',
-    doneBtnText: 'Done',
+    doneBtnText: 'Got it',
     onHighlighted: (element: any) => {
       const el = element?.element || element;
       if (el && el instanceof HTMLElement) {
@@ -32,3 +45,5 @@ export function startTour(steps: DriveStep[], onComplete?: () => void) {
   driverObj.setSteps(steps);
   driverObj.drive();
 }
+
+export { waitForElement };

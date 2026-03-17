@@ -577,7 +577,7 @@ export function TrackUploadForm() {
 
       {/* Single Upload Form */}
       {uploadMode === 'single' && (
-      <form onSubmit={handleSubmit} className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached && !editingTrack ? 0.5 : 1, pointerEvents: trackLimitReached && !editingTrack ? 'none' : 'auto' }}>
+      <form onSubmit={handleSubmit} className="max-w-2xl bg-crwn-surface p-6 rounded-xl border border-crwn-elevated" style={{ opacity: trackLimitReached && !editingTrack ? 0.5 : 1, pointerEvents: trackLimitReached && !editingTrack ? 'none' : 'auto' }} data-tour="music-upload">
         <h2 className="text-lg font-semibold text-crwn-text mb-4">{editingTrack ? 'Edit Track' : 'Upload New Track'}</h2>
 
         {/* Audio File */}
@@ -824,7 +824,7 @@ export function TrackUploadForm() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crwn-gold mx-auto" />
         </div>
       ) : tracks.length > 0 ? (
-        <div>
+        <div data-tour="music-tracklist">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <input type="checkbox" checked={selectedTrackIds.size === tracks.length && tracks.length > 0} onChange={selectAllTracks} className="w-4 h-4 accent-crwn-gold" />

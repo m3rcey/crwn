@@ -9,6 +9,9 @@ import Link from 'next/link';
 import { Search, Play, Users, Music, TrendingUp, Clock, Loader2 } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { SkeletonCardGrid } from '@/components/ui/Skeleton';
+import { startTour } from '@/lib/tour';
+import { exploreTourSteps } from '@/lib/exploreTourSteps';
+import { useTourCheck } from '@/hooks/useTourCheck';
 
 interface ExploreArtist {
   id: string;
@@ -71,12 +74,26 @@ export default function ExplorePage() {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
+  // Trigger explore tour on first visit
+  const { profile } = useAuth();
+  const { shouldShowTour: shouldShowExploreTour, markComplete: markExploreTourComplete } = useTourCheck('explore', profile?.id);
+
+  useEffect(() => {
+    if (!shouldShowExploreTour) return;
+    
+    const timer = setTimeout(() => {
+      startTour(exploreTourSteps, markExploreTourComplete);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [shouldShowExploreTour, markExploreTourComplete]);
+
   return (
     <div className="max-w-5xl mx-auto page-fade-in">
       <h1 className="text-2xl font-bold text-crwn-text mb-6">Explore</h1>
 
       {/* Search */}
-      <div className="neu-inset flex items-center gap-3 px-4 py-3 mb-8">
+      <div className="neu-inset flex items-center gap-3 px-4 py-3 mb-8" data-tour="explore-search">
         <Search className="w-5 h-5 text-crwn-text-secondary" />
         <input
           type="text"
@@ -107,7 +124,7 @@ export default function ExplorePage() {
                 <Users className="w-5 h-5 text-crwn-gold" />
                 {searchQuery ? 'Results' : 'Artists'}
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" data-tour="explore-artists">
                 {artists.map(artist => (
                   <Link
                     key={artist.id}
