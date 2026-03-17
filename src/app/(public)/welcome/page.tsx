@@ -87,7 +87,7 @@ export default function WelcomePage() {
       }
 
       // Redirect to home (tour will fire based on role)
-      window.location.href = '/home';
+      router.push('/home');
     } catch (err) {
       console.error('Onboarding error:', err);
       setIsSubmitting(false);
