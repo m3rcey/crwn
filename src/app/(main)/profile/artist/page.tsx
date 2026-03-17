@@ -42,6 +42,9 @@ function ArtistDashboardContent() {
     if (tab === 'billing') {
       setActiveTab('billing');
     }
+    if (tab === 'tiers' || searchParams.get('stripe') === 'success') {
+      setActiveTab('tiers');
+    }
     
     if (upgrade === 'success') {
       setShowSuccess('Your plan is now active. Time to build your empire.');
