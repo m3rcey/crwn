@@ -242,3 +242,53 @@
 .animate-slide-up-notif {
   animation: slideUpNotif 0.25s ease-out both;
 }
+
+/* Driver.js Tour Theme */
+.crwn-tour-popover {
+  background-color: #1A1A1A !important;
+  border: 1px solid #D4AF37 !important;
+  border-radius: 16px !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+.crwn-tour-popover .driver-popover-title {
+  color: #D4AF37 !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+
+.crwn-tour-popover .driver-popover-description {
+  color: #CCCCCC !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.crwn-tour-popover .driver-popover-progress-text {
+  color: #666666 !important;
+}
+
+.crwn-tour-popover button.driver-popover-next-btn {
+  background-color: #D4AF37 !important;
+  color: #1A1A1A !important;
+  border: none !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  padding: 8px 20px !important;
+}
+
+.crwn-tour-popover button.driver-popover-prev-btn {
+  background-color: transparent !important;
+  color: #999999 !important;
+  border: 1px solid #333 !important;
+  border-radius: 9999px !important;
+  padding: 8px 20px !important;
+}
+
+.crwn-tour-popover button.driver-popover-close-btn {
+  color: #666666 !important;
+}
+
+.driver-overlay {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}

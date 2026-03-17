@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -9,12 +10,14 @@ import {
   LogOut, 
   User as UserIcon,
   Music,
-  Eye
+  Eye,
+  HelpCircle
 } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, profile, signOut, isLoading } = useAuth();
   const router = useRouter();
+  const supabase = createBrowserSupabaseClient();
 
   const handleSignOut = async () => {
     await signOut();
@@ -106,6 +109,19 @@ export default function ProfilePage() {
         </h2>
         
         <div className="space-y-2">
+          <button
+            onClick={async () => {
+              await supabase
+                .from('profiles')
+                .update({ has_completed_tour: false })
+                .eq('id', user?.id);
+              window.location.href = profile?.role === 'artist' ? '/profile/artist' : '/home';
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-crwn-text-secondary hover:text-crwn-gold hover:bg-crwn-elevated rounded-lg transition-colors"
+          >
+            <HelpCircle className="w-5 h-5" />
+            <span>Replay Tour</span>
+          </button>
           <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-4 py-3 text-crwn-error hover:bg-crwn-error/10 rounded-lg transition-colors"

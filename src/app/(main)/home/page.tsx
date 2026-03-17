@@ -16,6 +16,8 @@ import {
 import Image from 'next/image';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { SkeletonCardGrid } from '@/components/ui/Skeleton';
+import { startTour } from '@/lib/tour';
+import { fanTourSteps } from '@/lib/fanTourSteps';
 
 interface ArtistProfile {
   id: string;
@@ -65,6 +67,25 @@ export default function HomePage() {
 
     fetchData();
   }, [supabase]);
+
+  // Trigger fan tour on first visit
+  useEffect(() => {
+    const checkTour = async () => {
+      if (!profile) return;
+      if (profile.has_completed_tour) return;
+      if (profile.role === 'artist') return; // Artists get their tour on the dashboard
+
+      setTimeout(() => {
+        startTour(fanTourSteps, async () => {
+          await supabase
+            .from('profiles')
+            .update({ has_completed_tour: true })
+            .eq('id', profile.id);
+        });
+      }, 1500);
+    };
+    checkTour();
+  }, [profile, supabase]);
 
   const quickActions = [
     {

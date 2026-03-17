@@ -17,10 +17,10 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/home', label: 'Home', icon: Home },
-  { href: '/explore', label: 'Explore', icon: Compass },
-  { href: '/library', label: 'Library', icon: Library },
-  { href: '/profile', label: 'Profile', icon: User },
+  { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
+  { href: '/explore', label: 'Explore', icon: Compass, tourId: 'nav-explore' },
+  { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' },
+  { href: '/profile', label: 'Profile', icon: User, tourId: 'nav-profile' },
 ];
 
 export function Navigation() {
@@ -63,6 +63,7 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
+                data-tour={item.tourId}
                 className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${
                   active 
                     ? 'neu-tab-active font-semibold' 
@@ -95,6 +96,7 @@ export function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-tour={item.tourId}
                   onClick={() => hapticLight()}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors press-scale tap-highlight ${
                     active 

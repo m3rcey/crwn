@@ -20,6 +20,8 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { Check, X, Eye } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
+import { startTour } from '@/lib/tour';
+import { artistTourSteps } from '@/lib/artistTourSteps';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -88,6 +90,32 @@ function ArtistDashboardContent() {
     loadArtistData();
   }, [searchParams]);
 
+  // Trigger artist tour on first visit
+  useEffect(() => {
+    const checkTour = async () => {
+      if (!profile) return;
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('has_completed_tour')
+        .eq('id', profile.id)
+        .single();
+
+      if (userProfile && !userProfile.has_completed_tour && artistId) {
+        // Small delay to let the UI render
+        setTimeout(() => {
+          startTour(artistTourSteps, async () => {
+            // Mark tour as complete
+            await supabase
+              .from('profiles')
+              .update({ has_completed_tour: true })
+              .eq('id', profile.id);
+          });
+        }, 1000);
+      }
+    };
+    if (artistId) checkTour();
+  }, [artistId, profile, supabase]);
+
   if (!profile) {
     return (
       <div className="relative min-h-screen">
@@ -100,16 +128,16 @@ function ArtistDashboardContent() {
   }
 
   const tabs = [
-    { id: 'analytics' as const, label: 'Analytics' },
-    { id: 'sync' as const, label: 'Sync' },
-    { id: 'profile' as const, label: 'Profile' },
-    { id: 'tracks' as const, label: 'Music' },
-    { id: 'albums' as const, label: 'Albums' },
-    { id: 'shop' as const, label: 'Shop' },
-    { id: 'billing' as const, label: 'Billing' },
-    { id: 'tiers' as const, label: 'Tiers' },
-    { id: 'payouts' as const, label: 'Payouts' },
-    { id: 'referrals' as const, label: 'Referrals' },
+    { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
+    { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
+    { id: 'profile' as const, label: 'Profile', tourId: 'tab-profile' },
+    { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
+    { id: 'albums' as const, label: 'Albums', tourId: 'tab-albums' },
+    { id: 'shop' as const, label: 'Shop', tourId: 'tab-shop' },
+    { id: 'billing' as const, label: 'Billing', tourId: 'tab-billing' },
+    { id: 'tiers' as const, label: 'Tiers', tourId: 'tab-tiers' },
+    { id: 'payouts' as const, label: 'Payouts', tourId: 'tab-payouts' },
+    { id: 'referrals' as const, label: 'Referrals', tourId: 'tab-referrals' },
   ];
 
   return (
@@ -146,6 +174,7 @@ function ArtistDashboardContent() {
             <div className="px-4 sm:px-6 lg:px-8 mb-2">
               <Link
                 href={`/${artistSlug}`}
+                data-tour="view-as-fan"
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold border border-crwn-elevated rounded-full transition-colors"
               >
                 <Eye className="w-4 h-4" />
@@ -157,6 +186,7 @@ function ArtistDashboardContent() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
+                data-tour={tab.tourId}
                 onClick={() => setActiveTab(tab.id)}
                 className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id

@@ -15,6 +15,7 @@ interface Profile {
   avatar_url: string | null;
   bio: string | null;
   social_links: Record<string, string> | null;
+  has_completed_tour?: boolean;
   created_at: string;
 }
 

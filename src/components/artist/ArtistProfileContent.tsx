@@ -17,6 +17,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { startTour } from '@/lib/tour';
+import { DriveStep } from 'driver.js';
 
 interface ArtistProfileContentProps {
   artist: {
@@ -78,6 +80,25 @@ export function ArtistProfileContent({
     }
   }, [isSubscribed]);
 
+  // Trigger Share & Earn tour after first subscription
+  useEffect(() => {
+    if (isSubscribed && user && !localStorage.getItem('crwn_share_earn_tip')) {
+      setTimeout(() => {
+        const shareEarnStep: DriveStep[] = [{
+          element: '[data-tour="share-earn"]',
+          popover: {
+            title: 'Earn by Sharing! 💰',
+            description: 'Love this artist? Share your unique referral link with friends. When someone subscribes through your link, you earn a percentage of their subscription — every month.',
+            side: 'bottom',
+            align: 'center',
+          },
+        }];
+        startTour(shareEarnStep, () => {
+          localStorage.setItem('crwn_share_earn_tip', 'true');
+        });
+      }, 2000);
+    }
+  }, [isSubscribed, user]);
 
   const tabs = [
     { id: 'music' as const, label: 'Music' },
