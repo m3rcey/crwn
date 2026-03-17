@@ -1,13 +1,10 @@
 'use client';
-
 import { useState } from 'react';
 import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
 import { AlbumManager } from '@/components/artist/AlbumManager';
 import { ArtistPlaylistManager } from '@/components/artist/ArtistPlaylistManager';
-
 export function MusicManager() {
   const [activeSubTab, setActiveSubTab] = useState<'tracks' | 'albums' | 'playlists'>('tracks');
-
   return (
     <div>
       {/* Sub-tabs */}
@@ -43,9 +40,10 @@ export function MusicManager() {
           Playlists
         </button>
       </div>
-
       {activeSubTab === 'tracks' ? (
-        <TrackUploadForm />
+        <div data-tour="music-upload">
+          <TrackUploadForm />
+        </div>
       ) : activeSubTab === 'albums' ? (
         <AlbumManager />
       ) : (

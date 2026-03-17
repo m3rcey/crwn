@@ -278,7 +278,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                   <span className="text-crwn-gold" title="Verified Artist">✓</span>
                 )}
                 {artist.is_founding_artist && artist.founding_artist_number && (
-                  <FoundingBadge number={artist.founding_artist_number} size="sm" />
+                  <span data-tour="founding-badge"><span data-tour="founding-badge"><FoundingBadge number={artist.founding_artist_number} size="sm" /></span></span>
                 )}
               </div>
               <ShareEarnWrapper
