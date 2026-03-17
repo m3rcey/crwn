@@ -152,6 +152,7 @@ export default function HomePage() {
               <Link
                 key={action.href}
                 href={action.href}
+                data-tour={action.label === 'Artist Dashboard' ? 'home-artist-dashboard' : undefined}
                 className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
               >
                 <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
