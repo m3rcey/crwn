@@ -88,7 +88,7 @@ export function PlatformBilling() {
             <span className="text-crwn-gold font-semibold">Founding Artist #{artist.founding_artist_number}</span>
           </div>
           <p className="text-crwn-text-secondary text-sm">
-            You have free Pro features and 1% off your platform fee until {new Date(artist.founding_artist_expires_at || Date.now()).toLocaleDateString()}.
+            You have free Pro features until {new Date(artist.founding_artist_expires_at || Date.now()).toLocaleDateString()}.
           </p>
         </div>
       )}

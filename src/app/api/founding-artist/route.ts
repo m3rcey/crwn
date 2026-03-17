@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   // Assign founding artist status
   const foundingNumber = currentCount + 1;
   const expiresAt = new Date();
-  expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year from now
+  expiresAt.setMonth(expiresAt.getMonth() + 3); // 3 months from now
 
   const { error } = await supabaseAdmin
     .from('artist_profiles')
