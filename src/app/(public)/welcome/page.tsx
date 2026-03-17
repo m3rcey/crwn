@@ -40,7 +40,7 @@ export default function WelcomePage() {
           </p>
           {user ? (
             <Link
-              href="/explore"
+              href="/home"
               className="inline-block w-full bg-crwn-gold text-crwn-bg font-semibold py-3 px-6 rounded-lg hover:bg-crwn-gold/90 transition-colors"
             >
               Start Exploring
