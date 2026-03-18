@@ -14,6 +14,8 @@ import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 function AutoPlayVideo({ src, poster }: { src: string; poster?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [showControls, setShowControls] = useState(false);
+  const hideTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -34,17 +36,25 @@ function AutoPlayVideo({ src, poster }: { src: string; poster?: string }) {
     return () => observer.disconnect();
   }, []);
 
+  const handleTap = () => {
+    setShowControls(true);
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setShowControls(false), 3000);
+  };
+
   return (
-    <video
-      ref={videoRef}
-      src={src}
-      controls
-      playsInline
-      muted
-      loop
-      poster={poster}
-      className="w-full h-auto max-h-[500px] object-contain rounded-lg"
-    />
+    <div className="relative" onClick={handleTap}>
+      <video
+        ref={videoRef}
+        src={src}
+        controls={showControls}
+        playsInline
+        muted
+        loop
+        poster={poster}
+        className="w-full h-auto max-h-[500px] object-contain rounded-lg"
+      />
+    </div>
   );
 }
 
