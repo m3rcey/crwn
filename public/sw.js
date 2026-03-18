@@ -39,9 +39,8 @@ self.addEventListener('fetch', (event) => {
   // Skip audio files
   if (event.request.url.match(/\.(mp3|wav|flac|m4a|ogg)$/i)) return;
 
-  // Navigation requests - always network, never cache
+  // Navigation requests - let browser handle natively (iOS Safari SW bugs)
   if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request));
     return;
   }
 
