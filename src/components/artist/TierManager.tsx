@@ -20,6 +20,7 @@ interface Tier {
     benefits?: string[];
   };
   stripe_price_id?: string;
+  stripe_annual_price_id?: string;
   is_active: boolean;
   tierBenefits?: TierBenefit[];
 }
@@ -136,8 +137,9 @@ export function TierManager() {
         const priceChanged = parseInt(formData.price) * 100 !== editingTier.price;
         let stripePriceId = editingTier.stripe_price_id;
 
+        let stripeAnnualPriceId = editingTier.stripe_annual_price_id;
         if (priceChanged) {
-          // Create new Stripe price if price changed
+          // Create new Stripe prices (monthly + annual) if price changed
           const response = await fetch('/api/stripe/create-price', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -150,6 +152,7 @@ export function TierManager() {
           });
           const data = await response.json();
           stripePriceId = data.stripePriceId;
+          stripeAnnualPriceId = data.stripeAnnualPriceId;
         }
 
         const { data: updated, error } = await supabase
@@ -162,6 +165,7 @@ export function TierManager() {
               benefits: formData.benefits.filter(b => b.trim() !== ''),
             },
             stripe_price_id: stripePriceId,
+            stripe_annual_price_id: stripeAnnualPriceId,
           })
           .eq('id', editingTier.id)
           .select()
@@ -202,7 +206,7 @@ export function TierManager() {
           }),
         });
 
-        const { stripePriceId, stripeProductId } = await response.json();
+        const { stripePriceId, stripeAnnualPriceId, stripeProductId } = await response.json();
 
         const { data: tier, error } = await supabase
           .from('subscription_tiers')
@@ -215,6 +219,7 @@ export function TierManager() {
               benefits: formData.benefits.filter(b => b.trim() !== ''),
             },
             stripe_price_id: stripePriceId,
+            stripe_annual_price_id: stripeAnnualPriceId,
             stripe_product_id: stripeProductId,
           })
           .select()

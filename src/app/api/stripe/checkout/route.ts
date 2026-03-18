@@ -5,13 +5,13 @@ import { getArtistFeePercent } from '@/lib/platformTier';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tierId, fanId, referralCode } = await req.json();
+    const { tierId, fanId, referralCode, interval } = await req.json();
     const supabase = await createServerSupabaseClient();
 
     // Get tier details
     const { data: tier, error: tierError } = await supabase
       .from('subscription_tiers')
-      .select('*, artist:artist_profiles(stripe_connect_id, user_id, slug, platform_tier)')
+      .select('*, artist:artist_profiles(stripe_connect_id, user_id, slug, platform_tier), stripe_annual_price_id')
       .eq('id', tierId)
       .single();
 
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: tier.stripe_price_id,
+          price: interval === 'year' ? (tier.stripe_annual_price_id || tier.stripe_price_id) : tier.stripe_price_id,
           quantity: 1,
         },
       ],

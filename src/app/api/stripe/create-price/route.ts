@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create Stripe Price on PLATFORM account (recurring subscription)
-    const stripePrice = await stripe.prices.create({
+    // Create monthly Stripe Price on PLATFORM account
+    const monthlyPrice = await stripe.prices.create({
       product: product.id,
       unit_amount: price,
       currency: 'usd',
@@ -40,8 +40,20 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Create annual Stripe Price (25% off: monthly * 12 * 0.75)
+    const annualAmount = Math.round(price * 12 * 0.75);
+    const annualPrice = await stripe.prices.create({
+      product: product.id,
+      unit_amount: annualAmount,
+      currency: 'usd',
+      recurring: {
+        interval: 'year',
+      },
+    });
+
     return NextResponse.json({
-      stripePriceId: stripePrice.id,
+      stripePriceId: monthlyPrice.id,
+      stripeAnnualPriceId: annualPrice.id,
       stripeProductId: product.id,
     });
   } catch (error) {
