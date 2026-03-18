@@ -52,9 +52,9 @@ function Navigation() {
             <Link href="/login" className="text-crwn-text hover:text-crwn-gold transition-colors">
               Log In
             </Link>
-            <Link href="/signup" className="neu-button-accent px-4 py-2 text-crwn-bg font-semibold rounded-lg">
+            <a href="/signup" className="neu-button-accent px-4 py-2 text-crwn-bg font-semibold rounded-lg">
               Get Started
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -98,9 +98,9 @@ function HeroSection() {
             from the people who love your music.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/signup" className="neu-button-accent px-8 py-4 text-crwn-bg font-semibold rounded-xl text-center">
+            <a href="/signup" className="neu-button-accent px-8 py-4 text-crwn-bg font-semibold rounded-xl text-center">
               Get Started
-            </Link>
+            </a>
             <a href="#monetize" className="px-8 py-4 border border-crwn-elevated text-crwn-text rounded-xl hover:border-crwn-gold hover:text-crwn-gold transition-all text-center">
               Learn More ↓
             </a>
@@ -495,9 +495,9 @@ function CTASection() {
           Artists don't need labels to build sustainable careers — they need real fans.
           CRWN gives you the tools to make it happen.
         </p>
-        <Link href="/signup" className="neu-button-accent px-12 py-4 text-crwn-bg font-bold rounded-xl text-xl inline-block">
+        <a href="/signup" className="neu-button-accent px-12 py-4 text-crwn-bg font-bold rounded-xl text-xl inline-block">
           Get Started
-        </Link>
+        </a>
       </div>
     </Section>
   );
