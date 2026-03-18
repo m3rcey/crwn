@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { FadeIn } from '@/components/ui/FadeIn';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { SkeletonCardGrid } from '@/components/ui/Skeleton';
 import { startTour } from '@/lib/tour';
 import { fanHomeTourSteps } from '@/lib/fanTourSteps';
@@ -74,19 +75,42 @@ export default function HomePage() {
   // Trigger tour on first visit (split by role)
   const { shouldShowTour: shouldShowHomeTour, startStep: homeStartStep, markComplete: markHomeTourComplete, saveStep: saveHomeStep } = useTourCheck('home', profile?.id);
 
+  const [showTourPrompt, setShowTourPrompt] = useState(false);
+
   useEffect(() => {
     if (!shouldShowHomeTour || !profile) return;
-    
-    const timer = setTimeout(() => {
-      if (profile.role === 'artist') {
-        startTour(artistHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
-      } else {
-        startTour(fanHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
-      }
-    }, 1500);
 
+    // If resuming a partially completed tour, auto-fire
+    if (homeStartStep > 0) {
+      const timer = setTimeout(() => {
+        if (profile.role === 'artist') {
+          startTour(artistHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
+        } else {
+          startTour(fanHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+
+    // First time — show prompt
+    const timer = setTimeout(() => setShowTourPrompt(true), 1000);
     return () => clearTimeout(timer);
   }, [shouldShowHomeTour, profile, markHomeTourComplete]);
+
+  const handleStartTour = () => {
+    setShowTourPrompt(false);
+    if (profile?.role === 'artist') {
+      startTour(artistHomeTourSteps, markHomeTourComplete, saveHomeStep, 0);
+    } else {
+      startTour(fanHomeTourSteps, markHomeTourComplete, saveHomeStep, 0);
+    }
+  };
+
+  const handleSkipTour = () => {
+    setShowTourPrompt(false);
+    markHomeTourComplete();
+  };
+
 
   const quickActions = [
     {
@@ -113,6 +137,15 @@ export default function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 stagger-fade-in">
+      <ConfirmModal
+        isOpen={showTourPrompt}
+        title="Welcome to CRWN!"
+        message="Want a quick tour to see how everything works? It only takes a minute."
+        confirmText="Start Tour"
+        cancelText="No Thanks"
+        onConfirm={handleStartTour}
+        onCancel={handleSkipTour}
+      />
       {/* Greeting */}
       <div className="bg-crwn-surface rounded-xl p-6 relative">
         <Link
