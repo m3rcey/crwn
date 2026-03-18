@@ -92,3 +92,59 @@ export async function GET(req: NextRequest) {
     genreMatches: enriched.filter(o => o.genreMatch).length,
   });
 }
+
+
+export async function POST(req: NextRequest) {
+  try {
+    const authHeader = req.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const opportunities = Array.isArray(body) ? body : [body];
+
+    const results = [];
+    for (const opp of opportunities) {
+      const { data, error } = await supabaseAdmin
+        .from('sync_opportunities')
+        .upsert({
+          title: opp.title,
+          description: opp.description || null,
+          type: opp.type || 'event',
+          location_city: opp.location_city || null,
+          location_state: opp.location_state || null,
+          is_online: opp.is_online || false,
+          event_url: opp.event_url || null,
+          registration_url: opp.registration_url || null,
+          price_min: opp.price_min || null,
+          price_max: opp.price_max || null,
+          event_date: opp.event_date || null,
+          event_end_date: opp.event_end_date || null,
+          deadline: opp.deadline || null,
+          genres: opp.genres || ['all'],
+          moods: opp.moods || [],
+          project_type: opp.project_type || null,
+          brief_details: opp.brief_details || null,
+          looking_for: opp.looking_for || null,
+          source: opp.source || null,
+          source_url: opp.source_url || null,
+          is_active: true,
+          is_featured: opp.is_featured || false,
+        }, { onConflict: 'title' })
+        .select()
+        .single();
+
+      if (error) {
+        results.push({ title: opp.title, error: error.message });
+      } else {
+        results.push({ title: opp.title, id: data.id, status: 'created' });
+      }
+    }
+
+    return NextResponse.json({ results });
+  } catch (error) {
+    console.error('Sync opportunity POST error:', error);
+    return NextResponse.json({ error: 'Failed to add opportunities' }, { status: 500 });
+  }
+}
