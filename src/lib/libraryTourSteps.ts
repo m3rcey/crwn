@@ -31,8 +31,17 @@ export const libraryTourSteps: DriveStep[] = [
   {
     element: '[data-tour="library-tab-referrals"]',
     popover: {
-      title: 'Referral earnings',
-      description: 'When you share an artist page and someone subscribes through your link, you earn a commission. Track your earnings here.',
+      title: 'Earn by sharing',
+      description: 'When you share an artist page and someone subscribes through your link, you earn a commission. Your earnings accumulate here.',
+      side: 'bottom',
+      align: 'start',
+    },
+  },
+  {
+    element: '[data-tour="library-tab-referrals"]',
+    popover: {
+      title: 'Get paid',
+      description: 'Once your balance reaches $25, connect your Stripe account and cash out your referral earnings. No fees.',
       side: 'bottom',
       align: 'start',
     },
