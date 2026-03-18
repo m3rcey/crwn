@@ -20,9 +20,21 @@ export default function LoginPage() {
         const supabase = createBrowserSupabaseClient();
         const { data } = await supabase
           .from('profiles')
-          .select('phone')
+          .select('phone, is_active')
           .eq('id', user.id)
           .single();
+        // Reactivate if deactivated
+        if (data && data.is_active === false) {
+          await supabase
+            .from('profiles')
+            .update({ is_active: true })
+            .eq('id', user.id);
+          // Also reactivate artist profile if exists
+          await supabase
+            .from('artist_profiles')
+            .update({ is_active: true })
+            .eq('user_id', user.id);
+        }
         if (data?.phone) {
           router.replace('/home');
         } else {

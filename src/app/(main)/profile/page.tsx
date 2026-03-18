@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -11,11 +12,13 @@ import {
   User as UserIcon,
   Music,
   Eye,
-  HelpCircle
+  HelpCircle,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, profile, signOut, isLoading } = useAuth();
+  const [showDeactivate, setShowDeactivate] = useState(false);
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
 
@@ -123,6 +126,13 @@ export default function ProfilePage() {
             <span>Replay Tour</span>
           </button>
           <button
+            onClick={() => setShowDeactivate(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 text-crwn-text-secondary hover:text-crwn-error hover:bg-crwn-error/10 rounded-lg transition-colors"
+          >
+            <AlertTriangle className="w-5 h-5" />
+            <span>Deactivate Account</span>
+          </button>
+          <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-4 py-3 text-crwn-error hover:bg-crwn-error/10 rounded-lg transition-colors"
           >
@@ -131,6 +141,43 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+      {showDeactivate && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="neu-raised rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-crwn-text mb-2">Deactivate Account</h3>
+            <p className="text-crwn-text-secondary text-sm mb-4">
+              Your profile will be hidden from other users. Your subscriptions will be paused. You can reactivate anytime by logging back in.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeactivate(false)}
+                className="flex-1 py-2 rounded-lg neu-raised text-crwn-text font-semibold hover:opacity-80"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!user) return;
+                  await supabase
+                    .from('profiles')
+                    .update({ is_active: false })
+                    .eq('id', user.id);
+                  if (profile?.role === 'artist') {
+                    await supabase
+                      .from('artist_profiles')
+                      .update({ is_active: false })
+                      .eq('user_id', user.id);
+                  }
+                  await signOut();
+                }}
+                className="flex-1 py-2 rounded-lg bg-crwn-error text-white font-semibold hover:opacity-80"
+              >
+                Deactivate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
