@@ -167,7 +167,9 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
         {products.map((product) => {
           const hasPurchased = purchasedIds.has(product.id);
           const canAccess = canAccessProduct(product);
-          
+          const isSoldOut = product.max_quantity && product.quantity_sold >= product.max_quantity;
+          const isExpired = product.expires_at && new Date(product.expires_at) < new Date();
+          const isUnavailable = isSoldOut || isExpired;
           return (
             <div
               key={product.id}
@@ -183,12 +185,20 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
                 )}
                 
                 {/* Lock overlay for gated products */}
-                {!canAccess && (
+                {!canAccess && !isUnavailable && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2 text-center px-4">
                       <Lock className="w-8 h-8 text-crwn-gold" />
                       <p className="text-sm text-crwn-gold font-medium">Subscribe to unlock</p>
                     </div>
+                  </div>
+                )}
+                {/* Sold out / expired overlay */}
+                {isUnavailable && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <p className="text-sm text-crwn-text-secondary font-medium">
+                      {isSoldOut ? 'Sold Out' : 'Expired'}
+                    </p>
                   </div>
                 )}
               </div>
@@ -212,6 +222,16 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
                   </p>
                 )}
                 
+                {product.max_quantity && !isSoldOut && (
+                  <p className="text-xs text-crwn-gold mt-1">
+                    {product.max_quantity - (product.quantity_sold || 0)} spots left
+                  </p>
+                )}
+                {product.expires_at && !isExpired && (
+                  <p className="text-xs text-crwn-text-secondary mt-1">
+                    Available until {new Date(product.expires_at).toLocaleDateString()}
+                  </p>
+                )}
                 <div className="flex items-center justify-between mt-3">
                   <span className="font-semibold text-crwn-text">
                     ${(product.price / 100).toFixed(2)}
@@ -227,7 +247,7 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
                   ) : (
                     <button
                       onClick={() => handleBuy(product)}
-                      disabled={isLoading}
+                      disabled={isLoading || !!isUnavailable}
                       className="px-3 py-1.5 bg-crwn-gold text-crwn-bg text-sm font-medium rounded-lg hover:bg-crwn-gold-hover disabled:opacity-50"
                     >
                       Buy

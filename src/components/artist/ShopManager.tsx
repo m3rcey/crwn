@@ -60,6 +60,7 @@ export function ShopManager() {
     location: '',
     durationField: '',
     maxQuantity: '',
+    expiresAt: '',
   });
 
   const [selectedBundleItems, setSelectedBundleItems] = useState<string[]>([]);
@@ -205,7 +206,8 @@ export function ShopManager() {
         delivery_type: productType === 'experience' ? 'scheduled' : 'instant',
         file_url: fileUrl || (editingProduct?.file_url ?? null),
         duration_minutes: formData.durationField ? parseInt(formData.durationField) : null,
-        max_quantity: null,
+        max_quantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
+        expires_at: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null,
       };
 
       if (editingProduct) {
@@ -294,6 +296,7 @@ export function ShopManager() {
       productFile: null,
       productFileName: product.file_url ? product.file_url.split('/').pop() || 'Existing file' : '',
       maxQuantity: product.max_quantity?.toString() || '',
+      expiresAt: product.expires_at ? new Date(product.expires_at).toISOString().slice(0, 16) : '',
     });
 
     if (product.type === 'bundle') {
@@ -355,6 +358,7 @@ export function ShopManager() {
       location: '',
       durationField: '',
       maxQuantity: '',
+      expiresAt: '',
     });
   };
 
@@ -685,6 +689,18 @@ export function ShopManager() {
                   </div>
                 </div>
               )}
+
+              {/* Expiration date for any product type */}
+              <div>
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-1">Available Until (optional)</label>
+                <input
+                  type="datetime-local"
+                  value={formData.expiresAt}
+                  onChange={(e) => setFormData(p => ({ ...p, expiresAt: e.target.value }))}
+                  className="w-full neu-inset px-4 py-2 text-crwn-text"
+                />
+                <p className="text-xs text-crwn-text-secondary mt-1">Leave blank for no expiration</p>
+              </div>
 
               {/* EXPERIENCE: Custom Verse, Song Critique, Shoutout */}
               {['custom-verse', 'song-critique', 'shoutout'].includes(subcategory) && (
