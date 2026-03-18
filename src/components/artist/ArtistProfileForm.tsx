@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Eye } from 'lucide-react';
@@ -38,6 +39,7 @@ export function ArtistProfileForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [artistProfile, setArtistProfile] = useState<ArtistProfile | null>(null);
+  const platformLimits = usePlatformLimits(artistProfile?.id || null);
   const [formData, setFormData] = useState<ArtistFormData>({
     display_name: profile?.display_name || '',
     slug: '',
@@ -393,7 +395,7 @@ export function ArtistProfileForm() {
       {/* Calendar Link */}
       <div>
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-          Cal.com Scheduling Link
+          Cal.com Scheduling Link {!platformLimits.limits.scheduling && <span className="text-xs text-crwn-gold">(Pro+)</span>}
         </label>
         <input
           type="url"

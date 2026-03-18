@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -65,6 +66,8 @@ export function ShopManager() {
 
   const [selectedBundleItems, setSelectedBundleItems] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
+  const platformLimits = usePlatformLimits(artistProfileId);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
@@ -76,6 +79,7 @@ export function ShopManager() {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    setArtistProfileId(artistProfile?.id || null);
     if (!artistProfile) {
       setIsLoading(false);
       return;
@@ -137,7 +141,8 @@ export function ShopManager() {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (!artistProfile) {
+      setArtistProfileId(artistProfile?.id || null);
+    if (!artistProfile) {
         showToast('Artist profile not found', 'error');
         return;
       }
@@ -429,7 +434,7 @@ export function ShopManager() {
 
             {/* Type Selector */}
             <div className="flex gap-2 mb-6">
-              {(['digital', 'experience', 'bundle'] as ProductType[]).map((type) => (
+              {(['digital', 'experience', 'bundle'] as ProductType[]).filter(t => t !== 'bundle' || platformLimits.limits.bundles).map((type) => (
                 <button
                   key={type}
                   onClick={() => { setProductType(type); setSubcategory(''); }}
@@ -538,6 +543,13 @@ export function ShopManager() {
               {/* Experience Delivery Info */}
               {productType === 'experience' && (
                 <>
+                {!platformLimits.limits.scheduling && (
+                  <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3 mb-3">
+                    <p className="text-sm text-crwn-gold">
+                      1-on-1 scheduling requires a Pro plan or higher. <a href="/profile/artist?tab=billing" className="underline font-semibold">Upgrade now</a>
+                    </p>
+                  </div>
+                )}
                 <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 mb-3">
                   <p className="text-sm text-purple-300">
                     Fans who purchase this will receive a booking token and access to your Cal.com scheduling link. Make sure you{"'"}ve set your Cal.com link in your <a href="/profile/artist?tab=profile" className="text-crwn-gold underline">Profile Settings</a>.
