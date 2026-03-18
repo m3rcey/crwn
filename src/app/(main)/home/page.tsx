@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { HelpCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { 
@@ -113,7 +114,13 @@ export default function HomePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 stagger-fade-in">
       {/* Greeting */}
-      <div className="bg-crwn-surface rounded-xl p-6">
+      <div className="bg-crwn-surface rounded-xl p-6 relative">
+        <Link
+          href={`/getting-started?role=${profile?.role || 'fan'}`}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-crwn-elevated flex items-center justify-center text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+        >
+          <HelpCircle className="w-5 h-5" />
+        </Link>
         <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
           {getGreeting()}{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}!
         </h1>
