@@ -395,7 +395,7 @@ export function ArtistProfileForm() {
       {/* Calendar Link */}
       <div>
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-          Cal.com Scheduling Link {!platformLimits.limits.scheduling && <span className="text-xs text-crwn-gold">(Pro+)</span>}
+          Cal.com Scheduling Link {!platformLimits.limits.scheduling && <span className="text-xs text-crwn-gold">(Pro+)</span>} {!platformLimits.limits.scheduling && <span className="text-xs text-crwn-gold">(Pro+)</span>}
         </label>
         <input
           type="url"

@@ -80,6 +80,7 @@ export function ShopManager() {
       .maybeSingle();
 
     setArtistProfileId(artistProfile?.id || null);
+    setArtistProfileId(artistProfile?.id || null);
     if (!artistProfile) {
       setIsLoading(false);
       return;
@@ -142,6 +143,7 @@ export function ShopManager() {
         .maybeSingle();
 
       setArtistProfileId(artistProfile?.id || null);
+    setArtistProfileId(artistProfile?.id || null);
     if (!artistProfile) {
         showToast('Artist profile not found', 'error');
         return;
@@ -543,6 +545,13 @@ export function ShopManager() {
               {/* Experience Delivery Info */}
               {productType === 'experience' && (
                 <>
+                {!platformLimits.limits.scheduling && (
+                  <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3 mb-3">
+                    <p className="text-sm text-crwn-gold">
+                      1-on-1 scheduling requires a Pro plan or higher. <a href="/profile/artist?tab=billing" className="underline font-semibold">Upgrade now</a>
+                    </p>
+                  </div>
+                )}
                 {!platformLimits.limits.scheduling && (
                   <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3 mb-3">
                     <p className="text-sm text-crwn-gold">
