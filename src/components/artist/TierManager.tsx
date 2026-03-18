@@ -274,7 +274,12 @@ export function TierManager() {
       setSelectedBenefits(benefits as TierBenefit[]);
     }
     setLoadingBenefits(false);
-    setTimeout(() => tierFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    setTimeout(() => {
+      if (tierFormRef.current) {
+        const y = tierFormRef.current.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }, 200);
   };
 
   const handleCancelEdit = () => {
