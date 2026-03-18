@@ -117,6 +117,7 @@ export default function HomePage() {
       <div className="bg-crwn-surface rounded-xl p-6 relative">
         <Link
           href={`/getting-started?role=${profile?.role || 'fan'}`}
+          data-tour="home-help"
           className="absolute top-4 right-4 w-8 h-8 rounded-full bg-crwn-elevated flex items-center justify-center text-crwn-text-secondary hover:text-crwn-gold transition-colors"
         >
           <HelpCircle className="w-5 h-5" />
