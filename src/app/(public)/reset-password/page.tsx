@@ -18,14 +18,14 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     // Supabase automatically handles the token exchange from the email link
     // We just need to check if we have a valid session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => {
       if (session) {
         setHasSession(true);
       }
     });
 
     // Listen for auth state change (token exchange happens automatically)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: any, session: any) => {
       if (event === 'PASSWORD_RECOVERY' || session) {
         setHasSession(true);
       }
