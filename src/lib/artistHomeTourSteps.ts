@@ -35,6 +35,15 @@ export const artistHomeTourSteps: DriveStep[] = [
     },
   },
   {
+    element: '[data-tour="home-help"]',
+    popover: {
+      title: 'Need help?',
+      description: 'Tap this anytime for a step by step guide on setting up your page. It is always here if you need a refresher.',
+      side: 'bottom',
+      align: 'start',
+    },
+  },
+  {
     element: '[data-tour="home-artist-dashboard"]',
     popover: {
       title: 'Your artist dashboard',

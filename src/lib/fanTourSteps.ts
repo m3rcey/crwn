@@ -41,6 +41,15 @@ export const fanHomeTourSteps: DriveStep[] = [
     },
   },
   {
+    element: '[data-tour="home-help"]',
+    popover: {
+      title: 'Need help?',
+      description: 'Tap this anytime for a guide on getting the most out of CRWN. It is always here if you need it.',
+      side: 'bottom',
+      align: 'start',
+    },
+  },
+  {
     popover: {
       title: 'You are all set!',
       description: 'Head to Explore to discover your first artist. When you find someone you love, subscribe to unlock their exclusive content and join their community.',

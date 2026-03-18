@@ -87,7 +87,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string
       element: '[data-tour="tiers-list"]',
       popover: {
         title: 'Create your tiers',
-        description: 'With Stripe connected, create 2 to 3 subscription tiers. A good range is $5 to $200 per month depending on what you offer.',
+        description: 'With Stripe connected, create 2 to 3 subscription tiers. A good range is $5 to $200 per month. Fans also get an annual option at 25% off automatically.',
         side: 'bottom',
         align: 'start',
       },
@@ -280,7 +280,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string
       element: '[data-tour="shop-create"]',
       popover: {
         title: 'Create products',
-        description: 'Sell digital products like beat packs or experiences like 1-on-1 video calls. For booking sessions, connect a free Cal.com calendar.',
+        description: 'Sell digital products, experiences, and 1-on-1 bookings. You can set quantity limits and expiration dates to create urgency.',
         side: 'bottom',
         align: 'start',
       },
