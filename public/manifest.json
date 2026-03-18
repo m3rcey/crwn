@@ -2,7 +2,7 @@
   "name": "CRWN - Music Artist Platform",
   "short_name": "CRWN",
   "description": "The all-in-one platform for music artists to monetize, connect with fans, and build community.",
-  "start_url": "/",
+  "start_url": "/home",
   "display": "standalone",
   "background_color": "#0D0D0D",
   "theme_color": "#0D0D0D",
