@@ -33,16 +33,19 @@ export async function updateSession(request: NextRequest) {
   // Handle PKCE code exchange (email verification, password reset)
   const code = request.nextUrl.searchParams.get('code');
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
-    // Remove code from URL after exchange, but keep the cookies from supabaseResponse
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    // Redirect to same URL without code param
     const url = request.nextUrl.clone();
     url.searchParams.delete('code');
-    const redirectResponse = NextResponse.redirect(url);
-    // Copy auth cookies from the exchange to the redirect response
-    supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+    if (error) {
+      // If exchange fails, redirect to login
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    // supabaseResponse already has the cookies set by exchangeCodeForSession
+    // Just update it to redirect instead of passing through
+    return NextResponse.redirect(url, {
+      headers: supabaseResponse.headers,
     });
-    return redirectResponse;
   }
 
   // Refresh session if expired
