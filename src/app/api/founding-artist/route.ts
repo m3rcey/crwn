@@ -43,15 +43,18 @@ export async function POST(req: NextRequest) {
 
   // Assign founding artist status
   const foundingNumber = currentCount + 1;
-  const expiresAt = new Date();
-  expiresAt.setMonth(expiresAt.getMonth() + 3); // 3 months from now
+  const proExpiresAt = new Date();
+  proExpiresAt.setMonth(proExpiresAt.getMonth() + 3); // 3 months free Pro
+  const feeExpiresAt = new Date();
+  feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 12); // 12 months at 5% fee
 
   const { error } = await supabaseAdmin
     .from('artist_profiles')
     .update({
       is_founding_artist: true,
       founding_artist_number: foundingNumber,
-      founding_artist_expires_at: expiresAt.toISOString(),
+      founding_artist_expires_at: proExpiresAt.toISOString(),
+      founding_fee_expires_at: feeExpiresAt.toISOString(),
       platform_tier: 'pro', // Free Pro for founding artists
     })
     .eq('id', artistId);
@@ -64,7 +67,8 @@ export async function POST(req: NextRequest) {
     isFoundingArtist: true,
     number: foundingNumber,
     spotsLeft: FOUNDING_LIMIT - foundingNumber,
-    expiresAt: expiresAt.toISOString(),
+    proExpiresAt: proExpiresAt.toISOString(),
+    feeExpiresAt: feeExpiresAt.toISOString(),
   });
 }
 

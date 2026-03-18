@@ -110,8 +110,8 @@ export default function FoundingArtistsPage() {
   }, []);
 
   const benefits = [
-    { icon: Percent, title: '1% Off Your Platform Fee', desc: 'Permanently lower fees than any other artist on CRWN. Stacks with every tier you upgrade to.' },
     { icon: Crown, title: 'Free Pro Plan for 3 Months', desc: 'Unlimited tracks, fan tiers, community, shop, and analytics. No monthly fee for your first 3 months.' },
+    { icon: Percent, title: '5% Platform Fee for Your First Year', desc: 'Every transaction in your first 12 months has a reduced 5% platform fee instead of the standard 8%. More money in your pocket while you grow.' },
     { icon: Star, title: 'Founding Artist Badge', desc: 'A permanent badge on your profile showing you were one of the first. Early believers get recognized.' },
     { icon: TrendingUp, title: 'Priority Placement', desc: 'Featured on the Explore page and recommended to new fans joining the platform.' },
     { icon: Shield, title: 'Shape the Platform', desc: 'Direct input on new features. We build what founding artists need first.' },
@@ -132,7 +132,7 @@ export default function FoundingArtistsPage() {
             Be One of the First 500 Artists on CRWN
           </h1>
           <p className="text-lg md:text-xl text-[#999] max-w-2xl mx-auto mb-8">
-            Founding artists get permanent perks that no one else will ever have access to. Lower fees, free Pro features, and a badge that proves you were here from day one.
+            Founding artists get perks that no one else will ever have access to. 3 months of free Pro, a 5% platform fee for your entire first year, and a badge that proves you were here from day one.
           </p>
           <div className="inline-block mb-8">
             <div className="text-5xl font-bold text-crwn-gold mb-2">{count} / 500</div>

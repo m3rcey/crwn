@@ -456,7 +456,7 @@ function FoundingArtistSection() {
           Founding Artist Program
         </h2>
         <p className="text-xl text-crwn-text-secondary mb-8">
-          The first 500 artists receive reduced platform fees and early access to new features.
+          The first 500 artists get 3 months of free Pro and a 5% platform fee for their entire first year.
           Help shape the future of fan-powered music.
         </p>
 

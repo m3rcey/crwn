@@ -195,8 +195,8 @@ export function formatTierName(tier: string | null | undefined): string {
 
 /**
  * Get artist's platform fee percent, checking for founding artist status.
- * Founding artists get 1% off their platform tier fee (stacks with paid tiers).
- * This function queries the DB to check is_founding_artist status.
+ * Founding artists get a flat 5% fee for their first 12 months,
+ * then revert to their normal platform tier fee (8/8/6/4).
  */
 export async function getArtistFeePercent(artistId: string): Promise<number> {
   const { createClient } = await import('@supabase/supabase-js');
@@ -207,25 +207,23 @@ export async function getArtistFeePercent(artistId: string): Promise<number> {
 
   const { data } = await supabaseAdmin
     .from('artist_profiles')
-    .select('platform_tier, is_founding_artist, founding_artist_expires_at')
+    .select('platform_tier, is_founding_artist, founding_fee_expires_at')
     .eq('id', artistId)
     .single();
 
   if (!data) return 8;
 
-  // Base fee from platform tier
-  const tier = data.platform_tier || 'starter';
-  let fee = 8;
-  if (tier === 'empire') fee = 4;
-  else if (tier === 'label') fee = 6;
-
-  // Founding artists get 1% off their tier fee (stacks with paid tiers)
+  // Founding artists get flat 5% for first 12 months
   if (data.is_founding_artist) {
-    const expiresAt = data.founding_artist_expires_at ? new Date(data.founding_artist_expires_at) : null;
-    if (!expiresAt || expiresAt > new Date()) {
-      fee = Math.max(1, fee - 1);
+    const feeExpiresAt = data.founding_fee_expires_at ? new Date(data.founding_fee_expires_at) : null;
+    if (feeExpiresAt && feeExpiresAt > new Date()) {
+      return 5;
     }
   }
 
-  return fee;
+  // Normal tier fee after founding period or for non-founding artists
+  const tier = data.platform_tier || 'starter';
+  if (tier === 'empire') return 4;
+  if (tier === 'label') return 6;
+  return 8;
 }

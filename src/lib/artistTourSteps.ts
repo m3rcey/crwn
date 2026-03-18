@@ -2,7 +2,7 @@ import { DriveStep } from 'driver.js';
 
 export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string = 'yourname'): DriveStep[] {
   const foundingNote = isFoundingArtist
-    ? ' As a Founding Artist, you have free Pro access, so all features are unlocked for you.'
+    ? ' As a Founding Artist, you have free Pro access and a reduced 5% platform fee for your first year.'
     : '';
 
   return [

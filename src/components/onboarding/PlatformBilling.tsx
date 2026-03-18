@@ -16,6 +16,7 @@ interface ArtistProfile {
   is_founding_artist: boolean | null;
   founding_artist_number: number | null;
   founding_artist_expires_at: string | null;
+  founding_fee_expires_at: string | null;
 }
 
 export function PlatformBilling() {
@@ -33,7 +34,7 @@ export function PlatformBilling() {
 
       const { data } = await supabase
         .from('artist_profiles')
-        .select('id, platform_tier, platform_subscription_status, platform_stripe_subscription_id, is_founding_artist, founding_artist_number, founding_artist_expires_at')
+        .select('id, platform_tier, platform_subscription_status, platform_stripe_subscription_id, is_founding_artist, founding_artist_number, founding_artist_expires_at, founding_fee_expires_at')
         .eq('user_id', user.id)
         .single();
 
@@ -88,7 +89,10 @@ export function PlatformBilling() {
             <span className="text-crwn-gold font-semibold">Founding Artist #{artist.founding_artist_number}</span>
           </div>
           <p className="text-crwn-text-secondary text-sm">
-            You have free Pro features until {new Date(artist.founding_artist_expires_at || Date.now()).toLocaleDateString()}.
+            Free Pro features until {new Date(artist.founding_artist_expires_at || Date.now()).toLocaleDateString()}.
+            {artist.founding_fee_expires_at && new Date(artist.founding_fee_expires_at) > new Date() && (
+              <> 5% platform fee until {new Date(artist.founding_fee_expires_at).toLocaleDateString()}.</>
+            )}
           </p>
         </div>
       )}
