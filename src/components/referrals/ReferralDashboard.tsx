@@ -2,13 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { DollarSign, Users, TrendingUp, Loader2 } from 'lucide-react';
+import { DollarSign, Users, TrendingUp, Loader2, Wallet, ExternalLink } from 'lucide-react';
+import { useToast } from '@/components/shared/Toast';
 
 interface ReferralData {
   totalReferrals: number;
   activeReferrals: number;
   totalEarnings: number;
   thisMonthEarnings: number;
+  totalPaidOut: number;
+  availableBalance: number;
+  stripeConnected: boolean;
   referrals: {
     id: string;
     referredName: string;
@@ -28,6 +32,9 @@ export function ReferralDashboard() {
   const { user } = useAuth();
   const [data, setData] = useState<ReferralData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCashingOut, setIsCashingOut] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!user) return;
@@ -40,6 +47,56 @@ export function ReferralDashboard() {
       })
       .catch(() => setIsLoading(false));
   }, [user]);
+
+  const handleConnectStripe = async () => {
+    if (!user) return;
+    setIsConnecting(true);
+    try {
+      const res = await fetch('/api/stripe/fan-connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fanId: user.id }),
+      });
+      const result = await res.json();
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        showToast(result.error || 'Failed to connect Stripe', 'error');
+      }
+    } catch {
+      showToast('Failed to connect Stripe', 'error');
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleCashout = async () => {
+    if (!user) return;
+    if (!data?.stripeConnected) {
+      handleConnectStripe();
+      return;
+    }
+    setIsCashingOut(true);
+    try {
+      const res = await fetch('/api/stripe/fan-cashout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fanId: user.id }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        showToast(`$${(result.amount / 100).toFixed(2)} cashed out successfully!`, 'success');
+        // Refresh data
+        setData(prev => prev ? { ...prev, availableBalance: 0, totalPaidOut: prev.totalPaidOut + result.amount } : prev);
+      } else {
+        showToast(result.error || 'Cashout failed', 'error');
+      }
+    } catch {
+      showToast('Cashout failed', 'error');
+    } finally {
+      setIsCashingOut(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -83,6 +140,43 @@ export function ReferralDashboard() {
           <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">All Time</p>
           <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(data.totalEarnings)}</p>
         </div>
+      </div>
+
+      {/* Balance & Cashout */}
+      <div className="neu-raised rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Available Balance</p>
+            <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(data.availableBalance)}</p>
+            {data.totalPaidOut > 0 && (
+              <p className="text-xs text-crwn-text-secondary mt-1">Total paid out: {formatCurrency(data.totalPaidOut)}</p>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            {!data.stripeConnected ? (
+              <button
+                onClick={handleConnectStripe}
+                disabled={isConnecting}
+                className="neu-button-accent text-crwn-bg px-4 py-2 rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50"
+              >
+                {isConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wallet className="w-4 h-4" />}
+                Set Up Payouts
+              </button>
+            ) : (
+              <button
+                onClick={handleCashout}
+                disabled={isCashingOut || data.availableBalance < 2500}
+                className="neu-button-accent text-crwn-bg px-4 py-2 rounded-lg font-semibold flex items-center gap-2 disabled:opacity-50"
+              >
+                {isCashingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <DollarSign className="w-4 h-4" />}
+                Cash Out
+              </button>
+            )}
+          </div>
+        </div>
+        {data.availableBalance > 0 && data.availableBalance < 2500 && (
+          <p className="text-xs text-crwn-text-secondary mt-2">Minimum cashout is $25.00</p>
+        )}
       </div>
 
       {/* Referred Fans */}

@@ -41,11 +41,31 @@ export async function GET(req: NextRequest) {
     (profiles || []).forEach(p => { referredNames[p.id] = p.display_name || 'Fan'; });
   }
 
+  // Get total paid out
+  const { data: payouts } = await supabaseAdmin
+    .from('fan_payouts')
+    .select('amount')
+    .eq('fan_id', fanId)
+    .eq('status', 'completed');
+
+  const totalPaidOut = (payouts || []).reduce((sum, p) => sum + (p.amount || 0), 0);
+  const availableBalance = totalEarnings - totalPaidOut;
+
+  // Check if fan has Stripe connected
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('stripe_connect_id')
+    .eq('id', fanId)
+    .single();
+
   return NextResponse.json({
     totalReferrals: (referrals || []).length,
     activeReferrals: (referrals || []).filter(r => r.status === 'active').length,
     totalEarnings,
     thisMonthEarnings,
+    totalPaidOut,
+    availableBalance,
+    stripeConnected: !!fanProfile?.stripe_connect_id,
     referrals: (referrals || []).map(r => ({
       ...r,
       referredName: referredNames[r.referred_fan_id] || 'Fan',
