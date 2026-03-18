@@ -32,8 +32,8 @@ const PLATFORM_TIERS: PlatformTier[] = [
     description: 'Get started for free',
     features: [
       '10 track uploads',
-      'Up to 100 fans',
       '1 subscription tier',
+      'Community posts',
       'Basic analytics',
       'View sync opportunities (limited)',
       '8% platform fee',
@@ -49,11 +49,11 @@ const PLATFORM_TIERS: PlatformTier[] = [
     description: 'For growing artists',
     features: [
       'Unlimited uploads',
-      'Unlimited fans',
       'Up to 5 subscription tiers',
       'Bundles & experiences',
       '1-on-1 scheduling',
       'Full sync opportunities',
+      'Fan referral program',
       'Advanced analytics',
       '8% platform fee',
     ],
@@ -70,9 +70,7 @@ const PLATFORM_TIERS: PlatformTier[] = [
     features: [
       'Everything in Pro',
       'Up to 10 subscription tiers',
-      'Up to 10 artist profiles',
       'Recommended sync opportunities',
-      'API access',
       '6% platform fee',
     ],
   },
@@ -87,10 +85,8 @@ const PLATFORM_TIERS: PlatformTier[] = [
     features: [
       'Everything in Label',
       'Unlimited subscription tiers',
-      'Unlimited artist profiles',
       'Priority support',
       'Early access to new features',
-      'Analytics export',
       '4% platform fee',
     ],
     badge: 'Best Value',
