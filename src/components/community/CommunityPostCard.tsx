@@ -9,7 +9,7 @@ import { CommunityPost } from '@/types';
 import { CommentSection } from './CommentSection';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Heart, MessageCircle, Lock, Crown, MoreHorizontal, Trash2, Share2 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 function AutoPlayVideo({ src, poster }: { src: string; poster?: string }) {
@@ -302,6 +302,21 @@ export function CommunityPostCard({
             >
               <MessageCircle className={`w-5 h-5 ${showComments ? 'fill-current' : ''}`} />
               <span>{commentsCount}</span>
+            </button>
+            <button
+              onClick={async () => {
+                const url = `${window.location.origin}/${artistSlug}/post/${post.id}`;
+                if (navigator.share) {
+                  try { await navigator.share({ title: post.content?.slice(0, 50) || 'Check out this post', url }); } catch {}
+                } else {
+                  await navigator.clipboard.writeText(url);
+                  const btn = document.activeElement as HTMLElement;
+                  if (btn) { btn.classList.add('text-crwn-gold'); setTimeout(() => btn.classList.remove('text-crwn-gold'), 1500); }
+                }
+              }}
+              className="flex items-center gap-1 text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+            >
+              <Share2 className="w-5 h-5" />
             </button>
           </div>
 
