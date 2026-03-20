@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
     const { data: artists } = await supabaseAdmin
       .from('artist_profiles')
       .select('id, stripe_connect_id, user_id')
+      .eq('is_active', true)
       .not('stripe_connect_id', 'is', null);
 
     if (!artists || artists.length === 0) {
