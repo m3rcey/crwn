@@ -167,7 +167,7 @@ function ArtistDashboardContent() {
       <div className="relative z-10">
         {/* Header */}
         <div className="border-b border-crwn-elevated">
-          <div className="px-4 sm:px-6 lg:px-8 py-6">
+          <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-2">
             <h1 className="text-2xl font-bold text-crwn-text">Artist Dashboard</h1>
             <p className="text-crwn-text-secondary mt-1">
               Manage your profile, music, and monetization
