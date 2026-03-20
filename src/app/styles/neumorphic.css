@@ -353,9 +353,10 @@
   color: #888888 !important;
 }
 
-/* Transparent overlay (no darkening) */
+/* Transparent overlay (no darkening, not clickable) */
 .driver-overlay {
   background-color: rgba(0, 0, 0, 0) !important;
+  pointer-events: none !important;
 }
 
 /* Gold border trace on highlighted elements (NOT on tab buttons) */

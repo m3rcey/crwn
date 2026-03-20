@@ -30,7 +30,7 @@ export function startTour(
     stagePadding: 0,
     stageRadius: 0,
     popoverClass: 'crwn-tour-popover',
-    allowClose: false,
+    allowClose: true,
     nextBtnText: 'Next',
     prevBtnText: 'Back',
     doneBtnText: 'Got it',
