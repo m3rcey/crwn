@@ -49,6 +49,24 @@ export async function POST(req: NextRequest) {
 
   console.log('Webhook event received:', event.type);
 
+  // Idempotency check — skip if already processed
+  const { data: existing } = await supabaseAdmin
+    .from('processed_webhook_events')
+    .select('event_id')
+    .eq('event_id', event.id)
+    .maybeSingle();
+
+  if (existing) {
+    console.log('Duplicate webhook event, skipping:', event.id);
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+
+  // Mark as processing
+  await supabaseAdmin.from('processed_webhook_events').insert({
+    event_id: event.id,
+    event_type: event.type,
+  });
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -701,14 +719,12 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
     .select()
     .single();
 
-  // Increment quantity_sold
-  await supabaseAdmin
-    .from('products')
-    .update({
-      quantity_sold: (product.quantity_sold || 0) + 1,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', product_id);
+  // Atomic quantity increment (prevents oversell)
+  const { data: stockOk } = await supabaseAdmin.rpc('increment_quantity_sold', { p_product_id: product_id });
+  if (stockOk === false) {
+    console.error('Product sold out during webhook processing:', product_id);
+    return;
+  }
 
   // Write earnings record
   const { data: earning } = await supabaseAdmin

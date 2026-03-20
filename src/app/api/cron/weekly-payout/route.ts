@@ -16,6 +16,21 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Idempotency: prevent double-run in the same week
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
+    const periodKey = `${now.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+
+    const { error: lockError } = await supabaseAdmin
+      .from('cron_run_log')
+      .insert({ job_name: 'weekly-payout', period_key: periodKey });
+
+    if (lockError) {
+      console.log('Weekly payout already ran for', periodKey);
+      return NextResponse.json({ message: `Already ran for ${periodKey}` });
+    }
+
     // Get all artists with Stripe Connect accounts
     const { data: artists } = await supabaseAdmin
       .from('artist_profiles')

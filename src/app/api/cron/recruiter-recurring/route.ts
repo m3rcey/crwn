@@ -24,6 +24,18 @@ export async function GET(req: NextRequest) {
 
   const now = new Date();
 
+  // Idempotency: prevent double-run in the same month
+  const periodKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+  const { error: lockError } = await supabaseAdmin
+    .from('cron_run_log')
+    .insert({ job_name: 'recruiter-recurring', period_key: periodKey });
+
+  if (lockError) {
+    console.log('Recruiter recurring already ran for', periodKey);
+    return NextResponse.json({ message: `Already ran for ${periodKey}` });
+  }
+
   // Find all qualified referrals with active recurring that haven't expired
   const { data: activeReferrals } = await supabaseAdmin
     .from('artist_referrals')
