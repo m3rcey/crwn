@@ -130,8 +130,8 @@ export interface PlaylistTrack {
   track?: Track;
 }
 
-export type ProductType = 'digital' | 'experience' | 'bundle';
-export type DeliveryType = 'instant' | 'scheduled' | 'custom';
+export type ProductType = 'digital' | 'experience' | 'bundle' | 'physical';
+export type DeliveryType = 'instant' | 'scheduled' | 'custom' | 'shipped';
 export type PurchaseStatus = 'pending' | 'completed' | 'refunded';
 
 export interface Product {

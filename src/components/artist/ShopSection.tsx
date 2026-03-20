@@ -105,6 +105,7 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
       digital: 'bg-blue-500/20 text-blue-400',
       experience: 'bg-purple-500/20 text-purple-400',
       bundle: 'bg-crwn-gold/20 text-crwn-gold',
+      physical: 'bg-green-500/20 text-green-400',
     };
     return (
       <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[type]}`}>
@@ -179,7 +180,7 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
                   <Image src={product.image_url} alt={product.title} fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-4xl">
-                    {product.type === 'digital' ? '💾' : product.type === 'experience' ? '🎫' : '📦'}
+                    {product.type === 'digital' ? '💾' : product.type === 'experience' ? '🎫' : product.type === 'physical' ? '📦' : '🎁'}
                   </div>
                 )}
                 

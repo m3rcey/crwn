@@ -99,8 +99,14 @@ export async function POST(request: NextRequest) {
     const platformFee = Math.round(unitAmount * (platformFeePercent / 100));
 
     // Create Stripe checkout session for one-time payment
+    const isPhysical = product.type === 'physical';
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
+      ...(isPhysical && {
+        shipping_address_collection: {
+          allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR', 'JP', 'BR', 'MX', 'NG', 'GH', 'KE', 'ZA', 'IN', 'KR', 'NL', 'SE', 'NO', 'DK', 'IT', 'ES'],
+        },
+      }),
       line_items: [
         {
           price_data: {

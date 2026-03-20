@@ -21,6 +21,14 @@ const DIGITAL_SUBCATEGORIES = [
   { value: 'video-content', label: 'Video Content' },
 ];
 
+const PHYSICAL_SUBCATEGORIES = [
+  { value: 'merch', label: 'Merch (T-Shirts, Hoodies, etc.)' },
+  { value: 'vinyl', label: 'Vinyl Records' },
+  { value: 'cd', label: 'CDs' },
+  { value: 'poster', label: 'Posters / Art Prints' },
+  { value: 'other-physical', label: 'Other Physical Product' },
+];
+
 const EXPERIENCE_SUBCATEGORIES = [
   { value: 'video-call', label: '1-on-1 Video Call' },
   { value: 'custom-verse', label: 'Custom Verse / Feature' },
@@ -210,7 +218,7 @@ export function ShopManager() {
         access_level: 'public',
         is_free: formData.isFree,
         allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
-        delivery_type: productType === 'experience' ? 'scheduled' : 'instant',
+        delivery_type: productType === 'experience' ? 'scheduled' : productType === 'physical' ? 'shipped' : 'instant',
         file_url: fileUrl || (editingProduct?.file_url ?? null),
         duration_minutes: formData.durationField ? parseInt(formData.durationField) : null,
         max_quantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
@@ -374,6 +382,7 @@ export function ShopManager() {
       digital: 'bg-blue-500/20 text-blue-400',
       experience: 'bg-purple-500/20 text-purple-400',
       bundle: 'bg-crwn-gold/20 text-crwn-gold',
+      physical: 'bg-green-500/20 text-green-400',
     };
     return (
       <span className={`px-2 py-0.5 rounded text-xs font-medium ${colors[type]}`}>
@@ -389,7 +398,7 @@ export function ShopManager() {
     try {
       const extra = JSON.parse(match[1]);
       if (!extra.subcategory) return null;
-      const label = [...DIGITAL_SUBCATEGORIES, ...EXPERIENCE_SUBCATEGORIES].find(s => s.value === extra.subcategory)?.label;
+      const label = [...DIGITAL_SUBCATEGORIES, ...EXPERIENCE_SUBCATEGORIES, ...PHYSICAL_SUBCATEGORIES].find(s => s.value === extra.subcategory)?.label;
       return label ? (
         <span className="px-2 py-0.5 rounded text-xs bg-crwn-elevated text-crwn-text-secondary">
           {label}
@@ -436,7 +445,7 @@ export function ShopManager() {
 
             {/* Type Selector */}
             <div className="flex gap-2 mb-6">
-              {(['digital', 'experience', 'bundle'] as ProductType[]).filter(t => t !== 'bundle' || platformLimits.limits.bundles).map((type) => (
+              {(['digital', 'experience', 'bundle', 'physical'] as ProductType[]).filter(t => t !== 'bundle' || platformLimits.limits.bundles).map((type) => (
                 <button
                   key={type}
                   onClick={() => { setProductType(type); setSubcategory(''); }}
@@ -465,6 +474,9 @@ export function ShopManager() {
                     <option key={cat.value} value={cat.value}>{cat.label}</option>
                   ))}
                   {productType === 'experience' && EXPERIENCE_SUBCATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                  {productType === 'physical' && PHYSICAL_SUBCATEGORIES.map((cat) => (
                     <option key={cat.value} value={cat.value}>{cat.label}</option>
                   ))}
                 </select>

@@ -208,6 +208,18 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const fanCity = address?.city || null;
   const fanState = address?.state || null;
   const fanCountryCode = address?.country || null;
+
+  // Extract shipping address for physical products
+  const shippingDetails = (session as unknown as { shipping_details?: { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; postal_code?: string; country?: string } } }).shipping_details;
+  const shippingAddress = shippingDetails ? {
+    name: shippingDetails.name || '',
+    line1: shippingDetails.address?.line1 || '',
+    line2: shippingDetails.address?.line2 || '',
+    city: shippingDetails.address?.city || '',
+    state: shippingDetails.address?.state || '',
+    postal_code: shippingDetails.address?.postal_code || '',
+    country: shippingDetails.address?.country || '',
+  } : null;
   
   // Map country code to full name
   const countryNames: Record<string, string> = {
@@ -673,6 +685,18 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
   const fanCity = address?.city || null;
   const fanState = address?.state || null;
   const fanCountryCode = address?.country || null;
+
+  // Extract shipping address for physical products
+  const shippingDetails = (session as unknown as { shipping_details?: { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; postal_code?: string; country?: string } } }).shipping_details;
+  const shippingAddress = shippingDetails ? {
+    name: shippingDetails.name || '',
+    line1: shippingDetails.address?.line1 || '',
+    line2: shippingDetails.address?.line2 || '',
+    city: shippingDetails.address?.city || '',
+    state: shippingDetails.address?.state || '',
+    postal_code: shippingDetails.address?.postal_code || '',
+    country: shippingDetails.address?.country || '',
+  } : null;
   
   // Map country code to full name
   const countryNames: Record<string, string> = {
@@ -727,6 +751,7 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       amount: product.price,
       status: 'completed',
       purchased_at: new Date().toISOString(),
+      ...(shippingAddress && { shipping_address: shippingAddress }),
     })
     .select()
     .single();
@@ -892,6 +917,18 @@ async function handleBookingPurchase(session: Stripe.Checkout.Session) {
   const fanCity = address?.city || null;
   const fanState = address?.state || null;
   const fanCountryCode = address?.country || null;
+
+  // Extract shipping address for physical products
+  const shippingDetails = (session as unknown as { shipping_details?: { name?: string; address?: { line1?: string; line2?: string; city?: string; state?: string; postal_code?: string; country?: string } } }).shipping_details;
+  const shippingAddress = shippingDetails ? {
+    name: shippingDetails.name || '',
+    line1: shippingDetails.address?.line1 || '',
+    line2: shippingDetails.address?.line2 || '',
+    city: shippingDetails.address?.city || '',
+    state: shippingDetails.address?.state || '',
+    postal_code: shippingDetails.address?.postal_code || '',
+    country: shippingDetails.address?.country || '',
+  } : null;
   
   // Map country code to full name
   const countryNames: Record<string, string> = {
