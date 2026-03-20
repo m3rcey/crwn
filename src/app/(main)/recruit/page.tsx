@@ -159,7 +159,7 @@ export default function RecruitPitchPage() {
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-[#666] mt-4 text-center">Recurring commissions are based on the artist's monthly subscription fee to CRWN (Pro $49, Label $149, Empire $349). Artists must stay 30 days to qualify.</p>
+        <p className="text-xs text-[#666] mt-4 text-center">Recurring commissions are based on the artist's monthly subscription fee to CRWN (Pro $50, Label $150, Empire $350). Artists must stay 30 days to qualify.</p>
       </div>
       <div className="max-w-4xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-8 items-center">

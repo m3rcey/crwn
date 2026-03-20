@@ -38,8 +38,8 @@ export default function ArtistAgreementPage() {
             </thead>
             <tbody>
               <tr className="border-t border-crwn-elevated"><td className="p-3">Starter</td><td className="p-3">8%</td><td className="p-3">Free</td></tr>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Pro</td><td className="p-3">8%</td><td className="p-3">$49/month</td></tr>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Label</td><td className="p-3">6%</td><td className="p-3">$149/month</td></tr>
+              <tr className="border-t border-crwn-elevated"><td className="p-3">Pro</td><td className="p-3">8%</td><td className="p-3">$50/month</td></tr>
+              <tr className="border-t border-crwn-elevated"><td className="p-3">Label</td><td className="p-3">6%</td><td className="p-3">$150/month</td></tr>
               <tr className="border-t border-crwn-elevated"><td className="p-3">Founding Artist</td><td className="p-3">5%</td><td className="p-3">Free (1 year)</td></tr>
             </tbody>
           </table>

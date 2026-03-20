@@ -1,8 +1,8 @@
 // Platform Tier Pricing
 export const TIER_PRICING = {
-  pro: { monthly: 4900, annual: 44100, monthlyDisplay: 49, annualMonthlyDisplay: 37, annualTotal: 441, savings: 147 },
-  label: { monthly: 14900, annual: 134100, monthlyDisplay: 149, annualMonthlyDisplay: 112, annualTotal: 1341, savings: 447 },
-  empire: { monthly: 34900, annual: 314100, monthlyDisplay: 349, annualMonthlyDisplay: 262, annualTotal: 3141, savings: 1047 },
+  pro: { monthly: 5000, annual: 44400, monthlyDisplay: 50, annualMonthlyDisplay: 37, annualTotal: 444, savings: 156 },
+  label: { monthly: 15000, annual: 134400, monthlyDisplay: 150, annualMonthlyDisplay: 112, annualTotal: 1344, savings: 456 },
+  empire: { monthly: 35000, annual: 314400, monthlyDisplay: 350, annualMonthlyDisplay: 262, annualTotal: 3144, savings: 956 },
 } as const;
 
 export const STRIPE_PRICE_IDS = {
