@@ -17,9 +17,10 @@ interface ShopSectionProps {
   products: Product[];
   artistId: string;
   artistSlug: string;
+  merchStoreUrl?: string | null;
 }
 
-export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps) {
+export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: ShopSectionProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
@@ -100,6 +101,19 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
     }
   };
 
+  const merchButton = merchStoreUrl ? (
+    <a
+      href={merchStoreUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 font-medium text-sm hover:bg-green-500/20 transition-colors mb-6"
+    >
+      <span>🛍️</span>
+      Visit Merch Store
+      <span className="text-xs opacity-60">↗</span>
+    </a>
+  ) : null;
+
   const getTypeBadge = (type: ProductType) => {
     const colors: Record<ProductType, string> = {
       digital: 'bg-blue-500/20 text-blue-400',
@@ -114,7 +128,12 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
     );
   };
 
-  if (products.length === 0) return <EmptyState icon="🛍️" title="Shop Coming Soon" description="This artist hasn't added any products yet." />;
+  if (products.length === 0) {
+    if (merchStoreUrl) {
+      return <section className="mb-8"><h2 className="text-xl font-semibold text-crwn-text mb-4">Shop</h2>{merchButton}</section>;
+    }
+    return <EmptyState icon="🛍️" title="Shop Coming Soon" description="This artist hasn't added any products yet." />;
+  }
 
   return (
     <section className="mb-8">
@@ -163,6 +182,7 @@ export function ShopSection({ products, artistId, artistSlug }: ShopSectionProps
       )}
 
       <h2 className="text-xl font-semibold text-crwn-text mb-4">Shop</h2>
+      {merchButton}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((product) => {
           const hasPurchased = purchasedIds.has(product.id);

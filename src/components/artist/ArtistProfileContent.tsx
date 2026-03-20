@@ -27,6 +27,7 @@ interface ArtistProfileContentProps {
     slug: string;
     tagline: string | null;
     banner_url: string | null;
+    merch_store_url?: string | null;
     is_verified: boolean;
     profile: {
       display_name: string | null;
@@ -171,7 +172,7 @@ export function ArtistProfileContent({
           </section>
         )}
         {activeTab === 'shop' && (
-          <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} />
+          <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} merchStoreUrl={artist.merch_store_url} />
         )}
 
         {activeTab === 'leaderboard' && (

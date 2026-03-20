@@ -28,6 +28,7 @@ interface ArtistFormData {
   banner_url: string;
   social_links: Record<string, string>;
   calendar_link?: string | null;
+  merch_store_url?: string | null;
   city?: string;
   state?: string;
   genres: string[];
@@ -50,6 +51,7 @@ export function ArtistProfileForm() {
     banner_url: '',
     social_links: profile?.social_links || {},
     calendar_link: null,
+    merch_store_url: null,
     city: '',
     state: '',
     genres: [],
@@ -91,6 +93,7 @@ export function ArtistProfileForm() {
       banner_url: data?.banner_url || '',
       social_links: profile?.social_links || prev.social_links || {},
       calendar_link: data?.calendar_link || null,
+      merch_store_url: data?.merch_store_url || null,
       city: data?.city || '',
       state: data?.state || '',
       genres: data?.genres || [],
@@ -141,6 +144,7 @@ export function ArtistProfileForm() {
             tagline: formData.tagline,
             banner_url: formData.banner_url,
             calendar_link: formData.calendar_link,
+            merch_store_url: formData.merch_store_url,
             city: formData.city,
             state: formData.state,
             genres: formData.genres,
@@ -156,6 +160,7 @@ export function ArtistProfileForm() {
             tagline: formData.tagline,
             banner_url: formData.banner_url,
             calendar_link: formData.calendar_link,
+            merch_store_url: formData.merch_store_url,
             city: formData.city,
             state: formData.state,
             genres: formData.genres,
