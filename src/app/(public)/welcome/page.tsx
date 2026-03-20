@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { Crown } from 'lucide-react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 export default function WelcomePage() {
@@ -16,6 +17,9 @@ export default function WelcomePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
+  const [showFoundingModal, setShowFoundingModal] = useState(false);
+  const [foundingNumber, setFoundingNumber] = useState(0);
+  const [trialEndDate, setTrialEndDate] = useState('');
 
   // Send welcome email once
   useEffect(() => {
@@ -78,20 +82,49 @@ export default function WelcomePage() {
             });
         }
 
-        // Trigger founding artist assignment
-        await fetch('/api/founding-artist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: user.id }),
-        }).catch(console.error);
+        // Check founding artist availability and show modal
+        const countRes = await fetch('/api/founding-artist');
+        const countData = await countRes.json();
+        if (countData.spotsLeft > 0) {
+          const date = new Date();
+          date.setMonth(date.getMonth() + 3);
+          setFoundingNumber((countData.foundingArtists || 0) + 1);
+          setTrialEndDate(date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+          setShowFoundingModal(true);
+          setIsSubmitting(false);
+          return;
+        }
       }
-
       // Redirect to home (tour will fire based on role)
       router.push('/home');
     } catch (err) {
       console.error('Onboarding error:', err);
       setIsSubmitting(false);
     }
+  };
+
+  const handleFoundingContinue = async () => {
+    setIsSubmitting(true);
+    try {
+      const faRes = await fetch('/api/founding-artist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user!.id }),
+      });
+      const faData = await faRes.json();
+      if (faData.url) {
+        window.location.href = faData.url;
+        return;
+      }
+    } catch (err) {
+      console.error('Founding checkout error:', err);
+    }
+    router.push('/home');
+  };
+
+  const handleFoundingSkip = () => {
+    setShowFoundingModal(false);
+    router.push('/home');
   };
 
   if (!user || !hasCheckedProfile) {
@@ -104,6 +137,52 @@ export default function WelcomePage() {
 
   return (
     <div className="min-h-screen bg-crwn-bg flex items-center justify-center p-4">
+
+      {/* Founding Artist Modal */}
+      {showFoundingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" />
+          <div className="relative neu-modal p-8 max-w-md w-full text-center" style={{ animation: 'fadeInUp 0.3s ease-out' }}>
+            <div className="w-16 h-16 rounded-full bg-crwn-gold/10 flex items-center justify-center mx-auto mb-4">
+              <Crown className="w-8 h-8 text-crwn-gold" />
+            </div>
+            <h2 className="text-2xl font-bold text-crwn-text mb-2">
+              {"You\u2019re Founding Artist #"}{foundingNumber}!
+            </h2>
+            <div className="space-y-3 text-left bg-[#1a1a1a] rounded-xl p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <span className="text-crwn-gold text-lg">\u2713</span>
+                <p className="text-crwn-text-secondary text-sm">3 months of Pro completely free</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-crwn-gold text-lg">\u2713</span>
+                <p className="text-crwn-text-secondary text-sm">5% platform fee for your entire first year (instead of 8%)</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-crwn-gold text-lg">\u2713</span>
+                <p className="text-crwn-text-secondary text-sm">Permanent Founding Artist badge on your profile</p>
+              </div>
+            </div>
+            <p className="text-crwn-text-dim text-xs mb-6">
+              You won't be charged until {trialEndDate}. Just need a card on file.
+            </p>
+            <button
+              onClick={handleFoundingContinue}
+              disabled={isSubmitting}
+              className="w-full neu-button-accent py-3 text-crwn-bg font-semibold rounded-full press-scale mb-3"
+            >
+              {isSubmitting ? 'Loading...' : 'Continue to Payment'}
+            </button>
+            <button
+              onClick={handleFoundingSkip}
+              className="text-crwn-text-dim text-sm hover:text-crwn-text-secondary transition-colors"
+            >
+              Skip for now
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="w-full max-w-md page-fade-in">
         <div className="neu-raised p-8 rounded-xl">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/20 flex items-center justify-center">
