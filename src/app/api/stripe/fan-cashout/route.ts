@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,64 +28,63 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Stripe not connected. Set up payouts first.' }, { status: 400 });
     }
 
-    const { data: earnings } = await supabase
-      .from('referral_earnings')
-      .select('commission_amount')
-      .eq('referrer_fan_id', user.id);
+    // Atomic balance check + payout insert (prevents race condition)
+    const { data: payoutId } = await supabaseAdmin.rpc('atomic_fan_cashout', {
+      p_fan_id: user.id,
+      p_min_amount: 2500,
+    });
 
-    const totalEarnings = (earnings || []).reduce((sum, e) => sum + (e.commission_amount || 0), 0);
-
-    const { data: payouts } = await supabase
-      .from('fan_payouts')
-      .select('amount')
-      .eq('fan_id', user.id)
-      .eq('status', 'completed');
-
-    const totalPaidOut = (payouts || []).reduce((sum, p) => sum + (p.amount || 0), 0);
-    const availableBalance = totalEarnings - totalPaidOut;
-
-    if (availableBalance < 2500) {
+    if (!payoutId) {
       return NextResponse.json({
-        error: `Minimum cashout is $25.00. Your balance is $${(availableBalance / 100).toFixed(2)}.`
+        error: 'Minimum cashout is $25.00 or cashout already in progress.'
       }, { status: 400 });
     }
 
-    const { data: payout, error: payoutError } = await supabase
+    // Get the payout record to know the amount
+    const { data: payout } = await supabaseAdmin
       .from('fan_payouts')
-      .insert({
-        fan_id: user.id,
-        amount: availableBalance,
-        status: 'pending',
-      })
-      .select()
+      .select('id, amount')
+      .eq('id', payoutId)
       .single();
 
-    if (payoutError) throw payoutError;
+    if (!payout) {
+      return NextResponse.json({ error: 'Payout record not found' }, { status: 500 });
+    }
 
-    const transfer = await stripe.transfers.create({
-      amount: availableBalance,
-      currency: 'usd',
-      destination: profile.stripe_connect_id,
-      metadata: {
-        fan_id: user.id,
-        payout_id: payout.id,
-        type: 'fan_referral_cashout',
-      },
-    });
+    try {
+      const transfer = await stripe.transfers.create({
+        amount: payout.amount,
+        currency: 'usd',
+        destination: profile.stripe_connect_id,
+        metadata: {
+          fan_id: user.id,
+          payout_id: payout.id,
+          type: 'fan_referral_cashout',
+        },
+      });
 
-    await supabase
-      .from('fan_payouts')
-      .update({
-        stripe_transfer_id: transfer.id,
-        status: 'completed',
-      })
-      .eq('id', payout.id);
+      await supabaseAdmin
+        .from('fan_payouts')
+        .update({
+          stripe_transfer_id: transfer.id,
+          status: 'completed',
+        })
+        .eq('id', payout.id);
 
-    return NextResponse.json({
-      success: true,
-      amount: availableBalance,
-      transferId: transfer.id,
-    });
+      return NextResponse.json({
+        success: true,
+        amount: payout.amount,
+        transferId: transfer.id,
+      });
+    } catch (stripeErr) {
+      // Stripe transfer failed — mark payout as failed so balance isn't stuck
+      await supabaseAdmin
+        .from('fan_payouts')
+        .update({ status: 'failed' })
+        .eq('id', payout.id);
+
+      throw stripeErr;
+    }
   } catch (error) {
     console.error('Fan cashout error:', error);
     return NextResponse.json({ error: 'Failed to process cashout' }, { status: 500 });
