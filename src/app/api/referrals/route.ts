@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,10 +8,14 @@ const supabaseAdmin = createClient(
 );
 
 export async function GET(req: NextRequest) {
-  const fanId = req.nextUrl.searchParams.get('fanId');
-  if (!fanId) {
-    return NextResponse.json({ error: 'Missing fanId' }, { status: 400 });
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const fanId = user.id;
 
   // Get all referrals by this fan
   const { data: referrals } = await supabaseAdmin

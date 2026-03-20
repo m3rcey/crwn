@@ -5,14 +5,22 @@ import { getArtistFeePercent } from '@/lib/platformTier';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tierId, fanId, referralCode, interval } = await req.json();
+    const { tierId, referralCode, interval } = await req.json();
     const supabase = await createServerSupabaseClient();
 
-    // Get tier details
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const fanId = user.id;
+
+    // Get tier details — only active tiers
     const { data: tier, error: tierError } = await supabase
       .from('subscription_tiers')
       .select('*, artist:artist_profiles(stripe_connect_id, user_id, slug, platform_tier), stripe_annual_price_id')
       .eq('id', tierId)
+      .eq('is_active', true)
       .single();
 
     if (tierError || !tier) {
@@ -35,8 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get fan email from auth
-    const { data: { user: authUser } } = await supabase.auth.admin.getUserById(fanId);
-    const fanEmail = authUser?.email || '';
+    const fanEmail = user.email || '';
 
     // Create or retrieve Stripe customer
     const existingCustomers = await stripe.customers.list({

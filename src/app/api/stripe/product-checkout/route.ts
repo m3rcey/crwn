@@ -8,12 +8,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createServerSupabaseClient();
-    const body = await request.json();
-    const { productId, fanId } = body;
 
-    if (!productId || !fanId) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const fanId = user.id;
+    const body = await request.json();
+    const { productId } = body;
+
+    if (!productId) {
       return NextResponse.json(
-        { error: 'Missing productId or fanId' },
+        { error: 'Missing productId' },
         { status: 400 }
       );
     }
@@ -30,6 +37,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
+      );
+    }
+
+    // Check if product has expired
+    if (product.expires_at && new Date(product.expires_at) < new Date()) {
+      return NextResponse.json(
+        { error: 'This product is no longer available' },
+        { status: 400 }
+      );
+    }
+
+    // Check if product is sold out
+    if (product.max_quantity && product.quantity_sold >= product.max_quantity) {
+      return NextResponse.json(
+        { error: 'This product is sold out' },
+        { status: 400 }
       );
     }
 
@@ -104,8 +127,8 @@ export async function POST(request: NextRequest) {
           artist_id: product.artist_id,
         },
       },
-      success_url: `${request.headers.get('origin')}/${artist.slug}?purchase=success&product=${productId}`,
-      cancel_url: `${request.headers.get('origin')}/${artist.slug}?purchase=cancelled`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=success&product=${productId}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=cancelled`,
       metadata: {
         fan_id: fanId,
         product_id: productId,

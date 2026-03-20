@@ -89,7 +89,6 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tierId: tier.id,
-          fanId: user.id,
           artistSlug,
           referralCode,
           interval: billingInterval,
@@ -233,7 +232,6 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tierId: tier.id,
-          fanId: user.id,
           artistSlug,
           referralCode,
           interval: billingInterval,

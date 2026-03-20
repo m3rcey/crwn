@@ -4,13 +4,17 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { fanId } = await req.json();
     const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_connect_id')
-      .eq('id', fanId)
+      .eq('id', user.id)
       .single();
 
     if (!profile?.stripe_connect_id) {
@@ -20,14 +24,14 @@ export async function POST(req: NextRequest) {
     const { data: earnings } = await supabase
       .from('referral_earnings')
       .select('commission_amount')
-      .eq('referrer_fan_id', fanId);
+      .eq('referrer_fan_id', user.id);
 
     const totalEarnings = (earnings || []).reduce((sum, e) => sum + (e.commission_amount || 0), 0);
 
     const { data: payouts } = await supabase
       .from('fan_payouts')
       .select('amount')
-      .eq('fan_id', fanId)
+      .eq('fan_id', user.id)
       .eq('status', 'completed');
 
     const totalPaidOut = (payouts || []).reduce((sum, p) => sum + (p.amount || 0), 0);
@@ -42,7 +46,7 @@ export async function POST(req: NextRequest) {
     const { data: payout, error: payoutError } = await supabase
       .from('fan_payouts')
       .insert({
-        fan_id: fanId,
+        fan_id: user.id,
         amount: availableBalance,
         status: 'pending',
       })
@@ -56,7 +60,7 @@ export async function POST(req: NextRequest) {
       currency: 'usd',
       destination: profile.stripe_connect_id,
       metadata: {
-        fan_id: fanId,
+        fan_id: user.id,
         payout_id: payout.id,
         type: 'fan_referral_cashout',
       },

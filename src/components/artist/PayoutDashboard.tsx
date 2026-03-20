@@ -121,7 +121,7 @@ export function PayoutDashboard() {
           const response = await fetch('/api/stripe/login-link', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ accountId: artistProfile.stripe_connect_id }),
+            body: JSON.stringify({}),
           });
           
           if (response.ok) {
@@ -136,7 +136,7 @@ export function PayoutDashboard() {
           const balRes = await fetch('/api/stripe/balance', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ accountId: artistProfile.stripe_connect_id }),
+            body: JSON.stringify({}),
           });
           if (balRes.ok) {
             const { available } = await balRes.json();
@@ -250,7 +250,7 @@ export function PayoutDashboard() {
       const res = await fetch('/api/stripe/cashout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artistId, userId: user.id }),
+        body: JSON.stringify({}),
       });
       const data = await res.json();
       if (!res.ok) {

@@ -4,48 +4,53 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const artistId = searchParams.get('artist_id');
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!artistId) {
-      return NextResponse.json({ error: 'Artist ID required' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const supabase = await createServerSupabaseClient();
-
-    // Get artist profile
+    // Get artist profile owned by this user
     const { data: artist, error } = await supabase
       .from('artist_profiles')
-      .select('id, slug')
-      .eq('id', artistId)
+      .select('id, slug, stripe_connect_id')
+      .eq('user_id', user.id)
       .single();
 
     if (error || !artist) {
       return NextResponse.json({ error: 'Artist not found' }, { status: 404 });
     }
 
-    // Create Stripe Connect account
-    const account = await stripe.accounts.create({
-      type: 'express',
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true },
-      },
-      business_type: 'individual',
-      metadata: {
-        artist_id: artist.id,
-      },
-    });
+    // If already has a Connect account, just create a new onboarding link
+    let accountId = artist.stripe_connect_id;
 
-    // Save Stripe account ID
-    await supabase
-      .from('artist_profiles')
-      .update({ stripe_connect_id: account.id })
-      .eq('id', artist.id);
+    if (!accountId) {
+      // Create Stripe Connect account
+      const account = await stripe.accounts.create({
+        type: 'express',
+        capabilities: {
+          card_payments: { requested: true },
+          transfers: { requested: true },
+        },
+        business_type: 'individual',
+        metadata: {
+          artist_id: artist.id,
+        },
+      });
+
+      accountId = account.id;
+
+      // Save Stripe account ID
+      await supabase
+        .from('artist_profiles')
+        .update({ stripe_connect_id: account.id })
+        .eq('id', artist.id);
+    }
 
     // Create account link for onboarding
     const accountLink = await stripe.accountLinks.create({
-      account: account.id,
+      account: accountId,
       refresh_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/artist?stripe=refresh`,
       return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/artist?stripe=success`,
       type: 'account_onboarding',

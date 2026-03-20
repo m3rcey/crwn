@@ -4,23 +4,22 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { fanId } = await req.json();
     const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { data: profile } = await supabase
       .from('profiles')
       .select('stripe_connect_id, display_name')
-      .eq('id', fanId)
+      .eq('id', user.id)
       .single();
 
     if (profile?.stripe_connect_id) {
       const loginLink = await stripe.accounts.createLoginLink(profile.stripe_connect_id);
       return NextResponse.json({ url: loginLink.url });
-    }
-
-    const { data: { user } } = await supabase.auth.admin.getUserById(fanId);
-    if (!user?.email) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const account = await stripe.accounts.create({
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
         transfers: { requested: true },
       },
       metadata: {
-        fan_id: fanId,
+        fan_id: user.id,
         type: 'fan',
       },
     });
@@ -38,7 +37,7 @@ export async function POST(req: NextRequest) {
     await supabase
       .from('profiles')
       .update({ stripe_connect_id: account.id })
-      .eq('id', fanId);
+      .eq('id', user.id);
 
     const accountLink = await stripe.accountLinks.create({
       account: account.id,

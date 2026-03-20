@@ -3,10 +3,24 @@ import { resend, FROM_EMAIL } from '@/lib/resend';
 import { welcomeEmail } from '@/lib/emails/welcome';
 import { subscriptionEmail } from '@/lib/emails/subscription';
 import { artistTierEmail } from '@/lib/emails/artistTier';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, to, displayName, artistName, tierName } = await req.json();
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { type, displayName, artistName, tierName } = await req.json();
+
+    // Only allow sending to the authenticated user's own email
+    const to = user.email;
+    if (!to) {
+      return NextResponse.json({ error: 'No email on account' }, { status: 400 });
+    }
 
     let subject: string;
     let html: string;

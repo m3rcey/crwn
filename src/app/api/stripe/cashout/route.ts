@@ -1,28 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 const CASHOUT_FEE_CENTS = 200;
 
 export async function POST(req: NextRequest) {
   try {
-    const { artistId, userId } = await req.json();
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!artistId || !userId) {
-      return NextResponse.json({ error: 'Missing artistId or userId' }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: artist } = await supabaseAdmin
+    const { data: artist } = await supabase
       .from('artist_profiles')
-      .select('stripe_connect_id')
-      .eq('id', artistId)
-      .eq('user_id', userId)
+      .select('id, stripe_connect_id')
+      .eq('user_id', user.id)
       .single();
 
     if (!artist?.stripe_connect_id) {

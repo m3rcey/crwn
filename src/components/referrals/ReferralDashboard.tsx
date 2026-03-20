@@ -39,7 +39,7 @@ export function ReferralDashboard() {
   useEffect(() => {
     if (!user) return;
 
-    fetch(`/api/referrals?fanId=${user.id}`)
+    fetch('/api/referrals')
       .then(res => res.json())
       .then(result => {
         if (!result.error) setData(result);
@@ -55,7 +55,7 @@ export function ReferralDashboard() {
       const res = await fetch('/api/stripe/fan-connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fanId: user.id }),
+        body: JSON.stringify({}),
       });
       const result = await res.json();
       if (result.url) {
@@ -81,7 +81,7 @@ export function ReferralDashboard() {
       const res = await fetch('/api/stripe/fan-cashout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fanId: user.id }),
+        body: JSON.stringify({}),
       });
       const result = await res.json();
       if (result.success) {
