@@ -167,6 +167,18 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge;
+        await handleChargeRefunded(charge);
+        break;
+      }
+
+      case 'charge.dispute.created': {
+        const dispute = event.data.object as Stripe.Dispute;
+        await handleDisputeCreated(dispute);
+        break;
+      }
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -1212,3 +1224,113 @@ async function handlePlatformInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   console.log('Platform payment failed:', { artist_id: artist.id });
 }
+
+// Handle refunds — write negative earnings to adjust artist balance
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  const paymentIntentId = charge.payment_intent as string;
+  if (!paymentIntentId) return;
+
+  const amountRefunded = charge.amount_refunded;
+  console.log('Charge refunded:', paymentIntentId, 'amount:', amountRefunded);
+
+  // Find the original earning by stripe_payment_id
+  const { data: originalEarning } = await supabaseAdmin
+    .from('earnings')
+    .select('id, artist_id, fan_id, net_amount, gross_amount, platform_fee, type, description')
+    .eq('stripe_payment_id', paymentIntentId)
+    .maybeSingle();
+
+  if (!originalEarning) {
+    console.log('No earning found for refunded payment:', paymentIntentId);
+    return;
+  }
+
+  // Calculate refund proportions
+  const refundRatio = amountRefunded / originalEarning.gross_amount;
+  const refundedNet = Math.round(originalEarning.net_amount * refundRatio);
+  const refundedFee = Math.round(originalEarning.platform_fee * refundRatio);
+
+  // Write negative earnings record
+  await supabaseAdmin
+    .from('earnings')
+    .insert({
+      artist_id: originalEarning.artist_id,
+      fan_id: originalEarning.fan_id,
+      type: 'refund',
+      description: `Refund: ${originalEarning.description}`,
+      gross_amount: -amountRefunded,
+      platform_fee: -refundedFee,
+      net_amount: -refundedNet,
+      stripe_payment_id: paymentIntentId + '_refund',
+      metadata: {
+        original_earning_id: originalEarning.id,
+        refund_amount: amountRefunded,
+      },
+    });
+
+  // Update purchase status if it was a product purchase
+  if (originalEarning.type === 'purchase') {
+    await supabaseAdmin
+      .from('purchases')
+      .update({ status: 'refunded', updated_at: new Date().toISOString() })
+      .eq('stripe_payment_intent_id', paymentIntentId);
+  }
+
+  // Notify artist
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', originalEarning.artist_id)
+    .single();
+
+  if (artistProfile) {
+    await supabaseAdmin.from('notifications').insert({
+      user_id: artistProfile.user_id,
+      type: 'refund',
+      title: '⚠️ Refund processed',
+      message: `$${(amountRefunded / 100).toFixed(2)} refunded — ${originalEarning.description}`,
+      link: '/profile/artist?tab=payouts',
+    });
+  }
+
+  console.log('Refund recorded:', { artistId: originalEarning.artist_id, amount: amountRefunded });
+}
+
+// Handle disputes — flag and notify artist
+async function handleDisputeCreated(dispute: Stripe.Dispute) {
+  const paymentIntentId = dispute.payment_intent as string;
+  const disputeAmount = dispute.amount;
+  console.log('Dispute created:', paymentIntentId, 'amount:', disputeAmount);
+
+  // Find the original earning
+  const { data: originalEarning } = await supabaseAdmin
+    .from('earnings')
+    .select('id, artist_id, description')
+    .eq('stripe_payment_id', paymentIntentId)
+    .maybeSingle();
+
+  if (!originalEarning) {
+    console.log('No earning found for disputed payment:', paymentIntentId);
+    return;
+  }
+
+  // Notify artist of dispute
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', originalEarning.artist_id)
+    .single();
+
+  if (artistProfile) {
+    await supabaseAdmin.from('notifications').insert({
+      user_id: artistProfile.user_id,
+      type: 'dispute',
+      title: '🚨 Payment dispute opened',
+      message: `$${(disputeAmount / 100).toFixed(2)} disputed — ${originalEarning.description}. Funds may be held.`,
+      link: '/profile/artist?tab=payouts',
+    });
+  }
+
+  console.log('Dispute notification sent:', { artistId: originalEarning.artist_id, amount: disputeAmount });
+}
+
