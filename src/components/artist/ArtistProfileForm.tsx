@@ -1,4 +1,5 @@
 'use client';
+import { validateUpload } from '@/lib/uploadValidation';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';

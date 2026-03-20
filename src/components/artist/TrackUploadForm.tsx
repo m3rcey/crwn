@@ -1,4 +1,5 @@
 'use client';
+import { validateUpload } from '@/lib/uploadValidation';
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -332,6 +333,14 @@ export function TrackUploadForm() {
         const progressInterval = setInterval(() => {
           setUploadProgress(prev => Math.min(prev + 10, 90));
         }, 500);
+
+        // Validate audio file
+        const audioCheck = validateUpload(formData.audioFile, 'audio');
+        if (!audioCheck.valid) {
+          showToast(audioCheck.error || 'Invalid audio file', 'error');
+          setIsUploading(false);
+          return;
+        }
 
         // Upload audio to Supabase Storage
         const audioExt = formData.audioFile.name.split('.').pop();

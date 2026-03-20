@@ -1,4 +1,5 @@
 'use client';
+import { validateUpload } from '@/lib/uploadValidation';
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -59,6 +60,12 @@ export function PostCreator({ artistCommunityId, onPostCreated }: PostCreatorPro
     
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      const category = file.type.startsWith('video') ? 'video' as const : 'image' as const;
+      const check = validateUpload(file, category);
+      if (!check.valid) {
+        showToast(check.error || 'Invalid file', 'error');
+        continue;
+      }
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${i}.${fileExt}`;
       const filePath = `community/${artistCommunityId}/${user?.id}/${fileName}`;

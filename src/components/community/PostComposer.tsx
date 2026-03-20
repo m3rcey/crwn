@@ -1,4 +1,5 @@
 'use client';
+import { validateUpload } from '@/lib/uploadValidation';
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -224,6 +225,12 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
       for (let i = 0; i < mediaFiles.length; i++) {
         setCurrentUploadIndex(i);
         const file = mediaFiles[i];
+        const cat = file.type.startsWith('video') ? 'video' as const : 'image' as const;
+        const check = validateUpload(file, cat);
+        if (!check.valid) {
+          setError(check.error || 'Invalid file');
+          continue;
+        }
         const ext = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random()}.${ext}`;
         const path = `${artistId}/${fileName}`;
