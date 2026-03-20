@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -13,6 +14,11 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const allowed = await checkRateLimit(user.id, 'cashout', 60, 1);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Please wait before trying again' }, { status: 429 });
     }
 
     const { data: artist } = await supabase

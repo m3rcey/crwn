@@ -4,6 +4,7 @@ import { welcomeEmail } from '@/lib/emails/welcome';
 import { subscriptionEmail } from '@/lib/emails/subscription';
 import { artistTierEmail } from '@/lib/emails/artistTier';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +13,11 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const allowed = await checkRateLimit(user.id, 'email', 60, 3);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please wait.' }, { status: 429 });
     }
 
     const { type, displayName, artistName, tierName } = await req.json();

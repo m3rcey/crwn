@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -14,6 +15,11 @@ export async function POST(req: NextRequest) {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const allowed = await checkRateLimit(user.id, 'notify-subscribers', 60, 5);
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many notifications. Please wait.' }, { status: 429 });
   }
 
   const body = await req.json();
