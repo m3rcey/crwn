@@ -1,75 +1,138 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 const FOUNDING_LIMIT = 500;
-
 export async function POST(req: NextRequest) {
-  const { artistId } = await req.json();
+  try {
+    const { userId } = await req.json();
 
-  if (!artistId) {
-    return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
-  }
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
 
-  // Check if already a founding artist
-  const { data: existing } = await supabaseAdmin
-    .from('artist_profiles')
-    .select('is_founding_artist, founding_artist_number')
-    .eq('id', artistId)
-    .single();
+    // Look up artist profile
+    const { data: artist } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('id, is_founding_artist, founding_artist_number, user_id')
+      .eq('user_id', userId)
+      .single();
 
-  if (existing?.is_founding_artist) {
-    return NextResponse.json({
-      isFoundingArtist: true,
-      number: existing.founding_artist_number,
+    if (!artist) {
+      return NextResponse.json({ error: 'Artist profile not found' }, { status: 404 });
+    }
+
+    if (artist.is_founding_artist) {
+      return NextResponse.json({
+        isFoundingArtist: true,
+        number: artist.founding_artist_number,
+      });
+    }
+
+    // Count current founding artists
+    const { count } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_founding_artist', true);
+
+    const currentCount = count || 0;
+
+    if (currentCount >= FOUNDING_LIMIT) {
+      return NextResponse.json({ isFoundingArtist: false, spotsLeft: 0 });
+    }
+
+    const foundingNumber = currentCount + 1;
+
+    // Get user email for Stripe customer
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', userId)
+      .single();
+
+    const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const email = user?.email || '';
+
+    // Get or create Stripe customer
+    let customerId: string | undefined;
+    const { data: existingArtist } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('platform_stripe_customer_id')
+      .eq('id', artist.id)
+      .single();
+
+    customerId = existingArtist?.platform_stripe_customer_id;
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email,
+        name: profile?.display_name || email,
+        metadata: {
+          artist_id: artist.id,
+          user_id: userId,
+        },
+      });
+      customerId = customer.id;
+
+      await supabaseAdmin
+        .from('artist_profiles')
+        .update({ platform_stripe_customer_id: customerId })
+        .eq('id', artist.id);
+    }
+
+    // Create Stripe Checkout with 3-month trial
+    const priceId = process.env.STRIPE_CRWN_PRO_PRICE_ID;
+    if (!priceId) {
+      return NextResponse.json({ error: 'Pro price ID not configured' }, { status: 500 });
+    }
+
+    const trialEnd = new Date();
+    trialEnd.setMonth(trialEnd.getMonth() + 3);
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app';
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      subscription_data: {
+        trial_end: Math.floor(trialEnd.getTime() / 1000),
+      },
+      success_url: `${baseUrl}/home?founding=success`,
+      cancel_url: `${baseUrl}/home?founding=cancelled`,
+      metadata: {
+        artist_id: artist.id,
+        user_id: userId,
+        tier: 'pro',
+        founding_artist: 'true',
+        founding_number: foundingNumber.toString(),
+      },
     });
+
+    return NextResponse.json({
+      url: checkoutSession.url,
+      foundingNumber,
+      spotsLeft: FOUNDING_LIMIT - foundingNumber,
+    });
+  } catch (error) {
+    console.error('Founding artist checkout error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Checkout failed' },
+      { status: 500 }
+    );
   }
-
-  // Count current founding artists
-  const { count } = await supabaseAdmin
-    .from('artist_profiles')
-    .select('id', { count: 'exact', head: true })
-    .eq('is_founding_artist', true);
-
-  const currentCount = count || 0;
-
-  if (currentCount >= FOUNDING_LIMIT) {
-    return NextResponse.json({ isFoundingArtist: false, spotsLeft: 0 });
-  }
-
-  // Assign founding artist status
-  const foundingNumber = currentCount + 1;
-  const proExpiresAt = new Date();
-  proExpiresAt.setMonth(proExpiresAt.getMonth() + 3); // 3 months free Pro
-  const feeExpiresAt = new Date();
-  feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 12); // 12 months at 5% fee
-
-  const { error } = await supabaseAdmin
-    .from('artist_profiles')
-    .update({
-      is_founding_artist: true,
-      founding_artist_number: foundingNumber,
-      founding_artist_expires_at: proExpiresAt.toISOString(),
-      founding_fee_expires_at: feeExpiresAt.toISOString(),
-      platform_tier: 'pro', // Free Pro for founding artists
-    })
-    .eq('id', artistId);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({
-    isFoundingArtist: true,
-    number: foundingNumber,
-    spotsLeft: FOUNDING_LIMIT - foundingNumber,
-    proExpiresAt: proExpiresAt.toISOString(),
-    feeExpiresAt: feeExpiresAt.toISOString(),
-  });
 }
 
 // GET endpoint for artist count (used by homepage)

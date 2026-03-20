@@ -1009,14 +1009,32 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
     return;
   }
 
+  // Check if this is a founding artist checkout
+  const isFoundingArtist = session.metadata?.founding_artist === 'true';
+  const foundingNumber = session.metadata?.founding_number ? parseInt(session.metadata.founding_number) : null;
+
+  const updateData: Record<string, unknown> = {
+    platform_tier: tier,
+    platform_stripe_subscription_id: session.subscription as string,
+    platform_subscription_status: 'active',
+  };
+
+  if (isFoundingArtist && foundingNumber) {
+    const proExpiresAt = new Date();
+    proExpiresAt.setMonth(proExpiresAt.getMonth() + 3);
+    const feeExpiresAt = new Date();
+    feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 12);
+
+    updateData.is_founding_artist = true;
+    updateData.founding_artist_number = foundingNumber;
+    updateData.founding_artist_expires_at = proExpiresAt.toISOString();
+    updateData.founding_fee_expires_at = feeExpiresAt.toISOString();
+  }
+
   // Update artist profile with platform tier and subscription
   await supabaseAdmin
     .from('artist_profiles')
-    .update({
-      platform_tier: tier,
-      platform_stripe_subscription_id: session.subscription as string,
-      platform_subscription_status: 'active',
-    })
+    .update(updateData)
     .eq('id', artist_id);
 
   // Also update the user's profile
