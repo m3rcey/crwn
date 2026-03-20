@@ -151,6 +151,7 @@ export interface Product {
   max_quantity: number | null;
   quantity_sold: number;
   expires_at: string | null;
+  variants: { label: string; options: string[] }[] | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

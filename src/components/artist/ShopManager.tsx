@@ -70,6 +70,7 @@ export function ShopManager() {
     durationField: '',
     maxQuantity: '',
     expiresAt: '',
+    variants: [] as { label: string; options: string[] }[],
   });
 
   const [selectedBundleItems, setSelectedBundleItems] = useState<string[]>([]);
@@ -223,6 +224,7 @@ export function ShopManager() {
         duration_minutes: formData.durationField ? parseInt(formData.durationField) : null,
         max_quantity: formData.maxQuantity ? parseInt(formData.maxQuantity) : null,
         expires_at: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : null,
+        variants: productType === 'physical' && formData.variants.length > 0 ? formData.variants : null,
       };
 
       if (editingProduct) {
@@ -311,6 +313,7 @@ export function ShopManager() {
       productFile: null,
       productFileName: product.file_url ? product.file_url.split('/').pop() || 'Existing file' : '',
       maxQuantity: product.max_quantity?.toString() || '',
+      variants: product.variants || [],
       expiresAt: product.expires_at ? new Date(product.expires_at).toISOString().slice(0, 16) : '',
     });
 
@@ -374,6 +377,7 @@ export function ShopManager() {
       durationField: '',
       maxQuantity: '',
       expiresAt: '',
+      variants: [],
     });
   };
 

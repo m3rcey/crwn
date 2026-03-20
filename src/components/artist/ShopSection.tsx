@@ -29,6 +29,7 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
   const [isLoading, setIsLoading] = useState(false);
   const [successProduct, setSuccessProduct] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [variantSelections, setVariantSelections] = useState<Record<string, Record<string, string>>>({});
 
   // Check tier access
   const canAccessProduct = (product: Product) => {
@@ -74,6 +75,15 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
       showToast('Please sign in to purchase', 'warning');
       return;
     }
+    // Validate variant selections for physical products
+    if (product.type === 'physical' && product.variants && product.variants.length > 0) {
+      const selections = variantSelections[product.id] || {};
+      const missing = product.variants.filter((v: { label: string }) => !selections[v.label]);
+      if (missing.length > 0) {
+        showToast(`Please select ${missing.map((v: { label: string }) => v.label).join(', ')}`, 'warning');
+        return;
+      }
+    }
 
     setIsLoading(true);
     
@@ -83,6 +93,7 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           productId: product.id,
+          variantSelections: variantSelections[product.id] || undefined,
         }),
       });
       

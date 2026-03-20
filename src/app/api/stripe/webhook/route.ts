@@ -679,6 +679,7 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
   }
 
   const { product_id, fan_id, artist_id } = metadata;
+  const variantSelections = metadata.variant_selections ? JSON.parse(metadata.variant_selections) : null;
 
   // Extract geo data from Stripe session
   const address = (session as unknown as { customer_details?: { address?: { city?: string; state?: string; country?: string } } }).customer_details?.address;
@@ -752,6 +753,7 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
       status: 'completed',
       purchased_at: new Date().toISOString(),
       ...(shippingAddress && { shipping_address: shippingAddress }),
+      ...(variantSelections && { variant_selections: variantSelections }),
     })
     .select()
     .single();
