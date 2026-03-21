@@ -85,7 +85,8 @@ function PeriodToggle({ value, onChange }: { value: string; onChange: (v: 'daily
   );
 }
 
-export function AnalyticsDashboard() {
+export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?: string }) {
+  const isAdvanced = platformTier !== 'starter';
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [isLoading, setIsLoading] = useState(true);
@@ -259,7 +260,7 @@ export function AnalyticsDashboard() {
       </section>
 
       {/* ========== SUBSCRIBERS SECTION ========== */}
-      <section>
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-subscribers">Subscribers</h3>
         
         {/* Top Stats - Active, ARPU, Churn Rate, LTV */}
@@ -327,6 +328,14 @@ export function AnalyticsDashboard() {
         )}
       </section>
 
+      {!isAdvanced && (
+        <section className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-xl p-6 text-center">
+          <p className="text-lg font-bold text-crwn-text mb-1">Upgrade for Advanced Analytics</p>
+          <p className="text-sm text-crwn-text-secondary mb-4">Get ARPU, churn rate, LTV, top fans, geography, and subscriber trends with Pro.</p>
+          <a href="/profile/artist?tab=billing" className="inline-flex items-center gap-2 px-6 py-2.5 bg-crwn-gold text-black font-semibold rounded-full hover:brightness-110 transition-all press-scale">Upgrade to Pro</a>
+        </section>
+      )}
+
       {/* ========== PLAYS SECTION ========== */}
       <section>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-plays">Song Plays</h3>
@@ -358,7 +367,7 @@ export function AnalyticsDashboard() {
       </section>
 
       {/* ========== TOP FANS SECTION ========== */}
-      <section>
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-top-fans">Top Fans</h3>
         <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
           {analytics.topFans.length > 0 ? (
@@ -389,7 +398,7 @@ export function AnalyticsDashboard() {
       </section>
 
       {/* ========== FAN GEOGRAPHY SECTION ========== */}
-      <section>
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
         <h3 className="text-lg font-semibold text-crwn-text mb-4">
           Fan Geography
           <span className="text-xs text-crwn-text-secondary font-normal ml-2">Tour Planning</span>

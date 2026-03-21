@@ -132,7 +132,7 @@ function ArtistDashboardContent() {
     );
   }
 
-  const tabs = [
+  const allTabs = [
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
     { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
     { id: 'profile' as const, label: 'Profile', tourId: 'tab-profile' },
@@ -144,6 +144,7 @@ function ArtistDashboardContent() {
     { id: 'payouts' as const, label: 'Payouts', tourId: 'tab-payouts' },
     { id: 'referrals' as const, label: 'Referrals', tourId: 'tab-referrals' },
   ];
+  const tabs = allTabs.filter(t => t.id !== 'referrals' || platformTier !== 'starter');
 
   return (
     <div className="relative min-h-screen">
@@ -213,7 +214,7 @@ function ArtistDashboardContent() {
           {activeTab === 'shop' && <ShopManager />}
           {activeTab === 'billing' && <PlatformBilling />}
 
-          {activeTab === 'analytics' && <AnalyticsDashboard />}
+          {activeTab === 'analytics' && <AnalyticsDashboard platformTier={platformTier} />}
           {activeTab === 'sync' && artistId && (
             <SyncDashboard artistId={artistId} platformTier={platformTier} />
           )}
