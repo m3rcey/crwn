@@ -42,10 +42,10 @@ const PLATFORM_TIERS: PlatformTier[] = [
   {
     id: 'pro',
     name: 'Pro',
-    monthlyPrice: 49,
+    monthlyPrice: 50,
     annualMonthlyPrice: 37,
-    annualTotal: 441,
-    savings: 147,
+    annualTotal: 444,
+    savings: 156,
     description: 'For growing artists',
     features: [
       'Unlimited uploads',
@@ -62,10 +62,10 @@ const PLATFORM_TIERS: PlatformTier[] = [
   {
     id: 'label',
     name: 'Label',
-    monthlyPrice: 149,
+    monthlyPrice: 150,
     annualMonthlyPrice: 112,
-    annualTotal: 1341,
-    savings: 447,
+    annualTotal: 1344,
+    savings: 456,
     description: 'For labels & managers',
     features: [
       'Everything in Pro',
@@ -77,10 +77,10 @@ const PLATFORM_TIERS: PlatformTier[] = [
   {
     id: 'empire',
     name: 'Empire',
-    monthlyPrice: 349,
+    monthlyPrice: 350,
     annualMonthlyPrice: 262,
-    annualTotal: 3141,
-    savings: 1047,
+    annualTotal: 3144,
+    savings: 956,
     description: 'For serious operations',
     features: [
       'Everything in Label',
