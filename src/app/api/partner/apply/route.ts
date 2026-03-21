@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: 'hello@thecrwn.app',
+      to: 'joshn.wms@gmail.com',
       subject: notificationEmail.subject,
       html: notificationEmail.html,
     });
