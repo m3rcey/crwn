@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -13,14 +13,53 @@ import {
   Music,
   Eye,
   HelpCircle,
-  AlertTriangle
+  AlertTriangle,
+  CreditCard,
+  Loader2
 } from 'lucide-react';
 
 export default function ProfilePage() {
   const { user, profile, signOut, isLoading } = useAuth();
-  const [showDeactivate, setShowDeactivate] = useState(false);
-  const router = useRouter();
   const supabase = createBrowserSupabaseClient();
+  const [showDeactivate, setShowDeactivate] = useState(false);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [subsLoading, setSubsLoading] = useState(true);
+  const [portalLoading, setPortalLoading] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    const loadSubs = async () => {
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('id, tier_id, status, current_period_end, stripe_customer_id, artist_id, tier:subscription_tiers(name, price), artist:artist_profiles(slug, profile:profiles(display_name, avatar_url))')
+        .eq('fan_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+      setSubscriptions(data || []);
+      setSubsLoading(false);
+    };
+    loadSubs();
+  }, [user, supabase]);
+
+  const handleManageSub = async (artistId: string, artistSlug: string) => {
+    setPortalLoading(artistId);
+    try {
+      const res = await fetch('/api/stripe/fan-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artistId, artistSlug }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error('Portal error:', err);
+    } finally {
+      setPortalLoading(null);
+    }
+  };
+  const router = useRouter();
 
   const handleSignOut = async () => {
     await signOut();
@@ -102,6 +141,57 @@ export default function ProfilePage() {
             <p className="text-crwn-text">{profile?.bio || 'No bio yet'}</p>
           </div>
         </div>
+      </div>
+
+      {/* My Subscriptions */}
+      <div className="bg-crwn-surface rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-crwn-text mb-4 flex items-center gap-2">
+          <CreditCard className="w-5 h-5 text-crwn-gold" />
+          My Subscriptions
+        </h2>
+        {subsLoading ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-6 h-6 text-crwn-gold animate-spin" />
+          </div>
+        ) : subscriptions.length === 0 ? (
+          <p className="text-crwn-text-secondary text-sm">You don&apos;t have any active subscriptions yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {subscriptions.map((sub) => {
+              const artistName = sub.artist?.profile?.display_name || 'Unknown Artist';
+              const artistAvatar = sub.artist?.profile?.avatar_url;
+              const artistSlug = sub.artist?.slug || '';
+              const tierName = sub.tier?.name || 'Subscription';
+              const tierPrice = sub.tier?.price ? `$${(sub.tier.price / 100).toFixed(2)}/mo` : '';
+              return (
+                <div key={sub.id} className="flex items-center justify-between py-3 border-b border-crwn-elevated last:border-0">
+                  <Link href={`/${artistSlug}`} className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-full bg-crwn-elevated overflow-hidden flex-shrink-0">
+                      {artistAvatar ? (
+                        <Image src={artistAvatar} alt="" width={40} height={40} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-crwn-text-secondary text-sm font-semibold">
+                          {artistName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-crwn-text font-medium text-sm truncate">{artistName}</p>
+                      <p className="text-crwn-text-secondary text-xs">{tierName} {tierPrice && `· ${tierPrice}`}</p>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => handleManageSub(sub.artist_id, artistSlug)}
+                    disabled={portalLoading === sub.artist_id}
+                    className="px-3 py-1.5 text-xs font-medium text-crwn-text-secondary border border-crwn-elevated rounded-full hover:text-crwn-gold hover:border-crwn-gold transition-colors flex-shrink-0 ml-2"
+                  >
+                    {portalLoading === sub.artist_id ? 'Loading...' : 'Manage'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Account Actions */}
