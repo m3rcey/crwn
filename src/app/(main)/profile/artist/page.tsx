@@ -62,7 +62,7 @@ function ArtistDashboardContent() {
     if (!shouldShowDashboardTour || !artistId) return;
     
     const timer = setTimeout(() => {
-      startTour(getArtistTourSteps(isFoundingArtist, artistSlug), markDashboardTourComplete, saveDashboardStep, dashboardStartStep);
+      startTour(getArtistTourSteps(isFoundingArtist, artistSlug, platformTier), markDashboardTourComplete, saveDashboardStep, dashboardStartStep);
     }, 1500);
 
     return () => clearTimeout(timer);

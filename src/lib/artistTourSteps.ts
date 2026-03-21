@@ -1,6 +1,7 @@
 import { DriveStep } from 'driver.js';
 
-export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string = 'yourname'): DriveStep[] {
+export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string = 'yourname', platformTier: string = 'starter'): DriveStep[] {
+  const isStarter = platformTier === 'starter';
   const foundingNote = isFoundingArtist
     ? ' As a Founding Artist, you have free Pro access and a reduced 5% platform fee for your first year.'
     : '';
@@ -280,7 +281,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string
       element: '[data-tour="shop-create"]',
       popover: {
         title: 'Create products',
-        description: 'Sell digital products, experiences, and 1-on-1 bookings. You can set quantity limits and expiration dates to create urgency.',
+        description: isStarter ? 'Sell digital and physical products to your fans. Upgrade to Pro for bundles, experiences, and 1-on-1 bookings.' : 'Sell digital products, physical merch, experiences, and 1-on-1 bookings. Set quantity limits and expiration dates to create urgency.',
         side: 'bottom',
         align: 'start',
       },
