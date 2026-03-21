@@ -165,23 +165,7 @@ export default function HomePage() {
 
       {/* Program Links */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl stagger-fade-in">
-        {!isLoading && !hasArtistProfile && (
-          <Link
-            href="/founding-artists"
-            className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform page-fade-in"
-          >
-            <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
-              <Image
-                src="/homepage_founding-artist.png"
-                alt="Founding Artist Program"
-                fill
-                priority
-                className="object-cover"
-              />
-            </div>
-            <p className="font-medium text-crwn-gold text-sm mt-2 text-center">Founding Artist Program</p>
-          </Link>
-        )}
+
 
       </div>
 
