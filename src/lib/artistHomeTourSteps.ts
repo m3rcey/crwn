@@ -4,7 +4,7 @@ export const artistHomeTourSteps: DriveStep[] = [
   {
     popover: {
       title: 'Welcome to CRWN!',
-      description: 'You are one of our first 500 Founding Artists, which means you get free Pro tier access. Before we set up your artist page, here is a quick look at the app your fans will use.',
+      description: 'You are one of our first 50 Founding Artists, which means you get free Pro tier access. Before we set up your artist page, here is a quick look at the app your fans will use.',
     },
   },
   {

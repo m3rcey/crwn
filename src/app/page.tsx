@@ -418,7 +418,7 @@ function FanRelationshipsSection() {
 // Section 7: Founding Artists
 function FoundingArtistSection() {
   const [count, setCount] = useState(0);
-  const [spotsLeft, setSpotsLeft] = useState(500);
+  const [spotsLeft, setSpotsLeft] = useState(50);
   const [isLoaded, setIsLoaded] = useState(false);
   const { ref: sectionRef, isInView } = useInView();
 
@@ -427,7 +427,7 @@ function FoundingArtistSection() {
       .then(res => res.json())
       .then(data => {
         setCount(data.foundingArtists || 0);
-        setSpotsLeft(data.spotsLeft || 500);
+        setSpotsLeft(data.spotsLeft || 50);
         setIsLoaded(true);
       })
       .catch(() => setIsLoaded(true));
@@ -456,7 +456,7 @@ function FoundingArtistSection() {
           Founding Artist Program
         </h2>
         <p className="text-xl text-crwn-text-secondary mb-8">
-          The first 500 artists get 3 months of free Pro and a 5% platform fee for their entire first year.
+          The first 50 artists get 1 month of free Pro and a 5% platform fee for their first 6 months.
           Help shape the future of fan-powered music.
         </p>
 
@@ -466,12 +466,12 @@ function FoundingArtistSection() {
             <span className="text-2xl font-bold text-crwn-gold">Founding Artist</span>
           </div>
           <div className="text-6xl font-bold text-crwn-gold mb-4">
-            {isLoaded ? count : '...'} / 500
+            {isLoaded ? count : '...'} / 50
           </div>
           <div className="w-64 mx-auto h-2 bg-crwn-surface rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-[#9a7b2a] to-crwn-gold transition-all duration-1000"
-              style={{ width: `${isLoaded ? (count / 500) * 100 : 0}%` }}
+              style={{ width: `${isLoaded ? (count / 50) * 100 : 0}%` }}
             />
           </div>
           <p className="text-crwn-text-dim mt-4">

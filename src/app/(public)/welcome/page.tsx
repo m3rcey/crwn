@@ -87,7 +87,7 @@ export default function WelcomePage() {
         const countData = await countRes.json();
         if (countData.spotsLeft > 0) {
           const date = new Date();
-          date.setMonth(date.getMonth() + 3);
+          date.setMonth(date.getMonth() + 1);
           setFoundingNumber((countData.foundingArtists || 0) + 1);
           setTrialEndDate(date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
           setShowFoundingModal(true);
@@ -152,7 +152,7 @@ export default function WelcomePage() {
             <div className="space-y-3 text-left bg-[#1a1a1a] rounded-xl p-4 mb-6">
               <div className="flex items-start gap-3">
                 <span className="text-crwn-gold text-lg">\u2713</span>
-                <p className="text-crwn-text-secondary text-sm">3 months of Pro completely free</p>
+                <p className="text-crwn-text-secondary text-sm">1 month of Pro completely free</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-crwn-gold text-lg">\u2713</span>

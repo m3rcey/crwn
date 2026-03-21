@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
 );
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-const FOUNDING_LIMIT = 500;
+const FOUNDING_LIMIT = 50;
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await req.json();
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     }
 
     const trialEnd = new Date();
-    trialEnd.setMonth(trialEnd.getMonth() + 3);
+    trialEnd.setMonth(trialEnd.getMonth() + 1);
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app';
 

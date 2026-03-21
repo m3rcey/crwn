@@ -97,21 +97,21 @@ function MockCommunity() {
 
 export default function FoundingArtistsPage() {
   const [count, setCount] = useState(0);
-  const [spotsLeft, setSpotsLeft] = useState(500);
+  const [spotsLeft, setSpotsLeft] = useState(50);
 
   useEffect(() => {
     fetch('/api/founding-artist')
       .then(res => res.json())
       .then(data => {
         setCount(data.foundingArtists || 0);
-        setSpotsLeft(data.spotsLeft || 500);
+        setSpotsLeft(data.spotsLeft || 50);
       })
       .catch(() => {});
   }, []);
 
   const benefits = [
-    { icon: Crown, title: 'Free Pro Plan for 3 Months', desc: 'Unlimited tracks, fan tiers, community, shop, and analytics. No monthly fee for your first 3 months.' },
-    { icon: Percent, title: '5% Platform Fee for Your First Year', desc: 'Every transaction in your first 12 months has a reduced 5% platform fee instead of the standard 8%. More money in your pocket while you grow.' },
+    { icon: Crown, title: 'Free Pro Plan for 1 Month', desc: 'Unlimited tracks, fan tiers, community, shop, and analytics. No monthly fee for your first month.' },
+    { icon: Percent, title: '5% Platform Fee for 6 Months', desc: 'Every transaction in your first 6 months has a reduced 5% platform fee instead of the standard 8%. More money in your pocket while you grow.' },
     { icon: Star, title: 'Founding Artist Badge', desc: 'A permanent badge on your profile showing you were one of the first. Early believers get recognized.' },
     { icon: TrendingUp, title: 'Priority Placement', desc: 'Featured on the Explore page and recommended to new fans joining the platform.' },
     { icon: Shield, title: 'Shape the Platform', desc: 'Direct input on new features. We build what founding artists need first.' },
@@ -129,17 +129,17 @@ export default function FoundingArtistsPage() {
             <span className="text-crwn-gold text-sm font-medium">{spotsLeft} spots remaining</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Be One of the First 500 Artists on CRWN
+            Be One of the First 50 Artists on CRWN
           </h1>
           <p className="text-lg md:text-xl text-[#999] max-w-2xl mx-auto mb-8">
-            Founding artists get perks that no one else will ever have access to. 3 months of free Pro, a 5% platform fee for your entire first year, and a badge that proves you were here from day one.
+            Founding artists get perks that no one else will ever have access to. 1 month of free Pro, a 5% platform fee for your first 6 months, and a badge that proves you were here from day one.
           </p>
           <div className="inline-block mb-8">
-            <div className="text-5xl font-bold text-crwn-gold mb-2">{count} / 500</div>
+            <div className="text-5xl font-bold text-crwn-gold mb-2">{count} / 50</div>
             <div className="w-48 mx-auto h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
               <div
                 className="h-full bg-crwn-gold transition-all duration-1000"
-                style={{ width: `${(count / 500) * 100}%` }}
+                style={{ width: `${(count / 50) * 100}%` }}
               />
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function FoundingArtistsPage() {
           Only {spotsLeft} Spots Left
         </h2>
         <p className="text-[#999] text-lg mb-8 max-w-xl mx-auto">
-          Once all 500 founding artist spots are taken, these perks are gone forever. Do not wait.
+          Once all 50 founding artist spots are taken, these perks are gone forever. Do not wait.
         </p>
         <Link href="/profile/artist?tab=profile" className="neu-button-accent px-10 py-4 text-lg inline-flex items-center gap-2">
           Claim Your Spot <ChevronRight className="w-5 h-5" />

@@ -3,7 +3,7 @@ import { DriveStep } from 'driver.js';
 export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string = 'yourname', platformTier: string = 'starter'): DriveStep[] {
   const isStarter = platformTier === 'starter';
   const foundingNote = isFoundingArtist
-    ? ' As a Founding Artist, you have free Pro access and a reduced 5% platform fee for your first year.'
+    ? ' As a Founding Artist, you have free Pro access and a reduced 5% platform fee for your first 6 months.'
     : '';
 
   return [

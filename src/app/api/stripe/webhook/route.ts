@@ -1060,9 +1060,9 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
 
   if (isFoundingArtist && foundingNumber) {
     const proExpiresAt = new Date();
-    proExpiresAt.setMonth(proExpiresAt.getMonth() + 3);
+    proExpiresAt.setMonth(proExpiresAt.getMonth() + 1);
     const feeExpiresAt = new Date();
-    feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 12);
+    feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 6);
 
     updateData.is_founding_artist = true;
     updateData.founding_artist_number = foundingNumber;

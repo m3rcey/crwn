@@ -195,7 +195,7 @@ export function formatTierName(tier: string | null | undefined): string {
 
 /**
  * Get artist's platform fee percent, checking for founding artist status.
- * Founding artists get a flat 5% fee for their first 12 months,
+ * Founding artists get a flat 5% fee for their first 6 months,
  * then revert to their normal platform tier fee (8/8/6/4).
  */
 export async function getArtistFeePercent(artistId: string): Promise<number> {
@@ -213,7 +213,7 @@ export async function getArtistFeePercent(artistId: string): Promise<number> {
 
   if (!data) return 8;
 
-  // Founding artists get flat 5% for first 12 months
+  // Founding artists get flat 5% for first 6 months
   if (data.is_founding_artist) {
     const feeExpiresAt = data.founding_fee_expires_at ? new Date(data.founding_fee_expires_at) : null;
     if (feeExpiresAt && feeExpiresAt > new Date()) {
