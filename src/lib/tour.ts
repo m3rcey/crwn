@@ -47,13 +47,8 @@ export function startTour(
       }
     },
     onDestroyStarted: () => {
-      const isLastStep = currentStep >= steps.length - 1;
       driverObj.destroy();
-      if (isLastStep) {
-        onComplete?.();
-      } else {
-        onDismiss?.(currentStep);
-      }
+      onComplete?.();
     },
   });
 
