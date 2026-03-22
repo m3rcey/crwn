@@ -20,12 +20,6 @@ export async function POST(request: NextRequest) {
     .update({ is_active: true })
     .eq('id', user.id);
 
-  // Also reactivate artist profile if exists
-  await supabaseAdmin
-    .from('artist_profiles')
-    .update({ is_active: true })
-    .eq('user_id', user.id);
-
   if (e1) {
     return NextResponse.json({ error: 'Failed to reactivate' }, { status: 500 });
   }
