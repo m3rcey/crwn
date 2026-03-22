@@ -8,9 +8,47 @@ import {
 import {
   RefreshCw, TrendingUp, TrendingDown, DollarSign, Users, Activity,
   AlertTriangle, Clock, Target, Settings, ChevronDown, ChevronUp,
-  Crown,
+  Crown, Info,
 } from 'lucide-react';
 import SettingsPanel from './SettingsPanel';
+
+// Metric tooltips — what it is and why it matters
+const TOOLTIPS: Record<string, string> = {
+  // Hero
+  'LGP:CAC': 'Lifetime Gross Profit ÷ Customer Acquisition Cost. THE fundamental ratio — how much profit you make per customer vs. what it costs to get them. Below 3:1 means you can\'t scale. Above 10:1 means print money.',
+  'LGP per Artist': 'Total gross profit a single artist generates over their entire lifetime on the platform. Factors in their tier fee minus Stripe fees, recruiter cuts, and allocated fixed costs, multiplied by average lifespan.',
+  'CAC': 'Customer Acquisition Cost. Total recruiter spend ÷ number of artists acquired. The all-in cost to get one new artist on the platform.',
+
+  // Financial
+  'MRR': 'Monthly Recurring Revenue. Platform tier subscriptions + estimated monthly transaction fees. This is your predictable income baseline.',
+  'ARR': 'Annual Recurring Revenue. MRR × 12. What the business would make in a year at the current run rate.',
+  'Gross Margin': 'Revenue minus direct costs (Stripe fees, recruiter payouts, fixed costs) as a percentage. Target 80%+. Below 80% means scaling will be painful because there\'s not enough left to reinvest.',
+  '30-Day Cash': 'Total cash collected in the last 30 days. Must exceed CAC + fulfillment cost for "client financed acquisition" — meaning customers pay for their own acquisition.',
+  'Payback Period': 'How many months until a new artist\'s revenue covers their acquisition cost. Under 1 month = you can scale with credit cards. Under 3 months = healthy. Over 6 = problem.',
+  'Period Revenue': 'Total revenue collected during the selected trailing period from platform fees and transaction fees.',
+  'Period Costs': 'Total costs during the period: Stripe processing fees + recruiter payouts + allocated fixed infrastructure costs.',
+  'Period Gross Profit': 'Period Revenue minus Period Costs. The actual profit generated during this window.',
+
+  // Revenue Per Visitor
+  'Revenue Per Visitor': 'Total revenue ÷ unique site visitors. Tells you how much each eyeball is worth. If this number is high, you can afford to spend more on marketing. Key signal for whether to raise prices.',
+  'Unique Visitors': 'Number of unique visitors (by hashed IP+UA) during the trailing period.',
+
+  // Retention
+  'Artist Churn Rate': 'Percentage of paid artists who cancel per month. 1/churn = average lifespan. Under 2% = excellent, 2-5% = okay, over 5% = leaky bucket that needs fixing before scaling.',
+  'Avg Lifespan': 'Average number of months a paid artist stays on the platform. Calculated as 1 ÷ monthly churn rate. Directly multiplies your LGP.',
+  'Total Artists': 'All artists on the platform, both free (Starter) and paid tiers.',
+  'Paid Conversion': 'Percentage of total artists on a paid tier (Pro/Label/Empire). Shows how well the free-to-paid funnel works.',
+
+  // Acquisition
+  'Artists Acquired': 'Number of new artist signups during the trailing period.',
+  'Total Recruiter Spend': 'Sum of all recruiter flat fees + recurring payouts paid during the period. This IS your CAC budget.',
+  'Qualification Rate': 'Percentage of referred artists who survive 30 days on a paid plan and trigger a recruiter payout. Low rate = recruiters bringing bad leads.',
+
+  // Projections
+  'Sales Velocity': 'Average number of new paid artists acquired per month. Combined with churn, this predicts where the business stabilizes.',
+  'Hypothetical Max Revenue': 'Where monthly revenue will plateau if sales velocity and churn stay the same. Formula: (velocity ÷ churn) × avg revenue per artist.',
+  'Hypothetical Max Customers': 'Where total customer count will plateau if sales velocity and churn stay the same. Formula: velocity ÷ churn rate.',
+};
 
 interface AdminDashboardProps {
   userId: string;
@@ -122,9 +160,32 @@ function CustomTooltip({ active, payload, label, formatter }: any) {
   );
 }
 
+// Info tooltip that shows on hover
+function InfoTooltip({ text }: { text: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <span className="relative inline-flex ml-1">
+      <button
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onClick={(e) => { e.stopPropagation(); setShow(!show); }}
+        className="text-[#555] hover:text-[#999] transition"
+      >
+        <Info className="w-3 h-3" />
+      </button>
+      {show && (
+        <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-[#222] border border-[#444] rounded-lg px-3 py-2 shadow-2xl animate-[fadeInUp_0.15s_ease-out]">
+          <p className="text-[#ccc] text-xs leading-relaxed">{text}</p>
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-[#444]" />
+        </div>
+      )}
+    </span>
+  );
+}
+
 // Collapsible section
-function Section({ title, icon: Icon, children, defaultOpen = true }: {
-  title: string; icon: any; children: React.ReactNode; defaultOpen?: boolean;
+function Section({ title, icon: Icon, children, defaultOpen = true, tooltip }: {
+  title: string; icon: any; children: React.ReactNode; defaultOpen?: boolean; tooltip?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -135,6 +196,7 @@ function Section({ title, icon: Icon, children, defaultOpen = true }: {
       >
         <Icon className="w-5 h-5 text-crwn-gold" />
         <h2 className="text-lg font-semibold text-white">{title}</h2>
+        {tooltip && <InfoTooltip text={tooltip} />}
         {open ? (
           <ChevronUp className="w-4 h-4 text-[#666] ml-auto group-hover:text-white transition" />
         ) : (
@@ -150,9 +212,13 @@ function Section({ title, icon: Icon, children, defaultOpen = true }: {
 function MetricCard({ label, value, subValue, color, trend }: {
   label: string; value: string; subValue?: string; color?: string; trend?: 'up' | 'down' | null;
 }) {
+  const tooltip = TOOLTIPS[label];
   return (
     <div className="bg-[#1A1A1A] rounded-xl border border-[#2a2a2a] p-4">
-      <p className="text-[#999] text-xs mb-1">{label}</p>
+      <div className="flex items-center mb-1">
+        <p className="text-[#999] text-xs">{label}</p>
+        {tooltip && <InfoTooltip text={tooltip} />}
+      </div>
       <div className="flex items-center gap-2">
         <p className="text-xl font-bold" style={{ color: color || '#f0f0f0' }}>{value}</p>
         {trend === 'up' && <TrendingUp className="w-4 h-4 text-green-400" />}
@@ -273,7 +339,10 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       <div className="mb-8 bg-[#1A1A1A] rounded-2xl border border-[#2a2a2a] p-6 md:p-8">
         <div className="text-center mb-6">
-          <p className="text-[#999] text-sm mb-2">The Number That Matters</p>
+          <div className="flex items-center justify-center gap-1 mb-2">
+            <p className="text-[#999] text-sm">The Number That Matters</p>
+            <InfoTooltip text={TOOLTIPS['LGP:CAC']} />
+          </div>
           <p
             className="text-6xl md:text-7xl font-black tracking-tight"
             style={{ color: ratioColor(metrics.lgpCacRatio) }}
@@ -285,12 +354,18 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
 
         <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
           <div className="text-center bg-[#141414] rounded-xl p-4">
-            <p className="text-[#999] text-xs mb-1">LGP per Artist</p>
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <p className="text-[#999] text-xs">LGP per Artist</p>
+              <InfoTooltip text={TOOLTIPS['LGP per Artist']} />
+            </div>
             <p className="text-2xl font-bold text-white">{fmt(metrics.lgp)}</p>
             <p className="text-[#666] text-xs mt-1">{metrics.avgLifespanMonths}mo avg lifespan</p>
           </div>
           <div className="text-center bg-[#141414] rounded-xl p-4">
-            <p className="text-[#999] text-xs mb-1">CAC</p>
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <p className="text-[#999] text-xs">CAC</p>
+              <InfoTooltip text={TOOLTIPS['CAC']} />
+            </div>
             <p className="text-2xl font-bold text-white">{metrics.cac > 0 ? fmt(metrics.cac) : '$0'}</p>
             <p className="text-[#666] text-xs mt-1">{metrics.totalArtistsAcquired} acquired ({period})</p>
           </div>
@@ -324,7 +399,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* FINANCIAL HEALTH */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <Section title="Financial Health" icon={DollarSign}>
+      <Section title="Financial Health" icon={DollarSign} tooltip="Core financial metrics that determine if the business model works. MRR is your baseline, gross margin tells you how much of each dollar you keep, and 30-day cash determines if you can self-fund growth.">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <MetricCard label="MRR" value={fmt(metrics.totalMRR)} subValue={`Platform: ${fmt(metrics.platformMRR)} + Fees: ${fmt(metrics.transactionFeeMRR)}`} color={GOLD} />
           <MetricCard label="ARR" value={fmtShort(metrics.totalARR)} />
@@ -363,7 +438,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* REVENUE PER VISITOR */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <Section title="Revenue Per Visitor" icon={Target}>
+      <Section title="Revenue Per Visitor" icon={Target} tooltip="How much revenue each site visitor generates. If this number is high, your pricing is justified and you can spend more on marketing. If it's dropping, consider raising prices or improving conversion.">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
           <MetricCard label="Revenue Per Visitor" value={fmt(metrics.revenuePerVisitor)} color={GOLD} />
           <MetricCard label="Unique Visitors" value={metrics.uniqueVisitorsInPeriod.toLocaleString()} subValue={`${period} trailing`} />
@@ -390,7 +465,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* RETENTION */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <Section title="Retention & Churn" icon={Activity}>
+      <Section title="Retention & Churn" icon={Activity} tooltip="Retention is 5-25x cheaper than acquisition. Churn rate directly determines average lifespan, which directly multiplies LGP. Reducing churn from 10% to 5% doubles the lifetime value of every artist.">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <MetricCard label="Artist Churn Rate" value={`${metrics.artistChurnRate}%`} color={churnColor(metrics.artistChurnRate)} subValue="monthly" />
           <MetricCard label="Avg Lifespan" value={`${metrics.avgLifespanMonths}mo`} subValue="1 / churn rate" />
@@ -495,7 +570,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* ACQUISITION & RECRUITERS */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <Section title="Acquisition & Recruiters" icon={Users}>
+      <Section title="Acquisition & Recruiters" icon={Users} tooltip="How much it costs to bring artists onto the platform through your influencer/recruiter program. This is the CAC side of the LGP:CAC ratio. Track which recruiters bring in artists that stick vs. churn before qualifying.">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <MetricCard label="Artists Acquired" value={metrics.totalArtistsAcquired.toString()} subValue={`${period} trailing`} />
           <MetricCard label="Total Recruiter Spend" value={fmt(metrics.totalRecruiterCost)} subValue={`${period} trailing`} />
@@ -584,7 +659,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* PROJECTIONS */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <Section title="Projections" icon={TrendingUp}>
+      <Section title="Projections" icon={TrendingUp} tooltip="Where the business is heading if nothing changes. Sales velocity × LGP = future revenue ceiling. Velocity ÷ churn = max customer count. If current revenue is below the max, the business is still growing. If above, it's shrinking.">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <MetricCard
             label="Sales Velocity"
