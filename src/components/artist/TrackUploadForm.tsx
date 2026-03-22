@@ -281,6 +281,7 @@ export function TrackUploadForm() {
     e.preventDefault();
     if (!formData.title) return;
     if (!editingTrack && !formData.audioFile) return;
+    if (isUploading) return;
 
     setIsUploading(true);
     setUploadProgress(0);
