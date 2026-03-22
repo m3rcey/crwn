@@ -1,13 +1,10 @@
 'use client';
-import { useState, useEffect } from 'react';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { usePlayer } from '@/hooks/usePlayer';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { hapticLight } from '@/lib/haptics';
 import { 
@@ -30,22 +27,6 @@ export function Navigation() {
   const { user, profile, signOut } = useAuth();
   const { resetPlayer } = usePlayer();
   const router = useRouter();
-
-  const [artistSlug, setArtistSlug] = useState<string>('');
-
-  useEffect(() => {
-    if (user && profile?.role === 'artist') {
-      const supabase = createBrowserSupabaseClient();
-      supabase
-        .from('artist_profiles')
-        .select('slug')
-        .eq('user_id', user.id)
-        .single()
-        .then(({ data }) => {
-          if (data?.slug) setArtistSlug(data.slug);
-        });
-    }
-  }, [user, profile]);
 
   const isActive = (href: string) => {
     if (href === '/home') return pathname === '/home';
@@ -109,7 +90,7 @@ export function Navigation() {
           <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const href = item.label === 'Profile' && artistSlug ? `/${artistSlug}` : item.href;
+              const href = item.href;
               const active = isActive(item.href);
               return (
                 <Link
