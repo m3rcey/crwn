@@ -199,6 +199,20 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
               Monthly
             </button>
           </div>
+          {/* Partner Code */}
+          <div className="mt-3 flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Partner code"
+              value={partnerCode}
+              onChange={(e) => setPartnerCode(e.target.value.toUpperCase())}
+              className="px-3 py-1.5 rounded-full bg-crwn-bg border border-crwn-elevated/50 text-crwn-text text-sm w-40 placeholder:text-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold/50"
+            />
+            {partnerCode.trim() && (
+              <span className="text-xs text-green-400">1 month free + reduced fees</span>
+            )}
+          </div>
+
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
