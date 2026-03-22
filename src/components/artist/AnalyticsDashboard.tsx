@@ -18,6 +18,9 @@ interface Analytics {
     byType: Record<string, number>;
     trend: { daily: { label: string; revenue: number; earnings_count: number }[]; weekly: { label: string; revenue: number; earnings_count: number }[]; monthly: { label: string; revenue: number; earnings_count: number }[] };
     revenuePerPlay: number;
+    revenuePerVisitor: number;
+    uniqueVisitors30d: number;
+    visitorTrend: { label: string; visitors: number; revenue: number; revenuePerVisitor: number }[];
   };
   subscribers: {
     active: number;
@@ -276,6 +279,50 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             </ResponsiveContainer>
           </div>
         </div>
+      </section>
+
+      {/* ========== REVENUE PER VISITOR ========== */}
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4">
+          Revenue Per Visitor
+          <span className="text-xs text-crwn-text-secondary font-normal ml-2">pricing signal</span>
+        </h3>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Rev / Visitor</p>
+            <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.revenue.revenuePerVisitor)}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Unique Visitors</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.revenue.uniqueVisitors30d.toLocaleString()}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated col-span-2 lg:col-span-1">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">30d Revenue</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.revenue.thisMonth)}</p>
+          </div>
+        </div>
+
+        {analytics.revenue.visitorTrend && analytics.revenue.visitorTrend.some(v => v.visitors > 0) && (
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary mb-2">Visitors & Revenue Per Visitor</p>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={analytics.revenue.visitorTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="label" stroke="#666" fontSize={12} />
+                  <YAxis yAxisId="left" stroke="#666" fontSize={12} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#666" fontSize={12} tickFormatter={(v) => `$${(v/100).toFixed(0)}`} />
+                  <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
+                  <Legend />
+                  <Line yAxisId="left" type="monotone" dataKey="visitors" name="Visitors" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                  <Line yAxisId="right" type="monotone" dataKey="revenuePerVisitor" name="Rev/Visitor" stroke="#D4AF37" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ========== SUBSCRIBERS SECTION ========== */}

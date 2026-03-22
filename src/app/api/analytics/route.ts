@@ -61,6 +61,16 @@ export async function GET(req: NextRequest) {
 
   const earnings = allEarnings || [];
 
+  // ---- PAGE VISITS DATA ----
+  const thirtyDaysAgoDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const { data: pageVisits } = await supabaseAdmin
+    .from('artist_page_visits')
+    .select('visit_date, visitor_hash')
+    .eq('artist_id', artistId)
+    .gte('visit_date', thirtyDaysAgoDate);
+
+  const visits = pageVisits || [];
+
   // Revenue periods
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -331,6 +341,28 @@ export async function GET(req: NextRequest) {
     .sort((a, b) => b.referralCount - a.referralCount)
     .slice(0, 10);
 
+  // ---- REVENUE PER VISITOR ----
+  const uniqueVisitors30d = new Set(visits.map(v => v.visitor_hash)).size;
+  const revenue30d = earnings
+    .filter(e => new Date(e.created_at) >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000))
+    .reduce((s, e) => s + e.net_amount, 0);
+  const revenuePerVisitor = uniqueVisitors30d > 0 ? Math.round(revenue30d / uniqueVisitors30d) : 0;
+
+  // Visitor trend (daily for last 30 days)
+  const visitorTrend = dailyPeriods.map(p => {
+    const dateStr = p.start.toISOString().split('T')[0];
+    const dayVisitors = new Set(visits.filter(v => v.visit_date === dateStr).map(v => v.visitor_hash)).size;
+    const dayRevenue = earnings
+      .filter(e => e.created_at >= p.start.toISOString() && e.created_at <= p.end.toISOString())
+      .reduce((s, e) => s + e.net_amount, 0);
+    return {
+      label: p.label,
+      visitors: dayVisitors,
+      revenue: dayRevenue,
+      revenuePerVisitor: dayVisitors > 0 ? Math.round(dayRevenue / dayVisitors) : 0,
+    };
+  });
+
   // ---- TOP FANS ----
   const fanSpend: Record<string, number> = {};
   const fanNames: Record<string, string> = {};
@@ -381,6 +413,9 @@ export async function GET(req: NextRequest) {
       byType: revenueByType,
       trend: revenueTrend,
       revenuePerPlay,
+      revenuePerVisitor,
+      uniqueVisitors30d,
+      visitorTrend,
     },
     subscribers: {
       active: activeSubs.length,

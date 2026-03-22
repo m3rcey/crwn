@@ -67,11 +67,23 @@ export async function middleware(request: NextRequest) {
   try {
     const visitorHash = await hashVisitor(request);
     const userId = getUserIdFromCookie(request);
+
+    // Detect artist page visits: /{slug} pattern (single segment, not a known route)
+    const knownRoutes = ['home', 'explore', 'community', 'library', 'profile', 'login', 'signup',
+      'admin', 'recruit', 'onboarding', 'support', 'terms', 'privacy', 'dmca', 'about',
+      'welcome', 'verify', 'reset-password', 'forgot-password', 'partner', 'join',
+      'artist', 'artist-agreement', 'founding-artists', 'getting-started'];
+    const pathname = request.nextUrl.pathname;
+    const segments = pathname.split('/').filter(Boolean);
+    const artistSlug = segments.length === 1 && !knownRoutes.includes(segments[0])
+      ? segments[0]
+      : null;
+
     const trackUrl = new URL('/api/admin/track', request.url);
     fetch(trackUrl.toString(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ visitorHash, userId }),
+      body: JSON.stringify({ visitorHash, userId, artistSlug }),
     }).catch(() => {}); // Silent fail
   } catch {
     // Never block page load for tracking

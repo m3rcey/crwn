@@ -10,7 +10,8 @@ const supabaseAdmin = createClient(
 // Lightweight endpoint called from middleware to track visits and activity
 export async function POST(req: NextRequest) {
   try {
-    const { visitorHash, userId } = await req.json();
+    const { visitorHash, userId, artistSlug } = await req.json();
+    const today = new Date().toISOString().split('T')[0];
 
     // Track site visit (unique per day per visitor)
     if (visitorHash) {
@@ -18,12 +19,34 @@ export async function POST(req: NextRequest) {
         .from('site_visits')
         .upsert(
           {
-            visit_date: new Date().toISOString().split('T')[0],
+            visit_date: today,
             visitor_hash: visitorHash,
             is_authenticated: !!userId,
           },
           { onConflict: 'visit_date,visitor_hash' }
         );
+    }
+
+    // Track artist page visit if on an artist page
+    if (visitorHash && artistSlug) {
+      const { data: artist } = await supabaseAdmin
+        .from('artist_profiles')
+        .select('id')
+        .eq('slug', artistSlug)
+        .single();
+
+      if (artist) {
+        await supabaseAdmin
+          .from('artist_page_visits')
+          .upsert(
+            {
+              artist_id: artist.id,
+              visit_date: today,
+              visitor_hash: visitorHash,
+            },
+            { onConflict: 'artist_id,visit_date,visitor_hash' }
+          );
+      }
     }
 
     // Update last_active_at for authenticated users
