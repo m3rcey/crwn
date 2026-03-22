@@ -244,6 +244,15 @@
 .animate-slide-up-notif {
   animation: slideUpNotif 0.25s ease-out both;
 }
+@keyframes slideDownNotif {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (min-width: 768px) {
+  .md\:animate-slide-down-notif {
+    animation: slideDownNotif 0.25s ease-out both;
+  }
+}
 
 /* Driver.js Tour Theme */
 
