@@ -14,7 +14,7 @@ const TIER_FLAT_FEES: Record<string, (count: number) => number> = {
   starter: (count) => count === 1 ? 5000 : 2500,
   connector: () => 5000,
   ambassador: () => 7500,
-  partner: () => 0,
+  partner: () => 5000,
 };
 
 export async function GET(req: NextRequest) {
@@ -62,22 +62,27 @@ export async function GET(req: NextRequest) {
       // Get recruiter for tier info
       const { data: recruiter } = await supabaseAdmin
         .from('recruiters')
-        .select('id, tier, total_artists_referred, stripe_connect_id')
+        .select('id, tier, total_artists_referred, stripe_connect_id, is_partner, partner_flat_fee, partner_recurring_rate')
         .eq('id', referral.recruiter_id)
         .single();
 
       if (!recruiter) continue;
 
-      // Calculate flat fee
-      const tier = recruiter.tier || 'starter';
-      const count = recruiter.total_artists_referred || 1;
-      const flatFee = TIER_FLAT_FEES[tier] ? TIER_FLAT_FEES[tier](count) : 2500;
+      // Calculate flat fee — partners use override or default $50
+      let flatFee: number;
+      let recurringRate: number;
 
-      // Determine recurring rate
-      let recurringRate = 0;
-      if (tier === 'connector') recurringRate = 5;
-      else if (tier === 'ambassador') recurringRate = 10;
-      else if (tier === 'partner') recurringRate = 0; // custom, handled manually
+      if (recruiter.is_partner) {
+        flatFee = recruiter.partner_flat_fee ?? 5000;
+        recurringRate = recruiter.partner_recurring_rate ?? 10;
+      } else {
+        const tier = recruiter.tier || 'starter';
+        const count = recruiter.total_artists_referred || 1;
+        flatFee = TIER_FLAT_FEES[tier] ? TIER_FLAT_FEES[tier](count) : 2500;
+        recurringRate = 0;
+        if (tier === 'connector') recurringRate = 5;
+        else if (tier === 'ambassador') recurringRate = 10;
+      }
 
       // Update referral to qualified
       await supabaseAdmin

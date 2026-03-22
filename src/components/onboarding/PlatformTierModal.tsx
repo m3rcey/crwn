@@ -105,7 +105,12 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'annual' | 'monthly'>('annual');
-  const [partnerCode, setPartnerCode] = useState('');
+  const [partnerCode, setPartnerCode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('crwn_recruiter')?.toUpperCase() || '';
+    }
+    return '';
+  });
 
   if (!isOpen) return null;
 
