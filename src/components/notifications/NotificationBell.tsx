@@ -150,7 +150,7 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="fixed left-2 right-2 bottom-16 md:absolute md:left-auto md:right-0 md:bottom-auto md:top-full md:mt-2 w-auto md:w-80 bg-[#1a1a1a] border border-crwn-elevated rounded-xl shadow-xl z-50 overflow-hidden animate-slide-up-notif md:animate-slide-down-notif">
+        <div className="fixed left-2 right-2 bottom-16 md:fixed md:left-auto md:right-4 md:top-14 md:bottom-auto md:mt-0 w-auto md:w-80 bg-[#1a1a1a] border border-crwn-elevated rounded-xl shadow-xl z-50 overflow-hidden animate-slide-up-notif md:animate-slide-down-notif">
           <div className="flex items-center justify-between px-4 py-3 border-b border-crwn-elevated">
             <span className="font-semibold text-crwn-text">Notifications</span>
             {unreadCount > 0 && (
