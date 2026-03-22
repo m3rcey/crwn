@@ -16,6 +16,7 @@
 .neu-button {
   background: #222222;
   border-radius: 9999px;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 .neu-button:hover {
@@ -31,6 +32,7 @@
   border-radius: 9999px;
   color: #0f0f0f;
   font-weight: 600;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 .neu-button-accent:hover {
