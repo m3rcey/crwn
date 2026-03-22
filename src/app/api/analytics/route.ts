@@ -199,6 +199,138 @@ export async function GET(req: NextRequest) {
     };
   }
 
+  // ---- AVERAGE SUBSCRIBER LIFESPAN ----
+  const avgLifespanMonths = churnRate > 0 ? Number((100 / churnRate).toFixed(1)) : 24;
+
+  // ---- REVENUE PER PLAY ----
+  const revenuePerPlay = totalPlays > 0 ? Math.round(revenueAllTime / totalPlays) : 0;
+
+  // ---- HYPOTHETICAL MAX ----
+  // Sales velocity: new subscribers per month (trailing 3 months)
+  const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
+  const recentNewSubs = subs.filter(s => s.created_at >= threeMonthsAgo).length;
+  const salesVelocity = Number((recentNewSubs / 3).toFixed(1));
+  const hypotheticalMaxMRR = churnRate > 0
+    ? Math.round((salesVelocity / (churnRate / 100)) * arpu)
+    : Math.round(salesVelocity * 24 * arpu);
+  const hypotheticalMaxSubscribers = churnRate > 0
+    ? Math.round(salesVelocity / (churnRate / 100))
+    : Math.round(salesVelocity * 24);
+
+  // ---- BILLING MIX (monthly vs annual) ----
+  // Determine billing interval from subscription period length
+  const billingMix = { monthly: 0, annual: 0 };
+  activeSubs.forEach(s => {
+    if (s.current_period_end) {
+      const start = new Date(s.created_at);
+      const end = new Date(s.current_period_end);
+      const periodDays = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+      // If period is > 90 days, it's likely annual
+      if (periodDays > 90) {
+        billingMix.annual++;
+      } else {
+        billingMix.monthly++;
+      }
+    } else {
+      billingMix.monthly++;
+    }
+  });
+
+  // ---- FAN CHURN RISK (activity health) ----
+  // Get last activity per fan from play_history, favorites, earnings
+  const activeFanIds = new Set(activeSubs.map(s => s.fan_id));
+  let fanActivity: { active: number; atRisk: number; churning: number } = { active: 0, atRisk: 0, churning: 0 };
+
+  if (activeFanIds.size > 0) {
+    // Get last play per fan
+    const { data: recentPlays } = await supabaseAdmin
+      .from('play_history')
+      .select('user_id, played_at')
+      .in('track_id', trackIds.length > 0 ? trackIds : ['00000000-0000-0000-0000-000000000000'])
+      .in('user_id', Array.from(activeFanIds))
+      .order('played_at', { ascending: false });
+
+    // Get last earnings (payment) per fan
+    const fanLastActivity: Record<string, Date> = {};
+
+    // From plays
+    (recentPlays || []).forEach(p => {
+      const d = new Date(p.played_at);
+      if (!fanLastActivity[p.user_id] || d > fanLastActivity[p.user_id]) {
+        fanLastActivity[p.user_id] = d;
+      }
+    });
+
+    // From earnings
+    earnings.forEach(e => {
+      if (e.fan_id && activeFanIds.has(e.fan_id)) {
+        const d = new Date(e.created_at);
+        if (!fanLastActivity[e.fan_id] || d > fanLastActivity[e.fan_id]) {
+          fanLastActivity[e.fan_id] = d;
+        }
+      }
+    });
+
+    const nowMs = now.getTime();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    const twentyOneDays = 21 * 24 * 60 * 60 * 1000;
+
+    activeFanIds.forEach(fanId => {
+      const lastActive = fanLastActivity[fanId];
+      if (!lastActive) {
+        fanActivity.churning++;
+      } else {
+        const diff = nowMs - lastActive.getTime();
+        if (diff < sevenDays) fanActivity.active++;
+        else if (diff < twentyOneDays) fanActivity.atRisk++;
+        else fanActivity.churning++;
+      }
+    });
+  }
+
+  // ---- REFERRAL STATS ----
+  const { data: referralData } = await supabaseAdmin
+    .from('referrals')
+    .select('id, referrer_fan_id, referred_fan_id, status, created_at')
+    .eq('artist_id', artistId);
+
+  const { data: referralEarningsData } = await supabaseAdmin
+    .from('referral_earnings')
+    .select('referrer_fan_id, commission_amount')
+    .eq('artist_id', artistId);
+
+  const refList = referralData || [];
+  const refEarnings = referralEarningsData || [];
+  const totalReferrals = refList.length;
+  const activeReferrals = refList.filter(r => r.status === 'active').length;
+  const totalCommissionPaid = refEarnings.reduce((s, e) => s + e.commission_amount, 0);
+
+  // Top referrers
+  const referrerCounts: Record<string, number> = {};
+  const referrerEarningsMap: Record<string, number> = {};
+  refList.forEach(r => { referrerCounts[r.referrer_fan_id] = (referrerCounts[r.referrer_fan_id] || 0) + 1; });
+  refEarnings.forEach(e => { referrerEarningsMap[e.referrer_fan_id] = (referrerEarningsMap[e.referrer_fan_id] || 0) + e.commission_amount; });
+
+  const referrerIds = [...new Set(refList.map(r => r.referrer_fan_id))];
+  let referrerNames: Record<string, string> = {};
+  if (referrerIds.length > 0) {
+    const { data: refProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id, display_name, username')
+      .in('id', referrerIds);
+    (refProfiles || []).forEach(p => { referrerNames[p.id] = p.display_name || p.username || 'Fan'; });
+  }
+
+  const topReferrers = referrerIds
+    .map(id => ({
+      fanId: id,
+      name: referrerNames[id] || 'Fan',
+      referralCount: referrerCounts[id] || 0,
+      totalEarned: referrerEarningsMap[id] || 0,
+    }))
+    .sort((a, b) => b.referralCount - a.referralCount)
+    .slice(0, 10);
+
   // ---- TOP FANS ----
   const fanSpend: Record<string, number> = {};
   const fanNames: Record<string, string> = {};
@@ -248,6 +380,7 @@ export async function GET(req: NextRequest) {
       allTime: revenueAllTime,
       byType: revenueByType,
       trend: revenueTrend,
+      revenuePerPlay,
     },
     subscribers: {
       active: activeSubs.length,
@@ -257,8 +390,22 @@ export async function GET(req: NextRequest) {
       mrr,
       arpu,
       ltv,
+      avgLifespanMonths,
       byTier: Object.entries(subsByTier).map(([tierName, count]) => ({ tierName, count })),
       trend: subscriberTrend,
+      billingMix,
+      fanActivity,
+    },
+    projections: {
+      salesVelocity,
+      hypotheticalMaxMRR,
+      hypotheticalMaxSubscribers,
+    },
+    referrals: {
+      totalReferrals,
+      activeReferrals,
+      totalCommissionPaid,
+      topReferrers,
     },
     plays: {
       total: totalPlays,

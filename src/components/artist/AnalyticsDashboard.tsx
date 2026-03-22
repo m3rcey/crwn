@@ -17,6 +17,7 @@ interface Analytics {
     allTime: number;
     byType: Record<string, number>;
     trend: { daily: { label: string; revenue: number; earnings_count: number }[]; weekly: { label: string; revenue: number; earnings_count: number }[]; monthly: { label: string; revenue: number; earnings_count: number }[] };
+    revenuePerPlay: number;
   };
   subscribers: {
     active: number;
@@ -26,8 +27,22 @@ interface Analytics {
     mrr: number;
     arpu: number;
     ltv: number;
+    avgLifespanMonths: number;
     byTier: { tierName: string; count: number }[];
     trend: { daily: { label: string; total: number; new: number; churned: number }[]; weekly: { label: string; total: number; new: number; churned: number }[]; monthly: { label: string; total: number; new: number; churned: number }[] };
+    billingMix: { monthly: number; annual: number };
+    fanActivity: { active: number; atRisk: number; churning: number };
+  };
+  projections: {
+    salesVelocity: number;
+    hypotheticalMaxMRR: number;
+    hypotheticalMaxSubscribers: number;
+  };
+  referrals: {
+    totalReferrals: number;
+    activeReferrals: number;
+    totalCommissionPaid: number;
+    topReferrers: { fanId: string; name: string; referralCount: number; totalEarned: number }[];
   };
   plays: {
     total: number;
@@ -192,8 +207,8 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
       <section>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-revenue">Revenue</h3>
         
-        {/* Top Stats - MRR, This Month, All Time, Revenue Split */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Top Stats - MRR, This Month, All Time, Rev/Play, Revenue Split */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">MRR</p>
             <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.subscribers.mrr)}</p>
@@ -208,6 +223,11 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">All Time</p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.revenue.allTime)}</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated col-span-2 lg:col-span-1">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Revenue Per Play</p>
+            <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.revenue.revenuePerPlay)}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">vs Spotify ~$0.003</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide mb-2">Revenue Split</p>
@@ -262,8 +282,8 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
       <section style={!isAdvanced ? { display: "none" } : undefined}>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-subscribers">Subscribers</h3>
         
-        {/* Top Stats - Active, ARPU, Churn Rate, LTV */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Top Stats - Active, ARPU, Churn Rate, Avg Lifespan, LTV */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active</p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.active}</p>
@@ -277,6 +297,11 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             <p className={`text-2xl font-bold mt-1 ${analytics.subscribers.churnRate > 5 ? 'text-crwn-error' : analytics.subscribers.churnRate < 3 ? 'text-green-500' : 'text-crwn-text'}`}>
               {analytics.subscribers.churnRate}%
             </p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Avg Lifespan</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.avgLifespanMonths}mo</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">how long fans stay</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">LTV</p>
@@ -325,6 +350,93 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             </div>
           </div>
         )}
+
+        {/* Fan Activity Health & Billing Mix */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          {/* Fan Activity Health */}
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary mb-3">Fan Activity Health</p>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-xs text-crwn-text-secondary">Active (7d)</span>
+                  <span className="text-xs text-green-400 font-medium">{analytics.subscribers.fanActivity.active}</span>
+                </div>
+                <div className="h-2 bg-crwn-elevated rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-green-500 rounded-full transition-all duration-700"
+                    style={{ width: `${analytics.subscribers.active > 0 ? (analytics.subscribers.fanActivity.active / analytics.subscribers.active) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-xs text-crwn-text-secondary">At Risk (7-21d inactive)</span>
+                  <span className="text-xs text-yellow-400 font-medium">{analytics.subscribers.fanActivity.atRisk}</span>
+                </div>
+                <div className="h-2 bg-crwn-elevated rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-yellow-500 rounded-full transition-all duration-700"
+                    style={{ width: `${analytics.subscribers.active > 0 ? (analytics.subscribers.fanActivity.atRisk / analytics.subscribers.active) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-xs text-crwn-text-secondary">Going Cold (21d+ inactive)</span>
+                  <span className="text-xs text-red-400 font-medium">{analytics.subscribers.fanActivity.churning}</span>
+                </div>
+                <div className="h-2 bg-crwn-elevated rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-red-500 rounded-full transition-all duration-700"
+                    style={{ width: `${analytics.subscribers.active > 0 ? (analytics.subscribers.fanActivity.churning / analytics.subscribers.active) * 100 : 0}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+            {analytics.subscribers.fanActivity.atRisk > 0 && (
+              <p className="text-xs text-yellow-400/80 mt-3">
+                {analytics.subscribers.fanActivity.atRisk} fan{analytics.subscribers.fanActivity.atRisk > 1 ? 's' : ''} haven&apos;t engaged in over a week — consider posting new content or reaching out.
+              </p>
+            )}
+          </div>
+
+          {/* Billing Mix */}
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary mb-3">Monthly vs Annual</p>
+            {(analytics.subscribers.billingMix.monthly + analytics.subscribers.billingMix.annual) > 0 ? (
+              <>
+                <div className="h-40">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Monthly', value: analytics.subscribers.billingMix.monthly },
+                          { name: 'Annual', value: analytics.subscribers.billingMix.annual },
+                        ].filter(d => d.value > 0)}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={35}
+                        outerRadius={55}
+                        dataKey="value"
+                      >
+                        <Cell fill="#D4AF37" />
+                        <Cell fill="#10B981" />
+                      </Pie>
+                      <Tooltip />
+                      <Legend formatter={(value) => <span className="text-crwn-text-secondary text-xs">{value}</span>} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="text-xs text-crwn-text-secondary text-center mt-1">
+                  Annual subscribers are less likely to churn
+                </p>
+              </>
+            ) : (
+              <p className="text-crwn-text-secondary text-sm py-4 text-center">No subscriber data yet</p>
+            )}
+          </div>
+        </div>
       </section>
 
       {!isAdvanced && (
@@ -334,6 +446,91 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
           <a href="/profile/artist?tab=billing" className="inline-flex items-center gap-2 px-6 py-2.5 bg-crwn-gold text-black font-semibold rounded-full hover:brightness-110 transition-all press-scale">Upgrade to Pro</a>
         </section>
       )}
+
+      {/* ========== REFERRAL PERFORMANCE ========== */}
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4">Referral Program</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Total Referrals</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.referrals.totalReferrals}</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active</p>
+            <p className="text-2xl font-bold text-green-400 mt-1">{analytics.referrals.activeReferrals}</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Commission Paid</p>
+            <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.referrals.totalCommissionPaid)}</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Conversion Rate</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">
+              {analytics.subscribers.active > 0 && analytics.referrals.totalReferrals > 0
+                ? `${Math.round((analytics.referrals.activeReferrals / analytics.subscribers.active) * 100)}%`
+                : '—'}
+            </p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">of subs via referral</p>
+          </div>
+        </div>
+
+        {analytics.referrals.topReferrers.length > 0 && (
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary mb-3">Top Referrers</p>
+            <div className="space-y-2">
+              {analytics.referrals.topReferrers.map((ref, i) => (
+                <div key={ref.fanId} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      i === 0 ? 'bg-crwn-gold text-crwn-bg' :
+                      i === 1 ? 'bg-gray-400 text-crwn-bg' :
+                      i === 2 ? 'bg-amber-700 text-white' :
+                      'bg-crwn-elevated text-crwn-text-secondary'
+                    }`}>
+                      {i + 1}
+                    </span>
+                    <span className="text-crwn-text text-sm">{ref.name}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-crwn-text-secondary">{ref.referralCount} referred</span>
+                    <span className="text-crwn-gold font-semibold">{formatCurrency(ref.totalEarned)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ========== PROJECTIONS ========== */}
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4">
+          Projections
+          <span className="text-xs text-crwn-text-secondary font-normal ml-2">where you&apos;re heading</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">New Subs / Month</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.projections.salesVelocity}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 3mo average</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max MRR</p>
+            <p className="text-2xl font-bold text-purple-400 mt-1">{formatCurrency(analytics.projections.hypotheticalMaxMRR)}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">if nothing changes</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max Subs</p>
+            <p className="text-2xl font-bold text-blue-400 mt-1">{analytics.projections.hypotheticalMaxSubscribers}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">velocity ÷ churn</p>
+          </div>
+        </div>
+        {analytics.subscribers.mrr > 0 && analytics.projections.hypotheticalMaxMRR > analytics.subscribers.mrr && (
+          <p className="text-xs text-green-400/80 mt-3 bg-green-400/5 rounded-lg px-3 py-2">
+            Your MRR is heading toward {formatCurrency(analytics.projections.hypotheticalMaxMRR)}/mo — you&apos;re still growing toward your ceiling.
+          </p>
+        )}
+      </section>
 
       {/* ========== PLAYS SECTION ========== */}
       <section>
