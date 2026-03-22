@@ -219,51 +219,51 @@ function ArtistDashboardContent() {
 
         {/* Content — visited tabs stay mounted to preserve state */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
-          <div className={activeTab === 'analytics' ? 'stagger-fade-in' : 'hidden'}>
+          <div className={activeTab !== 'analytics' ? 'hidden' : undefined}>
             <AnalyticsDashboard platformTier={platformTier} />
           </div>
           {visitedTabs.has('sync') && (
-            <div className={activeTab === 'sync' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'sync' ? 'hidden' : undefined}>
               {artistId && <SyncDashboard artistId={artistId} platformTier={platformTier} />}
             </div>
           )}
           {visitedTabs.has('profile') && (
-            <div className={activeTab === 'profile' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'profile' ? 'hidden' : undefined}>
               <ArtistProfileForm />
             </div>
           )}
           {visitedTabs.has('tracks') && (
-            <div className={activeTab === 'tracks' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'tracks' ? 'hidden' : undefined}>
               <MusicManager />
             </div>
           )}
           {visitedTabs.has('albums') && (
-            <div className={activeTab === 'albums' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'albums' ? 'hidden' : undefined}>
               <AlbumManager />
             </div>
           )}
           {visitedTabs.has('shop') && (
-            <div className={activeTab === 'shop' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'shop' ? 'hidden' : undefined}>
               <ShopManager />
             </div>
           )}
           {visitedTabs.has('billing') && (
-            <div className={activeTab === 'billing' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'billing' ? 'hidden' : undefined}>
               <PlatformBilling />
             </div>
           )}
           {visitedTabs.has('tiers') && (
-            <div className={activeTab === 'tiers' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'tiers' ? 'hidden' : undefined}>
               <TierManager />
             </div>
           )}
           {visitedTabs.has('payouts') && (
-            <div className={activeTab === 'payouts' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'payouts' ? 'hidden' : undefined}>
               <PayoutDashboard />
             </div>
           )}
           {visitedTabs.has('referrals') && (
-            <div className={activeTab === 'referrals' ? 'stagger-fade-in' : 'hidden'}>
+            <div className={activeTab !== 'referrals' ? 'hidden' : undefined}>
               <ArtistReferralStats />
             </div>
           )}
