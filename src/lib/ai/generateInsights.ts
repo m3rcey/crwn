@@ -1,15 +1,15 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { ArtistDataForAI } from './collectArtistData';
 import { InsightInput } from './starterNudges';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'dummy-key-for-build',
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
 });
 
-const INSIGHT_TOOL = {
-  name: 'generate_insights' as const,
+const INSIGHT_FUNCTION = {
+  name: 'generate_insights',
   description: 'Generate actionable insights for the artist based on their data',
-  input_schema: {
+  parameters: {
     type: 'object' as const,
     properties: {
       insights: {
@@ -30,12 +30,10 @@ const INSIGHT_TOOL = {
             title: {
               type: 'string' as const,
               description: 'Short, actionable title (max 80 chars). Be specific with numbers.',
-              maxLength: 80,
             },
             body: {
               type: 'string' as const,
               description: 'Detailed insight with specific recommendation (max 300 chars). Include dollar amounts, fan names, percentages where relevant.',
-              maxLength: 300,
             },
             action_type: {
               type: 'string' as const,
@@ -119,10 +117,13 @@ function buildPrompt(data: ArtistDataForAI): string {
 
 export async function generateInsights(data: ArtistDataForAI): Promise<InsightInput[]> {
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
       max_tokens: 1024,
-      system: `You are an AI artist manager for CRWN, a music monetization platform for independent artists. Analyze the artist's data and generate 2-5 actionable insights.
+      messages: [
+        {
+          role: 'system',
+          content: `You are an AI artist manager for CRWN, a music monetization platform for independent artists. Analyze the artist's data and generate 2-5 actionable insights.
 
 Focus on:
 - Revenue trends and anomalies (percentage changes, what's driving growth or decline)
@@ -132,25 +133,32 @@ Focus on:
 - Booking/product reminders (expiring products, upcoming sessions)
 
 Be specific with numbers, names, and percentages. Convert cents to dollars in your output (divide by 100). Don't give generic advice — every insight should reference actual data points. Keep titles punchy and bodies actionable.`,
-      messages: [
+        },
         {
           role: 'user',
           content: buildPrompt(data),
         },
       ],
-      tools: [INSIGHT_TOOL],
-      tool_choice: { type: 'tool', name: 'generate_insights' },
+      tools: [
+        {
+          type: 'function',
+          function: INSIGHT_FUNCTION,
+        },
+      ],
+      tool_choice: { type: 'function', function: { name: 'generate_insights' } },
     });
 
-    // Extract tool use from response
-    const toolUse = response.content.find(block => block.type === 'tool_use');
-    if (!toolUse || toolUse.type !== 'tool_use') {
-      console.error('AI Manager: No tool use in response');
+    // Extract function call from response
+    const toolCall = response.choices[0]?.message?.tool_calls?.[0];
+    if (!toolCall || toolCall.type !== 'function') {
+      console.error('AI Manager: No function call in response');
       return [];
     }
 
-    const input = toolUse.input as { insights: InsightInput[] };
-    return (input.insights || []).map(insight => ({
+    const parsed = JSON.parse(toolCall.function.arguments);
+    const insights: InsightInput[] = parsed.insights || [];
+
+    return insights.map(insight => ({
       type: insight.type,
       priority: insight.priority,
       title: insight.title.slice(0, 80),
@@ -159,7 +167,7 @@ Be specific with numbers, names, and percentages. Convert cents to dollars in yo
       action_url: insight.action_url || null,
     }));
   } catch (error) {
-    console.error('AI Manager: Anthropic API error', error);
+    console.error('AI Manager: OpenAI API error', error);
     return [];
   }
 }
