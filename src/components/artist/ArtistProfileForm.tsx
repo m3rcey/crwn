@@ -58,7 +58,8 @@ export function ArtistProfileForm() {
   });
 
   const fetchArtistProfile = useCallback(async () => {
-    if (!user) return;
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) return;
     setIsLoading(true);
 
     // Fetch both artist profile and user profile
@@ -66,12 +67,12 @@ export function ArtistProfileForm() {
       supabase
         .from('artist_profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .maybeSingle(),
       supabase
         .from('profiles')
         .select('display_name, bio, avatar_url, social_links')
-        .eq('id', user.id)
+        .eq('id', currentUser.id)
         .maybeSingle()
     ]);
 
@@ -100,13 +101,11 @@ export function ArtistProfileForm() {
     }));
     
     setIsLoading(false);
-  }, [user, supabase]);
+  }, [supabase]);
 
   useEffect(() => {
-    if (user) {
-      fetchArtistProfile();
-    }
-  }, [user, fetchArtistProfile]);
+    fetchArtistProfile();
+  }, [fetchArtistProfile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

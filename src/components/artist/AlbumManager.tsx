@@ -61,7 +61,8 @@ export function AlbumManager() {
   });
 
   const loadData = useCallback(async () => {
-    if (!user) return;
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) return;
     setIsLoading(true);
 
     try {
@@ -69,7 +70,7 @@ export function AlbumManager() {
       const { data: artistProfile } = await supabase
         .from('artist_profiles')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .maybeSingle();
 
       if (!artistProfile) {
@@ -139,7 +140,8 @@ export function AlbumManager() {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     loadData();

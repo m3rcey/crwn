@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { 
@@ -87,7 +86,6 @@ function PeriodToggle({ value, onChange }: { value: string; onChange: (v: 'daily
 
 export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?: string }) {
   const isAdvanced = platformTier !== 'starter';
-  const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [isLoading, setIsLoading] = useState(true);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -96,6 +94,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
   const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
   const loadData = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     setIsLoading(true);
 
@@ -148,7 +147,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
     } finally {
       setIsLoading(false);
     }
-  }, [user, supabase]);
+  }, [supabase]);
 
   useEffect(() => {
     loadData();
