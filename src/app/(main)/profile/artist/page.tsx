@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -24,12 +24,15 @@ import { startTour } from '@/lib/tour';
 import { getArtistTourSteps } from '@/lib/artistTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
 
+type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals' | 'sync';
+
 function ArtistDashboardContent() {
   const { profile } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals' | 'sync'>('analytics');
+  const [activeTab, setActiveTab] = useState<TabId>('analytics');
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(new Set(['analytics']));
   const [artistId, setArtistId] = useState<string | null>(null);
   const [artistSlug, setArtistSlug] = useState<string>('');
   const [tiers, setTiers] = useState<TierConfig[]>([]);
@@ -37,6 +40,14 @@ function ArtistDashboardContent() {
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
   const [platformTier, setPlatformTier] = useState<string>('starter');
   const [isFoundingArtist, setIsFoundingArtist] = useState(false);
+
+  const switchTab = useCallback((tabId: TabId) => {
+    setActiveTab(tabId);
+    setVisitedTabs(prev => {
+      if (prev.has(tabId)) return prev;
+      return new Set(prev).add(tabId);
+    });
+  }, []);
 
   // Check for founding artist status
   useEffect(() => {
@@ -72,10 +83,10 @@ function ArtistDashboardContent() {
     const upgrade = searchParams.get('upgrade');
     
     if (tab === 'billing') {
-      setActiveTab('billing');
+      switchTab('billing');
     }
     if (tab === 'tiers' || searchParams.get('stripe') === 'success') {
-      setActiveTab('tiers');
+      switchTab('tiers');
     }
     
     if (upgrade === 'success') {
@@ -193,7 +204,7 @@ function ArtistDashboardContent() {
               <button
                 key={tab.id}
                 data-tour={tab.tourId}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => switchTab(tab.id)}
                 className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'text-crwn-gold border-crwn-gold'
@@ -206,21 +217,56 @@ function ArtistDashboardContent() {
           </div>
         </div>
 
-        {/* Content */}
-        <div key={activeTab} className="px-4 sm:px-6 lg:px-8 py-8 stagger-fade-in">
-          {activeTab === 'profile' && <ArtistProfileForm />}
-          {activeTab === 'tracks' && <MusicManager />}
-          {activeTab === 'albums' && <AlbumManager />}
-          {activeTab === 'shop' && <ShopManager />}
-          {activeTab === 'billing' && <PlatformBilling />}
-
-          {activeTab === 'analytics' && <AnalyticsDashboard platformTier={platformTier} />}
-          {activeTab === 'sync' && artistId && (
-            <SyncDashboard artistId={artistId} platformTier={platformTier} />
+        {/* Content — visited tabs stay mounted to preserve state */}
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
+          <div className={activeTab === 'analytics' ? 'stagger-fade-in' : 'hidden'}>
+            <AnalyticsDashboard platformTier={platformTier} />
+          </div>
+          {visitedTabs.has('sync') && (
+            <div className={activeTab === 'sync' ? 'stagger-fade-in' : 'hidden'}>
+              {artistId && <SyncDashboard artistId={artistId} platformTier={platformTier} />}
+            </div>
           )}
-          {activeTab === 'tiers' && <TierManager />}
-          {activeTab === 'payouts' && <PayoutDashboard />}
-          {activeTab === 'referrals' && <ArtistReferralStats />}
+          {visitedTabs.has('profile') && (
+            <div className={activeTab === 'profile' ? 'stagger-fade-in' : 'hidden'}>
+              <ArtistProfileForm />
+            </div>
+          )}
+          {visitedTabs.has('tracks') && (
+            <div className={activeTab === 'tracks' ? 'stagger-fade-in' : 'hidden'}>
+              <MusicManager />
+            </div>
+          )}
+          {visitedTabs.has('albums') && (
+            <div className={activeTab === 'albums' ? 'stagger-fade-in' : 'hidden'}>
+              <AlbumManager />
+            </div>
+          )}
+          {visitedTabs.has('shop') && (
+            <div className={activeTab === 'shop' ? 'stagger-fade-in' : 'hidden'}>
+              <ShopManager />
+            </div>
+          )}
+          {visitedTabs.has('billing') && (
+            <div className={activeTab === 'billing' ? 'stagger-fade-in' : 'hidden'}>
+              <PlatformBilling />
+            </div>
+          )}
+          {visitedTabs.has('tiers') && (
+            <div className={activeTab === 'tiers' ? 'stagger-fade-in' : 'hidden'}>
+              <TierManager />
+            </div>
+          )}
+          {visitedTabs.has('payouts') && (
+            <div className={activeTab === 'payouts' ? 'stagger-fade-in' : 'hidden'}>
+              <PayoutDashboard />
+            </div>
+          )}
+          {visitedTabs.has('referrals') && (
+            <div className={activeTab === 'referrals' ? 'stagger-fade-in' : 'hidden'}>
+              <ArtistReferralStats />
+            </div>
+          )}
         </div>
       </div>
 
