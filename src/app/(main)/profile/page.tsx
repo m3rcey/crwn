@@ -17,7 +17,8 @@ import {
   CreditCard,
   Loader2,
   Megaphone,
-  Crown
+  Crown,
+  LifeBuoy
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -248,6 +249,13 @@ export default function ProfilePage() {
         </h2>
         
         <div className="space-y-2">
+          <Link
+            href="/support"
+            className="w-full flex items-center gap-3 px-4 py-3 text-crwn-text-secondary hover:text-crwn-gold hover:bg-crwn-elevated rounded-lg transition-colors"
+          >
+            <LifeBuoy className="w-5 h-5" />
+            <span>Support</span>
+          </Link>
           <button
             onClick={async () => {
               await supabase
