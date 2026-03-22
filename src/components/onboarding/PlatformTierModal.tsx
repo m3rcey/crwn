@@ -120,18 +120,15 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
     if (tier.monthlyPrice === 0) {
       setIsLoading(tier.id);
       try {
-        const { error } = await supabase
-          .from('artist_profiles')
-          .update({ platform_tier: tier.id })
-          .eq('user_id', user.id);
-        if (error) throw error;
-        await supabase
-          .from('profiles')
-          .update({ platform_tier: tier.id })
-          .eq('id', user.id);
+        const response = await fetch('/api/account/set-starter-tier', {
+          method: 'POST',
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to set tier');
         router.push('/profile/artist?tab=billing');
       } catch (error) {
         console.error('Error setting platform tier:', error);
+        showToast('Failed to set tier. Please try again.', 'error');
       } finally {
         setIsLoading(null);
       }

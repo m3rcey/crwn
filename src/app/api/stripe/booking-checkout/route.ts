@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
@@ -31,6 +32,11 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'Must be logged in' }, { status: 401 });
+    }
+
+    const allowed = await checkRateLimit(user.id, 'booking-checkout', 60, 5);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     // Check if artist has Stripe Connect

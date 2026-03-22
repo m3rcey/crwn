@@ -302,16 +302,7 @@ export default function ProfilePage() {
               <button
                 onClick={async () => {
                   if (!user) return;
-                  await supabase
-                    .from('profiles')
-                    .update({ is_active: false })
-                    .eq('id', user.id);
-                  if (profile?.role === 'artist') {
-                    await supabase
-                      .from('artist_profiles')
-                      .update({ is_active: false })
-                      .eq('user_id', user.id);
-                  }
+                  await fetch('/api/account/deactivate', { method: 'POST' });
                   await signOut();
                 }}
                 className="flex-1 py-2 rounded-lg bg-crwn-error text-white font-semibold hover:opacity-80"

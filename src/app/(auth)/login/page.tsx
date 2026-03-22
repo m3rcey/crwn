@@ -23,17 +23,9 @@ export default function LoginPage() {
           .select('phone, is_active')
           .eq('id', user.id)
           .single();
-        // Reactivate if deactivated
+        // Reactivate if deactivated (via server to bypass RLS column restrictions)
         if (data && data.is_active === false) {
-          await supabase
-            .from('profiles')
-            .update({ is_active: true })
-            .eq('id', user.id);
-          // Also reactivate artist profile if exists
-          await supabase
-            .from('artist_profiles')
-            .update({ is_active: true })
-            .eq('user_id', user.id);
+          await fetch('/api/account/reactivate', { method: 'POST' });
         }
         if (data?.phone) {
           router.replace('/home');
