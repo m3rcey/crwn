@@ -15,7 +15,7 @@ import { BulkUploadForm } from './BulkUploadForm';
 import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
 import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { Edit2, X, Upload, Plus } from 'lucide-react';
+import { Edit2, X, Upload, Plus, Loader2 } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
 
 interface SubscriptionTier {
@@ -782,7 +782,7 @@ export function TrackUploadForm() {
             disabled={isUploading || (!editingTrack && !formData.audioFile)}
             className="flex-1 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-full hover:bg-crwn-gold-hover transition-colors disabled:opacity-50 hover-glow"
           >
-            {isUploading ? 'Saving...' : editingTrack ? 'Update Track' : 'Upload Track'}
+            {isUploading ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" />Saving...</span> : editingTrack ? 'Update Track' : 'Upload Track'}
           </button>
           {editingTrack && (
             <button
