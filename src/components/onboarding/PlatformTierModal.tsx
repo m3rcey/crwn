@@ -105,6 +105,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'annual' | 'monthly'>('annual');
+  const [partnerCode, setPartnerCode] = useState('');
 
   if (!isOpen) return null;
 
@@ -135,7 +136,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
         const response = await fetch('/api/stripe/platform-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ tierId: tier.id, billingCycle }),
+          body: JSON.stringify({ tierId: tier.id, billingCycle, ...(partnerCode.trim() && { partnerCode: partnerCode.trim() }) }),
         });
         const data = await response.json();
         if (data.url) {

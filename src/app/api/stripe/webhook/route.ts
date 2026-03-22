@@ -1048,9 +1048,13 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
     return;
   }
 
-  // Check if this is a founding artist checkout
+
+  // Check if this is a founding artist or partner code checkout
   const isFoundingArtist = session.metadata?.founding_artist === 'true';
   const foundingNumber = session.metadata?.founding_number ? parseInt(session.metadata.founding_number) : null;
+  const partnerCode = session.metadata?.partner_code || null;
+  const partnerCodeId = session.metadata?.partner_code_id || null;
+  const recruiterId = session.metadata?.recruiter_id || null;
 
   const updateData: Record<string, unknown> = {
     platform_tier: tier,
@@ -1059,6 +1063,7 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
   };
 
   if (isFoundingArtist && foundingNumber) {
+    // Original founding artist program (50 spots)
     const proExpiresAt = new Date();
     proExpiresAt.setMonth(proExpiresAt.getMonth() + 1);
     const feeExpiresAt = new Date();
@@ -1068,7 +1073,38 @@ async function handlePlatformCheckoutCompleted(session: Stripe.Checkout.Session)
     updateData.founding_artist_number = foundingNumber;
     updateData.founding_artist_expires_at = proExpiresAt.toISOString();
     updateData.founding_fee_expires_at = feeExpiresAt.toISOString();
+  } else if (isFoundingArtist && partnerCode) {
+    // Partner code: 1 month free trial (handled by Stripe) + 3 months of 5% fee
+    const feeExpiresAt = new Date();
+    feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 3);
+    updateData.is_founding_artist = true;
+    updateData.founding_fee_expires_at = feeExpiresAt.toISOString();
+    updateData.partner_code_used = partnerCode;
+
+    // Create recruiter referral if partner has a recruiter_id
+    if (recruiterId) {
+      try {
+        await supabaseAdmin
+          .from('artist_referrals')
+          .insert({
+            recruiter_id: recruiterId,
+            artist_id: artist_id,
+            artist_user_id: user_id,
+            status: 'pending',
+            flat_fee_amount: 5000,
+          });
+
+        // Update recruited_by on artist profile
+        await supabaseAdmin
+          .from('artist_profiles')
+          .update({ recruited_by: recruiterId })
+          .eq('id', artist_id);
+      } catch (refErr) {
+        console.error('Failed to create partner referral:', refErr);
+      }
+    }
   }
+
 
   // Update artist profile with platform tier and subscription
   await supabaseAdmin
