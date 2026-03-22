@@ -13,6 +13,7 @@ import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
 import { SyncDashboard } from '@/components/artist/SyncDashboard';
+import { AiManagerCard, AiManagerTeaser } from '@/components/artist/AiManagerCard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -24,7 +25,7 @@ import { startTour } from '@/lib/tour';
 import { getArtistTourSteps } from '@/lib/artistTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
 
-type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals' | 'sync';
+type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -88,6 +89,9 @@ function ArtistDashboardContent() {
     if (tab === 'tiers' || searchParams.get('stripe') === 'success') {
       switchTab('tiers');
     }
+    if (tab === 'ai-manager') {
+      switchTab('ai-manager');
+    }
     
     if (upgrade === 'success') {
       setShowSuccess('Your plan is now active. Time to build your empire.');
@@ -146,6 +150,7 @@ function ArtistDashboardContent() {
 
   const allTabs = [
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
+    { id: 'ai-manager' as const, label: 'AI Manager', tourId: 'tab-ai-manager' },
     { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
     { id: 'profile' as const, label: 'Profile', tourId: 'tab-profile' },
     { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
@@ -221,8 +226,16 @@ function ArtistDashboardContent() {
         {/* Content — visited tabs stay mounted to preserve state */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
           <div className={activeTab !== 'analytics' ? 'hidden' : undefined}>
+            {artistId && (
+              <AiManagerTeaser artistId={artistId} onNavigate={() => switchTab('ai-manager')} />
+            )}
             <AnalyticsDashboard platformTier={platformTier} />
           </div>
+          {visitedTabs.has('ai-manager') && (
+            <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
+              {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} />}
+            </div>
+          )}
           {visitedTabs.has('sync') && (
             <div className={activeTab !== 'sync' ? 'hidden' : undefined}>
               {artistId && <SyncDashboard artistId={artistId} platformTier={platformTier} />}

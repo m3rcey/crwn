@@ -682,6 +682,19 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       subData.artist_id,
       fanProfile?.display_name || 'A fan'
     );
+
+    // Insert real-time churn alert AI insight (no AI call, just templated)
+    await supabaseAdmin.from('ai_insights').insert({
+      artist_id: subData.artist_id,
+      type: 'churn',
+      priority: 'urgent',
+      title: `${fanProfile?.display_name || 'A fan'} canceled their subscription`,
+      body: 'Consider reaching out with a personal message or exclusive content to win them back.',
+      data: { fan_id: subData.fan_id, fan_name: fanProfile?.display_name || null },
+      action_type: 'link',
+      action_url: '/profile/artist?tab=ai-manager',
+      expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    });
   }
 }
 

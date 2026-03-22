@@ -375,3 +375,23 @@ export interface SyncOpportunity {
   is_active: boolean;
   created_at: string;
 }
+
+// AI Artist Manager
+export type AiInsightType = 'revenue' | 'churn' | 'vip_fan' | 'booking_reminder' | 'content_nudge' | 'weekly_digest';
+export type AiInsightPriority = 'urgent' | 'high' | 'normal' | 'low';
+
+export interface AiInsight {
+  id: string;
+  artist_id: string;
+  type: AiInsightType;
+  priority: AiInsightPriority;
+  title: string;
+  body: string;
+  data: Record<string, unknown>;
+  action_type: string | null;
+  action_url: string | null;
+  is_read: boolean;
+  is_dismissed: boolean;
+  expires_at: string;
+  created_at: string;
+}
