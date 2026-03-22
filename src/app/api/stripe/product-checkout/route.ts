@@ -98,6 +98,14 @@ export async function POST(request: NextRequest) {
     // Calculate fee as percentage of discounted price (in cents)
     const platformFee = Math.round(unitAmount * (platformFeePercent / 100));
 
+    // Build statement descriptor from artist name
+    const artistDisplayName = (artist as any).profile?.display_name || '';
+    const statementSuffix = artistDisplayName
+      .replace(/[^a-zA-Z0-9 ]/g, '')
+      .trim()
+      .substring(0, 22)
+      .toUpperCase();
+
     // Create Stripe checkout session for one-time payment
     const isPhysical = product.type === 'physical';
     const session = await stripe.checkout.sessions.create({
@@ -127,10 +135,12 @@ export async function POST(request: NextRequest) {
         transfer_data: {
           destination: artist.stripe_connect_id,
         },
+        ...(statementSuffix ? { statement_descriptor_suffix: statementSuffix } : {}),
         metadata: {
           fan_id: fanId,
           product_id: productId,
           artist_id: product.artist_id,
+          type: 'product',
           ...(variantSelections ? { variant_selections: JSON.stringify(variantSelections) } : {}),
         },
       },

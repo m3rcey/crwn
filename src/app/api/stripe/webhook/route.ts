@@ -12,6 +12,7 @@ import { bookingTokenEmail } from '@/lib/emails/bookingToken';
 import { artistNewSubscriberEmail } from '@/lib/emails/artistNewSubscriber';
 import { artistNewPurchaseEmail } from '@/lib/emails/artistNewPurchase';
 import { artistNewPostEmail } from '@/lib/emails/artistNewPost';
+import { receiptEmail } from '@/lib/emails/receipt';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 
@@ -328,7 +329,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         console.error('Milestone check failed:', err);
       }
 
-      // Send subscription confirmation email to fan
+      // Send subscription confirmation + receipt email to fan
       try {
         const { data: artistNameData } = await supabaseAdmin
           .from('profiles')
@@ -343,6 +344,20 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
             to: fanEmail,
             subject: `You're subscribed to ${artistDisplayName} 🎉`,
             html: subscriptionEmail(fanName, artistDisplayName, tierName),
+          });
+          // Send receipt with support contact info
+          await resend.emails.send({
+            from: FROM_EMAIL,
+            to: fanEmail,
+            subject: `Your CRWN receipt - ${tierName}`,
+            html: receiptEmail({
+              displayName: fanName,
+              artistName: artistDisplayName,
+              amount: grossAmount,
+              productName: tierName,
+              purchaseDate: new Date().toISOString(),
+              type: 'subscription',
+            }),
           });
         }
       } catch (err) {
@@ -814,7 +829,7 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
     }
   }
 
-  // Send purchase confirmation email to fan
+  // Send purchase confirmation + receipt email to fan
   try {
     const fanEmail = session.customer_email || session.customer_details?.email;
     const { data: artistNameData } = await supabaseAdmin
@@ -829,6 +844,20 @@ async function handleProductPurchase(session: Stripe.Checkout.Session) {
         to: fanEmail,
         subject: `Purchase confirmed - ${productTitle}`,
         html: purchaseEmail(fanName, artistDisplayName, productTitle, (grossAmount / 100).toFixed(2), product.type || 'product'),
+      });
+      // Send receipt with support contact info
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: fanEmail,
+        subject: `Your CRWN receipt - ${productTitle}`,
+        html: receiptEmail({
+          displayName: fanName,
+          artistName: artistDisplayName,
+          amount: grossAmount,
+          productName: productTitle,
+          purchaseDate: new Date().toISOString(),
+          type: 'product',
+        }),
       });
     }
   } catch (err) {
@@ -1389,16 +1418,18 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
   console.log('Refund recorded:', { artistId: originalEarning.artist_id, amount: amountRefunded });
 }
 
-// Handle disputes — flag and notify artist
+// Handle disputes — gather evidence, auto-submit to Stripe, notify artist + platform
 async function handleDisputeCreated(dispute: Stripe.Dispute) {
   const paymentIntentId = dispute.payment_intent as string;
+  const chargeId = dispute.charge as string;
   const disputeAmount = dispute.amount;
-  console.log('Dispute created:', paymentIntentId, 'amount:', disputeAmount);
+  const disputeReason = dispute.reason || 'unknown';
+  console.log('Dispute created:', paymentIntentId, 'amount:', disputeAmount, 'reason:', disputeReason);
 
-  // Find the original earning
+  // Find the original earning with full details
   const { data: originalEarning } = await supabaseAdmin
     .from('earnings')
-    .select('id, artist_id, description')
+    .select('id, artist_id, fan_id, type, description, created_at, metadata')
     .eq('stripe_payment_id', paymentIntentId)
     .maybeSingle();
 
@@ -1407,23 +1438,149 @@ async function handleDisputeCreated(dispute: Stripe.Dispute) {
     return;
   }
 
-  // Notify artist of dispute
+  // Get fan profile
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name, email')
+    .eq('id', originalEarning.fan_id)
+    .single();
+
+  const fanName = fanProfile?.display_name || 'Unknown';
+  const fanEmail = fanProfile?.email || '';
+
+  // Get artist info
   const { data: artistProfile } = await supabaseAdmin
     .from('artist_profiles')
     .select('user_id')
     .eq('id', originalEarning.artist_id)
     .single();
 
+  let artistDisplayName = 'Unknown Artist';
+  if (artistProfile) {
+    const { data: artistNameData } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', artistProfile.user_id)
+      .single();
+    artistDisplayName = artistNameData?.display_name || 'Unknown Artist';
+  }
+
+  // Build evidence based on earning type
+  let productDescription = 'Digital music service purchase on CRWN';
+  let accessActivityLog = '';
+
+  if (originalEarning.type === 'subscription' || originalEarning.type === 'renewal') {
+    productDescription = `Music subscription on CRWN (thecrwn.app) - recurring access to exclusive content from ${artistDisplayName}`;
+
+    // Get subscription details
+    const { data: sub } = await supabaseAdmin
+      .from('subscriptions')
+      .select('started_at, current_period_start')
+      .eq('fan_id', originalEarning.fan_id)
+      .eq('artist_id', originalEarning.artist_id)
+      .maybeSingle();
+
+    // Get listening history for activity proof
+    const { count: playCount } = await supabaseAdmin
+      .from('listening_history')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', originalEarning.fan_id);
+
+    const { data: lastPlay } = await supabaseAdmin
+      .from('listening_history')
+      .select('played_at')
+      .eq('user_id', originalEarning.fan_id)
+      .order('played_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const signupDate = sub?.started_at ? new Date(sub.started_at).toLocaleDateString() : 'unknown';
+    const lastActive = lastPlay?.played_at ? new Date(lastPlay.played_at).toLocaleDateString() : 'unknown';
+    accessActivityLog = `User signed up ${signupDate}. Has ${playCount || 0} total plays on platform. Last active ${lastActive}.`;
+  } else if (originalEarning.type === 'purchase') {
+    productDescription = `Digital product purchase on CRWN (thecrwn.app) from ${artistDisplayName}`;
+
+    // Get purchase details
+    const { data: purchase } = await supabaseAdmin
+      .from('purchases')
+      .select('purchased_at')
+      .eq('stripe_payment_intent_id', paymentIntentId)
+      .maybeSingle();
+
+    const purchaseDate = purchase?.purchased_at ? new Date(purchase.purchased_at).toLocaleDateString() : 'unknown';
+    accessActivityLog = `User purchased digital product on ${purchaseDate}. Product was delivered immediately via digital download/access.`;
+  }
+
+  const serviceDate = new Date(originalEarning.created_at).toISOString().split('T')[0];
+  const customerPurchaseIp = (originalEarning.metadata as Record<string, string>)?.customer_ip || undefined;
+
+  // Auto-submit evidence to Stripe
+  try {
+    await stripe.disputes.update(dispute.id, {
+      evidence: {
+        customer_email_address: fanEmail,
+        customer_name: fanName,
+        product_description: productDescription,
+        service_date: serviceDate,
+        access_activity_log: accessActivityLog || undefined,
+        customer_purchase_ip: customerPurchaseIp,
+        uncategorized_text: 'This is a legitimate charge for a digital music service. The customer created an account, selected a subscription tier or product, and entered payment details through Stripe Checkout. They have been actively using the service.',
+      },
+      submit: true,
+    });
+    console.log('Dispute evidence auto-submitted for:', dispute.id);
+  } catch (err) {
+    console.error('Failed to submit dispute evidence:', err);
+  }
+
+  // Notify artist of dispute
   if (artistProfile) {
     await supabaseAdmin.from('notifications').insert({
       user_id: artistProfile.user_id,
       type: 'dispute',
       title: '🚨 Payment dispute opened',
-      message: `$${(disputeAmount / 100).toFixed(2)} disputed — ${originalEarning.description}. Funds may be held.`,
+      message: `$${(disputeAmount / 100).toFixed(2)} disputed - ${originalEarning.description}. Evidence has been auto-submitted.`,
       link: '/profile/artist?tab=payouts',
     });
   }
 
-  console.log('Dispute notification sent:', { artistId: originalEarning.artist_id, amount: disputeAmount });
+  // Send platform alert email
+  const chargeDate = new Date(originalEarning.created_at).toLocaleDateString();
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: 'support@thecrwn.app',
+      subject: `DISPUTE ALERT - $${(disputeAmount / 100).toFixed(2)} from ${fanName}`,
+      html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background-color:#1A1A1A;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <h1 style="color:#D4AF37;font-size:32px;margin:0;">CRWN</h1>
+    </div>
+    <div style="background-color:#242424;border-radius:16px;padding:32px;border:1px solid #ff4444;">
+      <h2 style="color:#ff4444;font-size:24px;margin:0 0 16px;">Dispute Alert</h2>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><td style="color:#A0A0A0;padding:8px 0;">Amount</td><td style="color:#FFFFFF;padding:8px 0;text-align:right;font-weight:600;">$${(disputeAmount / 100).toFixed(2)}</td></tr>
+        <tr><td style="color:#A0A0A0;padding:8px 0;">Fan</td><td style="color:#FFFFFF;padding:8px 0;text-align:right;">${fanName}</td></tr>
+        <tr><td style="color:#A0A0A0;padding:8px 0;">Fan Email</td><td style="color:#FFFFFF;padding:8px 0;text-align:right;">${fanEmail}</td></tr>
+        <tr><td style="color:#A0A0A0;padding:8px 0;">Artist</td><td style="color:#D4AF37;padding:8px 0;text-align:right;">${artistDisplayName}</td></tr>
+        <tr><td style="color:#A0A0A0;padding:8px 0;">Charge Date</td><td style="color:#FFFFFF;padding:8px 0;text-align:right;">${chargeDate}</td></tr>
+        <tr><td style="color:#A0A0A0;padding:8px 0;">Reason</td><td style="color:#FFFFFF;padding:8px 0;text-align:right;">${disputeReason}</td></tr>
+        <tr><td style="color:#A0A0A0;padding:8px 0;">Dispute ID</td><td style="color:#FFFFFF;padding:8px 0;text-align:right;font-size:12px;">${dispute.id}</td></tr>
+      </table>
+      <p style="color:#A0A0A0;font-size:14px;margin:16px 0 0;">Evidence has been auto-submitted to Stripe.</p>
+    </div>
+  </div>
+</body>
+</html>`,
+    });
+  } catch (err) {
+    console.error('Dispute alert email failed:', err);
+  }
+
+  console.log('Dispute handled:', { disputeId: dispute.id, artistId: originalEarning.artist_id, amount: disputeAmount });
 }
 

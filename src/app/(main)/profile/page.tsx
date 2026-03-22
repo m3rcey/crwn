@@ -232,6 +232,12 @@ export default function ProfilePage() {
             })}
           </div>
         )}
+        <p className="text-[#999999] text-xs mt-4">
+          Having an issue with a charge?{' '}
+          <a href="mailto:support@thecrwn.app" className="text-crwn-gold hover:underline">
+            Contact support@thecrwn.app
+          </a>
+        </p>
       </div>
 
       {/* Account Actions */}

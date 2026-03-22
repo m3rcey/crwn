@@ -66,6 +66,20 @@ export async function POST(req: NextRequest) {
 
     const artistSlug = tier.artist?.slug || tier.artist_id;
 
+    // Get artist display name for statement descriptor
+    const { data: artistNameData } = await supabase
+      .from('profiles')
+      .select('display_name')
+      .eq('id', tier.artist?.user_id)
+      .single();
+    const artistDisplayName = artistNameData?.display_name || '';
+    // Stripe limit: 22 chars, alphanumeric + spaces only, uppercase
+    const statementSuffix = artistDisplayName
+      .replace(/[^a-zA-Z0-9 ]/g, '')
+      .trim()
+      .substring(0, 22)
+      .toUpperCase();
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -85,12 +99,16 @@ export async function POST(req: NextRequest) {
             }
           : undefined,
       },
+      payment_intent_data: {
+        ...(statementSuffix ? { statement_descriptor_suffix: statementSuffix } : {}),
+      },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=canceled`,
       metadata: {
         fan_id: fanId,
         artist_id: tier.artist_id,
         tier_id: tierId,
+        type: 'subscription',
         referral_code: referralCode || '',
       },
     });
