@@ -112,6 +112,18 @@ export const TIER_LIMITS_V2 = {
   },
 } as const;
 
+// SMS limits per platform tier (monthly message quota)
+export const SMS_LIMITS: Record<string, number> = {
+  starter: 0,    // No SMS
+  pro: 500,
+  label: 2500,
+  empire: 10000,
+};
+
+export function getSmsLimit(tier: string | null | undefined): number {
+  return SMS_LIMITS[tier || 'starter'] || 0;
+}
+
 export type PlatformTierName = 'starter' | 'pro' | 'label' | 'empire';
 
 export function getTierLimitsV2(tier: string | null) {
