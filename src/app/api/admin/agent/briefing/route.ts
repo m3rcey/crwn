@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { adminDailyBriefingEmail } from '@/lib/emails/adminDailyBriefing';
 
@@ -9,8 +9,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'dummy-key-for-build',
+const kimi = new OpenAI({
+  apiKey: process.env.MOONSHOT_API_KEY || 'dummy-key-for-build',
+  baseURL: 'https://api.moonshot.ai/v1',
 });
 
 const SYSTEM_PROMPT = `You are CRWN's daily business health monitor. Analyze the platform metrics and identify the most important items the owner needs to know TODAY.
@@ -66,15 +67,16 @@ Revenue (period): $${(metrics.periodRevenue / 100).toFixed(2)} | Costs: $${(metr
 
 Return ONLY the JSON array.`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
+    const response = await kimi.chat.completions.create({
+      model: 'kimi-k2.5',
       max_tokens: 1500,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }],
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userMessage },
+      ],
     });
 
-    const textBlock = response.content.find(b => b.type === 'text');
-    const rawText = textBlock?.text || '[]';
+    const rawText = response.choices[0]?.message?.content || '[]';
 
     let insights;
     try {

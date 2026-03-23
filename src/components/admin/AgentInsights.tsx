@@ -151,7 +151,7 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
         <div className="bg-[#1A1A1A] rounded-xl border border-[#2a2a2a] p-8 text-center">
           <Sparkles className="w-8 h-8 text-[#333] mx-auto mb-3" />
           <p className="text-[#555] text-sm">Click Analyze to get AI-powered insights on your metrics</p>
-          <p className="text-[#444] text-xs mt-1">Uses Claude Sonnet to evaluate your dashboard against Hormozi&apos;s playbook</p>
+          <p className="text-[#444] text-xs mt-1">Uses Kimi K2.5 to evaluate your dashboard against Hormozi&apos;s playbook</p>
         </div>
       )}
     </div>

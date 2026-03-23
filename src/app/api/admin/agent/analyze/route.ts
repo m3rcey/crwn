@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'dummy-key-for-build',
+const kimi = new OpenAI({
+  apiKey: process.env.MOONSHOT_API_KEY || 'dummy-key-for-build',
+  baseURL: 'https://api.moonshot.ai/v1',
 });
 
 const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You analyze platform metrics and return structured, actionable insights.
@@ -165,16 +166,16 @@ PROJECTIONS:
 
 Return ONLY the JSON array of insights. No markdown, no code fences, no explanation.`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const response = await kimi.chat.completions.create({
+      model: 'kimi-k2.5',
       max_tokens: 2000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }],
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userMessage },
+      ],
     });
 
-    // Extract text from response
-    const textBlock = response.content.find(b => b.type === 'text');
-    const rawText = textBlock?.text || '[]';
+    const rawText = response.choices[0]?.message?.content || '[]';
 
     // Parse JSON from response (handle potential markdown wrapping)
     let insights;
