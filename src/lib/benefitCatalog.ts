@@ -108,7 +108,7 @@ export const BENEFIT_CATALOG: BenefitDefinition[] = [
     description: 'Their comments are highlighted in your community',
     icon: '⭐',
     category: 'community',
-    available: true,
+    available: false,
   },
 
   // --- SHOP ---
