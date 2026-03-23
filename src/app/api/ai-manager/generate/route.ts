@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { collectArtistData } from '@/lib/ai/collectArtistData';
 import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
+import { generateSyncInsights } from '@/lib/ai/syncInsights';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,6 +51,8 @@ export async function POST(req: NextRequest) {
       insights = generateStarterNudges(data);
     } else {
       insights = await generateInsights(data);
+      const syncInsights = generateSyncInsights(data);
+      insights = [...insights, ...syncInsights];
     }
 
     // Insert with dedup

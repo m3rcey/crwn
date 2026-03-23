@@ -377,7 +377,7 @@ export interface SyncOpportunity {
 }
 
 // AI Artist Manager
-export type AiInsightType = 'revenue' | 'churn' | 'vip_fan' | 'booking_reminder' | 'content_nudge' | 'weekly_digest';
+export type AiInsightType = 'revenue' | 'churn' | 'vip_fan' | 'booking_reminder' | 'content_nudge' | 'weekly_digest' | 'sync_match';
 export type AiInsightPriority = 'urgent' | 'high' | 'normal' | 'low';
 
 export interface AiInsight {

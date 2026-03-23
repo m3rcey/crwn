@@ -33,6 +33,12 @@ export interface ArtistDataForAI {
   products: {
     expiringWithin7Days: { title: string; expiresAt: string }[];
   };
+  syncOpportunities: {
+    genreMatches: { id: string; title: string; deadline: string | null; priceMin: number; priceMax: number; type: string; genres: string[] }[];
+    locationMatches: { id: string; title: string; deadline: string | null; priceMin: number; priceMax: number; type: string }[];
+  };
+  artistGenres: string[];
+  artistState: string | null;
   topFans: { fanId: string; name: string; totalSpent: number }[];
   hasActivity: boolean;
 }
@@ -51,7 +57,7 @@ export async function collectArtistData(
   // Get artist profile + display_name from profiles table
   const { data: artistProfile } = await supabaseAdmin
     .from('artist_profiles')
-    .select('user_id, platform_tier, is_founding_artist')
+    .select('user_id, platform_tier, is_founding_artist, genres, state')
     .eq('id', artistId)
     .single();
 
@@ -64,6 +70,8 @@ export async function collectArtistData(
   const platformTier = artistProfile?.platform_tier || 'starter';
   const isFoundingArtist = artistProfile?.is_founding_artist ?? false;
   const artistName = profile?.display_name || 'Artist';
+  const artistGenres: string[] = artistProfile?.genres || [];
+  const artistState: string | null = artistProfile?.state || null;
 
   // ---- EARNINGS ----
   const { data: allEarnings } = await supabaseAdmin
@@ -258,6 +266,45 @@ export async function collectArtistData(
     .slice(0, 5)
     .map(([fanId, total]) => ({ fanId, name: fanNames[fanId] || 'Fan', totalSpent: total }));
 
+  // ---- SYNC OPPORTUNITIES (genre/location matches with upcoming deadlines) ----
+  const { data: syncOpps } = await supabaseAdmin
+    .from('sync_opportunities')
+    .select('id, title, deadline, price_min, price_max, type, genres, location_state, is_online, event_date')
+    .eq('is_active', true)
+    .order('deadline', { ascending: true });
+
+  const allSyncOpps = (syncOpps || []).filter(opp => {
+    // Filter out expired opps
+    const deadlineDate = opp.deadline ? new Date(opp.deadline) : null;
+    const eventDate = opp.event_date ? new Date(opp.event_date) : null;
+    const expiryDate = deadlineDate || eventDate;
+    return !expiryDate || expiryDate >= now;
+  });
+
+  const genreMatchOpps = allSyncOpps.filter(opp => {
+    const oppGenres: string[] = opp.genres || [];
+    return oppGenres.includes('all') || artistGenres.some(g => oppGenres.includes(g));
+  }).slice(0, 5).map(opp => ({
+    id: opp.id,
+    title: opp.title,
+    deadline: opp.deadline,
+    priceMin: opp.price_min || 0,
+    priceMax: opp.price_max || 0,
+    type: opp.type || 'brief',
+    genres: opp.genres || [],
+  }));
+
+  const locationMatchOpps = allSyncOpps.filter(opp => {
+    return artistState && (opp.is_online || opp.location_state === artistState);
+  }).slice(0, 5).map(opp => ({
+    id: opp.id,
+    title: opp.title,
+    deadline: opp.deadline,
+    priceMin: opp.price_min || 0,
+    priceMax: opp.price_max || 0,
+    type: opp.type || 'brief',
+  }));
+
   // ---- HAS ACTIVITY ----
   const hasActivity = earnings.length > 0 || activeSubs.length > 0 || totalPlays > 0;
 
@@ -297,6 +344,12 @@ export async function collectArtistData(
         expiresAt: p.expires_at,
       })),
     },
+    syncOpportunities: {
+      genreMatches: genreMatchOpps,
+      locationMatches: locationMatchOpps,
+    },
+    artistGenres,
+    artistState,
     topFans,
     hasActivity,
   };

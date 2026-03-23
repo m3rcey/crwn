@@ -16,6 +16,7 @@ import {
   RefreshCw,
   ArrowRight,
   Crown,
+  Music,
 } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
 
@@ -26,6 +27,7 @@ const TYPE_CONFIG: Record<AiInsightType, { icon: React.ElementType; label: strin
   booking_reminder: { icon: Calendar, label: 'Reminder' },
   content_nudge: { icon: Pen, label: 'Content' },
   weekly_digest: { icon: FileText, label: 'Digest' },
+  sync_match: { icon: Music, label: 'Sync Opportunity' },
 };
 
 const PRIORITY_STYLES: Record<string, string> = {
