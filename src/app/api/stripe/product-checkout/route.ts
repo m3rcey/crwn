@@ -133,6 +133,7 @@ export async function POST(request: NextRequest) {
     // Create Stripe checkout session for one-time payment
     const isPhysical = product.type === 'physical';
     const session = await stripe.checkout.sessions.create({
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       payment_method_types: ['card'],
       ...(isPhysical && {
         shipping_address_collection: {

@@ -35,6 +35,22 @@
     {
       "path": "/api/cron/sync-opportunities",
       "schedule": "0 10 * * 1,4"
+    },
+    {
+      "path": "/api/cron/lead-scoring",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/inactive-subscribers",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/scheduled-releases",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/scheduled-campaigns",
+      "schedule": "*/30 * * * *"
     }
   ]
 }

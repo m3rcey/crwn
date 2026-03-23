@@ -99,8 +99,9 @@ export async function POST(req: NextRequest) {
       discountResult = result;
     }
 
-    // Create Stripe Checkout Session
+    // Create Stripe Checkout Session (30-min expiry enables abandoned cart recovery)
     const session = await stripe.checkout.sessions.create({
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       mode: 'subscription',
       customer: customer.id,
       payment_method_types: ['card'],
