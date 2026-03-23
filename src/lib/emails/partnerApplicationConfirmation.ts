@@ -20,7 +20,7 @@ export function partnerApplicationConfirmationEmail(params: {
               We'll review your application and assign your partner tier within 48 hours. All partners get:
             </p>
             <ul style="color: #A0A0A0; font-size: 14px; line-height: 1.8; margin: 0 0 24px 0; padding-left: 20px;">
-              <li>Free platform access (Pro or Empire depending on tier)</li>
+              <li>Free platform access (Pro or Label depending on tier)</li>
               <li>Your custom partner referral link</li>
               <li>$50 per artist who goes paid through your link</li>
               <li>Top-tier partners also get 10% recurring for 12 months + content bonuses up to $250/post</li>

@@ -18,7 +18,7 @@ const tiers = [
     name: 'Tier 1',
     label: 'Full Deal',
     score: '24–30',
-    access: 'Free Empire (12 mo)',
+    access: 'Free Label (12 mo)',
     flat: '$50/artist',
     recurring: '10% for 12 mo',
     contentBonus: '$250/post',
@@ -28,7 +28,7 @@ const tiers = [
     name: 'Tier 2',
     label: 'Standard Deal',
     score: '18–23',
-    access: 'Free Empire (12 mo)',
+    access: 'Free Label (12 mo)',
     flat: '$50/artist',
     recurring: '10% for 12 mo',
     contentBonus: '$100–250 (negotiable)',
@@ -126,7 +126,7 @@ export default function PartnerPage() {
             {
               icon: Crown,
               title: 'Free Platform Access',
-              desc: 'Up to Empire tier ($350/mo value) for up to 12 months, depending on your tier.',
+              desc: 'Up to Label tier ($150/mo value) for up to 12 months, depending on your tier.',
             },
             {
               icon: DollarSign,
