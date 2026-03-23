@@ -243,7 +243,7 @@ function ArtistDashboardContent() {
           )}
           {visitedTabs.has('ai-manager') && (
             <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
-              {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} />}
+              {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} onSwitchTab={(tab) => switchTab(tab as TabId)} />}
             </div>
           )}
           {visitedTabs.has('sync') && (

@@ -66,11 +66,15 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  const now = new Date().toISOString();
+
   // New releases - latest tracks across all artists
+  // Exclude tracks still in early access window (public_release_date in the future)
   const { data: newReleases } = await supabaseAdmin
     .from('tracks')
     .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
     .eq('is_active', true)
+    .or(`public_release_date.is.null,public_release_date.lte.${now}`)
     .order('created_at', { ascending: false })
     .limit(12);
 
@@ -79,6 +83,7 @@ export async function GET(req: NextRequest) {
     .from('tracks')
     .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, is_free')
     .eq('is_active', true)
+    .or(`public_release_date.is.null,public_release_date.lte.${now}`)
     .order('play_count', { ascending: false })
     .limit(12);
 
@@ -89,6 +94,7 @@ export async function GET(req: NextRequest) {
       .from('tracks')
       .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
       .eq('is_active', true)
+      .or(`public_release_date.is.null,public_release_date.lte.${now}`)
       .ilike('title', `%${search}%`)
       .order('play_count', { ascending: false })
       .limit(12);

@@ -19,6 +19,7 @@ import {
   Music,
 } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
+import { MonetizationRoadmap } from './MonetizationRoadmap';
 
 const TYPE_CONFIG: Record<AiInsightType, { icon: React.ElementType; label: string }> = {
   revenue: { icon: TrendingUp, label: 'Revenue' },
@@ -41,9 +42,10 @@ interface AiManagerCardProps {
   artistId: string;
   platformTier: string;
   isFoundingArtist?: boolean;
+  onSwitchTab?: (tab: string) => void;
 }
 
-export function AiManagerCard({ artistId, platformTier, isFoundingArtist }: AiManagerCardProps) {
+export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwitchTab }: AiManagerCardProps) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
   const [insights, setInsights] = useState<AiInsight[]>([]);
@@ -150,6 +152,11 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist }: AiMa
             </button>
           )}
         </div>
+
+        {/* Monetization Roadmap */}
+        {onSwitchTab && (
+          <MonetizationRoadmap artistId={artistId} onSwitchTab={onSwitchTab} />
+        )}
 
         {/* Starter Tier Upsell */}
         {isStarterOnly && (
