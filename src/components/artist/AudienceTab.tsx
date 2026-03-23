@@ -112,7 +112,7 @@ export function AudienceTab() {
     <div className="space-y-6">
       {/* Sub-navigation */}
       {isTopLevel && (
-        <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1 w-fit">
+        <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1 w-fit overflow-x-auto max-w-full">
           {[
             { id: 'fans' as SubView, label: 'Fans', icon: <Users className="w-4 h-4" /> },
             { id: 'campaigns' as SubView, label: 'Campaigns', icon: <Mail className="w-4 h-4" /> },
@@ -123,7 +123,7 @@ export function AudienceTab() {
             <button
               key={tab.id}
               onClick={() => setSubView(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap shrink-0 ${
                 subView === tab.id
                   ? 'bg-crwn-elevated text-crwn-text'
                   : 'text-crwn-text-secondary hover:text-crwn-text'
