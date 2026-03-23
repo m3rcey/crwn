@@ -2,10 +2,27 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
+// Bot detection — filter out crawlers, monitors, and preview generators
+const BOT_PATTERNS = /bot|crawl|spider|slurp|facebookexternalhit|twitterbot|linkedinbot|discordbot|telegrambot|whatsapp|preview|monitor|uptime|pingdom|headless|phantom|selenium|puppeteer|lighthouse|pagespeed|gtmetrix/i;
+
+function isBot(ua: string): boolean {
+  return BOT_PATTERNS.test(ua);
+}
+
 // Simple hash for visitor fingerprinting (no PII stored)
-async function hashVisitor(request: NextRequest): Promise<string> {
-  const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+// Uses only the client IP (first in x-forwarded-for chain) + user-agent
+async function hashVisitor(request: NextRequest): Promise<string | null> {
   const ua = request.headers.get('user-agent') || 'unknown';
+
+  // Skip bots entirely — they're not real visitors
+  if (isBot(ua)) return null;
+
+  // Use only the first IP (actual client), not the full proxy chain
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const ip = forwardedFor
+    ? forwardedFor.split(',')[0].trim()
+    : request.headers.get('x-real-ip') || 'unknown';
+
   const raw = `${ip}:${ua}`;
   const encoder = new TextEncoder();
   const data = encoder.encode(raw);
@@ -63,9 +80,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/home', request.url));
   }
 
-  // Fire-and-forget visitor tracking (non-blocking)
+  // Fire-and-forget visitor tracking (non-blocking, skip bots)
   try {
     const visitorHash = await hashVisitor(request);
+    if (!visitorHash) return response; // Bot detected, skip tracking
+
     const userId = getUserIdFromCookie(request);
 
     // Detect artist page visits: /{slug} pattern (single segment, not a known route)
