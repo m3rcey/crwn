@@ -81,7 +81,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
   // Get tiers for subscribe CTA
   const { data: tiers } = await supabase
     .from('subscription_tiers')
-    .select('id, name, price')
+    .select('id, name, price, description')
     .eq('artist_id', artist.id)
     .eq('is_active', true)
     .order('price', { ascending: true });

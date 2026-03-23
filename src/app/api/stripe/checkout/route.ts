@@ -6,7 +6,7 @@ import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tierId, referralCode, interval } = await req.json();
+    const { tierId, referralCode, interval, returnUrl } = await req.json();
     const supabase = await createServerSupabaseClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -108,8 +108,12 @@ export async function POST(req: NextRequest) {
       payment_intent_data: {
         ...(statementSuffix ? { statement_descriptor_suffix: statementSuffix } : {}),
       },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=canceled`,
+      success_url: returnUrl
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=success`
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=success`,
+      cancel_url: returnUrl
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=canceled`
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=canceled`,
       metadata: {
         fan_id: fanId,
         artist_id: tier.artist_id,

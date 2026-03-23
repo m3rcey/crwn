@@ -90,7 +90,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
   // Get tiers
   const { data: tiers } = await supabase
     .from('subscription_tiers')
-    .select('id, name, price')
+    .select('id, name, price, description')
     .eq('artist_id', artist.id)
     .eq('is_active', true)
     .order('price', { ascending: true });

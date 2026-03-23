@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -22,7 +21,6 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
   const { isLiked, toggleFavorite } = useFavorites();
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // New gating logic: is_free !== false means free (null = free)
   // Otherwise check if user has a tier that's in allowed_tier_ids
@@ -35,7 +33,10 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   const handlePlay = () => {
     hapticMedium();
     if (isLocked) {
-      setShowPreviewModal(true);
+      // Navigate to subscribe — use track page if we have a slug, otherwise artist profile
+      if (artistSlug) {
+        window.location.href = `/${artistSlug}/track/${track.id}`;
+      }
       return;
     }
 
@@ -48,16 +49,6 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
     } else {
       play(track, trackList);
     }
-  };
-
-  const handlePreview = () => {
-    // Play 30-second preview
-    const previewTrack = {
-      ...track,
-      audio_url_128: `${track.audio_url_128}#t=0,30`,
-    };
-    play(previewTrack, trackList);
-    setShowPreviewModal(false);
   };
 
   if (isLoading) {
@@ -153,13 +144,14 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
         </div>
 
         {/* CTA Button */}
-        {isLocked && (
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowPreviewModal(true); }}
-            className="px-4 py-1.5 bg-crwn-gold/10 border border-crwn-gold text-crwn-gold text-sm font-medium rounded-full hover:bg-crwn-gold/20 transition-colors"
+        {isLocked && artistSlug && (
+          <a
+            href={`/${artistSlug}/track/${track.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="px-4 py-1.5 neu-button-accent text-crwn-bg text-sm font-medium rounded-full"
           >
-            Preview
-          </button>
+            Unlock
+          </a>
         )}
 
         {/* Track Action Buttons (Like & Add to Playlist) */}
@@ -183,47 +175,6 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
         )}
       </div>
 
-      {/* Preview Modal */}
-      {showPreviewModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="neu-modal p-6 max-w-md w-full">
-            <div className="text-center">
-              <div className="w-16 h-16 neu-raised rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock size={32} className="text-crwn-gold" />
-              </div>
-              <h3 className="text-xl font-bold text-crwn-text mb-2">
-                This track is locked
-              </h3>
-              <p className="text-crwn-text-secondary mb-6">
-                Subscribe to this artist to unlock full access to their exclusive content.
-              </p>
-
-              <div className="space-y-3">
-                <button
-                  onClick={handlePreview}
-                  className="w-full neu-button text-crwn-gold"
-                >
-                  Play 30-second preview
-                </button>
-
-                <a
-                  href={`/${artistId}?subscribe=true`}
-                  className="block w-full py-3 neu-button-accent text-crwn-bg"
-                >
-                  Subscribe to unlock
-                </a>
-
-                <button
-                  onClick={() => setShowPreviewModal(false)}
-                  className="w-full py-3 text-crwn-text-secondary hover:text-crwn-text transition-colors"
-                >
-                  Maybe later
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
