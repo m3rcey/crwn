@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Users, Mail } from 'lucide-react';
+import { Users, Mail, Zap } from 'lucide-react';
 import { FanTable } from '@/components/artist/FanTable';
 import { CampaignList } from '@/components/artist/CampaignList';
 import { CampaignComposer } from '@/components/artist/CampaignComposer';
 import { CampaignStats } from '@/components/artist/CampaignStats';
+import { SequenceList } from '@/components/artist/SequenceList';
+import { SequenceBuilder } from '@/components/artist/SequenceBuilder';
 
-type SubView = 'fans' | 'campaigns' | 'compose' | 'stats';
+type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit';
 
 export function AudienceTab() {
   const supabase = createBrowserSupabaseClient();
@@ -17,6 +19,7 @@ export function AudienceTab() {
   const [subView, setSubView] = useState<SubView>('fans');
   const [editCampaignId, setEditCampaignId] = useState<string | null>(null);
   const [statsCampaignId, setStatsCampaignId] = useState<string | null>(null);
+  const [editSequenceId, setEditSequenceId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadArtist() {
@@ -67,10 +70,27 @@ export function AudienceTab() {
     setSubView('campaigns');
   };
 
+  const handleNewSequence = () => {
+    setEditSequenceId(null);
+    setSubView('sequence-edit');
+  };
+
+  const handleEditSequence = (id: string) => {
+    setEditSequenceId(id);
+    setSubView('sequence-edit');
+  };
+
+  const handleBackToSequences = () => {
+    setEditSequenceId(null);
+    setSubView('sequences');
+  };
+
+  const isTopLevel = subView === 'fans' || subView === 'campaigns' || subView === 'sequences';
+
   return (
     <div className="space-y-6">
       {/* Sub-navigation */}
-      {subView !== 'compose' && subView !== 'stats' && (
+      {isTopLevel && (
         <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1 w-fit">
           <button
             onClick={() => setSubView('fans')}
@@ -93,6 +113,17 @@ export function AudienceTab() {
           >
             <Mail className="w-4 h-4" />
             Campaigns
+          </button>
+          <button
+            onClick={() => setSubView('sequences')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              subView === 'sequences'
+                ? 'bg-crwn-elevated text-crwn-text'
+                : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            Sequences
           </button>
         </div>
       )}
@@ -122,6 +153,21 @@ export function AudienceTab() {
         <CampaignStats
           campaignId={statsCampaignId}
           onBack={handleBackToCampaigns}
+        />
+      )}
+      {subView === 'sequences' && artistId && (
+        <SequenceList
+          artistId={artistId}
+          onEdit={handleEditSequence}
+          onNew={handleNewSequence}
+        />
+      )}
+      {subView === 'sequence-edit' && artistId && (
+        <SequenceBuilder
+          artistId={artistId}
+          sequenceId={editSequenceId}
+          onBack={handleBackToSequences}
+          onSaved={handleBackToSequences}
         />
       )}
     </div>

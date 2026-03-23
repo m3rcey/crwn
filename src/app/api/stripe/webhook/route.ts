@@ -403,6 +403,54 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           console.error('Referral processing failed:', err);
         }
       }
+
+      // Enroll fan in active welcome sequence
+      try {
+        const { data: activeSequence } = await supabaseAdmin
+          .from('sequences')
+          .select('id')
+          .eq('artist_id', artist_id)
+          .eq('trigger_type', 'new_subscription')
+          .eq('is_active', true)
+          .limit(1)
+          .maybeSingle();
+
+        if (activeSequence) {
+          // Check not already enrolled
+          const { data: existing } = await supabaseAdmin
+            .from('sequence_enrollments')
+            .select('id')
+            .eq('sequence_id', activeSequence.id)
+            .eq('fan_id', fan_id)
+            .maybeSingle();
+
+          if (!existing) {
+            // Get first step delay
+            const { data: firstStep } = await supabaseAdmin
+              .from('sequence_steps')
+              .select('delay_days')
+              .eq('sequence_id', activeSequence.id)
+              .eq('step_number', 1)
+              .single();
+
+            if (firstStep) {
+              const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
+              await supabaseAdmin
+                .from('sequence_enrollments')
+                .insert({
+                  sequence_id: activeSequence.id,
+                  fan_id: fan_id,
+                  artist_id: artist_id,
+                  current_step: 0,
+                  status: 'active',
+                  next_send_at: nextSendAt,
+                });
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Sequence enrollment failed:', err);
+      }
     }
   }
 }
