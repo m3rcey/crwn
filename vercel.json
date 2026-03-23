@@ -51,6 +51,14 @@
     {
       "path": "/api/cron/scheduled-campaigns",
       "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/platform-crm",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/platform-sequences",
+      "schedule": "0 10 * * *"
     }
   ]
 }

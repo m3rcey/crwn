@@ -1319,6 +1319,9 @@ export async function handlePlatformSubscriptionDeleted(supabaseAdmin: AdminClie
   }
 
   console.log('Platform subscription cancelled:', { artist_id: artist.id });
+
+  // Enroll in platform win-back sequence
+  await enrollInPlatformSequence(supabaseAdmin, artist.user_id, 'paid_churned');
 }
 
 // ─── Platform invoice payment failed ─────────────────────────────────────────
@@ -1591,11 +1594,32 @@ export async function handleCheckoutExpired(supabaseAdmin: AdminClient, session:
   const metadata = session.metadata;
   if (!metadata) return;
 
+  // Check if this is a platform tier upgrade checkout (CRWN SaaS)
+  if (metadata.tier && metadata.artist_id && !metadata.fan_id) {
+    console.log('Abandoned platform upgrade detected:', { artist_id: metadata.artist_id, tier: metadata.tier });
+
+    // Enroll artist in platform upgrade_abandoned sequence
+    try {
+      const { data: artist } = await supabaseAdmin
+        .from('artist_profiles')
+        .select('user_id')
+        .eq('id', metadata.artist_id)
+        .single();
+
+      if (artist) {
+        await enrollInPlatformSequence(supabaseAdmin, artist.user_id, 'upgrade_abandoned');
+      }
+    } catch (err) {
+      console.error('Platform abandoned upgrade enrollment failed:', err);
+    }
+    return;
+  }
+
+  // Fan checkout abandoned
   const fan_id = metadata.fan_id;
   const artist_id = metadata.artist_id;
   if (!fan_id || !artist_id) return;
 
-  // Determine what type of checkout was abandoned
   const checkoutType = metadata.product_id ? 'product' : metadata.booking_session_id ? 'booking' : 'subscription';
 
   console.log('Abandoned checkout detected:', { fan_id, artist_id, checkoutType });
@@ -1666,5 +1690,56 @@ async function enrollInSequence(
     }
   } catch (err) {
     console.error(`Sequence enrollment (${triggerType}) failed:`, err);
+  }
+}
+
+// ─── Platform sequence enrollment (CRWN → artist) ────────────────────────────
+
+async function enrollInPlatformSequence(
+  supabaseAdmin: AdminClient,
+  artistUserId: string,
+  triggerType: string,
+) {
+  try {
+    const { data: sequence } = await supabaseAdmin
+      .from('platform_sequences')
+      .select('id')
+      .eq('trigger_type', triggerType)
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (!sequence) return;
+
+    const { data: existing } = await supabaseAdmin
+      .from('platform_sequence_enrollments')
+      .select('id')
+      .eq('sequence_id', sequence.id)
+      .eq('artist_user_id', artistUserId)
+      .in('status', ['active', 'completed'])
+      .maybeSingle();
+
+    if (existing) return;
+
+    const { data: firstStep } = await supabaseAdmin
+      .from('platform_sequence_steps')
+      .select('delay_days')
+      .eq('sequence_id', sequence.id)
+      .eq('step_number', 1)
+      .single();
+
+    if (firstStep) {
+      const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
+      await supabaseAdmin.from('platform_sequence_enrollments').insert({
+        sequence_id: sequence.id,
+        artist_user_id: artistUserId,
+        current_step: 0,
+        status: 'active',
+        next_send_at: nextSendAt,
+      });
+      console.log(`Enrolled artist ${artistUserId} in platform ${triggerType} sequence`);
+    }
+  } catch (err) {
+    console.error(`Platform sequence enrollment (${triggerType}) failed:`, err);
   }
 }
