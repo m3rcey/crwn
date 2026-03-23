@@ -237,6 +237,18 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         }
       }
 
+      // Mark any abandoned checkouts as recovered
+      try {
+        await supabaseAdmin
+          .from('abandoned_checkouts')
+          .update({ recovered: true })
+          .eq('fan_id', fan_id)
+          .eq('artist_id', artist_id)
+          .eq('recovered', false);
+      } catch (err) {
+        console.error('Abandoned checkout recovery update failed:', err);
+      }
+
       // Enroll fan in active welcome sequence
       try {
         const { data: activeSequence } = await supabaseAdmin
@@ -878,6 +890,18 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
     } catch (err) {
       console.error('Discount code recording failed:', err);
     }
+  }
+
+  // Mark any abandoned checkouts as recovered
+  try {
+    await supabaseAdmin
+      .from('abandoned_checkouts')
+      .update({ recovered: true })
+      .eq('fan_id', fan_id)
+      .eq('artist_id', artist_id)
+      .eq('recovered', false);
+  } catch (err) {
+    console.error('Abandoned checkout recovery update failed:', err);
   }
 
   // Enroll fan in post-purchase upsell sequence if one exists
