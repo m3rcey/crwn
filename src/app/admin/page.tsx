@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import PipelineView from '@/components/admin/PipelineView';
+import PlatformSequences from '@/components/admin/PlatformSequences';
 
-type AdminTab = 'dashboard' | 'pipeline';
+type AdminTab = 'dashboard' | 'pipeline' | 'sequences';
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -73,6 +74,15 @@ export default function AdminPage() {
             <Users className="w-4 h-4" />
             Pipeline
           </button>
+          <button
+            onClick={() => setActiveTab('sequences')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'sequences' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Zap className="w-4 h-4" />
+            Sequences
+          </button>
         </div>
       </div>
 
@@ -80,6 +90,11 @@ export default function AdminPage() {
       {activeTab === 'pipeline' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <PipelineView />
+        </div>
+      )}
+      {activeTab === 'sequences' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <PlatformSequences />
         </div>
       )}
     </div>
