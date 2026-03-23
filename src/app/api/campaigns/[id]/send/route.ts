@@ -324,7 +324,7 @@ export async function POST(
         });
 
         const { error } = await resend.emails.send({
-          from: FROM_EMAIL,
+          from: `${artistName} via CRWN <hello@thecrwn.app>`,
           to: send.email,
           subject: personalizedSubject,
           html,

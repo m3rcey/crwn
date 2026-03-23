@@ -159,7 +159,7 @@ export async function GET(req: NextRequest) {
       });
 
       const { error: sendError } = await resend.emails.send({
-        from: FROM_EMAIL,
+        from: `${artistName} via CRWN <hello@thecrwn.app>`,
         to: fanEmail,
         subject: personalizedSubject,
         html,
