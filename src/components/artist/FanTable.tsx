@@ -92,9 +92,10 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
   };
 
   const engagementLabel = (score: number) => {
-    if (score >= 100) return { text: 'High', color: 'text-green-400' };
-    if (score >= 20) return { text: 'Medium', color: 'text-yellow-400' };
-    return { text: 'Low', color: 'text-crwn-text-secondary' };
+    if (score >= 100) return { text: 'Hot', color: 'text-red-400', bg: 'bg-red-400/10' };
+    if (score >= 50) return { text: 'Warm', color: 'text-orange-400', bg: 'bg-orange-400/10' };
+    if (score >= 20) return { text: 'Medium', color: 'text-yellow-400', bg: 'bg-yellow-400/10' };
+    return { text: 'Cold', color: 'text-crwn-text-secondary', bg: 'bg-crwn-elevated' };
   };
 
   const totalPages = data ? Math.ceil(data.total / data.limit) : 1;
@@ -287,7 +288,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs font-medium ${eng.color}`}>{eng.text}</span>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${eng.color} ${eng.bg}`}>{eng.text}</span>
                           <span className="text-xs text-crwn-text-secondary">{fan.engagement_score}</span>
                         </div>
                       </td>

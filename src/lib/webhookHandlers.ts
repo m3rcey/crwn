@@ -12,6 +12,7 @@ import { artistNewPurchaseEmail } from '@/lib/emails/artistNewPurchase';
 import { receiptEmail } from '@/lib/emails/receipt';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
+import { recordDiscountCodeUse } from '@/lib/discountCodes';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -282,6 +283,17 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         }
       } catch (err) {
         console.error('Sequence enrollment failed:', err);
+      }
+
+      // Record discount code usage if applicable
+      const discountCodeId = session.metadata?.discount_code_id;
+      if (discountCodeId) {
+        try {
+          const amountSaved = session.total_details?.amount_discount || 0;
+          await recordDiscountCodeUse(discountCodeId, fan_id, artist_id, session.id, amountSaved);
+        } catch (err) {
+          console.error('Discount code recording failed:', err);
+        }
       }
     }
   }
@@ -584,6 +596,50 @@ export async function handleSubscriptionDeleted(supabaseAdmin: AdminClient, subs
       action_url: '/profile/artist?tab=ai-manager',
       expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
     });
+
+    // Enroll in win-back sequence if one exists
+    try {
+      const { data: winBackSequence } = await supabaseAdmin
+        .from('sequences')
+        .select('id')
+        .eq('artist_id', subData.artist_id)
+        .eq('trigger_type', 'win_back')
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+
+      if (winBackSequence) {
+        const { data: existing } = await supabaseAdmin
+          .from('sequence_enrollments')
+          .select('id')
+          .eq('sequence_id', winBackSequence.id)
+          .eq('fan_id', subData.fan_id)
+          .maybeSingle();
+
+        if (!existing) {
+          const { data: firstStep } = await supabaseAdmin
+            .from('sequence_steps')
+            .select('delay_days')
+            .eq('sequence_id', winBackSequence.id)
+            .eq('step_number', 1)
+            .single();
+
+          if (firstStep) {
+            const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
+            await supabaseAdmin.from('sequence_enrollments').insert({
+              sequence_id: winBackSequence.id,
+              fan_id: subData.fan_id,
+              artist_id: subData.artist_id,
+              current_step: 0,
+              status: 'active',
+              next_send_at: nextSendAt,
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Win-back sequence enrollment failed:', err);
+    }
   }
 }
 
@@ -807,6 +863,61 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
     } catch (err) {
       console.error('Booking token email failed:', err);
     }
+  }
+
+  // Record discount code usage if applicable
+  const discountCodeId = session.metadata?.discount_code_id;
+  if (discountCodeId) {
+    try {
+      const amountSaved = session.total_details?.amount_discount || 0;
+      await recordDiscountCodeUse(discountCodeId, fan_id, artist_id, session.id, amountSaved);
+    } catch (err) {
+      console.error('Discount code recording failed:', err);
+    }
+  }
+
+  // Enroll fan in post-purchase upsell sequence if one exists
+  try {
+    const { data: upsellSequence } = await supabaseAdmin
+      .from('sequences')
+      .select('id')
+      .eq('artist_id', artist_id)
+      .eq('trigger_type', 'post_purchase_upsell')
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (upsellSequence) {
+      const { data: existing } = await supabaseAdmin
+        .from('sequence_enrollments')
+        .select('id')
+        .eq('sequence_id', upsellSequence.id)
+        .eq('fan_id', fan_id)
+        .maybeSingle();
+
+      if (!existing) {
+        const { data: firstStep } = await supabaseAdmin
+          .from('sequence_steps')
+          .select('delay_days')
+          .eq('sequence_id', upsellSequence.id)
+          .eq('step_number', 1)
+          .single();
+
+        if (firstStep) {
+          const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
+          await supabaseAdmin.from('sequence_enrollments').insert({
+            sequence_id: upsellSequence.id,
+            fan_id,
+            artist_id,
+            current_step: 0,
+            status: 'active',
+            next_send_at: nextSendAt,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Post-purchase sequence enrollment failed:', err);
   }
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });

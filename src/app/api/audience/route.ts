@@ -302,10 +302,10 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  // Merge fan_contacts (imported/captured leads)
+  // Merge fan_contacts (imported/captured leads) with lead scores
   const { data: contacts } = await supabaseAdmin
     .from('fan_contacts')
-    .select('id, email, name, phone, city, state, country, source, created_at')
+    .select('id, email, name, phone, city, state, country, source, lead_score, created_at')
     .eq('artist_id', artistId);
 
   if (contacts && contacts.length > 0) {
@@ -328,7 +328,7 @@ export async function GET(req: NextRequest) {
         state: c.state,
         country: c.country,
         last_active: c.created_at,
-        engagement_score: 0,
+        engagement_score: c.lead_score || 0,
         referral_count: 0,
         is_subscriber: false,
       });

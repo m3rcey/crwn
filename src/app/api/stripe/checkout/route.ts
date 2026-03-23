@@ -3,10 +3,11 @@ import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { validateAndApplyDiscount } from '@/lib/discountCodes';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tierId, referralCode, interval, returnUrl } = await req.json();
+    const { tierId, referralCode, interval, returnUrl, discountCode } = await req.json();
     const supabase = await createServerSupabaseClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -86,6 +87,18 @@ export async function POST(req: NextRequest) {
       .substring(0, 22)
       .toUpperCase();
 
+    // Validate discount code if provided
+    let discountResult: { stripeCouponId?: string; discountId?: string } = {};
+    if (discountCode) {
+      const result = await validateAndApplyDiscount(
+        discountCode, tier.artist_id, fanId, 'subscription', tierId
+      );
+      if (!result.valid) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
+      }
+      discountResult = result;
+    }
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -97,6 +110,9 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
+      ...(discountResult.stripeCouponId ? {
+        discounts: [{ coupon: discountResult.stripeCouponId }],
+      } : {}),
       subscription_data: {
         application_fee_percent: platformFeePercent,
         transfer_data: tier.artist?.stripe_connect_id
@@ -120,6 +136,7 @@ export async function POST(req: NextRequest) {
         tier_id: tierId,
         type: 'subscription',
         referral_code: referralCode || '',
+        discount_code_id: discountResult.discountId || '',
       },
     });
 

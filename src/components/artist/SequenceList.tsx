@@ -24,6 +24,9 @@ const triggerLabels: Record<string, string> = {
   new_subscription: 'New Subscription',
   new_purchase: 'New Purchase',
   tier_upgrade: 'Tier Upgrade',
+  post_purchase_upsell: 'Post-Purchase Upsell',
+  win_back: 'Win-Back',
+  inactive_subscriber: 'Inactive Subscriber',
 };
 
 export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
@@ -73,7 +76,7 @@ export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-crwn-text">Welcome Sequences</h2>
+          <h2 className="text-lg font-semibold text-crwn-text">Sequences</h2>
           <p className="text-sm text-crwn-text-secondary mt-0.5">Automated email drips triggered by fan actions</p>
         </div>
         <button

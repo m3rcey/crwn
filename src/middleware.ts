@@ -91,7 +91,7 @@ export async function middleware(request: NextRequest) {
     const knownRoutes = ['home', 'explore', 'community', 'library', 'profile', 'login', 'signup',
       'admin', 'recruit', 'onboarding', 'support', 'terms', 'privacy', 'dmca', 'about',
       'welcome', 'verify', 'reset-password', 'forgot-password', 'partner', 'join',
-      'artist', 'artist-agreement', 'founding-artists', 'getting-started'];
+      'artist', 'artist-agreement', 'founding-artists', 'getting-started', 'embed', 'link'];
     const pathname = request.nextUrl.pathname;
     const segments = pathname.split('/').filter(Boolean);
     const artistSlug = segments.length === 1 && !knownRoutes.includes(segments[0])

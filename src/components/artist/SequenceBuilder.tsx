@@ -185,6 +185,9 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
             <option value="new_subscription">New Subscription</option>
             <option value="new_purchase">New Purchase</option>
             <option value="tier_upgrade">Tier Upgrade</option>
+            <option value="post_purchase_upsell">Post-Purchase Upsell</option>
+            <option value="win_back">Win-Back (Canceled Sub)</option>
+            <option value="inactive_subscriber">Inactive Subscriber</option>
           </select>
         </div>
       </div>

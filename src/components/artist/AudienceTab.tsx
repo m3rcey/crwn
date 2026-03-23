@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Users, Mail, Zap, MessageSquare, Link2 } from 'lucide-react';
+import { Users, Mail, Zap, MessageSquare, Link2, Tag } from 'lucide-react';
 import { FanTable } from '@/components/artist/FanTable';
 import { CampaignList } from '@/components/artist/CampaignList';
 import { CampaignComposer } from '@/components/artist/CampaignComposer';
@@ -12,8 +12,9 @@ import { SequenceBuilder } from '@/components/artist/SequenceBuilder';
 import { SmsSetup } from '@/components/artist/SmsSetup';
 import { SmartLinkList } from '@/components/artist/SmartLinkList';
 import { SmartLinkEditor } from '@/components/artist/SmartLinkEditor';
+import { DiscountCodeManager } from '@/components/artist/DiscountCodeManager';
 
-type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit' | 'sms' | 'links' | 'link-edit';
+type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit' | 'sms' | 'links' | 'link-edit' | 'discounts';
 
 export function AudienceTab() {
   const supabase = createBrowserSupabaseClient();
@@ -106,7 +107,7 @@ export function AudienceTab() {
     setSubView('links');
   };
 
-  const isTopLevel = subView === 'fans' || subView === 'campaigns' || subView === 'sequences' || subView === 'sms' || subView === 'links';
+  const isTopLevel = subView === 'fans' || subView === 'campaigns' || subView === 'sequences' || subView === 'sms' || subView === 'links' || subView === 'discounts';
 
   return (
     <div className="space-y-6">
@@ -119,6 +120,7 @@ export function AudienceTab() {
             { id: 'sequences' as SubView, label: 'Sequences', icon: <Zap className="w-4 h-4" /> },
             { id: 'sms' as SubView, label: 'SMS', icon: <MessageSquare className="w-4 h-4" /> },
             { id: 'links' as SubView, label: 'Links', icon: <Link2 className="w-4 h-4" /> },
+            { id: 'discounts' as SubView, label: 'Promos', icon: <Tag className="w-4 h-4" /> },
           ].map(tab => (
             <button
               key={tab.id}
@@ -195,6 +197,12 @@ export function AudienceTab() {
           linkId={editLinkId}
           onBack={handleBackToLinks}
           onSaved={handleBackToLinks}
+        />
+      )}
+      {subView === 'discounts' && artistId && (
+        <DiscountCodeManager
+          artistId={artistId}
+          onBack={() => setSubView('fans')}
         />
       )}
     </div>

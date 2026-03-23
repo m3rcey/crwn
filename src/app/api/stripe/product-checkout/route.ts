@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { validateAndApplyDiscount } from '@/lib/discountCodes';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     const fanId = user.id;
     const body = await request.json();
-    const { productId, variantSelections } = body;
+    const { productId, variantSelections, discountCode } = body;
 
     if (!productId) {
       return NextResponse.json(
@@ -101,6 +102,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Apply discount code if provided (stacks with tier shop discount)
+    let discountCodeId = '';
+    if (discountCode) {
+      const result = await validateAndApplyDiscount(
+        discountCode, product.artist_id, fanId, 'product', productId
+      );
+      if (!result.valid) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
+      }
+      discountCodeId = result.discountId || '';
+      if (result.discountType === 'percent') {
+        unitAmount = Math.round(unitAmount * (1 - (result.discountValue || 0) / 100));
+      } else if (result.discountType === 'fixed') {
+        unitAmount = Math.max(50, unitAmount - (result.discountValue || 0)); // min $0.50
+      }
+    }
+
     // Calculate fee as percentage of discounted price (in cents)
     const platformFee = Math.round(unitAmount * (platformFeePercent / 100));
 
@@ -156,6 +174,7 @@ export async function POST(request: NextRequest) {
         fan_id: fanId,
         product_id: productId,
         artist_id: product.artist_id,
+        discount_code_id: discountCodeId,
       },
     });
 
