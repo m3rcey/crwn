@@ -4,6 +4,11 @@ import { collectArtistData } from '@/lib/ai/collectArtistData';
 import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
+import { createNotification } from '@/lib/notifications';
+
+// Insight types that warrant a push notification
+const NOTIFY_TYPES = new Set(['churn', 'booking_reminder', 'sync_match', 'revenue']);
+const NOTIFY_PRIORITIES = new Set(['urgent', 'high']);
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,7 +29,7 @@ async function getExistingInsightTypes(artistId: string): Promise<Set<string>> {
   return new Set((data || []).map(d => d.type));
 }
 
-async function insertInsights(artistId: string, insights: InsightInput[], existingTypes: Set<string>) {
+async function insertInsights(artistId: string, artistUserId: string, insights: InsightInput[], existingTypes: Set<string>) {
   const now = new Date();
   let inserted = 0;
 
@@ -54,6 +59,18 @@ async function insertInsights(artistId: string, insights: InsightInput[], existi
       expires_at: expiresAt,
     });
 
+    // Push notification for urgent/high priority insights of notifiable types
+    if (NOTIFY_PRIORITIES.has(insight.priority) && NOTIFY_TYPES.has(insight.type)) {
+      await createNotification(
+        supabaseAdmin,
+        artistUserId,
+        'ai_insight',
+        insight.title,
+        insight.body,
+        '/profile/artist?tab=ai-manager'
+      );
+    }
+
     inserted++;
   }
 
@@ -70,7 +87,7 @@ export async function GET(req: NextRequest) {
     // Get all active artists
     const { data: artists } = await supabaseAdmin
       .from('artist_profiles')
-      .select('id, platform_tier, is_founding_artist')
+      .select('id, user_id, platform_tier, is_founding_artist')
       .eq('is_active', true);
 
     if (!artists || artists.length === 0) {
@@ -110,7 +127,7 @@ export async function GET(req: NextRequest) {
             insights = [...insights, ...syncInsights];
           }
 
-          const inserted = await insertInsights(artist.id, insights, existingTypes);
+          const inserted = await insertInsights(artist.id, artist.user_id, insights, existingTypes);
           results.push({ artistId: artist.id, status: 'success', insightsCreated: inserted });
         } catch (err) {
           results.push({ artistId: artist.id, status: 'failed', error: String(err) });
