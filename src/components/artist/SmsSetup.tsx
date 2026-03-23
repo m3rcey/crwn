@@ -218,9 +218,9 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-crwn-text">SMS Notifications</h2>
+          <h2 className="text-lg font-semibold text-crwn-text">SMS Campaigns</h2>
           <p className="text-sm text-crwn-text-secondary mt-0.5">
-            Keyword: <span className="font-mono text-crwn-gold">{phoneSetup.keyword}</span>
+            Send targeted texts to opted-in fans. Keyword: <span className="font-mono text-crwn-gold">{phoneSetup.keyword}</span>
           </p>
         </div>
         <button
@@ -228,7 +228,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
           className="flex items-center gap-2 px-4 py-2.5 bg-crwn-gold text-crwn-bg rounded-full text-sm font-semibold hover:bg-crwn-gold/90 transition-colors"
         >
           <Send className="w-4 h-4" />
-          Send SMS
+          New SMS Campaign
         </button>
       </div>
 
@@ -260,7 +260,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
       {/* Compose */}
       {showCompose && (
         <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-5 space-y-4">
-          <h3 className="text-sm font-medium text-crwn-text">Compose SMS</h3>
+          <h3 className="text-sm font-medium text-crwn-text">New SMS Campaign</h3>
 
           <div>
             <label className="block text-xs text-crwn-text-secondary mb-1.5">Category (required)</label>
