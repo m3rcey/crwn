@@ -68,6 +68,9 @@ const TOOLTIPS: Record<string, string> = {
   // Organic vs Recruited
   'Organic Artists': 'Artists who signed up without a recruiter referral. Organic CAC is $0 — the best kind of growth.',
   'Recruited Artists': 'Artists brought in through the recruiter program. Paid acquisition — track ROI to ensure it\'s worth the spend.',
+
+  // Per-Tier Health Check
+  'Tier Health Check': 'Hormozi rule applied per tier: each tier\'s 30-day gross profit must be ≥ 2× (CAC + COGs). If a tier fails, its pricing doesn\'t cover the cost of acquiring and serving that artist.',
 };
 
 interface AdminDashboardProps {
@@ -138,6 +141,21 @@ interface Metrics {
   healthCheckRatio: number;
   healthCheckPassing: boolean;
   healthCheckThreshold: number;
+
+  // Per-Tier Hormozi Breakdown
+  tierHealthCheck: {
+    tier: string;
+    price: number;
+    stripeFee: number;
+    infraPerArtist: number;
+    cogs: number;
+    cac: number;
+    cacPlusCogs: number;
+    threshold: number;
+    profit: number;
+    ratio: number;
+    passing: boolean;
+  }[];
 
   // Organic vs Recruited
   organicArtists: number;
@@ -469,6 +487,59 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           <MetricCard label="Period Costs" value={fmt(metrics.periodCosts)} subValue="Stripe + Recruiters + Fixed" />
           <MetricCard label="Period Gross Profit" value={fmt(metrics.grossProfit)} color={metrics.grossProfit > 0 ? GREEN : RED} />
         </div>
+
+        {/* Per-Tier Hormozi Health Check */}
+        {metrics.tierHealthCheck && metrics.tierHealthCheck.length > 0 && (
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4 mb-6">
+            <div className="flex items-center gap-1 mb-4">
+              <p className="text-white text-sm font-medium">Tier Pricing vs (CAC + COGs) × 2</p>
+              <InfoTooltip text={TOOLTIPS['Tier Health Check']} />
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-[#666] border-b border-[#2a2a2a]">
+                    <th className="text-left py-2 pr-3">Tier</th>
+                    <th className="text-right py-2 pr-3">Price/mo</th>
+                    <th className="text-right py-2 pr-3">Stripe Fee</th>
+                    <th className="text-right py-2 pr-3">Infra/Artist</th>
+                    <th className="text-right py-2 pr-3">COGs</th>
+                    <th className="text-right py-2 pr-3">CAC</th>
+                    <th className="text-right py-2 pr-3">CAC+COGs</th>
+                    <th className="text-right py-2 pr-3">× 2 Target</th>
+                    <th className="text-right py-2 pr-3">GP/mo</th>
+                    <th className="text-right py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {metrics.tierHealthCheck.map((t) => (
+                    <tr key={t.tier} className="border-b border-[#1a1a1a] hover:bg-[#1a1a1a] transition">
+                      <td className="py-2.5 pr-3 text-white font-medium">{t.tier}</td>
+                      <td className="py-2.5 pr-3 text-right text-crwn-gold font-medium">{fmt(t.price)}</td>
+                      <td className="py-2.5 pr-3 text-right text-[#999]">{fmt(t.stripeFee)}</td>
+                      <td className="py-2.5 pr-3 text-right text-[#999]">{fmt(t.infraPerArtist)}</td>
+                      <td className="py-2.5 pr-3 text-right text-[#ccc]">{fmt(t.cogs)}</td>
+                      <td className="py-2.5 pr-3 text-right text-[#ccc]">{fmt(t.cac)}</td>
+                      <td className="py-2.5 pr-3 text-right text-white font-medium">{fmt(t.cacPlusCogs)}</td>
+                      <td className="py-2.5 pr-3 text-right text-[#999]">{fmt(t.threshold)}</td>
+                      <td className="py-2.5 pr-3 text-right font-medium" style={{ color: t.profit > 0 ? GREEN : RED }}>{fmt(t.profit)}</td>
+                      <td className="py-2.5 text-right">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          t.passing
+                            ? 'bg-green-500/10 text-green-400'
+                            : 'bg-red-500/10 text-red-400'
+                        }`}>
+                          {t.passing ? `${t.ratio}x ✓` : `${t.ratio}x ✗`}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[#555] text-[10px] mt-3">GP/mo must be ≥ 2× (CAC + COGs) to self-fund acquisition. Infra/Artist decreases as you scale.</p>
+          </div>
+        )}
 
         {/* Revenue Trend Chart */}
         <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">

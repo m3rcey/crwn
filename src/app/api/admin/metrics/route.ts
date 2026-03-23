@@ -375,6 +375,31 @@ export async function GET(req: NextRequest) {
   const healthCheckRatio = healthCheckThreshold > 0 ? Number((thirtyDayProfit / healthCheckThreshold).toFixed(2)) : 0;
   const healthCheckPassing = healthCheckRatio >= 2;
 
+  // ---- PER-TIER HORMOZI BREAKDOWN ----
+  // For each tier: price vs 2x(CAC + COGs) — does the tier pass?
+  const tierHealthCheck = (['pro', 'label', 'empire'] as const).map(tier => {
+    const tierPrice = TIER_PRICES[tier]; // monthly price in cents
+    const tierStripeFee = stripeFee(tierPrice);
+    const infraPerArtist = artists.length > 0 ? Math.round(totalFixedCostsCents / artists.length) : totalFixedCostsCents;
+    const tierCogs = tierStripeFee + infraPerArtist;
+    const tierProfit = tierPrice - tierCogs;
+    const threshold = (cac + tierCogs) * 2;
+    const ratio = threshold > 0 ? Number((tierProfit / (cac + tierCogs)).toFixed(2)) : 0;
+    return {
+      tier: tier.charAt(0).toUpperCase() + tier.slice(1),
+      price: tierPrice,
+      stripeFee: tierStripeFee,
+      infraPerArtist,
+      cogs: tierCogs,
+      cac,
+      cacPlusCogs: cac + tierCogs,
+      threshold,
+      profit: tierProfit,
+      ratio,
+      passing: ratio >= 2,
+    };
+  });
+
   // ---- ORGANIC VS RECRUITED ----
   const referredArtistUserIds = new Set(referrals.map(r => r.artist_user_id).filter(Boolean));
   const recruitedArtistsCount = artists.filter(a => referredArtistUserIds.has(a.user_id)).length;
@@ -485,6 +510,9 @@ export async function GET(req: NextRequest) {
     healthCheckRatio,
     healthCheckPassing,
     healthCheckThreshold,
+
+    // Per-Tier Hormozi Breakdown
+    tierHealthCheck,
 
     // Organic vs Recruited
     organicArtists: organicArtistsCount,
