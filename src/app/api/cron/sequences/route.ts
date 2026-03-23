@@ -95,6 +95,22 @@ export async function GET(req: NextRequest) {
         continue;
       }
 
+      // Check if email is globally suppressed (hard bounce or spam complaint)
+      const { data: isSuppressed } = await supabaseAdmin
+        .from('email_suppressions')
+        .select('id')
+        .eq('email', fanEmail.toLowerCase())
+        .maybeSingle();
+
+      if (isSuppressed) {
+        // Cancel enrollment — no point continuing a sequence to a dead email
+        await supabaseAdmin
+          .from('sequence_enrollments')
+          .update({ status: 'canceled' })
+          .eq('id', enrollment.id);
+        continue;
+      }
+
       // Get artist name and platform tier
       const { data: artistData } = await supabaseAdmin
         .from('artist_profiles')

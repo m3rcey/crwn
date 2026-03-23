@@ -177,12 +177,34 @@ export async function resolveAudienceAndSend(
   artistName: string,
   platformTier: string,
 ): Promise<{ sent: number; failed: number; total: number }> {
-  const fans = await resolveAudience(supabaseAdmin, campaign.artist_id, campaign.filters || {});
+  let fans = await resolveAudience(supabaseAdmin, campaign.artist_id, campaign.filters || {});
 
   if (fans.length === 0) {
     await supabaseAdmin
       .from('campaigns')
       .update({ status: 'failed', stats: { error: 'No eligible recipients' } })
+      .eq('id', campaign.id);
+    return { sent: 0, failed: 0, total: 0 };
+  }
+
+  // Filter out globally suppressed emails (hard bounces + spam complaints)
+  const fanEmails = fans.map(f => f.email.toLowerCase());
+  const { data: suppressed } = await supabaseAdmin
+    .from('email_suppressions')
+    .select('email')
+    .in('email', fanEmails);
+
+  if (suppressed && suppressed.length > 0) {
+    const suppressedSet = new Set(suppressed.map(s => s.email));
+    const before = fans.length;
+    fans = fans.filter(f => !suppressedSet.has(f.email.toLowerCase()));
+    console.log(`Filtered ${before - fans.length} suppressed emails from campaign ${campaign.id}`);
+  }
+
+  if (fans.length === 0) {
+    await supabaseAdmin
+      .from('campaigns')
+      .update({ status: 'failed', stats: { error: 'All recipients suppressed' } })
       .eq('id', campaign.id);
     return { sent: 0, failed: 0, total: 0 };
   }
@@ -269,13 +291,14 @@ export async function resolveAudienceAndSend(
           platformTier,
         });
 
-        const { error } = await resend.emails.send({
+        const { data: sendResult, error } = await resend.emails.send({
           from: `${artistName} via CRWN <hello@thecrwn.app>`,
           to: send.email,
           subject: personalizedSubject,
           html,
           headers: {
             'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'X-Campaign-Send-Id': send.id,
           },
         });
 
@@ -283,7 +306,11 @@ export async function resolveAudienceAndSend(
 
         await supabaseAdmin
           .from('campaign_sends')
-          .update({ status: 'sent', sent_at: new Date().toISOString() })
+          .update({
+            status: 'sent',
+            sent_at: new Date().toISOString(),
+            resend_message_id: sendResult?.id || null,
+          })
           .eq('id', send.id);
 
         return send.id;

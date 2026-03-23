@@ -225,7 +225,7 @@ export async function POST(
     .eq('id', campaignId);
 
   // Resolve audience
-  const fans = await resolveAudience(campaign.artist_id, campaign.filters || {});
+  let fans = await resolveAudience(campaign.artist_id, campaign.filters || {});
 
   if (fans.length === 0) {
     await supabaseAdmin
@@ -233,6 +233,26 @@ export async function POST(
       .update({ status: 'failed', stats: { error: 'No eligible recipients' } })
       .eq('id', campaignId);
     return NextResponse.json({ error: 'No eligible recipients' }, { status: 400 });
+  }
+
+  // Filter out globally suppressed emails (hard bounces + spam complaints)
+  const fanEmails = fans.map(f => f.email.toLowerCase());
+  const { data: suppressed } = await supabaseAdmin
+    .from('email_suppressions')
+    .select('email')
+    .in('email', fanEmails);
+
+  if (suppressed && suppressed.length > 0) {
+    const suppressedSet = new Set(suppressed.map(s => s.email));
+    fans = fans.filter(f => !suppressedSet.has(f.email.toLowerCase()));
+  }
+
+  if (fans.length === 0) {
+    await supabaseAdmin
+      .from('campaigns')
+      .update({ status: 'failed', stats: { error: 'All recipients suppressed' } })
+      .eq('id', campaignId);
+    return NextResponse.json({ error: 'All recipients are suppressed (bounced/complained)' }, { status: 400 });
   }
 
   // Get latest release for token
@@ -323,13 +343,14 @@ export async function POST(
           platformTier: artist.platform_tier || 'starter',
         });
 
-        const { error } = await resend.emails.send({
+        const { data: sendResult, error } = await resend.emails.send({
           from: `${artistName} via CRWN <hello@thecrwn.app>`,
           to: send.email,
           subject: personalizedSubject,
           html,
           headers: {
             'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'X-Campaign-Send-Id': send.id,
           },
         });
 
@@ -337,7 +358,11 @@ export async function POST(
 
         await supabaseAdmin
           .from('campaign_sends')
-          .update({ status: 'sent', sent_at: new Date().toISOString() })
+          .update({
+            status: 'sent',
+            sent_at: new Date().toISOString(),
+            resend_message_id: sendResult?.id || null,
+          })
           .eq('id', send.id);
 
         return send.id;
