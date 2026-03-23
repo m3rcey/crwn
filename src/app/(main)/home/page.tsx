@@ -123,9 +123,9 @@ export default function HomePage() {
       label: 'My Library',
       image: '/homepage_library.png',
     },
-    hasArtistProfile
-      ? { href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.png' }
-      : { href: '/profile/artist', label: 'Become an Artist', image: '/homepage_artistdashboard.png' }
+    ...(hasArtistProfile
+      ? [{ href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.png' }]
+      : [])
   ];
 
   const getGreeting = () => {

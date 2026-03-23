@@ -81,23 +81,21 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 stagger-fade-in">
-      {/* Artist Dashboard Link */}
-      {isArtist && (
-        <Link
-          href="/profile/artist"
-          className="flex items-center justify-between bg-crwn-surface hover:bg-crwn-elevated border border-crwn-gold/30 rounded-xl p-4 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-crwn-gold/20 flex items-center justify-center">
-              <Music className="w-5 h-5 text-crwn-gold" />
-            </div>
-            <div>
-              <p className="font-medium text-crwn-text">Artist Dashboard</p>
-              <p className="text-sm text-crwn-text-secondary">Manage your music, tiers, and earnings</p>
-            </div>
+      {/* Artist Dashboard / Become an Artist Link */}
+      <Link
+        href="/profile/artist"
+        className="flex items-center justify-between bg-crwn-surface hover:bg-crwn-elevated border border-crwn-gold/30 rounded-xl p-4 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-crwn-gold/20 flex items-center justify-center">
+            <Music className="w-5 h-5 text-crwn-gold" />
           </div>
-        </Link>
-      )}
+          <div>
+            <p className="font-medium text-crwn-text">{isArtist ? 'Artist Dashboard' : 'Become an Artist'}</p>
+            <p className="text-sm text-crwn-text-secondary">{isArtist ? 'Manage your music, tiers, and earnings' : 'Start sharing your music and earning on CRWN'}</p>
+          </div>
+        </div>
+      </Link>
 
       {/* Profile Header */}
       <div className="bg-crwn-surface rounded-xl p-6">
