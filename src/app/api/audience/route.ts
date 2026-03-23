@@ -302,6 +302,39 @@ export async function GET(req: NextRequest) {
     };
   });
 
+  // Merge fan_contacts (imported/captured leads)
+  const { data: contacts } = await supabaseAdmin
+    .from('fan_contacts')
+    .select('id, email, name, phone, city, state, country, source, created_at')
+    .eq('artist_id', artistId);
+
+  if (contacts && contacts.length > 0) {
+    // Deduplicate against existing CRWN fans by email
+    const existingEmails = new Set(fans.map(f => f.email.toLowerCase()).filter(Boolean));
+    const newContacts = contacts.filter(c => c.email && !existingEmails.has(c.email.toLowerCase()));
+
+    newContacts.forEach(c => {
+      fans.push({
+        fan_id: c.id, // Use contact ID as fan_id
+        display_name: c.name || 'Lead',
+        email: c.email || '',
+        avatar_url: null,
+        tier_name: null,
+        tier_id: null,
+        subscription_status: 'never',
+        subscribed_at: null,
+        total_spent: 0,
+        city: c.city,
+        state: c.state,
+        country: c.country,
+        last_active: c.created_at,
+        engagement_score: 0,
+        referral_count: 0,
+        is_subscriber: false,
+      });
+    });
+  }
+
   // Apply filters
   if (tierFilter) {
     fans = fans.filter(f => f.tier_id === tierFilter);

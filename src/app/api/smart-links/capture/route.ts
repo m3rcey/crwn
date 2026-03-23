@@ -53,5 +53,21 @@ export async function POST(req: NextRequest) {
     .update({ capture_count: (link as any).capture_count ? (link as any).capture_count + 1 : 1 })
     .eq('id', linkId);
 
+  // Also write to fan_contacts for audience integration (upsert by email)
+  if (email) {
+    await supabaseAdmin
+      .from('fan_contacts')
+      .upsert(
+        {
+          artist_id: artistId,
+          email: email.toLowerCase().trim(),
+          name: name || null,
+          phone: phone || null,
+          source: 'smart_link',
+        },
+        { onConflict: 'artist_id,email' }
+      );
+  }
+
   return NextResponse.json({ success: true });
 }

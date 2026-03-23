@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { AudienceFan } from '@/types';
 import {
   Users, Search, ChevronDown, ChevronUp, ArrowUpDown,
-  Loader2, Star, UserCheck, UserX,
+  Loader2, Star, UserCheck, UserX, Upload,
 } from 'lucide-react';
+import { FanImportModal } from '@/components/artist/FanImportModal';
 
 interface AudienceResponse {
   fans: AudienceFan[];
@@ -35,6 +36,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   const [debouncedSearch, setDebouncedSearch] = useState('');
   useEffect(() => {
@@ -99,6 +101,18 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
 
   return (
     <div className="space-y-6">
+      {/* Header with Import */}
+      <div className="flex items-center justify-between">
+        <div />
+        <button
+          onClick={() => setShowImport(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text transition-colors"
+        >
+          <Upload className="w-4 h-4" />
+          Import Fans
+        </button>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-crwn-card rounded-xl p-5">
@@ -318,6 +332,14 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
           </div>
         )}
       </div>
+
+      {/* Import Modal */}
+      <FanImportModal
+        artistId={artistId}
+        isOpen={showImport}
+        onClose={() => setShowImport(false)}
+        onImported={() => fetchAudience()}
+      />
     </div>
   );
 }
