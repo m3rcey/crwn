@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Users, Mail, Zap, MessageSquare } from 'lucide-react';
+import { Users, Mail, Zap, MessageSquare, Link2 } from 'lucide-react';
 import { FanTable } from '@/components/artist/FanTable';
 import { CampaignList } from '@/components/artist/CampaignList';
 import { CampaignComposer } from '@/components/artist/CampaignComposer';
@@ -10,8 +10,10 @@ import { CampaignStats } from '@/components/artist/CampaignStats';
 import { SequenceList } from '@/components/artist/SequenceList';
 import { SequenceBuilder } from '@/components/artist/SequenceBuilder';
 import { SmsSetup } from '@/components/artist/SmsSetup';
+import { SmartLinkList } from '@/components/artist/SmartLinkList';
+import { SmartLinkEditor } from '@/components/artist/SmartLinkEditor';
 
-type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit' | 'sms';
+type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit' | 'sms' | 'links' | 'link-edit';
 
 export function AudienceTab() {
   const supabase = createBrowserSupabaseClient();
@@ -22,6 +24,7 @@ export function AudienceTab() {
   const [editCampaignId, setEditCampaignId] = useState<string | null>(null);
   const [statsCampaignId, setStatsCampaignId] = useState<string | null>(null);
   const [editSequenceId, setEditSequenceId] = useState<string | null>(null);
+  const [editLinkId, setEditLinkId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadArtist() {
@@ -88,7 +91,22 @@ export function AudienceTab() {
     setSubView('sequences');
   };
 
-  const isTopLevel = subView === 'fans' || subView === 'campaigns' || subView === 'sequences' || subView === 'sms';
+  const handleNewLink = () => {
+    setEditLinkId(null);
+    setSubView('link-edit');
+  };
+
+  const handleEditLink = (id: string) => {
+    setEditLinkId(id);
+    setSubView('link-edit');
+  };
+
+  const handleBackToLinks = () => {
+    setEditLinkId(null);
+    setSubView('links');
+  };
+
+  const isTopLevel = subView === 'fans' || subView === 'campaigns' || subView === 'sequences' || subView === 'sms' || subView === 'links';
 
   return (
     <div className="space-y-6">
@@ -100,6 +118,7 @@ export function AudienceTab() {
             { id: 'campaigns' as SubView, label: 'Campaigns', icon: <Mail className="w-4 h-4" /> },
             { id: 'sequences' as SubView, label: 'Sequences', icon: <Zap className="w-4 h-4" /> },
             { id: 'sms' as SubView, label: 'SMS', icon: <MessageSquare className="w-4 h-4" /> },
+            { id: 'links' as SubView, label: 'Links', icon: <Link2 className="w-4 h-4" /> },
           ].map(tab => (
             <button
               key={tab.id}
@@ -161,6 +180,21 @@ export function AudienceTab() {
       )}
       {subView === 'sms' && artistId && (
         <SmsSetup artistId={artistId} platformTier={platformTier} />
+      )}
+      {subView === 'links' && artistId && (
+        <SmartLinkList
+          artistId={artistId}
+          onNew={handleNewLink}
+          onEdit={handleEditLink}
+        />
+      )}
+      {subView === 'link-edit' && artistId && (
+        <SmartLinkEditor
+          artistId={artistId}
+          linkId={editLinkId}
+          onBack={handleBackToLinks}
+          onSaved={handleBackToLinks}
+        />
       )}
     </div>
   );
