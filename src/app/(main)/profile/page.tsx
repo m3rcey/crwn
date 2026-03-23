@@ -18,7 +18,8 @@ import {
   Loader2,
   Megaphone,
   Crown,
-  LifeBuoy
+  LifeBuoy,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -81,6 +82,24 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 stagger-fade-in">
+      {/* Admin Command Center — admin only */}
+      {profile?.role === 'admin' && (
+        <Link
+          href="/admin"
+          className="flex items-center justify-between bg-crwn-surface hover:bg-crwn-elevated border border-red-500/30 rounded-xl p-4 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-red-400" />
+            </div>
+            <div>
+              <p className="font-medium text-crwn-text">Command Center</p>
+              <p className="text-sm text-crwn-text-secondary">Admin dashboard — metrics, agent, settings</p>
+            </div>
+          </div>
+        </Link>
+      )}
+
       {/* Artist Dashboard / Become an Artist Link */}
       <Link
         href="/profile/artist"
