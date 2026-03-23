@@ -45,11 +45,19 @@ export async function GET(req: NextRequest) {
       try {
         const { data: artist } = await supabaseAdmin
           .from('artist_profiles')
-          .select('user_id')
+          .select('user_id, slug')
           .eq('id', track.artist_id)
           .single();
 
         if (artist) {
+          const { data: artistProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('display_name')
+            .eq('id', artist.user_id)
+            .single();
+          const artistName = artistProfile?.display_name || 'An artist';
+          const artistSlug = artist.slug || track.artist_id;
+
           // Get all active subscribers
           const { data: subs } = await supabaseAdmin
             .from('subscriptions')
@@ -59,7 +67,7 @@ export async function GET(req: NextRequest) {
 
           if (subs) {
             for (const sub of subs) {
-              await notifyNewTrack(supabaseAdmin, sub.fan_id, track.title, track.artist_id);
+              await notifyNewTrack(supabaseAdmin, sub.fan_id, artistName, track.title, artistSlug);
               notified++;
             }
           }
@@ -92,16 +100,32 @@ export async function GET(req: NextRequest) {
 
       // Notify subscribers
       try {
-        const { data: subs } = await supabaseAdmin
-          .from('subscriptions')
-          .select('fan_id')
-          .eq('artist_id', track.artist_id)
-          .eq('status', 'active');
+        const { data: artist } = await supabaseAdmin
+          .from('artist_profiles')
+          .select('user_id, slug')
+          .eq('id', track.artist_id)
+          .single();
 
-        if (subs) {
-          for (const sub of subs) {
-            await notifyNewTrack(supabaseAdmin, sub.fan_id, track.title, track.artist_id);
-            notified++;
+        if (artist) {
+          const { data: artistProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('display_name')
+            .eq('id', artist.user_id)
+            .single();
+          const artistName = artistProfile?.display_name || 'An artist';
+          const artistSlug = artist.slug || track.artist_id;
+
+          const { data: subs } = await supabaseAdmin
+            .from('subscriptions')
+            .select('fan_id')
+            .eq('artist_id', track.artist_id)
+            .eq('status', 'active');
+
+          if (subs) {
+            for (const sub of subs) {
+              await notifyNewTrack(supabaseAdmin, sub.fan_id, artistName, track.title, artistSlug);
+              notified++;
+            }
           }
         }
       } catch (err) {

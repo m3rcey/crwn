@@ -532,6 +532,10 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
         .eq('stripe_subscription_id', sub.id);
 
       console.log('Pending tier change applied successfully');
+
+      // Enroll in tier_upgrade sequence
+      await enrollInSequence(supabaseAdmin, subData.artist_id, subData.fan_id, 'tier_upgrade');
+
       return;
     }
   }
@@ -919,6 +923,9 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
   } catch (err) {
     console.error('Post-purchase sequence enrollment failed:', err);
   }
+
+  // Also enroll in new_purchase sequence
+  await enrollInSequence(supabaseAdmin, artist_id, fan_id, 'new_purchase');
 
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
 }
@@ -1552,4 +1559,88 @@ export async function handleDisputeCreated(supabaseAdmin: AdminClient, dispute: 
   }
 
   console.log('Dispute handled:', { disputeId: dispute.id, artistId: originalEarning.artist_id, amount: disputeAmount });
+}
+
+// ─── Abandoned cart (checkout.session.expired) ────────────────────────────────
+
+export async function handleCheckoutExpired(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {
+  const metadata = session.metadata;
+  if (!metadata) return;
+
+  const fan_id = metadata.fan_id;
+  const artist_id = metadata.artist_id;
+  if (!fan_id || !artist_id) return;
+
+  // Determine what type of checkout was abandoned
+  const checkoutType = metadata.product_id ? 'product' : metadata.booking_session_id ? 'booking' : 'subscription';
+
+  console.log('Abandoned checkout detected:', { fan_id, artist_id, checkoutType });
+
+  // Record the abandoned checkout
+  await supabaseAdmin.from('abandoned_checkouts').insert({
+    fan_id,
+    artist_id,
+    checkout_type: checkoutType,
+    product_id: metadata.product_id || null,
+    tier_id: metadata.tier_id || null,
+    stripe_session_id: session.id,
+  });
+
+  // Enroll in abandoned_cart sequence if one exists
+  await enrollInSequence(supabaseAdmin, artist_id, fan_id, 'abandoned_cart');
+}
+
+// ─── Shared: enroll fan in a sequence by trigger type ─────────────────────────
+
+async function enrollInSequence(
+  supabaseAdmin: AdminClient,
+  artistId: string,
+  fanId: string,
+  triggerType: string,
+) {
+  try {
+    const { data: sequence } = await supabaseAdmin
+      .from('sequences')
+      .select('id')
+      .eq('artist_id', artistId)
+      .eq('trigger_type', triggerType)
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle();
+
+    if (!sequence) return;
+
+    // Check not already enrolled (active or completed)
+    const { data: existing } = await supabaseAdmin
+      .from('sequence_enrollments')
+      .select('id')
+      .eq('sequence_id', sequence.id)
+      .eq('fan_id', fanId)
+      .in('status', ['active', 'completed'])
+      .maybeSingle();
+
+    if (existing) return;
+
+    const { data: firstStep } = await supabaseAdmin
+      .from('sequence_steps')
+      .select('delay_days')
+      .eq('sequence_id', sequence.id)
+      .eq('step_number', 1)
+      .single();
+
+    if (firstStep) {
+      const nextSendAt = new Date(Date.now() + firstStep.delay_days * 24 * 60 * 60 * 1000).toISOString();
+      await supabaseAdmin.from('sequence_enrollments').insert({
+        sequence_id: sequence.id,
+        fan_id: fanId,
+        artist_id: artistId,
+        current_step: 0,
+        status: 'active',
+        next_send_at: nextSendAt,
+      });
+      console.log(`Enrolled fan ${fanId} in ${triggerType} sequence ${sequence.id}`);
+    }
+  } catch (err) {
+    console.error(`Sequence enrollment (${triggerType}) failed:`, err);
+  }
 }

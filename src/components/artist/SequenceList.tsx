@@ -27,6 +27,7 @@ const triggerLabels: Record<string, string> = {
   post_purchase_upsell: 'Post-Purchase Upsell',
   win_back: 'Win-Back',
   inactive_subscriber: 'Inactive Subscriber',
+  abandoned_cart: 'Abandoned Cart',
 };
 
 export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {

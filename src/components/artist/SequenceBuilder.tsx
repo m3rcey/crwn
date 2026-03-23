@@ -18,10 +18,64 @@ interface SequenceBuilderProps {
   onSaved: () => void;
 }
 
-const PLACEHOLDER_STEPS: { delay: number; subject: string; body: string }[] = [
-  { delay: 0, subject: "Welcome to {{tier_name}}, {{first_name}}!", body: "Thanks for joining! Here's what you've unlocked as a {{tier_name}} member..." },
-  { delay: 3, subject: "Here's what you get, {{first_name}}", body: "As a {{tier_name}} subscriber, you have access to exclusive tracks, community posts, and more. Here's a quick tour..." },
-  { delay: 7, subject: "Your first exclusive drop", body: "Hey {{first_name}} — check out {{latest_release}}, available now for {{tier_name}} members." },
+interface Template {
+  name: string;
+  trigger: string;
+  steps: { delay: number; subject: string; body: string }[];
+}
+
+const TEMPLATES: Template[] = [
+  {
+    name: 'Welcome Series',
+    trigger: 'new_subscription',
+    steps: [
+      { delay: 0, subject: "Welcome to {{tier_name}}, {{first_name}}!", body: "Thanks for joining! Here's what you've unlocked as a {{tier_name}} member..." },
+      { delay: 3, subject: "Here's what you get, {{first_name}}", body: "As a {{tier_name}} subscriber, you have access to exclusive tracks, community posts, and more. Here's a quick tour..." },
+      { delay: 7, subject: "Your first exclusive drop", body: "Hey {{first_name}} — check out the latest release, available now for {{tier_name}} members." },
+    ],
+  },
+  {
+    name: 'Win-Back (Canceled)',
+    trigger: 'win_back',
+    steps: [
+      { delay: 1, subject: "We miss you, {{first_name}}", body: "Hey {{first_name}}, we noticed you canceled your subscription. We're sorry to see you go.\n\nIf there's anything we could have done better, just reply to this email — I read every message.\n\nYour access is still active until the end of your billing period." },
+      { delay: 5, subject: "A gift for you, {{first_name}}", body: "Hey {{first_name}}, I just dropped something special — and I wanted to make sure you didn't miss it.\n\nEven though your subscription ended, I'd love to have you back. Come check out what's new and see if there's something for you." },
+      { delay: 14, subject: "Last chance — exclusive offer inside", body: "Hey {{first_name}}, this is my last email since your subscription ended.\n\nI've been working on new music and exclusive content that I think you'd really love. If you ever want to come back, you're always welcome.\n\nHope to see you again." },
+    ],
+  },
+  {
+    name: 'Abandoned Cart Recovery',
+    trigger: 'abandoned_cart',
+    steps: [
+      { delay: 0, subject: "You left something behind, {{first_name}}", body: "Hey {{first_name}}, looks like you started to check out but didn't finish.\n\nNo worries — your spot is still open. Click below to pick up where you left off.\n\nIf you ran into any issues, just reply to this email and I'll help you out." },
+      { delay: 1, subject: "Still thinking it over?", body: "Hey {{first_name}}, just a friendly nudge — you were so close to unlocking exclusive content.\n\nSubscribers get access to unreleased tracks, community posts, and direct connection with me. Don't miss out." },
+      { delay: 3, subject: "Final reminder — your cart is expiring", body: "Hey {{first_name}}, this is my last reminder about your checkout.\n\nI won't bug you again, but if you change your mind, you can always subscribe from my page. Hope to see you on the inside." },
+    ],
+  },
+  {
+    name: 'Post-Purchase Upsell',
+    trigger: 'post_purchase_upsell',
+    steps: [
+      { delay: 1, subject: "Thanks for your purchase, {{first_name}}!", body: "Hey {{first_name}}, thanks so much for your purchase! I hope you love it.\n\nDid you know subscribers get access to even more exclusive content? If you're not subscribed yet, check out what's available." },
+      { delay: 5, subject: "Unlock the full experience, {{first_name}}", body: "Hey {{first_name}}, since you grabbed something from the shop, I thought you might be interested in the full experience.\n\nSubscribers get early access to new drops, exclusive tracks, community access, and more. It's the best way to stay connected." },
+    ],
+  },
+  {
+    name: 'New Purchase Follow-Up',
+    trigger: 'new_purchase',
+    steps: [
+      { delay: 0, subject: "Your download is ready, {{first_name}}", body: "Hey {{first_name}}, thanks for your purchase! You can access everything from your Library.\n\nIf you have any questions or need help, just reply to this email." },
+      { delay: 3, subject: "How's everything, {{first_name}}?", body: "Hey {{first_name}}, just checking in — how are you enjoying your purchase?\n\nIf you love what you got, check out the rest of the shop. There's more where that came from." },
+    ],
+  },
+  {
+    name: 'Tier Upgrade Thank You',
+    trigger: 'tier_upgrade',
+    steps: [
+      { delay: 0, subject: "Welcome to {{tier_name}}, {{first_name}}!", body: "Hey {{first_name}}, thank you for upgrading to {{tier_name}}! You just unlocked a whole new level of content.\n\nHere's what's now available to you:\n- All exclusive {{tier_name}} tracks\n- Priority access to new drops\n- Exclusive community content\n\nEnjoy!" },
+      { delay: 3, subject: "Your {{tier_name}} perks, {{first_name}}", body: "Hey {{first_name}}, just wanted to make sure you're taking full advantage of your {{tier_name}} membership.\n\nCheck your Library for any new content that's been unlocked. And keep an eye out — I have some exclusive drops coming soon just for {{tier_name}} members." },
+    ],
+  },
 ];
 
 export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: SequenceBuilderProps) {
@@ -188,6 +242,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
             <option value="post_purchase_upsell">Post-Purchase Upsell</option>
             <option value="win_back">Win-Back (Canceled Sub)</option>
             <option value="inactive_subscriber">Inactive Subscriber</option>
+            <option value="abandoned_cart">Abandoned Cart</option>
           </select>
         </div>
       </div>
@@ -208,14 +263,23 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
         </div>
 
         {steps.length === 0 && (
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6 text-center">
-            <p className="text-sm text-crwn-text-secondary mb-3">No steps yet. Here's a template to get started:</p>
-            <button
-              onClick={() => setSteps(PLACEHOLDER_STEPS.map(p => ({ delay_days: p.delay, subject: p.subject, body: p.body })))}
-              className="px-4 py-2 bg-crwn-elevated rounded-lg text-xs font-medium text-crwn-text hover:text-crwn-gold transition-colors"
-            >
-              Use Welcome Template (3 steps)
-            </button>
+          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6 text-center space-y-3">
+            <p className="text-sm text-crwn-text-secondary">No steps yet. Start from a template:</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {TEMPLATES.map(t => (
+                <button
+                  key={t.trigger}
+                  onClick={() => {
+                    if (!name.trim()) setName(t.name);
+                    setTriggerType(t.trigger);
+                    setSteps(t.steps.map(s => ({ delay_days: s.delay, subject: s.subject, body: s.body })));
+                  }}
+                  className="px-3 py-2 bg-crwn-elevated rounded-lg text-xs font-medium text-crwn-text hover:text-crwn-gold transition-colors"
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 

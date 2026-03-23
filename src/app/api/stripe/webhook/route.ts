@@ -4,6 +4,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
 import {
   handleCheckoutCompleted,
+  handleCheckoutExpired,
   handleInvoicePaid,
   handleSubscriptionRenewal,
   handleInvoicePaymentFailed,
@@ -174,6 +175,12 @@ export async function POST(req: NextRequest) {
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge;
         await handleChargeRefunded(supabaseAdmin, charge);
+        break;
+      }
+
+      case 'checkout.session.expired': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        await handleCheckoutExpired(supabaseAdmin, session);
         break;
       }
 
