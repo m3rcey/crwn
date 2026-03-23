@@ -17,13 +17,13 @@ export function partnerApplicationConfirmationEmail(params: {
               Thanks for applying to the CRWN Partner Program.
             </p>
             <p style="color: #A0A0A0; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
-              We&apos;ll review your application and get back to you within 48 hours. If approved, you&apos;ll get:
+              We'll review your application and assign your partner tier within 48 hours. All partners get:
             </p>
             <ul style="color: #A0A0A0; font-size: 14px; line-height: 1.8; margin: 0 0 24px 0; padding-left: 20px;">
-              <li>Free Empire tier access ($350/mo value)</li>
+              <li>Free platform access (Pro or Empire depending on tier)</li>
               <li>Your custom partner referral link</li>
               <li>$50 per artist who goes paid through your link</li>
-              <li>10% recurring on their subscription for 12 months</li>
+              <li>Top-tier partners also get 10% recurring for 12 months + content bonuses up to $250/post</li>
             </ul>
             <p style="color: #A0A0A0; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
               Talk soon.

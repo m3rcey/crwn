@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Crown, DollarSign, Repeat, Check } from 'lucide-react';
+import { Crown, DollarSign, Repeat, Check, Video, Star } from 'lucide-react';
 
 interface FormData {
   name: string;
@@ -13,15 +13,40 @@ interface FormData {
   whyCrwn: string;
 }
 
-const earningsData: Record<number, { flat: number; recurring: number; total: number }> = {
-  5: { flat: 3000, recurring: 1650, total: 4650 },
-  10: { flat: 6000, recurring: 3300, total: 9300 },
-  20: { flat: 12000, recurring: 6600, total: 18600 },
-  50: { flat: 30000, recurring: 16500, total: 46500 },
-};
+const tiers = [
+  {
+    name: 'Tier 1',
+    label: 'Full Deal',
+    score: '24–30',
+    access: 'Free Empire (12 mo)',
+    flat: '$50/artist',
+    recurring: '10% for 12 mo',
+    contentBonus: '$250/post',
+    highlight: true,
+  },
+  {
+    name: 'Tier 2',
+    label: 'Standard Deal',
+    score: '18–23',
+    access: 'Free Empire (12 mo)',
+    flat: '$50/artist',
+    recurring: '10% for 12 mo',
+    contentBonus: '$100–250 (negotiable)',
+    highlight: false,
+  },
+  {
+    name: 'Tier 3',
+    label: 'Light Deal',
+    score: '12–17',
+    access: 'Free Pro (6 mo)',
+    flat: '$50/artist',
+    recurring: '—',
+    contentBonus: '—',
+    highlight: false,
+  },
+];
 
 export default function PartnerPage() {
-  const [artistsPerMonth, setArtistsPerMonth] = useState(10);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -32,8 +57,6 @@ export default function PartnerPage() {
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const earnings = earningsData[artistsPerMonth];
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -84,7 +107,7 @@ export default function PartnerPage() {
             Earn While You <span className="text-[#D4AF37]">Put Artists On</span>
           </h1>
           <p className="text-lg md:text-xl text-[#999] max-w-2xl mx-auto mb-8">
-            Partner with CRWN and earn every time an artist you refer joins. Free Empire access. Real money. No cap.
+            Partner with CRWN and get paid every time an artist you refer joins. Free platform access, cash per signup, and content bonuses — scaled to your reach.
           </p>
           <a
             href="#apply"
@@ -95,25 +118,30 @@ export default function PartnerPage() {
         </div>
       </div>
 
-      {/* What You Get */}
+      {/* What You Get — highlights from Tier 1 */}
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-white text-center mb-12">What You Get</h2>
-        <div className="grid md:grid-cols-3 gap-6 stagger-fade-in">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 stagger-fade-in">
           {[
             {
               icon: Crown,
-              title: 'Free Empire Tier',
-              desc: 'Full access to CRWN\'s top platform tier ($350/mo value) for 12 months. Use it. Make content about it. Keep it.',
+              title: 'Free Platform Access',
+              desc: 'Up to Empire tier ($350/mo value) for up to 12 months, depending on your tier.',
             },
             {
               icon: DollarSign,
               title: '$50 Per Artist',
-              desc: 'Every artist who signs up through your link and goes paid = $50 in your pocket. Flat. Simple.',
+              desc: 'Every artist who signs up through your link and goes paid = $50. All tiers.',
             },
             {
               icon: Repeat,
               title: '10% Recurring',
-              desc: 'Earn 10% of every referred artist\'s monthly subscription for 12 months. 20 artists at $50/mo avg = $1,200/yr passive.',
+              desc: 'Tier 1 & 2 partners earn 10% of every referred artist\'s subscription for 12 months.',
+            },
+            {
+              icon: Video,
+              title: 'Content Bonus',
+              desc: 'Up to $250 per video or post. Tier 1 guaranteed, Tier 2 negotiable.',
             },
           ].map((benefit, i) => (
             <div key={i} className="bg-[#1a1a1a] rounded-2xl p-6">
@@ -125,15 +153,51 @@ export default function PartnerPage() {
         </div>
       </div>
 
+      {/* Partner Tiers */}
+      <div className="max-w-4xl mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-white text-center mb-4">Partner Tiers</h2>
+        <p className="text-zinc-400 text-center mb-12 max-w-xl mx-auto">
+          Your tier is based on a scoring system (audience size, engagement, platform, niche relevance). We evaluate when you apply — higher score = better deal.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#2a2a2a]">
+                <th className="text-left py-3 text-[#666] font-medium">Tier</th>
+                <th className="text-left py-3 text-[#666] font-medium">Score</th>
+                <th className="text-left py-3 text-[#666] font-medium">Platform Access</th>
+                <th className="text-left py-3 text-[#666] font-medium">Per Artist</th>
+                <th className="text-left py-3 text-[#666] font-medium">Recurring</th>
+                <th className="text-left py-3 text-[#666] font-medium">Content Bonus</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tiers.map((tier, i) => (
+                <tr key={i} className={`border-b border-[#1a1a1a] ${tier.highlight ? 'bg-[#D4AF37]/5' : ''}`}>
+                  <td className="py-4">
+                    <span className={`font-medium ${tier.highlight ? 'text-[#D4AF37]' : 'text-white'}`}>{tier.name}</span>
+                    <span className="block text-[#666] text-xs">{tier.label}</span>
+                  </td>
+                  <td className="py-4 text-white">{tier.score}</td>
+                  <td className="py-4 text-white">{tier.access}</td>
+                  <td className="py-4 text-white">{tier.flat}</td>
+                  <td className="py-4 text-white">{tier.recurring}</td>
+                  <td className="py-4 text-white">{tier.contentBonus}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* How It Works */}
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-white text-center mb-12">How It Works</h2>
         <div className="flex flex-col md:flex-row justify-between md:gap-4 relative">
-          {/* Gold connecting line */}
           <div className="hidden md:block absolute top-4 left-[calc(12.5%+8px)] right-[calc(12.5%+8px)] h-0.5 bg-[#D4AF37]/30" />
           {[
-            { step: '1', title: 'Apply below', desc: 'Tell us about your audience and platforms.' },
-            { step: '2', title: 'Get your link', desc: 'We set you up with a custom /join/[code] partner link and free Empire access.' },
+            { step: '1', title: 'Apply below', desc: 'Tell us about your audience and platforms. We score and assign your tier.' },
+            { step: '2', title: 'Get your link', desc: 'We set you up with a custom /join/[code] partner link and free platform access.' },
             { step: '3', title: 'Create content', desc: 'Talk about CRWN however feels natural to you. Reviews, tutorials, rants — your style.' },
             { step: '4', title: 'Get paid', desc: 'Track signups in your dashboard. Cash out via Stripe.' },
           ].map((item, i) => (
@@ -148,47 +212,42 @@ export default function PartnerPage() {
         </div>
       </div>
 
-      {/* Earnings Calculator */}
+      {/* Example Earnings */}
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-white text-center mb-4">What Could You Earn?</h2>
         <p className="text-zinc-400 text-center mb-12 max-w-xl mx-auto">
-          Estimate your Year 1 earnings based on how many artists you refer per month.
+          Year 1 example for a Tier 1 partner making content and referring artists.
         </p>
-
-        {/* Selector buttons */}
-        <div className="flex justify-center gap-3 mb-8">
-          {[5, 10, 20, 50].map((count) => (
-            <button
-              key={count}
-              onClick={() => setArtistsPerMonth(count)}
-              className={`px-6 py-3 rounded-full font-medium transition-colors ${
-                artistsPerMonth === count
-                  ? 'bg-[#D4AF37] text-black'
-                  : 'bg-[#1a1a1a] text-white hover:bg-[#2a2a2a]'
-              }`}
-            >
-              {count}/mo
-            </button>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            { label: '10 artists referred', flat: '$500', recurring: '$600/yr', bonus: '$1,000 (4 posts)', total: '$2,100' },
+            { label: '25 artists referred', flat: '$1,250', recurring: '$1,500/yr', bonus: '$2,500 (10 posts)', total: '$5,250' },
+            { label: '50 artists referred', flat: '$2,500', recurring: '$3,000/yr', bonus: '$5,000 (20 posts)', total: '$10,500' },
+          ].map((ex, i) => (
+            <div key={i} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
+              <p className="text-white text-sm font-medium mb-3">{ex.label}</p>
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Flat fees</span>
+                  <span className="text-white">{ex.flat}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Recurring</span>
+                  <span className="text-white">{ex.recurring}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Content bonus</span>
+                  <span className="text-white">{ex.bonus}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center pt-3 border-t border-[#2a2a2a]">
+                <span className="text-white font-semibold text-sm">Year 1 Total</span>
+                <span className="text-[#D4AF37] font-bold text-xl">{ex.total}</span>
+              </div>
+            </div>
           ))}
         </div>
-
-        {/* Results */}
-        <div className="bg-[#1a1a1a] rounded-2xl p-6 max-w-md mx-auto">
-          <div className="grid gap-4">
-            <div className="flex justify-between items-center py-3 border-b border-[#2a2a2a]">
-              <span className="text-zinc-400">Flat Fee Earnings:</span>
-              <span className="text-white font-semibold">${earnings.flat.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center py-3 border-b border-[#2a2a2a]">
-              <span className="text-zinc-400">Recurring Earnings:</span>
-              <span className="text-white font-semibold">${earnings.recurring.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center py-3">
-              <span className="text-white font-semibold">Year 1 Total:</span>
-              <span className="text-[#D4AF37] font-bold text-xl">${earnings.total.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
+        <p className="text-xs text-[#666] mt-4 text-center">Assumes artists on Pro ($50/mo avg). Recurring = 10% × $50 × 12 months per artist. Content bonus at $250/post.</p>
       </div>
 
       {/* Who This Is For */}
