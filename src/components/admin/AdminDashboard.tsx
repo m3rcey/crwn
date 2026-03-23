@@ -330,7 +330,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
 
   if (loading || !metrics) {
     return (
-      <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
+      <div className="flex items-center justify-center py-24">
         <div className="text-center">
           <Crown className="w-12 h-12 text-crwn-gold mx-auto mb-4 animate-pulse" />
           <p className="text-[#999] text-sm">Loading metrics...</p>
@@ -342,7 +342,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
   const cacheAge = Math.round((Date.now() - new Date(metrics.computedAt).getTime()) / 60000);
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] p-4 md:p-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
