@@ -216,20 +216,32 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
   // SMS is set up — show dashboard
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-crwn-text">SMS Campaigns</h2>
-          <p className="text-sm text-crwn-text-secondary mt-0.5">
-            Send targeted texts to opted-in fans. Keyword: <span className="font-mono text-crwn-gold">{phoneSetup.keyword}</span>
-          </p>
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-crwn-text">SMS Campaigns</h2>
+            <p className="text-sm text-crwn-text-secondary mt-1">
+              Send targeted texts to opted-in fans.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowCompose(!showCompose)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-crwn-gold text-crwn-bg rounded-full text-sm font-semibold hover:bg-crwn-gold/90 transition-colors shrink-0"
+          >
+            <Send className="w-4 h-4" />
+            New SMS
+          </button>
         </div>
-        <button
-          onClick={() => setShowCompose(!showCompose)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-crwn-gold text-crwn-bg rounded-full text-sm font-semibold hover:bg-crwn-gold/90 transition-colors"
-        >
-          <Send className="w-4 h-4" />
-          New SMS Campaign
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-crwn-text-secondary">Keyword:</span>
+          <span className="font-mono text-xs text-crwn-gold bg-crwn-gold/10 px-2 py-1 rounded-md">{phoneSetup.keyword}</span>
+          <button
+            onClick={() => { setPhoneSetup(null); setKeyword(phoneSetup.keyword); }}
+            className="text-xs text-crwn-text-secondary hover:text-crwn-text transition-colors"
+          >
+            Change
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
