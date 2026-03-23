@@ -10,6 +10,7 @@ const supabaseAdmin = createClient(
 const kimi = new OpenAI({
   apiKey: process.env.MOONSHOT_API_KEY || 'dummy-key-for-build',
   baseURL: 'https://api.moonshot.ai/v1',
+  timeout: 45000, // 45s timeout
 });
 
 const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You analyze platform metrics and return structured, actionable insights.
@@ -71,6 +72,8 @@ Return a JSON array of insights. Each insight must have:
 - metric: which metric this insight relates to
 
 Order by priority (critical first, then warning, then info). Maximum 8 insights — focus on what matters most. Be direct and specific with numbers. No fluff.`;
+
+export const maxDuration = 60; // Allow up to 60s for Kimi response
 
 export async function POST(req: NextRequest) {
   try {
@@ -169,6 +172,10 @@ Return ONLY the JSON array of insights. No markdown, no code fences, no explanat
     const response = await kimi.chat.completions.create({
       model: 'kimi-k2.5',
       max_tokens: 2000,
+      temperature: 0.6,
+      top_p: 0.95,
+      // @ts-expect-error — Kimi-specific param to disable slow thinking mode
+      thinking: { type: 'disabled' },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userMessage },

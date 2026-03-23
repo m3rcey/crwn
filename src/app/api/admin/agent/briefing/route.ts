@@ -28,6 +28,8 @@ CRWN: Two-sided marketplace. Artists pay platform tiers ($0-$350/mo). Platform t
 
 Return ONLY a JSON array of insights, each with: priority ("critical"|"warning"|"info"), category, title (max 80 chars), body (max 300 chars), metric. Max 6 insights. Be concise. Critical items first.`;
 
+export const maxDuration = 60;
+
 export async function GET(req: NextRequest) {
   // Verify cron secret
   const authHeader = req.headers.get('authorization');
@@ -70,6 +72,10 @@ Return ONLY the JSON array.`;
     const response = await kimi.chat.completions.create({
       model: 'kimi-k2.5',
       max_tokens: 1500,
+      temperature: 0.6,
+      top_p: 0.95,
+      // @ts-expect-error — Kimi-specific param to disable slow thinking mode
+      thinking: { type: 'disabled' },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userMessage },

@@ -40,22 +40,31 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
     setError(null);
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
       const res = await fetch('/api/admin/agent/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Analysis failed');
+        const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        throw new Error(data.error || `Analysis failed (${res.status})`);
       }
 
       const data = await res.json();
       setInsights(data.insights || []);
       setAnalyzedAt(new Date(data.analyzedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Analysis failed');
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setError('Analysis timed out (60s). Check that MOONSHOT_API_KEY is set in Vercel.');
+      } else {
+        setError(err instanceof Error ? err.message : 'Analysis failed');
+      }
     } finally {
       setLoading(false);
     }
