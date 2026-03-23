@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/shared/Toast';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Phone, MessageSquare, Users, Send, AlertCircle } from 'lucide-react';
 import { getSmsLimit } from '@/lib/platformTier';
 import { SMS_CATEGORIES, MAX_SMS_PER_FAN_PER_MONTH } from '@/lib/twilio';
@@ -51,14 +52,30 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
   }, [artistId]);
 
   async function loadData() {
+    const supabase = createBrowserSupabaseClient();
     try {
-      // We'll fetch via direct Supabase client since these are artist-owned
-      const res = await fetch(`/api/sms/provision?artistId=${artistId}`, { method: 'GET' });
-      // This route doesn't have GET yet, so let's use a different approach
-      // For now, we'll rely on the provisioning POST to set up
+      // Fetch artist phone setup
+      const { data: phone } = await supabase
+        .from('artist_phone_numbers')
+        .select('phone_number, keyword, monthly_send_count, is_active')
+        .eq('artist_id', artistId)
+        .maybeSingle();
 
-      setIsLoading(false);
+      if (phone) {
+        setPhoneSetup(phone);
+      }
+
+      // Fetch subscribers
+      const { data: subs } = await supabase
+        .from('sms_subscribers')
+        .select('*')
+        .eq('artist_id', artistId)
+        .order('created_at', { ascending: false });
+
+      setSubscribers(subs || []);
     } catch {
+      // silent
+    } finally {
       setIsLoading(false);
     }
   }
@@ -302,6 +319,53 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Send
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Subscriber List */}
+      {subscribers.length > 0 && (
+        <div className="bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden">
+          <div className="px-4 py-3 border-b border-crwn-elevated">
+            <h3 className="text-sm font-medium text-crwn-text">SMS Subscribers ({subscribers.length})</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-crwn-elevated">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-crwn-text-secondary">Phone</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-crwn-text-secondary">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-crwn-text-secondary">Location</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-crwn-text-secondary">This Month</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-crwn-text-secondary">Opted In</th>
+                </tr>
+              </thead>
+              <tbody>
+                {subscribers.map(sub => (
+                  <tr key={sub.id} className="border-b border-crwn-elevated/50">
+                    <td className="px-4 py-2 text-sm text-crwn-text font-mono">{sub.phone_number}</td>
+                    <td className="px-4 py-2">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        sub.status === 'active' ? 'bg-green-500/10 text-green-400' :
+                        sub.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
+                        'bg-red-500/10 text-red-400'
+                      }`}>
+                        {sub.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-crwn-text-secondary">
+                      {[sub.city, sub.state].filter(Boolean).join(', ') || '—'}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-crwn-text">
+                      {sub.monthly_receive_count}/{MAX_SMS_PER_FAN_PER_MONTH}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-crwn-text-secondary whitespace-nowrap">
+                      {sub.opted_in_at ? new Date(sub.opted_in_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
