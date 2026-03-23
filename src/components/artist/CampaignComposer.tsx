@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/components/shared/Toast';
-import { ArrowLeft, Send, Save, Loader2, Plus } from 'lucide-react';
+import { ArrowLeft, Send, Save, Loader2, Plus, Bookmark } from 'lucide-react';
+
+interface SavedSegment {
+  id: string;
+  name: string;
+  filters: Record<string, string>;
+  fan_count: number;
+}
 
 const TOKENS = [
   { key: '{{first_name}}', label: 'First Name' },
@@ -41,6 +48,19 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
   const [isSending, setIsSending] = useState(false);
   const [isLoadingCampaign, setIsLoadingCampaign] = useState(!!campaignId);
   const [savedId, setSavedId] = useState<string | null>(campaignId);
+  const [segments, setSegments] = useState<SavedSegment[]>([]);
+
+  // Load saved segments
+  useEffect(() => {
+    async function loadSegments() {
+      try {
+        const res = await fetch('/api/segments');
+        const json = await res.json();
+        setSegments(json.segments || []);
+      } catch { /* silent */ }
+    }
+    loadSegments();
+  }, []);
 
   // Load existing campaign if editing
   useEffect(() => {
@@ -276,6 +296,32 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
         <div className="space-y-4">
           <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 space-y-4">
             <h3 className="text-sm font-medium text-crwn-text">Audience</h3>
+
+            {/* Saved segments quick-pick */}
+            {segments.length > 0 && (
+              <div>
+                <label className="block text-xs text-crwn-text-secondary mb-1">
+                  <Bookmark className="w-3 h-3 inline mr-1" />
+                  Saved Segments
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {segments.map(seg => (
+                    <button
+                      key={seg.id}
+                      onClick={() => {
+                        setTierFilter(seg.filters.tier || '');
+                        setLocationFilter(seg.filters.location || '');
+                        setSubscribersOnly(!!seg.filters.subscribersOnly);
+                      }}
+                      className="px-2.5 py-1 rounded-md text-xs font-medium bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-gold hover:bg-crwn-gold/10 transition-colors"
+                    >
+                      {seg.name}
+                      <span className="ml-1 opacity-50">({seg.fan_count})</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs text-crwn-text-secondary mb-1">Tier</label>

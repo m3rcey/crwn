@@ -5,8 +5,17 @@ import { AudienceFan } from '@/types';
 import {
   Users, Search, ChevronDown, ChevronUp, ArrowUpDown,
   Loader2, Star, UserCheck, UserX, Upload, AlertTriangle,
+  Bookmark, BookmarkCheck, Trash2, X,
 } from 'lucide-react';
 import { FanImportModal } from '@/components/artist/FanImportModal';
+import { useToast } from '@/components/shared/Toast';
+
+interface SavedSegment {
+  id: string;
+  name: string;
+  filters: Record<string, string>;
+  fan_count: number;
+}
 
 interface AudienceResponse {
   fans: AudienceFan[];
@@ -26,6 +35,7 @@ interface FanTableProps {
 }
 
 export function FanTable({ artistId, tiers }: FanTableProps) {
+  const { showToast } = useToast();
   const [data, setData] = useState<AudienceResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,6 +49,94 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [showImport, setShowImport] = useState(false);
+
+  // Saved segments
+  const [segments, setSegments] = useState<SavedSegment[]>([]);
+  const [activeSegmentId, setActiveSegmentId] = useState<string | null>(null);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [segmentName, setSegmentName] = useState('');
+  const [isSavingSegment, setIsSavingSegment] = useState(false);
+  const [showSegments, setShowSegments] = useState(false);
+
+  const hasActiveFilters = !!(tierFilter || locationFilter || engagementFilter || lifecycleFilter);
+
+  const loadSegments = useCallback(async () => {
+    try {
+      const res = await fetch('/api/segments');
+      const json = await res.json();
+      setSegments(json.segments || []);
+    } catch { /* silent */ }
+  }, []);
+
+  useEffect(() => { loadSegments(); }, [loadSegments]);
+
+  const handleSaveSegment = async () => {
+    if (!segmentName.trim()) return;
+    setIsSavingSegment(true);
+    try {
+      const filters: Record<string, string> = {};
+      if (tierFilter) filters.tier = tierFilter;
+      if (locationFilter) filters.location = locationFilter;
+      if (engagementFilter) filters.engagement = engagementFilter;
+      if (lifecycleFilter) filters.lifecycle = lifecycleFilter;
+
+      const res = await fetch('/api/segments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: segmentName.trim(),
+          filters,
+          fanCount: data?.total || 0,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      showToast('Segment saved', 'success');
+      setShowSaveDialog(false);
+      setSegmentName('');
+      setActiveSegmentId(json.id);
+      await loadSegments();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to save', 'error');
+    } finally {
+      setIsSavingSegment(false);
+    }
+  };
+
+  const handleLoadSegment = (segment: SavedSegment) => {
+    setTierFilter(segment.filters.tier || '');
+    setLocationFilter(segment.filters.location || '');
+    setEngagementFilter(segment.filters.engagement || '');
+    setLifecycleFilter(segment.filters.lifecycle || '');
+    setActiveSegmentId(segment.id);
+    setShowSegments(false);
+    if (segment.filters.tier || segment.filters.location || segment.filters.engagement || segment.filters.lifecycle) {
+      setShowFilters(true);
+    }
+  };
+
+  const handleDeleteSegment = async (id: string) => {
+    try {
+      await fetch('/api/segments', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      if (activeSegmentId === id) setActiveSegmentId(null);
+      await loadSegments();
+      showToast('Segment deleted', 'success');
+    } catch {
+      showToast('Failed to delete', 'error');
+    }
+  };
+
+  const handleClearFilters = () => {
+    setTierFilter('');
+    setLocationFilter('');
+    setEngagementFilter('');
+    setLifecycleFilter('');
+    setActiveSegmentId(null);
+  };
 
   const [debouncedSearch, setDebouncedSearch] = useState('');
   useEffect(() => {
@@ -114,17 +212,131 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header with Import */}
-      <div className="flex items-center justify-between">
-        <div />
+      {/* Header with Segments + Import */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {/* Saved segments dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowSegments(!showSegments)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium border transition-colors ${
+                activeSegmentId
+                  ? 'border-crwn-gold text-crwn-gold'
+                  : 'border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
+              }`}
+            >
+              {activeSegmentId ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+              <span className="hidden sm:inline">
+                {activeSegmentId
+                  ? segments.find(s => s.id === activeSegmentId)?.name || 'Segment'
+                  : 'Segments'}
+              </span>
+              {segments.length > 0 && (
+                <span className="text-xs opacity-60">({segments.length})</span>
+              )}
+            </button>
+
+            {showSegments && (
+              <div className="absolute top-full left-0 mt-1 w-64 bg-crwn-card border border-crwn-elevated rounded-xl shadow-lg z-20 overflow-hidden">
+                {segments.length === 0 ? (
+                  <div className="p-4 text-center text-xs text-crwn-text-secondary">
+                    No saved segments yet. Apply filters and save them for quick access.
+                  </div>
+                ) : (
+                  <div className="max-h-64 overflow-y-auto">
+                    {segments.map(seg => (
+                      <div
+                        key={seg.id}
+                        className={`flex items-center justify-between px-3 py-2.5 hover:bg-crwn-elevated/50 transition-colors cursor-pointer ${
+                          activeSegmentId === seg.id ? 'bg-crwn-elevated/30' : ''
+                        }`}
+                      >
+                        <button
+                          onClick={() => handleLoadSegment(seg)}
+                          className="flex-1 text-left min-w-0"
+                        >
+                          <div className="text-sm font-medium text-crwn-text truncate">{seg.name}</div>
+                          <div className="text-xs text-crwn-text-secondary">
+                            {seg.fan_count} fan{seg.fan_count !== 1 ? 's' : ''}
+                            {Object.keys(seg.filters).length > 0 && (
+                              <> &middot; {Object.keys(seg.filters).length} filter{Object.keys(seg.filters).length !== 1 ? 's' : ''}</>
+                            )}
+                          </div>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDeleteSegment(seg.id); }}
+                          className="p-1 text-crwn-text-secondary hover:text-red-400 transition-colors shrink-0"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Save current filters as segment */}
+          {hasActiveFilters && !showSaveDialog && (
+            <button
+              onClick={() => setShowSaveDialog(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-gold hover:border-crwn-gold/50 transition-colors"
+            >
+              <Bookmark className="w-3.5 h-3.5" />
+              Save Segment
+            </button>
+          )}
+
+          {/* Active segment indicator */}
+          {activeSegmentId && (
+            <button
+              onClick={handleClearFilters}
+              className="flex items-center gap-1 px-2 py-1 rounded-full text-xs text-crwn-text-secondary hover:text-crwn-text transition-colors"
+            >
+              <X className="w-3 h-3" />
+              Clear
+            </button>
+          )}
+        </div>
+
         <button
           onClick={() => setShowImport(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text transition-colors"
         >
           <Upload className="w-4 h-4" />
-          Import Fans
+          <span className="hidden sm:inline">Import Fans</span>
         </button>
       </div>
+
+      {/* Save segment dialog */}
+      {showSaveDialog && (
+        <div className="flex items-center gap-2 p-3 bg-crwn-card rounded-xl border border-crwn-gold/30">
+          <Bookmark className="w-4 h-4 text-crwn-gold shrink-0" />
+          <input
+            type="text"
+            value={segmentName}
+            onChange={e => setSegmentName(e.target.value)}
+            placeholder="Segment name (e.g. VIP fans in NYC)"
+            autoFocus
+            onKeyDown={e => e.key === 'Enter' && handleSaveSegment()}
+            className="flex-1 px-3 py-1.5 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+          />
+          <button
+            onClick={handleSaveSegment}
+            disabled={isSavingSegment || !segmentName.trim()}
+            className="px-3 py-1.5 bg-crwn-gold text-crwn-bg rounded-lg text-xs font-semibold hover:bg-crwn-gold/90 disabled:opacity-40 transition-colors"
+          >
+            {isSavingSegment ? 'Saving...' : 'Save'}
+          </button>
+          <button
+            onClick={() => { setShowSaveDialog(false); setSegmentName(''); }}
+            className="p-1.5 text-crwn-text-secondary hover:text-crwn-text transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Lifecycle Summary Cards */}
       {data?.lifecycleCounts && (
@@ -223,9 +435,9 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
               <option value="lead">Lead</option>
             </select>
 
-            {(tierFilter || locationFilter || engagementFilter || lifecycleFilter) && (
+            {hasActiveFilters && (
               <button
-                onClick={() => { setTierFilter(''); setLocationFilter(''); setEngagementFilter(''); setLifecycleFilter(''); }}
+                onClick={handleClearFilters}
                 className="px-3 py-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors"
               >
                 Clear all
