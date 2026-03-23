@@ -376,6 +376,26 @@ export interface SyncOpportunity {
   created_at: string;
 }
 
+// Audience
+export interface AudienceFan {
+  fan_id: string;
+  display_name: string;
+  email: string;
+  avatar_url: string | null;
+  tier_name: string | null;
+  tier_id: string | null;
+  subscription_status: 'active' | 'canceled' | 'never';
+  subscribed_at: string | null;
+  total_spent: number; // cents
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  last_active: string;
+  engagement_score: number;
+  referral_count: number;
+  is_subscriber: boolean;
+}
+
 // AI Artist Manager
 export type AiInsightType = 'revenue' | 'churn' | 'vip_fan' | 'booking_reminder' | 'content_nudge' | 'weekly_digest' | 'sync_match';
 export type AiInsightPriority = 'urgent' | 'high' | 'normal' | 'low';

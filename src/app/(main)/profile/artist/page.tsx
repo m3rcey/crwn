@@ -13,6 +13,7 @@ import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
 import { SyncDashboard } from '@/components/artist/SyncDashboard';
+import { AudienceTab } from '@/components/artist/AudienceTab';
 import { AiManagerCard, AiManagerTeaser } from '@/components/artist/AiManagerCard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
@@ -25,7 +26,7 @@ import { startTour } from '@/lib/tour';
 import { getArtistTourSteps } from '@/lib/artistTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
 
-type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager';
+type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -92,6 +93,9 @@ function ArtistDashboardContent() {
     if (tab === 'ai-manager') {
       switchTab('ai-manager');
     }
+    if (tab === 'audience') {
+      switchTab('audience');
+    }
     
     if (upgrade === 'success') {
       setShowSuccess('Your plan is now active. Time to build your empire.');
@@ -150,6 +154,7 @@ function ArtistDashboardContent() {
 
   const allTabs = [
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
+    { id: 'audience' as const, label: 'Audience', tourId: 'tab-audience' },
     { id: 'ai-manager' as const, label: 'AI Manager', tourId: 'tab-ai-manager' },
     { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
     { id: 'profile' as const, label: 'Profile', tourId: 'tab-profile' },
@@ -231,6 +236,11 @@ function ArtistDashboardContent() {
             )}
             <AnalyticsDashboard platformTier={platformTier} />
           </div>
+          {visitedTabs.has('audience') && (
+            <div className={activeTab !== 'audience' ? 'hidden' : undefined}>
+              <AudienceTab />
+            </div>
+          )}
           {visitedTabs.has('ai-manager') && (
             <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
               {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} />}
