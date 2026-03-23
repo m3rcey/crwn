@@ -377,6 +377,8 @@ export interface SyncOpportunity {
 }
 
 // Audience
+export type FanLifecycle = 'vip' | 'active' | 'at_risk' | 'churned' | 'cold' | 'lead';
+
 export interface AudienceFan {
   fan_id: string;
   display_name: string;
@@ -394,6 +396,7 @@ export interface AudienceFan {
   engagement_score: number;
   referral_count: number;
   is_subscriber: boolean;
+  lifecycle: FanLifecycle;
 }
 
 // AI Artist Manager

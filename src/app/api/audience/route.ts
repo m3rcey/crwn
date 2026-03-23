@@ -6,6 +6,8 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+type FanLifecycle = 'vip' | 'active' | 'at_risk' | 'churned' | 'cold' | 'lead';
+
 interface FanRecord {
   fan_id: string;
   display_name: string;
@@ -23,6 +25,35 @@ interface FanRecord {
   engagement_score: number;
   referral_count: number;
   is_subscriber: boolean;
+  lifecycle: FanLifecycle;
+}
+
+function computeLifecycle(
+  subscriptionStatus: 'active' | 'canceled' | 'never',
+  engagementScore: number,
+  totalSpent: number,
+  lastActive: string,
+  isImportedLead: boolean,
+): FanLifecycle {
+  const daysSinceActive = Math.floor((Date.now() - new Date(lastActive).getTime()) / 86400000);
+
+  // Churned: had a subscription, canceled it
+  if (subscriptionStatus === 'canceled') return 'churned';
+
+  // VIP: active subscriber with high engagement OR high spend ($100+)
+  if (subscriptionStatus === 'active' && (engagementScore >= 100 || totalSpent >= 10000)) return 'vip';
+
+  // At Risk: active subscriber but no activity in 7+ days
+  if (subscriptionStatus === 'active' && daysSinceActive >= 7) return 'at_risk';
+
+  // Active: subscriber with recent activity
+  if (subscriptionStatus === 'active') return 'active';
+
+  // Lead: imported contact or smart link capture, never subscribed
+  if (isImportedLead) return 'lead';
+
+  // Cold: non-subscriber with some history but low engagement
+  return 'cold';
 }
 
 export async function GET(req: NextRequest) {
@@ -37,6 +68,7 @@ export async function GET(req: NextRequest) {
   const minSpend = req.nextUrl.searchParams.get('minSpend'); // cents
   const maxSpend = req.nextUrl.searchParams.get('maxSpend'); // cents
   const engagement = req.nextUrl.searchParams.get('engagement'); // high/medium/low
+  const lifecycleFilter = req.nextUrl.searchParams.get('lifecycle'); // vip/active/at_risk/churned/cold/lead
   const search = req.nextUrl.searchParams.get('search'); // name or email
   const sortBy = req.nextUrl.searchParams.get('sortBy') || 'engagement_score';
   const sortDir = req.nextUrl.searchParams.get('sortDir') || 'desc';
@@ -282,6 +314,14 @@ export async function GET(req: NextRequest) {
       ? dates.reduce((a, b) => a > b ? a : b)
       : new Date().toISOString();
 
+    const lifecycle = computeLifecycle(
+      data.subscription_status,
+      engagement_score,
+      data.total_spent,
+      last_active,
+      false,
+    );
+
     return {
       fan_id: fanId,
       display_name: profile?.display_name || 'Fan',
@@ -299,6 +339,7 @@ export async function GET(req: NextRequest) {
       engagement_score,
       referral_count: refs,
       is_subscriber: data.subscription_status === 'active',
+      lifecycle,
     };
   });
 
@@ -315,7 +356,7 @@ export async function GET(req: NextRequest) {
 
     newContacts.forEach(c => {
       fans.push({
-        fan_id: c.id, // Use contact ID as fan_id
+        fan_id: c.id,
         display_name: c.name || 'Lead',
         email: c.email || '',
         avatar_url: null,
@@ -331,9 +372,14 @@ export async function GET(req: NextRequest) {
         engagement_score: c.lead_score || 0,
         referral_count: 0,
         is_subscriber: false,
+        lifecycle: 'lead' as FanLifecycle,
       });
     });
   }
+
+  // Lifecycle counts (computed before filters for dashboard summary)
+  const lifecycleCounts: Record<string, number> = { vip: 0, active: 0, at_risk: 0, churned: 0, cold: 0, lead: 0 };
+  fans.forEach(f => { lifecycleCounts[f.lifecycle] = (lifecycleCounts[f.lifecycle] || 0) + 1; });
 
   // Apply filters
   if (tierFilter) {
@@ -362,6 +408,9 @@ export async function GET(req: NextRequest) {
     else if (engagement === 'medium') fans = fans.filter(f => f.engagement_score > p33 && f.engagement_score <= p66);
     else if (engagement === 'low') fans = fans.filter(f => f.engagement_score <= p33);
   }
+  if (lifecycleFilter) {
+    fans = fans.filter(f => f.lifecycle === lifecycleFilter);
+  }
   if (search) {
     const q = search.toLowerCase();
     fans = fans.filter(f =>
@@ -370,7 +419,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Counts before pagination
+  // Counts before pagination (lifecycle counts computed before search filter for summary)
   const totalSubscribers = fans.filter(f => f.is_subscriber).length;
   const totalAudience = fans.length;
 
@@ -409,5 +458,6 @@ export async function GET(req: NextRequest) {
     limit,
     totalSubscribers,
     totalAudience,
+    lifecycleCounts,
   });
 }

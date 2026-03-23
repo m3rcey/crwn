@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { AudienceFan } from '@/types';
 import {
   Users, Search, ChevronDown, ChevronUp, ArrowUpDown,
-  Loader2, Star, UserCheck, UserX, Upload,
+  Loader2, Star, UserCheck, UserX, Upload, AlertTriangle,
 } from 'lucide-react';
 import { FanImportModal } from '@/components/artist/FanImportModal';
 
@@ -15,6 +15,7 @@ interface AudienceResponse {
   limit: number;
   totalSubscribers: number;
   totalAudience: number;
+  lifecycleCounts: Record<string, number>;
 }
 
 type SortField = 'display_name' | 'tier_name' | 'total_spent' | 'subscribed_at' | 'last_active' | 'engagement_score' | 'referral_count';
@@ -32,6 +33,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
   const [tierFilter, setTierFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [engagementFilter, setEngagementFilter] = useState('');
+  const [lifecycleFilter, setLifecycleFilter] = useState('');
   const [sortBy, setSortBy] = useState<SortField>('engagement_score');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
@@ -53,6 +55,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
     if (tierFilter) params.set('tier', tierFilter);
     if (locationFilter) params.set('location', locationFilter);
     if (engagementFilter) params.set('engagement', engagementFilter);
+    if (lifecycleFilter) params.set('lifecycle', lifecycleFilter);
 
     try {
       const res = await fetch(`/api/audience?${params}`);
@@ -63,11 +66,11 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [artistId, page, sortBy, sortDir, debouncedSearch, tierFilter, locationFilter, engagementFilter]);
+  }, [artistId, page, sortBy, sortDir, debouncedSearch, tierFilter, locationFilter, engagementFilter, lifecycleFilter]);
 
   useEffect(() => { fetchAudience(); }, [fetchAudience]);
 
-  useEffect(() => { setPage(1); }, [debouncedSearch, tierFilter, locationFilter, engagementFilter]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, tierFilter, locationFilter, engagementFilter, lifecycleFilter]);
 
   const handleSort = (field: SortField) => {
     if (sortBy === field) {
@@ -98,6 +101,15 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
     return { text: 'Cold', color: 'text-crwn-text-secondary', bg: 'bg-crwn-elevated' };
   };
 
+  const lifecycleConfig: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+    vip: { label: 'VIP', color: 'text-crwn-gold', bg: 'bg-crwn-gold/10', icon: <Star className="w-3 h-3" /> },
+    active: { label: 'Active', color: 'text-green-400', bg: 'bg-green-400/10', icon: <UserCheck className="w-3 h-3" /> },
+    at_risk: { label: 'At Risk', color: 'text-orange-400', bg: 'bg-orange-400/10', icon: <AlertTriangle className="w-3 h-3" /> },
+    churned: { label: 'Churned', color: 'text-red-400', bg: 'bg-red-400/10', icon: <UserX className="w-3 h-3" /> },
+    cold: { label: 'Cold', color: 'text-crwn-text-secondary', bg: 'bg-crwn-elevated', icon: <Users className="w-3 h-3" /> },
+    lead: { label: 'Lead', color: 'text-blue-400', bg: 'bg-blue-400/10', icon: <Users className="w-3 h-3" /> },
+  };
+
   const totalPages = data ? Math.ceil(data.total / data.limit) : 1;
 
   return (
@@ -114,27 +126,31 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
         </button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-crwn-card rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-1">
-            <Users className="w-5 h-5 text-crwn-gold" />
-            <span className="text-sm text-crwn-text-secondary">Total Audience</span>
-          </div>
-          <p className="text-2xl font-bold text-crwn-text">
-            {isLoading ? '—' : (data?.totalAudience || 0).toLocaleString()}
-          </p>
+      {/* Lifecycle Summary Cards */}
+      {data?.lifecycleCounts && (
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {(['vip', 'active', 'at_risk', 'churned', 'cold', 'lead'] as const).map(stage => {
+            const config = lifecycleConfig[stage];
+            const count = data.lifecycleCounts[stage] || 0;
+            const isSelected = lifecycleFilter === stage;
+            return (
+              <button
+                key={stage}
+                onClick={() => setLifecycleFilter(isSelected ? '' : stage)}
+                className={`bg-crwn-card rounded-xl p-3 text-left transition-all border ${
+                  isSelected ? 'border-crwn-gold' : 'border-transparent hover:border-crwn-elevated'
+                }`}
+              >
+                <div className={`flex items-center gap-1.5 mb-1 text-xs font-medium ${config.color}`}>
+                  {config.icon}
+                  {config.label}
+                </div>
+                <p className="text-lg font-bold text-crwn-text">{count}</p>
+              </button>
+            );
+          })}
         </div>
-        <div className="bg-crwn-card rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-1">
-            <UserCheck className="w-5 h-5 text-green-400" />
-            <span className="text-sm text-crwn-text-secondary">Active Subscribers</span>
-          </div>
-          <p className="text-2xl font-bold text-crwn-text">
-            {isLoading ? '—' : (data?.totalSubscribers || 0).toLocaleString()}
-          </p>
-        </div>
-      </div>
+      )}
 
       {/* Search + Filter Bar */}
       <div className="space-y-3">
@@ -152,12 +168,12 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-colors ${
-              showFilters || tierFilter || locationFilter || engagementFilter
+              showFilters || tierFilter || locationFilter || engagementFilter || lifecycleFilter
                 ? 'border-crwn-gold text-crwn-gold'
                 : 'border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
             }`}
           >
-            Filters{(tierFilter || locationFilter || engagementFilter) ? ' •' : ''}
+            Filters{(tierFilter || locationFilter || engagementFilter || lifecycleFilter) ? ' •' : ''}
           </button>
         </div>
 
@@ -193,9 +209,23 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
               <option value="low">Low</option>
             </select>
 
-            {(tierFilter || locationFilter || engagementFilter) && (
+            <select
+              value={lifecycleFilter}
+              onChange={e => setLifecycleFilter(e.target.value)}
+              className="px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+            >
+              <option value="">All Stages</option>
+              <option value="vip">VIP</option>
+              <option value="active">Active</option>
+              <option value="at_risk">At Risk</option>
+              <option value="churned">Churned</option>
+              <option value="cold">Cold</option>
+              <option value="lead">Lead</option>
+            </select>
+
+            {(tierFilter || locationFilter || engagementFilter || lifecycleFilter) && (
               <button
-                onClick={() => { setTierFilter(''); setLocationFilter(''); setEngagementFilter(''); }}
+                onClick={() => { setTierFilter(''); setLocationFilter(''); setEngagementFilter(''); setLifecycleFilter(''); }}
                 className="px-3 py-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors"
               >
                 Clear all
@@ -243,7 +273,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
               ) : !data?.fans.length ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-crwn-text-secondary text-sm">
-                    {search || tierFilter || locationFilter || engagementFilter
+                    {search || tierFilter || locationFilter || engagementFilter || lifecycleFilter
                       ? 'No fans match your filters.'
                       : 'No fans yet. Share your page to start building your audience.'}
                   </td>
@@ -269,19 +299,23 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        {fan.is_subscriber ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-crwn-gold/10 text-crwn-gold">
-                            <Star className="w-3 h-3" />
-                            {fan.tier_name || 'Subscriber'}
-                          </span>
-                        ) : fan.subscription_status === 'canceled' ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400">
-                            <UserX className="w-3 h-3" />
-                            Churned
-                          </span>
-                        ) : (
-                          <span className="text-xs text-crwn-text-secondary">—</span>
-                        )}
+                        <div className="flex flex-col gap-1">
+                          {fan.is_subscriber && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-crwn-gold/10 text-crwn-gold w-fit">
+                              <Star className="w-3 h-3" />
+                              {fan.tier_name || 'Subscriber'}
+                            </span>
+                          )}
+                          {(() => {
+                            const lc = lifecycleConfig[fan.lifecycle];
+                            return lc ? (
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${lc.color} ${lc.bg} w-fit`}>
+                                {lc.icon}
+                                {lc.label}
+                              </span>
+                            ) : null;
+                          })()}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-crwn-text">
                         {fan.total_spent > 0 ? formatSpent(fan.total_spent) : '—'}
