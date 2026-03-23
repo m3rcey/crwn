@@ -300,6 +300,86 @@ export async function GET(req: NextRequest) {
     };
   });
 
+  // ---- FAN METRICS ----
+  const activeFanSubs = subs.filter(s => s.status === 'active');
+  const totalActiveFans = new Set(activeFanSubs.map(s => s.fan_id)).size;
+
+  // New fans: unique fan_ids with first-ever subscription created in period
+  const fanFirstSub: Record<string, string> = {};
+  for (const s of subs) {
+    if (!fanFirstSub[s.fan_id] || s.created_at < fanFirstSub[s.fan_id]) {
+      fanFirstSub[s.fan_id] = s.created_at;
+    }
+  }
+  const newFans = new Set(
+    Object.entries(fanFirstSub)
+      .filter(([, firstDate]) => new Date(firstDate) >= start)
+      .map(([fanId]) => fanId)
+  ).size;
+
+  // Churned fans: fans who had all subs canceled in period (no remaining active subs)
+  const fansWithCanceledSubs = new Set(
+    subs
+      .filter(s => s.canceled_at && new Date(s.canceled_at) >= start)
+      .map(s => s.fan_id)
+  );
+  const activeFanIds = new Set(activeFanSubs.map(s => s.fan_id));
+  const churnedFans = [...fansWithCanceledSubs].filter(fid => !activeFanIds.has(fid)).length;
+
+  // Fan churn rate: churned / (active at start of period + new)
+  const fansActiveAtStart = new Set(
+    subs.filter(s => {
+      const created = new Date(s.created_at);
+      return created < start && (s.status === 'active' || (s.canceled_at && new Date(s.canceled_at) >= start));
+    }).map(s => s.fan_id)
+  ).size;
+  const fanChurnRate = fansActiveAtStart > 0 ? (churnedFans / fansActiveAtStart) * 100 : 0;
+
+  // Fan LTV: total fan earnings / unique fans who ever subscribed
+  const allUniqueFans = new Set(subs.map(s => s.fan_id)).size;
+  const totalFanEarnings = earnings.reduce((s, e) => s + (e.gross_amount || 0), 0);
+  const fanLTV = allUniqueFans > 0 ? Math.round(totalFanEarnings / allUniqueFans) : 0;
+
+  // Revenue per fan
+  const revenuePerFan = totalActiveFans > 0 ? Math.round(periodRevenue / totalActiveFans) : 0;
+
+  // ---- REFERRAL VS CHURN SCOREBOARD ----
+  const periodReferrals = referrals.filter(r => new Date(r.created_at) >= start);
+  const artistReferralsCount = periodReferrals.length;
+  const artistChurnedCount = churnedArtists.length;
+  const artistNetGrowth = artistReferralsCount - artistChurnedCount;
+
+  const scoreboard = {
+    artistReferrals: artistReferralsCount,
+    artistChurned: artistChurnedCount,
+    artistNetGrowth,
+    fanReferrals: 0, // placeholder — not yet tracked
+    fanChurned: churnedFans,
+    fanNetGrowth: -churnedFans, // without referral data, net = -churn
+    fanReferralTracked: false,
+  };
+
+  // ---- HORMOZI 30-DAY HEALTH CHECK ----
+  // 30-day profit must be >= (CAC + COGs per artist) x 2
+  const last30d = new Date();
+  last30d.setDate(last30d.getDate() - 30);
+  const thirtyDayEarnings = earnings.filter(e => new Date(e.created_at) >= last30d);
+  const thirtyDayPlatformFees = thirtyDayEarnings.reduce((s, e) => s + (e.platform_fee || 0), 0);
+  const thirtyDayStripeFees = thirtyDayEarnings.reduce((s, e) => s + stripeFee(e.gross_amount || 0), 0);
+  const thirtyDayRecruiterCost = payouts.filter(p => new Date(p.created_at) >= last30d && p.status === 'paid').reduce((s, p) => s + p.amount, 0);
+  const thirtyDayProfit = thirtyDayPlatformFees + platformMRR - thirtyDayStripeFees - platformStripeFeesMonthly - thirtyDayRecruiterCost - totalFixedCostsCents;
+  const cogsPerArtist = artists.length > 0
+    ? Math.round((totalFixedCostsCents + platformStripeFeesMonthly) / artists.length)
+    : 0;
+  const healthCheckThreshold = (cac + cogsPerArtist) * 2;
+  const healthCheckRatio = healthCheckThreshold > 0 ? Number((thirtyDayProfit / healthCheckThreshold).toFixed(2)) : 0;
+  const healthCheckPassing = healthCheckRatio >= 2;
+
+  // ---- ORGANIC VS RECRUITED ----
+  const referredArtistUserIds = new Set(referrals.map(r => r.artist_user_id).filter(Boolean));
+  const recruitedArtistsCount = artists.filter(a => referredArtistUserIds.has(a.user_id)).length;
+  const organicArtistsCount = artists.length - recruitedArtistsCount;
+
   // ---- PROJECTIONS ----
   // Sales velocity: new paid artists per month
   const recentMonths = Math.min(days / 30, 6);
@@ -387,6 +467,28 @@ export async function GET(req: NextRequest) {
     totalRecruiterCost,
     recruiterPerformance,
     recruiterCostByTier,
+
+    // Fan metrics
+    totalActiveFans,
+    newFans,
+    churnedFans,
+    fanChurnRate: Number(fanChurnRate.toFixed(1)),
+    fanLTV,
+    revenuePerFan,
+
+    // Referral vs Churn Scoreboard
+    scoreboard,
+
+    // Hormozi 30-Day Health Check
+    thirtyDayProfit,
+    cogsPerArtist,
+    healthCheckRatio,
+    healthCheckPassing,
+    healthCheckThreshold,
+
+    // Organic vs Recruited
+    organicArtists: organicArtistsCount,
+    recruitedArtists: recruitedArtistsCount,
 
     // Projections
     salesVelocity: Number(salesVelocity.toFixed(1)),

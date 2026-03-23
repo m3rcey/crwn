@@ -29,6 +29,10 @@
       "schedule": "0 0 1 * *"
     },
     {
+      "path": "/api/admin/agent/briefing",
+      "schedule": "0 12 * * *"
+    },
+    {
       "path": "/api/cron/sync-opportunities",
       "schedule": "0 10 * * 1,4"
     }

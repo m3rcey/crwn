@@ -8,9 +8,10 @@ import {
 import {
   RefreshCw, TrendingUp, TrendingDown, DollarSign, Users, Activity,
   AlertTriangle, Clock, Target, Settings, ChevronDown, ChevronUp,
-  Crown, Info,
+  Crown, Info, Heart, ArrowUpDown, ShieldCheck,
 } from 'lucide-react';
 import SettingsPanel from './SettingsPanel';
+import AgentInsights from './AgentInsights';
 
 // Metric tooltips — what it is and why it matters
 const TOOLTIPS: Record<string, string> = {
@@ -48,6 +49,25 @@ const TOOLTIPS: Record<string, string> = {
   'Sales Velocity': 'Average number of new paid artists acquired per month. Combined with churn, this predicts where the business stabilizes.',
   'Hypothetical Max Revenue': 'Where monthly revenue will plateau if sales velocity and churn stay the same. Formula: (velocity ÷ churn) × avg revenue per artist.',
   'Hypothetical Max Customers': 'Where total customer count will plateau if sales velocity and churn stay the same. Formula: velocity ÷ churn rate.',
+
+  // Fan metrics
+  'Total Active Fans': 'Unique fans with at least one active subscription. Fans are the demand side — without fans, artists have no revenue.',
+  'New Fans': 'Fans who made their first-ever subscription during this period. Tracks demand-side growth.',
+  'Churned Fans': 'Fans who canceled ALL subscriptions during this period with none remaining. Platform-level fan loss.',
+  'Fan Churn Rate': 'Percentage of fans who fully churned during the period. Fan churn leads to artist revenue decline, which leads to artist churn.',
+  'Fan LTV': 'Lifetime Value per fan. Total fan earnings divided by all unique fans who ever subscribed.',
+  'Revenue Per Fan': 'Period revenue divided by active fans. How much each fan contributes to platform revenue.',
+
+  // Scoreboard
+  'Artist Net Growth': 'Artist referrals minus artist churn. Positive = supply side growing. Negative = leaking artists faster than acquiring.',
+  'Fan Net Growth': 'Fan referrals minus fan churn. Positive = demand side growing. Fan referral tracking coming soon.',
+
+  // Health Check
+  '30-Day Health': 'Hormozi rule: 30-day profit must be ≥ 2× (CAC + COGs). Below 2× means you cannot self-fund acquisition and growth stalls.',
+
+  // Organic vs Recruited
+  'Organic Artists': 'Artists who signed up without a recruiter referral. Organic CAC is $0 — the best kind of growth.',
+  'Recruited Artists': 'Artists brought in through the recruiter program. Paid acquisition — track ROI to ensure it\'s worth the spend.',
 };
 
 interface AdminDashboardProps {
@@ -92,6 +112,37 @@ interface Metrics {
   salesVelocity: number;
   hypotheticalMaxMonthlyRevenue: number;
   hypotheticalMaxCustomers: number;
+
+  // Fan metrics
+  totalActiveFans: number;
+  newFans: number;
+  churnedFans: number;
+  fanChurnRate: number;
+  fanLTV: number;
+  revenuePerFan: number;
+
+  // Referral vs Churn Scoreboard
+  scoreboard: {
+    artistReferrals: number;
+    artistChurned: number;
+    artistNetGrowth: number;
+    fanReferrals: number;
+    fanChurned: number;
+    fanNetGrowth: number;
+    fanReferralTracked: boolean;
+  };
+
+  // Hormozi 30-Day Health Check
+  thirtyDayProfit: number;
+  cogsPerArtist: number;
+  healthCheckRatio: number;
+  healthCheckPassing: boolean;
+  healthCheckThreshold: number;
+
+  // Organic vs Recruited
+  organicArtists: number;
+  recruitedArtists: number;
+
   period: string;
   computedAt: string;
 }
@@ -335,6 +386,11 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       )}
 
       {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* AGENT INSIGHTS */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <AgentInsights userId={userId} />
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
       {/* HERO — LGP:CAC Ratio */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <div className="mb-8 bg-[#1A1A1A] rounded-2xl border border-[#2a2a2a] p-6 md:p-8">
@@ -404,7 +460,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           <MetricCard label="MRR" value={fmt(metrics.totalMRR)} subValue={`Platform: ${fmt(metrics.platformMRR)} + Fees: ${fmt(metrics.transactionFeeMRR)}`} color={GOLD} />
           <MetricCard label="ARR" value={fmtShort(metrics.totalARR)} />
           <MetricCard label="Gross Margin" value={`${metrics.grossMarginPct}%`} color={marginColor(metrics.grossMarginPct)} subValue={`Target: ≥80%`} />
-          <MetricCard label="30-Day Cash" value={fmt(metrics.thirtyDayCash)} subValue={`vs CAC+COGS: ${fmt(metrics.cac + metrics.totalFixedCostsCents)}`} color={GREEN} />
+          <MetricCard label="30-Day Health" value={`${metrics.healthCheckRatio}x`} subValue={`Target: ≥2x | Profit: ${fmt(metrics.thirtyDayProfit)} vs ${fmt(metrics.healthCheckThreshold)}`} color={metrics.healthCheckPassing ? GREEN : RED} />
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -459,6 +515,83 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
               <Line yAxisId="right" type="monotone" dataKey="revenuePerVisitor" name="Rev/Visitor" stroke={GOLD} strokeWidth={2} dot={false} animationDuration={1000} />
             </LineChart>
           </ResponsiveContainer>
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* FAN METRICS */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <Section title="Fan Metrics" icon={Heart} tooltip="Fans are the demand side of the marketplace. Without fans subscribing and purchasing, artists have no revenue — and without revenue, artists churn. Fan health is a leading indicator of artist health.">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+          <MetricCard label="Total Active Fans" value={metrics.totalActiveFans.toLocaleString()} color={GOLD} />
+          <MetricCard label="New Fans" value={metrics.newFans.toLocaleString()} subValue={`${period} trailing`} color={GREEN} />
+          <MetricCard label="Churned Fans" value={metrics.churnedFans.toLocaleString()} subValue={`${period} trailing`} color={metrics.churnedFans > 0 ? RED : GREEN} />
+          <MetricCard label="Fan Churn Rate" value={`${metrics.fanChurnRate}%`} subValue="platform-level" color={churnColor(metrics.fanChurnRate)} />
+          <MetricCard label="Fan LTV" value={fmt(metrics.fanLTV)} subValue="all-time avg" />
+          <MetricCard label="Revenue Per Fan" value={fmt(metrics.revenuePerFan)} subValue={`${period} trailing`} color={GOLD} />
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* REFERRAL VS CHURN SCOREBOARD */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <Section title="Referral vs Churn Scoreboard" icon={ArrowUpDown} tooltip="Hormozi rule: you need more referrals than people who churn. If net growth is negative on either side, you're shrinking — fix the leak before scaling acquisition.">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Artist Side */}
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-5">
+            <p className="text-white text-sm font-medium mb-4">Artist Side (Supply)</p>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-[#999] text-sm">Referrals</span>
+                <span className="text-green-400 font-bold text-lg">{metrics.scoreboard.artistReferrals}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#999] text-sm">Churned</span>
+                <span className="text-red-400 font-bold text-lg">{metrics.scoreboard.artistChurned}</span>
+              </div>
+              <div className="border-t border-[#2a2a2a] pt-3 flex justify-between items-center">
+                <div className="flex items-center gap-1">
+                  <span className="text-white text-sm font-medium">Net Growth</span>
+                  <InfoTooltip text={TOOLTIPS['Artist Net Growth']} />
+                </div>
+                <span className={`font-black text-2xl ${metrics.scoreboard.artistNetGrowth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {metrics.scoreboard.artistNetGrowth >= 0 ? '+' : ''}{metrics.scoreboard.artistNetGrowth}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Fan Side */}
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-5">
+            <p className="text-white text-sm font-medium mb-4">Fan Side (Demand)</p>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-[#999] text-sm">Referrals</span>
+                {metrics.scoreboard.fanReferralTracked ? (
+                  <span className="text-green-400 font-bold text-lg">{metrics.scoreboard.fanReferrals}</span>
+                ) : (
+                  <span className="text-[#555] text-xs bg-[#1A1A1A] px-2 py-1 rounded-full">Not yet tracked</span>
+                )}
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#999] text-sm">Churned</span>
+                <span className="text-red-400 font-bold text-lg">{metrics.scoreboard.fanChurned}</span>
+              </div>
+              <div className="border-t border-[#2a2a2a] pt-3 flex justify-between items-center">
+                <div className="flex items-center gap-1">
+                  <span className="text-white text-sm font-medium">Net Growth</span>
+                  <InfoTooltip text={TOOLTIPS['Fan Net Growth']} />
+                </div>
+                {metrics.scoreboard.fanReferralTracked ? (
+                  <span className={`font-black text-2xl ${metrics.scoreboard.fanNetGrowth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {metrics.scoreboard.fanNetGrowth >= 0 ? '+' : ''}{metrics.scoreboard.fanNetGrowth}
+                  </span>
+                ) : (
+                  <span className="text-red-400 font-black text-2xl">-{metrics.scoreboard.fanChurned}</span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -580,6 +713,12 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
               ? `${Math.round(metrics.recruiterPerformance.reduce((s, r) => s + r.qualificationRate, 0) / metrics.recruiterPerformance.length)}%`
               : 'N/A'
           } subValue="avg across recruiters" />
+        </div>
+
+        {/* Organic vs Recruited */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <MetricCard label="Organic Artists" value={metrics.organicArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.organicArtists / metrics.totalArtists) * 100) : 0}% of total — $0 CAC`} color={GREEN} />
+          <MetricCard label="Recruited Artists" value={metrics.recruitedArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.recruitedArtists / metrics.totalArtists) * 100) : 0}% of total — paid acquisition`} color={GOLD} />
         </div>
 
         {/* Recruiter Cost by Tier */}
