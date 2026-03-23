@@ -241,6 +241,28 @@ export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string
       },
     },
 
+    // --- AUDIENCE TAB ---
+    {
+      element: '[data-tour="tab-audience"]',
+      popover: {
+        title: 'Audience & marketing',
+        description: 'Your CRM. See every fan in one place, send email campaigns, set up automated welcome sequences, SMS notifications, and create smart links to capture new fans.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // --- AI MANAGER TAB ---
+    {
+      element: '[data-tour="tab-ai-manager"]',
+      popover: {
+        title: 'AI Artist Manager',
+        description: `Your AI-powered manager analyzes your data and surfaces actionable insights — churn alerts, VIP fan highlights, revenue trends, and content suggestions.${isStarter ? ' Upgrade to Pro to unlock.' : ''}`,
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
     // --- MUSIC TAB ---
     // 22. Switch to Music tab
     {

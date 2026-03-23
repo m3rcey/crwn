@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { getTierLimits, formatTierName, TierLimits } from '@/lib/platformTier';
+import { getTierLimits, formatTierName, TierLimits, getSmsLimit } from '@/lib/platformTier';
 import { PlatformTierModal } from './PlatformTierModal';
 import { Loader2, Crown, CreditCard, Calendar } from 'lucide-react';
 
@@ -152,7 +152,16 @@ export function PlatformBilling() {
             <div className="text-crwn-text">
               Scheduling: {limits.allowsScheduling ? '✓ Yes' : '✗ No'}
             </div>
-            <div className="text-crwn-text col-span-2">
+            <div className="text-crwn-text">
+              AI Manager: {tier !== 'starter' ? '✓ Yes' : '✗ No'}
+            </div>
+            <div className="text-crwn-text">
+              Email Campaigns: ✓ Yes
+            </div>
+            <div className="text-crwn-text">
+              SMS: {getSmsLimit(tier) > 0 ? `${getSmsLimit(tier).toLocaleString()}/mo` : '✗ No'}
+            </div>
+            <div className="text-crwn-text">
               Platform Fee: {limits.platformFeePercent}%
             </div>
           </div>
