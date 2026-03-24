@@ -7,6 +7,8 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { getTierLimits, formatTierName, TierLimits, getSmsLimit } from '@/lib/platformTier';
 import { PlatformTierModal } from './PlatformTierModal';
 import { Loader2, Crown, CreditCard, Calendar } from 'lucide-react';
+import CancelModal from '@/components/shared/CancelModal';
+import { formatTierName as fmtTier } from '@/lib/platformTier';
 
 interface ArtistProfile {
   id: string;
@@ -27,6 +29,7 @@ export function PlatformBilling() {
   const [isLoading, setIsLoading] = useState(true);
   const [showTierModal, setShowTierModal] = useState(false);
   const [isPortalLoading, setIsPortalLoading] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     async function loadArtist() {
@@ -169,20 +172,30 @@ export function PlatformBilling() {
 
         {/* Manage Subscription */}
         {tier !== 'starter' && (
-          <button
-            onClick={handleManageSubscription}
-            disabled={isPortalLoading}
-            className="neu-button w-full py-3 rounded-xl flex items-center justify-center gap-2"
-          >
-            {isPortalLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <CreditCard className="w-5 h-5" />
-                Manage Subscription
-              </>
+          <div className="space-y-2">
+            <button
+              onClick={handleManageSubscription}
+              disabled={isPortalLoading}
+              className="neu-button w-full py-3 rounded-xl flex items-center justify-center gap-2"
+            >
+              {isPortalLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <CreditCard className="w-5 h-5" />
+                  Manage Subscription
+                </>
+              )}
+            </button>
+            {isActive && (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="w-full py-2 text-sm text-[#666] hover:text-red-400 transition-colors"
+              >
+                Cancel Plan
+              </button>
             )}
-          </button>
+          </div>
         )}
       </div>
 
@@ -190,6 +203,21 @@ export function PlatformBilling() {
         isOpen={showTierModal}
         onComplete={() => setShowTierModal(false)}
       />
+
+      {showCancelModal && artist && (
+        <CancelModal
+          context="platform"
+          subscriptionId={artist.id}
+          itemName={`CRWN ${fmtTier(tier)}`}
+          onClose={() => setShowCancelModal(false)}
+          onCanceled={() => {
+            setShowCancelModal(false);
+            showToast('Your plan will be canceled at the end of the billing period', 'success');
+            // Reload to reflect status
+            window.location.reload();
+          }}
+        />
+      )}
     </>
   );
 }

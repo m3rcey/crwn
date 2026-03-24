@@ -6,9 +6,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  Settings, 
-  LogOut, 
+import {
+  Settings,
+  LogOut,
   User as UserIcon,
   Music,
   Eye,
@@ -22,6 +22,7 @@ import {
   LifeBuoy,
   ShieldCheck,
 } from 'lucide-react';
+import CancelModal from '@/components/shared/CancelModal';
 
 export default function ProfilePage() {
   const { user, profile, signOut, isLoading } = useAuth();
@@ -30,6 +31,7 @@ export default function ProfilePage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [subsLoading, setSubsLoading] = useState(true);
   const [portalLoading, setPortalLoading] = useState<string | null>(null);
+  const [cancelSub, setCancelSub] = useState<{ id: string; artistName: string } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -255,13 +257,21 @@ export default function ProfilePage() {
                       <p className="text-crwn-text-secondary text-xs">{tierName} {tierPrice && `· ${tierPrice}`}</p>
                     </div>
                   </Link>
-                  <button
-                    onClick={() => handleManageSub(sub.artist_id, artistSlug)}
-                    disabled={portalLoading === sub.artist_id}
-                    className="px-3 py-1.5 text-xs font-medium text-crwn-text-secondary border border-crwn-elevated rounded-full hover:text-crwn-gold hover:border-crwn-gold transition-colors flex-shrink-0 ml-2"
-                  >
-                    {portalLoading === sub.artist_id ? 'Loading...' : 'Manage'}
-                  </button>
+                  <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                    <button
+                      onClick={() => handleManageSub(sub.artist_id, artistSlug)}
+                      disabled={portalLoading === sub.artist_id}
+                      className="px-3 py-1.5 text-xs font-medium text-crwn-text-secondary border border-crwn-elevated rounded-full hover:text-crwn-gold hover:border-crwn-gold transition-colors"
+                    >
+                      {portalLoading === sub.artist_id ? 'Loading...' : 'Manage'}
+                    </button>
+                    <button
+                      onClick={() => setCancelSub({ id: sub.id, artistName: artistName })}
+                      className="px-3 py-1.5 text-xs font-medium text-[#666] border border-crwn-elevated rounded-full hover:text-red-400 hover:border-red-400/50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -319,6 +329,18 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+      {cancelSub && (
+        <CancelModal
+          context="fan"
+          subscriptionId={cancelSub.id}
+          itemName={cancelSub.artistName}
+          onClose={() => setCancelSub(null)}
+          onCanceled={() => {
+            setCancelSub(null);
+            setSubscriptions(prev => prev.filter(s => s.id !== cancelSub.id));
+          }}
+        />
+      )}
       {showDeactivate && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="neu-raised rounded-xl p-6 max-w-md w-full">

@@ -28,6 +28,7 @@ const TRIGGER_LABELS: Record<string, string> = {
   paid_at_risk: 'Paid At Risk',
   paid_churned: 'Paid Churned (Win-Back)',
   upgrade_abandoned: 'Upgrade Abandoned',
+  loyalty_survey: 'Loyalty Survey (Long-Term Artists)',
 };
 
 const TOKENS = [

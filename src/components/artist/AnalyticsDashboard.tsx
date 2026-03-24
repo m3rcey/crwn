@@ -3,10 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2 } from 'lucide-react';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart, Pie, Cell, BarChart, Bar, Legend 
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, BarChart, Bar, Legend
 } from 'recharts';
+import CohortRetentionChart from '@/components/shared/CohortRetentionChart';
+import CancelReasonChart from '@/components/shared/CancelReasonChart';
+import SurveySummary from '@/components/shared/SurveySummary';
 
 interface Analytics {
   revenue: {
@@ -58,6 +61,18 @@ interface Analytics {
     topCountries: { name: string; count: number }[];
     topCitiesByRevenue: { name: string; revenue: number }[];
     topStatesByRevenue: { name: string; revenue: number }[];
+  };
+  cohortRetention: { month: string; cohortSize: number; retention: number[] }[];
+  cancelReasonSummary: {
+    reasons: { reason: string; count: number }[];
+    totalResponses: number;
+    recentFreeform: { text: string; date: string }[];
+  };
+  surveySummary: {
+    count: number;
+    whyStayed: { reason: string; count: number }[];
+    avgNps: number | null;
+    recentFreeform: string[];
   };
 }
 
@@ -482,6 +497,35 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             ) : (
               <p className="text-crwn-text-secondary text-sm py-4 text-center">No subscriber data yet</p>
             )}
+          </div>
+        </div>
+
+        {/* Cohort Retention */}
+        {analytics.cohortRetention && analytics.cohortRetention.length > 0 && (
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated mt-6">
+            <p className="text-sm text-crwn-text-secondary mb-3">Cohort Retention</p>
+            <CohortRetentionChart data={analytics.cohortRetention} />
+          </div>
+        )}
+
+        {/* Cancel Reasons & Loyalty */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          {/* Why they leave */}
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary mb-3">Why Fans Cancel</p>
+            <CancelReasonChart
+              reasons={analytics.cancelReasonSummary?.reasons || []}
+              context="fan"
+              recentFreeform={analytics.cancelReasonSummary?.recentFreeform}
+            />
+          </div>
+          {/* Why they stay */}
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary mb-3">Why Fans Stay</p>
+            <SurveySummary
+              data={analytics.surveySummary || { count: 0, whyStayed: [], avgNps: null, recentFreeform: [] }}
+              context="fan"
+            />
           </div>
         </div>
       </section>

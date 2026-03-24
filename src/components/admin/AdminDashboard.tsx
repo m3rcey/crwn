@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import SettingsPanel from './SettingsPanel';
 import AgentInsights from './AgentInsights';
+import CohortRetentionChart from '@/components/shared/CohortRetentionChart';
+import CancelReasonChart from '@/components/shared/CancelReasonChart';
+import SurveySummary from '@/components/shared/SurveySummary';
 
 // Metric tooltips — what it is and why it matters
 const TOOLTIPS: Record<string, string> = {
@@ -160,6 +163,23 @@ interface Metrics {
   // Organic vs Recruited
   organicArtists: number;
   recruitedArtists: number;
+
+  // Cohort Retention
+  fanCohortRetention: { month: string; cohortSize: number; retention: number[] }[];
+  artistCohortRetention: { month: string; cohortSize: number; retention: number[] }[];
+
+  // Cancellation Reasons
+  cancelReasonSummary: {
+    fan: { reason: string; count: number }[];
+    platform: { reason: string; count: number }[];
+    recentFreeform: { text: string; context: string; date: string }[];
+  };
+
+  // Loyalty Surveys
+  surveySummary: {
+    fan: { count: number; whyStayed: { reason: string; count: number }[]; avgNps: number | null; recentFreeform: string[] };
+    artist: { count: number; whyStayed: { reason: string; count: number }[]; avgNps: number | null; recentFreeform: string[] };
+  };
 
   period: string;
   computedAt: string;
@@ -767,6 +787,54 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* COHORT RETENTION */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <Section title="Cohort Retention" icon={Activity} defaultOpen={false} tooltip="Cohort analysis shows how retention changes over time for each signup month. Hormozi: churn drops dramatically at day 90 and month 6. If your M0→M1 drop is massive but M3+ stabilizes, focus on onboarding, not the product.">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
+            <CohortRetentionChart data={metrics.fanCohortRetention} title="Fan Subscription Cohorts" />
+          </div>
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
+            <CohortRetentionChart data={metrics.artistCohortRetention} title="Artist Platform Cohorts" />
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* CANCELLATION REASONS & LOYALTY */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <Section title="Why They Leave & Why They Stay" icon={Heart} defaultOpen={false} tooltip="Hormozi: ask cancelers why they left (fix the top 1-2 reasons). Ask best members why they stay (do more of that). Price objections from ideal customers mean add a lower tier. From non-ideal customers, the price filter is working.">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Cancel reasons */}
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
+            <p className="text-white text-sm font-medium mb-3">Fan Cancel Reasons</p>
+            <CancelReasonChart
+              reasons={metrics.cancelReasonSummary.fan}
+              context="fan"
+              recentFreeform={metrics.cancelReasonSummary.recentFreeform.filter(f => f.context === 'fan')}
+            />
+          </div>
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
+            <p className="text-white text-sm font-medium mb-3">Artist Cancel Reasons</p>
+            <CancelReasonChart
+              reasons={metrics.cancelReasonSummary.platform}
+              context="platform"
+              recentFreeform={metrics.cancelReasonSummary.recentFreeform.filter(f => f.context === 'platform')}
+            />
+          </div>
+          {/* Survey / why they stay */}
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
+            <p className="text-white text-sm font-medium mb-3">Fan Loyalty — Why They Stay</p>
+            <SurveySummary data={metrics.surveySummary.fan} context="fan" />
+          </div>
+          <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
+            <p className="text-white text-sm font-medium mb-3">Artist Loyalty — Why They Stay</p>
+            <SurveySummary data={metrics.surveySummary.artist} context="artist" />
           </div>
         </div>
       </Section>

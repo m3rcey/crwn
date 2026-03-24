@@ -69,6 +69,13 @@ const TEMPLATES: Template[] = [
     ],
   },
   {
+    name: 'Loyalty Survey (90+ Day Fans)',
+    trigger: 'loyalty_survey',
+    steps: [
+      { delay: 0, subject: "You're one of my day-ones, {{first_name}}", body: "Hey {{first_name}}, you've been with me for a while now and I just want to say — thank you. Seriously.\n\nI'd love to hear what keeps you coming back. Would you take 30 seconds to answer a quick survey? Your feedback helps me create better content for you.\n\n{{survey_link}}" },
+    ],
+  },
+  {
     name: 'Tier Upgrade Thank You',
     trigger: 'tier_upgrade',
     steps: [
@@ -243,6 +250,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
             <option value="win_back">Win-Back (Canceled Sub)</option>
             <option value="inactive_subscriber">Inactive Subscriber</option>
             <option value="abandoned_cart">Abandoned Cart</option>
+            <option value="loyalty_survey">Loyalty Survey (90+ Day Fans)</option>
           </select>
         </div>
       </div>

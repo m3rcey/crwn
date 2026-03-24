@@ -405,6 +405,136 @@ export async function GET(req: NextRequest) {
   const recruitedArtistsCount = artists.filter(a => referredArtistUserIds.has(a.user_id)).length;
   const organicArtistsCount = artists.length - recruitedArtistsCount;
 
+  // ---- COHORT RETENTION (Fan subscriptions) ----
+  // Group subs by signup month, then compute retention at month 0, 1, 2, ...
+  function computeCohortRetention(subscriptions: typeof subs) {
+    const cohorts: Record<string, { cohortSize: number; retained: number[] }> = {};
+    const nowMonth = new Date();
+
+    for (const s of subscriptions) {
+      const created = new Date(s.created_at);
+      const cohortKey = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!cohorts[cohortKey]) {
+        cohorts[cohortKey] = { cohortSize: 0, retained: [] };
+      }
+      cohorts[cohortKey].cohortSize++;
+
+      // How many months since this cohort started?
+      const cohortStart = new Date(created.getFullYear(), created.getMonth(), 1);
+      const monthsSince = (nowMonth.getFullYear() - cohortStart.getFullYear()) * 12 + (nowMonth.getMonth() - cohortStart.getMonth());
+
+      for (let m = 0; m <= Math.min(monthsSince, 11); m++) {
+        const monthEnd = new Date(cohortStart.getFullYear(), cohortStart.getMonth() + m + 1, 0, 23, 59, 59);
+        const wasActive = !s.canceled_at || new Date(s.canceled_at) > monthEnd;
+
+        if (!cohorts[cohortKey].retained[m]) cohorts[cohortKey].retained[m] = 0;
+        if (wasActive) cohorts[cohortKey].retained[m]++;
+      }
+    }
+
+    return Object.entries(cohorts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12) // last 12 months
+      .map(([month, data]) => ({
+        month,
+        cohortSize: data.cohortSize,
+        retention: data.retained.map(r => data.cohortSize > 0 ? Math.round((r / data.cohortSize) * 100) : 0),
+      }));
+  }
+
+  const fanCohortRetention = computeCohortRetention(subs);
+
+  // Platform artist cohort retention (using artist signup dates)
+  const artistCohortRetention = (() => {
+    const paidArtistsSubs = artists
+      .filter(a => a.platform_tier && a.platform_tier !== 'starter')
+      .map(a => ({
+        created_at: a.created_at,
+        canceled_at: a.platform_subscription_status !== 'active' ? a.created_at : null, // rough proxy
+        status: a.platform_subscription_status,
+      }));
+    return computeCohortRetention(paidArtistsSubs as typeof subs);
+  })();
+
+  // ---- CANCELLATION REASONS ----
+  const { data: cancelReasons } = await supabaseAdmin
+    .from('cancellation_reasons')
+    .select('reasons, context, freeform, created_at')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  const cancelReasonSummary = (() => {
+    const reasons = cancelReasons || [];
+    const fanReasons: Record<string, number> = {};
+    const platformReasons: Record<string, number> = {};
+    const recentFreeform: { text: string; context: string; date: string }[] = [];
+
+    for (const r of reasons) {
+      const target = r.context === 'fan' ? fanReasons : platformReasons;
+      for (const reason of r.reasons || []) {
+        target[reason] = (target[reason] || 0) + 1;
+      }
+      if (r.freeform) {
+        recentFreeform.push({ text: r.freeform, context: r.context, date: r.created_at });
+      }
+    }
+
+    const sortReasons = (obj: Record<string, number>) =>
+      Object.entries(obj).sort((a, b) => b[1] - a[1]).map(([reason, count]) => ({ reason, count }));
+
+    return {
+      fan: sortReasons(fanReasons),
+      platform: sortReasons(platformReasons),
+      recentFreeform: recentFreeform.slice(0, 10),
+    };
+  })();
+
+  // ---- SURVEY RESPONSES SUMMARY ----
+  const { data: surveyData } = await supabaseAdmin
+    .from('survey_responses')
+    .select('survey_type, answers, nps_score, created_at')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  const surveySummary = (() => {
+    const responses = surveyData || [];
+    const fanSurveys = responses.filter(r => r.survey_type === 'loyalty_fan');
+    const artistSurveys = responses.filter(r => r.survey_type === 'loyalty_artist');
+
+    function summarize(items: typeof responses) {
+      const whyStayed: Record<string, number> = {};
+      const npsScores: number[] = [];
+      const freeformList: string[] = [];
+
+      for (const item of items) {
+        const answers = item.answers as Record<string, unknown>;
+        const reasons = (answers?.why_stayed || []) as string[];
+        for (const r of reasons) {
+          whyStayed[r] = (whyStayed[r] || 0) + 1;
+        }
+        if (item.nps_score != null) npsScores.push(item.nps_score);
+        if (answers?.freeform) freeformList.push(answers.freeform as string);
+      }
+
+      const avgNps = npsScores.length > 0
+        ? Number((npsScores.reduce((a, b) => a + b, 0) / npsScores.length).toFixed(1))
+        : null;
+
+      return {
+        count: items.length,
+        whyStayed: Object.entries(whyStayed).sort((a, b) => b[1] - a[1]).map(([reason, count]) => ({ reason, count })),
+        avgNps,
+        recentFreeform: freeformList.slice(0, 5),
+      };
+    }
+
+    return {
+      fan: summarize(fanSurveys),
+      artist: summarize(artistSurveys),
+    };
+  })();
+
   // ---- PROJECTIONS ----
   // Sales velocity: new paid artists per month
   const recentMonths = Math.min(days / 30, 6);
@@ -522,6 +652,16 @@ export async function GET(req: NextRequest) {
     salesVelocity: Number(salesVelocity.toFixed(1)),
     hypotheticalMaxMonthlyRevenue,
     hypotheticalMaxCustomers,
+
+    // Cohort Retention
+    fanCohortRetention,
+    artistCohortRetention,
+
+    // Cancellation Reasons
+    cancelReasonSummary,
+
+    // Loyalty Surveys
+    surveySummary,
 
     // Meta
     period,

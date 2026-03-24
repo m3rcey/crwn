@@ -403,6 +403,106 @@ export async function GET(req: NextRequest) {
   const topCitiesByRevenue = Object.entries(revenueByCity).sort(([, a], [, b]) => b - a).slice(0, 10).map(([name, revenue]) => ({ name, revenue }));
   const topStatesByRevenue = Object.entries(revenueByState).sort(([, a], [, b]) => b - a).slice(0, 10).map(([name, revenue]) => ({ name, revenue }));
 
+  // ---- COHORT RETENTION ----
+  const cohortRetention = (() => {
+    const cohorts: Record<string, { cohortSize: number; retained: number[] }> = {};
+
+    for (const s of subs) {
+      const created = new Date(s.created_at);
+      const cohortKey = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, '0')}`;
+
+      if (!cohorts[cohortKey]) {
+        cohorts[cohortKey] = { cohortSize: 0, retained: [] };
+      }
+      cohorts[cohortKey].cohortSize++;
+
+      const cohortStart = new Date(created.getFullYear(), created.getMonth(), 1);
+      const monthsSince = (now.getFullYear() - cohortStart.getFullYear()) * 12 + (now.getMonth() - cohortStart.getMonth());
+
+      for (let m = 0; m <= Math.min(monthsSince, 11); m++) {
+        const monthEnd = new Date(cohortStart.getFullYear(), cohortStart.getMonth() + m + 1, 0, 23, 59, 59);
+        const wasActive = !s.canceled_at || new Date(s.canceled_at) > monthEnd;
+
+        if (!cohorts[cohortKey].retained[m]) cohorts[cohortKey].retained[m] = 0;
+        if (wasActive) cohorts[cohortKey].retained[m]++;
+      }
+    }
+
+    return Object.entries(cohorts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-12)
+      .map(([month, data]) => ({
+        month,
+        cohortSize: data.cohortSize,
+        retention: data.retained.map(r => data.cohortSize > 0 ? Math.round((r / data.cohortSize) * 100) : 0),
+      }));
+  })();
+
+  // ---- CANCELLATION REASONS (for this artist's fans) ----
+  const { data: cancelReasonsData } = await supabaseAdmin
+    .from('cancellation_reasons')
+    .select('reasons, freeform, created_at')
+    .eq('context', 'fan')
+    .in('subscription_id', subs.map(s => s.id).length > 0 ? subs.map(s => s.id) : ['00000000-0000-0000-0000-000000000000'])
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  const cancelReasonSummary = (() => {
+    const reasons = cancelReasonsData || [];
+    const counts: Record<string, number> = {};
+    const freeformList: { text: string; date: string }[] = [];
+
+    for (const r of reasons) {
+      for (const reason of r.reasons || []) {
+        counts[reason] = (counts[reason] || 0) + 1;
+      }
+      if (r.freeform) {
+        freeformList.push({ text: r.freeform, date: r.created_at });
+      }
+    }
+
+    return {
+      reasons: Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([reason, count]) => ({ reason, count })),
+      totalResponses: reasons.length,
+      recentFreeform: freeformList.slice(0, 5),
+    };
+  })();
+
+  // ---- LOYALTY SURVEY RESPONSES (for this artist's fans) ----
+  const { data: surveyResps } = await supabaseAdmin
+    .from('survey_responses')
+    .select('answers, nps_score, created_at')
+    .eq('survey_type', 'loyalty_fan')
+    .eq('artist_id', artistId)
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  const surveySummary = (() => {
+    const responses = surveyResps || [];
+    const whyStayed: Record<string, number> = {};
+    const npsScores: number[] = [];
+    const freeformList: string[] = [];
+
+    for (const item of responses) {
+      const answers = item.answers as Record<string, unknown>;
+      const reasons = (answers?.why_stayed || []) as string[];
+      for (const r of reasons) {
+        whyStayed[r] = (whyStayed[r] || 0) + 1;
+      }
+      if (item.nps_score != null) npsScores.push(item.nps_score);
+      if (answers?.freeform) freeformList.push(answers.freeform as string);
+    }
+
+    return {
+      count: responses.length,
+      whyStayed: Object.entries(whyStayed).sort((a, b) => b[1] - a[1]).map(([reason, count]) => ({ reason, count })),
+      avgNps: npsScores.length > 0
+        ? Number((npsScores.reduce((a, b) => a + b, 0) / npsScores.length).toFixed(1))
+        : null,
+      recentFreeform: freeformList.slice(0, 5),
+    };
+  })();
+
   return NextResponse.json({
     revenue: {
       today: revenueToday,
@@ -454,5 +554,8 @@ export async function GET(req: NextRequest) {
       topCitiesByRevenue,
       topStatesByRevenue,
     },
+    cohortRetention,
+    cancelReasonSummary,
+    surveySummary,
   });
 }
