@@ -33,8 +33,8 @@ function ArtistDashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<TabId>('analytics');
-  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(new Set(['analytics']));
+  const [activeTab, setActiveTab] = useState<TabId>('ai-manager');
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(new Set(['ai-manager']));
   const [artistId, setArtistId] = useState<string | null>(null);
   const [artistSlug, setArtistSlug] = useState<string>('');
   const [tiers, setTiers] = useState<TierConfig[]>([]);
@@ -159,12 +159,12 @@ function ArtistDashboardContent() {
   }
 
   const allTabs = [
+    { id: 'ai-manager' as const, label: 'AI Manager', tourId: 'tab-ai-manager' },
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
     { id: 'audience' as const, label: 'Audience', tourId: 'tab-audience' },
-    { id: 'ai-manager' as const, label: 'AI Manager', tourId: 'tab-ai-manager' },
+    { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
     { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
     { id: 'profile' as const, label: 'Profile', tourId: 'tab-profile' },
-    { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
     { id: 'albums' as const, label: 'Albums', tourId: 'tab-albums' },
     { id: 'shop' as const, label: 'Shop', tourId: 'tab-shop' },
     { id: 'billing' as const, label: 'Billing', tourId: 'tab-billing' },
@@ -236,20 +236,20 @@ function ArtistDashboardContent() {
 
         {/* Content — visited tabs stay mounted to preserve state */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
-          <div className={activeTab !== 'analytics' ? 'hidden' : undefined}>
-            {artistId && (
-              <AiManagerTeaser artistId={artistId} onNavigate={() => switchTab('ai-manager')} />
-            )}
-            <AnalyticsDashboard platformTier={platformTier} />
+          <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
+            {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} onSwitchTab={(tab) => switchTab(tab as TabId)} />}
           </div>
+          {visitedTabs.has('analytics') && (
+            <div className={activeTab !== 'analytics' ? 'hidden' : undefined}>
+              {artistId && (
+                <AiManagerTeaser artistId={artistId} onNavigate={() => switchTab('ai-manager')} />
+              )}
+              <AnalyticsDashboard platformTier={platformTier} />
+            </div>
+          )}
           {visitedTabs.has('audience') && (
             <div className={activeTab !== 'audience' ? 'hidden' : undefined}>
               <AudienceTab />
-            </div>
-          )}
-          {visitedTabs.has('ai-manager') && (
-            <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
-              {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} onSwitchTab={(tab) => switchTab(tab as TabId)} />}
             </div>
           )}
           {visitedTabs.has('sync') && (

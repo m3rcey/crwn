@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Info } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, Legend
@@ -101,6 +101,17 @@ interface MilestoneData {
 }
 
 const COLORS = ['#D4AF37', '#3B82F6', '#8B5CF6', '#10B981'];
+
+function InfoTooltip({ text }: { text: string }) {
+  return (
+    <span className="relative group inline-flex ml-1 align-middle">
+      <Info className="w-3 h-3 text-crwn-text-secondary/60 cursor-help" />
+      <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2.5 py-1.5 rounded-lg bg-crwn-elevated text-[11px] text-crwn-text leading-tight whitespace-normal w-48 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 shadow-lg border border-crwn-elevated z-50">
+        {text}
+      </span>
+    </span>
+  );
+}
 
 // Period Toggle Component
 function PeriodToggle({ value, onChange }: { value: string; onChange: (v: 'daily' | 'weekly' | 'monthly') => void }) {
@@ -234,27 +245,27 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         {/* Top Stats - MRR, This Month, All Time, Rev/Play, Revenue Split */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">MRR</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">MRR<InfoTooltip text="Monthly Recurring Revenue. Predictable income from active subscriptions each month." /></p>
             <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.subscribers.mrr)}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">This Month</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">This Month<InfoTooltip text="Total revenue earned this calendar month from all sources (subscriptions, purchases, tips)." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.revenue.thisMonth)}</p>
             <p className={`text-xs ${analytics.revenue.thisMonth >= analytics.revenue.lastMonth ? 'text-green-500' : 'text-crwn-error'}`}>
               {analytics.revenue.thisMonth >= analytics.revenue.lastMonth ? '↑' : '↓'} {Math.abs(Number(getPercentChange(analytics.revenue.thisMonth, analytics.revenue.lastMonth)))}%
             </p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">All Time</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">All Time<InfoTooltip text="Cumulative revenue earned since you joined CRWN." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.revenue.allTime)}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated col-span-2 lg:col-span-1">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Revenue Per Play</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Revenue Per Play<InfoTooltip text="Average revenue generated per song play. Compare this to streaming platforms like Spotify (~$0.003)." /></p>
             <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.revenue.revenuePerPlay)}</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">vs Spotify ~$0.003</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide mb-2">Revenue Split</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide mb-2">Revenue Split<InfoTooltip text="Breakdown of your revenue by source: subscriptions, one-time purchases, etc." /></p>
             <div className="h-16">
               {revenuePieData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -310,12 +321,12 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Rev / Visitor</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Rev / Visitor<InfoTooltip text="Average revenue per unique visitor to your profile. A key pricing signal: higher means your page converts well." /></p>
             <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.revenue.revenuePerVisitor)}</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Unique Visitors</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Unique Visitors<InfoTooltip text="Number of distinct people who visited your profile in the last 30 days." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.revenue.uniqueVisitors30d.toLocaleString()}</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
           </div>
@@ -353,26 +364,26 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         {/* Top Stats - Active, ARPU, Churn Rate, Avg Lifespan, LTV */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active<InfoTooltip text="Number of fans with active paid subscriptions right now." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.active}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">ARPU</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">ARPU<InfoTooltip text="Average Revenue Per User. How much each subscriber pays on average per month." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.subscribers.arpu)}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Churn Rate</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Churn Rate<InfoTooltip text="Percentage of subscribers who cancel each month. Lower is better. Under 3% is excellent." /></p>
             <p className={`text-2xl font-bold mt-1 ${analytics.subscribers.churnRate > 5 ? 'text-crwn-error' : analytics.subscribers.churnRate < 3 ? 'text-green-500' : 'text-crwn-text'}`}>
               {analytics.subscribers.churnRate}%
             </p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Avg Lifespan</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Avg Lifespan<InfoTooltip text="Average number of months a fan stays subscribed before canceling." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.subscribers.avgLifespanMonths}mo</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">how long fans stay</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">LTV</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">LTV<InfoTooltip text="Lifetime Value. Total revenue expected from an average subscriber over their full lifespan (ARPU x Avg Lifespan)." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.subscribers.ltv)}</p>
           </div>
         </div>
@@ -469,7 +480,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           {/* Fan Activity Health */}
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-sm text-crwn-text-secondary mb-3">Fan Activity Health</p>
+            <p className="text-sm text-crwn-text-secondary mb-3">Fan Activity Health<InfoTooltip text="How engaged your subscribers are based on recent activity. At-risk fans may need a nudge." /></p>
             <div className="space-y-3">
               <div>
                 <div className="flex justify-between mb-1">
@@ -517,7 +528,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
 
           {/* Billing Mix */}
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-sm text-crwn-text-secondary mb-3">Monthly vs Annual</p>
+            <p className="text-sm text-crwn-text-secondary mb-3">Monthly vs Annual<InfoTooltip text="Split between monthly and annual billing. Annual subscribers churn less and provide more predictable revenue." /></p>
             {(analytics.subscribers.billingMix.monthly + analytics.subscribers.billingMix.annual) > 0 ? (
               <>
                 <div className="h-40">
@@ -555,7 +566,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         {/* Cohort Retention */}
         {analytics.cohortRetention && analytics.cohortRetention.length > 0 && (
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated mt-6">
-            <p className="text-sm text-crwn-text-secondary mb-3">Cohort Retention</p>
+            <p className="text-sm text-crwn-text-secondary mb-3">Cohort Retention<InfoTooltip text="Tracks how well you keep subscribers over time. Each row shows a monthly cohort and what % stayed in following months." /></p>
             <CohortRetentionChart data={analytics.cohortRetention} />
           </div>
         )}
@@ -595,19 +606,19 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         <h3 className="text-lg font-semibold text-crwn-text mb-4">Referral Program</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Total Referrals</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Total Referrals<InfoTooltip text="Total number of fans who subscribed through a referral link." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.referrals.totalReferrals}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Active<InfoTooltip text="Referred fans who still have an active subscription." /></p>
             <p className="text-2xl font-bold text-green-400 mt-1">{analytics.referrals.activeReferrals}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Commission Paid</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Commission Paid<InfoTooltip text="Total commission paid out to fans who referred new subscribers." /></p>
             <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.referrals.totalCommissionPaid)}</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Conversion Rate</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Conversion Rate<InfoTooltip text="Percentage of your active subscribers that came through referrals." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">
               {analytics.subscribers.active > 0 && analytics.referrals.totalReferrals > 0
                 ? `${Math.round((analytics.referrals.activeReferrals / analytics.subscribers.active) * 100)}%`
@@ -653,17 +664,17 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">New Subs / Month</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">New Subs / Month<InfoTooltip text="Average number of new subscribers per month over the last 3 months." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.projections.salesVelocity}</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 3mo average</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max MRR</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max MRR<InfoTooltip text="Estimated maximum monthly revenue if your current growth rate and churn rate stay the same." /></p>
             <p className="text-2xl font-bold text-purple-400 mt-1">{formatCurrency(analytics.projections.hypotheticalMaxMRR)}</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">if nothing changes</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max Subs</p>
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max Subs<InfoTooltip text="Estimated max subscriber count: your monthly growth velocity divided by your churn rate." /></p>
             <p className="text-2xl font-bold text-blue-400 mt-1">{analytics.projections.hypotheticalMaxSubscribers}</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">velocity ÷ churn</p>
           </div>
