@@ -47,8 +47,8 @@ export default async function SmartLinkPage({ params }: Props) {
   // Increment view count (fire and forget via admin)
   const { createClient } = await import('@supabase/supabase-js');
   const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
   );
   supabaseAdmin
     .from('smart_links')

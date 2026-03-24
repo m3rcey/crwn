@@ -36,8 +36,8 @@ export async function processReferral(params: {
 }): Promise<void> {
   const { createClient } = await import('@supabase/supabase-js');
   const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
   );
 
   const { artistId, referredFanId, subscriptionId, referralCode, earningId, grossAmount } = params;

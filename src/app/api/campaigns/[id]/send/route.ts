@@ -5,8 +5,8 @@ import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
 
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
 const BASE_URL = 'https://thecrwn.app';

@@ -2,7 +2,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { Album, AlbumTrack, Track } from '@/types';
 
 const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 

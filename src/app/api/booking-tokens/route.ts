@@ -3,8 +3,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
 // GET: Fetch fan's booking tokens

@@ -11,8 +11,8 @@ const NOTIFY_TYPES = new Set(['churn', 'booking_reminder', 'sync_match', 'revenu
 const NOTIFY_PRIORITIES = new Set(['urgent', 'high']);
 
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;

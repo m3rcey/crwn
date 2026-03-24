@@ -141,7 +141,7 @@ export async function checkArtistLimit(
   resource: 'tracks' | 'fanTiers'
 ): Promise<{ allowed: boolean; current: number; limit: number; tier: string }> {
   const { createClient } = await import("@supabase/supabase-js");
-  const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+  const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321', process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build');
   // Get artist platform tier
   const { data: artist } = await supabaseAdmin
     .from('artist_profiles')
@@ -213,8 +213,8 @@ export function formatTierName(tier: string | null | undefined): string {
 export async function getArtistFeePercent(artistId: string): Promise<number> {
   const { createClient } = await import('@supabase/supabase-js');
   const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
   );
 
   const { data } = await supabaseAdmin

@@ -5,8 +5,8 @@ import { artistNewPostEmail } from '@/lib/emails/artistNewPost';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
 export async function POST(request: NextRequest) {

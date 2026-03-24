@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
 // Detect inactive subscribers (no activity in 14 days) and enroll in re-engagement sequences
