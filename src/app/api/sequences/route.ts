@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { id, artistId, name, triggerType, steps } = body;
+  const { id, artistId, name, triggerType, steps, activate } = body;
 
   if (!artistId || !name) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
         artist_id: artistId,
         name,
         trigger_type: triggerType || 'new_subscription',
-        is_active: false, // Start inactive until steps are added
+        is_active: activate === true, // activate=true for one-click templates
       })
       .select()
       .single();

@@ -403,6 +403,53 @@ export async function GET(req: NextRequest) {
   const topCitiesByRevenue = Object.entries(revenueByCity).sort(([, a], [, b]) => b - a).slice(0, 10).map(([name, revenue]) => ({ name, revenue }));
   const topStatesByRevenue = Object.entries(revenueByState).sort(([, a], [, b]) => b - a).slice(0, 10).map(([name, revenue]) => ({ name, revenue }));
 
+  // ---- RETENTION BENCHMARKS (platform-wide average) ----
+  // Compute platform average churn so artists can compare
+  const { data: allPlatformSubs } = await supabaseAdmin
+    .from('subscriptions')
+    .select('artist_id, status, created_at, canceled_at')
+    .limit(5000);
+
+  const retentionBenchmark = (() => {
+    const platformSubs = allPlatformSubs || [];
+    const platformActiveSubs = platformSubs.filter(s => s.status === 'active');
+    const platformCanceledThisMonth = platformSubs.filter(s =>
+      s.status === 'canceled' && s.canceled_at && s.canceled_at >= thisMonthStart
+    );
+    const platformTotalAtStart = platformSubs.filter(s =>
+      s.created_at < thisMonthStart && (s.status === 'active' || (s.canceled_at && s.canceled_at >= thisMonthStart))
+    ).length;
+    const platformChurnRate = platformTotalAtStart > 0
+      ? Number(((platformCanceledThisMonth.length / platformTotalAtStart) * 100).toFixed(1))
+      : 0;
+    const platformAvgLifespan = platformChurnRate > 0 ? Number((100 / platformChurnRate).toFixed(1)) : 24;
+
+    // Percentile: how does this artist's churn compare?
+    // Below average = better, above = worse
+    let rating: 'excellent' | 'good' | 'average' | 'below_average' | 'needs_work';
+    if (churnRate === 0) {
+      rating = 'excellent';
+    } else if (churnRate < platformChurnRate * 0.5) {
+      rating = 'excellent';
+    } else if (churnRate < platformChurnRate * 0.8) {
+      rating = 'good';
+    } else if (churnRate <= platformChurnRate * 1.2) {
+      rating = 'average';
+    } else if (churnRate <= platformChurnRate * 1.5) {
+      rating = 'below_average';
+    } else {
+      rating = 'needs_work';
+    }
+
+    return {
+      platformAvgChurnRate: platformChurnRate,
+      platformAvgLifespan,
+      artistChurnRate: Number(churnRate.toFixed(1)),
+      rating,
+      totalArtistsOnPlatform: new Set(platformSubs.map(s => (s as unknown as { artist_id: string }).artist_id)).size,
+    };
+  })();
+
   // ---- COHORT RETENTION ----
   const cohortRetention = (() => {
     const cohorts: Record<string, { cohortSize: number; retained: number[] }> = {};
@@ -554,6 +601,7 @@ export async function GET(req: NextRequest) {
       topCitiesByRevenue,
       topStatesByRevenue,
     },
+    retentionBenchmark,
     cohortRetention,
     cancelReasonSummary,
     surveySummary,

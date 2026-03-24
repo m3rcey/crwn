@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
+import { createSurveyToken } from '@/lib/surveyTokens';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -142,6 +143,23 @@ export async function GET(req: NextRequest) {
         ? Math.floor((Date.now() - new Date(sub.started_at).getTime()) / 86400000)
         : 0;
 
+      // Generate survey link for loyalty_survey sequences
+      const { data: seqMeta } = await supabaseAdmin
+        .from('sequences')
+        .select('trigger_type')
+        .eq('id', enrollment.sequence_id)
+        .single();
+
+      let surveyLink = '';
+      if (seqMeta?.trigger_type === 'loyalty_survey') {
+        const token = createSurveyToken({
+          respondentId: enrollment.fan_id,
+          artistId: enrollment.artist_id,
+          surveyType: 'loyalty_fan',
+        });
+        surveyLink = `https://thecrwn.app/survey/${token}`;
+      }
+
       // Resolve tokens
       const personalizedBody = resolveTokens(step.body, {
         first_name: firstName,
@@ -152,6 +170,7 @@ export async function GET(req: NextRequest) {
           ? new Date(sub.started_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
           : null,
         days_subscribed: String(daysSubscribed),
+        survey_link: surveyLink,
       });
 
       const personalizedSubject = resolveTokens(step.subject, {

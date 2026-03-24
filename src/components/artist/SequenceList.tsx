@@ -1,8 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Zap, Loader2, Users, CheckCircle, Power, PowerOff } from 'lucide-react';
+import { Plus, Zap, Loader2, Users, CheckCircle, Power, PowerOff, Sparkles } from 'lucide-react';
 import { useToast } from '@/components/shared/Toast';
+
+// Welcome sequence template for one-click activation
+const WELCOME_TEMPLATE = {
+  name: 'Welcome Series',
+  triggerType: 'new_subscription',
+  steps: [
+    { delay_days: 0, subject: "Welcome to {{tier_name}}, {{first_name}}!", body: "Thanks for joining! Here's what you've unlocked as a {{tier_name}} member:\n\n- Exclusive tracks and early releases\n- Community posts and updates\n- Direct connection with me\n\nCheck out my page to start exploring what's available to you." },
+    { delay_days: 3, subject: "Here's what you get, {{first_name}}", body: "As a {{tier_name}} subscriber, you have access to exclusive tracks, community posts, and more. Here's a quick tour of what's waiting for you:\n\n1. Library — all your exclusive content in one place\n2. Community — posts, updates, and behind-the-scenes\n3. New drops — you'll be first to know\n\nDon't be a stranger — I love hearing from my supporters." },
+    { delay_days: 7, subject: "Your first exclusive drop", body: "Hey {{first_name}} — check out the latest release, available now for {{tier_name}} members.\n\nI've been working hard on new content and I'm excited to share it with you. Keep an eye out for more coming soon." },
+  ],
+};
 
 interface Sequence {
   id: string;
@@ -28,12 +39,14 @@ const triggerLabels: Record<string, string> = {
   win_back: 'Win-Back',
   inactive_subscriber: 'Inactive Subscriber',
   abandoned_cart: 'Abandoned Cart',
+  loyalty_survey: 'Loyalty Survey',
 };
 
 export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
   const [sequences, setSequences] = useState<Sequence[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [activatingWelcome, setActivatingWelcome] = useState(false);
   const { showToast } = useToast();
 
   const loadSequences = async () => {
@@ -49,6 +62,33 @@ export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
   };
 
   useEffect(() => { loadSequences(); }, [artistId]);
+
+  const hasWelcomeSequence = sequences.some(s => s.trigger_type === 'new_subscription');
+
+  const handleQuickActivateWelcome = async () => {
+    setActivatingWelcome(true);
+    try {
+      const res = await fetch('/api/sequences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          artistId,
+          name: WELCOME_TEMPLATE.name,
+          triggerType: WELCOME_TEMPLATE.triggerType,
+          steps: WELCOME_TEMPLATE.steps,
+          activate: true,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed to create');
+      showToast('Welcome sequence activated! New subscribers will receive it automatically.', 'success');
+      await loadSequences();
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Failed to activate', 'error');
+    } finally {
+      setActivatingWelcome(false);
+    }
+  };
 
   const handleToggle = async (id: string) => {
     setTogglingId(id);
@@ -88,6 +128,32 @@ export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
           New Sequence
         </button>
       </div>
+
+      {/* Quick-activate welcome sequence banner */}
+      {!hasWelcomeSequence && (
+        <div className="bg-crwn-gold/10 border border-crwn-gold/30 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-crwn-gold/20 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-crwn-gold" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-crwn-text">Welcome new subscribers automatically</p>
+              <p className="text-xs text-crwn-text-secondary">Activate a 3-email welcome series in one click — fans who get onboarded early stay 2x longer.</p>
+            </div>
+          </div>
+          <button
+            onClick={handleQuickActivateWelcome}
+            disabled={activatingWelcome}
+            className="px-4 py-2 bg-crwn-gold text-crwn-bg rounded-full text-sm font-semibold hover:bg-crwn-gold/90 transition-colors flex-shrink-0 flex items-center gap-2"
+          >
+            {activatingWelcome ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              'Activate'
+            )}
+          </button>
+        </div>
+      )}
 
       {sequences.length === 0 ? (
         <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">

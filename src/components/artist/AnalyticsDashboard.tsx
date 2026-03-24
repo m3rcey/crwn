@@ -62,6 +62,12 @@ interface Analytics {
     topCitiesByRevenue: { name: string; revenue: number }[];
     topStatesByRevenue: { name: string; revenue: number }[];
   };
+  retentionBenchmark: {
+    platformAvgChurnRate: number;
+    platformAvgLifespan: number;
+    artistChurnRate: number;
+    rating: 'excellent' | 'good' | 'average' | 'below_average' | 'needs_work';
+  };
   cohortRetention: { month: string; cohortSize: number; retention: number[] }[];
   cancelReasonSummary: {
     reasons: { reason: string; count: number }[];
@@ -370,6 +376,52 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.subscribers.ltv)}</p>
           </div>
         </div>
+
+        {/* Retention Benchmark */}
+        {analytics.retentionBenchmark && (
+          <div className={`rounded-xl p-4 mb-6 border ${
+            analytics.retentionBenchmark.rating === 'excellent' ? 'bg-green-500/10 border-green-500/30' :
+            analytics.retentionBenchmark.rating === 'good' ? 'bg-green-500/5 border-green-500/20' :
+            analytics.retentionBenchmark.rating === 'average' ? 'bg-crwn-surface border-crwn-elevated' :
+            analytics.retentionBenchmark.rating === 'below_average' ? 'bg-yellow-500/5 border-yellow-500/20' :
+            'bg-red-500/5 border-red-500/20'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-crwn-text">
+                  Your Retention vs Platform Average
+                </p>
+                <p className="text-xs text-crwn-text-secondary mt-0.5">
+                  Your churn: <span className="font-medium text-crwn-text">{analytics.retentionBenchmark.artistChurnRate}%</span>
+                  {' / '}
+                  Platform avg: <span className="font-medium text-crwn-text">{analytics.retentionBenchmark.platformAvgChurnRate}%</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                  analytics.retentionBenchmark.rating === 'excellent' ? 'bg-green-500/20 text-green-400' :
+                  analytics.retentionBenchmark.rating === 'good' ? 'bg-green-500/15 text-green-400' :
+                  analytics.retentionBenchmark.rating === 'average' ? 'bg-crwn-elevated text-crwn-text-secondary' :
+                  analytics.retentionBenchmark.rating === 'below_average' ? 'bg-yellow-500/20 text-yellow-400' :
+                  'bg-red-500/20 text-red-400'
+                }`}>
+                  {analytics.retentionBenchmark.rating === 'excellent' ? 'Top Tier' :
+                   analytics.retentionBenchmark.rating === 'good' ? 'Above Average' :
+                   analytics.retentionBenchmark.rating === 'average' ? 'Average' :
+                   analytics.retentionBenchmark.rating === 'below_average' ? 'Below Average' :
+                   'Needs Work'}
+                </span>
+                <p className="text-[10px] text-crwn-text-secondary mt-1">
+                  {analytics.retentionBenchmark.rating === 'excellent' || analytics.retentionBenchmark.rating === 'good'
+                    ? 'Your fans stay longer than most'
+                    : analytics.retentionBenchmark.rating === 'average'
+                    ? 'Room to improve — try a welcome sequence'
+                    : 'Focus on onboarding & content cadence'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* By Tier Chart */}
         {analytics.subscribers.byTier.length > 0 && (
