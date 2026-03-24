@@ -14,7 +14,7 @@ export function welcomeEmail(displayName: string): string {
     <div style="background-color:#242424;border-radius:16px;padding:32px;border:1px solid #333;">
       <h2 style="color:#FFFFFF;font-size:24px;margin:0 0 16px;">Welcome to CRWN, ${displayName} 👑</h2>
       <p style="color:#A0A0A0;font-size:16px;line-height:1.6;margin:0 0 24px;">
-        You just joined the future of music. CRWN is where artists and fans connect directly - no middlemen, no algorithms, just real support.
+        You just joined the future of music. CRWN is where artists and fans connect directly. No middlemen, no algorithms, just real support.
       </p>
       <p style="color:#A0A0A0;font-size:16px;line-height:1.6;margin:0 0 24px;">
         Here's how to get started:
@@ -22,15 +22,15 @@ export function welcomeEmail(displayName: string): string {
       <div style="margin:0 0 24px;">
         <div style="padding:12px 0;border-bottom:1px solid #333;">
           <span style="color:#D4AF37;font-weight:600;">🎵 Explore</span>
-          <span style="color:#A0A0A0;"> - Discover artists and stream exclusive music</span>
+          <span style="color:#A0A0A0;"> Discover artists and stream exclusive music</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
           <span style="color:#D4AF37;font-weight:600;">👑 Subscribe</span>
-          <span style="color:#A0A0A0;"> - Support your favorite artists directly</span>
+          <span style="color:#A0A0A0;"> Support your favorite artists directly</span>
         </div>
         <div style="padding:12px 0;">
           <span style="color:#D4AF37;font-weight:600;">💬 Connect</span>
-          <span style="color:#A0A0A0;"> - Join artist communities and get exclusive access</span>
+          <span style="color:#A0A0A0;"> Join artist communities and get exclusive access</span>
         </div>
       </div>
       <div style="text-align:center;margin:32px 0 0;">

@@ -32,7 +32,7 @@ export function artistTierEmail(displayName: string, tierName: string): string {
   const featureRows = features.map(f =>
     `<div style="padding:12px 0;border-bottom:1px solid #333;">
       <span style="color:#D4AF37;font-weight:600;">${f.icon} ${f.label}</span>
-      <span style="color:#A0A0A0;"> - ${f.desc}</span>
+      <span style="color:#A0A0A0;"> ${f.desc}</span>
     </div>`
   ).join('');
 

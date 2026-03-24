@@ -1,5 +1,5 @@
 export function artistNewPostEmail(artistName: string, fanName: string, postPreview: string): string {
-  const truncatedPreview = postPreview.length > 150 ? postPreview.substring(0, 150) + '...' : postPreview;
+  const truncatedPreview = postPreview.length > 150 ? postPreview.substring(0, 150) : postPreview;
   return `
 <!DOCTYPE html>
 <html>

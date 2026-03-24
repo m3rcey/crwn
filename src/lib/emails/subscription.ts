@@ -19,15 +19,15 @@ export function subscriptionEmail(displayName: string, artistName: string, tierN
       <div style="margin:0 0 24px;">
         <div style="padding:12px 0;border-bottom:1px solid #333;">
           <span style="color:#D4AF37;font-weight:600;">🔓 Exclusive Music</span>
-          <span style="color:#A0A0A0;"> - Stream subscriber-only tracks and albums</span>
+          <span style="color:#A0A0A0;"> Stream subscriber-only tracks and albums</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
           <span style="color:#D4AF37;font-weight:600;">💬 Community</span>
-          <span style="color:#A0A0A0;"> - Access tier-gated posts and discussions</span>
+          <span style="color:#A0A0A0;"> Access tier-gated posts and discussions</span>
         </div>
         <div style="padding:12px 0;">
           <span style="color:#D4AF37;font-weight:600;">🛍️ Shop</span>
-          <span style="color:#A0A0A0;"> - Exclusive products and experiences</span>
+          <span style="color:#A0A0A0;"> Exclusive products and experiences</span>
         </div>
       </div>
       <div style="text-align:center;margin:32px 0 0;">

@@ -4,7 +4,7 @@ export function partnerApplicationConfirmationEmail(params: {
   const { firstName } = params;
 
   return {
-    subject: 'CRWN Partner Program - Application Received',
+    subject: 'CRWN Partner Program: Application Received',
     html: `
       <div style="background-color: #1A1A1A; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <div style="max-width: 460px; margin: 0 auto;">
@@ -28,7 +28,7 @@ export function partnerApplicationConfirmationEmail(params: {
             <p style="color: #A0A0A0; font-size: 14px; line-height: 1.6; margin: 0 0 24px 0;">
               Talk soon.
             </p>
-            <p style="color: #FFFFFF; font-size: 14px; font-weight: 600; margin: 0;">- The CRWN Team</p>
+            <p style="color: #FFFFFF; font-size: 14px; font-weight: 600; margin: 0;">The CRWN Team</p>
           </div>
           <div style="text-align: center; margin-top: 24px;">
             <p style="color: #666; font-size: 11px; margin: 0;">
