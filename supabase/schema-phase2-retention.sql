@@ -25,24 +25,30 @@ CREATE INDEX IF NOT EXISTS idx_cancel_reasons_created ON cancellation_reasons(cr
 ALTER TABLE cancellation_reasons ENABLE ROW LEVEL SECURITY;
 
 -- Users can insert their own cancellation reasons
-CREATE POLICY "Users can insert own cancel reasons"
-  ON cancellation_reasons FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+DO $$ BEGIN
+  CREATE POLICY "Users can insert own cancel reasons"
+    ON cancellation_reasons FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Artists can view reasons for their fan subs; admins can view all; users can view own
-CREATE POLICY "View cancel reasons"
-  ON cancellation_reasons FOR SELECT
-  USING (
-    user_id = auth.uid()
-    OR (
-      context = 'fan' AND subscription_id IN (
-        SELECT id FROM subscriptions WHERE artist_id IN (
-          SELECT id FROM artist_profiles WHERE user_id = auth.uid()
+DO $$ BEGIN
+  CREATE POLICY "View cancel reasons"
+    ON cancellation_reasons FOR SELECT
+    USING (
+      user_id = auth.uid()
+      OR (
+        context = 'fan' AND subscription_id IN (
+          SELECT id FROM subscriptions WHERE artist_id IN (
+            SELECT id FROM artist_profiles WHERE user_id = auth.uid()
+          )
         )
       )
-    )
-    OR auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin')
-  );
+      OR auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin')
+    );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─── Survey Responses ──────────────────────────────────────────────────────
 
@@ -65,18 +71,24 @@ CREATE INDEX IF NOT EXISTS idx_survey_created ON survey_responses(created_at);
 ALTER TABLE survey_responses ENABLE ROW LEVEL SECURITY;
 
 -- Users can submit their own surveys
-CREATE POLICY "Users can submit surveys"
-  ON survey_responses FOR INSERT
-  WITH CHECK (auth.uid() = respondent_id);
+DO $$ BEGIN
+  CREATE POLICY "Users can submit surveys"
+    ON survey_responses FOR INSERT
+    WITH CHECK (auth.uid() = respondent_id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Artists can view fan surveys for their profile; admins see all; users see own
-CREATE POLICY "View survey responses"
-  ON survey_responses FOR SELECT
-  USING (
-    respondent_id = auth.uid()
-    OR artist_id IN (SELECT id FROM artist_profiles WHERE user_id = auth.uid())
-    OR auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin')
-  );
+DO $$ BEGIN
+  CREATE POLICY "View survey responses"
+    ON survey_responses FOR SELECT
+    USING (
+      respondent_id = auth.uid()
+      OR artist_id IN (SELECT id FROM artist_profiles WHERE user_id = auth.uid())
+      OR auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin')
+    );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─── Fan digest preference ─────────────────────────────────────────────────
 -- Fans can opt into weekly digest instead of real-time marketing emails
