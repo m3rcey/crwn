@@ -21,7 +21,8 @@ const TOOLTIPS: Record<string, string> = {
   // Hero
   'LGP:CAC': 'Lifetime Gross Profit ÷ Customer Acquisition Cost. THE fundamental ratio — how much profit you make per customer vs. what it costs to get them. Below 3:1 means you can\'t scale. Above 10:1 means print money.',
   'LGP per Artist': 'Total gross profit a single artist generates over their entire lifetime on the platform. Factors in their tier fee minus Stripe fees, recruiter cuts, and allocated fixed costs, multiplied by average lifespan.',
-  'CAC': 'Customer Acquisition Cost. Total recruiter spend ÷ number of artists acquired. The all-in cost to get one new artist on the platform.',
+  'CAC': 'True Customer Acquisition Cost per recruited artist. Includes flat fees already paid + recurring commissions paid + projected remaining recurring obligation (up to 12 months). Only divides by recruited artists — organic signups are excluded since they cost $0.',
+  'Blended CAC': 'Total recruiter spend ÷ ALL new artists (including organic). Lower than true CAC because organic signups dilute it. Useful for understanding overall acquisition efficiency.',
 
   // Financial
   'MRR': 'Monthly Recurring Revenue. Platform tier subscriptions + estimated monthly transaction fees. This is your predictable income baseline.',
@@ -108,7 +109,16 @@ interface Metrics {
   starterArtists: number;
   tierDistribution: { name: string; count: number; color: string }[];
   totalArtistsAcquired: number;
+  recruitedArtistsAcquired: number;
   totalRecruiterCost: number;
+  blendedCac: number;
+  recruitedCac: number;
+  cacBreakdown: {
+    totalFlatFees: number;
+    totalRecurringPaid: number;
+    projectedRecurringCost: number;
+    totalRecruitedCost: number;
+  };
   recruiterPerformance: {
     id: string; code: string; tier: string; isPartner: boolean;
     totalReferred: number; qualified: number; churned: number; pending: number;
@@ -461,7 +471,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
               <InfoTooltip text={TOOLTIPS['CAC']} />
             </div>
             <p className="text-2xl font-bold text-white">{metrics.cac > 0 ? fmt(metrics.cac) : '$0'}</p>
-            <p className="text-[#666] text-xs mt-1">{metrics.totalArtistsAcquired} acquired ({period})</p>
+            <p className="text-[#666] text-xs mt-1">{metrics.recruitedArtistsAcquired} recruited / {metrics.totalArtistsAcquired} total</p>
           </div>
         </div>
 
@@ -843,15 +853,19 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ACQUISITION & RECRUITERS */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <Section title="Acquisition & Recruiters" icon={Users} tooltip="How much it costs to bring artists onto the platform through your influencer/recruiter program. This is the CAC side of the LGP:CAC ratio. Track which recruiters bring in artists that stick vs. churn before qualifying.">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <MetricCard label="Artists Acquired" value={metrics.totalArtistsAcquired.toString()} subValue={`${period} trailing`} />
-          <MetricCard label="Total Recruiter Spend" value={fmt(metrics.totalRecruiterCost)} subValue={`${period} trailing`} />
-          <MetricCard label="CAC" value={metrics.cac > 0 ? fmt(metrics.cac) : '$0'} subValue="recruiter cost / artists" />
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+          <MetricCard label="Artists Acquired" value={metrics.totalArtistsAcquired.toString()} subValue={`${metrics.recruitedArtistsAcquired} recruited / ${metrics.totalArtistsAcquired - metrics.recruitedArtistsAcquired} organic`} />
+          <MetricCard label="CAC" value={metrics.cac > 0 ? fmt(metrics.cac) : '$0'} subValue="true cost per recruited artist" />
+          <MetricCard label="Blended CAC" value={metrics.blendedCac > 0 ? fmt(metrics.blendedCac) : '$0'} subValue="all artists incl. organic ($0)" />
+          <MetricCard label="Total Recruiter Spend" value={fmt(metrics.totalRecruiterCost)} subValue={`${period} trailing (paid out)`} />
           <MetricCard label="Qualification Rate" value={
             metrics.recruiterPerformance.length > 0
               ? `${Math.round(metrics.recruiterPerformance.reduce((s, r) => s + r.qualificationRate, 0) / metrics.recruiterPerformance.length)}%`
               : 'N/A'
           } subValue="avg across recruiters" />
+          {metrics.cacBreakdown.projectedRecurringCost > 0 && (
+            <MetricCard label="Projected Recurring" value={fmt(metrics.cacBreakdown.projectedRecurringCost)} subValue="remaining obligation (up to 12mo)" color={RED} />
+          )}
         </div>
 
         {/* Organic vs Recruited */}

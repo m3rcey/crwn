@@ -179,9 +179,56 @@ export async function GET(req: NextRequest) {
   const lgp = Math.round(monthlyGrossProfitPerArtist * avgLifespanMonths);
 
   // ---- CAC ----
+  // Total new artists in period (organic + recruited)
   const totalArtistsAcquired = artists.filter(a => new Date(a.created_at) >= start).length;
-  const periodRecruiterSpend = totalRecruiterCost;
-  const cac = totalArtistsAcquired > 0 ? Math.round(periodRecruiterSpend / totalArtistsAcquired) : 0;
+
+  // Recruited artists only (matched to a referral)
+  const referredArtistIds = new Set(referrals.map(r => r.artist_id));
+  const recruitedArtistsAcquired = artists.filter(a =>
+    new Date(a.created_at) >= start && referredArtistIds.has(a.id)
+  ).length;
+
+  // True CAC components per recruited artist:
+  // 1. Flat fee (one-time, paid on qualification)
+  // 2. Projected recurring commissions (rate% × tier price × remaining months up to 12)
+  const projectedRecurringCost = referrals
+    .filter(r => r.status === 'qualified' && r.recurring_rate > 0)
+    .reduce((sum, r) => {
+      const artist = artists.find(a => a.id === r.artist_id);
+      if (!artist || artist.platform_subscription_status !== 'active') return sum;
+      const isAnnual = artist.platform_billing_interval === 'annual' || artist.platform_billing_interval === 'year';
+      const monthlyPrice = isAnnual ? (ANNUAL_PRICES[artist.platform_tier] || 0) : (TIER_PRICES[artist.platform_tier] || 0);
+      const monthlyCommission = Math.round(monthlyPrice * (r.recurring_rate / 100));
+      // Remaining months of recurring obligation
+      const qualifiedDate = r.qualified_at ? new Date(r.qualified_at) : new Date(r.created_at);
+      const monthsElapsed = Math.max(0, (Date.now() - qualifiedDate.getTime()) / (30 * 86400000));
+      const remainingMonths = Math.max(0, 12 - monthsElapsed);
+      return sum + (monthlyCommission * remainingMonths);
+    }, 0);
+
+  // Total flat fees paid
+  const totalFlatFees = payouts
+    .filter(p => p.type === 'flat_fee' && p.status === 'paid')
+    .reduce((s, p) => s + p.amount, 0);
+
+  // Total recurring already paid
+  const totalRecurringPaid = payouts
+    .filter(p => p.type === 'recurring' && p.status === 'paid')
+    .reduce((s, p) => s + p.amount, 0);
+
+  // Blended CAC = total recruiter spend / ALL artists (including organic at $0)
+  const blendedCac = totalArtistsAcquired > 0
+    ? Math.round(totalRecruiterCost / totalArtistsAcquired)
+    : 0;
+
+  // Recruited CAC = (flat fees + recurring paid + projected remaining) / recruited artists only
+  const totalRecruitedCost = totalFlatFees + totalRecurringPaid + Math.round(projectedRecurringCost);
+  const recruitedCac = recruitedArtistsAcquired > 0
+    ? Math.round(totalRecruitedCost / recruitedArtistsAcquired)
+    : totalRecruitedCost > 0 ? totalRecruitedCost : 0;
+
+  // Primary CAC = recruited CAC (the true cost per acquired artist)
+  const cac = recruitedCac;
 
   // ---- LGP:CAC RATIO ----
   const lgpCacRatio = cac > 0 ? Number((lgp / cac).toFixed(1)) : lgp > 0 ? Infinity : 0;
@@ -619,7 +666,16 @@ export async function GET(req: NextRequest) {
 
     // Acquisition
     totalArtistsAcquired,
+    recruitedArtistsAcquired,
     totalRecruiterCost,
+    blendedCac,
+    recruitedCac,
+    cacBreakdown: {
+      totalFlatFees,
+      totalRecurringPaid,
+      projectedRecurringCost: Math.round(projectedRecurringCost),
+      totalRecruitedCost,
+    },
     recruiterPerformance,
     recruiterCostByTier,
 
