@@ -407,7 +407,8 @@ export async function GET(req: NextRequest) {
   };
 
   // ---- HORMOZI 30-DAY HEALTH CHECK ----
-  // 30-day profit must be >= (CAC + COGs per artist) x 2
+  // 30-day profit must be >= (monthly CAC amortization + COGs per artist) x 2
+  // CAC is amortized over avg lifespan since it's a one-time acquisition cost
   const last30d = new Date();
   last30d.setDate(last30d.getDate() - 30);
   const thirtyDayEarnings = earnings.filter(e => new Date(e.created_at) >= last30d);
@@ -418,28 +419,33 @@ export async function GET(req: NextRequest) {
   const cogsPerArtist = artists.length > 0
     ? Math.round((totalFixedCostsCents + platformStripeFeesMonthly) / artists.length)
     : 0;
-  const healthCheckThreshold = (cac + cogsPerArtist) * 2;
+  // Amortize CAC over avg lifespan for monthly comparison
+  const monthlyCacAmortized = avgLifespanMonths > 0 ? Math.round(cac / avgLifespanMonths) : cac;
+  const healthCheckThreshold = (monthlyCacAmortized + cogsPerArtist) * 2;
   const healthCheckRatio = healthCheckThreshold > 0 ? Number((thirtyDayProfit / healthCheckThreshold).toFixed(2)) : 0;
   const healthCheckPassing = healthCheckRatio >= 2;
 
   // ---- PER-TIER HORMOZI BREAKDOWN ----
-  // For each tier: price vs 2x(CAC + COGs) — does the tier pass?
+  // For each tier: does LGP ≥ 2x CAC? (lifetime comparison, not monthly)
+  // Monthly view: tier monthly profit vs amortized monthly (CAC + COGs)
   const tierHealthCheck = (['pro', 'label', 'empire'] as const).map(tier => {
     const tierPrice = TIER_PRICES[tier]; // monthly price in cents
     const tierStripeFee = stripeFee(tierPrice);
     const infraPerArtist = artists.length > 0 ? Math.round(totalFixedCostsCents / artists.length) : totalFixedCostsCents;
     const tierCogs = tierStripeFee + infraPerArtist;
     const tierProfit = tierPrice - tierCogs;
-    const threshold = (cac + tierCogs) * 2;
-    const ratio = threshold > 0 ? Number((tierProfit / (cac + tierCogs)).toFixed(2)) : 0;
+    // Monthly amortized CAC for apples-to-apples comparison
+    const tierMonthlyCac = monthlyCacAmortized;
+    const threshold = (tierMonthlyCac + tierCogs) * 2;
+    const ratio = threshold > 0 ? Number((tierProfit / (tierMonthlyCac + tierCogs)).toFixed(2)) : 0;
     return {
       tier: tier.charAt(0).toUpperCase() + tier.slice(1),
       price: tierPrice,
       stripeFee: tierStripeFee,
       infraPerArtist,
       cogs: tierCogs,
-      cac,
-      cacPlusCogs: cac + tierCogs,
+      cac: tierMonthlyCac,
+      cacPlusCogs: tierMonthlyCac + tierCogs,
       threshold,
       profit: tierProfit,
       ratio,

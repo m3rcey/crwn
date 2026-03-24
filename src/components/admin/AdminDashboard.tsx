@@ -67,14 +67,14 @@ const TOOLTIPS: Record<string, string> = {
   'Fan Net Growth': 'Fan referrals minus fan churn. Positive = demand side growing. Fan referral tracking coming soon.',
 
   // Health Check
-  '30-Day Health': 'Hormozi rule: 30-day profit must be ≥ 2× (CAC + COGs). Below 2× means you cannot self-fund acquisition and growth stalls.',
+  '30-Day Health': 'Hormozi rule: monthly profit must be ≥ 2× (monthly amortized CAC + COGs). CAC is spread over avg lifespan for apples-to-apples comparison. Below 2× means you cannot self-fund acquisition.',
 
   // Organic vs Recruited
   'Organic Artists': 'Artists who signed up without a recruiter referral. Organic CAC is $0 — the best kind of growth.',
   'Recruited Artists': 'Artists brought in through the recruiter program. Paid acquisition — track ROI to ensure it\'s worth the spend.',
 
   // Per-Tier Health Check
-  'Tier Health Check': 'Hormozi rule applied per tier: each tier\'s 30-day gross profit must be ≥ 2× (CAC + COGs). If a tier fails, its pricing doesn\'t cover the cost of acquiring and serving that artist.',
+  'Tier Health Check': 'Hormozi rule per tier: monthly profit must be ≥ 2× (amortized monthly CAC + COGs). CAC is the full recruited cost spread over avg lifespan. If a tier fails, its pricing doesn\'t cover acquisition + serving costs.',
 };
 
 interface AdminDashboardProps {
