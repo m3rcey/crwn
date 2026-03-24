@@ -17,6 +17,7 @@ import {
   CreditCard,
   Loader2,
   Megaphone,
+  Bell,
   Crown,
   LifeBuoy,
   ShieldCheck,
@@ -197,6 +198,22 @@ export default function ProfilePage() {
           <div>
             <p className="font-medium text-crwn-text">Founding Artist Program</p>
             <p className="text-sm text-crwn-text-secondary">1 month free Pro + reduced fees for early artists</p>
+          </div>
+        </div>
+      </Link>
+
+      {/* Communication Preferences */}
+      <Link
+        href="/profile/notifications"
+        className="flex items-center justify-between bg-crwn-surface hover:bg-crwn-elevated rounded-xl p-4 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-crwn-gold/20 flex items-center justify-center">
+            <Bell className="w-5 h-5 text-crwn-gold" />
+          </div>
+          <div>
+            <p className="font-medium text-crwn-text">Communication Preferences</p>
+            <p className="text-sm text-crwn-text-secondary">Manage email and SMS notifications from artists</p>
           </div>
         </div>
       </Link>

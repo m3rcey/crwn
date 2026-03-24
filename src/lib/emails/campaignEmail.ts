@@ -84,7 +84,9 @@ export function campaignEmail({
         You're receiving this because you subscribed to ${artistName} on CRWN.
       </p>
       <p style="color:#666;font-size:12px;margin:0 0 8px;">
-        <a href="${unsubscribeUrl}" style="color:#666;text-decoration:underline;">Unsubscribe</a> from marketing emails
+        <a href="${unsubscribeUrl}" style="color:#666;text-decoration:underline;">Unsubscribe</a> from this artist
+        &nbsp;&middot;&nbsp;
+        <a href="${BASE_URL}/api/campaigns/unsubscribe-all/${sendId}" style="color:#666;text-decoration:underline;">Unsubscribe from all</a>
       </p>
       ${showCrwnBranding ? `
       <p style="color:#555;font-size:11px;margin:16px 0 0;">

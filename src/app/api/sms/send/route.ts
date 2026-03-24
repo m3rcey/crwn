@@ -93,6 +93,19 @@ export async function POST(req: NextRequest) {
     .single();
   const artistName = artistProfile?.display_name || 'Artist';
 
+  // Create a campaign record for SMS tracking
+  const { data: smsCampaign } = await supabaseAdmin
+    .from('campaigns')
+    .insert({
+      artist_id: artistId,
+      name: `SMS — ${SMS_CATEGORIES.find(c => c.value === category)?.label || category} — ${new Date().toLocaleDateString('en-US')}`,
+      body: message,
+      channel: 'sms',
+      status: 'sending',
+    })
+    .select('id')
+    .single();
+
   let sentCount = 0;
   let deferredCount = 0;
   let skippedCount = 0;
@@ -161,6 +174,21 @@ export async function POST(req: NextRequest) {
       sentCount++;
       remainingQuota--;
 
+      // Create campaign_sends record for SMS tracking
+      if (smsCampaign) {
+        await supabaseAdmin
+          .from('campaign_sends')
+          .insert({
+            campaign_id: smsCampaign.id,
+            fan_id: sub.fan_id,
+            channel: 'sms',
+            phone_number: sub.phone_number,
+            twilio_message_sid: result.sid || null,
+            status: 'sent',
+            sent_at: new Date().toISOString(),
+          });
+      }
+
       // Update subscriber counts
       await supabaseAdmin
         .from('sms_subscribers')
@@ -170,6 +198,18 @@ export async function POST(req: NextRequest) {
         })
         .eq('id', sub.id);
     } else {
+      // Track failed sends too
+      if (smsCampaign && sub.fan_id) {
+        await supabaseAdmin
+          .from('campaign_sends')
+          .insert({
+            campaign_id: smsCampaign.id,
+            fan_id: sub.fan_id,
+            channel: 'sms',
+            phone_number: sub.phone_number,
+            status: 'failed',
+          });
+      }
       skippedCount++;
     }
   }
@@ -180,11 +220,25 @@ export async function POST(req: NextRequest) {
     .update({ monthly_send_count: artistPhone.monthly_send_count + sentCount })
     .eq('artist_id', artistId);
 
+  // Finalize campaign record
+  if (smsCampaign) {
+    await supabaseAdmin
+      .from('campaigns')
+      .update({
+        status: sentCount > 0 ? 'sent' : 'failed',
+        sent_at: new Date().toISOString(),
+        stats: { sent_count: sentCount, failed_count: skippedCount, deferred_count: deferredCount, total_recipients: subscribers.length },
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', smsCampaign.id);
+  }
+
   return NextResponse.json({
     success: true,
     sent: sentCount,
     deferred: deferredCount,
     skipped: skippedCount,
     total: subscribers.length,
+    campaignId: smsCampaign?.id || null,
   });
 }

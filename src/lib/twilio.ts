@@ -198,7 +198,12 @@ export async function sendSms(
         'Authorization': `Basic ${auth}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({ To: to, From: from, Body: body }),
+      body: new URLSearchParams({
+        To: to,
+        From: from,
+        Body: body,
+        StatusCallback: 'https://thecrwn.app/api/sms/status',
+      }),
     });
 
     const data = await res.json();
