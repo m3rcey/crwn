@@ -50,7 +50,7 @@
     },
     {
       "path": "/api/cron/scheduled-campaigns",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/platform-crm",
