@@ -34,7 +34,7 @@ export function adminDailyBriefingEmail(data: {
           <div style="background:#1A1A1A;border-left:3px solid ${color};border-radius:8px;padding:12px 16px;margin:0 0 8px;">
             <p style="color:#FFFFFF;font-size:14px;font-weight:600;margin:0 0 4px;">${i.title}</p>
             <p style="color:#A0A0A0;font-size:13px;line-height:1.5;margin:0;">${i.body}</p>
-            <p style="color:#555;font-size:11px;margin:4px 0 0;">${i.category} — ${i.metric}</p>
+            <p style="color:#555;font-size:11px;margin:4px 0 0;">${i.category} - ${i.metric}</p>
           </div>
         `).join('')}
       </div>
@@ -102,7 +102,7 @@ export function adminDailyBriefingEmail(data: {
       ${criticals.length === 0 && warnings.length === 0 && infos.length === 0
         ? '<p style="color:#10B981;font-size:14px;">All systems healthy. No action items today.</p>'
         : `
-          ${insightBlock(criticals, '#E53935', 'Critical — Act Now')}
+          ${insightBlock(criticals, '#E53935', 'Critical - Act Now')}
           ${insightBlock(warnings, '#D4AF37', 'Warnings')}
           ${insightBlock(infos, '#3B82F6', 'Info')}
         `
@@ -114,7 +114,7 @@ export function adminDailyBriefingEmail(data: {
     </div>
 
     <p style="color:#444;font-size:11px;text-align:center;margin:24px 0 0;">
-      CRWN Command Center — Analyzed ${data.analyzedAt}
+      CRWN Command Center - Analyzed ${data.analyzedAt}
     </p>
   </div>
 </body>
