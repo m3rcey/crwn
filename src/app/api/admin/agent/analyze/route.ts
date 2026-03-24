@@ -13,7 +13,7 @@ const kimi = new OpenAI({
   timeout: 45000, // 45s timeout
 });
 
-const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You analyze platform metrics and return structured, actionable insights.
+const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You analyze platform metrics and return structured, actionable insights AND suggested actions you can take.
 
 RULES (Alex Hormozi framework — these are non-negotiable benchmarks):
 
@@ -64,14 +64,36 @@ CRWN CONTEXT:
 - Prices are in CENTS in the data. Convert to dollars for display.
 
 RESPONSE FORMAT:
-Return a JSON array of insights. Each insight must have:
+Return a JSON object with two arrays: "insights" and "actions".
+
+INSIGHTS array — each insight must have:
 - priority: "critical" | "warning" | "info"
 - category: "revenue" | "retention" | "acquisition" | "health" | "growth"
 - title: concise headline (max 80 chars)
 - body: specific recommendation with numbers (max 300 chars)
 - metric: which metric this insight relates to
 
-Order by priority (critical first, then warning, then info). Maximum 8 insights — focus on what matters most. Be direct and specific with numbers. No fluff.`;
+Order insights by priority (critical first). Maximum 8 insights.
+
+ACTIONS array — concrete actions you recommend the admin approve. Each action must have:
+- type: one of "toggle_sequence" | "update_pipeline_stages" | "send_briefing"
+- label: short action name (max 60 chars)
+- description: why this action should be taken (max 200 chars)
+- risk: "low" | "medium" | "high"
+- params: object with action-specific parameters:
+  - toggle_sequence: { "sequence_trigger": "<trigger_name>", "enable": true|false }
+  - update_pipeline_stages: { "from_stage": "<stage>", "to_stage": "<stage>", "criteria": "<description>" }
+  - send_briefing: {}
+
+ACTION RULES:
+- Only suggest actions that are directly supported by the data. Do not guess.
+- toggle_sequence: Only reference sequences by their exact trigger name from the SEQUENCES data provided. Only suggest enabling a disabled sequence or disabling an enabled one.
+- update_pipeline_stages: Only suggest when the pipeline data clearly shows artists that should be moved. Valid stages: signed_up, onboarding, free, paid, at_risk, churned.
+- send_briefing: Only suggest when there are critical-priority insights.
+- Maximum 3 actions. Only suggest actions when metrics clearly warrant them. It's fine to return 0 actions.
+- Be conservative. Each action will be reviewed by the admin before execution.
+
+Be direct and specific with numbers. No fluff.`;
 
 export const maxDuration = 60; // Allow up to 60s for Kimi response
 
@@ -106,6 +128,22 @@ export async function POST(req: NextRequest) {
     }
 
     const metrics = cached.metrics;
+
+    // Fetch sequence states for action context
+    const { data: sequences } = await supabaseAdmin
+      .from('platform_sequences')
+      .select('trigger, name, is_active');
+
+    // Fetch pipeline stage distribution for action context
+    const { data: pipelineRaw } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('pipeline_stage');
+
+    const stageCounts: Record<string, number> = {};
+    (pipelineRaw || []).forEach((a: { pipeline_stage: string | null }) => {
+      const stage = a.pipeline_stage || 'onboarding';
+      stageCounts[stage] = (stageCounts[stage] || 0) + 1;
+    });
 
     // Build the user message with all metrics
     const userMessage = `Analyze these CRWN platform metrics (30-day trailing period, computed ${cached.computed_at}):
@@ -167,11 +205,17 @@ PROJECTIONS:
 - Hypothetical Max Monthly Revenue: ${metrics.hypotheticalMaxMonthlyRevenue} cents
 - Hypothetical Max Customers: ${metrics.hypotheticalMaxCustomers}
 
-Return ONLY the JSON array of insights. No markdown, no code fences, no explanation.`;
+SEQUENCES (email automations you can toggle):
+${(sequences || []).map((s: { trigger: string; name: string; is_active: boolean }) => `- trigger: "${s.trigger}", name: "${s.name}", currently ${s.is_active ? 'ENABLED' : 'DISABLED'}`).join('\n')}
+
+PIPELINE STAGE DISTRIBUTION:
+${Object.entries(stageCounts).map(([stage, count]) => `- ${stage}: ${count} artists`).join('\n')}
+
+Return ONLY the JSON object with "insights" and "actions" arrays. No markdown, no code fences, no explanation.`;
 
     const response = await kimi.chat.completions.create({
       model: 'kimi-k2.5',
-      max_tokens: 2000,
+      max_tokens: 3000,
       temperature: 0.6,
       top_p: 0.95,
       // @ts-expect-error — Kimi-specific param to disable slow thinking mode
@@ -182,18 +226,29 @@ Return ONLY the JSON array of insights. No markdown, no code fences, no explanat
       ],
     });
 
-    const rawText = response.choices[0]?.message?.content || '[]';
+    const rawText = response.choices[0]?.message?.content || '{}';
 
     // Parse JSON from response (handle potential markdown wrapping)
     let insights;
+    let actions;
     try {
       const jsonStr = rawText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
-      insights = JSON.parse(jsonStr);
+      const parsed = JSON.parse(jsonStr);
+
+      // Handle both old format (array) and new format (object with insights + actions)
+      if (Array.isArray(parsed)) {
+        insights = parsed;
+        actions = [];
+      } else {
+        insights = parsed.insights || [];
+        actions = parsed.actions || [];
+      }
     } catch {
       insights = [{ priority: 'warning', category: 'health', title: 'Agent response parsing failed', body: rawText.slice(0, 300), metric: 'system' }];
+      actions = [];
     }
 
-    return NextResponse.json({ insights, analyzedAt: new Date().toISOString() });
+    return NextResponse.json({ insights, actions, analyzedAt: new Date().toISOString() });
   } catch (error: unknown) {
     console.error('Agent analyze error:', error);
     return NextResponse.json({ error: 'Analysis failed' }, { status: 500 });

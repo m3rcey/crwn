@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, AlertTriangle, AlertCircle, Info, Loader2 } from 'lucide-react';
+import { Sparkles, AlertTriangle, AlertCircle, Info, Loader2, Play, X, CheckCircle2, ShieldAlert, Shield, ShieldCheck } from 'lucide-react';
 
 interface Insight {
   priority: 'critical' | 'warning' | 'info';
@@ -10,6 +10,16 @@ interface Insight {
   body: string;
   metric: string;
 }
+
+interface AgentAction {
+  type: 'toggle_sequence' | 'update_pipeline_stages' | 'send_briefing';
+  label: string;
+  description: string;
+  risk: 'low' | 'medium' | 'high';
+  params: Record<string, unknown>;
+}
+
+type ActionStatus = 'pending' | 'executing' | 'done' | 'failed' | 'dismissed';
 
 interface AgentInsightsProps {
   userId: string;
@@ -29,8 +39,17 @@ const CATEGORY_COLORS: Record<string, string> = {
   growth: '#8B5CF6',
 };
 
+const RISK_CONFIG = {
+  low: { color: '#10B981', icon: ShieldCheck, label: 'LOW RISK' },
+  medium: { color: '#D4AF37', icon: Shield, label: 'MEDIUM RISK' },
+  high: { color: '#E53935', icon: ShieldAlert, label: 'HIGH RISK' },
+};
+
 export default function AgentInsights({ userId }: AgentInsightsProps) {
   const [insights, setInsights] = useState<Insight[]>([]);
+  const [actions, setActions] = useState<AgentAction[]>([]);
+  const [actionStatuses, setActionStatuses] = useState<Record<number, ActionStatus>>({});
+  const [actionMessages, setActionMessages] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
   const [analyzedAt, setAnalyzedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +57,9 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
   const analyze = async () => {
     setLoading(true);
     setError(null);
+    setActions([]);
+    setActionStatuses({});
+    setActionMessages({});
 
     try {
       const controller = new AbortController();
@@ -58,6 +80,7 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
 
       const data = await res.json();
       setInsights(data.insights || []);
+      setActions(data.actions || []);
       setAnalyzedAt(new Date(data.analyzedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
     } catch (err: unknown) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -70,9 +93,39 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
     }
   };
 
+  const executeAction = async (index: number, action: AgentAction) => {
+    setActionStatuses(prev => ({ ...prev, [index]: 'executing' }));
+
+    try {
+      const res = await fetch('/api/admin/agent/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, action }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setActionStatuses(prev => ({ ...prev, [index]: 'done' }));
+        setActionMessages(prev => ({ ...prev, [index]: data.message }));
+      } else {
+        setActionStatuses(prev => ({ ...prev, [index]: 'failed' }));
+        setActionMessages(prev => ({ ...prev, [index]: data.message || 'Execution failed' }));
+      }
+    } catch {
+      setActionStatuses(prev => ({ ...prev, [index]: 'failed' }));
+      setActionMessages(prev => ({ ...prev, [index]: 'Network error' }));
+    }
+  };
+
+  const dismissAction = (index: number) => {
+    setActionStatuses(prev => ({ ...prev, [index]: 'dismissed' }));
+  };
+
   const criticals = insights.filter(i => i.priority === 'critical');
   const warnings = insights.filter(i => i.priority === 'warning');
   const infos = insights.filter(i => i.priority === 'info');
+  const visibleActions = actions.filter((_, i) => actionStatuses[i] !== 'dismissed');
 
   return (
     <div className="mb-6">
@@ -153,6 +206,108 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Suggested Actions */}
+      {visibleActions.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold text-[#999] uppercase tracking-wider mb-3">Suggested Actions</h3>
+          <div className="space-y-3">
+            {actions.map((action, i) => {
+              const status = actionStatuses[i] || 'pending';
+              if (status === 'dismissed') return null;
+
+              const riskConfig = RISK_CONFIG[action.risk];
+              const RiskIcon = riskConfig.icon;
+
+              return (
+                <div
+                  key={i}
+                  className="rounded-xl border border-[#2a2a2a] bg-[#1A1A1A] p-4 transition-all"
+                  style={{
+                    borderLeftWidth: '3px',
+                    borderLeftColor: riskConfig.color,
+                    opacity: status === 'done' ? 0.7 : 1,
+                  }}
+                >
+                  <div className="flex items-start gap-3">
+                    <RiskIcon className="w-5 h-5 mt-0.5 shrink-0" style={{ color: riskConfig.color }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span
+                          className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                          style={{ color: riskConfig.color, backgroundColor: `${riskConfig.color}20` }}
+                        >
+                          {riskConfig.label}
+                        </span>
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded text-[#666] bg-[#ffffff08]">
+                          {action.type.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                      <p className="text-white text-sm font-medium mb-1">{action.label}</p>
+                      <p className="text-[#999] text-sm leading-relaxed">{action.description}</p>
+
+                      {/* Result message */}
+                      {actionMessages[i] && (
+                        <p className={`text-xs mt-2 ${status === 'done' ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {actionMessages[i]}
+                        </p>
+                      )}
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2 mt-3">
+                        {status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => executeAction(i, action)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-crwn-gold text-black text-xs font-medium hover:brightness-110 transition"
+                            >
+                              <Play className="w-3 h-3" />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => dismissAction(i)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition"
+                            >
+                              <X className="w-3 h-3" />
+                              Dismiss
+                            </button>
+                          </>
+                        )}
+                        {status === 'executing' && (
+                          <div className="flex items-center gap-1.5 text-crwn-gold text-xs">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Executing...
+                          </div>
+                        )}
+                        {status === 'done' && (
+                          <div className="flex items-center gap-1.5 text-emerald-400 text-xs">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Executed
+                          </div>
+                        )}
+                        {status === 'failed' && (
+                          <>
+                            <div className="flex items-center gap-1.5 text-red-400 text-xs">
+                              <AlertTriangle className="w-3 h-3" />
+                              Failed
+                            </div>
+                            <button
+                              onClick={() => executeAction(i, action)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition"
+                            >
+                              Retry
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
