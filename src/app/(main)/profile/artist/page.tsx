@@ -20,7 +20,7 @@ import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
-import { Check, X, Eye } from 'lucide-react';
+import { Check, X, Eye, Music, Palette, CreditCard } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { startTour } from '@/lib/tour';
 import { getArtistTourSteps } from '@/lib/artistTourSteps';
@@ -40,6 +40,7 @@ function ArtistDashboardContent() {
   const [tiers, setTiers] = useState<TierConfig[]>([]);
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
+  const [showPostTourPicker, setShowPostTourPicker] = useState(false);
   const [platformTier, setPlatformTier] = useState<string>('starter');
   const [isFoundingArtist, setIsFoundingArtist] = useState(false);
 
@@ -71,11 +72,16 @@ function ArtistDashboardContent() {
   // Trigger artist tour on first visit
   const { shouldShowTour: shouldShowDashboardTour, startStep: dashboardStartStep, markComplete: markDashboardTourComplete, saveStep: saveDashboardStep } = useTourCheck('dashboard', profile?.id);
 
+  const handleTourComplete = useCallback(async () => {
+    await markDashboardTourComplete();
+    setShowPostTourPicker(true);
+  }, [markDashboardTourComplete]);
+
   useEffect(() => {
     if (!shouldShowDashboardTour || !artistId) return;
-    
+
     const timer = setTimeout(() => {
-      startTour(getArtistTourSteps(isFoundingArtist, artistSlug, platformTier), markDashboardTourComplete, saveDashboardStep, dashboardStartStep);
+      startTour(getArtistTourSteps(isFoundingArtist, artistSlug, platformTier), handleTourComplete, saveDashboardStep, dashboardStartStep);
     }, 1500);
 
     return () => clearTimeout(timer);
@@ -293,6 +299,54 @@ function ArtistDashboardContent() {
           )}
         </div>
       </div>
+
+      {/* Post-Tour Action Picker */}
+      {showPostTourPicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowPostTourPicker(false)}>
+          <div className="bg-crwn-card border border-crwn-elevated rounded-2xl p-8 max-w-md mx-4 w-full" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-xl font-bold text-crwn-text text-center mb-2">What do you want to do first?</h2>
+            <p className="text-crwn-text-secondary text-sm text-center mb-6">Pick one to get started. You can always do the rest later.</p>
+            <div className="space-y-3">
+              <button
+                onClick={() => { setShowPostTourPicker(false); switchTab('tracks'); }}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-crwn-elevated hover:border-crwn-gold/50 transition-colors text-left group"
+              >
+                <div className="w-10 h-10 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
+                  <Music className="w-5 h-5 text-crwn-gold" />
+                </div>
+                <div>
+                  <p className="font-medium text-crwn-text group-hover:text-crwn-gold transition-colors">Upload your first track</p>
+                  <p className="text-xs text-crwn-text-secondary">Share music with your fans</p>
+                </div>
+              </button>
+              <button
+                onClick={() => { setShowPostTourPicker(false); switchTab('tiers'); }}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-crwn-elevated hover:border-crwn-gold/50 transition-colors text-left group"
+              >
+                <div className="w-10 h-10 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
+                  <CreditCard className="w-5 h-5 text-crwn-gold" />
+                </div>
+                <div>
+                  <p className="font-medium text-crwn-text group-hover:text-crwn-gold transition-colors">Set up subscription tiers</p>
+                  <p className="text-xs text-crwn-text-secondary">Start earning recurring revenue</p>
+                </div>
+              </button>
+              <button
+                onClick={() => { setShowPostTourPicker(false); switchTab('profile'); }}
+                className="w-full flex items-center gap-4 p-4 rounded-xl border border-crwn-elevated hover:border-crwn-gold/50 transition-colors text-left group"
+              >
+                <div className="w-10 h-10 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
+                  <Palette className="w-5 h-5 text-crwn-gold" />
+                </div>
+                <div>
+                  <p className="font-medium text-crwn-text group-hover:text-crwn-gold transition-colors">Customize your profile</p>
+                  <p className="text-xs text-crwn-text-secondary">Make your page stand out</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Platform Tier Modal */}
       <PlatformTierModal

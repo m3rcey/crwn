@@ -15,7 +15,7 @@ import { BulkUploadForm } from './BulkUploadForm';
 import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
 import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { Edit2, X, Upload, Plus, Loader2 } from 'lucide-react';
+import { Edit2, X, Upload, Plus, Loader2, Music } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
 
 interface SubscriptionTier {
@@ -905,8 +905,12 @@ export function TrackUploadForm() {
           />
         </div>
       ) : (
-        <div className="text-center py-8 text-crwn-text-secondary">
-          No tracks uploaded yet
+        <div className="text-center py-12">
+          <div className="w-12 h-12 rounded-full bg-crwn-gold/10 flex items-center justify-center mx-auto mb-3">
+            <Music className="w-6 h-6 text-crwn-gold" />
+          </div>
+          <p className="text-crwn-text font-medium mb-1">No tracks yet</p>
+          <p className="text-crwn-text-secondary text-sm">Use the form above to upload your first track</p>
         </div>
       )}
 

@@ -8,7 +8,7 @@ import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { Loader2, Plus, Edit2, Trash2, X, Upload, Check } from 'lucide-react';
+import { Loader2, Plus, Edit2, Trash2, X, Upload, Check, ShoppingBag } from 'lucide-react';
 
 const DIGITAL_SUBCATEGORIES = [
   { value: 'stems', label: 'Stems / Multitracks' },
@@ -872,8 +872,19 @@ export function ShopManager() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-crwn-text-secondary">
-          No products yet. Add your first product!
+        <div className="text-center py-12">
+          <div className="w-12 h-12 rounded-full bg-crwn-gold/10 flex items-center justify-center mx-auto mb-3">
+            <ShoppingBag className="w-6 h-6 text-crwn-gold" />
+          </div>
+          <p className="text-crwn-text font-medium mb-1">No products yet</p>
+          <p className="text-crwn-text-secondary text-sm mb-4">Sell beats, samples, merch, and more to your fans</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-crwn-gold text-crwn-bg font-semibold rounded-full hover:bg-crwn-gold-hover transition-colors text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Add Your First Product
+          </button>
         </div>
       )}
 

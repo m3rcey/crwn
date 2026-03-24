@@ -14,9 +14,9 @@ interface SubscriptionTier {
   name: string;
   price: number;
 }
-import { 
-  Loader2, Plus, Edit2, Trash2, X, Upload, 
-  Eye, EyeOff 
+import {
+  Loader2, Plus, Edit2, Trash2, X, Upload,
+  Eye, EyeOff, Disc3
 } from 'lucide-react';
 
 interface AlbumFormData {
@@ -775,8 +775,19 @@ export function AlbumManager() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-crwn-text-secondary">
-          No albums yet. Create your first album!
+        <div className="text-center py-12">
+          <div className="w-12 h-12 rounded-full bg-crwn-gold/10 flex items-center justify-center mx-auto mb-3">
+            <Disc3 className="w-6 h-6 text-crwn-gold" />
+          </div>
+          <p className="text-crwn-text font-medium mb-1">No albums yet</p>
+          <p className="text-crwn-text-secondary text-sm mb-4">Group your tracks into albums for your fans to discover</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-crwn-gold text-crwn-bg font-semibold rounded-full hover:bg-crwn-gold-hover transition-colors text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            Create Your First Album
+          </button>
         </div>
       )}
 
