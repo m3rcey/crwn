@@ -103,14 +103,17 @@ async function resolveAudience(artistId: string, filters: Record<string, unknown
 
   const fanIdArray = Array.from(allFanIds);
 
-  // Check email opt-outs
+  // Check email opt-outs AND digest-only fans
   const { data: optOuts } = await supabaseAdmin
     .from('fan_communication_prefs')
-    .select('fan_id')
-    .eq('artist_id', artistId)
-    .eq('email_marketing', false);
+    .select('fan_id, email_marketing, digest_only')
+    .eq('artist_id', artistId);
 
-  const optedOutIds = new Set((optOuts || []).map(o => o.fan_id));
+  const optedOutIds = new Set(
+    (optOuts || [])
+      .filter(o => !o.email_marketing || o.digest_only)
+      .map(o => o.fan_id)
+  );
   const eligibleIds = fanIdArray.filter(id => !optedOutIds.has(id));
 
   if (eligibleIds.length === 0) return [];
