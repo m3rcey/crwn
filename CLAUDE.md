@@ -121,6 +121,12 @@ Check `package.json` before importing. Key packages: @supabase/supabase-js, @sup
 - **`NEXT_PUBLIC_` env vars require a full redeploy** (no cache) to take effect on Vercel.
 - **Service worker caches aggressively on iOS Safari** — test in incognito or clear Safari cache. Current SW version: `crwn-v27`.
 
+### Vercel Hobby Plan Limits — MUST FOLLOW
+
+- **Cron jobs: ONCE PER DAY maximum.** Vercel Hobby plan only allows daily crons. NEVER use `*/30`, `*/6`, or any schedule that runs more than once per day. Use `0 <hour> * * *` format (e.g. `0 8 * * *` for 8am daily). Weekly is fine (e.g. `0 11 * * 1`). Monthly is fine (e.g. `0 0 1 * *`). **Anything more frequent than daily will BLOCK ALL deployments.**
+- **Env vars at build time:** Always use fallback values when creating Supabase admin clients in API routes: `process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321'` and `process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'`. NEVER use `!` non-null assertion on env vars — it crashes the Vercel build during static page collection.
+- **Vercel CLI is linked to project `crwn`** (not `workspace-crwn`). If `.vercel` folder is deleted, relink with `npx vercel link --project crwn --yes`.
+
 ### Stripe Platform vs Connect — THIS CAUSES THE MOST BUGS
 
 - **Subscriptions live on the PLATFORM account, NOT Connect** — NEVER pass `stripeAccount` to subscription retrieve/update/cancel calls.
