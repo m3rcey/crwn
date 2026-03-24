@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Mail, MessageSquare, Loader2, BellOff } from 'lucide-react';
+import { ArrowLeft, Mail, MessageSquare, Loader2, BellOff, Clock, Zap } from 'lucide-react';
 
 interface ArtistPref {
   artist_id: string;
@@ -15,6 +15,7 @@ interface ArtistPref {
   email_marketing: boolean;
   sms_marketing: boolean;
   has_sms: boolean;
+  digest_only: boolean;
 }
 
 export default function NotificationsPage() {
@@ -96,12 +97,12 @@ export default function NotificationsPage() {
     // Get existing prefs
     const { data: existingPrefs } = await supabase
       .from('fan_communication_prefs')
-      .select('artist_id, email_marketing, sms_marketing')
+      .select('artist_id, email_marketing, sms_marketing, digest_only')
       .eq('fan_id', user.id);
 
-    const prefMap: Record<string, { email_marketing: boolean; sms_marketing: boolean }> = {};
-    (existingPrefs || []).forEach((p: { artist_id: string; email_marketing: boolean; sms_marketing: boolean }) => {
-      prefMap[p.artist_id] = { email_marketing: p.email_marketing, sms_marketing: p.sms_marketing };
+    const prefMap: Record<string, { email_marketing: boolean; sms_marketing: boolean; digest_only: boolean }> = {};
+    (existingPrefs || []).forEach((p: { artist_id: string; email_marketing: boolean; sms_marketing: boolean; digest_only?: boolean }) => {
+      prefMap[p.artist_id] = { email_marketing: p.email_marketing, sms_marketing: p.sms_marketing, digest_only: p.digest_only ?? false };
     });
 
     const result: ArtistPref[] = artistIds.map(id => ({
@@ -112,6 +113,7 @@ export default function NotificationsPage() {
       email_marketing: prefMap[id]?.email_marketing ?? true,
       sms_marketing: prefMap[id]?.sms_marketing ?? true,
       has_sms: artistMap[id].has_sms,
+      digest_only: prefMap[id]?.digest_only ?? false,
     }));
 
     result.sort((a, b) => a.artist_name.localeCompare(b.artist_name));
@@ -185,6 +187,78 @@ export default function NotificationsPage() {
       <p className="text-crwn-text-secondary text-sm">
         Manage marketing emails and SMS from artists you follow. Transactional emails (receipts, subscription confirmations) are not affected.
       </p>
+
+      {/* Notification Frequency — overwhelm guard */}
+      {prefs.length > 0 && (
+        <div className="bg-crwn-surface rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-crwn-text mb-1">Email Frequency</h2>
+          <p className="text-xs text-crwn-text-secondary mb-4">
+            Feeling overwhelmed? Switch to a weekly digest — one email every Sunday with everything you missed.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={async () => {
+                if (!user) return;
+                // Set all prefs to digest_only = false
+                for (const p of prefs) {
+                  await supabase
+                    .from('fan_communication_prefs')
+                    .upsert({
+                      fan_id: user.id,
+                      artist_id: p.artist_id,
+                      email_marketing: p.email_marketing,
+                      sms_marketing: p.sms_marketing,
+                      digest_only: false,
+                      updated_at: new Date().toISOString(),
+                    }, { onConflict: 'fan_id,artist_id' });
+                }
+                setPrefs(prev => prev.map(p => ({ ...p, digest_only: false })));
+              }}
+              className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-colors ${
+                !prefs.some(p => p.digest_only)
+                  ? 'border-crwn-gold/50 bg-crwn-gold/10'
+                  : 'border-crwn-elevated hover:border-[#444]'
+              }`}
+            >
+              <Zap className={`w-4 h-4 flex-shrink-0 ${!prefs.some(p => p.digest_only) ? 'text-crwn-gold' : 'text-crwn-text-secondary'}`} />
+              <div>
+                <p className="text-sm font-medium text-crwn-text">Real-time</p>
+                <p className="text-xs text-crwn-text-secondary">Get emails as artists send them</p>
+              </div>
+            </button>
+            <button
+              onClick={async () => {
+                if (!user) return;
+                // Set all prefs to digest_only = true
+                for (const p of prefs) {
+                  await supabase
+                    .from('fan_communication_prefs')
+                    .upsert({
+                      fan_id: user.id,
+                      artist_id: p.artist_id,
+                      email_marketing: p.email_marketing,
+                      sms_marketing: p.sms_marketing,
+                      digest_only: true,
+                      updated_at: new Date().toISOString(),
+                    }, { onConflict: 'fan_id,artist_id' });
+                }
+                setPrefs(prev => prev.map(p => ({ ...p, digest_only: true })));
+              }}
+              className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-colors ${
+                prefs.some(p => p.digest_only)
+                  ? 'border-crwn-gold/50 bg-crwn-gold/10'
+                  : 'border-crwn-elevated hover:border-[#444]'
+              }`}
+            >
+              <Clock className={`w-4 h-4 flex-shrink-0 ${prefs.some(p => p.digest_only) ? 'text-crwn-gold' : 'text-crwn-text-secondary'}`} />
+              <div>
+                <p className="text-sm font-medium text-crwn-text">Weekly Digest</p>
+                <p className="text-xs text-crwn-text-secondary">One summary email per week</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
 
       {prefs.length === 0 ? (
         <div className="bg-crwn-surface rounded-xl p-8 text-center">

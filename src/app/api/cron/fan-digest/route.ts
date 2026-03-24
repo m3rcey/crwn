@@ -101,21 +101,24 @@ export async function GET(req: NextRequest) {
 
   for (const fanId of fanIds) {
     try {
-      // Check communication preferences — skip if any artist has email_marketing off
-      // We send one digest per fan, so check global preference
+      // Check communication preferences
+      const artistIds = fanArtists[fanId];
       const { data: prefs } = await supabaseAdmin
         .from('fan_communication_prefs')
-        .select('email_marketing')
+        .select('artist_id, email_marketing, digest_only')
         .eq('fan_id', fanId)
-        .eq('email_marketing', false);
+        .in('artist_id', artistIds);
 
-      // If fan has explicitly opted out for ALL their artists, skip
-      const artistIds = fanArtists[fanId];
-      const optedOutArtists = new Set((prefs || []).map(() => true)); // just count
-      if (prefs && prefs.length >= artistIds.length) {
+      // Skip fans who've opted out of email for ALL artists
+      const optedOutCount = (prefs || []).filter(p => !p.email_marketing).length;
+      if (prefs && optedOutCount >= artistIds.length) {
         skipped++;
         continue;
       }
+
+      // Filter to only include artists where fan wants digest or hasn't opted out
+      // Fans with digest_only=true explicitly want this email
+      // Fans with no preference also get the digest (it's value-add, not spam)
 
       // Build digest content for this fan
       const digestArtists = artistIds

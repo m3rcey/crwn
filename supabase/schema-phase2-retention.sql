@@ -78,6 +78,12 @@ CREATE POLICY "View survey responses"
     OR auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin')
   );
 
+-- ─── Fan digest preference ─────────────────────────────────────────────────
+-- Fans can opt into weekly digest instead of real-time marketing emails
+-- Per-artist: keeps existing email_marketing flag, adds digest_only flag
+ALTER TABLE fan_communication_prefs
+  ADD COLUMN IF NOT EXISTS digest_only BOOLEAN DEFAULT FALSE;
+
 -- ─── Add loyalty_survey trigger type to sequences ──────────────────────────
 
 ALTER TABLE sequences DROP CONSTRAINT IF EXISTS sequences_trigger_type_check;

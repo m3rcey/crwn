@@ -14,6 +14,7 @@ import { SmartLinkList } from '@/components/artist/SmartLinkList';
 import { SmartLinkEditor } from '@/components/artist/SmartLinkEditor';
 import { DiscountCodeManager } from '@/components/artist/DiscountCodeManager';
 import { AbandonedCartDashboard } from '@/components/artist/AbandonedCartDashboard';
+import { TrueRegulars } from '@/components/artist/TrueRegulars';
 
 type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit' | 'sms' | 'links' | 'link-edit' | 'discounts' | 'recovery';
 
@@ -143,7 +144,10 @@ export function AudienceTab() {
 
       {/* Content */}
       {subView === 'fans' && artistId && (
-        <FanTable artistId={artistId} tiers={tiers} />
+        <>
+          <TrueRegulars artistId={artistId} />
+          <FanTable artistId={artistId} tiers={tiers} />
+        </>
       )}
       {subView === 'campaigns' && artistId && (
         <CampaignList

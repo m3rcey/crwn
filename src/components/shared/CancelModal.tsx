@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, Pause } from 'lucide-react';
 import { FAN_CANCEL_REASONS, PLATFORM_CANCEL_REASONS } from '@/lib/cancellationReasons';
 
 interface CancelModalProps {
@@ -17,6 +17,7 @@ export default function CancelModal({ context, subscriptionId, itemName, onClose
   const [selected, setSelected] = useState<string[]>([]);
   const [freeform, setFreeform] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState(false);
   const [error, setError] = useState('');
 
   const toggleReason = (key: string) => {
@@ -122,6 +123,52 @@ export default function CancelModal({ context, subscriptionId, itemName, onClose
 
           {error && (
             <p className="text-red-400 text-sm mb-4">{error}</p>
+          )}
+
+          {/* Pause offer — only for fan context */}
+          {context === 'fan' && (
+            <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-xl p-4 mb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <Pause className="w-5 h-5 text-[#D4AF37]" />
+                <p className="text-sm font-medium text-white">Need a break instead?</p>
+              </div>
+              <p className="text-xs text-[#ccc] mb-3">
+                Pause your subscription for 30 days. You&apos;ll keep access until the end of your current period, and billing resumes automatically after the break.
+              </p>
+              <button
+                onClick={async () => {
+                  setPauseLoading(true);
+                  setError('');
+                  try {
+                    const res = await fetch('/api/subscriptions/pause', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ subscriptionId, action: 'pause' }),
+                    });
+                    if (!res.ok) {
+                      const data = await res.json();
+                      throw new Error(data.error || 'Failed to pause');
+                    }
+                    onCanceled(); // reuse callback — will refresh the UI
+                  } catch (err: unknown) {
+                    setError(err instanceof Error ? err.message : 'Failed to pause');
+                  } finally {
+                    setPauseLoading(false);
+                  }
+                }}
+                disabled={pauseLoading}
+                className="w-full py-2 bg-[#D4AF37] text-black font-semibold rounded-full text-sm hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {pauseLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Pausing...
+                  </>
+                ) : (
+                  'Pause for 30 Days'
+                )}
+              </button>
+            </div>
           )}
 
           {/* Info */}
