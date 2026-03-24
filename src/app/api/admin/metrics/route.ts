@@ -588,6 +588,32 @@ export async function GET(req: NextRequest) {
     };
   })();
 
+  // ---- TIER UPGRADE TRACKING ----
+  // Pro→Label+ upgrade rate: key metric for partner program economics
+  // Without tier change history, approximate from current state:
+  // Artists on Label/Empire who've been on platform 60+ days likely started on Pro
+  const sixtyDaysAgo = new Date(Date.now() - 60 * 86400000);
+  const establishedPaidArtists = artists.filter(a =>
+    new Date(a.created_at) < sixtyDaysAgo &&
+    a.platform_subscription_status === 'active' &&
+    a.platform_tier && a.platform_tier !== 'starter'
+  );
+  const establishedOnLabelPlus = establishedPaidArtists.filter(a =>
+    a.platform_tier === 'label' || a.platform_tier === 'empire'
+  );
+  const upgradeRate = establishedPaidArtists.length > 0
+    ? Number(((establishedOnLabelPlus.length / establishedPaidArtists.length) * 100).toFixed(1))
+    : 0;
+
+  const tierUpgradeMetrics = {
+    establishedPaidCount: establishedPaidArtists.length,
+    onLabelPlus: establishedOnLabelPlus.length,
+    upgradeRate, // % of established paid artists on Label+
+    proCount: establishedPaidArtists.filter(a => a.platform_tier === 'pro').length,
+    labelCount: establishedOnLabelPlus.filter(a => a.platform_tier === 'label').length,
+    empireCount: establishedOnLabelPlus.filter(a => a.platform_tier === 'empire').length,
+  };
+
   // ---- PROJECTIONS ----
   // Sales velocity: new paid artists per month
   const recentMonths = Math.min(days / 30, 6);
@@ -709,6 +735,9 @@ export async function GET(req: NextRequest) {
     // Organic vs Recruited
     organicArtists: organicArtistsCount,
     recruitedArtists: recruitedArtistsCount,
+
+    // Tier Upgrades
+    tierUpgradeMetrics,
 
     // Projections
     salesVelocity: Number(salesVelocity.toFixed(1)),

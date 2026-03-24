@@ -174,6 +174,16 @@ interface Metrics {
   organicArtists: number;
   recruitedArtists: number;
 
+  // Tier Upgrades
+  tierUpgradeMetrics: {
+    establishedPaidCount: number;
+    onLabelPlus: number;
+    upgradeRate: number;
+    proCount: number;
+    labelCount: number;
+    empireCount: number;
+  };
+
   // Cohort Retention
   fanCohortRetention: { month: string; cohortSize: number; retention: number[] }[];
   artistCohortRetention: { month: string; cohortSize: number; retention: number[] }[];
@@ -868,10 +878,16 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           )}
         </div>
 
-        {/* Organic vs Recruited */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        {/* Organic vs Recruited + Upgrade Rate */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
           <MetricCard label="Organic Artists" value={metrics.organicArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.organicArtists / metrics.totalArtists) * 100) : 0}% of total — $0 CAC`} color={GREEN} />
           <MetricCard label="Recruited Artists" value={metrics.recruitedArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.recruitedArtists / metrics.totalArtists) * 100) : 0}% of total — paid acquisition`} color={GOLD} />
+          <MetricCard
+            label="Pro → Label+ Rate"
+            value={`${metrics.tierUpgradeMetrics.upgradeRate}%`}
+            subValue={`${metrics.tierUpgradeMetrics.onLabelPlus} of ${metrics.tierUpgradeMetrics.establishedPaidCount} (60d+ artists)`}
+            color={metrics.tierUpgradeMetrics.upgradeRate >= 30 ? GREEN : metrics.tierUpgradeMetrics.upgradeRate >= 15 ? GOLD : RED}
+          />
         </div>
 
         {/* Recruiter Cost by Tier */}

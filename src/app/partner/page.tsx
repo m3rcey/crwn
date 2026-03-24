@@ -20,8 +20,8 @@ const tiers = [
     score: '24–30',
     access: 'Free Label (12 mo)',
     flat: '$50/artist',
-    recurring: '10% for 12 mo',
-    contentBonus: '$250/post',
+    recurring: '10% on Label+ (12 mo)',
+    contentBonus: '$250/signup post',
     highlight: true,
   },
   {
@@ -30,8 +30,8 @@ const tiers = [
     score: '18–23',
     access: 'Free Label (12 mo)',
     flat: '$50/artist',
-    recurring: '10% for 12 mo',
-    contentBonus: '$100–250 (negotiable)',
+    recurring: '10% on Label+ (12 mo)',
+    contentBonus: '$100–250/signup post',
     highlight: false,
   },
   {
@@ -135,13 +135,13 @@ export default function PartnerPage() {
             },
             {
               icon: Repeat,
-              title: '10% Recurring',
-              desc: 'Tier 1 & 2 partners earn 10% of every referred artist\'s subscription for 12 months.',
+              title: '10% Recurring on Label+',
+              desc: 'Tier 1 & 2 partners earn 10% of every referred Label or Empire artist\'s subscription for 12 months.',
             },
             {
               icon: Video,
               title: 'Content Bonus',
-              desc: 'Up to $250 per video or post. Tier 1 guaranteed, Tier 2 negotiable.',
+              desc: 'Up to $250 per post that results in an artist signup. Performance-based — your content converts, you get paid.',
             },
           ].map((benefit, i) => (
             <div key={i} className="bg-[#1a1a1a] rounded-2xl p-6">
@@ -220,9 +220,9 @@ export default function PartnerPage() {
         </p>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { label: '10 artists referred', flat: '$500', recurring: '$600/yr', bonus: '$1,000 (4 posts)', total: '$2,100' },
-            { label: '25 artists referred', flat: '$1,250', recurring: '$1,500/yr', bonus: '$2,500 (10 posts)', total: '$5,250' },
-            { label: '50 artists referred', flat: '$2,500', recurring: '$3,000/yr', bonus: '$5,000 (20 posts)', total: '$10,500' },
+            { label: '10 artists (3 Label)', flat: '$500', recurring: '$540/yr', bonus: '$500 (2 signup posts)', total: '$1,540' },
+            { label: '25 artists (8 Label)', flat: '$1,250', recurring: '$1,440/yr', bonus: '$1,250 (5 signup posts)', total: '$3,940' },
+            { label: '50 artists (15 Label)', flat: '$2,500', recurring: '$2,700/yr', bonus: '$2,500 (10 signup posts)', total: '$7,700' },
           ].map((ex, i) => (
             <div key={i} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
               <p className="text-white text-sm font-medium mb-3">{ex.label}</p>
@@ -247,7 +247,7 @@ export default function PartnerPage() {
             </div>
           ))}
         </div>
-        <p className="text-xs text-[#666] mt-4 text-center">Assumes artists on Pro ($50/mo avg). Recurring = 10% × $50 × 12 months per artist. Content bonus at $250/post.</p>
+        <p className="text-xs text-[#666] mt-4 text-center">Recurring applies to Label ($150/mo) and Empire ($350/mo) referrals only. Content bonus paid per post that results in at least 1 artist signup.</p>
       </div>
 
       {/* Who This Is For */}

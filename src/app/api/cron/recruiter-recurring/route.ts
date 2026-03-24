@@ -63,6 +63,17 @@ export async function GET(req: NextRequest) {
       continue;
     }
 
+    // Skip Pro-tier artists for partner referrals — recurring only on Label+
+    const { data: refRecruiter } = await supabaseAdmin
+      .from('recruiters')
+      .select('is_partner')
+      .eq('id', referral.recruiter_id)
+      .single();
+
+    if (refRecruiter?.is_partner && artist.platform_tier === 'pro') {
+      continue;
+    }
+
     const monthlyFee = TIER_PRICES[artist.platform_tier] || 0;
     if (monthlyFee === 0) continue;
 

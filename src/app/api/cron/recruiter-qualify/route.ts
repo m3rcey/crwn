@@ -74,7 +74,11 @@ export async function GET(req: NextRequest) {
 
       if (recruiter.is_partner) {
         flatFee = recruiter.partner_flat_fee ?? 5000;
-        recurringRate = recruiter.partner_recurring_rate ?? 10;
+        // Partners only earn recurring on Label+ artists — Pro margins are too thin
+        const artistTier = artist!.platform_tier;
+        recurringRate = (artistTier === 'label' || artistTier === 'empire')
+          ? (recruiter.partner_recurring_rate ?? 10)
+          : 0;
       } else {
         const tier = recruiter.tier || 'starter';
         const count = recruiter.total_artists_referred || 1;
