@@ -111,7 +111,7 @@ export async function GET(req: NextRequest) {
 
   // ---- PLATFORM REVENUE (Artist SaaS Tiers) ----
   const TIER_PRICES: Record<string, number> = { pro: 5000, label: 17500, empire: 35000 };
-  const ANNUAL_PRICES: Record<string, number> = { pro: 3700, label: 13100, empire: 26200 }; // monthly equivalent
+  const ANNUAL_PRICES: Record<string, number> = { pro: 3700, label: 13125, empire: 26200 }; // monthly equivalent
 
   const paidArtists = artists.filter(a => a.platform_subscription_status === 'active' && a.platform_tier && a.platform_tier !== 'starter');
   const starterArtists = artists.filter(a => !a.platform_tier || a.platform_tier === 'starter');

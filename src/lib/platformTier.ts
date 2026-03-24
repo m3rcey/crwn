@@ -1,7 +1,7 @@
 // Platform Tier Pricing
 export const TIER_PRICING = {
   pro: { monthly: 5000, annual: 44400, monthlyDisplay: 50, annualMonthlyDisplay: 37, annualTotal: 444, savings: 156 },
-  label: { monthly: 17500, annual: 157200, monthlyDisplay: 175, annualMonthlyDisplay: 131, annualTotal: 1572, savings: 528 },
+  label: { monthly: 17500, annual: 157500, monthlyDisplay: 175, annualMonthlyDisplay: 131, annualTotal: 1575, savings: 525 },
   empire: { monthly: 35000, annual: 314400, monthlyDisplay: 350, annualMonthlyDisplay: 262, annualTotal: 3144, savings: 956 },
 } as const;
 

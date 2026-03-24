@@ -70,8 +70,8 @@ const PLATFORM_TIERS: PlatformTier[] = [
     name: 'Label',
     monthlyPrice: 175,
     annualMonthlyPrice: 131,
-    annualTotal: 1572,
-    savings: 528,
+    annualTotal: 1575,
+    savings: 525,
     description: 'For labels & managers',
     features: [
       'Everything in Pro',
