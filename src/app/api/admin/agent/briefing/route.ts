@@ -24,7 +24,7 @@ RULES (Alex Hormozi framework):
 - Payback period <1mo healthy, <3mo acceptable, >6mo problem
 - Gross margin >=80% for SaaS
 
-CRWN: Two-sided marketplace. Artists pay platform tiers ($0-$350/mo). Platform takes 4-8% on fan transactions. All prices in CENTS.
+CRWN: Two-sided marketplace. Artists pay platform tiers ($0-$350/mo). Platform takes 3-8% on fan transactions (Starter 8%, Pro 6%, Label 5%, Empire 3%). All prices in CENTS.
 
 Return ONLY a JSON array of insights, each with: priority ("critical"|"warning"|"info"), category, title (max 80 chars), body (max 300 chars), metric. Max 6 insights. Be concise. Critical items first.`;
 

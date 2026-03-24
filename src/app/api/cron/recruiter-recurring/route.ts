@@ -11,9 +11,9 @@ const supabaseAdmin = createClient(
 );
 
 const TIER_PRICES: Record<string, number> = {
-  pro: 4900,
-  label: 14900,
-  empire: 34900,
+  pro: 5000,
+  label: 17500,
+  empire: 35000,
 };
 
 export async function GET(req: NextRequest) {

@@ -126,7 +126,7 @@ export default function PartnerPage() {
             {
               icon: Crown,
               title: 'Free Platform Access',
-              desc: 'Up to Label tier ($150/mo value) for up to 12 months, depending on your tier.',
+              desc: 'Up to Label tier ($175/mo value) for up to 12 months, depending on your tier.',
             },
             {
               icon: DollarSign,
@@ -247,7 +247,7 @@ export default function PartnerPage() {
             </div>
           ))}
         </div>
-        <p className="text-xs text-[#666] mt-4 text-center">Recurring applies to Label ($150/mo) and Empire ($350/mo) referrals only. Content bonus paid per post that results in at least 1 artist signup.</p>
+        <p className="text-xs text-[#666] mt-4 text-center">Recurring applies to Label ($175/mo) and Empire ($350/mo) referrals only. Content bonus paid per post that results in at least 1 artist signup.</p>
       </div>
 
       {/* Who This Is For */}

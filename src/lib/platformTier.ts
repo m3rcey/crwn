@@ -1,7 +1,7 @@
 // Platform Tier Pricing
 export const TIER_PRICING = {
   pro: { monthly: 5000, annual: 44400, monthlyDisplay: 50, annualMonthlyDisplay: 37, annualTotal: 444, savings: 156 },
-  label: { monthly: 15000, annual: 134400, monthlyDisplay: 150, annualMonthlyDisplay: 112, annualTotal: 1344, savings: 456 },
+  label: { monthly: 17500, annual: 157200, monthlyDisplay: 175, annualMonthlyDisplay: 131, annualTotal: 1572, savings: 528 },
   empire: { monthly: 35000, annual: 314400, monthlyDisplay: 350, annualMonthlyDisplay: 262, annualTotal: 3144, savings: 956 },
 } as const;
 
@@ -42,7 +42,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsBundles: true,
     allowsScheduling: true,
     allowsLive: true,
-    platformFeePercent: 8,
+    platformFeePercent: 6,
   },
   label: {
     maxTracks: -1, // unlimited
@@ -51,7 +51,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsBundles: true,
     allowsScheduling: true,
     allowsLive: true,
-    platformFeePercent: 6,
+    platformFeePercent: 5,
   },
   empire: {
     maxTracks: -1, // unlimited
@@ -60,7 +60,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsBundles: true,
     allowsScheduling: true,
     allowsLive: true,
-    platformFeePercent: 4,
+    platformFeePercent: 3,
   },
 };
 
@@ -235,7 +235,8 @@ export async function getArtistFeePercent(artistId: string): Promise<number> {
 
   // Normal tier fee after founding period or for non-founding artists
   const tier = data.platform_tier || 'starter';
-  if (tier === 'empire') return 4;
-  if (tier === 'label') return 6;
+  if (tier === 'empire') return 3;
+  if (tier === 'label') return 5;
+  if (tier === 'pro') return 6;
   return 8;
 }

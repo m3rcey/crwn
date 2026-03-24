@@ -275,7 +275,7 @@ Recruitment affiliate program targeting music industry professionals who refer a
 
 ### 7.1 Tiers & Pricing
 
-| Feature | Starter (Free) | Pro ($50/mo) | Label ($150/mo) | Empire ($350/mo) |
+| Feature | Starter (Free) | Pro ($50/mo) | Label ($175/mo) | Empire ($350/mo) |
 |---------|----------------|--------------|-----------------|-------------------|
 | Tracks | 10 | Unlimited | Unlimited | Unlimited |
 | Subscription Tiers | 1 | 5 | 10 | Unlimited |
@@ -286,8 +286,8 @@ Recruitment affiliate program targeting music industry professionals who refer a
 | SMS/month | 0 | 500 | 2,500 | 10,000 |
 | Artist Profiles | 1 | 1 | 10 | Unlimited |
 | API Access | No | No | Yes | Yes |
-| Platform Fee | 8% | 8% | 6% | 4% |
-| Annual Price | Free | $37/mo | $112/mo | $262/mo |
+| Platform Fee | 8% | 6% | 5% | 3% |
+| Annual Price | Free | $37/mo | $131/mo | $262/mo |
 
 ### 7.2 Founding Artist Program
 - Flat 5% platform fee for 6 months (regardless of tier)

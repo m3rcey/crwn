@@ -17,7 +17,7 @@ Never work these steps backwards. When deciding which task to handle first, alwa
 
 ## Project Overview
 
-CRWN is a music monetization platform where artists sell subscriptions, tracks, and digital products to fans. Built with Next.js 16 (App Router + Turbopack), Supabase (Postgres/Auth/Storage), Stripe Connect (8% platform fee), and Tailwind CSS 4. Deployed on Vercel.
+CRWN is a music monetization platform where artists sell subscriptions, tracks, and digital products to fans. Built with Next.js 16 (App Router + Turbopack), Supabase (Postgres/Auth/Storage), Stripe Connect (3-8% platform fee by tier), and Tailwind CSS 4. Deployed on Vercel.
 
 ## Commands
 
@@ -171,9 +171,9 @@ Check `package.json` before importing. Key packages: @supabase/supabase-js, @sup
 ### Platform Tiers (Artist SaaS)
 
 - Starter: free, 8% fee
-- Pro: $50/mo ($37 annual), 8% fee
-- Label: $150/mo ($112 annual), 6% fee
-- Empire: $350/mo ($262 annual), 4% fee
+- Pro: $50/mo ($37 annual), 6% fee
+- Label: $175/mo ($131 annual), 5% fee
+- Empire: $350/mo ($262 annual), 3% fee
 - Annual = 25% off. Constants in `platformTier.ts`.
 
 ### Fan Subscription Tiers (M3rcey test artist)
