@@ -1,18 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, AlertTriangle, AlertCircle, Info, Loader2, Play, X, CheckCircle2, ShieldAlert, Shield, ShieldCheck } from 'lucide-react';
+import { Sparkles, AlertTriangle, AlertCircle, Info, Loader2, Play, X, CheckCircle2, ShieldAlert, Shield, ShieldCheck, ArrowRight, CircleDot } from 'lucide-react';
 
-interface Insight {
-  priority: 'critical' | 'warning' | 'info';
-  category: string;
-  title: string;
-  body: string;
-  metric: string;
+interface Diagnosis {
+  bottleneck: string;
+  dropoff_rate: string;
+  why: string;
+  impact_chain: string[];
+  severity: 'critical' | 'warning' | 'info';
+}
+
+interface SupportingSignal {
+  signal: string;
+  detail: string;
+  sentiment: 'bad' | 'okay' | 'good';
 }
 
 interface AgentAction {
-  type: 'toggle_sequence' | 'update_pipeline_stages' | 'send_briefing';
+  type: 'toggle_sequence' | 'update_pipeline_stages' | 'send_briefing' | 'add_pipeline_note' | 'flag_at_risk' | 'enroll_in_sequence' | 'pause_recruiter';
   label: string;
   description: string;
   risk: 'low' | 'medium' | 'high';
@@ -25,18 +31,16 @@ interface AgentInsightsProps {
   userId: string;
 }
 
-const PRIORITY_CONFIG = {
-  critical: { color: '#E53935', bg: 'rgba(229, 57, 53, 0.1)', border: '#E53935', icon: AlertTriangle, label: 'CRITICAL' },
-  warning: { color: '#D4AF37', bg: 'rgba(212, 175, 55, 0.1)', border: '#D4AF37', icon: AlertCircle, label: 'WARNING' },
-  info: { color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.1)', border: '#3B82F6', icon: Info, label: 'INFO' },
+const SEVERITY_CONFIG = {
+  critical: { color: '#E53935', bg: 'rgba(229, 57, 53, 0.08)', border: '#E53935', icon: AlertTriangle, label: 'CRITICAL' },
+  warning: { color: '#D4AF37', bg: 'rgba(212, 175, 55, 0.08)', border: '#D4AF37', icon: AlertCircle, label: 'WARNING' },
+  info: { color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.08)', border: '#3B82F6', icon: Info, label: 'INFO' },
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  revenue: '#D4AF37',
-  retention: '#10B981',
-  acquisition: '#3B82F6',
-  health: '#E53935',
-  growth: '#8B5CF6',
+const SENTIMENT_CONFIG = {
+  bad: { color: '#E53935', dot: '#E53935' },
+  okay: { color: '#D4AF37', dot: '#D4AF37' },
+  good: { color: '#10B981', dot: '#10B981' },
 };
 
 const RISK_CONFIG = {
@@ -46,7 +50,8 @@ const RISK_CONFIG = {
 };
 
 export default function AgentInsights({ userId }: AgentInsightsProps) {
-  const [insights, setInsights] = useState<Insight[]>([]);
+  const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
+  const [signals, setSignals] = useState<SupportingSignal[]>([]);
   const [actions, setActions] = useState<AgentAction[]>([]);
   const [actionStatuses, setActionStatuses] = useState<Record<number, ActionStatus>>({});
   const [actionMessages, setActionMessages] = useState<Record<number, string>>({});
@@ -57,13 +62,15 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
   const analyze = async () => {
     setLoading(true);
     setError(null);
+    setDiagnosis(null);
+    setSignals([]);
     setActions([]);
     setActionStatuses({});
     setActionMessages({});
 
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000); // 60s timeout
+      const timeout = setTimeout(() => controller.abort(), 60000);
 
       const res = await fetch('/api/admin/agent/analyze', {
         method: 'POST',
@@ -79,7 +86,8 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
       }
 
       const data = await res.json();
-      setInsights(data.insights || []);
+      setDiagnosis(data.diagnosis || null);
+      setSignals(data.supportingSignals || []);
       setActions(data.actions || []);
       setAnalyzedAt(new Date(data.analyzedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
     } catch (err: unknown) {
@@ -122,9 +130,6 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
     setActionStatuses(prev => ({ ...prev, [index]: 'dismissed' }));
   };
 
-  const criticals = insights.filter(i => i.priority === 'critical');
-  const warnings = insights.filter(i => i.priority === 'warning');
-  const infos = insights.filter(i => i.priority === 'info');
   const visibleActions = actions.filter((_, i) => actionStatuses[i] !== 'dismissed');
 
   return (
@@ -132,7 +137,7 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-crwn-gold" />
-          <h2 className="text-lg font-semibold text-white">Agent Analysis</h2>
+          <h2 className="text-lg font-semibold text-white">Agent Diagnosis</h2>
           {analyzedAt && (
             <span className="text-[#555] text-xs">analyzed at {analyzedAt}</span>
           )}
@@ -146,12 +151,12 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Analyzing...
+              Diagnosing...
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4" />
-              Analyze
+              Diagnose
             </>
           )}
         </button>
@@ -163,27 +168,26 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
         </div>
       )}
 
-      {insights.length > 0 && (
-        <div className="space-y-3 animate-[fadeInUp_0.3s_ease-out]">
-          {[...criticals, ...warnings, ...infos].map((insight, i) => {
-            const config = PRIORITY_CONFIG[insight.priority];
+      {/* Diagnosis Card */}
+      {diagnosis && (
+        <div className="animate-[fadeInUp_0.3s_ease-out] space-y-4">
+          {(() => {
+            const config = SEVERITY_CONFIG[diagnosis.severity];
             const Icon = config.icon;
-            const catColor = CATEGORY_COLORS[insight.category] || '#666';
-
             return (
               <div
-                key={i}
-                className="rounded-xl border p-4 transition-all hover:brightness-110"
+                className="rounded-xl border p-5"
                 style={{
                   backgroundColor: config.bg,
                   borderColor: `${config.border}33`,
-                  borderLeftWidth: '3px',
+                  borderLeftWidth: '4px',
                   borderLeftColor: config.border,
                 }}
               >
-                <div className="flex items-start gap-3">
+                {/* Header */}
+                <div className="flex items-start gap-3 mb-3">
                   <Icon className="w-5 h-5 mt-0.5 shrink-0" style={{ color: config.color }} />
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span
                         className="text-[10px] font-bold px-1.5 py-0.5 rounded"
@@ -191,131 +195,162 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
                       >
                         {config.label}
                       </span>
-                      <span
-                        className="text-[10px] font-medium px-1.5 py-0.5 rounded"
-                        style={{ color: catColor, backgroundColor: `${catColor}20` }}
-                      >
-                        {insight.category}
-                      </span>
-                      <span className="text-[#555] text-[10px]">{insight.metric}</span>
+                      <span className="text-[#999] text-xs">Biggest bottleneck</span>
                     </div>
-                    <p className="text-white text-sm font-medium mb-1">{insight.title}</p>
-                    <p className="text-[#999] text-sm leading-relaxed">{insight.body}</p>
+                    <p className="text-white text-base font-semibold">{diagnosis.bottleneck}</p>
+                    <p className="text-[#D4AF37] text-sm font-medium mt-0.5">{diagnosis.dropoff_rate} conversion</p>
                   </div>
                 </div>
+
+                {/* Why */}
+                <p className="text-[#ccc] text-sm leading-relaxed mb-4">{diagnosis.why}</p>
+
+                {/* Impact Chain */}
+                {diagnosis.impact_chain.length > 0 && (
+                  <div className="bg-black/20 rounded-lg p-3">
+                    <p className="text-[#666] text-[10px] font-bold uppercase tracking-wider mb-2">Impact Chain</p>
+                    <div className="space-y-1.5">
+                      {diagnosis.impact_chain.map((step, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <ArrowRight className="w-3 h-3 mt-1 shrink-0" style={{ color: config.color, opacity: 0.6 }} />
+                          <p className="text-[#bbb] text-sm">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             );
-          })}
-        </div>
-      )}
+          })()}
 
-      {/* Suggested Actions */}
-      {visibleActions.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-sm font-semibold text-[#999] uppercase tracking-wider mb-3">Suggested Actions</h3>
-          <div className="space-y-3">
-            {actions.map((action, i) => {
-              const status = actionStatuses[i] || 'pending';
-              if (status === 'dismissed') return null;
+          {/* Supporting Signals */}
+          {signals.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {signals.map((signal, i) => {
+                const sentConfig = SENTIMENT_CONFIG[signal.sentiment];
+                return (
+                  <div
+                    key={i}
+                    className="bg-[#1A1A1A] rounded-lg border border-[#2a2a2a] p-3"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <CircleDot className="w-3 h-3 shrink-0" style={{ color: sentConfig.dot }} />
+                      <span className="text-white text-xs font-medium truncate">{signal.signal}</span>
+                    </div>
+                    <p className="text-[#999] text-xs leading-relaxed">{signal.detail}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
-              const riskConfig = RISK_CONFIG[action.risk];
-              const RiskIcon = riskConfig.icon;
+          {/* Actions */}
+          {visibleActions.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-[#999] uppercase tracking-wider mb-3">Recommended Actions</h3>
+              <div className="space-y-2">
+                {actions.map((action, i) => {
+                  const status = actionStatuses[i] || 'pending';
+                  if (status === 'dismissed') return null;
 
-              return (
-                <div
-                  key={i}
-                  className="rounded-xl border border-[#2a2a2a] bg-[#1A1A1A] p-4 transition-all"
-                  style={{
-                    borderLeftWidth: '3px',
-                    borderLeftColor: riskConfig.color,
-                    opacity: status === 'done' ? 0.7 : 1,
-                  }}
-                >
-                  <div className="flex items-start gap-3">
-                    <RiskIcon className="w-5 h-5 mt-0.5 shrink-0" style={{ color: riskConfig.color }} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                          style={{ color: riskConfig.color, backgroundColor: `${riskConfig.color}20` }}
-                        >
-                          {riskConfig.label}
-                        </span>
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded text-[#666] bg-[#ffffff08]">
-                          {action.type.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                      <p className="text-white text-sm font-medium mb-1">{action.label}</p>
-                      <p className="text-[#999] text-sm leading-relaxed">{action.description}</p>
+                  const riskConfig = RISK_CONFIG[action.risk];
+                  const RiskIcon = riskConfig.icon;
 
-                      {/* Result message */}
-                      {actionMessages[i] && (
-                        <p className={`text-xs mt-2 ${status === 'done' ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {actionMessages[i]}
-                        </p>
-                      )}
-
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-2 mt-3">
-                        {status === 'pending' && (
-                          <>
-                            <button
-                              onClick={() => executeAction(i, action)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-crwn-gold text-black text-xs font-medium hover:brightness-110 transition"
+                  return (
+                    <div
+                      key={i}
+                      className="rounded-xl border border-[#2a2a2a] bg-[#1A1A1A] p-4 transition-all"
+                      style={{
+                        borderLeftWidth: '3px',
+                        borderLeftColor: riskConfig.color,
+                        opacity: status === 'done' ? 0.7 : 1,
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <RiskIcon className="w-5 h-5 mt-0.5 shrink-0" style={{ color: riskConfig.color }} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                              style={{ color: riskConfig.color, backgroundColor: `${riskConfig.color}20` }}
                             >
-                              <Play className="w-3 h-3" />
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => dismissAction(i)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition"
-                            >
-                              <X className="w-3 h-3" />
-                              Dismiss
-                            </button>
-                          </>
-                        )}
-                        {status === 'executing' && (
-                          <div className="flex items-center gap-1.5 text-crwn-gold text-xs">
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                            Executing...
+                              {riskConfig.label}
+                            </span>
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded text-[#666] bg-[#ffffff08]">
+                              {action.type.replace(/_/g, ' ')}
+                            </span>
                           </div>
-                        )}
-                        {status === 'done' && (
-                          <div className="flex items-center gap-1.5 text-emerald-400 text-xs">
-                            <CheckCircle2 className="w-3 h-3" />
-                            Executed
+                          <p className="text-white text-sm font-medium mb-1">{action.label}</p>
+                          <p className="text-[#999] text-sm leading-relaxed">{action.description}</p>
+
+                          {actionMessages[i] && (
+                            <p className={`text-xs mt-2 ${status === 'done' ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {actionMessages[i]}
+                            </p>
+                          )}
+
+                          <div className="flex items-center gap-2 mt-3">
+                            {status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => executeAction(i, action)}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-crwn-gold text-black text-xs font-medium hover:brightness-110 transition"
+                                >
+                                  <Play className="w-3 h-3" />
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => dismissAction(i)}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition"
+                                >
+                                  <X className="w-3 h-3" />
+                                  Dismiss
+                                </button>
+                              </>
+                            )}
+                            {status === 'executing' && (
+                              <div className="flex items-center gap-1.5 text-crwn-gold text-xs">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                Executing...
+                              </div>
+                            )}
+                            {status === 'done' && (
+                              <div className="flex items-center gap-1.5 text-emerald-400 text-xs">
+                                <CheckCircle2 className="w-3 h-3" />
+                                Executed
+                              </div>
+                            )}
+                            {status === 'failed' && (
+                              <>
+                                <div className="flex items-center gap-1.5 text-red-400 text-xs">
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Failed
+                                </div>
+                                <button
+                                  onClick={() => executeAction(i, action)}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition"
+                                >
+                                  Retry
+                                </button>
+                              </>
+                            )}
                           </div>
-                        )}
-                        {status === 'failed' && (
-                          <>
-                            <div className="flex items-center gap-1.5 text-red-400 text-xs">
-                              <AlertTriangle className="w-3 h-3" />
-                              Failed
-                            </div>
-                            <button
-                              onClick={() => executeAction(i, action)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition"
-                            >
-                              Retry
-                            </button>
-                          </>
-                        )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {!loading && insights.length === 0 && !error && (
+      {!loading && !diagnosis && !error && (
         <div className="bg-[#1A1A1A] rounded-xl border border-[#2a2a2a] p-8 text-center">
           <Sparkles className="w-8 h-8 text-[#333] mx-auto mb-3" />
-          <p className="text-[#555] text-sm">Click Analyze to get AI-powered insights on your metrics</p>
-          <p className="text-[#444] text-xs mt-1">Uses Kimi K2.5 to evaluate your dashboard against Hormozi&apos;s playbook</p>
+          <p className="text-[#555] text-sm">Click Diagnose to find your biggest funnel bottleneck</p>
+          <p className="text-[#444] text-xs mt-1">Traces cause → effect chain and suggests actions to fix it</p>
         </div>
       )}
     </div>

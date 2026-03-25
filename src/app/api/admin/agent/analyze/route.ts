@@ -13,72 +13,7 @@ const kimi = new OpenAI({
   timeout: 45000, // 45s timeout
 });
 
-const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You analyze platform metrics and return structured, actionable insights AND suggested actions you can take.
-
-RULES (Alex Hormozi framework — these are non-negotiable benchmarks):
-
-1. LGP:CAC RATIO
-   - Below 3:1 = CRITICAL. You are losing money on every artist acquired. Stop scaling immediately.
-   - 3-5:1 = WARNING. Acceptable but fragile. One bad month kills profitability.
-   - 5-10:1 = Good. Room to invest in growth.
-   - 10+:1 = Great. Print money territory.
-
-2. REFERRALS vs CHURN
-   - Referrals MUST exceed churn on BOTH artist and fan sides.
-   - Net negative on either side = the business is shrinking on that side.
-   - Fan churn is a LEADING INDICATOR of artist churn (artists leave when fans leave).
-
-3. 30-DAY PROFIT HEALTH CHECK
-   - 30-day profit MUST be >= (CAC + COGs per artist) x 2.
-   - Below 2x = you cannot self-fund acquisition. Growth stalls or requires outside capital.
-   - Below 1x = you are losing money. Emergency.
-
-4. CHURN RATE
-   - <=2% monthly = Excellent retention.
-   - 2-5% = Acceptable but needs attention.
-   - >5% = Leaky bucket. Fix retention BEFORE scaling acquisition.
-
-5. PAYBACK PERIOD
-   - <1 month = Can scale aggressively with credit cards.
-   - 1-3 months = Healthy.
-   - 3-6 months = Concerning — cash tied up too long.
-   - >6 months = Problem. Rethink pricing or reduce CAC.
-
-6. GROSS MARGIN
-   - >=80% = Healthy SaaS margin.
-   - 60-80% = Warning. Costs eating into reinvestment capacity.
-   - <60% = Critical. Cost structure is broken.
-
-7. REVENUE PER VISITOR
-   - Trending down = pricing or conversion problem.
-   - Trending up = good sign, can afford more marketing spend.
-
-8. SALES VELOCITY
-   - Declining = top-of-funnel problem.
-   - Increasing while churn is flat = business is growing.
-
-9. COHORT RETENTION
-   - M0→M1 drop >40% = onboarding problem, not product problem. Focus on first 30 days.
-   - M3+ stabilizes = product-market fit exists, improve activation.
-   - M3+ still dropping = product problem. Fix before scaling.
-
-10. CANCELLATION REASONS
-   - Top 1-2 reasons are the ONLY ones worth fixing. Ignore the long tail.
-   - "Price" from ideal customers = add a lower tier. From non-ideal = price filter working correctly.
-   - Look for patterns in freeform feedback — they reveal what surveys miss.
-
-11. TIER UPGRADES
-   - Low upgrade rate from Pro→Label/Empire = value gap between tiers isn't clear.
-   - High upgrade rate = pricing may be too low on upper tiers.
-
-12. PER-TIER HEALTH
-   - If a specific tier fails the 2x health check, its pricing doesn't cover acquisition + serving costs.
-   - Fix: raise price, lower CAC for that tier's artists, or reduce COGS.
-
-13. RECRUITER PERFORMANCE
-   - High qualification rate + low churn = great recruiter bringing ideal customers.
-   - High referrals + low qualification = recruiter bringing bad leads. Cut them.
-   - Negative ROI recruiter = losing money on every artist they bring. Immediate action needed.
+const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You diagnose the single biggest problem hurting the business right now, trace the cause-effect chain, and suggest concrete actions to fix it.
 
 CRWN CONTEXT:
 - Two-sided marketplace: artists (supply) and fans (demand).
@@ -88,20 +23,54 @@ CRWN CONTEXT:
 - Prices are in CENTS in the data. Convert to dollars for display.
 - Variable costs (SMS, MMS, email) are per-message and factored into COGS.
 
+THE FUNNEL (in order):
+Link Click → Signup → Onboarding Complete → First Track → Tiers Created → Stripe Connected → Paid Tier → First Subscriber
+
+Each step has a conversion rate to the next. The biggest dropoff is where money is leaking. Your job is to find it, explain WHY it's happening using the supporting data, and suggest actions to fix it.
+
+DIAGNOSIS METHOD — follow this exact chain:
+1. Find the BIGGEST funnel dropoff (lowest step-to-step conversion rate).
+2. Cross-reference with: time-to-milestone (are artists stalling?), pipeline stage distribution (are artists piling up at a stage?), cohort retention (is it getting worse or better?), cancellation reasons (are people telling us why?), sequence states (are relevant nudges active?).
+3. Trace the DOWNSTREAM IMPACT: how does this dropoff affect churn, LGP, MRR, and health check?
+4. Recommend actions you can actually take to fix it.
+
+BENCHMARKS (Hormozi framework):
+- LGP:CAC: <3:1 critical, 3-5 warning, 5-10 good, 10+ great
+- Churn: <=2% excellent, 2-5% warning, >5% critical — fix before scaling
+- Gross Margin: >=80% healthy, 60-80% warning, <60% critical
+- Payback: <1mo aggressive scaling, 1-3mo healthy, 3-6mo concerning, >6mo problem
+- Health Check: 30-day profit must be >= 2x (amortized CAC + COGs). Below 1x = emergency.
+- Cohort M0→M1 drop >40% = onboarding problem. M3+ still dropping = product problem.
+
 RESPONSE FORMAT:
-Return a JSON object with two arrays: "insights" and "actions".
+Return a JSON object with exactly this structure:
 
-INSIGHTS array — each insight must have:
-- priority: "critical" | "warning" | "info"
-- category: "revenue" | "retention" | "acquisition" | "health" | "growth"
-- title: concise headline (max 80 chars)
-- body: specific recommendation with numbers (max 300 chars)
-- metric: which metric this insight relates to
+{
+  "diagnosis": {
+    "bottleneck": "The funnel step name where the biggest dropoff is (e.g. 'First Track → Tiers Created')",
+    "dropoff_rate": "The conversion % at this step",
+    "why": "1-2 sentence explanation of why this dropoff is happening, citing specific data (stall time, pipeline pile-up, cancel reasons, missing sequences, etc.)",
+    "impact_chain": [
+      "Because X, Y happens",
+      "Because Y, Z follows",
+      "Which means W for the business"
+    ],
+    "severity": "critical" | "warning" | "info"
+  },
+  "supporting_signals": [
+    {
+      "signal": "Short label (max 60 chars)",
+      "detail": "One sentence with specific numbers",
+      "sentiment": "bad" | "okay" | "good"
+    }
+  ],
+  "actions": [...]
+}
 
-Order insights by priority (critical first). Maximum 8 insights.
+SUPPORTING SIGNALS: Pick 3-5 metrics that support or contextualize the diagnosis. These should help the admin understand the full picture without being overwhelmed. Order: worst signals first.
 
 ACTIONS array — concrete actions you recommend the admin approve. Each action must have:
-- type: one of "toggle_sequence" | "update_pipeline_stages" | "send_briefing"
+- type: one of "toggle_sequence" | "update_pipeline_stages" | "send_briefing" | "add_pipeline_note" | "flag_at_risk" | "enroll_in_sequence" | "pause_recruiter"
 - label: short action name (max 60 chars)
 - description: why this action should be taken (max 200 chars)
 - risk: "low" | "medium" | "high"
@@ -109,16 +78,24 @@ ACTIONS array — concrete actions you recommend the admin approve. Each action 
   - toggle_sequence: { "sequence_trigger": "<trigger_name>", "enable": true|false }
   - update_pipeline_stages: { "from_stage": "<stage>", "to_stage": "<stage>", "criteria": "<description>" }
   - send_briefing: {}
+  - add_pipeline_note: { "artist_ids": ["<id>", ...], "note": "<text>" }
+  - flag_at_risk: { "criteria": "<description>", "from_stage": "<current_stage>" }
+  - enroll_in_sequence: { "sequence_trigger": "<trigger_name>", "artist_ids": ["<id>", ...] }
+  - pause_recruiter: { "recruiter_id": "<id>", "reason": "<why>" }
 
 ACTION RULES:
-- Only suggest actions that are directly supported by the data. Do not guess.
-- toggle_sequence: Only reference sequences by their exact trigger name from the SEQUENCES data provided. Only suggest enabling a disabled sequence or disabling an enabled one.
-- update_pipeline_stages: Only suggest when the pipeline data clearly shows artists that should be moved. Valid stages: signed_up, onboarding, free, paid, at_risk, churned.
-- send_briefing: Only suggest when there are critical-priority insights.
-- Maximum 3 actions. Only suggest actions when metrics clearly warrant them. It's fine to return 0 actions.
-- Be conservative. Each action will be reviewed by the admin before execution.
+- Only suggest actions directly supported by the data. Never guess.
+- toggle_sequence: Only use exact trigger names from the SEQUENCES data. Only suggest enabling a disabled sequence or disabling an enabled one when the funnel data warrants it.
+- update_pipeline_stages: Valid stages: signed_up, onboarding, free, paid, at_risk, churned.
+- add_pipeline_note: Use STALLED ARTISTS data. Only reference real artist IDs from the data. Use to flag specific artists with actionable context.
+- flag_at_risk: Move artists matching a criteria to at_risk stage. Only when data shows clear stall or churn signals.
+- enroll_in_sequence: Use exact trigger names from SEQUENCES data. Only enroll stalled artists in a relevant activation sequence that is currently ENABLED.
+- pause_recruiter: Only when RECRUITER PERFORMANCE data shows negative ROI or very low qualification rate (<20%) with 3+ referrals. Use exact recruiter ID from the data. This deactivates their referral codes.
+- send_briefing: Only when diagnosis severity is critical.
+- Maximum 4 actions. Prefer actions that directly address the diagnosed bottleneck. It's fine to return 0 actions.
+- Be conservative. Each action is reviewed by the admin before execution.
 
-Be direct and specific with numbers. No fluff.`;
+Be direct. Use specific numbers from the data. No fluff. No generic advice.`;
 
 export const maxDuration = 60; // Allow up to 60s for Kimi response
 
@@ -159,134 +136,196 @@ export async function POST(req: NextRequest) {
       .from('platform_sequences')
       .select('trigger, name, is_active');
 
-    // Fetch pipeline stage distribution for action context
-    const { data: pipelineRaw } = await supabaseAdmin
+    // Fetch pipeline stage distribution + stalled artists for action context
+    const { data: pipelineArtists } = await supabaseAdmin
       .from('artist_profiles')
-      .select('pipeline_stage');
+      .select('id, user_id, slug, pipeline_stage, platform_tier, activation_milestones, created_at, recruited_by');
 
     const stageCounts: Record<string, number> = {};
-    (pipelineRaw || []).forEach((a: { pipeline_stage: string | null }) => {
+    (pipelineArtists || []).forEach((a: any) => {
       const stage = a.pipeline_stage || 'onboarding';
       stageCounts[stage] = (stageCounts[stage] || 0) + 1;
     });
 
+    // Identify stalled artists (signed up 3+ days ago, missing key milestones)
+    const threeDaysAgo = new Date(Date.now() - 3 * 86400000);
+    const stalledArtists = (pipelineArtists || [])
+      .filter((a: any) => {
+        if (a.pipeline_stage === 'churned') return false;
+        const created = new Date(a.created_at);
+        if (created > threeDaysAgo) return false; // too new
+        const m = a.activation_milestones || {};
+        // Stalled = missing any of the key activation milestones
+        return !m.first_track_uploaded || !m.tiers_created || !m.stripe_connected;
+      })
+      .slice(0, 10) // top 10 for context window
+      .map((a: any) => {
+        const m = a.activation_milestones || {};
+        const daysSinceSignup = Math.round((Date.now() - new Date(a.created_at).getTime()) / 86400000);
+        const missing = [];
+        if (!m.onboarding_completed) missing.push('onboarding');
+        if (!m.first_track_uploaded) missing.push('first_track');
+        if (!m.tiers_created) missing.push('tiers');
+        if (!m.stripe_connected) missing.push('stripe');
+        if (!m.first_subscriber) missing.push('first_subscriber');
+        return {
+          id: a.id,
+          slug: a.slug || 'unknown',
+          tier: a.platform_tier || 'starter',
+          stage: a.pipeline_stage || 'onboarding',
+          days_since_signup: daysSinceSignup,
+          missing_milestones: missing,
+          recruited: !!a.recruited_by,
+        };
+      });
+
+    // Fetch funnel data (90d)
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 86400000);
+    const funnelArtists = (pipelineArtists || []).filter((a: any) => new Date(a.created_at) >= ninetyDaysAgo);
+    const milestones = (a: any) => (a.activation_milestones || {}) as Record<string, string>;
+    const funnel = {
+      signups: funnelArtists.length,
+      onboarded: funnelArtists.filter((a: any) => milestones(a).onboarding_completed).length,
+      first_track: funnelArtists.filter((a: any) => milestones(a).first_track_uploaded).length,
+      tiers_created: funnelArtists.filter((a: any) => milestones(a).tiers_created).length,
+      stripe_connected: funnelArtists.filter((a: any) => milestones(a).stripe_connected).length,
+      paid_tier: funnelArtists.filter((a: any) => a.platform_tier && a.platform_tier !== 'starter').length,
+      first_subscriber: funnelArtists.filter((a: any) => milestones(a).first_subscriber).length,
+    };
+
+    // Compute step-by-step conversion rates
+    const funnelSteps = [
+      { from: 'Signups', to: 'Onboarded', fromVal: funnel.signups, toVal: funnel.onboarded },
+      { from: 'Onboarded', to: 'First Track', fromVal: funnel.onboarded, toVal: funnel.first_track },
+      { from: 'First Track', to: 'Tiers Created', fromVal: funnel.first_track, toVal: funnel.tiers_created },
+      { from: 'Tiers Created', to: 'Stripe Connected', fromVal: funnel.tiers_created, toVal: funnel.stripe_connected },
+      { from: 'Stripe Connected', to: 'Paid Tier', fromVal: funnel.stripe_connected, toVal: funnel.paid_tier },
+      { from: 'Paid Tier', to: 'First Subscriber', fromVal: funnel.paid_tier, toVal: funnel.first_subscriber },
+    ];
+    const funnelWithRates = funnelSteps.map(s => ({
+      ...s,
+      rate: s.fromVal > 0 ? Math.round((s.toVal / s.fromVal) * 100) : 0,
+      dropped: s.fromVal - s.toVal,
+    }));
+
+    // Fetch recruiter performance with IDs for pause_recruiter action
+    const { data: allRecruiters } = await supabaseAdmin
+      .from('recruiters')
+      .select('id, user_id, tier, referral_code, is_partner, total_artists_referred, total_earned');
+    const { data: allReferrals } = await supabaseAdmin
+      .from('artist_referrals')
+      .select('recruiter_id, status');
+    const { data: allPayoutsRaw } = await supabaseAdmin
+      .from('recruiter_payouts')
+      .select('recruiter_id, amount, status')
+      .eq('status', 'paid');
+    const { data: recruiterProfiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id, display_name')
+      .in('id', (allRecruiters || []).map((r: any) => r.user_id));
+
+    const recruiterProfileMap = new Map((recruiterProfiles || []).map((p: any) => [p.id, p.display_name]));
+    const recruiterData = (allRecruiters || []).map((r: any) => {
+      const refs = (allReferrals || []).filter((ref: any) => ref.recruiter_id === r.id);
+      const qualified = refs.filter((ref: any) => ref.status === 'qualified').length;
+      const churned = refs.filter((ref: any) => ref.status === 'churned').length;
+      const totalPaid = (allPayoutsRaw || []).filter((p: any) => p.recruiter_id === r.id).reduce((s: number, p: any) => s + p.amount, 0);
+      return {
+        id: r.id,
+        name: recruiterProfileMap.get(r.user_id) || r.referral_code,
+        code: r.referral_code,
+        tier: r.tier || 'starter',
+        isPartner: r.is_partner,
+        totalReferred: refs.length,
+        qualified,
+        churned,
+        qualificationRate: refs.length > 0 ? Math.round((qualified / refs.length) * 100) : 0,
+        totalPaid,
+        roi: totalPaid > 0 ? Number(((metrics.lgp * qualified - totalPaid) / totalPaid).toFixed(1)) : 0,
+      };
+    }).filter((r: any) => r.totalReferred > 0)
+      .sort((a: any, b: any) => a.roi - b.roi); // worst ROI first
+
     // Build the user message with all metrics
-    const userMessage = `Analyze these CRWN platform metrics (30-day trailing period, computed ${cached.computed_at}):
+    const userMessage = `Diagnose CRWN's biggest problem right now (30-day trailing metrics, computed ${cached.computed_at}):
 
-HERO METRIC:
-- LGP:CAC Ratio: ${metrics.lgpCacRatio === null ? 'Infinity' : metrics.lgpCacRatio}:1
-- LGP per Artist: ${metrics.lgp} cents ($${(metrics.lgp / 100).toFixed(2)})
-- CAC: ${metrics.cac} cents ($${(metrics.cac / 100).toFixed(2)})
+=== ACQUISITION FUNNEL (last 90 days) ===
+Signups: ${funnel.signups} → Onboarded: ${funnel.onboarded} → First Track: ${funnel.first_track} → Tiers Created: ${funnel.tiers_created} → Stripe Connected: ${funnel.stripe_connected} → Paid Tier: ${funnel.paid_tier} → First Subscriber: ${funnel.first_subscriber}
 
-FINANCIAL HEALTH:
-- MRR: ${metrics.totalMRR} cents ($${(metrics.totalMRR / 100).toFixed(2)})
-- ARR: ${metrics.totalARR} cents ($${(metrics.totalARR / 100).toFixed(2)})
-- Platform MRR: ${metrics.platformMRR} cents
-- Transaction Fee MRR: ${metrics.transactionFeeMRR} cents
-- Gross Margin: ${metrics.grossMarginPct}%
-- 30-Day Profit: ${metrics.thirtyDayProfit} cents ($${(metrics.thirtyDayProfit / 100).toFixed(2)})
-- 30-Day Health Check Ratio: ${metrics.healthCheckRatio}x (target: >=2x) — ${metrics.healthCheckPassing ? 'PASSING' : 'FAILING'}
-- COGs per Artist: ${metrics.cogsPerArtist} cents
-- Payback Period: ${metrics.paybackMonths} months
-- Period Revenue: ${metrics.periodRevenue} cents
-- Period Costs: ${metrics.periodCosts} cents
-- Gross Profit: ${metrics.grossProfit} cents
+STEP-BY-STEP CONVERSION:
+${funnelWithRates.map(s => `- ${s.from} → ${s.to}: ${s.rate}% (${s.dropped} dropped)`).join('\n')}
 
-FAN METRICS:
-- Total Active Fans: ${metrics.totalActiveFans}
-- New Fans (period): ${metrics.newFans}
-- Churned Fans (period): ${metrics.churnedFans}
-- Fan Churn Rate: ${metrics.fanChurnRate}%
-- Fan LTV: ${metrics.fanLTV} cents ($${(metrics.fanLTV / 100).toFixed(2)})
-- Revenue Per Fan: ${metrics.revenuePerFan} cents
+TIME TO MILESTONE (avg days):
+- Onboarding: ${metrics.timeToMilestone?.onboarding_completed ?? 'N/A'}d
+- First Track: ${metrics.timeToMilestone?.first_track_uploaded ?? 'N/A'}d
+- Tiers Created: ${metrics.timeToMilestone?.tiers_created ?? 'N/A'}d
+- Stripe Connected: ${metrics.timeToMilestone?.stripe_connected ?? 'N/A'}d
+- First Subscriber: ${metrics.timeToMilestone?.first_subscriber ?? 'N/A'}d
 
-REFERRAL VS CHURN SCOREBOARD:
-- Artist Referrals (period): ${metrics.scoreboard?.artistReferrals ?? 0}
-- Artist Churned (period): ${metrics.scoreboard?.artistChurned ?? 0}
-- Artist Net Growth: ${metrics.scoreboard?.artistNetGrowth ?? 0}
-- Fan Referrals: ${metrics.scoreboard?.fanReferralTracked ? metrics.scoreboard.fanReferrals : 'NOT YET TRACKED'}
-- Fan Churned: ${metrics.scoreboard?.fanChurned ?? 0}
-- Fan Net Growth: ${metrics.scoreboard?.fanReferralTracked ? metrics.scoreboard.fanNetGrowth : 'CANNOT COMPUTE — referrals not tracked'}
+STALLED ARTISTS (3+ days old, missing milestones):
+${stalledArtists.length > 0 ? stalledArtists.map((a: any) => `- id:${a.id}, slug:${a.slug}, tier:${a.tier}, stage:${a.stage}, ${a.days_since_signup}d old, missing: [${a.missing_milestones.join(', ')}]${a.recruited ? ' (recruited)' : ' (organic)'}`).join('\n') : 'None'}
 
-RETENTION:
-- Artist Churn Rate: ${metrics.artistChurnRate}%/month
-- Avg Artist Lifespan: ${metrics.avgLifespanMonths} months
-- Total Artists: ${metrics.totalArtists} (${metrics.paidArtists} paid, ${metrics.starterArtists} free)
-- Paid Conversion: ${metrics.totalArtists > 0 ? Math.round((metrics.paidArtists / metrics.totalArtists) * 100) : 0}%
+=== BUSINESS HEALTH ===
+- LGP:CAC Ratio: ${metrics.lgpCacRatio === null ? 'Infinity' : metrics.lgpCacRatio}:1 | LGP: $${(metrics.lgp / 100).toFixed(2)} | CAC: $${(metrics.cac / 100).toFixed(2)}
+- MRR: $${(metrics.totalMRR / 100).toFixed(2)} | ARR: $${(metrics.totalARR / 100).toFixed(2)} | Gross Margin: ${metrics.grossMarginPct}%
+- 30-Day Health Check: ${metrics.healthCheckRatio}x (target >=2x) — ${metrics.healthCheckPassing ? 'PASSING' : 'FAILING'}
+- Payback: ${metrics.paybackMonths}mo | 30-Day Cash: $${(metrics.thirtyDayCash / 100).toFixed(2)}
+
+PER-TIER HEALTH:
+${(metrics.tierHealthCheck || []).map((t: any) => `- ${t.tier}: $${(t.price / 100).toFixed(0)}/mo, COGS $${(t.cogs / 100).toFixed(2)}, profit $${(t.profit / 100).toFixed(2)}, ratio ${t.ratio}x — ${t.passing ? 'PASSING' : 'FAILING'}`).join('\n')}
+
+=== RETENTION ===
+- Artist Churn: ${metrics.artistChurnRate}%/mo | Avg Lifespan: ${metrics.avgLifespanMonths}mo
+- Artists: ${metrics.totalArtists} total (${metrics.paidArtists} paid, ${metrics.starterArtists} free) | Paid Conversion: ${metrics.totalArtists > 0 ? Math.round((metrics.paidArtists / metrics.totalArtists) * 100) : 0}%
 - Churn Risk: ${metrics.churnRisk?.active ?? 0} active, ${metrics.churnRisk?.atRisk ?? 0} at-risk, ${metrics.churnRisk?.churning ?? 0} churning
-
-ACQUISITION:
-- Artists Acquired (period): ${metrics.totalArtistsAcquired}
-- Total Recruiter Spend: ${metrics.totalRecruiterCost} cents
-- Organic Artists: ${metrics.organicArtists ?? 0}
-- Recruited Artists: ${metrics.recruitedArtists ?? 0}
-
-VISITORS:
-- Unique Visitors (period): ${metrics.uniqueVisitorsInPeriod}
-- Revenue Per Visitor: ${metrics.revenuePerVisitor} cents
-- Visitor Trend (last 7 days): ${(metrics.visitorTrend || []).slice(-7).map((d: any) => `${d.label}: ${d.visitors} visitors, RPV ${d.revenuePerVisitor}¢`).join('; ')}
-
-REVENUE TREND (last 7 days):
-${(metrics.revenueTrend || []).slice(-7).map((d: any) => `- ${d.label}: platform fees ${d.platformFees}¢, gross ${d.totalGross}¢`).join('\n')}
-
-BILLING MIX:
-${(metrics.billingMix || []).map((b: any) => `- ${b.name}: ${b.count} artists`).join('\n')}
-
-VARIABLE COSTS (messaging COGS):
-- Total Variable Costs (period): ${metrics.totalVariableCostsCents ?? 0} cents ($${((metrics.totalVariableCostsCents ?? 0) / 100).toFixed(2)})
-- SMS sent: ${metrics.messagingVolume?.sms ?? 0}, MMS sent: ${metrics.messagingVolume?.mms ?? 0}, Emails sent: ${metrics.messagingVolume?.email ?? 0}
-- Per-unit rates: SMS $${metrics.variableCosts?.sms_per_message ?? 0.0079}, MMS $${metrics.variableCosts?.mms_per_message ?? 0.02}, Email $${metrics.variableCosts?.email_per_message ?? 0.00023}
-
-PER-TIER HORMOZI HEALTH CHECK:
-${(metrics.tierHealthCheck || []).map((t: any) => `- ${t.tier}: price ${t.price}¢, COGS ${t.cogs}¢ (Stripe ${t.stripeFee}¢ + infra ${t.infraPerArtist}¢), amortized CAC ${t.cac}¢, profit ${t.profit}¢, ratio ${t.ratio}x — ${t.passing ? 'PASSING' : 'FAILING'}`).join('\n')}
-
-TIER UPGRADES:
-- Established paid artists (60d+): ${metrics.tierUpgradeMetrics?.establishedPaidCount ?? 0}
-- On Label or higher: ${metrics.tierUpgradeMetrics?.onLabelPlus ?? 0}
-- Upgrade rate: ${metrics.tierUpgradeMetrics?.upgradeRate ?? 0}%
-- Distribution: Pro ${metrics.tierUpgradeMetrics?.proCount ?? 0}, Label ${metrics.tierUpgradeMetrics?.labelCount ?? 0}, Empire ${metrics.tierUpgradeMetrics?.empireCount ?? 0}
+- Fan Churn: ${metrics.fanChurnRate}% | Active Fans: ${metrics.totalActiveFans} | New: ${metrics.newFans} | Churned: ${metrics.churnedFans}
 
 COHORT RETENTION (artist):
-${(metrics.artistCohortRetention || []).slice(-6).map((c: any) => `- ${c.month} (n=${c.cohortSize}): ${(c.retention || []).map((r: number, i: number) => `M${i}:${r}%`).join(', ')}`).join('\n') || 'No data'}
+${(metrics.artistCohortRetention || []).slice(-4).map((c: any) => `- ${c.month} (n=${c.cohortSize}): ${(c.retention || []).map((r: number, i: number) => `M${i}:${r}%`).join(', ')}`).join('\n') || 'No data'}
 
 COHORT RETENTION (fan):
-${(metrics.fanCohortRetention || []).slice(-6).map((c: any) => `- ${c.month} (n=${c.cohortSize}): ${(c.retention || []).map((r: number, i: number) => `M${i}:${r}%`).join(', ')}`).join('\n') || 'No data'}
+${(metrics.fanCohortRetention || []).slice(-4).map((c: any) => `- ${c.month} (n=${c.cohortSize}): ${(c.retention || []).map((r: number, i: number) => `M${i}:${r}%`).join(', ')}`).join('\n') || 'No data'}
 
-CANCELLATION REASONS (platform tier):
-${(metrics.cancelReasonSummary?.platform || []).slice(0, 5).map((r: any) => `- "${r.reason}": ${r.count} cancellations`).join('\n') || 'No data'}
+CANCELLATION REASONS:
+Platform: ${(metrics.cancelReasonSummary?.platform || []).slice(0, 3).map((r: any) => `"${r.reason}" (${r.count})`).join(', ') || 'None'}
+Fan: ${(metrics.cancelReasonSummary?.fan || []).slice(0, 3).map((r: any) => `"${r.reason}" (${r.count})`).join(', ') || 'None'}
+Freeform: ${(metrics.cancelReasonSummary?.recentFreeform || []).slice(0, 3).map((f: any) => `"${f.text}"`).join(', ') || 'None'}
 
-CANCELLATION REASONS (fan subscriptions):
-${(metrics.cancelReasonSummary?.fan || []).slice(0, 5).map((r: any) => `- "${r.reason}": ${r.count} cancellations`).join('\n') || 'No data'}
+=== REFERRAL VS CHURN ===
+- Artist: +${metrics.scoreboard?.artistReferrals ?? 0} referrals, -${metrics.scoreboard?.artistChurned ?? 0} churned = net ${metrics.scoreboard?.artistNetGrowth ?? 0}
+- Fan: -${metrics.scoreboard?.fanChurned ?? 0} churned${metrics.scoreboard?.fanReferralTracked ? `, +${metrics.scoreboard.fanReferrals} referrals = net ${metrics.scoreboard.fanNetGrowth}` : ' (referrals not tracked)'}
 
-RECENT FREEFORM FEEDBACK:
-${(metrics.cancelReasonSummary?.recentFreeform || []).slice(0, 5).map((f: any) => `- "${f.text}" (${f.context}, ${f.date})`).join('\n') || 'No data'}
+=== RECRUITER / PARTNER PERFORMANCE (all, sorted worst ROI first) ===
+${recruiterData.map((r: any) => `- id:${r.id}, ${r.name} [${r.code}] (${r.tier}${r.isPartner ? ', PARTNER' : ''}): ${r.totalReferred} referred, ${r.qualified} qualified, ${r.churned} churned, qual ${r.qualificationRate}%, paid $${(r.totalPaid / 100).toFixed(2)}, ROI ${r.roi}x`).join('\n') || 'No recruiters'}
 
-LOYALTY SURVEY SUMMARY:
-${metrics.surveySummary ? `- NPS: ${metrics.surveySummary.nps ?? 'N/A'}, Responses: ${metrics.surveySummary.totalResponses ?? 0}
-- Top loved: ${(metrics.surveySummary.topLoved || []).slice(0, 3).join(', ') || 'N/A'}
-- Top requested: ${(metrics.surveySummary.topRequested || []).slice(0, 3).join(', ') || 'N/A'}` : 'No survey data'}
-
-RECRUITER PERFORMANCE (top 5 by referred MRR):
-${(metrics.recruiterPerformance || []).slice(0, 5).map((r: any) => `- ${r.code} (${r.tier}${r.isPartner ? ', partner' : ''}): ${r.totalReferred} referred, ${r.qualified} qualified, ${r.churned} churned, qual rate ${r.qualificationRate}%, paid $${(r.totalPaid / 100).toFixed(2)}, referred MRR $${(r.referredMRR / 100).toFixed(2)}, ROI ${r.roi}x`).join('\n') || 'No recruiters'}
-
-PROJECTIONS:
-- Sales Velocity: ${metrics.salesVelocity} new paid artists/month
-- Hypothetical Max Monthly Revenue: ${metrics.hypotheticalMaxMonthlyRevenue} cents
-- Hypothetical Max Customers: ${metrics.hypotheticalMaxCustomers}
-
-SEQUENCES (email automations you can toggle):
+=== AVAILABLE ACTIONS ===
+SEQUENCES (you can toggle these):
 ${(sequences || []).map((s: { trigger: string; name: string; is_active: boolean }) => `- trigger: "${s.trigger}", name: "${s.name}", currently ${s.is_active ? 'ENABLED' : 'DISABLED'}`).join('\n')}
 
-PIPELINE STAGE DISTRIBUTION:
+PIPELINE STAGES (you can move artists between these):
 ${Object.entries(stageCounts).map(([stage, count]) => `- ${stage}: ${count} artists`).join('\n')}
 
-Return ONLY the JSON object with "insights" and "actions" arrays. No markdown, no code fences, no explanation.`;
+STALLED ARTIST IDS (you can add notes to or enroll in sequences):
+${stalledArtists.map((a: any) => `- ${a.id} (${a.slug})`).join(', ') || 'None'}
+
+RECRUITER IDS (you can pause these):
+${recruiterData.map((r: any) => `- ${r.id} (${r.code}, ROI ${r.roi}x)`).join(', ') || 'None'}
+
+=== OTHER METRICS ===
+- Visitors: ${metrics.uniqueVisitorsInPeriod} | RPV: $${(metrics.revenuePerVisitor / 100).toFixed(4)}
+- Sales Velocity: ${metrics.salesVelocity}/mo | Max Revenue: $${(metrics.hypotheticalMaxMonthlyRevenue / 100).toFixed(2)}/mo
+- Variable Costs: $${((metrics.totalVariableCostsCents ?? 0) / 100).toFixed(2)} (SMS: ${metrics.messagingVolume?.sms ?? 0}, Email: ${metrics.messagingVolume?.email ?? 0})
+- Tier Upgrades: ${metrics.tierUpgradeMetrics?.upgradeRate ?? 0}% (${metrics.tierUpgradeMetrics?.onLabelPlus ?? 0} on Label+ of ${metrics.tierUpgradeMetrics?.establishedPaidCount ?? 0} established)
+- Billing Mix: ${(metrics.billingMix || []).map((b: any) => `${b.name} ${b.count}`).join(', ')}
+${metrics.surveySummary ? `- NPS: ${metrics.surveySummary.nps ?? 'N/A'} | Loved: ${(metrics.surveySummary.topLoved || []).slice(0, 2).join(', ')} | Requested: ${(metrics.surveySummary.topRequested || []).slice(0, 2).join(', ')}` : ''}
+
+Return ONLY the JSON object with "diagnosis", "supporting_signals", and "actions". No markdown, no code fences, no explanation.`;
 
     const response = await kimi.chat.completions.create({
       model: 'kimi-k2.5',
       max_tokens: 4000,
-      temperature: 0.6,
-      top_p: 0.95,
+      temperature: 0.5,
+      top_p: 0.9,
       // @ts-expect-error — Kimi-specific param to disable slow thinking mode
       thinking: { type: 'disabled' },
       messages: [
@@ -298,26 +337,29 @@ Return ONLY the JSON object with "insights" and "actions" arrays. No markdown, n
     const rawText = response.choices[0]?.message?.content || '{}';
 
     // Parse JSON from response (handle potential markdown wrapping)
-    let insights;
+    let diagnosis;
+    let supportingSignals;
     let actions;
     try {
       const jsonStr = rawText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
       const parsed = JSON.parse(jsonStr);
 
-      // Handle both old format (array) and new format (object with insights + actions)
-      if (Array.isArray(parsed)) {
-        insights = parsed;
-        actions = [];
-      } else {
-        insights = parsed.insights || [];
-        actions = parsed.actions || [];
-      }
+      diagnosis = parsed.diagnosis || null;
+      supportingSignals = parsed.supporting_signals || [];
+      actions = parsed.actions || [];
     } catch {
-      insights = [{ priority: 'warning', category: 'health', title: 'Agent response parsing failed', body: rawText.slice(0, 300), metric: 'system' }];
+      diagnosis = {
+        bottleneck: 'Parse Error',
+        dropoff_rate: 'N/A',
+        why: rawText.slice(0, 300),
+        impact_chain: ['Agent response could not be parsed'],
+        severity: 'warning' as const,
+      };
+      supportingSignals = [];
       actions = [];
     }
 
-    return NextResponse.json({ insights, actions, analyzedAt: new Date().toISOString() });
+    return NextResponse.json({ diagnosis, supportingSignals, actions, analyzedAt: new Date().toISOString() });
   } catch (error: unknown) {
     console.error('Agent analyze error:', error);
     return NextResponse.json({ error: 'Analysis failed' }, { status: 500 });

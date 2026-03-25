@@ -16,7 +16,7 @@ async function verifyAdmin(userId: string): Promise<boolean> {
 }
 
 interface AgentAction {
-  type: 'toggle_sequence' | 'update_pipeline_stages' | 'send_briefing';
+  type: 'toggle_sequence' | 'update_pipeline_stages' | 'send_briefing' | 'add_pipeline_note' | 'flag_at_risk' | 'enroll_in_sequence' | 'pause_recruiter';
   label: string;
   description: string;
   risk: 'low' | 'medium' | 'high';
@@ -97,6 +97,156 @@ async function executeUpdatePipelineStages(params: Record<string, unknown>): Pro
   return `Moved ${count} artist${count === 1 ? '' : 's'} from "${from_stage}" to "${to_stage}"`;
 }
 
+async function executeAddPipelineNote(params: Record<string, unknown>, adminId: string): Promise<string> {
+  const { artist_ids, note } = params as { artist_ids: string[]; note: string };
+
+  if (!artist_ids?.length || !note?.trim()) {
+    throw new Error('Missing artist_ids or note');
+  }
+
+  if (artist_ids.length > 20) {
+    throw new Error('Cannot add notes to more than 20 artists at once');
+  }
+
+  const records = artist_ids.map(id => ({
+    artist_id: id,
+    admin_id: adminId,
+    body: `[Agent] ${note.trim()}`,
+  }));
+
+  const { error } = await supabaseAdmin
+    .from('artist_notes')
+    .insert(records);
+
+  if (error) throw new Error(error.message);
+
+  return `Added note to ${artist_ids.length} artist${artist_ids.length === 1 ? '' : 's'}`;
+}
+
+async function executeFlagAtRisk(params: Record<string, unknown>): Promise<string> {
+  const { from_stage, criteria } = params as { from_stage: string; criteria: string };
+
+  if (!from_stage) {
+    throw new Error('Missing from_stage parameter');
+  }
+
+  const validStages = ['signed_up', 'onboarding', 'free', 'paid'];
+  if (!validStages.includes(from_stage)) {
+    throw new Error(`Can only flag artists from stages: ${validStages.join(', ')}`);
+  }
+
+  const { count } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('pipeline_stage', from_stage);
+
+  if (!count || count === 0) {
+    return `No artists found in "${from_stage}" stage — nothing to flag`;
+  }
+
+  const { error } = await supabaseAdmin
+    .from('artist_profiles')
+    .update({ pipeline_stage: 'at_risk' })
+    .eq('pipeline_stage', from_stage);
+
+  if (error) throw new Error(error.message);
+
+  return `Flagged ${count} artist${count === 1 ? '' : 's'} from "${from_stage}" as at_risk (${criteria || 'agent recommendation'})`;
+}
+
+async function executeEnrollInSequence(params: Record<string, unknown>): Promise<string> {
+  const { sequence_trigger, artist_ids } = params as { sequence_trigger: string; artist_ids: string[] };
+
+  if (!sequence_trigger || !artist_ids?.length) {
+    throw new Error('Missing sequence_trigger or artist_ids');
+  }
+
+  if (artist_ids.length > 20) {
+    throw new Error('Cannot enroll more than 20 artists at once');
+  }
+
+  // Find the sequence
+  const { data: seq } = await supabaseAdmin
+    .from('platform_sequences')
+    .select('id, name, is_active')
+    .eq('trigger', sequence_trigger)
+    .single();
+
+  if (!seq) throw new Error(`Sequence "${sequence_trigger}" not found`);
+  if (!seq.is_active) throw new Error(`Sequence "${seq.name}" is disabled — enable it first`);
+
+  // Get user_ids for the artist_ids
+  const { data: artists } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('id, user_id')
+    .in('id', artist_ids);
+
+  if (!artists?.length) throw new Error('No matching artists found');
+
+  // Check for existing active enrollments
+  const userIds = artists.map(a => a.user_id);
+  const { data: existing } = await supabaseAdmin
+    .from('platform_sequence_enrollments')
+    .select('artist_user_id')
+    .eq('sequence_id', seq.id)
+    .eq('status', 'active')
+    .in('artist_user_id', userIds);
+
+  const alreadyEnrolled = new Set((existing || []).map((e: any) => e.artist_user_id));
+  const toEnroll = artists.filter(a => !alreadyEnrolled.has(a.user_id));
+
+  if (toEnroll.length === 0) {
+    return `All ${artist_ids.length} artists are already enrolled in "${seq.name}"`;
+  }
+
+  const records = toEnroll.map(a => ({
+    sequence_id: seq.id,
+    artist_user_id: a.user_id,
+    status: 'active',
+    current_step: 0,
+    enrolled_at: new Date().toISOString(),
+  }));
+
+  const { error } = await supabaseAdmin
+    .from('platform_sequence_enrollments')
+    .insert(records);
+
+  if (error) throw new Error(error.message);
+
+  return `Enrolled ${toEnroll.length} artist${toEnroll.length === 1 ? '' : 's'} in "${seq.name}"${alreadyEnrolled.size > 0 ? ` (${alreadyEnrolled.size} already enrolled)` : ''}`;
+}
+
+async function executePauseRecruiter(params: Record<string, unknown>): Promise<string> {
+  const { recruiter_id, reason } = params as { recruiter_id: string; reason: string };
+
+  if (!recruiter_id) throw new Error('Missing recruiter_id');
+
+  // Get recruiter info
+  const { data: recruiter } = await supabaseAdmin
+    .from('recruiters')
+    .select('id, referral_code, is_partner')
+    .eq('id', recruiter_id)
+    .single();
+
+  if (!recruiter) throw new Error(`Recruiter "${recruiter_id}" not found`);
+
+  // Deactivate all their partner codes
+  const { data: codes } = await supabaseAdmin
+    .from('partner_codes')
+    .select('id')
+    .eq('recruiter_id', recruiter_id)
+    .eq('is_active', true);
+
+  if (codes && codes.length > 0) {
+    await supabaseAdmin
+      .from('partner_codes')
+      .update({ is_active: false })
+      .eq('recruiter_id', recruiter_id);
+  }
+
+  return `Paused recruiter ${recruiter.referral_code} — deactivated ${codes?.length || 0} referral code${(codes?.length || 0) === 1 ? '' : 's'}. Reason: ${reason || 'agent recommendation'}`;
+}
+
 async function executeSendBriefing(): Promise<string> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -129,7 +279,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const validTypes = ['toggle_sequence', 'update_pipeline_stages', 'send_briefing'];
+    const validTypes = ['toggle_sequence', 'update_pipeline_stages', 'send_briefing', 'add_pipeline_note', 'flag_at_risk', 'enroll_in_sequence', 'pause_recruiter'];
     if (!validTypes.includes(action.type)) {
       return NextResponse.json({ error: `Invalid action type: ${action.type}` }, { status: 400 });
     }
@@ -146,6 +296,18 @@ export async function POST(req: NextRequest) {
           break;
         case 'send_briefing':
           message = await executeSendBriefing();
+          break;
+        case 'add_pipeline_note':
+          message = await executeAddPipelineNote(action.params, userId);
+          break;
+        case 'flag_at_risk':
+          message = await executeFlagAtRisk(action.params);
+          break;
+        case 'enroll_in_sequence':
+          message = await executeEnrollInSequence(action.params);
+          break;
+        case 'pause_recruiter':
+          message = await executePauseRecruiter(action.params);
           break;
         default:
           throw new Error(`Unknown action type: ${action.type}`);
