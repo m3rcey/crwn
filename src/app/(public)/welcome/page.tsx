@@ -97,6 +97,15 @@ export default function WelcomePage() {
               acquisition_source: acquisitionSource,
               ...(recruiterCode ? { recruited_by: recruiterCode } : {}),
             });
+
+          // Mark referral click as converted (fire-and-forget)
+          if (recruiterCode) {
+            fetch('/api/admin/track', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ markConverted: { recruiterCode, userId: user.id } }),
+            }).catch(() => {});
+          }
         }
 
         // Record onboarding milestone (fire-and-forget)

@@ -10,7 +10,7 @@ const supabaseAdmin = createClient(
 // Lightweight endpoint called from middleware to track visits and activity
 export async function POST(req: NextRequest) {
   try {
-    const { visitorHash, userId, artistSlug, recruiterCode } = await req.json();
+    const { visitorHash, userId, artistSlug, recruiterCode, markConverted } = await req.json();
     const today = new Date().toISOString().split('T')[0];
 
     // Track site visit (unique per day per visitor)
@@ -69,6 +69,32 @@ export async function POST(req: NextRequest) {
             },
             { onConflict: 'referral_code,visitor_hash' }
           );
+      } catch {
+        // Silent fail
+      }
+    }
+
+    // Mark referral click as converted when an artist signs up with a recruiter code
+    if (markConverted && markConverted.recruiterCode && markConverted.userId) {
+      try {
+        // Find the most recent unconverted click for this recruiter code (within 30 days)
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+        const { data: click } = await supabaseAdmin
+          .from('referral_clicks')
+          .select('id')
+          .eq('referral_code', markConverted.recruiterCode)
+          .eq('converted', false)
+          .gte('clicked_at', thirtyDaysAgo)
+          .order('clicked_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (click) {
+          await supabaseAdmin
+            .from('referral_clicks')
+            .update({ converted: true, converted_user_id: markConverted.userId })
+            .eq('id', click.id);
+        }
       } catch {
         // Silent fail
       }
