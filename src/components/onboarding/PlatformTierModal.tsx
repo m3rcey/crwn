@@ -310,6 +310,37 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
             );
           })}
         </div>
+
+        {/* Competitor value comparison */}
+        <div className="mt-8 rounded-2xl bg-crwn-bg/60 border border-crwn-text/10 p-5 md:p-6">
+          <p className="text-sm font-semibold text-crwn-text text-center mb-4">
+            What you&apos;d pay separately for the same tools
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {[
+              { tool: 'Fan subscriptions', price: '$80+/mo', note: 'Patreon Pro takes 8-12%' },
+              { tool: 'Email marketing', price: '$59+/mo', note: 'ConvertKit, Mailchimp' },
+              { tool: 'SMS messaging', price: '$99+/mo', note: 'Community, Twilio' },
+              { tool: 'AI insights + CRM', price: '$49+/mo', note: 'Chartmetric, Linkfire' },
+            ].map((item) => (
+              <div key={item.tool} className="text-center">
+                <p className="text-lg font-bold text-crwn-text-secondary line-through decoration-crwn-text/30">
+                  {item.price}
+                </p>
+                <p className="text-xs font-medium text-crwn-text mt-0.5">{item.tool}</p>
+                <p className="text-[10px] text-crwn-text-secondary mt-0.5">{item.note}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-3 border-t border-crwn-text/10 text-center">
+            <p className="text-xs text-crwn-text-secondary">
+              Elsewhere: <span className="text-crwn-text font-semibold line-through decoration-crwn-text/30">$287+/mo</span> across 4+ tools
+            </p>
+            <p className="text-sm text-crwn-gold font-semibold mt-1">
+              CRWN Pro: everything in one place for ${billingCycle === 'annual' ? '37' : '50'}/mo
+            </p>
+          </div>
+        </div>
       </div>
     </div>,
     document.body
