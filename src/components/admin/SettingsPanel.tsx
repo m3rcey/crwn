@@ -18,6 +18,13 @@ interface FixedCosts {
   [key: string]: number;
 }
 
+// Variable costs stored as dollars per unit (e.g. $0.0079 per SMS)
+interface VariableCosts {
+  sms_per_message: number;
+  mms_per_message: number;
+  email_per_message: number;
+}
+
 const COST_LABELS: Record<string, string> = {
   supabase: 'Supabase',
   resend: 'Resend',
@@ -25,6 +32,12 @@ const COST_LABELS: Record<string, string> = {
   domain: 'Domain (monthly)',
   vercel: 'Vercel',
   cloudflare: 'Cloudflare',
+};
+
+const VARIABLE_COST_LABELS: Record<string, { label: string; hint: string }> = {
+  sms_per_message: { label: 'SMS (per message)', hint: 'Twilio ~$0.0079' },
+  mms_per_message: { label: 'MMS (per message)', hint: 'Twilio ~$0.02' },
+  email_per_message: { label: 'Email (per message)', hint: 'Resend ~$0.00023' },
 };
 
 export default function SettingsPanel({ userId, onSaved }: SettingsPanelProps) {
@@ -35,6 +48,11 @@ export default function SettingsPanel({ userId, onSaved }: SettingsPanelProps) {
     domain: 108,
     vercel: 0,
     cloudflare: 0,
+  });
+  const [variableCosts, setVariableCosts] = useState<VariableCosts>({
+    sms_per_message: 0.0079,
+    mms_per_message: 0.02,
+    email_per_message: 0.00023,
   });
   const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -47,6 +65,8 @@ export default function SettingsPanel({ userId, onSaved }: SettingsPanelProps) {
       .then((data: { key: string; value: any }[]) => {
         const fc = data.find(d => d.key === 'fixed_costs');
         if (fc?.value) setCosts(fc.value);
+        const vc = data.find(d => d.key === 'variable_costs');
+        if (vc?.value) setVariableCosts(vc.value);
         setLoaded(true);
       })
       .catch(() => setLoaded(true));
@@ -55,11 +75,18 @@ export default function SettingsPanel({ userId, onSaved }: SettingsPanelProps) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await fetch('/api/admin/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, key: 'fixed_costs', value: costs }),
-      });
+      await Promise.all([
+        fetch('/api/admin/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, key: 'fixed_costs', value: costs }),
+        }),
+        fetch('/api/admin/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, key: 'variable_costs', value: variableCosts }),
+        }),
+      ]);
       onSaved();
     } catch (err) {
       console.error('Save failed:', err);
@@ -146,6 +173,37 @@ export default function SettingsPanel({ userId, onSaved }: SettingsPanelProps) {
         >
           + Add
         </button>
+      </div>
+
+      {/* Variable Costs */}
+      <div className="mt-6 pt-6 border-t border-[#2a2a2a]">
+        <h3 className="text-white font-semibold mb-2">Variable Costs (per message)</h3>
+        <p className="text-[#666] text-xs mb-4">Cost per unit in dollars. Used in COGS to calculate true gross margin and per-tier health checks.</p>
+
+        <div className="space-y-3 mb-4">
+          {(Object.keys(VARIABLE_COST_LABELS) as (keyof VariableCosts)[]).map(key => {
+            const { label, hint } = VARIABLE_COST_LABELS[key];
+            return (
+              <div key={key} className="flex items-center gap-3">
+                <span className="text-[#999] text-sm w-40">{label}</span>
+                <div className="relative flex-1 max-w-[160px]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#666] text-sm">$</span>
+                  <input
+                    type="number"
+                    step="0.0001"
+                    value={variableCosts[key]}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value || '0');
+                      setVariableCosts(prev => ({ ...prev, [key]: val }));
+                    }}
+                    className="w-full bg-[#141414] border border-[#333] rounded-lg pl-7 pr-3 py-2 text-white text-sm focus:border-crwn-gold outline-none"
+                  />
+                </div>
+                <span className="text-[#555] text-xs">{hint}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex items-center justify-between pt-4 border-t border-[#2a2a2a]">

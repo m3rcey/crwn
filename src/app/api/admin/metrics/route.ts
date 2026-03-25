@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { TIER_PRICING } from '@/lib/platformTier';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -82,8 +83,9 @@ export async function GET(req: NextRequest) {
     { data: allRecruiters },
     { data: allPayouts },
     { data: allVisits },
-    { data: settingsData },
+    { data: allSettings },
     { data: allProfiles },
+    { data: allCampaignSends },
   ] = await Promise.all([
     supabaseAdmin.from('earnings').select('*').order('created_at', { ascending: true }),
     supabaseAdmin.from('artist_profiles').select('id, user_id, platform_tier, platform_subscription_status, platform_billing_interval, stripe_connect_id, created_at'),
@@ -92,8 +94,10 @@ export async function GET(req: NextRequest) {
     supabaseAdmin.from('recruiters').select('id, user_id, tier, total_artists_referred, total_earned, referral_code, is_partner, created_at'),
     supabaseAdmin.from('recruiter_payouts').select('id, recruiter_id, artist_referral_id, type, amount, status, created_at'),
     supabaseAdmin.from('site_visits').select('visit_date, visitor_hash, is_authenticated').gte('visit_date', start.toISOString().split('T')[0]),
-    supabaseAdmin.from('admin_settings').select('key, value').eq('key', 'fixed_costs').single(),
+    supabaseAdmin.from('admin_settings').select('key, value').in('key', ['fixed_costs', 'variable_costs']),
     supabaseAdmin.from('profiles').select('id, role, last_active_at, created_at'),
+    // Message volume: campaign sends (email + SMS) in period
+    supabaseAdmin.from('campaign_sends').select('channel, created_at').gte('created_at', start.toISOString()),
   ]);
 
   const earnings = allEarnings || [];
@@ -106,12 +110,44 @@ export async function GET(req: NextRequest) {
   const profiles = allProfiles || [];
 
   // Fixed costs (in cents per month)
-  const fixedCosts = settingsData?.value || {};
+  const settings = allSettings || [];
+  const fixedCosts = settings.find((s: any) => s.key === 'fixed_costs')?.value || {};
   const totalFixedCostsCents = Object.values(fixedCosts).reduce((s: number, v) => s + (Number(v) || 0), 0);
 
+  // Variable costs (dollars per message) — defaults match Twilio/Resend pricing
+  const variableCostsRaw = settings.find((s: any) => s.key === 'variable_costs')?.value || {};
+  const variableCosts = {
+    sms_per_message: Number(variableCostsRaw.sms_per_message) || 0.0079,
+    mms_per_message: Number(variableCostsRaw.mms_per_message) || 0.02,
+    email_per_message: Number(variableCostsRaw.email_per_message) || 0.00023,
+  };
+
+  // Message volume in period (from campaign_sends)
+  const campaignSends = allCampaignSends || [];
+  const smsCount = campaignSends.filter((s: any) => s.channel === 'sms').length;
+  const emailCount = campaignSends.filter((s: any) => !s.channel || s.channel === 'email').length;
+  // MMS = 0 for now (no MMS channel in campaign_sends yet — tracked separately when added)
+  const mmsCount = 0;
+
+  // Total variable messaging costs in cents for the period
+  const totalVariableCostsCents = Math.round(
+    (smsCount * variableCosts.sms_per_message +
+     mmsCount * variableCosts.mms_per_message +
+     emailCount * variableCosts.email_per_message) * 100
+  );
+
   // ---- PLATFORM REVENUE (Artist SaaS Tiers) ----
-  const TIER_PRICES: Record<string, number> = { pro: 5000, label: 17500, empire: 35000 };
-  const ANNUAL_PRICES: Record<string, number> = { pro: 3700, label: 13125, empire: 26200 }; // monthly equivalent
+  // Import from single source of truth — monthly equivalent for annual = annual total / 12
+  const TIER_PRICES: Record<string, number> = {
+    pro: TIER_PRICING.pro.monthly,
+    label: TIER_PRICING.label.monthly,
+    empire: TIER_PRICING.empire.monthly,
+  };
+  const ANNUAL_PRICES: Record<string, number> = {
+    pro: Math.round(TIER_PRICING.pro.annual / 12),
+    label: Math.round(TIER_PRICING.label.annual / 12),
+    empire: Math.round(TIER_PRICING.empire.annual / 12),
+  };
 
   const paidArtists = artists.filter(a => a.platform_subscription_status === 'active' && a.platform_tier && a.platform_tier !== 'starter');
   const starterArtists = artists.filter(a => !a.platform_tier || a.platform_tier === 'starter');
@@ -147,7 +183,7 @@ export async function GET(req: NextRequest) {
   }, 0);
 
   const periodRevenue = totalPlatformFees + (platformMRR * (days / 30));
-  const periodCosts = totalStripeFees + (platformStripeFeesMonthly * (days / 30)) + totalRecruiterCost + (totalFixedCostsCents * (days / 30));
+  const periodCosts = totalStripeFees + (platformStripeFeesMonthly * (days / 30)) + totalRecruiterCost + (totalFixedCostsCents * (days / 30)) + totalVariableCostsCents;
   const grossProfit = periodRevenue - periodCosts;
   const grossMarginPct = periodRevenue > 0 ? (grossProfit / periodRevenue) * 100 : 0;
 
@@ -175,7 +211,11 @@ export async function GET(req: NextRequest) {
   const avgFixedCostPerArtist = (paidArtists.length + starterArtists.length) > 0
     ? totalFixedCostsCents / (paidArtists.length + starterArtists.length)
     : 0;
-  const monthlyGrossProfitPerArtist = avgMonthlyRevenuePerArtist - avgMonthlyStripeFeePerArtist - avgFixedCostPerArtist;
+  // Monthly variable cost per artist = total variable costs in period, normalized to monthly, divided by total artists
+  const monthlyVariableCostPerArtist = (paidArtists.length + starterArtists.length) > 0 && days > 0
+    ? (totalVariableCostsCents / (days / 30)) / (paidArtists.length + starterArtists.length)
+    : 0;
+  const monthlyGrossProfitPerArtist = avgMonthlyRevenuePerArtist - avgMonthlyStripeFeePerArtist - avgFixedCostPerArtist - monthlyVariableCostPerArtist;
   const lgp = Math.round(monthlyGrossProfitPerArtist * avgLifespanMonths);
 
   // ---- CAC ----
@@ -415,9 +455,12 @@ export async function GET(req: NextRequest) {
   const thirtyDayPlatformFees = thirtyDayEarnings.reduce((s, e) => s + (e.platform_fee || 0), 0);
   const thirtyDayStripeFees = thirtyDayEarnings.reduce((s, e) => s + stripeFee(e.gross_amount || 0), 0);
   const thirtyDayRecruiterCost = payouts.filter(p => new Date(p.created_at) >= last30d && p.status === 'paid').reduce((s, p) => s + p.amount, 0);
-  const thirtyDayProfit = thirtyDayPlatformFees + platformMRR - thirtyDayStripeFees - platformStripeFeesMonthly - thirtyDayRecruiterCost - totalFixedCostsCents;
+  // 30-day variable costs: normalize period variable costs to 30 days
+  const thirtyDayVariableCosts = days > 0 ? Math.round(totalVariableCostsCents * (30 / days)) : totalVariableCostsCents;
+  const thirtyDayProfit = thirtyDayPlatformFees + platformMRR - thirtyDayStripeFees - platformStripeFeesMonthly - thirtyDayRecruiterCost - totalFixedCostsCents - thirtyDayVariableCosts;
+  const monthlyVariableCostsTotal = thirtyDayVariableCosts; // already 30-day normalized
   const cogsPerArtist = artists.length > 0
-    ? Math.round((totalFixedCostsCents + platformStripeFeesMonthly) / artists.length)
+    ? Math.round((totalFixedCostsCents + platformStripeFeesMonthly + monthlyVariableCostsTotal) / artists.length)
     : 0;
   // Amortize CAC over avg lifespan for monthly comparison
   const monthlyCacAmortized = avgLifespanMonths > 0 ? Math.round(cac / avgLifespanMonths) : cac;
@@ -431,7 +474,7 @@ export async function GET(req: NextRequest) {
   const tierHealthCheck = (['pro', 'label', 'empire'] as const).map(tier => {
     const tierPrice = TIER_PRICES[tier]; // monthly price in cents
     const tierStripeFee = stripeFee(tierPrice);
-    const infraPerArtist = artists.length > 0 ? Math.round(totalFixedCostsCents / artists.length) : totalFixedCostsCents;
+    const infraPerArtist = artists.length > 0 ? Math.round((totalFixedCostsCents + monthlyVariableCostsTotal) / artists.length) : totalFixedCostsCents;
     const tierCogs = tierStripeFee + infraPerArtist;
     const tierProfit = tierPrice - tierCogs;
     // Monthly amortized CAC for apples-to-apples comparison
@@ -672,6 +715,9 @@ export async function GET(req: NextRequest) {
     grossProfit,
     thirtyDayCash,
     totalFixedCostsCents,
+    totalVariableCostsCents,
+    messagingVolume: { sms: smsCount, mms: mmsCount, email: emailCount },
+    variableCosts,
     paybackMonths,
 
     // Revenue per visitor
