@@ -19,11 +19,12 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { artistId, category, message, showLocation } = body as {
+  const { artistId, category, message, showLocation, mediaUrl } = body as {
     artistId: string;
     category: SmsCategory;
     message: string;
     showLocation?: { lat: number; lng: number; city: string; state: string; venue: string; radiusMiles: number };
+    mediaUrl?: string;
   };
 
   if (!artistId || !category || !message) {
@@ -98,10 +99,11 @@ export async function POST(req: NextRequest) {
     .from('campaigns')
     .insert({
       artist_id: artistId,
-      name: `SMS — ${SMS_CATEGORIES.find(c => c.value === category)?.label || category} — ${new Date().toLocaleDateString('en-US')}`,
+      name: `${mediaUrl ? 'MMS' : 'SMS'} — ${SMS_CATEGORIES.find(c => c.value === category)?.label || category} — ${new Date().toLocaleDateString('en-US')}`,
       body: message,
       channel: 'sms',
       status: 'sending',
+      media_url: mediaUrl || null,
     })
     .select('id')
     .single();
@@ -167,8 +169,8 @@ export async function POST(req: NextRequest) {
     // Append opt-out footer
     const fullMessage = `${personalizedMessage}\n\nReply STOP to opt out`;
 
-    // Character count check (basic — Twilio handles segmenting)
-    const result = await sendSms(sub.phone_number, fullMessage, artistPhone.phone_number);
+    // Send SMS (or MMS if mediaUrl provided)
+    const result = await sendSms(sub.phone_number, fullMessage, artistPhone.phone_number, mediaUrl || null);
 
     if (result.success) {
       sentCount++;

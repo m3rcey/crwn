@@ -175,16 +175,22 @@ export type SmsCategory = typeof SMS_CATEGORIES[number]['value'];
 export const MAX_SMS_PER_FAN_PER_MONTH = 4;
 export const MAX_SMS_PER_FAN_PER_DAY = 1;
 
+// Allowed MMS media types (Twilio-supported image formats)
+export const MMS_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+export const MMS_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB — Twilio limit
+
 /**
- * Send an SMS via Twilio. Falls back to console.log if Twilio is not configured.
+ * Send an SMS or MMS via Twilio. Falls back to console.log if Twilio is not configured.
+ * Pass mediaUrl to send as MMS (image attached to message).
  */
 export async function sendSms(
   to: string,
   body: string,
-  from: string
+  from: string,
+  mediaUrl?: string | null
 ): Promise<{ success: boolean; sid?: string; error?: string }> {
   if (!isConfigured) {
-    console.log('[SMS Stub]', { to, from, body: body.substring(0, 50) + '...' });
+    console.log('[SMS Stub]', { to, from, body: body.substring(0, 50) + '...', mediaUrl: mediaUrl || null });
     return { success: true, sid: `stub_${Date.now()}` };
   }
 
@@ -192,18 +198,25 @@ export async function sendSms(
     const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
     const auth = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64');
 
+    const params = new URLSearchParams({
+      To: to,
+      From: from,
+      Body: body,
+      StatusCallback: 'https://thecrwn.app/api/sms/status',
+    });
+
+    // Attach media for MMS
+    if (mediaUrl) {
+      params.append('MediaUrl', mediaUrl);
+    }
+
     const res = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${auth}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: new URLSearchParams({
-        To: to,
-        From: from,
-        Body: body,
-        StatusCallback: 'https://thecrwn.app/api/sms/status',
-      }),
+      body: params,
     });
 
     const data = await res.json();

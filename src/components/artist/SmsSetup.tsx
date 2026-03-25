@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, Phone, MessageSquare, Users, Send, AlertCircle } from 'lucide-react';
+import { Loader2, Phone, MessageSquare, Users, Send, AlertCircle, ImagePlus, X } from 'lucide-react';
 import { getSmsLimit } from '@/lib/platformTier';
-import { SMS_CATEGORIES, MAX_SMS_PER_FAN_PER_MONTH } from '@/lib/twilio';
+import { SMS_CATEGORIES, MAX_SMS_PER_FAN_PER_MONTH, MMS_ALLOWED_TYPES, MMS_MAX_FILE_SIZE } from '@/lib/twilio';
 
 interface SmsSetupProps {
   artistId: string;
@@ -46,6 +46,11 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
   const [smsCategory, setSmsCategory] = useState('');
   const [smsMessage, setSmsMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+
+  // MMS media state
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -108,6 +113,29 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
     }
   };
 
+  const handleMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!MMS_ALLOWED_TYPES.includes(file.type)) {
+      showToast('Only JPEG, PNG, GIF, and WebP images are allowed', 'error');
+      return;
+    }
+    if (file.size > MMS_MAX_FILE_SIZE) {
+      showToast('Image must be under 5MB', 'error');
+      return;
+    }
+
+    setMediaFile(file);
+    setMediaPreview(URL.createObjectURL(file));
+  };
+
+  const clearMedia = () => {
+    if (mediaPreview) URL.revokeObjectURL(mediaPreview);
+    setMediaFile(null);
+    setMediaPreview(null);
+  };
+
   const handleSend = async () => {
     if (!smsCategory || !smsMessage.trim()) {
       showToast('Select a category and write a message', 'error');
@@ -115,6 +143,20 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
     }
     setIsSending(true);
     try {
+      // Upload media first if attached
+      let mediaUrl: string | undefined;
+      if (mediaFile) {
+        setIsUploading(true);
+        const form = new FormData();
+        form.append('file', mediaFile);
+        form.append('artistId', artistId);
+        const uploadRes = await fetch('/api/sms/upload', { method: 'POST', body: form });
+        const uploadJson = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadJson.error || 'Image upload failed');
+        mediaUrl = uploadJson.url;
+        setIsUploading(false);
+      }
+
       const res = await fetch('/api/sms/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -122,19 +164,22 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
           artistId,
           category: smsCategory,
           message: smsMessage.trim(),
+          mediaUrl,
         }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to send');
       showToast(
-        `Sent to ${json.sent} fans${json.deferred ? `, ${json.deferred} deferred (quiet hours)` : ''}${json.skipped ? `, ${json.skipped} skipped (limits)` : ''}`,
+        `${mediaUrl ? 'MMS' : 'SMS'} sent to ${json.sent} fans${json.deferred ? `, ${json.deferred} deferred (quiet hours)` : ''}${json.skipped ? `, ${json.skipped} skipped (limits)` : ''}`,
         'success'
       );
       setShowCompose(false);
       setSmsMessage('');
       setSmsCategory('');
+      clearMedia();
     } catch (err: any) {
       showToast(err.message || 'Failed to send', 'error');
+      setIsUploading(false);
     } finally {
       setIsSending(false);
     }
@@ -308,11 +353,44 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
             </div>
           </div>
 
+          {/* MMS Image Attachment */}
+          <div>
+            <label className="block text-xs text-crwn-text-secondary mb-1.5">Attach Image (sends as MMS)</label>
+            {mediaPreview ? (
+              <div className="relative inline-block">
+                <img
+                  src={mediaPreview}
+                  alt="MMS preview"
+                  className="w-24 h-24 object-cover rounded-lg border border-crwn-elevated"
+                />
+                <button
+                  onClick={clearMedia}
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-400 transition-colors"
+                >
+                  <X className="w-3 h-3 text-white" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center gap-2 px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg cursor-pointer hover:border-crwn-gold/30 transition-colors w-fit">
+                <ImagePlus className="w-4 h-4 text-crwn-text-secondary" />
+                <span className="text-sm text-crwn-text-secondary">Add image</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  onChange={handleMediaSelect}
+                  className="hidden"
+                />
+              </label>
+            )}
+            <p className="text-xs text-crwn-text-secondary mt-1">JPEG, PNG, GIF, or WebP. Max 5MB.</p>
+          </div>
+
           <div className="flex items-start gap-2 p-3 bg-crwn-elevated/50 rounded-lg">
             <AlertCircle className="w-4 h-4 text-crwn-text-secondary shrink-0 mt-0.5" />
             <div className="text-xs text-crwn-text-secondary space-y-1">
               <p>Fans in quiet hours (9pm-9am local) will be skipped.</p>
               <p>Fans at their monthly limit ({MAX_SMS_PER_FAN_PER_MONTH}/mo) will be skipped.</p>
+              {mediaFile && <p>MMS messages cost more than SMS — each counts as 1 message toward your quota.</p>}
             </div>
           </div>
 
@@ -329,7 +407,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
               className="flex items-center gap-2 px-4 py-2.5 bg-crwn-gold text-crwn-bg rounded-full text-sm font-semibold hover:bg-crwn-gold/90 disabled:opacity-40 transition-colors"
             >
               {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              Send
+              {isUploading ? 'Uploading...' : mediaFile ? 'Send MMS' : 'Send'}
             </button>
           </div>
         </div>
