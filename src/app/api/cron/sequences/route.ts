@@ -180,28 +180,54 @@ export async function GET(req: NextRequest) {
         artist_name: artistName,
       });
 
-      // We don't have a campaign_sends record for sequences, so use enrollment ID for unsubscribe
-      // Create a dummy send ID approach — use enrollment ID directly
+      // Create a sequence_sends record for open/click tracking
+      const { data: seqSend } = await supabaseAdmin
+        .from('sequence_sends')
+        .insert({
+          enrollment_id: enrollment.id,
+          sequence_id: enrollment.sequence_id,
+          step_number: nextStepNumber,
+          fan_id: enrollment.fan_id,
+          artist_id: enrollment.artist_id,
+          email: fanEmail,
+          status: 'sent',
+          sent_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single();
+
+      const sendId = seqSend?.id || enrollment.id;
       const unsubscribeUrl = `https://thecrwn.app/api/sequences/unsubscribe/${enrollment.id}`;
+      const trackingPixelUrl = `https://thecrwn.app/api/sequences/track/${sendId}?pixel=1`;
 
       const html = campaignEmail({
         body: personalizedBody,
         artistName,
-        sendId: enrollment.id, // No click tracking for sequences
+        sendId,
         unsubscribeUrl,
-        trackingPixelUrl: '', // No tracking pixel for sequences
+        trackingPixelUrl,
         platformTier: artistData?.platform_tier || 'starter',
+        trackBasePath: '/api/sequences/track',
       });
 
-      const { error: sendError } = await resend.emails.send({
+      const { data: sendResult, error: sendError } = await resend.emails.send({
         from: `${artistName} via CRWN <hello@thecrwn.app>`,
         to: fanEmail,
         subject: personalizedSubject,
         html,
         headers: {
           'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'X-Sequence-Send-Id': sendId,
         },
       });
+
+      // Update send record with Resend message ID
+      if (seqSend?.id && sendResult?.id) {
+        await supabaseAdmin
+          .from('sequence_sends')
+          .update({ resend_message_id: sendResult.id })
+          .eq('id', seqSend.id);
+      }
 
       if (sendError) {
         console.error('Sequence email send error:', sendError);
@@ -230,6 +256,19 @@ export async function GET(req: NextRequest) {
           .from('sequence_enrollments')
           .update({ current_step: nextStepNumber, status: 'completed', completed_at: now, next_send_at: null })
           .eq('id', enrollment.id);
+
+        // Create conversion tracking record — check for target action within 7 days
+        const attributionWindowEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        await supabaseAdmin
+          .from('sequence_conversions')
+          .insert({
+            enrollment_id: enrollment.id,
+            sequence_id: enrollment.sequence_id,
+            fan_id: enrollment.fan_id,
+            artist_id: enrollment.artist_id,
+            trigger_type: seqMeta?.trigger_type || 'new_subscription',
+            attribution_window_end: attributionWindowEnd,
+          });
       }
 
       sentCount++;

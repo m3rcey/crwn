@@ -64,6 +64,24 @@ export async function GET(
     });
   }
 
+  // Log unsubscribe event for attribution — find which campaign triggered this
+  const { data: sendWithCampaign } = await supabaseAdmin
+    .from('campaign_sends')
+    .select('campaign_id')
+    .eq('id', sendId)
+    .single();
+
+  await supabaseAdmin
+    .from('unsubscribe_events')
+    .insert({
+      fan_id: fanId,
+      artist_id: null, // global unsubscribe, not artist-specific
+      source_type: 'campaign',
+      source_id: sendWithCampaign?.campaign_id || null,
+      campaign_send_id: sendId,
+      scope: 'global',
+    });
+
   // Unsubscribe all active SMS subscriptions
   await supabaseAdmin
     .from('sms_subscribers')

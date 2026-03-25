@@ -41,6 +41,24 @@ export async function GET(
       { onConflict: 'fan_id,artist_id' }
     );
 
+  // Log unsubscribe event for attribution — find which sequence triggered it
+  const { data: enrollmentFull } = await supabaseAdmin
+    .from('sequence_enrollments')
+    .select('sequence_id')
+    .eq('id', enrollmentId)
+    .single();
+
+  await supabaseAdmin
+    .from('unsubscribe_events')
+    .insert({
+      fan_id: enrollment.fan_id,
+      artist_id: enrollment.artist_id,
+      source_type: 'sequence',
+      source_id: enrollmentFull?.sequence_id || null,
+      campaign_send_id: null,
+      scope: 'artist',
+    });
+
   return new NextResponse(page("You've been unsubscribed from marketing emails.", true), {
     headers: { 'Content-Type': 'text/html' },
   });

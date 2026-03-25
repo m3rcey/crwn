@@ -7,6 +7,7 @@ interface CampaignEmailParams {
   unsubscribeUrl: string;
   trackingPixelUrl: string;
   platformTier: string; // artist's platform tier
+  trackBasePath?: string; // e.g. '/api/sequences/track' — defaults to '/api/campaigns/track'
 }
 
 /**
@@ -26,13 +27,13 @@ export function resolveTokens(
 
 /**
  * Wrap links in the body for click tracking.
- * Replaces href="https://..." with href="/api/campaigns/track/[sendId]?url=..."
+ * Replaces href="https://..." with href="[trackBasePath]/[sendId]?url=..."
  */
-function wrapLinks(html: string, sendId: string): string {
+function wrapLinks(html: string, sendId: string, trackBasePath: string = '/api/campaigns/track'): string {
   return html.replace(
     /href="(https?:\/\/[^"]+)"/g,
     (_match, url: string) => {
-      const trackUrl = `${BASE_URL}/api/campaigns/track/${sendId}?url=${encodeURIComponent(url)}`;
+      const trackUrl = `${BASE_URL}${trackBasePath}/${sendId}?url=${encodeURIComponent(url)}`;
       return `href="${trackUrl}"`;
     }
   );
@@ -60,9 +61,10 @@ export function campaignEmail({
   unsubscribeUrl,
   trackingPixelUrl,
   platformTier,
+  trackBasePath,
 }: CampaignEmailParams): string {
   const showCrwnBranding = platformTier !== 'label' && platformTier !== 'empire';
-  const wrappedBody = wrapLinks(bodyToHtml(body), sendId);
+  const wrappedBody = wrapLinks(bodyToHtml(body), sendId, trackBasePath);
 
   return `
 <!DOCTYPE html>

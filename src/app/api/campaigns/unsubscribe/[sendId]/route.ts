@@ -57,6 +57,18 @@ export async function GET(
     });
   }
 
+  // Log unsubscribe event for attribution
+  await supabaseAdmin
+    .from('unsubscribe_events')
+    .insert({
+      fan_id: send.fan_id,
+      artist_id: campaign.artist_id,
+      source_type: 'campaign',
+      source_id: send.campaign_id,
+      campaign_send_id: sendId,
+      scope: 'artist',
+    });
+
   return new NextResponse(unsubscribePage("You've been unsubscribed from marketing emails.", true), {
     headers: { 'Content-Type': 'text/html' },
   });

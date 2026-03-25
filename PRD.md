@@ -1,6 +1,6 @@
 # CRWN — Product Requirements Document
 
-**Version:** 1.0
+**Version:** 1.1
 **Date:** March 24, 2026
 **Product:** CRWN (thecrwn.app)
 **Status:** Live (Production)
@@ -11,7 +11,7 @@
 
 CRWN is a music monetization SaaS platform where independent artists sell subscriptions, tracks, albums, digital products, and experiences directly to fans. The platform enables direct artist-to-fan relationships with features for content creation, audience engagement, automated email/SMS campaigns, and earnings management.
 
-**Business Model:** Artists pay platform subscription fees (Starter: free → Empire: $350/mo) with decreasing platform commission rates (8% → 4%). The platform takes a percentage of all fan-to-artist transactions processed through Stripe Connect.
+**Business Model:** Artists pay platform subscription fees (Starter: free → Empire: $350/mo) with decreasing platform commission rates (8% → 3%). The platform takes a percentage of all fan-to-artist transactions processed through Stripe Connect.
 
 **Tech Stack:** Next.js 16 (App Router + Turbopack), Supabase (Postgres/Auth/Storage), Stripe Connect, Tailwind CSS 4, Resend (email), Twilio (SMS), Cloudflare R2 (media storage). Deployed on Vercel.
 
@@ -25,8 +25,8 @@ Discovers and supports artists through subscriptions, purchases, and referrals. 
 ### 2.2 Artist
 Creates and monetizes music, digital products, and experiences. Manages subscribers, runs email/SMS campaigns, and tracks revenue analytics.
 
-### 2.3 Recruiter
-Music industry professional (label, manager, distributor) who earns flat fees + recurring commissions for referring artists to the platform.
+### 2.3 Partner (Influencer)
+Music industry influencer or professional who earns flat fees, recurring commissions, and content bonuses for referring artists to the platform. Scored and tiered based on reach, engagement, and audience alignment.
 
 ### 2.4 Admin
 Internal platform operator with access to KPI dashboards, sales pipeline, artist notes, and platform-wide automation sequences.
@@ -48,6 +48,7 @@ Internal platform operator with access to KPI dashboards, sales pipeline, artist
 2. **Profile Setup** — Display name, phone number (optional)
 3. **Artist Setup** (if artist role) — Auto-creates artist profile with URL slug
 4. **Guided Tour** — Role-specific walkthrough using Driver.js
+5. **Post-Tour Action Picker** (artists only) — "What do you want to do first?" modal with three quick-action options: upload first track, set up subscription tiers, or customize profile
 
 ---
 
@@ -85,11 +86,9 @@ Public-facing artist pages with:
 - Booking (Calendly-integrated sessions)
 
 ### 4.3 Subscriptions
-- Subscribe to artist tiers (monthly or annual pricing, 25% annual discount)
 - Multiple tiers per artist (e.g., The Wave $10/mo, Inner Circle $50/mo, Throne $200/mo)
-- Manage subscriptions via Stripe Customer Portal
-- Cancel immediately or at end of billing period
 - Automatic renewal and failed payment handling
+- See §4.7 Subscription Management for pause, cancel, and management details
 
 ### 4.4 Library (`/library`)
 - **Purchases** — Owned digital products, albums, and tracks
@@ -106,10 +105,30 @@ Public-facing artist pages with:
 
 ### 4.6 Communication Preferences
 - Per-artist opt-in toggles for email marketing and SMS marketing
+- Notification frequency: "Real-time" or "Weekly Digest" mode
+- Digest-only mode sends one Sunday summary instead of individual emails
 - Unsubscribe options: per-campaign, per-sequence, or unsubscribe-all from an artist
 - SMS protections: max 1 SMS per month per fan per artist, quiet hours (9pm–9am)
 
-### 4.7 Notifications
+### 4.7 Subscription Management
+- Subscribe to artist tiers (monthly or annual pricing, 25% annual discount)
+- **Pause subscription:** 30-day billing pause via Stripe `pause_collection` while keeping access (offered as alternative to cancellation)
+- Cancel immediately or at end of billing period
+- Cancellation flow collects reasons (multi-select + freeform) before redirecting to Stripe portal
+- Manage subscriptions via Stripe Customer Portal
+
+### 4.8 Weekly Fan Digest
+- Sunday 3pm summary email of all activity from subscribed artists
+- Covers new posts, releases, and products from the past week
+- Respects email preferences and suppressions; only sends if activity exists
+
+### 4.9 Loyalty Surveys
+- Token-based public survey page for fans with 90+ day active subscriptions
+- "Why Did You Stay?" mechanism to capture positive retention signals
+- Responses stored in `survey_responses` table
+- Triggered via `loyalty_survey` sequence type on the daily inactive-subscribers cron
+
+### 4.10 Notifications
 - In-app notification bell
 - Email notifications for: new posts, new music, subscription confirmations, purchase receipts
 
@@ -118,14 +137,51 @@ Public-facing artist pages with:
 ## 5. Artist Features
 
 ### 5.1 Artist Dashboard (`/profile/artist`)
-12-tab dashboard for managing all aspects of an artist's presence:
+12-tab dashboard for managing all aspects of an artist's presence. Default tab is **AI Manager**. Referrals tab is hidden for Starter tier.
 
-#### Tracks Tab
+**Tab order:** AI Manager → Analytics → Audience → Music → Sync → Profile → Albums → Shop → Billing → Tiers → Payouts → Referrals
+
+#### AI Manager Tab (Default)
+- AI-generated insights and growth recommendations with priority levels (revenue, retention, acquisition, health, growth)
+- Content suggestions (email copy, product ideas)
+- Nudges for engagement opportunities
+- **Actionable operations:** AI suggests specific actions (toggle sequences, update pipeline stages, send briefings) that require explicit artist/admin approval before execution
+- Powered by Moonshot AI (Kimi) API
+
+#### Analytics Tab
+- Revenue trends: daily (30 days), weekly (12 weeks), monthly (6 months)
+- Revenue breakdown by type: subscriptions, products, bookings
+- Subscriber growth over time
+- Page visit tracking (unique visitors)
+- Top-performing products and tracks
+- **Cohort retention heatmap:** Month-over-month retention by signup cohort
+- **Retention benchmarks:** Churn rate vs platform average with rating badge (Top Tier / Above Average / Average / Below Average / Needs Work)
+- Tooltips on all metrics and section headers
+
+#### Audience Tab
+- Subscriber list with tier, signup date, and engagement data
+- **Fan lifecycle segments:** VIP, Active, At Risk, Churned, Cold, Lead
+- **Saved audience segments:** Save, load, and reuse custom fan filter combinations across campaigns/sequences
+- **10 True Regulars:** Top 10 most engaged fans with gold/silver/bronze badges, showing total spent, tier, and comment count
+- Segmentation by tier, date range, or location
+- Import fan contacts via CSV upload
+- View per-fan communication preferences
+- **Abandoned Cart Recovery tab:** Stats (total abandoned, recovered, recovery rate, 30-day trend), filter by status, tip banner linking to sequence builder
+
+#### Music Tab (formerly "Tracks")
 - Upload audio files (128kbps + 320kbps quality)
 - Set metadata: title, genre, album art, duration
 - Configure access: free, subscriber-only (by tier), or purchasable (price in cents)
 - Edit, deactivate, or delete tracks
 - Platform tier limits apply (Starter: 10 tracks max)
+
+#### Sync Tab (Label/Empire tiers)
+- Salesforce opportunity sync
+- CRM data export
+- Integration status monitoring
+
+#### Profile Tab
+- Artist profile editing (bio, avatar, banner, social links)
 
 #### Albums Tab
 - Group tracks into albums with cover art
@@ -141,6 +197,12 @@ Public-facing artist pages with:
 - Bundles: group multiple products together
 - Discount codes: percentage or fixed amount, usage limits, expiration dates
 
+#### Billing Tab
+- View current platform tier (Starter/Pro/Label/Empire)
+- Upgrade or downgrade tier
+- Toggle monthly/annual billing (25% annual discount)
+- View invoice history via Stripe Portal
+
 #### Tiers Tab
 - Create and manage subscription tiers (limit based on platform tier)
 - Set tier name, monthly price, annual price
@@ -152,25 +214,6 @@ Public-facing artist pages with:
   - Supporter wall listing
   - Early access to releases
 
-#### Billing Tab
-- View current platform tier (Starter/Pro/Label/Empire)
-- Upgrade or downgrade tier
-- Toggle monthly/annual billing (25% annual discount)
-- View invoice history via Stripe Portal
-
-#### Analytics Tab
-- Revenue trends: daily (30 days), weekly (12 weeks), monthly (6 months)
-- Revenue breakdown by type: subscriptions, products, bookings
-- Subscriber growth over time
-- Page visit tracking (unique visitors)
-- Top-performing products and tracks
-
-#### Audience Tab
-- Subscriber list with tier, signup date, and engagement data
-- Segmentation by tier, date range, or location
-- Import fan contacts via CSV upload
-- View per-fan communication preferences
-
 #### Payouts Tab
 - Real-time Stripe Connect balance
 - Payout history and scheduled payouts
@@ -178,21 +221,10 @@ Public-facing artist pages with:
 - Manual cashout trigger
 - Stripe Express Dashboard access
 
-#### Referrals Tab
+#### Referrals Tab (hidden for Starter tier)
 - Configure fan referral commission rate (5–10%)
 - View referral partner stats
 - Track incoming commissions from fan referrals
-
-#### AI Manager Tab
-- AI-generated insights and growth recommendations
-- Content suggestions (email copy, product ideas)
-- Nudges for engagement opportunities
-- Powered by OpenAI API
-
-#### Sync Tab (Label/Empire tiers)
-- Salesforce opportunity sync
-- CRM data export
-- Integration status monitoring
 
 ### 5.2 Email Campaigns
 - **Compose:** Subject line, rich-text body, audience filters (by tier, signup date)
@@ -202,10 +234,12 @@ Public-facing artist pages with:
 - **Unsubscribe:** One-click unsubscribe links in every email
 
 ### 5.3 Email Sequences (Automation)
-- **Trigger Types:** `new_subscription`, `new_purchase`, `new_post`
+- **Trigger Types:** `new_subscription`, `new_purchase`, `new_post`, `abandoned_cart`, `tier_upgrade`, `loyalty_survey`
 - **Multi-Step:** Configure delay (in days) between steps, each with subject + body
 - **Enrollment:** Automatic when trigger fires; fans can unsubscribe from sequences
 - **Toggle:** Enable/disable sequences without deleting
+- **Welcome Sequence One-Click:** Golden banner prompts artists who lack a `new_subscription` sequence to auto-create a 3-email welcome series (day 0, day 3, day 7)
+- **Abandoned Cart Recovery:** Automatic enrollment when fans abandon checkout (subscription, product, or booking)
 - **Cron:** Daily processing at 9am UTC
 
 ### 5.4 SMS Marketing
@@ -242,30 +276,30 @@ Public-facing artist pages with:
 
 ---
 
-## 6. Recruiter Program
+## 6. Partner (Influencer) Program
 
 ### 6.1 Overview
-Recruitment affiliate program targeting music industry professionals who refer artists to the platform.
+Tiered influencer partnership program targeting music industry professionals, content creators, and influencers who refer artists to the platform. Partners are scored and placed into tiers based on reach, engagement, and audience alignment.
 
-### 6.2 Recruiter Tiers
+### 6.2 Partner Tiers (Score-Based)
 
-| Tier | Artists Referred | Flat Fee | Recurring Commission |
-|------|-----------------|----------|---------------------|
-| First Referral | 1 | $50 | — |
-| Starter | 2–5 | $25/artist | — |
-| Connector | 6–15 | $50/artist | 5% monthly (12 months) |
-| Ambassador | 16+ | $75/artist | 10% monthly (12 months) |
+| Tier | Score Range | Platform Access | Flat Fee | Recurring | Content Bonus |
+|------|------------|-----------------|----------|-----------|---------------|
+| Tier 1 ("Full Deal") | 24–30 | Free Label (12 mo) | $50/artist | 10% monthly on Label+ (12 mo) | $250/signup post |
+| Tier 2 ("Standard Deal") | 18–23 | Free Label (12 mo) | $50/artist | 10% monthly on Label+ (12 mo) | $100–250/signup post |
+| Tier 3 ("Light Deal") | 12–17 | Free Pro (6 mo) | $50/artist | — | — |
 
 ### 6.3 Mechanics
-1. Recruiter signs up at `/recruit` and gets unique referral URL: `thecrwn.app/join/[code]`
+1. Partner applies at `/partner` and gets unique referral URL: `thecrwn.app/join/[code]`
 2. Referred artist signs up through link and chooses a paid platform tier
 3. Artist must remain on paid plan 30+ days to qualify
 4. Flat fee paid on qualification day
-5. Recurring commission (if applicable) paid monthly for 12 months
-6. Dashboard at `/recruit/dashboard` shows earnings, referred artists, payout history
+5. Recurring commission (Tier 1 & 2 only) paid monthly for 12 months on Label+ tier artists
+6. Content bonuses are performance-based ($100–250 per signup post)
+7. Dashboard at `/recruit/dashboard` shows earnings, referred artists, payout history
 
 ### 6.4 Payouts
-- Recruiter connects Stripe account for payouts
+- Partner connects Stripe account for payouts
 - Monthly commission processing via cron job
 - Qualification check runs daily
 
@@ -303,27 +337,48 @@ Recruitment affiliate program targeting music industry professionals who refer a
 **Metrics Tab**
 - LGP (Lifetime Gross Payments) — All-time platform revenue
 - MRR (Monthly Recurring Revenue) — Active subscriptions
-- CAC (Customer Acquisition Cost) — Recruiter ROI analysis
+- CAC (Customer Acquisition Cost) — Amortized over average artist lifespan, accounts for full recruiter payout structure
 - Churn rate — Subscription cancellation percentage
 - Active artists and fans (30-day activity window)
 - Revenue breakdown by platform tier
+- Per-tier Hormozi health check table (LGP:CAC ratio, payback period, gross margin)
 
 **Pipeline Tab**
-- Sales pipeline view (prospect → qualified → onboarding → active)
-- Opportunity tracking
-- Lead scoring (daily cron)
+- **6-stage CRM pipeline:** Signed Up → Onboarding → Free → Paid → At Risk → Churned
+- Lead scoring (0–355 points based on Stripe connection, tracks, fans, revenue, activity recency, community engagement, tenure, paid tier)
+- Clickable stage cards filter artist table
+- Sortable by lead score, revenue, last active
+- Search by name, email, or slug
+- Artist detail drawer with score, revenue, fans, tracks, Stripe status
 - Salesforce sync (bi-weekly)
 
 **Platform Sequences Tab**
-- Global onboarding email sequences for new artists
-- Automation rules and enrollment tracking
+- 6 automated platform-to-artist sequences: `new_signup`, `onboarding_incomplete`, `starter_upgrade_nudge`, `paid_at_risk`, `paid_churned`, `upgrade_abandoned`
+- Inline email copy editor (edit subject/body without SQL)
+- Token personalization (name, slug, tier, URLs)
+- Auto-enrollment when pipeline stage changes
+- Abandoned platform upgrade checkout triggers recovery sequence
 
-### 8.2 Admin Tools
+**Cohort Retention Tab**
+- Month-over-month retention heatmap by signup cohort
+- Cancellation reason analytics (aggregated from in-app cancel modal data)
+
+### 8.2 AI Agent
+- Analyzes platform metrics using Moonshot AI (Kimi) API
+- Returns up to 8 prioritized insights using Alex Hormozi framework (LGP:CAC ratio, churn, payback period, gross margin)
+- Suggests up to 3 **actionable operations** requiring explicit admin approval:
+  - `toggle_sequence`: Enable/disable platform email sequences
+  - `update_pipeline_stages`: Move artists between pipeline stages
+  - `send_briefing`: Send admin email briefing
+- Execute endpoint processes approved actions
+
+### 8.3 Admin Tools
 - **Daily Briefing:** AI-generated email with platform insights (daily cron)
 - **Artist Notes:** Internal notes on individual artists
-- **Visitor Analytics:** Non-blocking page visit tracking (hashed IP + UA fingerprint)
+- **Visitor Analytics:** Non-blocking page visit tracking (hashed IP + UA fingerprint, bot-filtered)
 - **SMS Monitoring:** Platform-wide SMS usage
 - **Account Management:** Deactivate/reactivate accounts, set default tier
+- **Command Center:** Linked from admin profile (admin-only visibility)
 
 ---
 
@@ -332,14 +387,18 @@ Recruitment affiliate program targeting music industry professionals who refer a
 ### 9.1 Stripe Connect
 - Platform account processes all transactions
 - Per-artist connected accounts receive payouts
-- Subscriptions: `application_fee_percent` (8/6/4%)
+- Subscriptions: `application_fee_percent` (8/6/5/3%)
 - One-time purchases: `application_fee_amount` (calculated per transaction)
 - Weekly automated payouts to artist bank accounts
 - Webhook handling for all payment events (subscriptions, purchases, disputes, refunds)
 
 ### 9.2 Resend (Email)
 - Transactional emails from `hello@thecrwn.app`
-- Templates: welcome, subscription confirmation, purchase receipt, new post notification, payout report, campaign emails, recruiter notifications
+- Campaign and sequence emails sent from artist name via CRWN
+- Templates: welcome, subscription confirmation, purchase receipt, new post notification, payout report, campaign emails, partner notifications
+- **Bounce handling:** Resend webhook at `/api/webhooks/resend` processes hard bounces and spam complaints
+- **Global suppression list:** `email_suppressions` table; hard bounces are globally suppressed, spam complaints also opt out of all artist email marketing
+- Campaign and sequence senders check suppression list before sending; enrollments canceled for dead emails
 
 ### 9.3 Twilio (SMS)
 - Per-artist provisioned phone numbers
@@ -354,8 +413,9 @@ Recruitment affiliate program targeting music industry professionals who refer a
 - Audio file storage (two quality tiers per track)
 - Image storage (avatars, banners, album art, product images)
 
-### 9.6 OpenAI
-- AI Manager insights for artists
+### 9.6 Moonshot AI (Kimi)
+- AI Manager insights for artists (growth recommendations, churn alerts, content nudges)
+- Admin AI agent analysis with actionable operations
 - Daily admin briefing analysis
 
 ### 9.7 Salesforce (Label/Empire)
@@ -420,9 +480,14 @@ Recruitment affiliate program targeting music industry professionals who refer a
 | `posts` | Community feed posts (content, media, access level) |
 | `comments` | Post comments (threaded via parent_comment_id) |
 | `likes` | Post/comment likes |
-| `fan_communication_prefs` | Per-artist notification preferences |
+| `fan_communication_prefs` | Per-artist notification preferences (includes `digest_only` flag) |
 | `artist_page_visits` | Visitor analytics (hashed fingerprint) |
 | `processed_webhook_events` | Stripe webhook idempotency guard |
+| `cancellation_reasons` | Subscription cancellation reasons (multi-select + freeform) |
+| `survey_responses` | Loyalty survey responses from long-term fans |
+| `email_suppressions` | Global suppression list (hard bounces + spam complaints) |
+| `saved_segments` | Saved audience filter combinations for reuse |
+| `abandoned_carts` | Incomplete checkout sessions (subscription, product, booking) |
 
 ---
 
@@ -475,5 +540,4 @@ Recruitment affiliate program targeting music industry professionals who refer a
 - Social token system
 - Artist collaborations
 - Physical merch with print-on-demand
-- Advanced analytics (cohort analysis, LTV predictions)
 - A/B testing for email campaigns

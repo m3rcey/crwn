@@ -32,9 +32,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: 'ignored' });
     }
 
-    // Extract campaign send ID from custom header if present
+    // Extract campaign or sequence send ID from custom headers
     const sendIdHeader = data.headers?.find(h => h.name === 'X-Campaign-Send-Id');
     const campaignSendId = sendIdHeader?.value;
+    const seqSendIdHeader = data.headers?.find(h => h.name === 'X-Sequence-Send-Id');
+    const sequenceSendId = seqSendIdHeader?.value;
 
     if (type === 'email.bounced') {
       const isHard = data.bounce?.type === 'hard';
@@ -58,6 +60,16 @@ export async function POST(req: NextRequest) {
             bounce_reason: bounceMessage,
           })
           .eq('resend_message_id', data.email_id);
+      }
+
+      // Update sequence_sends if applicable
+      if (sequenceSendId) {
+        await supabaseAdmin
+          .from('sequence_sends')
+          .update({
+            status: 'bounced',
+          })
+          .eq('id', sequenceSendId);
       }
 
       // Hard bounce → global suppression
@@ -131,6 +143,13 @@ export async function POST(req: NextRequest) {
           .update({ status: 'sent' })
           .eq('id', campaignSendId)
           .eq('status', 'pending');
+      }
+      // Update sequence_sends status
+      if (sequenceSendId) {
+        await supabaseAdmin
+          .from('sequence_sends')
+          .update({ status: 'sent' })
+          .eq('id', sequenceSendId);
       }
     }
 

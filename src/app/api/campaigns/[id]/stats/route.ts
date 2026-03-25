@@ -53,25 +53,48 @@ export async function GET(
   const clickRate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
   const clickToOpenRate = opened > 0 ? Math.round((clicked / opened) * 100) : 0;
 
-  // Revenue attribution: purchases/subscriptions within 48h of send by fans who opened/clicked
+  // Revenue attribution: two-tier approach
+  // 1. Direct attribution: earnings with source_campaign_id matching this campaign (best signal)
+  // 2. Inferred attribution: purchases within 48h by engaged fans, excluding those already attributed to another campaign
   const engagedFanIds = allSends
     .filter(s => s.opened_at || s.clicked_at)
     .map(s => s.fan_id);
 
-  let attributedRevenue = 0;
+  let directAttributedRevenue = 0;
+  let inferredAttributedRevenue = 0;
+
+  // Direct: earnings explicitly linked to this campaign via UTM/checkout metadata
+  const { data: directEarnings } = await supabaseAdmin
+    .from('earnings')
+    .select('gross_amount')
+    .eq('source_campaign_id', campaignId);
+
+  directAttributedRevenue = (directEarnings || []).reduce((sum, e) => sum + e.gross_amount, 0);
+
+  // Inferred: 48h window, engaged fans, but only earnings NOT already attributed to any campaign
   if (engagedFanIds.length > 0 && campaign.sent_at) {
     const attributionWindowEnd = new Date(new Date(campaign.sent_at).getTime() + 48 * 60 * 60 * 1000).toISOString();
 
-    const { data: attributedEarnings } = await supabaseAdmin
+    const { data: inferredEarnings } = await supabaseAdmin
       .from('earnings')
       .select('gross_amount')
       .eq('artist_id', campaign.artist_id)
       .in('fan_id', engagedFanIds)
       .gte('created_at', campaign.sent_at)
-      .lte('created_at', attributionWindowEnd);
+      .lte('created_at', attributionWindowEnd)
+      .is('source_campaign_id', null); // Only unattributed earnings
 
-    attributedRevenue = (attributedEarnings || []).reduce((sum, e) => sum + e.gross_amount, 0);
+    inferredAttributedRevenue = (inferredEarnings || []).reduce((sum, e) => sum + e.gross_amount, 0);
   }
+
+  // Unsubscribe count for this campaign
+  const { count: unsubscribeCount } = await supabaseAdmin
+    .from('unsubscribe_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('source_id', campaignId)
+    .eq('source_type', 'campaign');
+
+  const unsubscribeRate = sent > 0 ? Math.round(((unsubscribeCount || 0) / sent) * 100) : 0;
 
   // Opens over time (hourly for first 48h)
   const opensByHour: Record<number, number> = {};
@@ -94,7 +117,11 @@ export async function GET(
       openRate,
       clickRate,
       clickToOpenRate,
-      attributedRevenue,
+      directAttributedRevenue,
+      inferredAttributedRevenue,
+      attributedRevenue: directAttributedRevenue + inferredAttributedRevenue,
+      unsubscribes: unsubscribeCount || 0,
+      unsubscribeRate,
       opensByHour,
     },
   });
