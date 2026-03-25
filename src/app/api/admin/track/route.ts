@@ -10,7 +10,7 @@ const supabaseAdmin = createClient(
 // Lightweight endpoint called from middleware to track visits and activity
 export async function POST(req: NextRequest) {
   try {
-    const { visitorHash, userId, artistSlug } = await req.json();
+    const { visitorHash, userId, artistSlug, recruiterCode } = await req.json();
     const today = new Date().toISOString().split('T')[0];
 
     // Track site visit (unique per day per visitor)
@@ -46,6 +46,31 @@ export async function POST(req: NextRequest) {
             },
             { onConflict: 'artist_id,visit_date,visitor_hash' }
           );
+      }
+    }
+
+    // Track referral click if recruiter code present
+    if (visitorHash && recruiterCode) {
+      try {
+        const { data: recruiter } = await supabaseAdmin
+          .from('recruiters')
+          .select('is_partner')
+          .eq('referral_code', recruiterCode)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        await supabaseAdmin
+          .from('referral_clicks')
+          .upsert(
+            {
+              referral_code: recruiterCode,
+              visitor_hash: visitorHash,
+              source_type: recruiter?.is_partner ? 'partner' : 'recruiter',
+            },
+            { onConflict: 'referral_code,visitor_hash' }
+          );
+      } catch {
+        // Silent fail
       }
     }
 

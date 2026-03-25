@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { recordActivationMilestone } from '@/lib/activationMilestones';
 
 export async function GET(req: NextRequest) {
   try {
@@ -46,6 +47,9 @@ export async function GET(req: NextRequest) {
         .from('artist_profiles')
         .update({ stripe_connect_id: account.id })
         .eq('id', artist.id);
+
+      // Record activation milestone
+      recordActivationMilestone(artist.id, 'stripe_connected').catch(() => {});
     }
 
     // Create account link for onboarding

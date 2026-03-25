@@ -98,11 +98,16 @@ export async function middleware(request: NextRequest) {
       ? segments[0]
       : null;
 
+    // Capture recruiter code from signup page URL for click tracking
+    const recruiterCode = pathname === '/signup'
+      ? request.nextUrl.searchParams.get('recruiter') || undefined
+      : undefined;
+
     const trackUrl = new URL('/api/admin/track', request.url);
     fetch(trackUrl.toString(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ visitorHash, userId, artistSlug }),
+      body: JSON.stringify({ visitorHash, userId, artistSlug, ...(recruiterCode && { recruiterCode }) }),
     }).catch(() => {}); // Silent fail
   } catch {
     // Never block page load for tracking

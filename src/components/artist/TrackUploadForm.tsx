@@ -443,10 +443,17 @@ export function TrackUploadForm() {
           console.error('Track insert error:', error);
           throw error;
         }
-        
+
         // Add new track to state
         if (track) {
           setTracks(prev => [track as Track, ...prev]);
+
+          // Record activation milestone (fire-and-forget)
+          fetch('/api/admin/milestone', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ milestone: 'first_track_uploaded' }),
+          }).catch(() => {});
 
           // Notify subscribers of new track
           const { data: artistName } = await supabase

@@ -72,6 +72,21 @@ export default function WelcomePage() {
           .maybeSingle();
 
         if (!existing) {
+          // Determine acquisition source from recruiter code
+          const recruiterCode = typeof window !== 'undefined'
+            ? localStorage.getItem('crwn_recruiter') : null;
+          let acquisitionSource = 'organic';
+          if (recruiterCode) {
+            // Check if recruiter is a partner
+            const { data: recruiter } = await supabase
+              .from('recruiters')
+              .select('is_partner')
+              .eq('referral_code', recruiterCode)
+              .eq('is_active', true)
+              .maybeSingle();
+            acquisitionSource = recruiter?.is_partner ? 'partner' : 'recruiter';
+          }
+
           // Create artist profile with slug from display name
           const slug = displayName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 30);
           await supabase
@@ -79,8 +94,17 @@ export default function WelcomePage() {
             .insert({
               user_id: user.id,
               slug: slug,
+              acquisition_source: acquisitionSource,
+              ...(recruiterCode ? { recruited_by: recruiterCode } : {}),
             });
         }
+
+        // Record onboarding milestone (fire-and-forget)
+        fetch('/api/admin/milestone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ milestone: 'onboarding_completed' }),
+        }).catch(() => {});
 
         // Check founding artist availability and show modal
         const countRes = await fetch('/api/founding-artist');

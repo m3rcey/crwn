@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import PipelineView from '@/components/admin/PipelineView';
+import FunnelView from '@/components/admin/FunnelView';
 import PlatformSequences from '@/components/admin/PlatformSequences';
 import EmailHealth from '@/components/admin/EmailHealth';
 import PartnersView from '@/components/admin/PartnersView';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'sequences' | 'email' | 'partners';
+type AdminTab = 'dashboard' | 'pipeline' | 'funnel' | 'sequences' | 'email' | 'partners';
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -77,6 +78,15 @@ export default function AdminPage() {
             Pipeline
           </button>
           <button
+            onClick={() => setActiveTab('funnel')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'funnel' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Filter className="w-4 h-4" />
+            Funnel
+          </button>
+          <button
             onClick={() => setActiveTab('sequences')}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeTab === 'sequences' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
@@ -110,6 +120,11 @@ export default function AdminPage() {
       {activeTab === 'pipeline' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <PipelineView />
+        </div>
+      )}
+      {activeTab === 'funnel' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <FunnelView />
         </div>
       )}
       {activeTab === 'sequences' && (

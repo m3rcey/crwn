@@ -13,6 +13,7 @@ import { receiptEmail } from '@/lib/emails/receipt';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 import { recordDiscountCodeUse } from '@/lib/discountCodes';
+import { recordActivationMilestone } from '@/lib/activationMilestones';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -172,6 +173,13 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         await checkAndAwardMilestones(artist_id, artistProfile.user_id);
       } catch (err) {
         console.error('Milestone check failed:', err);
+      }
+
+      // Record first subscriber activation milestone (idempotent)
+      try {
+        await recordActivationMilestone(artist_id, 'first_subscriber');
+      } catch (err) {
+        console.error('Activation milestone failed:', err);
       }
 
       // Send subscription confirmation + receipt email to fan
@@ -1124,6 +1132,7 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
     updateData.founding_artist_number = foundingNumber;
     updateData.founding_artist_expires_at = proExpiresAt.toISOString();
     updateData.founding_fee_expires_at = feeExpiresAt.toISOString();
+    updateData.acquisition_source = 'founding';
   } else if (isFoundingArtist && partnerCode) {
     // Partner code: 1 month free trial (handled by Stripe) + 3 months of 5% fee
     const feeExpiresAt = new Date();
@@ -1131,6 +1140,7 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
     updateData.is_founding_artist = true;
     updateData.founding_fee_expires_at = feeExpiresAt.toISOString();
     updateData.partner_code_used = partnerCode;
+    updateData.acquisition_source = 'partner';
 
     // Create recruiter referral if partner has a recruiter_id
     if (recruiterId) {

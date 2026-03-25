@@ -243,6 +243,13 @@ export function TierManager() {
         setFormData({ name: '', price: '', description: '', benefits: [''] });
         setSelectedBenefits([]);
         showToast('Tier created successfully!', 'success');
+
+        // Record activation milestone (fire-and-forget)
+        fetch('/api/admin/milestone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ milestone: 'tiers_created' }),
+        }).catch(() => {});
       }
     } catch (error) {
       console.error('Error saving tier:', error);
