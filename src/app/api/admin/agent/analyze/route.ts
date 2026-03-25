@@ -219,10 +219,10 @@ export async function POST(req: NextRequest) {
       .from('recruiter_payouts')
       .select('recruiter_id, amount, status')
       .eq('status', 'paid');
-    const { data: recruiterProfiles } = await supabaseAdmin
-      .from('profiles')
-      .select('id, display_name')
-      .in('id', (allRecruiters || []).map((r: any) => r.user_id));
+    const recruiterUserIds = (allRecruiters || []).map((r: any) => r.user_id).filter(Boolean);
+    const { data: recruiterProfiles } = recruiterUserIds.length > 0
+      ? await supabaseAdmin.from('profiles').select('id, display_name').in('id', recruiterUserIds)
+      : { data: [] };
 
     const recruiterProfileMap = new Map((recruiterProfiles || []).map((p: any) => [p.id, p.display_name]));
     const recruiterData = (allRecruiters || []).map((r: any) => {
@@ -321,18 +321,25 @@ ${metrics.surveySummary ? `- NPS: ${metrics.surveySummary.nps ?? 'N/A'} | Loved:
 
 Return ONLY the JSON object with "diagnosis", "supporting_signals", and "actions". No markdown, no code fences, no explanation.`;
 
-    const response = await kimi.chat.completions.create({
-      model: 'kimi-k2.5',
-      max_tokens: 4000,
-      temperature: 0.5,
-      top_p: 0.9,
-      // @ts-expect-error — Kimi-specific param to disable slow thinking mode
-      thinking: { type: 'disabled' },
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userMessage },
-      ],
-    });
+    let response;
+    try {
+      response = await kimi.chat.completions.create({
+        model: 'kimi-k2.5',
+        max_tokens: 4000,
+        temperature: 0.5,
+        top_p: 0.9,
+        // @ts-expect-error — Kimi-specific param to disable slow thinking mode
+        thinking: { type: 'disabled' },
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: userMessage },
+        ],
+      });
+    } catch (apiErr: unknown) {
+      const msg = apiErr instanceof Error ? apiErr.message : String(apiErr);
+      console.error('Kimi API error:', msg);
+      return NextResponse.json({ error: `Kimi API error: ${msg}` }, { status: 502 });
+    }
 
     const rawText = response.choices[0]?.message?.content || '{}';
 
@@ -361,7 +368,8 @@ Return ONLY the JSON object with "diagnosis", "supporting_signals", and "actions
 
     return NextResponse.json({ diagnosis, supportingSignals, actions, analyzedAt: new Date().toISOString() });
   } catch (error: unknown) {
-    console.error('Agent analyze error:', error);
-    return NextResponse.json({ error: 'Analysis failed' }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('Agent analyze error:', errMsg, error);
+    return NextResponse.json({ error: `Analysis failed: ${errMsg}` }, { status: 500 });
   }
 }
