@@ -57,11 +57,36 @@ RULES (Alex Hormozi framework — these are non-negotiable benchmarks):
    - Declining = top-of-funnel problem.
    - Increasing while churn is flat = business is growing.
 
+9. COHORT RETENTION
+   - M0→M1 drop >40% = onboarding problem, not product problem. Focus on first 30 days.
+   - M3+ stabilizes = product-market fit exists, improve activation.
+   - M3+ still dropping = product problem. Fix before scaling.
+
+10. CANCELLATION REASONS
+   - Top 1-2 reasons are the ONLY ones worth fixing. Ignore the long tail.
+   - "Price" from ideal customers = add a lower tier. From non-ideal = price filter working correctly.
+   - Look for patterns in freeform feedback — they reveal what surveys miss.
+
+11. TIER UPGRADES
+   - Low upgrade rate from Pro→Label/Empire = value gap between tiers isn't clear.
+   - High upgrade rate = pricing may be too low on upper tiers.
+
+12. PER-TIER HEALTH
+   - If a specific tier fails the 2x health check, its pricing doesn't cover acquisition + serving costs.
+   - Fix: raise price, lower CAC for that tier's artists, or reduce COGS.
+
+13. RECRUITER PERFORMANCE
+   - High qualification rate + low churn = great recruiter bringing ideal customers.
+   - High referrals + low qualification = recruiter bringing bad leads. Cut them.
+   - Negative ROI recruiter = losing money on every artist they bring. Immediate action needed.
+
 CRWN CONTEXT:
 - Two-sided marketplace: artists (supply) and fans (demand).
-- Artists pay platform tier subscriptions (Starter free, Pro $50/mo, Label $150/mo, Empire $350/mo).
-- Platform takes 4-8% fee on fan transactions depending on artist tier.
+- Artists pay platform tier subscriptions (Starter free, Pro $69/mo, Label $175/mo, Empire $350/mo).
+- Annual billing: Pro $52/mo, Label $131/mo, Empire $262/mo (25% off).
+- Platform takes 3-8% fee on fan transactions depending on artist tier (Starter 8%, Pro 6%, Label 5%, Empire 3%).
 - Prices are in CENTS in the data. Convert to dollars for display.
+- Variable costs (SMS, MMS, email) are per-message and factored into COGS.
 
 RESPONSE FORMAT:
 Return a JSON object with two arrays: "insights" and "actions".
@@ -199,6 +224,50 @@ ACQUISITION:
 VISITORS:
 - Unique Visitors (period): ${metrics.uniqueVisitorsInPeriod}
 - Revenue Per Visitor: ${metrics.revenuePerVisitor} cents
+- Visitor Trend (last 7 days): ${(metrics.visitorTrend || []).slice(-7).map((d: any) => `${d.label}: ${d.visitors} visitors, RPV ${d.revenuePerVisitor}¢`).join('; ')}
+
+REVENUE TREND (last 7 days):
+${(metrics.revenueTrend || []).slice(-7).map((d: any) => `- ${d.label}: platform fees ${d.platformFees}¢, gross ${d.totalGross}¢`).join('\n')}
+
+BILLING MIX:
+${(metrics.billingMix || []).map((b: any) => `- ${b.name}: ${b.count} artists`).join('\n')}
+
+VARIABLE COSTS (messaging COGS):
+- Total Variable Costs (period): ${metrics.totalVariableCostsCents ?? 0} cents ($${((metrics.totalVariableCostsCents ?? 0) / 100).toFixed(2)})
+- SMS sent: ${metrics.messagingVolume?.sms ?? 0}, MMS sent: ${metrics.messagingVolume?.mms ?? 0}, Emails sent: ${metrics.messagingVolume?.email ?? 0}
+- Per-unit rates: SMS $${metrics.variableCosts?.sms_per_message ?? 0.0079}, MMS $${metrics.variableCosts?.mms_per_message ?? 0.02}, Email $${metrics.variableCosts?.email_per_message ?? 0.00023}
+
+PER-TIER HORMOZI HEALTH CHECK:
+${(metrics.tierHealthCheck || []).map((t: any) => `- ${t.tier}: price ${t.price}¢, COGS ${t.cogs}¢ (Stripe ${t.stripeFee}¢ + infra ${t.infraPerArtist}¢), amortized CAC ${t.cac}¢, profit ${t.profit}¢, ratio ${t.ratio}x — ${t.passing ? 'PASSING' : 'FAILING'}`).join('\n')}
+
+TIER UPGRADES:
+- Established paid artists (60d+): ${metrics.tierUpgradeMetrics?.establishedPaidCount ?? 0}
+- On Label or higher: ${metrics.tierUpgradeMetrics?.onLabelPlus ?? 0}
+- Upgrade rate: ${metrics.tierUpgradeMetrics?.upgradeRate ?? 0}%
+- Distribution: Pro ${metrics.tierUpgradeMetrics?.proCount ?? 0}, Label ${metrics.tierUpgradeMetrics?.labelCount ?? 0}, Empire ${metrics.tierUpgradeMetrics?.empireCount ?? 0}
+
+COHORT RETENTION (artist):
+${(metrics.artistCohortRetention || []).slice(-6).map((c: any) => `- ${c.month} (n=${c.cohortSize}): ${(c.retention || []).map((r: number, i: number) => `M${i}:${r}%`).join(', ')}`).join('\n') || 'No data'}
+
+COHORT RETENTION (fan):
+${(metrics.fanCohortRetention || []).slice(-6).map((c: any) => `- ${c.month} (n=${c.cohortSize}): ${(c.retention || []).map((r: number, i: number) => `M${i}:${r}%`).join(', ')}`).join('\n') || 'No data'}
+
+CANCELLATION REASONS (platform tier):
+${(metrics.cancelReasonSummary?.platform || []).slice(0, 5).map((r: any) => `- "${r.reason}": ${r.count} cancellations`).join('\n') || 'No data'}
+
+CANCELLATION REASONS (fan subscriptions):
+${(metrics.cancelReasonSummary?.fan || []).slice(0, 5).map((r: any) => `- "${r.reason}": ${r.count} cancellations`).join('\n') || 'No data'}
+
+RECENT FREEFORM FEEDBACK:
+${(metrics.cancelReasonSummary?.recentFreeform || []).slice(0, 5).map((f: any) => `- "${f.text}" (${f.context}, ${f.date})`).join('\n') || 'No data'}
+
+LOYALTY SURVEY SUMMARY:
+${metrics.surveySummary ? `- NPS: ${metrics.surveySummary.nps ?? 'N/A'}, Responses: ${metrics.surveySummary.totalResponses ?? 0}
+- Top loved: ${(metrics.surveySummary.topLoved || []).slice(0, 3).join(', ') || 'N/A'}
+- Top requested: ${(metrics.surveySummary.topRequested || []).slice(0, 3).join(', ') || 'N/A'}` : 'No survey data'}
+
+RECRUITER PERFORMANCE (top 5 by referred MRR):
+${(metrics.recruiterPerformance || []).slice(0, 5).map((r: any) => `- ${r.code} (${r.tier}${r.isPartner ? ', partner' : ''}): ${r.totalReferred} referred, ${r.qualified} qualified, ${r.churned} churned, qual rate ${r.qualificationRate}%, paid $${(r.totalPaid / 100).toFixed(2)}, referred MRR $${(r.referredMRR / 100).toFixed(2)}, ROI ${r.roi}x`).join('\n') || 'No recruiters'}
 
 PROJECTIONS:
 - Sales Velocity: ${metrics.salesVelocity} new paid artists/month
@@ -215,7 +284,7 @@ Return ONLY the JSON object with "insights" and "actions" arrays. No markdown, n
 
     const response = await kimi.chat.completions.create({
       model: 'kimi-k2.5',
-      max_tokens: 3000,
+      max_tokens: 4000,
       temperature: 0.6,
       top_p: 0.95,
       // @ts-expect-error — Kimi-specific param to disable slow thinking mode
