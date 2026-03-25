@@ -1,6 +1,6 @@
 # CRWN — Product Requirements Document
 
-**Version:** 1.2
+**Version:** 1.3
 **Date:** March 25, 2026
 **Product:** CRWN (thecrwn.app)
 **Status:** Live (Production)
@@ -46,9 +46,10 @@ Internal platform operator with access to KPI dashboards, sales pipeline, artist
 ### 3.2 Onboarding Flow
 1. **Role Selection** — Fan or Artist
 2. **Profile Setup** — Display name, phone number (optional)
-3. **Artist Setup** (if artist role) — Auto-creates artist profile with URL slug
-4. **Guided Tour** — Role-specific walkthrough using Driver.js
-5. **Post-Tour Action Picker** (artists only) — "What do you want to do first?" modal with three quick-action options: upload first track, set up subscription tiers, or customize profile
+3. **Artist Setup** (if artist role) — Auto-creates artist profile with URL slug, tags `acquisition_source` (organic/recruiter/partner), records `onboarding_completed` activation milestone
+4. **Conversion Marking** — If recruiter code present, marks the corresponding referral click as converted (30-day attribution window)
+5. **Guided Tour** — Role-specific walkthrough using Driver.js
+6. **Post-Tour Action Picker** (artists only) — "What do you want to do first?" modal with three quick-action options: upload first track, set up subscription tiers, or customize profile
 
 ---
 
@@ -296,14 +297,23 @@ Tiered influencer partnership program targeting music industry professionals, co
 
 ### 6.3 Mechanics
 1. Partner applies at `/partner` and gets unique referral URL: `thecrwn.app/join/[code]`
-2. Referred artist signs up through link and chooses a paid platform tier
-3. Artist must remain on paid plan 30+ days to qualify
-4. Flat fee paid on qualification day
-5. Recurring commission (Tier 1 & 2 only) paid monthly for 12 months on Label+ tier artists
-6. Content bonuses are performance-based ($100–250 per signup post)
-7. Dashboard at `/recruit/dashboard` shows earnings, referred artists, payout history
+2. Referral link clicks are tracked server-side in `referral_clicks` table (visitor hash, source type, conversion status)
+3. Referred artist signs up through link and chooses a paid platform tier
+4. On signup, the referral click is marked as converted (30-day attribution window)
+5. Artist must remain on paid plan 30+ days to qualify
+6. Flat fee paid on qualification day
+7. Recurring commission (Tier 1 & 2 only) paid monthly for 12 months on Label+ tier artists
+8. Content bonuses are performance-based ($100–250 per signup post)
+9. Dashboard at `/recruit/dashboard` shows earnings, referred artists, payout history, and full conversion funnel
 
-### 6.4 Payouts
+### 6.4 Partner-Facing Funnel
+Partners see their own conversion funnel at `/recruit/dashboard`:
+- **Link Clicks → Signups → Onboarded → First Track → Tiers Created → Paid Tier → First Subscriber**
+- Stage-by-stage conversion percentages between each step
+- Overall conversion rate (click-to-first-subscriber)
+- Enables partners to self-diagnose whether their pitch attracts artists who activate vs. ghost
+
+### 6.5 Payouts
 - Partner connects Stripe account for payouts
 - Monthly commission processing via cron job
 - Qualification check runs daily
@@ -358,12 +368,28 @@ Tiered influencer partnership program targeting music industry professionals, co
 - Artist detail drawer with score, revenue, fans, tracks, Stripe status
 - Salesforce sync (bi-weekly)
 
+**Funnel Tab**
+- Full acquisition funnel visualization: Link Clicks → Signups → Onboarded → First Track → Tiers Created → Stripe Connected → Paid Tier → First Subscriber
+- Stage-by-stage conversion rates with drop-off arrows
+- Filterable by acquisition source: All, Organic, Recruiter, Partner, Founding
+- Filterable by time period: 30d, 90d, All Time
+- Summary cards: click→signup rate, signup→activated rate, avg time to first track, overall conversion
+- Average time-to-milestone breakdown (days from signup to each activation event)
+- Signups by source bar chart (when viewing "All Sources")
+- Weekly trend area chart: signups vs activated (12 weeks)
+
 **Platform Sequences Tab**
-- 6 automated platform-to-artist sequences: `new_signup`, `onboarding_incomplete`, `starter_upgrade_nudge`, `paid_at_risk`, `paid_churned`, `upgrade_abandoned`
+- 9 automated platform-to-artist sequences: `new_signup`, `onboarding_incomplete`, `starter_upgrade_nudge`, `paid_at_risk`, `paid_churned`, `upgrade_abandoned`, `activation_no_track`, `activation_no_tiers`, `activation_no_subscribers`
 - Inline email copy editor (edit subject/body without SQL)
 - Token personalization (name, slug, tier, URLs)
 - Auto-enrollment when pipeline stage changes
 - Abandoned platform upgrade checkout triggers recovery sequence
+- **Activation nudge sequences:** Auto-enroll stalled artists based on `activation_milestones` JSONB:
+  - `activation_no_track`: 3 days after onboarding with no track uploaded (3 emails over 10 days)
+  - `activation_no_tiers`: 2 days after first track with no tiers created (2 emails over 3 days)
+  - `activation_no_subscribers`: 7 days after Stripe connected with no subscribers (3 emails over 14 days)
+- **Auto-cancel:** When an artist completes a milestone, the corresponding nudge sequence is immediately canceled to prevent stale emails
+- Enrollment cron: daily at 2am UTC (`/api/cron/activation-nudges`)
 
 **Cohort Retention Tab**
 - Month-over-month retention heatmap by signup cohort
@@ -459,6 +485,7 @@ Tiered influencer partnership program targeting music industry professionals, co
 | Daily 5am | CRM Sync | Platform-wide CRM data sync |
 | Sun 3pm | Fan Digest | Weekly summary email to fans of subscribed artist activity |
 | Daily 7am | Sequence Conversions | Check 7-day conversion window for completed sequences |
+| Daily 2am | Activation Nudges | Detect stalled artists, enroll in milestone-based nudge sequences |
 | Daily 10am | Onboarding Sequences | Process platform onboarding emails |
 
 ---
@@ -468,7 +495,7 @@ Tiered influencer partnership program targeting music industry professionals, co
 | Table | Purpose |
 |-------|---------|
 | `profiles` | User accounts (display_name, avatar_url, role, bio) |
-| `artist_profiles` | Artist data (slug, banner, tagline, stripe_connect_id, tier limits) |
+| `artist_profiles` | Artist data (slug, banner, tagline, stripe_connect_id, tier limits, acquisition_source, activation_milestones) |
 | `subscription_tiers` | Artist subscription tiers (name, price, benefits, Stripe price IDs) |
 | `subscriptions` | Fan-to-artist subscriptions (status, period dates, Stripe sub ID) |
 | `tracks` | Audio files (title, URLs, duration, access level, play count) |
@@ -507,6 +534,7 @@ Tiered influencer partnership program targeting music industry professionals, co
 | `sequence_conversions` | Tracks whether target action occurred within 7-day window after sequence completion |
 | `unsubscribe_events` | Logs which campaign/sequence triggered each fan unsubscribe |
 | `abandoned_carts` | Incomplete checkout sessions (subscription, product, booking) |
+| `referral_clicks` | Partner/recruiter link click tracking (visitor hash, conversion status, 30-day attribution) |
 
 ---
 
