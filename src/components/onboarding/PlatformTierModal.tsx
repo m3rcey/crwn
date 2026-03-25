@@ -47,8 +47,8 @@ const PLATFORM_TIERS: PlatformTier[] = [
     name: 'Pro',
     monthlyPrice: 69,
     annualMonthlyPrice: 52,
-    annualTotal: 624,
-    savings: 204,
+    annualTotal: 621,
+    savings: 207,
     description: 'For growing artists',
     features: [
       'Unlimited uploads',
