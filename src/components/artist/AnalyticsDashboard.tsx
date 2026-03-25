@@ -239,8 +239,26 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
 
   return (
     <div className="stagger-fade-in space-y-8">
-      {/* ========== MILESTONES SECTION ========== */}
-
+      {/* ========== UNIT ECONOMICS (most critical — lead with the money) ========== */}
+      {artistId && platformTier !== 'starter' && analytics && (
+        <UnitEconomics
+          artistId={artistId}
+          platformTier={platformTier}
+          analytics={{
+            subscribers: {
+              newThisMonth: analytics.subscribers.newThisMonth,
+              ltv: analytics.subscribers.ltv,
+              mrr: analytics.subscribers.mrr,
+              arpu: analytics.subscribers.arpu,
+              active: analytics.subscribers.active,
+              churnRate: analytics.subscribers.churnRate,
+            },
+            revenue: {
+              thisMonth: analytics.revenue.thisMonth,
+            },
+          }}
+        />
+      )}
 
       {/* ========== REVENUE SECTION ========== */}
       <section>
@@ -315,50 +333,6 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             </ResponsiveContainer>
           </div>
         </div>
-      </section>
-
-      {/* ========== REVENUE PER VISITOR ========== */}
-      <section style={!isAdvanced ? { display: "none" } : undefined}>
-        <h3 className="text-lg font-semibold text-crwn-text mb-4">
-          Revenue Per Visitor
-          <span className="text-xs text-crwn-text-secondary font-normal ml-2">pricing signal</span>
-        </h3>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Rev / Visitor<InfoTooltip text="Average revenue per unique visitor to your profile. A key pricing signal: higher means your page converts well." /></p>
-            <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.revenue.revenuePerVisitor)}</p>
-            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
-          </div>
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Unique Visitors<InfoTooltip text="Number of distinct people who visited your profile in the last 30 days." /></p>
-            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.revenue.uniqueVisitors30d.toLocaleString()}</p>
-            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
-          </div>
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated col-span-2 lg:col-span-1">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">30d Revenue</p>
-            <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.revenue.thisMonth)}</p>
-          </div>
-        </div>
-
-        {analytics.revenue.visitorTrend && analytics.revenue.visitorTrend.some(v => v.visitors > 0) && (
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-sm text-crwn-text-secondary mb-2">Visitors & Revenue Per Visitor</p>
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={analytics.revenue.visitorTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="label" stroke="#666" fontSize={12} />
-                  <YAxis yAxisId="left" stroke="#666" fontSize={12} />
-                  <YAxis yAxisId="right" orientation="right" stroke="#666" fontSize={12} tickFormatter={(v) => `$${(v/100).toFixed(0)}`} />
-                  <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
-                  <Legend />
-                  <Line yAxisId="left" type="monotone" dataKey="visitors" name="Visitors" stroke="#3B82F6" strokeWidth={2} dot={false} />
-                  <Line yAxisId="right" type="monotone" dataKey="revenuePerVisitor" name="Rev/Visitor" stroke="#D4AF37" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
       </section>
 
       {/* ========== SUBSCRIBERS SECTION ========== */}
@@ -605,6 +579,80 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         </section>
       )}
 
+      {/* ========== PROJECTIONS ========== */}
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4">
+          Projections
+          <span className="text-xs text-crwn-text-secondary font-normal ml-2">where you&apos;re heading</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">New Subs / Month<InfoTooltip text="Average number of new subscribers per month over the last 3 months." /></p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.projections.salesVelocity}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 3mo average</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max MRR<InfoTooltip text="Estimated maximum monthly revenue if your current growth rate and churn rate stay the same." /></p>
+            <p className="text-2xl font-bold text-purple-400 mt-1">{formatCurrency(analytics.projections.hypotheticalMaxMRR)}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">if nothing changes</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max Subs<InfoTooltip text="Estimated max subscriber count: your monthly growth velocity divided by your churn rate." /></p>
+            <p className="text-2xl font-bold text-blue-400 mt-1">{analytics.projections.hypotheticalMaxSubscribers}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">velocity ÷ churn</p>
+          </div>
+        </div>
+        {analytics.subscribers.mrr > 0 && analytics.projections.hypotheticalMaxMRR > analytics.subscribers.mrr && (
+          <p className="text-xs text-green-400/80 mt-3 bg-green-400/5 rounded-lg px-3 py-2">
+            Your MRR is heading toward {formatCurrency(analytics.projections.hypotheticalMaxMRR)}/mo — you&apos;re still growing toward your ceiling.
+          </p>
+        )}
+      </section>
+
+      {/* ========== REVENUE PER VISITOR ========== */}
+      <section style={!isAdvanced ? { display: "none" } : undefined}>
+        <h3 className="text-lg font-semibold text-crwn-text mb-4">
+          Revenue Per Visitor
+          <span className="text-xs text-crwn-text-secondary font-normal ml-2">pricing signal</span>
+        </h3>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Rev / Visitor<InfoTooltip text="Average revenue per unique visitor to your profile. A key pricing signal: higher means your page converts well." /></p>
+            <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.revenue.revenuePerVisitor)}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Unique Visitors<InfoTooltip text="Number of distinct people who visited your profile in the last 30 days." /></p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.revenue.uniqueVisitors30d.toLocaleString()}</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 30 days</p>
+          </div>
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated col-span-2 lg:col-span-1">
+            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">30d Revenue</p>
+            <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.revenue.thisMonth)}</p>
+          </div>
+        </div>
+
+        {analytics.revenue.visitorTrend && analytics.revenue.visitorTrend.some(v => v.visitors > 0) && (
+          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
+            <p className="text-sm text-crwn-text-secondary mb-2">Visitors & Revenue Per Visitor</p>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={analytics.revenue.visitorTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis dataKey="label" stroke="#666" fontSize={12} />
+                  <YAxis yAxisId="left" stroke="#666" fontSize={12} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#666" fontSize={12} tickFormatter={(v) => `$${(v/100).toFixed(0)}`} />
+                  <Tooltip formatter={(value: number | undefined) => formatCurrency(value || 0)} />
+                  <Legend />
+                  <Line yAxisId="left" type="monotone" dataKey="visitors" name="Visitors" stroke="#3B82F6" strokeWidth={2} dot={false} />
+                  <Line yAxisId="right" type="monotone" dataKey="revenuePerVisitor" name="Rev/Visitor" stroke="#D4AF37" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* ========== REFERRAL PERFORMANCE ========== */}
       <section style={!isAdvanced ? { display: "none" } : undefined}>
         <h3 className="text-lg font-semibold text-crwn-text mb-4">Referral Program</h3>
@@ -659,57 +707,6 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
           </div>
         )}
       </section>
-
-      {/* ========== PROJECTIONS ========== */}
-      <section style={!isAdvanced ? { display: "none" } : undefined}>
-        <h3 className="text-lg font-semibold text-crwn-text mb-4">
-          Projections
-          <span className="text-xs text-crwn-text-secondary font-normal ml-2">where you&apos;re heading</span>
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">New Subs / Month<InfoTooltip text="Average number of new subscribers per month over the last 3 months." /></p>
-            <p className="text-2xl font-bold text-crwn-text mt-1">{analytics.projections.salesVelocity}</p>
-            <p className="text-xs text-crwn-text-secondary mt-0.5">trailing 3mo average</p>
-          </div>
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max MRR<InfoTooltip text="Estimated maximum monthly revenue if your current growth rate and churn rate stay the same." /></p>
-            <p className="text-2xl font-bold text-purple-400 mt-1">{formatCurrency(analytics.projections.hypotheticalMaxMRR)}</p>
-            <p className="text-xs text-crwn-text-secondary mt-0.5">if nothing changes</p>
-          </div>
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Projected Max Subs<InfoTooltip text="Estimated max subscriber count: your monthly growth velocity divided by your churn rate." /></p>
-            <p className="text-2xl font-bold text-blue-400 mt-1">{analytics.projections.hypotheticalMaxSubscribers}</p>
-            <p className="text-xs text-crwn-text-secondary mt-0.5">velocity ÷ churn</p>
-          </div>
-        </div>
-        {analytics.subscribers.mrr > 0 && analytics.projections.hypotheticalMaxMRR > analytics.subscribers.mrr && (
-          <p className="text-xs text-green-400/80 mt-3 bg-green-400/5 rounded-lg px-3 py-2">
-            Your MRR is heading toward {formatCurrency(analytics.projections.hypotheticalMaxMRR)}/mo — you&apos;re still growing toward your ceiling.
-          </p>
-        )}
-      </section>
-
-      {/* ========== UNIT ECONOMICS ========== */}
-      {artistId && platformTier !== 'starter' && analytics && (
-        <UnitEconomics
-          artistId={artistId}
-          platformTier={platformTier}
-          analytics={{
-            subscribers: {
-              newThisMonth: analytics.subscribers.newThisMonth,
-              ltv: analytics.subscribers.ltv,
-              mrr: analytics.subscribers.mrr,
-              arpu: analytics.subscribers.arpu,
-              active: analytics.subscribers.active,
-              churnRate: analytics.subscribers.churnRate,
-            },
-            revenue: {
-              thisMonth: analytics.revenue.thisMonth,
-            },
-          }}
-        />
-      )}
 
       {/* ========== PLAYS SECTION ========== */}
       <section>
