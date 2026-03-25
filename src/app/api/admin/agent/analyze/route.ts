@@ -326,8 +326,7 @@ Return ONLY the JSON object with "diagnosis", "supporting_signals", and "actions
       response = await kimi.chat.completions.create({
         model: 'kimi-k2.5',
         max_tokens: 4000,
-        temperature: 0.5,
-        top_p: 0.9,
+        temperature: 0.6,
         // @ts-expect-error — Kimi-specific param to disable slow thinking mode
         thinking: { type: 'disabled' },
         messages: [
