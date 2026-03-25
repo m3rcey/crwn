@@ -57,6 +57,10 @@
       "schedule": "0 5 * * *"
     },
     {
+      "path": "/api/cron/activation-nudges",
+      "schedule": "0 2 * * *"
+    },
+    {
       "path": "/api/cron/platform-sequences",
       "schedule": "0 10 * * *"
     },
