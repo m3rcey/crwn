@@ -390,3 +390,161 @@
 .driver-active-element[data-tour^="tab-"]::after {
   display: none !important;
 }
+
+/* === Getting Started Guide Animations === */
+
+/* Float up and down */
+@keyframes guideFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.guide-float {
+  animation: guideFloat 3s ease-in-out infinite;
+}
+
+/* Pulse ring */
+@keyframes guidePulseRing {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.guide-pulse-ring {
+  position: relative;
+}
+.guide-pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid #D4AF37;
+  animation: guidePulseRing 2s ease-out infinite;
+}
+
+/* Typing cursor blink */
+@keyframes guideBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.guide-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #D4AF37;
+  margin-left: 2px;
+  animation: guideBlink 1s step-end infinite;
+}
+
+/* Bar chart grow */
+@keyframes guideBarGrow {
+  from { height: 0; }
+  to { height: var(--bar-height); }
+}
+.guide-bar-animate {
+  animation: guideBarGrow 1s ease-out forwards;
+}
+
+/* Orbit animation for icons */
+@keyframes guideOrbit {
+  from { transform: rotate(0deg) translateX(60px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(60px) rotate(-360deg); }
+}
+.guide-orbit {
+  animation: guideOrbit 8s linear infinite;
+}
+.guide-orbit-reverse {
+  animation: guideOrbit 12s linear infinite reverse;
+}
+
+/* Slide in from left */
+@keyframes guideSlideLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.guide-slide-left {
+  animation: guideSlideLeft 0.6s ease-out both;
+}
+
+/* Slide in from right */
+@keyframes guideSlideRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.guide-slide-right {
+  animation: guideSlideRight 0.6s ease-out both;
+}
+
+/* Scale in */
+@keyframes guideScaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.guide-scale-in {
+  animation: guideScaleIn 0.5s ease-out both;
+}
+
+/* Draw line */
+@keyframes guideDraw {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Shimmer sweep across cards */
+@keyframes guideShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.guide-shimmer {
+  background: linear-gradient(90deg, transparent 30%, rgba(212,175,55,0.08) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: guideShimmer 3s ease-in-out infinite;
+}
+
+/* Counter tick */
+@keyframes guideTick {
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-4px); opacity: 0.7; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Progress fill */
+@keyframes guideProgressFill {
+  from { width: 0%; }
+  to { width: var(--progress); }
+}
+.guide-progress-fill {
+  animation: guideProgressFill 1.5s ease-out forwards;
+}
+
+/* Notification stack */
+@keyframes guideNotifSlide {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.guide-notif-slide {
+  animation: guideNotifSlide 0.4s ease-out both;
+}
+
+/* Glow pulse for feature cards */
+.guide-card-glow {
+  transition: all 0.3s ease;
+}
+.guide-card-glow:hover {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* Roadmap connector line */
+.guide-roadmap-line {
+  position: relative;
+}
+.guide-roadmap-line::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: -8px;
+  width: 2px;
+  background: linear-gradient(to bottom, #D4AF37, rgba(212,175,55,0.1));
+}
+.guide-roadmap-line:last-child::before {
+  display: none;
+}
