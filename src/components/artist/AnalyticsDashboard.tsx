@@ -10,6 +10,7 @@ import {
 import CohortRetentionChart from '@/components/shared/CohortRetentionChart';
 import CancelReasonChart from '@/components/shared/CancelReasonChart';
 import SurveySummary from '@/components/shared/SurveySummary';
+import UnitEconomics from '@/components/artist/UnitEconomics';
 
 interface Analytics {
   revenue: {
@@ -142,6 +143,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
   const [musicData, setMusicData] = useState<MusicData | null>(null);
   const [milestones, setMilestones] = useState<MilestoneData[]>([]);
   const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
+  const [artistId, setArtistId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -161,7 +163,9 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         return;
       }
 
-      const artistId = artistProfile.id;
+      const fetchedArtistId = artistProfile.id;
+      setArtistId(fetchedArtistId);
+      const artistId = fetchedArtistId;
 
       // Fetch analytics from API with period
       const res = await fetch(`/api/analytics?artistId=${artistId}&period=all`);
@@ -685,6 +689,27 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
           </p>
         )}
       </section>
+
+      {/* ========== UNIT ECONOMICS ========== */}
+      {artistId && platformTier !== 'starter' && analytics && (
+        <UnitEconomics
+          artistId={artistId}
+          platformTier={platformTier}
+          analytics={{
+            subscribers: {
+              newThisMonth: analytics.subscribers.newThisMonth,
+              ltv: analytics.subscribers.ltv,
+              mrr: analytics.subscribers.mrr,
+              arpu: analytics.subscribers.arpu,
+              active: analytics.subscribers.active,
+              churnRate: analytics.subscribers.churnRate,
+            },
+            revenue: {
+              thisMonth: analytics.revenue.thisMonth,
+            },
+          }}
+        />
+      )}
 
       {/* ========== PLAYS SECTION ========== */}
       <section>
