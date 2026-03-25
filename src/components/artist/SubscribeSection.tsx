@@ -23,6 +23,9 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get('ref') || '';
+  const utmSource = searchParams.get('utm_source') || '';
+  const utmMedium = searchParams.get('utm_medium') || '';
+  const utmCampaign = searchParams.get('utm_campaign') || '';
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
@@ -92,6 +95,9 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
           artistSlug,
           referralCode,
           interval: billingInterval,
+          utmSource,
+          utmMedium,
+          utmCampaign,
         }),
       });
       
@@ -177,6 +183,9 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get('ref') || '';
+  const utmSource = searchParams.get('utm_source') || '';
+  const utmMedium = searchParams.get('utm_medium') || '';
+  const utmCampaign = searchParams.get('utm_campaign') || '';
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [subscribedTierId, setSubscribedTierId] = useState<string | null>(null);
@@ -235,6 +244,9 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           artistSlug,
           referralCode,
           interval: billingInterval,
+          utmSource,
+          utmMedium,
+          utmCampaign,
         }),
       });
       

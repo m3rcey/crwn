@@ -3,6 +3,7 @@
 import { ShareButtons } from '@/components/shared/ShareButtons';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -23,6 +24,10 @@ interface ShopSectionProps {
 export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: ShopSectionProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const searchParams = useSearchParams();
+  const utmSource = searchParams.get('utm_source') || '';
+  const utmMedium = searchParams.get('utm_medium') || '';
+  const utmCampaign = searchParams.get('utm_campaign') || '';
   const supabase = createBrowserSupabaseClient();
   const { tierId, isSubscribed } = useSubscription(artistId);
   const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
@@ -94,6 +99,9 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
         body: JSON.stringify({
           productId: product.id,
           variantSelections: variantSelections[product.id] || undefined,
+          utmSource,
+          utmMedium,
+          utmCampaign,
         }),
       });
       

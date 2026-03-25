@@ -208,6 +208,11 @@ export async function GET(req: NextRequest) {
         trackingPixelUrl,
         platformTier: artistData?.platform_tier || 'starter',
         trackBasePath: '/api/sequences/track',
+        utmParams: {
+          source: 'crwn_sequence',
+          medium: 'email',
+          campaign: enrollment.sequence_id,
+        },
       });
 
       const { data: sendResult, error: sendError } = await resend.emails.send({

@@ -7,7 +7,7 @@ import { validateAndApplyDiscount } from '@/lib/discountCodes';
 
 export async function POST(req: NextRequest) {
   try {
-    const { tierId, referralCode, interval, returnUrl, discountCode } = await req.json();
+    const { tierId, referralCode, interval, returnUrl, discountCode, utmSource, utmMedium, utmCampaign } = await req.json();
     const supabase = await createServerSupabaseClient();
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -138,6 +138,9 @@ export async function POST(req: NextRequest) {
         type: 'subscription',
         referral_code: referralCode || '',
         discount_code_id: discountResult.discountId || '',
+        utm_source: utmSource || '',
+        utm_medium: utmMedium || '',
+        utm_campaign: utmCampaign || '',
       },
     });
 

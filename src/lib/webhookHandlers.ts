@@ -108,6 +108,13 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
     const platformFee = Math.round(grossAmount * feeRate);
     const netAmount = grossAmount - platformFee;
 
+    // Resolve campaign attribution from UTM params
+    const utmSource = session.metadata?.utm_source || '';
+    const utmMedium = session.metadata?.utm_medium || '';
+    const utmCampaign = session.metadata?.utm_campaign || '';
+    const sourceCampaignId = utmSource === 'crwn_campaign' && utmCampaign ? utmCampaign : null;
+    const sourceSequenceId = utmSource === 'crwn_sequence' && utmCampaign ? utmCampaign : null;
+
     // Write earnings record
     const { data: earning } = await supabaseAdmin
       .from('earnings')
@@ -125,6 +132,11 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         fan_state: fanState,
         fan_country: fanCountry,
         fan_country_code: fanCountryCode,
+        ...(sourceCampaignId && { source_campaign_id: sourceCampaignId }),
+        ...(sourceSequenceId && { source_sequence_id: sourceSequenceId }),
+        ...(utmSource && { utm_source: utmSource }),
+        ...(utmMedium && { utm_medium: utmMedium }),
+        ...(utmCampaign && { utm_campaign: utmCampaign }),
       })
       .select('id')
       .single();
@@ -731,6 +743,14 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
     return;
   }
 
+  // Resolve campaign attribution from UTM params
+  // Product checkout stores UTM in both session.metadata and payment_intent_data.metadata
+  const prodUtmSource = metadata.utm_source || '';
+  const prodUtmMedium = metadata.utm_medium || '';
+  const prodUtmCampaign = metadata.utm_campaign || '';
+  const prodSourceCampaignId = prodUtmSource === 'crwn_campaign' && prodUtmCampaign ? prodUtmCampaign : null;
+  const prodSourceSequenceId = prodUtmSource === 'crwn_sequence' && prodUtmCampaign ? prodUtmCampaign : null;
+
   // Write earnings record
   const { data: earning } = await supabaseAdmin
     .from('earnings')
@@ -748,6 +768,11 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
       fan_state: fanState,
       fan_country: fanCountry,
       fan_country_code: fanCountryCode,
+      ...(prodSourceCampaignId && { source_campaign_id: prodSourceCampaignId }),
+      ...(prodSourceSequenceId && { source_sequence_id: prodSourceSequenceId }),
+      ...(prodUtmSource && { utm_source: prodUtmSource }),
+      ...(prodUtmMedium && { utm_medium: prodUtmMedium }),
+      ...(prodUtmCampaign && { utm_campaign: prodUtmCampaign }),
     })
     .select('id')
     .single();

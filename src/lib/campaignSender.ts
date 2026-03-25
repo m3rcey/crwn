@@ -289,6 +289,11 @@ export async function resolveAudienceAndSend(
           unsubscribeUrl,
           trackingPixelUrl,
           platformTier,
+          utmParams: {
+            source: 'crwn_campaign',
+            medium: 'email',
+            campaign: campaign.id,
+          },
         });
 
         const { data: sendResult, error } = await resend.emails.send({

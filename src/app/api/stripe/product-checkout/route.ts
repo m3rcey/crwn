@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     const fanId = user.id;
     const body = await request.json();
-    const { productId, variantSelections, discountCode } = body;
+    const { productId, variantSelections, discountCode, utmSource, utmMedium, utmCampaign } = body;
 
     if (!productId) {
       return NextResponse.json(
@@ -167,6 +167,9 @@ export async function POST(request: NextRequest) {
           artist_id: product.artist_id,
           type: 'product',
           ...(variantSelections ? { variant_selections: JSON.stringify(variantSelections) } : {}),
+          utm_source: utmSource || '',
+          utm_medium: utmMedium || '',
+          utm_campaign: utmCampaign || '',
         },
       },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/${artist.slug}?purchase=success&product=${productId}`,
@@ -176,6 +179,9 @@ export async function POST(request: NextRequest) {
         product_id: productId,
         artist_id: product.artist_id,
         discount_code_id: discountCodeId,
+        utm_source: utmSource || '',
+        utm_medium: utmMedium || '',
+        utm_campaign: utmCampaign || '',
       },
     });
 

@@ -8,6 +8,7 @@ interface CampaignEmailParams {
   trackingPixelUrl: string;
   platformTier: string; // artist's platform tier
   trackBasePath?: string; // e.g. '/api/sequences/track' — defaults to '/api/campaigns/track'
+  utmParams?: { source: string; medium: string; campaign: string };
 }
 
 /**
@@ -26,14 +27,24 @@ export function resolveTokens(
 }
 
 /**
- * Wrap links in the body for click tracking.
- * Replaces href="https://..." with href="[trackBasePath]/[sendId]?url=..."
+ * Append UTM params to internal CRWN links so attribution flows through to checkout.
  */
-function wrapLinks(html: string, sendId: string, trackBasePath: string = '/api/campaigns/track'): string {
+function appendUtmParams(url: string, utmParams: { source: string; medium: string; campaign: string }): string {
+  if (!url.includes('thecrwn.app')) return url;
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}utm_source=${encodeURIComponent(utmParams.source)}&utm_medium=${encodeURIComponent(utmParams.medium)}&utm_campaign=${encodeURIComponent(utmParams.campaign)}`;
+}
+
+/**
+ * Wrap links in the body for click tracking.
+ * Appends UTM params to internal links, then wraps all links through tracking redirect.
+ */
+function wrapLinks(html: string, sendId: string, trackBasePath: string = '/api/campaigns/track', utmParams?: { source: string; medium: string; campaign: string }): string {
   return html.replace(
     /href="(https?:\/\/[^"]+)"/g,
     (_match, url: string) => {
-      const trackUrl = `${BASE_URL}${trackBasePath}/${sendId}?url=${encodeURIComponent(url)}`;
+      const finalUrl = utmParams ? appendUtmParams(url, utmParams) : url;
+      const trackUrl = `${BASE_URL}${trackBasePath}/${sendId}?url=${encodeURIComponent(finalUrl)}`;
       return `href="${trackUrl}"`;
     }
   );
@@ -62,9 +73,10 @@ export function campaignEmail({
   trackingPixelUrl,
   platformTier,
   trackBasePath,
+  utmParams,
 }: CampaignEmailParams): string {
   const showCrwnBranding = platformTier !== 'label' && platformTier !== 'empire';
-  const wrappedBody = wrapLinks(bodyToHtml(body), sendId, trackBasePath);
+  const wrappedBody = wrapLinks(bodyToHtml(body), sendId, trackBasePath, utmParams);
 
   return `
 <!DOCTYPE html>
