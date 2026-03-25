@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Link2, Loader2, Eye, Users, ExternalLink, Copy } from 'lucide-react';
+import { Plus, Link2, Loader2, Eye, Users, ExternalLink, Copy, Music, Calendar } from 'lucide-react';
 import { useToast } from '@/components/shared/Toast';
 
 interface SmartLink {
@@ -15,6 +15,9 @@ interface SmartLink {
   collect_email: boolean;
   collect_phone: boolean;
   collect_name: boolean;
+  link_type: 'standard' | 'presave';
+  release_date: string | null;
+  artwork_url: string | null;
   created_at: string;
 }
 
@@ -66,8 +69,8 @@ export function SmartLinkList({ artistId, onNew, onEdit }: SmartLinkListProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-crwn-text">Smart Links</h2>
-          <p className="text-sm text-crwn-text-secondary mt-0.5">Capture fan emails before redirecting them anywhere</p>
+          <h2 className="text-lg font-semibold text-crwn-text">Smart Links & Pre-Saves</h2>
+          <p className="text-sm text-crwn-text-secondary mt-0.5">Capture fan emails, run pre-save campaigns for upcoming releases</p>
         </div>
         <button
           onClick={onNew}
@@ -99,9 +102,23 @@ export function SmartLinkList({ artistId, onNew, onEdit }: SmartLinkListProps) {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">
+                    {link.link_type === 'presave' && link.artwork_url && (
+                      <img src={link.artwork_url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
+                    )}
                     <h3 className="text-sm font-medium text-crwn-text truncate">
                       {link.title || link.slug}
                     </h3>
+                    {link.link_type === 'presave' && (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-crwn-gold/10 text-crwn-gold shrink-0">
+                        Pre-Save
+                      </span>
+                    )}
+                    {link.link_type === 'presave' && link.release_date && (
+                      <span className="flex items-center gap-1 text-xs text-crwn-text-secondary shrink-0">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(link.release_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    )}
                     {!link.is_active && (
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-crwn-elevated text-crwn-text-secondary">
                         Inactive

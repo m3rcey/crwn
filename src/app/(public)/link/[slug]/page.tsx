@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { SmartLinkCapture } from '@/components/smart-links/SmartLinkCapture';
+import { PreSaveCapture } from '@/components/smart-links/PreSaveCapture';
 import type { Metadata } from 'next';
 
 interface Props {
@@ -82,7 +83,13 @@ export default async function SmartLinkPage({ params }: Props) {
       <div className="w-full max-w-md">
         {/* Artist branding */}
         <div className="text-center mb-8">
-          {artistAvatar ? (
+          {link.link_type === 'presave' && link.artwork_url ? (
+            <img
+              src={link.artwork_url}
+              alt={link.title || 'Release artwork'}
+              className="w-40 h-40 rounded-2xl mx-auto mb-4 object-cover border-2 border-[#D4AF37]/20 shadow-lg shadow-black/50"
+            />
+          ) : artistAvatar ? (
             <img
               src={artistAvatar}
               alt={artistName}
@@ -100,17 +107,38 @@ export default async function SmartLinkPage({ params }: Props) {
           {link.description && (
             <p className="text-sm text-[#A0A0A0] mt-2">{link.description}</p>
           )}
+          {link.link_type === 'presave' && link.release_date && (
+            <p className="text-xs text-[#A0A0A0] mt-2">
+              Drops {new Date(link.release_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+          )}
         </div>
 
-        {/* Capture form */}
-        <SmartLinkCapture
-          linkId={link.id}
-          artistId={link.artist_id}
-          collectEmail={link.collect_email}
-          collectPhone={link.collect_phone}
-          collectName={link.collect_name}
-          destinationUrl={link.destination_url}
-        />
+        {/* Capture form — presave or standard */}
+        {link.link_type === 'presave' ? (
+          <PreSaveCapture
+            linkId={link.id}
+            artistId={link.artist_id}
+            collectEmail={link.collect_email}
+            collectPhone={link.collect_phone}
+            collectName={link.collect_name}
+            spotifyUrl={link.spotify_url}
+            appleMusicUrl={link.apple_music_url}
+            youtubeUrl={link.youtube_url}
+            soundcloudUrl={link.soundcloud_url}
+            tidalUrl={link.tidal_url}
+            releaseDate={link.release_date}
+          />
+        ) : (
+          <SmartLinkCapture
+            linkId={link.id}
+            artistId={link.artist_id}
+            collectEmail={link.collect_email}
+            collectPhone={link.collect_phone}
+            collectName={link.collect_name}
+            destinationUrl={link.destination_url}
+          />
+        )}
 
         {/* Footer */}
         <div className="text-center mt-8">

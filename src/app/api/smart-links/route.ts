@@ -38,7 +38,12 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { id, artistId, slug, title, description, destinationUrl, collectEmail, collectPhone, collectName } = body;
+  const {
+    id, artistId, slug, title, description, destinationUrl,
+    collectEmail, collectPhone, collectName,
+    linkType, releaseDate, artworkUrl,
+    spotifyUrl, appleMusicUrl, youtubeUrl, soundcloudUrl, tidalUrl,
+  } = body;
 
   if (!artistId || !slug) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -70,6 +75,14 @@ export async function POST(req: NextRequest) {
         collect_email: collectEmail ?? true,
         collect_phone: collectPhone ?? false,
         collect_name: collectName ?? true,
+        link_type: linkType || 'standard',
+        release_date: releaseDate || null,
+        artwork_url: artworkUrl || null,
+        spotify_url: spotifyUrl || null,
+        apple_music_url: appleMusicUrl || null,
+        youtube_url: youtubeUrl || null,
+        soundcloud_url: soundcloudUrl || null,
+        tidal_url: tidalUrl || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -103,6 +116,14 @@ export async function POST(req: NextRequest) {
         collect_email: collectEmail ?? true,
         collect_phone: collectPhone ?? false,
         collect_name: collectName ?? true,
+        link_type: linkType || 'standard',
+        release_date: releaseDate || null,
+        artwork_url: artworkUrl || null,
+        spotify_url: spotifyUrl || null,
+        apple_music_url: appleMusicUrl || null,
+        youtube_url: youtubeUrl || null,
+        soundcloud_url: soundcloudUrl || null,
+        tidal_url: tidalUrl || null,
       })
       .select()
       .single();
