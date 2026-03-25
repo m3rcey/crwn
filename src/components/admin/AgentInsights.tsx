@@ -18,7 +18,7 @@ interface SupportingSignal {
 }
 
 interface AgentAction {
-  type: 'toggle_sequence' | 'update_pipeline_stages' | 'send_briefing' | 'add_pipeline_note' | 'flag_at_risk' | 'enroll_in_sequence' | 'pause_recruiter';
+  type: string;
   label: string;
   description: string;
   risk: 'low' | 'medium' | 'high';
@@ -27,9 +27,21 @@ interface AgentAction {
 
 type ActionStatus = 'pending' | 'executing' | 'done' | 'failed' | 'dismissed';
 
+export type AgentScope = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email';
+
 interface AgentInsightsProps {
   userId: string;
+  scope?: AgentScope;
 }
+
+const SCOPE_LABELS: Record<AgentScope, { title: string; button: string; empty: string; subtitle: string }> = {
+  dashboard: { title: 'Agent Diagnosis', button: 'Diagnose', empty: 'Click Diagnose to find your biggest funnel bottleneck', subtitle: 'Traces cause → effect chain and suggests actions to fix it' },
+  pipeline: { title: 'Pipeline Agent', button: 'Analyze Pipeline', empty: 'Click to analyze which artists are stuck and why', subtitle: 'Identifies stalled artists and recommends actions' },
+  partners: { title: 'Partners Agent', button: 'Analyze Partners', empty: 'Click to evaluate partner/recruiter performance', subtitle: 'Finds underperforming partners and ROI problems' },
+  funnel: { title: 'Funnel Agent', button: 'Analyze Funnel', empty: 'Click to find where the funnel is leaking', subtitle: 'Compares sources, finds bottlenecks, suggests fixes' },
+  sequences: { title: 'Sequences Agent', button: 'Analyze Sequences', empty: 'Click to evaluate automation performance', subtitle: 'Finds dead sequences and enrollment gaps' },
+  email: { title: 'Email Health Agent', button: 'Analyze Email', empty: 'Click to check email infrastructure health', subtitle: 'Monitors deliverability, bounces, and spam risk' },
+};
 
 const SEVERITY_CONFIG = {
   critical: { color: '#E53935', bg: 'rgba(229, 57, 53, 0.08)', border: '#E53935', icon: AlertTriangle, label: 'CRITICAL' },
@@ -49,7 +61,8 @@ const RISK_CONFIG = {
   high: { color: '#E53935', icon: ShieldAlert, label: 'HIGH RISK' },
 };
 
-export default function AgentInsights({ userId }: AgentInsightsProps) {
+export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsightsProps) {
+  const labels = SCOPE_LABELS[scope];
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
   const [signals, setSignals] = useState<SupportingSignal[]>([]);
   const [actions, setActions] = useState<AgentAction[]>([]);
@@ -75,7 +88,7 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
       const res = await fetch('/api/admin/agent/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ userId, scope }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -137,7 +150,7 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-crwn-gold" />
-          <h2 className="text-lg font-semibold text-white">Agent Diagnosis</h2>
+          <h2 className="text-lg font-semibold text-white">{labels.title}</h2>
           {analyzedAt && (
             <span className="text-[#555] text-xs">analyzed at {analyzedAt}</span>
           )}
@@ -151,12 +164,12 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Diagnosing...
+              Analyzing...
             </>
           ) : (
             <>
               <Sparkles className="w-4 h-4" />
-              Diagnose
+              {labels.button}
             </>
           )}
         </button>
@@ -349,8 +362,8 @@ export default function AgentInsights({ userId }: AgentInsightsProps) {
       {!loading && !diagnosis && !error && (
         <div className="bg-[#1A1A1A] rounded-xl border border-[#2a2a2a] p-8 text-center">
           <Sparkles className="w-8 h-8 text-[#333] mx-auto mb-3" />
-          <p className="text-[#555] text-sm">Click Diagnose to find your biggest funnel bottleneck</p>
-          <p className="text-[#444] text-xs mt-1">Traces cause → effect chain and suggests actions to fix it</p>
+          <p className="text-[#555] text-sm">{labels.empty}</p>
+          <p className="text-[#444] text-xs mt-1">{labels.subtitle}</p>
         </div>
       )}
     </div>

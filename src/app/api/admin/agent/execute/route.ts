@@ -16,7 +16,7 @@ async function verifyAdmin(userId: string): Promise<boolean> {
 }
 
 interface AgentAction {
-  type: 'toggle_sequence' | 'update_pipeline_stages' | 'send_briefing' | 'add_pipeline_note' | 'flag_at_risk' | 'enroll_in_sequence' | 'pause_recruiter';
+  type: string;
   label: string;
   description: string;
   risk: 'low' | 'medium' | 'high';
@@ -247,6 +247,97 @@ async function executePauseRecruiter(params: Record<string, unknown>): Promise<s
   return `Paused recruiter ${recruiter.referral_code} — deactivated ${codes?.length || 0} referral code${(codes?.length || 0) === 1 ? '' : 's'}. Reason: ${reason || 'agent recommendation'}`;
 }
 
+async function executeApproveApplication(params: Record<string, unknown>): Promise<string> {
+  const { application_id } = params as { application_id: string };
+  if (!application_id) throw new Error('Missing application_id');
+
+  const { data: app } = await supabaseAdmin
+    .from('partner_applications')
+    .select('id, full_name, status')
+    .eq('id', application_id)
+    .single();
+
+  if (!app) throw new Error(`Application "${application_id}" not found`);
+  if (app.status !== 'pending') return `Application from "${app.full_name}" is already ${app.status}`;
+
+  const { error } = await supabaseAdmin
+    .from('partner_applications')
+    .update({ status: 'approved', reviewed_at: new Date().toISOString(), notes: 'Approved by agent recommendation' })
+    .eq('id', application_id);
+
+  if (error) throw new Error(error.message);
+  return `Approved partner application from "${app.full_name}"`;
+}
+
+async function executeRejectApplication(params: Record<string, unknown>): Promise<string> {
+  const { application_id, reason } = params as { application_id: string; reason: string };
+  if (!application_id) throw new Error('Missing application_id');
+
+  const { data: app } = await supabaseAdmin
+    .from('partner_applications')
+    .select('id, full_name, status')
+    .eq('id', application_id)
+    .single();
+
+  if (!app) throw new Error(`Application "${application_id}" not found`);
+  if (app.status !== 'pending') return `Application from "${app.full_name}" is already ${app.status}`;
+
+  const { error } = await supabaseAdmin
+    .from('partner_applications')
+    .update({ status: 'rejected', reviewed_at: new Date().toISOString(), notes: reason || 'Rejected by agent recommendation' })
+    .eq('id', application_id);
+
+  if (error) throw new Error(error.message);
+  return `Rejected partner application from "${app.full_name}". Reason: ${reason || 'agent recommendation'}`;
+}
+
+async function executeDeactivateCode(params: Record<string, unknown>): Promise<string> {
+  const { code_id, reason } = params as { code_id: string; reason: string };
+  if (!code_id) throw new Error('Missing code_id');
+
+  const { data: code } = await supabaseAdmin
+    .from('partner_codes')
+    .select('id, code, is_active')
+    .eq('id', code_id)
+    .single();
+
+  if (!code) throw new Error(`Code "${code_id}" not found`);
+  if (!code.is_active) return `Code "${code.code}" is already inactive`;
+
+  const { error } = await supabaseAdmin
+    .from('partner_codes')
+    .update({ is_active: false })
+    .eq('id', code_id);
+
+  if (error) throw new Error(error.message);
+  return `Deactivated code "${code.code}". Reason: ${reason || 'agent recommendation'}`;
+}
+
+async function executeCancelStaleEnrollments(params: Record<string, unknown>): Promise<string> {
+  const { sequence_id, stuck_days } = params as { sequence_id: string; stuck_days: number };
+  if (!sequence_id) throw new Error('Missing sequence_id');
+
+  const cutoff = new Date(Date.now() - (stuck_days || 30) * 86400000).toISOString();
+
+  const { data: stale } = await supabaseAdmin
+    .from('platform_sequence_enrollments')
+    .select('id')
+    .eq('sequence_id', sequence_id)
+    .eq('status', 'active')
+    .eq('current_step', 0)
+    .lte('enrolled_at', cutoff);
+
+  if (!stale?.length) return `No stale enrollments found in sequence (stuck ${stuck_days || 30}+ days at step 0)`;
+
+  const { error } = await supabaseAdmin
+    .from('platform_sequence_enrollments')
+    .update({ status: 'canceled' })
+    .in('id', stale.map(s => s.id));
+
+  if (error) throw new Error(error.message);
+  return `Canceled ${stale.length} stale enrollment${stale.length === 1 ? '' : 's'} (stuck at step 0 for ${stuck_days || 30}+ days)`;
+}
+
 async function executeSendBriefing(): Promise<string> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -279,39 +370,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const validTypes = ['toggle_sequence', 'update_pipeline_stages', 'send_briefing', 'add_pipeline_note', 'flag_at_risk', 'enroll_in_sequence', 'pause_recruiter'];
-    if (!validTypes.includes(action.type)) {
+    const actionHandlers: Record<string, (params: Record<string, unknown>) => Promise<string>> = {
+      toggle_sequence: (p) => executeToggleSequence(p),
+      update_pipeline_stages: (p) => executeUpdatePipelineStages(p),
+      send_briefing: () => executeSendBriefing(),
+      add_pipeline_note: (p) => executeAddPipelineNote(p, userId),
+      flag_at_risk: (p) => executeFlagAtRisk(p),
+      enroll_in_sequence: (p) => executeEnrollInSequence(p),
+      pause_recruiter: (p) => executePauseRecruiter(p),
+      approve_application: (p) => executeApproveApplication(p),
+      reject_application: (p) => executeRejectApplication(p),
+      deactivate_code: (p) => executeDeactivateCode(p),
+      cancel_stale_enrollments: (p) => executeCancelStaleEnrollments(p),
+    };
+
+    const handler = actionHandlers[action.type];
+    if (!handler) {
       return NextResponse.json({ error: `Invalid action type: ${action.type}` }, { status: 400 });
     }
 
     let message: string;
 
     try {
-      switch (action.type) {
-        case 'toggle_sequence':
-          message = await executeToggleSequence(action.params);
-          break;
-        case 'update_pipeline_stages':
-          message = await executeUpdatePipelineStages(action.params);
-          break;
-        case 'send_briefing':
-          message = await executeSendBriefing();
-          break;
-        case 'add_pipeline_note':
-          message = await executeAddPipelineNote(action.params, userId);
-          break;
-        case 'flag_at_risk':
-          message = await executeFlagAtRisk(action.params);
-          break;
-        case 'enroll_in_sequence':
-          message = await executeEnrollInSequence(action.params);
-          break;
-        case 'pause_recruiter':
-          message = await executePauseRecruiter(action.params);
-          break;
-        default:
-          throw new Error(`Unknown action type: ${action.type}`);
-      }
+      message = await handler(action.params);
 
       await logAction(userId, action, 'success', message);
       return NextResponse.json({ success: true, message });

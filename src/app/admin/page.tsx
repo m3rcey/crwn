@@ -11,6 +11,7 @@ import FunnelView from '@/components/admin/FunnelView';
 import PlatformSequences from '@/components/admin/PlatformSequences';
 import EmailHealth from '@/components/admin/EmailHealth';
 import PartnersView from '@/components/admin/PartnersView';
+import AgentInsights from '@/components/admin/AgentInsights';
 
 type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email';
 
@@ -119,26 +120,31 @@ export default function AdminPage() {
       {activeTab === 'dashboard' && <AdminDashboard userId={user.id} />}
       {activeTab === 'pipeline' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
+          <AgentInsights userId={user.id} scope="pipeline" />
           <PipelineView />
         </div>
       )}
       {activeTab === 'partners' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
+          <AgentInsights userId={user.id} scope="partners" />
           <PartnersView />
         </div>
       )}
       {activeTab === 'funnel' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
+          <AgentInsights userId={user.id} scope="funnel" />
           <FunnelView />
         </div>
       )}
       {activeTab === 'sequences' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
+          <AgentInsights userId={user.id} scope="sequences" />
           <PlatformSequences />
         </div>
       )}
       {activeTab === 'email' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
+          <AgentInsights userId={user.id} scope="email" />
           <EmailHealth userId={user.id} />
         </div>
       )}

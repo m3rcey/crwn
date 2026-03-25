@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
+import { buildPipelineScope, buildPartnersScope, buildFunnelScope, buildSequencesScope, buildEmailScope } from '../scopes';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -101,10 +102,15 @@ export const maxDuration = 60; // Allow up to 60s for Kimi response
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await req.json();
+    const { userId, scope = 'dashboard' } = await req.json();
 
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+    }
+
+    const validScopes = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email'];
+    if (!validScopes.includes(scope)) {
+      return NextResponse.json({ error: `Invalid scope: ${scope}` }, { status: 400 });
     }
 
     // Verify admin role
@@ -117,6 +123,61 @@ export async function POST(req: NextRequest) {
     if (!profile || profile.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
+
+    // Non-dashboard scopes use dedicated builders
+    if (scope !== 'dashboard') {
+      const scopeBuilders: Record<string, () => Promise<{ systemPrompt: string; userMessage: string }>> = {
+        pipeline: buildPipelineScope,
+        partners: buildPartnersScope,
+        funnel: buildFunnelScope,
+        sequences: buildSequencesScope,
+        email: buildEmailScope,
+      };
+
+      const builder = scopeBuilders[scope];
+      if (!builder) {
+        return NextResponse.json({ error: `Unknown scope: ${scope}` }, { status: 400 });
+      }
+
+      const { systemPrompt: scopePrompt, userMessage: scopeMessage } = await builder();
+
+      let scopeResponse;
+      try {
+        scopeResponse = await kimi.chat.completions.create({
+          model: 'kimi-k2.5',
+          max_tokens: 3000,
+          temperature: 0.6,
+          // @ts-expect-error — Kimi-specific param
+          thinking: { type: 'disabled' },
+          messages: [
+            { role: 'system', content: scopePrompt },
+            { role: 'user', content: scopeMessage },
+          ],
+        });
+      } catch (apiErr: unknown) {
+        const msg = apiErr instanceof Error ? apiErr.message : String(apiErr);
+        console.error(`Kimi API error (${scope}):`, msg);
+        return NextResponse.json({ error: `Kimi API error: ${msg}` }, { status: 502 });
+      }
+
+      const rawText = scopeResponse.choices[0]?.message?.content || '{}';
+      let diagnosis, supportingSignals, actions;
+      try {
+        const jsonStr = rawText.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(jsonStr);
+        diagnosis = parsed.diagnosis || null;
+        supportingSignals = parsed.supporting_signals || [];
+        actions = parsed.actions || [];
+      } catch {
+        diagnosis = { bottleneck: 'Parse Error', dropoff_rate: 'N/A', why: rawText.slice(0, 300), impact_chain: ['Agent response could not be parsed'], severity: 'warning' as const };
+        supportingSignals = [];
+        actions = [];
+      }
+
+      return NextResponse.json({ diagnosis, supportingSignals, actions, analyzedAt: new Date().toISOString() });
+    }
+
+    // ---- DASHBOARD SCOPE (original logic) ----
 
     // Fetch metrics from cache (or compute fresh via internal call)
     const { data: cached } = await supabaseAdmin
