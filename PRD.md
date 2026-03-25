@@ -1,7 +1,7 @@
 # CRWN — Product Requirements Document
 
-**Version:** 1.1
-**Date:** March 24, 2026
+**Version:** 1.2
+**Date:** March 25, 2026
 **Product:** CRWN (thecrwn.app)
 **Status:** Live (Production)
 
@@ -231,7 +231,9 @@ Public-facing artist pages with:
 - **Schedule:** Send immediately or at a future date/time
 - **Limits:** Maximum 2 campaigns per week per artist
 - **Tracking:** Open rates, click tracking per campaign
-- **Unsubscribe:** One-click unsubscribe links in every email
+- **UTM Attribution:** Campaign emails auto-append UTM parameters (`utm_source=crwn_campaign`, `utm_medium=email`, `utm_campaign=<campaign_id>`) to internal links, enabling end-to-end revenue attribution from email → checkout → earnings
+- **Revenue Attribution:** Direct attribution via `source_campaign_id` on earnings records; inferred attribution via 48-hour window (deduplicated)
+- **Unsubscribe:** One-click unsubscribe links in every email; unsubscribe events logged with source campaign attribution
 
 ### 5.3 Email Sequences (Automation)
 - **Trigger Types:** `new_subscription`, `new_purchase`, `new_post`, `abandoned_cart`, `tier_upgrade`, `loyalty_survey`
@@ -240,7 +242,10 @@ Public-facing artist pages with:
 - **Toggle:** Enable/disable sequences without deleting
 - **Welcome Sequence One-Click:** Golden banner prompts artists who lack a `new_subscription` sequence to auto-create a 3-email welcome series (day 0, day 3, day 7)
 - **Abandoned Cart Recovery:** Automatic enrollment when fans abandon checkout (subscription, product, or booking)
-- **Cron:** Daily processing at 9am UTC
+- **Open/Click Tracking:** Sequence emails tracked via `sequence_sends` table (mirrors campaign_sends), with dedicated `/api/sequences/track` endpoint and click-wrapped links
+- **UTM Attribution:** Sequence emails auto-append UTM parameters (`utm_source=crwn_sequence`, `utm_campaign=<sequence_id>`) for revenue attribution through checkout
+- **Conversion Tracking:** Daily cron checks if target action occurred within 7-day window after sequence completion (e.g., did a `starter_upgrade_nudge` sequence lead to an upgrade?)
+- **Cron:** Daily processing at 9am UTC; conversion checks at 7am UTC
 
 ### 5.4 SMS Marketing
 - **Setup:** Provision a Twilio phone number for the artist
@@ -342,6 +347,7 @@ Tiered influencer partnership program targeting music industry professionals, co
 - Active artists and fans (30-day activity window)
 - Revenue breakdown by platform tier
 - Per-tier Hormozi health check table (LGP:CAC ratio, payback period, gross margin)
+- Pro→Label+ upgrade rate tracking (color-coded: green ≥30%, gold ≥15%, red <15%)
 
 **Pipeline Tab**
 - **6-stage CRM pipeline:** Signed Up → Onboarding → Free → Paid → At Risk → Churned
@@ -362,6 +368,14 @@ Tiered influencer partnership program targeting music industry professionals, co
 **Cohort Retention Tab**
 - Month-over-month retention heatmap by signup cohort
 - Cancellation reason analytics (aggregated from in-app cancel modal data)
+
+**Email Health Tab**
+- Deliverability rate across all campaigns and sequences
+- Global suppression list management (hard bounces + spam complaints)
+- Aggregate campaign performance metrics (open rate, click rate, unsubscribe rate)
+- Aggregate sequence performance metrics (open rate, click rate by trigger type)
+- Conversion rates by sequence trigger type (7-day attribution window)
+- Unsubscribe event log with source attribution (which campaign/sequence triggered each unsubscribe)
 
 ### 8.2 AI Agent
 - Analyzes platform metrics using Moonshot AI (Kimi) API
@@ -443,6 +457,8 @@ Tiered influencer partnership program targeting music industry professionals, co
 | Daily 6am | Scheduled Releases | Publish pre-scheduled music |
 | Daily 8am | Scheduled Campaigns | Send scheduled email campaigns |
 | Daily 5am | CRM Sync | Platform-wide CRM data sync |
+| Sun 3pm | Fan Digest | Weekly summary email to fans of subscribed artist activity |
+| Daily 7am | Sequence Conversions | Check 7-day conversion window for completed sequences |
 | Daily 10am | Onboarding Sequences | Process platform onboarding emails |
 
 ---
@@ -463,7 +479,7 @@ Tiered influencer partnership program targeting music industry professionals, co
 | `products` | Shop items (title, price, type, quantity, delivery) |
 | `bundle_items` | Bundle-to-product mapping |
 | `purchases` | One-time purchase records (amount, status, payment intent) |
-| `earnings` | Revenue ledger (artist_id, type, gross/net amounts) |
+| `earnings` | Revenue ledger (artist_id, type, gross/net amounts, UTM attribution, source_campaign_id, source_sequence_id) |
 | `campaigns` | Email campaigns (name, body, filters, status) |
 | `campaign_sends` | Individual email delivery records (status, open/click events) |
 | `sequences` | Email automations (trigger type, steps) |
@@ -487,6 +503,9 @@ Tiered influencer partnership program targeting music industry professionals, co
 | `survey_responses` | Loyalty survey responses from long-term fans |
 | `email_suppressions` | Global suppression list (hard bounces + spam complaints) |
 | `saved_segments` | Saved audience filter combinations for reuse |
+| `sequence_sends` | Individual sequence email delivery records (mirrors campaign_sends with open/click tracking) |
+| `sequence_conversions` | Tracks whether target action occurred within 7-day window after sequence completion |
+| `unsubscribe_events` | Logs which campaign/sequence triggered each fan unsubscribe |
 | `abandoned_carts` | Incomplete checkout sessions (subscription, product, booking) |
 
 ---
