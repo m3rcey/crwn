@@ -171,7 +171,7 @@ Check `package.json` before importing. Key packages: @supabase/supabase-js, @sup
 ### Platform Tiers (Artist SaaS)
 
 - Starter: free, 8% fee
-- Pro: $50/mo ($37 annual), 6% fee
+- Pro: $69/mo ($52 annual), 6% fee
 - Label: $175/mo ($131 annual), 5% fee
 - Empire: $350/mo ($262 annual), 3% fee
 - Annual = 25% off. Constants in `platformTier.ts`.

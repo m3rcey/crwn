@@ -45,10 +45,10 @@ const PLATFORM_TIERS: PlatformTier[] = [
   {
     id: 'pro',
     name: 'Pro',
-    monthlyPrice: 50,
-    annualMonthlyPrice: 37,
-    annualTotal: 444,
-    savings: 156,
+    monthlyPrice: 69,
+    annualMonthlyPrice: 52,
+    annualTotal: 624,
+    savings: 204,
     description: 'For growing artists',
     features: [
       'Unlimited uploads',
@@ -337,7 +337,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
               Elsewhere: <span className="text-crwn-text font-semibold line-through decoration-crwn-text/30">$287+/mo</span> across 4+ tools
             </p>
             <p className="text-sm text-crwn-gold font-semibold mt-1">
-              CRWN Pro: everything in one place for ${billingCycle === 'annual' ? '37' : '50'}/mo
+              CRWN Pro: everything in one place for ${billingCycle === 'annual' ? '52' : '69'}/mo
             </p>
           </div>
         </div>
