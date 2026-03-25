@@ -15,6 +15,7 @@ import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
 import { SyncDashboard } from '@/components/artist/SyncDashboard';
 import { AudienceTab } from '@/components/artist/AudienceTab';
 import { AiManagerCard, AiManagerTeaser } from '@/components/artist/AiManagerCard';
+import { StreamingAnalytics } from '@/components/artist/StreamingAnalytics';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -26,7 +27,7 @@ import { startTour } from '@/lib/tour';
 import { getArtistTourSteps } from '@/lib/artistTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
 
-type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager';
+type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'streaming';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -161,6 +162,7 @@ function ArtistDashboardContent() {
   const allTabs = [
     { id: 'ai-manager' as const, label: 'AI Manager', tourId: 'tab-ai-manager' },
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
+    { id: 'streaming' as const, label: 'Streaming', tourId: 'tab-streaming' },
     { id: 'audience' as const, label: 'Audience', tourId: 'tab-audience' },
     { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
     { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
@@ -245,6 +247,11 @@ function ArtistDashboardContent() {
                 <AiManagerTeaser artistId={artistId} onNavigate={() => switchTab('ai-manager')} />
               )}
               <AnalyticsDashboard platformTier={platformTier} />
+            </div>
+          )}
+          {visitedTabs.has('streaming') && (
+            <div className={activeTab !== 'streaming' ? 'hidden' : undefined}>
+              {artistId && <StreamingAnalytics artistId={artistId} />}
             </div>
           )}
           {visitedTabs.has('audience') && (
