@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import PipelineView from '@/components/admin/PipelineView';
 import PlatformSequences from '@/components/admin/PlatformSequences';
 import EmailHealth from '@/components/admin/EmailHealth';
+import PartnersView from '@/components/admin/PartnersView';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'sequences' | 'email';
+type AdminTab = 'dashboard' | 'pipeline' | 'sequences' | 'email' | 'partners';
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -93,6 +94,15 @@ export default function AdminPage() {
             <Mail className="w-4 h-4" />
             Email Health
           </button>
+          <button
+            onClick={() => setActiveTab('partners')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'partners' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Handshake className="w-4 h-4" />
+            Partners
+          </button>
         </div>
       </div>
 
@@ -110,6 +120,11 @@ export default function AdminPage() {
       {activeTab === 'email' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <EmailHealth userId={user.id} />
+        </div>
+      )}
+      {activeTab === 'partners' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <PartnersView />
         </div>
       )}
     </div>
