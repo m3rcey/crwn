@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Users, Search, Loader2, ArrowUpDown, Upload, X, Plus,
-  StickyNote, Tag, ChevronDown, ListIcon, UserPlus,
+  StickyNote, Tag, ChevronDown, ListIcon, UserPlus, Send,
 } from 'lucide-react';
 
 interface CrmContact {
@@ -81,6 +81,16 @@ export default function CrmView() {
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number; failed: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Outreach modal
+  const [showOutreach, setShowOutreach] = useState(false);
+  const [outreachSubject, setOutreachSubject] = useState('');
+  const [outreachBody, setOutreachBody] = useState('');
+  const [outreachListId, setOutreachListId] = useState('');
+  const [outreachStatusFilter, setOutreachStatusFilter] = useState('');
+  const [outreachTagFilter, setOutreachTagFilter] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [outreachResult, setOutreachResult] = useState<{ sent: number; failed: number; total: number; suppressed: number } | null>(null);
 
   const loadContacts = async () => {
     try {
@@ -191,6 +201,33 @@ export default function CrmView() {
     finally { setIsImporting(false); }
   };
 
+  const handleSendOutreach = async () => {
+    if (!outreachSubject.trim() || !outreachBody.trim()) return;
+    setIsSending(true);
+    setOutreachResult(null);
+    try {
+      const res = await fetch('/api/admin/crm/outreach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: outreachSubject,
+          body: outreachBody,
+          listId: outreachListId || undefined,
+          statusFilter: outreachStatusFilter || undefined,
+          tagFilter: outreachTagFilter || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOutreachResult({ sent: data.sent, failed: data.failed, total: data.total, suppressed: data.suppressed });
+        await loadContacts();
+      } else {
+        setOutreachResult({ sent: 0, failed: 0, total: 0, suppressed: 0 });
+      }
+    } catch { /* silent */ }
+    finally { setIsSending(false); }
+  };
+
   // Filter + sort
   let filtered = contacts;
   if (statusFilter) filtered = filtered.filter(c => c.status === statusFilter);
@@ -233,6 +270,13 @@ export default function CrmView() {
         >
           <Upload className="w-4 h-4" />
           Import List
+        </button>
+        <button
+          onClick={() => { setShowOutreach(true); setOutreachSubject(''); setOutreachBody(''); setOutreachListId(''); setOutreachStatusFilter(''); setOutreachTagFilter(''); setOutreachResult(null); }}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-crwn-gold text-black text-sm font-medium hover:brightness-110 transition"
+        >
+          <Send className="w-4 h-4" />
+          Send Outreach
         </button>
       </div>
 
@@ -602,6 +646,121 @@ export default function CrmView() {
                   <><Loader2 className="w-4 h-4 animate-spin" /> Importing...</>
                 ) : (
                   <><UserPlus className="w-4 h-4" /> Import</>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Outreach Modal */}
+      {showOutreach && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-crwn-card border border-crwn-elevated rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-crwn-text flex items-center gap-2">
+                <Send className="w-5 h-5 text-crwn-gold" />
+                Send Outreach
+              </h3>
+              <button onClick={() => setShowOutreach(false)} className="text-crwn-text-secondary hover:text-crwn-text">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {/* Audience filters */}
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="text-xs text-crwn-text-secondary block mb-1">List</label>
+                  <select
+                    value={outreachListId}
+                    onChange={e => setOutreachListId(e.target.value)}
+                    className="w-full px-2 py-1.5 bg-crwn-elevated border border-crwn-elevated rounded-lg text-xs text-crwn-text appearance-none focus:outline-none focus:border-crwn-gold/50"
+                  >
+                    <option value="">All lists</option>
+                    {lists.map(l => (
+                      <option key={l.id} value={l.id}>{l.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-crwn-text-secondary block mb-1">Status</label>
+                  <select
+                    value={outreachStatusFilter}
+                    onChange={e => setOutreachStatusFilter(e.target.value)}
+                    className="w-full px-2 py-1.5 bg-crwn-elevated border border-crwn-elevated rounded-lg text-xs text-crwn-text appearance-none focus:outline-none focus:border-crwn-gold/50"
+                  >
+                    <option value="">All statuses</option>
+                    {STATUSES.map(s => (
+                      <option key={s.id} value={s.id}>{s.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-crwn-text-secondary block mb-1">Tag</label>
+                  <input
+                    type="text"
+                    value={outreachTagFilter}
+                    onChange={e => setOutreachTagFilter(e.target.value)}
+                    placeholder="e.g. hip-hop"
+                    className="w-full px-2 py-1.5 bg-crwn-elevated border border-crwn-elevated rounded-lg text-xs text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                  />
+                </div>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="text-xs text-crwn-text-secondary block mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={outreachSubject}
+                  onChange={e => setOutreachSubject(e.target.value)}
+                  placeholder="e.g. You're invited to CRWN, {{first_name}}"
+                  className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                />
+              </div>
+
+              {/* Body */}
+              <div>
+                <label className="text-xs text-crwn-text-secondary block mb-1">Body</label>
+                <textarea
+                  value={outreachBody}
+                  onChange={e => setOutreachBody(e.target.value)}
+                  placeholder={"Hey {{first_name}},\n\nI came across your music and think you'd be a great fit for CRWN...\n\n— Josh"}
+                  rows={8}
+                  className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-none"
+                />
+              </div>
+
+              <p className="text-[10px] text-crwn-text-secondary">
+                Tokens: {"{{name}}"}, {"{{first_name}}"}, {"{{email}}"}. Suppressed/unsubscribed emails are automatically skipped. Leads are auto-updated to &quot;Contacted&quot; after send.
+              </p>
+
+              {outreachResult && (
+                <div className="bg-crwn-elevated rounded-lg p-3 text-xs">
+                  <p className="text-green-400">Sent to {outreachResult.sent} contacts</p>
+                  {outreachResult.failed > 0 && <p className="text-red-400">{outreachResult.failed} failed</p>}
+                  {outreachResult.suppressed > 0 && <p className="text-crwn-text-secondary">{outreachResult.suppressed} skipped (suppressed/unsubscribed)</p>}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setShowOutreach(false)}
+                className="px-4 py-2 rounded-full bg-crwn-elevated text-sm text-crwn-text-secondary hover:text-crwn-text transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendOutreach}
+                disabled={isSending || !outreachSubject.trim() || !outreachBody.trim()}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-crwn-gold text-black text-sm font-medium hover:brightness-110 transition disabled:opacity-50"
+              >
+                {isSending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+                ) : (
+                  <><Send className="w-4 h-4" /> Send</>
                 )}
               </button>
             </div>
