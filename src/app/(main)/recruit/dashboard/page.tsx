@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/shared/Toast';
-import { Copy, Check, ExternalLink, DollarSign, Users, Clock, TrendingUp } from 'lucide-react';
+import { Copy, Check, ExternalLink, DollarSign, Users, Clock, TrendingUp, ArrowDown } from 'lucide-react';
 
 export default function RecruiterDashboard() {
   const { user } = useAuth();
@@ -88,9 +88,19 @@ export default function RecruiterDashboard() {
 
   if (!data) return null;
 
-  const { recruiter, referrals, payouts, stats } = data;
+  const { recruiter, referrals, payouts, stats, funnel } = data;
   const referralUrl = `thecrwn.app/join/${recruiter.referral_code}`;
   const hasStripe = !!recruiter.stripe_connect_id;
+
+  const funnelStages = funnel ? [
+    { label: 'Link Clicks', value: funnel.clicks, color: '#6366f1' },
+    { label: 'Signups', value: funnel.signups, color: '#8b5cf6' },
+    { label: 'Onboarded', value: funnel.onboarded, color: '#a855f7' },
+    { label: 'First Track', value: funnel.first_track, color: '#c084fc' },
+    { label: 'Tiers Created', value: funnel.tiers_created, color: '#D4AF37' },
+    { label: 'Paid Tier', value: funnel.paid_tier, color: '#22c55e' },
+    { label: 'First Subscriber', value: funnel.first_subscriber, color: '#10b981' },
+  ] : [];
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4 stagger-fade-in">
@@ -141,6 +151,54 @@ export default function RecruiterDashboard() {
           </div>
         ))}
       </div>
+
+      {funnel && funnel.clicks + funnel.signups > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-crwn-text mb-3">Your Funnel</h2>
+          <div className="bg-[#1a1a1a] rounded-xl p-5 space-y-1">
+            {funnelStages.map((stage, i) => {
+              const maxVal = Math.max(...funnelStages.map(s => s.value), 1);
+              const widthPct = Math.max((stage.value / maxVal) * 100, 3);
+              const prev = i > 0 ? funnelStages[i - 1].value : 0;
+              const rate = i > 0 && prev > 0 ? `${Math.round((stage.value / prev) * 100)}%` : '';
+
+              return (
+                <div key={stage.label}>
+                  {i > 0 && (
+                    <div className="flex items-center gap-2 py-0.5 pl-3">
+                      <ArrowDown className="w-3 h-3 text-crwn-text-dim" />
+                      <span className="text-xs text-crwn-text-dim">{rate}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <div className="w-28 shrink-0 text-right">
+                      <span className="text-xs text-crwn-text-secondary">{stage.label}</span>
+                    </div>
+                    <div className="flex-1 h-7 bg-crwn-elevated rounded-lg overflow-hidden">
+                      <div
+                        className="h-full rounded-lg flex items-center px-3 transition-all duration-500"
+                        style={{ width: `${widthPct}%`, backgroundColor: stage.color }}
+                      >
+                        <span className="text-xs font-bold text-white whitespace-nowrap">{stage.value}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="pt-3 mt-3 border-t border-crwn-elevated/50 flex items-center justify-between">
+              <span className="text-xs text-crwn-text-secondary">Overall conversion</span>
+              <span className="text-sm font-semibold text-crwn-gold">
+                {funnel.clicks > 0
+                  ? `${Math.round((funnel.first_subscriber / funnel.clicks) * 100)}%`
+                  : funnel.signups > 0
+                    ? `${Math.round((funnel.first_subscriber / funnel.signups) * 100)}%`
+                    : '—'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {referrals.length > 0 && (
         <div className="mb-8">

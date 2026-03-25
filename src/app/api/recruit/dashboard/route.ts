@@ -41,6 +41,36 @@ export async function GET(req: NextRequest) {
   const totalEarned = (payouts || []).filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
   const pendingEarnings = (payouts || []).filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
 
+  // Funnel stats: clicks, signups, and activation milestones for this recruiter's referrals
+  const { data: clicks } = await supabaseAdmin
+    .from('referral_clicks')
+    .select('id')
+    .eq('referral_code', recruiter.referral_code);
+
+  const totalClicks = clicks?.length || 0;
+  const totalSignups = (referrals || []).length;
+
+  // Get activation milestones for referred artists
+  const artistIds = (referrals || []).map(r => r.artist_id).filter(Boolean);
+  let funnelCounts = { onboarded: 0, first_track: 0, tiers_created: 0, stripe_connected: 0, paid_tier: 0, first_subscriber: 0 };
+
+  if (artistIds.length > 0) {
+    const { data: artistProfiles } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('activation_milestones, platform_tier')
+      .in('id', artistIds);
+
+    for (const ap of artistProfiles || []) {
+      const m = (ap.activation_milestones || {}) as Record<string, string>;
+      if (m.onboarding_completed) funnelCounts.onboarded++;
+      if (m.first_track_uploaded) funnelCounts.first_track++;
+      if (m.tiers_created) funnelCounts.tiers_created++;
+      if (m.stripe_connected) funnelCounts.stripe_connected++;
+      if (ap.platform_tier && ap.platform_tier !== 'starter') funnelCounts.paid_tier++;
+      if (m.first_subscriber) funnelCounts.first_subscriber++;
+    }
+  }
+
   return NextResponse.json({
     recruiter,
     referrals: referrals || [],
@@ -50,6 +80,11 @@ export async function GET(req: NextRequest) {
       pending,
       totalEarned,
       pendingEarnings,
+    },
+    funnel: {
+      clicks: totalClicks,
+      signups: totalSignups,
+      ...funnelCounts,
     },
   });
 }
