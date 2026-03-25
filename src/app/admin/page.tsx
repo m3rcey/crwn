@@ -4,16 +4,17 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import PipelineView from '@/components/admin/PipelineView';
 import FunnelView from '@/components/admin/FunnelView';
 import PlatformSequences from '@/components/admin/PlatformSequences';
 import EmailHealth from '@/components/admin/EmailHealth';
 import PartnersView from '@/components/admin/PartnersView';
+import CrmView from '@/components/admin/CrmView';
 import AgentInsights from '@/components/admin/AgentInsights';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email';
+type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm';
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -106,6 +107,15 @@ export default function AdminPage() {
             Sequences
           </button>
           <button
+            onClick={() => setActiveTab('crm')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'crm' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Contact className="w-4 h-4" />
+            CRM
+          </button>
+          <button
             onClick={() => setActiveTab('email')}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeTab === 'email' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
@@ -140,6 +150,12 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <AgentInsights userId={user.id} scope="sequences" />
           <PlatformSequences />
+        </div>
+      )}
+      {activeTab === 'crm' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <AgentInsights userId={user.id} scope="crm" />
+          <CrmView />
         </div>
       )}
       {activeTab === 'email' && (

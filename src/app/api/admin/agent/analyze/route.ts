@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
-import { buildPipelineScope, buildPartnersScope, buildFunnelScope, buildSequencesScope, buildEmailScope } from '../scopes';
+import { buildPipelineScope, buildPartnersScope, buildFunnelScope, buildSequencesScope, buildEmailScope, buildCrmScope } from '../scopes';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
     }
 
-    const validScopes = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email'];
+    const validScopes = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm'];
     if (!validScopes.includes(scope)) {
       return NextResponse.json({ error: `Invalid scope: ${scope}` }, { status: 400 });
     }
@@ -132,6 +132,7 @@ export async function POST(req: NextRequest) {
         funnel: buildFunnelScope,
         sequences: buildSequencesScope,
         email: buildEmailScope,
+        crm: buildCrmScope,
       };
 
       const builder = scopeBuilders[scope];

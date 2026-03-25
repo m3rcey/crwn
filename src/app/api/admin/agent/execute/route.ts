@@ -338,6 +338,96 @@ async function executeCancelStaleEnrollments(params: Record<string, unknown>): P
   return `Canceled ${stale.length} stale enrollment${stale.length === 1 ? '' : 's'} (stuck at step 0 for ${stuck_days || 30}+ days)`;
 }
 
+async function executeBulkUpdateStatus(params: Record<string, unknown>): Promise<string> {
+  const { contact_ids, status } = params as { contact_ids: string[]; status: string };
+
+  if (!contact_ids?.length || !status) {
+    throw new Error('Missing contact_ids or status');
+  }
+
+  const validStatuses = ['lead', 'contacted', 'onboarding', 'active', 'churned'];
+  if (!validStatuses.includes(status)) {
+    throw new Error(`Invalid status. Valid: ${validStatuses.join(', ')}`);
+  }
+
+  if (contact_ids.length > 50) {
+    throw new Error('Cannot update more than 50 contacts at once');
+  }
+
+  const { error } = await supabaseAdmin
+    .from('crm_contacts')
+    .update({ status, updated_at: new Date().toISOString() })
+    .in('id', contact_ids);
+
+  if (error) throw new Error(error.message);
+
+  return `Updated ${contact_ids.length} contact${contact_ids.length === 1 ? '' : 's'} to "${status}"`;
+}
+
+async function executeAddCrmNote(params: Record<string, unknown>): Promise<string> {
+  const { contact_ids, note } = params as { contact_ids: string[]; note: string };
+
+  if (!contact_ids?.length || !note?.trim()) {
+    throw new Error('Missing contact_ids or note');
+  }
+
+  if (contact_ids.length > 50) {
+    throw new Error('Cannot add notes to more than 50 contacts at once');
+  }
+
+  const timestamp = new Date().toISOString().split('T')[0];
+  const noteText = `[${timestamp}] [Agent] ${note.trim()}`;
+
+  // Get existing notes
+  const { data: contacts } = await supabaseAdmin
+    .from('crm_contacts')
+    .select('id, notes')
+    .in('id', contact_ids);
+
+  if (!contacts?.length) throw new Error('No matching contacts found');
+
+  // Update each contact
+  for (const c of contacts) {
+    const updatedNotes = `${noteText}\n${c.notes || ''}`;
+    await supabaseAdmin
+      .from('crm_contacts')
+      .update({ notes: updatedNotes, updated_at: new Date().toISOString() })
+      .eq('id', c.id);
+  }
+
+  return `Added note to ${contacts.length} contact${contacts.length === 1 ? '' : 's'}`;
+}
+
+async function executeAddCrmTags(params: Record<string, unknown>): Promise<string> {
+  const { contact_ids, tags } = params as { contact_ids: string[]; tags: string[] };
+
+  if (!contact_ids?.length || !tags?.length) {
+    throw new Error('Missing contact_ids or tags');
+  }
+
+  if (contact_ids.length > 50) {
+    throw new Error('Cannot tag more than 50 contacts at once');
+  }
+
+  const { data: contacts } = await supabaseAdmin
+    .from('crm_contacts')
+    .select('id, tags')
+    .in('id', contact_ids);
+
+  if (!contacts?.length) throw new Error('No matching contacts found');
+
+  for (const c of contacts) {
+    const existingTags = (c.tags || []) as string[];
+    const merged = [...new Set([...existingTags, ...tags])];
+    await supabaseAdmin
+      .from('crm_contacts')
+      .update({ tags: merged, updated_at: new Date().toISOString() })
+      .eq('id', c.id);
+  }
+
+  return `Added tags [${tags.join(', ')}] to ${contacts.length} contact${contacts.length === 1 ? '' : 's'}`;
+}
+
 async function executeSendBriefing(): Promise<string> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -382,6 +472,9 @@ export async function POST(req: NextRequest) {
       reject_application: (p) => executeRejectApplication(p),
       deactivate_code: (p) => executeDeactivateCode(p),
       cancel_stale_enrollments: (p) => executeCancelStaleEnrollments(p),
+      bulk_update_status: (p) => executeBulkUpdateStatus(p),
+      add_crm_note: (p) => executeAddCrmNote(p),
+      add_crm_tags: (p) => executeAddCrmTags(p),
     };
 
     const handler = actionHandlers[action.type];

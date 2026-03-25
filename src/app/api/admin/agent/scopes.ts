@@ -472,6 +472,134 @@ Return ONLY the JSON object. No markdown, no code fences.`;
 }
 
 // ============================================================
+// CRM SCOPE
+// ============================================================
+export async function buildCrmScope(): Promise<ScopeResult> {
+  const [
+    { data: contacts },
+    { data: lists },
+    { data: sequences },
+  ] = await Promise.all([
+    supabaseAdmin.from('crm_contacts').select('id, name, email, source, status, tags, artist_profile_id, list_id, notes, created_at').order('created_at', { ascending: false }).limit(200),
+    supabaseAdmin.from('crm_lists').select('id, name, contact_count, created_at'),
+    supabaseAdmin.from('platform_sequences').select('trigger, name, is_active'),
+  ]);
+
+  const allContacts = contacts || [];
+  const allLists = lists || [];
+
+  // Status breakdown
+  const statusCounts: Record<string, number> = { lead: 0, contacted: 0, onboarding: 0, active: 0, churned: 0 };
+  allContacts.forEach(c => { statusCounts[c.status] = (statusCounts[c.status] || 0) + 1; });
+
+  // Source breakdown
+  const sourceCounts: Record<string, number> = {};
+  allContacts.forEach(c => { sourceCounts[c.source || 'unknown'] = (sourceCounts[c.source || 'unknown'] || 0) + 1; });
+
+  // Linked vs unlinked
+  const linked = allContacts.filter(c => c.artist_profile_id).length;
+  const unlinked = allContacts.length - linked;
+
+  // Stale leads (lead status for 7+ days)
+  const sevenDaysAgo = Date.now() - 7 * 86400000;
+  const staleLeads = allContacts
+    .filter(c => c.status === 'lead' && new Date(c.created_at).getTime() < sevenDaysAgo)
+    .slice(0, 15)
+    .map(c => ({
+      id: c.id,
+      name: c.name,
+      email: c.email,
+      source: c.source,
+      days: Math.round((Date.now() - new Date(c.created_at).getTime()) / 86400000),
+      tags: c.tags || [],
+      hasNotes: !!c.notes,
+    }));
+
+  // Tag frequency
+  const tagCounts: Record<string, number> = {};
+  allContacts.forEach(c => (c.tags || []).forEach((t: string) => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
+  const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+  // Per-list stats
+  const listStats = allLists.map(l => {
+    const lc = allContacts.filter(c => c.list_id === l.id);
+    const leads = lc.filter(c => c.status === 'lead').length;
+    const converted = lc.filter(c => c.artist_profile_id).length;
+    return {
+      id: l.id,
+      name: l.name,
+      total: lc.length,
+      leads,
+      converted,
+      conversionRate: lc.length > 0 ? Math.round((converted / lc.length) * 100) : 0,
+    };
+  });
+
+  const systemPrompt = `You are CRWN's CRM Agent. You analyze the contact database to find who needs outreach, which lists are converting, and what actions to take to move leads forward.
+
+YOUR JOB:
+1. Find the MOST CRITICAL CRM problem (stale leads, low conversion lists, uncontacted imports, high-value contacts going cold)
+2. Identify SPECIFIC contacts by ID who need attention
+3. Recommend concrete actions
+
+RESPONSE FORMAT (JSON only):
+{
+  "diagnosis": {
+    "bottleneck": "The CRM problem (e.g. '23 leads untouched for 14+ days')",
+    "dropoff_rate": "Key stat",
+    "why": "1-2 sentences explaining why, citing specific data",
+    "impact_chain": ["Because X...", "Y follows...", "Which means Z for growth"],
+    "severity": "critical" | "warning" | "info"
+  },
+  "supporting_signals": [
+    { "signal": "Short label", "detail": "One sentence with numbers", "sentiment": "bad" | "okay" | "good" }
+  ],
+  "actions": [
+    {
+      "type": "bulk_update_status" | "add_crm_note" | "add_crm_tags" | "enroll_in_sequence",
+      "label": "Short action name",
+      "description": "Why this action",
+      "risk": "low" | "medium" | "high",
+      "params": { ... }
+    }
+  ]
+}
+
+ACTION PARAMS:
+- bulk_update_status: { "contact_ids": ["id1", ...], "status": "contacted"|"onboarding"|"active"|"churned" }
+- add_crm_note: { "contact_ids": ["id1", ...], "note": "text" }
+- add_crm_tags: { "contact_ids": ["id1", ...], "tags": ["tag1", ...] }
+- enroll_in_sequence: { "sequence_trigger": "trigger_name", "artist_ids": ["artist_profile_id1", ...] }
+
+RULES: Only reference real contact IDs from the data. Max 4 actions. Be specific. Only suggest enroll_in_sequence for contacts that are linked to platform artists.`;
+
+  const userMessage = `Analyze the CRM (${allContacts.length} contacts):
+
+STATUS BREAKDOWN:
+${Object.entries(statusCounts).map(([s, c]) => `- ${s}: ${c}`).join('\n')}
+
+SOURCES:
+${Object.entries(sourceCounts).map(([s, c]) => `- ${s}: ${c}`).join('\n')}
+
+PLATFORM LINKAGE: ${linked} linked to artists, ${unlinked} external-only
+
+LISTS:
+${listStats.map(l => `- "${l.name}" (${l.total} contacts, ${l.leads} leads, ${l.converted} converted = ${l.conversionRate}%)`).join('\n') || 'None'}
+
+TOP TAGS: ${topTags.map(([t, c]) => `${t}(${c})`).join(', ') || 'None'}
+
+STALE LEADS (7+ days untouched):
+${staleLeads.map(c => `- id:${c.id} "${c.name}" (${c.email}) src:${c.source} ${c.days}d old tags:[${c.tags.join(',')}] notes:${c.hasNotes ? 'yes' : 'no'}`).join('\n') || 'None'}
+
+SEQUENCES:
+${(sequences || []).map(s => `- "${s.trigger}" (${s.name}) — ${s.is_active ? 'ENABLED' : 'DISABLED'}`).join('\n')}
+
+Return ONLY the JSON object. No markdown, no code fences.`;
+
+  return { systemPrompt, userMessage };
+}
+
+// ============================================================
 // EMAIL HEALTH SCOPE
 // ============================================================
 export async function buildEmailScope(): Promise<ScopeResult> {

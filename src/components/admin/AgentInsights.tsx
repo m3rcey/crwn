@@ -27,7 +27,7 @@ interface AgentAction {
 
 type ActionStatus = 'pending' | 'executing' | 'done' | 'failed' | 'dismissed';
 
-export type AgentScope = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email';
+export type AgentScope = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm';
 
 interface AgentInsightsProps {
   userId: string;
@@ -41,6 +41,7 @@ const SCOPE_LABELS: Record<AgentScope, { title: string; button: string; empty: s
   funnel: { title: 'Funnel Agent', button: 'Analyze Funnel', empty: 'Click to find where the funnel is leaking', subtitle: 'Compares sources, finds bottlenecks, suggests fixes' },
   sequences: { title: 'Sequences Agent', button: 'Analyze Sequences', empty: 'Click to evaluate automation performance', subtitle: 'Finds dead sequences and enrollment gaps' },
   email: { title: 'Email Health Agent', button: 'Analyze Email', empty: 'Click to check email infrastructure health', subtitle: 'Monitors deliverability, bounces, and spam risk' },
+  crm: { title: 'CRM Agent', button: 'Analyze Contacts', empty: 'Click to find which contacts need outreach', subtitle: 'Identifies stale leads, list conversion rates, and outreach priorities' },
 };
 
 const SEVERITY_CONFIG = {
