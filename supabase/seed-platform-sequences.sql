@@ -44,7 +44,7 @@ Just wanted to share — artists on CRWN are building real recurring income from
 
 Here''s what they do:
 1. Upload exclusive tracks and set tier access
-2. Create subscription tiers ($10, $50, $200/mo)
+2. Create subscription tiers (Free, $15, $30/mo)
 3. Share their CRWN page with their audience
 
 No algorithms. No middlemen. Direct fan-to-artist revenue.

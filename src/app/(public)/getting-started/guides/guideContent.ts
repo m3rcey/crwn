@@ -126,7 +126,7 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Plan your tier structure',
-        content: 'Most successful artists use 2-3 tiers: a low-cost entry tier ($5-10/mo), a mid-tier with the best value ($25-50/mo), and a premium tier for superfans ($100-200/mo). Each tier should feel like a clear step up in value. Do not create more than 3 — too many choices causes decision paralysis.',
+        content: 'Most successful artists use 2-3 tiers: a free entry tier to get fans in the door, a mid-tier with the best value ($15/mo), and a premium tier for superfans ($30/mo). Each tier should feel like a clear step up in value. Do not create more than 3 — too many choices causes decision paralysis.',
         tip: 'Price your entry tier low enough that it feels like a no-brainer. The goal is to get fans in the door, then upgrade them over time.',
       },
       {
@@ -366,7 +366,7 @@ export const guides: GuideData[] = [
       {
         title: 'Set your commission rate',
         content: 'Go to Profile > Settings > Referrals and set your commission percentage. Higher rates motivate more sharing but reduce your revenue per subscriber. Start at 15% — it is high enough to motivate fans without cutting too deeply into your earnings.',
-        tip: 'A 15% commission on a $10/month subscription means the referrer earns $1.50/month per referral — forever. That adds up fast and motivates consistent sharing.',
+        tip: 'A 15% commission on a $15/month subscription means the referrer earns $2.25/month per referral — forever. That adds up fast and motivates consistent sharing.',
       },
       {
         title: 'Promote the referral program',

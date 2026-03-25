@@ -163,7 +163,7 @@ function FansMathSection() {
           You Don't Need Millions of Streams
         </h2>
         <p className="text-xl text-crwn-text-secondary mb-12">
-          100 fans × $10/month = $1,000/month.<br />
+          100 fans × $15/month = $1,500/month.<br />
           CRWN helps you turn listeners into paying supporters.
         </p>
         
@@ -221,7 +221,7 @@ function MonetizeSection() {
               <div className="flex justify-between items-center mb-2">
                 <div>
                   <span className="text-crwn-text font-semibold">VIP</span>
-                  <span className="text-crwn-gold ml-2">$10/month</span>
+                  <span className="text-crwn-gold ml-2">$15/month</span>
                 </div>
               </div>
               <ul className="space-y-1 text-sm text-crwn-text-secondary">

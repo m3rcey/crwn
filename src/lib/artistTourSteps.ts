@@ -88,7 +88,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string
       element: '[data-tour="tiers-list"]',
       popover: {
         title: 'Create your tiers',
-        description: 'With Stripe connected, create 2 to 3 subscription tiers. A good range is $5 to $200 per month. Fans also get an annual option at 25% off automatically.',
+        description: 'With Stripe connected, create 2 to 3 subscription tiers. Start with a free tier, then $15 and $30 per month. Fans also get an annual option at 25% off automatically.',
         side: 'bottom',
         align: 'start',
       },

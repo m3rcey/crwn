@@ -82,9 +82,9 @@ INSERT INTO platform_sequence_steps (sequence_id, step_number, delay_days, subje
 Love that you uploaded music to CRWN. But right now, fans can''t subscribe to you because you haven''t created any subscription tiers yet.
 
 Most artists on CRWN use 3 tiers:
-- Basic ($10/mo) — access to exclusive tracks
-- Middle ($50/mo) — everything + early releases + community
-- Premium ($200/mo) — everything + DMs + behind-the-scenes
+- Basic (Free) — access to select exclusive tracks
+- Middle ($15/mo) — everything + early releases + community
+- Premium ($30/mo) — everything + DMs + behind-the-scenes
 
 Create your tiers here: → {{dashboard_url}}?tab=tiers
 
@@ -98,7 +98,7 @@ It takes about 3 minutes. After that, you''re fully live and earnable.
 
 Quick tip: your first tier doesn''t have to be perfect. You can always edit the name, price, and benefits later.
 
-The most important thing is having SOMETHING for fans to subscribe to. Start with one tier at $10/mo and you''re in business.
+The most important thing is having SOMETHING for fans to subscribe to. Start with a free tier and a $15/mo tier and you''re in business.
 
 → {{dashboard_url}}?tab=tiers
 

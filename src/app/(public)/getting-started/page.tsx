@@ -327,7 +327,7 @@ function RevenuePreview() {
           See What&apos;s Possible
         </h2>
         <p className="text-crwn-text-secondary text-lg max-w-2xl mx-auto">
-          100 fans at $10/month = $1,000/month. Here&apos;s what your first week could look like.
+          100 fans at $15/month = $1,500/month. Here&apos;s what your first week could look like.
         </p>
       </div>
       <div ref={ref} className="grid md:grid-cols-2 gap-8 items-center">
