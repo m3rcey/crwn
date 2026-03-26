@@ -92,7 +92,7 @@ export function TrackShareButton({ trackId, trackTitle, artistSlug, artistName, 
   const buttonPadding = size === 'sm' ? 'p-1.5' : 'p-2';
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative" ref={menuRef} onClick={(e) => e.stopPropagation()}>
       <button
         onClick={() => setShowMenu(!showMenu)}
         className={`${buttonPadding} rounded-full text-crwn-text-secondary hover:text-crwn-text hover:bg-crwn-elevated transition-colors`}
@@ -103,7 +103,7 @@ export function TrackShareButton({ trackId, trackTitle, artistSlug, artistName, 
 
       {/* Share Menu */}
       {showMenu && (
-        <div className="absolute right-0 top-full mt-1 w-44 neu-raised rounded-lg overflow-hidden z-50">
+        <div className="absolute right-0 top-full mt-1 w-44 bg-[#1a1a1a] border border-crwn-elevated rounded-lg overflow-hidden z-50 shadow-xl">
           <div className="p-2 border-b border-crwn-elevated flex items-center justify-between">
             <p className="text-xs font-medium text-crwn-text-secondary uppercase">Share</p>
             <button 
