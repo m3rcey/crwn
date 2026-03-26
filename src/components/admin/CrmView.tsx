@@ -655,8 +655,8 @@ export default function CrmView() {
 
       {/* Outreach Modal */}
       {showOutreach && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-crwn-card border border-crwn-elevated rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+          <div className="bg-[#1A1A1A] border border-crwn-elevated rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-crwn-text flex items-center gap-2">
                 <Send className="w-5 h-5 text-crwn-gold" />
