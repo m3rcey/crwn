@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
+import { getPersistedReferralCode } from '@/components/shared/ReferralPersist';
 import { Check, Loader2, X } from 'lucide-react';
 
 interface SubscribeButtonProps {
@@ -22,7 +23,8 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
-  const referralCode = searchParams.get('ref') || '';
+  const urlRef = searchParams.get('ref') || '';
+  const referralCode = getPersistedReferralCode(urlRef);
   const utmSource = searchParams.get('utm_source') || '';
   const utmMedium = searchParams.get('utm_medium') || '';
   const utmCampaign = searchParams.get('utm_campaign') || '';
@@ -182,7 +184,8 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
-  const referralCode = searchParams.get('ref') || '';
+  const urlRef = searchParams.get('ref') || '';
+  const referralCode = getPersistedReferralCode(urlRef);
   const utmSource = searchParams.get('utm_source') || '';
   const utmMedium = searchParams.get('utm_medium') || '';
   const utmCampaign = searchParams.get('utm_campaign') || '';

@@ -8,9 +8,11 @@ interface ShareEarnButtonProps {
   artistSlug: string;
   artistId: string;
   commissionRate: number;
+  /** Optional path to share (e.g. "/m3rcey" or current page). Defaults to artist profile. */
+  sharePath?: string;
 }
 
-export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareEarnButtonProps) {
+export function ShareEarnButton({ artistSlug, artistId, commissionRate, sharePath }: ShareEarnButtonProps) {
   const { user, profile } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +20,10 @@ export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareE
   if (!user || !profile) return null;
 
   const referralCode = profile.username || user.id.replace(/-/g, '').substring(0, 8);
-  const referralUrl = `https://thecrwn.app/${artistSlug}/r/${referralCode}`;
+  // If a sharePath is provided, append ?ref= to it; otherwise use the clean /r/ redirect
+  const referralUrl = sharePath
+    ? `https://thecrwn.app${sharePath}${sharePath.includes('?') ? '&' : '?'}ref=${referralCode}`
+    : `https://thecrwn.app/${artistSlug}/r/${referralCode}`;
 
   const handleCopy = async () => {
     try {
@@ -42,7 +47,7 @@ export function ShareEarnButton({ artistSlug, artistId, commissionRate }: ShareE
       try {
         await navigator.share({
           title: 'Check this out on CRWN',
-          text: 'Listen to this artist on CRWN 👑',
+          text: 'Check this out on CRWN 👑',
           url: referralUrl,
         });
       } catch {

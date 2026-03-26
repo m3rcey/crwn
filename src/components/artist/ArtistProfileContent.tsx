@@ -11,6 +11,7 @@ import { FanLeaderboard } from '@/components/community/FanLeaderboard';
 import { TierConfig, Album, Playlist, Product, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
 import { ShareEarnButton } from '@/components/shared/ShareEarnButton';
+import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
 import { FadeIn } from '@/components/ui/FadeIn';
 import { hapticLight } from '@/lib/haptics';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -134,6 +135,17 @@ export function ArtistProfileContent({
       <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 stagger-fade-in">
         {activeTab === 'music' && (
           <div data-tour="artist-page-music">
+            {isSubscribed && (
+              <div className="mb-4">
+                <ShareEarnWrapper
+                  artistSlug={artist.slug}
+                  artistId={artist.id}
+                  commissionRate={commissionRate}
+                  sharePath={`/${artist.slug}`}
+                  isSubscribedOverride={true}
+                />
+              </div>
+            )}
             {/* Albums */}
             <AlbumsSection albums={albums} artistSlug={artist.slug} />
 
@@ -172,7 +184,20 @@ export function ArtistProfileContent({
           </section>
         )}
         {activeTab === 'shop' && (
-          <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} merchStoreUrl={artist.merch_store_url} />
+          <div>
+            {isSubscribed && (
+              <div className="mb-4">
+                <ShareEarnWrapper
+                  artistSlug={artist.slug}
+                  artistId={artist.id}
+                  commissionRate={commissionRate}
+                  sharePath={`/${artist.slug}`}
+                  isSubscribedOverride={true}
+                />
+              </div>
+            )}
+            <ShopSection products={products || []} artistId={artist.id} artistSlug={artist.slug} merchStoreUrl={artist.merch_store_url} />
+          </div>
         )}
 
         {activeTab === 'leaderboard' && (
@@ -181,6 +206,15 @@ export function ArtistProfileContent({
 
         {activeTab === 'community' && (
           <div className="space-y-6" data-tour="artist-page-community">
+            {isSubscribed && (
+              <ShareEarnWrapper
+                artistSlug={artist.slug}
+                artistId={artist.id}
+                commissionRate={commissionRate}
+                sharePath={`/${artist.slug}`}
+                isSubscribedOverride={true}
+              />
+            )}
                         <CommunityFeed
               artistId={artist.id}
               artistSlug={artist.slug}

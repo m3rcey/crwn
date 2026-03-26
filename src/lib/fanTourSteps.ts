@@ -51,8 +51,14 @@ export const fanHomeTourSteps: DriveStep[] = [
   },
   {
     popover: {
+      title: 'Share & Earn',
+      description: 'Once you subscribe to an artist, share any link — their page, a track, the shop — and earn a recurring commission when someone subscribes through it.',
+    },
+  },
+  {
+    popover: {
       title: 'You are all set!',
-      description: 'Head to Explore to discover your first artist. When you find someone you love, subscribe to unlock their exclusive content and join their community.',
+      description: 'Head to Explore to discover your first artist. When you find someone you love, subscribe to unlock their exclusive content and start earning by sharing.',
     },
   },
 ];

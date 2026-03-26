@@ -7,6 +7,8 @@ import { ToastProvider } from "@/components/shared/Toast";
 import { MiniPlayer } from "@/components/player/MiniPlayer";
 import { FullScreenPlayer } from "@/components/player/FullScreenPlayer";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
+import { ReferralPersist } from "@/components/shared/ReferralPersist";
+import { Suspense } from "react";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -78,6 +80,7 @@ export default function RootLayout({
               {children}
               <MiniPlayer />
               <FullScreenPlayer />
+              <Suspense><ReferralPersist /></Suspense>
               <ServiceWorkerRegistration />
             </ToastProvider>
           </PlayerProvider>

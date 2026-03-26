@@ -361,7 +361,7 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Understand how referrals work',
-        content: 'Every fan gets a unique referral link. When someone subscribes through that link, the referrer earns a commission on every payment for as long as the new subscriber stays. You set the commission rate — typically 10-20%. CRWN tracks everything automatically.',
+        content: 'Every subscribed fan gets a unique referral link they can generate from any page — your artist profile, a track, the shop, or community. When someone subscribes through that link, the referrer earns a recurring commission on every payment for as long as the new subscriber stays. You set the commission rate — typically 10-20%. CRWN tracks everything automatically.',
       },
       {
         title: 'Set your commission rate',
@@ -370,7 +370,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Promote the referral program',
-        content: 'Most fans do not know they can earn commissions. Post about it in your community, mention it in your bio, and remind fans regularly. Create a dedicated "How to Earn" post explaining exactly how to share and what they can earn.',
+        content: 'Most fans do not know they can earn commissions. Post about it in your community, mention it in your bio, and remind fans regularly. Let them know they can share any link — not just your profile — and still earn. Create a dedicated "How to Earn" post explaining exactly how to share and what they can earn.',
       },
       {
         title: 'Identify and reward top referrers',
