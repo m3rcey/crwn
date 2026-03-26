@@ -7,6 +7,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Edit2, Trash2, X } from 'lucide-react';
 import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
+import { getPlatformFeePercent } from '@/lib/platformTier';
 import { TierBenefitsSelector } from './TierBenefitsSelector';
 import { TierBenefit } from '@/types';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -472,7 +473,7 @@ export function TierManager() {
                 />
               </div>
               <p className="text-xs text-crwn-text-secondary mt-1">
-                Platform fee: 8% (you receive 92%)
+                Platform fee: {getPlatformFeePercent(tier)}% (you receive {100 - getPlatformFeePercent(tier)}%)
               </p>
             </div>
 
