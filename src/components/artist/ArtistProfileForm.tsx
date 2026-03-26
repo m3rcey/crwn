@@ -1,7 +1,9 @@
 'use client';
 import { validateUpload } from '@/lib/uploadValidation';
+import { detectBlur } from '@/lib/blurDetection';
+import ImageCropModal from '@/components/shared/ImageCropModal';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -42,6 +44,9 @@ export function ArtistProfileForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [artistProfile, setArtistProfile] = useState<ArtistProfile | null>(null);
   const platformLimits = usePlatformLimits(artistProfile?.id || null);
+  const [cropModal, setCropModal] = useState<{ src: string; type: 'avatar' | 'banner' } | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<ArtistFormData>({
     display_name: profile?.display_name || '',
     slug: '',
@@ -203,44 +208,78 @@ export function ArtistProfileForm() {
     }
   };
 
-  const handleFileUpload = async (file: File, type: 'avatar' | 'banner') => {
-    if (!user) return;
-    
+  const handleImageSelect = async (file: File, type: 'avatar' | 'banner') => {
+    // Validate file type/size
+    const validation = validateUpload(file, 'image');
+    if (!validation.valid) {
+      showToast(validation.error!, 'error');
+      return;
+    }
+
+    // Check for blur before opening crop modal
     try {
-      console.log('Uploading file:', type, file.name);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
+      const blurResult = await detectBlur(file, type);
+      if (blurResult.isBlurry) {
+        showToast(
+          `This image appears too blurry for a ${type === 'avatar' ? 'profile photo' : 'banner'}. Please upload a sharper image (score: ${Math.round(blurResult.score)}/${blurResult.threshold}).`,
+          'error'
+        );
+        return;
+      }
+    } catch {
+      // If blur detection fails, allow the upload to proceed
+    }
+
+    // Open crop modal
+    const objectUrl = URL.createObjectURL(file);
+    setCropModal({ src: objectUrl, type });
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (!user || !cropModal) return;
+    const type = cropModal.type;
+
+    // Clean up object URL
+    URL.revokeObjectURL(cropModal.src);
+    setCropModal(null);
+
+    try {
+      const fileName = `${Date.now()}.jpg`;
       const filePath = `${user.id}/${type}/${fileName}`;
-      
-      // Upload to Supabase Storage
-      const { error: uploadError, data } = await supabase.storage
+
+      // Upload cropped image to Supabase Storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
-      
+        .upload(filePath, croppedBlob, { contentType: 'image/jpeg' });
+
       if (uploadError) {
-        console.error('Upload error:', uploadError);
         showToast(`Failed to upload ${type}: ${uploadError.message}`, 'error');
         return;
       }
-      
-      console.log('Upload success:', data);
-      
+
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
-      
-      console.log('Public URL:', urlData.publicUrl);
-      
+
       if (type === 'avatar') {
         setFormData(prev => ({ ...prev, avatar_url: urlData.publicUrl }));
       } else {
         setFormData(prev => ({ ...prev, banner_url: urlData.publicUrl }));
       }
-    } catch (error) {
-      console.error('File upload error:', error);
+
+      showToast(`${type === 'avatar' ? 'Profile photo' : 'Banner'} updated!`, 'success');
+    } catch {
       showToast(`Failed to upload ${type}. Please try again.`, 'error');
     }
+  };
+
+  const handleCropCancel = () => {
+    if (cropModal) URL.revokeObjectURL(cropModal.src);
+    setCropModal(null);
+    // Reset the file input so user can re-select the same file
+    if (avatarInputRef.current) avatarInputRef.current.value = '';
+    if (bannerInputRef.current) bannerInputRef.current.value = '';
   };
 
   if (isLoading) {
@@ -258,7 +297,10 @@ export function ArtistProfileForm() {
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
           Banner Image
         </label>
-        <div className="relative h-32 bg-crwn-surface rounded-lg overflow-hidden">
+        <div
+          className="relative h-32 bg-crwn-surface rounded-lg overflow-hidden cursor-pointer group"
+          onClick={() => bannerInputRef.current?.click()}
+        >
           {formData.banner_url ? (
             <Image
               src={formData.banner_url}
@@ -271,22 +313,36 @@ export function ArtistProfileForm() {
               No banner
             </div>
           )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+            <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+              Click to upload
+            </span>
+          </div>
           <input
+            ref={bannerInputRef}
             type="file"
-            accept="image/*"
-            onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'banner')}
-            className="absolute inset-0 opacity-0 cursor-pointer"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImageSelect(file, 'banner');
+            }}
+            className="hidden"
           />
         </div>
-        <p className="text-xs text-crwn-text-secondary mt-1">Click to upload (recommended: 1500x500)</p>
+        <p className="text-xs text-crwn-text-secondary mt-1">
+          Recommended: 1500 x 500px &middot; JPG, PNG, or WebP &middot; Max 10MB
+        </p>
       </div>
 
       {/* Avatar */}
       <div data-tour="profile-media">
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-          Avatar
+          Profile Photo
         </label>
-        <div className="relative w-24 h-24 rounded-full bg-crwn-surface overflow-hidden">
+        <div
+          className="relative w-24 h-24 rounded-full bg-crwn-surface overflow-hidden cursor-pointer group"
+          onClick={() => avatarInputRef.current?.click()}
+        >
           {formData.avatar_url ? (
             <Image
               src={formData.avatar_url}
@@ -299,13 +355,25 @@ export function ArtistProfileForm() {
               🎵
             </div>
           )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center rounded-full">
+            <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+              Edit
+            </span>
+          </div>
           <input
+            ref={avatarInputRef}
             type="file"
-            accept="image/*"
-            onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0], 'avatar')}
-            className="absolute inset-0 opacity-0 cursor-pointer"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImageSelect(file, 'avatar');
+            }}
+            className="hidden"
           />
         </div>
+        <p className="text-xs text-crwn-text-secondary mt-1">
+          Recommended: 500 x 500px &middot; Sharp, high-quality image
+        </p>
       </div>
 
       {/* Display Name */}
@@ -476,6 +544,16 @@ export function ArtistProfileForm() {
       >
         {isSaving ? 'Saving...' : 'Save Profile'}
       </button>
+
+      {/* Image Crop Modal */}
+      {cropModal && (
+        <ImageCropModal
+          imageSrc={cropModal.src}
+          type={cropModal.type}
+          onComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
     </form>
   );
 }
