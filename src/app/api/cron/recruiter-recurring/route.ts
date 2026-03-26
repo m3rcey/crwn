@@ -156,10 +156,10 @@ export async function GET(req: NextRequest) {
     for (const [recruiterId, totalAmount] of paidRecruiters) {
       const recruiterUserId = (await supabaseAdmin.from('recruiters').select('user_id').eq('id', recruiterId).single()).data?.user_id;
       if (!recruiterUserId) continue;
-      const profile = (await supabaseAdmin.from('profiles').select('full_name').eq('id', recruiterUserId).single()).data;
+      const profile = (await supabaseAdmin.from('profiles').select('display_name').eq('id', recruiterUserId).single()).data;
       const email = recruiterUserId ? (await supabaseAdmin.auth.admin.getUserById(recruiterUserId)).data?.user?.email : null;
       if (email) {
-        const firstName = (profile?.full_name || '').split(' ')[0] || 'there';
+        const firstName = (profile?.display_name || '').split(' ')[0] || 'there';
         const emailContent = recruiterRecurringEmail({ recruiterName: firstName, totalAmount, referralCount: paidCounts.get(recruiterId) || 0 });
         await resend.emails.send({ from: FROM_EMAIL, to: email, subject: emailContent.subject, html: emailContent.html });
       }

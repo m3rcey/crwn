@@ -30,7 +30,7 @@ export default function WelcomePage() {
       body: JSON.stringify({
         type: 'welcome',
         to: user.email,
-        displayName: (user.user_metadata?.full_name || user.user_metadata?.display_name || '').split(' ')[0] || user.email?.split('@')[0] || 'there',
+        displayName: (user.user_metadata?.display_name || '').split(' ')[0] || user.email?.split('@')[0] || 'there',
       }),
     }).catch(console.error);
     setEmailSent(true);
@@ -44,7 +44,7 @@ export default function WelcomePage() {
       router.replace('/home');
       return;
     }
-    setDisplayName(profile.display_name || profile.full_name || '');
+    setDisplayName(profile.display_name || '');
     setHasCheckedProfile(true);
   }, [profile, router]);
 

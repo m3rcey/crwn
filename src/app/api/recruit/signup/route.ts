@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('username, full_name')
+    .select('username, display_name')
     .eq('id', userId)
     .single();
 
@@ -52,13 +52,13 @@ export async function POST(req: NextRequest) {
   try {
     const { data: userProfile } = await supabaseAdmin
       .from('profiles')
-      .select('full_name')
+      .select('display_name')
       .eq('id', userId)
       .single();
 
     const userEmail = (await supabaseAdmin.auth.admin.getUserById(userId)).data?.user?.email;
     if (userEmail) {
-      const firstName = (userProfile?.full_name || '').split(' ')[0] || 'there';
+      const firstName = (userProfile?.display_name || '').split(' ')[0] || 'there';
       const email = recruiterWelcomeEmail({ displayName: firstName, referralCode: data.referral_code });
       await resend.emails.send({ from: FROM_EMAIL, to: userEmail, subject: email.subject, html: email.html });
     }

@@ -1219,7 +1219,7 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
           try {
             const { data: recruiterProfile } = await supabaseAdmin
               .from('profiles')
-              .select('full_name')
+              .select('display_name')
               .eq('id', (await supabaseAdmin.from('recruiters').select('user_id').eq('id', recruiter.id).single()).data?.user_id)
               .single();
 
@@ -1228,13 +1228,13 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
 
             const { data: artistName } = await supabaseAdmin
               .from('profiles')
-              .select('full_name, display_name')
+              .select('display_name')
               .eq('id', user_id)
               .single();
 
             if (recruiterEmail) {
-              const firstName = (recruiterProfile?.full_name || '').split(' ')[0] || 'there';
-              const artName = artistName?.display_name || artistName?.full_name || 'An artist';
+              const firstName = (recruiterProfile?.display_name || '').split(' ')[0] || 'there';
+              const artName = artistName?.display_name || 'An artist';
               const emailContent = recruiterArtistSignupEmail({ recruiterName: firstName, artistName: artName });
               await resend.emails.send({ from: FROM_EMAIL, to: recruiterEmail, subject: emailContent.subject, html: emailContent.html });
             }

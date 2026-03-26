@@ -156,7 +156,7 @@ export default function HomePage() {
           <HelpCircle className="w-5 h-5" />
         </Link>
         <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
-          {getGreeting()}{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''}!
+          {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!
         </h1>
         <p className="text-crwn-text-secondary mt-2">
           Welcome to CRWN. Artists get supported. Fans get access. Everyone wins.

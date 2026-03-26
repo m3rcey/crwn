@@ -153,13 +153,13 @@ export async function GET(req: NextRequest) {
       // Send qualification email
       try {
         const recruiterUserId = (await supabaseAdmin.from('recruiters').select('user_id').eq('id', recruiter.id).single()).data?.user_id;
-        const recruiterProfile = recruiterUserId ? (await supabaseAdmin.from('profiles').select('full_name').eq('id', recruiterUserId).single()).data : null;
+        const recruiterProfile = recruiterUserId ? (await supabaseAdmin.from('profiles').select('display_name').eq('id', recruiterUserId).single()).data : null;
         const recruiterEmail = recruiterUserId ? (await supabaseAdmin.auth.admin.getUserById(recruiterUserId)).data?.user?.email : null;
-        const artistProfile = (await supabaseAdmin.from('profiles').select('full_name, display_name').eq('id', referral.artist_user_id).single()).data;
+        const artistProfile = (await supabaseAdmin.from('profiles').select('display_name').eq('id', referral.artist_user_id).single()).data;
 
         if (recruiterEmail) {
-          const firstName = (recruiterProfile?.full_name || '').split(' ')[0] || 'there';
-          const artName = artistProfile?.display_name || artistProfile?.full_name || 'An artist';
+          const firstName = (recruiterProfile?.display_name || '').split(' ')[0] || 'there';
+          const artName = artistProfile?.display_name || 'An artist';
           const emailContent = recruiterQualifiedEmail({ recruiterName: firstName, artistName: artName, amount: flatFee });
           await resend.emails.send({ from: FROM_EMAIL, to: recruiterEmail, subject: emailContent.subject, html: emailContent.html });
         }

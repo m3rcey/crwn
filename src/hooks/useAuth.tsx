@@ -9,7 +9,6 @@ type UserRole = 'fan' | 'artist' | 'admin';
 interface Profile {
   id: string;
   role: UserRole;
-  full_name: string | null;
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
@@ -89,16 +88,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: {
         emailRedirectTo: `${window.location.origin}/login?verified=true`,
         data: {
-          full_name: fullName || '',
+          display_name: fullName || '',
         },
       },
     });
 
     if (!error && data.user) {
-      // Update profile with username and full_name
+      // Update profile with username and display_name
       const updates: Record<string, string> = {};
       if (username) updates.username = username.toLowerCase();
-      if (fullName) updates.full_name = fullName;
+      if (fullName) updates.display_name = fullName;
       if (Object.keys(updates).length > 0) {
         await supabase
           .from('profiles')

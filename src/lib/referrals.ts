@@ -126,7 +126,7 @@ export async function processReferral(params: {
     const referrerEmail = (await supabaseAdmin.auth.admin.getUserById(referrer.id)).data?.user?.email;
     const { data: referrerProfile } = await supabaseAdmin
       .from('profiles')
-      .select('full_name')
+      .select('display_name')
       .eq('id', referrer.id)
       .single();
     const { data: artistData } = await supabaseAdmin
@@ -135,7 +135,7 @@ export async function processReferral(params: {
       .eq('id', artistId)
       .single();
     if (referrerEmail) {
-      const firstName = (referrerProfile?.full_name || '').split(' ')[0] || 'there';
+      const firstName = (referrerProfile?.display_name || '').split(' ')[0] || 'there';
       const artName = (artistData?.profile as any)?.display_name || 'an artist';
       const emailContent = fanReferralEarningEmail({ fanName: firstName, artistName: artName, amount: commissionAmount, referredName });
       await resend.emails.send({ from: FROM_EMAIL, to: referrerEmail, subject: emailContent.subject, html: emailContent.html });

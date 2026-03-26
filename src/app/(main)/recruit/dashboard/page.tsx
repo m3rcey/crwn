@@ -207,7 +207,7 @@ export default function RecruiterDashboard() {
             {referrals.map((ref: any) => (
               <div key={ref.id} className="flex items-center justify-between py-3 border-b border-crwn-elevated/50">
                 <div>
-                  <p className="text-sm text-crwn-text">{ref.artist_user?.full_name || ref.artist_user?.email || 'Artist'}</p>
+                  <p className="text-sm text-crwn-text">{ref.artist_user?.display_name || ref.artist_user?.email || 'Artist'}</p>
                   <p className="text-xs text-crwn-text-secondary">
                     {new Date(ref.created_at).toLocaleDateString()}
                   </p>
