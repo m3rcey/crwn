@@ -10,15 +10,18 @@ interface TrackShareButtonProps {
   artistSlug: string;
   artistName?: string;
   size?: 'sm' | 'md';
+  /** When provided, appends ?ref= to all shared URLs for referral tracking. */
+  referralCode?: string | null;
 }
 
-export function TrackShareButton({ trackId, trackTitle, artistSlug, artistName, size = 'sm' }: TrackShareButtonProps) {
+export function TrackShareButton({ trackId, trackTitle, artistSlug, artistName, size = 'sm', referralCode }: TrackShareButtonProps) {
   const { showToast } = useToast();
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const shareUrl = `https://thecrwn.app/${artistSlug}/track/${trackId}`;
+  const baseUrl = `https://thecrwn.app/${artistSlug}/track/${trackId}`;
+  const shareUrl = referralCode ? `${baseUrl}?ref=${referralCode}` : baseUrl;
   const shareTitle = artistName ? `${trackTitle} by ${artistName}` : trackTitle;
   const shareText = artistName 
     ? `Listen to ${trackTitle} by ${artistName} on CRWN 👑`

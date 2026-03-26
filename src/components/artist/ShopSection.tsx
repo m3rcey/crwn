@@ -1,6 +1,7 @@
 'use client';
 
 import { ShareButtons } from '@/components/shared/ShareButtons';
+import { useReferralCode } from '@/hooks/useReferralCode';
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -30,6 +31,7 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
   const utmCampaign = searchParams.get('utm_campaign') || '';
   const supabase = createBrowserSupabaseClient();
   const { tierId, isSubscribed } = useSubscription(artistId);
+  const referralCode = useReferralCode();
   const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [successProduct, setSuccessProduct] = useState<string | null>(null);
@@ -296,7 +298,9 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
                 <div className="mt-2 pt-2 border-t border-crwn-elevated">
                   <ShareButtons
                     size="xs"
-                    url={`https://thecrwn.app/${artistSlug}`}
+                    url={isSubscribed && referralCode
+                      ? `https://thecrwn.app/${artistSlug}?ref=${referralCode}`
+                      : `https://thecrwn.app/${artistSlug}`}
                     title={product.title}
                     description={product.description || `Check out ${product.title}`}
                   />

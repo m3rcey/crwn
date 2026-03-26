@@ -8,6 +8,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useToast } from '@/components/shared/Toast';
 import { ShareButtons } from '@/components/shared/ShareButtons';
+import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
 import { Play, Lock, ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
@@ -242,6 +243,17 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
               description={`Listen on CRWN`}
             />
           </div>
+          {isSubscribed && (
+            <div className="flex justify-center mt-3">
+              <ShareEarnWrapper
+                artistSlug={artist.slug}
+                artistId={artist.id}
+                commissionRate={10}
+                sharePath={`/${artist.slug}/track/${track.id}`}
+                isSubscribedOverride={true}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

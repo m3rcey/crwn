@@ -9,6 +9,7 @@ import { Album, Track } from '@/types';
 import Image from 'next/image';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { TrackShareButton } from '@/components/shared/TrackShareButton';
+import { useReferralCode } from '@/hooks/useReferralCode';
 import { Play, Pause, Lock, Check, Loader2, Link2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -23,6 +24,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { isLiked, toggleFavorite } = useFavorites();
+  const referralCode = useReferralCode();
 
   const loadTracks = useCallback(async () => {
     if (!isExpanded) return;
@@ -80,7 +82,8 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(`https://thecrwn.app/${artistSlug}/album/${album.id}`);
+                const albumUrl = `https://thecrwn.app/${artistSlug}/album/${album.id}`;
+                navigator.clipboard.writeText(hasAccess && referralCode ? `${albumUrl}?ref=${referralCode}` : albumUrl);
               }}
               className="text-crwn-text-secondary hover:text-crwn-gold transition-colors p-1"
               title="Copy share link"
@@ -138,6 +141,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
                     trackTitle={track.title}
                     artistSlug={artistSlug}
                     size="sm"
+                    referralCode={hasAccess ? referralCode : null}
                   />
                   <button
                     onClick={() => {

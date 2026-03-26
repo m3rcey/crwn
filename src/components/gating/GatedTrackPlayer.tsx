@@ -6,6 +6,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useFavorites } from '@/hooks/useFavorites';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { TrackShareButton } from '@/components/shared/TrackShareButton';
+import { useReferralCode } from '@/hooks/useReferralCode';
 import { Lock, Play, Pause, LockOpen } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
 import Image from 'next/image';
@@ -21,6 +22,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
   const { isLiked, toggleFavorite } = useFavorites();
+  const referralCode = useReferralCode();
 
   // Early access: if public_release_date is in the future, only tier subscribers can access
   const isEarlyAccess = track.public_release_date && new Date(track.public_release_date) > new Date();
@@ -181,6 +183,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
             trackTitle={track.title}
             artistSlug={artistSlug}
             size="sm"
+            referralCode={isSubscribed ? referralCode : null}
           />
         )}
       </div>

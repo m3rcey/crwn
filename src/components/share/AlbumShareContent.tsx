@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/components/shared/Toast';
 import { ShareButtons } from '@/components/shared/ShareButtons';
+import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
 import { Lock, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { GatedTrackPlayer } from '@/components/gating';
@@ -52,7 +53,7 @@ interface AlbumShareContentProps {
 export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareContentProps) {
   const router = useRouter();
   const { user } = useAuth();
-  const { tierId } = useSubscription(artist.id);
+  const { tierId, isSubscribed } = useSubscription(artist.id);
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [justSubscribed, setJustSubscribed] = useState(false);
@@ -283,13 +284,24 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
         )}
 
         {/* Share */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-4">
           <ShareButtons
             url={shareUrl}
             title={`${album.title} — ${artist.displayName}`}
             description={`${tracks.length} tracks on CRWN`}
           />
         </div>
+        {isSubscribed && (
+          <div className="flex justify-center mb-8">
+            <ShareEarnWrapper
+              artistSlug={artist.slug}
+              artistId={artist.id}
+              commissionRate={10}
+              sharePath={`/${artist.slug}/album/${album.id}`}
+              isSubscribedOverride={true}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
