@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateAndApplyDiscount } from '@/lib/discountCodes';
@@ -32,6 +33,30 @@ export async function POST(req: NextRequest) {
 
     if (tierError || !tier) {
       return NextResponse.json({ error: 'Tier not found' }, { status: 404 });
+    }
+
+    const artistSlugValue = tier.artist?.slug || tier.artist_id;
+
+    // Free tier — create subscription directly, no Stripe needed
+    if (tier.price === 0) {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+      );
+
+      await supabaseAdmin.from('subscriptions').upsert({
+        fan_id: fanId,
+        artist_id: tier.artist_id,
+        tier_id: tierId,
+        status: 'active',
+        started_at: new Date().toISOString(),
+      }, { onConflict: 'fan_id,artist_id' });
+
+      const successUrl = returnUrl
+        ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=success`
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlugValue}?subscription=success`;
+
+      return NextResponse.json({ url: successUrl });
     }
 
     // Get dynamic platform fee based on artist's founding status and platform tier
@@ -70,8 +95,6 @@ export async function POST(req: NextRequest) {
         },
       });
     }
-
-    const artistSlug = tier.artist?.slug || tier.artist_id;
 
     // Get artist display name for statement descriptor
     const { data: artistNameData } = await supabase
@@ -127,10 +150,10 @@ export async function POST(req: NextRequest) {
       },
       success_url: returnUrl
         ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=success`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=success`,
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlugValue}?subscription=success`,
       cancel_url: returnUrl
         ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=canceled`
-        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlug}?subscription=canceled`,
+        : `${process.env.NEXT_PUBLIC_BASE_URL}/${artistSlugValue}?subscription=canceled`,
       metadata: {
         fan_id: fanId,
         artist_id: tier.artist_id,

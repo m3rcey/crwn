@@ -135,32 +135,39 @@ export function TierManager() {
 
       if (editingTier) {
         // UPDATE existing tier
-        const priceChanged = parseInt(formData.price) * 100 !== editingTier.price;
+        const newPriceInCents = parseInt(formData.price) * 100;
+        const priceChanged = newPriceInCents !== editingTier.price;
         let stripePriceId = editingTier.stripe_price_id;
-
         let stripeAnnualPriceId = editingTier.stripe_annual_price_id;
+
         if (priceChanged) {
-          // Create new Stripe prices (monthly + annual) if price changed
-          const response = await fetch('/api/stripe/create-price', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: formData.name,
-              price: parseInt(formData.price) * 100,
-              description: formData.description,
-              artistId: artistProfile.id,
-            }),
-          });
-          const data = await response.json();
-          stripePriceId = data.stripePriceId;
-          stripeAnnualPriceId = data.stripeAnnualPriceId;
+          if (newPriceInCents > 0) {
+            // Create new Stripe prices (monthly + annual) if price changed
+            const response = await fetch('/api/stripe/create-price', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name: formData.name,
+                price: newPriceInCents,
+                description: formData.description,
+                artistId: artistProfile.id,
+              }),
+            });
+            const data = await response.json();
+            stripePriceId = data.stripePriceId;
+            stripeAnnualPriceId = data.stripeAnnualPriceId;
+          } else {
+            // Free tier — no Stripe prices needed
+            stripePriceId = undefined;
+            stripeAnnualPriceId = undefined;
+          }
         }
 
         const { data: updated, error } = await supabase
           .from('subscription_tiers')
           .update({
             name: formData.name,
-            price: parseInt(formData.price) * 100,
+            price: newPriceInCents,
             description: formData.description,
             access_config: {
               benefits: formData.benefits.filter(b => b.trim() !== ''),
@@ -196,25 +203,34 @@ export function TierManager() {
         showToast('Tier updated successfully!', 'success');
       } else {
         // CREATE new tier
-        const response = await fetch('/api/stripe/create-price', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            price: parseInt(formData.price) * 100,
-            description: formData.description,
-            artistId: artistProfile.id,
-          }),
-        });
+        const priceInCents = parseInt(formData.price) * 100;
+        let stripePriceId = null;
+        let stripeAnnualPriceId = null;
+        let stripeProductId = null;
 
-        const { stripePriceId, stripeAnnualPriceId, stripeProductId } = await response.json();
+        if (priceInCents > 0) {
+          const response = await fetch('/api/stripe/create-price', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: formData.name,
+              price: priceInCents,
+              description: formData.description,
+              artistId: artistProfile.id,
+            }),
+          });
+          const data = await response.json();
+          stripePriceId = data.stripePriceId;
+          stripeAnnualPriceId = data.stripeAnnualPriceId;
+          stripeProductId = data.stripeProductId;
+        }
 
         const { data: tier, error } = await supabase
           .from('subscription_tiers')
           .insert({
             artist_id: artistProfile.id,
             name: formData.name,
-            price: parseInt(formData.price) * 100,
+            price: priceInCents,
             description: formData.description,
             access_config: {
               benefits: formData.benefits.filter(b => b.trim() !== ''),
@@ -464,16 +480,18 @@ export function TierManager() {
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-crwn-text-secondary">$</span>
                 <input
                   type="number"
-                  min="1"
+                  min="0"
                   value={formData.price}
                   onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-                  placeholder="9.99"
+                  placeholder="0 for free, or 9.99"
                   className="w-full bg-crwn-bg border border-crwn-elevated rounded-lg pl-8 pr-4 py-3 text-crwn-text"
                   required
                 />
               </div>
               <p className="text-xs text-crwn-text-secondary mt-1">
-                Platform fee: {getPlatformFeePercent(tier)}% (you receive {100 - getPlatformFeePercent(tier)}%)
+                {parseFloat(formData.price) > 0
+                  ? `Platform fee: ${getPlatformFeePercent(tier)}% (you receive ${100 - getPlatformFeePercent(tier)}%)`
+                  : 'Free tier — no platform fee'}
               </p>
             </div>
 
