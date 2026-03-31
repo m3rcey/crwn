@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sparkles, AlertTriangle, AlertCircle, Info, Loader2, Play, X, CheckCircle2, ShieldAlert, Shield, ShieldCheck, ArrowRight, CircleDot } from 'lucide-react';
 
 interface Diagnosis {
@@ -70,8 +70,37 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
   const [actionStatuses, setActionStatuses] = useState<Record<number, ActionStatus>>({});
   const [actionMessages, setActionMessages] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [analyzedAt, setAnalyzedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Simulated progress bar: fills 0→90% over ~15 seconds with easing
+  useEffect(() => {
+    if (loading) {
+      setProgress(0);
+      const startTime = Date.now();
+      progressRef.current = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        // Ease out: fast start, slows as it approaches 90%
+        const pct = Math.min(90, 90 * (1 - Math.exp(-elapsed / 5)));
+        setProgress(Math.round(pct));
+      }, 200);
+    } else {
+      if (progressRef.current) {
+        clearInterval(progressRef.current);
+        progressRef.current = null;
+      }
+      if (progress > 0) {
+        setProgress(100);
+        const t = setTimeout(() => setProgress(0), 600);
+        return () => clearTimeout(t);
+      }
+    }
+    return () => {
+      if (progressRef.current) clearInterval(progressRef.current);
+    };
+  }, [loading]);
 
   const analyze = async () => {
     setLoading(true);
@@ -175,6 +204,23 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
           )}
         </button>
       </div>
+
+      {loading && (
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs text-[#888]">
+              {progress < 30 ? 'Collecting platform data...' : progress < 60 ? 'Analyzing metrics...' : progress < 85 ? 'Generating diagnosis...' : 'Finalizing...'}
+            </span>
+            <span className="text-xs text-[#888]">{progress}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-crwn-gold rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
