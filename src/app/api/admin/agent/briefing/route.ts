@@ -146,10 +146,29 @@ Return ONLY the JSON array.`;
       });
     }
 
+    // Trigger autonomous agent loop after briefing
+    let autonomousResult = null;
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+      const autoRes = await fetch(`${baseUrl}/api/admin/agent/autonomous`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+        },
+      });
+      if (autoRes.ok) {
+        autonomousResult = await autoRes.json();
+      }
+    } catch (autoErr) {
+      console.error('Autonomous agent trigger failed (non-blocking):', autoErr);
+    }
+
     return NextResponse.json({
       success: true,
       insightsCount: insights.length,
       emailsSent: adminEmails.length,
+      autonomous: autonomousResult,
     });
   } catch (error: unknown) {
     console.error('Briefing error:', error);

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import SettingsPanel from './SettingsPanel';
 import AgentInsights from './AgentInsights';
+import AutonomousOpsBar from './AutonomousOpsBar';
 import CohortRetentionChart from '@/components/shared/CohortRetentionChart';
 import CancelReasonChart from '@/components/shared/CancelReasonChart';
 import SurveySummary from '@/components/shared/SurveySummary';
@@ -442,6 +443,11 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           <SettingsPanel userId={userId} onSaved={() => fetchMetrics(period, true)} />
         </div>
       )}
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* AUTONOMOUS OPS BAR */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <AutonomousOpsBar userId={userId} />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* AGENT INSIGHTS */}
