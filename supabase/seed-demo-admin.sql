@@ -197,7 +197,7 @@ FOR v_i IN 1..25 LOOP
   INSERT INTO profiles (id, role, display_name, username, avatar_url, last_active_at, created_at, updated_at)
   VALUES (
     v_aa[v_i], 'artist', v_names[v_i], v_slugs[v_i],
-    'https://api.dicebear.com/9.x/notionists/png?seed=' || REPLACE(v_names[v_i], ' ', '') || '&backgroundColor=D4AF37&size=256',
+    'https://api.dicebear.com/9.x/avataaars/png?seed=' || REPLACE(v_names[v_i], ' ', '') || '&skinColor=' || (ARRAY['614335','ae5d29','d08b5b'])[1 + (v_i % 3)] || '&backgroundColor=D4AF37&size=256',
     -- More recent artists = more recently active
     CASE
       WHEN v_i <= 5 THEN NOW() - INTERVAL '30 days'  -- older, some inactive
@@ -343,10 +343,10 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO profiles (id, role, display_name, username, avatar_url, last_active_at, created_at, updated_at)
 VALUES
-  (v_rec_1, 'fan', 'Tanya Bridges', 'tanyabridges', 'https://api.dicebear.com/9.x/notionists/png?seed=TanyaBridges&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '2 days', NOW() - INTERVAL '90 days', NOW()),
-  (v_rec_2, 'fan', 'Derek Osman', 'derekosman', 'https://api.dicebear.com/9.x/notionists/png?seed=DerekOsman&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '5 days', NOW() - INTERVAL '80 days', NOW()),
-  (v_rec_3, 'fan', 'Camille Frost', 'camillefrost', 'https://api.dicebear.com/9.x/notionists/png?seed=CamilleFrost&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '1 day', NOW() - INTERVAL '60 days', NOW()),
-  (v_rec_4, 'fan', 'Jaylen Scott', 'jaylenscott', 'https://api.dicebear.com/9.x/notionists/png?seed=JaylenScott&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '8 days', NOW() - INTERVAL '45 days', NOW())
+  (v_rec_1, 'fan', 'Tanya Bridges', 'tanyabridges', 'https://api.dicebear.com/9.x/avataaars/png?seed=TanyaBridges&skinColor=ae5d29&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '2 days', NOW() - INTERVAL '90 days', NOW()),
+  (v_rec_2, 'fan', 'Derek Osman', 'derekosman', 'https://api.dicebear.com/9.x/avataaars/png?seed=DerekOsman&skinColor=614335&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '5 days', NOW() - INTERVAL '80 days', NOW()),
+  (v_rec_3, 'fan', 'Camille Frost', 'camillefrost', 'https://api.dicebear.com/9.x/avataaars/png?seed=CamilleFrost&skinColor=d08b5b&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '1 day', NOW() - INTERVAL '60 days', NOW()),
+  (v_rec_4, 'fan', 'Jaylen Scott', 'jaylenscott', 'https://api.dicebear.com/9.x/avataaars/png?seed=JaylenScott&skinColor=614335&backgroundColor=D4AF37&size=256', NOW() - INTERVAL '8 days', NOW() - INTERVAL '45 days', NOW())
 ON CONFLICT (id) DO NOTHING;
 
 -- Recruiter rows

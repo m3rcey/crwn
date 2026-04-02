@@ -1,36 +1,36 @@
 -- ============================================================
 -- Add avatar_url to demo artist profiles
--- Uses DiceBear Notionists style for artistic-looking avatars
+-- Uses DiceBear Avataaars style with dark skin tones
 -- RUN IN: Supabase SQL Editor
--- SAFE TO RE-RUN: Uses ON CONFLICT / WHERE clause
+-- SAFE TO RE-RUN: UPDATE is idempotent
 -- ============================================================
 
 UPDATE profiles SET avatar_url = CASE id
-  WHEN 'aa000001-de00-4000-a000-000000000001'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=KiraVoss&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000002'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=DanteReyes&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000003'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=SoleilPark&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000004'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=JunoBlake&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000005'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=RioNakamura&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000006'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=AriaFontaine&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000007'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=ZekeHolloway&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000008'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=NovaSterling&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000009'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=MiloCross&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000010'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=SageDeluca&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000011'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=LyricOkafor&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000012'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=PhoenixBae&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000013'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=IndigoWells&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000014'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=RavenCruz&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000015'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=AtlasYoung&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000016'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=EmberSato&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000017'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=QuinnMercer&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000018'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=OnyxRivera&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000019'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=CleoAshford&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000020'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=ReignTorres&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000021'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=BodhiKim&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000022'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=SableMontgomery&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000023'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=EchoVasquez&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000024'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=WrenCalloway&backgroundColor=D4AF37&size=256'
-  WHEN 'aa000001-de00-4000-a000-000000000025'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=ZuriAdeyemi&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000001'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=KiraVoss&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000002'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=DanteReyes&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000003'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=SoleilPark&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000004'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=JunoBlake&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000005'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=RioNakamura&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000006'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=AriaFontaine&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000007'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=ZekeHolloway&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000008'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=NovaSterling&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000009'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=MiloCross&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000010'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=SageDeluca&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000011'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=LyricOkafor&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000012'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=PhoenixBae&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000013'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=IndigoWells&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000014'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=RavenCruz&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000015'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=AtlasYoung&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000016'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=EmberSato&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000017'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=QuinnMercer&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000018'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=OnyxRivera&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000019'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=CleoAshford&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000020'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=ReignTorres&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000021'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=BodhiKim&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000022'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=SableMontgomery&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000023'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=EchoVasquez&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000024'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=WrenCalloway&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'aa000001-de00-4000-a000-000000000025'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=ZuriAdeyemi&skinColor=614335&backgroundColor=D4AF37&size=256'
 END
 WHERE id IN (
   'aa000001-de00-4000-a000-000000000001'::UUID,
@@ -62,10 +62,10 @@ WHERE id IN (
 
 -- Also update the 4 recruiter profiles
 UPDATE profiles SET avatar_url = CASE id
-  WHEN 'cc000001-de00-4000-a000-000000000001'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=TanyaBridges&backgroundColor=D4AF37&size=256'
-  WHEN 'cc000001-de00-4000-a000-000000000002'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=DerekOsman&backgroundColor=D4AF37&size=256'
-  WHEN 'cc000001-de00-4000-a000-000000000003'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=CamilleFrost&backgroundColor=D4AF37&size=256'
-  WHEN 'cc000001-de00-4000-a000-000000000004'::UUID THEN 'https://api.dicebear.com/9.x/notionists/png?seed=JaylenScott&backgroundColor=D4AF37&size=256'
+  WHEN 'cc000001-de00-4000-a000-000000000001'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=TanyaBridges&skinColor=ae5d29&backgroundColor=D4AF37&size=256'
+  WHEN 'cc000001-de00-4000-a000-000000000002'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=DerekOsman&skinColor=614335&backgroundColor=D4AF37&size=256'
+  WHEN 'cc000001-de00-4000-a000-000000000003'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=CamilleFrost&skinColor=d08b5b&backgroundColor=D4AF37&size=256'
+  WHEN 'cc000001-de00-4000-a000-000000000004'::UUID THEN 'https://api.dicebear.com/9.x/avataaars/png?seed=JaylenScott&skinColor=614335&backgroundColor=D4AF37&size=256'
 END
 WHERE id IN (
   'cc000001-de00-4000-a000-000000000001'::UUID,
