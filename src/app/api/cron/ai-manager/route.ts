@@ -4,6 +4,8 @@ import { collectArtistData } from '@/lib/ai/collectArtistData';
 import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
+import { generateActions, AgentActionInput } from '@/lib/ai/generateActions';
+import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
 
 // Insight types that warrant a push notification
@@ -77,6 +79,125 @@ async function insertInsights(artistId: string, artistUserId: string, insights: 
   return inserted;
 }
 
+// ─── Autonomous Agent: generate + execute actions per artist ────────────────
+
+async function runAutonomousAgent(artistId: string, artistUserId: string, effectiveTier: string) {
+  // Only Pro+ artists get autonomous actions
+  if (effectiveTier === 'starter') return { actionsExecuted: 0, actionsEscalated: 0, diagnosis: '' };
+
+  try {
+    const data = await collectArtistData(supabaseAdmin, artistId);
+    if (!data.hasActivity) return { actionsExecuted: 0, actionsEscalated: 0, diagnosis: '' };
+
+    // Collect extra context needed for action generation
+    const { data: sequences } = await supabaseAdmin
+      .from('sequences')
+      .select('id, name, trigger_type, is_active')
+      .eq('artist_id', artistId);
+
+    const { data: tiers } = await supabaseAdmin
+      .from('subscription_tiers')
+      .select('id, name, price')
+      .eq('artist_id', artistId)
+      .eq('is_active', true);
+
+    const { data: tracks } = await supabaseAdmin
+      .from('tracks')
+      .select('id, title, is_free, allowed_tier_ids')
+      .eq('artist_id', artistId)
+      .eq('is_active', true);
+
+    const allTracks = tracks || [];
+    const freeTracks = allTracks.filter(t => t.is_free !== false).map(t => ({ id: t.id, title: t.title }));
+    const gatedTracks = allTracks.filter(t => t.is_free === false).map(t => ({ id: t.id, title: t.title }));
+
+    const result = await generateActions(data, {
+      sequences: (sequences || []).map(s => ({ id: s.id, name: s.name, trigger_type: s.trigger_type, is_active: s.is_active })),
+      tiers: (tiers || []).map(t => ({ id: t.id, name: t.name, price: t.price })),
+      freeTracks,
+      gatedTracks,
+    });
+
+    let actionsExecuted = 0;
+    let actionsEscalated = 0;
+
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+    for (const action of result.actions) {
+      if (action.risk === 'low' && SAFE_ACTION_TYPES.includes(action.type)) {
+        // Auto-execute low-risk safe actions
+        try {
+          const execRes = await fetch(`${baseUrl}/api/ai-manager/execute`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.CRON_SECRET}`,
+            },
+            body: JSON.stringify({ artistId, action }),
+          });
+
+          if (execRes.ok) {
+            actionsExecuted++;
+          } else {
+            actionsEscalated++;
+            await storePendingAction(artistId, action);
+          }
+        } catch {
+          actionsEscalated++;
+          await storePendingAction(artistId, action);
+        }
+      } else {
+        // Medium/high risk — store as pending for artist approval
+        actionsEscalated++;
+        await storePendingAction(artistId, action);
+
+        // Notify artist of pending action
+        await createNotification(
+          supabaseAdmin,
+          artistUserId,
+          'ai_insight',
+          `AI Manager wants to: ${action.label}`,
+          action.description,
+          '/profile/artist?tab=ai-manager'
+        );
+      }
+    }
+
+    // Log the autonomous run
+    await supabaseAdmin.from('artist_agent_runs').insert({
+      artist_id: artistId,
+      diagnosis_summary: result.diagnosis,
+      severity: result.severity,
+      actions_recommended: result.actions.length,
+      actions_auto_executed: actionsExecuted,
+      actions_escalated: actionsEscalated,
+      outcome: actionsExecuted > 0
+        ? `Auto-executed ${actionsExecuted} action(s)`
+        : actionsEscalated > 0
+          ? `${actionsEscalated} action(s) awaiting approval`
+          : 'No actions needed',
+    });
+
+    return { actionsExecuted, actionsEscalated, diagnosis: result.diagnosis };
+  } catch (err) {
+    console.error(`Autonomous agent error for ${artistId}:`, err);
+    return { actionsExecuted: 0, actionsEscalated: 0, diagnosis: '' };
+  }
+}
+
+async function storePendingAction(artistId: string, action: AgentActionInput) {
+  await supabaseAdmin.from('artist_agent_actions').insert({
+    artist_id: artistId,
+    action_type: action.type,
+    action_label: action.label,
+    action_description: action.description,
+    action_params: action.params,
+    risk: action.risk,
+    status: 'pending',
+  });
+}
+
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -94,7 +215,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'No active artists' });
     }
 
-    const results: { artistId: string; status: string; insightsCreated?: number; error?: string }[] = [];
+    const results: { artistId: string; status: string; insightsCreated?: number; actionsExecuted?: number; actionsEscalated?: number; error?: string }[] = [];
 
     // Process artists in batches of 5 for parallelism
     for (let i = 0; i < artists.length; i += 5) {
@@ -128,7 +249,17 @@ export async function GET(req: NextRequest) {
           }
 
           const inserted = await insertInsights(artist.id, artist.user_id, insights, existingTypes);
-          results.push({ artistId: artist.id, status: 'success', insightsCreated: inserted });
+
+          // Run autonomous agent (generates + executes/escalates actions)
+          const agentResult = await runAutonomousAgent(artist.id, artist.user_id, effectiveTier);
+
+          results.push({
+            artistId: artist.id,
+            status: 'success',
+            insightsCreated: inserted,
+            actionsExecuted: agentResult.actionsExecuted,
+            actionsEscalated: agentResult.actionsEscalated,
+          });
         } catch (err) {
           results.push({ artistId: artist.id, status: 'failed', error: String(err) });
         }
@@ -136,10 +267,14 @@ export async function GET(req: NextRequest) {
     }
 
     const totalCreated = results.reduce((s, r) => s + (r.insightsCreated || 0), 0);
+    const totalExecuted = results.reduce((s, r) => s + (r.actionsExecuted || 0), 0);
+    const totalEscalated = results.reduce((s, r) => s + (r.actionsEscalated || 0), 0);
 
     return NextResponse.json({
       processed: results.length,
       insightsCreated: totalCreated,
+      actionsExecuted: totalExecuted,
+      actionsEscalated: totalEscalated,
       results,
     });
   } catch (error) {
