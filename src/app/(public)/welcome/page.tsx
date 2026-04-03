@@ -89,14 +89,25 @@ export default function WelcomePage() {
 
           // Create artist profile with slug from display name
           const slug = displayName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 30);
-          await supabase
+          const { data: newArtist } = await supabase
             .from('artist_profiles')
             .insert({
               user_id: user.id,
               slug: slug,
               acquisition_source: acquisitionSource,
               ...(recruiterCode ? { recruited_by: recruiterCode } : {}),
-            });
+            })
+            .select('id')
+            .single();
+
+          // Seed default email sequences (fire-and-forget)
+          if (newArtist) {
+            fetch('/api/sequences/seed-defaults', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ artistId: newArtist.id }),
+            }).catch(() => {});
+          }
 
           // Mark referral click as converted (fire-and-forget)
           if (recruiterCode) {
