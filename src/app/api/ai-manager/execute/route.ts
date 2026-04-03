@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { snapshotArtistMetrics } from '@/lib/ai/snapshotMetrics';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -378,6 +379,14 @@ async function executeAction(
   }
 
   try {
+    // Snapshot baseline metrics before executing
+    let baseline = null;
+    try {
+      baseline = await snapshotArtistMetrics(supabaseAdmin, artistId);
+    } catch (snapErr) {
+      console.error('Baseline snapshot failed (non-fatal):', snapErr);
+    }
+
     const message = await handler(artistId, action.params);
 
     if (existingActionId) {
@@ -389,6 +398,7 @@ async function executeAction(
           result_message: message,
           executed_at: new Date().toISOString(),
           reviewed_at: mode === 'approved' ? new Date().toISOString() : undefined,
+          baseline_metrics: baseline,
         })
         .eq('id', existingActionId);
     } else {
@@ -403,6 +413,7 @@ async function executeAction(
         status: 'auto_executed',
         result_message: message,
         executed_at: new Date().toISOString(),
+        baseline_metrics: baseline,
       });
     }
 

@@ -71,6 +71,10 @@
     {
       "path": "/api/cron/sequence-conversions",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/outcome-measure",
+      "schedule": "0 1 * * *"
     }
   ]
 }

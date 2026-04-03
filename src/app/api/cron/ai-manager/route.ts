@@ -4,7 +4,7 @@ import { collectArtistData } from '@/lib/ai/collectArtistData';
 import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
-import { generateActions, AgentActionInput } from '@/lib/ai/generateActions';
+import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generateActions';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
 
@@ -111,20 +111,58 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
     const freeTracks = allTracks.filter(t => t.is_free !== false).map(t => ({ id: t.id, title: t.title }));
     const gatedTracks = allTracks.filter(t => t.is_free === false).map(t => ({ id: t.id, title: t.title }));
 
+    // Fetch past action outcomes for learning (last 90 days, measured only)
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 86400000).toISOString();
+    const { data: pastOutcomeData } = await supabaseAdmin
+      .from('artist_agent_actions')
+      .select('action_type, action_label, outcome_delta, executed_at')
+      .eq('artist_id', artistId)
+      .in('status', ['auto_executed', 'executed'])
+      .not('outcome_measured_at', 'is', null)
+      .not('outcome_delta', 'is', null)
+      .gte('executed_at', ninetyDaysAgo)
+      .order('executed_at', { ascending: false })
+      .limit(10);
+
+    const pastOutcomes: PastOutcome[] = (pastOutcomeData || []).map(o => {
+      const delta = (o.outcome_delta || {}) as Record<string, number>;
+      const score = (delta.mrr || 0) + (delta.activeSubs || 0) * 100 - (delta.churnRate || 0) * 500;
+      return {
+        action_type: o.action_type,
+        action_label: o.action_label,
+        outcome_delta: delta,
+        outcome_score: score,
+        executed_at: o.executed_at,
+      };
+    });
+
     const result = await generateActions(data, {
       sequences: (sequences || []).map(s => ({ id: s.id, name: s.name, trigger_type: s.trigger_type, is_active: s.is_active })),
       tiers: (tiers || []).map(t => ({ id: t.id, name: t.name, price: t.price })),
       freeTracks,
       gatedTracks,
+      pastOutcomes,
     });
 
     let actionsExecuted = 0;
     let actionsEscalated = 0;
 
+    // Dedup: skip actions of types already executed/pending in last 7 days
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const { data: recentActions } = await supabaseAdmin
+      .from('artist_agent_actions')
+      .select('action_type')
+      .eq('artist_id', artistId)
+      .in('status', ['pending', 'auto_executed', 'executed'])
+      .gte('created_at', sevenDaysAgo);
+
+    const recentTypes = new Set((recentActions || []).map(a => a.action_type));
+    const dedupedActions = result.actions.filter(a => !recentTypes.has(a.type));
+
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
       || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
-    for (const action of result.actions) {
+    for (const action of dedupedActions) {
       if (action.risk === 'low' && SAFE_ACTION_TYPES.includes(action.type)) {
         // Auto-execute low-risk safe actions
         try {
@@ -165,9 +203,10 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
     }
 
     // Log the autonomous run
+    const skipped = result.actions.length - dedupedActions.length;
     await supabaseAdmin.from('artist_agent_runs').insert({
       artist_id: artistId,
-      diagnosis_summary: result.diagnosis,
+      diagnosis_summary: result.diagnosis + (skipped > 0 ? ` (${skipped} deduped)` : ''),
       severity: result.severity,
       actions_recommended: result.actions.length,
       actions_auto_executed: actionsExecuted,

@@ -62,11 +62,20 @@ const ACTION_FUNCTION = {
   },
 };
 
+export interface PastOutcome {
+  action_type: string;
+  action_label: string;
+  outcome_delta: Record<string, number>;
+  outcome_score: number;
+  executed_at: string;
+}
+
 function buildActionPrompt(data: ArtistDataForAI, extraContext: {
   sequences: { id: string; name: string; trigger_type: string; is_active: boolean }[];
   tiers: { id: string; name: string; price: number }[];
   freeTracks: { id: string; title: string }[];
   gatedTracks: { id: string; title: string }[];
+  pastOutcomes?: PastOutcome[];
 }): string {
   const lines: string[] = [];
   const $ = (cents: number) => `$${(cents / 100).toFixed(2)}`;
@@ -135,6 +144,23 @@ function buildActionPrompt(data: ArtistDataForAI, extraContext: {
     data.topFans.forEach(f => lines.push(`  ${f.name}: ${$(f.totalSpent)} total`));
   }
 
+  // Past action outcomes (learning from history)
+  if (extraContext.pastOutcomes && extraContext.pastOutcomes.length > 0) {
+    lines.push('');
+    lines.push('=== PAST ACTION OUTCOMES (learn from these) ===');
+    extraContext.pastOutcomes.forEach(o => {
+      const delta = o.outcome_delta;
+      const effects: string[] = [];
+      if (delta.mrr !== 0) effects.push(`MRR ${delta.mrr > 0 ? '+' : ''}${$(delta.mrr)}`);
+      if (delta.activeSubs !== 0) effects.push(`subs ${delta.activeSubs > 0 ? '+' : ''}${delta.activeSubs}`);
+      if (delta.churnRate !== 0) effects.push(`churn ${delta.churnRate > 0 ? '+' : ''}${delta.churnRate}%`);
+      if (delta.atRiskFans !== 0) effects.push(`at-risk ${delta.atRiskFans > 0 ? '+' : ''}${delta.atRiskFans}`);
+      const verdict = o.outcome_score > 0 ? 'POSITIVE' : o.outcome_score < 0 ? 'NEGATIVE' : 'NEUTRAL';
+      lines.push(`  ${o.action_type}: "${o.action_label}" → ${verdict} (${effects.join(', ') || 'no change'})`);
+    });
+    lines.push('Use these results to inform your recommendations. Repeat what worked. Avoid what failed.');
+  }
+
   return lines.join('\n');
 }
 
@@ -166,6 +192,12 @@ RULES:
 - Return 0 actions if everything is healthy and no intervention needed.
 - All prices in CENTS. Convert to dollars in labels.
 
+LEARNING FROM OUTCOMES:
+If PAST ACTION OUTCOMES are provided, use them to calibrate your recommendations:
+- If an action type had POSITIVE outcomes, prefer recommending it again in similar conditions.
+- If an action type had NEGATIVE outcomes, avoid it unless conditions have changed significantly.
+- Reference specific past results in your description when relevant (e.g. "Last re-engagement gained +2 subs").
+
 LABEL FORMAT — CRITICAL:
 Every label MUST lead with the ACTION VERB, then the justification. Format: "[Verb] [what] — [metric reason]"
 - Good: "Activate win-back sequence — 3 churned fans this month"
@@ -181,6 +213,7 @@ export async function generateActions(
     tiers: { id: string; name: string; price: number }[];
     freeTracks: { id: string; title: string }[];
     gatedTracks: { id: string; title: string }[];
+    pastOutcomes?: PastOutcome[];
   },
 ): Promise<{ diagnosis: string; severity: string; actions: AgentActionInput[] }> {
   try {

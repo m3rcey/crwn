@@ -74,6 +74,8 @@ interface PendingAction {
   result_message: string | null;
   created_at: string;
   executed_at: string | null;
+  outcome_delta: Record<string, number> | null;
+  outcome_measured_at: string | null;
 }
 
 interface AgentRun {
@@ -139,16 +141,16 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
 
     setPendingActions((pendingData || []) as PendingAction[]);
 
-    // Fetch recent executed/rejected actions (last 7 days)
-    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    // Fetch recent executed/rejected actions (last 30 days to show measured outcomes)
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
     const { data: recentData } = await supabase
       .from('artist_agent_actions')
       .select('*')
       .eq('artist_id', artistId)
       .in('status', ['auto_executed', 'executed', 'rejected', 'failed'])
-      .gte('created_at', sevenDaysAgo)
+      .gte('created_at', thirtyDaysAgo)
       .order('created_at', { ascending: false })
-      .limit(10);
+      .limit(15);
 
     setRecentActions((recentData || []) as PendingAction[]);
 
@@ -361,6 +363,15 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
               {recentActions.map((action) => {
                 const isSuccess = action.status === 'auto_executed' || action.status === 'executed';
                 const isRejected = action.status === 'rejected';
+                const delta = action.outcome_delta;
+                const hasMeasurement = action.outcome_measured_at && delta;
+
+                // Compute simple outcome score for badge
+                let outcomeVerdict: 'positive' | 'negative' | 'neutral' | null = null;
+                if (hasMeasurement) {
+                  const score = (delta.mrr || 0) + (delta.activeSubs || 0) * 100 - (delta.churnRate || 0) * 500;
+                  outcomeVerdict = score > 0 ? 'positive' : score < 0 ? 'negative' : 'neutral';
+                }
 
                 return (
                   <div key={action.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-crwn-elevated/30">
@@ -385,10 +396,40 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
                       {action.result_message && (
                         <p className="text-[10px] text-crwn-text-secondary/60 truncate">{action.result_message}</p>
                       )}
+                      {hasMeasurement && (
+                        <div className="flex items-center gap-2 mt-1">
+                          {delta.mrr !== 0 && (
+                            <span className={`text-[10px] font-medium ${delta.mrr > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              MRR {delta.mrr > 0 ? '+' : ''}{(delta.mrr / 100).toFixed(0)}
+                            </span>
+                          )}
+                          {delta.activeSubs !== 0 && (
+                            <span className={`text-[10px] font-medium ${delta.activeSubs > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              {delta.activeSubs > 0 ? '+' : ''}{delta.activeSubs} subs
+                            </span>
+                          )}
+                          {delta.churnRate !== 0 && (
+                            <span className={`text-[10px] font-medium ${delta.churnRate < 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              churn {delta.churnRate > 0 ? '+' : ''}{delta.churnRate}%
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <span className="text-[10px] text-crwn-text-secondary/40 shrink-0">
-                      {new Date(action.executed_at || action.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {outcomeVerdict && (
+                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                          outcomeVerdict === 'positive' ? 'bg-green-500/10 text-green-400' :
+                          outcomeVerdict === 'negative' ? 'bg-red-500/10 text-red-400' :
+                          'bg-crwn-elevated text-crwn-text-secondary'
+                        }`}>
+                          {outcomeVerdict === 'positive' ? 'Worked' : outcomeVerdict === 'negative' ? 'No lift' : 'Flat'}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-crwn-text-secondary/40">
+                        {new Date(action.executed_at || action.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
