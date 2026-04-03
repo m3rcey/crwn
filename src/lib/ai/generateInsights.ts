@@ -8,7 +8,7 @@ const openai = new OpenAI({
 
 const INSIGHT_FUNCTION = {
   name: 'generate_insights',
-  description: 'Generate actionable insights for the artist based on their data',
+  description: 'Generate actionable insights for the artist based on their analytics data',
   parameters: {
     type: 'object' as const,
     properties: {
@@ -20,29 +20,25 @@ const INSIGHT_FUNCTION = {
             type: {
               type: 'string' as const,
               enum: ['revenue', 'churn', 'vip_fan', 'booking_reminder', 'content_nudge', 'weekly_digest'],
-              description: 'The category of insight',
             },
             priority: {
               type: 'string' as const,
               enum: ['urgent', 'high', 'normal', 'low'],
-              description: 'Priority level. Use urgent for revenue drops >30% or multiple churn events. Use high for at-risk fans or expiring products. Normal for recommendations. Low for general tips.',
             },
             title: {
               type: 'string' as const,
-              description: 'Short, actionable title (max 80 chars). Be specific with numbers.',
+              description: 'Short, specific title with numbers (max 80 chars)',
             },
             body: {
               type: 'string' as const,
-              description: 'Detailed insight with specific recommendation (max 300 chars). Include dollar amounts, fan names, percentages where relevant.',
+              description: 'Analysis + specific recommendation (max 300 chars). Reference the metric, explain what it means, and say what to do.',
             },
             action_type: {
               type: 'string' as const,
               enum: ['link'],
-              description: 'Set to "link" if there is a relevant page to navigate to',
             },
             action_url: {
               type: 'string' as const,
-              description: 'App-relative URL for the action. Common values: /profile/artist?tab=analytics, /profile/artist?tab=tiers, /profile/artist?tab=shop, /community',
             },
           },
           required: ['type', 'priority', 'title', 'body'],
@@ -57,37 +53,69 @@ const INSIGHT_FUNCTION = {
 
 function buildPrompt(data: ArtistDataForAI): string {
   const lines: string[] = [];
+  const $ = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+  const pct = (n: number) => `${n}%`;
 
-  lines.push(`Artist: ${data.artistName}`);
-  lines.push(`Platform Tier: ${data.platformTier}`);
+  lines.push(`Artist: ${data.artistName} | Tier: ${data.platformTier}`);
   lines.push('');
 
-  // Revenue
-  lines.push('=== REVENUE (all amounts in cents) ===');
-  lines.push(`This week: ${data.revenue.thisWeek} | Last week: ${data.revenue.lastWeek}`);
-  lines.push(`This month: ${data.revenue.thisMonth} | Last month: ${data.revenue.lastMonth}`);
+  // Unit Economics — this is what matters
+  lines.push('=== UNIT ECONOMICS ===');
+  lines.push(`MRR: ${$(data.unitEconomics.mrr)} | ARPU: ${$(data.unitEconomics.arpu)}/mo | LTV: ${$(data.unitEconomics.ltv)}`);
+  lines.push(`Churn Rate: ${pct(data.unitEconomics.churnRate)}/mo | Avg Lifespan: ${data.unitEconomics.avgLifespanMonths} months`);
+  lines.push(`Revenue Per Visitor: ${$(data.unitEconomics.revenuePerVisitor)} (30d) | Unique Visitors: ${data.unitEconomics.uniqueVisitors30d}`);
+  lines.push(`Revenue Per Play: ${$(data.unitEconomics.revenuePerPlay)} | Sales Velocity: ${data.unitEconomics.salesVelocity} new subs/mo`);
+
+  // Revenue trends
+  lines.push('');
+  lines.push('=== REVENUE TRENDS (cents) ===');
+  lines.push(`This week: ${$(data.revenue.thisWeek)} | Last week: ${$(data.revenue.lastWeek)} | Change: ${data.revenue.lastWeek > 0 ? Math.round(((data.revenue.thisWeek - data.revenue.lastWeek) / data.revenue.lastWeek) * 100) : 'N/A'}%`);
+  lines.push(`This month: ${$(data.revenue.thisMonth)} | Last month: ${$(data.revenue.lastMonth)} | Change: ${data.revenue.lastMonth > 0 ? Math.round(((data.revenue.thisMonth - data.revenue.lastMonth) / data.revenue.lastMonth) * 100) : 'N/A'}%`);
   if (Object.keys(data.revenue.byType).length > 0) {
-    lines.push(`By type: ${Object.entries(data.revenue.byType).map(([k, v]) => `${k}: ${v}`).join(', ')}`);
+    lines.push(`By type: ${Object.entries(data.revenue.byType).map(([k, v]) => `${k}: ${$(v)}`).join(', ')}`);
   }
 
   // Subscribers
   lines.push('');
   lines.push('=== SUBSCRIBERS ===');
-  lines.push(`Active: ${data.subscribers.active} | New this week: ${data.subscribers.newThisWeek} | Churned this week: ${data.subscribers.churnedThisWeek}`);
+  lines.push(`Active: ${data.subscribers.active} | New this month: ${data.subscribers.newThisMonth} | Churned this month: ${data.subscribers.churnedThisMonth}`);
+  if (data.subscribers.byTier.length > 0) {
+    lines.push(`By tier: ${data.subscribers.byTier.map(t => `${t.name} (${$(t.price)}/mo): ${t.count} subs`).join(' | ')}`);
+  }
+  lines.push(`Fan health: ${data.subscribers.fanActivity.active} active (7d), ${data.subscribers.fanActivity.atRisk} at-risk (7-21d), ${data.subscribers.fanActivity.churning} churning (21d+)`);
+
   if (data.subscribers.atRiskFans.length > 0) {
-    lines.push(`At-risk fans (no activity 14+ days):`);
-    data.subscribers.atRiskFans.slice(0, 10).forEach(f => {
-      lines.push(`  - ${f.name} (${f.daysSinceActive} days inactive)`);
+    lines.push(`At-risk fans: ${data.subscribers.atRiskFans.slice(0, 5).map(f => `${f.name} (${f.daysSinceActive}d inactive)`).join(', ')}`);
+  }
+
+  // Retention & Churn Intel
+  lines.push('');
+  lines.push('=== RETENTION ===');
+  if (data.retention.cohorts.length > 0) {
+    lines.push('Cohort retention:');
+    data.retention.cohorts.forEach(c => {
+      lines.push(`  ${c.month} (${c.size} subs): M1=${c.m1 !== null ? pct(c.m1) : '?'} M2=${c.m2 !== null ? pct(c.m2) : '?'} M3=${c.m3 !== null ? pct(c.m3) : '?'}`);
     });
+  }
+  if (data.retention.cancelReasons.length > 0) {
+    lines.push(`Why fans cancel: ${data.retention.cancelReasons.map(r => `"${r.reason}" (${r.count})`).join(', ')}`);
+  }
+  if (data.retention.recentCancelFeedback.length > 0) {
+    lines.push(`Recent cancel feedback: ${data.retention.recentCancelFeedback.map(f => `"${f}"`).join('; ')}`);
+  }
+  if (data.retention.npsAvg !== null) {
+    lines.push(`Fan NPS: ${data.retention.npsAvg}/10`);
+  }
+  if (data.retention.surveyWhyStayed.length > 0) {
+    lines.push(`Why fans stay: ${data.retention.surveyWhyStayed.map(s => `"${s}"`).join('; ')}`);
   }
 
   // Plays
   lines.push('');
   lines.push('=== PLAYS ===');
-  lines.push(`Total all-time: ${data.plays.total} | This week: ${data.plays.thisWeek} | Last week: ${data.plays.lastWeek}`);
+  lines.push(`Total: ${data.plays.total} | This week: ${data.plays.thisWeek} | Last week: ${data.plays.lastWeek}`);
   if (data.plays.topTracks.length > 0) {
-    lines.push('Top tracks:');
-    data.plays.topTracks.forEach(t => lines.push(`  - "${t.title}": ${t.plays} plays`));
+    lines.push(`Top tracks: ${data.plays.topTracks.map(t => `"${t.title}" (${t.plays})`).join(', ')}`);
   }
 
   // Community
@@ -96,24 +124,66 @@ function buildPrompt(data: ArtistDataForAI): string {
   lines.push(`Posts this month: ${data.community.postsThisMonth} | Avg likes: ${data.community.avgLikes} | Avg comments: ${data.community.avgComments}`);
   lines.push(`Last post: ${data.community.lastPostDate || 'never'}`);
 
+  // Top fans
+  if (data.topFans.length > 0) {
+    lines.push('');
+    lines.push('=== TOP FANS ===');
+    data.topFans.forEach(f => lines.push(`  ${f.name}: ${$(f.totalSpent)} total`));
+  }
+
+  // Geography
+  if (data.geography.topCities.length > 0) {
+    lines.push('');
+    lines.push('=== GEOGRAPHY ===');
+    lines.push(`Top cities: ${data.geography.topCities.map(c => `${c.city} (${c.count} fans)`).join(', ')}`);
+    if (data.geography.topCitiesByRevenue.length > 0) {
+      lines.push(`Top by revenue: ${data.geography.topCitiesByRevenue.map(c => `${c.city} (${$(c.revenue)})`).join(', ')}`);
+    }
+  }
+
+  // Referrals
+  if (data.referrals.totalReferrals > 0) {
+    lines.push('');
+    lines.push('=== REFERRAL PROGRAM ===');
+    lines.push(`Total: ${data.referrals.totalReferrals} | Active: ${data.referrals.activeReferrals} | Commission: ${$(data.referrals.totalCommission)} | % of subs from referrals: ${pct(data.referrals.conversionRate)}`);
+  }
+
   // Products expiring
   if (data.products.expiringWithin7Days.length > 0) {
     lines.push('');
     lines.push('=== EXPIRING PRODUCTS ===');
     data.products.expiringWithin7Days.forEach(p => {
-      lines.push(`  - "${p.title}" expires ${new Date(p.expiresAt).toLocaleDateString()}`);
+      lines.push(`  "${p.title}" expires ${new Date(p.expiresAt).toLocaleDateString()}`);
     });
-  }
-
-  // Top fans
-  if (data.topFans.length > 0) {
-    lines.push('');
-    lines.push('=== TOP FANS (by total spend in cents) ===');
-    data.topFans.forEach(f => lines.push(`  - ${f.name}: ${f.totalSpent}`));
   }
 
   return lines.join('\n');
 }
+
+const SYSTEM_PROMPT = `You are an AI artist manager analyzing an independent artist's analytics dashboard on CRWN, a music monetization platform. Your job is to find the ONE OR TWO most important signals in the data and explain what they mean in plain language — like a smart manager would to their artist.
+
+THINK LIKE A MANAGER, NOT A DASHBOARD:
+- Don't just restate numbers ("revenue is up 39%"). Explain what's DRIVING the change and what to DO about it.
+- Connect metrics to each other. If RPV is rising + churn is low, that means the audience is getting more valuable — time to raise prices or launch a premium tier.
+- If churn is rising, look at WHY (cancel reasons, cohort retention, fan activity health) before suggesting anything.
+- If a specific fan is at risk, name them and suggest a specific outreach.
+- If community engagement is dropping but revenue is flat, explain why that's a leading indicator.
+
+UNIT ECONOMICS REASONING:
+- LTV > $50 with churn < 5% = healthy, can invest in growth
+- LTV < $20 or churn > 10% = fix retention before anything else
+- RPV rising = audience quality improving, consider price increases
+- RPV falling = traffic quality declining, tighten targeting
+- ARPU low relative to peers ($8-15/mo is typical) = tier pricing may be too low
+- Sales velocity declining = acquisition problem, need more content or promotion
+
+BENCHMARKS:
+- Churn: <5% excellent, 5-8% okay, 8-15% concerning, >15% urgent
+- M0→M1 retention drop >40% = onboarding problem (welcome sequence not working)
+- M3+ still dropping = product/content problem (not enough new music)
+- NPS < 7 = detractors outnumber promoters
+
+Be specific. Use exact numbers and fan names from the data. Each insight should teach the artist something they can't see just by looking at the dashboard.`;
 
 export async function generateInsights(data: ArtistDataForAI): Promise<InsightInput[]> {
   try {
@@ -121,34 +191,13 @@ export async function generateInsights(data: ArtistDataForAI): Promise<InsightIn
       model: 'gpt-4o-mini',
       max_tokens: 1024,
       messages: [
-        {
-          role: 'system',
-          content: `You are an AI artist manager for CRWN, a music monetization platform for independent artists. Analyze the artist's data and generate 2-5 actionable insights.
-
-Focus on:
-- Revenue trends and anomalies (percentage changes, what's driving growth or decline)
-- Churn risk (at-risk fans who haven't engaged, recent cancellations)
-- VIP fan opportunities (top spenders who could upgrade tiers or be engaged more)
-- Content gaps (posting cadence, what types of content perform best)
-- Booking/product reminders (expiring products, upcoming sessions)
-
-Be specific with numbers, names, and percentages. Convert cents to dollars in your output (divide by 100). Don't give generic advice — every insight should reference actual data points. Keep titles punchy and bodies actionable.`,
-        },
-        {
-          role: 'user',
-          content: buildPrompt(data),
-        },
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: buildPrompt(data) },
       ],
-      tools: [
-        {
-          type: 'function',
-          function: INSIGHT_FUNCTION,
-        },
-      ],
+      tools: [{ type: 'function', function: INSIGHT_FUNCTION }],
       tool_choice: { type: 'function', function: { name: 'generate_insights' } },
     });
 
-    // Extract function call from response
     const toolCall = response.choices[0]?.message?.tool_calls?.[0];
     if (!toolCall || toolCall.type !== 'function') {
       console.error('AI Manager: No function call in response');
