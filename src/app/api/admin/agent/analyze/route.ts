@@ -68,12 +68,12 @@ Return a JSON object with exactly this structure:
   "actions": [...]
 }
 
-SUPPORTING SIGNALS: Pick 3-5 metrics that support or contextualize the diagnosis. These should help the admin understand the full picture without being overwhelmed. Order: worst signals first.
+SUPPORTING SIGNALS: Pick 3-5 metrics that support or contextualize the diagnosis. Each signal label MUST lead with an action verb or clear directive. Good: "Enable onboarding_incomplete sequence — 60% stall rate". Bad: "Onboarding stall rate is 60%". Order: worst signals first.
 
 ACTIONS array — concrete actions you recommend the admin approve. Each action must have:
 - type: one of "toggle_sequence" | "update_pipeline_stages" | "send_briefing" | "add_pipeline_note" | "flag_at_risk" | "enroll_in_sequence" | "pause_recruiter"
-- label: short action name (max 60 chars)
-- description: why this action should be taken (max 200 chars)
+- label: short action name — MUST lead with a verb (max 60 chars). Format: "[Verb] [what] — [metric reason]". Good: "Flag 3 stalled artists — no track in 14+ days". Bad: "Artists are stalling at onboarding".
+- description: why this action should be taken, citing specific numbers (max 200 chars)
 - risk: "low" | "medium" | "high"
 - params: object with action-specific parameters:
   - toggle_sequence: { "sequence_trigger": "<trigger_name>", "enable": true|false }

@@ -183,6 +183,15 @@ BENCHMARKS:
 - M3+ still dropping = product/content problem (not enough new music)
 - NPS < 7 = detractors outnumber promoters
 
+TITLE FORMAT — CRITICAL:
+Every title MUST lead with the ACTION, then the data justification. Format: "[Verb] [what] — [metric reason]"
+- Good: "Raise Wave tier to $15 — RPV up 62%, fans can bear it"
+- Good: "DM Aaliyah now — 18 days inactive, $200/mo at risk"
+- Good: "Keep dropping gated tracks weekly — M1 retention at 92%"
+- Bad: "Revenue up 39% this month" (no action)
+- Bad: "Aaliyah James is your top supporter" (observation, not action)
+- Bad: "Your sample pack is your best-selling product" (restating data)
+
 Be specific. Use exact numbers and fan names from the data. Each insight should teach the artist something they can't see just by looking at the dashboard.`;
 
 export async function generateInsights(data: ArtistDataForAI): Promise<InsightInput[]> {
