@@ -8,10 +8,10 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-const kimi = new OpenAI({
-  apiKey: process.env.MOONSHOT_API_KEY || 'dummy-key-for-build',
-  baseURL: 'https://api.moonshot.ai/v1',
-  timeout: 45000, // 45s timeout
+const deepseek = new OpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY || 'dummy-key-for-build',
+  baseURL: 'https://api.deepseek.com',
+  timeout: 45000,
 });
 
 const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You diagnose the single biggest problem hurting the business right now, trace the cause-effect chain, and suggest concrete actions to fix it.
@@ -144,12 +144,10 @@ export async function POST(req: NextRequest) {
 
       let scopeResponse;
       try {
-        scopeResponse = await kimi.chat.completions.create({
-          model: 'kimi-k2.5',
+        scopeResponse = await deepseek.chat.completions.create({
+          model: 'deepseek-chat',
           max_tokens: 3000,
           temperature: 0.6,
-          // @ts-expect-error — Kimi-specific param
-          thinking: { type: 'disabled' },
           messages: [
             { role: 'system', content: scopePrompt },
             { role: 'user', content: scopeMessage },
@@ -157,8 +155,8 @@ export async function POST(req: NextRequest) {
         });
       } catch (apiErr: unknown) {
         const msg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-        console.error(`Kimi API error (${scope}):`, msg);
-        return NextResponse.json({ error: `Kimi API error: ${msg}` }, { status: 502 });
+        console.error(`DeepSeek API error (${scope}):`, msg);
+        return NextResponse.json({ error: `DeepSeek API error: ${msg}` }, { status: 502 });
       }
 
       const rawText = scopeResponse.choices[0]?.message?.content || '{}';
@@ -385,12 +383,10 @@ Return ONLY the JSON object with "diagnosis", "supporting_signals", and "actions
 
     let response;
     try {
-      response = await kimi.chat.completions.create({
-        model: 'kimi-k2.5',
+      response = await deepseek.chat.completions.create({
+        model: 'deepseek-chat',
         max_tokens: 4000,
         temperature: 0.6,
-        // @ts-expect-error — Kimi-specific param to disable slow thinking mode
-        thinking: { type: 'disabled' },
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: userMessage },
@@ -398,8 +394,8 @@ Return ONLY the JSON object with "diagnosis", "supporting_signals", and "actions
       });
     } catch (apiErr: unknown) {
       const msg = apiErr instanceof Error ? apiErr.message : String(apiErr);
-      console.error('Kimi API error:', msg);
-      return NextResponse.json({ error: `Kimi API error: ${msg}` }, { status: 502 });
+      console.error('DeepSeek API error:', msg);
+      return NextResponse.json({ error: `DeepSeek API error: ${msg}` }, { status: 502 });
     }
 
     const rawText = response.choices[0]?.message?.content || '{}';

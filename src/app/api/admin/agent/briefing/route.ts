@@ -9,9 +9,9 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-const kimi = new OpenAI({
-  apiKey: process.env.MOONSHOT_API_KEY || 'dummy-key-for-build',
-  baseURL: 'https://api.moonshot.ai/v1',
+const deepseek = new OpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY || 'dummy-key-for-build',
+  baseURL: 'https://api.deepseek.com',
 });
 
 const SYSTEM_PROMPT = `You are CRWN's daily business health monitor. Analyze the platform metrics and identify the most important items the owner needs to know TODAY.
@@ -69,13 +69,11 @@ Revenue (period): $${(metrics.periodRevenue / 100).toFixed(2)} | Costs: $${(metr
 
 Return ONLY the JSON array.`;
 
-    const response = await kimi.chat.completions.create({
-      model: 'kimi-k2.5',
+    const response = await deepseek.chat.completions.create({
+      model: 'deepseek-chat',
       max_tokens: 1500,
       temperature: 0.6,
       top_p: 0.95,
-      // @ts-expect-error — Kimi-specific param to disable slow thinking mode
-      thinking: { type: 'disabled' },
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userMessage },

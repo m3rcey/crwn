@@ -1,8 +1,9 @@
 import OpenAI from 'openai';
 import { ArtistDataForAI } from './collectArtistData';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
+const deepseek = new OpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY || 'dummy-key-for-build',
+  baseURL: 'https://api.deepseek.com',
 });
 
 export interface AgentActionInput {
@@ -224,8 +225,8 @@ export async function generateActions(
   },
 ): Promise<{ diagnosis: string; severity: string; actions: AgentActionInput[] }> {
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+    const response = await deepseek.chat.completions.create({
+      model: 'deepseek-chat',
       max_tokens: 1024,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },

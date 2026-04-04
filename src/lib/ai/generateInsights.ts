@@ -2,8 +2,9 @@ import OpenAI from 'openai';
 import { ArtistDataForAI } from './collectArtistData';
 import { InsightInput } from './starterNudges';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
+const deepseek = new OpenAI({
+  apiKey: process.env.DEEPSEEK_API_KEY || 'dummy-key-for-build',
+  baseURL: 'https://api.deepseek.com',
 });
 
 const INSIGHT_FUNCTION = {
@@ -196,8 +197,8 @@ Be specific. Use exact numbers and fan names from the data. Each insight should 
 
 export async function generateInsights(data: ArtistDataForAI): Promise<InsightInput[]> {
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+    const response = await deepseek.chat.completions.create({
+      model: 'deepseek-chat',
       max_tokens: 1024,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
@@ -225,7 +226,7 @@ export async function generateInsights(data: ArtistDataForAI): Promise<InsightIn
       action_url: insight.action_url || null,
     }));
   } catch (error) {
-    console.error('AI Manager: OpenAI API error', error);
+    console.error('AI Manager: DeepSeek API error', error);
     return [];
   }
 }

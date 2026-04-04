@@ -135,7 +135,7 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
       setAnalyzedAt(new Date(data.analyzedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
     } catch (err: unknown) {
       if (err instanceof DOMException && err.name === 'AbortError') {
-        setError('Analysis timed out (60s). Check that MOONSHOT_API_KEY is set in Vercel.');
+        setError('Analysis timed out (60s). Check that DEEPSEEK_API_KEY is set in Vercel.');
       } else {
         setError(err instanceof Error ? err.message : 'Analysis failed');
       }
