@@ -5,6 +5,7 @@ import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
 import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generateActions';
+import { getCrossArtistPatterns, formatPatternsForPrompt } from '@/lib/ai/crossArtistPatterns';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
 
@@ -81,7 +82,7 @@ async function insertInsights(artistId: string, artistUserId: string, insights: 
 
 // ─── Autonomous Agent: generate + execute actions per artist ────────────────
 
-async function runAutonomousAgent(artistId: string, artistUserId: string, effectiveTier: string) {
+async function runAutonomousAgent(artistId: string, artistUserId: string, effectiveTier: string, crossArtistContext: string) {
   // Only Pro+ artists get autonomous actions
   if (effectiveTier === 'starter') return { actionsExecuted: 0, actionsEscalated: 0, diagnosis: '' };
 
@@ -142,6 +143,7 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
       freeTracks,
       gatedTracks,
       pastOutcomes,
+      crossArtistContext,
     });
 
     let actionsExecuted = 0;
@@ -256,6 +258,15 @@ export async function GET(req: NextRequest) {
 
     const results: { artistId: string; status: string; insightsCreated?: number; actionsExecuted?: number; actionsEscalated?: number; error?: string }[] = [];
 
+    // Fetch cross-artist patterns once (shared across all artists in this run)
+    let crossArtistContext = '';
+    try {
+      const patterns = await getCrossArtistPatterns(supabaseAdmin);
+      crossArtistContext = formatPatternsForPrompt(patterns);
+    } catch (err) {
+      console.error('Cross-artist pattern fetch failed (non-fatal):', err);
+    }
+
     // Process artists in batches of 5 for parallelism
     for (let i = 0; i < artists.length; i += 5) {
       const batch = artists.slice(i, i + 5);
@@ -290,7 +301,7 @@ export async function GET(req: NextRequest) {
           const inserted = await insertInsights(artist.id, artist.user_id, insights, existingTypes);
 
           // Run autonomous agent (generates + executes/escalates actions)
-          const agentResult = await runAutonomousAgent(artist.id, artist.user_id, effectiveTier);
+          const agentResult = await runAutonomousAgent(artist.id, artist.user_id, effectiveTier, crossArtistContext);
 
           results.push({
             artistId: artist.id,

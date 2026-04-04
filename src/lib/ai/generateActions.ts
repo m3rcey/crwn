@@ -76,6 +76,7 @@ function buildActionPrompt(data: ArtistDataForAI, extraContext: {
   freeTracks: { id: string; title: string }[];
   gatedTracks: { id: string; title: string }[];
   pastOutcomes?: PastOutcome[];
+  crossArtistContext?: string;
 }): string {
   const lines: string[] = [];
   const $ = (cents: number) => `$${(cents / 100).toFixed(2)}`;
@@ -161,6 +162,11 @@ function buildActionPrompt(data: ArtistDataForAI, extraContext: {
     lines.push('Use these results to inform your recommendations. Repeat what worked. Avoid what failed.');
   }
 
+  // Cross-artist intelligence (platform-wide patterns)
+  if (extraContext.crossArtistContext) {
+    lines.push(extraContext.crossArtistContext);
+  }
+
   return lines.join('\n');
 }
 
@@ -214,6 +220,7 @@ export async function generateActions(
     freeTracks: { id: string; title: string }[];
     gatedTracks: { id: string; title: string }[];
     pastOutcomes?: PastOutcome[];
+    crossArtistContext?: string;
   },
 ): Promise<{ diagnosis: string; severity: string; actions: AgentActionInput[] }> {
   try {
