@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { buildLockKey, acquireLock, releaseLock } from '@/lib/ai/coordinationLock';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -482,15 +483,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Invalid action type: ${action.type}` }, { status: 400 });
     }
 
+    // Acquire coordination lock
+    const lockKey = buildLockKey(action.type, 'platform', action.params);
+    const lock = await acquireLock(supabaseAdmin, 'platform', 'admin_agent', null, action.type, lockKey);
+
+    if (!lock.acquired) {
+      const msg = `Action blocked — another agent is already running: ${lock.conflict}`;
+      await logAction(userId, action, 'failed', msg);
+      return NextResponse.json({ success: false, message: msg }, { status: 409 });
+    }
+
     let message: string;
 
     try {
       message = await handler(action.params);
 
+      await releaseLock(supabaseAdmin, lock.lockId!, 'completed');
       await logAction(userId, action, 'success', message);
       return NextResponse.json({ success: true, message });
     } catch (execError: unknown) {
       const errMsg = execError instanceof Error ? execError.message : 'Execution failed';
+      await releaseLock(supabaseAdmin, lock.lockId!, 'failed');
       await logAction(userId, action, 'failed', errMsg);
       return NextResponse.json({ success: false, message: errMsg }, { status: 400 });
     }

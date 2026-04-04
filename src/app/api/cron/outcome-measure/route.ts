@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { snapshotArtistMetrics, computeOutcomeDelta, MetricSnapshot } from '@/lib/ai/snapshotMetrics';
+import { expireStallLocks } from '@/lib/ai/coordinationLock';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -88,10 +89,19 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Clean up expired coordination locks
+    let expiredLocks = 0;
+    try {
+      expiredLocks = await expireStallLocks(supabaseAdmin);
+    } catch (err) {
+      console.error('Lock cleanup failed (non-fatal):', err);
+    }
+
     return NextResponse.json({
       measured,
       failed,
       artists: Object.keys(artistActions).length,
+      expiredLocks,
     });
   } catch (error) {
     console.error('Outcome measurement cron error:', error);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { snapshotArtistMetrics } from '@/lib/ai/snapshotMetrics';
+import { buildLockKey, acquireLock, releaseLock } from '@/lib/ai/coordinationLock';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -378,6 +379,21 @@ async function executeAction(
     return NextResponse.json({ error: `Unknown action type: ${action.type}` }, { status: 400 });
   }
 
+  // Acquire coordination lock to prevent conflicting concurrent actions
+  const lockKey = buildLockKey(action.type, artistId, action.params);
+  const lock = await acquireLock(supabaseAdmin, 'artist', 'artist_manager', artistId, action.type, lockKey);
+
+  if (!lock.acquired) {
+    const msg = `Action blocked — another agent is already running: ${lock.conflict}`;
+    if (existingActionId) {
+      await supabaseAdmin
+        .from('artist_agent_actions')
+        .update({ status: 'failed', result_message: msg, executed_at: new Date().toISOString() })
+        .eq('id', existingActionId);
+    }
+    return NextResponse.json({ success: false, message: msg }, { status: 409 });
+  }
+
   try {
     // Snapshot baseline metrics before executing
     let baseline = null;
@@ -417,9 +433,12 @@ async function executeAction(
       });
     }
 
+    await releaseLock(supabaseAdmin, lock.lockId!, 'completed');
     return NextResponse.json({ success: true, message });
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : 'Execution failed';
+
+    await releaseLock(supabaseAdmin, lock.lockId!, 'failed');
 
     if (existingActionId) {
       await supabaseAdmin
