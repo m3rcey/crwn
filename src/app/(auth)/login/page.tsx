@@ -20,17 +20,10 @@ export default function LoginPage() {
         const supabase = createBrowserSupabaseClient();
         const { data: profile } = await supabase
           .from('profiles')
-          .select('phone, display_name')
+          .select('onboarding_completed')
           .eq('id', user.id)
           .single();
-        // Check if user has an artist profile (another sign of completed onboarding)
-        const { data: artistProfile } = await supabase
-          .from('artist_profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        // User completed onboarding if they have phone, display_name, or artist profile
-        if (profile?.phone || profile?.display_name || artistProfile) {
+        if (profile?.onboarding_completed) {
           router.replace('/home');
         } else {
           router.replace('/welcome');

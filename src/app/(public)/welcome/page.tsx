@@ -39,27 +39,13 @@ export default function WelcomePage() {
   // Pre-fill display name and check if already onboarded
   useEffect(() => {
     if (!profile) return;
-    const checkAlreadyOnboarded = async () => {
-      // If they have a phone number, they definitely completed onboarding
-      if (profile.phone) {
-        router.replace('/home');
-        return;
-      }
-      // Also check if they have an artist profile (completed onboarding before phone column existed)
-      const { data: artistProfile } = await supabase
-        .from('artist_profiles')
-        .select('id')
-        .eq('user_id', profile.id)
-        .maybeSingle();
-      if (artistProfile) {
-        router.replace('/home');
-        return;
-      }
-      setDisplayName(profile.display_name || '');
-      setHasCheckedProfile(true);
-    };
-    checkAlreadyOnboarded();
-  }, [profile, router, supabase]);
+    if (profile.onboarding_completed) {
+      router.replace('/home');
+      return;
+    }
+    setDisplayName(profile.display_name || '');
+    setHasCheckedProfile(true);
+  }, [profile, router]);
 
   const handleSubmit = async () => {
     if (!user || !displayName.trim() || !phone.trim()) return;
@@ -83,6 +69,7 @@ export default function WelcomePage() {
           display_name: displayName.trim(),
           phone: phone.trim(),
           role: effectiveRole,
+          onboarding_completed: true,
         })
         .eq('id', user.id);
 

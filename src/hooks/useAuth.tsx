@@ -16,6 +16,7 @@ interface Profile {
   social_links: Record<string, string> | null;
   has_completed_tour?: boolean;
   phone?: string | null;
+  onboarding_completed?: boolean;
   created_at: string;
 }
 
