@@ -66,23 +66,27 @@ export default function WelcomePage() {
     setIsSubmitting(true);
 
     try {
+      // Check if artist_profiles row already exists (don't downgrade an existing artist)
+      const { data: existing } = await supabase
+        .from('artist_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      // If they already have an artist profile, preserve their role
+      const effectiveRole = existing ? 'artist' : role;
+
       // Update profile
       await supabase
         .from('profiles')
         .update({
           display_name: displayName.trim(),
           phone: phone.trim(),
-          role: role,
+          role: effectiveRole,
         })
         .eq('id', user.id);
 
-      if (role === 'artist') {
-        // Check if artist_profiles row exists
-        const { data: existing } = await supabase
-          .from('artist_profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
+      if (effectiveRole === 'artist') {
 
         if (!existing) {
           // Determine acquisition source from recruiter code
