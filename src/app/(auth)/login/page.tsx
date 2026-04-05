@@ -14,20 +14,23 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !isLoading) {
-      // Check if user has completed onboarding (has phone number)
+      // Check if user has completed onboarding
       const checkOnboarding = async () => {
         const { createBrowserSupabaseClient } = await import('@/lib/supabase/client');
         const supabase = createBrowserSupabaseClient();
-        const { data } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
-          .select('phone, is_active')
+          .select('phone, display_name')
           .eq('id', user.id)
           .single();
-        // Reactivate if deactivated (via server to bypass RLS column restrictions)
-        if (data && data.is_active === false) {
-          await fetch('/api/account/reactivate', { method: 'POST' });
-        }
-        if (data?.phone) {
+        // Check if user has an artist profile (another sign of completed onboarding)
+        const { data: artistProfile } = await supabase
+          .from('artist_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        // User completed onboarding if they have phone, display_name, or artist profile
+        if (profile?.phone || profile?.display_name || artistProfile) {
           router.replace('/home');
         } else {
           router.replace('/welcome');
