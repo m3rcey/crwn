@@ -49,8 +49,7 @@ export default function HomePage() {
       const { data: artistsData, error } = await supabase
         .from('artist_profiles')
         .select('*, profile:profiles(*)')
-        .order('created_at', { ascending: false })
-        .limit(6);
+        .limit(12);
 
       if (!error && artistsData) {
         setFeaturedArtists(artistsData as ArtistProfile[]);
