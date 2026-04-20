@@ -11,6 +11,7 @@ import {
   handleSubscriptionUpdated,
   handleSubscriptionDeleted,
   handleProductPurchase,
+  handleTrackPurchase,
   handleBookingPurchase,
   handlePlatformCheckoutCompleted,
   handlePlatformSubscriptionUpdated,
@@ -87,6 +88,10 @@ export async function POST(req: NextRequest) {
         // Check if this is a product purchase
         else if (session.metadata?.product_id) {
           await handleProductPurchase(supabaseAdmin, session);
+        }
+        // Check if this is a track purchase
+        else if (session.metadata?.track_id) {
+          await handleTrackPurchase(supabaseAdmin, session);
         }
         // Check if this is a booking purchase
         else if (session.metadata?.booking_session_id) {

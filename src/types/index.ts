@@ -173,7 +173,8 @@ export interface BundleItem {
 export interface Purchase {
   id: string;
   fan_id: string;
-  product_id: string;
+  product_id: string | null;
+  track_id: string | null;
   artist_id: string;
   stripe_payment_intent_id: string | null;
   amount: number;
@@ -182,6 +183,7 @@ export interface Purchase {
   notes: string | null;
   // Joined
   product?: Product;
+  track?: Track;
 }
 
 export interface AuthContextType {

@@ -987,6 +987,189 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
   console.log('Product purchase recorded:', { fan_id, product_id, artist_id });
 }
 
+// ─── Track purchase (one-time per-track sale) ────────────────────────────────
+
+export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {
+  const metadata = session.metadata;
+  if (!metadata?.track_id || !metadata?.fan_id || !metadata?.artist_id) {
+    console.log('No track purchase metadata found');
+    return;
+  }
+
+  const { track_id, fan_id, artist_id } = metadata;
+
+  const { fanCity, fanState, fanCountry, fanCountryCode } = extractGeo(session);
+
+  const { data: track } = await supabaseAdmin
+    .from('tracks')
+    .select('price, title')
+    .eq('id', track_id)
+    .single();
+
+  if (!track) {
+    console.error('Track not found:', track_id);
+    return;
+  }
+
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name')
+    .eq('id', fan_id)
+    .single();
+
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', artist_id)
+    .single();
+
+  const fanName = fanProfile?.display_name || 'A fan';
+  const trackTitle = track.title || 'Unknown track';
+  const grossAmount = track.price || 0;
+
+  const platformFee = Math.round(grossAmount * 0.08);
+  const netAmount = grossAmount - platformFee;
+
+  // Insert purchase record (idempotent: webhook route already dedupes by event id,
+  // and Stripe's payment_intent is unique per charge)
+  await supabaseAdmin
+    .from('purchases')
+    .insert({
+      fan_id,
+      track_id,
+      artist_id,
+      stripe_payment_intent_id: session.payment_intent as string,
+      amount: grossAmount,
+      status: 'completed',
+      purchased_at: new Date().toISOString(),
+    });
+
+  const utmSource = metadata.utm_source || '';
+  const utmMedium = metadata.utm_medium || '';
+  const utmCampaign = metadata.utm_campaign || '';
+  const sourceCampaignId = utmSource === 'crwn_campaign' && utmCampaign ? utmCampaign : null;
+  const sourceSequenceId = utmSource === 'crwn_sequence' && utmCampaign ? utmCampaign : null;
+
+  const { data: earning } = await supabaseAdmin
+    .from('earnings')
+    .insert({
+      artist_id,
+      fan_id,
+      type: 'purchase',
+      description: `${fanName} purchased ${trackTitle}`,
+      gross_amount: grossAmount,
+      platform_fee: platformFee,
+      net_amount: netAmount,
+      stripe_payment_id: session.payment_intent || session.id,
+      metadata: { trackTitle, fanDisplayName: fanName, track_id },
+      fan_city: fanCity,
+      fan_state: fanState,
+      fan_country: fanCountry,
+      fan_country_code: fanCountryCode,
+      ...(sourceCampaignId && { source_campaign_id: sourceCampaignId }),
+      ...(sourceSequenceId && { source_sequence_id: sourceSequenceId }),
+      ...(utmSource && { utm_source: utmSource }),
+      ...(utmMedium && { utm_medium: utmMedium }),
+      ...(utmCampaign && { utm_campaign: utmCampaign }),
+    })
+    .select('id')
+    .single();
+
+  if (artistProfile) {
+    await notifyNewPurchase(supabaseAdmin, artistProfile.user_id, fanName, trackTitle);
+
+    if (earning) {
+      await supabaseAdmin.from('notifications').insert({
+        user_id: artistProfile.user_id,
+        type: 'earning',
+        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
+        message: `${fanName} purchased ${trackTitle}`,
+        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+      });
+    }
+
+    try {
+      await checkAndAwardMilestones(artist_id, artistProfile.user_id);
+    } catch (err) {
+      console.error('Milestone check failed:', err);
+    }
+  }
+
+  // Send receipts
+  try {
+    const fanEmail = session.customer_email || session.customer_details?.email;
+    const { data: artistNameData } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name')
+      .eq('id', artistProfile?.user_id)
+      .single();
+    const artistDisplayName = artistNameData?.display_name || 'an artist';
+    if (fanEmail) {
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: fanEmail,
+        subject: `Purchase confirmed - ${trackTitle}`,
+        html: purchaseEmail(fanName, artistDisplayName, trackTitle, (grossAmount / 100).toFixed(2), 'track'),
+      });
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: fanEmail,
+        subject: `Your CRWN receipt - ${trackTitle}`,
+        html: receiptEmail({
+          displayName: fanName,
+          artistName: artistDisplayName,
+          amount: grossAmount,
+          productName: trackTitle,
+          purchaseDate: new Date().toISOString(),
+          type: 'product',
+        }),
+      });
+    }
+  } catch (err) {
+    console.error('Track purchase email failed:', err);
+  }
+
+  // Artist sale notification email
+  try {
+    if (artistProfile) {
+      const { data: { user: artistAuthUser } } = await supabaseAdmin.auth.admin.getUserById(artistProfile.user_id);
+      const artistEmail = artistAuthUser?.email;
+      if (artistEmail) {
+        const { data: artistNameForEmail } = await supabaseAdmin
+          .from('profiles')
+          .select('display_name')
+          .eq('id', artistProfile.user_id)
+          .single();
+        const artistDisplayNameForEmail = artistNameForEmail?.display_name || 'there';
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: artistEmail,
+          subject: `New sale: ${fanName} purchased ${trackTitle} 💰`,
+          html: artistNewPurchaseEmail(artistDisplayNameForEmail, fanName, trackTitle, (grossAmount / 100).toFixed(2), 'track'),
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Artist track sale email failed:', err);
+  }
+
+  // Mark abandoned checkouts as recovered
+  try {
+    await supabaseAdmin
+      .from('abandoned_checkouts')
+      .update({ recovered: true })
+      .eq('fan_id', fan_id)
+      .eq('artist_id', artist_id)
+      .eq('recovered', false);
+  } catch (err) {
+    console.error('Abandoned checkout recovery update failed:', err);
+  }
+
+  await enrollInSequence(supabaseAdmin, artist_id, fan_id, 'new_purchase');
+
+  console.log('Track purchase recorded:', { fan_id, track_id, artist_id });
+}
+
 // ─── Booking purchase ────────────────────────────────────────────────────────
 
 export async function handleBookingPurchase(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {

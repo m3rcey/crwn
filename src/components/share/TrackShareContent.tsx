@@ -5,11 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTrackPurchases } from '@/hooks/useTrackPurchases';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useToast } from '@/components/shared/Toast';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
-import { Play, Lock, ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { Play, Lock, ArrowLeft, Check, Loader2, ShoppingBag } from 'lucide-react';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
 
@@ -45,13 +46,17 @@ interface TrackShareContentProps {
 export function TrackShareContent({ track, artist, tiers }: TrackShareContentProps) {
   const { user } = useAuth();
   const { tierId, isSubscribed } = useSubscription(artist.id);
+  const { purchasedTrackIds, refetch: refetchPurchases } = useTrackPurchases(artist.id);
   const { play } = usePlayer();
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [justSubscribed, setJustSubscribed] = useState(false);
+  const [justPurchased, setJustPurchased] = useState(false);
 
   const isFree = track.is_free !== false;
-  const hasAccess = isFree || justSubscribed || (tierId && track.allowed_tier_ids?.includes(tierId));
+  const hasPurchased = purchasedTrackIds.has(track.id) || justPurchased;
+  const hasAccess = isFree || justSubscribed || hasPurchased || (tierId && track.allowed_tier_ids?.includes(tierId));
+  const canBuy = !isFree && !!track.price && track.price > 0 && !hasPurchased;
   const shareUrl = `https://thecrwn.app/${artist.slug}/track/${track.id}`;
 
   // Filter tiers to only those that unlock this track
@@ -59,7 +64,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
     ? tiers.filter(t => track.allowed_tier_ids!.includes(t.id))
     : tiers;
 
-  // Check for subscription=success in URL (returning from Stripe checkout)
+  // Check for subscription=success or purchase=success in URL (returning from Stripe checkout)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('subscription') === 'success') {
@@ -68,12 +73,54 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
       showToast('Subscribed! Enjoy the track.', 'success');
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, [showToast]);
+    if (params.get('purchase') === 'success') {
+      setJustPurchased(true);
+      hapticSuccess();
+      showToast('Purchase complete. Track unlocked.', 'success');
+      refetchPurchases();
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [showToast, refetchPurchases]);
 
   const formatDuration = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleBuy = async () => {
+    hapticMedium();
+
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+
+    setIsLoading('buy');
+
+    try {
+      const res = await fetch('/api/stripe/track-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trackId: track.id }),
+      });
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (res.status === 409) {
+        setJustPurchased(true);
+        showToast('You already own this track!', 'success');
+      } else {
+        hapticError();
+        showToast(data.error || 'Failed to start checkout', 'error');
+      }
+    } catch {
+      hapticError();
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      setIsLoading(null);
+    }
   };
 
   const handleSubscribe = async (tier: TierData) => {
@@ -196,7 +243,32 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
               <Play className="w-5 h-5" fill="currentColor" />
               Play Now
             </button>
-          ) : relevantTiers.length === 0 ? (
+          ) : canBuy && relevantTiers.length === 0 ? (
+            <div className="mb-4">
+              <p className="text-crwn-text-secondary text-sm text-center mb-4">
+                Buy this track to unlock it forever
+              </p>
+              <button
+                onClick={handleBuy}
+                disabled={isLoading !== null}
+                className="neu-button-accent w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+              >
+                {isLoading === 'buy' ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <ShoppingBag className="w-5 h-5" />
+                    Buy for ${(track.price! / 100).toFixed(2)}
+                  </>
+                )}
+              </button>
+              {!user && (
+                <p className="text-crwn-text-secondary text-xs text-center mt-3">
+                  You&apos;ll need to sign up or log in first
+                </p>
+              )}
+            </div>
+          ) : relevantTiers.length === 0 && !canBuy ? (
             <div className="mb-4 neu-raised rounded-xl p-4 text-center">
               <p className="text-crwn-text text-sm">
                 This track isn&apos;t available yet.
@@ -208,8 +280,26 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
           ) : (
             <div className="mb-4">
               <p className="text-crwn-text-secondary text-sm text-center mb-4">
-                Subscribe to {artist.displayName} to unlock this track
+                {canBuy
+                  ? `Subscribe to ${artist.displayName} or buy this track`
+                  : `Subscribe to ${artist.displayName} to unlock this track`}
               </p>
+              {canBuy && (
+                <button
+                  onClick={handleBuy}
+                  disabled={isLoading !== null}
+                  className="neu-button-accent w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98] mb-3"
+                >
+                  {isLoading === 'buy' ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-5 h-5" />
+                      Buy for ${(track.price! / 100).toFixed(2)}
+                    </>
+                  )}
+                </button>
+              )}
               <div className="space-y-3">
                 {relevantTiers.map((tier) => (
                   <button

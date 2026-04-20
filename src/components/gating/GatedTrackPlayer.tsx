@@ -3,6 +3,7 @@
 import { Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useTrackPurchases } from '@/hooks/useTrackPurchases';
 import { useFavorites } from '@/hooks/useFavorites';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
 import { TrackShareButton } from '@/components/shared/TrackShareButton';
@@ -21,18 +22,24 @@ interface GatedTrackPlayerProps {
 export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
+  const { purchasedTrackIds } = useTrackPurchases(artistId);
   const { isLiked, toggleFavorite } = useFavorites();
   const referralCode = useReferralCode();
 
   // Early access: if public_release_date is in the future, only tier subscribers can access
   const isEarlyAccess = track.public_release_date && new Date(track.public_release_date) > new Date();
 
-  // New gating logic: is_free !== false means free (null = free)
-  // Otherwise check if user has a tier that's in allowed_tier_ids
-  // During early access window, override is_free — only subscribers with matching tier can listen
-  const canAccess = isEarlyAccess
-    ? !!(tierId && track.allowed_tier_ids?.includes(tierId))
-    : track.is_free !== false || !!(tierId && track.allowed_tier_ids?.includes(tierId));
+  // Gating priority (in order):
+  //   1. Fan owns the track via one-time purchase
+  //   2. Early access window → only tier subscribers unlock
+  //   3. Track is marked free
+  //   4. Fan has a tier subscription that includes this track
+  const hasPurchased = purchasedTrackIds.has(track.id);
+  const canAccess = hasPurchased
+    ? true
+    : isEarlyAccess
+      ? !!(tierId && track.allowed_tier_ids?.includes(tierId))
+      : track.is_free !== false || !!(tierId && track.allowed_tier_ids?.includes(tierId));
   const isLocked = !canAccess;
   const isCurrentTrack = currentTrack?.id === track.id;
   const isTrackPlaying = isCurrentTrack && isPlaying;
@@ -128,11 +135,20 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
           <div className="flex items-center gap-3 mt-1">
             {isLocked ? (
               <span className="text-xs text-crwn-gold flex items-center gap-1">
-                <Lock size={12} /> {isEarlyAccess ? 'Early access — subscribe to listen' : 'Subscribe to unlock'}
+                <Lock size={12} />
+                {isEarlyAccess
+                  ? 'Early access — subscribe to listen'
+                  : track.price
+                    ? `$${(track.price / 100).toFixed(2)} to unlock`
+                    : 'Subscribe to unlock'}
               </span>
             ) : isEarlyAccess ? (
               <span className="text-xs text-crwn-gold flex items-center gap-1">
                 <LockOpen size={12} /> Early access
+              </span>
+            ) : hasPurchased ? (
+              <span className="text-xs text-crwn-gold flex items-center gap-1">
+                <LockOpen size={12} /> Owned
               </span>
             ) : track.is_free === false && track.allowed_tier_ids && track.allowed_tier_ids.length > 0 ? (
               <span className="text-xs text-crwn-gold flex items-center gap-1">

@@ -66,10 +66,11 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
         .select('product_id')
         .eq('fan_id', user.id)
         .eq('artist_id', artistId)
-        .eq('status', 'completed');
-      
+        .eq('status', 'completed')
+        .not('product_id', 'is', null);
+
       if (data) {
-        setPurchasedIds(new Set(data.map(p => p.product_id)));
+        setPurchasedIds(new Set(data.map(p => p.product_id).filter((id): id is string => !!id)));
       }
     }
     

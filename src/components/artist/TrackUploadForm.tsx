@@ -36,6 +36,7 @@ interface TrackFormData {
   title: string;
   isFree: boolean;
   allowedTierIds: string[];
+  price: string;
   audioFile: File | null;
   albumArt: File | null;
   enableEarlyAccess: boolean;
@@ -65,6 +66,7 @@ export function TrackUploadForm() {
     title: '',
     isFree: true,
     allowedTierIds: [],
+    price: '',
     audioFile: null,
     albumArt: null,
     enableEarlyAccess: false,
@@ -241,6 +243,7 @@ export function TrackUploadForm() {
       title: track.title || '',
       isFree: track.is_free !== false,
       allowedTierIds: track.allowed_tier_ids || [],
+      price: track.price ? (track.price / 100).toString() : '',
       audioFile: null,
       albumArt: null,
       enableEarlyAccess: false,
@@ -258,6 +261,7 @@ export function TrackUploadForm() {
       title: '',
       isFree: true,
       allowedTierIds: [],
+      price: '',
       audioFile: null,
       albumArt: null,
       enableEarlyAccess: false,
@@ -290,8 +294,8 @@ export function TrackUploadForm() {
     if (!formData.title) return;
     if (!editingTrack && !formData.audioFile) return;
     if (isUploading) return;
-    if (!formData.isFree && formData.allowedTierIds.length === 0) {
-      showToast('Pick at least one tier, or mark the track free', 'error');
+    if (!formData.isFree && formData.allowedTierIds.length === 0 && !formData.price) {
+      showToast('Pick a tier or set a one-time price', 'error');
       return;
     }
 
@@ -396,6 +400,9 @@ export function TrackUploadForm() {
         }
       }
 
+      // Calculate price in cents
+      const priceInCents = formData.price ? Math.round(parseFloat(formData.price) * 100) : null;
+
       if (editingTrack) {
         // Update existing track
         const { error: updateError } = await supabase
@@ -407,7 +414,7 @@ export function TrackUploadForm() {
             duration,
             is_free: formData.isFree,
             allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
-            price: null,
+            price: formData.isFree ? null : priceInCents,
             album_art_url: albumArtUrl,
             ...(formData.bpm != null ? { bpm: formData.bpm } : {}),
           })
@@ -418,7 +425,7 @@ export function TrackUploadForm() {
         // Update local state
         setTracks(prev => prev.map(t =>
           t.id === editingTrack.id
-            ? { ...t, title: formData.title, is_free: formData.isFree, allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds, price: null, album_art_url: albumArtUrl }
+            ? { ...t, title: formData.title, is_free: formData.isFree, allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds, price: formData.isFree ? null : priceInCents, album_art_url: albumArtUrl }
             : t
         ));
         showToast('Track updated!', 'success');
@@ -442,7 +449,7 @@ export function TrackUploadForm() {
             duration,
             is_free: formData.isFree,
             allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
-            price: null,
+            price: formData.isFree ? null : priceInCents,
             album_art_url: albumArtUrl,
             public_release_date: publicReleaseDate,
             bpm: formData.bpm,
@@ -493,6 +500,7 @@ export function TrackUploadForm() {
         title: '',
         isFree: true,
         allowedTierIds: [],
+        price: '',
         audioFile: null,
         albumArt: null,
         enableEarlyAccess: false,
@@ -693,6 +701,7 @@ export function TrackUploadForm() {
                   ...p,
                   isFree: e.target.checked,
                   allowedTierIds: e.target.checked ? [] : p.allowedTierIds,
+                  price: e.target.checked ? '' : p.price,
                 }))}
                 className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
               />
@@ -714,17 +723,26 @@ export function TrackUploadForm() {
                 <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
               </label>
             ))}
-            {!formData.isFree && tiers.length === 0 && (
-              <div className="ml-6 mt-2 p-3 rounded-lg bg-crwn-gold/10 border border-crwn-gold/30">
-                <p className="text-sm text-crwn-text">
-                  You need at least one subscription tier to gate a track.
+            {!formData.isFree && (
+              <div className="ml-6 mt-2">
+                <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
+                  {tiers.length > 0 ? 'Or set a one-time price (USD)' : 'One-time price (USD)'}
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="text-crwn-text">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder={tiers.length > 0 ? 'Leave empty for tier access only' : '1.50'}
+                    value={formData.price}
+                    onChange={(e) => setFormData(p => ({ ...p, price: e.target.value }))}
+                    className="w-full neu-inset px-3 py-2 text-crwn-text"
+                  />
+                </div>
+                <p className="text-xs text-crwn-text-secondary mt-1">
+                  Fans who buy this track keep permanent access to it.
                 </p>
-                <a
-                  href="/profile/artist?tab=tiers"
-                  className="inline-block mt-2 text-sm text-crwn-gold hover:underline"
-                >
-                  Create a tier →
-                </a>
               </div>
             )}
           </div>
