@@ -196,6 +196,15 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
               <Play className="w-5 h-5" fill="currentColor" />
               Play Now
             </button>
+          ) : relevantTiers.length === 0 ? (
+            <div className="mb-4 neu-raised rounded-xl p-4 text-center">
+              <p className="text-crwn-text text-sm">
+                This track isn&apos;t available yet.
+              </p>
+              <p className="text-crwn-text-secondary text-xs mt-1">
+                {artist.displayName} hasn&apos;t set up access for it.
+              </p>
+            </div>
           ) : (
             <div className="mb-4">
               <p className="text-crwn-text-secondary text-sm text-center mb-4">

@@ -138,10 +138,6 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
               <span className="text-xs text-crwn-gold flex items-center gap-1">
                 <LockOpen size={12} /> Subscriber exclusive
               </span>
-            ) : track.is_free === false && track.price ? (
-              <span className="text-xs text-crwn-text-secondary">
-                ${(track.price || 0) / 100}
-              </span>
             ) : (
               <span className="text-xs text-crwn-success">Free</span>
             )}
