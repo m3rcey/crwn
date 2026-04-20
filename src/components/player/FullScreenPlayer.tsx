@@ -18,7 +18,8 @@ import {
   Shuffle,
   Minimize2,
   ListMusic,
-  Heart
+  Heart,
+  Sparkles
 } from 'lucide-react';
 
 export function FullScreenPlayer() {
@@ -43,6 +44,9 @@ export function FullScreenPlayer() {
     currentIndex,
     isFavorite,
     toggleFavorite,
+    glideEnabled,
+    isGliding,
+    toggleGlide,
   } = usePlayer();
 
   if (!currentTrack || !isExpanded) return null;
@@ -279,7 +283,7 @@ export function FullScreenPlayer() {
           >
             <SkipForward size={32} fill="currentColor" />
           </button>
-          <button 
+          <button
             onClick={toggleRepeat}
             className={`neu-icon-button p-2 press-scale ${
               repeat !== 'off' ? 'text-crwn-gold' : ''
@@ -290,6 +294,22 @@ export function FullScreenPlayer() {
             ) : (
               <Repeat size={20} />
             )}
+          </button>
+        </div>
+
+        {/* Glide toggle */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            onClick={toggleGlide}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full press-scale transition-colors ${
+              glideEnabled
+                ? 'bg-crwn-gold/15 text-crwn-gold'
+                : 'bg-[#2A2A2A] text-crwn-text-secondary'
+            }`}
+            title={glideEnabled ? 'Glide: on — tracks blend into each other' : 'Glide: off — tracks play back-to-back'}
+          >
+            <Sparkles size={14} className={isGliding ? 'animate-pulse' : ''} />
+            <span className="text-xs font-medium">Glide{isGliding ? ' · blending' : glideEnabled ? '' : ' off'}</span>
           </button>
         </div>
 

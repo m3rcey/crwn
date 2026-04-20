@@ -63,6 +63,7 @@ export interface Track {
   public_release_date: string | null; // For early access feature
   play_count: number;
   position: number | null; // For ordering tracks in artist dashboard
+  bpm?: number | null;
   created_at: string;
   updated_at: string;
   // Joined fields

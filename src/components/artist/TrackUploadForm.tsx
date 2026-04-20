@@ -17,6 +17,7 @@ import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Edit2, X, Upload, Plus, Loader2, Music } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
+import { detectBpm } from '@/lib/audio/detectBpm';
 
 interface SubscriptionTier {
   id: string;
@@ -40,6 +41,8 @@ interface TrackFormData {
   albumArt: File | null;
   enableEarlyAccess: boolean;
   earlyAccessDays: number;
+  bpm: number | null;
+  bpmDetecting: boolean;
 }
 
 export function TrackUploadForm() {
@@ -68,6 +71,8 @@ export function TrackUploadForm() {
     albumArt: null,
     enableEarlyAccess: false,
     earlyAccessDays: 7,
+    bpm: null,
+    bpmDetecting: false,
   });
   const [tierBenefits, setTierBenefits] = useState<TierBenefit[]>([]);
   const [maxEarlyAccessDays, setMaxEarlyAccessDays] = useState<number>(0);
@@ -243,6 +248,8 @@ export function TrackUploadForm() {
       albumArt: null,
       enableEarlyAccess: false,
       earlyAccessDays: 7,
+      bpm: track.bpm ?? null,
+      bpmDetecting: false,
     });
     // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -259,13 +266,18 @@ export function TrackUploadForm() {
       albumArt: null,
       enableEarlyAccess: false,
       earlyAccessDays: 7,
+      bpm: null,
+      bpmDetecting: false,
     });
   };
 
   const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData(prev => ({ ...prev, audioFile: file }));
+      setFormData(prev => ({ ...prev, audioFile: file, bpm: null, bpmDetecting: true }));
+      detectBpm(file).then(bpm => {
+        setFormData(prev => ({ ...prev, bpm, bpmDetecting: false }));
+      });
     }
   };
 
@@ -400,6 +412,7 @@ export function TrackUploadForm() {
             allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
             price: formData.isFree ? null : priceInCents,
             album_art_url: albumArtUrl,
+            ...(formData.bpm != null ? { bpm: formData.bpm } : {}),
           })
           .eq('id', editingTrack.id);
 
@@ -435,6 +448,7 @@ export function TrackUploadForm() {
             price: formData.isFree ? null : priceInCents,
             album_art_url: albumArtUrl,
             public_release_date: publicReleaseDate,
+            bpm: formData.bpm,
           })
           .select()
           .single();
@@ -487,6 +501,8 @@ export function TrackUploadForm() {
         albumArt: null,
         enableEarlyAccess: false,
         earlyAccessDays: 7,
+        bpm: null,
+        bpmDetecting: false,
       });
 
       showToast('Track uploaded successfully!', 'success');
@@ -628,6 +644,15 @@ export function TrackUploadForm() {
           <p className="text-xs text-crwn-text-secondary mt-1">
             Files will be transcoded to 128kbps (stream) and 320kbps (premium)
           </p>
+          {(formData.audioFile || formData.bpm != null) && (
+            <p className="text-xs text-crwn-text-secondary mt-1">
+              {formData.bpmDetecting ? (
+                <span className="inline-flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Detecting BPM…</span>
+              ) : formData.bpm != null ? (
+                <>Detected BPM: <span className="text-crwn-text">{formData.bpm}</span></>
+              ) : null}
+            </p>
+          )}
         </div>
 
         {/* Title */}

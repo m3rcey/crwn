@@ -14,6 +14,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@google/genai": "^1.49.0",
     "@stripe/stripe-js": "^8.8.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.98.0",
@@ -27,7 +28,8 @@
     "react-easy-crop": "^5.5.7",
     "recharts": "^3.7.0",
     "resend": "^6.9.3",
-    "stripe": "^20.4.0"
+    "stripe": "^20.4.0",
+    "web-audio-beat-detector": "^8.2.36"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
