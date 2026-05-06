@@ -6,7 +6,6 @@ import { useToast } from '@/components/shared/Toast';
 import { hapticMedium } from '@/lib/haptics';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image } from 'lucide-react';
-import { detectBpm } from '@/lib/audio/detectBpm';
 
 interface SubscriptionTier {
   id: string;
@@ -26,8 +25,6 @@ interface UploadItem {
   status: 'pending' | 'uploading' | 'complete' | 'error';
   error?: string;
   progress: number;
-  bpm: number | null;
-  bpmDetecting: boolean;
 }
 
 interface BulkUploadFormProps {
@@ -99,19 +96,10 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         price: applyToAllPrice,
         status: 'pending' as const,
         progress: 0,
-        bpm: null,
-        bpmDetecting: true,
       }));
 
     setQueue(prev => [...prev, ...queueItems]);
-
-    // Kick off BPM detection per file (non-blocking)
-    queueItems.forEach(item => {
-      detectBpm(item.file).then(bpm => {
-        setQueue(prev => prev.map(q => q.id === item.id ? { ...q, bpm, bpmDetecting: false } : q));
-      });
-    });
-
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -303,7 +291,6 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             price: priceInCents,
             album_art_url: albumArtUrl,
             position: position++,
-            bpm: item.bpm,
           });
 
         if (insertError) throw insertError;
@@ -522,8 +509,6 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                     <p className="text-crwn-text text-sm font-medium truncate">{item.title}</p>
                     <p className="text-xs text-crwn-text-secondary">
                       {formatFileSize(item.file.size)}
-                      {item.bpmDetecting && <span className="ml-2">· detecting BPM…</span>}
-                      {!item.bpmDetecting && item.bpm != null && <span className="ml-2">· {item.bpm} BPM</span>}
                       {item.status === 'error' && <span className="text-red-400 ml-2">{item.error}</span>}
                     </p>
                   </div>
