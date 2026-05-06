@@ -64,9 +64,9 @@
 43. REESE — Retention Analyst. Binoculars, multi-artist pattern detection
 44. NADIA — Pricing Strategist. LTV graph with "sweet spot" starred
 45. ORION — Intelligence Director. Brain glowing, shared playbook diagram
-46. "SUPPORT" header — 1 agent
-47. SAGE — Customer Success Lead. Headset robot, questions in → responses out
-48. Same + escalation flow: complex issue → Sage → Joshua w/ full context
+<span style="color: orange">46. "SUPPORT" header — 1 agent</span>
+<span style="color: orange">47. SAGE — Customer Success Lead. Headset robot, questions in → responses out</span>
+<span style="color: orange">48. Same + escalation flow: complex issue → Sage → Joshua w/ full context</span>
 49. Full org chart (4 depts, 12 names) + "BUT DOES IT WORK?"
 50. Feedback loop — Action → Snapshot → 7 Days → Measure → Learn
 51. Same + Orion hub. "One win = everyone's advantage"

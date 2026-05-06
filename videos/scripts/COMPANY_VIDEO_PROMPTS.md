@@ -4,6 +4,20 @@ Each prompt corresponds to a phrase or sentence from the script. Hook and Compan
 
 ---
 
+## THUMBNAILS
+
+```
+THUMBNAIL 1: "CRWN — A DEMONSTRATION"
+NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. On the right side taking up the full vertical height of the page, a large stick figure face drawn in bold black marker — round head tilted very slightly to the left toward the text, two dot eyes looking to the left as if reading the words next to it, a straight line mouth, with a small crown drawn on top of the head. The face fills the entire right third of the page from top to bottom. On the left two-thirds of the page, 'CRWN' is written very large and bold in thick black marker, taking up most of the vertical space. Directly underneath 'CRWN' in smaller but still bold text: 'A DEMONSTRATION'. Nothing else on the page. Minimal, clean, high contrast. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
+```
+
+```
+THUMBNAIL 2: "1 FOUNDER. 12 AGENTS. 0 HUMANS."
+NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. On the right side taking up the full vertical height of the page, a large stick figure face drawn in bold black marker — round head tilted very slightly to the left toward the text, two dot eyes looking to the left as if reading the words next to it, a straight line mouth, with a small crown drawn on top of the head. The face fills the entire right third of the page from top to bottom. On the left two-thirds of the page, three lines stacked vertically in large bold black marker: '1 FOUNDER.' on the first line taking up the most space, '12 AGENTS.' on the second line slightly smaller, '0 HUMANS.' on the third line slightly smaller. Nothing else on the page. Minimal, clean, high contrast. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
+```
+
+---
+
 ## HOOK
 
 ```
@@ -18,8 +32,10 @@ TYPE: Sheet
 NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. In the center, a single stick figure standing alone, wearing a crown. The number '1' is written very large above the figure. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
 ```
 
+<span style="color: orange">CHANGED — 11→12, 3 boxes→4 boxes, added SUPPORT/Sage:</span>
+
 ```
-SENTENCE(S): "And 11 AI agents that never stop working."
+SENTENCE(S): "And 12 AI agents that never stop working."
 TYPE: Sheet
 NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top center, the name 'JOSHUA' written large and bold with a small stick figure wearing a crown above it. Below it, four lines branch downward to four boxes labeled 'PLATFORM', 'GROWTH', 'RETENTION', and 'SUPPORT'. Under PLATFORM, five names stacked vertically: 'Marcus', 'Amara', 'Kai', 'Priya', 'Devon'. Under GROWTH, three names: 'Zara', 'Miles', 'Luna'. Under RETENTION, three names: 'Reese', 'Nadia', 'Orion'. Under SUPPORT, one name: 'Sage'. Each name has a small robot icon drawn next to it. At the very top of the page, written smaller: '12 agents. never stop.' The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
 ```
@@ -29,6 +45,8 @@ SENTENCE(S): "In this video you're going to see how I built a music platform..."
 TYPE: Sheet
 NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. A simple drawing of a laptop screen in the center. On the screen, a music note icon and the word 'CRWN' written bold. Below the laptop, small icons in a row: a subscription card, a play button, a shopping bag, an envelope. At the top: 'THE PLATFORM' underlined. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
 ```
+
+<span style="color: orange">CHANGED — 11→12 robot icons:</span>
 
 ```
 SENTENCE(S): "...and the AI team that runs it and gets smarter every day; with a data moat capability as time progresses."
@@ -198,10 +216,12 @@ NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire 
 
 ## POINT 3: THE TEAM
 
+<span style="color: orange">CHANGED — 11→12, three→four folders, added support/:</span>
+
 ```
-SENTENCE(S): "I have 11 team members. None of them are human. All of them work 24 hours a day. And they're getting smarter every week."
+SENTENCE(S): "I have 12 team members. None of them are human. All of them work 24 hours a day. And they're getting smarter every week."
 TYPE: Sheet
-NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top: '.claude/agents/' written in a monospace-style font, large. Below it, three folder icons drawn as simple rectangles with tabs, labeled 'platform/', 'growth/', 'retention/'. Next to the folders, written bold: '12 AGENTS'. Below that: '0 HUMAN. 24/7. GETTING SMARTER.' A small clock icon showing all hours is drawn next to '24/7'. A brain icon with an upward arrow is drawn next to 'GETTING SMARTER'. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
+NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top: '.claude/agents/' written in a monospace-style font, large. Below it, four folder icons drawn as simple rectangles with tabs, labeled 'platform/', 'growth/', 'retention/', 'support/'. Next to the folders, written bold: '12 AGENTS'. Below that: '0 HUMAN. 24/7. GETTING SMARTER.' A small clock icon showing all hours is drawn next to '24/7'. A brain icon with an upward arrow is drawn next to 'GETTING SMARTER'. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
 ```
 
 ```
@@ -288,6 +308,8 @@ TYPE: Sheet
 NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top: 'ORION' written very large and bold with stars drawn around it. Below it: 'Intelligence Director' in slightly smaller text. A large robot icon in the center with a brain icon above its head glowing with lines radiating outward. Below the robot, a diagram: three small circles labeled 'Artist A', 'Artist B', 'Artist C' all have arrows pointing IN to Orion, and arrows pointing back OUT from Orion to all three artists. Below the diagram: 'one artist wins → every artist benefits'. At the bottom: 'SHARED PLAYBOOK' written bold and underlined. A small 'retention/' folder icon in the top right corner. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
 ```
 
+<span style="color: orange">NEW — SAGE (shots 46-48):</span>
+
 ```
 SENTENCE(S): "And support. One agent."
 TYPE: Sheet
@@ -305,6 +327,10 @@ SENTENCE(S): "And if something's too complex, Sage escalates it to me with full 
 TYPE: Add
 NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top: 'SAGE' written very large and bold. Below it: 'Customer Success Lead' in slightly smaller text. A robot icon in the center wearing a headset. Three arrows flow into Sage from the left, each labeled: 'artist question', 'billing issue', 'access problem'. Three arrows flow out from Sage to the right, each labeled: 'drafted response', 'diagnosis', 'fix applied'. Below the diagram: 'first touch resolution, every time' written bold and underlined. At the bottom, a separate flow: 'complex issue' arrow into Sage, then an arrow out to a stick figure wearing a crown labeled 'JOSHUA' with a clipboard icon and text: 'full context. zero follow-ups.' A small 'support/' folder icon in the top right corner. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
 ```
+
+<span style="color: orange">END NEW — SAGE</span>
+
+<span style="color: orange">CHANGED — 3 boxes→4 boxes, added SUPPORT/Sage:</span>
 
 ```
 SENTENCE(S): "That's the roster. But a list of names doesn't mean anything if the system doesn't actually work. Let me show you."
@@ -340,15 +366,18 @@ NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire 
 
 ## CLOSE
 
-```
-SENTENCE(S): "The platform is live. The team is running. Amara checked the systems this morning. Devon audited security on Monday. Zara found the funnel bottleneck. The AI manager ran for every artist at 1 PM. And the outcome tracker measured what worked last week so every agent is smarter today than it was yesterday."
-TYPE: Sheet
-NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The full org chart from the hook, taking up the entire page. At the top center: 'JOSHUA' with a stick figure wearing a crown. Three branches below to three boxed sections. First box: 'PLATFORM' with five names: Marcus, Amara (with a checkmark), Kai, Priya, Devon (with a checkmark). Second box: 'GROWTH' with three names: Zara (with a checkmark), Miles, Luna. Third box: 'RETENTION' with three names: Reese, Nadia, Orion. Fourth box: 'SUPPORT' with one name: Sage (with a checkmark). Small status notes next to checked names: 'systems OK' next to Amara, 'secure' next to Devon, 'bottleneck found' next to Zara, '3 responses drafted' next to Sage. At the bottom: 'LIVE. RUNNING. LEARNING.' written bold and underlined. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
-```
+<span style="color: orange">CHANGED — 3→4 boxes, added SUPPORT/Sage with checkmark + "3 responses drafted", added Sage to close sentence:</span>
 
 ```
-SENTENCE(S): "Eleven team members. Zero salaries. Zero quit risk. Getting smarter every day. The only thing missing is artists. And that's what I do best."
+SENTENCE(S): "The platform is live. The team is running. Amara checked the systems this morning. Devon audited security on Monday. Zara found the funnel bottleneck. Sage drafted three support responses before I woke up. The AI manager ran for every artist at 1 PM. And the outcome tracker measured what worked last week so every agent is smarter today than it was yesterday."
 TYPE: Sheet
-NANO BANANA PRO PROMPT: ""
+NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The full org chart from the hook, taking up the entire page. At the top center: 'JOSHUA' with a stick figure wearing a crown. Four branches below to four boxed sections. First box: 'PLATFORM' with five names: Marcus, Amara (with a checkmark), Kai, Priya, Devon (with a checkmark). Second box: 'GROWTH' with three names: Zara (with a checkmark), Miles, Luna. Third box: 'RETENTION' with three names: Reese, Nadia, Orion. Fourth box: 'SUPPORT' with one name: Sage (with a checkmark). Small status notes next to checked names: 'systems OK' next to Amara, 'secure' next to Devon, 'bottleneck found' next to Zara, '3 responses drafted' next to Sage. At the bottom: 'LIVE. RUNNING. LEARNING.' written bold and underlined. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
 ```
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. Centered on the page, five lines stacked vertically, each written large and bold: '12 TEAM MEMBERS', '0 SALARIES', '0 QUIT RISK', 'SMARTER EVERY DAY' with a brain and upward arrow icon. Below these four lines, separated by a horizontal line: 'THE ONLY THING MISSING:' and then 'ARTISTS' written very large and circled. Below that, a stick figure wearing a crown (Joshua) with a confident pose and a speech bubble: 'That's what I do best.' The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge.
+
+<span style="color: orange">CHANGED — Eleven→Twelve, 11→12 TEAM MEMBERS:</span>
+
+```
+SENTENCE(S): "Twelve team members. Zero salaries. Zero quit risk. Getting smarter every day. The only thing missing is artists. And that's what I do best."
+TYPE: Sheet
+NANO BANANA PRO PROMPT: "Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. Centered on the page, five lines stacked vertically, each written large and bold: '12 TEAM MEMBERS', '0 SALARIES', '0 QUIT RISK', 'SMARTER EVERY DAY' with a brain and upward arrow icon. Below these four lines, separated by a horizontal line: 'THE ONLY THING MISSING:' and then 'ARTISTS' written very large and circled. Below that, a stick figure wearing a crown (Joshua) with a confident pose and a speech bubble: 'That's what I do best.' The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 16:9 frame edge to edge."
+```

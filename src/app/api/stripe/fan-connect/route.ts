@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build',
+  { auth: { autoRefreshToken: false, persistSession: false } }
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,10 +41,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    await supabase
+    // RLS blocks users from writing stripe_connect_id directly, so use admin client
+    const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update({ stripe_connect_id: account.id })
       .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Failed to save stripe_connect_id:', updateError);
+      return NextResponse.json({ error: 'Failed to link Stripe account. Please try again.' }, { status: 500 });
+    }
 
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
