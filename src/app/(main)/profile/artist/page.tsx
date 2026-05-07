@@ -52,23 +52,6 @@ function ArtistDashboardContent() {
     });
   }, []);
 
-  // Check for founding artist status
-  useEffect(() => {
-    async function checkFoundingArtist() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      
-      const { data: artistProfile } = await supabase
-        .from('artist_profiles')
-        .select('is_founding_artist')
-        .eq('user_id', user.id)
-        .single();
-      
-      setIsFoundingArtist(artistProfile?.is_founding_artist ?? false);
-    }
-    checkFoundingArtist();
-  }, [supabase]);
-
   // Trigger artist tour on first visit
   const { shouldShowTour: shouldShowDashboardTour, startStep: dashboardStartStep, markComplete: markDashboardTourComplete, saveStep: saveDashboardStep } = useTourCheck('dashboard', profile?.id);
 
@@ -81,7 +64,7 @@ function ArtistDashboardContent() {
     if (!shouldShowDashboardTour || !artistId) return;
 
     const timer = setTimeout(() => {
-      startTour(getArtistTourSteps(isFoundingArtist, artistSlug, platformTier), handleTourComplete, saveDashboardStep, dashboardStartStep);
+      startTour(getArtistTourSteps(platformTier), handleTourComplete, saveDashboardStep, dashboardStartStep);
     }, 1500);
 
     return () => clearTimeout(timer);

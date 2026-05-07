@@ -18,7 +18,6 @@ import {
   Loader2,
   Megaphone,
   Bell,
-  Crown,
   LifeBuoy,
   ShieldCheck,
 } from 'lucide-react';
@@ -184,22 +183,6 @@ export default function ProfilePage() {
           <div>
             <p className="font-medium text-crwn-text">Recruit Artists</p>
             <p className="text-sm text-crwn-text-secondary">Earn commissions by bringing artists to CRWN</p>
-          </div>
-        </div>
-      </Link>
-
-      {/* Founding Artist Program */}
-      <Link
-        href="/founding-artists"
-        className="flex items-center justify-between bg-crwn-surface hover:bg-crwn-elevated rounded-xl p-4 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-crwn-gold/20 flex items-center justify-center">
-            <Crown className="w-5 h-5 text-crwn-gold" />
-          </div>
-          <div>
-            <p className="font-medium text-crwn-text">Founding Artist Program</p>
-            <p className="text-sm text-crwn-text-secondary">1 month free Pro + reduced fees for early artists</p>
           </div>
         </div>
       </Link>

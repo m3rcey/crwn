@@ -6,7 +6,7 @@ import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { getTierLimits, formatTierName, TierLimits, getSmsLimit } from '@/lib/platformTier';
 import { PlatformTierModal } from './PlatformTierModal';
-import { Loader2, Crown, CreditCard, Calendar } from 'lucide-react';
+import { Loader2, Crown, CreditCard } from 'lucide-react';
 import CancelModal from '@/components/shared/CancelModal';
 import { formatTierName as fmtTier } from '@/lib/platformTier';
 
@@ -15,10 +15,6 @@ interface ArtistProfile {
   platform_tier: string | null;
   platform_subscription_status: string | null;
   platform_stripe_subscription_id: string | null;
-  is_founding_artist: boolean | null;
-  founding_artist_number: number | null;
-  founding_artist_expires_at: string | null;
-  founding_fee_expires_at: string | null;
 }
 
 export function PlatformBilling() {
@@ -37,7 +33,7 @@ export function PlatformBilling() {
 
       const { data } = await supabase
         .from('artist_profiles')
-        .select('id, platform_tier, platform_subscription_status, platform_stripe_subscription_id, is_founding_artist, founding_artist_number, founding_artist_expires_at, founding_fee_expires_at')
+        .select('id, platform_tier, platform_subscription_status, platform_stripe_subscription_id')
         .eq('user_id', user.id)
         .single();
 
@@ -85,21 +81,6 @@ export function PlatformBilling() {
 
   return (
     <>
-      {artist?.is_founding_artist && artist.founding_artist_number && (
-        <div className="neu-raised rounded-xl p-4 border border-crwn-gold/30 bg-crwn-gold/5 mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-lg">👑</span>
-            <span className="text-crwn-gold font-semibold">Founding Artist #{artist.founding_artist_number}</span>
-          </div>
-          <p className="text-crwn-text-secondary text-sm">
-            Free Pro until {new Date(artist.founding_artist_expires_at || Date.now()).toLocaleDateString()}.
-            {artist.founding_fee_expires_at && new Date(artist.founding_fee_expires_at) > new Date() && (
-              <> 5% platform fee until {new Date(artist.founding_fee_expires_at).toLocaleDateString()}.</>
-            )}
-          </p>
-        </div>
-      )}
-
       <div className="neu-raised rounded-2xl p-6">
         <h2 className="text-xl font-bold text-crwn-text mb-6">Plan & Billing</h2>
 

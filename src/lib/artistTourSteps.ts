@@ -1,17 +1,14 @@
 import { DriveStep } from 'driver.js';
 
-export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string = 'yourname', platformTier: string = 'starter'): DriveStep[] {
+export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[] {
   const isStarter = platformTier === 'starter';
-  const foundingNote = isFoundingArtist
-    ? ' As a Founding Artist, you have free Pro access and a reduced 5% platform fee for your first 6 months.'
-    : '';
 
   return [
     // 1. Welcome
     {
       popover: {
         title: 'Your artist dashboard',
-        description: `This is where you manage everything. Let us walk through each step to get your page live and ready for fans.${foundingNote}`,
+        description: 'This is where you manage everything. Let us walk through each step to get your page live and ready for fans.',
       },
     },
 
@@ -111,7 +108,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string
       element: '[data-tour="sync-opportunities"]',
       popover: {
         title: 'Sync opportunities',
-        description: `These are real sync licensing events and briefs updated regularly.${isFoundingArtist ? ' Your Pro access gives you the full list with personalized recommendations.' : ' Upgrade to Pro to unlock all opportunities.'}`,
+        description: `These are real sync licensing events and briefs updated regularly.${isStarter ? ' Upgrade to Pro to unlock all opportunities.' : ' Your Pro access gives you the full list with personalized recommendations.'}`,
         side: 'bottom',
         align: 'start',
       },
@@ -325,7 +322,7 @@ export function getArtistTourSteps(isFoundingArtist: boolean, artistSlug: string
     {
       popover: {
         title: 'Almost there!',
-        description: `Click "View as Fan" to see your page from a fan perspective. We will show you a few more things there.${isFoundingArtist ? ' As a Founding Artist, all your Pro features are active now. Make the most of them.' : ''}`,
+        description: 'Click "View as Fan" to see your page from a fan perspective. We will show you a few more things there.',
       },
     },
   ];
