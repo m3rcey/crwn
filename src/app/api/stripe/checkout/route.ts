@@ -59,9 +59,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: successUrl });
     }
 
-    // Get dynamic platform fee based on artist's founding status and platform tier
-    const artistId = (tier.artist as unknown as { id?: string })?.id;
-    const platformFeePercent = artistId ? await getArtistFeePercent(artistId) : 8;
+    if (!tier.artist?.stripe_connect_id) {
+      return NextResponse.json(
+        { error: 'Artist has not connected payments yet. Try again later.' },
+        { status: 400 }
+      );
+    }
+
+    const platformFeePercent = await getArtistFeePercent(tier.artist_id);
 
     // Get fan profile
     const { data: fan } = await supabase
@@ -96,20 +101,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Get artist display name for statement descriptor
-    const { data: artistNameData } = await supabase
-      .from('profiles')
-      .select('display_name')
-      .eq('id', tier.artist?.user_id)
-      .single();
-    const artistDisplayName = artistNameData?.display_name || '';
-    // Stripe limit: 22 chars, alphanumeric + spaces only, uppercase
-    const statementSuffix = artistDisplayName
-      .replace(/[^a-zA-Z0-9 ]/g, '')
-      .trim()
-      .substring(0, 22)
-      .toUpperCase();
-
     // Validate discount code if provided
     let discountResult: { stripeCouponId?: string; discountId?: string } = {};
     if (discountCode) {
@@ -139,14 +130,9 @@ export async function POST(req: NextRequest) {
       } : {}),
       subscription_data: {
         application_fee_percent: platformFeePercent,
-        transfer_data: tier.artist?.stripe_connect_id
-          ? {
-              destination: tier.artist.stripe_connect_id,
-            }
-          : undefined,
-      },
-      payment_intent_data: {
-        ...(statementSuffix ? { statement_descriptor_suffix: statementSuffix } : {}),
+        transfer_data: {
+          destination: tier.artist.stripe_connect_id,
+        },
       },
       success_url: returnUrl
         ? `${process.env.NEXT_PUBLIC_BASE_URL}${returnUrl}?subscription=success`
