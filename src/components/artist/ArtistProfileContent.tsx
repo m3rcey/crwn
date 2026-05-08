@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AlbumsSection } from '@/components/artist/AlbumCard';
 import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
 import { ShopSection } from '@/components/artist/ShopSection';
@@ -56,7 +57,9 @@ export function ArtistProfileContent({
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'leaderboard'>('music');
+  const searchParams = useSearchParams();
+  const returningFromCheckout = searchParams.get('subscription') === 'success' || searchParams.get('subscription') === 'canceled';
+  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'music');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Check if user is subscribed to this artist
@@ -76,10 +79,11 @@ export function ArtistProfileContent({
 
   // Default to community tab if subscribed, tiers if not
   useEffect(() => {
+    if (returningFromCheckout) return;
     if (isSubscribed) {
       setActiveTab('music');
     }
-  }, [isSubscribed]);
+  }, [isSubscribed, returningFromCheckout]);
 
   // Trigger artist page tour on first visit (only when viewing own page)
   const isOwnPage = isArtistProfile;
