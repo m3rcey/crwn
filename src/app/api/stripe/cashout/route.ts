@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { notifyCashout } from '@/lib/notifications';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { cashoutEmail } from '@/lib/emails/cashout';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -54,6 +58,39 @@ export async function POST(req: NextRequest) {
         stripeAccount: artist.stripe_connect_id,
       }
     );
+
+    // Best-effort: in-app notification + email receipt. Never block the response.
+    try {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+      );
+
+      await notifyCashout(supabaseAdmin, user.id, payoutAmount);
+
+      if (user.email) {
+        const { data: nameRow } = await supabaseAdmin
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .maybeSingle();
+        const displayName = nameRow?.display_name || 'there';
+
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: user.email,
+          subject: `Cashout sent: $${(payoutAmount / 100).toFixed(2)}`,
+          html: cashoutEmail({
+            displayName,
+            amount: payoutAmount,
+            fee: CASHOUT_FEE_CENTS,
+            payoutId: payout.id,
+          }),
+        });
+      }
+    } catch (notifyErr) {
+      console.error('Cashout notification/email failed:', notifyErr);
+    }
 
     return NextResponse.json({
       success: true,

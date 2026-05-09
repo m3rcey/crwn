@@ -52,6 +52,23 @@ export async function notifyNewPurchase(
   );
 }
 
+// Notify artist that a cashout payout was created
+export async function notifyCashout(
+  supabaseAdmin: any,
+  artistUserId: string,
+  amount: number
+) {
+  const formatted = `$${(amount / 100).toFixed(2)}`;
+  return createNotification(
+    supabaseAdmin,
+    artistUserId,
+    'cashout',
+    `Cashout sent: ${formatted}`,
+    'On its way to your linked bank or debit card. Bank transfers arrive in 1 to 2 business days.',
+    '/profile/artist?tab=payouts'
+  );
+}
+
 // Notify artist of canceled subscription
 export async function notifySubscriptionCanceled(
   supabaseAdmin: any,
