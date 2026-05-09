@@ -45,6 +45,7 @@ export function PayoutDashboard() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [stripeLoginUrl, setStripeLoginUrl] = useState<string | null>(null);
   const [availableBalance, setAvailableBalance] = useState<number | null>(null);
+  const [pendingBalance, setPendingBalance] = useState<number | null>(null);
   const [isCashingOut, setIsCashingOut] = useState(false);
   const [artistId, setArtistId] = useState<string | null>(null);
   const { showToast } = useToast();
@@ -139,8 +140,9 @@ export function PayoutDashboard() {
             body: JSON.stringify({}),
           });
           if (balRes.ok) {
-            const { available } = await balRes.json();
+            const { available, pending } = await balRes.json();
             setAvailableBalance(available);
+            setPendingBalance(pending);
           }
         } catch (err) {
           console.error('Failed to fetch balance:', err);
@@ -414,6 +416,11 @@ export function PayoutDashboard() {
             <p className="text-2xl font-bold text-crwn-gold">
               {availableBalance !== null ? `$${(availableBalance / 100).toFixed(2)}` : '...'}
             </p>
+            {pendingBalance !== null && pendingBalance > 0 && (
+              <p className="text-xs text-crwn-text-secondary mt-1">
+                ${(pendingBalance / 100).toFixed(2)} pending. Stripe clears new charges in 2 to 7 days.
+              </p>
+            )}
           </div>
           <button
             data-tour="payout-cashout"
