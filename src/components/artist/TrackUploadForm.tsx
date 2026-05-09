@@ -672,12 +672,18 @@ export function TrackUploadForm() {
               <input
                 type="checkbox"
                 checked={formData.isFree}
-                onChange={(e) => setFormData(p => ({
-                  ...p,
-                  isFree: e.target.checked,
-                  allowedTierIds: e.target.checked ? [] : p.allowedTierIds,
-                  price: e.target.checked ? '' : p.price,
-                }))}
+                onChange={(e) => {
+                  const willBeFree = e.target.checked;
+                  const paidTierIds = tiers.filter(t => t.price > 0).map(t => t.id);
+                  setFormData(p => ({
+                    ...p,
+                    isFree: willBeFree,
+                    allowedTierIds: willBeFree
+                      ? []
+                      : (p.allowedTierIds.length > 0 ? p.allowedTierIds : paidTierIds),
+                    price: willBeFree ? '' : p.price,
+                  }));
+                }}
                 className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
               />
               <span className="text-crwn-text text-sm">Free to all</span>

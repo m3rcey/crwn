@@ -62,7 +62,11 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         .eq('is_active', true)
         .order('price', { ascending: true });
       
-      if (tiersData) setTiers(tiersData);
+      if (tiersData) {
+        setTiers(tiersData);
+        const paidTierIds = tiersData.filter(t => t.price > 0).map(t => t.id);
+        setApplyToAllTierIds(prev => prev.length === 0 ? paidTierIds : prev);
+      }
     }
     fetchTiers();
   }, [artistProfileId, supabase]);
@@ -601,11 +605,17 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                           <input
                             type="checkbox"
                             checked={item.isFree}
-                            onChange={(e) => updateItem(item.id, { 
-                              isFree: e.target.checked,
-                              allowedTierIds: e.target.checked ? [] : item.allowedTierIds,
-                              price: e.target.checked ? '' : item.price,
-                            })}
+                            onChange={(e) => {
+                              const willBeFree = e.target.checked;
+                              const paidTierIds = tiers.filter(t => t.price > 0).map(t => t.id);
+                              updateItem(item.id, {
+                                isFree: willBeFree,
+                                allowedTierIds: willBeFree
+                                  ? []
+                                  : (item.allowedTierIds.length > 0 ? item.allowedTierIds : paidTierIds),
+                                price: willBeFree ? '' : item.price,
+                              });
+                            }}
                             disabled={item.status !== 'pending' || isUploading}
                             className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold disabled:opacity-50"
                           />
