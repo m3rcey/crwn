@@ -67,7 +67,6 @@ export function useContentAccess(
         .eq('fan_id', user.id)
         .eq('artist_id', artistId)
         .eq('status', 'active')
-        .gt('current_period_end', new Date().toISOString())
         .maybeSingle();
 
       if (!cancelled) {
