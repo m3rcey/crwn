@@ -30,7 +30,7 @@ export function useFavorites() {
     }
 
     fetchFavorites();
-  }, [user, supabase]);
+  }, [user?.id, supabase]);
 
   const isLiked = useCallback((trackId: string) => {
     return likedTrackIds.has(trackId);

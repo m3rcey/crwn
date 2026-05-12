@@ -89,7 +89,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       }
     }
     fetchFavorites();
-  }, [user, supabase]);
+  }, [user?.id, supabase]);
 
   // Can play track - declared before play
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -86,7 +86,7 @@ export function useContentAccess(
     return () => {
       cancelled = true;
     };
-  }, [user, artistId, contentAccessLevel, supabase]);
+  }, [user?.id, artistId, contentAccessLevel, supabase]);
 
   return access;
 }

@@ -64,7 +64,7 @@ export function useSubscription(artistId: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [user, artistId, supabase]);
+  }, [user?.id, artistId, supabase]);
 
   return subscription;
 }

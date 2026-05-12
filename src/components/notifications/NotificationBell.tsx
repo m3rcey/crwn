@@ -61,7 +61,7 @@ export function NotificationBell() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, supabase]);
+  }, [user?.id, supabase]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

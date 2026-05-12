@@ -187,17 +187,24 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('is_active', true)
     .order('release_date', { ascending: false });
 
-  // Get album track counts
-  const albumsWithCounts = await Promise.all(
-    ( albums || []).map(async (album) => {
-      const { data: atData } = await supabase
-        .from('album_tracks')
-        .select('track:tracks(is_active)')
-        .eq('album_id', album.id);
-      const activeCount = (atData || []).filter((at: any) => at.track?.is_active !== false).length;
-      return { ...album, track_count: activeCount };
-    })
-  );
+  // Get album track counts (single batched query, not N+1)
+  const albumIds = (albums || []).map(a => a.id);
+  const albumTrackCounts: Record<string, number> = {};
+  if (albumIds.length > 0) {
+    const { data: atData } = await supabase
+      .from('album_tracks')
+      .select('album_id, track:tracks(is_active)')
+      .in('album_id', albumIds);
+    for (const at of (atData || []) as any[]) {
+      if (at.track?.is_active !== false) {
+        albumTrackCounts[at.album_id] = (albumTrackCounts[at.album_id] || 0) + 1;
+      }
+    }
+  }
+  const albumsWithCounts = (albums || []).map((album) => ({
+    ...album,
+    track_count: albumTrackCounts[album.id] || 0,
+  }));
 
   // Fetch artist's playlists
   const { data: playlists } = await supabase
@@ -208,17 +215,24 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 
-  // Get playlist track counts
-  const playlistsWithCounts = await Promise.all(
-    (playlists || []).map(async (playlist) => {
-      const { data: ptData } = await supabase
-        .from('playlist_tracks')
-        .select('track:tracks(is_active)')
-        .eq('playlist_id', playlist.id);
-      const activeCount = (ptData || []).filter((pt: any) => pt.track?.is_active !== false).length;
-      return { ...playlist, track_count: activeCount };
-    })
-  );
+  // Get playlist track counts (single batched query, not N+1)
+  const playlistIds = (playlists || []).map(p => p.id);
+  const playlistTrackCounts: Record<string, number> = {};
+  if (playlistIds.length > 0) {
+    const { data: ptData } = await supabase
+      .from('playlist_tracks')
+      .select('playlist_id, track:tracks(is_active)')
+      .in('playlist_id', playlistIds);
+    for (const pt of (ptData || []) as any[]) {
+      if (pt.track?.is_active !== false) {
+        playlistTrackCounts[pt.playlist_id] = (playlistTrackCounts[pt.playlist_id] || 0) + 1;
+      }
+    }
+  }
+  const playlistsWithCounts = (playlists || []).map((playlist) => ({
+    ...playlist,
+    track_count: playlistTrackCounts[playlist.id] || 0,
+  }));
 
   // Fetch shop products
   const { data: products } = await supabase

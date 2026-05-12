@@ -51,18 +51,19 @@ export async function GET(req: NextRequest) {
     return true;
   });
 
-  // Get subscriber counts per artist
+  // Get subscriber counts per artist (single batched query, not N+1)
   const artistIds = (artists || []).map(a => a.id);
-  let artistSubCounts: Record<string, number> = {};
+  const artistSubCounts: Record<string, number> = {};
 
   if (artistIds.length > 0) {
-    for (const id of artistIds) {
-      const { count } = await supabaseAdmin
-        .from('subscriptions')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', id)
-        .eq('status', 'active');
-      artistSubCounts[id] = count || 0;
+    const { data: subs } = await supabaseAdmin
+      .from('subscriptions')
+      .select('artist_id')
+      .in('artist_id', artistIds)
+      .eq('status', 'active');
+
+    for (const sub of subs || []) {
+      artistSubCounts[sub.artist_id] = (artistSubCounts[sub.artist_id] || 0) + 1;
     }
   }
 
