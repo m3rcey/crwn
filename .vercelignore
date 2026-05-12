@@ -1,0 +1,7 @@
+# Content/script workspace — not part of the deployed app
+videos/
+generate-images.mjs
+generate-carousel.mjs
+generate-thumbnail.mjs
+flatten-one.mjs
+fetch-person-ref.mjs
