@@ -65,7 +65,7 @@ function buildPrompt(data: ArtistDataForAI): string {
   lines.push(`MRR: ${$(data.unitEconomics.mrr)} | ARPU: ${$(data.unitEconomics.arpu)}/mo | LTV: ${$(data.unitEconomics.ltv)}`);
   lines.push(`Churn Rate: ${pct(data.unitEconomics.churnRate)}/mo | Avg Lifespan: ${data.unitEconomics.avgLifespanMonths} months`);
   lines.push(`Revenue Per Visitor: ${$(data.unitEconomics.revenuePerVisitor)} (30d) | Unique Visitors: ${data.unitEconomics.uniqueVisitors30d}`);
-  lines.push(`Revenue Per Play: ${$(data.unitEconomics.revenuePerPlay)} | Sales Velocity: ${data.unitEconomics.salesVelocity} new subs/mo`);
+  lines.push(`Sales Velocity: ${data.unitEconomics.salesVelocity} new subs/mo`);
 
   // Revenue trends
   lines.push('');

@@ -21,7 +21,6 @@ export interface ArtistDataForAI {
     churnRate: number; // percentage
     avgLifespanMonths: number;
     revenuePerVisitor: number; // cents, 30-day trailing
-    revenuePerPlay: number; // cents
     uniqueVisitors30d: number;
     salesVelocity: number; // new subs per month
   };
@@ -385,7 +384,6 @@ export async function collectArtistData(
   const uniqueVisitors30d = new Set((visitorData || []).map(v => v.visitor_id)).size;
   const revenue30d = earnings.filter(e => e.created_at >= thirtyDaysAgo).reduce((s, e) => s + e.net_amount, 0);
   const revenuePerVisitor = uniqueVisitors30d > 0 ? Math.round(revenue30d / uniqueVisitors30d) : 0;
-  const revenuePerPlay = totalPlays > 0 ? Math.round(earnings.reduce((s, e) => s + e.net_amount, 0) / totalPlays) : 0;
 
   // Sales velocity: trailing 3-month average new subscribers per month
   const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
@@ -555,7 +553,6 @@ export async function collectArtistData(
       churnRate,
       avgLifespanMonths,
       revenuePerVisitor,
-      revenuePerPlay,
       uniqueVisitors30d,
       salesVelocity,
     },
