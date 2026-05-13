@@ -21,7 +21,6 @@ interface Analytics {
     allTime: number;
     byType: Record<string, number>;
     trend: { daily: { label: string; revenue: number; earnings_count: number }[]; weekly: { label: string; revenue: number; earnings_count: number }[]; monthly: { label: string; revenue: number; earnings_count: number }[] };
-    revenuePerPlay: number;
     revenuePerVisitor: number;
     uniqueVisitors30d: number;
     visitorTrend: { label: string; visitors: number; revenue: number; revenuePerVisitor: number }[];
@@ -264,8 +263,8 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
       <section>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="analytics-revenue">Revenue</h3>
         
-        {/* Top Stats - MRR, This Month, All Time, Rev/Play, Revenue Split */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        {/* Top Stats - MRR, This Month, All Time, Revenue Split */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">MRR<InfoTooltip text="Monthly Recurring Revenue. Predictable income from active subscriptions each month." /></p>
             <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.subscribers.mrr)}</p>
@@ -280,11 +279,6 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">All Time<InfoTooltip text="Cumulative revenue earned since you joined CRWN." /></p>
             <p className="text-2xl font-bold text-crwn-text mt-1">{formatCurrency(analytics.revenue.allTime)}</p>
-          </div>
-          <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated col-span-2 lg:col-span-1">
-            <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">Revenue Per Play<InfoTooltip text="Average revenue generated per song play. Compare this to streaming platforms like Spotify (~$0.003)." /></p>
-            <p className="text-2xl font-bold text-crwn-gold mt-1">{formatCurrency(analytics.revenue.revenuePerPlay)}</p>
-            <p className="text-xs text-crwn-text-secondary mt-0.5">vs Spotify ~$0.003</p>
           </div>
           <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
             <p className="text-xs text-crwn-text-secondary uppercase tracking-wide mb-2">Revenue Split<InfoTooltip text="Breakdown of your revenue by source: subscriptions, one-time purchases, etc." /></p>

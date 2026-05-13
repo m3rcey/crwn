@@ -212,9 +212,6 @@ export async function GET(req: NextRequest) {
   // ---- AVERAGE SUBSCRIBER LIFESPAN ----
   const avgLifespanMonths = churnRate > 0 ? Number((100 / churnRate).toFixed(1)) : 24;
 
-  // ---- REVENUE PER PLAY ----
-  const revenuePerPlay = totalPlays > 0 ? Math.round(revenueAllTime / totalPlays) : 0;
-
   // ---- HYPOTHETICAL MAX ----
   // Sales velocity: new subscribers per month (trailing 3 months)
   const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1).toISOString();
@@ -559,7 +556,6 @@ export async function GET(req: NextRequest) {
       allTime: revenueAllTime,
       byType: revenueByType,
       trend: revenueTrend,
-      revenuePerPlay,
       revenuePerVisitor,
       uniqueVisitors30d,
       visitorTrend,
