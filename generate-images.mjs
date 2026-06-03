@@ -1,16 +1,44 @@
 import { GoogleGenAI } from "@google/genai";
 import fs from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
+import {
+  ensurePersonRefs,
+  findMentionedSlugs,
+  buildPersonRefParts,
+  PERSON_REF_INSTRUCTION,
+} from "./fetch-person-ref.mjs";
+
+const WHITE_THRESHOLD = 200;
+
+async function flattenWhiteBackground(filePath) {
+  const { data, info } = await sharp(filePath).raw().toBuffer({ resolveWithObject: true });
+  const c = info.channels;
+  let flipped = 0;
+  for (let i = 0; i < data.length; i += c) {
+    if (data[i] >= WHITE_THRESHOLD && data[i + 1] >= WHITE_THRESHOLD && data[i + 2] >= WHITE_THRESHOLD) {
+      data[i] = 255;
+      data[i + 1] = 255;
+      data[i + 2] = 255;
+      flipped++;
+    }
+  }
+  await sharp(data, { raw: { width: info.width, height: info.height, channels: c } })
+    .jpeg({ quality: 95 })
+    .toFile(filePath);
+  return flipped;
+}
 
 const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) { console.error("ERROR: GEMINI_API_KEY not set."); process.exit(1); }
-
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const INPUT_FILE = "/home/merce/.openclaw/workspace-crwn/videos/nano-prompts/CAN_500_FANS_MAKE_100K_NANO_BANANA_PROMPTS.md";
-const OUTPUT_DIR = "/mnt/c/Users/Merce/Dropbox/nano banana output/CAN_500_FANS_MAKE_100K";
+const OUTPUT_BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Posts/Hip-Hop Industry";
 const REFS_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
+const SCRIPTS_DIR = "/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform";
 const DELAY_MS = 8000;
+const START_SCRIPT_NUMBER = 104;
+const END_SCRIPT_NUMBER = 133;
 
 const STYLE_REFS = [
   "openart-image_1775581308623_d7e64984_1775581308661_33c1d1ba.png",
@@ -19,87 +47,114 @@ const STYLE_REFS = [
   "openart-image_1775598237169_2475a432_1775598237207_c74fc3ec.png",
 ];
 
-const STYLE_INSTRUCTION = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly.";
+const STYLE_INSTRUCTION = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. CRITICAL BACKGROUND RULE: The background must be PURE WHITE (#FFFFFF), absolutely flat, edge to edge. NO off-white, cream, eggshell, beige, or warm paper tones. NO desk, table, notebook, binding, or surface visible underneath. NO shadows under the page, NO page curl, NO page edges, NO paper texture or grain. The entire frame IS the paper — there is no visible surface, no background object, no hint that the paper is sitting on anything. This is a flat editorial scan, not a photograph of a sheet on a desk. Pure #FFFFFF pixels fill every edge of the frame. CRITICAL FONT RULE: ALL text in the image must be hand-drawn sharpie marker handwriting. NEVER use any printed, typeset, computer, Arial, Helvetica, serif, or sans-serif font anywhere in the image. Every single letter, number, word, label, header, list item, footer, and bottom tagline must look hand-written with a sharpie. No typography, no mixed fonts, no computer-generated text anywhere, not even in bottom taglines, captions, or footers.";
 
-const CRWN_LOGO_INSTRUCTION = "When the CRWN logo is referenced, reproduce it EXACTLY as shown in the attached crwn-logo.png reference: a geometric angular crown with three sharp pointed spires, diamond-shaped facets, and a flat base band. Do not draw a generic rounded cartoon crown.";
+if (!fs.existsSync(OUTPUT_BASE)) fs.mkdirSync(OUTPUT_BASE, { recursive: true });
 
-if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-
-const styleRefParts = STYLE_REFS.map(f => ({
-  inlineData: { mimeType: "image/png", data: fs.readFileSync(path.join(REFS_DIR, f)).toString("base64") }
+const styleRefParts = STYLE_REFS.map((f) => ({
+  inlineData: { mimeType: "image/png", data: fs.readFileSync(path.join(REFS_DIR, f)).toString("base64") },
 }));
 
-const crwnLogoPart = {
-  inlineData: { mimeType: "image/png", data: fs.readFileSync(path.join(REFS_DIR, "crwn-logo.png")).toString("base64") }
-};
+const scriptFiles = fs
+  .readdirSync(SCRIPTS_DIR)
+  .filter((f) => f.endsWith(".md"))
+  .map((f) => {
+    const match = f.match(/^(\d+)-/);
+    return match ? { num: parseInt(match[1], 10), filename: f, slug: f.replace(/\.md$/, "") } : null;
+  })
+  .filter((entry) => entry && entry.num >= START_SCRIPT_NUMBER && entry.num <= END_SCRIPT_NUMBER)
+  .sort((a, b) => a.num - b.num);
 
-// Parse prompts from markdown file
-const content = fs.readFileSync(INPUT_FILE, "utf-8");
-const lines = content.split("\n");
-const prompts = [];
-let i = 0;
-while (i < lines.length) {
-  const m = lines[i].match(/^(\d+)\.\s+SENTENCE:/);
-  if (m) {
-    const num = parseInt(m[1]);
-    // Find the NANO BANANA PRO PROMPT line
-    let j = i + 1;
-    while (j < lines.length && !lines[j].startsWith("NANO BANANA PRO PROMPT:")) j++;
-    if (j < lines.length) {
-      // Extract the prompt content (starts after "NANO BANANA PRO PROMPT: \"" and ends at closing quote)
-      const line = lines[j];
-      const startIdx = line.indexOf('"');
-      if (startIdx !== -1) {
-        let promptText = line.slice(startIdx + 1);
-        // Handle multi-line prompts (unlikely here but safe)
-        let k = j;
-        while (!promptText.endsWith('"') && k < lines.length - 1) {
-          k++;
-          promptText += "\n" + lines[k];
-        }
-        if (promptText.endsWith('"')) promptText = promptText.slice(0, -1);
-        prompts.push({ number: num, prompt: promptText });
-      }
-    }
-    i = j + 1;
-  } else {
-    i++;
-  }
+function extractPrompt(scriptContent) {
+  const marker = "**NANO BANANA PRO PROMPT:**";
+  const idx = scriptContent.indexOf(marker);
+  if (idx === -1) return null;
+  let rest = scriptContent.slice(idx + marker.length);
+  const dashIdx = rest.indexOf("\n---");
+  if (dashIdx !== -1) rest = rest.slice(0, dashIdx);
+  return rest.trim();
 }
 
-console.log(`Parsed ${prompts.length} prompts`);
-console.log(`Output dir: ${OUTPUT_DIR}`);
-console.log(`Style refs loaded: ${styleRefParts.length}`);
+function parseSkipPeople(scriptContent) {
+  const m = scriptContent.match(/<!--\s*skip-people:\s*([^>]+?)\s*-->/i);
+  if (!m) return [];
+  return m[1].split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+}
 
-if (prompts.length === 0) { console.error("No prompts parsed."); process.exit(1); }
+console.log(`Generating ${scriptFiles.length} images for scripts ${START_SCRIPT_NUMBER}-${END_SCRIPT_NUMBER}`);
+console.log(`Output: ${OUTPUT_BASE}`);
 
-let success = 0, fail = 0;
+let success = 0;
+let fail = 0;
 const failed = [];
 
-for (let idx = 0; idx < prompts.length; idx++) {
-  const { number, prompt } = prompts[idx];
-  const fileName = `${String(number).padStart(3, "0")}.jpg`;
-  const outPath = path.join(OUTPUT_DIR, fileName);
+for (let idx = 0; idx < scriptFiles.length; idx++) {
+  const { num, filename, slug } = scriptFiles[idx];
+  const scriptPath = path.join(SCRIPTS_DIR, filename);
+  const outPath = path.join(OUTPUT_BASE, `${slug}.jpg`);
 
   if (fs.existsSync(outPath)) {
-    console.log(`[${idx + 1}/${prompts.length}] #${number} SKIP (exists)`);
+    console.log(`[${idx + 1}/${scriptFiles.length}] ${slug} SKIP (exists)`);
     success++;
     continue;
   }
 
-  const needsCrwn = /CRWN|thecrwn\.app|crown logo/i.test(prompt);
+  const scriptContent = fs.readFileSync(scriptPath, "utf-8");
+  const promptText = extractPrompt(scriptContent);
+  if (!promptText) {
+    console.error(`[${idx + 1}/${scriptFiles.length}] ${slug} FAIL: no NANO BANANA PRO PROMPT block found`);
+    fail++;
+    failed.push(slug);
+    continue;
+  }
+
+  const skipSlugs = parseSkipPeople(scriptContent);
+  const peopleSlugs = findMentionedSlugs(scriptContent).filter((s) => !skipSlugs.includes(s));
+  console.log(`\n[${idx + 1}/${scriptFiles.length}] ${slug}`);
+  console.log(`  people: ${peopleSlugs.length ? peopleSlugs.join(", ") : "(none)"}${skipSlugs.length ? `  [skipped: ${skipSlugs.join(", ")}]` : ""}`);
+
+  const personRefs = await ensurePersonRefs(peopleSlugs);
+  const personRefParts = buildPersonRefParts(personRefs);
+
+  // Some scripts' NANO BANANA prompts are pure diagrams with no human-figure
+  // slot, so an attached person ref has nowhere to land and the artist never
+  // appears (unlike 1-42, whose prompts had explicit stick-figure slots).
+  // Inject an explicit portrait directive for the script's PRIMARY artist
+  // (the one named in the filename, not incidental mentions) so the ref binds.
+  let finalPrompt = promptText;
+  if (personRefParts.length) {
+    const titleCase = (s) =>
+      s.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    const refSlugs = personRefs.map((r) => r.slug);
+    let primary = refSlugs.filter((s) => slug.includes(s));
+    if (!primary.length) primary = refSlugs;
+    const names = primary.map(titleCase);
+    const nameList =
+      names.length === 1
+        ? names[0]
+        : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+    const portraitDirective = ` In the upper area of the page, draw a recognizable hand-drawn black sharpie head-and-shoulders portrait of ${nameList}, capturing distinctive features (face shape, hair, beard, signature look) from the attached reference photo, labeled in capital letters with the name, rendered in the same raw sharpie line work as the rest of the page (not photo-real, no shading or color).`;
+    const anchor = "The background is pure white (#FFFFFF).";
+    finalPrompt = promptText.includes(anchor)
+      ? promptText.replace(anchor, `${portraitDirective.trim()} ${anchor}`)
+      : `${promptText.trim()}${portraitDirective}`;
+  }
 
   const parts = [{ text: STYLE_INSTRUCTION }, ...styleRefParts];
-  if (needsCrwn) {
-    parts.push({ text: CRWN_LOGO_INSTRUCTION });
-    parts.push(crwnLogoPart);
+  if (personRefParts.length) {
+    parts.push({ text: PERSON_REF_INSTRUCTION });
+    parts.push(...personRefParts);
   }
-  parts.push({ text: prompt });
+  parts.push({ text: finalPrompt });
 
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3.1-flash-image-preview",
       contents: [{ role: "user", parts }],
+      config: {
+        responseModalities: ["IMAGE"],
+        imageConfig: { aspectRatio: "3:4" },
+      },
     });
 
     let imageData = null;
@@ -111,26 +166,31 @@ for (let idx = 0; idx < prompts.length; idx++) {
     }
 
     if (!imageData) {
-      console.error(`[${idx + 1}/${prompts.length}] #${number} FAIL: no image in response`);
+      console.error(`  FAIL: no image in response`);
       fail++;
-      failed.push(number);
+      failed.push(slug);
     } else {
       fs.writeFileSync(outPath, Buffer.from(imageData, "base64"));
-      console.log(`[${idx + 1}/${prompts.length}] #${number} OK${needsCrwn ? " (+crwn)" : ""}`);
+      try {
+        const flipped = await flattenWhiteBackground(outPath);
+        console.log(`  OK ${path.basename(outPath)} (white-flattened ${flipped.toLocaleString()} px)`);
+      } catch (err) {
+        console.warn(`  saved but white-flatten failed: ${err.message}`);
+      }
       success++;
     }
   } catch (err) {
-    console.error(`[${idx + 1}/${prompts.length}] #${number} ERROR: ${err.message}`);
+    console.error(`  ERROR: ${err.message}`);
     fail++;
-    failed.push(number);
+    failed.push(slug);
   }
 
-  if (idx < prompts.length - 1) {
-    await new Promise(r => setTimeout(r, DELAY_MS));
+  if (idx < scriptFiles.length - 1) {
+    await new Promise((r) => setTimeout(r, DELAY_MS));
   }
 }
 
 console.log(`\n=== DONE ===`);
-console.log(`Success: ${success}/${prompts.length}`);
-console.log(`Failed: ${fail}/${prompts.length}`);
-if (failed.length) console.log(`Failed prompt numbers: ${failed.join(", ")}`);
+console.log(`Success: ${success}/${scriptFiles.length}`);
+console.log(`Failed: ${fail}/${scriptFiles.length}`);
+if (failed.length) console.log(`Failed: ${failed.join(", ")}`);
