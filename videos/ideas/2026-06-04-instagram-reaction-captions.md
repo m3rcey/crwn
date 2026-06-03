@@ -714,3 +714,258 @@ Follow @thecrwnapp for more like this
 A Code You Control vs A Priority Slot You Were Promised
 More breakdowns over at @thecrwnapp
 ```
+
+**Sun Nov 8 · 2:30p · Reaction to video 100 - 100-frank-ocean-the-line-was-his**
+
+```
+He Left The Machine And The Fans Were Still There
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 24 - Nov 12 to 15
+
+**Thu Nov 12 · 1:30p · Reaction to video 101 - 101-clipping-share-to-earn**
+
+```
+Streamers Built A Paid Fan Army
+Tap in with @thecrwnapp
+```
+
+**Fri Nov 13 · 2:00p · Reaction to video 102 - 102-lil-wayne-no-control-own-album**
+
+```
+Lil Wayne Got Overruled By His Team
+Follow @thecrwnapp for more like this
+```
+
+**Sat Nov 14 · 1:00p · Reaction to video 103 - 103-lizzo-algorithm-breaks-rollout**
+
+```
+The Algorithm Hid Her Album
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Nov 15 · 2:30p · Reaction to video 104 - 104-kid-cudi-kept-his-fanbase-direct**
+
+```
+Kid Cudi Got Saved By His Fans
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 25 - Nov 19 to 22
+
+**Thu Nov 19 · 1:30p · Reaction to video 105 - 105-label-shelves-your-album-two-years**
+
+```
+Would Your Fans Wait Two Years
+Tap in with @thecrwnapp
+```
+
+**Fri Nov 20 · 2:00p · Reaction to video 106 - 106-nipsey-marathon-fans-paid-to-recruit**
+
+```
+Nipsey Built A Whole Movement
+Follow @thecrwnapp for more like this
+```
+
+**Sat Nov 21 · 1:00p · Reaction to video 107 - 107-soulja-boy-fans-spread-it-free**
+
+```
+Every Fan Video Sold The Song
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Nov 22 · 2:30p · Reaction to video 108 - 108-bts-army-recruits-millions-free**
+
+```
+Every Fanbase Got A Hidden Engine
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 26 - Nov 26 to 29
+
+**Thu Nov 26 · 1:30p · Reaction to video 109 - 109-lil-wayne-couldnt-see-the-books**
+
+```
+Lil Wayne Got Hidden From His Money
+Tap in with @thecrwnapp
+```
+
+**Fri Nov 27 · 2:00p · Reaction to video 110 - 110-know-your-top-spenders-by-name**
+
+```
+20 Real Fans Vs 2,000 Strangers
+Follow @thecrwnapp for more like this
+```
+
+**Sat Nov 28 · 1:00p · Reaction to video 111 - 111-nas-found-the-money-gap-late**
+
+```
+Nas Missed A 6 Million Problem
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Nov 29 · 2:30p · Reaction to video 112 - 112-toni-braxton-35-cents-an-album**
+
+```
+Toni Braxton Got Paid In Change
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 27 - Dec 3 to 6
+
+**Thu Dec 3 · 1:30p · Reaction to video 113 - 113-mc-hammer-sales-werent-the-keep**
+
+```
+MC Hammer Lost A 70 Million Fortune
+Tap in with @thecrwnapp
+```
+
+**Fri Dec 4 · 2:00p · Reaction to video 114 - 114-master-p-85-15-vs-platform-split**
+
+```
+Master P Got 85 From A Label
+Follow @thecrwnapp for more like this
+```
+
+**Sat Dec 5 · 1:00p · Reaction to video 115 - 115-beyonce-surprise-album-landing-page**
+
+```
+Beyonce Got #1 With No Promo
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Dec 6 · 2:30p · Reaction to video 116 - 116-tyler-the-creator-own-ecosystem**
+
+```
+Tyler Built A Whole World
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 28 - Dec 10 to 13
+
+**Thu Dec 10 · 1:30p · Reaction to video 117 - 117-mac-miller-number-one-no-budget**
+
+```
+Mac Miller Got #1 With No Label
+Tap in with @thecrwnapp
+```
+
+**Fri Dec 11 · 2:00p · Reaction to video 118 - 118-taylor-swift-told-fans-which-to-stream**
+
+```
+Taylor Got Her Masters Back
+Follow @thecrwnapp for more like this
+```
+
+**Sat Dec 12 · 1:00p · Reaction to video 119 - 119-erykah-badu-kept-fans-decades**
+
+```
+Every Platform Dies But The Fans
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Dec 13 · 2:30p · Reaction to video 120 - 120-sza-fans-waited-five-years**
+
+```
+SZA Got Fans To Wait 5 Years
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 29 - Dec 17 to 20
+
+**Thu Dec 17 · 1:30p · Reaction to video 121 - 121-lil-b-movement-into-income**
+
+```
+Lil B Built A Free Movement
+Tap in with @thecrwnapp
+```
+
+**Fri Dec 18 · 2:00p · Reaction to video 122 - 122-outkast-spread-region-by-region**
+
+```
+OutKast Got Carried By The Fans
+Follow @thecrwnapp for more like this
+```
+
+**Sat Dec 19 · 1:00p · Reaction to video 123 - 123-master-p-no-limit-through-people**
+
+```
+Master P Got Big With No Radio
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Dec 20 · 2:30p · Reaction to video 124 - 124-run-dmc-never-saw-the-numbers**
+
+```
+Every First Gen Gets The Worst Deal
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 30 - Dec 24 to 27
+
+**Thu Dec 24 · 1:30p · Reaction to video 125 - 125-tlc-didnt-know-till-the-filing**
+
+```
+TLC Got Blindsided By Bankruptcy
+Tap in with @thecrwnapp
+```
+
+**Fri Dec 25 · 2:00p · Reaction to video 126 - 126-ai-catches-the-fan-going-cold**
+
+```
+Catching A Fan Before They Leave
+Follow @thecrwnapp for more like this
+```
+
+**Sat Dec 26 · 1:00p · Reaction to video 127 - 127-lauryn-hill-sony-kept-the-engine**
+
+```
+Lauryn Made A Forever Album
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Dec 27 · 2:30p · Reaction to video 128 - 128-cash-money-recoupment-ate-the-check**
+
+```
+Recoupment Ate The Whole Check
+@thecrwnapp drops these every week
+```
+
+
+# WEEK 31 - Dec 31 to Jan 3
+
+**Thu Dec 31 · 1:30p · Reaction to video 129 - 129-three-groups-same-cause-the-cut**
+
+```
+The Cut Broke Three Giant Acts
+Tap in with @thecrwnapp
+```
+
+**Fri Jan 1 · 2:00p · Reaction to video 130 - 130-childish-gambino-rollout-vs-smart-link**
+
+```
+Gambino Got Big With No Press
+Follow @thecrwnapp for more like this
+```
+
+**Sat Jan 2 · 1:00p · Reaction to video 131 - 131-russ-built-it-posting-directly**
+
+```
+Russ Got Big On SoundCloud
+More breakdowns over at @thecrwnapp
+```
+
+**Sun Jan 3 · 2:30p · Reaction to video 132 - 132-macklemore-thrift-shop-no-major**
+
+```
+Macklemore Got #1 With No Deal
+@thecrwnapp drops these every week
+```

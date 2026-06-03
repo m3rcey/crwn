@@ -817,3 +817,291 @@ He Left The Machine And The Fans Were Still There
 
 Link in bio to own the line to your fans with CRWN. Free to start at thecrwn.app.
 ```
+
+**Sun Nov 8 · Video 101 - clipping-share-to-earn**
+
+```
+Streamers Built A Paid Fan Army
+
+Link in bio to turn your fans into a paid street team that grows you every month with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 24 - Nov 12 to 15
+
+**Thu Nov 12 · Video 102 - lil-wayne-no-control-own-album**
+
+```
+Lil Wayne Got Overruled By His Team
+
+Link in bio to own your rollout and decide what drops, when, and what it's called with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Nov 13 · Video 103 - lizzo-algorithm-breaks-rollout**
+
+```
+The Algorithm Hid Her Album
+
+Link in bio to reach your real fans directly so they never miss a drop with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Nov 14 · Video 104 - kid-cudi-kept-his-fanbase-direct**
+
+```
+Kid Cudi Got Saved By His Fans
+
+Link in bio to own the line to your fans so they stay no matter what with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Nov 15 · Video 105 - label-shelves-your-album-two-years**
+
+```
+Would Your Fans Wait Two Years
+
+Link in bio to reach your fans directly so a shelved release never freezes you with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 25 - Nov 19 to 22
+
+**Thu Nov 19 · Video 106 - nipsey-marathon-fans-paid-to-recruit**
+
+```
+Nipsey Built A Whole Movement
+
+Link in bio to pay your realest fans a cut for every subscriber they bring with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Nov 20 · Video 107 - soulja-boy-fans-spread-it-free**
+
+```
+Every Fan Video Sold The Song
+
+Link in bio to turn the fans who spread you into a paid street team with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Nov 21 · Video 108 - bts-army-recruits-millions-free**
+
+```
+Every Fanbase Got A Hidden Engine
+
+Link in bio to turn your fanbase into a paid army that grows you every month with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Nov 22 · Video 109 - lil-wayne-couldnt-see-the-books**
+
+```
+Lil Wayne Got Hidden From His Money
+
+Link in bio to see every dollar your fans spend the second it lands with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 26 - Nov 26 to 29
+
+**Thu Nov 26 · Video 110 - know-your-top-spenders-by-name**
+
+```
+20 Real Fans Vs 2,000 Strangers
+
+Link in bio to know your biggest fans by name and take care of the ones who pay you with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Nov 27 · Video 111 - nas-found-the-money-gap-late**
+
+```
+Nas Missed A 6 Million Problem
+
+Link in bio to catch money problems in month one with live numbers, not year five, with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Nov 28 · Video 112 - toni-braxton-35-cents-an-album**
+
+```
+Toni Braxton Got Paid In Change
+
+Link in bio to keep almost the whole dollar your fans spend instead of the label's change with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Nov 29 · Video 113 - mc-hammer-sales-werent-the-keep**
+
+```
+MC Hammer Lost A 70 Million Fortune
+
+Link in bio to keep and watch every dollar so a fortune never slips through your hands with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 27 - Dec 3 to 6
+
+**Thu Dec 3 · Video 114 - master-p-85-15-vs-platform-split**
+
+```
+Master P Got 85 From A Label
+
+Link in bio to keep the big end of every dollar instead of handing the label the majority with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Dec 4 · Video 115 - beyonce-surprise-album-landing-page**
+
+```
+Beyonce Got #1 With No Promo
+
+Link in bio to launch straight to your fans with no label budget, just a page and a list, with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Dec 5 · Video 116 - tyler-the-creator-own-ecosystem**
+
+```
+Tyler Built A Whole World
+
+Link in bio to build one page that is the front door to everything you make with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Dec 6 · Video 117 - mac-miller-number-one-no-budget**
+
+```
+Mac Miller Got #1 With No Label
+
+Link in bio to move real numbers with no label budget by building the fans first with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 28 - Dec 10 to 13
+
+**Thu Dec 10 · Video 118 - taylor-swift-told-fans-which-to-stream**
+
+```
+Taylor Got Her Masters Back
+
+Link in bio to own the direct line so one message to your fans can move everything with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Dec 11 · Video 119 - erykah-badu-kept-fans-decades**
+
+```
+Every Platform Dies But The Fans
+
+Link in bio to own the relationship so no dead platform can ever reset your career with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Dec 12 · Video 120 - sza-fans-waited-five-years**
+
+```
+SZA Got Fans To Wait 5 Years
+
+Link in bio to keep your fans so close they wait years for you, no label needed, with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Dec 13 · Video 121 - lil-b-movement-into-income**
+
+```
+Lil B Built A Free Movement
+
+Link in bio to turn your movement into income by paying the fans who spread it with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 29 - Dec 17 to 20
+
+**Thu Dec 17 · Video 122 - outkast-spread-region-by-region**
+
+```
+OutKast Got Carried By The Fans
+
+Link in bio to turn the fans who spread you city to city into a paid network with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Dec 18 · Video 123 - master-p-no-limit-through-people**
+
+```
+Master P Got Big With No Radio
+
+Link in bio to turn your fans into a paid street team that runs itself with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Dec 19 · Video 124 - run-dmc-never-saw-the-numbers**
+
+```
+Every First Gen Gets The Worst Deal
+
+Link in bio to see every dollar in plain sight instead of finding out years too late with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Dec 20 · Video 125 - tlc-didnt-know-till-the-filing**
+
+```
+TLC Got Blindsided By Bankruptcy
+
+Link in bio to see your money live so trouble shows up in month one, not a courtroom, with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 30 - Dec 24 to 27
+
+**Thu Dec 24 · Video 126 - ai-catches-the-fan-going-cold**
+
+```
+Catching A Fan Before They Leave
+
+Link in bio to catch fans going cold and win them back before they cancel with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Dec 25 · Video 127 - lauryn-hill-sony-kept-the-engine**
+
+```
+Lauryn Made A Forever Album
+
+Link in bio to keep a low fee so the engine your music builds prints for you, not a label, with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Dec 26 · Video 128 - cash-money-recoupment-ate-the-check**
+
+```
+Recoupment Ate The Whole Check
+
+Link in bio to eat first with no advance and no recoupment, just a small fee off the top, with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Dec 27 · Video 129 - three-groups-same-cause-the-cut**
+
+```
+The Cut Broke Three Giant Acts
+
+Link in bio to keep a small fee off the top so a hit makes you rich instead of broke with CRWN. Free to start at thecrwn.app.
+```
+
+
+# WEEK 31 - Dec 31 to Jan 3
+
+**Thu Dec 31 · Video 130 - childish-gambino-rollout-vs-smart-link**
+
+```
+Gambino Got Big With No Press
+
+Link in bio to replace the press run with one smart link your fans land on for $0 with CRWN. Free to start at thecrwn.app.
+```
+
+**Fri Jan 1 · Video 131 - russ-built-it-posting-directly**
+
+```
+Russ Got Big On SoundCloud
+
+Link in bio to build a destination your fans always reach and grow with no campaign with CRWN. Free to start at thecrwn.app.
+```
+
+**Sat Jan 2 · Video 132 - macklemore-thrift-shop-no-major**
+
+```
+Macklemore Got #1 With No Deal
+
+Link in bio to reach the top owning your own music and keeping your own money with CRWN. Free to start at thecrwn.app.
+```
+
+**Sun Jan 3 · Video 133 - label-cant-stop-you-texting-fans**
+
+```
+What They Own Vs What They Cant
+
+Link in bio to hold a direct line to your fans the label can never touch with CRWN. Free to start at thecrwn.app.
+```

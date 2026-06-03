@@ -710,3 +710,27 @@ Link in bio to reach the top owning your own music and keeping your own money wi
 
 
 # WEEK 23 - Nov 5 to 8
+
+
+# WEEK 24 - Nov 12 to 15
+
+
+# WEEK 25 - Nov 19 to 22
+
+
+# WEEK 26 - Nov 26 to 29
+
+
+# WEEK 27 - Dec 3 to 6
+
+
+# WEEK 28 - Dec 10 to 13
+
+
+# WEEK 29 - Dec 17 to 20
+
+
+# WEEK 30 - Dec 24 to 27
+
+
+# WEEK 31 - Dec 31 to Jan 3

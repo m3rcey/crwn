@@ -243,6 +243,7 @@ day if you want the chain complete. Film the gap videos (8, 14, 17, 30, 32, 36,
 37) and any 39+, then resume Sat Jul 25 with the same pattern and the leftover
 carousels above.
 
+
 WEEK 8 (cont) - Jul 25 to 26
 
 Sat Jul 25
@@ -630,4 +631,193 @@ Fri Nov 6
 Sat Nov 7
   [ ] 10:00a  CRWN      Video      100 - frank-ocean-the-line-was-his
   [ ]  1:00p  PERSONAL  Reaction   react to 99 - a-discount-code-vs-a-label-priority-slot
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Nov 8
+  [ ] 11:30a  CRWN      Video      101 - clipping-share-to-earn
+  [ ]  2:30p  PERSONAL  Reaction   react to 100 - frank-ocean-the-line-was-his
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 24 - Nov 12 to 15
+
+Thu Nov 12
+  [ ] 10:30a  CRWN      Video      102 - lil-wayne-no-control-own-album
+  [ ]  1:30p  PERSONAL  Reaction   react to 101 - clipping-share-to-earn
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Nov 13
+  [ ] 11:00a  CRWN      Video      103 - lizzo-algorithm-breaks-rollout
+  [ ]  2:00p  PERSONAL  Reaction   react to 102 - lil-wayne-no-control-own-album
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Nov 14
+  [ ] 10:00a  CRWN      Video      104 - kid-cudi-kept-his-fanbase-direct
+  [ ]  1:00p  PERSONAL  Reaction   react to 103 - lizzo-algorithm-breaks-rollout
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Nov 15
+  [ ] 11:30a  CRWN      Video      105 - label-shelves-your-album-two-years
+  [ ]  2:30p  PERSONAL  Reaction   react to 104 - kid-cudi-kept-his-fanbase-direct
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 25 - Nov 19 to 22
+
+Thu Nov 19
+  [ ] 10:30a  CRWN      Video      106 - nipsey-marathon-fans-paid-to-recruit
+  [ ]  1:30p  PERSONAL  Reaction   react to 105 - label-shelves-your-album-two-years
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Nov 20
+  [ ] 11:00a  CRWN      Video      107 - soulja-boy-fans-spread-it-free
+  [ ]  2:00p  PERSONAL  Reaction   react to 106 - nipsey-marathon-fans-paid-to-recruit
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Nov 21
+  [ ] 10:00a  CRWN      Video      108 - bts-army-recruits-millions-free
+  [ ]  1:00p  PERSONAL  Reaction   react to 107 - soulja-boy-fans-spread-it-free
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Nov 22
+  [ ] 11:30a  CRWN      Video      109 - lil-wayne-couldnt-see-the-books
+  [ ]  2:30p  PERSONAL  Reaction   react to 108 - bts-army-recruits-millions-free
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 26 - Nov 26 to 29
+
+Thu Nov 26
+  [ ] 10:30a  CRWN      Video      110 - know-your-top-spenders-by-name
+  [ ]  1:30p  PERSONAL  Reaction   react to 109 - lil-wayne-couldnt-see-the-books
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Nov 27
+  [ ] 11:00a  CRWN      Video      111 - nas-found-the-money-gap-late
+  [ ]  2:00p  PERSONAL  Reaction   react to 110 - know-your-top-spenders-by-name
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Nov 28
+  [ ] 10:00a  CRWN      Video      112 - toni-braxton-35-cents-an-album
+  [ ]  1:00p  PERSONAL  Reaction   react to 111 - nas-found-the-money-gap-late
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Nov 29
+  [ ] 11:30a  CRWN      Video      113 - mc-hammer-sales-werent-the-keep
+  [ ]  2:30p  PERSONAL  Reaction   react to 112 - toni-braxton-35-cents-an-album
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 27 - Dec 3 to 6
+
+Thu Dec 3
+  [ ] 10:30a  CRWN      Video      114 - master-p-85-15-vs-platform-split
+  [ ]  1:30p  PERSONAL  Reaction   react to 113 - mc-hammer-sales-werent-the-keep
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Dec 4
+  [ ] 11:00a  CRWN      Video      115 - beyonce-surprise-album-landing-page
+  [ ]  2:00p  PERSONAL  Reaction   react to 114 - master-p-85-15-vs-platform-split
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Dec 5
+  [ ] 10:00a  CRWN      Video      116 - tyler-the-creator-own-ecosystem
+  [ ]  1:00p  PERSONAL  Reaction   react to 115 - beyonce-surprise-album-landing-page
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Dec 6
+  [ ] 11:30a  CRWN      Video      117 - mac-miller-number-one-no-budget
+  [ ]  2:30p  PERSONAL  Reaction   react to 116 - tyler-the-creator-own-ecosystem
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 28 - Dec 10 to 13
+
+Thu Dec 10
+  [ ] 10:30a  CRWN      Video      118 - taylor-swift-told-fans-which-to-stream
+  [ ]  1:30p  PERSONAL  Reaction   react to 117 - mac-miller-number-one-no-budget
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Dec 11
+  [ ] 11:00a  CRWN      Video      119 - erykah-badu-kept-fans-decades
+  [ ]  2:00p  PERSONAL  Reaction   react to 118 - taylor-swift-told-fans-which-to-stream
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Dec 12
+  [ ] 10:00a  CRWN      Video      120 - sza-fans-waited-five-years
+  [ ]  1:00p  PERSONAL  Reaction   react to 119 - erykah-badu-kept-fans-decades
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Dec 13
+  [ ] 11:30a  CRWN      Video      121 - lil-b-movement-into-income
+  [ ]  2:30p  PERSONAL  Reaction   react to 120 - sza-fans-waited-five-years
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 29 - Dec 17 to 20
+
+Thu Dec 17
+  [ ] 10:30a  CRWN      Video      122 - outkast-spread-region-by-region
+  [ ]  1:30p  PERSONAL  Reaction   react to 121 - lil-b-movement-into-income
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Dec 18
+  [ ] 11:00a  CRWN      Video      123 - master-p-no-limit-through-people
+  [ ]  2:00p  PERSONAL  Reaction   react to 122 - outkast-spread-region-by-region
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Dec 19
+  [ ] 10:00a  CRWN      Video      124 - run-dmc-never-saw-the-numbers
+  [ ]  1:00p  PERSONAL  Reaction   react to 123 - master-p-no-limit-through-people
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Dec 20
+  [ ] 11:30a  CRWN      Video      125 - tlc-didnt-know-till-the-filing
+  [ ]  2:30p  PERSONAL  Reaction   react to 124 - run-dmc-never-saw-the-numbers
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 30 - Dec 24 to 27
+
+Thu Dec 24
+  [ ] 10:30a  CRWN      Video      126 - ai-catches-the-fan-going-cold
+  [ ]  1:30p  PERSONAL  Reaction   react to 125 - tlc-didnt-know-till-the-filing
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Dec 25
+  [ ] 11:00a  CRWN      Video      127 - lauryn-hill-sony-kept-the-engine
+  [ ]  2:00p  PERSONAL  Reaction   react to 126 - ai-catches-the-fan-going-cold
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Dec 26
+  [ ] 10:00a  CRWN      Video      128 - cash-money-recoupment-ate-the-check
+  [ ]  1:00p  PERSONAL  Reaction   react to 127 - lauryn-hill-sony-kept-the-engine
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Dec 27
+  [ ] 11:30a  CRWN      Video      129 - three-groups-same-cause-the-cut
+  [ ]  2:30p  PERSONAL  Reaction   react to 128 - cash-money-recoupment-ate-the-check
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+
+WEEK 31 - Dec 31 to Jan 3
+
+Thu Dec 31
+  [ ] 10:30a  CRWN      Video      130 - childish-gambino-rollout-vs-smart-link
+  [ ]  1:30p  PERSONAL  Reaction   react to 129 - three-groups-same-cause-the-cut
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Fri Jan 1
+  [ ] 11:00a  CRWN      Video      131 - russ-built-it-posting-directly
+  [ ]  2:00p  PERSONAL  Reaction   react to 130 - childish-gambino-rollout-vs-smart-link
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sat Jan 2
+  [ ] 10:00a  CRWN      Video      132 - macklemore-thrift-shop-no-major
+  [ ]  1:00p  PERSONAL  Reaction   react to 131 - russ-built-it-posting-directly
+       (no carousel - stream exhausted; make more worthy carousels to fill this slot)
+
+Sun Jan 3
+  [ ] 11:30a  CRWN      Video      133 - label-cant-stop-you-texting-fans
+  [ ]  2:30p  PERSONAL  Reaction   react to 132 - macklemore-thrift-shop-no-major
        (no carousel - stream exhausted; make more worthy carousels to fill this slot)

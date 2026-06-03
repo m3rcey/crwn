@@ -67,7 +67,7 @@ function fence(body) { return "```\n" + body + "\n```"; }
 // ---- build posting-day list ----
 let d = new Date(2026, 6, 25); // Sat Jul 25 2026 (resume point)
 const days = [];
-for (let v = 39; v <= 100; v++) {
+for (let v = 39; v <= 133; v++) {
   while (!POSTING_DOWS.has(d.getDay())) d = new Date(d.getTime() + 86400000);
   days.push({ date: new Date(d), dow: d.getDay(), video: v });
   d = new Date(d.getTime() + 86400000);
