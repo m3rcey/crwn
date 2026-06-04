@@ -5,7 +5,8 @@ import sharp from "sharp";
 
 const REF_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
 const RAW = "/tmp/swipe-raw.png";
-const PROC = "/tmp/swipe-proc.png";
+// persisted so /carousel can reuse it across runs (see carousel.md swipe step)
+const PROC = "/mnt/c/Users/Merce/Desktop/nano banana references/swipe-for-more.png";
 
 const STYLE = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, high contrast black on white, no gray tones, no background texture, no paper edges, no shadows. Every stroke is hand-drawn marker, slightly imperfect, never a typeset/printed/digital font. IMPORTANT: the reference images convey drawing STYLE ONLY. Do NOT copy any words, logos, crowns, brand marks, or taglines from them. Draw ONLY what the prompt specifies and nothing else. Pure white #FFFFFF fills all negative space.";
 

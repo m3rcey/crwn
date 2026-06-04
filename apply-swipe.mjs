@@ -3,7 +3,8 @@ import path from "node:path";
 import sharp from "sharp";
 
 const BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
-const SWIPE = "/tmp/swipe-proc.png";
+const PERSIST = "/mnt/c/Users/Merce/Desktop/nano banana references/swipe-for-more.png";
+const SWIPE = fs.existsSync(PERSIST) ? PERSIST : "/tmp/swipe-proc.png";
 const SIZE = 1024;
 const BAND = 104;                 // bottom band reserved for the swipe cue
 const TARGET_TOP = 22;            // top margin content reflows to
