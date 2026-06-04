@@ -35,7 +35,14 @@ export async function GET(req: NextRequest) {
     .select('code, label, max_uses, uses, is_active, created_at')
     .order('created_at', { ascending: false });
 
-  return NextResponse.json({ users: users || [], codes: codes || [] });
+  const { data: gate } = await supabaseAdmin
+    .from('admin_settings')
+    .select('value')
+    .eq('key', 'artist_gate')
+    .single();
+  const gateEnabled = (gate?.value as { enabled?: boolean } | null)?.enabled === true;
+
+  return NextResponse.json({ users: users || [], codes: codes || [], gateEnabled });
 }
 
 // POST { adminUserId, action, ... } — approve/revoke a user, or mint/toggle invite codes.
@@ -45,6 +52,18 @@ export async function POST(req: NextRequest) {
 
   if (!(await isAdmin(adminUserId))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
+  if (action === 'setGate') {
+    const { enabled } = body;
+    const { error } = await supabaseAdmin
+      .from('admin_settings')
+      .upsert(
+        { key: 'artist_gate', value: { enabled: !!enabled }, updated_at: new Date().toISOString(), updated_by: adminUserId },
+        { onConflict: 'key' }
+      );
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true });
   }
 
   if (action === 'setApproval') {

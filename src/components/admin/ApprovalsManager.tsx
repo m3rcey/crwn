@@ -23,6 +23,7 @@ interface CodeRow {
 export default function ApprovalsManager({ userId }: { userId: string }) {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [codes, setCodes] = useState<CodeRow[]>([]);
+  const [gateEnabled, setGateEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [newCode, setNewCode] = useState('');
@@ -36,6 +37,7 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
       const json = await res.json();
       setUsers(json.users || []);
       setCodes(json.codes || []);
+      setGateEnabled(json.gateEnabled === true);
     }
     setLoading(false);
   }, [userId]);
@@ -72,6 +74,31 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-10">
+      {/* Master gate switch */}
+      <section className="bg-crwn-card rounded-xl p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-crwn-text text-lg font-semibold">
+              Require approval to publish {gateEnabled ? '(ON)' : '(OFF)'}
+            </h2>
+            <p className="text-crwn-text-secondary text-sm mt-1 max-w-xl">
+              {gateEnabled
+                ? 'Throttle ON. New signups CANNOT publish an artist page unless approved below or via an invite link. Use this if things are breaking or you want to slow intake.'
+                : 'Open. Anyone who signs up at thecrwn.app can publish an artist page immediately. This is the normal state for your IG funnel.'}
+            </p>
+          </div>
+          <button
+            disabled={busy === 'gate'}
+            onClick={() => post({ action: 'setGate', enabled: !gateEnabled }, 'gate')}
+            className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium ${
+              gateEnabled ? 'bg-red-500/20 text-red-300' : 'bg-[#D4AF37] text-black'
+            } disabled:opacity-40`}
+          >
+            {gateEnabled ? 'Turn gate OFF' : 'Turn gate ON'}
+          </button>
+        </div>
+      </section>
+
       {/* Invite codes */}
       <section>
         <h2 className="text-crwn-text text-lg font-semibold mb-1">Invite links</h2>
