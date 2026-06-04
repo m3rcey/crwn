@@ -415,6 +415,159 @@ function FanRelationshipsSection() {
   );
 }
 
+// Section: Sell Anything
+function SellAnythingSection() {
+  const products = [
+    { icon: '🎚️', name: 'Stems & Sample Packs', meta: 'Digital download' },
+    { icon: '💿', name: 'Vinyl, CDs & Merch', meta: 'Physical goods' },
+    { icon: '🎤', name: 'Custom Verses & Shoutouts', meta: 'Experience' },
+    { icon: '📞', name: '1-on-1 Calls & Feedback', meta: 'Experience' },
+  ];
+
+  return (
+    <Section className="bg-crwn-bg">
+      <div className="max-w-5xl mx-auto">
+        <h2 className="text-4xl md:text-5xl font-bold text-crwn-text mb-4 text-center">
+          Sell More Than Songs
+        </h2>
+        <p className="text-xl text-crwn-text-secondary mb-12 text-center max-w-2xl mx-auto">
+          Subscriptions are just the start. Open a shop and sell downloads, merch,
+          and one-of-one experiences to the fans who want more.
+        </p>
+
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {products.map((p, i) => (
+            <div key={i} className="neu-raised rounded-2xl p-6 text-center">
+              <div className="w-14 h-14 rounded-full neu-inset flex items-center justify-center text-2xl mx-auto mb-4">
+                {p.icon}
+              </div>
+              <h3 className="text-crwn-text font-semibold mb-1">{p.name}</h3>
+              <p className="text-crwn-text-dim text-sm">{p.meta}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+// Section: Keep Your Money
+function FeesSection() {
+  const tiers = [
+    { tier: 'Starter', keep: 92, price: 'Free' },
+    { tier: 'Pro', keep: 94, price: '$69/mo' },
+    { tier: 'Label', keep: 95, price: '$175/mo' },
+    { tier: 'Empire', keep: 97, price: '$350/mo' },
+  ];
+
+  return (
+    <Section className="bg-crwn-bg">
+      <div className="max-w-5xl mx-auto text-center">
+        <h2 className="text-4xl md:text-5xl font-bold text-crwn-text mb-4">
+          Keep Almost Everything You Earn
+        </h2>
+        <p className="text-xl text-crwn-text-secondary mb-12 max-w-2xl mx-auto">
+          Streaming pays fractions of a cent and keeps most of it. On CRWN you keep up to 97%.
+          Your money goes straight to your bank.
+        </p>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {tiers.map((t, i) => (
+            <div key={i} className="neu-raised rounded-2xl p-6">
+              <div className="text-crwn-text-dim text-sm mb-2">{t.tier}</div>
+              <div className="text-4xl md:text-5xl font-bold text-crwn-gold mb-1">
+                {t.keep}%
+              </div>
+              <div className="text-crwn-text text-sm mb-3">you keep</div>
+              <div className="text-crwn-text-secondary text-sm">{t.price}</div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-lg text-crwn-gold mt-8">
+          No label cut. No middlemen taking 30%.
+        </p>
+      </div>
+    </Section>
+  );
+}
+
+// Section: Get Paid Directly
+function PayoutsSection() {
+  const payouts = [
+    { label: 'Paid out · May 28', amount: '$1,940' },
+    { label: 'Paid out · May 21', amount: '$1,602' },
+    { label: 'Paid out · May 14', amount: '$1,275' },
+  ];
+
+  return (
+    <Section className="bg-crwn-bg">
+      <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 className="text-4xl md:text-5xl font-bold text-crwn-text mb-4">
+            Your Money, Straight to Your Bank
+          </h2>
+          <p className="text-xl text-crwn-text-secondary">
+            Every subscription, sale, and tip is powered by Stripe and paid out directly to you.
+            Track your balance and payout history in real time. No invoices, no waiting on a label.
+          </p>
+        </div>
+
+        <div className="neu-raised rounded-2xl p-6 bg-crwn-bg">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-semibold text-crwn-text">Available Balance</h3>
+            <span className="text-3xl font-bold text-crwn-gold">$2,418</span>
+          </div>
+          <div className="space-y-3">
+            {payouts.map((row, i) => (
+              <div key={i} className="neu-inset px-4 py-3 rounded-xl flex justify-between text-sm">
+                <span className="text-crwn-text-secondary">{row.label}</span>
+                <span className="text-crwn-gold">{row.amount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+// Section: Own Your Audience
+function AudienceToolsSection() {
+  const tools = [
+    { icon: '✉️', name: 'Email Campaigns', desc: 'Reach every fan directly. Track opens and clicks.' },
+    { icon: '🔁', name: 'Automated Sequences', desc: 'Welcome, win-back, and release drops on autopilot.' },
+    { icon: '💬', name: 'SMS Marketing', desc: 'Text your supporters when it matters most.' },
+    { icon: '🏷️', name: 'Discount Codes', desc: 'Run drops and promos with fixed or % off codes.' },
+    { icon: '🛒', name: 'Cart Recovery', desc: 'Win back fans who almost checked out.' },
+    { icon: '🔗', name: 'Smart Links & Presaves', desc: 'Capture emails on every release and link.' },
+  ];
+
+  return (
+    <Section className="bg-crwn-bg">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-4xl md:text-5xl font-bold text-crwn-text mb-4 text-center">
+          Own Your Audience, Not Rent It
+        </h2>
+        <p className="text-xl text-crwn-text-secondary mb-12 text-center max-w-2xl mx-auto">
+          Algorithms decide who sees your posts. Your fan list does not.
+          CRWN gives you the contact info and the tools to reach them directly.
+        </p>
+
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {tools.map((t, i) => (
+            <div key={i} className="neu-raised rounded-2xl p-6">
+              <div className="text-2xl mb-3">{t.icon}</div>
+              <h3 className="text-crwn-text font-semibold mb-1">{t.name}</h3>
+              <p className="text-crwn-text-dim text-sm">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Section>
+  );
+}
+
 // Section 7: Final CTA
 function CTASection() {
   return (
@@ -455,7 +608,11 @@ export default function Homepage() {
         <HeroSection />
         <FansMathSection />
         <MonetizeSection />
+        <SellAnythingSection />
+        <FeesSection />
+        <PayoutsSection />
         <AISection />
+        <AudienceToolsSection />
         <CommunitySection />
         <FanRelationshipsSection />
         <CTASection />
