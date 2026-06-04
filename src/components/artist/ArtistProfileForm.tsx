@@ -190,8 +190,8 @@ export function ArtistProfileForm() {
             .from('profiles')
             .update({ role: 'artist' })
             .eq('id', user?.id);
-          // Ping the founder that a new artist just published (best-effort).
-          fetch('/api/notifications/new-artist', { method: 'POST' }).catch(() => {});
+          // Founder is notified server-side via the artist_profiles INSERT trigger
+          // (see schema-phase2-new-artist-webhook.sql) — no client ping needed.
         }
       }
 
