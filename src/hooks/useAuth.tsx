@@ -17,7 +17,29 @@ interface Profile {
   has_completed_tour?: boolean;
   phone?: string | null;
   onboarding_completed?: boolean;
+  is_approved?: boolean;
   created_at: string;
+}
+
+// Redeems a pending invite code (stashed at /signup?invite=CODE) once the user is
+// authenticated, so the cookie session is available to the API route. Clears the
+// code on a definitive response; keeps it on a transient network error to retry.
+async function redeemPendingInvite(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  const code = localStorage.getItem('crwn_invite');
+  if (!code) return;
+  try {
+    const res = await fetch('/api/invite/redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    if (res.ok || (res.status >= 400 && res.status < 500)) {
+      localStorage.removeItem('crwn_invite');
+    }
+  } catch {
+    // transient — leave the code in place to retry on next load
+  }
 }
 
 interface AuthContextType {
@@ -59,9 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        await redeemPendingInvite();
         fetchProfile(session.user.id);
       } else {
         setIsLoading(false);
@@ -69,9 +92,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        await redeemPendingInvite();
         fetchProfile(session.user.id);
       } else {
         setProfile(null);

@@ -156,7 +156,7 @@ export function ArtistProfileForm() {
           .eq('id', artistProfile.id);
       } else {
         const recruiterCode = typeof window !== 'undefined' ? localStorage.getItem('crwn_recruiter') : null;
-        const { data } = await supabase
+        const { data, error: insertError } = await supabase
           .from('artist_profiles')
           .insert({
             user_id: user?.id,
@@ -172,7 +172,17 @@ export function ArtistProfileForm() {
           })
           .select()
           .single();
-        
+
+        if (insertError) {
+          // The approval RLS policy blocks the insert for un-approved accounts.
+          showToast(
+            "Your account isn't approved to publish an artist page yet. If you have an invite link, sign up through it, or reach out and we'll let you in.",
+            'error'
+          );
+          setIsSaving(false);
+          return;
+        }
+
         if (data) {
           setArtistProfile(data);
           // Update user role to artist

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import PipelineView from '@/components/admin/PipelineView';
 import FunnelView from '@/components/admin/FunnelView';
@@ -13,8 +13,9 @@ import EmailHealth from '@/components/admin/EmailHealth';
 import PartnersView from '@/components/admin/PartnersView';
 import CrmView from '@/components/admin/CrmView';
 import AgentInsights from '@/components/admin/AgentInsights';
+import ApprovalsManager from '@/components/admin/ApprovalsManager';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm';
+type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access';
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -124,6 +125,15 @@ export default function AdminPage() {
             <Mail className="w-4 h-4" />
             Email Health
           </button>
+          <button
+            onClick={() => setActiveTab('access')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'access' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <KeyRound className="w-4 h-4" />
+            Access
+          </button>
         </div>
       </div>
 
@@ -162,6 +172,11 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <AgentInsights userId={user.id} scope="email" />
           <EmailHealth userId={user.id} />
+        </div>
+      )}
+      {activeTab === 'access' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <ApprovalsManager userId={user.id} />
         </div>
       )}
     </div>

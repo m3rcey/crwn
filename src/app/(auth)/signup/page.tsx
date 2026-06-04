@@ -10,12 +10,17 @@ export default function SignupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const recruiterCode = searchParams.get('recruiter');
+  const inviteCode = searchParams.get('invite');
 
   useEffect(() => {
     if (recruiterCode) {
       localStorage.setItem('crwn_recruiter', recruiterCode);
     }
-  }, [recruiterCode]);
+    if (inviteCode) {
+      // Redeemed automatically once the user is authenticated (see useAuth).
+      localStorage.setItem('crwn_invite', inviteCode);
+    }
+  }, [recruiterCode, inviteCode]);
   const { user, isLoading } = useAuth();
   const [justSignedUp, setJustSignedUp] = useState(false);
 
