@@ -417,6 +417,7 @@ function FanRelationshipsSection() {
 
 // Section: Sell Anything
 function SellAnythingSection() {
+  const { ref, isInView } = useInView();
   const products = [
     { icon: '🎚️', name: 'Stems & Sample Packs', meta: 'Digital download' },
     { icon: '💿', name: 'Vinyl, CDs & Merch', meta: 'Physical goods' },
@@ -435,9 +436,13 @@ function SellAnythingSection() {
           and one-of-one experiences to the fans who want more.
         </p>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div ref={ref} className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
           {products.map((p, i) => (
-            <div key={i} className="neu-raised rounded-2xl p-6 text-center">
+            <div
+              key={i}
+              style={{ animationDelay: `${i * 100}ms` }}
+              className={`neu-raised rounded-2xl p-6 text-center ${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'}`}
+            >
               <div className="w-14 h-14 rounded-full neu-inset flex items-center justify-center text-2xl mx-auto mb-4">
                 {p.icon}
               </div>
@@ -453,6 +458,7 @@ function SellAnythingSection() {
 
 // Section: Keep Your Money
 function FeesSection() {
+  const { ref, isInView } = useInView();
   const tiers = [
     { tier: 'Starter', keep: 92, price: 'Free' },
     { tier: 'Pro', keep: 94, price: '$69/mo' },
@@ -471,14 +477,20 @@ function FeesSection() {
           Your money goes straight to your bank.
         </p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div ref={ref} className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {tiers.map((t, i) => (
             <div key={i} className="neu-raised rounded-2xl p-6">
               <div className="text-crwn-text-dim text-sm mb-2">{t.tier}</div>
               <div className="text-4xl md:text-5xl font-bold text-crwn-gold mb-1">
-                {t.keep}%
+                {isInView ? <AnimatedNumber end={t.keep} /> : 0}%
               </div>
               <div className="text-crwn-text text-sm mb-3">you keep</div>
+              <div className="h-2 rounded-full neu-inset overflow-hidden mb-3">
+                <div
+                  className="h-full bg-crwn-gold rounded-full transition-[width] duration-[1500ms] ease-out"
+                  style={{ width: isInView ? `${t.keep}%` : '0%' }}
+                />
+              </div>
               <div className="text-crwn-text-secondary text-sm">{t.price}</div>
             </div>
           ))}
@@ -494,6 +506,7 @@ function FeesSection() {
 
 // Section: Get Paid Directly
 function PayoutsSection() {
+  const { ref, isInView } = useInView();
   const payouts = [
     { label: 'Paid out · May 28', amount: '$1,940' },
     { label: 'Paid out · May 21', amount: '$1,602' },
@@ -513,14 +526,20 @@ function PayoutsSection() {
           </p>
         </div>
 
-        <div className="neu-raised rounded-2xl p-6 bg-crwn-bg">
+        <div ref={ref} className="neu-raised rounded-2xl p-6 bg-crwn-bg">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold text-crwn-text">Available Balance</h3>
-            <span className="text-3xl font-bold text-crwn-gold">$2,418</span>
+            <span className="text-3xl font-bold text-crwn-gold">
+              ${isInView ? <AnimatedNumber end={2418} /> : 0}
+            </span>
           </div>
           <div className="space-y-3">
             {payouts.map((row, i) => (
-              <div key={i} className="neu-inset px-4 py-3 rounded-xl flex justify-between text-sm">
+              <div
+                key={i}
+                style={{ animationDelay: `${i * 150}ms` }}
+                className={`neu-inset px-4 py-3 rounded-xl flex justify-between text-sm ${isInView ? 'animate-[slideIn_0.4s_ease-out_both]' : 'opacity-0'}`}
+              >
                 <span className="text-crwn-text-secondary">{row.label}</span>
                 <span className="text-crwn-gold">{row.amount}</span>
               </div>
@@ -534,6 +553,7 @@ function PayoutsSection() {
 
 // Section: Own Your Audience
 function AudienceToolsSection() {
+  const { ref, isInView } = useInView();
   const tools = [
     { icon: '✉️', name: 'Email Campaigns', desc: 'Reach every fan directly. Track opens and clicks.' },
     { icon: '🔁', name: 'Automated Sequences', desc: 'Welcome, win-back, and release drops on autopilot.' },
@@ -554,9 +574,13 @@ function AudienceToolsSection() {
           CRWN gives you the contact info and the tools to reach them directly.
         </p>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div ref={ref} className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
           {tools.map((t, i) => (
-            <div key={i} className="neu-raised rounded-2xl p-6">
+            <div
+              key={i}
+              style={{ animationDelay: `${i * 100}ms` }}
+              className={`neu-raised rounded-2xl p-6 ${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'}`}
+            >
               <div className="text-2xl mb-3">{t.icon}</div>
               <h3 className="text-crwn-text font-semibold mb-1">{t.name}</h3>
               <p className="text-crwn-text-dim text-sm">{t.desc}</p>
