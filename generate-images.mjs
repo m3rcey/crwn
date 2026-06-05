@@ -7,6 +7,7 @@ import {
   findMentionedSlugs,
   buildPersonRefParts,
   PERSON_REF_INSTRUCTION,
+  loadKnownPeople,
 } from "./fetch-person-ref.mjs";
 
 const WHITE_THRESHOLD = 200;
@@ -37,8 +38,8 @@ const OUTPUT_BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Pos
 const REFS_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
 const SCRIPTS_DIR = "/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform";
 const DELAY_MS = 8000;
-const START_SCRIPT_NUMBER = 104;
-const END_SCRIPT_NUMBER = 133;
+const START_SCRIPT_NUMBER = 134;
+const END_SCRIPT_NUMBER = 140;
 
 const STYLE_REFS = [
   "openart-image_1775581308623_d7e64984_1775581308661_33c1d1ba.png",
@@ -133,7 +134,10 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
       names.length === 1
         ? names[0]
         : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-    const portraitDirective = ` In the upper area of the page, draw a recognizable hand-drawn black sharpie head-and-shoulders portrait of ${nameList}, capturing distinctive features (face shape, hair, beard, signature look) from the attached reference photo, labeled in capital letters with the name, rendered in the same raw sharpie line work as the rest of the page (not photo-real, no shading or color).`;
+    const known = loadKnownPeople();
+    const drawNotes = primary.map((s) => known[s]?.draw).filter(Boolean);
+    const drawClause = drawNotes.length ? ` IMPORTANT: ${drawNotes.join(" ")}` : "";
+    const portraitDirective = ` In the upper area of the page, draw a recognizable hand-drawn black sharpie head-and-shoulders portrait of ${nameList}, capturing distinctive features (face shape, hair, facial hair if any, signature look) from the attached reference photo, labeled in capital letters with the name, rendered in the same raw sharpie line work as the rest of the page (not photo-real, no shading or color).${drawClause}`;
     const anchor = "The background is pure white (#FFFFFF).";
     finalPrompt = promptText.includes(anchor)
       ? promptText.replace(anchor, `${portraitDirective.trim()} ${anchor}`)

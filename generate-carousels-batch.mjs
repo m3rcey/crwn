@@ -12,29 +12,10 @@ const REF_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
 const DELAY_MS = 6000;
 
 const FOLDERS = [
-  "95-en-vogue-a-small-share-split-four-ways",
-  "96-bigger-half-of-your-biggest-hit",
-  "97-drake-iceman-rollout-vs-a-free-link",
-  "100-frank-ocean-the-line-was-his",
-  "102-lil-wayne-no-control-own-album",
-  "103-lizzo-algorithm-breaks-rollout",
-  "106-nipsey-marathon-fans-paid-to-recruit",
-  "107-soulja-boy-fans-spread-it-free",
-  "109-lil-wayne-couldnt-see-the-books",
-  "110-know-your-top-spenders-by-name",
-  "112-toni-braxton-35-cents-an-album",
-  "113-mc-hammer-sales-werent-the-keep",
-  "114-master-p-85-15-vs-platform-split",
-  "115-beyonce-surprise-album-landing-page",
-  "117-mac-miller-number-one-no-budget",
-  "118-taylor-swift-told-fans-which-to-stream",
-  "121-lil-b-movement-into-income",
-  "122-outkast-spread-region-by-region",
-  "125-tlc-didnt-know-till-the-filing",
-  "127-lauryn-hill-sony-kept-the-engine",
-  "128-cash-money-recoupment-ate-the-check",
-  "129-three-groups-same-cause-the-cut",
-  "132-macklemore-thrift-shop-no-major",
+  "135-jay-z-roc-nation-many-income-streams",
+  "136-jay-z-samsung-paid-before-the-drop",
+  "137-jay-z-ace-of-spades-own-equity",
+  "138-jay-z-you-are-the-business",
 ];
 
 const STYLE_INSTRUCTION = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and stick figures, high contrast black on white, no gray tones, no background texture, no paper edges, no shadows. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. CRITICAL: every single word on the page must be hand-drawn sharpie handwriting. Never render any text in a typeset/printed/digital font like Arial Black, Impact, or Helvetica Bold, no matter how large or bold the text is. Even the biggest headline words must look hand-written by a marker, with slightly imperfect strokes, not typed. IMPORTANT: The reference images convey drawing STYLE ONLY (line weight, lettering, hand-drawn icon look), not content. Do NOT copy any text, words, logos, crowns, brand marks, or taglines from the reference images. Never draw the word 'CRWN', a crown symbol or logo, or phrases like 'every dollar goes straight to the artist' or 'no middleman' unless the slide prompt explicitly asks for them. Draw ONLY the exact words and marks specified in the slide prompt, and nothing else. The output must be a perfect square 1:1 aspect ratio with pure white #FFFFFF filling all negative space.";

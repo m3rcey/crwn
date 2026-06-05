@@ -8,7 +8,7 @@ const KNOWN = JSON.parse(
   fs.readFileSync("/mnt/c/Users/Merce/Desktop/nano banana references/people/known-people.json", "utf8")
 );
 
-const POSTS = [95, 96, 97, 100, 102, 103, 106, 107, 109, 110, 112, 113, 114, 115, 117, 118, 121, 122, 125, 127, 128, 129, 132];
+const POSTS = [135, 136, 137, 138];
 
 // Carousels for these groups should NOT have a single-person portrait on slide 1
 // (use a group/concept depiction instead).
