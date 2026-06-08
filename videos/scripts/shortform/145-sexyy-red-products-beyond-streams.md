@@ -10,7 +10,7 @@ Link in bio to turn your fans into customers who buy products, not just streams,
 
 **SCRIPT:**
 
-Sexyy Red just sold out a product that aint even music. People think she only make money from streams. Nope. She put out a lip gloss line called Sexyy Gloss. Fans bought it up. She got merch. She got a store. The music is one income. The products is another. And she stay independent, so she keep her masters too. Think about why that work. Her fans dont just want the songs. They want HER. The lips, the brand, the merch, all of it. They'll spend on a product way faster than a stream pay you. A thousand streams might get you 4 dollars. One fan buying a 30 dollar bundle beats 7,000 streams by itself. Here go what most artists sleep on. Ya fans are customers, not just listeners. Sell em something they can hold, and one fan is worth more than a playlist.
+Sexyy Red just sold a product that aint even music. People think she only make money from streams. Nope. She put out a lip gloss line called Sexyy Gloss. Fans bought it up. She got merch. She got a store. The music is one income. The products is another. And she stay independent, so she keep her masters too. Think about why that work. Her fans dont just want the songs. They want HER. The lips, the brand, the merch, all of it. They'll spend on a product way faster than a stream pay you. A thousand streams might get you 4 dollars. One fan buying a 30 dollar bundle beats 7,000 streams by itself. Here go what most artists sleep on. Ya fans are customers, not just listeners. Sell em something they can hold, and one fan is worth more than a playlist.
 
 ---
 
@@ -27,7 +27,7 @@ Sexyy Red just sold out a product that aint even music. People think she only ma
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Sexyy Red just sold out a product that aint even music. People think she only make money from streams. Nope. [draw a lip gloss tube at the top labeled "SEXYY GLOSS"]
+**HOOK:** Sexyy Red just sold a product that aint even music. People think she only make money from streams. Nope. [draw a lip gloss tube at the top labeled "SEXYY GLOSS"]
 
 **FORESHADOW:** She put out a lip gloss line called Sexyy Gloss. Fans bought it up. She got merch. She got a store. [write "SEXYY GLOSS", "MERCH", "STORE" with checkmarks]
 
