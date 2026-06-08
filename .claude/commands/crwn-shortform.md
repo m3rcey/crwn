@@ -100,6 +100,7 @@ Every script that names a real artist, deal, lawsuit, award, album, sales figure
 
 **AFTER drafting, BEFORE saving** — re-scan the finished script and pull out every proper noun, every year, every dollar amount, every specific claim. For each one, confirm it matches what you researched. Then:
 - If you can't confirm a specific number/date, **soften it** (drop the specific figure, say "no amount was disclosed", say "around" without a hard number) or **cut the claim**. Never ship a fabricated figure attributed to "reports."
+- **Single-source superlatives and "sold out / best-selling / most ever / first since" claims need two independent sources.** One blog, net-worth article, or viral tweet is NOT confirmation. If only one source supports it, hedge it ("reportedly sold out", "one of the most certified") or cut it. The figure and any on-image label (e.g. a "SOLD OUT" tag) must match the same confirmed standard.
 - **Do the arithmetic on every line of math.** 100 plays × 3¢ = $3.00, not $0.36. If a per-play/per-stream rate and a total don't multiply out, the rate or the total is wrong — fix it so they're internally consistent.
 - If a fix changes the visual, update the SCRIPT WITH VISUALS section, the Nano Banana prompt, and the PAN ORDER too.
 
