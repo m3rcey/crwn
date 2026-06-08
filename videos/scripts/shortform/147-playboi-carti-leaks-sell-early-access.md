@@ -10,7 +10,7 @@ Link in bio to sell early and exclusive access to your real fans so the demand p
 
 **SCRIPT:**
 
-If people already paying real money for ya leaked songs, then why aint none of it going to you? Playboi Carti fans do this every day. Carti got hundreds of unreleased songs floating around. His fans obsess over the ones that aint dropped. They call em grails. And they pay. Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. Sit with that. People paying that much for a song that's not even finished. Here go the part that should hit you. All that money goes to leakers and middlemen, not Carti. The fans dont just want the album. They want early. They want exclusive. They want what nobody else got. Sell that early access to ya real fans yourself, and the demand pays you instead of a leaker.
+If people already paying real money for ya leaked songs, then why aint none of it going to you? Playboi Carti fans do this every day. Carti got hundreds of unreleased songs floating around. His fans obsess over the ones that aint dropped. They call em grails. And they pay. Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. Sit with that. People paying that much for a song that's not even out. Here go the part that should hit you. All that money goes to leakers and middlemen, not Carti. The fans dont just want the album. They want early. They want exclusive. They want what nobody else got. Sell that early access to ya real fans yourself, and the demand pays you instead of a leaker.
 
 ---
 
@@ -31,7 +31,7 @@ If people already paying real money for ya leaked songs, then why aint none of i
 
 **FORESHADOW:** Playboi Carti fans do this every day. Carti got hundreds of unreleased songs floating around. His fans obsess over the ones that aint dropped. They call em grails. [draw a vault with music notes inside, write "100s UNRELEASED", "GRAILS"]
 
-**RISING ACTION:** Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. People paying that much for a song that's not even finished. [draw a shady stick figure handing cash for a song file, write "$100s - $1,000s", "UNDERGROUND MARKET"]
+**RISING ACTION:** Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. People paying that much for a song that's not even out. [draw a shady stick figure handing cash for a song file, write "$100s - $1,000s", "UNDERGROUND MARKET"]
 
 **TWIST:** All that money goes to leakers and middlemen, not Carti. [draw money flowing to a stick figure labeled "LEAKER", and an arrow with an X pointing away from a stick figure labeled "CARTI"]
 
