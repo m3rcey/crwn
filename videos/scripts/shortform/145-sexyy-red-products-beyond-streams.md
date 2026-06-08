@@ -10,7 +10,7 @@ Link in bio to turn your fans into customers who buy products, not just streams,
 
 **SCRIPT:**
 
-Sexyy Red just sold out a product that aint even music. People think she only make money from streams. Nope. She put out a lip gloss line called Sexyy Gloss. It sold out. She got merch. She got a store. The music is one income. The products is another. And she stay independent, so she keep her masters too. Think about why that work. Her fans dont just want the songs. They want HER. The lips, the brand, the merch, all of it. They'll spend on a product way faster than a stream pay you. A thousand streams might get you 4 dollars. One fan buying a 30 dollar bundle beats 7,000 streams by itself. Here go what most artists sleep on. Ya fans are customers, not just listeners. Sell em something they can hold, and one fan is worth more than a playlist.
+Sexyy Red just sold out a product that aint even music. People think she only make money from streams. Nope. She put out a lip gloss line called Sexyy Gloss. Fans bought it up. She got merch. She got a store. The music is one income. The products is another. And she stay independent, so she keep her masters too. Think about why that work. Her fans dont just want the songs. They want HER. The lips, the brand, the merch, all of it. They'll spend on a product way faster than a stream pay you. A thousand streams might get you 4 dollars. One fan buying a 30 dollar bundle beats 7,000 streams by itself. Here go what most artists sleep on. Ya fans are customers, not just listeners. Sell em something they can hold, and one fan is worth more than a playlist.
 
 ---
 
@@ -27,9 +27,9 @@ Sexyy Red just sold out a product that aint even music. People think she only ma
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Sexyy Red just sold out a product that aint even music. People think she only make money from streams. Nope. [draw a lip gloss tube at the top labeled "SOLD OUT"]
+**HOOK:** Sexyy Red just sold out a product that aint even music. People think she only make money from streams. Nope. [draw a lip gloss tube at the top labeled "SEXYY GLOSS"]
 
-**FORESHADOW:** She put out a lip gloss line called Sexyy Gloss. It sold out. She got merch. She got a store. [write "SEXYY GLOSS", "MERCH", "STORE" with checkmarks]
+**FORESHADOW:** She put out a lip gloss line called Sexyy Gloss. Fans bought it up. She got merch. She got a store. [write "SEXYY GLOSS", "MERCH", "STORE" with checkmarks]
 
 **RISING ACTION:** The music is one income. The products is another. And she stay independent, so she keep her masters too. Her fans dont just want the songs. They want HER. [draw two money streams into a stick figure labeled "MUSIC" and "PRODUCTS", write "KEEPS MASTERS" with a check]
 
@@ -41,13 +41,13 @@ Sexyy Red just sold out a product that aint even music. People think she only ma
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, a drawn lip gloss tube labeled "SOLD OUT". "SEXYY GLOSS", "MERCH", "STORE" each with a checkmark. Two money-stream arrows flowing into a stick figure, one labeled "MUSIC" and one labeled "PRODUCTS", with "KEEPS MASTERS" and a check. The math "1,000 STREAMS = $4" and "1 FAN x $30 BUNDLE > 7,000 STREAMS" with a drawn balance scale tipping toward the bundle. At the bottom, a boxed phrase "FANS ARE CUSTOMERS, NOT JUST LISTENERS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, a drawn lip gloss tube labeled "SEXYY GLOSS". "SEXYY GLOSS", "MERCH", "STORE" each with a checkmark. Two money-stream arrows flowing into a stick figure, one labeled "MUSIC" and one labeled "PRODUCTS", with "KEEPS MASTERS" and a check. The math "1,000 STREAMS = $4" and "1 FAN x $30 BUNDLE > 7,000 STREAMS" with a drawn balance scale tipping toward the bundle. At the bottom, a boxed phrase "FANS ARE CUSTOMERS, NOT JUST LISTENERS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. Lip gloss tube "SOLD OUT" (top)
+1. Lip gloss tube "SEXYY GLOSS" (top)
 2. "SEXYY GLOSS / MERCH / STORE" with checkmarks
 3. Two streams "MUSIC" + "PRODUCTS" into figure + "KEEPS MASTERS"
 4. "1,000 STREAMS = $4" + "1 FAN x $30 BUNDLE > 7,000 STREAMS" + scale
