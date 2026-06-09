@@ -10,7 +10,7 @@ Link in bio to win on your own fans and own the thing you build with CRWN. Free 
 
 **SCRIPT:**
 
-Who would win, a rapper with no features or one with every co-sign? Cole versus Drake. They came up around the same time, but they built it completely different. J. Cole dropped 2014 Forest Hills Drive with no features at all. No big names on it. It went platinum anyway. His fans came for HIM. And he own his label, Dreamville. Now Drake. The biggest hitmaker alive. But his catalog is stacked with features and co-signs, and Universal own his masters, not him. One man proved his own fans alone could carry a classic. The other became the biggest, but on a roster he dont own. The teachable aint who rap better. Its that Cole aint need a co-sign, and he kept his own label. You can win on your own fans, and own the thing you build.
+Who would win, a rapper with no features or one with every co-sign? Cole versus Drake. They came up around the same time, but they built it completely different. J. Cole dropped 2014 Forest Hills Drive with no features at all. No big names on it. It went platinum anyway. His fans came for HIM. And he own his label, Dreamville. Now Drake. The biggest hitmaker alive. But his catalog is stacked with features and co-signs, and Universal own his masters, not him. One man proved his own fans alone could carry a classic. The other became the biggest, but on a roster he dont own. This aint about who rap better. Cole aint need a co-sign, and he kept his own label. You can win on your own fans, and own the thing you build.
 
 ---
 
@@ -35,7 +35,7 @@ Who would win, a rapper with no features or one with every co-sign? Cole versus 
 
 **TWIST:** One man proved his own fans alone could carry a classic. The other became the biggest, but on a roster he dont own. [draw Cole standing on his own crowd labeled "HIS FANS", draw Drake standing on a building labeled "UMG'S ROSTER"]
 
-**PAYOFF:** The teachable aint who rap better. Its that Cole aint need a co-sign, and he kept his own label. You can win on your own fans, and own the thing you build. [box at the bottom: "OWN YOUR FANS + OWN YOUR LABEL"]
+**PAYOFF:** This aint about who rap better. Cole aint need a co-sign, and he kept his own label. You can win on your own fans, and own the thing you build. [box at the bottom: "OWN YOUR FANS + OWN YOUR LABEL"]
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to own your side so your wins stay yours instead of fighting your ow
 
 **SCRIPT:**
 
-This is the man who won the battle. And this is the man who sued his own label after he lost it. Kendrick and Drake, 2024, the biggest beef in years. Kendrick dropped Not Like Us. It buried Drake. Then it won five Grammys and headlined the Super Bowl in front of over 100 million people. Kendrick own pgLang, his own company, so every one of them wins stay his. Now Drake. He dont own his masters, Universal do. And Universal is the same label that put out Not Like Us. So Drake sued his own label over it. The judge threw it out. Look at the two sides. Kendrick owned his, so the win was his to keep. Drake was signed, so he ended up fighting the same people who pay him. The teachable aint who rap better. Owning your side mean the win is yours, and nobody on your team can turn on you.
+This is the man who won the battle. And this is the man who sued his own label after he lost it. Kendrick and Drake, 2024, the biggest beef in years. Kendrick dropped Not Like Us. It buried Drake. Then it won five Grammys and headlined the Super Bowl in front of over 100 million people. Kendrick own pgLang, his own company, so every one of them wins stay his. Now Drake. He dont own his masters, Universal do. And Universal is the same label that put out Not Like Us. So Drake sued his own label over it. The judge threw it out. Look at the two sides. Kendrick owned his, so the win was his to keep. Drake was signed, so he ended up fighting the same people who pay him. This aint about who rap better. Owning your side mean the win is yours, and nobody on your team can turn on you.
 
 ---
 
@@ -35,7 +35,7 @@ This is the man who won the battle. And this is the man who sued his own label a
 
 **TWIST:** So Drake sued his own label over it. The judge threw it out. Kendrick owned his, so the win was his to keep. Drake was signed, so he ended up fighting the same people who pay him. [under DRAKE write "SUED HIS LABEL = LOST", draw a figure labeled "DRAKE" pointing at the "UNIVERSAL" building]
 
-**PAYOFF:** The teachable aint who rap better. Owning your side mean the win is yours, and nobody on your team can turn on you. [box at the bottom: "OWN YOUR SIDE = THE WIN IS YOURS"]
+**PAYOFF:** This aint about who rap better. Owning your side mean the win is yours, and nobody on your team can turn on you. [box at the bottom: "OWN YOUR SIDE = THE WIN IS YOURS"]
 
 ---
 

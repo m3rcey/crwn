@@ -151,6 +151,8 @@ A good payoff ends on a punchy reframe like "Streams build the label. Fans build
 
 When the topic is a head-to-head ("Jay-Z vs Drake", "J. Cole vs Drake", "Kendrick vs Drake"), the script MUST actually compare the two subjects side by side and pull the teachable from the contrast. Do NOT write a one-sided story about one artist that only name-drops the other. Show both sides — what each one did, what each one kept or owns — then land a lesson that only the comparison reveals (e.g. "one sells the most, the other owns the most"). Keep each side factually fair: state what's verifiable about both, and don't assert one "can't" do something just to win the contrast. The visual should read as a side-by-side (a line down the middle, each name on one side).
 
+Words like "teachable" and "the lesson" are direction for YOU, not script copy. Never literally write "the teachable is" or "here's the lesson" in the spoken script — land the point in the avatar's plain words (e.g. "Cole aint need a co-sign, and he kept his own label").
+
 ## Hook Sentence Formats
 
 The opening line (the first sentence of HOOK) must follow one of these formats:
