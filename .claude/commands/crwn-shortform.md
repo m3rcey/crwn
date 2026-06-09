@@ -147,6 +147,10 @@ Always use "you" instead of he/she throughout the script body (titles can be dif
 
 A good payoff ends on a punchy reframe like "Streams build the label. Fans build the artist." The viewer walks away with a new lens, not a to-do.
 
+## Comparison ("X vs Y") topics
+
+When the topic is a head-to-head ("Jay-Z vs Drake", "J. Cole vs Drake", "Kendrick vs Drake"), the script MUST actually compare the two subjects side by side and pull the teachable from the contrast. Do NOT write a one-sided story about one artist that only name-drops the other. Show both sides — what each one did, what each one kept or owns — then land a lesson that only the comparison reveals (e.g. "one sells the most, the other owns the most"). Keep each side factually fair: state what's verifiable about both, and don't assert one "can't" do something just to win the contrast. The visual should read as a side-by-side (a line down the middle, each name on one side).
+
 ## Hook Sentence Formats
 
 The opening line (the first sentence of HOOK) must follow one of these formats:
@@ -204,6 +208,7 @@ The `[SPECIFIC CONTENT]` section describes every word, number, drawing, circle, 
   - Sales-cousin outros: "That's the move", "That's the play", "That's the answer", "That's the math", "That's how you win".
   - **"The whole ___" filler — banned.** "that's the whole move", "and that's the whole lesson", "the reason is the whole lesson", "the whole switch", "the whole point", "that's the whole thing". Empty hype that adds nothing and signals a templated script. Cut it and just state the actual point.
   - **The "Yea X. But Y." closer template — banned as a default.** Do NOT end scripts with "Yea [old way]. But [new way]." every time. The AAVE reframe is right; the fixed two-clause "Yea ___. But ___." shape on every script is not. See the closing-line guidance under Voice Register and vary the closer's structure every script.
+  - **The "Here go what it means for you" avatar-pivot — banned as a default.** Do NOT open the twist or payoff with the same formulaic turn to the viewer every script ("Here go what it mean for you", "Here go the part that should hit you", "Here go what flips it for you", "Here go what most artists sleep on"). The lesson still has to land on the avatar, but a strong story or a sharp contrast usually lands it WITHOUT an announced pivot. You don't have to address "you" in every script. Vary it: sometimes walk straight into the reframe, sometimes let the numbers carry it, sometimes end on the subject's lesson and let the viewer apply it themselves, sometimes keep a direct "you". Never announce the lesson the same way two scripts in a row.
   - In-spoken-script CTA: "Build a free tier", "Build a paid tier", "Set up your tiers", "Keep 92 cents/percent of every dollar", any "X¢" platform-fee callout. These belong in the caption, never spoken.
 - MrBeast pacing: short, punchy, constant momentum
 - Talk like a friend who figured it out first, not a teacher or brand

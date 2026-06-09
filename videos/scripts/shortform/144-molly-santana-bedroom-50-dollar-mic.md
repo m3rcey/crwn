@@ -10,7 +10,7 @@ Link in bio to start direct with what you got, no label or studio needed, with C
 
 **SCRIPT:**
 
-This is a 50 dollar microphone. And this is how a kid built a career on it. Molly Santana started in her bedroom. No studio. No label. No money. She recorded her first project on a 50 dollar mic and free software that come on the computer. Thats it. She put the songs on SoundCloud and TikTok herself. The fans found her. Now she got over 500,000 people listening every month. She even landed a feature with Drake. From a bedroom. Here go the part that should wake you up. She aint wait for a studio or a deal to start. She used what was already in her hand. Most artists sit on their music waiting to do it right. She just dropped it. The bedroom artist with real fans beat the one still waiting on a budget. You dont need a label to start. You need to put it out and reach people direct.
+This is a 50 dollar microphone. And this is how a kid built a career on it. Molly Santana started in her bedroom. No studio. No label. No money. She recorded her first project on a 50 dollar mic and free software that come on the computer. Thats it. She put the songs on SoundCloud and TikTok herself. The fans found her. Now she got over 500,000 people listening every month. She even landed a feature with Drake. From a bedroom. She aint wait for a studio or a deal to start. She used what was already in her hand. Most artists sit on their music waiting to do it right. She just dropped it. The bedroom artist with real fans beat the one still waiting on a budget. You dont need a label to start. You need to put it out and reach people direct.
 
 ---
 

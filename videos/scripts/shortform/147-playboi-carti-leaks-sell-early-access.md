@@ -10,7 +10,7 @@ Link in bio to sell early and exclusive access to your real fans so the demand p
 
 **SCRIPT:**
 
-If people already paying real money for ya leaked songs, then why aint none of it going to you? Playboi Carti fans do this every day. Carti got hundreds of unreleased songs floating around. His fans obsess over the ones that aint dropped. They call em grails. And they pay. Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. Sit with that. People paying that much for a song that's not even out. Here go the part that should hit you. All that money goes to leakers and middlemen, not Carti. The fans dont just want the album. They want early. They want exclusive. They want what nobody else got. Sell that early access to ya real fans yourself, and the demand pays you instead of a leaker.
+If people already paying real money for ya leaked songs, then why aint none of it going to you? Playboi Carti fans do this every day. Carti got hundreds of unreleased songs floating around. His fans obsess over the ones that aint dropped. They call em grails. And they pay. Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. Sit with that. People paying that much for a song that's not even out. All that money goes to leakers and middlemen, not Carti. The fans dont just want the album. They want early. They want exclusive. They want what nobody else got. Sell that early access to ya real fans yourself, and the demand pays you instead of a leaker.
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to keep closer to half of every dollar your music makes instead of a
 
 **SCRIPT:**
 
-This is what a normal signed artist keep off their music. This is what Central Cee keep. And it aint close. Central Cee is one of the biggest rappers out the UK. Over 30 million people listen to him every month. But heres the move. He came up independent. No major label owning him. On a regular major deal, the artist might keep 20 to 30 cents on every dollar. Central Cee reportedly keep 40 to 55 cents. Almost double. The same streams, way more money landing in his pocket. And when he finally did a deal, he kept his masters. He aint give the ownership away. Here go the part for you. Two artists can have the exact same hit. One keep a quarter of it. The other keep half. The streams dont decide who win. The split do. The size of your hit only matter if you actually keep what it makes.
+This is what a normal signed artist keep off their music. This is what Central Cee keep. And it aint close. Central Cee is one of the biggest rappers out the UK. Over 30 million people listen to him every month. But heres the move. He came up independent. No major label owning him. On a regular major deal, the artist might keep 20 to 30 cents on every dollar. Central Cee reportedly keep 40 to 55 cents. Almost double. The same streams, way more money landing in his pocket. And when he finally did a deal, he kept his masters. He aint give the ownership away. Two artists can have the exact same hit. One keep a quarter of it. The other keep half. The streams dont decide who win. The split do. The size of your hit only matter if you actually keep what it makes.
 
 ---
 

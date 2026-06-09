@@ -10,7 +10,7 @@ Link in bio to build your own audience first so you sign on your terms and keep 
 
 **SCRIPT:**
 
-This is how you sign to a major and still own your masters. DDG figured it out. Before rap, DDG was a YouTuber. He built up over 9 million subscribers across his channels. At one point he was making like 50,000 dollars a day off YouTube alone. So when he started rapping, he wasnt broke and begging. He already had a audience and his own money. Then he signed to a major label. But heres the part that's rare. He kept his masters. Most artists sign and the label own everything. DDG owned his because he came in with leverage. Here go why that matter for you. When you walk in with your own fans and your own bag, you negotiate from power. When you walk in broke and unknown, you take whatever they hand you. Build the audience first, and you sign on your terms, not theirs.
+This is how you sign to a major and still own your masters. DDG figured it out. Before rap, DDG was a YouTuber. He built up over 9 million subscribers across his channels. At one point he was making like 50,000 dollars a day off YouTube alone. So when he started rapping, he wasnt broke and begging. He already had a audience and his own money. Then he signed to a major label. But heres the part that's rare. He kept his masters. Most artists sign and the label own everything. DDG owned his because he came in with leverage. When you walk in with your own fans and your own bag, you negotiate from power. When you walk in broke and unknown, you take whatever they hand you. Build the audience first, and you sign on your terms, not theirs.
 
 ---
 

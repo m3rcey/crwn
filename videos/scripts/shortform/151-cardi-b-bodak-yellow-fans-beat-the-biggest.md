@@ -10,7 +10,7 @@ Link in bio to build a fanbase that moves together so you can beat anybody, budg
 
 **SCRIPT:**
 
-If a brand new rapper can knock the biggest pop star out of number one, then what's really running the charts? In 2017 Cardi B did it. Bodak Yellow went to number one. She bumped Taylor Swift out the top spot. A girl from the Bronx, first real single, beat the biggest name in pop. And get this. She was the first solo female rapper at number one since Lauryn Hill in 1998. Nineteen years. How? The fans she already built carried it. No machine made that happen. The people did. Here go what that means for you. The charts aint magic and they aint just for the rich. A real fanbase that moves together can beat anybody. Cardi didnt have the biggest budget. She had the realest fans. Numbers on a chart just measure how many people actually move for you.
+If a brand new rapper can knock the biggest pop star out of number one, then what's really running the charts? In 2017 Cardi B did it. Bodak Yellow went to number one. She bumped Taylor Swift out the top spot. A girl from the Bronx, first real single, beat the biggest name in pop. And get this. She was the first solo female rapper at number one since Lauryn Hill in 1998. Nineteen years. How? The fans she already built carried it. No machine made that happen. The people did. The charts aint magic and they aint just for the rich. A real fanbase that moves together can beat anybody. Cardi didnt have the biggest budget. She had the realest fans. Numbers on a chart just measure how many people actually move for you.
 
 ---
 

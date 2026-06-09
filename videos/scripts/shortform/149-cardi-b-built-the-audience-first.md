@@ -10,7 +10,7 @@ Link in bio to build the audience first so your music lands on people who alread
 
 **SCRIPT:**
 
-What happens when you build the fans before you even drop a real song? Cardi B is the answer. Before Bodak Yellow, before any hit, Cardi was already famous. She blew up on Vine and Instagram just being herself. Talking real, funny, raw. She had over a million followers before she was even a rapper. Then she did Love and Hip Hop and got even bigger. By the time she dropped real music, the audience was already there waiting. The label aint build Cardi. Cardi built Cardi, then the music gave them something to buy. Here go what flips it for you. Most artists make the song first and pray somebody listen. Cardi made the people love HER first. The audience is the asset. The music is just what you sell to the people you already got. Get the people first, and the music got somewhere to land.
+What happens when you build the fans before you even drop a real song? Cardi B is the answer. Before Bodak Yellow, before any hit, Cardi was already famous. She blew up on Vine and Instagram just being herself. Talking real, funny, raw. She had over a million followers before she was even a rapper. Then she did Love and Hip Hop and got even bigger. By the time she dropped real music, the audience was already there waiting. The label aint build Cardi. Cardi built Cardi, then the music gave them something to buy. Most artists make the song first and pray somebody listen. Cardi made the people love HER first. The audience is the asset. The music is just what you sell to the people you already got. Get the people first, and the music got somewhere to land.
 
 ---
 

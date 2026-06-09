@@ -10,7 +10,7 @@ Link in bio to build a direct audience that shows up no matter what radio does w
 
 **SCRIPT:**
 
-If you can blow up with no radio and no co-sign, then what you really waiting on? NBA YoungBoy already showed it. He been YouTube's most played rapper five years straight. Billions of views. He got the most gold songs in history. More than Ariana Grande, Ed Sheeran, and Michael Jackson put together. Let that sit. And he did almost all of it with no radio. No magazine covers. No mainstream push. The machine acted like he wasnt there. His fans aint care. They went straight to him, every drop. Here go what that tell you. The gatekeepers aint the door no more. A direct line to ya own fans is the door. He aint wait to get picked. He built a audience that shows up no matter what radio do. Radio used to hand out the wins. Now the artist with the realest direct fans just takes em, co-sign or not.
+If you can blow up with no radio and no co-sign, then what you really waiting on? NBA YoungBoy already showed it. He been YouTube's most played rapper five years straight. Billions of views. He got the most gold songs in history. More than Ariana Grande, Ed Sheeran, and Michael Jackson put together. Let that sit. And he did almost all of it with no radio. No magazine covers. No mainstream push. The machine acted like he wasnt there. His fans aint care. They went straight to him, every drop. The gatekeepers aint the door no more. A direct line to ya own fans is the door. He aint wait to get picked. He built a audience that shows up no matter what radio do. Radio used to hand out the wins. Now the artist with the realest direct fans just takes em, co-sign or not.
 
 ---
 
