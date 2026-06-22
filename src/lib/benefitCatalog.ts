@@ -10,6 +10,7 @@ export type BenefitType =
   | 'one_on_one_call'
   | 'group_live_qa'
   | 'custom_song_request'
+  | 'custom_experience'
   | 'monthly_merch'
   | 'credits_on_releases'
   | 'shoutout';
@@ -141,14 +142,30 @@ export const BENEFIT_CATALOG: BenefitDefinition[] = [
     available: true,
   },
 
-  // --- COMING SOON ---
+  // --- EXPERIENCES ---
+  // Tier perks describing what the fan gets. Fulfillment (scheduling the call,
+  // running the Q&A, delivering the song/experience) is handled by the artist,
+  // optionally via the Bookings tab.
   {
     type: 'one_on_one_call',
     label: '1-on-1 Video Call',
     description: 'Private video call with the artist',
     icon: '📹',
     category: 'experiences',
-    available: false,
+    available: true,
+    configFields: [
+      {
+        key: 'frequency',
+        label: 'How often?',
+        type: 'select',
+        options: [
+          { value: 'monthly', label: 'Monthly' },
+          { value: 'quarterly', label: 'Quarterly' },
+          { value: 'one_time', label: 'One-time' },
+        ],
+        default: 'monthly',
+      },
+    ],
   },
   {
     type: 'group_live_qa',
@@ -156,7 +173,20 @@ export const BENEFIT_CATALOG: BenefitDefinition[] = [
     description: 'Join exclusive live Q&A sessions',
     icon: '🎤',
     category: 'experiences',
-    available: false,
+    available: true,
+    configFields: [
+      {
+        key: 'frequency',
+        label: 'How often?',
+        type: 'select',
+        options: [
+          { value: 'weekly', label: 'Weekly' },
+          { value: 'monthly', label: 'Monthly' },
+          { value: 'quarterly', label: 'Quarterly' },
+        ],
+        default: 'monthly',
+      },
+    ],
   },
   {
     type: 'custom_song_request',
@@ -164,8 +194,26 @@ export const BENEFIT_CATALOG: BenefitDefinition[] = [
     description: 'Request a personalized song from the artist',
     icon: '🎶',
     category: 'experiences',
-    available: false,
+    available: true,
   },
+  {
+    type: 'custom_experience',
+    label: 'Custom Experience',
+    description: 'Define your own perk or experience for this tier (you fulfill it)',
+    icon: '✨',
+    category: 'experiences',
+    available: true,
+    configFields: [
+      {
+        key: 'experience_text',
+        label: 'Describe the experience',
+        type: 'text',
+        maxLength: 60,
+        default: '',
+      },
+    ],
+  },
+  // --- COMING SOON ---
   {
     type: 'monthly_merch',
     label: 'Monthly Merch Drop',
@@ -216,6 +264,16 @@ export function getBenefitDisplayText(type: string, config: Record<string, any> 
       return config.badge_text ? `"${config.badge_text}" community badge` : 'Community badge';
     case 'shop_discount':
       return `${config.discount_percent || 10}% shop discount`;
+    case 'one_on_one_call': {
+      const labels: Record<string, string> = { monthly: 'Monthly ', quarterly: 'Quarterly ', one_time: '' };
+      return `${labels[config.frequency] ?? ''}1-on-1 video call`;
+    }
+    case 'group_live_qa': {
+      const labels: Record<string, string> = { weekly: 'Weekly ', monthly: 'Monthly ', quarterly: 'Quarterly ' };
+      return `${labels[config.frequency] ?? ''}group live Q&A`;
+    }
+    case 'custom_experience':
+      return config.experience_text?.trim() || 'Custom experience';
     default:
       return def.label;
   }
