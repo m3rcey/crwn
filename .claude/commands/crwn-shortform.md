@@ -128,17 +128,28 @@ This protocol applies on every run, even for topics that "feel obvious."
 
 Always use "you" instead of he/she throughout the script body (titles can be different).
 
+## The Open Loop (watch-time spine — read FIRST, it governs all 5 sections)
+
+The algorithm gives reach to whatever holds people longest, and the metric that decides that is **percent completed** — did they watch to the end. Every script is built on ONE curiosity gap (an "open loop"): a specific promise or question planted in the first 3 seconds that the viewer NEEDS answered, and that you refuse to answer until the very last line.
+
+- **Open the loop in the HOOK.** Name the exact thing the viewer is now waiting to find out (the number, the name, the flip, the "how"). Not vague intrigue — a concrete unanswered question. "There's a reason [artist] made more off ONE month of fans than a platinum plaque, and it's not what you think" opens a loop. "Let's talk about the music industry" does not.
+- **Do NOT scratch the itch early.** This is the #1 way scripts leak watch time. The answer to the hook's loop is REVEALED ONLY in the TWIST/PAYOFF. If RISING ACTION already pays it off at second 20, the rest of the video is "an after party" — people leave, percent-completed tanks, and the algorithm devalues the whole channel. RISING ACTION builds tension and tightens the loop; it never closes it.
+- **One loop, held the whole way.** Pick a single gap and keep it open end to end. Sub-points and numbers along the way are allowed, but the MAIN promise from the hook stays unanswered until the payoff line.
+- **The payoff IS the closing of the loop.** The insight line that ends the script must be the exact thing the hook promised, paid off — that's why the reframe lands and why they watched to the end.
+
+When drafting and again before saving, ask: "What question did the hook open, and is it still unanswered until the final line?" If the answer leaks before the TWIST, move it.
+
 ## Script Structure (5 sections, exact order)
 
-**HOOK (0-3s)** — Scroll-stopping opener. Bold claim or gut-punch number. No intros, no "hey guys." Start mid-action. Opening line MUST use one of the hook formats below (see "Hook Sentence Formats").
+**HOOK (0-3s)** — Scroll-stopping opener that OPENS THE LOOP. Bold claim or gut-punch number that plants a specific unanswered question. No intros, no "hey guys." Start mid-action. Opening line MUST use one of the hook formats below (see "Hook Sentence Formats"). Make sure the hook names a concrete thing the viewer now wants resolved — and does not resolve it.
 
-**FORESHADOW (3-8s)** — Tease what's coming without revealing it. Give the viewer a reason to stay.
+**FORESHADOW (3-8s)** — Tighten the loop. Tease what's coming and raise the stakes of the answer without revealing it. Give the viewer a reason to stay to the end.
 
-**RISING ACTION (8-35s)** — Escalating stakes. Specific numbers, real comparisons, concrete examples. Every line earns the next second.
+**RISING ACTION (8-35s)** — Escalating stakes. Specific numbers, real comparisons, concrete examples. Every line earns the next second AND keeps the hook's loop open — build toward the answer, never give it here.
 
-**TWIST (35-45s)** — Subvert expectations. Flip the narrative. Reveal something counterintuitive.
+**TWIST (35-45s)** — Subvert expectations. Flip the narrative. Reveal something counterintuitive. This is the earliest the hook's loop may begin to close.
 
-**PAYOFF (45-60s)** — Clear takeaway. Connect back to the hook. End on an **insight line** that reframes the topic for the viewer (the thing they didn't see before this video). The spoken payoff is education, not a pitch. The CRWN pitch lives in the caption only — never in the spoken script. Banned in PAYOFF:
+**PAYOFF (45-60s)** — Clear takeaway that CLOSES THE LOOP. This is where the hook's open question finally gets answered — never earlier. Connect back to the hook. End on an **insight line** that reframes the topic for the viewer (the thing they didn't see before this video) and pays off the exact promise the hook made. The spoken payoff is education, not a pitch. The CRWN pitch lives in the caption only — never in the spoken script. Banned in PAYOFF:
 
 - "That's the move" / "That's the play" / "That's the answer" / "That's the math" — any sales-cousin closer.
 - "Build a free tier" / "Build a paid tier" / "Set up your tiers" — how-to-build-CRWN copy. The video sells the idea, not the product.
@@ -386,6 +397,9 @@ If the user passes several topics separated by `|`, generate a full package for 
 - [ ] No banned words (leverage, optimize, diversify, ecosystem, monetize)
 - [ ] No "Same X. Same Y. Same Z." triplet (or longer) anywhere in the script
 - [ ] PAYOFF does not contain banned closers: "That's the move/play/answer/math", "Build a free/paid tier", "Keep X cents/%", "92¢"
+- [ ] HOOK opens a specific curiosity loop (a concrete unanswered question/promise), not vague intrigue
+- [ ] The hook's loop stays OPEN — not answered in FORESHADOW or RISING ACTION; it closes no earlier than the TWIST
+- [ ] PAYOFF closes the loop: the final insight line answers the exact question the hook opened
 - [ ] PAYOFF ends on an insight line that reframes the topic, not on a how-to or CTA
 - [ ] No spoken sentence trails off with a missing number — every "$___", "%___", or "for that's about ___" has the real value filled in
 - [ ] No spoken comparison of sub-penny fractions — scaled to whole cents per 10/100 units instead
