@@ -345,6 +345,7 @@ export function LivestreamManager({ artistId, artistSlug, tiers }: LivestreamMan
         <BroadcasterStudio
           sessionId={studioSession.id}
           title={studioSession.title}
+          currentUserId={user?.id || ''}
           onClose={() => setStudioSession(null)}
         />
       )}

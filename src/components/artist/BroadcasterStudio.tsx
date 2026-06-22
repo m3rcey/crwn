@@ -4,16 +4,18 @@ import { useEffect, useState } from 'react';
 import { LiveKitRoom, VideoConference } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { Loader2, X } from 'lucide-react';
+import { LiveChatPanel } from '@/components/live/LiveChatPanel';
 
 interface BroadcasterStudioProps {
   sessionId: string;
   title: string;
+  currentUserId: string;
   onClose: () => void;
 }
 
 // Artist's live broadcast view. Mints a broadcaster token (publish + roomAdmin)
 // from /api/live/token and connects to the LiveKit room.
-export function BroadcasterStudio({ sessionId, title, onClose }: BroadcasterStudioProps) {
+export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: BroadcasterStudioProps) {
   const [token, setToken] = useState<string | null>(null);
   const [url, setUrl] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -66,17 +68,24 @@ export function BroadcasterStudio({ sessionId, title, onClose }: BroadcasterStud
             <Loader2 className="w-8 h-8 text-crwn-gold animate-spin" />
           </div>
         ) : (
-          <LiveKitRoom
-            serverUrl={url}
-            token={token}
-            connect
-            video
-            audio
-            data-lk-theme="default"
-            style={{ height: '100%' }}
-          >
-            <VideoConference />
-          </LiveKitRoom>
+          <div className="flex flex-col md:flex-row h-full">
+            <div className="flex-1 min-h-0">
+              <LiveKitRoom
+                serverUrl={url}
+                token={token}
+                connect
+                video
+                audio
+                data-lk-theme="default"
+                style={{ height: '100%' }}
+              >
+                <VideoConference />
+              </LiveKitRoom>
+            </div>
+            <div className="w-full md:w-80 h-64 md:h-auto">
+              <LiveChatPanel sessionId={sessionId} currentUserId={currentUserId} canPost canModerate />
+            </div>
+          </div>
         )}
       </div>
     </div>
