@@ -9,6 +9,7 @@ import { MusicManager } from '@/components/artist/MusicManager';
 import { AlbumManager } from '@/components/artist/AlbumManager';
 import { TierManager } from '@/components/artist/TierManager';
 import { ShopManager } from '@/components/artist/ShopManager';
+import { LivestreamManager } from '@/components/artist/LivestreamManager';
 import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
@@ -26,7 +27,7 @@ import { startTour } from '@/lib/tour';
 import { getArtistTourSteps } from '@/lib/artistTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
 
-type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager';
+type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'livestreams';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -146,6 +147,7 @@ function ArtistDashboardContent() {
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
     { id: 'audience' as const, label: 'Audience', tourId: 'tab-audience' },
     { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
+    { id: 'livestreams' as const, label: 'Live', tourId: 'tab-livestreams' },
     { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
     { id: 'profile' as const, label: 'Profile', tourId: 'tab-profile' },
     { id: 'albums' as const, label: 'Albums', tourId: 'tab-albums' },
@@ -258,6 +260,11 @@ function ArtistDashboardContent() {
           {visitedTabs.has('shop') && (
             <div className={activeTab !== 'shop' ? 'hidden' : undefined}>
               <ShopManager />
+            </div>
+          )}
+          {visitedTabs.has('livestreams') && (
+            <div className={activeTab !== 'livestreams' ? 'hidden' : undefined}>
+              {artistId && <LivestreamManager artistId={artistId} artistSlug={artistSlug} tiers={tiers} />}
             </div>
           )}
           {visitedTabs.has('billing') && (
