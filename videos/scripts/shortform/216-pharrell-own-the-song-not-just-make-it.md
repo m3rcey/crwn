@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Pharrell Made 5x More Owning It
+Two Checks Off One Song. Guess The Gap.
 
 Link in bio to own the music you make instead of just getting paid to make it with CRWN. Free to start at thecrwn.app.
 
@@ -10,27 +10,19 @@ Link in bio to own the music you make instead of just getting paid to make it wi
 
 **SCRIPT:**
 
-If all you do is make the song, then you get paid once. If you own it, it pays you forever.
-
-Pharrell already proved this with one record, and the gap is bigger than you think.
+Pharrell got paid two separate checks off Blurred Lines, one for making it and one for owning it, and the gap between em is wild.
 
 You know him as the producer. The beats, the hooks, that sound everybody chased.
 
-But on Blurred Lines he didn't just produce it. He helped write it, and he ran the publishing through a company he owns.
+But on Blurred Lines he aint just produce it. He helped write it, and he ran the publishing through a company he owns.
 
-So the song paid him two ways. Watch the split.
+So that one song paid him two different ways. Watch the split.
 
-For producing it, court papers say he got around $860,000.
+For producing it, court papers say he got around 860 thousand dollars. Real money.
 
-For owning the writing and the publishing, that same song paid him around $4.3 million.
+And he aint stop at songs neither. He own the brands too, Billionaire Boys Club, the whole look. That sound he made coulda just been a check. He turned it into something that keep paying.
 
-Same record. The owner side paid him about five times what the producer side did.
-
-And he didn't stop at songs. He owns the brands too, Billionaire Boys Club, the whole look.
-
-That sound he made could've just been a check. He turned it into something that keeps paying.
-
-The hired hand makes the hit. The owner cashes it for years.
+So peep the other side. For owning the writing and the publishing, that same record paid him around 4.3 million dollars. Same song, the owner side paid him about five times what the producer side did.
 
 ---
 
@@ -47,15 +39,13 @@ The hired hand makes the hit. The owner cashes it for years.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If all you do is make the song, then you get paid once. [Write "MAKE IT = PAID ONCE" at the top, circle "ONCE"] If you own it, it pays you forever. [Under it write "OWN IT = PAID FOREVER", underline "FOREVER"]
+**HOOK:** Pharrell got paid two separate checks off Blurred Lines, one for making it and one for owning it, and the gap between em is wild. [Write "2 CHECKS, 1 SONG" at the top, draw a question mark beside it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pharrell Williams from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "PHARRELL" underneath]
 
-**FORESHADOW:** Pharrell already proved this with one record, and the gap is bigger than you think. [Write "PHARRELL" big in the center, beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pharrell Williams from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "PHARRELL" underneath]
+**RISING ACTION:** You know him as the producer. The beats, the hooks, that sound everybody chased. [Write "THE PRODUCER" with a small drawing of a beat pad / four squares] But on Blurred Lines he aint just produce it. He helped write it, and he ran the publishing through a company he owns. [Write "BLURRED LINES" and below it list "PRODUCED" and "WROTE + PUBLISHING", put a check by the second] So that one song paid him two different ways. Watch the split. [Draw a line splitting the page in two, label left "PRODUCE", right "OWN"] For producing it, court papers say he got around $860,000. Real money. [On the left write "$860,000"]
 
-**RISING ACTION:** You know him as the producer. The beats, the hooks, that sound everybody chased. [Write "THE PRODUCER" with a small drawing of a beat pad / four squares] But on Blurred Lines he didn't just produce it. He helped write it, and he ran the publishing through a company he owns. [Write "BLURRED LINES" and below it list "PRODUCED" and "WROTE + PUBLISHING", put a check by the second] So the song paid him two different ways. Watch the split. [Draw a line splitting the page in two, label left "PRODUCE", right "OWN"] For producing it, court papers say he got around $860,000. Real money. [On the left write "$860,000"] For owning the writing and the publishing, that same song paid him around $4.3 million. [On the right write "$4,300,000" bigger, circle it]
+**TWIST:** And he aint stop at songs neither. He own the brands too, Billionaire Boys Club, the whole look. [Write "OWNS THE BRANDS TOO" and draw a small t-shirt] That sound he made coulda just been a check. He turned it into something that keep paying. [Cross out "ONE CHECK", write "KEEPS PAYING" next to it]
 
-**TWIST:** Same record. The owner side paid him about five times what the producer side did. [Between the two columns write "5X" big with an arrow pointing from $860,000 to $4,300,000] And he didn't stop at songs. He owns the brands too, Billionaire Boys Club, the whole look. [Write "OWNS THE BRANDS TOO" and draw a small t-shirt]
-
-**PAYOFF:** That sound he made could've just been a check. He turned it into something that keeps paying. [Cross out "ONE CHECK", write "KEEPS PAYING" next to it] The hired hand makes the hit. The owner cashes it for years. [At the bottom write "HIRED HAND = MAKES IT" and under it "OWNER = CASHES IT FOR YEARS", box the bottom line]
+**PAYOFF:** So peep the other side. For owning the writing and the publishing, that same record paid him around $4.3 million. [On the right write "$4,300,000" bigger, circle it] Same song, the owner side paid him about five times what the producer side did. [Between the two columns write "5X" big with an arrow pointing from $860,000 to $4,300,000; box the bottom line "OWNER SIDE = 5X THE MAKER SIDE"]
 
 ---
 
@@ -68,15 +58,13 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Pharrell labeled "PHARRELL"
-2. "MAKE IT = PAID ONCE" with "ONCE" circled (top)
-3. "OWN IT = PAID FOREVER" with "FOREVER" underlined
-4. "PHARRELL" big in the center
-5. "THE PRODUCER" with the beat pad drawing
-6. "BLURRED LINES" with "PRODUCED" and "WROTE + PUBLISHING" + check mark
-7. The split line dividing "PRODUCE" and "OWN"
-8. "$860,000" on the left (PRODUCE) column
+2. "2 CHECKS, 1 SONG" with a question mark (top)
+3. "THE PRODUCER" with the beat pad drawing
+4. "BLURRED LINES" with "PRODUCED" and "WROTE + PUBLISHING" + check mark
+5. The split line dividing "PRODUCE" and "OWN"
+6. "$860,000" on the left (PRODUCE) column
+7. "OWNS THE BRANDS TOO" with the t-shirt drawing
+8. "ONE CHECK" crossed out, "KEEPS PAYING" written next to it
 9. "$4,300,000" on the right (OWN) column, circled
 10. "5X" with the arrow from $860,000 to $4,300,000
-11. "OWNS THE BRANDS TOO" with the t-shirt drawing
-12. "ONE CHECK" crossed out, "KEEPS PAYING" written next to it
-13. Boxed bottom line: "HIRED HAND = MAKES IT" / "OWNER = CASHES IT FOR YEARS"
+11. Boxed bottom line: "OWNER SIDE = 5X THE MAKER SIDE"

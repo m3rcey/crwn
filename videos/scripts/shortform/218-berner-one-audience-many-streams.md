@@ -10,7 +10,7 @@ Link in bio to get paid more than one way from the same fanbase with CRWN. Free 
 
 **SCRIPT:**
 
-If you only sell your fans one thing, then you left most of the money on the table. Berner figured that out early. And what he did with it aint even about music. He's a rapper out of San Francisco who built his own label, Bern One. But the music was never the only product. Berner co-founded Cookies, the cannabis brand, and the music became the marketing for it. Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. He reportedly built Cookies into a major brand, and he still owns a real piece. Here's the part most artists miss. He didn't go find a new audience for the business. He sold more to the audience he already had. The crowd that streams you can also buy your vinyl, your verse, a song critique, a call. One fanbase is not one paycheck. It's every paycheck you're brave enough to offer.
+Berner is a rapper, but he co-founded a cannabis brand you probably already heard of, and the way he grew it most artists never even try. He's out of San Francisco, built his own label, Bern One. But the music was never the only product. The brand is Cookies, and the music became the marketing for it. Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. He reportedly built Cookies into a major brand, and he still owns a real piece. So here go the part most artists miss. He aint go find a new audience for the business. He sold more to the audience he already had. The crowd that streams you can also buy ya vinyl, ya verse, a song critique, a call. One fanbase aint one paycheck. It every paycheck you brave enough to offer.
 
 ---
 
@@ -27,15 +27,13 @@ If you only sell your fans one thing, then you left most of the money on the tab
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If you only sell your fans one thing, then you left most of the money on the table. [write "1 THING SOLD" at top left, then a big arrow pointing right to "$$$ LEFT BEHIND" crossed out lightly. At top right draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Berner from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BERNER" underneath]
+**HOOK:** Berner is a rapper, but he co-founded a cannabis brand you probably already heard of, and the way he grew it most artists never even try. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Berner from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BERNER" underneath. write "RAPPER → ??? BRAND" with a question mark]
 
-**FORESHADOW:** Berner figured that out early. And what he did with it aint even about music. [write "BERNER" large, underline it twice]
+**RISING ACTION:** He's out of San Francisco, built his own label, Bern One. [draw a small stick figure with a mic, label "RAPPER", write "BERN ONE" next to it] But the music was never the only product. The brand is Cookies, and the music became the marketing for it. [write "MUSIC" with an arrow pointing down to "MARKETING", then box "COOKIES" off to the side] Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. [draw one circle labeled "SAME FANS", with three arrows leaving it to "SONGS", "VIDEOS", "TOUR BUS"] He reportedly built Cookies into a major brand, and he still owns a real piece. [write "OWNS A PIECE" and circle it]
 
-**RISING ACTION:** He's a rapper out of San Francisco who built his own label, Bern One. [draw a small stick figure with a mic, label "RAPPER", write "BERN ONE" next to it] But the music was never the only product. Berner co-founded Cookies, the cannabis brand, and the music became the marketing for it. [write "MUSIC" with an arrow pointing down to "MARKETING", then box "COOKIES" off to the side] Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. [draw one circle labeled "SAME FANS", with three arrows leaving it to "SONGS", "VIDEOS", "TOUR BUS"] He reportedly built Cookies into a major brand, and he still owns a real piece. [write "OWNS A PIECE" and circle it]
+**TWIST:** So here go the part most artists miss. He aint go find a new audience for the business. He sold more to the audience he already had. [draw the SAME FANS circle again, now with arrows to "VINYL", "VERSE", "CRITIQUE", "CALL"]
 
-**TWIST:** Here's the part most artists miss. He didn't go find a new audience for the business. He sold more to the audience he already had. [draw the SAME FANS circle again, now with arrows to "VINYL", "VERSE", "CRITIQUE", "CALL"]
-
-**PAYOFF:** The crowd that streams you can also buy your vinyl, your verse, a song critique, a call. One fanbase is not one paycheck. [write "1 FANBASE" then an equals sign to a stack of dollar signs "$ $ $ $"] It's every paycheck you're brave enough to offer. [box the final line "EVERY PAYCHECK YOU OFFER"]
+**PAYOFF:** The crowd that streams you can also buy ya vinyl, ya verse, a song critique, a call. One fanbase aint one paycheck. [write "1 FANBASE" then an equals sign to a stack of dollar signs "$ $ $ $"] It every paycheck you brave enough to offer. [box the final line "EVERY PAYCHECK YOU OFFER"]
 
 ---
 
@@ -48,12 +46,11 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Berner labeled "BERNER" (top right)
-2. "1 THING SOLD" arrow to "$$$ LEFT BEHIND" (top left)
-3. "BERNER" underlined twice
-4. Stick figure with mic "RAPPER" and "BERN ONE"
-5. "MUSIC" arrow down to "MARKETING", boxed "COOKIES"
-6. First "SAME FANS" circle with arrows to "SONGS", "VIDEOS", "TOUR BUS"
-7. "OWNS A PIECE" circled
-8. Second "SAME FANS" circle with arrows to "VINYL", "VERSE", "CRITIQUE", "CALL"
-9. "1 FANBASE" = "$ $ $ $"
-10. Boxed "EVERY PAYCHECK YOU OFFER"
+2. "RAPPER → ??? BRAND" with a question mark (top left)
+3. Stick figure with mic "RAPPER" and "BERN ONE"
+4. "MUSIC" arrow down to "MARKETING", boxed "COOKIES"
+5. First "SAME FANS" circle with arrows to "SONGS", "VIDEOS", "TOUR BUS"
+6. "OWNS A PIECE" circled
+7. Second "SAME FANS" circle with arrows to "VINYL", "VERSE", "CRITIQUE", "CALL"
+8. "1 FANBASE" = "$ $ $ $"
+9. Boxed "EVERY PAYCHECK YOU OFFER"

@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Tech N9ne's Fans Got A Rank
+What Are Tech N9ne's Fans Really Paying For?
 
 Link in bio to give your day-one fans a name and a badge they climb for with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your day-one fans a name and a badge they climb for with CRW
 
 **SCRIPT:**
 
-Tech N9ne built one of the most loyal fanbases in rap, and he did it without a single hit. He did it with a name. Tech N9ne fans dont call themselves fans. They call themselves Technicians. Some of em got it tattooed. He never signed to a major. Him and his partner built they own label back in 1999 and kept it. So the fans aint just buying songs. They buying a team to be on. And here go the part that move different. The closer ones pay for the meet and greet, the merch, the photo, the front of the line. They payin for proof they was there. Not for the music. For the rank. Megastars hand fans a song and keep it moving. A small artist can hand a fan a title. And a fan with a title dont leave. People quit a playlist every day. Aint nobody quit a team they earned they way up.
+Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. What are they really payin for? Cause it aint the radio. He never had a hit on it. Tech N9ne built one of the most loyal fanbases in rap with no major label and no radio single. Him and his partner started they own label back in 1999 and kept it the whole way. So when a Technician shows up, they aint just buying songs. The closer ones pay for the meet and greet, the merch, the photo, the front of the line. Megastars hand fans a song and keep it moving. A small artist like Tech hand a fan a spot on the team. People quit a playlist every day. So ask yaself why a Technician will line up and pay again and again, year after year. It aint the music. They payin for the rank, and the proof they earned they way onto a team that aint never had to beg radio. And aint nobody quit a team they climbed they way up.
 
 ---
 
@@ -27,15 +27,15 @@ Tech N9ne built one of the most loyal fanbases in rap, and he did it without a s
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Tech N9ne built one of the most loyal fanbases in rap, and he did it without a single hit. [top left, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tech N9ne from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TECH N9NE" underneath] [top right, write "MOST LOYAL FANS" big, underline it]
+**HOOK:** Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. What are they really payin for? [top left, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tech N9ne from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TECH N9NE" underneath] [top right, write "WHAT THEY REALLY PAYIN FOR?" big, underline it. draw a small arm with a tiny tattoo mark and box "TECHNICIANS" beside it]
 
-**FORESHADOW:** He did it with a name. [center, cross out "HIT" and write "A NAME" next to it, circle "A NAME"]
+**FORESHADOW:** Cause it aint the radio. He never had a hit on it. [center, cross out "RADIO HIT"]
 
-**RISING ACTION:** Tech N9ne fans dont call themselves fans. They call themselves Technicians. [write "FANS" then arrow to "TECHNICIANS", box "TECHNICIANS"] Some of em got it tattooed. [draw a small arm with a tiny tattoo mark] He never signed to a major. Him and his partner built they own label back in 1999 and kept it. [write "OWN LABEL 1999" and a small checkmark] So the fans aint just buying songs. They buying a team to be on. [write "A TEAM" and draw 3 small stick figures standing together]
+**RISING ACTION:** Tech N9ne built one of the most loyal fanbases in rap with no major label and no radio single. Him and his partner started they own label back in 1999 and kept it the whole way. [write "OWN LABEL 1999" and a small checkmark, write "NO MAJOR" with an X] So when a Technician shows up, they aint just buying songs. [write "FANS" then arrow to "TECHNICIANS", box "TECHNICIANS". draw 3 small stick figures standing together labeled "A TEAM"]
 
-**TWIST:** And here go the part that move different. The closer ones pay for the meet and greet, the merch, the photo, the front of the line. [draw a small ladder; rungs labeled "PHOTO", "MEET", "FRONT LINE"] They payin for proof they was there. Not for the music. For the rank. [cross out "MUSIC", circle "RANK"]
+**TWIST:** The closer ones pay for the meet and greet, the merch, the photo, the front of the line. [draw a small ladder; rungs labeled "PHOTO", "MEET", "FRONT LINE"] Megastars hand fans a song and keep it moving. A small artist like Tech hand a fan a spot on the team. [left write "SONG", right write "A SPOT", draw a line down the middle] People quit a playlist every day. [write "QUIT A PLAYLIST" with an X]
 
-**PAYOFF:** Megastars hand fans a song and keep it moving. A small artist can hand a fan a title. [left write "SONG", right write "TITLE", draw a line down the middle] And a fan with a title dont leave. People quit a playlist every day. Aint nobody quit a team they earned they way up. [bottom, big bold: "QUIT A PLAYLIST" with an X, "STAY ON A TEAM" with a check]
+**PAYOFF:** So ask yaself why a Technician will line up and pay again and again, year after year. It aint the music. They payin for the rank, and the proof they earned they way onto a team that aint never had to beg radio. And aint nobody quit a team they climbed they way up. [cross out "MUSIC", circle "RANK". bottom, big bold: "THEY PAYIN FOR THE RANK" with a check]
 
 ---
 
@@ -48,13 +48,14 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Tech N9ne labeled underneath (top left)
-2. "MOST LOYAL FANS" underlined (top right)
-3. "HIT" crossed out, "A NAME" circled (center)
-4. "FANS" arrow to boxed "TECHNICIANS"
-5. Arm with tiny tattoo mark
-6. "OWN LABEL 1999" with checkmark
+2. "WHAT THEY REALLY PAYIN FOR?" underlined (top right)
+3. Arm with tiny tattoo mark, boxed "TECHNICIANS"
+4. "RADIO HIT" crossed out (center)
+5. "OWN LABEL 1999" with checkmark, "NO MAJOR" with X
+6. "FANS" arrow to boxed "TECHNICIANS"
 7. "A TEAM" with three stick figures
 8. Ladder with rungs "PHOTO", "MEET", "FRONT LINE"
-9. "MUSIC" crossed out, "RANK" circled
-10. Line down the middle: "SONG" left, "TITLE" right
-11. "QUIT A PLAYLIST" with X, "STAY ON A TEAM" with check (bottom)
+9. Line down the middle: "SONG" left, "A SPOT" right
+10. "QUIT A PLAYLIST" with X
+11. "MUSIC" crossed out, "RANK" circled
+12. "THEY PAYIN FOR THE RANK" with check (bottom)

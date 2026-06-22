@@ -1,8 +1,8 @@
-## JUICE WRLD: OWNERSHIP IS THE INHERITANCE
+## JUICE WRLD SIGNED $3M AT 19. WHAT MATTERED MORE?
 
 **CAPTION:**
 
-This Is How You Leave Music Behind
+He Signed $3M At 19. What Mattered More Than The Check?
 
 Link in bio to own your catalog so it pays you and your family for life with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to own your catalog so it pays you and your family for life with CRW
 
 **SCRIPT:**
 
-This is how you leave something behind. At 19 Juice WRLD signed a record deal reported at $3 million. Stay with me, cause the part that lasts aint the $3 million. He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. Then it happened. After he was gone, a posthumous album dropped and went number one. Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. So who gets that money now? A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings. Somebody cashes every play forever. His mother ended up over the estate, so the songs he made could keep feeding the family he left. That the difference nobody explain when you young and signing. The check you sign for today is loud. The thing you own is what your name keep eating off of after you cant.
+At 19 Juice WRLD signed a record deal reported at $3 million. But the part that mattered most aint the $3 million. Stay with me. He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. Then after he was gone, a posthumous album dropped and went number one. Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. So who gets that money now? A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings. Somebody cashes every play forever. The check you sign for today is loud, but it spends once. The thing you own keeps paying long after you cant. His mother ended up over the estate, so the songs he made could keep feeding the family he left behind.
 
 ---
 
@@ -27,15 +27,15 @@ This is how you leave something behind. At 19 Juice WRLD signed a record deal re
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is how you leave something behind. [At the top write "LEAVE SOMETHING BEHIND" in big letters, underline it. draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Juice WRLD from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JUICE WRLD" underneath.] At 19 Juice WRLD signed a record deal reported at $3 million. [Below write "AGE 19" and next to it "$3,000,000 DEAL", circle the $3,000,000.]
+**HOOK:** At 19 Juice WRLD signed a record deal reported at $3 million. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Juice WRLD from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JUICE WRLD" underneath. Below write "AGE 19" and next to it "$3,000,000 DEAL", circle the $3,000,000.]
 
-**FORESHADOW:** Stay with me, cause the part that lasts aint the $3 million. [Cross out "$3,000,000" with a single line. Draw a small arrow pointing down to a question mark.]
+**FORESHADOW:** But the part that mattered most aint the $3 million. Stay with me. [Cross out "$3,000,000" with a single line. Draw a small arrow pointing down to a question mark.]
 
-**RISING ACTION:** He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. [Draw a big box labeled "VAULT" with "~2,000 SONGS" inside it.] Then it happened. After he was gone, a posthumous album dropped and went number one. [Write "#1" big and circle it. Next to it write "497K FIRST WEEK".] Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. [Draw a printer with dollar signs coming out of it.]
+**RISING ACTION:** He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. [Draw a big box labeled "VAULT" with "~2,000 SONGS" inside it.] Then after he was gone, a posthumous album dropped and went number one. [Write "#1" big and circle it. Next to it write "497K FIRST WEEK".] Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. [Draw a printer with dollar signs coming out of it.]
 
-**TWIST:** So who gets that money now? [Write "WHO GETS PAID?" with a question mark, box it.] A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings. Somebody cashes every play forever. [Draw a small set of master tapes / reels, write "OWNER" with an arrow to it.] His mother ended up over the estate, so the songs he made could keep feeding the family he left. [Draw a simple family stick figures, write "ESTATE" above them with an arrow from the tapes.]
+**TWIST:** So who gets that money now? [Write "WHO GETS PAID?" with a question mark, box it.] A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings. Somebody cashes every play forever. [Draw a small set of master tapes / reels, write "OWNER" with an arrow to it.] The check you sign for today is loud, but it spends once. The thing you own keeps paying long after you cant. [draw a line down the middle. Left side write "THE CHECK", under it a single dollar bill. Right side write "WHAT YOU OWN", under it a small infinity loop with "$" inside it, circle it.]
 
-**PAYOFF:** That the difference nobody explain when you young and signing. [At the bottom draw a line down the middle. Left side write "THE CHECK", right side write "WHAT YOU OWN".] The check you sign for today is loud. The thing you own is what your name keep eating off of after you cant. [Under "THE CHECK" draw a single dollar bill. Under "WHAT YOU OWN" draw a small infinity loop with "$" inside it, circle it.]
+**PAYOFF:** His mother ended up over the estate, so the songs he made could keep feeding the family he left behind. [Draw simple family stick figures, write "ESTATE" above them with an arrow from the tapes, underline "FAMILY".]
 
 ---
 
@@ -48,14 +48,13 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Juice WRLD labeled "JUICE WRLD"
-2. "LEAVE SOMETHING BEHIND" underlined at the top
-3. "AGE 19" and "$3,000,000 DEAL" circled
-4. "$3,000,000" crossed out, arrow down to question mark
-5. "VAULT" box with "~2,000 SONGS" inside
-6. Circled "#1" and "497K FIRST WEEK"
-7. Printer with dollar signs
-8. "WHO GETS PAID?" boxed
-9. Master tapes / reels labeled "OWNER"
-10. Arrow to family stick figures labeled "ESTATE"
-11. Dividing line: "THE CHECK" with dollar bill (left)
-12. "WHAT YOU OWN" with circled infinity-and-$ (right)
+2. "AGE 19" and "$3,000,000 DEAL" circled
+3. "$3,000,000" crossed out, arrow down to question mark
+4. "VAULT" box with "~2,000 SONGS" inside
+5. Circled "#1" and "497K FIRST WEEK"
+6. Printer with dollar signs
+7. "WHO GETS PAID?" boxed
+8. Master tapes / reels labeled "OWNER"
+9. Dividing line: "THE CHECK" with dollar bill (left)
+10. "WHAT YOU OWN" with circled infinity-and-$ (right)
+11. Family stick figures labeled "ESTATE" with arrow from tapes, "FAMILY" underlined

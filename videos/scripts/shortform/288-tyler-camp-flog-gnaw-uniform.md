@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Tyler Gave His Fans A Flag
+Tyler Handed His Fans A Hoodie. Look What It Turned Into
 
 Link in bio to give your fans a signal so they find each other and build the culture with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans a signal so they find each other and build the cul
 
 **SCRIPT:**
 
-Tyler, the Creator handed his fans a uniform, and watch what they did with it. Back in 2011 Tyler started a clothing brand called Golf Wang. Pastel hoodies, loud socks, that little donut and flower stuff. It wasnt just merch. It turned into a uniform. A kid in line at the show could spot another fan from across the street. They aint gotta talk. The clothes already said it. Then he built a whole festival called Camp Flog Gnaw. Now picture thousands of em in the same colors, all in one place, findin they own people. Tyler aint pay nobody to do that. The fans recruited each other. The merch was the handshake. The festival was the meetup. So whats yo signal? Give the real ones somethin to wear and a room to wear it in. They will find each other, and they will build the culture for you while you sleep.
+Tyler, the Creator handed his fans a pastel hoodie in 2011, and that one piece of cloth turned into somethin he never had to pay for. Back then he started a clothing brand called Golf Wang. Pastel hoodies, loud socks, that little donut and flower stuff. It wasnt just merch. It turned into a uniform. A kid in line at the show could spot another fan from across the street. They aint gotta talk. The clothes already said it. The merch was the handshake between two strangers. So what was Tyler buildin with all them matching colors. He built a whole festival called Camp Flog Gnaw. Thousands of em in the same colors, all in one place, findin they own people. And he aint pay a dime for a street team. Every fan in that hoodie recruited the next one for free.
 
 ---
 
@@ -27,15 +27,15 @@ Tyler, the Creator handed his fans a uniform, and watch what they did with it. B
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Tyler, the Creator handed his fans a uniform, and watch what they did with it. [Top center, write "GIVE FANS A COLOR" in big bold letters, underline "COLOR" twice. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tyler, the Creator from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TYLER, THE CREATOR" underneath.]
+**HOOK:** Tyler, the Creator handed his fans a pastel hoodie in 2011, and that one piece of cloth turned into somethin he never had to pay for. [Top center, write "GIVE FANS A COLOR" in big bold letters, underline "COLOR" twice. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tyler, the Creator from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TYLER, THE CREATOR" underneath.]
 
-**FORESHADOW:** Back in 2011 Tyler started a clothing brand called Golf Wang. [Write "2011 - GOLF WANG" on the left, draw a simple hoodie next to it with a little flower on the chest.] Pastel hoodies, loud socks, that little donut and flower stuff. [Draw a tiny donut and a sock beside the hoodie.]
+**FORESHADOW:** Back then he started a clothing brand called Golf Wang. [Write "2011 - GOLF WANG" on the left, draw a simple hoodie next to it with a little flower on the chest.] Pastel hoodies, loud socks, that little donut and flower stuff. [Draw a tiny donut and a sock beside the hoodie.]
 
-**RISING ACTION:** It wasnt just merch. It turned into a uniform. [Cross out the word "MERCH" with one line, write "UNIFORM" under it in caps, box it.] A kid in line at the show could spot another fan from across the street. [Draw two stick figures, both in matching hoodies, with an arrow pointing between them.] They aint gotta talk. The clothes already said it. [Draw a small speech bubble that is empty, put an X through it.] Then he built a whole festival called Camp Flog Gnaw. [Write "CAMP FLOG GNAW" center, draw a simple ferris wheel beside it.] Now picture thousands of em in the same colors, all in one place, findin they own people. [Draw a cluster of five tiny stick figures grouped together inside a circle.]
+**RISING ACTION:** It wasnt just merch. It turned into a uniform. [Cross out the word "MERCH" with one line, write "UNIFORM" under it in caps, box it.] A kid in line at the show could spot another fan from across the street. [Draw two stick figures, both in matching hoodies, with an arrow pointing between them.] They aint gotta talk. The clothes already said it. [Draw a small speech bubble that is empty, put an X through it.] The merch was the handshake between two strangers. [Write "HANDSHAKE" with a little drawing of two hands.]
 
-**TWIST:** Tyler aint pay nobody to do that. The fans recruited each other. [Write "FANS = STREET TEAM" and circle it, draw arrows from one stick figure to two more.] The merch was the handshake. The festival was the meetup. [Write "HANDSHAKE" with a little drawing of two hands, and "MEETUP" with a pin drop next to it.]
+**TWIST:** So what was Tyler buildin with all them matching colors. He built a whole festival called Camp Flog Gnaw. [Write "CAMP FLOG GNAW" center, draw a simple ferris wheel beside it. Write "MEETUP" with a pin drop next to it.] Thousands of em in the same colors, all in one place, findin they own people. [Draw a cluster of five tiny stick figures grouped together inside a circle.]
 
-**PAYOFF:** So whats yo signal? [Write "YO SIGNAL?" big in the center, underline it.] Give the real ones somethin to wear and a room to wear it in. [Draw a flag on a pole.] They will find each other, and they will build the culture for you while you sleep. [Write "THEY BUILD IT" at the bottom, box the whole phrase, draw a little Z Z Z above it for sleep.]
+**PAYOFF:** And he aint pay a dime for a street team. [Write "STREET TEAM = $0" big in the center, underline it.] Every fan in that hoodie recruited the next one for free. [Write "FANS = STREET TEAM" at the bottom, circle it, draw arrows from one stick figure to two more, box the whole phrase.]
 
 ---
 
@@ -55,10 +55,8 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 6. "MERCH" crossed out, "UNIFORM" boxed underneath
 7. Two matching stick figures with arrow between them
 8. Empty speech bubble with an X
-9. "CAMP FLOG GNAW" with ferris wheel
-10. Cluster of five stick figures in a circle
-11. "FANS = STREET TEAM" circled with arrows to more figures
-12. "HANDSHAKE" with two hands, "MEETUP" with map pin
-13. "YO SIGNAL?" underlined (center)
-14. Flag on a pole
-15. "THEY BUILD IT" boxed with Z Z Z above
+9. "HANDSHAKE" with two hands
+10. "CAMP FLOG GNAW" with ferris wheel, "MEETUP" with map pin
+11. Cluster of five stick figures in a circle
+12. "STREET TEAM = $0" underlined (center)
+13. "FANS = STREET TEAM" circled with arrows to more figures, boxed (bottom)

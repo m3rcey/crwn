@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Big K.R.I.T. Had A Top 5 Debut And Still Left
+Why Would He Walk Out On A Top 5 Debut?
 
 Link in bio to keep the bigger half of every dollar your fans spend on you with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to keep the bigger half of every dollar your fans spend on you with 
 
 **SCRIPT:**
 
-Big K.R.I.T. had a top five debut on a major label and still walked. Six years he was signed, and the reason he left is the part nobody talk about. His first album dropped in 2012. Debuted number five on the big chart, number one on the rap chart, sold like 41,000 copies the first week. That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. So in 2016 he left. Started his own label, Multi Alumni. And K.R.I.T. make his own beats, so now he own the songs, the masters, all of it. He dropped three more albums since, every one of em his. Same talent that charted on Def Jam. The only thing that changed is who keep the money when a fan buy it. Def Jam taught him the game. He had to leave it to start keepin what he made.
+Big K.R.I.T. had a top five debut on Def Jam and years left on his deal. So why would he walk away from all of it? Stay with me. His first album dropped in 2012. Debuted number five on the big chart, number one on the rap chart. That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. He charted, he toured, he did everything right, and still aint own a thing. So in 2016 he left. Started his own label, Multi Alumni. He dropped three more albums since, same talent that charted on Def Jam, only now somethin different. K.R.I.T. make his own beats. So here go the reason he walked. That first album sold like 41,000 copies week one and he aint own none of it. Now he own the songs, the masters, every dollar a fan spend on em.
 
 ---
 
@@ -27,15 +27,15 @@ Big K.R.I.T. had a top five debut on a major label and still walked. Six years h
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Big K.R.I.T. had a top five debut on a major label and still walked. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Big K.R.I.T. from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BIG K.R.I.T." underneath. top center, write "BIG K.R.I.T." big, then draw a simple door to the right of the name with an arrow pointing out through it, write "DEF JAM" on the door]
+**HOOK:** Big K.R.I.T. had a top five debut on Def Jam and years left on his deal. So why would he walk away from all of it? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Big K.R.I.T. from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BIG K.R.I.T." underneath. top center, write "BIG K.R.I.T." big, then draw a simple door to the right of the name with an arrow pointing out through it, write "DEF JAM" on the door, draw a small question mark next to it]
 
-**FORESHADOW:** Six years he was signed, and the reason he left is the part nobody talk about. [under the door write "6 YEARS" and circle it, draw a small question mark next to it]
+**FORESHADOW:** Stay with me. [under the door write "6 YEARS" and circle it]
 
-**RISING ACTION:** His first album dropped in 2012. Debuted number five on the big chart, number one on the rap chart, sold like 41,000 copies the first week. [write "2012" on the left, under it "#5 BILLBOARD", "#1 RAP", "41,000 WK 1", draw a small upward arrow next to the numbers] That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. [draw a dollar bill split down the middle, write "LABEL" on the bigger left piece, "K.R.I.T." on the smaller right piece, underline "LABEL"]
+**RISING ACTION:** His first album dropped in 2012. Debuted number five on the big chart, number one on the rap chart. [write "2012" on the left, under it "#5 BILLBOARD", "#1 RAP", draw a small upward arrow next to the numbers] That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. [draw a dollar bill split down the middle, write "LABEL" on the bigger left piece, "K.R.I.T." on the smaller right piece, underline "LABEL"]
 
-**TWIST:** So in 2016 he left. Started his own label, Multi Alumni. And K.R.I.T. make his own beats, so now he own the songs, the masters, all of it. [write "2016 LEFT" then "MULTI ALUMNI" boxed, draw arrows from "MULTI ALUMNI" to three small words: "SONGS", "MASTERS", "BEATS", put a check mark by each] He dropped three more albums since, every one of em his. [write "3 ALBUMS" and circle it, write "ALL HIS" under it]
+**TWIST:** He charted, he toured, he did everything right, and still aint own a thing. So in 2016 he left. Started his own label, Multi Alumni. [write "2016 LEFT" then "MULTI ALUMNI" boxed] He dropped three more albums since, same talent that charted on Def Jam, only now somethin different. K.R.I.T. make his own beats. [write "3 ALBUMS" and circle it, draw two simple bars side by side, label left bar "ON LABEL" short, right bar "ON HIS OWN" tall]
 
-**PAYOFF:** Same talent that charted on Def Jam. The only thing that changed is who keep the money when a fan buy it. [draw two simple bars side by side, label left bar "ON LABEL" short, right bar "ON HIS OWN" tall] Def Jam taught him the game. He had to leave it to start keepin what he made. [at the bottom write "TAUGHT HIM THE GAME" then below it "LEFT TO KEEP IT", underline "KEEP IT"]
+**PAYOFF:** So here go the reason he walked. That first album sold like 41,000 copies week one and he aint own none of it. Now he own the songs, the masters, every dollar a fan spend on em. [write "41,000 WK 1" then draw arrows from "MULTI ALUMNI" to three small words: "SONGS", "MASTERS", "BEATS", put a check mark by each, write "ALL HIS" big and underline it]
 
 ---
 
@@ -48,12 +48,13 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Big K.R.I.T. labeled "BIG K.R.I.T."
-2. "BIG K.R.I.T." with the door and arrow out (top center)
-3. "6 YEARS" circled with question mark
-4. "2012" and the chart numbers "#5 BILLBOARD", "#1 RAP", "41,000 WK 1" with upward arrow
+2. "BIG K.R.I.T." with the door, arrow out, and question mark (top center)
+3. "6 YEARS" circled
+4. "2012" and the chart numbers "#5 BILLBOARD", "#1 RAP" with upward arrow
 5. The split dollar bill, "LABEL" (big half) vs "K.R.I.T." (small half)
 6. "2016 LEFT" and the boxed "MULTI ALUMNI"
-7. The three arrows to "SONGS", "MASTERS", "BEATS" with check marks
-8. "3 ALBUMS" circled, "ALL HIS"
-9. The two bars "ON LABEL" vs "ON HIS OWN"
-10. "TAUGHT HIM THE GAME" / "LEFT TO KEEP IT" at the bottom
+7. "3 ALBUMS" circled
+8. The two bars "ON LABEL" vs "ON HIS OWN"
+9. The three arrows to "SONGS", "MASTERS", "BEATS" with check marks
+10. "ALL HIS" big and underlined
+11. "41,000 WK 1" at the very bottom

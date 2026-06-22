@@ -1,8 +1,8 @@
-## ERYKAH BADU — THE LONG FAN IS WORTH MORE
+## ERYKAH BADU: THE LONG FAN IS WORTH MORE
 
 **CAPTION:**
 
-The Fan Who Stayed Vs The Fan Who Bought Once
+What's A Day-One Erykah Badu Fan Actually Worth Now?
 
 Link in bio to see which fans are actually worth the most over time with CRWN. Free to start at thecrwn.app.
 
@@ -10,21 +10,17 @@ Link in bio to see which fans are actually worth the most over time with CRWN. F
 
 **SCRIPT:**
 
-This is how you stop chasing the wrong sale.
+Erykah Badu dropped Baduizm in 1997. What is one of them day-one fans actually worth almost thirty years later? Cause a whole lot of them same fans is still showing up right now.
 
-Erykah Badu dropped Baduizm in 1997. That was almost thirty years ago. And a whole lot of those same fans is still buying tickets right now.
+Here go the thing most artists miss. They chase the big sale and skip the long one.
 
-Here go the thing most artists miss. They count the big sale and skip the long one.
+Say one fan buy your vinyl for $45. One time. Feel good, right? Now say another fan just joins your $12 tier and stays.
 
-Say a fan buy your vinyl for $45. One time. Feel good, right? Now say another fan join your $12 tier and just stays.
+That $12 a month keeps coming in, month after month, year after year. The vinyl money came once and stopped. The tier fan keeps paying and aint going nowhere.
 
-$12 a month is $144 in a year. That one fan already beat the $45 buyer. And they aint going nowhere.
+So the loud sale aint always the big one. The quiet fan who just keeps showing up is the one funding the next album. You aint looking for the biggest buyer today. You looking for the one who never leaves.
 
-Stretch it ten years like a Badu fan. That $12 fan is over $1,400. The vinyl fan still at $45.
-
-So the loud sale aint always the big one. The quiet fan who just keeps showing up is the one funding the next album.
-
-You aint looking for the biggest buyer today. You looking for the one who never leaves.
+So just stretch that $12 fan out ten years, like a Badu fan who stuck around. The vinyl buyer is still sitting right where they started, at $45. That fan who stayed is worth over fourteen hundred dollars.
 
 ---
 
@@ -41,15 +37,15 @@ You aint looking for the biggest buyer today. You looking for the one who never 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is how you stop chasing the wrong sale. [At the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Erykah Badu from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "ERYKAH BADU" underneath. Beside it write "STOP CHASING THE WRONG SALE" in big bold letters, underline "WRONG SALE" twice.]
+**HOOK:** Erykah Badu dropped Baduizm in 1997. What is one of them day-one fans actually worth almost thirty years later? [At the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Erykah Badu from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "ERYKAH BADU" underneath. Beside it write "WHAT'S A DAY-ONE FAN WORTH?" in big bold letters, underline "WORTH" twice.]
 
-**FORESHADOW:** Erykah Badu dropped Baduizm in 1997. That was almost thirty years ago. [Under the header write "BADUIZM 1997" and next to it "~30 YRS", circle "~30 YRS".] And a whole lot of those same fans is still buying tickets right now. [Draw a small stick figure with a smile holding a ticket.]
+**FORESHADOW:** Cause a whole lot of them same fans is still showing up right now. [Under the header write "BADUIZM 1997" and next to it "~30 YRS", circle "~30 YRS". Draw a small stick figure with a smile holding a ticket.]
 
-**RISING ACTION:** Here go the thing most artists miss. They count the big sale and skip the long one. [Draw a line down the middle of the page. On the left write "BIG SALE", on the right write "LONG FAN".] Say a fan buy your vinyl for $45. One time. Feel good, right? [On the left side draw a vinyl record, write "$45" and "1 TIME".] Now say another fan join your $12 tier and just stays. [On the right side write "$12 / MO".] $12 a month is $144 in a year. That one fan already beat the $45 buyer. [On the right write "$144 / YR", draw a small check mark next to it.] And they aint going nowhere.
+**RISING ACTION:** Here go the thing most artists miss. They chase the big sale and skip the long one. [Draw a line down the middle of the page. On the left write "BIG SALE", on the right write "LONG FAN".] Say one fan buy your vinyl for $45. One time. Feel good, right? [On the left side draw a vinyl record, write "$45" and "1 TIME".] Now say another fan just joins your $12 tier and stays. [On the right side write "$12 / MO".] That $12 a month keeps coming in, month after month, year after year. The vinyl money came once and stopped. The tier fan keeps paying and aint going nowhere. [On the right under "$12 / MO" draw a small arrow pointing right labeled "KEEPS COMING".]
 
-**TWIST:** Stretch it ten years like a Badu fan. That $12 fan is over $1,400. The vinyl fan still at $45. [On the right write "10 YRS = $1,400+" big, circle it. On the left, next to "$45", write "STILL $45".] So the loud sale aint always the big one. The quiet fan who just keeps showing up is the one funding the next album. [Cross out "BIG SALE" on the left. Box "LONG FAN" on the right.]
+**TWIST:** So the loud sale aint always the big one. The quiet fan who just keeps showing up is the one funding the next album. You aint looking for the biggest buyer today. You looking for the one who never leaves. [Cross out "BIG SALE" on the left. Box "LONG FAN" on the right. Below write "THE ONE WHO NEVER LEAVES".]
 
-**PAYOFF:** You aint looking for the biggest buyer today. You looking for the one who never leaves. [At the bottom write "THE ONE WHO NEVER LEAVES" in big bold letters, underline it.]
+**PAYOFF:** So just stretch that $12 fan out ten years, like a Badu fan who stuck around. The vinyl buyer is still sitting right where they started, at $45. That fan who stayed is worth over fourteen hundred dollars. [On the left, next to "$45", write "STILL $45". On the right write "10 YRS = $1,400+" big, circle it.]
 
 ---
 
@@ -62,13 +58,12 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. The sharpie portrait of Erykah Badu labeled "ERYKAH BADU"
-2. "STOP CHASING THE WRONG SALE" header (WRONG SALE underlined twice)
+2. "WHAT'S A DAY-ONE FAN WORTH?" header (WORTH underlined twice)
 3. "BADUIZM 1997" and "~30 YRS" circled
 4. Stick figure with ticket
 5. Dividing line with "BIG SALE" (left) and "LONG FAN" (right)
 6. Vinyl record, "$45", "1 TIME" on the left
-7. "$12 / MO" on the right
-8. "$144 / YR" with check mark
-9. "10 YRS = $1,400+" circled on the right; "STILL $45" on the left
-10. "BIG SALE" crossed out; "LONG FAN" boxed
-11. "THE ONE WHO NEVER LEAVES" bottom header, underlined
+7. "$12 / MO" on the right with "KEEPS COMING" arrow
+8. "BIG SALE" crossed out; "LONG FAN" boxed; "THE ONE WHO NEVER LEAVES"
+9. "STILL $45" on the left
+10. "10 YRS = $1,400+" circled on the right

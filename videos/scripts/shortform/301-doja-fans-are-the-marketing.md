@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Doja's Marketing Department She Never Hired
+Where Does Doja Cat's Marketing Department Actually Live?
 
 Link in bio to give your fans a home base and turn them into your free street team with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans a home base and turn them into your free street te
 
 **SCRIPT:**
 
-Doja Cat got a whole marketing department she never hired, and watch where it actually lives. The fans live in group chats and stan accounts all day. They cut the edits. They make the memes. They start the trends before she post anything. One clip from the fans can go bigger than the song itself. Doja dont run a single one of them pages. The fans built em on they own. So she got a marketing team workin around the clock for nothin. Now think about ya own fans doin that, just in a hundred scattered places you cant see. They already talkin you up. They just aint got one room to do it in. So somebody gave they fans a home base. One spot where the real ones gather, post, and pull in new ones. The fans turned into the ad budget. Doja got the army by accident. You can build the headquarters on purpose.
+Doja Cat got a whole marketing department she never hired. Where you think it actually lives? It aint in some office. It lives in group chats and stan accounts. They cut the edits. They make the memes. They start the trends before she even post anything. Doja dont run none of them pages. The fans built em on they own. They post around the clock, every time zone, never clock out. Now most artists would kill for that and pay millions tryna fake it. A real ad agency would charge her a fortune to run a fraction of what these fans run for her. One clip outta that crowd can go bigger than the song she actually dropped. So add it up. Posts every hour, trends started for her, reach no budget could buy. Thats a full marketing department, top to bottom, running every day. And the whole bill come out to zero, cause the fans do it for free.
 
 ---
 
@@ -27,15 +27,15 @@ Doja Cat got a whole marketing department she never hired, and watch where it ac
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Doja Cat got a whole marketing department she never hired, and watch where it actually lives. [Top of page, large: "FANS = FREE MARKETING" underlined twice. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Doja Cat from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DOJA CAT" underneath.]
+**HOOK:** Doja Cat got a whole marketing department she never hired. Where you think it actually lives? [Top of page, large: "FANS = FREE MARKETING" underlined twice. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Doja Cat from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DOJA CAT" underneath.]
 
-**FORESHADOW:** Doja Cat got a whole department she dont pay. [Draw a small building box labeled "MARKETING DEPT" with a crossed-out "$" next to it] The fans live in group chats and stan accounts all day. [Draw three small phone shapes in a cluster, each with a tiny heart on the screen]
+**FORESHADOW:** It aint in some office. It lives in group chats and stan accounts. [Draw a small building box labeled "MARKETING DEPT" with a crossed-out "$" next to it. Draw three small phone shapes in a cluster, each with a tiny heart on the screen]
 
-**RISING ACTION:** They cut the edits. They make the memes. They start the trends before she post anything. [Write "EDITS / MEMES / TRENDS" in a stacked list, check mark beside each] One clip from the fans can go bigger than the song itself. [Draw a small arrow shooting up from "FAN CLIP"] Doja dont run a single one of them pages. The fans built em on they own. [Draw the Doja Cat portrait likeness from the hook, smaller, labeled "DOJA", with a slash through a line connecting her to the phones] So she got a marketing team workin around the clock for nothin. [Draw a clock, write "24/7" beside it]
+**RISING ACTION:** They cut the edits. They make the memes. They start the trends before she even post anything. [Write "EDITS / MEMES / TRENDS" in a stacked list, check mark beside each] Doja dont run none of them pages. The fans built em on they own. [Draw the Doja Cat portrait likeness from the hook, smaller, labeled "DOJA", with a slash through a line connecting her to the phones] They post around the clock, every time zone, never clock out. [Draw a clock, write "24/7" beside it]
 
-**TWIST:** Now think about ya own fans doin that, just in a hundred scattered places you cant see. [Draw many tiny scattered dots across the page] They already talkin you up. They just aint got one room to do it in. [Box one empty room shape in the middle, label it "?"] So somebody gave they fans a home base. [Fill that room shape, label it "HOME BASE", draw the scattered dots flowing toward it with arrows]
+**TWIST:** Now most artists would kill for that and pay millions tryna fake it. A real ad agency would charge her a fortune to run a fraction of what these fans run for her. [Draw many tiny scattered dots across the page flowing toward one box labeled "AGENCY $$$" crossed out] One clip outta that crowd can go bigger than the song she actually dropped. [Draw a small arrow shooting up from "FAN CLIP"]
 
-**PAYOFF:** One spot where the real ones gather, post, and pull in new ones. The fans turned into the ad budget. [Write "FANS = AD BUDGET" and circle it] Doja got the army by accident. You can build the headquarters on purpose. [Underline "BY ACCIDENT" and "ON PURPOSE", draw a flag on top of the home base building]
+**PAYOFF:** So add it up. Posts every hour, trends started for her, reach no budget could buy. Thats a full marketing department, top to bottom, running every day. And the whole bill come out to zero, cause the fans do it for free. [Write "FULL MARKETING DEPT" with a big circled "$0" beside it, underline "$0"]
 
 ---
 
@@ -52,11 +52,8 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 3. "MARKETING DEPT" building box with crossed-out dollar sign
 4. Cluster of three phones with hearts
 5. "EDITS / MEMES / TRENDS" stacked list with check marks
-6. "FAN CLIP" with arrow shooting up
-7. "DOJA" portrait likeness with crossed-out connecting line
-8. Clock with "24/7"
-9. Scattered dots across the page
-10. Empty room shape labeled "?"
-11. Filled "HOME BASE" room with flag and arrows pulling dots in
-12. "FANS = AD BUDGET" circled
-13. "BY ACCIDENT" and "ON PURPOSE" underlined
+6. "DOJA" portrait likeness with crossed-out connecting line
+7. Clock with "24/7"
+8. Scattered dots flowing toward crossed-out "AGENCY $$$"
+9. "FAN CLIP" with arrow shooting up
+10. "FULL MARKETING DEPT" with big circled "$0" (underlined)

@@ -10,7 +10,7 @@ Link in bio to own your masters and your fanbase instead of renting both with CR
 
 **SCRIPT:**
 
-9th Wonder made a beat on Jay-Z's Black Album, then did somethin almost no producer in his spot ever does with it.
+9th Wonder made a beat on Jay-Z's Black Album, and what he did next put him somewhere no other producer in his lane ended up.
 
 He could've chased the next big placement and let somebody else hold the work. He didn't.
 
@@ -18,11 +18,9 @@ He built his own label. He kept his masters. The songs he make still pay him, no
 
 Most producers get a flat check and watch the song print forever without em. He flipped that. He own what he make, so it keep payin.
 
-Now here's where it get wild. The same dude who kept his catalog teach this in college. Harvard. Duke. He literally stand in a classroom and tell young artists, own it or spend ya life rentin ya own work.
+The hired hand gets paid once. The owner gets paid for life. And he aint just live that. He turned around and teach it.
 
-He aint preachin somethin he read. He preachin the move that built him.
-
-The hired hand gets paid once. The owner gets paid for life.
+So where you think a kid who kept his whole catalog ends up explainin all this. Not a podcast. Not a panel. A classroom. At Harvard. And Duke.
 
 ---
 
@@ -40,15 +38,15 @@ The hired hand gets paid once. The owner gets paid for life.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** 9th Wonder made a beat on Jay-Z's Black Album, then did somethin almost no producer in his spot ever does with it. [Write "9TH WONDER" big at top, and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 9th Wonder from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "9TH WONDER" underneath. Under the name draw a tiny music note labeled "BLACK ALBUM '03".]
+**HOOK:** 9th Wonder made a beat on Jay-Z's Black Album, and what he did next put him somewhere no other producer in his lane ended up. [Write "9TH WONDER" big at top, and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 9th Wonder from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "9TH WONDER" underneath. Under the name draw a tiny music note labeled "BLACK ALBUM '03".]
 
 **FORESHADOW:** He could've chased the next big placement and let somebody else hold the work. He didn't. [Draw an arrow pointing away labeled "SELL THE WORK?" then a big X through it.]
 
 **RISING ACTION:** He built his own label. He kept his masters. The songs he make still pay him, not a parent company sittin on top of him. [Draw a small building labeled "HIS OWN LABEL". Next to it write "MASTERS" inside a box, circled. Draw a stick figure on top labeled "PARENT CO" then cross out the stick figure.] Most producers get a flat check and watch the song print forever without em. He flipped that. He own what he make, so it keep payin. [On the left write "FLAT CHECK = ONCE" with a single "$". On the right write "OWN IT = KEEPS PAYIN" with "$ $ $". Underline "OWN IT".]
 
-**TWIST:** Now here's where it get wild. The same dude who kept his catalog teach this in college. Harvard. Duke. He literally stand in a classroom and tell young artists, own it or spend ya life rentin ya own work. [Draw a small chalkboard. On it write "OWN IT" big, and under it "OR RENT YA OWN WORK" with "RENT" crossed out. Write "HARVARD" and "DUKE" to the side, circle both.] He aint preachin somethin he read. He preachin the move that built him. [Under the chalkboard write "LIVED IT -> TEACHES IT" with an arrow between them.]
+**TWIST:** The hired hand gets paid once. The owner gets paid for life. And he aint just live that. He turned around and teach it. [On the left "HIRED HAND = PAID ONCE" with a tiny hand and one "$". On the right "OWNER = PAID FOR LIFE" with "$ $ $" boxed. Under both write "LIVED IT -> TEACHES IT" with an arrow between them.]
 
-**PAYOFF:** The hired hand gets paid once. The owner gets paid for life. [Very bottom, large: on the left "HIRED HAND = PAID ONCE" with a tiny hand and one "$". On the right "OWNER = PAID FOR LIFE" with "$ $ $" boxed.]
+**PAYOFF:** So where you think a kid who kept his whole catalog ends up explainin all this. Not a podcast. Not a panel. A classroom. At Harvard. And Duke. [Draw a small chalkboard. On it write "OWN IT" big, and under it "OR RENT YA OWN WORK" with "RENT" crossed out. Write "HARVARD" and "DUKE" to the side, circle both.]
 
 ---
 
@@ -67,7 +65,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 5. The crossed-out "PARENT CO" stick figure on the box
 6. "FLAT CHECK = ONCE" on the left
 7. "OWN IT = KEEPS PAYIN" on the right (underlined)
-8. The chalkboard: "OWN IT" / "OR RENT YA OWN WORK" with "RENT" crossed out
-9. "HARVARD" and "DUKE" circled to the side
-10. "LIVED IT -> TEACHES IT" arrow
-11. "HIRED HAND = PAID ONCE" / "OWNER = PAID FOR LIFE" (boxed) at the bottom
+8. "HIRED HAND = PAID ONCE" / "OWNER = PAID FOR LIFE" (boxed)
+9. "LIVED IT -> TEACHES IT" arrow
+10. The chalkboard: "OWN IT" / "OR RENT YA OWN WORK" with "RENT" crossed out
+11. "HARVARD" and "DUKE" circled to the side at the bottom

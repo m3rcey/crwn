@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-How Odd Future Got Famous With $0
+Odd Future Spent $0 On Marketing. The Fans Did Something Wild
 
 Link in bio to give your fans one room where they grow each other for you with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans one room where they grow each other for you with C
 
 **SCRIPT:**
 
-Odd Future blew up with a marketing budget of zero, and watch who actually did the work.
+Odd Future spent zero on marketing, so what did the fans pull off without em.
 
 Tyler dropped his first tape, Bastard, on Christmas in 2009. Free. Put it on Tumblr. Then the whole crew kept droppin tapes there for free.
 
@@ -18,13 +18,11 @@ No label. No ads. No radio. Just a page where the fans all hung out.
 
 And here go what they slept on. The fans wasnt just downloadin. They was talkin to each other. Tradin the tapes, postin the lyrics, arguin about who the best one was.
 
-That talk between them is what spread it. One fan pulled in the next.
-
-By 2011 the Yonkers video hit YouTube and crossed 19 million views. Tyler won Best New Artist at the VMAs that year.
-
-Radio aint break Odd Future. The fans in that room did.
+That talk between them is what spread it. One fan pulled in the next. Radio aint break Odd Future. The fans in that room did.
 
 A label rents you a crowd. A room full of fans that talk to each other, that you keep for good.
+
+So what did all that free talk add up to. By 2011 the Yonkers video crossed 19 million views on YouTube, and Tyler won Best New Artist at the VMAs that year.
 
 ---
 
@@ -41,15 +39,15 @@ A label rents you a crowd. A room full of fans that talk to each other, that you
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Odd Future blew up with a marketing budget of zero, and watch who actually did the work. [Top of page, big bold caps] "FANS = THE MARKETING" [underline it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tyler, the Creator (Odd Future's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "ODD FUTURE" underneath.]
+**HOOK:** Odd Future spent zero on marketing, so what did the fans pull off without em. [Top of page, big bold caps] "FANS = THE MARKETING" [underline it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tyler, the Creator (Odd Future's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "ODD FUTURE" underneath.]
 
-**FORESHADOW:** Odd Future blew up before radio even knew the name. And the budget was zero. [Write "$0" huge, circle it. Draw an X through a little radio box next to it.]
+**FORESHADOW:** Tyler dropped his first tape, Bastard, on Christmas in 2009. Free. Put it on Tumblr. Then the whole crew kept droppin tapes there for free. [Write "BASTARD 2009" with "FREE" next to it. Draw a simple page box labeled "TUMBLR" with stick figures clustered around it. Write "$0" huge, circle it. Draw an X through a little radio box next to it.]
 
-**RISING ACTION:** Tyler dropped his first tape, Bastard, on Christmas in 2009. Free. Put it on Tumblr. Then the whole crew kept droppin tapes there for free. [Write "BASTARD 2009" with "FREE" next to it. Draw a simple page box labeled "TUMBLR" with stick figures clustered around it.] No label. No ads. No radio. Just a page where the fans all hung out. [List "NO LABEL / NO ADS / NO RADIO" with X marks down the side.]
+**RISING ACTION:** No label. No ads. No radio. Just a page where the fans all hung out. [List "NO LABEL / NO ADS / NO RADIO" with X marks down the side.] And here go what they slept on. The fans wasnt just downloadin. They was talkin to each other. Tradin the tapes, postin the lyrics, arguin about who the best one was. [Draw three stick figures with speech bubbles between them, arrows pointing fan to fan.]
 
-**TWIST:** And here go what they slept on. The fans wasnt just downloadin. They was talkin to each other. Tradin the tapes, postin the lyrics, arguin about who the best one was. [Draw three stick figures with speech bubbles between them, arrows pointing fan to fan.] That talk between them is what spread it. One fan pulled in the next. [Draw an arrow from one stick figure to two more, then to a crowd.] By 2011 the Yonkers video hit YouTube and crossed 19 million views. Tyler won Best New Artist at the VMAs that year. [Write "YONKERS 2011" then "19,000,000 VIEWS" big, circle the number. Below it "BEST NEW ARTIST - VMAs" with a check mark.]
+**TWIST:** That talk between them is what spread it. One fan pulled in the next. [Draw an arrow from one stick figure to two more, then to a crowd.] Radio aint break Odd Future. The fans in that room did. [Write "RADIO" crossed out, then "THE ROOM" with a check mark.] A label rents you a crowd. A room full of fans that talk to each other, that you keep for good. [Draw a house box with stick figures inside, label it "YOUR ROOM." Write "RENT" with an X, "KEEP" with a check.]
 
-**PAYOFF:** Radio aint break Odd Future. The fans in that room did. [Write "RADIO" crossed out, then "THE ROOM" with a check mark.] A label rents you a crowd. A room full of fans that talk to each other, that you keep for good. [Draw a house box with stick figures inside, label it "YOUR ROOM." Write "RENT" with an X, "KEEP" with a check.]
+**PAYOFF:** So what did all that free talk add up to. By 2011 the Yonkers video crossed 19 million views on YouTube, and Tyler won Best New Artist at the VMAs that year. [Write "YONKERS 2011" then "19,000,000 VIEWS" big, circle the number. Below it "BEST NEW ARTIST - VMAs" with a check mark.]
 
 ---
 
@@ -63,11 +61,11 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 1. Sharpie portrait of Odd Future (Tyler) labeled underneath
 2. "FANS = THE MARKETING" headline (underlined) at the top
-3. "$0" circled, with the crossed-out RADIO box
-4. "BASTARD 2009 / FREE" and the TUMBLR box with stick figures around it
+3. "BASTARD 2009 / FREE" and the TUMBLR box with stick figures around it
+4. "$0" circled, with the crossed-out RADIO box
 5. "NO LABEL / NO ADS / NO RADIO" list with X marks
 6. Three stick figures with speech bubbles and fan-to-fan arrows
 7. Arrow from one figure spreading out to a crowd
-8. "YONKERS 2011 / 19,000,000 VIEWS" circled, "BEST NEW ARTIST - VMAs" check
-9. "RADIO" crossed out / "THE ROOM" check mark
-10. "YOUR ROOM" house box with stick figures, "RENT" X / "KEEP" check
+8. "RADIO" crossed out / "THE ROOM" check mark
+9. "YOUR ROOM" house box with stick figures, "RENT" X / "KEEP" check
+10. "YONKERS 2011 / 19,000,000 VIEWS" circled, "BEST NEW ARTIST - VMAs" check (bottom)

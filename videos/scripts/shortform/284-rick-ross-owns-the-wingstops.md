@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Rick Ross Owns A Whole Aisle
+The Wingstop Number Behind Rick Ross Nobody Tells You
 
 Link in bio to turn one fanbase into more than one business you own with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to turn one fanbase into more than one business you own with CRWN. F
 
 **SCRIPT:**
 
-What happens when you own the thing you rap about? Lets find out. Cause Rick Ross gon show you somethin most artists never even think about. Everybody know the man rap about money and food. But here go what they dont tell you. Ross dont just rap about Wingstop. He own the Wingstops. Through his family company he run roughly two dozen of em across the country. Same dude also founded his own record label back in 2008, Maybach Music. So think about who buying. The fan that stream his song is the same fan that pull up for the wings. One crowd, feedin two businesses he own. Most artists got one income, and the label hold it. Ross stacked the lanes. The music, the label, the wings. Now look at what you got. Yo fanbase already showin up for the music. That same crowd can buy more than one thing from you, if you the one who own it. Ross aint just sell verses. He sell the whole plate.
+Everybody know Rick Ross say Wingstop in his raps. What nobody tells ya is the number behind it. Stay with me. He been name droppin them wings for years, and most folk think it stop at a shoutout. Same dude founded his own record label back in 2008, Maybach Music. So think about who buying. The fan that stream his song is the same fan that pull up for the wings. One crowd, feedin more than just the music. Most artists got one income, and the label hold it. Ross got lanes the average rapper aint even countin. And the wing thing, it go way past sayin the word in a verse. So here go the number. It aint one store. It aint a deal where they cut him a check. Through his family company, Ross own roughly two dozen Wingstops across the country, one of the biggest franchise owners they got.
 
 ---
 
@@ -27,15 +27,15 @@ What happens when you own the thing you rap about? Lets find out. Cause Rick Ros
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What happens when you own the thing you rap about? [Write "OWN IT?" big at the top, underline it twice.] Lets find out. Cause Rick Ross gon show you somethin most artists never even think about. [Write "RICK ROSS" under it, circle it, and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Rick Ross from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RICK ROSS" underneath.]
+**HOOK:** Everybody know Rick Ross say Wingstop in his raps. What nobody tells ya is the number behind it. [Write "RICK ROSS" big at the top, circle it, and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Rick Ross from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RICK ROSS" underneath. Draw a small chicken wing doodle with a question mark next to it.]
 
-**FORESHADOW:** Everybody know the man rap about money and food. But here go what they dont tell you. [Draw a small chicken wing doodle, then a question mark next to it.]
+**FORESHADOW:** Stay with me. He been name droppin them wings for years, and most folk think it stop at a shoutout. [Write "THE NUMBER?" big, underline it twice.]
 
-**RISING ACTION:** Ross dont just rap about Wingstop. He own the Wingstops. [Write "OWNS THE WINGSTOPS", box it.] Through his family company he run roughly two dozen of em across the country. [Write "~24 STORES", circle the number.] Same dude also founded his own record label back in 2008, Maybach Music. [Write "MMG • 2008" on the left.] So think about who buying. The fan that stream his song is the same fan that pull up for the wings. [Draw one stick figure in the middle with arrows pointing to a music note on one side and a wing on the other.]
+**RISING ACTION:** Same dude founded his own record label back in 2008, Maybach Music. [Write "MMG • 2008" on the left.] So think about who buying. The fan that stream his song is the same fan that pull up for the wings. [Draw one stick figure in the middle with arrows pointing to a music note on one side and a wing on the other.] One crowd, feedin more than just the music. [Write "1 CROWD" big, draw two arrows down to "MUSIC" and "WINGS".]
 
-**TWIST:** One crowd, feedin two businesses he own. [Write "1 CROWD" big, draw two arrows down to "MUSIC" and "WINGS".] Most artists got one income, and the label hold it. [Write "1 PIPE", draw a single thin line, cross it out with an X.] Ross stacked the lanes. The music, the label, the wings. [Draw three stacked boxes labeled "MUSIC / LABEL / WINGS".]
+**TWIST:** Most artists got one income, and the label hold it. [Write "1 PIPE", draw a single thin line, cross it out with an X.] Ross got lanes the average rapper aint even countin. [Draw three stacked boxes labeled "MUSIC / LABEL / WINGS". Draw arrows from "1 CROWD" to three small boxes: a music note, a shirt, a ticket.]
 
-**PAYOFF:** Now look at what you got. Yo fanbase already showin up for the music. [Write "YO CROWD" at the bottom left.] That same crowd can buy more than one thing from you, if you the one who own it. [Draw arrows from "YO CROWD" to three small boxes: a music note, a shirt, a ticket.] Ross aint just sell verses. He sell the whole plate. [Write "THE WHOLE PLATE" big at the very bottom, draw a plate around the words, underline.]
+**PAYOFF:** And the wing thing, it go way past sayin the word in a verse. So here go the number. It aint one store. It aint a deal where they cut him a check. [Write "NOT 1. NOT A CHECK.", box it.] Through his family company, Ross own roughly two dozen Wingstops across the country, one of the biggest franchise owners they got. [Write "OWNS ~24", circle the number, then write "THE WHOLE PLATE" big at the very bottom, draw a plate around the words, underline.]
 
 ---
 
@@ -48,15 +48,15 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Rick Ross labeled "RICK ROSS"
-2. "OWN IT?" underlined at the top
-3. "RICK ROSS" circled below it
-4. Chicken wing doodle with question mark
-5. "OWNS THE WINGSTOPS" boxed
-6. "~24 STORES" circled
-7. "MMG • 2008" on the left
-8. Stick figure with arrows to music note and wing
-9. "1 CROWD" with arrows to "MUSIC" and "WINGS"
-10. "1 PIPE" single line crossed out
-11. Three stacked boxes: "MUSIC / LABEL / WINGS"
-12. "YO CROWD" with arrows to music note, shirt, ticket boxes
-13. "THE WHOLE PLATE" with plate drawn around it at the bottom
+2. "RICK ROSS" circled at the top
+3. Chicken wing doodle with question mark
+4. "OWN IT?" underlined twice
+5. "MMG • 2008" on the left
+6. Stick figure with arrows to music note and wing
+7. "1 CROWD" with arrows to "MUSIC" and "WINGS"
+8. "1 PIPE" single line crossed out
+9. Three stacked boxes: "MUSIC / LABEL / WINGS"
+10. Arrows from "1 CROWD" to music note, shirt, ticket boxes
+11. "THE WHOLE PLATE" with plate drawn around it at the bottom
+12. "OWNS THE WINGSTOPS" boxed
+13. "~24 STORES" circled

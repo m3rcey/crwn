@@ -1,8 +1,8 @@
-## FETTY WAP WENT DIAMOND AND STILL RAN OUT
+## FETTY WAP HAD A DIAMOND HIT. WHERE DID THE MONEY GO?
 
 **CAPTION:**
 
-POV: You Go Diamond And Still Go Broke
+He Had A Diamond Hit. So Where Did The Money Go?
 
 Link in bio to turn one loyal fanbase into income that doesn't dry up when the shows stop, with CRWN. Free to start at thecrwn.app.
 
@@ -10,17 +10,17 @@ Link in bio to turn one loyal fanbase into income that doesn't dry up when the s
 
 **SCRIPT:**
 
-This is a diamond plaque. And this is a man who went diamond and still ran out of money. Fetty Wap. Stay with me, cause the song did everything right and still aint save him.
+Fetty Wap had one of the biggest songs of the decade, a diamond plaque on the wall. So why couldn't it save him? Stay with me, cause this song did everything right.
 
 Trap Queen dropped in 2014. By 2015 it hit number 2 on the Billboard Hot 100, sat in the top 10 for 25 weeks straight. It went diamond. Over 10 million.
 
-But the song wasn't really his to keep. It came up through a label deal, and the real money was in him being out there. Touring. Shows. Then 2020 hit and all of that stopped.
+But here go the catch. The song wasn't really his to keep. It came up through a label deal, and the real money was in him being out there. Touring. Shows.
 
-His own lawyer said it. No shows, the income dried up. Diamond plaque on the wall, bank account empty.
+The fans who screamed Trap Queen was a list, and he aint never own that list. So the second the stage went dark, he had no way to reach em.
 
-This what they don't tell you. A plaque count plays. It dont count what you keep. The fans who screamed Trap Queen was a list. He aint never own that list.
+Then 2020 hit and every show stopped. His own lawyer said it himself. No shows, the income dried all the way up.
 
-Followers stream a song. Real fans you own buy from you when the stage go dark.
+A plaque counts plays. It dont count what you keep. Diamond on the wall, and the bank account read zero.
 
 ---
 
@@ -37,15 +37,15 @@ Followers stream a song. Real fans you own buy from you when the stage go dark.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is a diamond plaque. [draw a simple framed plaque top left, write "DIAMOND" inside it] And this is a man who went diamond and still ran out of money. [draw an empty wallet next to it, write "$0" inside the wallet] Fetty Wap. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath]
+**HOOK:** Fetty Wap had one of the biggest songs of the decade, a diamond plaque on the wall. [draw a simple framed plaque top left, write "DIAMOND" inside it] So why couldn't it save him? [draw an empty wallet next to it, write "?" inside the wallet] Fetty Wap. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath]
 
-**FORESHADOW:** Stay with me, cause the song did everything right and still aint save him. [underline "still aint save him"]
+**FORESHADOW:** Stay with me, cause this song did everything right. [underline "did everything right"]
 
-**RISING ACTION:** Trap Queen dropped in 2014. [write "TRAP QUEEN 2014"] By 2015 it hit number 2 on the Billboard Hot 100, sat in the top 10 for 25 weeks straight. [write "#2 HOT 100", under it "25 WEEKS TOP 10", circle "#2"] It went diamond. Over 10 million. [write "DIAMOND = 10,000,000+", box it] But the song wasn't really his to keep. [cross out the word "his"] It came up through a label deal, and the real money was in him being out there. Touring. Shows. [draw a small stage with a stick figure on it, arrow pointing to "$"] Then 2020 hit and all of that stopped. [draw a big X over the stage, write "2020"]
+**RISING ACTION:** Trap Queen dropped in 2014. [write "TRAP QUEEN 2014"] By 2015 it hit number 2 on the Billboard Hot 100, sat in the top 10 for 25 weeks straight. [write "#2 HOT 100", under it "25 WEEKS TOP 10", circle "#2"] It went diamond. Over 10 million. [write "DIAMOND = 10,000,000+", box it] But here go the catch. The song wasn't really his to keep. [cross out the word "his"] It came up through a label deal, and the real money was in him being out there. Touring. Shows. [draw a small stage with a stick figure on it, arrow pointing to "$"]
 
-**TWIST:** His own lawyer said it. No shows, the income dried all the way up. [write "NO SHOWS = NO INCOME"] Diamond plaque on the wall, and the bank account empty. [draw the plaque again on a wall, draw an empty box labeled "BANK $0"] This what they don't tell you. A plaque count plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] The fans who screamed Trap Queen was a list. [draw a stick-figure crowd] He aint never own that list. [draw a contact list page, cross it out, write "NOT HIS"]
+**TWIST:** The fans who screamed Trap Queen was a list, and he aint never own that list. [draw a stick-figure crowd, draw a contact list page, cross it out, write "NOT HIS"] So the second the stage went dark, he had no way to reach em. Then 2020 hit and every show stopped. [draw a big X over the stage, write "2020"] His own lawyer said it himself. No shows, the income dried all the way up. [write "NO SHOWS = NO INCOME"]
 
-**PAYOFF:** Followers stream a song. Real fans you own buy from you when the stage go dark. [write "FOLLOWERS -> STREAM" on the left, "FANS YOU OWN -> BUY" on the right, draw a small dark stage with a moon next to "stage go dark", underline "BUY"]
+**PAYOFF:** A plaque counts plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] Diamond on the wall, and the bank account read zero. [draw the plaque again on a wall, draw an empty box labeled "BANK $0", underline "$0"]
 
 ---
 
@@ -59,17 +59,15 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 1. Sharpie portrait of Fetty Wap labeled "FETTY WAP"
 2. Diamond plaque drawing (top left) with "DIAMOND" inside
-3. Empty wallet with "$0"
-4. Underlined "still aint save him"
+3. Empty wallet with "?"
+4. Underlined "did everything right"
 5. "TRAP QUEEN 2014"
 6. "#2 HOT 100" (circled) and "25 WEEKS TOP 10"
 7. Boxed "DIAMOND = 10,000,000+"
 8. Crossed-out word "his"
 9. Stage with stick figure and arrow to "$"
-10. Big X over the stage with "2020"
-11. "NO SHOWS = NO INCOME"
-12. Plaque on wall + empty "BANK $0" box
+10. Crowd of stick figures + crossed-out contact list "NOT HIS"
+11. Big X over the stage with "2020"
+12. "NO SHOWS = NO INCOME"
 13. "PLAYS" arrow to plaque, "KEEP?" with empty space
-14. Crowd of stick figures
-15. Crossed-out contact list "NOT HIS"
-16. Bottom columns: "FOLLOWERS -> STREAM" and "FANS YOU OWN -> BUY" with dark stage + moon
+14. Plaque on wall + empty "BANK $0" box, "$0" underlined

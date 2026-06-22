@@ -1,4 +1,4 @@
-## PLAYBOI CARTI — FANS BUILT THE WHOLE LOOK
+## PLAYBOI CARTI, FANS BUILT THE WHOLE LOOK
 
 **CAPTION:**
 
@@ -10,15 +10,15 @@ Link in bio to give your fans one room to build your world together with CRWN. F
 
 **SCRIPT:**
 
-This is Playboi Carti the artist. And this is the world his fans built around him. One of em you can copy. The other one runs on its own.
+When Playboi Carti dropped Whole Lotta Red in 2020, the internet called it trash that same day, and watch who flipped the whole verdict.
 
-Carti dropped a vibe. The fans took it and ran. The all black, the vamp face paint, the slang, the edits. He aint make most of that. They did. They sit in Discords and on Reddit pullin apart every blurry post he drops, growin the myth between albums.
+Carti dropped a vibe and the fans took it and ran. The all black, the vamp face paint, the slang, the edits. He aint make most of that. They did. They sit in Discords and on Reddit pullin apart every blurry post he drops, growin the myth between albums.
 
-Now here go the part that flip it. When Whole Lotta Red came out in 2020, the internet called it trash. "Whole Lotta Trash" was trendin that same day. Carti aint say nothin.
+So when Whole Lotta Red hit and the internet turned on it, "Whole Lotta Trash" was trendin within hours. Carti aint say nothin. He let it sit.
 
-The fans did. They argued for it for years till that same album got called a classic.
+The fans wouldnt let it die. They argued for that album in every thread, every comment, for years.
 
-The artist dropped the record. The room full of fans decided what it meant. A look you can copy. A community you gotta build.
+Same record. Same room of fans. That trash they was draggin on day one is the project everybody calls a classic now.
 
 ---
 
@@ -35,15 +35,15 @@ The artist dropped the record. The room full of fans decided what it meant. A lo
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is Playboi Carti the artist. [Left side, write "CARTI" with a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARTI" underneath] And this is the world his fans built around him. [Right side, draw a big circle labeled "THE FANS" with smaller stick figures inside it]
+**HOOK:** When Playboi Carti dropped Whole Lotta Red in 2020, the internet called it trash that same day, and watch who flipped the whole verdict. [Left side, write "CARTI" with a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARTI" underneath] [Right side, draw a big circle labeled "THE FANS" with smaller stick figures inside it]
 
-**FORESHADOW:** One of em you can copy. The other one runs on its own. [Under "CARTI" write "COPY", under "THE FANS" write "RUNS ON ITS OWN" and underline it]
+**FORESHADOW:** Carti dropped a vibe and the fans took it and ran. [Under "CARTI" write "THE DROP", under "THE FANS" write "RUNS ON ITS OWN" and underline it]
 
-**RISING ACTION:** Carti dropped a vibe. The fans took it and ran. The all black, the vamp face paint, the slang, the edits. [List inside the fan circle: "ALL BLACK", "FACE PAINT", "SLANG", "EDITS"] He aint make most of that. They did. [Cross out an arrow pointing from CARTI; draw arrows pointing FROM the fan circle outward] They sit in Discords and on Reddit pullin apart every blurry post he drops, growin the myth between albums. [Draw a small phone with "??" on the screen, and "MYTH" written big]
+**RISING ACTION:** The all black, the vamp face paint, the slang, the edits. [List inside the fan circle: "ALL BLACK", "FACE PAINT", "SLANG", "EDITS"] He aint make most of that. They did. [Cross out an arrow pointing from CARTI; draw arrows pointing FROM the fan circle outward] They sit in Discords and on Reddit pullin apart every blurry post he drops, growin the myth between albums. [Draw a small phone with "??" on the screen, and "MYTH" written big]
 
-**TWIST:** Now here go the part that flip it. When Whole Lotta Red came out in 2020, the internet called it trash. "Whole Lotta Trash" was trendin that same day. [Write "WHOLE LOTTA RED 2020" then below it crossed out: "TRASH"] Carti aint say nothin. The fans did. They argued for it for years till that same album got called a classic. [Draw arrow from crossed-out "TRASH" to "CLASSIC" circled]
+**TWIST:** So when Whole Lotta Red hit and the internet turned on it, "Whole Lotta Trash" was trendin within hours. Carti aint say nothin. He let it sit. The fans wouldnt let it die. They argued for that album in every thread, every comment, for years. [Write "WHOLE LOTTA RED 2020" then below it crossed out: "TRASH"]
 
-**PAYOFF:** The artist dropped the record. The room full of fans decided what it meant. [Write "ARTIST = THE DROP" / "FANS = WHAT IT MEANS"] A look you can copy. A community you gotta build. [Box the final line: "A LOOK YOU COPY. A ROOM YOU BUILD."]
+**PAYOFF:** Same record. Same room of fans. That trash they was draggin on day one is the project everybody calls a classic now. [Draw arrow from crossed-out "TRASH" to "CLASSIC" circled and boxed]
 
 ---
 
@@ -58,10 +58,9 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 1. Sharpie portrait of Carti labeled underneath (top left)
 2. "CARTI" with the portrait and "COPY"
 3. "THE FANS" circle with stick figures and "RUNS ON ITS OWN" (top right)
-4. The list inside the circle: "ALL BLACK", "FACE PAINT", "SLANG", "EDITS"
-5. Arrows pointing outward from the fan circle
-6. Phone with "??" and "MYTH"
-7. "WHOLE LOTTA RED 2020" and crossed-out "TRASH"
-8. Arrow from "TRASH" to circled "CLASSIC"
-9. "ARTIST = THE DROP" / "FANS = WHAT IT MEANS"
-10. Boxed final line: "A LOOK YOU COPY. A ROOM YOU BUILD."
+4. "THE DROP" under CARTI
+5. The list inside the circle: "ALL BLACK", "FACE PAINT", "SLANG", "EDITS"
+6. Arrows pointing outward from the fan circle
+7. Phone with "??" and "MYTH"
+8. "WHOLE LOTTA RED 2020" and crossed-out "TRASH"
+9. Arrow from "TRASH" to circled and boxed "CLASSIC"

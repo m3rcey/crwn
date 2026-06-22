@@ -1,4 +1,4 @@
-## BROCKHAMPTON — THE BAND A FORUM BUILT
+## BROCKHAMPTON, THE BAND A FORUM BUILT
 
 **CAPTION:**
 
@@ -10,7 +10,7 @@ Link in bio to give your fans one room to find each other and build your world w
 
 **SCRIPT:**
 
-BROCKHAMPTON started with one post on a stranger's forum, and you'll never guess who actually made this group. They call themselves a boy band. Around 2010 a kid named Kevin Abstract logged onto a Kanye West fan forum called KanyeToThe. He aint post a song. He posted a question. "Anybody wanna make a band?" Strangers answered. Other fans in that same room. They linked up, rebranded as BROCKHAMPTON in 2015, and started droppin. The fans wasnt the audience. The fans was the group. In 2018 they put out an album called Iridescence. It went straight to number one. The only number one they ever got. Think about where it started. A forum where fans was already talkin to each other every day. Most artists treat the fans like a crowd you perform at. These fans was the band. Community aint a thing you add after. Sometimes it the whole reason you exist.
+BROCKHAMPTON started with one post on a stranger's forum, and that post ended somewhere most bands never reach. They call themselves a boy band. Around 2010 a kid named Kevin Abstract logged onto a Kanye West fan forum called KanyeToThe. He aint post a song. He posted a question. "Anybody wanna make a band?" Strangers answered. Other fans in that same room. They linked up, rebranded as BROCKHAMPTON in 2015, and started droppin. The fans wasnt the audience. The fans was the group. Most artists treat fans like a crowd you perform at. These fans wasnt no crowd. They was the band. So a band that strangers on a fan forum put together, no label scoutin em, no machine behind em, they kept goin till 2018. That year they dropped an album called Iridescence. It went straight to number one, the only number one they ever got.
 
 ---
 
@@ -27,15 +27,15 @@ BROCKHAMPTON started with one post on a stranger's forum, and you'll never guess
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** BROCKHAMPTON started with one post on a stranger's forum, and you'll never guess who actually made this group. [At the top, write "BUILD A BAND" then under it "FROM A FORUM" and underline "FORUM". Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Kevin Abstract (BROCKHAMPTON's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BROCKHAMPTON" underneath.]
+**HOOK:** BROCKHAMPTON started with one post on a stranger's forum, and that post ended somewhere most bands never reach. [At the top, write "BUILD A BAND" then under it "FROM A FORUM" and underline "FORUM". Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Kevin Abstract (BROCKHAMPTON's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BROCKHAMPTON" underneath.]
 
-**FORESHADOW:** Stick with me, cause the part that gets me is who actually made this group. [Write "WHO MADE IT?" with a question mark, circle it]
+**FORESHADOW:** They call themselves a boy band. [Write "WHO MADE IT?" with a question mark, circle it]
 
-**RISING ACTION:** BROCKHAMPTON. They call themselves a boy band. [Write "BROCKHAMPTON" big, under it "boy band"] Around 2010 a kid named Kevin Abstract logged onto a Kanye West fan forum called KanyeToThe. [Draw a simple computer screen labeled "KANYETOTHE", the Kevin Abstract portrait likeness from the hook, smaller, in front of it] He aint post a song. He posted a question. "Anybody wanna make a band?" [On the screen write "anybody wanna make a band?"] Strangers answered. Other fans in that same room. [Draw 3 more stick figures around the screen with arrows pointing in] They linked up, rebranded as BROCKHAMPTON in 2015, and started droppin. [Write "2015 -> BROCKHAMPTON"] The fans wasnt the audience. The fans was the group. [Cross out "AUDIENCE", write "= THE GROUP" and box it]
+**RISING ACTION:** Around 2010 a kid named Kevin Abstract logged onto a Kanye West fan forum called KanyeToThe. [Draw a simple computer screen labeled "KANYETOTHE", the Kevin Abstract portrait likeness from the hook, smaller, in front of it] He aint post a song. He posted a question. "Anybody wanna make a band?" [On the screen write "anybody wanna make a band?"] Strangers answered. Other fans in that same room. [Draw 3 more stick figures around the screen with arrows pointing in] They linked up, rebranded as BROCKHAMPTON in 2015, and started droppin. [Write "2015 -> BROCKHAMPTON"] The fans wasnt the audience. The fans was the group. [Cross out "AUDIENCE", write "= THE GROUP" and box it]
 
-**TWIST:** In 2018 they put out an album called Iridescence. It went straight to number one. The only number one they ever got. [Write "IRIDESCENCE 2018" then a big circled "#1" with "their only #1" beside it] Think about where it started. A forum where fans was already talkin to each other every day. [Draw an arrow from "#1" back up to "KANYETOTHE"]
+**TWIST:** Most artists treat fans like a crowd you perform at. These fans wasnt no crowd. They was the band. [Write "A CROWD?" crossed out, then "THE BAND" underlined] So a band that strangers on a fan forum put together, no label scoutin em, no machine behind em, they kept goin till 2018. [Draw an arrow from "THE BAND" forward to "2018"]
 
-**PAYOFF:** Most artists treat the fans like a crowd you perform at. These fans was the band. [Write "A CROWD?" crossed out, then "THE BAND" underlined] Community aint a thing you add after. Sometimes it the whole reason you exist. [Box the final line: "COMMUNITY WASNT ADDED. IT WAS THE START."]
+**PAYOFF:** That year they dropped an album called Iridescence. It went straight to number one, the only number one they ever got. [Write "IRIDESCENCE 2018" then a big circled "#1" with "their only #1" beside it. Box the final line: "FROM A FORUM POST TO #1"]
 
 ---
 
@@ -55,7 +55,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 6. The three stick figures with arrows pointing in
 7. "2015 -> BROCKHAMPTON"
 8. Crossed-out "AUDIENCE" and boxed "= THE GROUP"
-9. "IRIDESCENCE 2018" with circled "#1" and "their only #1"
-10. Arrow from "#1" back to "KANYETOTHE"
-11. Crossed-out "A CROWD?" and underlined "THE BAND"
-12. Boxed final line: "COMMUNITY WASNT ADDED. IT WAS THE START."
+9. Crossed-out "A CROWD?" and underlined "THE BAND"
+10. Arrow from "THE BAND" forward to "2018"
+11. "IRIDESCENCE 2018" with circled "#1" and "their only #1"
+12. Boxed final line: "FROM A FORUM POST TO #1"

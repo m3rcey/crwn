@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Every Radio Vs Every Check
+He Was On Every Hit. So Why Did He Get Robbed?
 
 Link in bio to sell straight to your fans on a channel you actually own with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to sell straight to your fans on a channel you actually own with CRW
 
 **SCRIPT:**
 
-T-Pain just told the world he lost like $40 million. And he was on every hit when it happened. Stay with me. Back in the late 2000s you couldnt turn on the radio without hearing him. He was on nine top ten songs that wasnt even his. Plies, Kanye, Lil Wayne, Jamie Foxx, Pitbull. His sound was on all of em. He made everybody money. Then he checked the books. Bad investments, real estate that never sold, plain spending. He say it got so low he had to borrow money to take his kids to Burger King. The dude who was on every song in America. Broke. So he quit waiting on the industry and went straight to his fans on his own channels, and built it back from there. He aint even find out his first big deal handed the label 85 percent til years later, when people came to buy his catalog. He was on every radio. The label was on every check.
+T-Pain sang on a historic run of hit singles. So why did he just tell the world he got robbed? Stay with me. Back in the late 2000s you couldnt turn on the radio without hearing him. He was on nine top ten songs that wasnt even his. Plies, Kanye, Lil Wayne, Jamie Foxx, Pitbull. His sound was on all of em. He made everybody money. Then he checked the books. Bad investments, real estate that never sold, plain spending. He say it got so low he had to borrow money to take his kids to Burger King. So he quit waiting on the industry and went straight to his fans on his own channels, and built it back from there. He aint even find out his first big deal handed the label 85 percent til years later, when people came to buy his catalog. He was on every radio. The label was on every check. So here go what he told the world. The dude who made everybody rich went broke. The part he lost, 40 million dollars.
 
 ---
 
@@ -27,15 +27,15 @@ T-Pain just told the world he lost like $40 million. And he was on every hit whe
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** T-Pain just told the world he lost like $40 million. [write "T-PAIN" big at top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of T-Pain from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "T-PAIN" underneath, write "-$40,000,000" under it and circle it] And he was on every hit when it happened. [draw a small radio with sound waves coming out next to the name]
+**HOOK:** T-Pain sang on a historic run of hit singles. So why did he just tell the world he got robbed? [write "T-PAIN" big at top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of T-Pain from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "T-PAIN" underneath, write "ON EVERY HIT -> ROBBED?" under it] He was on every hit when it happened. [draw a small radio with sound waves coming out next to the name]
 
 **FORESHADOW:** Stay with me. [draw a small arrow pointing down from the radio toward a dollar sign with a question mark]
 
-**RISING ACTION:** Back in the late 2000s you couldnt turn on the radio without hearing him. He was on nine top ten songs that wasnt even his. [write "9 TOP 10s" and box it] Plies, Kanye, Lil Wayne, Jamie Foxx, Pitbull. [list those five names in a short column with check marks beside each] His sound was on all of em. He made everybody money. [draw arrows from the names back to a big "$" in the center] Then he checked the books. [draw a small open book or ledger] Bad investments, real estate that never sold, plain spending. [write "INVESTMENTS" "REAL ESTATE" "SPENDING" and cross each one out with an X] He say it got so low he had to borrow money to take his kids to Burger King. [draw a tiny burger with a sad stick figure beside it] The dude who was on every song in America. Broke. [write "BROKE" big and circle it]
+**RISING ACTION:** Back in the late 2000s you couldnt turn on the radio without hearing him. He was on nine top ten songs that wasnt even his. [write "9 TOP 10s" and box it] Plies, Kanye, Lil Wayne, Jamie Foxx, Pitbull. [list those five names in a short column with check marks beside each] His sound was on all of em. He made everybody money. [draw arrows from the names back to a big "$" in the center] Then he checked the books. [draw a small open book or ledger] Bad investments, real estate that never sold, plain spending. [write "INVESTMENTS" "REAL ESTATE" "SPENDING" and cross each one out with an X] He say it got so low he had to borrow money to take his kids to Burger King. [draw a tiny burger with a sad stick figure beside it]
 
 **TWIST:** So he quit waiting on the industry and went straight to his fans on his own channels, and built it back from there. [draw a stick figure with a line connecting directly to three smaller stick figures labeled "FANS", write "DIRECT" under the line] He aint even find out his first big deal handed the label 85 percent til years later, when people came to buy his catalog. [draw a pie with a big slice shaded "LABEL 85%" and a tiny sliver "HIM 15%"]
 
-**PAYOFF:** He was on every radio. The label was on every check. [draw a line down the page; left side a radio with the word "HIM", right side a stack of dollar bills with the word "LABEL"]
+**PAYOFF:** He was on every radio. The label was on every check. [draw a line down the page; left side a radio with the word "HIM", right side a stack of dollar bills with the word "LABEL"] So here go what he told the world. The dude who made everybody rich went broke. The part he lost, 40 million dollars. [write "BROKE" big, then under it "-$40,000,000" big and circle it]
 
 ---
 
@@ -48,7 +48,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of T-Pain labeled "T-PAIN"
-2. "T-PAIN" with "-$40,000,000" circled at the top
+2. "T-PAIN" with "ON EVERY HIT -> ROBBED?" at the top
 3. Small radio with sound waves beside the name
 4. Downward arrow to dollar sign with question mark
 5. "9 TOP 10s" boxed
@@ -57,7 +57,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 8. Open book / ledger
 9. "INVESTMENTS" "REAL ESTATE" "SPENDING" each crossed out
 10. Burger with sad stick figure
-11. "BROKE" circled
-12. Stick figure connected by "DIRECT" line to three "FANS" figures
-13. Pie chart with "LABEL 85%" and "HIM 15%"
-14. Dividing line: radio "HIM" on the left, dollar stack "LABEL" on the right
+11. Stick figure connected by "DIRECT" line to three "FANS" figures
+12. Pie chart with "LABEL 85%" and "HIM 15%"
+13. Dividing line: radio "HIM" on the left, dollar stack "LABEL" on the right
+14. "BROKE" big, then "-$40,000,000" circled at the very bottom

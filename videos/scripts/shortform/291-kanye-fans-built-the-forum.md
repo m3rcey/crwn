@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Kanye's Fans Built A Room He Didnt Own
+A Fan Posted 4 Words In Kanye's Forum. A Whole Group Came Out Of It
 
 Link in bio to give your fans a community you actually own with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans a community you actually own with CRWN. Free to st
 
 **SCRIPT:**
 
-What happens when your fans build a room without you? Let's find out. Kanye aint start this one. A fan did. They made a forum called KanyeToThe. Just fans talkin Kanye all day. Kanye didnt run it. He didnt own it. And it turned into more than a fan page. Tastemakers lived there. New music broke there. Then in 2010 one kid posted four words. Anybody wanna make a band. Other fans answered. That post became BROCKHAMPTON. A whole group came outta one fan forum about somebody else. Kanye got none of it. The forum got the credit, the room, the people. So picture ya own fans doin that. Talkin ya music every day, pullin in new ones for free, buildin somethin around you. The fans gon build a room regardless. The only question is who holds the keys. Kanye let his fans build the house, and they kept the deed.
+A fan posted four words in a Kanye forum, and what grew outta that post Kanye aint own a piece of. Kanye aint start this one. A fan did. They made a forum called KanyeToThe. Just fans talkin Kanye all day. Kanye didnt run it. He didnt own it. And it turned into more than a fan page. Tastemakers lived there. New music broke there. The forum got the credit, the room, the people. Kanye got none of it. The fans gon build a room regardless. The only question is who holds the keys. So them four words. Back in 2010 one kid on that forum typed, anybody wanna make a band. Other fans answered. That post became BROCKHAMPTON. A whole group came outta one fan forum about somebody else, and the somebody else aint see a dime.
 
 ---
 
@@ -27,15 +27,15 @@ What happens when your fans build a room without you? Let's find out. Kanye aint
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What happens when your fans build a room without you? Let's find out. [At top, write "FANS BUILD A ROOM" in big bold letters. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Kanye West from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "KANYE" underneath. Draw a simple house box under the headline.] Kanye aint start this one. A fan did. [Draw a stick figure fan with a smiley, arrow pointing to the house.]
+**HOOK:** A fan posted four words in a Kanye forum, and what grew outta that post Kanye aint own a piece of. [At top, write "FANS BUILD A ROOM" in big bold letters. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Kanye West from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "KANYE" underneath. Draw a simple house box under the headline.] Kanye aint start this one. A fan did. [Draw a stick figure fan with a smiley, arrow pointing to the house.]
 
 **FORESHADOW:** They made a forum called KanyeToThe. [Write "KanyeToThe" inside the house box.] Just fans talkin Kanye all day. Kanye didnt run it. He didnt own it. [Draw the Kanye portrait likeness from the hook, smaller, standing OUTSIDE the house labeled "KANYE", with an X over a line connecting him to it.] And it turned into more than a fan page. [Underline "more than a fan page."]
 
-**RISING ACTION:** Tastemakers lived there. New music broke there. [Write "TASTEMAKERS" and "NEW MUSIC" inside the house.] Then in 2010 one kid posted four words. [Write "2010" with a circle.] Anybody wanna make a band. [Write "ANYBODY WANNA MAKE A BAND" in quotes, big.] Other fans answered. That post became BROCKHAMPTON. [Draw an arrow from the quote to "BROCKHAMPTON" boxed.] A whole group came outta one fan forum about somebody else.
+**RISING ACTION:** Tastemakers lived there. New music broke there. [Write "TASTEMAKERS" and "NEW MUSIC" inside the house.] The forum got the credit, the room, the people. Kanye got none of it. [List "CREDIT / ROOM / PEOPLE" with check marks, all on the forum side.]
 
-**TWIST:** Kanye got none of it. [Write "KANYE = $0" with a circle around the 0.] The forum got the credit, the room, the people. [List "CREDIT / ROOM / PEOPLE" with check marks, all on the forum side.]
+**TWIST:** The fans gon build a room regardless. The only question is who holds the keys. [Draw a big key.] Kanye let his fans build the house, and they kept the deed. [Write "THEY KEPT THE DEED" big, underline it twice.]
 
-**PAYOFF:** So picture ya own fans doin that. Talkin ya music every day, pullin in new ones for free, buildin somethin around you. [Draw three stick figures inside a new house box labeled "YOUR ROOM."] The fans gon build a room regardless. The only question is who holds the keys. [Draw a big key.] Kanye let his fans build the house, and they kept the deed. [Write "THEY KEPT THE DEED" at the bottom, underline it twice.]
+**PAYOFF:** So them four words. Back in 2010 one kid on that forum typed, anybody wanna make a band. [Write "2010" with a circle. Write "ANYBODY WANNA MAKE A BAND" in quotes, big.] Other fans answered. That post became BROCKHAMPTON. [Draw an arrow from the quote to "BROCKHAMPTON" boxed.] A whole group came outta one fan forum about somebody else, and the somebody else aint see a dime. [Write "KANYE = $0" with a circle around the 0 at the bottom.]
 
 ---
 
@@ -54,11 +54,10 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 5. Smaller Kanye portrait likeness outside the house with the crossed-out connecting line
 6. "more than a fan page" underlined
 7. "TASTEMAKERS" and "NEW MUSIC" inside the house
-8. "2010" circled
-9. "ANYBODY WANNA MAKE A BAND" quote
-10. Arrow to boxed "BROCKHAMPTON"
-11. "KANYE = $0" with circled 0
-12. "CREDIT / ROOM / PEOPLE" checklist
-13. "YOUR ROOM" house box with three stick figures
-14. The large key
-15. "THEY KEPT THE DEED" underlined twice at the bottom
+8. "CREDIT / ROOM / PEOPLE" checklist
+9. The large key
+10. "THEY KEPT THE DEED" underlined twice
+11. "2010" circled
+12. "ANYBODY WANNA MAKE A BAND" quote
+13. Arrow to boxed "BROCKHAMPTON"
+14. "KANYE = $0" with circled 0 (bottom)

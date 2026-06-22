@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-The Room The Roots Built In 1999
+The Roots Built A Room In 1999. Guess How Long Fans Stayed
 
 Link in bio to give your fans one room where they meet each other and stay for years with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans one room where they meet each other and stay for y
 
 **SCRIPT:**
 
-The Roots built their fans a room back in 1999, and watch how long they stayed in it. They didnt just drop a album. They gave fans a website. Okayplayer. Questlove built it, and it wasnt no fan page. It was a forum. Fans logged in and talked to each other all day. About the music, about each other, about everything. And they stuck around. Not for a week. For years. Some of them still in there 25 years later. Whole groups got found in them message boards. Fans met fans and never left. Now think about that. The Roots aint gotta post every day to keep that room warm. The fans keep it warm theyselves. They show up for each other now, not just the band. A artist you can quit. A room full of ya friends you dont. That bond between the fans is the thing that locks em in.
+In 1999 The Roots built their fans a room, and the question aint who showed up, its how long they refused to leave. They didnt just drop a album. They gave fans a website. Okayplayer. Questlove built it, and it wasnt no fan page. It was a forum. Fans logged in and talked to each other all day. About the music, about each other, about everything. Whole groups got found in them message boards. Fans met fans. The Roots aint gotta post every day to keep that room warm. The fans keep it warm theyselves. They show up for each other now, not just the band. A artist you can quit. A room full of ya friends you dont. So how long they been in there. That room opened in 1999, and some of them same fans still loggin in 25 years later.
 
 ---
 
@@ -27,15 +27,15 @@ The Roots built their fans a room back in 1999, and watch how long they stayed i
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** The Roots built their fans a room back in 1999, and watch how long they stayed in it. [Top of page, big bold caps] "A ROOM THEY NEVER LEFT" [beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of The Roots (Questlove and Black Thought) from the attached photo reference, drawn in confident sharpie line work, not generic stick figures, labeled "THE ROOTS" underneath] [under the headline, smaller] "they stayed when you went quiet" [draw a single stick figure standing inside a small room box]
+**HOOK:** In 1999 The Roots built their fans a room, and the question aint who showed up, its how long they refused to leave. [Top of page, big bold caps] "HOW LONG WOULD THEY STAY?" [beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of The Roots (Questlove and Black Thought) from the attached photo reference, drawn in confident sharpie line work, not generic stick figures, labeled "THE ROOTS" underneath] [under the headline, smaller] "a room they refused to leave" [draw a single stick figure standing inside a small room box]
 
 **FORESHADOW:** [center, write] "THE ROOTS 1999" [under it] "dropped a album + a WEBSITE" [circle the word WEBSITE]
 
-**RISING ACTION:** [write] "OKAYPLAYER" in big letters [draw a simple computer/screen box]. [below it list] "fans -> fans" [draw two stick figures facing each other with a speech bubble between them]. [write] "talked all day" then "stayed for YEARS" [underline YEARS].
+**RISING ACTION:** [write] "OKAYPLAYER" in big letters [draw a simple computer/screen box]. [below it list] "fans -> fans" [draw two stick figures facing each other with a speech bubble between them]. [write] "talked all day". [write] "whole groups FOUND here" [draw a small box around a cluster of 3 stick figures].
 
-**TWIST:** [big number] "25 YEARS" [circle it] [arrow pointing to small stick figures still in the box]. [write] "whole groups FOUND here" [draw a small box around a cluster of 3 stick figures].
+**TWIST:** [two lines] "QUIT an artist" with an X mark [next line] "DONT quit ya friends" with a check mark [draw a circle around the cluster of stick figures and write] "the BOND locks em in" [underline BOND].
 
-**PAYOFF:** [bottom of page, two lines] "QUIT an artist" with an X mark [next line] "DONT quit ya friends" with a check mark [draw a circle around the cluster of stick figures and write] "the BOND locks em in" [underline BOND].
+**PAYOFF:** [write] "OPENED 1999" then below it [big number] "STILL HERE 25 YEARS LATER" [circle "25 YEARS", underline it twice] [arrow pointing to the small stick figures still inside the room box].
 
 ---
 
@@ -48,9 +48,9 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of The Roots labeled underneath
-2. "A ROOM THEY NEVER LEFT" with "they stayed when you went quiet" and the lone stick figure in the room box (top)
+2. "HOW LONG WOULD THEY STAY?" with "a room they refused to leave" and the lone stick figure in the room box (top)
 3. "THE ROOTS 1999 / dropped a album + a WEBSITE" with WEBSITE circled (center)
 4. "OKAYPLAYER" with the computer screen box
-5. "fans -> fans" with two stick figures and a speech bubble, "talked all day", "stayed for YEARS" underlined
-6. Circled "25 YEARS" with arrow to the cluster of stick figures, "whole groups FOUND here"
-7. "QUIT an artist" (X) / "DONT quit ya friends" (check), circle around the cluster, "the BOND locks em in" underlined (bottom)
+5. "fans -> fans" with two stick figures and a speech bubble, "talked all day", "whole groups FOUND here" with the cluster of stick figures
+6. "QUIT an artist" (X) / "DONT quit ya friends" (check), circle around the cluster, "the BOND locks em in" underlined
+7. "OPENED 1999" then "STILL HERE 25 YEARS LATER" with "25 YEARS" circled and underlined twice, arrow to the figures in the room box (bottom)

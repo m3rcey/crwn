@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-If You Got A Phone, You Got A Studio
+He Made This On A Phone. Look Where It Landed.
 
 Link in bio to drop your music straight to the fans who already wait on you with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to drop your music straight to the fans who already wait on you with
 
 **SCRIPT:**
 
-If you think you need a big studio to make a hit, Steve Lacy got news for you. He made a number one song partly in his bedroom on a phone. And the part that flips it ain't even the song. Back in 2017 he recorded his whole first project inside GarageBand on a iPhone. Guitar plugged in, vocals straight into the little phone mic. No big room, no label budget behind it. Then in 2022 "Bad Habit" went to number one on the Hot 100. Sat at the top three weeks straight. A bedroom record beat songs that cost a label real money to push. So if the studio shrunk down to ya pocket, what's the thing that still cost money? Reaching the people. The fans is the only gate left. Steve had a crowd that already rode for him from his old stuff, so the song aint have to start from zero. Same gear you already own. The fans are the part you gotta go build.
+Steve Lacy recorded a song on a iPhone in his bedroom, and where that song ended up should not be possible. Back in 2017 he made his whole first project inside GarageBand on the phone. Guitar plugged straight in, vocals into the little phone mic. No big room, no label budget behind it. Years go by. Then one of them phone records does something a label spends real money chasing. Same gear you already own, so the studio aint the gate no more. So what is the gate. Reaching the people. Steve had a crowd that already rode for him from his old stuff, so the song aint start from zero. And in 2022 that bedroom song, "Bad Habit," went number one on the Hot 100 and sat up top three weeks straight. The phone was free. The fans was the part he already built.
 
 ---
 
@@ -27,15 +27,13 @@ If you think you need a big studio to make a hit, Steve Lacy got news for you. H
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If you think you need a big studio to make a hit, Steve Lacy got news for you. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Steve Lacy from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "STEVE LACY" underneath. Write "BIG STUDIO?" big at the top, then draw a single X through the word "STUDIO".] He made a number one song partly in his bedroom on a phone. [Under it draw a small phone, write "#1" inside the phone screen, circle the "#1".]
+**HOOK:** Steve Lacy recorded a song on a iPhone in his bedroom, and where that song ended up should not be possible. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Steve Lacy from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "STEVE LACY" underneath. Write "BIG STUDIO?" big at the top, then draw a single X through the word "STUDIO". Under it draw a small phone, write "?" inside the phone screen.]
 
-**FORESHADOW:** And the part that flips it ain't even the song. [Write "NOT THE SONG" off to the right side, draw a small arrow pointing further down the page.]
+**RISING ACTION:** Back in 2017 he made his whole first project inside GarageBand on the phone. [Write "2017" on the left, next to it "GARAGEBAND" small.] Guitar plugged straight in, vocals into the little phone mic. [Draw a tiny guitar and a mic icon by the phone.] No big room, no label budget behind it. [Write "$0 BUDGET" and box it.] Years go by, then one of them phone records does something a label spends real money chasing. [Draw a small scale: one side "PHONE", other side "LABEL $$$", phone side tipping down heavier.]
 
-**RISING ACTION:** Back in 2017 he recorded his whole first project inside GarageBand on a iPhone. [Write "2017" on the left, next to it "GARAGEBAND" small.] Guitar plugged in, vocals straight into the little phone mic. [Draw a tiny guitar and a mic icon by the phone.] No big room, no label budget behind it. [Write "$0 BUDGET" and box it.] Then in 2022 "Bad Habit" went to number one on the Hot 100. [Write "2022" then "BAD HABIT = #1" and underline "#1".] Sat at the top three weeks straight. [Write "3 WEEKS" small under it.] A bedroom record beat songs that cost a label real money to push. [Draw a small scale: one side "PHONE", other side "LABEL $$$", phone side tipping down heavier.]
+**TWIST:** Same gear you already own, so the studio aint the gate no more. So what is the gate? [Write "WHAT STILL COSTS?" in the center.] Reaching the people. [Draw a single tall door, write "FANS" on the door, circle it.] Steve had a crowd that already rode for him from his old stuff, so the song aint start from zero. [Write "CROWD ALREADY THERE" with a check mark.]
 
-**TWIST:** So if the studio shrunk down to ya pocket, what's the thing that still cost money? [Write "WHAT STILL COSTS?" in the center.] Reaching the people. The fans is the only gate left. [Draw a single tall door, write "FANS" on the door, circle it.]
-
-**PAYOFF:** Steve had a crowd that already rode for him from his old stuff, so the song aint have to start from zero. [Write "CROWD ALREADY THERE" with a check mark.] Same gear you already own. The fans are the part you gotta go build. [At the bottom write "GEAR ✓" on the left and "FANS = THE WORK" on the right, underline "FANS = THE WORK".]
+**PAYOFF:** And in 2022 that bedroom song, "Bad Habit," went number one on the Hot 100 and sat up top three weeks straight. [Write "2022" then "BAD HABIT = #1" and underline "#1", write "3 WEEKS" small under it.] The phone was free. The fans was the part he already built. [At the bottom write "PHONE = FREE" on the left and "FANS = THE WORK" on the right, underline "FANS = THE WORK".]
 
 ---
 
@@ -49,15 +47,14 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 1. Sharpie portrait of Steve Lacy labeled "STEVE LACY"
 2. "BIG STUDIO?" with X through "STUDIO" at the top
-3. Phone drawing with circled "#1" inside the screen
-4. "NOT THE SONG" with arrow pointing down (right side)
-5. "2017" and "GARAGEBAND" on the left
-6. Tiny guitar and mic icons by the phone
-7. "$0 BUDGET" boxed
-8. "2022" then "BAD HABIT = #1" underlined
-9. "3 WEEKS"
-10. The scale: "PHONE" heavy vs "LABEL $$$" light
-11. "WHAT STILL COSTS?" in the center
-12. The tall door labeled "FANS", circled
-13. "CROWD ALREADY THERE" with check mark
-14. "GEAR ✓" and "FANS = THE WORK" underlined at the bottom
+3. Phone drawing with "?" inside the screen
+4. "2017" and "GARAGEBAND" on the left
+5. Tiny guitar and mic icons by the phone
+6. "$0 BUDGET" boxed
+7. The scale: "PHONE" heavy vs "LABEL $$$" light
+8. "WHAT STILL COSTS?" in the center
+9. The tall door labeled "FANS", circled
+10. "CROWD ALREADY THERE" with check mark
+11. "2022" then "BAD HABIT = #1" underlined
+12. "3 WEEKS"
+13. "PHONE = FREE" and "FANS = THE WORK" underlined at the bottom

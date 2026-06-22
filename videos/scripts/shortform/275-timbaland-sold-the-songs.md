@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Timbaland Sold The Songs
+A Bank Wanted His Old Songs More Than Any New Hit
 
 Link in bio to start building a catalog your fans pay you for directly with CRWN. Free to start at thecrwn.app.
 
@@ -10,21 +10,7 @@ Link in bio to start building a catalog your fans pay you for directly with CRWN
 
 **SCRIPT:**
 
-This is a beat. And this is a paycheck that still comes in 20 years later.
-
-Timbaland made some of the biggest songs of all time. And in 2019 he sold a piece of it. A fund called Hipgnosis bought 100% of his producer royalties. The whole thing. 108 albums and songs.
-
-Justin Timberlake. Missy Elliott. Nelly Furtado. Drake. All of it, one deal.
-
-They aint say the number out loud. But a fund dont buy 108 records to lose. They buy em cause old songs pay forever.
-
-A bank looked at music a legend made years ago and called it a money machine. They wanted the songs more than the next hit.
-
-But the only reason Timbaland had somethin to sell is he owned it first.
-
-Most artists own nothin to sell. The label hold the songs, so the songs pay the label.
-
-A streaming play disappears the second it end. A song you own keeps payin while you sleep.
+In 2019 a bank looked at songs Timbaland made years ago and decided it wanted them more than any new hit comin out. Stay with me. Timbaland made some of the biggest records of all time. A streaming play disappears the second it end. But a song you own keeps payin while you sleep. And the only reason Timbaland had anything to sell is he owned it first. Most artists own nothin to sell. The label hold the songs, so the songs pay the label. He flipped that. So when that fund came callin, they aint want one record. They aint say the number out loud, but a fund dont buy old songs to lose. They buy em cause old songs print forever. So how much of a legend's catalog you think one deal swallowed. A fund called Hipgnosis bought 100 percent of his producer royalties. Justin Timberlake, Missy Elliott, Nelly Furtado, Drake. 108 songs and albums. All of it. One deal.
 
 ---
 
@@ -41,15 +27,15 @@ A streaming play disappears the second it end. A song you own keeps payin while 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is a beat. And this is a paycheck that still comes in 20 years later. [On the left write "A BEAT" and draw a tiny music note. On the right write "PAYCHECK" with a dollar sign, and under it "+20 YRS". Draw a line down the middle between them. Above the split draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Timbaland from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TIMBALAND" underneath.]
+**HOOK:** In 2019 a bank looked at songs Timbaland made years ago and decided it wanted them more than any new hit comin out. [Above, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Timbaland from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TIMBALAND" underneath. Write "TIMBALAND" big. Under it write "2019" and circle it. Draw a simple bank building with "$" on it, an arrow pointing from the bank to a music note. Write "MONEY MACHINE" under the note.]
 
-**FORESHADOW:** Timbaland made some of the biggest songs of all time. And in 2019 he sold a piece of it. [Write "TIMBALAND" big at the top. Under it write "2019" and circle it. Draw a small arrow pointing right to the word "SOLD".]
+**FORESHADOW:** Stay with me. Timbaland made some of the biggest records of all time. [On the left write "A BEAT" and draw a tiny music note. On the right write "PAYCHECK" with a dollar sign, and under it "+20 YRS". Draw a line down the middle between them.]
 
-**RISING ACTION:** A fund called Hipgnosis bought 100% of his producer royalties. The whole thing. 108 albums and songs. [Write "100%" large and circle it. Under it write "108 SONGS" and underline it.] Justin Timberlake. Missy Elliott. Nelly Furtado. Drake. All of it, one deal. [List the four names in a column. Draw a box around all four. Write "1 DEAL" next to the box.] They aint say the number out loud. But a fund dont buy 108 records to lose. They buy em cause old songs pay forever. [Write "$ = ???" then cross out the question marks. Underneath write "OLD SONGS PAY FOREVER" and underline "FOREVER".]
+**RISING ACTION:** A streaming play disappears the second it end. But a song you own keeps payin while you sleep. [Write "STREAM" on the left with a note that fades into a puff of smoke. Write "OWN IT" on the right with "$ $ $" under a closed eye drawing. Underline "OWN IT".] And the only reason Timbaland had anything to sell is he owned it first. Most artists own nothin to sell. The label hold the songs, so the songs pay the label. He flipped that. [On the left draw a stick figure with empty hands, label "ARTIST = $0 TO SELL". On the right draw a box labeled "LABEL" holding a music note with a dollar sign. Write "OWNED IT FIRST" big and box it.]
 
-**TWIST:** A bank looked at music a legend made years ago and called it a money machine. They wanted the songs more than the next hit. [Draw a simple bank building with "$" on it, an arrow pointing from the bank to a music note. Write "MONEY MACHINE" under the note.] But the only reason Timbaland had somethin to sell is he owned it first. [Write "OWNED IT FIRST" big and box it.]
+**TWIST:** So when that fund came callin, they aint want one record. They aint say the number out loud, but a fund dont buy old songs to lose. They buy em cause old songs print forever. [Write "$ = ???" then cross out the question marks. Underneath write "OLD SONGS PAY FOREVER" and underline "FOREVER". Draw a small arrow pointing right to the word "SOLD".]
 
-**PAYOFF:** Most artists own nothin to sell. The label hold the songs, so the songs pay the label. [On the left draw a stick figure with empty hands, label "ARTIST = $0 TO SELL". On the right draw a box labeled "LABEL" holding a music note with a dollar sign.] A streaming play disappears the second it end. A song you own keeps payin while you sleep. [At the bottom write "STREAM" on the left with a note that fades into a puff of smoke. Write "OWN IT" on the right with "$ $ $" under a closed eye drawing. Underline "OWN IT".]
+**PAYOFF:** So how much of a legend's catalog you think one deal swallowed. A fund called Hipgnosis bought 100 percent of his producer royalties. Justin Timberlake, Missy Elliott, Nelly Furtado, Drake. 108 songs and albums. All of it. One deal. [Write "100%" large and circle it. Under it write "108 SONGS" and underline it. List the four names in a column: "JUSTIN TIMBERLAKE", "MISSY ELLIOTT", "NELLY FURTADO", "DRAKE". Draw a box around all four. Write "1 DEAL" next to the box.]
 
 ---
 
@@ -62,12 +48,12 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Timbaland labeled "TIMBALAND"
-2. "A BEAT" / "PAYCHECK +20 YRS" split at the top
-3. "TIMBALAND" with "2019" circled and arrow to "SOLD"
-4. "100%" circled, "108 SONGS" underlined
-5. The boxed column of four names with "1 DEAL"
-6. "$ = ???" crossed out, "OLD SONGS PAY FOREVER"
-7. The bank building, arrow, and "MONEY MACHINE" note
-8. "OWNED IT FIRST" boxed
-9. Stick figure "ARTIST = $0 TO SELL" vs "LABEL" box
-10. "STREAM" fading note vs "OWN IT" with "$ $ $" at the bottom
+2. "TIMBALAND" with "2019" circled
+3. The bank building, arrow, and "MONEY MACHINE" note
+4. "A BEAT" / "PAYCHECK +20 YRS" split
+5. "STREAM" fading note vs "OWN IT" with "$ $ $"
+6. Stick figure "ARTIST = $0 TO SELL" vs "LABEL" box
+7. "OWNED IT FIRST" boxed
+8. "$ = ???" crossed out, "OLD SONGS PAY FOREVER", arrow to "SOLD"
+9. "100%" circled, "108 SONGS" underlined
+10. The boxed column of four names with "1 DEAL" at the bottom

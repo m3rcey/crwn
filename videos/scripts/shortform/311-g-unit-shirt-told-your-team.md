@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-The G-Unit Shirt Was A Membership Card
+Why A Whole Block Wore The G-Unit Shirt
 
 Link in bio to give your fans a badge they wear with pride with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans a badge they wear with pride with CRWN. Free to st
 
 **SCRIPT:**
 
-G-Unit just turned a t-shirt into a membership card. And the wild part aint the clothes. It's what fans were really buying. Back in 2004, 50 Cent and Marc Ecko put out the G-Unit clothing line. Tracksuits, sneakers, the tank tops. And kids didnt rock it cause it was fly. They rocked it cause it said somethin. It told the whole block whose team you was on. You aint gotta say a word. The shirt spoke for you. 50, Banks, Yayo, Buck. You wore it, you was claimin em. Now think about what that shirt really was. It wasnt merch. It was a badge. A way to be seen as one of the real ones. Here's the number nobody mention. That clothing line did around 55 million dollars in its first full year. Fans paid that just to wear who they was loyal to. They aint pay for cotton. They paid to belong.
+Why did a whole generation wear a plain G-Unit tank top like it meant somethin? Back in 2004, 50 Cent and Marc Ecko put out the G-Unit clothing line. Tracksuits, sneakers, the tank tops. And kids didnt rock it cause it was fly. They rocked it cause it said somethin. It told the whole block whose team you was on. You aint gotta say a word. The shirt spoke for you. 50, Banks, Yayo, Buck. You wore it, you was claimin em. So that shirt wasnt merch. It was a badge. A way to be seen as one of the real ones. They aint pay for cotton. They paid to belong. And here go what that belonging was worth. That clothing line did around 55 million dollars in its first full year.
 
 ---
 
@@ -27,15 +27,15 @@ G-Unit just turned a t-shirt into a membership card. And the wild part aint the 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** G-Unit just turned a t-shirt into a membership card. [Center top, big bold: "G-UNIT" with a t-shirt drawn under it. Next to the shirt write "= MEMBERSHIP CARD" and box it. Beside the headline draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 50 Cent (G-Unit's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "G-UNIT" underneath.]
+**HOOK:** Why did a whole generation wear a plain G-Unit tank top like it meant somethin? [Center top, big bold: "G-UNIT" with a t-shirt drawn under it. Next to the shirt write "WHY?" and box it. Beside the headline draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 50 Cent (G-Unit's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "G-UNIT" underneath.]
 
-**FORESHADOW:** And the wild part aint the clothes. It's what fans were really buying. [Under the shirt write "NOT THE CLOTHES" with a small X. Draw a question mark big to the right.]
+**FORESHADOW:** Back in 2004, 50 Cent and Marc Ecko put out the G-Unit clothing line. [Write "2004" circled, "50 CENT + MARC ECKO" under it. Draw a question mark big to the right.]
 
-**RISING ACTION:** Back in 2004, 50 Cent and Marc Ecko put out the G-Unit clothing line. [Write "2004" circled, "50 CENT + MARC ECKO" under it.] Tracksuits, sneakers, the tank tops. [Draw a simple sneaker and a tank top.] And kids didnt rock it cause it was fly. They rocked it cause it said somethin. It told the whole block whose team you was on. [Draw a stick figure wearing a shirt, an arrow from the shirt out to three other stick figures, write "WHOSE TEAM" over the arrow.] You aint gotta say a word. The shirt spoke for you. 50, Banks, Yayo, Buck. You wore it, you was claimin em. [List the four names in a small box.]
+**RISING ACTION:** Tracksuits, sneakers, the tank tops. [Draw a simple sneaker and a tank top.] And kids didnt rock it cause it was fly. They rocked it cause it said somethin. It told the whole block whose team you was on. [Draw a stick figure wearing a shirt, an arrow from the shirt out to three other stick figures, write "WHOSE TEAM" over the arrow.] You aint gotta say a word. The shirt spoke for you. 50, Banks, Yayo, Buck. You wore it, you was claimin em. [List the four names in a small box.]
 
-**TWIST:** Now think about what that shirt really was. It wasnt merch. It was a badge. [Cross out "MERCH", write "BADGE" big and circle it.] A way to be seen as one of the real ones. Here's the number nobody mention. That clothing line did around 55 million dollars in its first full year. [Center, huge bold: "~$55 MILLION" with "FIRST YEAR" under it, underline it twice.]
+**TWIST:** So that shirt wasnt merch. It was a badge. [Cross out "MERCH", write "BADGE" big and circle it.] A way to be seen as one of the real ones. They aint pay for cotton. They paid to belong. [Two lines: "NOT FOR COTTON" with a small X, "TO BELONG" with a box around "BELONG".]
 
-**PAYOFF:** Fans paid that just to wear who they was loyal to. They aint pay for cotton. They paid to belong. [Bottom, two bold lines: "NOT FOR COTTON" with a small X, "TO BELONG" with a box around "BELONG". Underline "BELONG".]
+**PAYOFF:** And here go what that belonging was worth. That clothing line did around 55 million dollars in its first full year. [Center, huge bold: "~$55 MILLION" with "FIRST YEAR" under it, underline it twice.]
 
 ---
 
@@ -48,12 +48,11 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of 50 Cent labeled "G-UNIT" underneath
-2. "G-UNIT" with the t-shirt and "= MEMBERSHIP CARD" box (top center)
-3. "NOT THE CLOTHES" with X and the question mark
-4. "2004" circled and "50 CENT + MARC ECKO"
-5. The sneaker and tank top drawings
-6. The stick figure with the arrow to three figures, "WHOSE TEAM"
-7. The name box "50, BANKS, YAYO, BUCK"
-8. "MERCH" crossed out, "BADGE" circled
+2. "G-UNIT" with the t-shirt and "WHY?" box (top center)
+3. "2004" circled and "50 CENT + MARC ECKO" with the question mark
+4. The sneaker and tank top drawings
+5. The stick figure with the arrow to three figures, "WHOSE TEAM"
+6. The name box "50, BANKS, YAYO, BUCK"
+7. "MERCH" crossed out, "BADGE" circled
+8. Lines "NOT FOR COTTON" / "TO BELONG"
 9. "~$55 MILLION" / "FIRST YEAR" underlined twice
-10. Bottom lines "NOT FOR COTTON" / "TO BELONG"

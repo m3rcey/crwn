@@ -10,7 +10,7 @@ Link in bio to launch your music and keep every dollar with no label in the midd
 
 **SCRIPT:**
 
-This is how you win three Grammys with an album you gave away for free. And the way Chance pulled it off is gon mess with everything you been told. In 2016 Chance dropped Coloring Book. No record deal. No label budget. He put it out himself and let the fans have it for free. The label way is you sign, they front the money, then they own you and eat first off every dollar. Chance ain't owe nobody nothin. His fans was the whole engine, not some label marketing plan. Then the Grammys changed the rule so streaming-only projects could even count. Coloring Book became the first streaming-only album to ever win one. Best Rap Album. Best Rap Performance. Best New Artist. Three Grammys. The crazy part is that a free album beat every artist who sold theirs through a label that year. He gave it all away and still kept everything that mattered.
+Chance gave away his whole album for free, and then the Grammys had to do something they had never done before. Stay with me. In 2016 Chance dropped Coloring Book. No record deal. No label budget. He put it out himself and let the fans have it for free. The label way is you sign, they front the money, then they own you and eat first off every dollar. Chance ain't owe nobody nothin. His fans was the whole engine, not some label marketing plan. Then the Grammys changed the rule so streaming-only projects could even count, and Coloring Book became the first streaming-only album to ever win one. So how far does a free album get against everybody who paid a label to push theirs. It beat all of em that year. Best Rap Album. Best Rap Performance. Best New Artist. Three Grammys. He gave it all away and still kept everything that mattered.
 
 ---
 
@@ -27,15 +27,15 @@ This is how you win three Grammys with an album you gave away for free. And the 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** [Top of page, big bold caps: "WIN 3 GRAMMYS". Underneath, smaller: "FREE ALBUM". Circle the word "FREE". Beside the headline draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Chance the Rapper from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CHANCE" underneath.] This is how you win three Grammys with an album you gave away for free.
+**HOOK:** [Top of page, big bold caps: "GAVE THE ALBUM AWAY". Underneath, smaller: "FREE". Circle the word "FREE". Beside the headline draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Chance the Rapper from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CHANCE" underneath.] Chance gave away his whole album for free, and then the Grammys had to do something they had never done before.
 
-**FORESHADOW:** [Draw a small question mark next to "FREE", and an arrow pointing down to blank space.] And the way Chance pulled it off is gon mess with everything you been told.
+**FORESHADOW:** [Draw a small question mark next to "FREE", and an arrow pointing down to blank space.] Stay with me.
 
 **RISING ACTION:** [Write "2016" then "COLORING BOOK" beside it. Below, list with X marks: "X record deal", "X label budget". Then a stick figure handing a box labeled "$0" to three smiley stick-figure fans.] In 2016 Chance dropped Coloring Book. No record deal. No label budget. He put it out himself and let the fans have it for free. [Draw a scale tipping toward a big "LABEL" box. Write "THEY EAT FIRST" with an arrow into the box.] The label way is you sign, they front the money, then they own you and eat first off every dollar. [Cross out a "$0 OWED" box. Draw an engine shape labeled "FANS".] Chance ain't owe nobody nothin. His fans was the whole engine, not some label marketing plan.
 
-**TWIST:** [Write "RULE CHANGED" and underline it. Then "1st STREAMING-ONLY GRAMMY" boxed.] Then the Grammys changed the rule so streaming-only projects could even count. Coloring Book became the first streaming-only album to ever win one. [Three trophy doodles in a row, each labeled: "BEST RAP ALBUM", "BEST RAP PERF", "BEST NEW ARTIST". Circle "3" beside them.] Best Rap Album. Best Rap Performance. Best New Artist. Three Grammys.
+**TWIST:** [Write "RULE CHANGED" and underline it. Then "1st STREAMING-ONLY GRAMMY" boxed.] Then the Grammys changed the rule so streaming-only projects could even count, and Coloring Book became the first streaming-only album to ever win one.
 
-**PAYOFF:** [Big at the bottom: "FREE BEAT PAID". Draw a free album doodle on the left winning a race against a "LABEL ALBUM" doodle on the right. Box the final line: "GAVE IT AWAY, KEPT IT ALL".] The crazy part is that a free album beat every artist who sold theirs through a label that year. He gave it all away and still kept everything that mattered.
+**PAYOFF:** [Draw a free album doodle on the left winning a race against a "LABEL ALBUM" doodle on the right, write "FREE BEAT PAID".] So how far does a free album get against everybody who paid a label to push theirs. It beat all of em that year. [Three trophy doodles in a row, each labeled: "BEST RAP ALBUM", "BEST RAP PERF", "BEST NEW ARTIST". Circle "3" beside them.] Best Rap Album. Best Rap Performance. Best New Artist. Three Grammys. [Box the final line: "GAVE IT AWAY, KEPT IT ALL".] He gave it all away and still kept everything that mattered.
 
 ---
 
@@ -48,7 +48,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 **PAN ORDER:**
 
 1. Sharpie portrait of Chance the Rapper labeled "CHANCE"
-2. "WIN 3 GRAMMYS" headline at top
+2. "GAVE THE ALBUM AWAY" headline at top
 3. "FREE" circled with question mark and arrow
 4. "2016" and "COLORING BOOK"
 5. "X record deal" / "X label budget" list
@@ -57,6 +57,6 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 8. Crossed-out "$0 OWED" and "FANS" engine
 9. "RULE CHANGED" underlined
 10. "1st STREAMING-ONLY GRAMMY" boxed
-11. Three trophy doodles with circled "3"
-12. "FREE BEAT PAID" race doodle
-13. "GAVE IT AWAY, KEPT IT ALL" boxed
+11. "FREE BEAT PAID" race doodle
+12. Three trophy doodles with circled "3"
+13. "GAVE IT AWAY, KEPT IT ALL" boxed at the bottom

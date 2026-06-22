@@ -10,7 +10,7 @@ Link in bio to own the fan list no label or platform can take from you with CRWN
 
 **SCRIPT:**
 
-Nipsey Hussle took a free mixtape and sold 1,000 numbered copies of it for 100 dollars each. And what he was really building wasnt the mixtape. Two artists figured it out years apart. Ryan Leslie put his fans on a list he owned, a phone list, and built his own app for it. When his label deals ended, the deals were gone, but the list stayed his. Nipsey did it in the real world too. Them 1,000 copies, every one numbered, some buyers getting a personal call or a studio visit. Then he opened a store with an app and owned the whole bond with his people. Labels fight over masters. The smart ones quietly kept the list. Here's the part that hits. Nipsey is gone, but what he owned stayed with his family. A label can take your masters. It cannot take the people whose numbers you hold.
+Nipsey Hussle took a free mixtape and sold 1,000 numbered copies for 100 dollars each, and the thing he was really buying with that move you cant see for years. Two artists figured it out years apart. Ryan Leslie put his fans on a list he owned, a phone list, and built his own app for it. When his label deals ended, the deals was gone, but the list stayed his. Nipsey did it in the real world too. Them 1,000 copies, every one numbered, some buyers getting a personal call or a studio visit. Then he opened a store with a app and owned the whole bond with his people. Labels was out here fighting over masters. The smart ones quietly kept the list. So what does a list actually buy you that masters dont. Here it is. Nipsey is gone, but what he owned stayed with his family. A label can take your masters. It cant take the people whose numbers you hold.
 
 ---
 
@@ -27,13 +27,15 @@ Nipsey Hussle took a free mixtape and sold 1,000 numbered copies of it for 100 d
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Nipsey Hussle took a free mixtape and sold 1,000 numbered copies of it for 100 dollars each. And what he was really building wasnt the mixtape. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Nipsey Hussle from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "NIPSEY HUSSLE" underneath. Write "1,000 × $100" big beside it, then three labels across the top: "MASTERS", "STREAMS", "THE LIST", with "THE LIST" circled]
+**HOOK:** Nipsey Hussle took a free mixtape and sold 1,000 numbered copies for 100 dollars each, and the thing he was really buying with that move you cant see for years. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Nipsey Hussle from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "NIPSEY HUSSLE" underneath. Write "1,000 × $100" big beside it, then three labels across the top: "MASTERS", "STREAMS", "THE LIST", with "THE LIST" circled]
 
 **FORESHADOW:** Two artists figured it out years apart. [draw two stick figures, one labeled "RYAN", one labeled "NIPSEY", with a small clock between them]
 
 **RISING ACTION:** Ryan Leslie put his fans on a list he owned, a phone list, and built his own app for it. When his label deals ended, the deals were gone, but the list stayed his. Nipsey Hussle did it in the real world. He sold 1,000 copies of a free mixtape for 100 dollars each, every copy numbered, some buyers getting a personal call or a studio visit. Then he opened a store with an app and owned the whole bond with his people. [under RYAN write "PHONE LIST + OWN APP", "DEALS ENDED → LIST STAYED"; under NIPSEY write "1,000 × $100", "PERSONAL CALL / STUDIO VISIT", "OWN STORE + APP"]
 
-**TWIST / SURPRISE ENDING:** Labels fight over masters. The smart ones quietly kept the list. Nipsey is gone, but what he owned stayed with his family. A label can take your masters. It cannot take the people whose numbers you hold. [write "LABELS FIGHT MASTERS" with a tug-of-war drawing, next to "SMART ARTISTS KEPT THE LIST" with a checkmark, box at the bottom: "THEY CANT TAKE THE NUMBERS YOU HOLD"]
+**TWIST:** Labels was out here fighting over masters. The smart ones quietly kept the list. So what does a list actually buy you that masters dont. [write "LABELS FIGHT MASTERS" with a tug-of-war drawing, next to "SMART ARTISTS KEPT THE LIST" with a checkmark]
+
+**PAYOFF:** Here it is. Nipsey is gone, but what he owned stayed with his family. A label can take your masters. It cant take the people whose numbers you hold. [box at the bottom: "THEY CANT TAKE THE NUMBERS YOU HOLD"]
 
 ---
 

@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-The Label Kept Tupac After He Was Gone
+How Did Tupac Drop More Albums Dead Than Alive?
 
 Link in bio to own your masters so your catalog pays you and your family, not a label, with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to own your masters so your catalog pays you and your family, not a 
 
 **SCRIPT:**
 
-This is Tupac alive. And this is Tupac after he was gone. He recorded so much music they had hundreds of songs left in the vault. So after he passed, the label kept dropping album after album. Death Row owned them master recordings. Tupac made em, but he aint own em. So every posthumous album, the company that held the masters got paid first. His own mother Afeni had to fight for years to win them recordings back. Reports say she finally got a settlement and the unreleased tapes. Think about that. The man who made the music couldn't pass it down clean. The label could. Cause owning the music is the part that lasts. The songs dont stop making money when you stop. They make it for whoever holds the masters. That what nobody tells you about a record deal. The deal dont end when you do. The owner keeps cashing the vault. The artist just made it.
+Tupac passed in 1996. So how did more of his albums come out after he was gone than while he was alive? Stay with me. He recorded so much music they had hundreds of songs sittin in the vault. Death Row owned them master recordings. Tupac made em, but he aint own em. So every posthumous album that dropped, the company that held the masters got paid first. His own mother Afeni had to fight for years to win them recordings back. Reports say she finally got a settlement and the unreleased tapes. The deal dont end when the artist do. The owner just keeps cashing the vault. So here go the answer. While he was alive Tupac put out four studio albums. After he was gone the label kept reaching in that vault and put out more than that. Six of em.
 
 ---
 
@@ -27,15 +27,15 @@ This is Tupac alive. And this is Tupac after he was gone. He recorded so much mu
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is Tupac alive. And this is Tupac after he was gone. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tupac from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TUPAC" underneath. On the left write "ALIVE" with a small stick figure. On the right write "GONE" with the same stick figure, draw a small halo above it.] He recorded so much music they had hundreds of songs left in the vault. [Draw a big box labeled "VAULT" with "100s OF SONGS" inside it.]
+**HOOK:** Tupac passed in 1996. So how did more of his albums come out after he was gone than while he was alive? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tupac from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TUPAC" underneath, draw a small halo above the head. Write "1996" next to the portrait. Draw 4 small album squares in a row.] [Write "HOW?" big and circle it.]
 
-**FORESHADOW:** So after he passed, the label kept dropping album after album. [Draw 4 small album squares in a row under the vault, arrow pointing from VAULT to the albums.]
+**FORESHADOW:** Stay with me. He recorded so much music they had hundreds of songs sittin in the vault. [Draw a big box labeled "VAULT" with "100s OF SONGS" inside it, arrow pointing from VAULT to the albums.]
 
-**RISING ACTION:** Death Row owned them master recordings. Tupac made em, but he aint own em. [Write "MADE EM" on the left, "OWNED EM" on the right. Put a checkmark by "DEATH ROW" under OWNED EM. Cross out Tupac's name under OWNED EM.] So every posthumous album, the company that held the masters got paid first. [Write "OWNER PAID 1ST" and circle it.] His own mother Afeni had to fight for years to win them recordings back. [Write "AFENI" then "YEARS OF FIGHTING" with an arrow.] Reports say she finally got a settlement and the unreleased tapes. [Write "SETTLEMENT + TAPES" with a checkmark.]
+**RISING ACTION:** Death Row owned them master recordings. Tupac made em, but he aint own em. [Write "MADE EM" on the left, "OWNED EM" on the right. Put a checkmark by "DEATH ROW" under OWNED EM. Cross out Tupac's name under OWNED EM.] So every posthumous album that dropped, the company that held the masters got paid first. [Write "OWNER PAID 1ST" and circle it.] His own mother Afeni had to fight for years to win them recordings back. [Write "AFENI" then "YEARS OF FIGHTING" with an arrow.] Reports say she finally got a settlement and the unreleased tapes. [Write "SETTLEMENT + TAPES" with a checkmark.]
 
-**TWIST:** Think about that. The man who made the music couldn't pass it down clean. The label could. [Draw a scale: "MADE IT" on one side (down low), "OWNED IT" on the other (up high). Underline "OWNED IT."] Cause owning the music is the part that lasts. [Write "OWN = LASTS" big.]
+**TWIST:** The deal dont end when the artist do. The owner just keeps cashing the vault. [Write "DEAL DONT END WHEN THE ARTIST DO." Under it, two lines: "OWNER = CASHES THE VAULT" and "ARTIST = JUST MADE IT." Box the whole thing.]
 
-**PAYOFF:** The songs dont stop making money when you stop. They make it for whoever holds the masters. That what nobody tells you about a record deal. The deal dont end when you do. The owner keeps cashing the vault. The artist just made it. [Write "DEAL DONT END WHEN YOU DO." Under it, two lines: "OWNER = CASHES THE VAULT" and "ARTIST = JUST MADE IT." Box the whole thing.]
+**PAYOFF:** So here go the answer. While he was alive Tupac put out four studio albums. After he was gone the label kept reaching in that vault and put out more than that. Six of em. [Draw two columns: "ALIVE" with four album squares, "GONE" with six album squares. Write "4" under ALIVE, "6" under GONE and circle the "6".]
 
 ---
 
@@ -47,15 +47,13 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 **PAN ORDER:**
 
-1. Sharpie portrait of Tupac labeled "TUPAC"
-2. "ALIVE" stick figure (top left)
-3. "GONE" stick figure with halo (top right)
-4. "VAULT" box with "100s OF SONGS"
-5. Four album squares with arrow from the vault
-6. "MADE EM" / "OWNED EM" columns, DEATH ROW checkmark, crossed-out TUPAC
-7. "OWNER PAID 1ST" circled
-8. "AFENI" / "YEARS OF FIGHTING" arrow
-9. "SETTLEMENT + TAPES" checkmark
-10. Balance scale: "MADE IT" low, "OWNED IT" high underlined
-11. "OWN = LASTS" large
-12. Boxed takeaway: "DEAL DONT END WHEN YOU DO" / "OWNER = CASHES THE VAULT" / "ARTIST = JUST MADE IT"
+1. Sharpie portrait of Tupac labeled "TUPAC" with halo + "1996"
+2. Four album squares
+3. "HOW?" circled
+4. "VAULT" box with "100s OF SONGS" + arrow to albums
+5. "MADE EM" / "OWNED EM" columns, DEATH ROW checkmark, crossed-out TUPAC
+6. "OWNER PAID 1ST" circled
+7. "AFENI" / "YEARS OF FIGHTING" arrow
+8. "SETTLEMENT + TAPES" checkmark
+9. Boxed takeaway: "DEAL DONT END WHEN THE ARTIST DO" / "OWNER = CASHES THE VAULT" / "ARTIST = JUST MADE IT"
+10. Two columns: "ALIVE" with 4 album squares (write "4"), "GONE" with 6 album squares (write "6" circled)

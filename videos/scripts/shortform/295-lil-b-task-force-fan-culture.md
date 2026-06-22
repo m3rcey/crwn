@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-POV: Your Fans Built A Culture For You
+How Long Did Lil B's Curse Actually Follow Kevin Durant?
 
 Link in bio to give your fans a room where they build a culture around you with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans a room where they build a culture around you with 
 
 **SCRIPT:**
 
-Lil B handed his fans a whole world, and watch what they did with it. He aint just drop music. He gave his fans somethin most artists never even think about. They call themselves the Task Force. They wear pink bandanas so they spot each other in a crowd. They say Thank You Based God when somethin good happen. They got they own dance, they own jokes, they own slang. Lil B aint have to feed all that. The fans built it for each other. Then it got bigger than the songs. Back in 2011 Lil B told Kevin Durant he aint never gon win a title. Just a joke. But the Task Force kept that curse alive for five whole years. Not Lil B. The fans. They reminded the whole internet every playoff. A fanbase that talk to each other dont need you to keep the lights on. They keep em on theyselves, and they bring new ones in for free.
+Lil B put a curse on Kevin Durant over one tweet back in 2011. How long you think it actually followed him? Heres the thing. Lil B aint the one who kept it alive. His fans did. They call themselves the Task Force. They wear pink bandanas so they spot each other in a crowd. They say Thank You Based God when somethin good happen. They got they own dance, they own jokes, they own slang. Lil B aint have to feed none of that. The fans built it for each other. So when he dropped that joke on Durant, just playin, the Task Force took it and ran with it. Lil B aint have to lift a finger. The fans reminded the whole internet every single playoff, every time KD came up short. KD couldnt shake it no matter what he did. That curse dogged him for five straight years, all the way till he finally won his first ring.
 
 ---
 
@@ -27,15 +27,15 @@ Lil B handed his fans a whole world, and watch what they did with it. He aint ju
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Lil B handed his fans a whole world, and watch what they did with it. [Top of page in big bold letters: "FANS MADE THE LANGUAGE", with "LANGUAGE" underlined twice. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Lil B from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LIL B" underneath.]
+**HOOK:** Lil B put a curse on Kevin Durant over one tweet back in 2011. How long you think it actually followed him? [Top of page in big bold letters: "FANS MADE THE LANGUAGE", with "LANGUAGE" underlined twice. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Lil B from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LIL B" underneath.]
 
-**FORESHADOW:** He aint just drop music. He gave his fans somethin most artists never even think about. [Write "LIL B" on the left, draw the Lil B portrait likeness from the hook, smaller, next to it. Draw a big circle labeled "A WHOLE WORLD" around an empty space]
+**FORESHADOW:** Heres the thing. Lil B aint the one who kept it alive. His fans did. [Write "LIL B" on the left, draw the Lil B portrait likeness from the hook, smaller, next to it. Draw a big circle labeled "A WHOLE WORLD" around an empty space]
 
-**RISING ACTION:** They call themselves the Task Force. They wear pink bandanas so they spot each other in a crowd. They say Thank You Based God when somethin good happen. They got they own dance, they own jokes, they own slang. Lil B aint have to feed all that. The fans built it for each other. [Inside the circle write a stacked list: "TASK FORCE", "PINK BANDANAS", "THANK YOU BASED GOD", "THE COOKING DANCE". Draw 3 small stick figures all wearing tiny bandanas, connected by lines between them]
+**RISING ACTION:** They call themselves the Task Force. They wear pink bandanas so they spot each other in a crowd. They say Thank You Based God when somethin good happen. They got they own dance, they own jokes, they own slang. Lil B aint have to feed none of that. The fans built it for each other. [Inside the circle write a stacked list: "TASK FORCE", "PINK BANDANAS", "THANK YOU BASED GOD", "THE COOKING DANCE". Draw 3 small stick figures all wearing tiny bandanas, connected by lines between them]
 
-**TWIST:** Then it got bigger than the songs. Back in 2011 Lil B told Kevin Durant he aint never gon win a title. Just a joke. But the Task Force kept that curse alive for five whole years. Not Lil B. The fans. They reminded the whole internet every playoff. [Write "2011: THE CURSE" boxed. Below it draw an arrow stretching long to the right labeled "5 YEARS". At the end of the arrow write "FANS KEPT IT GOING" and circle "FANS"]
+**TWIST:** So when he dropped that joke on Durant, just playin, the Task Force took it and ran with it. Lil B aint have to lift a finger. The fans reminded the whole internet every single playoff, every time KD came up short. [Write "2011: THE CURSE" boxed. Below it draw an arrow stretching long to the right labeled "FANS KEPT IT GOING" and circle "FANS". Draw a simple house with a glowing lightbulb inside, stick figures standing inside it]
 
-**PAYOFF:** A fanbase that talk to each other dont need you to keep the lights on. They keep em on theyselves, and they bring new ones in for free. [At the bottom draw a simple house with a glowing lightbulb inside. Stick figures stand inside the house. Write under it: "THE FANS KEEP THE LIGHTS ON" and underline "THE FANS"]
+**PAYOFF:** KD couldnt shake it no matter what he did. That curse dogged him for five straight years, all the way till he finally won his first ring. [At the bottom write big and bold: "5 YEARS TILL HE FINALLY WON" and underline it]
 
 ---
 
@@ -54,6 +54,6 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 5. The stacked list inside: "TASK FORCE", "PINK BANDANAS", "THANK YOU BASED GOD", "THE COOKING DANCE"
 6. The three bandana stick figures connected by lines
 7. The boxed "2011: THE CURSE"
-8. The long "5 YEARS" arrow ending in "FANS KEPT IT GOING" (circled "FANS")
+8. The long arrow labeled "FANS KEPT IT GOING" (circled "FANS")
 9. The house with the lightbulb and stick figures inside
-10. "THE FANS KEEP THE LIGHTS ON" at the bottom (underlined "THE FANS")
+10. "5 YEARS TILL HE FINALLY WON" at the bottom (underlined)
