@@ -135,9 +135,9 @@ The algorithm gives reach to whatever holds people longest, and the metric that 
 - **Open the loop in the HOOK.** Name the exact thing the viewer is now waiting to find out (the number, the name, the flip, the "how"). Not vague intrigue — a concrete unanswered question. "There's a reason [artist] made more off ONE month of fans than a platinum plaque, and it's not what you think" opens a loop. "Let's talk about the music industry" does not.
 - **Do NOT scratch the itch early.** This is the #1 way scripts leak watch time. The answer to the hook's loop is REVEALED ONLY in the TWIST/PAYOFF. If RISING ACTION already pays it off at second 20, the rest of the video is "an after party" — people leave, percent-completed tanks, and the algorithm devalues the whole channel. RISING ACTION builds tension and tightens the loop; it never closes it.
 - **One loop, held the whole way.** Pick a single gap and keep it open end to end. Sub-points and numbers along the way are allowed, but the MAIN promise from the hook stays unanswered until the payoff line.
-- **The payoff IS the closing of the loop.** The insight line that ends the script must be the exact thing the hook promised, paid off — that's why the reframe lands and why they watched to the end.
+- **The payoff IS the closing of the loop — and it lands in the FINAL beat, not the twist.** The reveal the hook promised drops in the PAYOFF with nothing meaningful after it. The TWIST raises the stakes or flips the framing but does NOT hand over the answer. If you reveal the big number/name/secret at the twist (35-45s) and keep talking for 15 more seconds, that tail is the "after-party" that kills percent-completed — the exact mistake to avoid. Hold the reveal until the last few seconds.
 
-When drafting and again before saving, ask: "What question did the hook open, and is it still unanswered until the final line?" If the answer leaks before the TWIST, move it.
+When drafting and again before saving, ask: "What question did the hook open, and is the answer held until the final beat?" If the answer drops in FORESHADOW, RISING ACTION, or the TWIST, move it down into the PAYOFF.
 
 ## Script Structure (5 sections, exact order)
 
@@ -147,7 +147,7 @@ When drafting and again before saving, ask: "What question did the hook open, an
 
 **RISING ACTION (8-35s)** — Escalating stakes. Specific numbers, real comparisons, concrete examples. Every line earns the next second AND keeps the hook's loop open — build toward the answer, never give it here.
 
-**TWIST (35-45s)** — Subvert expectations. Flip the narrative. Reveal something counterintuitive. This is the earliest the hook's loop may begin to close.
+**TWIST (35-45s)** — Subvert expectations. Flip the narrative. Reveal something counterintuitive that RAISES the stakes of the hook's question — but do NOT answer it here. The twist keeps the loop open by deepening it; the answer is held for the PAYOFF.
 
 **PAYOFF (45-60s)** — Clear takeaway that CLOSES THE LOOP. This is where the hook's open question finally gets answered — never earlier. Connect back to the hook. End on an **insight line** that reframes the topic for the viewer (the thing they didn't see before this video) and pays off the exact promise the hook made. The spoken payoff is education, not a pitch. The CRWN pitch lives in the caption only — never in the spoken script. Banned in PAYOFF:
 
@@ -398,8 +398,8 @@ If the user passes several topics separated by `|`, generate a full package for 
 - [ ] No "Same X. Same Y. Same Z." triplet (or longer) anywhere in the script
 - [ ] PAYOFF does not contain banned closers: "That's the move/play/answer/math", "Build a free/paid tier", "Keep X cents/%", "92¢"
 - [ ] HOOK opens a specific curiosity loop (a concrete unanswered question/promise), not vague intrigue
-- [ ] The hook's loop stays OPEN — not answered in FORESHADOW or RISING ACTION; it closes no earlier than the TWIST
-- [ ] PAYOFF closes the loop: the final insight line answers the exact question the hook opened
+- [ ] The hook's loop stays OPEN through FORESHADOW, RISING ACTION, and the TWIST — the answer is NOT revealed in any of them
+- [ ] PAYOFF closes the loop in the final beat: the answer/reveal drops in the last few seconds with no significant talking after it (no "after-party" tail)
 - [ ] PAYOFF ends on an insight line that reframes the topic, not on a how-to or CTA
 - [ ] No spoken sentence trails off with a missing number — every "$___", "%___", or "for that's about ___" has the real value filled in
 - [ ] No spoken comparison of sub-penny fractions — scaled to whole cents per 10/100 units instead
