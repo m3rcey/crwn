@@ -40,6 +40,11 @@ interface TrackFormData {
   albumArt: File | null;
   enableEarlyAccess: boolean;
   earlyAccessDays: number;
+  genre: string;
+  recordLabel: string;
+  isrc: string;
+  explicit: boolean;
+  aiGenerated: boolean;
 }
 
 export function TrackUploadForm() {
@@ -68,6 +73,11 @@ export function TrackUploadForm() {
     albumArt: null,
     enableEarlyAccess: false,
     earlyAccessDays: 7,
+    genre: '',
+    recordLabel: '',
+    isrc: '',
+    explicit: false,
+    aiGenerated: false,
   });
   const [tierBenefits, setTierBenefits] = useState<TierBenefit[]>([]);
   const [maxEarlyAccessDays, setMaxEarlyAccessDays] = useState<number>(0);
@@ -243,6 +253,11 @@ export function TrackUploadForm() {
       albumArt: null,
       enableEarlyAccess: false,
       earlyAccessDays: 7,
+      genre: track.genre || '',
+      recordLabel: track.record_label || '',
+      isrc: track.isrc || '',
+      explicit: track.explicit === true,
+      aiGenerated: track.ai_generated === true,
     });
     // Scroll to form
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -259,6 +274,11 @@ export function TrackUploadForm() {
       albumArt: null,
       enableEarlyAccess: false,
       earlyAccessDays: 7,
+      genre: '',
+      recordLabel: '',
+      isrc: '',
+      explicit: false,
+      aiGenerated: false,
     });
   };
 
@@ -404,6 +424,11 @@ export function TrackUploadForm() {
             allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
             price: formData.isFree ? null : priceInCents,
             album_art_url: albumArtUrl,
+            genre: formData.genre || null,
+            record_label: formData.recordLabel.trim() || null,
+            isrc: formData.isrc.trim() || null,
+            explicit: formData.explicit,
+            ai_generated: formData.aiGenerated,
           })
           .eq('id', editingTrack.id);
 
@@ -439,6 +464,11 @@ export function TrackUploadForm() {
             price: formData.isFree ? null : priceInCents,
             album_art_url: albumArtUrl,
             public_release_date: publicReleaseDate,
+            genre: formData.genre || null,
+            record_label: formData.recordLabel.trim() || null,
+            isrc: formData.isrc.trim() || null,
+            explicit: formData.explicit,
+            ai_generated: formData.aiGenerated,
           })
           .select()
           .single();
@@ -491,6 +521,11 @@ export function TrackUploadForm() {
         albumArt: null,
         enableEarlyAccess: false,
         earlyAccessDays: 7,
+        genre: '',
+        recordLabel: '',
+        isrc: '',
+        explicit: false,
+        aiGenerated: false,
       });
 
       showToast('Track uploaded successfully!', 'success');
@@ -660,6 +695,66 @@ export function TrackUploadForm() {
             onChange={handleArtSelect}
             className="block w-full text-sm text-crwn-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-crwn-gold file:text-crwn-bg hover:file:bg-crwn-gold-hover"
           />
+        </div>
+
+        {/* Release Details (optional metadata) */}
+        <div className="mb-4 bg-crwn-bg border border-crwn-elevated rounded-lg p-3 space-y-3">
+          <p className="text-sm font-medium text-crwn-text-secondary">Release details (optional)</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-crwn-text-secondary mb-1">Genre</label>
+              <select
+                value={formData.genre}
+                onChange={(e) => setFormData(prev => ({ ...prev, genre: e.target.value }))}
+                className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-3 py-2 text-sm text-crwn-text"
+              >
+                <option value="">Select a genre</option>
+                {['Hip-Hop', 'R&B', 'Pop', 'Afrobeats', 'Reggae/Dancehall', 'Rock', 'Electronic', 'Country', 'Jazz', 'Gospel', 'Latin', 'Other'].map(g => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-crwn-text-secondary mb-1">Record label</label>
+              <input
+                type="text"
+                value={formData.recordLabel}
+                onChange={(e) => setFormData(prev => ({ ...prev, recordLabel: e.target.value }))}
+                placeholder="e.g. Independent"
+                className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-3 py-2 text-sm text-crwn-text placeholder-crwn-text-secondary"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs text-crwn-text-secondary mb-1">ISRC code</label>
+              <input
+                type="text"
+                value={formData.isrc}
+                onChange={(e) => setFormData(prev => ({ ...prev, isrc: e.target.value }))}
+                placeholder="Leave blank if you don't have one"
+                className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-3 py-2 text-sm text-crwn-text placeholder-crwn-text-secondary"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.explicit}
+                onChange={(e) => setFormData(prev => ({ ...prev, explicit: e.target.checked }))}
+                className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+              />
+              <span className="text-crwn-text text-sm">Explicit lyrics</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.aiGenerated}
+                onChange={(e) => setFormData(prev => ({ ...prev, aiGenerated: e.target.checked }))}
+                className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+              />
+              <span className="text-crwn-text text-sm">Contains AI-generated music, vocals, or lyrics</span>
+            </label>
+          </div>
         </div>
 
         {/* Access Level - Tier Gating */}
