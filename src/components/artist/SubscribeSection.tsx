@@ -35,7 +35,6 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
   const [showSuccess, setShowSuccess] = useState(false);
   const [confirmTier, setConfirmTier] = useState<TierConfig | null>(null);
   const [confirmAction, setConfirmAction] = useState<'upgrade' | 'downgrade' | null>(null);
-  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
 
   useEffect(() => {
     // Check for success param in URL
@@ -87,7 +86,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
 
     setError(null);
     setIsLoading(true);
-    
+
     try {
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -96,7 +95,7 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
           tierId: tier.id,
           artistSlug,
           referralCode,
-          interval: billingInterval,
+          interval: 'month',
           utmSource,
           utmMedium,
           utmCampaign,
@@ -228,6 +227,14 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
     checkSubscription();
   }, [user, artistId, supabase]);
 
+  // Per-tier annual billing (artist-controlled). Falls back to monthly for tiers that don't offer annual.
+  const tierOffersAnnual = (t: TierConfig) => t.price > 0 && t.offersAnnual !== false;
+  const tierAnnualPct = (t: TierConfig) => Math.min(50, Math.max(0, t.annualDiscountPercent ?? 25));
+  const anyAnnual = tiers.some(tierOffersAnnual);
+  const maxAnnualPct = tiers.reduce((m, t) => tierOffersAnnual(t) ? Math.max(m, tierAnnualPct(t)) : m, 0);
+  const effectiveInterval = (t: TierConfig): 'month' | 'year' =>
+    billingInterval === 'year' && tierOffersAnnual(t) ? 'year' : 'month';
+
   const handleSubscribe = async (tier: TierConfig) => {
     hapticMedium();
     if (!user) {
@@ -237,7 +244,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
 
     setError(null);
     setIsLoading(tier.id);
-    
+
     try {
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -246,7 +253,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           tierId: tier.id,
           artistSlug,
           referralCode,
-          interval: billingInterval,
+          interval: effectiveInterval(tier),
           utmSource,
           utmMedium,
           utmCampaign,
@@ -393,18 +400,22 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
       {error && (
         <p className="text-sm text-crwn-error bg-crwn-error/10 px-4 py-2 rounded-lg">{error}</p>
       )}
-      {/* Billing interval toggle */}
-      <div className="flex items-center justify-center gap-3 mb-6">
-        <span className={`text-sm font-medium ${billingInterval === 'month' ? 'text-crwn-text' : 'text-crwn-text-secondary'}`}>Monthly</span>
-        <button
-          onClick={() => setBillingInterval(billingInterval === 'month' ? 'year' : 'month')}
-          className={`relative w-12 h-6 rounded-full transition-colors ${billingInterval === 'year' ? 'bg-crwn-gold' : 'bg-crwn-elevated'}`}
-        >
-          <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${billingInterval === 'year' ? 'translate-x-6' : 'translate-x-0.5'}`} />
-        </button>
-        <span className={`text-sm font-medium ${billingInterval === 'year' ? 'text-crwn-text' : 'text-crwn-text-secondary'}`}>Annual</span>
-        <span className="text-xs text-crwn-gold font-semibold bg-crwn-gold/10 px-2 py-0.5 rounded-full">Save 25%</span>
-      </div>
+      {/* Billing interval toggle — only shown if at least one tier offers annual */}
+      {anyAnnual && (
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <span className={`text-sm font-medium ${billingInterval === 'month' ? 'text-crwn-text' : 'text-crwn-text-secondary'}`}>Monthly</span>
+          <button
+            onClick={() => setBillingInterval(billingInterval === 'month' ? 'year' : 'month')}
+            className={`relative w-12 h-6 rounded-full transition-colors ${billingInterval === 'year' ? 'bg-crwn-gold' : 'bg-crwn-elevated'}`}
+          >
+            <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${billingInterval === 'year' ? 'translate-x-6' : 'translate-x-0.5'}`} />
+          </button>
+          <span className={`text-sm font-medium ${billingInterval === 'year' ? 'text-crwn-text' : 'text-crwn-text-secondary'}`}>Annual</span>
+          {maxAnnualPct > 0 && (
+            <span className="text-xs text-crwn-gold font-semibold bg-crwn-gold/10 px-2 py-0.5 rounded-full">Save up to {maxAnnualPct}%</span>
+          )}
+        </div>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {tiers.map((tier) => {
           const isThisTierSubscribed = subscribedTierId === tier.id;
@@ -423,18 +434,27 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
                 </div>
               )}
               <h3 className="text-lg font-semibold text-crwn-gold">{tier.name}</h3>
-              <p className="text-3xl font-bold text-crwn-text mt-2">
-                ${billingInterval === 'year'
-                  ? ((tier.price * 12 * 0.75) / 100 / 12).toFixed(2)
-                  : (tier.price / 100).toFixed(2)
-                }
-                <span className="text-sm font-normal text-crwn-text-secondary">/mo</span>
-              </p>
-              {billingInterval === 'year' && tier.price > 0 && (
-                <p className="text-xs text-crwn-text-secondary mt-1">
-                  ${((tier.price * 12 * 0.75) / 100).toFixed(2)}/year (save ${((tier.price * 12 * 0.25) / 100).toFixed(2)})
-                </p>
-              )}
+              {(() => {
+                const showAnnual = effectiveInterval(tier) === 'year';
+                const pct = tierAnnualPct(tier);
+                const perMo = showAnnual ? (tier.price * (1 - pct / 100)) / 100 : tier.price / 100;
+                return (
+                  <>
+                    <p className="text-3xl font-bold text-crwn-text mt-2">
+                      ${perMo.toFixed(2)}
+                      <span className="text-sm font-normal text-crwn-text-secondary">/mo</span>
+                    </p>
+                    {showAnnual && (
+                      <p className="text-xs text-crwn-text-secondary mt-1">
+                        ${((tier.price * 12 * (1 - pct / 100)) / 100).toFixed(2)}/year (save ${((tier.price * 12 * (pct / 100)) / 100).toFixed(2)})
+                      </p>
+                    )}
+                    {billingInterval === 'year' && tier.price > 0 && !tierOffersAnnual(tier) && (
+                      <p className="text-xs text-crwn-text-secondary mt-1">Monthly billing only</p>
+                    )}
+                  </>
+                );
+              })()}
               {tier.description && (
                 <p className="text-crwn-text-secondary text-sm mt-2">{tier.description}</p>
               )}
@@ -475,10 +495,15 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
               {confirmAction === 'upgrade' ? 'Upgrade' : 'Downgrade'} Plan
             </h3>
             <p className="text-crwn-text-secondary mb-4">
-              {confirmAction === 'upgrade'
-                ? `Upgrade to ${confirmTier.name} for $${billingInterval === 'year' ? ((confirmTier.price * 12 * 0.75) / 100 / 12).toFixed(2) : (confirmTier.price / 100).toFixed(2)}/${billingInterval === 'year' ? 'mo (billed annually)' : 'mo'}. You will be charged a prorated amount for the remainder of this billing period.`
-                : `Downgrade to ${confirmTier.name} for $${billingInterval === 'year' ? ((confirmTier.price * 12 * 0.75) / 100 / 12).toFixed(2) : (confirmTier.price / 100).toFixed(2)}/${billingInterval === 'year' ? 'mo (billed annually)' : 'mo'}. Your plan will change at the end of your current billing period.`
-              }
+              {(() => {
+                const annual = effectiveInterval(confirmTier) === 'year';
+                const pct = tierAnnualPct(confirmTier);
+                const perMo = annual ? ((confirmTier.price * 12 * (1 - pct / 100)) / 100 / 12).toFixed(2) : (confirmTier.price / 100).toFixed(2);
+                const suffix = annual ? 'mo (billed annually)' : 'mo';
+                return confirmAction === 'upgrade'
+                  ? `Upgrade to ${confirmTier.name} for $${perMo}/${suffix}. You will be charged a prorated amount for the remainder of this billing period.`
+                  : `Downgrade to ${confirmTier.name} for $${perMo}/${suffix}. Your plan will change at the end of your current billing period.`;
+              })()}
             </p>
             <div className="flex gap-3">
               <button

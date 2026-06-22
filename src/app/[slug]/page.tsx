@@ -159,6 +159,8 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
       description: t.description,
       benefits: [...benefitStrings, ...legacyBenefits],
       tierBenefits: tierBenefits, // Store structured benefits for advanced features
+      offersAnnual: t.offers_annual !== false,
+      annualDiscountPercent: t.annual_discount_percent ?? 25,
     };
   });
 

@@ -43,6 +43,8 @@ export interface TierConfig {
   description: string;
   benefits: string[];
   tierBenefits?: TierBenefit[];
+  offersAnnual?: boolean;
+  annualDiscountPercent?: number;
 }
 
 export type AccessLevel = 'free' | 'subscriber' | 'purchase';

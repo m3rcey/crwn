@@ -17,7 +17,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    const { name, price, description, artistId } = await req.json();
+    const { name, price, description, artistId, offersAnnual = true, annualDiscountPercent = 25 } = await req.json();
+
+    // Clamp discount to the allowed 0–50% range (protects artist margins)
+    const discountPct = Math.min(50, Math.max(0, Math.round(Number(annualDiscountPercent) || 0)));
 
     // Verify the caller owns this artist profile
     const { data: artist } = await supabase
@@ -53,20 +56,25 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Create annual Stripe Price (25% off: monthly * 12 * 0.75)
-    const annualAmount = Math.round(price * 12 * 0.75);
-    const annualPrice = await stripe.prices.create({
-      product: product.id,
-      unit_amount: annualAmount,
-      currency: 'usd',
-      recurring: {
-        interval: 'year',
-      },
-    });
+    // Create annual Stripe Price only if the artist offers annual billing.
+    // Annual total = monthly * 12 * (1 - discount%).
+    let stripeAnnualPriceId: string | null = null;
+    if (offersAnnual) {
+      const annualAmount = Math.round(price * 12 * (1 - discountPct / 100));
+      const annualPrice = await stripe.prices.create({
+        product: product.id,
+        unit_amount: annualAmount,
+        currency: 'usd',
+        recurring: {
+          interval: 'year',
+        },
+      });
+      stripeAnnualPriceId = annualPrice.id;
+    }
 
     return NextResponse.json({
       stripePriceId: monthlyPrice.id,
-      stripeAnnualPriceId: annualPrice.id,
+      stripeAnnualPriceId,
       stripeProductId: product.id,
     });
   } catch (error) {

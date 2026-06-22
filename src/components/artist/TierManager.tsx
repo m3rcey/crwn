@@ -22,6 +22,8 @@ interface Tier {
   };
   stripe_price_id?: string;
   stripe_annual_price_id?: string;
+  offers_annual?: boolean;
+  annual_discount_percent?: number;
   is_active: boolean;
   tierBenefits?: TierBenefit[];
 }
@@ -45,6 +47,8 @@ export function TierManager() {
     price: '',
     description: '',
     benefits: [''],
+    offersAnnual: true,
+    annualDiscountPercent: '25',
   });
   const [selectedBenefits, setSelectedBenefits] = useState<TierBenefit[]>([]);
   const [loadingBenefits, setLoadingBenefits] = useState(false);
@@ -137,12 +141,17 @@ export function TierManager() {
         // UPDATE existing tier
         const newPriceInCents = parseInt(formData.price) * 100;
         const priceChanged = newPriceInCents !== editingTier.price;
+        const annualDiscountPct = parseInt(formData.annualDiscountPercent) || 0;
+        // Annual settings can change without the price changing — regenerate Stripe prices for either.
+        const annualChanged =
+          formData.offersAnnual !== (editingTier.offers_annual !== false) ||
+          annualDiscountPct !== (editingTier.annual_discount_percent ?? 25);
         let stripePriceId = editingTier.stripe_price_id;
         let stripeAnnualPriceId = editingTier.stripe_annual_price_id;
 
-        if (priceChanged) {
+        if (priceChanged || annualChanged) {
           if (newPriceInCents > 0) {
-            // Create new Stripe prices (monthly + annual) if price changed
+            // Recreate Stripe prices (monthly + annual) to reflect new price/annual settings
             const response = await fetch('/api/stripe/create-price', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -151,6 +160,8 @@ export function TierManager() {
                 price: newPriceInCents,
                 description: formData.description,
                 artistId: artistProfile.id,
+                offersAnnual: formData.offersAnnual,
+                annualDiscountPercent: annualDiscountPct,
               }),
             });
             const data = await response.json();
@@ -174,6 +185,8 @@ export function TierManager() {
             },
             stripe_price_id: stripePriceId,
             stripe_annual_price_id: stripeAnnualPriceId,
+            offers_annual: formData.offersAnnual,
+            annual_discount_percent: annualDiscountPct,
           })
           .eq('id', editingTier.id)
           .select()
@@ -198,12 +211,13 @@ export function TierManager() {
 
         setTiers(prev => prev.map(t => t.id === editingTier.id ? (updated as Tier) : t));
         setEditingTier(null);
-        setFormData({ name: '', price: '', description: '', benefits: [''] });
+        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25' });
         setSelectedBenefits([]);
         showToast('Tier updated successfully!', 'success');
       } else {
         // CREATE new tier
         const priceInCents = parseInt(formData.price) * 100;
+        const annualDiscountPct = parseInt(formData.annualDiscountPercent) || 0;
         let stripePriceId = null;
         let stripeAnnualPriceId = null;
         let stripeProductId = null;
@@ -217,6 +231,8 @@ export function TierManager() {
               price: priceInCents,
               description: formData.description,
               artistId: artistProfile.id,
+              offersAnnual: formData.offersAnnual,
+              annualDiscountPercent: annualDiscountPct,
             }),
           });
           const data = await response.json();
@@ -238,6 +254,8 @@ export function TierManager() {
             stripe_price_id: stripePriceId,
             stripe_annual_price_id: stripeAnnualPriceId,
             stripe_product_id: stripeProductId,
+            offers_annual: formData.offersAnnual,
+            annual_discount_percent: annualDiscountPct,
           })
           .select()
           .single();
@@ -257,7 +275,7 @@ export function TierManager() {
         }
 
         setTiers(prev => [...prev, tier as Tier]);
-        setFormData({ name: '', price: '', description: '', benefits: [''] });
+        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25' });
         setSelectedBenefits([]);
         showToast('Tier created successfully!', 'success');
 
@@ -283,6 +301,8 @@ export function TierManager() {
       price: (tier.price / 100).toString(),
       description: tier.description || '',
       benefits: tier.access_config?.benefits || [''],
+      offersAnnual: tier.offers_annual !== false,
+      annualDiscountPercent: (tier.annual_discount_percent ?? 25).toString(),
     });
     
     // Load existing benefits for this tier
@@ -308,7 +328,7 @@ export function TierManager() {
 
   const handleCancelEdit = () => {
     setEditingTier(null);
-    setFormData({ name: '', price: '', description: '', benefits: [''] });
+    setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25' });
     setSelectedBenefits([]);
   };
 
@@ -494,6 +514,51 @@ export function TierManager() {
                   : 'Free tier — no platform fee'}
               </p>
             </div>
+
+            {parseFloat(formData.price) > 0 && (
+              <div className="bg-crwn-bg border border-crwn-elevated rounded-lg p-4 space-y-3">
+                <label className="flex items-center justify-between gap-3 cursor-pointer">
+                  <span className="text-sm font-medium text-crwn-text">
+                    Offer annual billing
+                    <span className="block text-xs text-crwn-text-secondary font-normal">
+                      Let fans pay for a year up front at a discount. You get the cash now.
+                    </span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={formData.offersAnnual}
+                    onChange={(e) => setFormData(prev => ({ ...prev, offersAnnual: e.target.checked }))}
+                    className="w-5 h-5 accent-[#D4AF37] cursor-pointer flex-shrink-0"
+                  />
+                </label>
+                {formData.offersAnnual && (
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+                      Annual discount (% off)
+                    </label>
+                    <div className="relative max-w-[140px]">
+                      <input
+                        type="number"
+                        min="0"
+                        max="50"
+                        value={formData.annualDiscountPercent}
+                        onChange={(e) => setFormData(prev => ({ ...prev, annualDiscountPercent: e.target.value }))}
+                        className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-crwn-text-secondary">%</span>
+                    </div>
+                    <p className="text-xs text-crwn-text-secondary mt-1">
+                      {(() => {
+                        const pct = Math.min(50, Math.max(0, parseInt(formData.annualDiscountPercent) || 0));
+                        const monthly = parseFloat(formData.price) || 0;
+                        const annual = monthly * 12 * (1 - pct / 100);
+                        return `Fans pay $${annual.toFixed(2)}/year ($${(annual / 12).toFixed(2)}/mo). Max 50% off.`;
+                      })()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
