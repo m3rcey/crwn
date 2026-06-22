@@ -111,7 +111,7 @@ export function ArtistProfileContent({
     <>
 
       {/* Tabs */}
-      <div className="px-4 sm:px-6 lg:px-8 mb-3 page-fade-in" data-tour="artist-page-tabs">
+      <div className="px-4 sm:px-6 lg:px-8 mt-6 mb-3 page-fade-in" data-tour="artist-page-tabs">
         <div className="flex gap-6 overflow-x-auto scrollbar-hide border-b border-crwn-elevated/50 pb-2">
           {tabs.map((tab) => (
             <button
