@@ -242,11 +242,32 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .eq('is_active', true)
     .order('created_at', { ascending: false });
 
+  // Currently-live session (for the "Live now" banner)
+  const { data: liveNow } = await supabase
+    .from('live_sessions')
+    .select('id, title')
+    .eq('artist_id', artist.id)
+    .eq('status', 'live')
+    .eq('is_active', true)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
 
   return (
     <div className="relative min-h-screen pb-20 md:pb-0 page-fade-in">
       <BackgroundImage src="/backgrounds/bg-artist.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
+        {/* Live now banner */}
+        {liveNow && (
+          <a
+            href={`/${artist.slug}/live/${liveNow.id}`}
+            className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-3 text-center text-sm font-semibold"
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
+            {(artist.profile?.display_name || 'Artist')} is live now — {liveNow.title}. Tap to join.
+          </a>
+        )}
         {/* Banner */}
         <div className="relative h-48 sm:h-64 md:h-80 w-full">
           {artist.banner_url ? (
