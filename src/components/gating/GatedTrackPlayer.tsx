@@ -139,8 +139,8 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
                 {isEarlyAccess
                   ? 'Early access — subscribe to listen'
                   : track.price
-                    ? `$${(track.price / 100).toFixed(2)} to unlock`
-                    : 'Subscribe to unlock'}
+                    ? `$${(track.price / 100).toFixed(2)} to buy`
+                    : 'Subscribe to listen'}
               </span>
             ) : isEarlyAccess ? (
               <span className="text-xs text-crwn-gold flex items-center gap-1">
@@ -174,7 +174,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
             onClick={(e) => e.stopPropagation()}
             className="px-4 py-1.5 neu-button-accent text-crwn-bg text-sm font-medium rounded-full"
           >
-            Unlock
+            {track.price ? 'Buy' : 'Subscribe'}
           </a>
         )}
 
