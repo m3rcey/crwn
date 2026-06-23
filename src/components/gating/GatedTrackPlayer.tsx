@@ -127,6 +127,11 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
             >
               {track.title}
             </h3>
+            {track.explicit && (
+              <span className="text-[10px] font-bold leading-none px-1 py-0.5 rounded bg-crwn-text-secondary/30 text-crwn-text-secondary flex-shrink-0" title="Explicit">
+                E
+              </span>
+            )}
             {isLocked && (
               <Lock size={14} className="text-crwn-gold flex-shrink-0" />
             )}
