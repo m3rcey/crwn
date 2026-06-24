@@ -10,7 +10,7 @@ Link in bio to make money your label can never take back with CRWN. Free to star
 
 **SCRIPT:**
 
-This is a record deal. And this is the check a label cuts to make you disappear.
+Mariah Carey got handed a check just to vanish from her own record deal, and the reason behind it flips everything you think about a big contract.
 
 Stay with me, cause the artist who flopped walked out richer than most who win.
 
@@ -43,7 +43,7 @@ The money they can't claw back is the fan who pay you direct. That dollar alread
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is a record deal. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Mariah Carey from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MARIAH CAREY" underneath. write "RECORD DEAL" top left, draw a small contract paper next to it] And this is the check a label cuts to make you disappear. [write "$28,000,000" big, center, draw a check box around it]
+**HOOK:** Mariah Carey got handed a check just to vanish from her own record deal. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Mariah Carey from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MARIAH CAREY" underneath. write "RECORD DEAL" top left, draw a small contract paper next to it] And the reason behind it flips everything you think about a big contract. [write "$28,000,000" big, center, draw a check box around it]
 
 **FORESHADOW:** Stay with me, cause the artist who flopped walked out richer than most who win. [draw a stick figure walking away with a money bag, arrow pointing off the page]
 

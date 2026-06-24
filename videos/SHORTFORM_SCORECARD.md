@@ -17,9 +17,11 @@ Views are an output. You only control two inputs:
 
 ### HOOK — feeds the gate (30 pts)
 - [ ] **Opens a curiosity gap; does NOT state the conclusion in beat 1** (10) — *holding the payoff is the single biggest lever. #2 held the reveal → 33.7% skip → 117k. #9 gave it away → 47.5% → 15.6k.*
-- [ ] **A named top-tier artist appears in the FIRST sentence** (10) — *every sub-36% hook opens on a person. #23 put Megan in beat 2 → died.*
+- [ ] **A named artist appears in the FIRST sentence** (10) — *every sub-36% hook opens on a person. #23 put Megan in beat 2 → died. Abstract "This is how you…/If you…" openers with no name are the #1 skip-rate failure.*
 - [ ] **No math / no numbers as the opening line** (5) — *"yall ready for this math" and "if 1 fan pays..." had the two worst skip rates.*
 - [ ] **Concrete dramatic noun** — a deal, a lawsuit, a $ amount, "masters" (5) — *not an abstract process like "cashed checks mid-lawsuit" (#10 → 2.1k).*
+
+> **The two-axis balance (critical).** Low skip wants the artist + a concrete noun up front; the held gap wants the payoff withheld to the end. They conflict ONLY if the concrete noun you front is the *outcome*. Resolve it by fronting the **setup, not the result**: name the artist + what they *did* ("Dr. Dre put his name on a pair of headphones"), and hold what it *earned* ("…paid him a reported $600M") for the final line. Stating the result in sentence one satisfies skip but tanks the gap — front the setup, hold the number.
 
 ### SHAREABLE PAYOFF — feeds the multiplier (25 pts)
 - [ ] **One screenshot-worthy stat, held to the END** (10) — *retains AND shares. #2's "200K fans = $24M/yr".*

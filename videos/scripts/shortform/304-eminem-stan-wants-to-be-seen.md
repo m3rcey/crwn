@@ -10,7 +10,7 @@ Link in bio to put your most loyal fans on a supporter wall they pay to be on wi
 
 **SCRIPT:**
 
-This is a song. And this is a word in the dictionary now. Eminem dropped "Stan" back in 2000, and watch what it really tell you about your fans. The song about a fan who wrote letter after letter. He aint want a refund. He aint want free merch. He just wanted Em to say his name back. That fan got so big the word "stan" landed in the Oxford dictionary in 2017. Now think about who really ride for you. Yo top fan dont care about a discount. They want you to know they was here first. So somebody put it to the test. They added a wall where the real ones get they name up. A small monthly badge that say you belong. And the fans paid for it, faster than they paid for any song. Stan aint never get his name said back. He died waiting on it. Yo realest fans alive, and they will pay just to be seen.
+Eminem wrote a song about one fan who kept mailing him letters, and what that fan really wanted will change how you see yours. Eminem dropped "Stan" back in 2000, and watch what it really tell you about your fans. The song about a fan who wrote letter after letter. He aint want a refund. He aint want free merch. He just wanted Em to say his name back. That fan got so big the word "stan" landed in the Oxford dictionary in 2017. Now think about who really ride for you. Yo top fan dont care about a discount. They want you to know they was here first. So somebody put it to the test. They added a wall where the real ones get they name up. A small monthly badge that say you belong. And the fans paid for it, faster than they paid for any song. Stan aint never get his name said back. He died waiting on it. Yo realest fans alive, and they will pay just to be seen.
 
 ---
 
@@ -27,7 +27,7 @@ This is a song. And this is a word in the dictionary now. Eminem dropped "Stan" 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is a song. [write "STAN" big at top, draw a small musical note next to it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Eminem from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "EMINEM" underneath.] And this is a word in the dictionary now. [under it write "stan (n.)" and draw a small open book]
+**HOOK:** Eminem wrote a song about one fan who kept mailing him letters, and what that fan really wanted will change how you see yours. [write "STAN" big at top, draw a small musical note next to it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Eminem from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "EMINEM" underneath. Under it write "stan (n.)" and draw a small open book]
 
 **FORESHADOW:** Eminem dropped "Stan" back in 2000 [write "2000" and circle it], and watch what it really tell you about your fans. [draw a small arrow pointing down]
 

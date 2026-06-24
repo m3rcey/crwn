@@ -10,7 +10,7 @@ Link in bio to build your own demand and sell direct to your fans with CRWN. Fre
 
 **SCRIPT:**
 
-This is a rapper with no label. And this is the same rapper going gold with no radio.
+Too Short was selling tapes out the trunk of his car in Oakland, and the wrong people ended up calling him.
 
 Stay with it, because the part nobody tells you is who came knocking at the end.
 
@@ -41,7 +41,7 @@ A label finds you when the people already moving. Too Short had the people befor
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is a rapper with no label. [Top left, large: "NO LABEL", and beside it a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Too Short from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TOO SHORT" underneath.] And this is the same rapper going gold with no radio. [Top right, large: "GOLD" boxed, and "NO RADIO" under it with a small radio drawing crossed out with an X.]
+**HOOK:** Too Short was selling tapes out the trunk of his car in Oakland, and the wrong people ended up calling him. [Top left, large: "NO LABEL", and beside it a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Too Short from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TOO SHORT" underneath. Top right, large: "GOLD" boxed, and "NO RADIO" under it with a small radio drawing crossed out with an X.]
 
 **FORESHADOW:** Stay with it, because the part nobody tells you is who came knocking at the end. [Center, draw a closed door with a question mark above it and a small fist about to knock.]
 

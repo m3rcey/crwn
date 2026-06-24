@@ -10,7 +10,7 @@ Link in bio to catch every fan on a release page you own before they leave for t
 
 **SCRIPT:**
 
-If you can make fans wait on a page you own, you dont need a label at all. In 2016 Frank Ocean made the whole internet sit on his own website for weeks. He put up a livestream of himself building a wooden staircase. No song yet. Just him, sawing wood, and millions of fans refreshing the page every day. They wasnt waiting on Spotify. They wasnt waiting on radio. They was sitting on a page Frank controlled. Then he drop one album to clear his old contract. The next day he drop the real one, Blonde, all by himself. No label in between. That album hit number one. Around 232,000 copies sold that first week. And every fan who waited on that page was a fan he could reach again. The stream send em away. The page he own keep em. Frank aint just drop a album. He kept the front door.
+Frank Ocean built a wooden staircase on a livestream and somehow that became the smartest move of his career. In 2016 Frank Ocean made the whole internet sit on his own website for weeks. He put up a livestream of himself building a wooden staircase. No song yet. Just him, sawing wood, and millions of fans refreshing the page every day. They wasnt waiting on Spotify. They wasnt waiting on radio. They was sitting on a page Frank controlled. Then he drop one album to clear his old contract. The next day he drop the real one, Blonde, all by himself. No label in between. That album hit number one. Around 232,000 copies sold that first week. And every fan who waited on that page was a fan he could reach again. The stream send em away. The page he own keep em. Frank aint just drop a album. He kept the front door.
 
 ---
 
@@ -27,7 +27,7 @@ If you can make fans wait on a page you own, you dont need a label at all. In 20
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If you can make fans wait on a page you own, you dont need a label at all. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Frank Ocean from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FRANK OCEAN" underneath. Beside it write "A PAGE YOU OWN" big across the top and box it. Draw a small stick figure underneath staring up at it.]
+**HOOK:** Frank Ocean built a wooden staircase on a livestream and somehow that became the smartest move of his career. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Frank Ocean from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FRANK OCEAN" underneath. Beside it write "A PAGE YOU OWN" big across the top and box it. Draw a small stick figure underneath staring up at it.]
 
 **FORESHADOW:** In 2016 Frank Ocean made the whole internet sit on his own website for weeks. [Write "FRANK OCEAN" under the box. Draw a laptop with a loading circle on the screen. Write "WEEKS" next to it and underline it.]
 

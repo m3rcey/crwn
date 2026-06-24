@@ -10,11 +10,11 @@ Link in bio to own your music and the income it makes for life with CRWN. Free t
 
 **SCRIPT:**
 
-This is how you keep more than the star who sings ya song. And it aint by being the famous one.
+The-Dream put his name on "Umbrella" and "Single Ladies" without singing a single note, and that decision paid him for years. And it aint by being the famous one.
 
 You know "Umbrella" by Rihanna. You know "Single Ladies" by Beyoncé. Two of the biggest songs ever made. The world remember the women on the mic.
 
-But a dude named The-Dream co-wrote both of em. He aint sing a note on either one. He just owned a piece of the writing.
+But that dude, The-Dream, co-wrote both of em. He aint sing a note on either one. He just owned a piece of the writing.
 
 The artist on stage perform the song one time and move on. The writer who own the publishing get paid every time it play, for years, all over the world.
 
@@ -39,7 +39,7 @@ The face on the song fade. The name on the paper still get paid.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is how you keep more than the star who sings ya song. [Write "KEEP MORE THAN THE STAR" big across the top, underline "KEEP MORE", and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of The-Dream from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "THE-DREAM" underneath] And it aint by being the famous one. [Draw a small stick figure at a mic with a star above its head, then put a big X over the star]
+**HOOK:** The-Dream put his name on "Umbrella" and "Single Ladies" without singing a single note, and that decision paid him for years. [Write "KEEP MORE THAN THE STAR" big across the top, underline "KEEP MORE", and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of The-Dream from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "THE-DREAM" underneath] And it aint by being the famous one. [Draw a small stick figure at a mic with a star above its head, then put a big X over the star]
 
 **FORESHADOW:** You know "Umbrella" by Rihanna. You know "Single Ladies" by Beyoncé. [Write "UMBRELLA" and "SINGLE LADIES" stacked, draw a tiny umbrella next to one] Two of the biggest songs ever made. The world remember the women on the mic. [Draw two small stick figures at mics]
 
