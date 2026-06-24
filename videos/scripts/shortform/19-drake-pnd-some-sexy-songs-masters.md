@@ -10,17 +10,17 @@ Link in bio to own every master you drop while somebody else just delivers it, w
 
 **SCRIPT:**
 
-Every Drake album got a major label's name stamped in the credits. He still owns the masters.
+Every Drake album got a major label's name stamped right there in the credits, and you'd swear that tells you who the record belongs to.
 
 The logo on the cover and the owner of the song aint the same thing, and most fans never learn the difference.
 
 Take $ome $exy $ongs 4 U, him and PartyNextDoor. The credits read OVO Sound, Santa Anna, Republic. Santa Anna is Sony. Republic is Universal. So it look like two of the biggest labels in the world split the record between em.
 
-But a credit tell you who ships the album, not who keeps it. Since 2021 Drake own his masters. That Universal name on his cover is delivery, not ownership. They move the record. He keeps it.
+But a credit tell you who ships the album, not who keeps it. That Universal name on his cover is delivery, not ownership. They move the record. He keeps it.
 
-Most artists see a label logo and think they signed the song away. Drake flipped it so the logo just means somebody mails it for him.
+Most artists see a label logo and think they signed the song away. Drake flipped it so the logo just means somebody mails it for him. The name on the cover is the mailman.
 
-The name on the cover is the mailman. Owning the master is the house.
+So when you see two majors stamped on his last one, here's who actually owns it: since 2021 every master he makes is Drake's.
 
 ---
 
@@ -37,7 +37,7 @@ The name on the cover is the mailman. Owning the master is the house.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Every Drake album got a major label's name stamped in the credits. He still owns the masters. [write "MAJOR LABEL ON THE COVER" at the top, then "STILL OWNS THE MASTERS" underneath and circle "STILL OWNS"]
+**HOOK:** Every Drake album got a major label's name stamped right there in the credits, and you'd swear that tells you who the record belongs to. [write "MAJOR LABEL ON THE COVER" at the top, then "STILL OWNS THE MASTERS" underneath and circle "STILL OWNS"]
 
 **FORESHADOW:** The logo on the cover and the owner of the song aint the same thing. [write "LOGO ≠ OWNER" in big caps and underline it]
 
@@ -45,9 +45,11 @@ The name on the cover is the mailman. Owning the master is the house.
 
 **MID FORESHADOW:** But a credit tell you who ships the album, not who keeps it. [write "SHIPS IT ≠ KEEPS IT" boxed]
 
-**TWIST:** Since 2021 Drake own his masters. That Universal name on his cover is delivery, not ownership. They move the record. He keeps it. [write "UMG = DELIVERY" with an arrow, then "DRAKE = OWNER" with an arrow, and draw a small truck labeled "UMG" carrying a record labeled "DRAKE'S"]
+**TWIST:** That Universal name on his cover is delivery, not ownership. They move the record. He keeps it. [write "UMG = DELIVERY" with an arrow, then "DRAKE = OWNER" with an arrow, and draw a small truck labeled "UMG" carrying a record labeled "DRAKE'S"]
 
-**PAYOFF:** Most artists see a label logo and think they signed the song away. Drake flipped it so the logo just means somebody mails it for him. [write "MOST: LOGO = SIGNED IT AWAY" crossed out, "DRAKE: LOGO = JUST THE MAILMAN" below] The name on the cover is the mailman. Owning the master is the house. [write "COVER = MAILMAN" and "MASTER = THE HOUSE" stacked at the bottom inside one rough oval]
+**MID PAYOFF:** Most artists see a label logo and think they signed the song away. Drake flipped it so the logo just means somebody mails it for him. The name on the cover is the mailman. [write "MOST: LOGO = SIGNED IT AWAY" crossed out, "DRAKE: LOGO = JUST THE MAILMAN" below] [write "COVER = MAILMAN" and "MASTER = THE HOUSE" stacked inside one rough oval]
+
+**PAYOFF:** So when you see two majors stamped on his last one, here's who actually owns it: since 2021 every master he makes is Drake's. [write "SINCE 2021 = EVERY MASTER HE MAKES IS DRAKE'S" in big bold caps at the bottom and circle the whole line]
 
 ---
 
@@ -65,6 +67,6 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 4. "CREDITS: OVO / SANTA ANNA (SONY) / REPUBLIC (UMG)"
 5. Record split: SONY / UMG halves
 6. "SHIPS IT ≠ KEEPS IT" boxed
-7. "UMG = DELIVERY" / "DRAKE = OWNER" with truck carrying "DRAKE'S" record
-8. "MOST: LOGO = SIGNED IT AWAY" crossed out / "DRAKE: LOGO = JUST THE MAILMAN"
-9. "COVER = MAILMAN" / "MASTER = THE HOUSE" in oval at bottom
+7. "MOST: LOGO = SIGNED IT AWAY" crossed out / "DRAKE: LOGO = JUST THE MAILMAN"
+8. "COVER = MAILMAN" / "MASTER = THE HOUSE" in oval
+9. "UMG = DELIVERY" / "DRAKE = OWNER" with truck carrying "DRAKE'S" record

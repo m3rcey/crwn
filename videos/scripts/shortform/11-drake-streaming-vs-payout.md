@@ -10,17 +10,13 @@ Link in bio to get paid direct by the fans who already stream you, with CRWN. Fr
 
 **SCRIPT:**
 
-Drake got 100 million people streaming him every month and the stream still pay like spare change.
+Drake got 100 million people streaming him every single month, and that check still come up short. After he already fixed the thing everybody blames.
 
-And the crazy part aint the label taking his cut. He already fixed that.
+Cause everybody point at the label taking his cut. He handled that part. Used to be Universal took most of Drake's piece before he ever saw a dime. Not no more. Since 2021 Drake own his masters, so he keep the big share of every play now.
 
-Spotify pay out around 4 dollars per 1,000 plays. Used to be Universal took most of Drake's piece before he saw a dime. Not no more. Since 2021 Drake own his masters, so he keep the big share of every play now.
+He fixed who gets the money. And the number aint move. So the problem was never just who owns it. Owning your masters fixes who keeps the share. It dont change what one play is worth.
 
-So Drake fixed who gets the money and the check still small. Because the problem was never just the label. One play is worth less than half a cent no matter who own it. 100 million listeners, fractions of a penny each, that's the model.
-
-Owning your masters fixes who keeps the pennies. It dont turn pennies into a paycheck.
-
-Streaming pays you by the million. A fan pays you by the month.
+Streaming pays you by the million. A fan pays you by the month. And here's what one play is actually worth: Spotify pay out around 4 dollars for every 1,000 plays, less than half a cent each, so 100 million ears come back as fractions of a penny apiece.
 
 ---
 
@@ -37,15 +33,15 @@ Streaming pays you by the million. A fan pays you by the month.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Drake got 100 million people streaming him every month and the stream still pay like spare change. [write "100,000,000 LISTENERS" big at the top, then "STILL PAYS SPARE CHANGE" underneath it and circle "SPARE CHANGE"]
+**HOOK:** Drake got 100 million people streaming him every single month, and that check still come up short. After he already fixed the thing everybody blames. [write "100,000,000 LISTENERS" big at the top, then "STILL PAYS SPARE CHANGE" underneath it and circle "SPARE CHANGE"]
 
-**FORESHADOW:** And the crazy part aint the label taking his cut. He already fixed that. [write "THE LABEL ISN'T THE PROBLEM?" in caps with a question mark]
+**FORESHADOW:** Cause everybody point at the label taking his cut. He handled that part. [write "THE LABEL ISN'T THE PROBLEM?" in caps with a question mark]
 
-**RISING ACTION:** Spotify pay out around 4 dollars per 1,000 plays. [write "1,000 PLAYS = ~$4" boxed] Used to be Universal took most of Drake's piece before he saw a dime. [draw a pie chart mostly shaded labeled "UMG", a thin slice labeled "DRAKE", and write "BEFORE 2021" above it] Not no more. Since 2021 Drake own his masters, so he keep the big share of every play now. [draw a second pie chart mostly labeled "DRAKE", thin slice "DISTRIBUTION", and write "AFTER 2021" above it]
+**RISING ACTION:** Used to be Universal took most of Drake's piece before he ever saw a dime. [draw a pie chart mostly shaded labeled "UMG", a thin slice labeled "DRAKE", and write "BEFORE 2021" above it] Not no more. Since 2021 Drake own his masters, so he keep the big share of every play now. [draw a second pie chart mostly labeled "DRAKE", thin slice "DISTRIBUTION", and write "AFTER 2021" above it] He fixed who gets the money and the number aint move.
 
-**TWIST:** So Drake fixed who gets the money and the check still small. The problem was never just the label. One play is worth less than half a cent no matter who own it. [write "1 PLAY < HALF A CENT" in big caps and underline twice] 100 million listeners, fractions of a penny each. That's the model. [write "100M × FRACTIONS OF A PENNY = THE MODEL" in caps]
+**TWIST:** So the problem was never just who owns it. Owning your masters fixes who keeps the share. It dont change what one play is worth. [write "OWN THE MASTER → KEEP THE PENNIES" on the left, "STILL PENNIES" on the right with an arrow between]
 
-**PAYOFF:** Owning your masters fixes who keeps the pennies. It dont turn pennies into a paycheck. [write "OWN THE MASTER → KEEP THE PENNIES" on the left, "STILL PENNIES" on the right with an arrow between] Streaming pays you by the million. A fan pays you by the month. [write "STREAMING = BY THE MILLION" and "FAN = BY THE MONTH" stacked at the bottom inside one rough oval]
+**PAYOFF:** Streaming pays you by the million. A fan pays you by the month. [write "STREAMING = BY THE MILLION" and "FAN = BY THE MONTH" stacked at the bottom inside one rough oval] And here's what one play is actually worth: Spotify pay out around 4 dollars for every 1,000 plays, less than half a cent each, so 100 million ears come back as fractions of a penny apiece. [write "1,000 PLAYS = ~$4" boxed, then "1 PLAY < HALF A CENT" in big caps underlined twice, then "100M × FRACTIONS OF A PENNY = THE MODEL" in caps]
 
 ---
 
@@ -59,10 +55,10 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 1. "100,000,000 LISTENERS" / "STILL PAYS SPARE CHANGE" circled
 2. "THE LABEL ISN'T THE PROBLEM?"
-3. "1,000 PLAYS = ~$4" boxed
-4. Pie chart BEFORE 2021 (UMG big, Drake thin)
-5. Pie chart AFTER 2021 (Drake big, distribution thin)
-6. "1 PLAY < HALF A CENT" underlined twice
-7. "100M × FRACTIONS OF A PENNY = THE MODEL"
-8. "OWN THE MASTER → KEEP THE PENNIES" / "STILL PENNIES"
-9. "STREAMING = BY THE MILLION" / "FAN = BY THE MONTH" in oval at bottom
+3. Pie chart BEFORE 2021 (UMG big, Drake thin)
+4. Pie chart AFTER 2021 (Drake big, distribution thin)
+5. "OWN THE MASTER → KEEP THE PENNIES" / "STILL PENNIES"
+6. "STREAMING = BY THE MILLION" / "FAN = BY THE MONTH" in oval
+7. "1,000 PLAYS = ~$4" boxed
+8. "1 PLAY < HALF A CENT" underlined twice
+9. "100M × FRACTIONS OF A PENNY = THE MODEL"

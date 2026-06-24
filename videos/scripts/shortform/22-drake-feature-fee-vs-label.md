@@ -10,17 +10,15 @@ Link in bio to own the songs you drop so every play pays you forever, not just o
 
 **SCRIPT:**
 
-Drake can charge more for one verse than most artists make in a decade.
+Drake will hop on your song for one verse and take a single check to do it. And that one check is the worst seat in the room. The biggest name on the song, the smallest seat at the table.
 
-And that giant check might be the worst seat in the room.
+A Drake verse is a one-time fee. You pay it, he sends it, the check clears, done. But the song he just blessed plays forever, and that forever money goes to whoever owns the song, not the guest who rapped on it.
 
-A Drake verse is a one-time fee. You pay it, he sends it, the check clears, done. But the song he just blessed plays forever. Around 4 dollars per 1,000 plays. A million plays, 4 grand. 100 million plays, 400 grand. Ten years from now it's still paying. All of that goes to whoever owns the song, not the guest who rapped on it.
+Now here go the irony. Drake owns every one of his own masters since 2021. On his records he keeps the money that keeps coming. But the second he's a guest on your song, he's right back to taking the one check and walking.
 
-Now here go the irony. Drake owns every one of his own masters since 2021. On his records he keeps the forever money. But the second he's a guest on your song, he's right back to taking the one-time check and walking.
+The verse made the song hot. Owning it is what makes it pay. A fee gets paid once. A master gets paid every time somebody presses play.
 
-A fee gets paid once. A master gets paid every time somebody presses play.
-
-The verse made the song hot. Owning it is what makes it pay.
+And here's what that one walk-away check actually skips: around 4 dollars per 1,000 plays, so a million plays is 4 grand, 100 million plays is 400 grand, and ten years deep it's still landing on the owner, not the guest.
 
 ---
 
@@ -37,15 +35,17 @@ The verse made the song hot. Owning it is what makes it pay.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Drake can charge more for one verse than most artists make in a decade. [write "ONE DRAKE VERSE" at the top, then "> A DECADE OF CHECKS" underneath and underline it]
+**HOOK:** Drake will hop on your song for one verse and take a single check to do it. And that one check is the worst seat in the room. The biggest name on the song, the smallest seat at the table. [write "ONE DRAKE VERSE" at the top, then "> A DECADE OF CHECKS" underneath and underline it]
 
-**FORESHADOW:** And that giant check might be the worst seat in the room. [write "THE BIG CHECK = THE WORST SEAT?" in caps with a question mark]
+**FORESHADOW:** The biggest name on the song, the smallest seat at the table. [write "THE BIG CHECK = THE WORST SEAT?" in caps with a question mark]
 
-**RISING ACTION:** A Drake verse is a one-time fee. You pay it, he sends it, the check clears, done. [draw a stick figure labeled "DRAKE" walking out of a door labeled "STUDIO" holding one check labeled "PAID ONCE"] But the song he blessed plays forever. Around 4 dollars per 1,000 plays. [write "~$4 PER 1,000 PLAYS"] A million plays, 4 grand. 100 million plays, 400 grand. [stack "1,000,000 PLAYS = $4,000", "100,000,000 PLAYS = $400,000"] Ten years from now it's still paying. All of that goes to whoever owns the song, not the guest who rapped on it. [draw a money bag labeled "OWNER" with arrows of plays flowing into it, and a separate small "GUEST" figure with a single check and an X after it]
+**RISING ACTION:** A Drake verse is a one-time fee. You pay it, he sends it, the check clears, done. [draw a stick figure labeled "DRAKE" walking out of a door labeled "STUDIO" holding one check labeled "PAID ONCE"] But the song he blessed plays forever, and that forever money goes to whoever owns the song, not the guest who rapped on it. [draw a money bag labeled "OWNER" with arrows of plays flowing into it, and a separate small "GUEST" figure with a single check and an X after it]
 
-**TWIST:** Now here go the irony. Drake owns every one of his own masters since 2021. On his records he keeps the forever money. [write "HIS RECORDS: DRAKE = FOREVER MONEY" boxed] But the second he's a guest on your song, he's right back to taking the one-time check and walking. [write "YOUR RECORD: DRAKE = ONE CHECK" boxed and circle it]
+**TWIST:** Now here go the irony. Drake owns every one of his own masters since 2021. On his records he keeps the money that keeps coming. [write "HIS RECORDS: DRAKE = FOREVER MONEY" boxed] But the second he's a guest on your song, he's right back to taking the one check and walking. [write "YOUR RECORD: DRAKE = ONE CHECK" boxed and circle it]
 
-**PAYOFF:** A fee gets paid once. A master gets paid every time somebody presses play. [write "FEE = PAID ONCE" on the left, "MASTER = PAID EVERY PLAY" on the right, with a vertical line between] The verse made the song hot. Owning it is what makes it pay. [write "VERSE = MAKES IT HOT" and "OWNING IT = MAKES IT PAY" stacked at the bottom inside one rough oval]
+**MID PAYOFF:** The verse made the song hot. Owning it is what makes it pay. A fee gets paid once. A master gets paid every time somebody presses play. [write "FEE = PAID ONCE" on the left, "MASTER = PAID EVERY PLAY" on the right, with a vertical line between] [write "VERSE = MAKES IT HOT" and "OWNING IT = MAKES IT PAY" stacked inside one rough oval]
+
+**PAYOFF:** And here's what that one walk-away check actually skips: around 4 dollars per 1,000 plays, so a million plays is 4 grand, 100 million plays is 400 grand, and ten years deep it's still landing on the owner, not the guest. [write "~$4 PER 1,000 PLAYS", then stack "1,000,000 PLAYS = $4,000", "100,000,000 PLAYS = $400,000" in big caps at the bottom and circle it]
 
 ---
 
@@ -60,10 +60,10 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 1. "ONE DRAKE VERSE" / "> A DECADE OF CHECKS" underlined
 2. "THE BIG CHECK = THE WORST SEAT?"
 3. Drake walking out STUDIO with "PAID ONCE" check
-4. "~$4 PER 1,000 PLAYS"
-5. "1,000,000 PLAYS = $4,000" / "100,000,000 PLAYS = $400,000"
-6. Money bag "OWNER" with plays flowing in / "GUEST" with one check and X
-7. "HIS RECORDS: DRAKE = FOREVER MONEY" boxed
-8. "YOUR RECORD: DRAKE = ONE CHECK" boxed and circled
-9. "FEE = PAID ONCE" / "MASTER = PAID EVERY PLAY"
-10. "VERSE = MAKES IT HOT" / "OWNING IT = MAKES IT PAY" in oval at bottom
+4. Money bag "OWNER" with plays flowing in / "GUEST" with one check and X
+5. "HIS RECORDS: DRAKE = FOREVER MONEY" boxed
+6. "YOUR RECORD: DRAKE = ONE CHECK" boxed and circled
+7. "FEE = PAID ONCE" / "MASTER = PAID EVERY PLAY"
+8. "VERSE = MAKES IT HOT" / "OWNING IT = MAKES IT PAY" in oval
+9. "~$4 PER 1,000 PLAYS"
+10. "1,000,000 PLAYS = $4,000" / "100,000,000 PLAYS = $400,000" circled at bottom

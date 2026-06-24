@@ -10,17 +10,15 @@ Link in bio to turn a slice of your listeners into real monthly income with CRWN
 
 **SCRIPT:**
 
-Drake just hit 100 million monthly listeners. Watch what happen if one-tenth of one percent of them paid him direct.
+Drake just hit 100 million monthly listeners, so watch what one-tenth of one percent of em could do if they paid him direct.
 
 That's a rounding error of his audience. The number it makes is not.
 
-100,000 fans, that's 0.1% of 100 million. Put em on real tiers. 80,000 at 10 a month. 18,000 at 50. 2,000 at 200. Add it up. That's 2.1 million dollars a month, direct, no splits.
+100,000 fans, that's 0.1% of 100 million. Put em on real tiers. 80,000 at 10 a month. 18,000 at 50. 2,000 at 200. That stacks into millions a month, direct, no splits, off a sliver of the people already streaming him. The other 99.9% aint even in the math.
 
-Times twelve, that's 25 million dollars a year. From one-tenth of one percent of the people who already stream him. The other 99.9% aint even in the math.
+Streaming counts every ear in the building. Direct counts the ones that reach in they pocket. 100 million people know his name. He'd only need 100 thousand to print a business.
 
-Streaming counts every ear in the building. Direct counts the ones that reach in they pocket.
-
-100 million people know his name. He'd only need 100 thousand to print a business.
+So run the year out on that sliver and it lands at 25 million dollars.
 
 ---
 
@@ -37,15 +35,17 @@ Streaming counts every ear in the building. Direct counts the ones that reach in
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Drake just hit 100 million monthly listeners. [write "DRAKE = 100,000,000 LISTENERS" big at the top] Watch what happen if one-tenth of one percent of them paid him direct. [write "0.1% PAID DIRECT?" in caps below and circle it]
+**HOOK:** Drake just hit 100 million monthly listeners, so watch what one-tenth of one percent of em could do if they paid him direct. [write "DRAKE = 100,000,000 LISTENERS" big at the top] [write "0.1% PAID DIRECT?" in caps below and circle it]
 
 **FORESHADOW:** That's a rounding error of his audience. The number it makes is not. [write "A ROUNDING ERROR..." with a downward arrow]
 
-**RISING ACTION:** 100,000 fans, that's 0.1% of 100 million. [write "0.1% × 100M = 100,000 FANS" and underline "100,000"] Put em on real tiers. [draw a stacked breakdown: "80,000 × $10 = $800,000", "18,000 × $50 = $900,000", "2,000 × $200 = $400,000"] Add it up. That's 2.1 million dollars a month, direct, no splits. [write "= $2,100,000 / MONTH" boxed, with "NO SPLITS" written beside it]
+**RISING ACTION:** 100,000 fans, that's 0.1% of 100 million. [write "0.1% × 100M = 100,000 FANS" and underline "100,000"] Put em on real tiers. [draw a stacked breakdown: "80,000 × $10 = $800,000", "18,000 × $50 = $900,000", "2,000 × $200 = $400,000"] That stacks into millions a month, direct, no splits. [write "= $2,100,000 / MONTH" boxed, with "NO SPLITS" written beside it]
 
-**TWIST:** Times twelve, that's 25 million dollars a year. [write "× 12 = $25,200,000 / YEAR" in big caps and circle it] From one-tenth of one percent of the people who already stream him. The other 99.9% aint even in the math. [write "99.9% NOT IN THE MATH" boxed and underline it]
+**TWIST:** Off a sliver of the people already streaming him. The other 99.9% aint even in the math. [write "99.9% NOT IN THE MATH" boxed and underline it]
 
-**PAYOFF:** Streaming counts every ear in the building. Direct counts the ones that reach in they pocket. [write "STREAMING = EVERY EAR" on the left, "DIRECT = THE BUYERS" on the right, with a vertical line between] 100 million people know his name. He'd only need 100 thousand to print a business. [write "KNOW HIS NAME: 100,000,000" on the left and "BUILD THE BUSINESS: 100,000" on the right at the bottom, both circled together inside one rough oval]
+**MID PAYOFF:** Streaming counts every ear in the building. Direct counts the ones that reach in they pocket. [write "STREAMING = EVERY EAR" on the left, "DIRECT = THE BUYERS" on the right, with a vertical line between] 100 million people know his name. He'd only need 100 thousand to print a business. [write "KNOW HIS NAME: 100,000,000" on the left and "BUILD THE BUSINESS: 100,000" on the right, both circled together inside one rough oval]
+
+**PAYOFF:** So run the year out on that sliver and it lands at 25 million dollars. [write "× 12 = $25,200,000 / YEAR" in big caps at the bottom and circle it]
 
 ---
 
@@ -63,7 +63,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 4. "0.1% × 100M = 100,000 FANS"
 5. Tier breakdown: 80K×$10 / 18K×$50 / 2K×$200
 6. "= $2,100,000 / MONTH" boxed with "NO SPLITS"
-7. "× 12 = $25,200,000 / YEAR" circled
-8. "99.9% NOT IN THE MATH" boxed
-9. "STREAMING = EVERY EAR" / "DIRECT = THE BUYERS"
-10. "KNOW HIS NAME: 100,000,000" / "BUILD THE BUSINESS: 100,000" in oval
+7. "99.9% NOT IN THE MATH" boxed
+8. "STREAMING = EVERY EAR" / "DIRECT = THE BUYERS"
+9. "KNOW HIS NAME: 100,000,000" / "BUILD THE BUSINESS: 100,000" in oval
+10. "× 12 = $25,200,000 / YEAR" circled at bottom

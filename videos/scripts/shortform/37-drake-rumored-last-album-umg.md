@@ -10,17 +10,15 @@ Link in bio to keep the masters to your first songs forever, while they're still
 
 **SCRIPT:**
 
-What can't the biggest rapper alive buy?
+Drake can buy almost anything, so what's the one thing all that money still can't get him?
 
 He owns almost everything he records now. There's one thing his money still can't reach.
 
-Since 2021 Drake owns his masters. New deal, hundreds of millions, biggest in the game. Certified Lover Boy, For All The Dogs, Iceman, all his. But Take Care. Nothing Was The Same. Views. Scorpion. The records that built him. Universal bought that whole early catalog in 2021 and they keep it.
+Since 2021 Drake owns his masters. New deal, hundreds of millions, biggest in the game. Certified Lover Boy, For All The Dogs, Iceman, all his. So the most powerful artist on the planet can buy almost anything. Young Drake signed something away before he had the leverage to keep it, and no amount of new money buys it back.
 
-So the most powerful artist on the planet can buy almost anything except the masters to the music that made his name. Young Drake signed em away before he had the leverage to keep em. No amount of new money buys the old songs back.
+The catalog he'd want most is the one he signed off first. The masters you give up broke are the ones you can't buy back rich.
 
-The catalog he'd want most is the one he signed off first.
-
-The masters you give up broke are the ones you can't buy back rich.
+And here's the one thing the richest rapper alive still can't own: Take Care, Nothing Was The Same, Views, Scorpion, the records that built him. Universal bought that early catalog in 2021 and they keep it.
 
 ---
 
@@ -37,15 +35,17 @@ The masters you give up broke are the ones you can't buy back rich.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What can't the biggest rapper alive buy? [write "WHAT CAN'T DRAKE BUY?" huge in bold caps at the top and circle the question mark]
+**HOOK:** Drake can buy almost anything, so what's the one thing all that money still can't get him? [write "WHAT CAN'T DRAKE BUY?" huge in bold caps at the top and circle the question mark]
 
 **FORESHADOW:** He owns almost everything he records now. There's one thing his money still can't reach. [write "ONE THING MONEY CAN'T REACH" in caps with a downward arrow]
 
-**RISING ACTION:** Since 2021 Drake owns his masters. New deal, hundreds of millions, biggest in the game. [write "2021: NEW DEAL = HUNDREDS OF MILLIONS" boxed] Certified Lover Boy, For All The Dogs, Iceman, all his. [stack "CLB / FOR ALL THE DOGS / ICEMAN" with a small check beside each and "OWNS" bracketed] But Take Care. Nothing Was The Same. Views. Scorpion. The records that built him. [stack "TAKE CARE / NOTHING WAS THE SAME / VIEWS / SCORPION" with an X beside each] Universal bought that whole early catalog in 2021 and they keep it. [write "UMG BOUGHT IT 2021 → KEEPS IT" with an arrow]
+**RISING ACTION:** Since 2021 Drake owns his masters. New deal, hundreds of millions, biggest in the game. [write "2021: NEW DEAL = HUNDREDS OF MILLIONS" boxed] Certified Lover Boy, For All The Dogs, Iceman, all his. [stack "CLB / FOR ALL THE DOGS / ICEMAN" with a small check beside each and "OWNS" bracketed] So the most powerful artist on the planet can buy almost anything. [write "CAN BUY ANYTHING" on the left, "EXCEPT THESE" on the right pointing at the early albums]
 
-**TWIST:** So the most powerful artist on the planet can buy almost anything except the masters to the music that made his name. [write "CAN BUY ANYTHING" on the left, "EXCEPT THESE" on the right pointing at the early albums] Young Drake signed em away before he had the leverage to keep em. No amount of new money buys the old songs back. [draw a young stick figure labeled "2009 DRAKE" signing a paper, and an arrow to a big stick figure labeled "TODAY DRAKE" with a money bag and a wall between him and the early albums]
+**TWIST:** Young Drake signed something away before he had the leverage to keep it, and no amount of new money buys it back. [draw a young stick figure labeled "2009 DRAKE" signing a paper, and an arrow to a big stick figure labeled "TODAY DRAKE" with a money bag and a wall between him and the early albums]
 
-**PAYOFF:** The catalog he'd want most is the one he signed off first. [write "WANTS MOST = SIGNED FIRST" boxed in the middle] The masters you give up broke are the ones you can't buy back rich. [write "GIVE UP BROKE = CAN'T BUY BACK RICH" in big bold caps at the bottom and circle the whole line]
+**MID PAYOFF:** The catalog he'd want most is the one he signed off first. [write "WANTS MOST = SIGNED FIRST" boxed in the middle] The masters you give up broke are the ones you can't buy back rich. [write "GIVE UP BROKE = CAN'T BUY BACK RICH" in big bold caps and circle the whole line]
+
+**PAYOFF:** And here's the one thing the richest rapper alive still can't own: Take Care, Nothing Was The Same, Views, Scorpion, the records that built him. Universal bought that early catalog in 2021 and they keep it. [stack "TAKE CARE / NOTHING WAS THE SAME / VIEWS / SCORPION" at the bottom with an X beside each, then write "UMG BOUGHT IT 2021 → KEEPS IT" with an arrow]
 
 ---
 
@@ -61,9 +61,9 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 2. "ONE THING MONEY CAN'T REACH" with arrow
 3. "2021: NEW DEAL = HUNDREDS OF MILLIONS" boxed
 4. List CLB / FATD / ICEMAN with checks, "OWNS" bracket
-5. List TAKE CARE / NWTS / VIEWS / SCORPION with X's
-6. "UMG BOUGHT IT 2021 → KEEPS IT"
-7. "CAN BUY ANYTHING" / "EXCEPT THESE" arrow at early albums
-8. "2009 DRAKE" signing → "TODAY DRAKE" with money bag, wall between
-9. "WANTS MOST = SIGNED FIRST" boxed
-10. "GIVE UP BROKE = CAN'T BUY BACK RICH" circled at bottom
+5. "CAN BUY ANYTHING" / "EXCEPT THESE" arrow at early albums
+6. "2009 DRAKE" signing → "TODAY DRAKE" with money bag, wall between
+7. "WANTS MOST = SIGNED FIRST" boxed
+8. "GIVE UP BROKE = CAN'T BUY BACK RICH" circled
+9. List TAKE CARE / NWTS / VIEWS / SCORPION with X's
+10. "UMG BOUGHT IT 2021 → KEEPS IT" at bottom
