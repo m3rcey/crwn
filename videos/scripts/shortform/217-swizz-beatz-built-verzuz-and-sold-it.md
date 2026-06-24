@@ -16,7 +16,7 @@ Stay with me, cause they walked away with way more than a check.
 
 March 2020. Swizz Beatz call Timbaland out on Instagram Live. Just two friends playin they own beats, free, anybody could watch. They aint charge a dime.
 
-That free little battle turned into Verzuz. The biggest names in music lined up to do it. The first one pulled over 5 million people watchin at once.
+That free little battle turned into Verzuz. The biggest names in music lined up to do it. The biggest ones pulled millions of people watchin across every platform.
 
 One year later, they sold it to Triller. They aint just make the music. They built a thing, and then they owned it enough to sell it.
 
@@ -43,7 +43,7 @@ A streamin check pay you once and it gone. A thing you own, you can sell, and br
 
 **FORESHADOW:** Stay with me, cause they walked away with way more than a check. [Under the hook write "MORE THAN A CHECK" and underline it]
 
-**RISING ACTION:** March 2020. Swizz Beatz call Timbaland out on Instagram Live. [Write "MARCH 2020" then "SWIZZ vs TIM" with a small phone drawing] Just two friends playin they own beats, free, anybody could watch. They aint charge a dime. [Write "FREE" big, circle it] That free little battle turned into Verzuz. [Write "VERZUZ" in bold capitals, underline it] The biggest names in music lined up to do it. The first one pulled over 5 million people watchin at once. [Write "5,000,000 WATCHING" and circle the number] One year later, they sold it to Triller. [Draw a right arrow to "TRILLER 2021"] They aint just make the music. They built a thing, and then they owned it enough to sell it. [Write "MADE IT + OWNED IT" and underline "OWNED IT"]
+**RISING ACTION:** March 2020. Swizz Beatz call Timbaland out on Instagram Live. [Write "MARCH 2020" then "SWIZZ vs TIM" with a small phone drawing] Just two friends playin they own beats, free, anybody could watch. They aint charge a dime. [Write "FREE" big, circle it] That free little battle turned into Verzuz. [Write "VERZUZ" in bold capitals, underline it] The biggest names in music lined up to do it. The biggest ones pulled millions of people watchin across every platform. [Write "MILLIONS WATCHING" and circle it] One year later, they sold it to Triller. [Draw a right arrow to "TRILLER 2021"] They aint just make the music. They built a thing, and then they owned it enough to sell it. [Write "MADE IT + OWNED IT" and underline "OWNED IT"]
 
 **TWIST:** So here go the part that hit me. When they sold, they cut in all 43 artists who ever performed. [Write "43 ARTISTS GOT A PIECE" and box it, draw a small pie chart with many slices] The people who showed up got a piece too. [Draw a few small stick figures with smiley faces next to the pie]
 
@@ -53,7 +53,7 @@ A streamin check pay you once and it gone. A thing you own, you can sell, and br
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top left, two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of Swizz Beatz and Timbaland from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "SWIZZ BEATZ" and "TIMBALAND" underneath, with the words "2 PRODUCERS" handwritten beneath them. At the top right, a hand-drawn price tag shape with the word "SOLD" inside it, circled, with a curved arrow leading from the portraits to the tag. Just below the top, the handwritten phrase "MORE THAN A CHECK" with a hand-drawn underline. In the middle area, "MARCH 2020" then "SWIZZ vs TIM" written large, with a small hand-drawn phone next to it. The word "FREE" written big and circled. The word "VERZUZ" written in bold capital letters with an underline. The text "5,000,000 WATCHING" with the number circled. A right-pointing arrow leading to "TRILLER 2021". The phrase "MADE IT + OWNED IT" with "OWNED IT" underlined. Toward the lower middle, the boxed phrase "43 ARTISTS GOT A PIECE" with a small hand-drawn pie chart cut into many slices beside it, and three small stick figures with smiley faces next to the pie. At the bottom, "STREAM = PAID ONCE" with a small dollar sign and a second dollar sign crossed out, and below it the underlined line "OWN IT = SELL IT + BRING YA PEOPLE". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top left, two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of Swizz Beatz and Timbaland from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "SWIZZ BEATZ" and "TIMBALAND" underneath, with the words "2 PRODUCERS" handwritten beneath them. At the top right, a hand-drawn price tag shape with the word "SOLD" inside it, circled, with a curved arrow leading from the portraits to the tag. Just below the top, the handwritten phrase "MORE THAN A CHECK" with a hand-drawn underline. In the middle area, "MARCH 2020" then "SWIZZ vs TIM" written large, with a small hand-drawn phone next to it. The word "FREE" written big and circled. The word "VERZUZ" written in bold capital letters with an underline. The text "MILLIONS WATCHING" with it circled. A right-pointing arrow leading to "TRILLER 2021". The phrase "MADE IT + OWNED IT" with "OWNED IT" underlined. Toward the lower middle, the boxed phrase "43 ARTISTS GOT A PIECE" with a small hand-drawn pie chart cut into many slices beside it, and three small stick figures with smiley faces next to the pie. At the bottom, "STREAM = PAID ONCE" with a small dollar sign and a second dollar sign crossed out, and below it the underlined line "OWN IT = SELL IT + BRING YA PEOPLE". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
@@ -65,7 +65,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 4. "MARCH 2020" / "SWIZZ vs TIM" with phone
 5. "FREE" big and circled
 6. "VERZUZ" bold and underlined
-7. "5,000,000 WATCHING" with number circled
+7. "MILLIONS WATCHING" circled
 8. Arrow to "TRILLER 2021"
 9. "MADE IT + OWNED IT" with "OWNED IT" underlined
 10. "43 ARTISTS GOT A PIECE" boxed, with pie chart and smiley stick figures

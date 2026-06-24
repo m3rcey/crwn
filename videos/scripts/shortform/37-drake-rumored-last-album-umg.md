@@ -18,7 +18,7 @@ Since 2021 Drake owns his masters. New deal, hundreds of millions, biggest in th
 
 The catalog he'd want most is the one he signed off first. The masters you give up broke are the ones you can't buy back rich.
 
-And here's the one thing the richest rapper alive still can't own: Take Care, Nothing Was The Same, Views, Scorpion, the records that built him. Universal bought that early catalog in 2021 and they keep it.
+And here's the one thing the richest rapper alive still can't own: Take Care, Nothing Was The Same, Views, Scorpion, the records that built him. Universal bought up the Young Money catalog back in 2020 and they keep it.
 
 ---
 
@@ -29,7 +29,7 @@ And here's the one thing the richest rapper alive still can't own: Take Care, No
 4. Young Drake Signed Away The Albums That Made Him -- Structure 4
 5. The Masters You Give Up Broke -- Structure 9
 
-**TOPIC:** Drake has owned his masters since 2021 (Certified Lover Boy onward) under a new deal worth hundreds of millions. But his early catalog (Take Care, Nothing Was The Same, Views, Scorpion) belongs to Universal, which bought the Cash Money catalog in 2021. The biggest artist alive cannot buy back the masters to the music that made him, because he signed them away before he had leverage.
+**TOPIC:** Drake has owned his masters since 2021 (Certified Lover Boy onward) under a new deal worth hundreds of millions. But his early catalog (Take Care, Nothing Was The Same, Views, Scorpion) belongs to Universal, which bought the Young Money catalog in 2020. The biggest artist alive cannot buy back the masters to the music that made him, because he signed them away before he had leverage.
 
 ---
 
@@ -45,13 +45,13 @@ And here's the one thing the richest rapper alive still can't own: Take Care, No
 
 **MID PAYOFF:** The catalog he'd want most is the one he signed off first. [write "WANTS MOST = SIGNED FIRST" boxed in the middle] The masters you give up broke are the ones you can't buy back rich. [write "GIVE UP BROKE = CAN'T BUY BACK RICH" in big bold caps and circle the whole line]
 
-**PAYOFF:** And here's the one thing the richest rapper alive still can't own: Take Care, Nothing Was The Same, Views, Scorpion, the records that built him. Universal bought that early catalog in 2021 and they keep it. [stack "TAKE CARE / NOTHING WAS THE SAME / VIEWS / SCORPION" at the bottom with an X beside each, then write "UMG BOUGHT IT 2021 → KEEPS IT" with an arrow]
+**PAYOFF:** And here's the one thing the richest rapper alive still can't own: Take Care, Nothing Was The Same, Views, Scorpion, the records that built him. Universal bought up the Young Money catalog back in 2020 and they keep it. [stack "TAKE CARE / NOTHING WAS THE SAME / VIEWS / SCORPION" at the bottom with an X beside each, then write "UMG BOUGHT IT 2020 → KEEPS IT" with an arrow]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top of the page, "WHAT CAN'T DRAKE BUY?" is written huge in bold capital letters with the question mark circled. Below that, "ONE THING MONEY CAN'T REACH" is written in capitals with a downward hand-drawn arrow. In the upper middle, "2021: NEW DEAL = HUNDREDS OF MILLIONS" is written and boxed. Below that, a stacked list is written with a small check mark beside each: "CLB", "FOR ALL THE DOGS", "ICEMAN", with a hand-drawn bracket labeled "OWNS". Below that, a second stacked list is written with a sharpie X beside each: "TAKE CARE", "NOTHING WAS THE SAME", "VIEWS", "SCORPION". Below that, "UMG BOUGHT IT 2021 → KEEPS IT" is written with a hand-drawn arrow. In the middle of the page, "CAN BUY ANYTHING" is written on the left and "EXCEPT THESE" on the right with an arrow pointing up at the early-albums list. Below that, a small young stick figure labeled "2009 DRAKE" is drawn signing a paper, with a hand-drawn arrow to a larger stick figure labeled "TODAY DRAKE" holding a money bag, and a hand-drawn brick wall drawn between him and the early albums. Near the bottom, "WANTS MOST = SIGNED FIRST" is written and boxed. At the very bottom of the page, "GIVE UP BROKE = CAN'T BUY BACK RICH" is written in big bold capital letters and the whole line is circled once. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top of the page, "WHAT CAN'T DRAKE BUY?" is written huge in bold capital letters with the question mark circled. Below that, "ONE THING MONEY CAN'T REACH" is written in capitals with a downward hand-drawn arrow. In the upper middle, "2021: NEW DEAL = HUNDREDS OF MILLIONS" is written and boxed. Below that, a stacked list is written with a small check mark beside each: "CLB", "FOR ALL THE DOGS", "ICEMAN", with a hand-drawn bracket labeled "OWNS". Below that, a second stacked list is written with a sharpie X beside each: "TAKE CARE", "NOTHING WAS THE SAME", "VIEWS", "SCORPION". Below that, "UMG BOUGHT IT 2020 → KEEPS IT" is written with a hand-drawn arrow. In the middle of the page, "CAN BUY ANYTHING" is written on the left and "EXCEPT THESE" on the right with an arrow pointing up at the early-albums list. Below that, a small young stick figure labeled "2009 DRAKE" is drawn signing a paper, with a hand-drawn arrow to a larger stick figure labeled "TODAY DRAKE" holding a money bag, and a hand-drawn brick wall drawn between him and the early albums. Near the bottom, "WANTS MOST = SIGNED FIRST" is written and boxed. At the very bottom of the page, "GIVE UP BROKE = CAN'T BUY BACK RICH" is written in big bold capital letters and the whole line is circled once. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
@@ -66,4 +66,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 7. "WANTS MOST = SIGNED FIRST" boxed
 8. "GIVE UP BROKE = CAN'T BUY BACK RICH" circled
 9. List TAKE CARE / NWTS / VIEWS / SCORPION with X's
-10. "UMG BOUGHT IT 2021 → KEEPS IT" at bottom
+10. "UMG BOUGHT IT 2020 → KEEPS IT" at bottom

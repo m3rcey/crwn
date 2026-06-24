@@ -10,7 +10,7 @@ Link in bio to own your masters so your catalog pays you and your family, not a 
 
 **SCRIPT:**
 
-Tupac passed in 1996. So how did more of his albums come out after he was gone than while he was alive? Stay with me. He recorded so much music they had hundreds of songs sittin in the vault. Death Row owned them master recordings. Tupac made em, but he aint own em. So every posthumous album that dropped, the company that held the masters got paid first. His own mother Afeni had to fight for years to win them recordings back. Reports say she finally got a settlement and the unreleased tapes. The deal dont end when the artist do. The owner just keeps cashing the vault. So here go the answer. While he was alive Tupac put out four studio albums. After he was gone the label kept reaching in that vault and put out more than that. Six of em.
+Tupac passed in 1996. So how did more of his albums come out after he was gone than while he was alive? Stay with me. He recorded so much music they had hundreds of songs sittin in the vault. Death Row owned them master recordings. Tupac made em, but he aint own em. So every posthumous album that dropped, the company that held the masters got paid first. His own mother Afeni had to fight for years to win them recordings back. Reports say she finally got a settlement and the unreleased tapes. The deal dont end when the artist do. The owner just keeps cashing the vault. So here go the answer. While he was alive Tupac put out four studio albums. After he was gone the label kept reaching in that vault and put out more than that. Seven of em.
 
 ---
 
@@ -35,7 +35,7 @@ Tupac passed in 1996. So how did more of his albums come out after he was gone t
 
 **TWIST:** The deal dont end when the artist do. The owner just keeps cashing the vault. [Write "DEAL DONT END WHEN THE ARTIST DO." Under it, two lines: "OWNER = CASHES THE VAULT" and "ARTIST = JUST MADE IT." Box the whole thing.]
 
-**PAYOFF:** So here go the answer. While he was alive Tupac put out four studio albums. After he was gone the label kept reaching in that vault and put out more than that. Six of em. [Draw two columns: "ALIVE" with four album squares, "GONE" with six album squares. Write "4" under ALIVE, "6" under GONE and circle the "6".]
+**PAYOFF:** So here go the answer. While he was alive Tupac put out four studio albums. After he was gone the label kept reaching in that vault and put out more than that. Seven of em. [Draw two columns: "ALIVE" with four album squares, "GONE" with seven album squares. Write "4" under ALIVE, "7" under GONE and circle the "7".]
 
 ---
 
@@ -56,4 +56,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 7. "AFENI" / "YEARS OF FIGHTING" arrow
 8. "SETTLEMENT + TAPES" checkmark
 9. Boxed takeaway: "DEAL DONT END WHEN THE ARTIST DO" / "OWNER = CASHES THE VAULT" / "ARTIST = JUST MADE IT"
-10. Two columns: "ALIVE" with 4 album squares (write "4"), "GONE" with 6 album squares (write "6" circled)
+10. Two columns: "ALIVE" with 4 album squares (write "4"), "GONE" with 7 album squares (write "7" circled)
