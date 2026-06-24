@@ -10,7 +10,7 @@ Link in bio to build fans who buy what you drop instead of chasing passive strea
 
 **SCRIPT:**
 
-This is a million people who stream you once. And this is 10,000 fans who actually buy everything you drop. One of these pays way more. Look at Nicki Minaj. Her fans got a name. The Barbz. And they dont just stream. They BUY. When Pink Friday 2 came out, it did 228,000 in the first week. The Barbz bought multiple copies. Vinyl. Bundles. Deluxe versions. They show up with they wallet, not just a playlist. Here go what most artists sleep on. A million casual streams might pay you a few thousand dollars. But 10,000 real fans who buy can pay you way more than that, over and over. A streamer press play and forget you. A real fan buys, then buys again. Stop counting streams. Count the people who actually spend on you.
+Why does Nicki Minaj's fanbase, the Barbz, mean more to her than a million casual streamers ever could? Cause the Barbz dont just stream. They buy. When Pink Friday 2 dropped, the Barbz copped multiple copies. Vinyl. Bundles. Deluxe versions. They show up with they wallet, not just a playlist. Think about it like this. A million casual streams might pay you a few thousand dollars. 10,000 real fans who buy pay way more, over and over, every single drop. That kind of fanbase dont just feed the bank account. It moves the charts. So what did the Barbz actually pull off for Nicki? They put her on the Billboard Hot 100 over 140 times, past Aretha Franklin and damn near everybody, the only female rapper in history to clear 100 hits.
 
 ---
 
@@ -21,34 +21,32 @@ This is a million people who stream you once. And this is 10,000 fans who actual
 4. Would 10,000 Fans Beat A Million -- Structure 1
 5. Every Buyer Beats A Hundred Streams -- Structure 5
 
-**TOPIC:** Nicki Minaj's Barbz buy multiple copies, bundles and vinyl (Pink Friday 2 did 228K week one); fans who buy direct are worth far more than passive streams.
+**TOPIC:** Nicki Minaj's Barbz buy multiple copies/bundles/vinyl (Pink Friday 2 did 228K week one); the twist is that buying fanbase put her on the Hot 100 over 140 times, the only female rapper ever past 100 hits, passing Aretha Franklin.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is a million people who stream you once. And this is 10,000 fans who actually buy everything you drop. One of these pays way more. [draw two groups: a big cloud labeled "1,000,000 STREAMS", a small circle labeled "10,000 BUYERS"]
+**HOOK:** Why does Nicki Minaj's fanbase, the Barbz, mean more to her than a million casual streamers ever could? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Nicki Minaj from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "NICKI MINAJ" underneath, with "THE BARBZ > A MILLION STREAMERS?" beside her]
 
-**FORESHADOW:** Look at Nicki Minaj. Her fans got a name. The Barbz. And they dont just stream. They BUY. [write "THE BARBZ", underline "BUY"]
+**RISING ACTION:** Cause the Barbz dont just stream. They buy. When Pink Friday 2 dropped, the Barbz copped multiple copies. Vinyl. Bundles. Deluxe versions. They show up with they wallet, not just a playlist. [write "THE BARBZ" with "BUY" underlined, draw vinyl/bundle/"DELUXE" icons with dollar signs]
 
-**RISING ACTION:** When Pink Friday 2 came out, it did 228,000 in the first week. The Barbz bought multiple copies. Vinyl. Bundles. Deluxe versions. They show up with they wallet, not just a playlist. [write "228,000 WEEK 1", draw small icons: a vinyl record, a bundle box, "DELUXE", each with a dollar sign]
+**RISING ACTION (cont):** A million casual streams might pay you a few thousand dollars. 10,000 real fans who buy pay way more, over and over, every single drop. That kind of fanbase dont just feed the bank account. It moves the charts. [draw a scale tipping a small "10,000 BUYERS = WAY MORE" circle over a big "1,000,000 STREAMS = a few $1,000s" cloud, write "MOVES THE CHARTS"]
 
-**TWIST:** A million casual streams might pay you a few thousand dollars. But 10,000 real fans who buy can pay you way more than that, over and over. [write the math "1,000,000 STREAMS = a few $1,000s", "10,000 BUYERS = WAY MORE", draw a scale tipping to the buyers]
-
-**PAYOFF:** A streamer press play and forget you. A real fan buys, then buys again. Stop counting streams. Count the people who actually spend on you. [box at the bottom: "COUNT BUYERS, NOT STREAMS"]
+**PAYOFF:** So what did the Barbz actually pull off for Nicki? They put her on the Billboard Hot 100 over 140 times, past Aretha Franklin and damn near everybody, the only female rapper in history to clear 100 hits. [write "BARBZ -> 140+ HOT 100 HITS", "PASSED ARETHA", "ONLY FEMALE RAPPER PAST 100", box at the bottom: "A FANBASE THAT BUYS PUT HER ON THE CHARTS 140+ TIMES"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, two drawn groups: a big cloud labeled "1,000,000 STREAMS" and a small circle labeled "10,000 BUYERS". "THE BARBZ" with "BUY" underlined. "228,000 WEEK 1" with small drawn icons: a vinyl record, a bundle box, and "DELUXE", each with a dollar sign. The math "1,000,000 STREAMS = a few $1,000s" and "10,000 BUYERS = WAY MORE" with a drawn balance scale tipping toward the buyers. At the bottom, a boxed phrase "COUNT BUYERS, NOT STREAMS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The dominant central illustration: near the top, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Nicki Minaj from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "NICKI MINAJ" underneath. She stands with her fanbase, the Barbz, who pile up vinyl, bundles and "DELUXE" copies and hand her cash; a balance scale tips a small "10,000 BUYERS" circle over a big "1,000,000 STREAMS" cloud. Near the bottom, as the final reveal, a giant wall of "140+ HOT 100 HITS" stacks up. Keep the supporting data: "MOVES THE CHARTS", "ONLY FEMALE RAPPER PAST 100", "PASSED ARETHA", "1,000,000 STREAMS = a few $1,000s vs 10,000 BUYERS = WAY MORE". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "THE BARBZ DON'T STREAM. THEY BUY." At the bottom, in a boxed line: "A FANBASE THAT BUYS PUT HER ON THE CHARTS 140+ TIMES." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. Cloud "1,000,000 STREAMS" vs circle "10,000 BUYERS" (top)
-2. "THE BARBZ" + underlined "BUY"
-3. "228,000 WEEK 1" + vinyl/bundle/DELUXE icons with dollar signs
-4. Math "1,000,000 STREAMS = a few $1,000s" vs "10,000 BUYERS = WAY MORE" + scale
-5. Boxed "COUNT BUYERS, NOT STREAMS" (bottom)
+1. Nicki Minaj portrait labeled "NICKI MINAJ" + "THE BARBZ > A MILLION STREAMERS?" (top)
+2. "THE BARBZ" + underlined "BUY" + vinyl/bundle/DELUXE icons with dollar signs
+3. Scale "1,000,000 STREAMS = a few $1,000s" vs "10,000 BUYERS = WAY MORE" + "MOVES THE CHARTS"
+4. "BARBZ -> 140+ HOT 100 HITS / PASSED ARETHA / ONLY FEMALE RAPPER PAST 100"
+5. Boxed "A FANBASE THAT BUYS PUT HER ON THE CHARTS 140+ TIMES" (bottom)

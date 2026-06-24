@@ -10,7 +10,7 @@ Link in bio to give your fans a real cut so they ride for you like partners, not
 
 **SCRIPT:**
 
-Has anybody ever told you to give away a piece of your own company? Want to know why a billionaire would say that? The story goes that Jay-Z gave Westside Gunn some advice about Griselda, his rap group and label. Reportedly Jay told him to give his two partners, Conway and Benny, a real ownership piece, like 10 percent split between em. Westside Gunn reportedly said no, and he later denied the story, so take it as a lesson, not gospel. But sit with the idea. Why would a man worth billions tell you to GIVE away ownership? Because when your people got a real stake, they ride for everything, not just a check. They build with you, not just for you. Your fans can have a stake too. When a fan earns a cut for every person they bring, they stop being just a listener. They become a partner. People go ten times harder for something they own a piece of.
+What did Jay-Z reportedly tell Westside Gunn to give away that most artists would never let go of? The story goes Jay gave Westside Gunn advice about Griselda, his rap group and label. Reportedly Jay told him to give his partners Conway and Benny a real piece, like 10 percent split between em. Westside Gunn reportedly said no, and later denied the whole story, so take it as a lesson, not gospel. But sit with the idea. Why would a man worth billions tell you to hand ownership away? Because when your people got a real stake, they build like its theirs, not just for a check. And here go the part that dont stop at business partners. Picture a fan who earns a cut for every person they bring in. That fan stops being a listener and starts pushing your music like they own a piece of it. Because now they actually do.
 
 ---
 
@@ -21,34 +21,32 @@ Has anybody ever told you to give away a piece of your own company? Want to know
 4. Would You Give Your Team A Piece -- Structure 1
 5. Giving Your People A Real Stake -- Structure 10
 
-**TOPIC:** Jay-Z reportedly advised Westside Gunn to give Conway and Benny a 10% stake in Griselda (WSG declined and later denied it); a real stake makes your people ride like partners, and fans can earn a cut too.
+**TOPIC:** Jay-Z reportedly advised Westside Gunn to give Conway and Benny a 10% stake in Griselda (WSG declined and later denied it); the twist is fans can earn a real cut too, which turns a listener into an owner who pushes your music.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Has anybody ever told you to give away a piece of your own company? Want to know why a billionaire would say that? [write "GIVE AWAY A PIECE?" at the top, draw a pie chart]
+**HOOK:** What did Jay-Z reportedly tell Westside Gunn to give away that most artists would never let go of? [write "GIVE AWAY A PIECE?" at the top, draw a pie chart, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Westside Gunn from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WESTSIDE GUNN" underneath]
 
-**FORESHADOW:** The story goes that Jay-Z gave Westside Gunn advice about Griselda, his rap group and label. Reportedly Jay told him to give Conway and Benny a real ownership piece, like 10 percent split between em. [draw a pie chart with a 10% slice labeled "CONWAY + BENNY", write "JAY-Z'S ADVICE"]
+**FORESHADOW:** The story goes Jay gave Westside Gunn advice about Griselda, his rap group and label. Reportedly Jay told him to give Conway and Benny a real piece, like 10 percent split between em. [draw a pie chart with a 10% slice labeled "CONWAY + BENNY", write "JAY-Z'S ADVICE"]
 
-**RISING ACTION:** Westside Gunn reportedly said no, and he later denied the story, so take it as a lesson, not gospel. But why would a man worth billions tell you to GIVE away ownership? [write "SAID NO", "DENIED IT" with a small note "(take it as a lesson)"]
+**RISING ACTION:** Westside Gunn reportedly said no, and later denied the whole story, so take it as a lesson, not gospel. But why would a man worth billions tell you to hand ownership away? Because when your people got a real stake, they build like its theirs, not just for a check. [write "SAID NO", "DENIED IT" with a small note "(take it as a lesson)", draw stick figures all pulling one rope toward a goal labeled "A STAKE = THEY RIDE"]
 
-**TWIST:** Because when your people got a real stake, they ride for everything, not just a check. They build with you, not just for you. [draw stick figures all pulling one rope toward a goal, labeled "A STAKE = THEY RIDE"]
-
-**PAYOFF:** Your fans can have a stake too. When a fan earns a cut for every person they bring, they stop being just a listener. They become a partner. People go ten times harder for something they own a piece of. [draw a fan handing a dollar from a new fan, getting a cut back, box at the bottom: "GIVE FANS A CUT, THEY RIDE LIKE PARTNERS"]
+**PAYOFF / SURPRISE ENDING:** And here go the part that dont stop at business partners. Picture a fan who earns a cut for every person they bring in. That fan stops being a listener and starts pushing your music like they own a piece of it. Because now they actually do. [draw a fan handing over a dollar from a new fan and getting a cut back, write "FAN -> OWNER", box at the bottom: "GIVE A FAN A CUT, THEY OWN A PIECE"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, "GIVE AWAY A PIECE?" with a drawn pie chart. A pie chart with a 10% slice labeled "CONWAY + BENNY" and "JAY-Z'S ADVICE". "SAID NO", "DENIED IT" with a small note "(take it as a lesson)". Stick figures all pulling one rope toward a goal, labeled "A STAKE = THEY RIDE". A drawn fan handing over a dollar from a new fan and getting a cut back. At the bottom, a boxed phrase "GIVE FANS A CUT, THEY RIDE LIKE PARTNERS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. Near the hook at the top, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Westside Gunn from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WESTSIDE GUNN" underneath. The dominant central illustration: a recognizable Westside Gunn figure holds a pie chart and hands a "10%" slice labeled "CONWAY + BENNY" toward his partners (Jay-Z's advice), while below, a fan hands over a new fan and catches a coin "FAN → OWNER", and a row of stick figures all pull one rope together labeled "A STAKE = THEY RIDE". Keep the supporting data: "JAY-Z'S ADVICE", "SAID NO / DENIED IT (take it as a lesson)". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "A BILLIONAIRE SAID GIVE A PIECE AWAY". At the bottom, in a boxed line: "GIVE A FAN A CUT, THEY OWN A PIECE." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "GIVE AWAY A PIECE?" + pie chart (top)
+1. Westside Gunn portrait + "GIVE AWAY A PIECE?" + pie chart (top)
 2. Pie chart 10% slice "CONWAY + BENNY" + "JAY-Z'S ADVICE"
-3. "SAID NO / DENIED IT (take it as a lesson)"
-4. Stick figures pulling one rope "A STAKE = THEY RIDE"
-5. Fan getting a cut + boxed "GIVE FANS A CUT, THEY RIDE LIKE PARTNERS" (bottom)
+3. "SAID NO / DENIED IT (take it as a lesson)" + figures pulling one rope "A STAKE = THEY RIDE"
+4. Fan getting a cut + "FAN -> OWNER"
+5. Boxed "GIVE A FAN A CUT, THEY OWN A PIECE" (bottom)

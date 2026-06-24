@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Every Leak Was A Missed Sale
+A Leak Hit #1 And He Got $0
 
 Link in bio to sell early and exclusive access to your real fans so the demand pays you, not a leaker, with CRWN. Free to start at thecrwn.app.
 
@@ -10,45 +10,43 @@ Link in bio to sell early and exclusive access to your real fans so the demand p
 
 **SCRIPT:**
 
-If people already paying real money for ya leaked songs, then why aint none of it going to you? Playboi Carti fans do this every day. Carti got hundreds of unreleased songs floating around. His fans obsess over the ones that aint dropped. They call em grails. And they pay. Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. Sit with that. People paying that much for a song that's not even out. All that money goes to leakers and middlemen, not Carti. The fans dont just want the album. They want early. They want exclusive. They want what nobody else got. Sell that early access to ya real fans yourself, and the demand pays you instead of a leaker.
+If people already paying real money for ya leaked songs, then why aint none of it going to you? Carti got hundreds of unreleased songs floating around. Fans call em grails and pay hundreds, sometimes thousands, to get em. Leakers buy and trade em like stocks. Every dollar lands on leakers and middlemen, not him. He never even put these songs out and people still tearing each other apart to own em. Then one of em got out for free. A pitched-up leak of one unreleased Carti verse, posted by some random account under a fake name. No promo. No rollout. Just a stranger uploading a song Carti never dropped. And it hit number one on Spotify's viral chart across the country before they pulled it.
 
 ---
 
 **TITLES (suggested is in CAPTION above; alternates below):**
-1. Every Leak Was A Missed Sale -- Structure 5  ← SUGGESTED
+1. A Leak Hit #1 And He Got $0 -- Structure 2  ← SUGGESTED
 2. Carti Got Robbed By Leakers -- Structure 2
 3. Leakers Vs The Artist -- Structure 8
 4. Would Fans Pay For Unreleased Songs -- Structure 1
 5. Carti Made A Leaker Goldmine -- Structure 6
 
-**TOPIC:** Carti fans pay hundreds to thousands for his unreleased "grail" leaks, money that goes to leakers not him; sell early/exclusive access to your real fans yourself.
+**TOPIC:** Carti fans pay hundreds to thousands for his unreleased "grail" leaks; a fake-name leak of his unreleased "Kid Cudi" verse hit #1 on Spotify's US Viral 50 then got pulled, and Carti made $0 off any of it.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If people already paying real money for ya leaked songs, then why aint none of it going to you? [write "PAID FOR LEAKS" at the top, draw a phone with a song file and dollar signs around it]
+**HOOK:** If people already paying real money for ya leaked songs, then why aint none of it going to you? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "PLAYBOI CARTI" underneath; write "PAID FOR LEAKS" at the top, draw a phone with a song file and dollar signs around it]
 
-**FORESHADOW:** Playboi Carti fans do this every day. Carti got hundreds of unreleased songs floating around. His fans obsess over the ones that aint dropped. They call em grails. [draw a vault with music notes inside, write "100s UNRELEASED", "GRAILS"]
+**RISING ACTION:** Carti got hundreds of unreleased songs floating around. Fans call em grails and pay hundreds, sometimes thousands, to get em. Leakers buy and trade em like stocks. Every dollar lands on leakers and middlemen, not him. [draw a vault with music notes inside, write "100s UNRELEASED", "GRAILS", "$100s - $1,000s", "TRADED LIKE STOCKS", draw money arrows to "LEAKERS / MIDDLEMEN" and an X away from "CARTI"]
 
-**RISING ACTION:** Leakers buy unreleased songs for hundreds, sometimes thousands, then trade em. Theres a underground market for music he aint even put out. People paying that much for a song that's not even out. [draw a shady stick figure handing cash for a song file, write "$100s - $1,000s", "UNDERGROUND MARKET"]
+**RISING ACTION (cont):** He never even put these songs out and people still tearing each other apart to own em. [draw a busy market of stick figures fighting over song files for cash, write "NEVER EVEN DROPPED"]
 
-**TWIST:** All that money goes to leakers and middlemen, not Carti. [draw money flowing to a stick figure labeled "LEAKER", and an arrow with an X pointing away from a stick figure labeled "CARTI"]
-
-**PAYOFF:** The fans dont just want the album. They want early. They want exclusive. They want what nobody else got. Sell that early access to ya real fans yourself, and the demand pays you instead of a leaker. [draw a vault labeled "EARLY ACCESS" with a line from a crowd of fans paying straight to a stick figure, box at the bottom: "SELL THE EARLY ACCESS YOURSELF"]
+**PAYOFF:** Then one of em got out for free. A pitched-up leak of one unreleased Carti verse, posted by some random account under a fake name. No promo. No rollout. Just a stranger uploading a song Carti never dropped. And it hit number one on Spotify's viral chart across the country before they pulled it. [draw a phone showing "SPOTIFY VIRAL 50" with a big "#1", write "A LEAK. A FAKE NAME. NO PROMO.", draw "THEN PULLED" with an X, box at the bottom: "A SONG HE NEVER DROPPED HIT #1 IN THE COUNTRY."]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, "PAID FOR LEAKS" with a drawn phone showing a song file and dollar signs around it. A drawn vault with music notes inside, "100s UNRELEASED", "GRAILS". A shady stick figure handing cash for a song file, "$100s - $1,000s", "UNDERGROUND MARKET". Money flowing to a stick figure labeled "LEAKER", and an arrow with an X pointing away from a stick figure labeled "CARTI". A drawn vault labeled "EARLY ACCESS" with a line from a crowd of fans paying straight to a single stick figure. At the bottom, a boxed phrase "SELL THE EARLY ACCESS YOURSELF". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The dominant central illustration includes a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "PLAYBOI CARTI" underneath. Playboi Carti stands to the side with empty pockets and "$0" over him, watching a busy underground market of shady stick figures fighting over his song files for stacks of cash; money arrows fly to "LEAKERS / MIDDLEMEN" and an X points away from Carti. Near the bottom a phone screen reads "SPOTIFY VIRAL 50 #1. A LEAK, A FAKE NAME, NO PROMO. THEN PULLED". Keep the supporting data: "100s UNRELEASED / GRAILS / $100s-$1,000s / TRADED LIKE STOCKS / NEVER EVEN DROPPED". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "PEOPLE PAY FOR SONGS HE NEVER DROPPED". At the bottom, in a boxed line: "A SONG HE NEVER DROPPED HIT #1 IN THE COUNTRY." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "PAID FOR LEAKS" + phone with song file and dollar signs (top)
-2. Vault with notes + "100s UNRELEASED" + "GRAILS"
-3. Shady figure paying for a song + "$100s - $1,000s" + "UNDERGROUND MARKET"
-4. Money to "LEAKER" + X arrow away from "CARTI"
-5. "EARLY ACCESS" vault + fans paying the artist + boxed "SELL THE EARLY ACCESS YOURSELF" (bottom)
+1. Recognizable sharpie portrait of Playboi Carti labeled "PLAYBOI CARTI" + "PAID FOR LEAKS" + phone with song file and dollar signs (top)
+2. Vault "100s UNRELEASED / GRAILS / $100s - $1,000s / TRADED LIKE STOCKS" + arrows to "LEAKERS / MIDDLEMEN" + X off "CARTI"
+3. Trading market + "NEVER EVEN DROPPED"
+4. Phone "SPOTIFY VIRAL 50 #1" + "A LEAK. A FAKE NAME. NO PROMO." + "THEN PULLED" X
+5. Boxed "A SONG HE NEVER DROPPED HIT #1 IN THE COUNTRY." (bottom)

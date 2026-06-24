@@ -10,7 +10,7 @@ Link in bio to own the bond with your real fans so no mob can cancel your career
 
 **SCRIPT:**
 
-If the whole internet turned on you tomorrow, then who would still show up for you? Gunna found out the hard way. In 2022 Gunna caught a RICO case with his label. He took a plea and got out. But a lot of people turned on him. Fans, other rappers, the internet. They called him everything. Said his career was over. Then in 2023 he dropped a album, a Gift and a Curse. No features. Almost nobody in the industry backing him. And it still debuted in the top 3, with a huge hit on it. How? His real fans never left. They tuned out the noise and showed up anyway. Here go the lesson under it. The industry and the internet will turn on you in a second. Your real fans wont. The crowd is loud but fake. The core is quiet but solid. When you own the bond with your real ones, no mob can cancel your career.
+When everybody you know turns on you in one week, who actually still shows up? Gunna found that out the hard way. In 2022 Gunna caught a RICO case with his label. He took a plea and got out. But a lot of people turned on him. Fans, other rappers, the internet. They called him everything and said his career was over. Then in 2023 he dropped a album, a Gift and a Curse. No features. Almost nobody in the industry backing him. His real fans never left. They tuned out the noise and showed up anyway. Then the sales came in. They swore this album was dead on arrival, with no features and no co-signs. It debuted at number 3 in the country. The mob was loud. His sales was louder.
 
 ---
 
@@ -21,34 +21,32 @@ If the whole internet turned on you tomorrow, then who would still show up for y
 4. Would Your Fans Stay If Canceled -- Structure 1
 5. If They Cancel You, Who Stays -- Structure 3
 
-**TOPIC:** After his YSL plea, Gunna faced mass backlash but his 2023 album (no features) still debuted top 3 with a hit; real fans carry you when the industry and internet turn on you.
+**TOPIC:** After his YSL plea, Gunna faced mass backlash but his 2023 album a Gift & a Curse (no features) still debuted at No. 3 on the Billboard 200; the twist is the "cancelled" album the internet buried still outsold almost everybody.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If the whole internet turned on you tomorrow, then who would still show up for you? Gunna found out the hard way. [write "WHO STAYS WHEN THEY ALL LEAVE?" at the top]
+**HOOK:** When everybody you know turns on you in one week, who actually still shows up? Gunna found that out the hard way. [draw the portrait described in the NANO prompt; write "WHO STAYS WHEN THEY ALL LEAVE?" at the top]
 
 **FORESHADOW:** In 2022 Gunna caught a RICO case with his label. He took a plea and got out. But a lot of people turned on him. Fans, other rappers, the internet. They said his career was over. [draw a stick figure with a crowd around him all pointing away, write "EVERYBODY TURNED"]
 
-**RISING ACTION:** Then in 2023 he dropped a album, a Gift and a Curse. No features. Almost nobody in the industry backing him. And it still debuted in the top 3, with a huge hit on it. [write "a GIFT & a CURSE 2023", "NO FEATURES", "TOP 3 DEBUT", draw a small chart with a bar near the top]
+**RISING ACTION:** Then in 2023 he dropped a album, a Gift and a Curse. No features. Almost nobody in the industry backing him. His real fans never left. They tuned out the noise and showed up anyway. [write "a GIFT & a CURSE 2023", "NO FEATURES", draw a small solid circle of stick figures labeled "REAL FANS" standing firm next to a big crowd labeled "THE MOB" fading]
 
-**TWIST:** How? His real fans never left. They tuned out the noise and showed up anyway. [draw a big loud crowd labeled "THE MOB" fading, and a small solid circle of stick figures labeled "REAL FANS" standing firm]
-
-**PAYOFF:** The industry and the internet will turn on you in a second. Your real fans wont. The crowd is loud but fake. The core is quiet but solid. When you own the bond with your real ones, no mob can cancel your career. [box at the bottom: "A MOB CANT CANCEL REAL FANS"]
+**PAYOFF / TWIST:** Then the sales came in. They swore this album was dead on arrival, with no features and no co-signs. It debuted at number 3 in the country. The mob was loud. His sales was louder. [cross out "CAREER OVER", reveal "DEBUTED #3 IN THE COUNTRY" big, draw a chart with a bar near the top, box at the bottom: "THE MOB WAS LOUD. HIS SALES WAS LOUDER"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, "WHO STAYS WHEN THEY ALL LEAVE?". A stick figure with a crowd around him all pointing away, "EVERYBODY TURNED". "a GIFT & a CURSE 2023", "NO FEATURES", "TOP 3 DEBUT" with a small drawn chart and a bar near the top. A big loud crowd labeled "THE MOB" drawn fading, and a small solid circle of stick figures labeled "REAL FANS" standing firm. At the bottom, a boxed phrase "A MOB CANT CANCEL REAL FANS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. Near the hook at the top, the focal element is a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Gunna from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "GUNNA" underneath. Do not invent his facial features, hair, or clothing from memory; defer to the photo reference. Around the portrait, a big crowd labeled "THE MOB" fades and points away from him while a small solid circle of "REAL FANS" stays tight around him; "CAREER OVER" is crossed out. Keep the supporting data: "a GIFT & a CURSE 2023", "NO FEATURES". Lower in the frame, the reveal: a chart with a bar near the very top labeled "DEBUTED #3 IN THE COUNTRY". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "WHO STAYS WHEN THEY ALL LEAVE?". At the bottom, in a boxed line: "THE MOB WAS LOUD. HIS SALES WAS LOUDER." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "WHO STAYS WHEN THEY ALL LEAVE?" (top)
+1. Gunna portrait labeled "GUNNA" + "WHO STAYS WHEN THEY ALL LEAVE?" (top)
 2. Figure with crowd pointing away + "EVERYBODY TURNED"
-3. "a GIFT & a CURSE 2023 / NO FEATURES / TOP 3 DEBUT" + chart
-4. "THE MOB" fading vs "REAL FANS" standing firm
-5. Boxed "A MOB CANT CANCEL REAL FANS" (bottom)
+3. "a GIFT & a CURSE 2023 / NO FEATURES" + "REAL FANS" circle vs "THE MOB" fading + crossed-out "CAREER OVER"
+4. Reveal: "DEBUTED #3 IN THE COUNTRY" + chart bar near top
+5. Boxed "THE MOB WAS LOUD. HIS SALES WAS LOUDER" (bottom)

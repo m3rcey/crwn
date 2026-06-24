@@ -10,7 +10,7 @@ Link in bio to own your work instead of being the biggest artist who owns nothin
 
 **SCRIPT:**
 
-This is the biggest seller in rap. And this is the biggest owner. They aint the same person. Drake might be the biggest artist in the game. Billions of streams. More hits than almost anybody. But Drake dont own his masters. Universal do. He even sued his own label and the judge threw it out. Now look at Jay-Z. He sell less than Drake. But he own Roc Nation. He own his masters. He a billionaire off the stuff he owns, not just the music. Here go the difference nobody explains. Drake is the best employee in the building. Jay-Z owns the building. One of em rents his throne. The other holds the deed. Selling the most dont mean you keep the most. The artist who owns less can still run the game. Outselling everybody feel like winning. Owning your work is the part that actually lasts.
+The biggest seller in rap and the biggest owner in rap aint the same man, and the gap between em says everything about how money really works in music. Drake is the biggest artist in the game. Billions of streams, more hits than almost anybody. But Drake dont own his masters. Universal do. Now Jay-Z. He sell way less than Drake. But he own Roc Nation, his masters, a champagne brand, a cognac brand, and a streaming app he sold for hundreds of millions. One man is the best employee in the building. The other man owns the building. The rap made Jay famous. So how much of his money actually comes from the music? Jay-Z is worth billions. And the songs, the actual rap, is less than 4 percent of it. The other 96 is the stuff he owns.
 
 ---
 
@@ -21,34 +21,32 @@ This is the biggest seller in rap. And this is the biggest owner. They aint the 
 4. Jay-Z Holds The Whole Deed -- Structure 6
 5. If You Sell Most, Do You Own It -- Structure 3
 
-**TOPIC:** Drake outsells everyone but UMG owns his masters (he sued and lost); Jay-Z sells less but owns Roc Nation and his masters; selling the most isn't owning the most.
+**TOPIC:** Drake outsells everyone but UMG owns his masters; Jay-Z sells less but owns Roc Nation, his masters, and businesses; the twist is music is under 4% of Jay-Z's billions, the rap made him famous, the ownership made him rich.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is the biggest seller in rap. And this is the biggest owner. They aint the same person. [write "SELLER" on the left, "OWNER" on the right, line down the middle]
+**HOOK:** The biggest seller in rap and the biggest owner in rap aint the same man, and the gap between em says everything about how money really works in music. [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Jay-Z from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JAY-Z" underneath, on the right under "OWNER"; write "SELLER" on the left, "OWNER" on the right, line down the middle]
 
-**FORESHADOW:** Drake might be the biggest artist in the game. Billions of streams. More hits than almost anybody. But Drake dont own his masters. Universal do. [on the SELLER side write "DRAKE", "BILLIONS OF STREAMS", draw a vault labeled "MASTERS" held by a building labeled "UNIVERSAL"]
+**FORESHADOW:** Drake is the biggest artist in the game, but Jay built different. [write "NOT THE SAME PERSON" under the line with a "?"]
 
-**RISING ACTION:** He even sued his own label and the judge threw it out. Now look at Jay-Z. He sell less than Drake. But he own Roc Nation. He own his masters. He a billionaire off the stuff he owns. [write "SUED LABEL = LOST", on the OWNER side write "JAY-Z", "OWNS ROC NATION", "OWNS MASTERS", "BILLIONAIRE"]
+**RISING ACTION:** Drake is the biggest artist in the game. Billions of streams, more hits than almost anybody. But Drake dont own his masters. Universal do. Now Jay-Z. He sell way less than Drake. But he own Roc Nation, his masters, a champagne brand, a cognac brand, and a streaming app he sold for hundreds of millions. One man is the best employee in the building. The other man owns the building. [on the SELLER side write "DRAKE", "BILLIONS OF STREAMS", draw a vault labeled "MASTERS" held by a building labeled "UNIVERSAL"; on the OWNER side write "JAY-Z", "ROC NATION", "MASTERS", "CHAMPAGNE", "COGNAC", "SOLD TIDAL"; draw a building with a figure inside "EMPLOYEE = DRAKE" and one on top "OWNS IT = JAY-Z"]
 
-**TWIST:** Drake is the best employee in the building. Jay-Z owns the building. One of em rents his throne. The other holds the deed. [draw a building, a small stick figure inside labeled "EMPLOYEE = DRAKE", a stick figure on top holding a paper labeled "DEED = JAY-Z"]
-
-**PAYOFF:** Selling the most dont mean you keep the most. The artist who owns less can still run the game. Outselling everybody feel like winning. Owning your work is the part that actually lasts. [box at the bottom: "SELL THE MOST OR OWN THE MOST"]
+**PAYOFF:** The rap made Jay famous. So how much of his money actually comes from the music? Jay-Z is worth billions. And the songs, the actual rap, is less than 4 percent of it. The other 96 is the stuff he owns. [draw a big pie chart almost entirely labeled "OWNED BUSINESSES = 96%" with a tiny sliver labeled "MUSIC = UNDER 4%", box at the bottom: "THE MUSIC IS UNDER 4% OF HIS BILLIONS"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. A vertical line down the middle, "SELLER" on the left and "OWNER" on the right. On the left: "DRAKE", "BILLIONS OF STREAMS", and a drawn vault labeled "MASTERS" held by a building labeled "UNIVERSAL", plus "SUED LABEL = LOST". On the right: "JAY-Z", "OWNS ROC NATION", "OWNS MASTERS", "BILLIONAIRE". A drawn building with a small stick figure inside labeled "EMPLOYEE = DRAKE" and a stick figure on top holding a paper labeled "DEED = JAY-Z". At the bottom, a boxed phrase "SELL THE MOST OR OWN THE MOST". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The dominant central illustration: a vertical line splits the page. On the LEFT, a recognizable Drake figure labeled "SELLER" stands inside a building as the "EMPLOYEE", a vault labeled "MASTERS" held above him by "UNIVERSAL". On the RIGHT, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Jay-Z from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JAY-Z" underneath and "OWNER" above; he stands on TOP of the building holding the deed, surrounded by little icons "ROC NATION / CHAMPAGNE / COGNAC / SOLD TIDAL". Below, a big pie chart almost all "OWNED BUSINESSES = 96%" with a tiny sliver "MUSIC = UNDER 4%". Keep the supporting data: "BILLIONS OF STREAMS" under Drake, the icon list under Jay-Z. At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "THE SELLER vs THE OWNER". At the bottom, in a boxed line: "THE MUSIC IS UNDER 4% OF HIS BILLIONS." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "SELLER" vs "OWNER" split (top)
-2. SELLER side: "DRAKE / BILLIONS OF STREAMS" + "MASTERS" vault held by "UNIVERSAL" + "SUED LABEL = LOST"
-3. OWNER side: "JAY-Z / OWNS ROC NATION / OWNS MASTERS / BILLIONAIRE"
-4. Building: "EMPLOYEE = DRAKE" inside, "DEED = JAY-Z" on top
-5. Boxed "SELL THE MOST OR OWN THE MOST" (bottom)
+1. Jay-Z portrait labeled "JAY-Z" under "OWNER" + "SELLER" vs "OWNER" split (top)
+2. "NOT THE SAME PERSON" + "?"
+3. SELLER side "DRAKE / BILLIONS OF STREAMS" + "MASTERS" vault held by "UNIVERSAL"; OWNER side "JAY-Z / ROC NATION / MASTERS / CHAMPAGNE / COGNAC / SOLD TIDAL"
+4. Building "EMPLOYEE = DRAKE" inside, "OWNS IT = JAY-Z" on top
+5. Pie chart "OWNED BUSINESSES = 96%" + tiny "MUSIC = UNDER 4%" + boxed "THE MUSIC IS UNDER 4% OF HIS BILLIONS" (bottom)

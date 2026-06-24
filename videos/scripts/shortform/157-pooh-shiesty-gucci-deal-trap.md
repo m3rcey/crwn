@@ -10,45 +10,45 @@ Link in bio to own your music and fans from day one so no contract can hold you 
 
 **SCRIPT:**
 
-Who would risk they whole life just to get out a record deal? It got that deep for one rapper. Pooh Shiesty signed to Gucci Mane's label back in 2020. Big moment at the time. But then he wasnt happy with the deal. He wanted out. Heres where it go dark. He's now accused of trying to force his way out of that contract, allegedly bringing a gun to make em release him. He's facing serious charges over it. Im not telling you that part was smart. Im showing you how trapped a bad deal can make a person feel. Once you sign, getting free aint easy. The label dont gotta let you go. Here go the lesson under all of it. The time to protect yourself is before you sign, not after. When you own your music and your fans from day one, theres no contract holding you hostage. The best way out a trap is to never step in it.
+What would Pooh Shiesty risk his whole freedom to get out of? For one rapper a record deal allegedly got that dark. He signed to Gucci Mane's label, 1017, back in 2020. Big moment at the time. But he wasnt happy, and he wanted out. He was already on home confinement from a old gun case. Most label disputes get settled with lawyers. When you own your music and your fans from day one, theres no deal you ever gotta fight your way out of. So picture how heavy the wrong signature gotta sit on you to end up here. This year prosecutors say he set up a meeting over that contract, pulled a gun, and forced somebody to sign his release at gunpoint. He's now charged with kidnapping and armed robbery, and he pleaded not guilty.
 
 ---
 
 **TITLES (suggested is in CAPTION above; alternates below):**
 1. Pooh Shiesty Got Trapped In A Deal -- Structure 2  ← SUGGESTED
 2. Pooh Shiesty Hit A Deal Trap -- Structure 6
-3. Before You Sign Vs After -- Structure 8
+3. Lawyers Vs A Gun -- Structure 8
 4. Would You Risk It To Get Free -- Structure 1
 5. If You Sign It, You Cant Leave -- Structure 3
 
-**TOPIC:** Pooh Shiesty signed to Gucci Mane's 1017, grew unhappy and is now accused of trying to force his way out; once you sign, leaving is brutal, so own your stuff from day one.
+**TOPIC:** Pooh Shiesty signed to Gucci Mane's 1017 in 2020, wanted out, and prosecutors allege he forced a contract release at gunpoint (charged 2026 with kidnapping/armed robbery, pleaded not guilty); the twist is a label fight that usually means lawyers allegedly meant a gun.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Who would risk they whole life just to get out a record deal? It got that deep for one rapper. [write "TRAPPED IN A DEAL" at the top, draw a contract with chains on it]
+**HOOK:** What would Pooh Shiesty risk his whole freedom to get out of? [write "TRAPPED IN A DEAL" at the top, draw a contract with chains on it, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pooh Shiesty from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "POOH SHIESTY" underneath]
 
-**FORESHADOW:** Pooh Shiesty signed to Gucci Mane's label back in 2020. Big moment at the time. But then he wasnt happy with the deal. He wanted out. [write "2020 SIGNED 1017", draw a stick figure pulling at a chain labeled "CONTRACT"]
+**FORESHADOW:** For one rapper a record deal allegedly got that dark. [write "IT GOT DARK" with a big "?" next to it]
 
-**RISING ACTION:** He's now accused of trying to force his way out of that contract, allegedly bringing a gun to make em release him. He's facing serious charges over it. Im not telling you that was smart. Im showing you how trapped a bad deal can make a person feel. [write "ACCUSED / FACING CHARGES", draw a contract with a big "RELEASE ME?" over it, a question mark]
+**RISING ACTION:** He signed to Gucci Mane's label, 1017, back in 2020. Big moment at the time. But he wasnt happy, and he wanted out. He was already on home confinement from a old gun case. [write "2020 SIGNED 1017", "WANTED OUT", "ALREADY ON HOME CONFINEMENT", draw a contract with "RELEASE ME?" over it]
 
-**TWIST:** Once you sign, getting free aint easy. The label dont gotta let you go. The time to protect yourself is before you sign, not after. [draw a door labeled "EXIT" with a lock on it, write "AFTER = LOCKED", "BEFORE = OPEN"]
+**RISING ACTION (cont):** Most label disputes get settled with lawyers. When you own your music and your fans from day one, theres no deal you ever gotta fight your way out of. [draw "LABEL FIGHTS = LAWYERS", and a clean straight line from a stick figure to a crowd of fans with no paper between them, labeled "NO DEAL TO FIGHT OUT OF"]
 
-**PAYOFF:** When you own your music and your fans from day one, theres no contract holding you hostage. The best way out a trap is to never step in it. [box at the bottom: "PROTECT YOURSELF BEFORE YOU SIGN"]
+**PAYOFF / SURPRISE ENDING:** So picture how heavy the wrong signature gotta sit on you to end up here. This year prosecutors say he set up a meeting over that contract, pulled a gun, and forced somebody to sign his release at gunpoint. He's now charged with kidnapping and armed robbery, and he pleaded not guilty. [draw "2026: GUN AT A MEETING -> FORCED A SIGNATURE", "CHARGED: KIDNAP + ROBBERY", "PLEADED NOT GUILTY (allegations)", box at the bottom: "THE WRONG SIGNATURE SAT THAT HEAVY"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, "TRAPPED IN A DEAL" with a drawn contract wrapped in chains. "2020 SIGNED 1017" with a stick figure pulling at a chain labeled "CONTRACT". "ACCUSED / FACING CHARGES" with a drawn contract that has "RELEASE ME?" written over it and a question mark. A drawn door labeled "EXIT" with a lock on it, "AFTER = LOCKED" and "BEFORE = OPEN". At the bottom, a boxed phrase "PROTECT YOURSELF BEFORE YOU SIGN". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. Near the hook at the top, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pooh Shiesty from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "POOH SHIESTY" underneath. The dominant central illustration: a recognizable Pooh Shiesty figure is wrapped up in a contract drawn as heavy chains, pulling against it with "RELEASE ME?" over the paper; off to the side, lower in the frame as the final reveal, "2026: GUN AT A MEETING → FORCED A SIGNATURE", "CHARGED: KIDNAP + ROBBERY", "PLEADED NOT GUILTY (allegations)". Keep the supporting data higher up: "2020 SIGNED 1017", "WANTED OUT", "ALREADY ON HOME CONFINEMENT", "LABEL FIGHTS = LAWYERS". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "TRAPPED IN A DEAL". At the bottom, in a boxed line: "THE WRONG SIGNATURE SAT THAT HEAVY." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "TRAPPED IN A DEAL" + chained contract (top)
-2. "2020 SIGNED 1017" + figure pulling chain "CONTRACT"
-3. "ACCUSED / FACING CHARGES" + contract "RELEASE ME?"
-4. Locked "EXIT" door + "AFTER = LOCKED / BEFORE = OPEN"
-5. Boxed "PROTECT YOURSELF BEFORE YOU SIGN" (bottom)
+1. Pooh Shiesty portrait + "TRAPPED IN A DEAL" + chained contract (top)
+2. "IT GOT DARK" + "?"
+3. "2020 SIGNED 1017 / WANTED OUT / ALREADY ON HOME CONFINEMENT" + contract "RELEASE ME?"
+4. "LABEL FIGHTS = LAWYERS" + direct line to fans "NO DEAL TO FIGHT OUT OF"
+5. "2026: GUN AT A MEETING -> FORCED A SIGNATURE / CHARGED: KIDNAP + ROBBERY / PLEADED NOT GUILTY (allegations)" + boxed "THE WRONG SIGNATURE SAT THAT HEAVY" (bottom)

@@ -10,7 +10,7 @@ Link in bio to own your fans direct so no fine print can ever claim it signed yo
 
 **SCRIPT:**
 
-Has anybody ever got signed to a label without even knowing it? Want to see how easy that happen? Look at Latto. In 2016 she won a rap show on TV as a teenager. She say she walked away free and stayed independent. But the man who ran the show says different. He say the contestant contract already had her signed to his label. The fine print did it. To this day they still argue about whether she was ever signed. Think about that. Two grown people, years later, cant even agree if she signed her career away. That's how sneaky a contract get. The deal aint always the big page you read. Its the small print nobody explains. A clause can own your name and your music before you feel like you agreed to anything. When you go straight to your fans, theres no fine print and no clause. You own the relationship, and nobody can claim they signed you in a contract you barely read.
+Has anybody ever got signed to a label without even knowing it? Latto won a rap show on TV as a teenager. What she signed that day, they still cant agree on. Back in 2016 she won it all. She say she walked away free and independent. But the man who ran the show say the contestant contract already signed her to his label. No big meeting, no pen moment she remembers. Just a clause buried in paperwork everybody skims. When it's just you and ya fans, theres no contract in the room to trap you. But Latto? Years later the two people who lived it still give two different answers on what she signed. A piece of paper so slick that even the people who were in the room cant tell you what it says.
 
 ---
 
@@ -21,34 +21,34 @@ Has anybody ever got signed to a label without even knowing it? Want to see how 
 4. If You Dont Read It, It Owns You -- Structure 3
 5. Every Contract Hides A Clause -- Structure 5
 
-**TOPIC:** Latto and The Rap Game's creator still publicly disagree on whether the contestant contract auto-signed her to So So Def; a contract can own you in the fine print, and direct-to-fan has none.
+**TOPIC:** Latto and The Rap Game's creator still publicly disagree on whether the contestant contract auto-signed her to So So Def; the twist is the document is so murky the two people who were in the room give opposite answers on what she signed.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Has anybody ever got signed to a label without even knowing it? Want to see how easy that happen? [write "SIGNED WITHOUT KNOWING IT" at the top, draw a contract with a magnifying glass over it]
+**HOOK:** Has anybody ever got signed to a label without even knowing it? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Latto from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LATTO" underneath; write "SIGNED WITHOUT KNOWING IT" at the top, draw a contract with a magnifying glass over it]
 
-**FORESHADOW:** Look at Latto. In 2016 she won a rap show on TV as a teenager. She say she walked away free and stayed independent. [draw a TV with a trophy, write "2016 WON", draw a stick figure walking away with "FREE?" over her]
+**FORESHADOW:** Latto won a rap show on TV as a teenager. What she signed that day, they still cant agree on. [draw a TV with a trophy, write "WON AS A TEEN", then "WHAT SHE SIGNED = ?"]
 
-**RISING ACTION:** But the man who ran the show says different. He say the contestant contract already had her signed to his label. The fine print did it. To this day they still argue about whether she was ever signed. [draw two stick figures facing off, one with a speech bubble "FREE", the other "SIGNED", a contract between them labeled "FINE PRINT"]
+**RISING ACTION:** Back in 2016 she won it all. She say she walked away free and independent. But the man who ran the show say the contestant contract already signed her to his label. No big meeting, no pen moment she remembers. Just a clause buried in paperwork everybody skims. [draw two stick figures facing off, "SHE: FREE" and "HE: SIGNED", a big contract page with one tiny line circled labeled "FINE PRINT", write "NO MEETING / NO PEN MOMENT"]
 
-**TWIST:** The deal aint always the big page you read. Its the small print nobody explains. A clause can own your name and your music before you feel like you agreed to anything. [draw a big contract page with one tiny line circled at the bottom labeled "OWNS YOU", a magnifying glass on it]
+**RISING ACTION (cont):** When it's just you and ya fans, theres no contract in the room to trap you. [draw a clean straight line from a stick figure to a crowd of fans with no paper between them, labeled "NO CONTRACT IN THE ROOM"]
 
-**PAYOFF:** When you go straight to your fans, theres no fine print and no clause. You own the relationship, and nobody can claim they signed you in a contract you barely read. [draw a clean straight line from a stick figure to a crowd of fans with no paper between them, box at the bottom: "NO FINE PRINT WHEN IT'S DIRECT"]
+**TWIST / SURPRISE ENDING:** Years later the two people who lived it still give two different answers on what she signed. A piece of paper so slick that even the people who were in the room cant tell you what it says. [draw two stick figures, one saying "FREE" and one saying "SIGNED", a contract between them with a big "?!", box at the bottom: "EVEN THE PEOPLE IN THE ROOM CANT READ IT"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, "SIGNED WITHOUT KNOWING IT" with a drawn contract and a magnifying glass over it. A drawn TV with a trophy, "2016 WON", and a stick figure walking away with "FREE?" written over her. Two stick figures facing off, one with a speech bubble "FREE" and the other "SIGNED", with a contract drawn between them labeled "FINE PRINT". A large drawn contract page with one tiny line circled at the bottom labeled "OWNS YOU" and a magnifying glass over it. A clean straight line from a stick figure to a crowd of smiley fans with no paper between them. At the bottom, a boxed phrase "NO FINE PRINT WHEN IT'S DIRECT". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The dominant central illustration includes a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Latto from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LATTO" underneath. Latto holds a TV competition trophy labeled "WON AS A TEEN" on one side, while she and the show's creator face off pulling a contract between them with a big "?!", her speech bubble "FREE" and his "SIGNED"; a magnifying glass hovers over one tiny circled line labeled "FINE PRINT". Keep the supporting data: "NO MEETING / NO PEN MOMENT", and a clean direct line from an artist to fans labeled "NO CONTRACT IN THE ROOM". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "SIGNED WITHOUT KNOWING IT?" At the bottom, in a boxed line: "EVEN THE PEOPLE IN THE ROOM CANT READ IT." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "SIGNED WITHOUT KNOWING IT" + contract with magnifying glass (top)
-2. TV with trophy + "2016 WON" + figure walking away "FREE?"
-3. Two figures "FREE" vs "SIGNED" + contract "FINE PRINT"
-4. Big contract + tiny clause circled "OWNS YOU" + magnifying glass
-5. Direct line to fans (no paper) + boxed "NO FINE PRINT WHEN IT'S DIRECT" (bottom)
+1. Recognizable sharpie portrait of Latto labeled "LATTO" + "SIGNED WITHOUT KNOWING IT" + contract with magnifying glass (top)
+2. TV with trophy + "WON AS A TEEN" + "WHAT SHE SIGNED = ?"
+3. "SHE: FREE" vs "HE: SIGNED" + big contract tiny clause "FINE PRINT" + "NO MEETING / NO PEN MOMENT"
+4. Direct line to fans "NO CONTRACT IN THE ROOM"
+5. Two figures "FREE" vs "SIGNED" + contract "?!" + boxed "EVEN THE PEOPLE IN THE ROOM CANT READ IT" (bottom)

@@ -10,7 +10,7 @@ Link in bio to own your side so your wins stay yours instead of fighting your ow
 
 **SCRIPT:**
 
-This is the man who won the battle. And this is the man who sued his own label after he lost it. Kendrick and Drake, 2024, the biggest beef in years. Kendrick dropped Not Like Us. It buried Drake. Then it won five Grammys and headlined the Super Bowl in front of over 100 million people. Kendrick own pgLang, his own company, so every one of them wins stay his. Now Drake. He dont own his masters, Universal do. And Universal is the same label that put out Not Like Us. So Drake sued his own label over it. The judge threw it out. Look at the two sides. Kendrick owned his, so the win was his to keep. Drake was signed, so he ended up fighting the same people who pay him. This aint about who rap better. Owning your side mean the win is yours, and nobody on your team can turn on you.
+Kendrick and Drake had the biggest beef in years, but the wildest twist aint who won the battle. It's who actually got paid off the diss. Kendrick dropped Not Like Us. It buried Drake. Then it won five Grammys, including Record of the Year and Song of the Year. A diss track won the biggest songwriting award in all of music. Kendrick own pgLang, his own company, so every one of them wins stay his. Now Drake. He dont own his masters. Universal do. So Drake even sued over the song, and a judge threw it out. Now here's the twist. Universal, the label that signs Drake's checks, is the exact same label that put out Not Like Us. So the most awarded diss in history paid Drake's own boss. His own label cashed the song that buried him.
 
 ---
 
@@ -21,34 +21,32 @@ This is the man who won the battle. And this is the man who sued his own label a
 4. Would You Sue Your Own Label -- Structure 1
 5. Kendrick Made A Clean Sweep -- Structure 6
 
-**TOPIC:** Kendrick vs Drake: Not Like Us won 5 Grammys and the Super Bowl and Kendrick owns pgLang so the wins are his; Drake doesn't own his masters and sued his own label over it and lost.
+**TOPIC:** Kendrick vs Drake: Not Like Us won 5 Grammys including Record and Song of the Year and Kendrick owns pgLang; Drake doesn't own his masters and sued UMG over the diss and lost; the twist is his own label cashed the most-awarded diss in history.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is the man who won the battle. And this is the man who sued his own label after he lost it. [write "KENDRICK" on the left, "DRAKE" on the right, line down the middle]
+**HOOK:** Kendrick and Drake had the biggest beef in years, but the wildest twist aint who won the battle. It's who actually got paid off the diss. [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Kendrick Lamar from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "KENDRICK" underneath, on the left under "KENDRICK"; write "KENDRICK" on the left, "DRAKE" on the right, line down the middle]
 
-**FORESHADOW:** Kendrick and Drake, 2024, the biggest beef in years. Kendrick dropped Not Like Us. It buried Drake. Then it won five Grammys and headlined the Super Bowl in front of over 100 million people. [on the KENDRICK side write "NOT LIKE US", "5 GRAMMYS", "SUPER BOWL 100M+", draw 5 small trophies]
+**FORESHADOW:** 2024, the biggest beef in years, and the strangest part is the money. [write "WHO GOT PAID OFF THE DISS?" under the line with a "?"]
 
-**RISING ACTION:** Kendrick own pgLang, his own company, so every one of them wins stay his. Now Drake. He dont own his masters, Universal do. And Universal is the same label that put out Not Like Us. [under KENDRICK write "OWNS pgLANG = KEEPS THE WIN" with a check; on the DRAKE side draw a building labeled "UNIVERSAL" putting out the diss record]
+**RISING ACTION:** Kendrick dropped Not Like Us. It buried Drake. Then it won five Grammys, including Record of the Year and Song of the Year. A diss track won the biggest songwriting award in all of music. Kendrick own pgLang, his own company, so every one of them wins stay his. Now Drake. He dont own his masters. Universal do. So Drake even sued over the song, and a judge threw it out. [on the KENDRICK side write "NOT LIKE US", "5 GRAMMYS", "RECORD OF THE YEAR", "SONG OF THE YEAR", draw trophies, "OWNS pgLANG = KEEPS THE WIN" with a check; on the DRAKE side write "SUED OVER IT = TOSSED"]
 
-**TWIST:** So Drake sued his own label over it. The judge threw it out. Kendrick owned his, so the win was his to keep. Drake was signed, so he ended up fighting the same people who pay him. [under DRAKE write "SUED HIS LABEL = LOST", draw a figure labeled "DRAKE" pointing at the "UNIVERSAL" building]
-
-**PAYOFF:** This aint about who rap better. Owning your side mean the win is yours, and nobody on your team can turn on you. [box at the bottom: "OWN YOUR SIDE = THE WIN IS YOURS"]
+**PAYOFF:** Now here's the twist. Universal, the label that signs Drake's checks, is the exact same label that put out Not Like Us. So the most awarded diss in history paid Drake's own boss. His own label cashed the song that buried him. [draw a building labeled "UNIVERSAL = DRAKE'S LABEL" putting out the "NOT LIKE US" record, an arrow from the record to a money bag back into Universal, box at the bottom: "HIS OWN LABEL CASHED THE SONG THAT BURIED HIM"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. A vertical line down the middle, "KENDRICK" on the left and "DRAKE" on the right. On the KENDRICK side: "NOT LIKE US", "5 GRAMMYS", "SUPER BOWL 100M+" with 5 small drawn trophies, and "OWNS pgLANG = KEEPS THE WIN" with a check. On the DRAKE side: a building labeled "UNIVERSAL" putting out a diss record, "SUED HIS LABEL = LOST", and a figure labeled "DRAKE" pointing at the building. At the bottom, a boxed phrase "OWN YOUR SIDE = THE WIN IS YOURS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The dominant central illustration: a vertical line splits the page. On the LEFT, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Kendrick Lamar from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "KENDRICK" underneath; he holds up trophies for "NOT LIKE US" with "OWNS pgLANG = KEEPS THE WIN" and a check. On the RIGHT, a recognizable Drake figure looks on as a "UNIVERSAL" building puts out the very same diss record and an arrow carries the money from it into a bag labeled "UNIVERSAL = DRAKE'S LABEL". Keep the supporting data: "5 GRAMMYS / RECORD OF THE YEAR / SONG OF THE YEAR" with trophies, and "SUED OVER IT = TOSSED". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "WHO GOT PAID OFF THE DISS?" At the bottom, in a boxed line: "HIS OWN LABEL CASHED THE SONG THAT BURIED HIM." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "KENDRICK" vs "DRAKE" split (top)
-2. KENDRICK side: "NOT LIKE US / 5 GRAMMYS / SUPER BOWL 100M+" + trophies
-3. "OWNS pgLANG = KEEPS THE WIN" check; DRAKE side "UNIVERSAL" putting out the diss
-4. "SUED HIS LABEL = LOST" + "DRAKE" pointing at "UNIVERSAL"
-5. Boxed "OWN YOUR SIDE = THE WIN IS YOURS" (bottom)
+1. Kendrick portrait labeled "KENDRICK" + "KENDRICK" vs "DRAKE" split (top)
+2. "WHO GOT PAID OFF THE DISS?" + "?"
+3. KENDRICK side "NOT LIKE US / 5 GRAMMYS / RECORD OF THE YEAR / SONG OF THE YEAR" + trophies + "OWNS pgLANG = KEEPS THE WIN" check; DRAKE side "SUED OVER IT = TOSSED"
+4. "UNIVERSAL = DRAKE'S LABEL" building putting out "NOT LIKE US" + arrow from record to money bag back into Universal
+5. Boxed "HIS OWN LABEL CASHED THE SONG THAT BURIED HIM" (bottom)

@@ -10,7 +10,7 @@ Link in bio to keep closer to half of every dollar your music makes instead of a
 
 **SCRIPT:**
 
-This is what a normal signed artist keep off their music. This is what Central Cee keep. And it aint close. Central Cee is one of the biggest rappers out the UK. Over 30 million people listen to him every month. But heres the move. He came up independent. No major label owning him. On a regular major deal, the artist might keep 20 to 30 cents on every dollar. Central Cee reportedly keep 40 to 55 cents. Almost double. The same streams, way more money landing in his pocket. And when he finally did a deal, he kept his masters. He aint give the ownership away. Two artists can have the exact same hit. One keep a quarter of it. The other keep half. The streams dont decide who win. The split do. The size of your hit only matter if you actually keep what it makes.
+What did Central Cee pull off before a single major label ever owned him? He one of the biggest rappers out the UK. Over 30 million people listen to him every month. But he came up independent, no major owning him. On a regular major deal, the artist might keep 20 to 30 cents on every dollar. Central Cee reportedly keep close to double that, off the same streams. He did a deal on his own terms and kept his masters. So how he get that kind of leverage? He had already proved he aint need a major, and the proof is a number most signed artists never touch their whole career. Central Cee did over a billion Spotify streams in a single year while he was still independent, no major owning him when he hit it.
 
 ---
 
@@ -21,34 +21,32 @@ This is what a normal signed artist keep off their music. This is what Central C
 4. Would You Keep Half Or A Quarter -- Structure 1
 5. Every Stream Pays By The Split -- Structure 5
 
-**TOPIC:** Central Cee built up independent and reportedly keeps 40-55% of his revenue vs the 20-30% on a major deal, and kept his masters in his later JV; the split decides who wins, not the streams.
+**TOPIC:** Central Cee reportedly keeps 40-55% vs a major's 20-30%, and kept his masters; the twist is he did over a billion Spotify streams in a single year while still independent, proving he didn't need a major before he signed one.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is what a normal signed artist keep off their music. This is what Central Cee keep. And it aint close. [draw two coins side by side, one small labeled "SIGNED", one big labeled "CENTRAL CEE"]
+**HOOK:** What did Central Cee pull off before a single major label ever owned him? [write "BEFORE A MAJOR EVER OWNED HIM" at the top, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Central Cee from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CENTRAL CEE" underneath]
 
-**FORESHADOW:** Central Cee is one of the biggest rappers out the UK. Over 30 million people listen to him every month. But he came up independent. No major label owning him. [write "30,000,000+ LISTENERS", "INDEPENDENT" with a check]
+**FORESHADOW:** He one of the biggest rappers out the UK. Over 30 million people listen to him every month. But he came up independent. No major owning him. [write "30,000,000+ LISTENERS", "INDEPENDENT" with a check]
 
-**RISING ACTION:** On a regular major deal, the artist might keep 20 to 30 cents on every dollar. Central Cee reportedly keep 40 to 55 cents. Almost double. The same streams, way more money landing in his pocket. [draw two dollar bills: one mostly shaded "LABEL", artist keeps "20-30¢"; the other mostly clear, artist keeps "40-55¢"]
+**RISING ACTION:** On a regular major deal, the artist might keep 20 to 30 cents on every dollar. Central Cee reportedly keep close to double that, off the same streams. He did a deal on his own terms and kept his masters. [draw two dollar bills: one mostly shaded "LABEL", artist keeps "20-30¢"; the other mostly clear, artist keeps "~2X", draw a vault labeled "MASTERS" with a check]
 
-**TWIST:** And when he finally did a deal, he kept his masters. He aint give the ownership away. [draw a vault labeled "MASTERS" with a check, "KEPT THEM"]
-
-**PAYOFF:** Two artists can have the exact same hit. One keep a quarter of it. The other keep half. The streams dont decide who win. The split do. The size of your hit only matter if you actually keep what it makes. [box at the bottom: "THE SPLIT DECIDES, NOT THE STREAMS"]
+**PAYOFF / SURPRISE ENDING:** So how he get that kind of leverage? He had already proved he aint need a major, and the proof is a number most signed artists never touch their whole career. Central Cee did over a billion Spotify streams in a single year while he was still independent, no major owning him when he hit it. [write "1,000,000,000 STREAMS IN A YEAR", "STILL INDEPENDENT", "NO MAJOR OWNED HIM", box at the bottom: "A BILLION STREAMS BEFORE A MAJOR EVEN HAD HIM"]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, two drawn coins side by side, one small labeled "SIGNED" and one big labeled "CENTRAL CEE". "30,000,000+ LISTENERS", "INDEPENDENT" with a check. Two drawn dollar bills: one mostly shaded labeled "LABEL" with the artist keeping "20-30¢", the other mostly clear with the artist keeping "40-55¢". A drawn vault labeled "MASTERS" with a check and "KEPT THEM". At the bottom, a boxed phrase "THE SPLIT DECIDES, NOT THE STREAMS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. Near the hook at the top, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Central Cee from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CENTRAL CEE" underneath. The dominant central illustration: two dollar bills compare a signed artist keeping a shaded "20-30¢" vs Central Cee keeping a clear "~2X". Keep the supporting data: "30,000,000+ LISTENERS", "INDEPENDENT" with a check. Lower in the frame, as the final reveal, a recognizable Central Cee figure holds a huge "1,000,000,000 STREAMS IN A YEAR" counter with "STILL INDEPENDENT" and a vault labeled "MASTERS" (check) beside him. At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "BEFORE A MAJOR EVER OWNED HIM". At the bottom, in a boxed line: "A BILLION STREAMS BEFORE A MAJOR EVEN HAD HIM." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. Small "SIGNED" coin vs big "CENTRAL CEE" coin (top)
+1. Central Cee portrait + "BEFORE A MAJOR EVER OWNED HIM" (top)
 2. "30,000,000+ LISTENERS" + "INDEPENDENT" check
-3. Dollar "LABEL / 20-30¢" vs dollar "40-55¢"
-4. "MASTERS" vault "KEPT THEM"
-5. Boxed "THE SPLIT DECIDES, NOT THE STREAMS" (bottom)
+3. Dollar "LABEL / 20-30¢" vs dollar "~2X" + "MASTERS" vault check
+4. "1,000,000,000 STREAMS IN A YEAR / STILL INDEPENDENT / NO MAJOR OWNED HIM"
+5. Boxed "A BILLION STREAMS BEFORE A MAJOR EVEN HAD HIM" (bottom)

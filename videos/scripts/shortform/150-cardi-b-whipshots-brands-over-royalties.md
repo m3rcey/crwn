@@ -10,7 +10,7 @@ Link in bio to sell your fans products and brands, not just streams, with CRWN. 
 
 **SCRIPT:**
 
-Cardi B just sold over 5 million cans of whipped cream. Not records. Whipped cream. She got a brand called Whipshots. Vodka whipped cream. Over 5 million cans sold. And here go the wild part. Reports say her brands and her tours make her more money than her actual music royalties. Sit with that. The biggest female rapper in the game make more off products than off streams. The music aint where the bag is. The music is the door. The bag is everything her fans buy because they love HER. The lip kits, the merch, the whipped cream, all of it. Most artists treat music like it's the entire business. For Cardi its just the front of the store. The real money is in what the fans buy after they walk in. The song gets em in the door. The products is what pays the bills.
+Cardi B is the biggest female rapper alive. So what makes her the most money? It aint the music. The music is the door. It get the people in. But once they inside, they buying everything she put her name on. The lip kits, the merch, the tours. Reports say all them brands and tours make her more than her actual music royalties. Most artists think the song is the business. For Cardi its just the front of the store. So go figure. The thing pulling her biggest check aint a hit record. It's a vodka whipped cream called Whipshots, over 5 million cans moved.
 
 ---
 
@@ -21,34 +21,32 @@ Cardi B just sold over 5 million cans of whipped cream. Not records. Whipped cre
 4. Would Your Fans Buy Your Brand -- Structure 1
 5. Cardi Built A Product Empire -- Structure 4
 
-**TOPIC:** Cardi B's Whipshots sold 5M+ cans and her brands/touring reportedly out-earn her royalties; the music is the door, products fans buy are the money.
+**TOPIC:** Cardi B's Whipshots sold 5M+ cans and her brands/touring reportedly out-earn her royalties; the twist is the biggest female rapper alive doesn't make her biggest check off the music she's famous for.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Cardi B just sold over 5 million cans of whipped cream. Not records. Whipped cream. [draw a whipped cream can at the top labeled "WHIPSHOTS", write "5,000,000+ SOLD"]
+**HOOK:** Cardi B is the biggest female rapper alive. So what makes her the most money? It aint the music. [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Cardi B from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARDI B" underneath; write "BIGGEST FEMALE RAPPER ALIVE" at the top, draw a dollar sign with a big "?"]
 
-**FORESHADOW:** She got a brand called Whipshots. Vodka whipped cream. Over 5 million cans sold. And here go the wild part. [draw a dollar sign next to the can]
+**RISING ACTION:** The music is the door. It get the people in. But once they inside, they buying everything she put her name on. The lip kits, the merch, the tours. [draw a store with a door labeled "MUSIC", inside it shelves labeled "MERCH", "LIPS", "BRANDS" with dollar signs]
 
-**RISING ACTION:** Reports say her brands and her tours make her more money than her actual music royalties. The biggest female rapper in the game make more off products than off streams. [draw two bars: a tall bar labeled "BRANDS + TOURS", a short bar labeled "MUSIC ROYALTIES"]
+**RISING ACTION (cont):** Reports say all them brands and tours make her more than her actual music royalties. Most artists think the song is the business. For Cardi its just the front of the store. [draw two bars: a tall bar labeled "BRANDS + TOURS", a short bar labeled "MUSIC ROYALTIES", write "THE SONG = JUST THE FRONT"]
 
-**TWIST:** The music aint where the bag is. The music is the door. The bag is everything her fans buy because they love HER. The lip kits, the merch, the whipped cream, all of it. [draw a store with a door labeled "MUSIC", inside it shelves labeled "MERCH", "LIPS", "WHIPSHOTS" with dollar signs]
-
-**PAYOFF:** Most artists treat music like it's the entire business. For Cardi its just the front of the store. The song gets em in the door. The products is what pays the bills. [box at the bottom: "MUSIC IS THE DOOR / PRODUCTS PAY THE BILLS"]
+**PAYOFF:** So go figure. The thing pulling her biggest check aint a hit record. It's a vodka whipped cream called Whipshots, over 5 million cans moved. [draw a whipped cream can labeled "WHIPSHOTS", write "5,000,000+ CANS", box at the bottom: "HER BIGGEST CHECK IS WHIPPED CREAM, NOT MUSIC."]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, a drawn whipped cream can labeled "WHIPSHOTS" with "5,000,000+ SOLD" and a dollar sign next to it. Two drawn bars: a tall bar labeled "BRANDS + TOURS" and a short bar labeled "MUSIC ROYALTIES". A drawn store with a door labeled "MUSIC", and inside it shelves labeled "MERCH", "LIPS", "WHIPSHOTS" each with a dollar sign. At the bottom, a boxed phrase "MUSIC IS THE DOOR / PRODUCTS PAY THE BILLS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The dominant central illustration includes a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Cardi B from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARDI B" underneath. Cardi B stands in the doorway of her own store (the door labeled "MUSIC") with shelves behind her labeled "MERCH", "LIPS", "BRANDS" each with a dollar sign; beside her two bars compare "BRANDS + TOURS" (tall) vs "MUSIC ROYALTIES" (short). Near the bottom she holds up a "WHIPSHOTS" whipped cream can with "5,000,000+ CANS" beside it as the final reveal. Keep the supporting data: "THE SONG = JUST THE FRONT". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "WHAT MAKES CARDI THE MOST MONEY?". At the bottom, in a boxed line: "HER BIGGEST CHECK IS WHIPPED CREAM, NOT MUSIC." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "WHIPSHOTS" can + "5,000,000+ SOLD" + dollar sign (top)
-2. Dollar sign by the can
-3. Bars "BRANDS + TOURS" (tall) vs "MUSIC ROYALTIES" (short)
-4. Store with door "MUSIC" + shelves "MERCH / LIPS / WHIPSHOTS"
-5. Boxed "MUSIC IS THE DOOR / PRODUCTS PAY THE BILLS" (bottom)
+1. Recognizable sharpie portrait of Cardi B labeled "CARDI B" + "BIGGEST FEMALE RAPPER ALIVE" + dollar sign and big "?" (top)
+2. Store with door "MUSIC" + shelves "MERCH / LIPS / BRANDS"
+3. Bars "BRANDS + TOURS" (tall) vs "MUSIC ROYALTIES" (short) + "THE SONG = JUST THE FRONT"
+4. "WHIPSHOTS" can + "5,000,000+ CANS"
+5. Boxed "HER BIGGEST CHECK IS WHIPPED CREAM, NOT MUSIC." (bottom)

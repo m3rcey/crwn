@@ -3,8 +3,8 @@ import path from 'node:path';
 import { execSync, execFileSync } from 'node:child_process';
 
 const SRC_DIR = '/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform';
-const START = 101;
-const END = 140;
+const START = 147;
+const END = 385;
 const OUT_PDF = `/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Scripts ${START}-${END}.pdf`;
 const TMP_HTML = '/tmp/shortform-scripts.html';
 const CHROME = '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe';
