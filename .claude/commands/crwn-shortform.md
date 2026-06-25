@@ -79,7 +79,7 @@ Tiers are ONE solution. CRWN has many. For each script, identify the specific pa
 
 **Worked matches:** Drake suing UMG / can't reach his own audience -> A (own the line, esp. SMS). Artist spends on ads, label controls discovery -> C (fans paid to refer). Big Sean "millions went missing" -> E (you see every dollar). Drake's $1.2M Iceman rollout -> F + A. Mase $20K publishing / one income stream -> B. Lil Uzi couldn't release -> A/B (drop when you want, sell direct).
 
-**No-fabrication guard:** only use capabilities that exist in the CRWN codebase. CRWN does NOT have native livestreaming (booking is scheduling, not live video), NFT/blockchain, or merch fulfillment (it tracks orders, doesn't ship). When unsure whether a feature is real, check `src/components/artist/`, `src/lib/`, or ask — never invent a capability for a punchline.
+**No-fabrication guard:** only use capabilities that exist in the CRWN codebase. CRWN HAS native livestreaming ("Listening Sessions": LiveKit real-time broadcast plus a prerecorded/VOD mode, tier-gated, with live chat and a guest "stage" role). CRWN does NOT have NFT/blockchain or merch fulfillment (it tracks orders, doesn't ship); booking is scheduling, not a separate live product. When unsure whether a feature is real, check `src/components/artist/`, `src/lib/`, or ask — never invent a capability for a punchline.
 
 ## Fact Check Protocol (MANDATORY — do this BEFORE drafting AND AGAIN before saving)
 
@@ -132,20 +132,29 @@ Always use "you" instead of he/she throughout the script body (titles can be dif
 
 **HOOK (0-3s)** — Scroll-stopping opener. Bold claim or gut-punch number. No intros, no "hey guys." Start mid-action. Opening line MUST use one of the hook formats below (see "Hook Sentence Formats").
 
-**FORESHADOW (3-8s)** — Tease what's coming without revealing it. Give the viewer a reason to stay.
+**FORESHADOW (3-8s)** — Tease what's coming without revealing it. Give the viewer a reason to stay. **This tease MUST land by the 2nd or 3rd sentence of the spoken script** — right after the hook line, before the story details start. The viewer should know within ~5 seconds that a payoff/surprise is coming, even though they don't yet know what it is. Do NOT bury the first foreshadow deep in the script.
+
+**MID FORESHADOW (optional, ~20-30s)** — Sometimes (NOT every script — roughly half) plant a SECOND tease partway through the rising action, right before the biggest beat. It re-hooks the viewer who's drifting and points at the ending without giving it away ("but the part nobody saw coming was still up next", "and that aint even the crazy part"). Use it when the story has a strong late beat worth re-teasing; skip it when the script is already tight. Never use the same mid-foreshadow phrasing two scripts in a row.
 
 **RISING ACTION (8-35s)** — Escalating stakes. Specific numbers, real comparisons, concrete examples. Every line earns the next second.
 
-**TWIST (35-45s)** — Subvert expectations. Flip the narrative. Reveal something counterintuitive.
+**TWIST / SURPRISE ENDING (final beat)** — Subvert expectations. The LAST beat of the script must genuinely BLOW THE VIEWER'S MIND — they should think "man, I was NOT expecting that ending." This is the single highest-priority rule of the whole format. It lands as a stinger RIGHT AFTER the payoff: deliver the takeaway, then hit them with one last unpredictable line that flips or shocks. Do NOT close on a tidy lesson-summary the viewer saw coming; if the ending is predictable, the script failed.
 
-**PAYOFF (45-60s)** — Clear takeaway. Connect back to the hook. End on an **insight line** that reframes the topic for the viewer (the thing they didn't see before this video). The spoken payoff is education, not a pitch. The CRWN pitch lives in the caption only — never in the spoken script. Banned in PAYOFF:
+**Strongly prefer a withheld, verified SHOCK FACT** as the kicker — research the topic specifically hunting for the one jaw-dropping true detail (a chart feat, a dollar figure, an ironic outcome, a "his own label cashed the diss" reversal) and hold it back to the very last line. A real surprising fact beats a clever reframe almost every time. Worked examples from this channel: a fake-name leak of an unreleased Carti song hit #1 on Spotify's Viral 50 and he made $0; Jay-Z's music is under 4% of his net worth; Bodak Yellow (her first single) is certified diamond; Not Like Us won Record AND Song of the Year while Drake's own label profited; Future paid a never-public seven figures to own his own name. When NO surprising fact exists, use a hard reframe that recasts the whole story (the inversion still has to feel unforeseen). NEVER invent a twist fact — if you can't verify a jaw-dropper, fall back to a verified reframe. Two ways to land it, and you MUST alternate across scripts (never the same style two in a row):
+  - **Reveal-lesson** — the direct-to-fan insight is still the final line, but delivered as an unexpected flip/reveal, not a summary (e.g. a sharp inversion of the hook that recasts the whole story).
+  - **Withheld shock fact** — hold one genuinely surprising, verified fact back to the very end and drop it last; let the viewer infer the lesson. (Only use a fact you confirmed in the fact-check pass — never invent a "twist" fact.)
+  - Mix freely: some scripts can end on a flipped question, a one-line gut-punch number, or the subject's own outcome. **The CRWN direct-to-fan idea must still be present in every script** (revealed or clearly implied), but it does NOT have to be the literal last sentence.
+  - **Do NOT use a fixed stinger lead-in across scripts.** Phrases like "Now here go the part...", "Now here go the kicker/stat/flip", "Here's the part that..." become a template fast. Vary the transition into the final shock every single script, or (often stronger) walk straight into the fact with no lead-in at all. Never reuse the same lead-in shape two scripts in a row.
+  - **Vary the foreshadow style AND the twist style every script.** Before locking either, scan the last 2-3 scripts and pick a different shape. Banned as a default here too: the "Here go the lesson / Here go what most artists..." pivot — it telegraphs the ending and kills the surprise.
+
+**PAYOFF (45-60s)** — Connect back to the hook and land the surprise. The payoff and the TWIST / SURPRISE ENDING are the same final stretch: the takeaway should arrive as the unexpected beat described above, not as a flat summary the viewer predicted. It still reframes the topic (the thing they didn't see before this video) and is still education, not a pitch. The CRWN pitch lives in the caption only — never in the spoken script. Banned in PAYOFF:
 
 - "That's the move" / "That's the play" / "That's the answer" / "That's the math" — any sales-cousin closer.
 - "Build a free tier" / "Build a paid tier" / "Set up your tiers" — how-to-build-CRWN copy. The video sells the idea, not the product.
 - "Keep 92 cents" / "Keep 92%" / "92¢" — the platform-fee callout. That belongs in the caption.
 - "Download CRWN" / "Check out CRWN" / "Sign up" — direct CTAs.
 
-A good payoff ends on a punchy reframe like "Streams build the label. Fans build the artist." The viewer walks away with a new lens, not a to-do.
+A good payoff ends on a punchy reframe like "Streams build the label. Fans build the artist." The viewer walks away with a new lens, not a to-do. But "punchy reframe" does NOT mean predictable: the line should still surprise (see TWIST / SURPRISE ENDING). The best closers feel inevitable in hindsight yet unexpected in the moment.
 
 ## Comparison ("X vs Y") topics
 

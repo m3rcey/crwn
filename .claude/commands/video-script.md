@@ -22,13 +22,37 @@ That file contains the complete, authoritative rules. Everything below is a summ
 
 Independent music artist, 22-35, with 3K-50K followers. Grinding but not seeing results. Problem-aware (~85%) or solution-aware (~15%). Content bridges them from problem-aware to solution-aware.
 
+## Fact Check Protocol (MANDATORY — do this BEFORE drafting AND AGAIN before saving)
+
+Every script that names a real artist, deal, lawsuit, award, album, sales figure, or date can be fact-checked by anyone watching. Getting one wrong (e.g. "Kendrick swept the 2026 Grammys" when it was 2025, "Drake sued for $50 million" when no amount was disclosed, "Drake has 80M followers" when it's 139M, "Kendrick produced Not Like Us" when Mustard produced it) makes the channel look sloppy and undercuts every other claim in the video. **Do not trust training-data memory for any of this — music-industry facts move constantly (new albums, new deals, new lawsuits, awards, follower counts that change monthly). Use web search.**
+
+**BEFORE drafting** — list every checkable claim the script will lean on, then verify each one with a web search:
+- Artist names, group members, who's signed where, who founded what
+- Deal terms (advance amounts, royalty %, distribution cuts, 360 clauses) — and whether a cited dollar figure was actually *reported* or is being invented
+- Lawsuit details — who sued whom, when, **the amount (or that no amount was disclosed)**, the outcome (dismissed? settled? on appeal?)
+- Awards — **which ceremony YEAR**, how many wins, which categories
+- Albums — release date, label/distributor, first-week numbers, and **whether it's actually out yet** (never claim an unreleased album charted)
+- Who **produced** a song vs who **wrote/performed** it (different people — verify the producer)
+- Label/imprint structure (commonly oversimplified — "X is a Y imprint" is often wrong; check the actual distribution arrangement)
+- Follower / monthly-listener counts (get a current figure; these are not stable)
+- "[Artist] said [thing]" — confirm they actually said it, and roughly what they said
+
+**WHILE drafting** — hedge figures that are estimates or illustrations ("reportedly", "around", "like ~$X"); state hard facts (names, ceremony years, award counts, release dates) precisely. If a fact is contested or you can't pin it down, frame it as a rumor rather than asserting it.
+
+**AFTER drafting, BEFORE saving** — re-scan the finished script, pull out every proper noun, every year, every dollar amount, every specific claim, and confirm each one against what you researched. Then:
+- If you can't confirm a specific number/date, **soften it** (drop the figure, say "no amount was disclosed") or **cut the claim**. Never ship a fabricated figure attributed to "reports."
+- **Do the arithmetic on every line of math.** If a per-stream/per-play rate and a total don't multiply out, one of them is wrong — fix it so they're internally consistent.
+- If a fix changes a visual/stage direction, update it everywhere it appears in the script.
+
+This protocol applies on every run, even for topics that "feel obvious."
+
 ## Named Proxy (the artist persona)
 
 - Default to a **male rap or R&B artist** — this is the viewer avatar.
 - Give him a specific name, age (usually 22-28), genre (rap or R&B), follower/stream count, monthly income, and a day job (FedEx, warehouse, DoorDash, Uber, coffee shop, etc.). These specifics make the math and emotion land.
 - The named proxy runs through every section — intro, Point 1, Point 2, the CTA setup, and the Point 3 reveal show his before/after.
 - Only use a female or different genre if the user explicitly requests it.
-- **No proxy reuse across the channel.** Before locking the proxy, scan the existing scripts in `/home/merce/.openclaw/workspace-crwn/videos/scripts/` for the named proxies in recent videos and pick a different name, age, and day job. Don't put two proxies at FedEx. Don't put two proxies at age 26. Repeated specifics across videos make the channel feel like the same composite character on a loop and break the illusion that these are different real artists. Pick a different city, a different shift, a different gig — overnight Walmart stocker, dishwasher at a 24-hour diner, valet at the airport hotel, security guard, line cook, ride-share at airport runs, Amazon warehouse picker. Different from anything used recently.
+- **No proxy reuse across the channel.** Before locking the proxy, scan the existing scripts in `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/` for the named proxies in recent videos and pick a different name, age, and day job. Don't put two proxies at FedEx. Don't put two proxies at age 26. Repeated specifics across videos make the channel feel like the same composite character on a loop and break the illusion that these are different real artists. Pick a different city, a different shift, a different gig — overnight Walmart stocker, dishwasher at a 24-hour diner, valet at the airport hotel, security guard, line cook, ride-share at airport runs, Amazon warehouse picker. Different from anything used recently.
 
 ## Video Format
 
@@ -73,7 +97,7 @@ Opening line must follow one of:
 - "Which _____________________ was the most _________________? Let's ____________________."
 - "If ______________________, then ___________________."
 
-**Alternate hook formats across scripts.** Do not use the same hook format two videos in a row. Before locking the hook for a new script, scan the most recent scripts in `/home/merce/.openclaw/workspace-crwn/videos/scripts/` (read sheet 1 of each) and pick a format that wasn't used in the last 1-2 videos. The hook is the first thing the viewer hears every video — if every script opens "This is X. And this is Y." the channel develops a sameness and the hook stops landing. Rotate.
+**Alternate hook formats across scripts.** Do not use the same hook format two videos in a row. Before locking the hook for a new script, scan the most recent scripts in `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/` (read sheet 1 of each) and pick a format that wasn't used in the last 1-2 videos. The hook is the first thing the viewer hears every video — if every script opens "This is X. And this is Y." the channel develops a sameness and the hook stops landing. Rotate.
 
 ## The Intro Structure (4 Steps, Exact Order)
 
@@ -142,7 +166,15 @@ The descriptors must be **descriptive mini-premises**, not reductive labels. Goo
 18. **Close = Callback + Echo + Question in one beat.** No separate callback/echo sheet. The close itself calls back to the hook language, echoes it with transformed meaning, and ends on a question. One tight sheet. Not three separate concepts spread across multiple sheets. **If a previous video is chained (see principle 24), the closing question mirrors the previous video's TITLE — not its peak line. The chain hands off at the title level.**
 21. **Vary Sheet Length** — Some sheets 30-second gut punches, others 3-minute deep dives.
 22. **Point Transitions** — NO separate transition sheets between any points. All transitions live inside the points themselves:
-   - **After Point 1 (into Point 2):** Foreshadow + bridge lives at the END of Point 1 as one flowing paragraph. Foreshadow point 3 with mystery and specificity ("the one thing [proxy] has that no AI will ever have. It's not talent. It's not even the music."), tease the payoff, then bridge conversationally into point 2: "For now we gotta get into [point 2]..." Trail off naturally.
+   - **After Point 1 (into Point 2):** Foreshadow + bridge lives at the END of Point 1 as one flowing paragraph. Foreshadow point 3 with mystery and specificity, tease the payoff, then bridge conversationally into point 2: "For now we gotta get into [point 2]..." Trail off naturally.
+     - **DO NOT use the "It's not X. It's not Y. It's not even Z. It's something most artists have never heard of." formula.** This phrasing has been used in WILL_AI, WHY_TIKTOK, CAN_500_FANS, and DRAKE_ICEMAN. It is now banned. Watch for variants too: "It's not a label. It's not a distributor. It's not even a streaming hack." / "It's not talent. It's not even the music." / "It's not a bigger number. It's not a finesse." All same shape. All banned.
+     - The foreshadow has to FEEL different every video. Approaches that work without the banned formula:
+       - Show a snippet of the reveal as a tease ("Here's a hint: [one concrete detail from Point 3]. Stick with me.")
+       - Pose a question Point 3 will answer ("So what does Drake actually have that the label couldn't take? You're gonna see it in a minute.")
+       - Plant a specific image that hooks back later ("Picture a fan list with every name on it. Drake's got that. UMG doesn't.")
+       - Frame the reveal by what it costs ("There's a way out. It costs Drake $2.5M instead of $7M. And it pays him forever.")
+     - Never default to negation chains. Make the foreshadow concrete, not a process of elimination.
+     - **When the video is a sequential comparison (Option A vs Option B vs Option C, or Deal 1 vs Deal 2 vs Deal 3), skip the mystery foreshadow entirely and use a direct literal bridge instead.** Example from DRAKE_ICEMAN: "But what route might he go besides a traditional record deal with somebody like a UMG. This brings us to the next scenario, a distribution deal." That's not a foreshadow — it's a segue. The structure of the video (three deals being compared) carries the curiosity. Forcing a "but later in this video I'm going to show you..." beat in a sequential comparison is redundant theater. Apply the foreshadow rule when the structure is "problem → bigger problem → reveal of the real cause." Apply the direct bridge when the structure is "Option 1 → Option 2 → Option 3."
    - **After Point 2 (into CTA/Point 3):** Point 2 ends with clean open questions ("What is it? And can [proxy] do it too?") that flow directly into a one-line CTA segue, then straight into the CTA. The segue beat is fixed — acknowledge the question, tell them you'll get to it, pivot into the CTA — but the **exact wording must be different every script**. Don't reuse "I'll reveal that in a second. But first, let me put you onto something." in two videos in a row. Variations: "Hold that question for a second. There's something you gotta see first." / "Stay with the question. Quick thing first." / "Don't go nowhere — I want to put something on your radar before I answer that." / "Pause on that. Got something to show you." Pick a fresh phrasing every script. No roadmap hype sheet. No restating the question. The open questions ARE the setup for point 3. **After the CTA ends, pick up where Point 2 left off — "Back to [question]..." and reveal. Do NOT restate or recap Points 1 and 2 after the CTA. The viewer's memory is fine; the recap kills the momentum.**
 23. **3 Major Points** — Point 3 must ANSWER the question the viewer is most curious about. It's the reveal.
 24. **End Screen Chain** — If a previous video script is provided, the close and the bridge beat that follows are engineered together:
@@ -212,7 +244,42 @@ Examples of acceptable variation for the same beat:
 - "That's what CRWN is." → "That's CRWN." → "CRWN does that."
 - "It catches fans before they leave." → "It pings you when a fan is slipping away so you can win them back." → "It flags the fans going cold before they ghost."
 
-The factual content stays locked (free tier, paid tiers at $14.99/$29.99, AI manager with three capabilities, thecrwn.app, link in description). The phrasing flexes. If the previous script said "imagine having your own place" — this script can't open with that. Same for every line.
+The factual content stays locked (free tier + 2 paid tiers, AI manager with three capabilities, thecrwn.app, link in description). The phrasing flexes. If the previous script said "imagine having your own place" — this script can't open with that. Same for every line. For the tier prices in the CTA, the platform default is ~$15 and ~$30, but artists can and do price the top tier higher — see the CRWN Monetization Model section. Don't pin "$14.99/$29.99" verbatim every script; state the Free + 2-paid shape and let the example prices vary.
+
+## CRWN Monetization Model (use for ALL proxy fan-math — NEVER default to a flat "$10/mo")
+
+The named proxy's before/after money and every body math beat must reflect a realistic BLEND with numbers that change every script. Four income streams:
+
+**1. Subscription = a 3-tier shape. Plant this mental model in every script.**
+- **Free tier** — entry point (music, community, updates). Zero friction.
+- **Mid paid tier** — workhorse, $8–$20/mo. Rotate the price.
+- **Top paid tier** — superfan, $25–$60/mo. Rotate the price.
+- The *shape* (Free + 2 paid) is fixed; the *prices* vary every script.
+
+**2. Paid experiences / access — fans pay FAR more here than for a sub. Land this point.**
+- 1-on-1 call $100–$400 · personalized voice note $25–$75 · ticketed live Q&A $15–$40 · live listening session $20–$50.
+- Examples only — invent fresh ones each script (track feedback $50–$200, name in credits, shoutout, fan picks the single, signed lyric sheet, studio vlog access, co-write livestream, birthday video, subscriber hang, meet-and-greet upgrade, 24h-early listen, demo vault). Lesson for the proxy: **one $250 call ≈ 25 fans at $10/mo.**
+
+**3. One-off purchases:** vinyl $35–$60 · CD $12–$25 · signed merch $30–$80 · direct digital album $5–$15 · bundle $50–$150.
+
+**4. The proxy's realistic month is a COMBO**, e.g. "120 on the $14 tier, 20 on the $40 tier, 3 calls at $300, 50 vinyls at $50" — different numbers every script, never a flat "$X × N fans," never a combination reused from a recent script. See memory `feedback_tier_pricing_recs` and `feedback_shortform_proxy_repetition`.
+
+**5. Scale prices to the artist's stature — the bands are NOT universal.** Megastar/legend (Drake, Wayne): scale + scarcity, 1-on-1 is auction-tier ($5K–$25K+), voice note $300–$1,500; never write them selling a $150 call. Recent breakout (e.g. 4batz): accessible intimacy, subs ~$8–$12/~$25–$40, 1-on-1 $100–$300. The named proxy / avatar (3K–50K): subs ~$7–$10/~$20–$30, 1-on-1 $50–$150 — and the recurring punchline is that a megastar literally cannot sell a real 1-on-1, but the proxy can. Match the numbers to whoever the beat is about.
+
+**6. Framing — the avatar is NOT solution-aware.** The viewer doesn't yet know fans pay for access/experiences or that this tier model exists. Reveal it through the proxy and proof ("a fan paid [artist] $X for a voice note") — never instruct the viewer ("price your call at $150", "set your tiers"). The body sells the IDEA that the model exists and access pays; concrete pricing/setup belongs only in the CTA product block, not as advice to the viewer.
+
+## CRWN Capability Map (reverse-engineer the solution from the story)
+
+Tiers are ONE solution. CRWN has many. From the proxy's / famous artist's specific pain, pick the ONE capability that most directly answers it, and rotate across the groups script to script — don't default to tier-math every video. Show it implicitly through the proxy's before/after; CRWN is named only in the CTA block.
+
+- **A. Own the direct line** (label/algorithm gatekeeps the fans): email subscribers; **text/SMS fans directly**; you hold the list (email, phone, city); auto win-back when a fan leaves.
+- **B. More than one income stream** (streaming pennies, advance/recoupment): free + paid tiers; digital products (stems, sample packs); physical (vinyl, CD, merch); paid experiences (1-on-1, custom verse, critique, shoutout); bundles; tips.
+- **C. Fans grow you and get paid** (CAC, ad spend, label "breaks" you): share-and-earn referral — a fan earns ~10% commission per subscriber they bring and cashes out. A paid street team.
+- **D. Keep more of every dollar**: 3–8% platform fee vs a label's majority cut; direct payout.
+- **E. See and act on the money** ("millions went missing", churn): transparent real-time analytics; AI manager flags churn risk and top spenders.
+- **F. Launch without a label budget** (Drake's ~$1.2M Iceman rollout): smart links / pre-save pages with DSP embeds + lead capture; discount codes.
+
+**No-fabrication guard:** only use real capabilities. CRWN HAS native livestreaming ("Listening Sessions": LiveKit live broadcast plus a prerecorded/VOD mode, tier-gated, live chat, guest "stage" role). CRWN has NO NFT/blockchain and NO merch fulfillment (order tracking only); booking is Calendly scheduling, separate from live. When unsure a feature is real, check `src/components/artist/` and `src/lib/` — never invent one for a beat.
 
 ## End Screen Bridge (Last 25-30 Seconds)
 
@@ -225,12 +292,17 @@ Before drafting the close, read the provided previous video script and extract:
 2. **Point 3 peak line** — the single sentence that is the reveal/climax (e.g., "Your process. Not your song. Your process."). This is the *internal* payoff the next video delivers, not necessarily the verbatim answer to the close's question.
 3. **The problem Point 3 solves** — the pain established in Points 1-2 of the previous video (e.g., "AI floods platforms with finished content; finished songs are indistinguishable from real artists'")
 
-### Step 2: Engineer the CLOSE (one sheet, 3-5 sentences)
+### Step 2: Engineer the CLOSE (one sheet, 4-6 sentences)
 
-The close must do all three:
-- **Callback** the current video's hook language (transformed meaning)
-- **Plant the previous video's problem** as the urgent stakes, filtered through the current video's topic
-- **End on a question that mirrors the previous video's title.** The chain hands off at the title level, not the peak level. If the next video's title is already a question ("Why Are TikTok Artists Broke?", "Will AI Replace Musicians?"), the close ends on that exact same question (or a near-match). The viewer just heard you ask the title — clicking the end screen feels like the obvious next move. The Point 3 peak inside that next video is the eventual reward, but it is NOT what the close's question literally answers to. Don't engineer a question whose verbatim answer is the peak line — that's too tight and usually phrasing-twisted. Match the title.
+The close has four moves, **in this exact order**:
+1. **Callback** the current video's hook language (transformed meaning) — usually 1-3 short lines.
+2. **Plant the previous video's problem in ONE direct line** — a single sentence that names the pain the next video solves, framed through the current video's topic.
+3. **Pose the curiosity question** — a one-line question that opens the gap the title-mirror is about to ask. This question primes the viewer to want the title's answer. It is NOT a redundant restatement; it's the "so what's the answer to this problem?" beat that makes the title-mirror feel earned. Example: "So what's the fewest fans it actually takes to clear $100K?"
+4. **End on a question that mirrors the previous video's title.** The chain hands off at the title level, not the peak level. If the next video's title is already a question ("Why Are TikTok Artists Broke?", "Will AI Replace Musicians?", "Can 500 Fans Make You $100K?"), the close ends on that exact same question (or a near-match). The Point 3 peak inside that next video is the eventual reward, but it is NOT what the close's question literally answers to. Don't engineer a question whose verbatim answer is the peak line — that's too tight and usually phrasing-twisted. Match the title.
+
+**Why the curiosity question (move 3) is required, not optional:** It does two things the problem-plant alone can't. (a) It converts the problem from a statement into a hook — "most artists don't have 200K paying fans" is a fact, but "what's the fewest fans it takes" turns the fact into an open loop. (b) It primes the viewer for the title-mirror, so the title question lands as a *concrete instance* of the curiosity question they just asked themselves. Without move 3, the title-mirror reads like a non-sequitur after the problem-plant. With move 3, it reads like the natural next thought.
+
+**The problem-plant must be concrete and grounded in numbers from the current video.** Don't reach for theme ("the fans were always his" / "ownership is everything"). Use the literal number gap that sets up the next video. From DRAKE_ICEMAN closing into 500-fans video: Drake's $27M comes from 200K paying fans → "But most artists don't have 200,000 people that will pay them every month" (problem-plant) → "So what's the fewest fans it actually takes to clear $100K?" (curiosity question) → "Can 500 fans make you $100K?" (title-mirror). The problem-plant uses the same unit (paying fans) the title question uses, which is what makes the segue feel inevitable.
 
 ### Step 3: Write the BRIDGE BEAT (one sheet, 1-2 sentences)
 
@@ -284,10 +356,27 @@ If no previous video is provided, write a standard close (callback + echo + ques
 - Shared discovery tone: "here's where it gets interesting," "I didn't expect this part"
 - Talk like a friend who figured it out first. Not a teacher. Not a brand.
 - **Write how people actually talk, not how writers write.** Use simple repetitive sentence structures ("He makes rap music. He makes his own beats. He writes his own bars.") instead of compressed clever phrasing ("Makes hip-hop. Produces his own beats. Writes every word."). The spoken version sounds like a person. The written version sounds like a bio.
-- **Voice register matches the proxy.** The default proxy is a Black male rap or R&B artist, and the script gets read aloud in that voice. Drop into spoken Black English where it lands naturally — "ya" instead of "your", "em" instead of "them", "was" where it sounds true ("if you was a fan of a artist"), "chasin" instead of "chasing", "ain't", contracted negations, "no more" for emphasis ("you don't live in 2008 no more"). Apply heaviest in Point 1 setup, the proxy's day-to-day, and emotional beats. Keep the CTA, the math callouts, and the close in neutral voice so the brand line and the numbers stay clean. Don't caricature — write it the way the artist would actually say the line, not a stylized version of it. If the user explicitly requests a different proxy (female, non-Black, different genre), match the register to that proxy instead.
+- **Voice register matches the proxy. Default heavy, not light.** The default proxy is a Black male rap or R&B artist, and the script gets read aloud in that voice. Default to spoken Black English aggressively, not as a rare flavor:
+  - **Possessives:** "they next deal" not "their next deal", "ya manager" not "your manager", "ya phone" not "your phone".
+  - **Verbs:** "he look" not "he looks", "the math look like" not "the math looks like", "she don't" not "she doesn't", "they was" / "you was" where it lands.
+  - **Contractions and dropped g's:** "gon" not "gonna", "chasin" not "chasing", "talkin bout" not "talking about", "thats" / "dont" / "wasnt".
+  - **Negations:** "ain't", "ain't no", "dont gotta nothin", "don't live in 2008 no more".
+  - **Pronouns and addresses:** "yall", "em" not "them", "this dude", "stans" not "diehards" or "superfans".
+  - **Idioms and dialogue tags:** Use "and like" / "is like" for spoken dialogue, not "says". Example: `He look at his accountant and like "Look, I just made $4M less than nothing."` / `His accountant is like, "Yeah but you own it though."` Never write `He says, "..."` — that's narrator voice, not proxy voice.
+  - **Caps for emphasis:** When a word gets hit hard in delivery, write it in caps — "He owns the MASTERS", "$4M less than NOTHING", "took me 2 YEARS to make". Don't overuse, but don't avoid it either. The script is read aloud and the caps tell the reader where the punch lands.
+  - **Where to apply heaviest:** Point 1 setup, the proxy's day-to-day, emotional beats, dialogue. Keep the CTA, the math callouts, and the close in neutral voice so the brand line and the numbers stay clean. Don't caricature — write the line the way the artist would actually say it, not a stylized version. If the user explicitly requests a different proxy (female, non-Black, different genre), match the register to that proxy instead.
 - **Cut unnecessary elaboration.** If one sentence does the job, don't use three. "Fifty thousand songs that took no effort" is better than "No late nights. No writer's block. No choosing between rent and studio time."
+- **No theatrical metaphor labels.** Banned phrases (and their shape): "the third door", "the open door", "the front door / the house" / "the door / the house", "the rollout was a movie", "in [artist's] world", "the open door that brings em in", "the gold mine", "the trap was set", "the curtain falls". Anything that names a moment with a poetic label instead of describing it. These read as scripted. Replace with literal language: instead of "That's the third door" → "Is that a better option than the previous two?" Instead of "The free tier is the door. The paid tiers are the house." → "The free tier is how they get in. The paid tiers is how he keeps em there." When you catch yourself reaching for a metaphor label, write the literal version.
+- **No "same/different" contrast skeleton — banned in all forms.** "Same X. Same Y." / "Same X, different Y." / "Same X. Two different Z." / "One X, two Y." / "X vs Y aint the same business." It is the lazy default for the label-vs-direct contrast and makes scripts sound templated. State the contrast in plain, specific language that names the actual numbers and nouns, and vary it every script. Bad: "Same album. Two different paydays." Good: "He sold the exact same record both ways. One keeps him $435K. The other keeps him $2.67 million." Applies to the proxy's reveal, the close, and the title.
+- **Cut hype filler in setup.** When introducing the topic/subject, stay in the math, not the marketing. Don't list rollout details, headline-grabbing stunts, or "biggest [thing] in [year]" superlatives unless they directly drive a number later. Bad: "The rollout was a movie. Iceman Episodes livestreams. An ice sculpture in Toronto. A Marvel and OVO collab. Singles with Central Cee and Yeat. Features from Young Thug, 21 Savage, PARTYNEXTDOOR. This is the biggest album release in rap music in 2026." Good: cut all of that, go straight to the deal/structure that's about to be analyzed. Hype filler doesn't serve the math — it just postpones it.
+- **Use specific real-world names when a rumor/source names them.** If the speculation points at one company or person specifically, use that name — don't list generic alternatives. Bad: "There's a thing called a distribution deal. Sony. The Orchard. AWAL. Ingrooves." (Generic list when only Sony is rumored.) Good: "It's highly speculated he may go the route of a distribution deal with someone like Sony." Specificity is credibility. Generic lists read as filler.
+- **No parallel-phrasing repetition formulas.** Banned shapes (in addition to the negation chain "It's not X. It's not Y. It's not even Z"):
+  - **Repeated noun lead:** "Bars about owning ya masters. Bars about three-sixty upfront. Bars about the label being the problem." Same shape, just rotated nouns.
+  - **Repeated subject lead:** "He saw the door. He's been trying to get there. He found a way." Anaphora that reads as a list, not a thought.
+  - **Triplet of metaphors:** "The pool got crowded. The water got rougher. The boat got smaller." Pretty, but rhetorical.
+  These all share a defect: they sound written, not spoken. When you draft one, collapse it to a single line: "He's been telling you for years about the label being the problem." One line carries the weight better than three parallel ones.
 - Real numbers and simple math (streaming pay rates, subscription income)
-- **Number formatting shifts by section.** Front half (intro through Point 1 and the emotional anchor): spell numbers out for prose flow — "a hundred grand", "thirty bucks", "five hundred fans", "month nine". Back half (Point 2 math reveal onward, Point 3 proof, anywhere the script gets numeric-dense): switch to digits and symbols — "$15", "$30", "$50", "$84k", "92%", "month 9", "211 middle tier". Digits scan faster on the teleprompter and let the numbers pop visually when the script is doing math. Keep it consistent within a sheet — don't mix "ninety-two percent" and "92%" in the same sheet. Time/age references (twenty-six, two thousand eight, four in the morning) stay spelled out throughout because they read as prose, not data.
+- **Number formatting: digits and symbols by default, everywhere.** Use "$15", "$30", "$50", "$84K", "92%", "5,000 fans", "400K units", "$2M", "Year 5", "month 9", "26 years old", "2008", "May 15, 2026". Digits scan faster on the teleprompter, let numbers pop visually on the sheets, and read cleanly aloud. Do NOT spell numbers out anywhere — not in the intro, not in Point 1, not in prose, not for years, not for ages. The only exceptions: small counting numbers used as prose ("one sentence", "three tiers", "two reasons"), idioms ("a million times", "a thousand percent"), and quotes from the proxy where spelling sounds more natural to read aloud. Keep it consistent within a sheet — don't mix "ninety-two percent" and "92%". When in doubt, use digits.
 - **Streaming rate spoken phrasing:** Spotify pays $0.003/stream. When spoken in voiceover, phrase it as **"about a third of a penny per stream"** — never "point zero zero three dollars" (clunky) or "point zero zero three cents" (mathematically wrong by 100x). Alternate acceptable phrasing: "about three cents per thousand streams."
 - Never say "today I want to talk about"
 - Listicles count DOWN (5, 4, 3, 2, 1), best saved for #1
@@ -413,14 +502,26 @@ SHEET [X] OF [X]: END SCREEN BRIDGE
 
 ## Output Location
 
-Save the script to: `/home/merce/.openclaw/workspace-crwn/videos/scripts/[TOPIC_SHORT_NAME]_SCRIPT.md`
+Save the script to: `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/[N]-[descriptive-kebab-name].md`
+
+**Filename format:**
+- Lowercase kebab-case
+- Prefixed with the long-form **posting-order number** (the position Josh intends to publish it, NOT the calendar tier number from project_90day_content_calendar)
+- The descriptive name should be concise (3-7 words) capturing the topic
+- No `_SCRIPT` suffix — the `longform/` folder location already implies that
+- Examples: `4-can-500-fans-make-100k.md`, `5-drake-iceman-3-deals.md`, `6-lil-wayne-carter-v.md`, `7-megan-1501-lawsuit.md`
+
+**Picking the number:** Long-form scripts are numbered in the order Josh intends to publish them. This is NOT the same as the calendar tier number — the calendar lists 46 videos in tier-of-relevance order, but Josh publishes them in his own sequence. When a new long-form script needs a number, ask Josh where it slots in the posting order, OR append after the highest existing number. Do not renumber existing files unless explicitly asked.
+
+If a near-identical filename already exists at the same number, append `-v2` rather than overwriting.
 
 ## Reference Scripts (ground truth for pattern)
 
 Read at least one of these before writing a new script — they embody every rule in this skill:
-- `/home/merce/.openclaw/workspace-crwn/videos/scripts/WILL_AI_REPLACE_MUSICIANS_SCRIPT.md` (long-form, ~16-17 min, ~2,600 words)
-- `/home/merce/.openclaw/workspace-crwn/videos/scripts/WHY_ARE_TIKTOK_ARTISTS_BROKE_SCRIPT.md` (long-form, ~16-17 min, ~2,600 words)
-- `/home/merce/.openclaw/workspace-crwn/videos/scripts/MUSIC_LEAST_VALUABLE_PART_SCRIPT.md` (short-form)
+- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/1-music-least-valuable-part.md` (short-form)
+- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/2-will-ai-replace-musicians.md` (long-form, ~16-17 min, ~2,600 words)
+- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/3-why-tiktok-artists-broke.md` (long-form, ~16-17 min, ~2,600 words)
+- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/5-drake-iceman-3-deals.md` (example of sequential comparison structure)
 
 ## User Argument
 
