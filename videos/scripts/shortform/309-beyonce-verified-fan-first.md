@@ -10,7 +10,7 @@ Link in bio to give your day-one fans a spot that says they were here first with
 
 **SCRIPT:**
 
-Beyonce put a velvet rope on her own tour and fans lined up to prove they belonged behind it. Beyonce showed it in 2023. Her Renaissance tour ran on a verified fan system. You couldnt just buy a ticket. You had to register, prove you was a person, not a bot, not a reseller. Fans signed up, waited on a text, prayed for a code. Some got picked. Some got the waitlist. And they did it gladly. Why? Cause Ticketmaster told em the real ones come first. The bots and flippers get pushed to the back. That ranking did somethin. It aint feel like a hoop. It felt like bein chosen. So somebody tested it small. They put a wall where the day-ones get they name up top. A spot that say you was here before anybody. The fans paid for that spot quicker than they paid for the music. Beyonce made millions tell her they was real. Yo fans waitin to do the same.
+Why did Beyonce put a velvet rope on her own tour, and why did millions of fans line up gladly to prove they belonged behind it? She showed it in 2023. Her Renaissance tour ran on a verified fan system. You couldnt just buy a ticket. You had to register, prove you was a person, not a bot, not a reseller. Fans signed up, waited on a text, prayed for a code. Some got picked. Some got the waitlist. And they did it happy. Cause Ticketmaster basically told em the real ones come first, and the bots and flippers get pushed to the back. That ranking did somethin. It aint feel like a hoop. So somebody tested it small. They put a wall where the day-ones get they name up top. A spot that say you was here before anybody. The fans paid for that spot quicker than they paid for the music. Here go why she put up the rope and why they ran to it. Bein told you the real one feel like bein chosen, and a fan will pay to be chosen.
 
 ---
 
@@ -27,7 +27,7 @@ Beyonce put a velvet rope on her own tour and fans lined up to prove they belong
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Beyonce put a velvet rope on her own tour and fans lined up to prove they belonged behind it. [Top of page, big bold: "THE VELVET ROPE" with a small stick figure standing at a rope. Underline "prove they belonged." Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Beyonce from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BEYONCE" underneath.]
+**HOOK:** Why did Beyonce put a velvet rope on her own tour, and why did millions of fans line up gladly to prove they belonged behind it? [Top of page, big bold: "THE VELVET ROPE" with a small stick figure standing at a rope. Underline "prove they belonged." Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Beyonce from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BEYONCE" underneath.]
 
 **FORESHADOW:** Beyonce showed it in 2023. Her Renaissance tour ran on a verified fan system. [Write "RENAISSANCE 2023" centered. Below it box the words "VERIFIED FAN."]
 

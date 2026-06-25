@@ -220,6 +220,7 @@ The `[SPECIFIC CONTENT]` section describes every word, number, drawing, circle, 
   - **"The whole ___" filler — banned.** "that's the whole move", "and that's the whole lesson", "the reason is the whole lesson", "the whole switch", "the whole point", "that's the whole thing". Empty hype that adds nothing and signals a templated script. Cut it and just state the actual point.
   - **The "Yea X. But Y." closer template — banned as a default.** Do NOT end scripts with "Yea [old way]. But [new way]." every time. The AAVE reframe is right; the fixed two-clause "Yea ___. But ___." shape on every script is not. See the closing-line guidance under Voice Register and vary the closer's structure every script.
   - **The "Here go what it means for you" avatar-pivot — banned as a default.** Do NOT open the twist or payoff with the same formulaic turn to the viewer every script ("Here go what it mean for you", "Here go the part that should hit you", "Here go what flips it for you", "Here go what most artists sleep on"). The lesson still has to land on the avatar, but a strong story or a sharp contrast usually lands it WITHOUT an announced pivot. You don't have to address "you" in every script. Vary it: sometimes walk straight into the reframe, sometimes let the numbers carry it, sometimes end on the subject's lesson and let the viewer apply it themselves, sometimes keep a direct "you". Never announce the lesson the same way two scripts in a row.
+  - **"Yo" / "Yo," — banned entirely.** Never open a script or any sentence with "Yo" or "Yo,", and never use "yo" as filler anywhere in the spoken script. Start on the named subject and the concrete hook. AAVE voice still comes through "ya", "em", "aint", "gon", dropped g's, copula drop — just never "yo".
   - In-spoken-script CTA: "Build a free tier", "Build a paid tier", "Set up your tiers", "Keep 92 cents/percent of every dollar", any "X¢" platform-fee callout. These belong in the caption, never spoken.
 - MrBeast pacing: short, punchy, constant momentum
 - Talk like a friend who figured it out first, not a teacher or brand
@@ -385,8 +386,25 @@ The thumbnail prompt MUST replicate the selected title text verbatim on the page
 
 If the user passes several topics separated by `|`, generate a full package for each topic. Save each to its own file. Print each block to chat in sequence with a clear divider between topics.
 
+## Curiosity-Gap Score (MANDATORY GATE — must pass before saving)
+
+Every script must score at least **8/10** on the curiosity-gap rubric in [SHORTFORM_SCORECARD.md](../../videos/SHORTFORM_SCORECARD.md). Two axes, 5 points each:
+
+A real gap is a **question, not a withheld number.** The hook plants ONE specific question in the viewer's head, that exact question stays unanswered through the middle, and the FINAL line is the answer to it. Question and answer are a matched pair.
+
+- **Question planted (0-5):** the hook plants ONE specific question the viewer needs answered **by the END of the first spoken sentence** — best when sentence 1 IS the question — built on the named subject + a concrete noun. A setup sentence followed by the question in sentence 2 or 3 is too slow and loses points. You must be able to state that question in one plain sentence. A withheld number is NOT a gap unless it answers a question the hook posed.
+- **Answer held to the end (0-5):** the specific payoff that answers the question lands ONLY in the FINAL line. The answer must NOT be in sentence 2, and the specific payoff must not be stated anywhere mid-script. The middle SHOULD build context, raise the stakes, and re-pose the question (that is what keeps the viewer watching) — it just withholds the payoff. Context mid-script is fine and necessary; spilling the specific payoff is the only fail. Hold the answer as long as possible: the longer the question hangs, the lower the skip rate, which is the whole goal. Fail only if there's no question in sentence 1, the answer lands in sentence 2, the payoff is spilled before the final line, or the ending answers a different question.
+
+**The test before saving:** name, in one sentence, the question your hook plants. Confirm the last line answers THAT question and nothing in the middle does. If you can't name the question, there is no gap — rewrite. (A statement that withholds a stat but sparks no question is the most common failure, e.g. "Carti's look spread free, clippers got nothing" makes the viewer ask nothing.)
+
+Before saving, self-score honestly on both axes. **If the total is under 8, REWRITE. Never save a sub-8 script.** Most common failures: stating the outcome in line 1, spending the payoff number mid-script, or ending on a generic lesson the viewer saw coming.
+
+**If the topic is a how-to / mechanic / process with no shock fact to withhold (e.g. "set your tiers", "the clipper share-ramp", "go live every session"), it is NOT a short-form video — it is warm-audience how-to and belongs in a CAROUSEL.** Flag it for the carousel pipeline rather than forcing a low-scoring video. (See memory `feedback_carousel_vs_reel_audience`.)
+
 ## Quality Checks (run before finalizing)
 
+- [ ] **Curiosity-gap self-score is >=8/10** (opening withholds the payoff; biggest reveal only in the last line) — per the MANDATORY GATE above. Sub-8 = rewrite, or move to a carousel if it's a how-to/mechanic.
+- [ ] No "yo" / "Yo," anywhere in the spoken script
 - [ ] All 5 titles are under 40 characters
 - [ ] All 5 titles follow one of the 10 structures (number cited next to each)
 - [ ] SCRIPT is 150-170 words spoken
@@ -416,7 +434,7 @@ If the user passes several topics separated by `|`, generate a full package for 
    d. Strip brackets to produce the SCRIPT (clean spoken version). Verify 150-170 words.
    e. Build the Nano Banana Pro prompt describing every element on the finished sheet.
    f. Build the pan order from the visuals in script order.
-   g. Run the quality checks. Fix any failures before writing.
+   g. Run the quality checks AND self-score the curiosity gap (must be >=8/10 per the MANDATORY GATE). Fix any failures and rewrite anything under 8 before writing. A how-to/mechanic with no shock fact to withhold goes to a carousel, not a sub-8 video. Web-verify every hard claim per the Fact Check Protocol before saving.
    h. Assemble the file in the Output Format order: CAPTION (with suggested title) -> SCRIPT -> TITLES (5 alternates, suggested marked) -> TOPIC -> SCRIPT WITH VISUALS -> NANO BANANA PRO PROMPT -> PAN ORDER.
    i. Save to `videos/scripts/shortform/[N]-[descriptive-kebab-name].md` (use the post number from the 90-day calendar; scan the folder for the next number if unsure).
    j. Print the full output block to chat in the same order.

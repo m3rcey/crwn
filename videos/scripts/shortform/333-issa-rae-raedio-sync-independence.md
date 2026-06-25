@@ -10,25 +10,7 @@ Link in bio to own your masters so a supervisor can clear your song in one call,
 
 **SCRIPT:**
 
-Issa Rae put independent artists' songs all over her HBO show Insecure, and the reason she could comes down to one thing most labels make impossible.
-
-Issa Rae aint just an actress. In 2019 she started Raedio with Benoni Tagoe.
-
-It's a music company. They put songs in Insecure for five seasons.
-
-But watch what they built it around. Raedio lets the artist own they masters.
-
-So when a supervisor want a song, that artist can say yes by theyself.
-
-No legal team. No label that gotta sign off. One owner.
-
-Now think about a star's song. The supervisor want it, but the label own the master.
-
-Lawyers. Months. A big check. The clearance turn into a fight.
-
-So when a music supervisor sit down to fill a scene, they reach for the song they can clear today.
-
-And the one they can clear in a single phone call is the independent artist who owns they master. That's the song that makes the show.
+How did Issa Rae get independent artists' songs all over her HBO show Insecure? Issa Rae aint just an actress. In 2019 she started Raedio with Benoni Tagoe. It's a music company, and they put songs in Insecure for five seasons. But watch what they built it around. Raedio lets the artist own they masters. So when a supervisor want a song, that artist can say yes by theyself. No legal team, no label that gotta sign off. One owner. Now think about a star's song. The supervisor want it, but the label own the master. Lawyers, months, a big check. The clearance turn into a fight. So when a supervisor sit down to fill a scene, they reach for the one they can clear today. So how did indie songs make the show? The owner picks up the phone and says yes in a single call. The star's people are still arguing.
 
 ---
 
@@ -45,7 +27,7 @@ And the one they can clear in a single phone call is the independent artist who 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Issa Rae put independent artists' songs all over her HBO show Insecure, and the reason she could comes down to one thing most labels make impossible. [Top center: draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Issa Rae from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "ISSA RAE" underneath. Beside it write "INDIE SONGS ON HBO" big, draw a small TV screen with a music note inside it.]
+**HOOK:** How did Issa Rae get independent artists' songs all over her HBO show Insecure? [Top center: draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Issa Rae from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "ISSA RAE" underneath. Beside it write "INDIE SONGS ON HBO" big, draw a small TV screen with a music note inside it.]
 
 **RISING ACTION:** Issa Rae aint just an actress. In 2019 she started Raedio with Benoni Tagoe. [Left side: write "RAEDIO" and "2019" under it.] It's a music company. They put songs in Insecure for five seasons. [Write "5 seasons" next to INSECURE.] But watch what they built it around. Raedio lets the artist own they masters. [Box the phrase "OWN YOUR MASTERS."] So when a supervisor want a song, that artist can say yes by theyself. [Draw one stick figure with a check mark, write "1 OWNER."] No legal team. No label that gotta sign off. One owner.
 

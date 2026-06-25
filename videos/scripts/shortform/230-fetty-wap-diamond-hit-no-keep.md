@@ -10,7 +10,7 @@ Link in bio to turn one loyal fanbase into income that doesn't dry up when the s
 
 **SCRIPT:**
 
-Fetty Wap had one of the biggest songs of the decade, a diamond plaque on the wall. So why couldn't it save him? Stay with me, cause this song did everything right.
+Why couldn't Fetty Wap's diamond plaque save him from going broke? Stay with me, cause this song did everything right.
 
 Trap Queen dropped in 2014. By 2015 it hit number 2 on the Billboard Hot 100, sat in the top 10 for 25 weeks straight. It went diamond. Over 10 million.
 
@@ -20,7 +20,7 @@ The fans who screamed Trap Queen was a list, and he aint never own that list. So
 
 Then 2020 hit and every show stopped. His own lawyer said it himself. No shows, the income dried all the way up.
 
-A plaque counts plays. It dont count what you keep. Diamond on the wall, and the bank account read zero.
+A plaque counts plays. It dont count what you keep. He never owned the song and he never owned the fan list, so when the shows stopped, the money stopped.
 
 ---
 
@@ -37,7 +37,7 @@ A plaque counts plays. It dont count what you keep. Diamond on the wall, and the
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Fetty Wap had one of the biggest songs of the decade, a diamond plaque on the wall. [draw a simple framed plaque top left, write "DIAMOND" inside it] So why couldn't it save him? [draw an empty wallet next to it, write "?" inside the wallet] Fetty Wap. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath]
+**HOOK:** Why couldn't Fetty Wap's diamond plaque save him from going broke? [draw a simple framed plaque top left, write "DIAMOND" inside it; draw an empty wallet next to it, write "?" inside the wallet; draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath]
 
 **FORESHADOW:** Stay with me, cause this song did everything right. [underline "did everything right"]
 
@@ -45,13 +45,13 @@ A plaque counts plays. It dont count what you keep. Diamond on the wall, and the
 
 **TWIST:** The fans who screamed Trap Queen was a list, and he aint never own that list. [draw a stick-figure crowd, draw a contact list page, cross it out, write "NOT HIS"] So the second the stage went dark, he had no way to reach em. Then 2020 hit and every show stopped. [draw a big X over the stage, write "2020"] His own lawyer said it himself. No shows, the income dried all the way up. [write "NO SHOWS = NO INCOME"]
 
-**PAYOFF:** A plaque counts plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] Diamond on the wall, and the bank account read zero. [draw the plaque again on a wall, draw an empty box labeled "BANK $0", underline "$0"]
+**PAYOFF:** A plaque counts plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] He never owned the song and he never owned the fan list, so when the shows stopped, the money stopped. [write "NO SONG + NO FAN LIST", draw a down-arrow to "SHOWS STOP = MONEY STOPS", box it]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top left, a simple hand-drawn framed plaque with the word "DIAMOND" written inside it, and next to it a hand-drawn open wallet with "$0" inside it. Under the plaque, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath. Below that the underlined phrase "still aint save him". In the middle of the page: "TRAP QUEEN 2014", then "#2 HOT 100" with the "#2" circled, then "25 WEEKS TOP 10", then a boxed line reading "DIAMOND = 10,000,000+". The word "his" appears once and is crossed out. A small hand-drawn stage with a stick figure standing on it, an arrow from the stage pointing to a dollar sign "$", and a large X drawn over the stage with "2020" written beside it. Lower on the page: "NO SHOWS = NO INCOME", a second small plaque drawn hanging on a wall line, and an empty box labeled "BANK $0". The phrase "PLAYS" with an arrow pointing to the plaque, and the word "KEEP?" with a question mark and empty space next to it. A small hand-drawn crowd of stick figures with open mouths. A hand-drawn contact list page crossed out with "NOT HIS" written on it. At the bottom, a second small plaque drawn on a wall line beside an empty box labeled "BANK $0" with the "$0" underlined. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top left, a simple hand-drawn framed plaque with the word "DIAMOND" written inside it, and next to it a hand-drawn open wallet with "$0" inside it. Under the plaque, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath. Below that the underlined phrase "still aint save him". In the middle of the page: "TRAP QUEEN 2014", then "#2 HOT 100" with the "#2" circled, then "25 WEEKS TOP 10", then a boxed line reading "DIAMOND = 10,000,000+". The word "his" appears once and is crossed out. A small hand-drawn stage with a stick figure standing on it, an arrow from the stage pointing to a dollar sign "$", and a large X drawn over the stage with "2020" written beside it. Lower on the page: "NO SHOWS = NO INCOME", a second small plaque drawn hanging on a wall line, and an empty box labeled "BANK $0". The phrase "PLAYS" with an arrow pointing to the plaque, and the word "KEEP?" with a question mark and empty space next to it. A small hand-drawn crowd of stick figures with open mouths. A hand-drawn contact list page crossed out with "NOT HIS" written on it. At the bottom, the words "NO SONG + NO FAN LIST" with a downward arrow to a boxed line reading "SHOWS STOP = MONEY STOPS". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
@@ -70,4 +70,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 11. Big X over the stage with "2020"
 12. "NO SHOWS = NO INCOME"
 13. "PLAYS" arrow to plaque, "KEEP?" with empty space
-14. Plaque on wall + empty "BANK $0" box, "$0" underlined
+14. "NO SONG + NO FAN LIST" arrow to "SHOWS STOP = MONEY STOPS" boxed

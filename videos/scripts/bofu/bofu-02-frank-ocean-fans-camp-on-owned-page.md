@@ -10,17 +10,17 @@ Link in bio to put your CRWN page up and give fans a reason to keep checking. Fr
 
 **SCRIPT:**
 
-Yo, Frank Ocean had people sittin on a empty staircase livestream and a blank page for weeks, just refreshin.
+Why was Frank Ocean lettin fans sit on a blank page and a empty staircase livestream for weeks, refreshin a screen with nothin on it?
 
-Think about that. Fans showin up over and over to a empty room cause they knew he owned it and somethin was comin.
+There was no song to hear. No release date. Just a empty room he owned and a crowd that kept comin back to stare at it.
 
-Most artists only get one contact moment with a fan, the drop. And by then it's too late, you fightin the algorithm for ya own people.
+Think how strange that is. People showin up over and over to nothin, cause they knew he owned the room and somethin was comin.
 
-The move on CRWN is to put ya page up now, today, before the music ready. Then give fans one reason a week to come back. A snippet, a photo from the session, a voice note. Anything that say it's alive.
+Most artists only get one contact moment with a fan, the drop. By then it's already too late, you fightin the algorithm for ya own people.
 
-So when you finally drop, it aint cold first contact. They already in the habit of checkin you.
+But Frank had them fans in the habit of checkin him before the music even existed. By drop day they wasn't cold strangers, they was campin out.
 
-That habit he built on a empty page? When Blonde finally dropped it went straight to number one, two hundred thirty two thousand sold the first week.
+So when Blonde finally hit, it aint land on nobody. It landed on a crowd that was already there. Straight to number one, two hundred thirty two thousand sold the first week.
 
 ---
 

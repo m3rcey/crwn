@@ -12,7 +12,7 @@ Link in bio to switch on share-and-earn with CRWN. Free to start at thecrwn.app.
 
 Nipsey ran Proud2Pay. Crenshaw, a thousand copies at a hundred dollars each, gone fast.
 
-Yo, but the price aint the lesson. The lesson is what them fans turned into. Once somebody pay a hundred for you, they invested. They aint just a listener no more, they out here telling everybody.
+But the price aint the lesson. The lesson is what them fans turned into. Once somebody pay a hundred for you, they invested. They aint just a listener no more, they out here telling everybody.
 
 Nipsey reportedly leaned right into that, his diehards became the marketing. They spread the word cause they had skin in it.
 

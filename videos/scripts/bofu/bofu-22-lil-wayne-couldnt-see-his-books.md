@@ -10,17 +10,15 @@ Link in bio to read your CRWN dashboard and see every dollar plus your top spend
 
 **SCRIPT:**
 
-Lil Wayne sold millions of records. And for years he reportedly couldn't even see his own books. The money was moving and he was flying blind on it.
+Lil Wayne sold millions of records and for years reportedly couldn't even see his own books. How is one of the biggest artists alive locked out of his own money?
 
-Yo, sit with that. One of the biggest artists alive, locked out of his own numbers.
+Cause the money never came straight to him. It moved through the label, the distributor, the accountants, a whole chain of hands.
 
-Here what most independent artists don't realize. You can run into the same wall on a smaller scale. Money comes in across streaming, merch, shows, and you never see it in one place. You feel busy but you can't tell who's actually paying you.
+Every one of em saw the numbers before he did. By the time anything reached Wayne it was already counted, already split, already explained to him.
 
-The move on CRWN is you open ya dashboard. Every dollar in one spot. And it don't just show the total, it names ya top spenders. The fans dropping the most on you, by name.
+He wasn't broke. He was blind. Sellin millions and still the last person in the room to know what it added up to.
 
-Now you know exactly who to reward. You stop guessing and start treating ya real ones like real ones.
-
-Wayne sold millions and couldn't see a dime of it clearly. You can see every one.
+Wayne moved millions of records, and the man whose name was on em couldn't see a clear dollar of it for years.
 
 ---
 

@@ -12,7 +12,7 @@ Link in bio to price a premium one-off for your top fans on CRWN. Free to start 
 
 2 Chainz got asked what one verse cost. He aint say a normal number. He named a price that sound crazy out loud.
 
-Yo, and people thought he was playing. He wasn't.
+And people thought he was playing. He wasn't.
 
 Here what's really going on. He understood something most independent artists don't. There's a small group of people who don't want the cheap thing. They want the thing nobody else can have, and they'll pay for it.
 

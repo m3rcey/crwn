@@ -10,7 +10,7 @@ Link in bio to set your CRWN tiers off real fanbases, not a flat guess. Free to 
 
 **SCRIPT:**
 
-Yo, Nipsey gave Crenshaw away for free, the tape anybody could grab. Then he turned around and did somethin to that same project that most artists never even think to try.
+Nipsey gave Crenshaw away for free, the tape anybody could grab. Then he turned around and did somethin to that same project that most artists never even think to try.
 
 Most artists set they price by guessin. Pick ten dollars, hope it works. He aint guess. He used three slots. Free, paid, high-ticket.
 

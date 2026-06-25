@@ -10,7 +10,7 @@ Link in bio to catch every fan on a release page you own before they leave for t
 
 **SCRIPT:**
 
-Frank Ocean built a wooden staircase on a livestream and somehow that became the smartest move of his career. In 2016 Frank Ocean made the whole internet sit on his own website for weeks. He put up a livestream of himself building a wooden staircase. No song yet. Just him, sawing wood, and millions of fans refreshing the page every day. They wasnt waiting on Spotify. They wasnt waiting on radio. They was sitting on a page Frank controlled. Then he drop one album to clear his old contract. The next day he drop the real one, Blonde, all by himself. No label in between. That album hit number one. Around 232,000 copies sold that first week. And every fan who waited on that page was a fan he could reach again. The stream send em away. The page he own keep em. Frank aint just drop a album. He kept the front door.
+Why did Frank Ocean make the whole internet watch him saw wood on a livestream for weeks? In 2016 he put up a stream of himself building a wooden staircase, on his own website. No song yet. Just him, sawing wood, and millions of fans refreshing the page every day. They wasnt waiting on Spotify. They wasnt waiting on radio. They was sitting on a page Frank controlled. Then he drop one album to clear his old contract. The next day he drop the real one, Blonde, all by himself. No label in between. That album hit number one, around 232,000 copies that first week. The stream send a fan away. The page he own keep em. He wasnt killing time with that staircase. He was holding every fan on a page he owned, so the day Blonde dropped, they was already there.
 
 ---
 
@@ -27,9 +27,9 @@ Frank Ocean built a wooden staircase on a livestream and somehow that became the
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Frank Ocean built a wooden staircase on a livestream and somehow that became the smartest move of his career. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Frank Ocean from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FRANK OCEAN" underneath. Beside it write "A PAGE YOU OWN" big across the top and box it. Draw a small stick figure underneath staring up at it.]
+**HOOK:** Why did Frank Ocean make the whole internet watch him saw wood on a livestream for weeks? [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Frank Ocean from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FRANK OCEAN" underneath. Beside it write "A PAGE YOU OWN" big across the top and box it. Draw a small stick figure underneath staring up at it.]
 
-**FORESHADOW:** In 2016 Frank Ocean made the whole internet sit on his own website for weeks. [Write "FRANK OCEAN" under the box. Draw a laptop with a loading circle on the screen. Write "WEEKS" next to it and underline it.]
+**FORESHADOW:** In 2016 he put up a stream of himself building a wooden staircase, on his own website. [Write "FRANK OCEAN" under the box. Draw a laptop with a loading circle on the screen. Write "WEEKS" next to it and underline it.]
 
 **RISING ACTION:** He put up a livestream of himself building a wooden staircase. No song yet. Just him, sawing wood, and millions of fans refreshing the page every day. They wasnt waiting on Spotify. They wasnt waiting on radio. They was sitting on a page Frank controlled. [Draw a simple staircase. Next to it write "NO SONG YET". Draw three little stick figures in a row with arrows pointing at the laptop. Write "SPOTIFY" and "RADIO" off to the side and cross both out with an X.]
 

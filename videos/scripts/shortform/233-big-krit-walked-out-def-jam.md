@@ -10,7 +10,7 @@ Link in bio to keep the bigger half of every dollar your fans spend on you with 
 
 **SCRIPT:**
 
-Big K.R.I.T. had a top five debut on Def Jam and years left on his deal. So why would he walk away from all of it? Stay with me. His first album dropped in 2012. Debuted number five on the big chart, number one on the rap chart. That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. He charted, he toured, he did everything right, and still aint own a thing. So in 2016 he left. Started his own label, Multi Alumni. He dropped three more albums since, same talent that charted on Def Jam, only now somethin different. K.R.I.T. make his own beats. So here go the reason he walked. That first album sold like 41,000 copies week one and he aint own none of it. Now he own the songs, the masters, every dollar a fan spend on em.
+Why would Big K.R.I.T. walk out on a top five debut and years left on his Def Jam deal? Stay with me. His first album dropped in 2012, debuted number five on the big chart, number one on the rap chart. That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. He charted, he toured, he did everything right, and still aint own a thing. That first album sold like 41,000 copies week one and he aint own none of it. So in 2016 he left. Started his own label, Multi Alumni. He dropped three more albums since, makes his own beats now. That's why he walked. Off his own label he owns the songs, the masters, every dollar a fan spend on em.
 
 ---
 
@@ -27,7 +27,7 @@ Big K.R.I.T. had a top five debut on Def Jam and years left on his deal. So why 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Big K.R.I.T. had a top five debut on Def Jam and years left on his deal. So why would he walk away from all of it? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Big K.R.I.T. from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BIG K.R.I.T." underneath. top center, write "BIG K.R.I.T." big, then draw a simple door to the right of the name with an arrow pointing out through it, write "DEF JAM" on the door, draw a small question mark next to it]
+**HOOK:** Why would Big K.R.I.T. walk out on a top five debut and years left on his Def Jam deal? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Big K.R.I.T. from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BIG K.R.I.T." underneath. top center, write "BIG K.R.I.T." big, then draw a simple door to the right of the name with an arrow pointing out through it, write "DEF JAM" on the door, draw a small question mark next to it]
 
 **FORESHADOW:** Stay with me. [under the door write "6 YEARS" and circle it]
 

@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-3 Million Albums. Pennies Each.
+How Did SWV Sell 3 Million Albums And End Up In A Car?
 
 Link in bio to make real money off your own fans instead of splitting pennies with a label with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to make real money off your own fans instead of splitting pennies wi
 
 **SCRIPT:**
 
-What happens when you sell 3 million albums? Let's find out. Cause it aint what you think. This SWV. Three women out of New York. They debut album went 3 times platinum in the 90s. Over 3 million copies in this country alone. So they rich, right? Watch what the deal do. First the label take they money back for everything they spent. Studio, videos, promo, all of it. That get paid before the group see a dime. Whatever little bit left over, that get split three ways. Reports say the money is what broke em up. One member said she ended up living in her car. 3 million albums and they fightin over scraps. Now picture you got 3,000 real fans. 60 on a $9 tier. 18 on a $30 tier. A few payin $120 for a verse. That money come straight to you, every month, nobody splittin it first. SWV sold platinum and saw pennies. You can sell less and keep most of it.
+How did SWV sell over 3 million albums and end up with one member living in her car? Watch what the deal do. This SWV. Three women out of New York. They debut album went 3 times platinum in the 90s. Over 3 million copies in this country alone. So they rich, right? First the label take they money back for everything they spent. Studio, videos, promo, all of it. That get paid before the group see a dime. Whatever little bit left over, that get split three ways. Now picture you got 3,000 real fans. 60 on a $9 tier. 18 on a $30 tier. A few payin $120 for a verse. That money come straight to you, every month, nobody splittin it first. SWV sold platinum and saw pennies. You can sell less and keep most of it. Reports say the money is even what broke em up. After recoupment and a three-way split, 3 million albums came down to scraps, and one member ended up living in her car.
 
 ---
 
@@ -27,7 +27,7 @@ What happens when you sell 3 million albums? Let's find out. Cause it aint what 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What happens when you sell 3 million albums? Let's find out. [Top center, large: "SELL 3 MILLION ALBUMS?" with "3 MILLION" circled] Cause it aint what you think. [Underneath, smaller: "AINT WHAT YOU THINK" underlined]
+**HOOK:** How did SWV sell over 3 million albums and end up with one member living in her car? [Top center, large: "3 MILLION ALBUMS -> A CAR?" with "3 MILLION" circled] [Underneath, smaller: "AINT WHAT YOU THINK" underlined]
 
 **FORESHADOW:** This SWV. Three women out of New York. [Left side: "SWV" boxed, a hand-drawn sharpie head-and-shoulders group portrait capturing the recognizable likeness of SWV's three members together from the attached photo reference, drawn in confident sharpie line work, not generic stick figures, labeled "SWV" underneath, beside it] They debut album went 3 times platinum in the 90s. Over 3 million copies in this country alone. [Beside the figures: "3x PLATINUM" and under it "3,000,000+ SOLD"] So they rich, right? Watch what the deal do. [To the right, a question mark, then a small arrow pointing down]
 

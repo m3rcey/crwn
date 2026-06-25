@@ -10,17 +10,15 @@ Link in bio to own the label your music pays instead of feeding someone else's w
 
 **SCRIPT:**
 
-If a rap group from Memphis can win a Oscar, then the gatekeeper aint who you think it is. And the part that flipped my head wasnt the trophy.
+Who actually cashed in when a Memphis rap group became the first to ever win a Oscar?
 
 Back in 2006, Three 6 Mafia win Best Original Song. First hip-hop group to ever take a Academy Award home. They aint just win it. They got on that stage and performed it live too.
 
 Now here go what most people miss. They was never some major-label act somebody discovered. DJ Paul and Juicy J built they own label back in 97. Hypnotize Minds. They owned it.
 
-So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. It land with the two dudes who own the company.
+So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. A signed artist win a award, the label get richer first. Three 6 was the label.
 
-A signed artist win a award, the label get richer first. Three 6 was the label.
-
-When you own the thing, the win belong to you. Not whoever signed you.
+The win cashed in with the two dudes who own the company. Not whoever signed em, cause aint nobody sign em.
 
 ---
 
@@ -37,7 +35,7 @@ When you own the thing, the win belong to you. Not whoever signed you.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If a rap group from Memphis can win a Oscar, then the gatekeeper aint who you think it is. [Top center, large block letters: "MEMPHIS → OSCAR" with an arrow between them. Draw a small gold statue (a simple standing figure) next to OSCAR. Beside it draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of DJ Paul and Juicy J of Three 6 Mafia from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "DJ PAUL" and "JUICY J" underneath.] And the part that flipped my head wasnt the trophy. [Under it write small "(not the trophy)" and draw a tiny trophy crossed out with an X.]
+**HOOK:** Who actually cashed in when a Memphis rap group became the first to ever win a Oscar? [Top center, large block letters: "WHO CASHED THE OSCAR?" then under it "MEMPHIS → OSCAR" with an arrow between them. Draw a small gold statue (a simple standing figure) next to OSCAR. Beside it draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of DJ Paul and Juicy J of Three 6 Mafia from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "DJ PAUL" and "JUICY J" underneath.] And the part that flipped my head wasnt the trophy. [Under it write small "(not the trophy)" and draw a tiny trophy crossed out with an X.]
 
 **FORESHADOW:** Back in 2006, Three 6 Mafia win Best Original Song. [Write "2006" circled on the left, then "BEST ORIGINAL SONG" under it.] First hip-hop group to ever take a Academy Award home. [Underline "FIRST HIP-HOP GROUP" once.] They aint just win it. They got on that stage and performed it live too. [Draw a small stage with a stick figure on it, mouth open, a music note above.]
 

@@ -12,7 +12,7 @@ Link in bio to feed that hunger with early cuts on your paid tier on CRWN. Free 
 
 Gunna fans be in the comments, in the group chats, huntin a snippet of a song that aint even out yet. Ten seconds of audio off somebody phone at a show, and they lose they mind over it.
 
-Yo, that's not an accident. That's how bad they want in before everybody else.
+That's not an accident. That's how bad they want in before everybody else.
 
 Here what most independent artists do with that. They sit on the unfinished stuff. The voice memos, the early cuts, the studio snippets, all locked in a folder till the song perfect and dropped. So that hunger fans got just goes nowhere, and somebody's leak ends up feedin it for free.
 

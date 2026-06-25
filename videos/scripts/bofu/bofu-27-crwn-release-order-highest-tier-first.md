@@ -10,7 +10,7 @@ Link in bio to release in a waterfall on CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Yo, Joe Budden don't drop his show everywhere at the same time. The people payin on Patreon get it first, and the free YouTube version come a day or two later, leftovers for everybody who aint pay.
+Joe Budden don't drop his show everywhere at the same time. The people payin on Patreon get it first, and the free YouTube version come a day or two later, leftovers for everybody who aint pay.
 
 Sound backwards, right? Why make your biggest crowd, the free one, wait? Cause that wait is exactly what makes people pay to skip it.
 

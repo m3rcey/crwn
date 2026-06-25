@@ -10,7 +10,7 @@ Link in bio to roll out your next release on CRWN with smart links, discount cod
 
 **SCRIPT:**
 
-Yo, Chance gave Coloring Book away for free. No label, no price tag, just put it out and let it ride. Sounds like a way to lose money.
+Chance gave Coloring Book away for free. No label, no price tag, just put it out and let it ride. Sounds like a way to lose money.
 
 But what Chance understood was the part that actually matters. He owned the audience before he pushed a single button, so free wasn't free, it was bait.
 

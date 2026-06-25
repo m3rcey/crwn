@@ -10,7 +10,7 @@ Link in bio to start your CRWN page this week. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Yo, Kendrick dropped GNX outta nowhere, no single, barely a warnin, and it still landed cause his people were already locked on him before that page went live.
+Kendrick dropped GNX outta nowhere, no single, barely a warnin, and it still landed cause his people were already locked on him before that page went live.
 
 You can't surprise nobody if they not already watchin you. So here go the week that builds that. Seven days.
 

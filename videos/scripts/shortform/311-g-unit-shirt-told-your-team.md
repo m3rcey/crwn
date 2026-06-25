@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Why A Whole Block Wore The G-Unit Shirt
+What The G-Unit Shirt Was Actually Worth
 
 Link in bio to give your fans a badge they wear with pride with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to give your fans a badge they wear with pride with CRWN. Free to st
 
 **SCRIPT:**
 
-Why did a whole generation wear a plain G-Unit tank top like it meant somethin? Back in 2004, 50 Cent and Marc Ecko put out the G-Unit clothing line. Tracksuits, sneakers, the tank tops. And kids didnt rock it cause it was fly. They rocked it cause it said somethin. It told the whole block whose team you was on. You aint gotta say a word. The shirt spoke for you. 50, Banks, Yayo, Buck. You wore it, you was claimin em. So that shirt wasnt merch. It was a badge. A way to be seen as one of the real ones. They aint pay for cotton. They paid to belong. And here go what that belonging was worth. That clothing line did around 55 million dollars in its first full year.
+What was a plain G-Unit tank top actually worth? Every other kid in the mid 2000s had one on. Back in 2004, 50 Cent and Marc Ecko put the clothing line out. Tracksuits, sneakers, the tank tops. And kids didnt rock it cause it was fly, they rocked it cause it said somethin. It told everybody on the block whose team you was on. 50, Banks, Yayo, Buck. You wore it, you was claimin em. That shirt wasnt merch, it was a badge. They aint pay for cotton, they paid to belong. And when you sell belonging instead of fabric, the number gets stupid. That clothing line did around 55 million dollars in its first full year.
 
 ---
 
@@ -27,7 +27,7 @@ Why did a whole generation wear a plain G-Unit tank top like it meant somethin? 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Why did a whole generation wear a plain G-Unit tank top like it meant somethin? [Center top, big bold: "G-UNIT" with a t-shirt drawn under it. Next to the shirt write "WHY?" and box it. Beside the headline draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 50 Cent (G-Unit's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "G-UNIT" underneath.]
+**HOOK:** What was a plain G-Unit tank top actually worth? [Center top, big bold: "G-UNIT" with a t-shirt drawn under it. Next to the shirt write "WHY?" and box it. Beside the headline draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 50 Cent (G-Unit's frontman) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "G-UNIT" underneath.]
 
 **FORESHADOW:** Back in 2004, 50 Cent and Marc Ecko put out the G-Unit clothing line. [Write "2004" circled, "50 CENT + MARC ECKO" under it. Draw a question mark big to the right.]
 

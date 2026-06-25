@@ -10,7 +10,7 @@ Link in bio to turn a personalized drop with a fan's own name into a product the
 
 **SCRIPT:**
 
-If a fan can hum four words you aint never paid for, then you sleeping on the real product. "Mustard on the beat." Hold that, cause the four words started as a accident. Back in 2011 YG said it at the end of a song called I'm Good. It was just a shout out to his producer. Mustard liked how it hit, so he started dropping it on near every beat he made. Now millions of people know it by heart. They sing somebody else name for free. So here go what nobody clocks. That tag is the same four words every time. Your fan dont want generic. They want they own name in it. A drop that say your name feels like a gift, and a gift like that sell. Those four words helped that producer win five Grammys in one night for Not Like Us. Mustard put his name on the beat. You can put a fan name in they pocket.
+Which four words has Mustard got millions of people singing his name for free? It started as a accident. Back in 2011 YG said it at the end of a song called I'm Good. It was just a shout out to his producer. Mustard liked how it hit, so he started dropping it on near every beat he made. Now millions know it by heart and sing his name without payin him a dime. Those same four words helped that producer win five Grammys in one night for Not Like Us. But here go what nobody clocks. That tag is the same four words every time. Your fan dont want generic. They want they own name in it. A drop that say your name feels like a gift, and a gift like that sell. Mustard put his name on the beat. You can put a fan name in they pocket. The four words? Mustard on the beat.
 
 ---
 
@@ -27,7 +27,7 @@ If a fan can hum four words you aint never paid for, then you sleeping on the re
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If a fan can hum four words you aint never paid for, then you sleeping on the real product. [At the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Mustard from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MUSTARD" underneath. Next to it write "4 WORDS" large and circle it] "Mustard on the beat." [Write "MUSTARD ON THE BEAT" in quotes underneath the circle]
+**HOOK:** Which four words has Mustard got millions of people singing his name for free? [At the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Mustard from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MUSTARD" underneath. Next to it write "4 WORDS = ?" large and circle it]
 
 **FORESHADOW:** Hold that, cause the four words started as a accident. [Write the word "ACCIDENT" and put a small star next to it]
 

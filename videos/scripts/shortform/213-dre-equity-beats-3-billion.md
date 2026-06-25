@@ -10,7 +10,7 @@ Link in bio to own a piece of what you build instead of just getting paid for it
 
 **SCRIPT:**
 
-Dr. Dre spent thirty years making classic records, then put his name on a pair of headphones. Everybody know Dre from the records. The Chronic, all them classics he produced. But watch what happened next. He put his name on a headphone, Beats by Dre, with Jimmy Iovine. And he aint just take a check to slap his face on the box. He took ownership. He held a real piece of the company, a quarter of it. So when Apple came knocking, Dre didn't get a flat fee off the sale. He got a cut of the company he owned. Now here go the gap. Thirty years of music made him about 200 million dollars. Six years owning that headphone, when Apple bought Beats, paid him a reported 600 million off one deal.
+How did a pair of headphones make Dr. Dre more money than thirty years of music? Everybody know Dre from the records. The Chronic, all them classics he produced. But watch what happened next. He put his name on a headphone, Beats by Dre, with Jimmy Iovine. And he aint just take a check to slap his face on the box. He took ownership. He held a real piece of the company, a quarter of it. So when Apple came knocking, Dre didn't get a flat fee off the sale. He got a cut of the company he owned. Thirty years of music made him about 200 million dollars. Six years owning that headphone, when Apple bought Beats, paid him a reported 600 million off one deal.
 
 ---
 
@@ -27,7 +27,7 @@ Dr. Dre spent thirty years making classic records, then put his name on a pair o
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Dr. Dre spent thirty years making classic records, then put his name on a pair of headphones. [Write "MUSIC" on the left, "PRODUCT" on the right, big underline under both] [Draw a stick figure with headphones on, smiling, in the center top]
+**HOOK:** How did a pair of headphones make Dr. Dre more money than thirty years of music? [Write "MUSIC" on the left, "PRODUCT" on the right, big underline under both] [Draw a stick figure with headphones on, smiling, in the center top]
 
 **FORESHADOW:** Everybody know Dre from the records. The Chronic, all them classics he produced. [Write "THE CHRONIC" small under MUSIC] But watch what happened next. [Draw an arrow pointing from MUSIC over to PRODUCT]
 

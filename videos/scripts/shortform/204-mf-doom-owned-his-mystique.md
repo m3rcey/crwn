@@ -10,7 +10,7 @@ Link in bio to turn what makes you different into the thing fans pay for with CR
 
 **SCRIPT:**
 
-If you could sell the mystery instead of the face, what you think that worth? MF DOOM figured it out before anybody, and the move was bolder than you think. Most rappers sell you they self. They face, they story, they name on the chain. DOOM sold you a mask. A metal mask, a villain he made up. You never really seen his face. He put out records under different names on different labels, and none of it belonged to the label. The mystique was his. The scarcity was the point. The less you got of DOOM, the more fans wanted him. So here go the part that sound made up. He started sending other dudes in the mask to perform his shows. Imposters. Lip syncing his songs. And it still worked, cause the fans aint come for the man. They came for the myth he built and kept. You think you too small to matter. DOOM proved the thing only you got is the thing they pay for.
+How did MF DOOM send a fake DOOM on stage to lip sync his own shows and still keep every fan? Most rappers sell you they self. They face, they story, they name on the chain. DOOM sold you a mask. A metal mask, a villain he made up. You never really seen his face. He put out records under different names on different labels, and none of it belonged to the label. The mystique was his. The scarcity was the point. The less you got of DOOM, the more fans wanted him. So it got bold. He started sending other dudes in the same mask to perform his shows. Imposters. Lip syncing his songs. And it still worked, cause the fans aint come for the man. They came for the myth he built and kept. The mask was the product, so anybody could wear it and the fans still paid for DOOM.
 
 ---
 
@@ -27,7 +27,7 @@ If you could sell the mystery instead of the face, what you think that worth? MF
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If you could sell the mystery instead of the face, what you think that worth? [Top center, large: "MYSTERY > FACE", with "MYSTERY" circled.] MF DOOM figured it out before anybody, and the move was bolder than you think. [Under it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of MF DOOM from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MF DOOM" underneath, his face wearing the metal mask exactly as in the photo reference.]
+**HOOK:** How did MF DOOM send a fake DOOM on stage to lip sync his own shows and still keep every fan? [Top center, large: "A FAKE DOOM ON STAGE?", with "FAKE" circled.] [Under it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of MF DOOM from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MF DOOM" underneath, his face wearing the metal mask exactly as in the photo reference.]
 
 **FORESHADOW:** Most rappers sell you they self. They face, they story, they name on the chain. [Left side, draw a stick figure with a smiley face and write "ME" with an arrow pointing at the face.] DOOM sold you a mask. [Right side, draw a stick figure with the mask instead of a face, write "DOOM".]
 

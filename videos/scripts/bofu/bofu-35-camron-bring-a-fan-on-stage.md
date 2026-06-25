@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Cam'ron turned a loud argument with his friends into a whole media company.
+Cam'ron turned a loud argument with his friends into a media company.
 
 Link in bio to go live and bring a fan up on stage with CRWN. Free to start at thecrwn.app.
 
@@ -10,15 +10,15 @@ Link in bio to go live and bring a fan up on stage with CRWN. Free to start at t
 
 **SCRIPT:**
 
-Cam'ron started "It Is What It Is" arguing about sports with his friends on camera. Reportedly put about a hundred twenty thousand of his own money into it.
+What did Cam'ron's loud argument about sports with his friends on camera turn into?
 
-That hangout, just Cam talkin loud with his guys, became a media company.
+It started as nothin but a hangout. Cam and his guys, talkin trash about sports, "It Is What It Is." He reportedly put about a hundred twenty thousand of his own money into it. That's it.
 
-Here what most artists miss. You think the content is the finished song. Nah. The studio hangout, the back and forth, you reactin to stuff live, that IS the content.
+Here what most artists would miss. You think the content is the finished song, the polished thing. Nah. Cam treated the hangout itself as the product. Him talkin loud with his guys, reactin live, that WAS the show.
 
-The move on CRWN is you go live from that room. Gate it to ya tiers so fans subscribe to get in. And like a streamer brings a viewer up, you bring a paying fan up on stage, live in the moment with you. Then clippers cut it and spread it.
+So a buncha grown men arguing about basketball on camera. A little over a hundred grand to start.
 
-That argument with his friends turned into a reported thirty million dollar deal.
+That argument turned into a reported thirty million dollar deal.
 
 ---
 

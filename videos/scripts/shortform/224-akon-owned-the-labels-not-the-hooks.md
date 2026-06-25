@@ -10,7 +10,7 @@ Link in bio to own a piece of what you build instead of just getting a fee for i
 
 **SCRIPT:**
 
-Akon signed a unknown kid for twenty thousand dollars, and who that kid turned out to be is crazy. Akon sold tens of millions of his own records. But that aint where the real money came from. He built his own labels, Konvict and Kon Live, and he took stakes in the artists he helped raise up. T-Pain signed to him reportedly for like $20,000, after turning down deals worth six figures. So Akon owned a piece of T-Pain from day one. But that aint even the one. A unknown singer came through the studio just to lay a reference vocal. Akon heard her, ran to Interscope, and got her co-signed to his own label. Now think about who eats when that singer goes on to sell tens of millions of records. Not the feature guy. The owner. The man who owns a piece of the artist. That unknown singer he co-signed was Lady Gaga, and Akon reportedly said he made ten times more money off her than off his whole own career.
+Who did Akon sign as a unknown singer that paid him ten times more than his whole rap career? Akon sold tens of millions of his own records. But that aint where the real money came from. He built his own labels, Konvict and Kon Live, and he took stakes in the artists he raised up. T-Pain signed to him reportedly for like $20,000, after turnin down deals worth six figures. So Akon owned a piece of T-Pain from day one. But that aint even the one. A unknown singer came through the studio just to lay a reference vocal. Akon heard her, ran to Interscope, and got her co-signed to his own label. Now think who eats when that singer go sell tens of millions of records. Not the feature guy. The owner. The man who owns a piece of the artist. That unknown singer was Lady Gaga, and Akon reportedly said he made ten times more money off her than off his whole own career.
 
 ---
 
@@ -27,7 +27,7 @@ Akon signed a unknown kid for twenty thousand dollars, and who that kid turned o
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Akon signed a unknown kid for twenty thousand dollars, and who that kid turned out to be is crazy. [Write "A $20K SIGNING" big at the top, then "WHO WAS IT?" under it, sharpie portrait of Akon beside it: low fade, light beard, sunglasses] Akon sold tens of millions of his own records. [Write "AKON" and "10M+ RECORDS"] But that aint where the real money came from. [Cross out "RECORDS"]
+**HOOK:** Who did Akon sign as a unknown singer that paid him ten times more than his whole rap career? [Write "A $20K SIGNING" big at the top, then "WHO WAS IT?" under it, sharpie portrait of Akon beside it: low fade, light beard, sunglasses] Akon sold tens of millions of his own records. [Write "AKON" and "10M+ RECORDS"] But that aint where the real money came from. [Cross out "RECORDS"]
 
 **FORESHADOW:** He built his own labels, Konvict and Kon Live, and he took stakes in the artists he helped raise up. [Draw two small label boxes: "KONVICT" and "KON LIVE", draw a stick figure owner standing over them with a dollar sign]
 

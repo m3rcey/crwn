@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-How Ridin' Became Silicon Valley Money
+He Won A Grammy Then Walked Away
 
 Link in bio to own your fan list and the data behind it, not a play count you can't act on, with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to own your fan list and the data behind it, not a play count you ca
 
 **SCRIPT:**
 
-Chamillionaire won a Grammy off Ridin', then walked away from rap at his peak. And it started with one rule most artists never learn. Chamillionaire dropped Ridin' in 2006. It hit number one on the Hot 100 and won him a Grammy. Most one-hit guys disappear after that. He went the other way. While his song was still on the radio, he was building his own fan network, cutting the label out, talking to his people direct. He rewarded fans for sharing, gave em free calls, signed albums, all off a list he owned. One line he keeps preaching to artists. A follower you can't reach is worth nothing. He never chased the play count. He chased the people he could actually contact. Then he took that same brain straight to tech. He became an early investor in Cruise, Ring, and Maker Studios, all bought out for huge money. The rapper who walked away from rap turned that fan-relationship rule into Silicon Valley money.
+Chamillionaire won a Grammy off Ridin', then walked away from rap at his peak, and what he did with the money will throw you. He dropped Ridin' in 2006. It hit number one on the Hot 100 and won him a Grammy. Most one-hit guys disappear after that. He went the other way. While his song was still on the radio, he was building his own fan network, cutting the label out, talking to his people direct. He rewarded fans for sharing, gave em free calls, signed albums, all off a list he owned. He never chased the play count. He chased the people he could actually contact, cause a follower you can't reach is worth nothing. Then he took that same brain straight to tech. He became an early investor in Cruise, Ring, and Maker Studios, all bought out for huge money. The rapper who walked away from rap turned that fan-relationship rule into Silicon Valley money.
 
 ---
 
@@ -27,7 +27,7 @@ Chamillionaire won a Grammy off Ridin', then walked away from rap at his peak. A
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Chamillionaire won a Grammy off Ridin', then walked away from rap at his peak. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Chamillionaire from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CHAMILLIONAIRE" underneath. Write "GRAMMY HIT" on the left, draw a big arrow pointing right to a circled question mark "WALKED AWAY → ?" at top of page] And it started with one rule most artists never learn. [Underline "ONE RULE" under the arrow]
+**HOOK:** Chamillionaire won a Grammy off Ridin', then walked away from rap at his peak, and what he did with the money will throw you. [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Chamillionaire from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CHAMILLIONAIRE" underneath. Write "GRAMMY HIT" on the left, draw a big arrow pointing right to a circled question mark "WALKED AWAY → ?" at top of page] [Underline "ONE RULE" under the arrow]
 
 **FORESHADOW:** Chamillionaire dropped Ridin' in 2006. It hit number one on the Hot 100 and won him a Grammy. [Write "RIDIN' 2006", below it "#1 HOT 100" and a small trophy with "GRAMMY"] Most one-hit guys disappear after that. He went the other way. [Draw two arrows from a stick figure: one bending down off the page, one climbing up. Circle the climbing one]
 

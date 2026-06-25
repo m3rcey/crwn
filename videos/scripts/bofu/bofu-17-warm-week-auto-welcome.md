@@ -12,7 +12,7 @@ Link in bio to auto-send new followers a welcome and a free unlock with CRWN. Fr
 
 A song like SZA's breaks out and every week it pulls a fresh wave of people who never heard ya name before today.
 
-Yo, and a new fan who finds you today is warm right now. They watched the clip twice, they checked ya name, they feelin it. But that heat got a timer on it, and that's where most artists lose the wave.
+And a new fan who finds you today is warm right now. They watched the clip twice, they checked ya name, they feelin it. But that heat got a timer on it, and that's where most artists lose the wave.
 
 They meet that new fan once and never reach back. Busy chasin the next post while the warm one cool all the way off.
 

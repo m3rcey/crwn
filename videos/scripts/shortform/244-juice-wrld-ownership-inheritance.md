@@ -10,7 +10,7 @@ Link in bio to own your catalog so it pays you and your family for life with CRW
 
 **SCRIPT:**
 
-At 19 Juice WRLD signed a record deal reported at $3 million. But the part that mattered most aint the $3 million. Stay with me. He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. Then after he was gone, a posthumous album dropped and went number one. Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. So who gets that money now? A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings. Somebody cashes every play forever. The check you sign for today is loud, but it spends once. The thing you own keeps paying long after you cant. His mother ended up over the estate, so the songs he made could keep feeding the family he left behind.
+What mattered more than the $3 million record deal Juice WRLD signed at 19? Stay with me. He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. Then after he was gone, a posthumous album dropped and went number one. Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings, somebody cashes every play forever. The check you sign for today is loud, but it spends once. What you own keeps paying long after you cant. So what mattered more than that $3 million? Owning the catalog. His mother ended up over the estate, so the songs he made keep feeding the family he left behind.
 
 ---
 
@@ -27,7 +27,7 @@ At 19 Juice WRLD signed a record deal reported at $3 million. But the part that 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** At 19 Juice WRLD signed a record deal reported at $3 million. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Juice WRLD from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JUICE WRLD" underneath. Below write "AGE 19" and next to it "$3,000,000 DEAL", circle the $3,000,000.]
+**HOOK:** What mattered more than the $3 million record deal Juice WRLD signed at 19? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Juice WRLD from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JUICE WRLD" underneath. Below write "AGE 19" and next to it "$3,000,000 DEAL", circle the $3,000,000.]
 
 **FORESHADOW:** But the part that mattered most aint the $3 million. Stay with me. [Cross out "$3,000,000" with a single line. Draw a small arrow pointing down to a question mark.]
 

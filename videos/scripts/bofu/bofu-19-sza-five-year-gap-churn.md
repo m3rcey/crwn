@@ -12,7 +12,7 @@ Link in bio to let the CRWN AI manager flag a fan going cold. Free to start at t
 
 SZA dropped Ctrl in 2017. Then nothing. SOS aint come till the end of 2022. Five years quiet.
 
-Yo, think about what happen to a fanbase in five years. People drift. Life move. The fan who knew every word in 2017 forgot you by year three.
+Think about what happen to a fanbase in five years. People drift. Life move. The fan who knew every word in 2017 forgot you by year three.
 
 SZA had the machine to win em back. You might not have five years to spare.
 

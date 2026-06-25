@@ -10,17 +10,15 @@ Link in bio to read your CRWN dashboard every week and double down on what the m
 
 **SCRIPT:**
 
-Russ keep posting these screenshots. Not follower counts, not stream counts. Actual money, off masters he owns.
+What number was on the screenshot Russ posted of one week off masters he owns?
 
-Yo, and the reason he can do that is he owns the thing. Nobody hiding the number from him. He look at the dashboard and the real total is right there.
+Not a follower count. Not a stream count. Actual money, money he can see down to the dollar cause nobody hidin it from him. He own the thing, so the real total just sit right there in front of him.
 
-Here what most independent artists chase instead. The vanity number. A million plays, a viral clip, the follower count going up. Feels good, tells you nothing about whether you ate this week.
+Most artists never get to see that number. They chasin the vanity one. A million plays, a viral clip, the follower count tickin up. Feels good, tell you nothin about whether you ate this week.
 
-The move on CRWN is you read ya dashboard every week like Russ read his. Not the likes, the money. Where it came from, which drop hit, which fan tier carried it.
+Russ gets to look at the only number that matter. And one week he put it on the timeline for everybody to see.
 
-Then you do more of what the money said and less of what it didn't. That's how you stop guessing and start running it like a business.
-
-One of them weeks Russ reportedly posted? A hundred and fifty-two thousand dollars off masters he owns.
+A hundred and fifty-two thousand, six hundred and twenty-nine dollars. One week. Off masters he owns.
 
 ---
 

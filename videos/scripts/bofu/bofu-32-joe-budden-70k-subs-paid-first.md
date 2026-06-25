@@ -10,15 +10,15 @@ Link in bio to release paid-first with CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Joe Budden left a label deal and built somethin off one thing they don't have, a wall.
+How much do Joe Budden pull off subscriptions alone, no ad money, no deal, just fans payin?
 
-Here what his payin fans actually buyin. The episode early. They hear it before it ever touch YouTube for free.
+He left a label to build it. And what his payin fans buyin aint complicated. They buyin the episode early. They hear it before it ever touch YouTube for free.
 
-Now look at how most artists drop. Everything everywhere at once. The fan who pay you and the stranger who never spent a dime get the same song the same second. So why would anybody pay?
+Now look at how most artists drop. Everything everywhere at once. The fan who pay and the stranger who never spent a dime get the same song the same second. So why would anybody pay?
 
-The move on CRWN is you run ya music the same way Joe run his show. Highest tier hears it first, then ya lower tiers, then the free crowd, then Spotify last. The people who pay the most get the song the soonest. The public still gets it, they just get it after the people who bet on you.
+Budden gave em a reason. He built a wall on Patreon, tiers from five dollars to fifty, and the people who bet on him hear it first every time.
 
-He built that wall on Patreon, tiers from five dollars to fifty. The subscriptions alone reportedly pull him more than twelve million dollars a year.
+The subscriptions alone reportedly pull him more than twelve million dollars a year.
 
 ---
 

@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Carti's Fans Built A Whole Look
+The Album The Internet Called Trash, Then Called A Classic
 
 Link in bio to give your fans one room to build your world together with CRWN. Free to start at thecrwn.app.
 
@@ -10,15 +10,15 @@ Link in bio to give your fans one room to build your world together with CRWN. F
 
 **SCRIPT:**
 
-When Playboi Carti dropped Whole Lotta Red in 2020, the internet called it trash that same day, and watch who flipped the whole verdict.
+Who turned Playboi Carti's Whole Lotta Red from the album the internet called trash on day one into a classic?
 
 Carti dropped a vibe and the fans took it and ran. The all black, the vamp face paint, the slang, the edits. He aint make most of that. They did. They sit in Discords and on Reddit pullin apart every blurry post he drops, growin the myth between albums.
 
-So when Whole Lotta Red hit and the internet turned on it, "Whole Lotta Trash" was trendin within hours. Carti aint say nothin. He let it sit.
+So when Whole Lotta Red hit in 2020 and the internet turned on it, "Whole Lotta Trash" was trendin within hours. Carti aint say nothin. He let it sit.
 
-The fans wouldnt let it die. They argued for that album in every thread, every comment, for years.
+But them same fans wouldnt let it die. They argued for that record in every thread, every comment, for years.
 
-Same record. Same room of fans. That trash they was draggin on day one is the project everybody calls a classic now.
+It wasnt Carti who saved it. The room of fans he built dragged that "trash" into the classic everybody calls it now.
 
 ---
 
@@ -35,7 +35,7 @@ Same record. Same room of fans. That trash they was draggin on day one is the pr
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** When Playboi Carti dropped Whole Lotta Red in 2020, the internet called it trash that same day, and watch who flipped the whole verdict. [Left side, write "CARTI" with a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARTI" underneath] [Right side, draw a big circle labeled "THE FANS" with smaller stick figures inside it]
+**HOOK:** Who turned Playboi Carti's Whole Lotta Red from the album the internet called trash on day one into a classic? [Left side, write "CARTI" with a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARTI" underneath] [Right side, draw a big circle labeled "THE FANS" with smaller stick figures inside it]
 
 **FORESHADOW:** Carti dropped a vibe and the fans took it and ran. [Under "CARTI" write "THE DROP", under "THE FANS" write "RUNS ON ITS OWN" and underline it]
 

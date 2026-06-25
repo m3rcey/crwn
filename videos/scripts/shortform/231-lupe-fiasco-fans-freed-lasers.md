@@ -10,7 +10,7 @@ Link in bio to release your music the day it's finished and sell it straight to 
 
 **SCRIPT:**
 
-Lupe Fiasco had a finished album his own label refused to release. Stay with me, cause how it got loose aint what you think. His third album Lasers was done. Reportedly sat finished for like two years. Atlantic wanted more pop, so they just held it. His own music, locked in a building he dont control. So the fans did somethin wild. Almost 30,000 of em signed a petition. Then around 200 showed up outside Atlantic in New York. They called it Fiasco Friday. Lupe came out and told em the album finally got a date. March 7th, 2011. Now think about that. The fans had to march in the street to free a album that was already done. And when it dropped, Lasers went straight to number one. His first one ever. The music was ready the whole time. The label was the only wall between Lupe and the people who wanted it.
+How did Lupe Fiasco's finished album get free from a label that refused to release it? Stay with me, cause the answer aint what you think. His third album Lasers was done. Reportedly sat finished for like two years. Atlantic wanted more pop, so they just held it. His own music, locked in a building he dont control. Then the fans did somethin wild. Almost 30,000 of em signed a petition. Then around 200 showed up outside Atlantic in New York. They called it Fiasco Friday. Lupe came out and told em the album finally got a date. When it dropped March 7th 2011, Lasers went straight to number one, his first ever. So that's how it got free. The fans marched in the street and made the label open the door it was holding shut.
 
 ---
 
@@ -27,7 +27,7 @@ Lupe Fiasco had a finished album his own label refused to release. Stay with me,
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Lupe Fiasco had a finished album his own label refused to release. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Lupe Fiasco from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LUPE FIASCO" underneath. top center, write "FINISHED ALBUM" big, then draw a simple padlock right under it with the album boxed and the lock on the box]
+**HOOK:** How did Lupe Fiasco's finished album get free from a label that refused to release it? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Lupe Fiasco from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LUPE FIASCO" underneath. top center, write "FINISHED ALBUM" big, then draw a simple padlock right under it with the album boxed and the lock on the box]
 
 **FORESHADOW:** Stay with me, cause how it got loose aint what you think. [draw a small question mark to the right of the locked box]
 

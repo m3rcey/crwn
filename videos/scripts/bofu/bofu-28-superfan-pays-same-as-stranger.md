@@ -10,19 +10,15 @@ Link in bio to release highest tier first on CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Yo, Joe Budden built somethin off one decision most artists never even stop to make, who hears it first.
+How much do Joe Budden pull a year just off lettin his payin fans hear it first?
 
-Cause when ya drop everywhere at once, your superfan and a stranger get the drop at the exact same second. The one who'd pay anything to hear ya early treated the same as the one who streams it once and forgets ya name by Friday.
+Think about how most artists drop. Everywhere at once. Ya superfan and a stranger get it the exact same second. The one who'd pay anything to be early treated the same as the one who streams it once and forgets ya name by Friday.
 
-That aint fair to the people carryin you.
+Budden don't do that. His payin fans hear it before anybody. The free crowd catch up after the people who bet on him.
 
-The move on CRWN flips it, the way Budden flipped it. Highest tier first. Then ya lower tiers. Then ya free tier. Then the DSPs, last.
+And that one decision aint a small thing. The fan who got it early feel chosen, so they push it harder, they bring people, they re-up next time. It compounds.
 
-Each layer waits its turn. The ones who pay the most hear it before anybody.
-
-And that aint just nice for them. The fan who got it early feels chosen, so they push it harder, they bring people, they re-up next time.
-
-He put his payin fans first every single time, and that paid-first model reportedly pulls him twelve million a year and up from subscriptions alone.
+Off that, subscriptions alone reportedly pull him twelve million dollars a year and up.
 
 ---
 

@@ -10,19 +10,15 @@ Link in bio to build something you own and can sell with CRWN. Free to start at 
 
 **SCRIPT:**
 
-This is two producers bored in lockdown. And this is them turning that into a thing they could sell.
+How did Swizz Beatz turn a free Instagram battle into a sale that paid out 43 artists?
 
-Stay with me, cause they walked away with way more than a check.
+March 2020. Swizz call Timbaland out on Instagram Live. Just two friends playin they own beats, free, anybody could watch. They aint charge a dime.
 
-March 2020. Swizz Beatz call Timbaland out on Instagram Live. Just two friends playin they own beats, free, anybody could watch. They aint charge a dime.
+That free little battle turned into Verzuz. The biggest names in music lined up to do it. The big nights pulled millions watchin across every platform.
 
-That free little battle turned into Verzuz. The biggest names in music lined up to do it. The biggest ones pulled millions of people watchin across every platform.
+One year later, they sold it to Triller. They aint just make the music. They built a thing, then they owned it enough to sell it.
 
-One year later, they sold it to Triller. They aint just make the music. They built a thing, and then they owned it enough to sell it.
-
-So here go the part that hit me. When they sold, they cut in all 43 artists who ever performed. The people who showed up got a piece too.
-
-A streamin check pay you once and it gone. A thing you own, you can sell, and bring ya people with you.
+A streamin check pay you once and it gone. So when they sold Verzuz, they cut in all 43 artists who ever performed, every person who showed up got a piece of the bag.
 
 ---
 
@@ -39,9 +35,9 @@ A streamin check pay you once and it gone. A thing you own, you can sell, and br
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is two producers bored in lockdown. [Top left, draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of Swizz Beatz and Timbaland from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "SWIZZ BEATZ" and "TIMBALAND" underneath, with "2 PRODUCERS" written under them] And this is them turning that into a thing they could sell. [Top right, draw an arrow from the portraits to a price tag shape with "SOLD" written on it, circle "SOLD"]
+**HOOK:** How did Swizz Beatz turn a free Instagram battle into a sale that paid out 43 artists? [Top left, draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of Swizz Beatz and Timbaland from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "SWIZZ BEATZ" and "TIMBALAND" underneath, with "2 PRODUCERS" written under them] [Top right, draw an arrow from the portraits to a price tag shape with "SOLD" written on it, circle "SOLD"]
 
-**FORESHADOW:** Stay with me, cause they walked away with way more than a check. [Under the hook write "MORE THAN A CHECK" and underline it]
+**FORESHADOW:** [Under the hook write "43 ARTISTS PAID?" and underline it]
 
 **RISING ACTION:** March 2020. Swizz Beatz call Timbaland out on Instagram Live. [Write "MARCH 2020" then "SWIZZ vs TIM" with a small phone drawing] Just two friends playin they own beats, free, anybody could watch. They aint charge a dime. [Write "FREE" big, circle it] That free little battle turned into Verzuz. [Write "VERZUZ" in bold capitals, underline it] The biggest names in music lined up to do it. The biggest ones pulled millions of people watchin across every platform. [Write "MILLIONS WATCHING" and circle it] One year later, they sold it to Triller. [Draw a right arrow to "TRILLER 2021"] They aint just make the music. They built a thing, and then they owned it enough to sell it. [Write "MADE IT + OWNED IT" and underline "OWNED IT"]
 

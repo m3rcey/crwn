@@ -10,15 +10,17 @@ Link in bio to build your paid tier as a title with CRWN. Free to start at thecr
 
 **SCRIPT:**
 
-Yo, Tech N9ne got a whole army of fans who'd put his name in they bio and pay to keep it there. Question is how he built it.
+How did Tech N9ne build a army of fans who don't even call themselves fans, who call themselves Technicians and wear his name like a title?
 
-See, most artists treat the paid tier like a paywall. Pay me, get the file. That's a transaction. Nobody brags about a transaction.
+He aint do it with a radio smash. Never had one. No mainstream hit carryin him into people's cars.
 
-Here go the move on CRWN. Don't name ya tier "premium" or "VIP." Name it somethin ya people would put in they bio. Make joinin it mean they one of yours. Now it aint a fee, it's a flag they wave for free.
+Most artists treat a fanbase like a customer list. You pay, you get the file, that's a transaction, and nobody brags about a transaction.
 
-When the title mean somethin, fans recruit each other just to feel in.
+Tech did the opposite. He gave his people a name to belong to, somethin they'd put in they own bio and defend in a comment section.
 
-Them fans call themselves Technicians, and Tech turned em into the number one independent rap label in the world. No mainstream radio hit, his own label, Strange Music.
+When the title mean somethin, fans stop bein customers and start recruitin each other for free, just to feel in.
+
+That's how a rapper with no radio hit turned a army of Technicians into Strange Music, the number one independent rap label in the world.
 
 ---
 

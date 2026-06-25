@@ -10,17 +10,15 @@ Link in bio to gate one exclusive behind a free signup and turn listeners into a
 
 **SCRIPT:**
 
-Beyonce ran Verified Fan and made people register, hand over they info, prove they was a real human, before they could even get near a ticket.
+Why did Beyonce make millions of fans register, hand over they info, and prove they was a real human before she'd let em near a ticket?
 
-And fans did it. Happily. Cause there was somethin on the other side worth proving for.
+She coulda just put the tickets up. Instead she built a gate, and fans had to give they name and they contact to even get in line.
 
-Look what really happened there. She turned a casual listener into a known contact. A name, a way to reach em, before money ever changed hands.
+And they did it. Happily. Stood there provin they was real for the chance at a seat.
 
-You don't need stadiums for that. The move on CRWN is to gate one exclusive behind a free signup. An unreleased cut, a behind-the-scenes, early access. Free to the fan, but they gotta sign up to get in.
+It look like a anti-bot thing on the surface. Bigger than that. Every fan who walked through that gate handed her a way to reach em directly, before a single dollar moved.
 
-Now the casual scroller who woulda forgot you by Friday is on a list you can reach whenever you want.
-
-Beyonce verified millions. Your version cost nothing and starts with one unlock.
+So now she aint waitin on a algorithm or a ticket site to find her people. She got a list of millions of verified fans she can reach on her own, whenever she want. That was never about the tickets. That was her buildin a direct line to every real fan she got.
 
 ---
 

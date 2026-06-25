@@ -12,7 +12,7 @@ Link in bio to set up a welcome sequence with CRWN. Free to start at thecrwn.app
 
 SZA pull a new wave of fans every single week. A clip go off, a song catch, and here come a thousand new people.
 
-Yo, but watch what happen to that wave by Friday. Most of em forget she even exist. They felt something Tuesday and moved on.
+But watch what happen to that wave by Friday. Most of em forget she even exist. They felt something Tuesday and moved on.
 
 That aint a SZA problem. That's every artist. The fan show up warm, then the moment cool off and they gone before you ever got they name.
 

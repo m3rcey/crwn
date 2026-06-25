@@ -10,7 +10,7 @@ Link in bio to own what you make instead of just performing on it with CRWN. Fre
 
 **SCRIPT:**
 
-50 Cent built a TV show called Power, and the check he got for acting in it might shock you. And the reason aint what you think. Everybody know 50 from the records. In My Club, Many Men, all that. But that aint where his real paper come from now. He helped make a show called Power on Starz. He act in it, he produce it, and his company helped build the whole world around it. Then the show had babies. Power Book Two. Book Three. Book Four. A whole universe, and his name on the ownership side of every one. Now watch this part. Early on, 50 said he was only making like 17 thousand a episode to act and produce. He said he get paid more to wave at a nightclub. The acting check was small. The ownership of the show is what got rich. The performer rent the spot. The owner keep the building.
+Why do 50 Cent make more off a TV show he barely got paid to act in than he ever made off rap? Everybody know 50 from the records. In Da Club, Many Men, all that. But that aint where his real paper come from now. He helped make a show called Power on Starz. He act in it, he produce it, and his company helped build the world around it. Then the show had babies. Power Book Two, Book Three, Book Four. A whole universe, and his name on the ownership side of every one. Early on, 50 said he was only makin like 17 thousand a episode to act and produce. He said he get paid more to wave at a nightclub. The actin check was small. The ownership is what got rich. The performer rent the spot. The owner keep the building.
 
 ---
 
@@ -27,7 +27,7 @@ Link in bio to own what you make instead of just performing on it with CRWN. Fre
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** 50 Cent built a TV show called Power, and the check he got for acting in it might shock you. [Write "TV > RAP" big and bold at the top center, circle it.] And the reason aint what you think. [Write "50 CENT" under it, underline.]
+**HOOK:** Why do 50 Cent make more off a TV show he barely got paid to act in than he ever made off rap? [Write "TV > RAP" big and bold at the top center, circle it.] [Write "50 CENT" under it, underline.]
 
 **FORESHADOW:** Everybody know 50 from the records. In My Club, Many Men, all that. [Draw a small microphone on the left.] But that aint where his real paper come from now. [Draw an arrow pointing away from the mic to the right.]
 

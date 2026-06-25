@@ -10,7 +10,7 @@ Link in bio to sell straight to your fans on a channel you actually own with CRW
 
 **SCRIPT:**
 
-T-Pain sang on a historic run of hit singles. So why did he just tell the world he got robbed? Stay with me. Back in the late 2000s you couldnt turn on the radio without hearing him. He was on nine top ten songs that wasnt even his. Plies, Kanye, Lil Wayne, Jamie Foxx, Pitbull. His sound was on all of em. He made everybody money. Then he checked the books. Bad investments, real estate that never sold, plain spending. He say it got so low he had to borrow money to take his kids to Burger King. So he quit waiting on the industry and went straight to his fans on his own channels, and built it back from there. He aint even find out his first big deal handed the label 85 percent til years later, when people came to buy his catalog. He was on every radio. The label was on every check. So here go what he told the world. The dude who made everybody rich went broke. The part he lost, 40 million dollars.
+How does T-Pain end up broke after sitting on nine top ten hits? Stay with me. Back in the late 2000s you couldnt turn on the radio without hearing him. He was on nine top ten songs that wasnt even his. Plies, Kanye, Lil Wayne, Jamie Foxx, Pitbull. His sound was on all of em. He made everybody money. Then he checked the books. Bad investments, real estate that never sold, plain spending. He say it got so low he had to borrow money to take his kids to Burger King. He aint even find out his first big deal handed the label 85 percent til years later, when people came to buy his catalog. So he quit waiting on the industry and went straight to his fans on his own channels, and built it back from there. He was on every radio. The label was on every check. So here go the answer. The dude who made everybody rich lost about 40 million dollars, cause being on the hit aint the same as owning it.
 
 ---
 
@@ -27,7 +27,7 @@ T-Pain sang on a historic run of hit singles. So why did he just tell the world 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** T-Pain sang on a historic run of hit singles. So why did he just tell the world he got robbed? [write "T-PAIN" big at top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of T-Pain from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "T-PAIN" underneath, write "ON EVERY HIT -> ROBBED?" under it] He was on every hit when it happened. [draw a small radio with sound waves coming out next to the name]
+**HOOK:** How does T-Pain end up broke after sitting on nine top ten hits? [write "T-PAIN" big at top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of T-Pain from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "T-PAIN" underneath, write "9 TOP 10s -> BROKE?" under it; draw a small radio with sound waves coming out next to the name]
 
 **FORESHADOW:** Stay with me. [draw a small arrow pointing down from the radio toward a dollar sign with a question mark]
 

@@ -10,7 +10,7 @@ Link in bio to let software point your genre at the shows and sync deals already
 
 **SCRIPT:**
 
-If RZA needed somebody to call him, then so do you. The man who built Wu-Tang almost missed the work that made him a film legend. Before Kill Bill, RZA scored a movie called Ghost Dog. He aint pitch for it. The director, Jim Jarmusch, reached out and asked him. Then in 2001 he meets Quentin Tarantino at a press event. They both love kung fu movies. That one talk turned into Kill Bill, and he was reportedly the first to write original music for a Tarantino film. Earned him a Grammy nomination. Now think about that. One of the greatest producers in the game still needed somebody to connect him to the room. The talent was never the problem. The match was. And here go the part that should scare you. Somewhere right now a show or an ad is looking for ya exact sound. You just cant see the board they on. RZA had people who could. Most artists dont, and the music just sits there waiting.
+What almost stopped RZA from scoring Kill Bill, and it wasnt his talent? Before Kill Bill, RZA scored a movie called Ghost Dog. He aint pitch for it. The director, Jim Jarmusch, reached out and asked him. Then in 2001 he meets Quentin Tarantino at a press event. They both love kung fu movies. That one talk turned into Kill Bill, and he was reportedly the first to write original music for a Tarantino film. Earned him a Grammy nomination. Now think about that. One of the greatest producers in the game still needed somebody to connect him to the room. And here go the part that should scare you. Somewhere right now a show or an ad is looking for ya exact sound. You just cant see the board they on. RZA had people who could. Most artists dont, and the music just sits there waiting. So what almost cost RZA Kill Bill? Not the music, the match. He needed somebody to put him in the room.
 
 ---
 
@@ -27,7 +27,7 @@ If RZA needed somebody to call him, then so do you. The man who built Wu-Tang al
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If RZA needed somebody to call him, then so do you. [At the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of RZA from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RZA" underneath. Draw a simple phone outline next to it with sound lines coming out.] The man who built Wu-Tang almost missed the work that made him a film legend. [Underline "ALMOST MISSED" below the name.]
+**HOOK:** What almost stopped RZA from scoring Kill Bill, and it wasnt his talent? [At the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of RZA from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RZA" underneath. Draw a simple phone outline next to it with sound lines coming out.] [Underline "ALMOST MISSED" below the name.]
 
 **FORESHADOW:** Before Kill Bill, RZA scored a movie called Ghost Dog. [Write "GHOST DOG" with a small film clapperboard drawn next to it.] He aint pitch for it. The director, Jim Jarmusch, reached out and asked him. [Draw an arrow pointing FROM a stick figure labeled "DIRECTOR" TO a stick figure labeled "RZA".]
 

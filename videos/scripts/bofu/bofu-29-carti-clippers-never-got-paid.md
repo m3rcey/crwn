@@ -10,7 +10,7 @@ Link in bio to run share-to-earn on CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Yo, half of Playboi Carti's look spread through edit accounts he never paid a cent. People stayin up all night cuttin his moments, postin em, rackin up millions of views off his name.
+Half of Playboi Carti's look spread through edit accounts he never paid a cent. People stayin up all night cuttin his moments, postin em, rackin up millions of views off his name.
 
 And not one of them clippers saw a dollar. They built the wave for free, and most of em moved on to the next artist who gave em a reason to.
 

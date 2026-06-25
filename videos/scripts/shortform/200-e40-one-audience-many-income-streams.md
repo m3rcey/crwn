@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-How E-40 Turned 1 Fanbase Into A Wine Empire
+E-40's Biggest Check Wasn't Rap
 
 Link in bio to turn one fanbase into more than one income stream you actually own with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to turn one fanbase into more than one income stream you actually ow
 
 **SCRIPT:**
 
-E-40 sold tapes out the trunk in Vallejo, and that same little hustle aint stop at music. And the wildest part aint even the rap. E-40 started Sick Wid It in 1989, selling his tapes out the trunk. Liquor stores, barber shops, straight to the people. He built the audience hisself, no label telling him who he could reach. By 1994 he signed a distribution deal with Jive, but he kept his label and his masters. His album In a Major Way went platinum. A million copies, and he owned the rights. Most rappers stop right there. He didn't. He took that same crowd, the same people who bought the tapes, and sold em something brand new. In 2013 he launched Earl Stevens Selections, his own wine. Same fans, just a new thing to sell em. And here go the number that should mess with ya head. That wine off the trunk-tape fanbase now sits on shelves in 41 states.
+What did E-40 end up selling that made him more money than all his rapping? He started in Vallejo in 1989, pushing his own tapes out the trunk, liquor stores, barber shops, straight to the people. He built the audience hisself, no label telling him who he could reach. By 1994 he signed a distribution deal with Jive but kept his label and his masters. In a Major Way went platinum, a million copies, and he owned the rights. Most rappers stop right there. He didnt. He took that exact same crowd, the people who been buying his tapes for decades, and pointed em at somethin you'd never expect a rapper to sell. He put out his own wine, Earl Stevens Selections. And today it sits on shelves in 41 states.
 
 ---
 
@@ -27,7 +27,7 @@ E-40 sold tapes out the trunk in Vallejo, and that same little hustle aint stop 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** E-40 sold tapes out the trunk in Vallejo, and that same little hustle aint stop at music. [Top center, large: "1 FANBASE" with a stick-figure crowd of three smiley faces under it, then an arrow pointing right to a circled question mark boxed "EMPIRE?"] And the wildest part aint even the rap. [Under it write small "(not the rap)" and draw a little musical note crossed out with an X.]
+**HOOK:** What did E-40 end up selling that made him more money than all his rapping? [Top center, large: "1 FANBASE" with a stick-figure crowd of three smiley faces under it, then an arrow pointing right to a circled question mark boxed "EMPIRE?"] And the wildest part aint even the rap. [Under it write small "(not the rap)" and draw a little musical note crossed out with an X.]
 
 **FORESHADOW:** [The crossed-out note plus "(not the rap)" carries the tease that something bigger than the music is coming.]
 

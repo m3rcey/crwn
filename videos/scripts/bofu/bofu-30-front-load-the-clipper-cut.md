@@ -10,7 +10,7 @@ Link in bio to run share-to-earn on CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Yo, Gunna had songs that wasn't even out yet runnin all over the internet, ten-second snippets off somebody phone, and that leak culture grew him for free.
+Gunna had songs that wasn't even out yet runnin all over the internet, ten-second snippets off somebody phone, and that leak culture grew him for free.
 
 Now imagine payin clippers to chase ya sound like that on purpose. The question is what you pay em, and most artists get the answer backwards.
 

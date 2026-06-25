@@ -10,17 +10,15 @@ Link in bio to sell a personalized clip on CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Soulja Boy will record you a 30-second clip. Say happy birthday, shout ya homie out, whatever. And he charge for it.
+What do Soulja Boy charge a fan for a 30-second clip off his phone?
 
-Yo, thirty seconds. Off his phone. From wherever he at.
+Thirty seconds. Say happy birthday, shout ya homie out, whatever. He film it from wherever he at and send it.
 
-Here what most independent artists never connect. You already got the one thing fans actually want, which is you. A clip of you saying somebody name back to em is worth way more than another beat sittin in a folder.
+Think about what that really is. Aint no studio, aint no label, aint no beat that took a month. It's just him, sayin one fan name back to em for half a minute.
 
-The move on CRWN is you list a personalized clip as a product. Fan pays, you film thirty seconds, you send it. No studio, no label, no middleman taking a cut.
+So what's that worth? Most artists would guess a few bucks. A lil tip. Somethin you throw in for free to be nice.
 
-Most artists wait for a big bag to fall outta the sky. Meanwhile the small thing they could sell today is sittin right in their pocket.
-
-Soulja reportedly gets five hundred a clip. Ten fans is five thousand dollars off ya phone.
+Soulja reportedly gets five hundred dollars a clip. Ten fans is five thousand dollars off ya phone.
 
 ---
 

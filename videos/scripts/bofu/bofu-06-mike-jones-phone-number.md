@@ -1,4 +1,4 @@
-## MIKE JONES PUT HIS NUMBER IN A SONG. HIS PHONE STILL RINGS.
+## MIKE JONES PUT HIS REAL NUMBER IN A SONG. HERE'S WHAT THAT BOUGHT HIM.
 
 **CAPTION:**
 
@@ -10,15 +10,17 @@ Link in bio to turn on text capture with CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Yo, Mike Jones did somethin every label told artists not to do. He put his real phone number straight in the song. 281-330-8004. Fans aint just hear it, they called it.
+What happens when you put your real phone number in your own song, the way Mike Jones did when he said 281-330-8004?
 
-Most artists do the opposite. They drop, then beg the algorithm to show it to the same people who already love em. Spotify holds them numbers. You aint reaching nobody on demand.
+Every label told artists never do it. Give out a personal line and you a target, you exposed, you crazy. Mike said it anyway, on wax, twice, so you couldn't forget it.
 
-Here go the move on CRWN. Turn on text capture. Every fan that comes through hands you a number, and now it's yours, not the platform's. Next drop, you text it straight to they phone. No algorithm in the middle.
+And fans aint just hear it. They called. The number became part of the song, part of him.
 
-A text gets opened. A playlist placement you prayin for.
+Most artists got the opposite problem. They drop, then beg a algorithm to show it to the same people who already love em. Spotify holds them fans, you aint reaching nobody on demand.
 
-That number Mike put in the song? Fans still callin it twenty years later.
+Mike never had that wall. He had a direct line to his people that no platform sat in the middle of.
+
+And here the part that's wild. That number he put in the song back then? Fans still callin it twenty years later.
 
 ---
 

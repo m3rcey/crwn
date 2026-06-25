@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Bad Bunny has 114 million monthly listeners and can't send a single one of them an email.
+How Many Of His 114 Million Fans Can Bad Bunny Reach?
 
 Link in bio to switch on email and text capture so every new fan becomes a contact you own. Free to start at thecrwn.app.
 
@@ -10,17 +10,7 @@ Link in bio to switch on email and text capture so every new fan becomes a conta
 
 **SCRIPT:**
 
-Bad Bunny got 114 million people listening every month. Now name one he can email directly. He can't.
-
-Yo, sit with that. Biggest artist on the planet, and the contact info for every one of them fans? Spotify keeps it. He just rents the reach.
-
-That aint a Bad Bunny problem. That's every artist on streaming. You don't own the line to ya own audience.
-
-The move on CRWN is to switch on email and text capture. So every fan who pulls up to ya page becomes a contact YOU hold, not a number a platform keeps.
-
-Now ya next drop, you aint begging the algorithm to show ya post. You send it straight to em.
-
-Bad Bunny got 114 million he can't reach. Start ya list at one fan you can.
+How many of Bad Bunny's 114 million monthly listeners can he actually reach whenever he wants? Think about it. The biggest artist on Spotify, 114 million people pressing play every single month. So on drop day he should be able to just tell all of em himself, send the new song straight to their phone. No artist alive got a bigger crowd. So when Bad Bunny wants to reach the exact people who made him number one, how many can he message on his own? The answer is zero. Not a single one. The platform holds every name, every email, every number. The biggest artist on the planet is renting a audience he can't even touch.
 
 ---
 

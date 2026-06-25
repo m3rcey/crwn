@@ -10,7 +10,7 @@ Link in bio to own the music your name keeps eating off of, not rent it, with CR
 
 **SCRIPT:**
 
-If the biggest moment of your career happens after you're gone, then who is it really for? Pop Smoke never got to find that out. Hold up, cause the answer hits different than you think. At 19 he signed his first record deal. By 20 he was murdered in a home invasion in LA. February 2020. Then in July, months after he passed, they dropped his debut album. It went straight to number one on the Billboard 200. First week it moved 251,000. A number one record, and the man who made it never heard the news. Now here is the part that should sit with you. He signed that deal at 19. So when that album printed money at number one, the masters paid the owner. Pop Smoke made the music. The deal he signed at 19 still cashes the check. Owning what you make is the only version where your name keeps eating after you cant.
+When Pop Smoke's debut hit number one after he was gone, who did that check really pay? Hold up, cause the answer hits different than you think. At 19 he signed his first record deal. By 20 he was murdered in a home invasion in LA, February 2020. Then in July, months after he passed, they dropped his debut album. It went straight to number one on the Billboard 200. First week it moved 251,000. A number one record, and the man who made it never heard the news. He signed that deal at 19. Pop Smoke made the music, but the deal he signed at 19 is what cashed the check. So when that album printed money at number one, the masters paid the owner, not Pop Smoke.
 
 ---
 
@@ -27,21 +27,21 @@ If the biggest moment of your career happens after you're gone, then who is it r
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If the biggest moment of your career happens after you're gone, then who is it really for? [At the top write "AFTER YOU'RE GONE" in big letters, underline it.] Pop Smoke never got to find that out. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pop Smoke from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "POP SMOKE" underneath, with a small halo drawn above it.]
+**HOOK:** When Pop Smoke's debut hit number one after he was gone, who did that check really pay? [At the top write "AFTER YOU'RE GONE" in big letters, underline it; draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pop Smoke from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "POP SMOKE" underneath, with a small halo drawn above it.]
 
 **FORESHADOW:** Hold up, cause the answer hits different than you think. [Draw a question mark in a circle, big, off to the side.]
 
 **RISING ACTION:** At 19 he signed his first record deal. [Write "AGE 19" then "1st DEAL", circle "AGE 19".] By 20 he was murdered in a home invasion in LA. February 2020. [Write "AGE 20" and under it "FEB 2020".] Then in July, months after he passed, they dropped his debut album. [Draw an album square labeled "DEBUT ALBUM" with "JULY 2020" next to it.] It went straight to number one on the Billboard 200. [Write "#1" big, box it.] First week it moved 251,000. [Write "WEEK 1 = 251,000".]
 
-**TWIST:** A number one record, and the man who made it never heard the news. [Under "#1" draw a small radio with an X through it.] Now here is the part that should sit with you. He signed that deal at 19. So when that album printed money at number one, the masters paid the owner. [Draw a line down the middle. Left write "MASTERS = OWNER". Right write "POP = MADE IT". Circle "OWNER".]
+**TWIST:** A number one record, and the man who made it never heard the news. [Under "#1" draw a small radio with an X through it.] Now here is the part that should sit with you. He signed that deal at 19. Pop Smoke made the music, but the deal he signed at 19 is what cashed the check. [Draw a line down the middle. Left write "MASTERS = OWNER". Right write "POP = MADE IT".]
 
-**PAYOFF:** Pop Smoke made the music. The deal he signed at 19 still cashes the check. Owning what you make is the only version where your name keeps eating after you cant. [At the bottom write "OWN WHAT YOU MAKE", underline it twice. Next to it draw a small infinity loop with a "$" inside.]
+**PAYOFF:** So when that album printed money at number one, the masters paid the owner, not Pop Smoke. [Circle "OWNER". Draw a $ arrow from "#1" to "MASTERS = OWNER", and a crossed-out arrow toward "POP = MADE IT".]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top in large bold handwritten capitals: "AFTER YOU'RE GONE" with a single underline beneath it. Below it a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pop Smoke from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, with a small halo drawn above its head, and the words "POP SMOKE" written under the portrait. Off to the right side a large circled question mark. In the middle-left, the text "AGE 19" with a circle around it, next to "1st DEAL". Below that "AGE 20" with "FEB 2020" written under it. To the right, a simple square drawn to look like an album cover labeled "DEBUT ALBUM" with "JULY 2020" beside it. Centered, a large boxed "#1". Under the box, "WEEK 1 = 251,000". Near the #1 box, a small drawing of a radio with an X drawn through it. A vertical line dividing the lower-middle of the page: on the left "MASTERS = OWNER" with "OWNER" circled, on the right "POP = MADE IT". At the bottom in large capitals "OWN WHAT YOU MAKE" underlined twice, with a small infinity loop symbol drawn beside it containing a "$" in its center. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top in large bold handwritten capitals: "AFTER YOU'RE GONE" with a single underline beneath it. Below it a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pop Smoke from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, with a small halo drawn above its head, and the words "POP SMOKE" written under the portrait. Off to the right side a large circled question mark. In the middle-left, the text "AGE 19" with a circle around it, next to "1st DEAL". Below that "AGE 20" with "FEB 2020" written under it. To the right, a simple square drawn to look like an album cover labeled "DEBUT ALBUM" with "JULY 2020" beside it. Centered, a large boxed "#1". Under the box, "WEEK 1 = 251,000". Near the #1 box, a small drawing of a radio with an X drawn through it. A vertical line dividing the lower-middle of the page: on the left "MASTERS = OWNER" with "OWNER" circled, on the right "POP = MADE IT". A dollar-sign arrow runs from the "#1" box to "MASTERS = OWNER", and a crossed-out arrow points toward "POP = MADE IT". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
@@ -57,4 +57,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 8. "WEEK 1 = 251,000"
 9. Radio with an X through it
 10. Center divider: "MASTERS = OWNER" (circled) vs "POP = MADE IT"
-11. "OWN WHAT YOU MAKE" underlined twice with the infinity-and-$ loop
+11. $ arrow from "#1" to "MASTERS = OWNER", crossed-out arrow toward "POP = MADE IT"

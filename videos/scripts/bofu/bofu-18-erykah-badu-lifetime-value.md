@@ -12,7 +12,7 @@ Link in bio to track lifetime value with CRWN. Free to start at thecrwn.app.
 
 Erykah Badu dropped Baduizm back in 1997. Neo-soul, brand new sound, and a fan locked in.
 
-Yo, now do the math on that fan. Almost thirty years. Albums, shows, merch, the kid they put on. One person, paying you for decades.
+Now do the math on that fan. Almost thirty years. Albums, shows, merch, the kid they put on. One person, paying you for decades.
 
 Now line that up against a fan who buy one thing and bounce. Same one purchase. Wildly different person.
 

@@ -12,7 +12,7 @@ Link in bio to release in a waterfall on CRWN. Free to start at thecrwn.app.
 
 Kennedy Ryon got a paid Fam Club, and when she finish a new song, somethin happens that flips the release order upside down.
 
-Yo, think about how most independent artists do it. They drop everywhere at once. Spotify, Apple, the free crowd, the diehard who been ridin since day one, everybody gets it the same second. So the fan who pays the most gets treated exactly like the stranger who pays nothing.
+Think about how most independent artists do it. They drop everywhere at once. Spotify, Apple, the free crowd, the diehard who been ridin since day one, everybody gets it the same second. So the fan who pays the most gets treated exactly like the stranger who pays nothing.
 
 The move Kennedy does on CRWN is release in a waterfall. The song don't go out flat. It rolls down a staircase.
 

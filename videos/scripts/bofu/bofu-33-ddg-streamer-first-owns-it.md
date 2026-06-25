@@ -1,8 +1,8 @@
-## DDG BUILT THE WHOLE AUDIENCE BEFORE HE EVER MADE A SONG THAT CHARTED
+## DDG HAD ONE THING LOCKED IN BEFORE HE EVER MADE A SONG THAT CHARTED
 
 **CAPTION:**
 
-DDG had a streamer and YouTube audience locked in before he ever charted.
+DDG built his audience streaming live before there was ever a song to sell, then let the platinum record land on people who were already in the room.
 
 Link in bio to go live and let fans subscribe to be in the room on CRWN. Free to start at thecrwn.app.
 
@@ -10,15 +10,15 @@ Link in bio to go live and let fans subscribe to be in the room on CRWN. Free to
 
 **SCRIPT:**
 
-DDG was a YouTuber and a Twitch streamer years before he was a rapper, and that order is the reason it worked.
+What did DDG already have locked in before "Moonwalking in Calabasas" ever went platinum?
 
-He built a real audience watchin him live, on camera, just bein himself, long before there was any song to sell.
+It wasn't a hit record. He didn't start there. Years before he was a rapper, DDG was a YouTuber and a Twitch streamer, live on camera, just bein himself.
 
-Most artists do it backwards. They drop the record, then go beg strangers to care. DDG had the people already locked in, so when the music finally came they was right there waitin on it.
+Most artists do it backwards. They drop the record first, then go beg strangers to care. DDG flipped that order without even plannin to.
 
-The move on CRWN is you go live the same way he did. Live from the studio, the video shoot, the club, the kickback. You gate it to ya tiers so fans subscribe just to be in the room. Then you let clippers cut the moments and drag new people back to ya page.
+So by the time he made a song to sell, he wasn't startin cold. He had a real audience already watchin him, already in the room, ready to push whatever he put out.
 
-By the time ya song drops you ain't startin cold. "Moonwalking in Calabasas" went platinum off a audience he built first and never let go of.
+That platinum record? It went platinum off a audience he built first and never let go of.
 
 ---
 

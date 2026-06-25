@@ -10,7 +10,7 @@ Link in bio to get paid more than one way from the same fanbase with CRWN. Free 
 
 **SCRIPT:**
 
-Berner is a rapper, but he co-founded a cannabis brand you probably already heard of, and the way he grew it most artists never even try. He's out of San Francisco, built his own label, Bern One. But the music was never the only product. The brand is Cookies, and the music became the marketing for it. Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. He reportedly built Cookies into a major brand, and he still owns a real piece. So here go the part most artists miss. He aint go find a new audience for the business. He sold more to the audience he already had. The crowd that streams you can also buy ya vinyl, ya verse, a song critique, a call. One fanbase aint one paycheck. It every paycheck you brave enough to offer.
+How did a rapper named Berner build one of the biggest cannabis brands in the country without ever findin a new audience? He's out of San Francisco, built his own label, Bern One. But the music was never the only product. The brand is Cookies, and the music became the marketing for it. Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. He reportedly built Cookies into a major brand, and he still owns a real piece. The crowd that streams you can also buy ya vinyl, ya verse, a song critique, a call. He aint go find a new audience for Cookies. He sold more to the audience he already had.
 
 ---
 
@@ -27,7 +27,7 @@ Berner is a rapper, but he co-founded a cannabis brand you probably already hear
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Berner is a rapper, but he co-founded a cannabis brand you probably already heard of, and the way he grew it most artists never even try. [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Berner from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BERNER" underneath. write "RAPPER → ??? BRAND" with a question mark]
+**HOOK:** How did a rapper named Berner build one of the biggest cannabis brands in the country without ever findin a new audience? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Berner from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BERNER" underneath. write "RAPPER → ??? BRAND" with a question mark]
 
 **RISING ACTION:** He's out of San Francisco, built his own label, Bern One. [draw a small stick figure with a mic, label "RAPPER", write "BERN ONE" next to it] But the music was never the only product. The brand is Cookies, and the music became the marketing for it. [write "MUSIC" with an arrow pointing down to "MARKETING", then box "COOKIES" off to the side] Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. [draw one circle labeled "SAME FANS", with three arrows leaving it to "SONGS", "VIDEOS", "TOUR BUS"] He reportedly built Cookies into a major brand, and he still owns a real piece. [write "OWNS A PIECE" and circle it]
 

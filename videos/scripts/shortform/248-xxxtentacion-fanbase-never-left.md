@@ -10,7 +10,7 @@ Link in bio to build an audience that buys from you direct and stays for the lon
 
 **SCRIPT:**
 
-XXXTentacion passed in 2018 at 20 years old, and his music aint slow down one bit. So how does a man keep climbing the charts after he gone? Watch what his fans did. His album "?" already hit number one while he was here. Then in December that same year, after he was gone, they dropped SKINS. It went straight to number one too. 132,000 in week one. Nobody promoting it the normal way. The fans just showed up. A year later they dropped another album, and that one went top five. The people who loved him aint go nowhere. Streams come and go, they spike then drop right back down. But the people who actually ride for you, they the part that lasts. And here go the proof. His song SAD! went diamond, 10 million sold, and that plaque came in 2021, years after he was gone.
+How did XXXTentacion keep hitting number one after he was gone? Watch what his fans did. He passed in 2018 at 20 years old, and his music aint slow down one bit. His album "?" already hit number one while he was here. Then in December that same year, after he was gone, they dropped SKINS. It went straight to number one too. 132,000 in week one. Nobody promoting it the normal way. The fans just showed up. A year later they dropped another album, and that one went top five. His song SAD! even went diamond, 10 million sold, and that plaque came in 2021. Streams come and go, they spike then drop right back down. The answer is the part that lasts. The people who actually loved him aint go nowhere, so they kept buying long after he couldnt.
 
 ---
 
@@ -27,7 +27,7 @@ XXXTentacion passed in 2018 at 20 years old, and his music aint slow down one bi
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** XXXTentacion passed in 2018 at 20 years old, and his music aint slow down one bit. [Below write "XXXTENTACION" and next to it "2018 · AGE 20". Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of XXXTentacion from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "XXXTENTACION" underneath, with a halo arc drawn above the head.] So how does a man keep climbing the charts after he gone? [Write "HOW?" big and circle it.]
+**HOOK:** How did XXXTentacion keep hitting number one after he was gone? [Write "HOW?" big and circle it. Below write "XXXTENTACION" and next to it "2018 · AGE 20". Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of XXXTentacion from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "XXXTENTACION" underneath, with a halo arc drawn above the head.]
 
 **FORESHADOW:** Watch what his fans did. [Write "WATCH WHAT HIS FANS DID" and put a small arrow pointing down the page.]
 

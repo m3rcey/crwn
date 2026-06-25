@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-He Charted Top 5. The Music Aint The Payday.
+He Charted Top 5. So What Actually Pays Him?
 
 Link in bio to turn your music into the front door of a business you actually own with CRWN. Free to start at thecrwn.app.
 
@@ -10,17 +10,13 @@ Link in bio to turn your music into the front door of a business you actually ow
 
 **SCRIPT:**
 
-Larry June dropped a album that charted top 5 independent, and the chart number aint even the part that pays him.
-
-Larry June out of San Francisco. Independent. He drop music like clockwork, "Good Job," "Numbers," over and over.
+Larry June charted top 5 independent, so why aint that chart number the thing that actually pays him? Larry out of San Francisco. Independent. He drop music like clockwork, "Good Job," "Numbers," over and over.
 
 In 2023 he and The Alchemist put out The Great Escape. It hit number 32 on the Billboard 200, number 4 on the independent chart. He own his masters, his imprint The Freeminded, distributed through Empire.
 
-Now most people stop right there and see a rapper. So why aint the music the part that matters most to him.
+Now most people stop right there and just see a rapper. Look closer. The man got a boba shop in San Francisco. He got Midnight Organic, his own clothing line. A song get forgot in a week. A customer who buy from you direct remember you forever.
 
-Look closer. The man got a boba shop in San Francisco. He got Midnight Organic, his own clothing line. A song get forgot in a week. A customer who buy from you direct remember you forever.
-
-So the album dont gotta carry everything. It just gotta walk people in. The music aint the whole business. The music the front door, and Larry June owns the whole building behind it.
+So the album dont gotta carry everything. It just gotta walk people in. The chart number aint the payday. The music the front door, and Larry June owns the whole building behind it.
 
 ---
 
@@ -37,7 +33,7 @@ So the album dont gotta carry everything. It just gotta walk people in. The musi
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Larry June dropped a album that charted top 5 independent, and the chart number aint even the part that pays him. [Top of page, write "#4 INDIE" in big letters, draw a question mark beside it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Larry June from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LARRY JUNE" underneath.]
+**HOOK:** Larry June charted top 5 independent, so why aint that chart number the thing that actually pays him? [Top of page, write "#4 INDIE" in big letters, draw a question mark beside it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Larry June from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LARRY JUNE" underneath.]
 
 **RISING ACTION:** Larry June out of San Francisco. Independent. He drop music like clockwork, "Good Job," "Numbers," over and over. [Write "LARRY JUNE" with "INDEPENDENT" underlined beneath it, then a small list: "Good Job," "Numbers" with checkmarks] In 2023 he and The Alchemist put out The Great Escape. It hit number 32 on the Billboard 200, number 4 on the independent chart. He own his masters, his imprint The Freeminded, distributed through Empire. [Write "THE GREAT ESCAPE 2023," then "#32 BILLBOARD" and "#4 INDIE" stacked, then "OWNS MASTERS" boxed]
 

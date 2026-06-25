@@ -10,7 +10,7 @@ Link in bio to own your audience as a list you can actually reach with CRWN. Fre
 
 **SCRIPT:**
 
-Bad Bunny got 114 million people pressing play every month and a guest list he cant write a single name on. That gap cost the biggest artist on Spotify everything. Bad Bunny was the most streamed artist on Spotify in 2020, 2021, 2022, and again in 2025. First artist ever to do it four times. Like 114 million people press play on him every month. Now name one thing he cant do. He cant email a single one of em. Spotify show him a dashboard. Age, city, how many plays. People as a number, not a name. The contacts? Spotify keep em. The man got 114 million listeners and a guest list of zero. Here go the part that aint make sense. Spotify already hand podcasters they subscriber emails. The musicians? They get a graph. So somebody small owned they own list instead. 600 fans, names and numbers, a list nobody can take. Bad Bunny got the plays. The small artist got the people.
+What's the one thing Bad Bunny cant do with 114 million people pressing play on him every month? He was the most streamed artist on Spotify in 2020, 2021, 2022, and again in 2025. First artist ever to do it four times. Like 114 million people press play on him every month. Spotify show him a dashboard. Age, city, how many plays. People as a number, not a name. And here go the part that aint make sense. Spotify already hand podcasters they subscriber emails. The musicians? They just get a graph. So somebody small owned they own list instead. 600 fans, names and numbers, a list nobody can take. Bad Bunny got the plays. The small artist got the people. So what cant the biggest artist on Spotify do? He cant email a single one of his 114 million. Spotify keep every contact. His guest list reads zero.
 
 ---
 
@@ -27,7 +27,7 @@ Bad Bunny got 114 million people pressing play every month and a guest list he c
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Bad Bunny got 114 million people pressing play every month and a guest list he cant write a single name on. [Left side: write "PLAY COUNT" with a small bar going up. Right side: draw a stick figure with a smiley face, write "PERSON" under it. Draw a line straight down the middle between them.] That gap cost the biggest artist on Spotify everything.
+**HOOK:** What's the one thing Bad Bunny cant do with 114 million people pressing play on him every month? [Left side: write "PLAY COUNT" with a small bar going up. Right side: draw a stick figure with a smiley face, write "PERSON" under it. Draw a line straight down the middle between them.]
 
 **FORESHADOW:** Bad Bunny was the most streamed artist on Spotify in 2020, 2021, 2022, and again in 2025. [Write "BAD BUNNY" at the top. Under it list "2020 2021 2022 2025" and circle them.] First artist ever to do it four times. [Write "4X" big and box it.] Like 114 million people press play on him every month. [Write "114,000,000" large.]
 

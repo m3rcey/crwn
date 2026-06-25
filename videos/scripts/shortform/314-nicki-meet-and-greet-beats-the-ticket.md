@@ -10,7 +10,7 @@ Link in bio to sell your fans the closeness only you can give with CRWN. Free to
 
 **SCRIPT:**
 
-If a photo cost more than the ticket, then you been pricing the wrong thing this whole time. Nicki Minaj sold out arenas in 2024. The Pink Friday 2 tour pulled in $108.8 million. The cheap seat ran like $65. The fans paid it happy. But that aint where the real money was sittin. The seat get you in the building. It dont get you close. You wanna actually meet her? Get the photo, the moment, stand right next to her? That cost way more than the ticket. Meet and greets at this level run hundreds, sometimes way past a thousand. Same night, same artist. One fan paid $65 to watch from the dark. Another paid past a thousand to stand in the light. The label sold the room. Nicki sold the closeness. And closeness aint got a back row. A megastar can only let in a handful a night. You aint a megastar. So yo closeness aint never gon sell out.
+Why does one photo standin next to Nicki Minaj cost more than the ticket to her whole show? She sold out arenas in 2024. The Pink Friday 2 tour pulled in $108.8 million. The cheap seat ran like $65. The fans paid it happy. But that aint where the real money was sittin. The seat get you in the building. It dont get you close. You wanna actually meet her, get the photo, stand right next to her? Meet and greets at this level run hundreds, sometimes way past a thousand. Same night, same artist. One fan paid $65 to watch from the dark. Another paid past a thousand to stand in the light. The label sold the room. Nicki sold the closeness. And here go why that photo cost more. Closeness aint got a back row. She can only let a handful stand next to her a night, so the few spots cost everything.
 
 ---
 
@@ -27,7 +27,7 @@ If a photo cost more than the ticket, then you been pricing the wrong thing this
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If a photo cost more than the ticket, then you been pricing the wrong thing this whole time. [Top of page, write "PHOTO > TICKET" big, circle it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Nicki Minaj from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "NICKI MINAJ" underneath.]
+**HOOK:** Why does one photo standin next to Nicki Minaj cost more than the ticket to her whole show? [Top of page, write "PHOTO > TICKET" big, circle it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Nicki Minaj from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "NICKI MINAJ" underneath.]
 
 **FORESHADOW:** Nicki Minaj sold out arenas in 2024. The Pink Friday 2 tour pulled in $108.8 million. [Under it write "NICKI 2024" and "$108.8M" with the Nicki portrait likeness from the hook, smaller, on a stage]
 

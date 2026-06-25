@@ -10,7 +10,7 @@ Link in bio to build the audience that makes labels come to you with CRWN. Free 
 
 **SCRIPT:**
 
-Ice Spice put out Munch with no label behind her, and a few months later the label was the one knocking on her door. Watch how fast it can flip. In 2022 Ice Spice put out Munch on her own. No major label behind it. Just a Bronx girl, a song, and the internet. Drake played it on his radio. TikTok ran with it. That hashtag passed two billion views before any deal was even on the table. Then a few months later, the label came knocking. Look at that order close. She blew up first. The contract came after. The label aint make her. They paid to get next to a crowd she already built herself. Read that part again. They wasn't buying her talent. They was renting the audience she made for free. Most artists wait for a label to hand em fans. She brought the fans to the table, so the table came to her. The crowd is the asset. Whoever owns the crowd owns the leverage.
+When Ice Spice put out Munch with no label behind her, what was the label actually buying when it finally showed up? In 2022 she dropped Munch on her own. No major behind it. Just a Bronx girl, a song, and the internet. Drake played it on his radio. TikTok ran with it. That hashtag passed two billion views before any deal was even on the table. Then a few months later the label came knocking. Look at that order. She blew up first. The contract came after. So they aint show up for her talent. Watch what they was really there for. Most artists wait on a label to hand em fans. She brought the fans to the table, so the table came to her. The label wasn't buying her. They was renting the crowd she already built for free.
 
 ---
 
@@ -27,7 +27,7 @@ Ice Spice put out Munch with no label behind her, and a few months later the lab
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Ice Spice put out Munch with no label behind her, and a few months later the label was the one knocking on her door. [Write "FANS FIRST?" big at the top, underline it twice.]
+**HOOK:** When Ice Spice put out Munch with no label behind her, what was the label actually buying when it finally showed up? [Write "FANS FIRST?" big at the top, underline it twice.]
 
 **FORESHADOW:** Watch how fast it can flip. [Draw a small arrow curving from a stick crowd over to a big dollar sign, question mark next to it.]
 

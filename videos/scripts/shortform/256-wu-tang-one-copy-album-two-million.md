@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-Wu-Tang Sold 1 Album For $2 Million
+How Did Wu-Tang Sell One Album Nobody Can Stream?
 
 Link in bio to sell music your real fans cant get anywhere else with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to sell music your real fans cant get anywhere else with CRWN. Free 
 
 **SCRIPT:**
 
-What happens when you make just one copy of a album? Let's find out. Wu-Tang did it, and the number at the end gon mess ya head up. Back in 2015 they recorded a whole album, 31 songs, and pressed exactly one copy. One. No streaming, no second copy, nobody else can press it. They locked it in a case and put it up for auction. A pharma guy named Martin Shkreli bought that one copy for around $2 million. Two million for one album that nobody can even play online. Now think about ya catalog. A million plays sound like a lot, but a million plays pay you pennies cause anybody can hear it free. Wu-Tang flipped that. They made one thing nobody else could have, and the people who wanted in had to pay real money. A play is something they take. Access is something only you can hand them.
+How did Wu-Tang turn one album nobody can stream into a 2 million dollar sale? Stay with me. Back in 2015 they recorded a whole album, 31 songs, and pressed exactly one copy. One. No streaming, no second copy, nobody else can press it. They locked it in a case and put it up for auction. A pharma guy named Martin Shkreli bid on it. Now think about ya catalog. A million plays sound like a lot, but a million plays pay you pennies cause anybody can hear it free. Wu-Tang flipped that. They made one thing nobody else could have, and the people who wanted in had to pay real money. A play is something they take. Access is something only you can hand them. The answer is scarcity. One copy nobody else could ever own went for around $2 million.
 
 ---
 
@@ -27,7 +27,7 @@ What happens when you make just one copy of a album? Let's find out. Wu-Tang did
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What happens when you make just one copy of a album? Let's find out. [Top of page write "1 COPY" big and circle it] Wu-Tang did it, and the number at the end gon mess ya head up. [Write "WU-TANG" under it, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of RZA, Wu-Tang's founder, from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RZA / WU-TANG" underneath, with a small "W" logo shape next to the name]
+**HOOK:** How did Wu-Tang turn one album nobody can stream into a 2 million dollar sale? [Top of page write "1 COPY" big and circle it. Write "WU-TANG" under it, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of RZA, Wu-Tang's founder, from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RZA / WU-TANG" underneath, with a small "W" logo shape next to the name]
 
 **FORESHADOW:** Back in 2015 they recorded a whole album, 31 songs, and pressed exactly one copy. One. [Write "2015" and "31 SONGS" then a big underlined "1"] No streaming, no second copy, nobody else can press it. [Cross out the word "STREAM" with an X, draw a single CD with a lock on it]
 

@@ -10,15 +10,15 @@ Link in bio to list your first high-ticket experience on CRWN. Free to start at 
 
 **SCRIPT:**
 
-Yo, Nipsey took Crenshaw, a mixtape, and did somethin nobody in rap had the nerve to do with one.
+Nipsey took Crenshaw, a mixtape you could stream for free, and pulled six figures off it. How you do that with somethin people could get for nothin?
 
-He didn't put it where the free crowd was. He attached calls to it. Studio visits. Numbered copies with his name on em.
+He didn't chase the free crowd at all. He went the other way. Numbered copies with his name on em, his time attached, a way in for the ones who wanted close instead of cheap.
 
-The lesson aint "be Nipsey." It's that ya top fans want close, not cheap. They been waitin for you to give em a way in.
+His top fans never wanted the discount. They wanted the door. So he built one and put a real price on it.
 
-Here go the move on CRWN. List one high-ticket experience. A call, a studio session, a numbered drop. Don't price it at merch money. Price it at access money.
+A small number of people wanting in counts way more than a big number wanting it free. He only had to move a thousand of em to do it.
 
-And you don't need a thousand buyers to feel it. Ten superfans pays you a grand off one offer. Nipsey put Crenshaw at a hundred a copy, sold a thousand, and reportedly pulled six figures.
+Nipsey priced Crenshaw at a hundred a copy, sold a thousand, and reportedly pulled six figures off a tape the world could stream for nothin.
 
 ---
 

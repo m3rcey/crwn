@@ -2,7 +2,7 @@
 
 **CAPTION:**
 
-This Is The Rapper. This Is The Owner.
+How Much Of Jay-Z's Billion Came From Rap?
 
 Link in bio to own your audience, your music, and the business around it with CRWN. Free to start at thecrwn.app.
 
@@ -10,7 +10,7 @@ Link in bio to own your audience, your music, and the business around it with CR
 
 **SCRIPT:**
 
-Jay-Z hit a billion dollars and where it came from aint what got him famous. Same man, two totally different checks. In 2019 Forbes called Jay-Z hip-hop's first billionaire. So you figure the music made him that, right? Nope. Look at how they added up that billion. The champagne, Armand de Brignac, around 310 million. D'Ussé cognac, like 100. Tidal, around 100. Roc Nation, around 75. He aint get rich rapping. He got rich owning the businesses the rapping built. He owned the audience, the catalog, and the companies sittin on top. That's the part most artists never even reach for. They sell the song and hand off everything around it. Jay-Z kept the song AND everything around it. So now find the music. His actual song catalog, the rapping everybody know him for, came in around 75 million out of that billion. The thing that made him famous was under 8% of the pile.
+How much of Jay-Z's billion dollars do you think actually came from the rapping? In 2019 Forbes called him hip-hop's first billionaire, and you'd figure the music made him that. He sold over 50 million records, owns his masters, got one of the deepest catalogs in rap. So the songs gotta be the bulk of it. Hold that thought. Cause that billion is really a stack of things he owns. A champagne brand. A cognac. A streaming app he flipped. A sports agency. He aint get rich rapping, he got rich owning the businesses the rapping built. So go find the music in that pile. His actual catalog, the rapping everybody know him for, came in around 75 million dollars. Out of a billion. The thing that made him famous is under 8 percent of what made him rich.
 
 ---
 
@@ -27,7 +27,7 @@ Jay-Z hit a billion dollars and where it came from aint what got him famous. Sam
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Jay-Z hit a billion dollars and where it came from aint what got him famous. [Draw a line straight down the middle of the page. On the left write "RAPPER", on the right write "OWNER".] Same man, two totally different checks.
+**HOOK:** How much of Jay-Z's billion dollars do you think actually came from the rapping? [Draw a line straight down the middle of the page. On the left write "RAPPER", on the right write "OWNER".] Same man, two totally different checks.
 
 **FORESHADOW:** In 2019 Forbes called Jay-Z hip-hop's first billionaire. [Top center write "1st BILLIONAIRE" and circle "BILLION".] So you figure the music made him that, right? Nope.
 

@@ -1,4 +1,4 @@
-## ONE FLAT PRICE LEAVES YOUR DIEHARDS' MONEY ON THE TABLE
+## NIPSEY GAVE THE SAME TAPE AWAY FREE. SO HOW'D IT MAKE SIX FIGURES?
 
 **CAPTION:**
 
@@ -10,15 +10,17 @@ Link in bio to build free, mid, and high tiers with CRWN. Free to start at thecr
 
 **SCRIPT:**
 
-Yo, Nipsey took the same Crenshaw mixtape he was givin away for free and somehow pulled six figures out the same fanbase. One project, two prices.
+How did Nipsey pull a hundred thousand dollars out of the same Crenshaw mixtape he was handin out for free?
 
-He aint charge everybody one flat number. He stacked it. You could grab the music free, or you could pay way up for the access nobody else got.
+Read that again. The exact same project. Free in one hand, and somehow six figures in the other.
 
-When you price flat, you breakin both ways. The casual fan you scared off, and the diehard who woulda paid ten times more, you left his money sittin there.
+Most artists woulda picked one. Give it away for the love, or charge everybody one flat price and call it a day.
 
-Here go the move on CRWN. Three tiers, not one. A free tier so anybody can get in and find you. A mid tier for the regulars who ride every drop. And one high tier for the diehards who want the close stuff. Same fanbase, everybody pays what they actually worth to you.
+Nipsey aint pick. He let the casuals grab the music free so anybody could find him. But for the diehards, the ones who'd pay way up to be close, he had somethin else waitin behind the free version.
 
-That free tape was the front door. The back door was a thousand copies at a hundred dollars each, and Nipsey walked off with a hundred thousand.
+Same fanbase, but he stopped pretendin every fan was worth the same dollar. He let the ones who wanted more, pay more.
+
+So the free tape was just the front door. The real number was a thousand of them diehards payin a hundred dollars a copy, and Nipsey walked off with a hundred thousand.
 
 ---
 

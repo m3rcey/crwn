@@ -10,7 +10,7 @@ Link in bio to own your name, likeness and audience instead of renting them out 
 
 **SCRIPT:**
 
-This is Whitney Houston. And this is Whitney Houston ten years after she passed, on a stage she never stood on. Watch what they did with that. Years before she died, a music company reportedly paid around $14 million for half of her estate. Not just the songs. Her name. Her likeness. Her image too. So when she was gone, the owners had a idea. They built a hologram of her and sent it on tour. A version of Whitney that sing every night, that sell tickets in Vegas, that the rights-holders control. She couldnt say yes. She couldnt say no. She wasnt there. That what it look like when you dont own your own face. Other people decide how it perform and who get paid off it. Whitney could outsing anybody who ever lived. But the company that bought her name? They the ones touring it now. Your voice is the gift. Owning your name is what keep it yours after you cant hold it.
+How did Whitney Houston end up on a hologram tour she never agreed to? Watch what they did. Years before she died, a music company reportedly paid around $14 million for half of her estate. Not just the songs. Her name. Her likeness. Her image too. So when she was gone, the owners had a idea. They built a hologram of her and put it on a stage she never stood on. A version of Whitney that sing every night, that sell tickets in Vegas, that the rights-holders control. She couldnt say yes. She couldnt say no. She wasnt there. That what it look like when you dont own your own face. Other people decide how it perform and who get paid off it. Whitney could outsing anybody who ever lived. The answer is simple. The company bought her name back when she was alive, so when she was gone they didnt need her permission to tour her.
 
 ---
 
@@ -27,7 +27,7 @@ This is Whitney Houston. And this is Whitney Houston ten years after she passed,
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is Whitney Houston. [write "WHITNEY HOUSTON" big at the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Whitney Houston from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WHITNEY HOUSTON" underneath, with a mic beside it] And this is Whitney Houston ten years after she passed, on a stage she never stood on. [draw a second stick figure on a small stage outline, with a dotted/ghost outline around it and the word "HOLOGRAM" under it]
+**HOOK:** How did Whitney Houston end up on a hologram tour she never agreed to? [write "WHITNEY HOUSTON" big at the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Whitney Houston from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WHITNEY HOUSTON" underneath, with a mic beside it; draw a second stick figure on a small stage outline, with a dotted/ghost outline around it and the word "HOLOGRAM" under it]
 
 **FORESHADOW:** Watch what they did with that. [draw an arrow from the real figure to the hologram figure]
 
