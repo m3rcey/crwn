@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Image from 'next/image';
 import { SubscribeButton, TierCards } from '@/components/artist/SubscribeSection';
+import { MessageArtistButton } from '@/components/messages/MessageArtistButton';
 import { ShopSection } from '@/components/artist/ShopSection';
 import { SubscribeCTA } from '@/components/gating';
 import { TierConfig, TierBenefit } from '@/types';
@@ -329,7 +330,13 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             </div>
 
             {/* Subscribe Button */}
-
+            <div className="mt-2">
+              <MessageArtistButton
+                artistId={artist.id}
+                artistSlug={artist.slug}
+                isOwnProfile={session?.user?.id === artist.user_id}
+              />
+            </div>
           </div>
 
           {/* Bio */}

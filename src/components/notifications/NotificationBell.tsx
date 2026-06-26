@@ -111,6 +111,7 @@ export function NotificationBell() {
       case 'new_subscriber': return <UserPlus className="w-4 h-4 text-green-400" />;
       case 'new_purchase': return <ShoppingBag className="w-4 h-4 text-crwn-gold" />;
       case 'new_comment': return <MessageCircle className="w-4 h-4 text-blue-400" />;
+      case 'direct_message': return <MessageCircle className="w-4 h-4 text-crwn-gold" />;
       case 'subscription_canceled': return <XCircle className="w-4 h-4 text-crwn-error" />;
       case 'new_track': return <Music className="w-4 h-4 text-purple-400" />;
       case 'new_post': return <FileText className="w-4 h-4 text-blue-400" />;

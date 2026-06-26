@@ -7,6 +7,7 @@ export type BenefitType =
   | 'shop_discount'
   | 'supporter_wall'
   | 'priority_replies'
+  | 'direct_messaging'
   | 'one_on_one_call'
   | 'group_live_qa'
   | 'custom_song_request'
@@ -110,6 +111,14 @@ export const BENEFIT_CATALOG: BenefitDefinition[] = [
     icon: '⭐',
     category: 'community',
     available: false,
+  },
+  {
+    type: 'direct_messaging',
+    label: 'Direct Messages',
+    description: 'Subscribers on this tier can message you 1-on-1, and you can reply',
+    icon: '✉️',
+    category: 'community',
+    available: true,
   },
 
   // --- SHOP ---

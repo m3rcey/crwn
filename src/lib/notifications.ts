@@ -135,6 +135,24 @@ export async function notifyNewShopItem(
   );
 }
 
+// Notify a DM recipient (fan or artist) of a new direct message
+export async function notifyNewMessage(
+  supabaseAdmin: any,
+  recipientUserId: string,
+  senderName: string,
+  preview: string,
+  link: string = '/messages'
+) {
+  return createNotification(
+    supabaseAdmin,
+    recipientUserId,
+    'direct_message',
+    `New message from ${senderName}`,
+    preview,
+    link
+  );
+}
+
 // Notify artist of new comment on their post
 export async function notifyNewComment(
   supabaseAdmin: any,

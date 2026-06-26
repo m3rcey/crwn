@@ -7,10 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePlayer } from '@/hooks/usePlayer';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { hapticLight } from '@/lib/haptics';
-import { 
-  Home, 
-  Compass, 
-  Library, 
+import {
+  Home,
+  Compass,
+  Library,
+  MessageCircle,
   User,
   LogOut
 } from 'lucide-react';
@@ -18,6 +19,7 @@ import {
 const navItems = [
   { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
   { href: '/explore', label: 'Explore', icon: Compass, tourId: 'nav-explore' },
+  { href: '/messages', label: 'Messages', icon: MessageCircle, tourId: 'nav-messages' },
   { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' },
   { href: '/profile', label: 'Profile', icon: User, tourId: 'nav-profile' },
 ];
