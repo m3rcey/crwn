@@ -34,11 +34,13 @@ CREATE INDEX IF NOT EXISTS idx_dm_conversations_fan
 ALTER TABLE dm_conversations ENABLE ROW LEVEL SECURITY;
 
 -- Fan sees their own conversations
+DROP POLICY IF EXISTS "Fans see their own conversations" ON dm_conversations;
 CREATE POLICY "Fans see their own conversations"
   ON dm_conversations FOR SELECT
   USING (fan_id = auth.uid());
 
 -- Artist sees conversations on their artist profile
+DROP POLICY IF EXISTS "Artists see their conversations" ON dm_conversations;
 CREATE POLICY "Artists see their conversations"
   ON dm_conversations FOR SELECT
   USING (artist_id IN (SELECT id FROM artist_profiles WHERE user_id = auth.uid()));
@@ -67,6 +69,7 @@ ALTER TABLE dm_messages ENABLE ROW LEVEL SECURITY;
 -- Participants (the fan, or the owning artist) can read messages in a conversation.
 -- This drives both the initial load and the realtime subscription, so it must
 -- cover every reader the client subscribes as.
+DROP POLICY IF EXISTS "Participants can read conversation messages" ON dm_messages;
 CREATE POLICY "Participants can read conversation messages"
   ON dm_messages FOR SELECT
   USING (
