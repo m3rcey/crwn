@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { notifyNewMessage } from '@/lib/notifications';
-import { getOwnedArtistIds } from '@/lib/messaging';
+import { getOwnedArtistIds, artistAllowsDMs } from '@/lib/messaging';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
   // Ownership check.
   const owned = await getOwnedArtistIds(supabaseAdmin, user.id);
   if (!owned.includes(artistId)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+
+  // Broadcast DMs are a Pro-only capability.
+  if (!(await artistAllowsDMs(supabaseAdmin, artistId))) {
+    return NextResponse.json({ error: 'Direct messaging is a Pro feature.', reason: 'tier_locked' }, { status: 403 });
+  }
 
   const allowed = await checkRateLimit(user.id, 'dm-broadcast', 3600, 10);
   if (!allowed) return NextResponse.json({ error: 'Slow down' }, { status: 429 });

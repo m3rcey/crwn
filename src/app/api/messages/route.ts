@@ -8,6 +8,7 @@ import {
   fanCanMessage,
   resolveFanTier,
   messagingEnabledTierIds,
+  artistAllowsDMs,
 } from '@/lib/messaging';
 
 const supabaseAdmin = createClient(
@@ -186,7 +187,9 @@ export async function POST(req: NextRequest) {
     senderIsArtist = ownedArtistIds.includes(artistId); // artist DMing on their own page = artist
   }
 
-  // Gate fan senders. Artists replying/initiating on their own page are always allowed.
+  // Gate fan senders by their tier. fanCanMessage also enforces the artist's
+  // platform-tier DM capability. Gate artist senders directly: a Free (downgraded)
+  // artist can't send either, which freezes their threads read-only.
   let tierRank = 0;
   let tierName: string | null = null;
   if (!senderIsArtist) {
@@ -194,6 +197,8 @@ export async function POST(req: NextRequest) {
     if (!gate.ok) return NextResponse.json({ error: 'locked', reason: gate.reason }, { status: 403 });
     tierRank = gate.tierRank;
     tierName = gate.tierName;
+  } else if (!(await artistAllowsDMs(supabaseAdmin, resolvedArtistId))) {
+    return NextResponse.json({ error: 'locked', reason: 'tier_locked' }, { status: 403 });
   } else if (convo) {
     tierRank = convo.fan_tier_rank;
     tierName = convo.fan_tier_name;

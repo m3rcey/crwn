@@ -1,7 +1,22 @@
 // Shared helpers for the direct-messaging feature.
-// Gating rule: a fan may DM an artist only if they hold an ACTIVE subscription
-// on a tier the artist has enabled the `direct_messaging` benefit for.
+// Gating rule: a fan may DM an artist only if (a) the artist's PLATFORM tier allows
+// DMs (Pro-only), AND (b) the fan holds an ACTIVE subscription on a tier the artist
+// has enabled the `direct_messaging` benefit for.
 // Tier rank (0 = free/none, 1..N by price ascending) drives inbox priority sorting.
+
+import { getTierLimits } from '@/lib/platformTier';
+
+// Does the artist's PLATFORM tier permit offering DMs at all? (Pro-only.)
+// A Pro->Free downgrade makes this false, which freezes their threads read-only:
+// existing history stays readable, but no new messages can be sent either way.
+export async function artistAllowsDMs(supabaseAdmin: any, artistId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('platform_tier')
+    .eq('id', artistId)
+    .maybeSingle();
+  return getTierLimits(data?.platform_tier).allowsDMs;
+}
 
 export interface MessageGate {
   ok: boolean;
@@ -65,6 +80,10 @@ export async function fanCanMessage(
   artistId: string,
   fanId: string
 ): Promise<MessageGate> {
+  // Platform gate first: if the artist isn't on a DM-capable tier, no one can message them.
+  if (!(await artistAllowsDMs(supabaseAdmin, artistId))) {
+    return { ok: false, reason: 'tier_locked', tierRank: 0, tierName: null };
+  }
   const tier = await resolveFanTier(supabaseAdmin, artistId, fanId);
   if (!tier.tierId) return { ok: false, reason: 'not_subscribed', tierRank: 0, tierName: null };
   const enabled = await tierHasMessaging(supabaseAdmin, tier.tierId);
@@ -75,6 +94,8 @@ export async function fanCanMessage(
 // The set of tier ids (for an artist) that have messaging enabled — used by the
 // fan-facing gate UI to tell the fan which tier to upgrade to.
 export async function messagingEnabledTierIds(supabaseAdmin: any, artistId: string): Promise<string[]> {
+  // If the artist's platform tier can't offer DMs, no fan tier unlocks messaging.
+  if (!(await artistAllowsDMs(supabaseAdmin, artistId))) return [];
   const { data: tiers } = await supabaseAdmin
     .from('subscription_tiers')
     .select('id')
