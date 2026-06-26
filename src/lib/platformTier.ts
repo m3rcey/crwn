@@ -15,6 +15,8 @@ export const STRIPE_PRICE_IDS = {
 } as const;
 
 // Platform Tier Limits Configuration
+// NOTE: TIER_LIMITS is the SINGLE SOURCE OF TRUTH for the platform fee.
+// getArtistFeePercent() reads platformFeePercent from here — do not re-hardcode fees elsewhere.
 export interface TierLimits {
   maxTracks: number;
   maxMembers: number;
@@ -22,28 +24,37 @@ export interface TierLimits {
   allowsBundles: boolean;
   allowsScheduling: boolean;
   allowsLive: boolean;
+  allowsDMs: boolean;
+  allowsClipper: boolean;
   platformFeePercent: number;
 }
 
 export const TIER_LIMITS: Record<string, TierLimits> = {
+  // FREE tier (internal key 'starter'; displayed as "Free").
   starter: {
-    maxTracks: 10,
+    maxTracks: 20,
     maxMembers: 100,
     maxFanTiers: 1,
     allowsBundles: false,
     allowsScheduling: false,
     allowsLive: false,
-    platformFeePercent: 8,
+    allowsDMs: false,
+    allowsClipper: false,
+    platformFeePercent: 12,
   },
   pro: {
     maxTracks: -1, // unlimited
     maxMembers: -1, // unlimited
-    maxFanTiers: 5,
+    maxFanTiers: 3,
     allowsBundles: true,
     allowsScheduling: true,
     allowsLive: true,
-    platformFeePercent: 6,
+    allowsDMs: true,
+    allowsClipper: true,
+    platformFeePercent: 8,
   },
+  // SPEC ONLY — Label ($99) slots in here. Not billable/gated in v1
+  // (removed from the checkout whitelist + pricing modal). Values below are placeholders.
   label: {
     maxTracks: -1, // unlimited
     maxMembers: -1, // unlimited
@@ -51,8 +62,11 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsBundles: true,
     allowsScheduling: true,
     allowsLive: true,
+    allowsDMs: true,
+    allowsClipper: true,
     platformFeePercent: 5,
   },
+  // SPEC ONLY — not billable/gated in v1.
   empire: {
     maxTracks: -1, // unlimited
     maxMembers: -1, // unlimited
@@ -60,6 +74,8 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsBundles: true,
     allowsScheduling: true,
     allowsLive: true,
+    allowsDMs: true,
+    allowsClipper: true,
     platformFeePercent: 3,
   },
 };
@@ -67,7 +83,7 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
 // New simplified structure for server-side gating
 export const TIER_LIMITS_V2 = {
   starter: {
-    tracks: 10,
+    tracks: 20,
     fanTiers: 1,
     members: 100,
     bundles: false,
@@ -79,7 +95,7 @@ export const TIER_LIMITS_V2 = {
   },
   pro: {
     tracks: -1,
-    fanTiers: 5,
+    fanTiers: 3,
     members: -1,
     bundles: true,
     scheduling: true,
@@ -122,6 +138,20 @@ export const SMS_LIMITS: Record<string, number> = {
 
 export function getSmsLimit(tier: string | null | undefined): number {
   return SMS_LIMITS[tier || 'starter'] || 0;
+}
+
+// Email campaign (blast) limits per platform tier — MONTHLY quota.
+// Free: 1/mo, Pro: 10/mo. -1 = unlimited. (label/empire are spec-only.)
+export const EMAIL_LIMITS: Record<string, number> = {
+  starter: 1,
+  pro: 10,
+  label: 50,
+  empire: -1,
+};
+
+export function getEmailLimit(tier: string | null | undefined): number {
+  const v = EMAIL_LIMITS[tier || 'starter'];
+  return v === undefined ? 1 : v;
 }
 
 export type PlatformTierName = 'starter' | 'pro' | 'label' | 'empire';
@@ -207,8 +237,9 @@ export function formatTierName(tier: string | null | undefined): string {
 
 /**
  * Get artist's platform fee percent, checking for founding artist status.
- * Founding artists get a flat 5% fee for their first 6 months,
- * then revert to their normal platform tier fee (8/8/6/4).
+ * Founding artists get a flat 5% fee for their first 6 months, then revert to
+ * their normal platform tier fee. The tier fee is read from TIER_LIMITS — the
+ * single source of truth — so changing a fee in one place updates every revenue path.
  */
 export async function getArtistFeePercent(artistId: string): Promise<number> {
   const { createClient } = await import('@supabase/supabase-js');
@@ -223,7 +254,7 @@ export async function getArtistFeePercent(artistId: string): Promise<number> {
     .eq('id', artistId)
     .single();
 
-  if (!data) return 8;
+  if (!data) return TIER_LIMITS.starter.platformFeePercent;
 
   // Founding artists get flat 5% for first 6 months
   if (data.is_founding_artist) {
@@ -233,10 +264,6 @@ export async function getArtistFeePercent(artistId: string): Promise<number> {
     }
   }
 
-  // Normal tier fee after founding period or for non-founding artists
-  const tier = data.platform_tier || 'starter';
-  if (tier === 'empire') return 3;
-  if (tier === 'label') return 5;
-  if (tier === 'pro') return 6;
-  return 8;
+  // Normal tier fee after founding period or for non-founding artists.
+  return getPlatformFeePercent(data.platform_tier);
 }

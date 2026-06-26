@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getEmailLimit } from '@/lib/platformTier';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -50,23 +51,30 @@ export async function POST(req: NextRequest) {
   // Verify ownership
   const { data: artist } = await supabase
     .from('artist_profiles')
-    .select('id')
+    .select('id, platform_tier')
     .eq('id', artistId)
     .eq('user_id', user.id)
     .single();
   if (!artist) return NextResponse.json({ error: 'Not your profile' }, { status: 403 });
 
-  // Check weekly campaign limit (max 2 per week)
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-  const { count: weeklyCount } = await supabaseAdmin
-    .from('campaigns')
-    .select('id', { count: 'exact', head: true })
-    .eq('artist_id', artistId)
-    .in('status', ['sent', 'sending', 'scheduled'])
-    .gte('created_at', weekAgo);
+  // Monthly email-blast quota, tier-driven (Free 1/mo, Pro 10/mo; -1 = unlimited).
+  // Editing an existing draft (id present) never counts against the quota.
+  const emailLimit = getEmailLimit(artist.platform_tier);
+  if (emailLimit !== -1 && !id) {
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { count: monthlyCount } = await supabaseAdmin
+      .from('campaigns')
+      .select('id', { count: 'exact', head: true })
+      .eq('artist_id', artistId)
+      .in('status', ['sent', 'sending', 'scheduled'])
+      .gte('created_at', monthAgo);
 
-  if ((weeklyCount || 0) >= 2 && !id) {
-    return NextResponse.json({ error: 'Maximum 2 campaigns per week. Try again later.' }, { status: 429 });
+    if ((monthlyCount || 0) >= emailLimit) {
+      return NextResponse.json(
+        { error: `You've used all ${emailLimit} email blast${emailLimit === 1 ? '' : 's'} for this month. Upgrade to Pro for 10/month.` },
+        { status: 429 }
+      );
+    }
   }
 
   if (id) {

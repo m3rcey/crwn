@@ -24,82 +24,44 @@ interface PlatformTier {
 const PLATFORM_TIERS: PlatformTier[] = [
   {
     id: 'starter',
-    name: 'Starter',
+    name: 'Free',
     monthlyPrice: 0,
     annualMonthlyPrice: 0,
     annualTotal: 0,
     savings: 0,
     description: 'Get started for free',
     features: [
-      '10 track uploads',
+      '20 track uploads',
       '1 subscription tier',
+      '1 email blast / month',
       'Community posts',
       'Basic analytics',
       'Audience CRM & fan database',
-      'Email campaigns (2/week)',
-      'Smart links & fan capture',
-      'View sync opportunities (limited)',
-      '8% platform fee',
+      '12% platform fee',
     ],
   },
   {
     id: 'pro',
     name: 'Pro',
-    monthlyPrice: 69,
-    annualMonthlyPrice: 52,
-    annualTotal: 621,
-    savings: 207,
+    monthlyPrice: 9.99,
+    annualMonthlyPrice: 9.99,
+    annualTotal: 120,
+    savings: 0,
     description: 'For growing artists',
     features: [
       'Unlimited uploads',
-      'Up to 5 subscription tiers',
-      'Bundles & experiences',
-      '1-on-1 scheduling',
-      'AI Artist Manager',
-      'Email campaigns + welcome sequences',
-      'SMS notifications (500/mo)',
-      'Full sync opportunities',
-      'Fan referral program',
+      'Up to 3 subscription tiers',
+      '10 email blasts / month',
+      'Livestreaming + VOD',
+      'Direct messaging with fans',
+      'Clipper rev-share',
       'Advanced analytics',
-      '6% platform fee',
+      '8% platform fee',
     ],
     popular: true,
   },
-  {
-    id: 'label',
-    name: 'Label',
-    monthlyPrice: 175,
-    annualMonthlyPrice: 131,
-    annualTotal: 1575,
-    savings: 525,
-    description: 'For labels & managers',
-    features: [
-      'Everything in Pro',
-      'Up to 10 subscription tiers',
-      'SMS notifications (2,500/mo)',
-      'Remove CRWN branding from emails',
-      'Recommended sync opportunities',
-      '5% platform fee',
-    ],
-  },
-  {
-    id: 'empire',
-    name: 'Empire',
-    monthlyPrice: 350,
-    annualMonthlyPrice: 262,
-    annualTotal: 3144,
-    savings: 956,
-    description: 'For serious operations',
-    features: [
-      'Everything in Label',
-      'Unlimited subscription tiers',
-      'SMS notifications (10,000/mo)',
-      'Priority support',
-      'Early access to new features',
-      '3% platform fee',
-    ],
-    badge: 'Best Value',
-  },
+  // SPEC ONLY — Label ($99) slots in here as a third card when it ships.
+  // Not billable in v1 (no Stripe price, excluded from platform-checkout).
 ];
 
 interface PlatformTierModalProps {
@@ -113,7 +75,8 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
   const supabase = createBrowserSupabaseClient();
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'annual' | 'monthly'>('annual');
+  // Monthly-only at launch (Pro is a flat $9.99/mo; no annual plan yet).
+  const [billingCycle] = useState<'annual' | 'monthly'>('monthly');
   const [partnerCode, setPartnerCode] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('crwn_recruiter')?.toUpperCase() || '';
@@ -184,32 +147,6 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
             Select a platform tier to unlock more features
           </p>
 
-          {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-1 bg-crwn-bg rounded-xl p-1">
-            <button
-              onClick={() => setBillingCycle('annual')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                billingCycle === 'annual'
-                  ? 'bg-crwn-gold text-crwn-bg'
-                  : 'text-crwn-text-secondary hover:text-crwn-text'
-              }`}
-            >
-              Annual
-              <span className={`ml-1.5 text-xs ${billingCycle === 'annual' ? 'text-crwn-bg/80' : 'text-green-400'}`}>
-                Save 25%
-              </span>
-            </button>
-            <button
-              onClick={() => setBillingCycle('monthly')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                billingCycle === 'monthly'
-                  ? 'bg-crwn-gold text-crwn-bg'
-                  : 'text-crwn-text-secondary hover:text-crwn-text'
-              }`}
-            >
-              Monthly
-            </button>
-          </div>
           {/* Partner Code */}
           <div className="mt-3 flex flex-col items-center gap-1.5">
             <input
@@ -226,7 +163,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
 
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
           {PLATFORM_TIERS.map((tier) => {
             const displayPrice = tier.monthlyPrice === 0
               ? 0
@@ -337,7 +274,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
               Elsewhere: <span className="text-crwn-text font-semibold line-through decoration-crwn-text/30">$287+/mo</span> across 4+ tools
             </p>
             <p className="text-sm text-crwn-gold font-semibold mt-1">
-              CRWN Pro: everything in one place for ${billingCycle === 'annual' ? '52' : '69'}/mo
+              CRWN Pro: everything in one place for $9.99/mo
             </p>
           </div>
         </div>

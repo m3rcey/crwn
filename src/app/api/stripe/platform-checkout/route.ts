@@ -7,9 +7,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
-    const { tierId, billingCycle = 'annual', partnerCode } = await request.json();
+    const { tierId, billingCycle = 'monthly', partnerCode } = await request.json();
 
-    if (!tierId || !['pro', 'label', 'empire'].includes(tierId)) {
+    // v1 sells Pro only. label/empire are spec-only (no Stripe price) until they ship.
+    if (!tierId || !['pro'].includes(tierId)) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
     }
 

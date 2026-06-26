@@ -14,6 +14,7 @@ import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
 import { recordDiscountCodeUse } from '@/lib/discountCodes';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
+import { getArtistFeePercent } from '@/lib/platformTier';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -385,8 +386,9 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
   const tierName = tier?.name || 'Unknown tier';
   const grossAmount = tier?.price || 0;
 
-  // Calculate fee (8% default)
-  const platformFee = Math.round(grossAmount * 0.08);
+  // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
+  const feePercent = await getArtistFeePercent(sub.artist_id);
+  const platformFee = Math.round(grossAmount * (feePercent / 100));
   const netAmount = grossAmount - platformFee;
 
   // Get geo from previous earnings for this artist+fan combo
@@ -723,8 +725,9 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
   const productTitle = product.title || 'Unknown product';
   const grossAmount = product.price || 0;
 
-  // Calculate fee (8% default)
-  const platformFee = Math.round(grossAmount * 0.08);
+  // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
+  const feePercent = await getArtistFeePercent(artist_id);
+  const platformFee = Math.round(grossAmount * (feePercent / 100));
   const netAmount = grossAmount - platformFee;
 
   // Insert purchase record and get the ID
@@ -1027,7 +1030,9 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
   const trackTitle = track.title || 'Unknown track';
   const grossAmount = track.price || 0;
 
-  const platformFee = Math.round(grossAmount * 0.08);
+  // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
+  const feePercent = await getArtistFeePercent(artist_id);
+  const platformFee = Math.round(grossAmount * (feePercent / 100));
   const netAmount = grossAmount - platformFee;
 
   // Insert purchase record (idempotent: webhook route already dedupes by event id,
@@ -1212,8 +1217,9 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
   const bookingTitle = booking.title || 'Booking session';
   const grossAmount = booking.price || 0;
 
-  // Calculate fee (8% default)
-  const platformFee = Math.round(grossAmount * 0.08);
+  // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
+  const feePercent = await getArtistFeePercent(artist_id);
+  const platformFee = Math.round(grossAmount * (feePercent / 100));
   const netAmount = grossAmount - platformFee;
 
   // Update booking purchase status
