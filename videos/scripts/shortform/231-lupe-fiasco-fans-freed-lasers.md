@@ -10,7 +10,7 @@ Link in bio to release your music the day it's finished and sell it straight to 
 
 **SCRIPT:**
 
-How did Lupe Fiasco's finished album get free from a label that refused to release it? Stay with me, cause the answer aint what you think. His third album Lasers was done. Reportedly sat finished for like two years. Atlantic wanted more pop, so they just held it. His own music, locked in a building he dont control. Then the fans did somethin wild. Almost 30,000 of em signed a petition. Then around 200 showed up outside Atlantic in New York. They called it Fiasco Friday. Lupe came out and told em the album finally got a date. When it dropped March 7th 2011, Lasers went straight to number one, his first ever. So that's how it got free. The fans marched in the street and made the label open the door it was holding shut.
+What chart spot did Lupe Fiasco's album hit, the one his own label sat on for two years and didn't wanna release? Stay with me, cause where it landed aint what you think. His third album Lasers was done. Reportedly sat finished for like two years. Atlantic wanted more pop, so they just held it. His own music, locked in a building he dont control. Then the fans did somethin wild. Almost 30,000 of em signed a petition. Then around 200 showed up outside Atlantic in New York. They called it Fiasco Friday. Lupe came out and told em the album finally got a date. So watch where the album the label aint believe in ended up. When it dropped March 7th 2011, Lasers debuted at number one. The only number one album Lupe ever had came from the record they tried to bury.
 
 ---
 
@@ -27,15 +27,15 @@ How did Lupe Fiasco's finished album get free from a label that refused to relea
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Lupe Fiasco's finished album get free from a label that refused to release it? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Lupe Fiasco from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LUPE FIASCO" underneath. top center, write "FINISHED ALBUM" big, then draw a simple padlock right under it with the album boxed and the lock on the box]
+**HOOK:** What chart spot did Lupe Fiasco's album hit, the one his own label sat on for two years and didn't wanna release? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Lupe Fiasco from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LUPE FIASCO" underneath. top center, write "SHELVED ALBUM = #?" big, then draw a simple padlock right under it with the album boxed and the lock on the box]
 
-**FORESHADOW:** Stay with me, cause how it got loose aint what you think. [draw a small question mark to the right of the locked box]
+**FORESHADOW:** Stay with me, cause where it landed aint what you think. [draw a small question mark to the right of the locked box]
 
 **RISING ACTION:** His third album Lasers was done. Reportedly sat finished for like two years. [write "LASERS" inside the box, write "DONE" with a checkmark, then write "2 YRS" with a clock drawn next to it] Atlantic wanted more pop, so they just held it. His own music, locked in a building he dont control. [write "ATLANTIC" on the box as the label, draw a tall wall under the box] So the fans did somethin wild. Almost 30,000 of em signed a petition. [draw a few stick figures on the left, write "28,979 SIGNED" above them] Then around 200 showed up outside Atlantic in New York. They called it Fiasco Friday. [draw a stick figure holding a picket sign, write "FIASCO FRIDAY" on the sign]
 
-**TWIST:** Lupe came out and told em the album finally got a date. March 7th, 2011. [write "MARCH 7, 2011" big, circle it] Now think about that. The fans had to march in the street to free a album that was already done. And when it dropped, Lasers went straight to number one. His first one ever. [draw a big "#1" on the right, write "FIRST EVER" under it, draw a crack splitting the wall]
+**TWIST:** Lupe came out and told em the album finally got a date. March 7th, 2011. [write "MARCH 7, 2011" big, circle it] Now think about that. The fans had to march in the street to free a album that was already done. [draw a crack splitting the wall, write "READY THE WHOLE TIME" under it]
 
-**PAYOFF:** The music was ready the whole time. The label was the only wall between Lupe and the people who wanted it. [under the cracked wall, write "READY THE WHOLE TIME", draw an arrow from "LUPE" through the broken wall to a row of stick-figure fans on the far right]
+**PAYOFF:** So watch where the album the label aint believe in ended up. When it dropped, Lasers debuted at number one. The only number one album Lupe ever had came from the record they tried to bury. [draw a big "#1" on the right, write "ONLY #1 HE EVER HAD" under it, draw an arrow from "LUPE" through the broken wall to a row of stick-figure fans on the far right]
 
 ---
 

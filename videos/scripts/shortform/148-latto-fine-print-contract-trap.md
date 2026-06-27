@@ -10,7 +10,7 @@ Link in bio to own your fans direct so no fine print can ever claim it signed yo
 
 **SCRIPT:**
 
-Has anybody ever got signed to a label without even knowing it? Latto won a rap show on TV as a teenager. What she signed that day, they still cant agree on. Back in 2016 she won it all. She say she walked away free and independent. But the man who ran the show say the contestant contract already signed her to his label. No big meeting, no pen moment she remembers. Just a clause buried in paperwork everybody skims. When it's just you and ya fans, theres no contract in the room to trap you. But Latto? Years later the two people who lived it still give two different answers on what she signed. A piece of paper so slick that even the people who were in the room cant tell you what it says.
+Latto won a rap show on TV as a teenager and signed a contestant contract that day, so who really owns what she signed? Back in 2016 she won it all. She say she walked away free and independent. But the man who ran the show say that same contestant contract already signed her to his label. No big meeting, no pen moment she remembers. Just a clause buried in paperwork everybody skims. When it's just you and ya fans, theres no contract in the room to trap you. But Latto? Years later the two people who lived it still give two different answers on what she signed. A piece of paper so slick that even the people who were in the room cant tell you what it says.
 
 ---
 
@@ -27,7 +27,7 @@ Has anybody ever got signed to a label without even knowing it? Latto won a rap 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Has anybody ever got signed to a label without even knowing it? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Latto from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LATTO" underneath; write "SIGNED WITHOUT KNOWING IT" at the top, draw a contract with a magnifying glass over it]
+**HOOK:** Latto won a rap show on TV as a teenager and signed a contestant contract that day, so who really owns what she signed? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Latto from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LATTO" underneath; write "SIGNED WITHOUT KNOWING IT" at the top, draw a contract with a magnifying glass over it]
 
 **FORESHADOW:** Latto won a rap show on TV as a teenager. What she signed that day, they still cant agree on. [draw a TV with a trophy, write "WON AS A TEEN", then "WHAT SHE SIGNED = ?"]
 

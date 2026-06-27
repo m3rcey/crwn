@@ -10,19 +10,19 @@ Link in bio to own the line to your fans so nobody can decide whether they hear 
 
 **SCRIPT:**
 
-Why did Brandy have to sue her own label just to put out music? Watch this.
+Brandy sued her own label, and in the court papers she used one word for her contract that nobody expects from a multi-platinum star. What word? Watch this.
 
 Brandy dropped at 15. The first album went multi-platinum. The Boy Is Mine hit number one and won her a Grammy.
 
 So you figure a name like that get to drop music whenever she want, right? Nope.
 
-In 2016 she filed suit. She signed in 2011 and they only let one album come out. The fans was right there waiting. But somebody who wasn't Brandy decided whether they ever got to hear her.
+She signed in 2011 and they only let one album come out. The fans was right there waiting. But somebody who wasn't Brandy decided whether they ever got to hear her.
 
 When the label hold the catalog, they aint just holding old songs. They holding the door between you and the people who love you.
 
-A platform plays whoever they pick. A label drops whoever they want. The only line they cant freeze go straight from you to ya fans.
+A Grammy on the shelf dont mean you free. A number one dont mean you free. Only thing that free you is owning the line to ya own fans.
 
-So here go why. The claim was simple. They wouldn't let her record or put out new music, so she had to go to court just to make her own songs.
+So what word did she use? She didnt say bad deal. She didnt say unfair. In her own filing she called that contract slavery and said she wanted her freedom. A woman with a Grammy and a number one had to stand in court and ask a judge to set her loose from her own success.
 
 ---
 
@@ -39,15 +39,15 @@ So here go why. The claim was simple. They wouldn't let her record or put out ne
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Why did Brandy have to sue her own label just to put out music? [Top center, large: "BRANDY SUED HER LABEL?" with "SUED" circled] [Under it, smaller, underlined once: "JUST TO PUT OUT MUSIC"]
+**HOOK:** Brandy sued her own label, and in the court papers she used one word for her contract that nobody expects from a multi-platinum star. What word? [Top center, large: "BRANDY SUED HER LABEL" with "SUED" circled] [Under it, smaller, underlined once: "ONE WORD NOBODY EXPECTS"]
 
 **FORESHADOW:** Brandy dropped at 15. The first album went multi-platinum. [Left side: a simple sharpie portrait of Brandy, a young woman with long braided hair and a soft smile, labeled "BRANDY"; beside it "DEBUT @ 15" and under that "MULTI-PLATINUM"] The Boy Is Mine hit number one and won her a Grammy. [To the right: "THE BOY IS MINE" with "#1" in a small box and a tiny hand-drawn trophy doodle labeled "GRAMMY"]
 
-**RISING ACTION:** So you figure a name like that get to drop music whenever she want, right? Nope. [Center: "DROP WHENEVER?" with a big "NOPE" written under it and circled] In 2016 she sued her label. Her claim was simple. They wouldn't let her record or put out new music. [Below: a simple hand-drawn government building with columns and steps labeled "2016 / SUED LABEL"; beside it "CLAIM: WOULDN'T LET HER RECORD" with "RECORD" underlined] She signed in 2011 and they only let one album come out. [Under that: "SIGNED 2011" with an arrow to "1 ALBUM OUT" and "1 ALBUM" circled]
+**RISING ACTION:** So you figure a name like that get to drop music whenever she want, right? Nope. [Center: "DROP WHENEVER?" with a big "NOPE" written under it and circled] She signed in 2011 and they only let one album come out. [Below: "SIGNED 2011" with an arrow to "1 ALBUM OUT" and "1 ALBUM" circled] The fans was right there waiting. But somebody who wasn't Brandy decided whether they ever got to hear her. [Beside it: a simple hand-drawn government building with columns and steps labeled "TOOK IT TO COURT"]
 
-**TWIST:** Read that again. The fans was right there waiting. The talent was right there. [Right side: three small stick figures with smiley faces labeled "FANS WAITING"] But somebody who wasn't Brandy decided whether they even got to hear her. [Draw a tall wall between the stick figures and the Brandy portrait, labeled "LABEL" on the wall] She had to take em to court just to make her own songs. [Under the wall: "COURT JUST TO SING" with "COURT" circled]
+**TWIST:** When the label hold the catalog, they aint just holding old songs. They holding the door between you and the people who love you. [Right side: three small stick figures with smiley faces labeled "FANS WAITING"; draw a tall wall between the stick figures and the Brandy portrait, labeled "LABEL" on the wall] A Grammy on the shelf dont mean you free. A number one dont mean you free. Only thing that free you is owning the line to ya own fans. [Under the wall: "GRAMMY ≠ FREE" and "#1 ≠ FREE", both with a small X, then "OWN THE LINE = FREE" circled]
 
-**PAYOFF:** This the part nobody tell ya. When the label hold the catalog, they aint just holding old songs. They holding the door between you and the people who love you. [Draw a simple closed door with a lock, labeled "WHO HEARS YOU?"] A platform plays whoever they pick. A label drops whoever they want. The only line they cant freeze is the one that go straight from you to ya fans. [At the bottom: "PLATFORM PICKS" and "LABEL DECIDES" each with a small X, then a straight arrow from a single smiley stick figure labeled "YOU" to three smiley stick figures labeled "FANS", arrow labeled "CANT FREEZE THIS"]
+**PAYOFF:** So what word did she use? She didnt say bad deal. She didnt say unfair. In her own filing she called that contract slavery and said she wanted her freedom. A woman with a Grammy and a number one had to stand in court and ask a judge to set her loose from her own success. [Cross out "BAD DEAL" and "UNFAIR". Below in big letters write "SLAVERY" in quote marks and under it "I WANT MY FREEDOM", box both. At the bottom: "GRAMMY + #1 — STILL HAD TO ASK TO BE FREE"]
 
 ---
 

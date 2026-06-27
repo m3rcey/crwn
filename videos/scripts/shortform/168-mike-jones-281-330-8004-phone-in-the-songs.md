@@ -10,7 +10,7 @@ Link in bio to own a direct line to your fans that outlasts any label with CRWN.
 
 **SCRIPT:**
 
-What happens when you put your real phone number right in your songs? Let's find out. Mike Jones did it, and the part nobody saw coming is still ringing today. Back in 2004 Mike rapped his actual cell number, 281-330-8004, in the records and printed it on shirts. His album Who Is Mike Jones went platinum in like two months and hit number 3 in the country. Fans called that number by the thousands just to hear him pick up. No social media. No DMs. Just a rapper you could actually reach. That little number moved more fans than any ad the label could buy. Now stay with this. Twenty years later, people still call 281-330-8004, and he turned it back on. The deal faded. The label moved on. But the number still rings, because it was never the label's to take. The hit had an expiration date. The line he owned never did.
+Mike Jones rapped his real cell number into his songs back in 2004, and what's happenin with that exact number right now is the part nobody believes. He put 281-330-8004 in the records and printed it on shirts. His album Who Is Mike Jones went platinum in like two months and hit number 3 in the country. Fans called that number by the thousands just to hear him pick up. No social media. No DMs. Just a rapper you could actually reach. That little number moved more fans than any ad the label could buy. The deal faded. The label moved on. The hits stopped comin. Now here go the wild part. Pull up any of them old songs right now, dial the number he raps, 281-330-8004, and it still works. Twenty plus years later it still rings his line, and Mike Jones his self still picks up.
 
 ---
 
@@ -27,15 +27,15 @@ What happens when you put your real phone number right in your songs? Let's find
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What happens when you put your real phone number right in your songs? Let's find out. Mike Jones did it. [write "281-330-8004" huge at top inside a ringing-phone drawing]
+**HOOK:** Mike Jones rapped his real cell number into his songs back in 2004, and what's happenin with that exact number right now is the part nobody believes. [write "281-330-8004" huge at top inside a ringing-phone drawing]
 
-**FORESHADOW:** And the part nobody saw coming is still ringing today. [draw a small phone with motion lines like it's ringing, write "STILL RINGING?"]
+**FORESHADOW:** He put 281-330-8004 in the records and printed it on shirts. [draw a small phone with motion lines like it's ringing, write "= HIS REAL CELL"]
 
-**RISING ACTION:** Back in 2004 Mike rapped his actual cell number in the records and printed it on shirts. His album Who Is Mike Jones went platinum in like two months and hit number 3 in the country. Fans called that number by the thousands just to hear him pick up. No social media. No DMs. Just a rapper you could actually reach. That little number moved more fans than any ad the label could buy. [write "2004: IN THE SONGS + ON SHIRTS", "PLATINUM IN ~2 MONTHS", "#3 IN THE COUNTRY", "FANS CALLED BY THE THOUSANDS"]
+**RISING ACTION:** His album Who Is Mike Jones went platinum in like two months and hit number 3 in the country. Fans called that number by the thousands just to hear him pick up. No social media. No DMs. Just a rapper you could actually reach. That little number moved more fans than any ad the label could buy. [write "2004: IN THE SONGS + ON SHIRTS", "PLATINUM IN ~2 MONTHS", "#3 IN THE COUNTRY", "FANS CALLED BY THE THOUSANDS"]
 
-**TWIST:** Now stay with this. Twenty years later, people still call 281-330-8004, and he turned it back on. The deal faded. The label moved on. But the number still rings, because it was never the label's to take. [write "20+ YEARS LATER → STILL RINGS", cross out "RECORD DEAL = GONE", write "NEVER THE LABEL'S TO TAKE"]
+**TWIST:** The deal faded. The label moved on. The hits stopped comin. [cross out "RECORD DEAL = GONE", "HITS = GONE"]
 
-**PAYOFF:** The hit had an expiration date. The line he owned never did. [box at the bottom: "THE HIT EXPIRED. THE LINE DIDN'T."]
+**PAYOFF:** Now here go the wild part. Pull up any of them old songs right now, dial the number he raps, 281-330-8004, and it still works. Twenty plus years later it still rings his line, and Mike Jones his self still picks up. [box at the bottom: "DIAL IT FROM THE SONG TODAY → HE STILL PICKS UP"]
 
 ---
 

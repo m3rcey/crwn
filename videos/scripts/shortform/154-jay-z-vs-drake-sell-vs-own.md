@@ -10,7 +10,7 @@ Link in bio to own your work instead of being the biggest artist who owns nothin
 
 **SCRIPT:**
 
-The biggest seller in rap and the biggest owner in rap aint the same man, and the gap between em says everything about how money really works in music. Drake is the biggest artist in the game. Billions of streams, more hits than almost anybody. But Drake dont own his masters. Universal do. Now Jay-Z. He sell way less than Drake. But he own Roc Nation, his masters, a champagne brand, a cognac brand, and a streaming app he sold for hundreds of millions. One man is the best employee in the building. The other man owns the building. The rap made Jay famous. So how much of his money actually comes from the music? Jay-Z is worth billions. And the songs, the actual rap, is less than 4 percent of it. The other 96 is the stuff he owns.
+Drake outsells everybody in rap but Jay-Z's the one worth billions, so how much of Jay money actually comes from the rap? Drake is the biggest artist in the game. Billions of streams, more hits than almost anybody. But Drake dont own his masters. Universal do. Now Jay-Z. He sell way less than Drake. But he own Roc Nation, his masters, a champagne brand, a cognac brand, and a streaming app he sold for hundreds of millions. One man is the best employee in the building. The other man owns the building. The rap made Jay famous. Now add it all up. Jay-Z is worth billions. And the songs, the actual rap, is less than 4 percent of it. The other 96 is the stuff he owns.
 
 ---
 
@@ -27,13 +27,13 @@ The biggest seller in rap and the biggest owner in rap aint the same man, and th
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** The biggest seller in rap and the biggest owner in rap aint the same man, and the gap between em says everything about how money really works in music. [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Jay-Z from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JAY-Z" underneath, on the right under "OWNER"; write "SELLER" on the left, "OWNER" on the right, line down the middle]
+**HOOK:** Drake outsells everybody in rap but Jay-Z's the one worth billions, so how much of Jay money actually comes from the rap? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Jay-Z from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JAY-Z" underneath, on the right under "OWNER"; write "SELLER" on the left, "OWNER" on the right, line down the middle]
 
 **FORESHADOW:** Drake is the biggest artist in the game, but Jay built different. [write "NOT THE SAME PERSON" under the line with a "?"]
 
 **RISING ACTION:** Drake is the biggest artist in the game. Billions of streams, more hits than almost anybody. But Drake dont own his masters. Universal do. Now Jay-Z. He sell way less than Drake. But he own Roc Nation, his masters, a champagne brand, a cognac brand, and a streaming app he sold for hundreds of millions. One man is the best employee in the building. The other man owns the building. [on the SELLER side write "DRAKE", "BILLIONS OF STREAMS", draw a vault labeled "MASTERS" held by a building labeled "UNIVERSAL"; on the OWNER side write "JAY-Z", "ROC NATION", "MASTERS", "CHAMPAGNE", "COGNAC", "SOLD TIDAL"; draw a building with a figure inside "EMPLOYEE = DRAKE" and one on top "OWNS IT = JAY-Z"]
 
-**PAYOFF:** The rap made Jay famous. So how much of his money actually comes from the music? Jay-Z is worth billions. And the songs, the actual rap, is less than 4 percent of it. The other 96 is the stuff he owns. [draw a big pie chart almost entirely labeled "OWNED BUSINESSES = 96%" with a tiny sliver labeled "MUSIC = UNDER 4%", box at the bottom: "THE MUSIC IS UNDER 4% OF HIS BILLIONS"]
+**PAYOFF:** The rap made Jay famous. Now add it all up. Jay-Z is worth billions. And the songs, the actual rap, is less than 4 percent of it. The other 96 is the stuff he owns. [draw a big pie chart almost entirely labeled "OWNED BUSINESSES = 96%" with a tiny sliver labeled "MUSIC = UNDER 4%", box at the bottom: "THE MUSIC IS UNDER 4% OF HIS BILLIONS"]
 
 ---
 

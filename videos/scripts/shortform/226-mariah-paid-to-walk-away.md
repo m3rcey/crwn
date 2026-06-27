@@ -10,13 +10,13 @@ Link in bio to make money your label can never take back with CRWN. Free to star
 
 **SCRIPT:**
 
-Why did a label pay Mariah Carey $28 million just to leave her own record deal?
+How much money you think a label torched on Mariah Carey for a single album that flopped?
 
 In 2001 Mariah signed with Virgin for a reported $80 million. Four albums, like $20 million a pop up front.
 
 She drop one. Glitter. It came out the same week as 9/11 and it sold soft.
 
-So the label panic. They didn't pay her to make a hit. In January 2002 they pay her $28 million just to walk away. Cause a huge advance ain't ya money. It a bet the label make on you, and they charge it all back outta what you earn. Three more albums on that deal meant three more shots to lose money on her. So writing one $28 million check was the cheap way out. Here go the wild part. Add up the signing money and that exit check and the label burned around $49 million on one album that flopped, then paid extra to make her stop recording.
+So the label panic. They didn't pay her to make a hit. In January 2002 they pay her $28 million just to walk away. Cause a huge advance ain't ya money. It a bet the label make on ya, and they charge it all back outta what ya earn. Three more albums on that deal meant three more shots to lose money on her, so writing one $28 million check was the cheap way out. Now add it up. The signing money she already got plus that exit check. The label torched around $49 million on one album that flopped, and the cheapest move they had left was payin Mariah Carey to stop singing.
 
 ---
 
@@ -33,15 +33,15 @@ So the label panic. They didn't pay her to make a hit. In January 2002 they pay 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Why did a label pay Mariah Carey $28 million just to leave her own record deal? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Mariah Carey from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MARIAH CAREY" underneath. write "RECORD DEAL" top left, draw a small contract paper next to it] [write "$28,000,000" big, center, draw a check box around it]
+**HOOK:** How much money you think a label torched on Mariah Carey for a single album that flopped? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Mariah Carey from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MARIAH CAREY" underneath. write "RECORD DEAL" top left, draw a small contract paper next to it] [write "ONE FLOP = $???" big, center, draw a question mark]
 
 **FORESHADOW:** [draw a stick figure walking away with a money bag, arrow pointing off the page]
 
-**RISING ACTION:** In 2001 Mariah Carey signed with Virgin for a reported $80 million. [write "MARIAH 2001" then "VIRGIN $80M" underneath] Four albums, like $20 million a pop up front. [write "4 ALBUMS" then "$20M each" with a small arrow] She drop one. Glitter. It came out the same week as 9/11 and it sold soft. [write "GLITTER" with "1 ALBUM" circled, draw a flat down-arrow next to it] So the label panic. In January 2002 they pay her $28 million just to walk away. [write "JAN 2002" then "PAID $28M TO GO" boxed] Add up what she already got on signing and the label sank around $49 million into one album that flopped. [write "$21M signing + $28M exit = $49M" with the total underlined]
+**RISING ACTION:** In 2001 Mariah Carey signed with Virgin for a reported $80 million. [write "MARIAH 2001" then "VIRGIN $80M" underneath] Four albums, like $20 million a pop up front. [write "4 ALBUMS" then "$20M each" with a small arrow] She drop one. Glitter. It came out the same week as 9/11 and it sold soft. [write "GLITTER" with "1 ALBUM" circled, draw a flat down-arrow next to it] So the label panic. In January 2002 they pay her $28 million just to walk away. [write "JAN 2002" then "PAID $28M TO GO" boxed]
 
 **TWIST:** Now think about that. They didn't pay her to make a hit. They paid her to leave. [cross out "HIT", write "PAID HER TO LEAVE" big] Cause a huge advance ain't ya money. It a bet the label make on you, and they charge it all back outta what you earn. [write "ADVANCE = A BET" then draw an arrow looping back labeled "charged back"]
 
-**PAYOFF:** Three more albums on that deal meant three more shots to lose money on her, so writing one $28 million check was the cheap way out. [write "3 MORE ALBUMS = 3 MORE LOSSES" then under it "ONE $28M CHECK = CHEAPER" boxed] Here go the wild part. Add up the signing money and that exit check and the label burned around $49 million on one album that flopped, then paid extra to make her stop recording. [write "$49M BURNED ON ONE FLOP" boxed and underline "PAID HER TO STOP"]
+**PAYOFF:** Three more albums on that deal meant three more shots to lose money on her, so writing one $28 million check was the cheap way out. [write "3 MORE ALBUMS = 3 MORE LOSSES" then under it "ONE $28M CHECK = CHEAPER" boxed] Now add it up. The signing money she already got plus that exit check. The label torched around $49 million on one album that flopped, and the cheapest move they had left was payin Mariah Carey to stop singing. [write "$21M signing + $28M exit = $49M" with the total underlined, then box "$49M TO STOP HER SINGING"]
 
 ---
 

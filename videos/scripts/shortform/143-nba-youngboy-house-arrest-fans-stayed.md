@@ -10,7 +10,7 @@ Link in bio to make money from your fans direct even when you can't get on a sta
 
 **SCRIPT:**
 
-What happens when you cant tour, cant perform, cant even leave the house? Lets find out. NBA YoungBoy lived it. In 2023 he was on house arrest in Utah. Locked to one address. No shows. No tour. No stage. For most artists thats a dead year. The money stop when the shows stop. But not for him. He kept dropping albums from the house. Three of em that year. And his fans never left. They stayed locked in with him. Here go what that prove. If ya money only come from touring, you broke the second you cant perform. But if ya fans pay you direct, the income dont stop. A locked door cant stop a fan from subscribing or buying. The stage went dark for him and the money still came in. When the bond with ya fans is direct, you dont need a stage to eat.
+Locked to one address on house arrest, no stage, no tour, how many albums could NBA YoungBoy still put out in that year? In 2023 he was on house arrest in Utah. No shows. No tour. No stage. For most artists thats a dead year. The money stop when the shows stop. But not for him. And his fans never left. They stayed locked in with him. Here go what that prove. If ya money only come from touring, you broke the second you cant perform. But if ya fans pay you direct, the income dont stop. A locked door cant stop a fan from subscribing or buying. The stage went dark and the money still came in. So how many did he drop from inside that house? Three full albums in one locked-down year, with the door bolted shut the entire time.
 
 ---
 
@@ -27,15 +27,15 @@ What happens when you cant tour, cant perform, cant even leave the house? Lets f
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What happens when you cant tour, cant perform, cant even leave the house? Lets find out. [write "NO TOUR. NO STAGE." at the top, draw a house with an ankle monitor]
+**HOOK:** Locked to one address on house arrest, no stage, no tour, how many albums could NBA YoungBoy still put out in that year? [write "LOCKED DOWN, NO STAGE = ? ALBUMS" at the top, draw a house with an ankle monitor and a question mark]
 
-**FORESHADOW:** NBA YoungBoy lived it. In 2023 he was on house arrest in Utah. Locked to one address. No shows. No tour. No stage. [write "2023 HOUSE ARREST", cross out a stage and a tour bus]
+**FORESHADOW:** In 2023 he was on house arrest in Utah. No shows. No tour. No stage. [write "2023 HOUSE ARREST", cross out a stage and a tour bus]
 
-**RISING ACTION:** For most artists thats a dead year. The money stop when the shows stop. But not for him. He kept dropping albums from the house. Three of em that year. And his fans never left. [write "MOST ARTISTS = DEAD YEAR", draw 3 small albums labeled "FROM THE HOUSE", draw a crowd of stick figures with "STAYED"]
+**RISING ACTION:** For most artists thats a dead year. The money stop when the shows stop. But not for him. And his fans never left. [write "MOST ARTISTS = DEAD YEAR", draw a crowd of stick figures with "STAYED"]
 
 **TWIST:** If ya money only come from touring, you broke the second you cant perform. But if ya fans pay you direct, the income dont stop. A locked door cant stop a fan from subscribing or buying. [draw a locked door, draw a phone with money still coming in through a line from fans, write "DIRECT = DONT STOP"]
 
-**PAYOFF:** The stage went dark for him and the money still came in. When the bond with ya fans is direct, you dont need a stage to eat. [box at the bottom: "TOUR MONEY STOPS / DIRECT FANS DONT"]
+**PAYOFF:** So how many did he drop from inside that house? Three full albums in one locked-down year, with the door bolted shut the entire time. [draw 3 albums labeled "FROM THE HOUSE", box at the bottom: "3 ALBUMS, DOOR BOLTED SHUT"]
 
 ---
 

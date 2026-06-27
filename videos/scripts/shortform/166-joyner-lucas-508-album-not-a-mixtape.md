@@ -10,7 +10,7 @@ Link in bio to point your fans to a line you own instead of a label release date
 
 **SCRIPT:**
 
-Has anybody ever named a whole album after they own phone number? Want to see why Joyner Lucas did it? Back in 2017 his first big Atlantic project was called 508-507-2209. That's his real number. And what he did with it is the part nobody copies. The label treated that project like a mixtape, not a real album. Less push, less support, but he still owed them. So look at what the title was really doing. It pointed fans straight at him, not at some label release. A name like that is a map to Joyner, and a label cant own a phone number. Then it really clicked for him. In 2018 he left Atlantic and went fully independent. He dropped his next album himself and it still hit the top ten. Then he built his own app so fans pay him direct. He turned a phone number into his own company.
+Joyner Lucas named a album his own phone number, and ya gotta hear what that little move turned into. Back in 2017 his first big Atlantic project was called 508-507-2209. That's his real cell. The label treated it like a mixtape, not a real album. Less push, less support, but he still owed em. So look at what the title was really doin. It pointed fans straight at him, not at some label release date. A name like that is a map to Joyner, and a label cant own a phone number. So in 2018 he walked. Left Atlantic, went fully independent, no major behind him. Dropped ADHD on his own in 2020. Now here go the part nobody expects. That album debuted at number 10 on the whole Billboard chart, and out of every artist in that top 10, he was the only independent one in the building.
 
 ---
 
@@ -27,13 +27,13 @@ Has anybody ever named a whole album after they own phone number? Want to see wh
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Has anybody ever named a whole album after they own phone number? Want to see why Joyner Lucas did it? [write "508-507-2209" huge at the top like a phone screen, draw a phone outline around it]
+**HOOK:** Joyner Lucas named a album his own phone number, and ya gotta hear what that little move turned into. [write "508-507-2209" huge at the top like a phone screen, draw a phone outline around it]
 
-**FORESHADOW:** Back in 2017 his first big Atlantic project was called 508-507-2209. That's his real number. And what he did with it is the part nobody copies. [write "= HIS REAL NUMBER" under it, draw a small "?" beside it]
+**FORESHADOW:** Back in 2017 his first big Atlantic project was called 508-507-2209. That's his real cell. [write "= HIS REAL NUMBER" under it, draw a small "?" beside it]
 
-**RISING ACTION:** The label treated that project like a mixtape, not a real album. Less push, less support, but he still owed them. So look at what the title was really doing. It pointed fans straight at him, not at some label release. A name like that is a map to Joyner, and a label cant own a phone number. [write "LABEL SAY: MIXTAPE" crossed toward "REAL ALBUM?", draw an arrow from the number to a stick figure labeled "JOYNER" and a crossed-out arrow to a building labeled "LABEL"]
+**RISING ACTION:** The label treated it like a mixtape, not a real album. Less push, less support, but he still owed em. So look at what the title was really doing. It pointed fans straight at him, not at some label release date. A name like that is a map to Joyner, and a label cant own a phone number. [write "LABEL SAY: MIXTAPE" crossed toward "REAL ALBUM?", draw an arrow from the number to a stick figure labeled "JOYNER" and a crossed-out arrow to a building labeled "LABEL"]
 
-**TWIST / SURPRISE ENDING:** In 2018 he left Atlantic and went fully independent. He dropped his next album himself and it still hit the top ten. Then he built his own app so fans pay him direct. He turned a phone number into his own company. [write "LEFT ATLANTIC 2018 → 100% INDEPENDENT", "OWN ALBUM = TOP 10", "BUILT HIS OWN APP → FANS PAY DIRECT", box at the bottom: "A PHONE NUMBER BECAME HIS COMPANY"]
+**TWIST / SURPRISE ENDING:** So in 2018 he walked. Left Atlantic, went fully independent, no major behind him. Dropped ADHD on his own in 2020. Now here go the part nobody expects. That album debuted at number 10 on the whole Billboard chart, and out of every artist in that top 10, he was the only independent one in the building. [write "LEFT ATLANTIC 2018 → 100% INDEPENDENT", "ADHD 2020", box at the bottom: "#10 ON BILLBOARD, ONLY INDEPENDENT IN THE TOP 10"]
 
 ---
 

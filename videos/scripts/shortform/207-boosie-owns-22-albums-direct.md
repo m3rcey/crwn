@@ -10,7 +10,7 @@ Link in bio to turn a loyal fanbase into a brand and income you actually own wit
 
 **SCRIPT:**
 
-Boosie just told the world he owns 22 of his own albums. Stay with me, cause the number he put on em is wild. Most people know him for the music. But Boosie been building a brand off a base that rides for him no matter what radio do. He came up independent in Baton Rouge. Youngest of da Camp moved over 10,000 by hand. Ghetto Stories did over 15,000. No big station spinning him. Then he started his own label and his own clothing line, Jewel House. He says that line made $4 million in eight months. Same fans buying the music also buying the clothes. This what they dont tell you. The base aint just streams, it a customer you can sell anything to. The radio picked who got played, Boosie picked who got paid. So here go the part nobody saw. He owns it all, so the check come to him, and Boosie says half his catalog alone could sell for up to $20 million.
+Boosie owns 22 of his own albums outright, so what number did he put on just half of em? Most people know him for the music. But Boosie been building a brand off a base that rides for him no matter what radio do. He came up independent in Baton Rouge. Youngest of da Camp moved over 10,000 by hand. Ghetto Stories did over 15,000. No big station spinning him. Then he started his own label and his own clothing line, Jewel House. He says that line made $4 million in eight months. Same fans buying the music also buying the clothes. This what they dont tell you. The base aint just streams, it a customer you can sell anything to. The radio picked who got played, Boosie picked who got paid. So here go the part nobody saw. He owns it all, so the check come to him, and Boosie says half his catalog alone could sell for up to $20 million.
 
 ---
 
@@ -27,9 +27,7 @@ Boosie just told the world he owns 22 of his own albums. Stay with me, cause the
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Boosie just told the world he owns 22 of his own albums. [Write "BOOSIE" big at the top. Under it write "OWNS 22 ALBUMS" and circle the "22".]
-
-**FORESHADOW:** Stay with me, cause the number he put on em is wild. [Draw a "?" inside a dollar sign "$?" to the right of "22".]
+**HOOK:** Boosie owns 22 of his own albums outright, so what number did he put on just half of em? [Write "BOOSIE" big at the top. Under it write "OWNS 22 ALBUMS" and circle the "22". Draw a "?" inside a dollar sign "$?" to the right of "22", with "HALF?" beside it.]
 
 **RISING ACTION:** Most people know him for the music. But Boosie been building a brand off a base that rides for him no matter what radio do. [Draw a small stick figure crowd of 4 smiley faces, label them "THE BASE".] He came up independent in Baton Rouge. Youngest of da Camp moved over 10,000 by hand. Ghetto Stories did over 15,000. [Write "10,000+" and "15,000+" stacked.] No big station spinning him. [Draw a small radio with an X through it.] Then he started his own label and his own clothing line, Jewel House. He says that line made $4 million in eight months. [Write "JEWEL HOUSE = $4M / 8 MONTHS".] Same fans buying the music also buying the clothes. [Draw an arrow from "THE BASE" pointing to both "ALBUMS" and "JEWEL HOUSE".]
 

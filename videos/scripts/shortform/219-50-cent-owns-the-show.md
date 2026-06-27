@@ -10,7 +10,7 @@ Link in bio to own what you make instead of just performing on it with CRWN. Fre
 
 **SCRIPT:**
 
-Why do 50 Cent make more off a TV show he barely got paid to act in than he ever made off rap? Everybody know 50 from the records. In Da Club, Many Men, all that. But that aint where his real paper come from now. He helped make a show called Power on Starz. He act in it, he produce it, and his company helped build the world around it. Then the show had babies. Power Book Two, Book Three, Book Four. A whole universe, and his name on the ownership side of every one. The actin check was small. The ownership is what got rich. How small? Early on 50 said he was only pullin like 17 thousand a episode to act and produce the show, and that he get paid more to walk in a club and wave at the crowd for one night.
+How little do ya think Starz was payin 50 Cent a episode to act in and produce Power? Everybody know 50 from the records. In Da Club, Many Men, all that. But that aint where his real paper come from now. He helped make a show called Power on Starz. He act in it, he produce it, and his company helped build the world around it. Then the show had babies. Power Book Two, Book Three, Book Four. A whole universe, and his name on the ownership side of every one. He aint chase the actin money, he chased the part you keep. The performer rent his face for a check. The owner keep the building every spinoff get built on. So how little was that check? Early on 50 said Starz was payin him like 17 thousand a episode, and that he get paid more just to walk in a club and wave at the crowd for one night.
 
 ---
 
@@ -27,15 +27,15 @@ Why do 50 Cent make more off a TV show he barely got paid to act in than he ever
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Why do 50 Cent make more off a TV show he barely got paid to act in than he ever made off rap? [Write "TV > RAP" big and bold at the top center, circle it.] [Write "50 CENT" under it, underline.]
+**HOOK:** How little do ya think Starz was payin 50 Cent a episode to act in and produce Power? [Write "$? / EPISODE" big and bold at the top center, circle it.] [Write "50 CENT" under it, underline.]
 
 **FORESHADOW:** Everybody know 50 from the records. In My Club, Many Men, all that. [Draw a small microphone on the left.] But that aint where his real paper come from now. [Draw an arrow pointing away from the mic to the right.]
 
 **RISING ACTION:** He helped make a show called Power on Starz. [Write "POWER" in a box, center.] He act in it, he produce it, and his company helped build the whole world around it. [Write "ACT + PRODUCE + OWN" under the box.] Then the show had babies. Power Book Two. Book Three. Book Four. [Write "BOOK II / BOOK III / BOOK IV" as a stacked list with little arrows branching down from POWER.] A whole universe, and his name on the ownership side of every one. [Draw a circle around the whole stack, label it "OWNS."]
 
-**TWIST:** Now watch this part. The check he got just to act in it was nothin next to what the ownership pay him. [Write "$17K / EPISODE" on the left, cross it out.] [Draw a tiny stick figure waving.] [Draw a small dollar sign on the left.] The ownership of the show is what got rich. [Draw a big dollar sign on the right, circle it.]
+**TWIST:** Now watch this part. He aint chase the actin money, he chased the part you keep. [Draw a tiny stick figure waving on the left, small dollar sign beside it.] The performer rent his face for a check. The owner keep the building every spinoff get built on. [Write "PERFORMER = RENT" and under it "OWNER = THE BUILDING", draw a simple little building next to it.]
 
-**PAYOFF:** The actin check was small. How small? Early on 50 said he was only pullin like 17 thousand a episode to act and produce the show, and that he get paid more to walk in a club and wave at the crowd for one night. [Write "PERFORMER = RENT" and under it "OWNER = THE BUILDING", box the bottom line, draw a simple little building next to it.]
+**PAYOFF:** So how little was that check? Early on 50 said Starz was payin him like 17 thousand a episode, and that he get paid more just to walk in a club and wave at the crowd for one night. [Write "$17K / EPISODE" big on the right, box it, then under it "< ONE CLUB WAVE", circle the bottom line.]
 
 ---
 

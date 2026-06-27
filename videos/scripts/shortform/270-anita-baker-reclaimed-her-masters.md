@@ -10,13 +10,13 @@ Link in bio to own your masters and get paid direct by the fans who love them wi
 
 **SCRIPT:**
 
-Anita Baker told her own fans to stop streaming her, so what was she really after? Back in 2021 she did exactly that. Now stay with me cause the way it ends flips everything.
+Anita Baker fought her label for her old recordings and won, and the wild part is how little of a fight it actually was. Why? Back in 2021 she told her own fans to stop streaming her. Now stay with me cause the ending aint what you think.
 
-She made "Rapture" in 1986. Five million sold in the States, two Grammys, a quiet storm classic. And after all them years, she still aint own the recordings. The label did.
+She made "Rapture" in 1986. Five million sold in the States, two Grammys, a quiet storm classic. And after all them years, the label still held the recordings.
 
-So she went public and told the people who love her, dont stream me, dont buy me, not yet. Her fans listened. That boycott wasnt the goal. It was the pressure. The law lets an artist take old recordings back, and the fans stopping was the leverage to make it happen.
+So she went public and told the people who love her, dont stream me, dont buy me, not yet. Her fans listened. Everybody bracing for a long ugly courtroom war with a major label.
 
-By that September it was done. So what was she really after? Her masters. She pushed till the label gave them back, then posted her first five albums and said, all my children are coming home.
+It never came. Heres why. There a law that says 35 years after you sign your rights away, you can just take em back. Rapture came out in 1986. By 2021 the clock had already run out on the label. She wasnt suing for her masters. She was collecting on a timer they couldnt stop. Few months later she posted all five albums and said her children was coming home, no judge required.
 
 ---
 
@@ -33,17 +33,17 @@ By that September it was done. So what was she really after? Her masters. She pu
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Anita Baker told her own fans to stop streaming her, so what was she really after? [Top center, large: "STOP STREAMING ME" with "STOP" circled. Under it smaller: "AFTER WHAT?" with a question mark in a circle]
+**HOOK:** Anita Baker fought her label for her old recordings and won, and the wild part is how little of a fight it actually was. Why? [Top center, large: "WON HER MASTERS — BARELY A FIGHT" with "BARELY" circled. Under it smaller: "WHY?" with a question mark in a circle]
 
-**FORESHADOW:** Back in 2021 she did exactly that. Now stay with me cause the way it ends flips everything. [Write "2021" to the left. Draw a small arrow curving forward labeled "ENDING FLIPS IT"]
+**FORESHADOW:** Back in 2021 she told her own fans to stop streaming her. Now stay with me cause the ending aint what you think. [Write "2021 — STOP STREAMING ME" to the left. Draw a small arrow curving forward labeled "ENDING AINT WHAT YOU THINK"]
 
-**RISING ACTION:** She made "Rapture" in 1986. Five million sold in the States, two Grammys, a quiet storm classic. [Center: "RAPTURE 1986". Under it a short stacked list: "5,000,000 SOLD (US)", "2 GRAMMYS". Box the list] And after all them years, she still aint own the recordings. The label did. [Draw a music note inside a box labeled "LABEL", and a stick figure outside it with empty hands labeled "ANITA". Put an X between them]
+**RISING ACTION:** She made "Rapture" in 1986. Five million sold in the States, two Grammys, a quiet storm classic. [Center: "RAPTURE 1986". Under it a short stacked list: "5,000,000 SOLD (US)", "2 GRAMMYS". Box the list] And after all them years, the label still held the recordings. [Draw a music note inside a box labeled "LABEL", and a stick figure outside it with empty hands labeled "ANITA". Put an X between them]
 
-**RISING ACTION (cont):** So she went public and told the people who love her, dont stream me, dont buy me, not yet. Her fans listened. That boycott wasnt the goal. It was the pressure. [Draw a row of three small stick figures, hands down, labeled "FANS = STOPPED". Draw a thick arrow from them pointing at the "LABEL" box, label the arrow "PRESSURE"] The law lets an artist take old recordings back, and the fans stopping was the leverage to make it happen. [Write "LAW: OLD RECORDINGS COME BACK" and underline it]
+**RISING ACTION (cont):** So she went public and told the people who love her, dont stream me, dont buy me, not yet. Her fans listened. [Draw a row of three small stick figures, hands down, labeled "FANS = STOPPED"] Everybody bracing for a long ugly courtroom war with a major label. [Draw a government building with columns labeled "COURTROOM WAR?" and a big question mark]
 
-**TWIST:** By that September it was done. So what was she really after? [Center: "SEPT 2021 - DONE" with an arrow down to "AFTER WHAT?"]
+**TWIST:** It never came. Heres why. There a law that says 35 years after you sign your rights away, you can just take em back. [Write "LAW: 35 YEARS = TAKE IT BACK" and underline it. Cross out the "COURTROOM WAR?" building] Rapture came out in 1986. By 2021 the clock had already run out on the label. [Write "1986 + 35 = 2021" and draw a clock with the hands at the end, circle it]
 
-**PAYOFF:** Her masters. She pushed till the label gave them back, then posted her first five albums and said, all my children are coming home. [Very bottom: large "HER MASTERS" boxed with a check mark, then "ALL MY CHILDREN COMING HOME", with the earlier STOP X crossed out]
+**PAYOFF:** She wasnt suing for her masters. She was collecting on a timer they couldnt stop. Few months later she posted all five albums and said her children was coming home, no judge required. [Very bottom: large "NOT A LAWSUIT. A TIMER." boxed, then "ALL MY CHILDREN COMING HOME" with "NO JUDGE REQUIRED" underlined, and the earlier STOP X crossed out]
 
 ---
 

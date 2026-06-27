@@ -10,7 +10,7 @@ Link in bio to turn one fanbase into more than one income stream you actually ow
 
 **SCRIPT:**
 
-How did Rihanna become a billionaire without dropping an album in almost ten years? Forbes calls her a billionaire, worth around a billion and change. But her last record Anti came out in 2016. So where the billion come from if it aint the music? In 2017 she started Fenty Beauty with LVMH and kept half of it. Forbes say that one company is the bulk of everything she got. Not the masters. Not the streams. The biggest checks she ever cashed came from a product her fans buy, not a song they stream. The voice built the name. The name she put on a thing she owned. The billion came from the makeup line she owns, not the music that made her famous.
+Rihanna became a billionaire without dropping a album in almost ten years, so where that billion actually come from? Forbes calls her a billionaire, worth around a billion and change. But her last record Anti came out in 2016. So it aint new music carrying her. She still touring off old songs, still got the streams, still own a piece of her catalog. None of that is the billion. The voice built the name, but the name aint where the money sittin. She took that name and stamped it on a company she co-owns and kept half of. And Forbes say that one thing is the bulk of everything she got. So the billion didnt come from a song her fans stream. It came from the makeup line she owns, Fenty Beauty, the lipstick they buy.
 
 ---
 
@@ -27,15 +27,15 @@ How did Rihanna become a billionaire without dropping an album in almost ten yea
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Rihanna become a billionaire without dropping an album in almost ten years? [Write "BILLIONAIRE" big at the top, then under it write "NO ALBUM SINCE 2016?" and circle "2016"] [Draw a small stick figure singing into a mic, then a big X next to it]
+**HOOK:** Rihanna became a billionaire without dropping a album in almost ten years, so where that billion actually come from? [Write "BILLIONAIRE" big at the top, then under it write "NO ALBUM SINCE 2016?" and circle "2016"] [Draw a small stick figure singing into a mic, then a big X next to it]
 
-**FORESHADOW:** Forbes calls her a billionaire, worth around a billion and change. [Write "FORBES = $1B+" and underline it] But she aint dropped an album since 2016. Her last record Anti is almost ten years old. [Write "LAST ALBUM: 2016" and circle "2016"]
+**FORESHADOW:** Forbes calls her a billionaire, worth around a billion and change. [Write "FORBES = $1B+" and underline it] But her last record Anti came out in 2016. So it aint new music carrying her. [Write "LAST ALBUM: 2016" and circle "2016"]
 
-**RISING ACTION:** So where the billion come from? [Write "WHERE?" with a big question mark] Makeup. [Write "MAKEUP" huge and underline it twice] In 2017 she started Fenty Beauty with LVMH and kept half of it. [Write "FENTY BEAUTY 2017" then draw a 50/50 pie chart, label one half "RIHANNA"] Forbes say that one company is the bulk of everything she got. [Draw a big arrow from the pie chart to the word "BILLION"] Not the masters. Not the streams. The lipstick. [On the left write "MASTERS" and "STREAMS" with X marks, on the right write "LIPSTICK" with a check mark]
+**RISING ACTION:** She still touring off old songs, still got the streams, still own a piece of her catalog. None of that is the billion. [Write "TOURING / STREAMS / CATALOG" stacked, then a big bracket around all three with "NOT THE BILLION" beside it] So where? [Write "WHERE?" with a big question mark]
 
-**TWIST:** Think about that. The biggest checks she ever cashed came from a product her fans buy, not a song they stream. [Write "FANS BUY > FANS STREAM" big and box it]
+**TWIST:** The voice built the name, but the name aint where the money sittin. She took that name and stamped it on a company she co-owns and kept half of. And Forbes say that one thing is the bulk of everything she got. [Write "NAME -> A COMPANY SHE OWNS HALF OF" then draw a 50/50 pie chart, label one half "RIHANNA", draw a big arrow from the pie chart to "BILLION"]
 
-**PAYOFF:** The voice built the name. The name she put on a thing she owned. [Write "VOICE -> NAME -> OWNED THING" with arrows between each] And that thing she owned is what made the billion, not the music that made her famous. [Underline "OWNED" and draw a crown over "BILLION"]
+**PAYOFF:** So the billion didnt come from a song her fans stream. It came from the makeup line she owns, Fenty Beauty, the lipstick they buy. [Write "FENTY BEAUTY" huge and underline it twice, draw a lipstick tube beside it. On the left write "A SONG THEY STREAM" with an X; on the right write "MAKEUP SHE OWNS" with a check. Draw a crown over "FENTY BEAUTY"]
 
 ---
 

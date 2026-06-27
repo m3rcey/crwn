@@ -10,7 +10,7 @@ Link in bio to own the bond with your real fans so no mob can cancel your career
 
 **SCRIPT:**
 
-When everybody you know turns on you in one week, who actually still shows up? Gunna found that out the hard way. In 2022 Gunna caught a RICO case with his label. He took a plea and got out. But a lot of people turned on him. Fans, other rappers, the internet. They called him everything and said his career was over. Then in 2023 he dropped a album, a Gift and a Curse. No features. Almost nobody in the industry backing him. His real fans never left. They tuned out the noise and showed up anyway. Then the sales came in. They swore this album was dead on arrival, with no features and no co-signs. It debuted at number 3 in the country. The mob was loud. His sales was louder.
+Gunna dropped a comeback album with no features right after the internet swore his career was over, so where did it land? In 2022 he caught a RICO case with his label. He took a plea and got out. But a lot of people turned on him. Fans, other rappers, the internet. They called him everything and said he was finished. Then in 2023 he dropped that album, a Gift and a Curse. No features. Almost nobody in the industry backing him. His real fans never left. They tuned out the noise and showed up anyway. Then the sales came in. They swore this album was dead on arrival, with no features and no co-signs. It debuted at number 3 in the country. The mob was loud. His sales was louder.
 
 ---
 
@@ -27,9 +27,9 @@ When everybody you know turns on you in one week, who actually still shows up? G
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** When everybody you know turns on you in one week, who actually still shows up? Gunna found that out the hard way. [draw the portrait described in the NANO prompt; write "WHO STAYS WHEN THEY ALL LEAVE?" at the top]
+**HOOK:** Gunna dropped a comeback album with no features right after the internet swore his career was over, so where did it land? [draw the portrait described in the NANO prompt; write "NO FEATURES. CAREER 'OVER'. WHERE'D IT LAND?" at the top]
 
-**FORESHADOW:** In 2022 Gunna caught a RICO case with his label. He took a plea and got out. But a lot of people turned on him. Fans, other rappers, the internet. They said his career was over. [draw a stick figure with a crowd around him all pointing away, write "EVERYBODY TURNED"]
+**FORESHADOW:** In 2022 Gunna caught a RICO case with his label. He took a plea and got out. But a lot of people turned on him. Fans, other rappers, the internet. They said he was finished. [draw a stick figure with a crowd around him all pointing away, write "EVERYBODY TURNED"]
 
 **RISING ACTION:** Then in 2023 he dropped a album, a Gift and a Curse. No features. Almost nobody in the industry backing him. His real fans never left. They tuned out the noise and showed up anyway. [write "a GIFT & a CURSE 2023", "NO FEATURES", draw a small solid circle of stick figures labeled "REAL FANS" standing firm next to a big crowd labeled "THE MOB" fading]
 

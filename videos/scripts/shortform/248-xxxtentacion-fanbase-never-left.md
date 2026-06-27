@@ -10,7 +10,7 @@ Link in bio to build an audience that buys from you direct and stays for the lon
 
 **SCRIPT:**
 
-How did XXXTentacion keep hitting number one after he was gone? Watch what his fans did. He passed in 2018 at 20 years old, and his music aint slow down one bit. His album "?" already hit number one while he was here. Then in December that same year, after he was gone, they dropped SKINS. It went straight to number one too. 132,000 in week one. Nobody promoting it the normal way. The fans just showed up. A year later they dropped another album, and that one went top five. Streams come and go, they spike then drop right back down. The people who actually loved him aint go nowhere, so they kept buying long after he couldnt. And here go the proof that floored me. His song SAD! crossed diamond, 10 million sold, but that plaque didn't even land till 2021. The man been dead three years and his fans were still pushing one song past 10 million.
+XXXTentacion got a number one single after he was already gone, and before him only one other rapper in history ever pulled that off. Who? Stay with me. He passed in 2018 at 20 years old, and his music aint slow down one bit. His album "?" already hit number one while he was here. Then after he was gone, his song SAD! climbed all the way to number one on the Hot 100. Not a old song getting a bump. A brand new number one for a man who couldnt promote it, couldnt perform it, couldnt do a single thing. The fans carried it up there by theyself. Labels spend millions trying to manufacture a number one for a artist standing right in front of em. His fans did it for somebody who wasnt here. So who the only other rapper to lead a number one after death? The Notorious B.I.G. Nobody had done it since 1997. XXX fans put him in a club with Biggie, and they did it from a group text, not a budget.
 
 ---
 
@@ -27,15 +27,15 @@ How did XXXTentacion keep hitting number one after he was gone? Watch what his f
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did XXXTentacion keep hitting number one after he was gone? [Write "HOW?" big and circle it. Below write "XXXTENTACION" and next to it "2018 · AGE 20". Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of XXXTentacion from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "XXXTENTACION" underneath, with a halo arc drawn above the head.]
+**HOOK:** XXXTentacion got a number one single after he was already gone, and before him only one other rapper in history ever pulled that off. Who? [Write "#1 AFTER HE WAS GONE" big. Below write "ONLY 1 OTHER RAPPER EVER. WHO?" and circle "WHO?". Write "XXXTENTACION" and next to it "2018 · AGE 20". Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of XXXTentacion from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "XXXTENTACION" underneath, with a halo arc drawn above the head.]
 
 **FORESHADOW:** Watch what his fans did. [Write "WATCH WHAT HIS FANS DID" and put a small arrow pointing down the page.]
 
-**RISING ACTION:** His album "?" already hit number one while he was here. [Write "? = #1" and circle the "#1".] Then in December that same year, after he was gone, they dropped SKINS. It went straight to number one too. [Below write "SKINS = #1", circle it.] 132,000 in week one. [Write "132,000 WEEK ONE", underline it.] Nobody promoting it the normal way. The fans just showed up. [Cross out the word "PROMO". Draw three little stick figures in a row under it.] A year later another album, top five. The people who loved him aint go nowhere. [Write "1 YEAR LATER = TOP 5".]
+**RISING ACTION:** His album "?" already hit number one while he was here. [Write "? = #1" and circle the "#1".] Then after he was gone, his song SAD! climbed all the way to number one on the Hot 100. [Below write "SAD! = #1 HOT 100", circle it.] Not a old song getting a bump. A brand new number one for a man who couldnt promote it, couldnt perform it, couldnt do a single thing. [Write "COULDNT PROMOTE / COULDNT PERFORM" and cross both out.] The fans carried it up there by theyself. [Draw three little stick figures pushing a "#1" up a small hill.]
 
-**TWIST:** Streams come and go, they spike then drop right back down. But the people who actually ride for you, they the part that lasts. [Draw a line down the middle. Left side write "STREAMS", under it a small arrow pointing up then down. Right side write "THE FANS", under it a flat line that keeps going off the page edge.]
+**TWIST:** Labels spend millions trying to manufacture a number one for a artist standing right in front of em. His fans did it for somebody who wasnt here. [Draw a line down the middle. Left side write "LABEL = $$$ + LIVE ARTIST". Right side write "HIS FANS = $0 + HE GONE", then a "#1" on the right side circled.]
 
-**PAYOFF:** And here go the proof that floored me. His song SAD! crossed diamond, 10 million sold, but that plaque didn't even land till 2021. The man been dead three years and his fans were still pushing one song past 10 million. [Write "SAD! = DIAMOND" big, then under it "10,000,000 SOLD". Draw a small diamond shape next to it. Write "PLAQUE 2021" and circle it, then under it "DEAD 3 YEARS, STILL CLIMBING" boxed.]
+**PAYOFF:** So who the only other rapper to lead a number one after death? The Notorious B.I.G. Nobody had done it since 1997. XXX fans put him in a club with Biggie, and they did it from a group text, not a budget. [Write "BIGGIE — 1997" then under it "XXX — POSTHUMOUS #1". Box both names together labeled "ONLY TWO EVER". At the bottom write "GROUP TEXT > BUDGET" and underline it.]
 
 ---
 

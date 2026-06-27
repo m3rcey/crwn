@@ -10,15 +10,15 @@ Link in bio to build your own demand and sell direct to your fans with CRWN. Fre
 
 **SCRIPT:**
 
-Too Short sold 50,000 tapes out the trunk of his car in Oakland, so who ended up calling him about it? He started in Oakland with no deal, no machine. Him and his partner Freddy B went hand to hand, straight to the people.
+Too Short sold 50,000 tapes out the trunk of his car in Oakland, so what did that hand-built fanbase turn into? He started in Oakland with no deal, no machine. Him and his partner Freddy B went hand to hand, straight to the people.
 
 By the time he dropped Born to Mack in the late 80s, he sold around 50,000 copies that same way. One car, one block at a time.
 
-Then it went gold. Half a million. With virtually no radio playing it.
+Then Jive picked it up and it went gold. Half a million. With barely no radio playing it.
 
-He aint go beg a label to make him. He made himself first, then waited.
+He aint go beg a label to make him. He made himself first, then let em catch up.
 
-A label finds you when the people already moving. Too Short had the people before he had a logo, so the call came to him. Jive Records saw the buzz he already built and came knocking.
+Now most people think the trunk run was the peak. It was the floor. After that gold record, his next four albums in a row all went platinum, and over a career Too Short moved more than 8 million records off the base he built by hand.
 
 ---
 
@@ -35,15 +35,15 @@ A label finds you when the people already moving. Too Short had the people befor
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Too Short sold 50,000 tapes out the trunk of his car in Oakland, so who ended up calling him about it? [Top left, large: "NO LABEL", and beside it a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Too Short from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TOO SHORT" underneath. Top right, large: "GOLD" boxed, and "NO RADIO" under it with a small radio drawing crossed out with an X.]
+**HOOK:** Too Short sold 50,000 tapes out the trunk of his car in Oakland, so what did that hand-built fanbase turn into? [Top left, large: "NO LABEL", and beside it a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Too Short from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TOO SHORT" underneath. Top right, large: "GOLD" boxed, and "NO RADIO" under it with a small radio drawing crossed out with an X.]
 
-**FORESHADOW:** Stay with it, because the part nobody tells you is who came knocking at the end. [Center, draw a closed door with a question mark above it and a small fist about to knock.]
+**FORESHADOW:** Stay with it, because the part nobody tells you is what that trunk run actually grew into. [Center, draw a small "50K" with an arrow pointing up to a big question mark.]
 
 **RISING ACTION:** He started in Oakland selling tapes out the trunk of his car. [Draw a simple car from the back, trunk popped open, cassette tapes spilling out. Write "OAKLAND" above it.] No deal, no machine. [Write "NO DEAL" and cross out a drawing of a record contract.] Him and his partner Freddy B drove around, hand to hand, straight to the people. [Draw two stick figures, one handing a tape to a small crowd of three smiley faces, arrow labeled "HAND TO HAND."] By the time he dropped Born to Mack in the late 80s, he sold around 50,000 copies that same way. [Center, big: "50,000" circled, with "BORN TO MACK" under it.] Out the trunk. One car, one block at a time. [Small note "1 car, 1 block" next to the 50,000.]
 
 **TWIST:** Then it went gold. Half a million. With virtually no radio playing it. [Big "GOLD" with "500,000" under it, underlined twice. Next to it a radio with an X through it again, bigger.] He aint go beg a label to make him. He made himself first, then waited. [Cross out "BEG" and write "MADE HIMSELF FIRST" boxed.]
 
-**PAYOFF:** A label finds you when the people already moving. Too Short had the people before he had a logo, so the call came to him. [Bottom, two lines: "THE PEOPLE" with a crowd of smiley faces, then ">" then "A LOGO" with a small label logo crossed out.] Jive Records saw the buzz he already built and came knocking. [Draw a phone, then write "JIVE" with an arrow pointing FROM "JIVE" TO a stick figure of Too Short. Label the arrow "they came to HIM."]
+**PAYOFF:** Now most people think the trunk run was the peak. It was the floor. [Draw a small "50K" at the bottom of a staircase, label it "THE FLOOR."] After that gold record, his next four albums in a row all went platinum, and over a career Too Short moved more than 8 million records off the base he built by hand. [Draw four stacked records each labeled "PLATINUM," then big at the bottom "8,000,000+" circled, with an arrow from "50K" climbing up to it.]
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to sell early and exclusive access to your real fans so the demand p
 
 **SCRIPT:**
 
-If people already paying real money for ya leaked songs, then why aint none of it going to you? Carti got hundreds of unreleased songs floating around. Fans call em grails and pay hundreds, sometimes thousands, to get em. Leakers buy and trade em like stocks. Every dollar lands on leakers and middlemen, not him. He never even put these songs out and people still tearing each other apart to own em. Then one of em got out for free. A pitched-up leak of one unreleased Carti verse, posted by some random account under a fake name. No promo. No rollout. Just a stranger uploading a song Carti never dropped. And it hit number one on Spotify's viral chart across the country before they pulled it.
+Carti got songs he never even dropped, so how far did one of em climb after a stranger leaked it? He got hundreds of unreleased records floating around. Fans call em grails and pay hundreds, sometimes thousands, to get em. Leakers buy and trade em like stocks. Every dollar lands on leakers and middlemen, not him. He never even put these songs out and people still tearing each other apart to own em. Then one of em got out for free. A pitched-up leak of one unreleased Carti verse, posted by some random account under a fake name. No promo. No rollout. Just a stranger uploading a song Carti never dropped. And it hit number one on Spotify's viral chart across the country before they pulled it.
 
 ---
 
@@ -27,7 +27,7 @@ If people already paying real money for ya leaked songs, then why aint none of i
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If people already paying real money for ya leaked songs, then why aint none of it going to you? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "PLAYBOI CARTI" underneath; write "PAID FOR LEAKS" at the top, draw a phone with a song file and dollar signs around it]
+**HOOK:** Carti got songs he never even dropped, so how far did one of em climb after a stranger leaked it? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Playboi Carti from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "PLAYBOI CARTI" underneath; write "PAID FOR LEAKS" at the top, draw a phone with a song file and dollar signs around it]
 
 **RISING ACTION:** Carti got hundreds of unreleased songs floating around. Fans call em grails and pay hundreds, sometimes thousands, to get em. Leakers buy and trade em like stocks. Every dollar lands on leakers and middlemen, not him. [draw a vault with music notes inside, write "100s UNRELEASED", "GRAILS", "$100s - $1,000s", "TRADED LIKE STOCKS", draw money arrows to "LEAKERS / MIDDLEMEN" and an X away from "CARTI"]
 

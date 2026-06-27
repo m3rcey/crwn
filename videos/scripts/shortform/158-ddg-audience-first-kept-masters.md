@@ -10,7 +10,7 @@ Link in bio to build your own audience first so you sign on your terms and keep 
 
 **SCRIPT:**
 
-DDG signed to a major label and walked out still owning his masters, so what did Epic actually sign him for? Before rap, DDG was a YouTuber. He built a massive following and was already making real money every month on his own. So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So flip it around. He aint sign to Epic to get put on. Epic signed the audience he already built, and they had to let him keep his masters just to get in the room.
+DDG chased a major label rap deal for years, but which one of his two careers actually pays him more? Before rap, DDG was a YouTuber. He built a massive following posting videos and was already pulling real money every month on his own. So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. To most artists thats the dream, the deal that finally puts you on. DDG got the rap deal and the rap fame off it. But ask him which side feeds him, and the answer aint the rap. He went on record saying YouTubers and streamers make more money than rappers and it aint even close. His biggest single month off YouTube was reportedly around 300 to 400 thousand dollars. The major label deal everybody chases. And the free platform he started on out-earns it.
 
 ---
 
@@ -27,13 +27,13 @@ DDG signed to a major label and walked out still owning his masters, so what did
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** DDG signed to a major label and walked out still owning his masters, so what did Epic actually sign him for? [write "DDG KEPT HIS MASTERS" at the top, then "SO WHAT DID EPIC SIGN?" with a question mark, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of DDG from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DDG" underneath]
+**HOOK:** DDG chased a major label rap deal for years, but which one of his two careers actually pays him more? [write "WHICH CAREER PAYS HIM MORE?" at the top, draw two lanes "RAP" and "YOUTUBE" with a "?" between em, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of DDG from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DDG" underneath]
 
-**FORESHADOW:** Before rap, DDG was a YouTuber. He built a massive following and was already making real money every month on his own. [draw a play button labeled "YOUTUBE", write "HUGE FOLLOWING", "REAL $ EVERY MONTH"]
+**FORESHADOW:** Before rap, DDG was a YouTuber. He built a massive following posting videos and was already pulling real money every month on his own. [draw a play button labeled "YOUTUBE", write "HUGE FOLLOWING", "REAL $ EVERY MONTH"]
 
-**RISING ACTION:** So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. [draw a stick figure walking into a label building holding a bag labeled "FANS + $", draw another figure walking in empty-handed labeled "OWNS NOTHING", write "MAJOR DEAL = LOSE MASTERS"]
+**RISING ACTION:** So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. To most artists thats the dream, the deal that finally puts you on. DDG got the rap deal and the rap fame off it. [draw a stick figure walking into a label building labeled "EPIC", write "THE DREAM DEAL", "GOT PUT ON"]
 
-**PAYOFF / SURPRISE ENDING:** But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So flip it around. He aint sign to Epic to get put on. Epic signed the audience he already built, and they had to let him keep his masters just to get in the room. [write "DDG = ALREADY RICH -> KEPT MASTERS", draw a vault labeled "KEPT MASTERS" with a check, box at the bottom: "EPIC SIGNED HIS AUDIENCE, NOT THE OTHER WAY ROUND"]
+**PAYOFF / SURPRISE ENDING:** But ask him which side feeds him, and the answer aint the rap. He went on record saying YouTubers and streamers make more money than rappers and it aint even close. His biggest single month off YouTube was reportedly around 300 to 400 thousand dollars. The major label deal everybody chases. And the free platform he started on out-earns it. [draw the RAP lane small and the YOUTUBE lane towering over it, write "YOUTUBE > RAP (HIS OWN WORDS)", "ONE MONTH = ~$300-400K", box at the bottom: "THE FREE PLATFORM PAYS MORE THAN THE MAJOR DEAL"]
 
 ---
 

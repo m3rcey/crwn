@@ -10,7 +10,7 @@ Link in bio to build recurring experiences your fans pay for and come back to wi
 
 **SCRIPT:**
 
-This is how you get fans coming back every single year. Jay-Z built his own festival. In 2012 he started Made in America. Right there in Philadelphia. He aint wait for a promoter to book him. He made the whole event himself and put his name on it. Every year fans come back to it. Thats not a one time check. Thats a thing people show up for again and again. Here go what that means at ya level. You cant throw a festival yet. But you can build small experiences ya fans come back to. A monthly listening session. A live Q and A. A meetup for ya realest supporters. 30 fans paying 25 dollars to hang with you, every month. Thats recurring, and its yours. Yea a single drop comes and goes. But a experience fans return to keeps paying you over and over.
+How much can Jay-Z pull from one weekend of a event he owns, before he sings a note? In 2012 he started Made in America. Right there in Philadelphia. He aint wait for a promoter to book him. He built it himself and put his name on it. Every year fans come back to it. Thats not a one time check. Thats a thing people show up for again and again. Here go what that means at ya level. You cant throw a festival yet. But you can build small experiences ya fans come back to. A monthly listening session. A live Q and A. A meetup for ya realest supporters. 30 fans paying 25 dollars to hang with you, every month. Thats recurring, and its yours. So whats one weekend of his own event worth? That first year, Made in America reportedly grossed over 5 million dollars, off a thing he owned outright, no label cut, no booking fee.
 
 ---
 
@@ -27,15 +27,15 @@ This is how you get fans coming back every single year. Jay-Z built his own fest
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is how you get fans coming back every single year. Jay-Z built his own festival. [write "FANS COME BACK EVERY YEAR" at the top, draw a festival tent]
+**HOOK:** How much can Jay-Z pull from one weekend of a event he owns, before he sings a note? [write "ONE WEEKEND, HIS OWN EVENT = ?" at the top, draw a festival tent with a question mark]
 
 **FORESHADOW:** In 2012 he started Made in America. Right there in Philadelphia. He aint wait for a promoter to book him. [write "2012 MADE IN AMERICA", "PHILLY", draw a stick figure putting up a stage]
 
-**RISING ACTION:** He made the whole event himself and put his name on it. Every year fans come back to it. Thats not a one time check. Thats a thing people show up for again and again. [draw a calendar with the same event circled across "2012", "2013", "2014", arrows looping back, crowd of stick figures returning]
+**RISING ACTION:** He built it himself and put his name on it. Every year fans come back to it. Thats not a one time check. Thats a thing people show up for again and again. [draw a calendar with the same event circled across "2012", "2013", "2014", arrows looping back, crowd of stick figures returning]
 
 **TWIST:** You cant throw a festival yet. But you can build small experiences ya fans come back to. A monthly listening session. A live Q and A. A meetup for ya realest supporters. [draw a small list with checkmarks: "LISTENING SESSION", "LIVE Q&A", "MEETUP"]
 
-**PAYOFF:** 30 fans paying 25 dollars to hang with you, every month. Thats recurring, and its yours. Yea a single drop comes and goes. But a experience fans return to keeps paying you over and over. [write the math "30 x $25 = $750 / MONTH", box at the bottom: "A DROP ENDS / AN EXPERIENCE REPEATS"]
+**PAYOFF:** 30 fans paying 25 dollars to hang with you, every month. Thats recurring, and its yours. So whats one weekend of his own event worth? That first year, Made in America reportedly grossed over 5 million dollars, off a thing he owned outright, no label cut, no booking fee. [write the math "30 x $25 = $750 / MONTH", box at the bottom: "MADE IN AMERICA, YEAR 1 = $5M+ (REPORTEDLY)"]
 
 ---
 

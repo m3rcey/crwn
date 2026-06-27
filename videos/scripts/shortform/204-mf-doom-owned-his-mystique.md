@@ -10,7 +10,7 @@ Link in bio to turn what makes you different into the thing fans pay for with CR
 
 **SCRIPT:**
 
-How did MF DOOM send a fake DOOM on stage to lip sync his own shows and still keep every fan? Most rappers sell you they self. They face, they story, they name on the chain. DOOM sold you a mask. A metal mask, a villain he made up. You never really seen his face. He put out records under different names on different labels, and none of it belonged to the label. The mystique was his. The scarcity was the point. The less you got of DOOM, the more fans wanted him. So it got bold. He started sending other dudes in the same mask to perform his shows. Imposters. Lip syncing his songs. And it still worked, cause the fans aint come for the man. They came for the myth he built and kept. The mask was the product, so anybody could wear it and the fans still paid for DOOM.
+MF DOOM pulled a stunt at his own shows that woulda ended any other rapper, so why aint his fans care one bit? Most rappers sell you they self. They face, they story, they name on the chain. DOOM sold you a mask. A metal mask, a villain he made up. You never really seen his face. He put out records under different names on different labels, and none of it belonged to the label. The mystique was his. The scarcity was the point. The less you got of DOOM, the more fans wanted him. So heres the stunt, and why nobody held it against him. Fans aint come for the man, they came for the myth he built and kept, so the man behind it stopped mattering. DOOM started sending other dudes in the same mask to lip sync his shows, fans paid full price for a DOOM that wasnt even DOOM, and they ate it up.
 
 ---
 
@@ -27,15 +27,15 @@ How did MF DOOM send a fake DOOM on stage to lip sync his own shows and still ke
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did MF DOOM send a fake DOOM on stage to lip sync his own shows and still keep every fan? [Top center, large: "A FAKE DOOM ON STAGE?", with "FAKE" circled.] [Under it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of MF DOOM from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MF DOOM" underneath, his face wearing the metal mask exactly as in the photo reference.]
+**HOOK:** MF DOOM pulled a stunt at his own shows that woulda ended any other rapper, so why aint his fans care one bit? [Top center, large: "A STUNT AT HIS OWN SHOW?", with "STUNT" circled.] [Under it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of MF DOOM from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MF DOOM" underneath, his face wearing the metal mask exactly as in the photo reference.]
 
 **FORESHADOW:** Most rappers sell you they self. They face, they story, they name on the chain. [Left side, draw a stick figure with a smiley face and write "ME" with an arrow pointing at the face.] DOOM sold you a mask. [Right side, draw a stick figure with the mask instead of a face, write "DOOM".]
 
 **RISING ACTION:** A metal mask, a villain he made up. You never really seen his face. [Box the mask drawing.] He put out records under different names on different labels, and the label aint own none of it. [Write three little names stacked: "DOOM / VIKTOR VAUGHN / KING GEEDORAH", then draw a circle around all three and label the circle "ALL HIS".] The mystique was his. The scarcity was the point. [Write "SCARCITY = STRATEGY", underline it.] The less you got of DOOM, the more the fans wanted. [Draw a small down arrow next to "DOOM" and a big up arrow next to "WANT".]
 
-**TWIST:** So here go the part that sound made up. He started sending other dudes in the mask to perform his shows. [Draw two stick figures both wearing the mask, write "IMPOSTERS" with an arrow.] Imposters. Lip syncing his songs. And it still worked, cause the fans aint come for the man. They came for the myth he built and kept. [Write "MAN" and cross it out. Next to it write "MYTH" and circle it.]
+**TWIST:** So heres the stunt, and why nobody held it against him. Fans aint come for the man, they came for the myth he built and kept, so the man behind it stopped mattering. [Write "MAN" and cross it out. Next to it write "MYTH" and circle it.]
 
-**PAYOFF:** You think you too small to matter. [Bottom left, small stick figure with "5K" over it.] DOOM proved the thing only you got is the thing they pay for. [Bottom center, large boxed: "ONLY YOU = THE PRODUCT", double underlined.]
+**PAYOFF:** DOOM started sending other dudes in the same mask to lip sync his shows, fans paid full price for a DOOM that wasnt even DOOM, and they ate it up. [Draw two stick figures both wearing the mask, write "IMPOSTERS" with an arrow, "PAID" with a check, then "NOT EVEN DOOM" beside it. Bottom center, large boxed: "HE SENT IMPOSTERS, THEY STILL PAID FULL PRICE", double underlined.]
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to own the music your name keeps eating off of, not rent it, with CR
 
 **SCRIPT:**
 
-When Pop Smoke's debut hit number one after he was gone, who did that check really pay? Hold up, cause the answer hits different than you think. At 19 he signed his first record deal. By 20 he was murdered in a home invasion in LA, February 2020. Then in July, months after he passed, they dropped his debut album. It went straight to number one on the Billboard 200, debuted on top of the entire country. He made every song on it. He aint there to see none of it. And here go the answer to who that money went to. The deal he signed at 19 hands the masters to the owner, so when that album moved 251,000 its first week, every dollar went to the people who hold the recordings, not the kid who made em.
+How big did Pop Smoke's debut album get after he was already gone, the one that dropped months after he was buried? Hold up, cause the size of it hits different than you think. At 19 he signed his first record deal. By 20 he was murdered in a home invasion in LA, February 2020. Then in July, months after he passed, they dropped his debut album. It went straight to number one on the Billboard 200, debuted on top of the entire country. He made every song on it. He aint there to see none of it. So how far did the record run without him? That album the man never got to hear sold over three point seven million in the US and went double platinum, a debut that kept climbin years after the artist who made it was gone.
 
 ---
 
@@ -27,15 +27,15 @@ When Pop Smoke's debut hit number one after he was gone, who did that check real
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** When Pop Smoke's debut hit number one after he was gone, who did that check really pay? [At the top write "AFTER YOU'RE GONE" in big letters, underline it; draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pop Smoke from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "POP SMOKE" underneath, with a small halo drawn above it.]
+**HOOK:** How big did Pop Smoke's debut album get after he was already gone, the one he made every song on but never lived to hear? [At the top write "GONE BEFORE IT DROPPED" in big letters, underline it; draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Pop Smoke from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "POP SMOKE" underneath, with a small halo drawn above it.]
 
-**FORESHADOW:** Hold up, cause the answer hits different than you think. [Draw a question mark in a circle, big, off to the side.]
+**FORESHADOW:** Hold up, cause the size of it hits different than you think. [Draw a question mark in a circle, big, off to the side.]
 
 **RISING ACTION:** At 19 he signed his first record deal. [Write "AGE 19" then "1st DEAL", circle "AGE 19".] By 20 he was murdered in a home invasion in LA. February 2020. [Write "AGE 20" and under it "FEB 2020".] Then in July, months after he passed, they dropped his debut album. [Draw an album square labeled "DEBUT ALBUM" with "JULY 2020" next to it.] It went straight to number one on the Billboard 200, debuted on top of the entire country. [Write "#1" big, box it.]
 
-**TWIST:** A number one record, and the man who made it never heard the news. [Under "#1" draw a small radio with an X through it.] He made every song on it. He aint there to see none of it. [Draw a line down the middle. Left write "MASTERS = OWNER". Right write "POP = MADE IT".]
+**TWIST:** A number one record, and the man who made it never heard the news. [Under "#1" draw a small radio with an X through it.] He made every song on it. He aint there to see none of it. [Write "MADE EVERY SONG / HEARD NONE OF IT".]
 
-**PAYOFF:** And here go the answer to who that money went to. The deal he signed at 19 hands the masters to the owner, so when that album moved 251,000 its first week, every dollar went to the people who hold the recordings, not the kid who made em. [Circle "OWNER". Write "WEEK 1 = 251,000". Draw a $ arrow from "251,000" to "MASTERS = OWNER", and a crossed-out arrow toward "POP = MADE IT".]
+**PAYOFF:** So how far did the record run without him? That album the man never got to hear sold over three point seven million in the US and went double platinum, a debut that kept climbin years after the artist who made it was gone. [Write "3.7M+ US SOLD" big, box it, write "2x PLATINUM" under it and circle it; draw an upward arrow labeled "STILL CLIMBIN" past a small headstone.]
 
 ---
 

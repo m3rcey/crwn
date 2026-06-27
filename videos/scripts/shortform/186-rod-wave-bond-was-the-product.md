@@ -10,19 +10,13 @@ Link in bio to turn the fans who feel seen by your music into real monthly incom
 
 **SCRIPT:**
 
-Rod Wave came up off SoundCloud with no radio behind him, and what his fans did next aint supposed to be possible without it.
+Rod Wave never had a top 10 radio hit in his life, so how big can a artist really get when radio wont touch him? He aint start on the radio. He started on SoundCloud and YouTube, talkin about real pain. His pops locked up. His own depression. Stuff most rappers wont touch.
 
-Cause he did it without the thing every label tells you that you need.
+And the fans aint just like the songs. They felt seen. Like he was sayin the thing they couldnt say out loud.
 
-He aint start on the radio. He started on SoundCloud and YouTube, talking about real pain. His pops locked up. His own depression. Stuff most rappers wont touch.
+So they followed him everywhere. "Heart on Ice" caught fire on TikTok, not the radio. Hit number 25, and that's about as high as radio ever let him climb.
 
-And the fans aint just like the songs. They felt seen. Like he was saying the thing they couldnt say out loud.
-
-So they followed him everywhere. "Heart on Ice" caught fire on TikTok, not the radio. Hit number 25.
-
-And here go the part that dont add up. With all that, he still aint never had a top 10 radio hit. Not one.
-
-He aint need the radio to feel him. The people who already felt seen carried him. So watch what that bond did. Three years straight, three number one albums. SoulFly, Beautiful Mind, Nostalgia. Nostalgia alone opened with like 187 million streams.
+The people who already felt seen carried him with no station playin him. So watch what that bond actually did when his album Nostalgia dropped in 2023. It went straight to number 1 in the whole country, and in week one alone fans ran it up to 187 million streams, off a artist radio still wouldnt put in the top 10.
 
 ---
 
@@ -39,15 +33,15 @@ He aint need the radio to feel him. The people who already felt seen carried him
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Rod Wave came up off SoundCloud with no radio behind him, and what his fans did next aint supposed to be possible without it. [Top of page, big bold caps: "NO RADIO". Draw a small radio with a big X over it.]
+**HOOK:** Rod Wave never had a top 10 radio hit in his life, so how big can a artist really get when radio wont touch him? [Top of page, big bold caps: "NO TOP 10 RADIO HIT". Draw a small radio with a big X over it. Beside it write "HOW BIG?" with a question mark.]
 
-**FORESHADOW:** Cause Rod Wave did it, and the way he did it should change how you think. [Under the radio, write "ROD WAVE" and circle it.]
+**FORESHADOW:** He aint start on the radio. He started on SoundCloud and YouTube. [Under the radio, write "ROD WAVE" and circle it. Write "SOUNDCLOUD" and "YOUTUBE".]
 
-**RISING ACTION:** He aint start on the radio. He started on SoundCloud and YouTube, talking about real pain. His pops locked up. His own depression. Stuff most rappers wont touch. [Write "SOUNDCLOUD" and "YOUTUBE" on the left. Under them list "PAIN", "POPS LOCKED UP", "DEPRESSION" with a small heart doodle.] And the fans aint just like the songs. They felt seen. Like he was saying the thing they couldnt say out loud. [Draw 3 stick figures with a thought bubble over them reading "THATS ME". Underline "FELT SEEN".] So they followed him everywhere. "Heart on Ice" caught fire on TikTok, not the radio. Hit number 25. [Write "HEART ON ICE" then "TikTok" with a flame doodle. Write "#25" and circle it.]
+**RISING ACTION:** He talked about real pain. His pops locked up. His own depression. Stuff most rappers wont touch. [Under them list "PAIN", "POPS LOCKED UP", "DEPRESSION" with a small heart doodle.] And the fans aint just like the songs. They felt seen. Like he was saying the thing they couldnt say out loud. [Draw 3 stick figures with a thought bubble over them reading "THATS ME". Underline "FELT SEEN".] So they followed him everywhere. "Heart on Ice" caught fire on TikTok, not the radio. Hit number 25, and that's about as high as radio ever let him climb. [Write "HEART ON ICE" then "TikTok" with a flame doodle. Write "#25 = RADIO CEILING" and circle "#25".]
 
-**TWIST:** And here go the part that dont add up. With all that, he still aint never had a top 10 radio hit. Not one. [Write "TOP 10 RADIO HIT" and put a big X through it. Next to it write "ZERO" and circle it twice.]
+**TWIST:** The people who already felt seen carried him with no station playin him. So watch what that bond actually did when his album Nostalgia dropped in 2023. [Write "RADIO" crossed out, arrow to the cluster of stick figures, "THEY CARRIED IT" underlined. Write "NOSTALGIA 2023".]
 
-**PAYOFF:** He aint need the radio to feel him. The people who already felt seen carried him. So watch what that bond did. Three years straight, three number one albums. SoulFly, Beautiful Mind, Nostalgia. Nostalgia alone opened with like 187 million streams. [Bottom of page: "RADIO" crossed out, arrow to the cluster of stick figures, "THEY CARRIED IT" underlined. Write "3 YEARS = 3 No.1 ALBUMS" big and box it. List "SOULFLY '21", "BEAUTIFUL MIND '22", "NOSTALGIA '23". Write "187,000,000 STREAMS" and circle it.]
+**PAYOFF:** It went straight to number 1 in the whole country, and in week one alone fans ran it up to 187 million streams, off a artist radio still wouldnt put in the top 10. [Write "#1 IN THE COUNTRY" big and box it. Write "WEEK 1 = 187,000,000 STREAMS" and circle it. Beside it keep "STILL NO TOP 10 RADIO HIT" with an X.]
 
 ---
 

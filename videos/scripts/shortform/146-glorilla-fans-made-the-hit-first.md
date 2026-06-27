@@ -10,7 +10,7 @@ Link in bio to build the fanbase that gives you the power before any deal with C
 
 **SCRIPT:**
 
-Has anybody ever went from a fast food drive-thru to a hit record? Want to know how it really happened? GloRilla was working at a Checkers in Memphis. Then she dropped a song called FNF. She aint have a label. She aint have a budget. What she had was fans. They took that song and ran with it. Made a dance challenge out of it on TikTok. The video did over 22 million views. The fans turned it into a hit by theyself. Then, after all that, Yo Gotti signed her. Catch the order. The fans made the hit FIRST. The deal came AFTER. The label aint discover her. The fans did, then the label paid to get in. This what they dont tell you. When ya fans prove you, you got the power, the label need you more than you need them. Build the fans, and the deals come find you.
+How fast did GloRilla go from the Checkers drive-thru window to a signed record deal? She was working at a Checkers in Memphis. Then she dropped a song called FNF. She aint have a label. She aint have a budget. What she had was fans. They took that song and ran with it. Made a dance challenge out of it on TikTok. The video did over 22 million views. The fans turned it into a hit by theyself. The label aint discover her. The fans did. Then the deal came chasing. Catch the order. The fans made the hit FIRST. The deal came AFTER. So how long did all that take? She dropped FNF end of April. By early July, Yo Gotti signed her to CMG. Around ten weeks from the drive-thru to the deal, cause the fans moved faster than any label ever could.
 
 ---
 
@@ -27,15 +27,15 @@ Has anybody ever went from a fast food drive-thru to a hit record? Want to know 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Has anybody ever went from a fast food drive-thru to a hit record? Want to know how it really happened? [draw a drive-thru window at the top, write "CHECKERS"]
+**HOOK:** How fast did GloRilla go from the Checkers drive-thru window to a signed record deal? [draw a drive-thru window at the top, write "CHECKERS -> DEAL = ? WEEKS"]
 
-**FORESHADOW:** GloRilla was working at a Checkers in Memphis. Then she dropped a song called FNF. She aint have a label. She aint have a budget. [write "FNF", cross out "LABEL" and "BUDGET", write "JUST FANS"]
+**FORESHADOW:** She was working at a Checkers in Memphis. Then she dropped a song called FNF. She aint have a label. She aint have a budget. [write "FNF", cross out "LABEL" and "BUDGET", write "JUST FANS"]
 
 **RISING ACTION:** They took that song and ran with it. Made a dance challenge out of it on TikTok. The video did over 22 million views. The fans turned it into a hit by theyself. [draw a crowd of stick figures dancing, write "TIKTOK CHALLENGE", "22,000,000 VIEWS", draw arrows from the crowd up to a "#HIT" trophy]
 
-**TWIST:** Then, after all that, Yo Gotti signed her. Catch the order. The fans made the hit FIRST. The deal came AFTER. The label aint discover her. The fans did, then the label paid to get in. [draw a timeline: "FANS MAKE HIT" then an arrow to "LABEL SIGNS", number them 1 and 2]
+**TWIST:** The label aint discover her. The fans did. Then the deal came chasing. Catch the order. The fans made the hit FIRST. The deal came AFTER. [draw a timeline: "FANS MAKE HIT" then an arrow to "LABEL SIGNS", number them 1 and 2]
 
-**PAYOFF:** When ya fans prove you, you got the power, the label need you more than you need them. Build the fans, and the deals come find you. [box at the bottom: "BUILD THE FANS, DEALS COME TO YOU"]
+**PAYOFF:** So how long did all that take? She dropped FNF end of April. By early July, Yo Gotti signed her to CMG. Around ten weeks from the drive-thru to the deal, cause the fans moved faster than any label ever could. [draw a short timeline "APRIL: FNF DROPS -> JULY: CMG DEAL", write "~10 WEEKS", box at the bottom: "DRIVE-THRU TO DEAL IN ~10 WEEKS"]
 
 ---
 

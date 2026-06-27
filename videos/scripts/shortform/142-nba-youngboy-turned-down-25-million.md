@@ -10,7 +10,7 @@ Link in bio to choose control of your audience and catalog over a one-time check
 
 **SCRIPT:**
 
-Who would turn down 25 million dollars cash? NBA YoungBoy did, reportedly. And once you hear why, it lands different. A major put a 25 million dollar offer on the table to re-sign him. Most people grab that with both hands. He passed. Why? He wanted control of his own lane. Think about what a check like that really is. Its a one time number. Big, but it ends. They hand you 25 million today, they own you tomorrow. He wanted the thing that keeps paying. Here go what he understood young. Control of ya audience and ya catalog is worth more than any upfront check. A advance you spend once. A audience you own pays you for years. A 25 million dollar check feel like the win. The real win was passing it to keep his lane and his fans, the stuff that pay for life.
+What would make NBA YoungBoy turn his back on the biggest re-sign check his label ever slid across the table? Atlantic wanted him to stay. Most people grab a offer like that with both hands. He passed. Why? He wanted out so bad, he reportedly called the deal slavery. Think about what a check like that really is. Its a one time number. Big, but it ends. They hand you the bag today, they own you tomorrow. He wanted control of his own lane instead. A advance you spend once. A audience you own pays you for years. So what was the number he walked away from to go independent? Reportedly 25 million dollars, cash, to re-sign, and he turned it down flat to own himself.
 
 ---
 
@@ -27,15 +27,15 @@ Who would turn down 25 million dollars cash? NBA YoungBoy did, reportedly. And o
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Who would turn down 25 million dollars cash? NBA YoungBoy did, reportedly. And once you hear why, it lands different. [write "$25,000,000" big at the top with a big X over it]
+**HOOK:** What would make NBA YoungBoy turn his back on the biggest re-sign check his label ever slid across the table? [write "HE WALKED FROM THE BIGGEST CHECK = ?" big at the top, draw a hand sliding a blank money bag across a table]
 
-**FORESHADOW:** A major put a 25 million dollar offer on the table to re-sign him. Most people grab that with both hands. He passed. [draw a hand offering a money bag labeled "$25M RE-SIGN", draw a stick figure pushing it away]
+**FORESHADOW:** Atlantic wanted him to stay. Most people grab a offer like that with both hands. He passed. Why? He wanted out so bad, he reportedly called the deal slavery. [draw a stick figure pushing away a money bag, write "ATLANTIC RE-SIGN", write "HE CALLED IT SLAVERY"]
 
-**RISING ACTION:** He wanted control of his own lane. Think about what a check like that really is. Its a one time number. Big, but it ends. They hand you 25 million today, they own you tomorrow. [draw a flat line labeled "ONE CHECK" that stops, write "THEY GIVE $25M -> THEY OWN YOU"]
+**RISING ACTION:** Think about what a check like that really is. Its a one time number. Big, but it ends. They hand you the bag today, they own you tomorrow. [draw a flat line labeled "ONE CHECK" that stops, write "THEY GIVE THE BAG -> THEY OWN YOU"]
 
-**TWIST:** Control of ya audience and ya catalog is worth more than any upfront check. A advance you spend once. A audience you own pays you for years. [draw a rising line labeled "OWN YOUR LANE" climbing past the flat "ONE CHECK" line]
+**TWIST:** He wanted control of his own lane instead. A advance you spend once. A audience you own pays you for years. [draw a rising line labeled "OWN YOUR LANE" climbing past the flat "ONE CHECK" line]
 
-**PAYOFF:** A 25 million dollar check feel like the win. The real win was passing it to keep his lane and his fans, the stuff that pay for life. [box at the bottom: "A CHECK ENDS / CONTROL KEEPS PAYING"]
+**PAYOFF:** So what was the number he walked away from to go independent? Reportedly 25 million dollars, cash, to re-sign, and he turned it down flat to own himself. [write "$25,000,000" big with an X over it, box at the bottom: "TURNED DOWN $25M TO OWN HIMSELF (REPORTEDLY)"]
 
 ---
 

@@ -14,9 +14,9 @@ In 2023 Metro Boomin sold part of his catalog for around $70 million, and what t
 
 Now most producers, they sell that work to the label and the label own it. Every play, every license, every time that song land in a movie, the label eat. The producer already got paid one time and moved on.
 
-Metro aint do that. He held onto his own publishing. So when Shamrock came knocking, he aint hand em the keys to the house. He sold em one room.
+Metro aint do that. He held onto his own publishing. So when Shamrock came knocking, he aint hand em the keys to the house. Every time one of them songs play in a movie, a ad, a stream, the check still come to him.
 
-That is the part that get me. $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play.
+So here go the part that get me. That $70 million? It aint even buy the catalog. It bought one slice, and Metro kept the rest of the building for himself.
 
 ---
 
@@ -39,9 +39,9 @@ That is the part that get me. $70 million aint even buy the whole thing. It boug
 
 **RISING ACTION:** Now most producers, they sell that work to the label and the label own it. [Draw a stick figure handing a music note to a box labeled "LABEL", arrow from note to box] Every play, every license, every time that song land in a movie, the label eat. [Write "PLAY / LICENSE / MOVIE" with arrows all pointing to "LABEL $"] The producer already got paid one time and moved on. [Write "PAID ONCE" and cross it out with a single line]
 
-**TWIST:** Metro aint do that. He held onto his own publishing. [Write "HE KEPT IT" and box it] So when Shamrock came knocking, he aint hand em the keys to the house. He sold em one room. [Write "SHAMROCK -> METRO" with an arrow, then draw a house, point an arrow to one small room inside it]
+**TWIST:** Metro aint do that. He held onto his own publishing. [Write "HE KEPT IT" and box it] So when Shamrock came knocking, he aint hand em the keys to the house. Every time one of them songs play in a movie, a ad, a stream, the check still come to him. [Write "SHAMROCK -> METRO" with an arrow, then "PLAY / AD / STREAM" with arrows all pointing to "METRO $"]
 
-**PAYOFF:** That is the part that get me. $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play. [Draw a pie chart, shade one slice labeled "$70M", leave the bigger rest blank labeled "STILL HIS"] [Write "OWN IT = THEY PAY YOU" and underline "YOU"]
+**PAYOFF:** So here go the part that get me. That $70 million? It aint even buy the catalog. It bought one slice, and Metro kept the rest of the building for himself. [Draw a pie chart, shade one small slice labeled "$70M", leave the bigger rest blank labeled "STILL HIS." Beside it draw a building, shade one small room, label the rest "KEPT THE BUILDING." Box the bottom line: "SOLD A SLICE, KEPT THE REST"]
 
 ---
 

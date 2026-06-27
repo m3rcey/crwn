@@ -10,7 +10,7 @@ Link in bio to sell the merch and the brand you own, not just the show you got b
 
 **SCRIPT:**
 
-How did Travis Scott make 3 times more off the McDonald's meal than McDonald's paid him for it? Hold up, cause the check they cut him was the small part. Back in 2020, McDonald's did the Travis Scott Meal. Your boy gets a quarter pounder with his name on it. The reported endorsement fee for showing up was around 5 million dollars. But Travis didn't stop at the fee. He dropped Cactus Jack merch tied to it. Hoodies, tees, that nugget pillow, all sold on his own store. McDonald's rented his face for a month. Travis kept the store after the meal was gone. So that's how he tripled it. The merch reportedly moved around 15 million dollars, three times the fee.
+Which paid Travis Scott more off the McDonald's deal, the check McDonald's cut him or the merch he sold on the side? Hold up, cause the check they cut him was the small part. Back in 2020, McDonald's did the Travis Scott Meal. Your boy gets a quarter pounder with his name on it. The reported endorsement fee for showin up was around 5 million dollars. But Travis aint stop at the fee. He dropped Cactus Jack merch tied to it. Hoodies, tees, that nugget pillow, all sold on his own store. McDonald's rented his face for a month. Travis kept the store after the meal was gone. So which one won? The fee they paid him was 5 million. The merch he owned reportedly moved around 15 million, so the side he kept paid him three times what the brand did.
 
 ---
 
@@ -27,15 +27,15 @@ How did Travis Scott make 3 times more off the McDonald's meal than McDonald's p
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Travis Scott make 3 times more off the McDonald's meal than McDonald's paid him for it? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Travis Scott from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TRAVIS SCOTT" underneath. Write "FACE ON THE MENU" big across the top. Draw a simple menu board with a stick-figure face on it.] Hold up, cause the check they cut him was the small part. [Underline "the small part."]
+**HOOK:** Which paid Travis Scott more off the McDonald's deal, the check McDonald's cut him or the merch he sold on the side? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Travis Scott from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TRAVIS SCOTT" underneath. Write "FEE vs MERCH = ?" big across the top. Draw a simple menu board with a stick-figure face on it.] Hold up, cause the check they cut him was the small part. [Underline "the small part."]
 
 **FORESHADOW:** Back in 2020, McDonald's did the Travis Scott Meal. Your boy gets a quarter pounder with his name on it. [Draw a burger with golden arches "M" next to it. Write "2020 TRAVIS MEAL."]
 
 **RISING ACTION:** The reported endorsement fee for showing up was around 5 million dollars. [Write "FEE = $5M" on the left side, box it.] But Travis didn't stop at the fee. He dropped Cactus Jack merch tied to it. Hoodies, tees, that nugget pillow, all sold on his own store. [Draw a small hoodie, a tee, and a pillow shape on the right. Write "OWN STORE" under them.]
 
-**TWIST:** McDonald's rented his face for a month. Travis kept the store after the meal was gone. [Cross out the menu drawing. Circle "OWN STORE."] So that's how he tripled it. [Draw an arrow from "$5M" toward the merch side with "x3" above it.]
+**TWIST:** McDonald's rented his face for a month. Travis kept the store after the meal was gone. [Cross out the menu drawing. Circle "OWN STORE."] So which one won? [Draw an arrow from "$5M" toward the merch side with a question mark above it.]
 
-**PAYOFF:** The merch reportedly moved around 15 million dollars, three times the fee. [Write "MERCH = $15M" on the right side, box it, underline it twice. Next to it write "3x THE FEE" and circle it.]
+**PAYOFF:** The fee they paid him was 5 million. The merch he owned reportedly moved around 15 million, so the side he kept paid him three times what the brand did. [Write "MERCH = $15M" on the right side, box it, underline it twice. Next to it write "3x THE FEE" and circle it.]
 
 ---
 

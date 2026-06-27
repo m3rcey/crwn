@@ -10,7 +10,7 @@ Link in bio to sell your own custom verse to the fans who'd pay for it with CRWN
 
 **SCRIPT:**
 
-2 Chainz just put a price on a single verse, and it broke the internet. Stay with me, cause the number under that number is the part that should hit you. Back in 2013 he said a feature on your song run you $100,000. One verse. People laughed, then they paid it. His debut album went number one, so the demand was real. Now think about what you actually selling. A 2 Chainz verse is sixteen bars a fan can't touch. But a custom bar with one fan name in it? That's the same thing, just shrunk down to your size. He can't do that. He too big, too booked, too expensive. You small enough to say yes. So while he charging a hundred grand for a verse nobody owns, you can sell a verse one fan owns forever. The thing that make you too small to be him is the same thing that make you sellable.
+2 Chainz got famous for charging 100 grand a verse, but break that down to a single line of rap and the number gets stupid. What one bar cost? Stay with me. Back in 2013 that 100,000 dollar verse broke the internet. One feature, one verse, a hundred grand. People laughed, then they paid it. His debut album went number one, so the demand was real. Now think about what you actually selling. A 2 Chainz verse a fan cant touch. But a custom bar with one fan name in it? Same thing, just shrunk to your size. He cant do that. He too big, too booked, too expensive. You small enough to say yes. He sell a verse nobody owns. You can sell a verse one fan owns forever. So what one bar of that cost? A verse is sixteen bars, so 100 grand split across em come out to about 6,250 a line. One sentence of rap priced higher than most people rent. And that the exact line, made personal, you small enough to sell a fan for the price of a t-shirt.
 
 ---
 
@@ -27,17 +27,17 @@ Link in bio to sell your own custom verse to the fans who'd pay for it with CRWN
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** 2 Chainz just put a price on a single verse, and it broke the internet. [Top of page write "1 VERSE = $100,000" big, circle the $100,000. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 2 Chainz from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "2 CHAINZ" underneath.]
+**HOOK:** 2 Chainz got famous for charging 100 grand a verse, but break that down to a single line of rap and the number gets stupid. What one bar cost? [Top of page write "1 VERSE = $100,000" big, circle the $100,000. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of 2 Chainz from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "2 CHAINZ" underneath. Write "BUT 1 BAR = ???" and circle the question marks.]
 
-**FORESHADOW:** Stay with me, cause the number under that number is the part that should hit you. [Under it draw a small down arrow pointing to a blank box]
+**FORESHADOW:** Stay with me. [Under it draw a small down arrow pointing to a blank box]
 
-**RISING ACTION:** Back in 2013 he said a feature on your song run you $100,000. One verse. People laughed, then they paid it. His debut album went number one, so the demand was real. [Write "2013" small. Write "16 BARS" and next to it "$100K". Draw a check mark next to "#1 ALBUM"]
+**RISING ACTION:** Back in 2013 that 100,000 dollar verse broke the internet. One feature, one verse, a hundred grand. People laughed, then they paid it. His debut album went number one, so the demand was real. [Write "2013" small. Write "1 VERSE = $100K". Draw a check mark next to "#1 ALBUM"]
 
-**RISING ACTION (cont):** Now think about what you actually selling. A 2 Chainz verse is sixteen bars a fan can't touch. But a custom bar with one fan name in it? That's the same thing, just shrunk down to your size. [Draw a line down the middle. Left side: "VERSE NOBODY OWNS". Right side: "1 BAR, 1 FAN, OWNS IT"]
+**RISING ACTION (cont):** Now think about what you actually selling. A 2 Chainz verse a fan cant touch. But a custom bar with one fan name in it? Same thing, just shrunk to your size. [Draw a line down the middle. Left side: "VERSE NOBODY OWNS". Right side: "1 BAR, 1 FAN, OWNS IT"]
 
-**TWIST:** He can't do that. He too big, too booked, too expensive. You small enough to say yes. So while he charging a hundred grand for a verse nobody owns, you can sell a verse one fan owns forever. The thing that make you too small to be him is the same thing that make you sellable. [Cross out "$100K" on the left. On the right write "$60 A BAR" and box it. At the bottom write "TOO SMALL = SELLABLE", underline it]
+**TWIST:** He cant do that. He too big, too booked, too expensive. You small enough to say yes. He sell a verse nobody owns. You can sell a verse one fan owns forever. [On the right write "$60 A BAR" and box it]
 
-**PAYOFF:** [The twist line IS the payoff: smallness is the asset. "TOO SMALL = SELLABLE" lands the reframe.]
+**PAYOFF:** So what one bar of that cost? A verse is sixteen bars, so 100 grand split across em come out to about 6,250 a line. One sentence of rap priced higher than most people rent. And that the exact line, made personal, you small enough to sell a fan for the price of a t-shirt. [Write "$100,000 ÷ 16 BARS" then "= ~$6,250 A BAR" big and circle it. Under it "ONE LINE > MOST RENT". At the very bottom box "YOU SELL THE SAME LINE FOR T-SHIRT MONEY"]
 
 ---
 

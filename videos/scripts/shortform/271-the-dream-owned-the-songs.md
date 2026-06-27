@@ -10,15 +10,15 @@ Link in bio to own your music and the income it makes for life with CRWN. Free t
 
 **SCRIPT:**
 
-How much did The-Dream make off two songs he never sang a note on? You know "Umbrella" by Rihanna. You know "Single Ladies" by Beyoncé. Two of the biggest songs ever made. The world remember the women on the mic.
+The-Dream sold off a chunk of songs you never seen him perform, and what one company paid for just part of it should change how you think about ya catalog. How much? You know "Umbrella" by Rihanna. You know "Single Ladies" by Beyoncé. Two of the biggest songs ever made. The world remember the women on the mic.
 
 But that dude, The-Dream, co-wrote both of em. He aint sing a note on either one. He just owned a piece of the writing.
 
 The artist on stage perform the song one time and move on. The writer who own the publishing get paid every time it play, for years, all over the world.
 
-So while everybody chasing the spotlight, this man was quietly building somethin under it. He kept his songs instead of just performing somebody else's.
+So while everybody chasing the spotlight, this man was quietly stacking songs under it. 302 of em in his catalog by 2018.
 
-In 2018 he sold three quarters of his catalog. Just 75% of it. That piece of his catalog went for 23 million dollars.
+So how much for just part of it? He sold three quarters and kept the rest. That 75% slice alone went for 23 million dollars. He never sang the hits, never toured em, and still got 23 million for three quarters of songs that keep paying him on the quarter he held back.
 
 ---
 
@@ -35,15 +35,15 @@ In 2018 he sold three quarters of his catalog. Just 75% of it. That piece of his
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How much did The-Dream make off two songs he never sang a note on? [Write "KEEP MORE THAN THE STAR" big across the top, underline "KEEP MORE", and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of The-Dream from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "THE-DREAM" underneath] [Draw a small stick figure at a mic with a star above its head, then put a big X over the star]
+**HOOK:** The-Dream sold off a chunk of songs you never seen him perform, and what one company paid for just part of it should change how you think about ya catalog. How much? [Write "KEEP MORE THAN THE STAR" big across the top, underline "KEEP MORE", and beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of The-Dream from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "THE-DREAM" underneath] [Draw a small stick figure at a mic with a star above its head, then put a big X over the star. Write "PAID FOR JUST PART? HOW MUCH?" with the question circled]
 
 **FORESHADOW:** You know "Umbrella" by Rihanna. You know "Single Ladies" by Beyoncé. [Write "UMBRELLA" and "SINGLE LADIES" stacked, draw a tiny umbrella next to one] Two of the biggest songs ever made. The world remember the women on the mic. [Draw two small stick figures at mics]
 
 **RISING ACTION:** But a dude named The-Dream co-wrote both of em. [Write "THE-DREAM" and draw an arrow from his name to both song titles] He aint sing a note on either one. [Draw a small music note with an X through it] He just owned a piece of the writing. [Write "OWNED THE WRITING", circle "OWNED"] The artist on stage perform the song one time and move on. [Draw a stick figure walking away from a stage] The writer who own the publishing get paid every time it play, for years, all over the world. [Draw a stack of dollar signs with a small globe next to it, write "PAID EVERY PLAY"]
 
-**TWIST:** So while everybody chasing the spotlight, this man was quietly building somethin under it. [Draw a spotlight cone at top, write "BUILDING" small underneath it] He kept his songs instead of just performing somebody else's. [Write "KEPT HIS SONGS", underline it] In 2018 he sold three quarters of his catalog. Just 75% of it. [Draw a pie chart, shade 75% of it, write "75%" in the shaded part, "25%" left over]
+**TWIST:** So while everybody chasing the spotlight, this man was quietly stacking songs under it. 302 of em in his catalog by 2018. [Draw a spotlight cone at top, write "302 SONGS" big underneath it and circle it]
 
-**PAYOFF:** That piece of his catalog went for 23 million dollars. [Write "$23,000,000" huge, box it]
+**PAYOFF:** So how much for just part of it? He sold three quarters and kept the rest. That 75% slice alone went for 23 million dollars. He never sang the hits, never toured em, and still got 23 million for three quarters of songs that keep paying him on the quarter he held back. [Draw a pie chart, shade 75% of it, write "75% SOLD" in the shaded part, "25% KEPT" left over] [Write "$23,000,000" huge, box it. Under it: "NEVER SANG ONE / STILL GOT PAID"]
 
 ---
 

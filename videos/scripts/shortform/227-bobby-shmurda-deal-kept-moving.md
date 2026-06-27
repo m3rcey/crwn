@@ -10,7 +10,7 @@ Link in bio to own a direct line to your fans that no contract can freeze with C
 
 **SCRIPT:**
 
-How does a platinum hit leave Bobby Shmurda with no debut album to show for it?
+While Bobby Shmurda sat with no debut album, how many times over you think his one hit paid the label back?
 
 Hold that. Cause the saddest part aint even the prison time.
 
@@ -18,9 +18,9 @@ Bobby blew up in 2014. "Hot Boy" hit number 6 on the Hot 100, went platinum. Epi
 
 Then life happened. He got locked up, took a plea, did like six years. And the contract dont stop for none of that.
 
-He come home in 2021, and he still tied to the same paper. He had to go public in 2022 and beg em to let him out.
+He come home in 2021, and he still tied to the same paper. He had to go public in 2022 and beg em to let him out. A decade after a platinum song, and still no debut album to his name.
 
-So a decade after a platinum song, where the album at? The deal kept him tied up, and a label can hold your music longer than a court can hold your body, so ten years later there's still no debut.
+So how that song treat the label while he sat? Reports say Epic made they money back off that one hit at least two, three times over, so the label tripled they bet on a kid they never even put a album out for.
 
 ---
 
@@ -37,15 +37,15 @@ So a decade after a platinum song, where the album at? The deal kept him tied up
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How does a platinum hit leave Bobby Shmurda with no debut album to show for it? [write "PLATINUM HIT" top left, draw a small record/disc beside it with a star; write "NO DEBUT ALBUM" top right, draw a big X over an empty album square]
+**HOOK:** While Bobby Shmurda sat with no debut album, how many times over you think his one hit paid the label back? [write "ONE HIT = ?x PAID BACK" top left, draw a small record/disc beside it with a star; write "NO DEBUT ALBUM" top right, draw a big X over an empty album square]
 
 **FORESHADOW:** Hold that. Cause the saddest part aint the prison time. [underline "NOT THE PRISON TIME" in the center, draw a small arrow pointing down the page]
 
 **RISING ACTION:** Bobby Shmurda blew up in 2014. [sharpie portrait of Bobby Shmurda: short twists/braids, big smile, write "BOBBY SHMURDA 2014" under it] "Hot Boy" hit number 6 on the Hot 100, went platinum. [write "#6 HOT 100" and "PLATINUM" stacked, circle both] Epic signed him that July, the number rumored around 2 million. [write "~$2,000,000?" with a question mark, box it] Then life happened. He got locked up, took a plea, did like six years. [draw simple prison bars, write "6 YEARS" beside them] And the contract dont stop for none of that. [draw a contract scroll with an arrow moving forward, write "DEAL KEEPS MOVING" with a long arrow, write "ARTIST FROZEN" with a small lock]
 
-**TWIST:** He come home in 2021, and he still tied to the same paper. [write "HOME 2021, STILL SIGNED"] He had to go public in 2022 and beg em to let him out. [write "2022: 'LET ME GO'", underline it] The fans who rode for you all them years? Nobody could touch em but the label. [draw a wall between a stick-figure artist and a row of stick-figure fans, label the wall "LABEL", put a sad face on the artist]
+**TWIST:** He come home in 2021, and he still tied to the same paper. [write "HOME 2021, STILL SIGNED"] He had to go public in 2022 and beg em to let him out. [write "2022: 'LET ME GO'", underline it] A decade after a platinum song, and still no debut album to his name. [write "10+ YEARS LATER" big, then "STILL NO ALBUM", draw a big X next to it]
 
-**PAYOFF:** This where it get crazy. So a decade after a platinum song, where the album at? [write "10+ YEARS LATER" big, then "STILL NO ALBUM", draw a big X next to it] The deal kept him tied up, and a label can hold your music longer than a court can hold your body, so ten years later there's still no debut. [write "LABEL HOLD > COURT HOLD" center, box it]
+**PAYOFF:** So how that song treat the label while he sat? Reports say Epic made they money back off that one hit at least two, three times over, so the label tripled they bet on a kid they never even put a album out for. [write "LABEL: 2-3x PAID BACK" center, box it, draw a $$$ stack beside it; under it write "HIS ALBUM: NEVER CAME", draw a big X]
 
 ---
 

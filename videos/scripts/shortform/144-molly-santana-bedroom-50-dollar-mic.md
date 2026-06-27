@@ -10,7 +10,7 @@ Link in bio to start direct with what you got, no label or studio needed, with C
 
 **SCRIPT:**
 
-This is a 50 dollar microphone. And this is how a kid built a career on it. Molly Santana started in her bedroom. No studio. No label. No money. She recorded her first project on a 50 dollar mic and free software that come on the computer. Thats it. She put the songs on SoundCloud and TikTok herself. The fans found her. Now she got over 500,000 people listening every month. She even landed a feature with Drake. From a bedroom. She aint wait for a studio or a deal to start. She used what was already in her hand. Most artists sit on their music waiting to do it right. She just dropped it. The bedroom artist with real fans beat the one still waiting on a budget. You dont need a label to start. You need to put it out and reach people direct.
+When Drake slid in Molly Santana DMs about a feature, what number did she put on it, and what did he do with it? She started in her bedroom. No studio. No label. No money. She recorded her first project on a 50 dollar mic and free software that come on the computer. Thats it. She put the songs on SoundCloud and TikTok herself. The fans found her. Built it up to over 500,000 people listening every month. Then Drake DMed her direct asking her feature price. She thought it was fake. Tried to do it for free out of respect. Catch what happened next. She had asked for around 100,000. Drake aint take the discount. He reportedly raised her own price up to 500,000, for a kid who started on a 50 dollar mic.
 
 ---
 
@@ -27,15 +27,15 @@ This is a 50 dollar microphone. And this is how a kid built a career on it. Moll
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is a 50 dollar microphone. And this is how a kid built a career on it. [draw a simple microphone at the top with "$50" written on it]
+**HOOK:** When Drake slid in Molly Santana DMs about a feature, what number did she put on it, and what did he do with it? [draw a phone with a DM bubble at the top, write "DRAKE -> FEATURE PRICE = ?"]
 
-**FORESHADOW:** Molly Santana started in her bedroom. No studio. No label. No money. [draw a small bed and a laptop, cross out "STUDIO", "LABEL", "MONEY"]
+**FORESHADOW:** She started in her bedroom. No studio. No label. No money. She recorded her first project on a 50 dollar mic and free software that come on the computer. [draw a small bed and a laptop, write "$50 MIC + FREE SOFTWARE", cross out "STUDIO", "LABEL", "MONEY"]
 
-**RISING ACTION:** She recorded her first project on a 50 dollar mic and free software that come on the computer. She put the songs on SoundCloud and TikTok herself. The fans found her. Now she got over 500,000 people listening every month. She even landed a feature with Drake. [write "$50 MIC + FREE SOFTWARE", draw arrows to "SOUNDCLOUD" and "TIKTOK", write "500,000+ LISTENERS", write "DRAKE FEATURE"]
+**RISING ACTION:** She put the songs on SoundCloud and TikTok herself. The fans found her. Built it up to over 500,000 people listening every month. [draw arrows to "SOUNDCLOUD" and "TIKTOK", write "500,000+ LISTENERS"]
 
-**TWIST:** She aint wait for a studio or a deal to start. She used what was already in her hand. Most artists sit on their music waiting to do it right. She just dropped it. [draw a stick figure sitting on a stack labeled "UNRELEASED" with a clock, next to a stick figure pressing a button labeled "DROPPED IT"]
+**TWIST:** Then Drake DMed her direct asking her feature price. She thought it was fake. Tried to do it for free out of respect. [draw a phone with Drake's DM, write "SHE SAID: DO IT FREE"]
 
-**PAYOFF:** The bedroom artist with real fans beat the one still waiting on a budget. You dont need a label to start. You need to put it out and reach people direct. [box at the bottom: "START WITH WHAT YOU GOT"]
+**PAYOFF:** She had asked for around 100,000. Drake aint take the discount. He reportedly raised her own price up to 500,000, for a kid who started on a 50 dollar mic. [write "HER ASK ~$100K", draw an arrow up to "DRAKE PAID $500K", box at the bottom: "$50 MIC -> $500K FEATURE (REPORTEDLY)"]
 
 ---
 

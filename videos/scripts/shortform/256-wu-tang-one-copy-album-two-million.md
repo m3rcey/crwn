@@ -10,7 +10,7 @@ Link in bio to sell music your real fans cant get anywhere else with CRWN. Free 
 
 **SCRIPT:**
 
-How did Wu-Tang turn one album nobody can stream into a 2 million dollar sale? Stay with me. Back in 2015 they recorded a whole album, 31 songs, and pressed exactly one copy. One. No streaming, no second copy, nobody else can press it. They locked it in a case and put it up for auction. A pharma guy named Martin Shkreli bid on it. Now think about ya catalog. A million plays sound like a lot, but a million plays pay you pennies cause anybody can hear it free. Wu-Tang flipped that. They made one thing nobody else could have, and the people who wanted in had to pay real money. A play is something they take. Access is something only you can hand them. The answer is scarcity. One copy nobody else could ever own went for around $2 million.
+Wu-Tang pressed one single copy of a album, sold it once, and years later that same album sold again for a whole lot more. How much more? Stay with me. Back in 2015 they recorded a whole album, 31 songs, and pressed exactly one copy. One. No streaming, no second copy, nobody else can press it. A pharma guy named Martin Shkreli got that one copy. Now think about ya catalog. A million plays sound like a lot, but a million plays pay you pennies cause anybody can hear it free. A million plays can only go down in value. Wu-Tang made the opposite. One thing nobody else could have, so the only direction it could move was up. A play is something they take. Access is something only you can hand them, and that the part that can grow. So how much more the second time? Shkreli paid about 1.5 million. When it sold again, it went for 4 million. The one album you can't stream more than doubled while every streamed song on earth got cheaper.
 
 ---
 
@@ -27,15 +27,15 @@ How did Wu-Tang turn one album nobody can stream into a 2 million dollar sale? S
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Wu-Tang turn one album nobody can stream into a 2 million dollar sale? [Top of page write "1 COPY" big and circle it. Write "WU-TANG" under it, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of RZA, Wu-Tang's founder, from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RZA / WU-TANG" underneath, with a small "W" logo shape next to the name]
+**HOOK:** Wu-Tang pressed one single copy of a album, sold it once, and years later that same album sold again for a whole lot more. How much more? [Top of page write "1 COPY" big and circle it. Write "WU-TANG" under it, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of RZA, Wu-Tang's founder, from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "RZA / WU-TANG" underneath, with a small "W" logo shape next to the name. Write "SOLD TWICE. HOW MUCH MORE?" with the question circled]
 
 **FORESHADOW:** Back in 2015 they recorded a whole album, 31 songs, and pressed exactly one copy. One. [Write "2015" and "31 SONGS" then a big underlined "1"] No streaming, no second copy, nobody else can press it. [Cross out the word "STREAM" with an X, draw a single CD with a lock on it]
 
-**RISING ACTION:** They locked it in a case and put it up for auction. [Draw a small box with a padlock, write "AUCTION" with an arrow pointing up] A pharma guy named Martin Shkreli bought that one copy for around $2 million. [Write "$2,000,000" big and circle it twice] Two million for one album that nobody can even play online. [Draw a phone with a crossed-out play button next to the price]
+**RISING ACTION:** They locked it in a case, 31 songs, one copy nobody else can ever press. [Draw a small box with a padlock, write "31 SONGS / 1 COPY" with an arrow pointing up] A pharma guy named Martin Shkreli got that one copy. [Draw a single CD with a lock on it, label it "SHKRELI"] One album nobody can even play online. [Draw a phone with a crossed-out play button]
 
-**TWIST:** Now think about ya catalog. A million plays sound like a lot, but a million plays pay you pennies cause anybody can hear it free. [Write "1,000,000 PLAYS = pennies" with the word "FREE" small under it] Wu-Tang flipped that. They made one thing nobody else could have, and the people who wanted in had to pay real money. [Draw a scale: left side "1,000,000 PLAYS", right side "1 COPY $2M", right side tips down heavy]
+**TWIST:** Now think about ya catalog. A million plays sound like a lot, but a million plays pay you pennies cause anybody can hear it free. A million plays can only go down in value. [Write "1,000,000 PLAYS = pennies" with a down arrow and "ONLY GOES DOWN" under it] Wu-Tang made the opposite. One thing nobody else could have, so the only direction it could move was up. [Draw a scale: left side "STREAMS" with a down arrow, right side "1 COPY" with an up arrow, right side tips down heavy]
 
-**PAYOFF:** A play is something they take. Access is something only you can hand them. [Bottom of page write "A PLAY = THEY TAKE" then under it "ACCESS = YOU GIVE", box the second line]
+**PAYOFF:** So how much more the second time? Shkreli paid about 1.5 million. When it sold again, it went for 4 million. The one album you can't stream more than doubled while every streamed song on earth got cheaper. [Write "1ST SALE: $1.5M" then under it "2ND SALE: $4M" and circle "$4M". At the bottom box "ONE COPY WENT UP. STREAMS WENT DOWN."]
 
 ---
 

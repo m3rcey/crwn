@@ -10,13 +10,13 @@ Link in bio to turn your music into the front door of a business you actually ow
 
 **SCRIPT:**
 
-Larry June charted top 5 independent, so why aint that chart number the thing that actually pays him? Larry out of San Francisco. Independent. He drop music like clockwork, "Good Job," "Numbers," over and over.
+Larry June got a boba shop in San Francisco, so why he tryna turn one tea spot into six? Larry out of San Francisco. Independent. He drop music like clockwork, "Good Job," "Numbers," over and over.
 
 In 2023 he and The Alchemist put out The Great Escape. It hit number 32 on the Billboard 200, number 4 on the independent chart. He own his masters, his imprint The Freeminded, distributed through Empire.
 
-Now most people stop right there and just see a rapper. Look closer. The man got a boba shop in San Francisco. He got Midnight Organic, his own clothing line. A song get forgot in a week. A customer who buy from you direct remember you forever.
+Now most people stop right there and just see a rapper. Look closer. He holds a big stake in Honeybear Boba, the tea shop he opened in 2021. He got Midnight Organic, his own clothing line too. A song get forgot in a week. A customer who buy a boba from you direct keep coming back.
 
-So the album dont gotta carry everything. It just gotta walk people in. The chart number aint the payday. The music the front door, and Larry June owns the whole building behind it.
+So the music aint really the payday, it just walk people in the door. And here go the part nobody clocks. Larry reportedly plannin to open five more boba spots, building a tea chain off the same fans who came for the rap.
 
 ---
 
@@ -33,13 +33,13 @@ So the album dont gotta carry everything. It just gotta walk people in. The char
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Larry June charted top 5 independent, so why aint that chart number the thing that actually pays him? [Top of page, write "#4 INDIE" in big letters, draw a question mark beside it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Larry June from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LARRY JUNE" underneath.]
+**HOOK:** Larry June got a boba shop in San Francisco, so why he tryna turn one tea spot into six? [Top of page, write "1 BOBA SHOP" in big letters, draw an arrow to "6?" beside it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Larry June from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "LARRY JUNE" underneath.]
 
 **RISING ACTION:** Larry June out of San Francisco. Independent. He drop music like clockwork, "Good Job," "Numbers," over and over. [Write "LARRY JUNE" with "INDEPENDENT" underlined beneath it, then a small list: "Good Job," "Numbers" with checkmarks] In 2023 he and The Alchemist put out The Great Escape. It hit number 32 on the Billboard 200, number 4 on the independent chart. He own his masters, his imprint The Freeminded, distributed through Empire. [Write "THE GREAT ESCAPE 2023," then "#32 BILLBOARD" and "#4 INDIE" stacked, then "OWNS MASTERS" boxed]
 
 **TWIST:** Now most people stop right there and see a rapper. So why aint the music the part that matters most to him? [Write "JUST A RAPPER?" with a question mark] A song get forgot in a week. A customer who buy from you direct remember you forever. [Write "SONG = 1 WEEK" with a small clock, then under it "CUSTOMER = FOREVER" and underline "FOREVER"]
 
-**PAYOFF:** Look closer. The man got a boba shop in San Francisco. He got Midnight Organic, his own clothing line. So the album dont gotta carry everything, it just gotta walk people in. The music the front door, and Larry June owns the whole building behind it. [Draw a simple house with a door; label the door "MUSIC"; draw arrows from the door to three small boxes labeled "BOBA SHOP," "CLOTHING," "MERCH"; draw a stick figure walking through the door; box the bottom line: "HE OWNS THE WHOLE BUILDING"]
+**PAYOFF:** Look closer. He holds a big stake in Honeybear Boba, the shop he opened in 2021, plus Midnight Organic, his own clothing line. The music aint the payday, it just walk people in the door. And here go the part nobody clocks. Larry reportedly plannin to open five more boba spots, building a tea chain off the same fans who came for the rap. [Draw one boba cup labeled "2021," then an arrow to a row of five more cups labeled "+5 MORE"; draw a stick figure walking from a door labeled "MUSIC" toward the cups; box the bottom line: "A TEA CHAIN OFF THE RAP FANS"]
 
 ---
 

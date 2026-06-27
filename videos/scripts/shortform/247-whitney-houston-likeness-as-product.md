@@ -10,7 +10,7 @@ Link in bio to own your name, likeness and audience instead of renting them out 
 
 **SCRIPT:**
 
-How did Whitney Houston end up on a hologram tour she never agreed to? Watch what they did. Years before she died, a music company reportedly paid around $14 million for half of her estate. Not just the songs. Her name. Her likeness. Her image too. So when she was gone, the owners had a idea. They built a hologram of her and put it on a stage she never stood on. A version of Whitney that sing every night, that sell tickets in Vegas, that the rights-holders control. She couldnt say yes. She couldnt say no. She wasnt there. That what it look like when you dont own your own face. Other people decide how it perform and who get paid off it. Whitney could outsing anybody who ever lived. The answer is simple. The company bought her name back when she was alive, so when she was gone they didnt need her permission to tour her.
+There a Whitney Houston in Las Vegas right now singing six nights a week, and she been gone since 2012, so who signed off on that? Stay with me. While she was still alive, a company quietly bought a piece of her estate. Not just the songs. Her name. Her likeness. Her image too. So when she passed, they aint need her permission for nothing. They could build whatever Whitney they wanted and send it to work. She couldnt say yes. She couldnt say no. She wasnt there. That what it look like when you dont own your own face. Other people decide how it perform and who get paid off it. Whitney could outsing anybody who ever lived. So who signed off on the Vegas Whitney? Nobody had to. The firm that built her hologram is the same one that put Roy Orbison and a dead opera singer back on stage. Whitney just the new act on the roster.
 
 ---
 
@@ -27,7 +27,7 @@ How did Whitney Houston end up on a hologram tour she never agreed to? Watch wha
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Whitney Houston end up on a hologram tour she never agreed to? [write "WHITNEY HOUSTON" big at the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Whitney Houston from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WHITNEY HOUSTON" underneath, with a mic beside it; draw a second stick figure on a small stage outline, with a dotted/ghost outline around it and the word "HOLOGRAM" under it]
+**HOOK:** There a Whitney Houston in Las Vegas right now singing six nights a week, and she been gone since 2012, so who signed off on that? [write "WHITNEY HOUSTON" big at the top, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Whitney Houston from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WHITNEY HOUSTON" underneath, with a mic beside it; draw a second stick figure on a small stage outline, with a dotted/ghost outline around it and the word "HOLOGRAM" under it; write "GONE SINCE 2012" small and "WHO SIGNED OFF?" with a circled question mark]
 
 **FORESHADOW:** Watch what they did with that. [draw an arrow from the real figure to the hologram figure]
 
@@ -35,7 +35,7 @@ How did Whitney Houston end up on a hologram tour she never agreed to? Watch wha
 
 **TWIST:** She couldnt say yes. She couldnt say no. She wasnt there. [write "YES" and "NO" and cross both out] That what it look like when you dont own your own face. Other people decide how it perform and who get paid off it. [draw a face outline inside a box, with a dollar sign pointing away from it to a second stick figure labeled "OWNERS"]
 
-**PAYOFF:** Whitney could outsing anybody who ever lived. But the company that bought her name? They the ones touring it now. [underline "BOUGHT HER NAME"] Your voice is the gift. Owning your name is what keep it yours after you cant hold it. [box the final line: "VOICE = THE GIFT / OWNING IT = YOURS"]
+**PAYOFF:** So who signed off on the Vegas Whitney? Nobody had to. The firm that built her hologram is the same one that put Roy Orbison and a dead opera singer back on stage. Whitney just the new act on the roster. [write "SAME FIRM:" then list "ROY ORBISON", "OPERA SINGER", "WHITNEY" with a check by each] [box the final line: "SHE A PRODUCT ON THEY SHELF NOW"]
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to turn your fans into customers who buy products, not just streams,
 
 **SCRIPT:**
 
-Sexyy Red just sold a product that aint even music. People think she only make money from streams. Nope. She put out a lip gloss line called Sexyy Gloss. Fans bought it up. She got merch. She got a store. The music is one income. The products is another. And she stay independent, so she keep her masters too. Think about why that work. Her fans dont just want the songs. They want HER. The lips, the brand, the merch, all of it. They'll spend on a product way faster than a stream pay you. A thousand streams might get you 4 dollars. One fan buying a 30 dollar bundle beats 7,000 streams by itself. Here go what most artists sleep on. Ya fans are customers, not just listeners. Sell em something they can hold, and one fan is worth more than a playlist.
+Sexyy Red put out a lip gloss her fans bought up fast, but what she named the shades is the part that tells you everything. She got a beauty brand, Northside Princess, with a gloss line called Sexyy Gloss. She got merch. She got a store. The music is one income. The products is another. And she stay independent, so she keep her masters too. Think about why that work. Her fans dont just want the songs. They want HER. The brand, the merch, all of it. They'll spend on a product way faster than a stream pay you. A thousand streams might get you 4 dollars. One fan buying a 30 dollar bundle beats 7,000 streams by itself. So how into HER are these fans really? She named the gloss shades stuff like Coochie Juice and Gonorrhea, on purpose, and they still bought every one, cause they aint buying makeup, they buying her.
 
 ---
 
@@ -27,15 +27,15 @@ Sexyy Red just sold a product that aint even music. People think she only make m
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Sexyy Red just sold a product that aint even music. People think she only make money from streams. Nope. [draw a lip gloss tube at the top labeled "SEXYY GLOSS"]
+**HOOK:** Sexyy Red put out a lip gloss her fans bought up fast, but what she named the shades is the part that tells you everything. [draw a lip gloss tube at the top labeled "SEXYY GLOSS", write "THE SHADE NAMES = ?"]
 
-**FORESHADOW:** She put out a lip gloss line called Sexyy Gloss. Fans bought it up. She got merch. She got a store. [write "SEXYY GLOSS", "MERCH", "STORE" with checkmarks]
+**FORESHADOW:** She got a beauty brand, Northside Princess, with a gloss line called Sexyy Gloss. She got merch. She got a store. [write "NORTHSIDE PRINCESS / SEXYY GLOSS", "MERCH", "STORE" with checkmarks]
 
 **RISING ACTION:** The music is one income. The products is another. And she stay independent, so she keep her masters too. Her fans dont just want the songs. They want HER. [draw two money streams into a stick figure labeled "MUSIC" and "PRODUCTS", write "KEEPS MASTERS" with a check]
 
 **TWIST:** They'll spend on a product way faster than a stream pay you. A thousand streams might get you 4 dollars. One fan buying a 30 dollar bundle beats 7,000 streams by itself. [write the math "1,000 STREAMS = $4", "1 FAN x $30 BUNDLE > 7,000 STREAMS", draw a scale tipping to the bundle]
 
-**PAYOFF:** Ya fans are customers, not just listeners. Sell em something they can hold, and one fan is worth more than a playlist. [box at the bottom: "FANS ARE CUSTOMERS, NOT JUST LISTENERS"]
+**PAYOFF:** So how into HER are these fans really? She named the gloss shades stuff like Coochie Juice and Gonorrhea, on purpose, and they still bought every one, cause they aint buying makeup, they buying her. [draw three gloss tubes labeled with wild shade names, write "THEY BOUGHT EVERY ONE", box at the bottom: "THEY AINT BUYING MAKEUP, THEY BUYING HER"]
 
 ---
 

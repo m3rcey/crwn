@@ -10,7 +10,7 @@ Link in bio to build a fanbase that moves together so you can beat anybody, budg
 
 **SCRIPT:**
 
-If a brand new rapper can knock the biggest pop star out of number one, then what's really running the charts? In 2017 a girl from the Bronx did something nobody had done in almost 20 years. Cardi B dropped Bodak Yellow and it went straight to number one. She bumped Taylor Swift out the top spot. Her first real single, and she beat the biggest name in pop. She was the first solo female rapper at number one since Lauryn Hill in 1998. No big machine. No giant budget. The fans she already built carried it up there. And it kept going. That same first single is certified diamond today. Over 10 million. Cardi became the first solo female rapper in history with a diamond single. Off a crowd nobody saw coming.
+Cardi B's first real single was Bodak Yellow, so just how far did one song off her own fans really go? In 2017 the girl from the Bronx pulled off something no solo female rapper had done in almost 20 years, not since Lauryn Hill back in 1998. Her first real single. No big machine behind it. No giant budget. Just the fans she already built. And the biggest name in pop was sitting right there at the top, untouchable. So what happened when a homemade crowd ran up against all that. Bodak Yellow went straight to number one and knocked Taylor Swift clean off the top spot.
 
 ---
 
@@ -27,13 +27,13 @@ If a brand new rapper can knock the biggest pop star out of number one, then wha
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If a brand new rapper can knock the biggest pop star out of number one, then what's really running the charts? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Cardi B from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARDI B" underneath; write "WHO RUNS THE CHARTS?" at the top]
+**HOOK:** Cardi B's first real single was Bodak Yellow, so just how far did one song off her own fans really go? [a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Cardi B from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "CARDI B" underneath; write "WHO RUNS THE CHARTS?" at the top]
 
-**FORESHADOW:** In 2017 a girl from the Bronx did something nobody had done in almost 20 years. [write "NOBODY DID IT IN 19 YEARS" with a big "?" next to it]
+**FORESHADOW:** In 2017 a girl from the Bronx pulled off something no solo female rapper had done in almost 20 years, not since Lauryn Hill back in 1998. [write "NOBODY DID IT IN 19 YEARS" with a big "?" next to it]
 
-**RISING ACTION:** Cardi B dropped Bodak Yellow and it went straight to number one. She bumped Taylor Swift out the top spot. Her first real single, and she beat the biggest name in pop. She was the first solo female rapper at number one since Lauryn Hill in 1998. No big machine. No giant budget. The fans she already built carried it up there. [write "BODAK YELLOW = #1", draw a stick figure climbing to a "#1" spot, another figure labeled "BIGGEST POP STAR" bumped down, "1ST SOLO FEMALE #1 SINCE 1998" underlined, cross out "BIG MACHINE" and "BIG BUDGET", draw a crowd lifting the "#1"]
+**RISING ACTION:** Her first real single. No big machine behind it. No giant budget. Just the fans she already built. And the biggest name in pop was sitting right there at the top, untouchable. So what happened when a homemade crowd ran up against all that. [write "1ST SOLO FEMALE #1 SINCE 1998?" underlined, cross out "BIG MACHINE" and "BIG BUDGET", draw a crowd labeled "HER FANS" facing off against a figure labeled "BIGGEST POP STAR" sitting on a "#1" throne]
 
-**TWIST / SURPRISE ENDING:** And it kept going. That same first single is certified diamond today. Over 10 million. Cardi became the first solo female rapper in history with a diamond single. Off a crowd nobody saw coming. [draw a diamond shape labeled "BODAK YELLOW = DIAMOND", write "10,000,000+", "1ST SOLO FEMALE RAPPER EVER", box at the bottom: "HER FIRST SINGLE WENT DIAMOND. OFF FANS."]
+**TWIST / SURPRISE ENDING:** Bodak Yellow went straight to number one and knocked Taylor Swift clean off the top spot. [draw a stick figure carried by a crowd up to the "#1" spot, the "BIGGEST POP STAR" figure tumbling off, box at the bottom: "HER FIRST SINGLE HIT #1. OFF FANS."]
 
 ---
 

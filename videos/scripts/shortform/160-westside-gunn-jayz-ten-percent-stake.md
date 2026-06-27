@@ -10,7 +10,7 @@ Link in bio to give your fans a real cut so they ride for you like partners, not
 
 **SCRIPT:**
 
-What did Jay-Z reportedly tell Westside Gunn to give away that most artists would never let go of? The story goes Jay gave Westside Gunn advice about Griselda, his rap group and label. Reportedly Jay told him to give his partners Conway and Benny a real piece, like 10 percent split between em. Westside Gunn reportedly said no, and later denied the whole story, so take it as a lesson, not gospel. But sit with the idea. Why would a man worth billions tell you to hand ownership away? Because when your people got a real stake, they build like its theirs, not just for a check. And here go the part that dont stop at business partners. Picture a fan who earns a cut for every person they bring in. That fan stops being a listener and starts pushing your music like they own a piece of it. Because now they actually do.
+Westside Gunn sat across from a billionaire over Griselda, so would he actually take Jay-Z's advice? The story goes Jay pulled him aside about Griselda, his rap group and label. Now think about what a man worth billions tells you in a moment like that. You expect some secret deal, some industry trick, some way to squeeze more out the machine. Sit with that for a second, cause the advice went the other way. It wasnt about getting more, it was about giving some away. So heres what Jay reportedly told him, and what Gunn did with it. Jay said hand Conway and Benny a real ownership piece, around 10 percent split between em, so they build Griselda like its theirs and never leave. Give your people a real cut and they stop riding like hired help and start pushing like it's theirs to lose.
 
 ---
 
@@ -27,13 +27,13 @@ What did Jay-Z reportedly tell Westside Gunn to give away that most artists woul
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What did Jay-Z reportedly tell Westside Gunn to give away that most artists would never let go of? [write "GIVE AWAY A PIECE?" at the top, draw a pie chart, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Westside Gunn from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WESTSIDE GUNN" underneath]
+**HOOK:** Westside Gunn sat across from a billionaire over Griselda, so would he actually take Jay-Z's advice? [write "TAKE A BILLIONAIRE'S ADVICE?" at the top, draw a pie chart, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Westside Gunn from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "WESTSIDE GUNN" underneath]
 
-**FORESHADOW:** The story goes Jay gave Westside Gunn advice about Griselda, his rap group and label. Reportedly Jay told him to give Conway and Benny a real piece, like 10 percent split between em. [draw a pie chart with a 10% slice labeled "CONWAY + BENNY", write "JAY-Z'S ADVICE"]
+**FORESHADOW:** The story goes Jay pulled him aside about Griselda, his rap group and label. Now think about what a man worth billions tells you in a moment like that. You expect some secret deal, some industry trick, some way to squeeze more out the machine. [write "GRISELDA", draw a thought bubble with "SECRET DEAL? / INDUSTRY TRICK? / SQUEEZE MORE?"]
 
-**RISING ACTION:** Westside Gunn reportedly said no, and later denied the whole story, so take it as a lesson, not gospel. But why would a man worth billions tell you to hand ownership away? Because when your people got a real stake, they build like its theirs, not just for a check. [write "SAID NO", "DENIED IT" with a small note "(take it as a lesson)", draw stick figures all pulling one rope toward a goal labeled "A STAKE = THEY RIDE"]
+**RISING ACTION:** Sit with that for a second, cause the advice went the other way. It wasnt about getting more, it was about giving some away. So heres what Jay reportedly told him, and what Gunn did with it. [cross out the thought bubble, write "NOT GET MORE -> GIVE SOME AWAY", draw a big "?" over a pie chart]
 
-**PAYOFF / SURPRISE ENDING:** And here go the part that dont stop at business partners. Picture a fan who earns a cut for every person they bring in. That fan stops being a listener and starts pushing your music like they own a piece of it. Because now they actually do. [draw a fan handing over a dollar from a new fan and getting a cut back, write "FAN -> OWNER", box at the bottom: "GIVE A FAN A CUT, THEY OWN A PIECE"]
+**PAYOFF / SURPRISE ENDING:** Jay said hand Conway and Benny a real ownership piece, around 10 percent split between em, so they build Griselda like its theirs and never leave. Give your people a real cut and they stop riding like hired help and start pushing like it's theirs to lose. [draw a pie chart with a 10% slice labeled "CONWAY + BENNY", a small note "(WSG later denied the story, take it as a lesson)", a row of figures all pulling one rope labeled "A REAL CUT = THEY RIDE LIKE OWNERS", box at the bottom: "GIVE EM A REAL CUT, THEY PUSH LIKE IT'S THEIRS."]
 
 ---
 

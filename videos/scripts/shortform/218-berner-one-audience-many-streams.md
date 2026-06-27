@@ -10,7 +10,7 @@ Link in bio to get paid more than one way from the same fanbase with CRWN. Free 
 
 **SCRIPT:**
 
-How did a rapper named Berner build one of the biggest cannabis brands in the country without ever findin a new audience? He's out of San Francisco, built his own label, Bern One. But the music was never the only product. The brand is Cookies, and the music became the marketing for it. Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. He reportedly built Cookies into a major brand, and he still owns a real piece. The crowd that streams you can also buy ya vinyl, ya verse, a song critique, a call. He aint go find a new audience for Cookies. He sold more to the audience he already had.
+How big did Berner's weed brand Cookies actually get off the same fans who streamed his raps? He out of San Francisco, built his own label, Bern One. But the music was never the only product. The brand is Cookies, and the music became the marketing for it. Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. He aint go find a new audience for Cookies, he sold more to the crowd he already had. The crowd that streams ya can also buy ya vinyl, ya verse, a song critique, a call. Here go the wild part. Cookies reportedly hit a billion dollar valuation, and Berner own a piece reported around three hundred million, off a fanbase he built rappin.
 
 ---
 
@@ -27,13 +27,13 @@ How did a rapper named Berner build one of the biggest cannabis brands in the co
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did a rapper named Berner build one of the biggest cannabis brands in the country without ever findin a new audience? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Berner from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BERNER" underneath. write "RAPPER → ??? BRAND" with a question mark]
+**HOOK:** How big did Berner's weed brand Cookies actually get off the same fans who streamed his raps? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Berner from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "BERNER" underneath. write "RAPS → COOKIES = ???" with a question mark]
 
 **RISING ACTION:** He's out of San Francisco, built his own label, Bern One. [draw a small stick figure with a mic, label "RAPPER", write "BERN ONE" next to it] But the music was never the only product. The brand is Cookies, and the music became the marketing for it. [write "MUSIC" with an arrow pointing down to "MARKETING", then box "COOKIES" off to the side] Same fans. The songs, the videos, the tour bus, all of it pointed his people at the brand he owned. [draw one circle labeled "SAME FANS", with three arrows leaving it to "SONGS", "VIDEOS", "TOUR BUS"] He reportedly built Cookies into a major brand, and he still owns a real piece. [write "OWNS A PIECE" and circle it]
 
 **TWIST:** So here go the part most artists miss. He aint go find a new audience for the business. He sold more to the audience he already had. [draw the SAME FANS circle again, now with arrows to "VINYL", "VERSE", "CRITIQUE", "CALL"]
 
-**PAYOFF:** The crowd that streams you can also buy ya vinyl, ya verse, a song critique, a call. One fanbase aint one paycheck. [write "1 FANBASE" then an equals sign to a stack of dollar signs "$ $ $ $"] It every paycheck you brave enough to offer. [box the final line "EVERY PAYCHECK YOU OFFER"]
+**PAYOFF:** The crowd that streams ya can also buy ya vinyl, ya verse, a song critique, a call. [write "1 FANBASE" then an equals sign to a stack of dollar signs "$ $ $ $"] Here go the wild part. Cookies reportedly hit a billion dollar valuation, and Berner own a piece reported around three hundred million, off a fanbase he built rappin. [write "COOKIES ≈ $1B" then under it "BERNER'S PIECE ≈ $300M", box the bottom line]
 
 ---
 

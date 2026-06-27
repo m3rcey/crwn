@@ -10,7 +10,7 @@ Link in bio to keep control of your music and your money with CRWN. Free to star
 
 **SCRIPT:**
 
-6LACK's first record deal paid him $1,250 and jailed him five years, so how did he ever climb out and go platinum? Around 2011 he signs that deal. No lawyer in the room. The paper slide across the table, he just sign it. Him and three friends split like $5,000 four ways, so he walk away with about $1,250. The deal was supposed to be $10,000. The other half just disappeared.
+6LACK's first record deal paid him $1,250 and jailed him five years, so what does a artist even build after a start that broke? Around 2011 he signs that deal. No lawyer in the room. The paper slide across the table, he just sign it. Him and three friends split like $5,000 four ways, so he walk away with about $1,250. The deal was supposed to be $10,000. The other half just disappeared.
 
 Then it get worse. The deal trap him for like five years. They had him makin hundreds of songs he hated. He said he felt jailed. So he sat there and refused to put any of it out.
 
@@ -33,7 +33,7 @@ First deal paid him $1,250. The first song he dropped on his own terms, PRBLMS, 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** 6LACK's first record deal paid him $1,250 and jailed him five years, so how did he ever climb out and go platinum? [Top left, big bold: "$1,250". Draw a small contract page under it with an X over it. Top right, big bold: "PLATINUM?". Draw a small record disc under it with a question mark. Draw a line down the middle splitting the page into two sides.]
+**HOOK:** 6LACK's first record deal paid him $1,250 and jailed him five years, so what does a artist even build after a start that broke? [Top left, big bold: "$1,250". Draw a small contract page under it with an X over it. Top right, big bold: "THEN WHAT?". Draw a small record disc under it with a question mark. Draw a line down the middle splitting the page into two sides.]
 
 **FORESHADOW:** Around 2011 he signs that deal. No lawyer in the room. [Left side, write "NO LAWYER". Draw a stick figure at a table with a paper sliding toward him.] The paper slide across the table, he just sign it.
 

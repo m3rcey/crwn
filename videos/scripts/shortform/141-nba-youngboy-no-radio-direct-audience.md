@@ -10,7 +10,7 @@ Link in bio to build a direct audience that shows up no matter what radio does w
 
 **SCRIPT:**
 
-If you can blow up with no radio and no co-sign, then what you really waiting on? NBA YoungBoy already showed it. He been YouTube's most played rapper five years straight. Billions of views. He got the most gold songs in history. More than Ariana Grande, Ed Sheeran, and Michael Jackson put together. Let that sit. And he did almost all of it with no radio. No magazine covers. No mainstream push. The machine acted like he wasnt there. His fans aint care. They went straight to him, every drop. The gatekeepers aint the door no more. A direct line to ya own fans is the door. He aint wait to get picked. He built a audience that shows up no matter what radio do. Radio used to hand out the wins. Now the artist with the realest direct fans just takes em, co-sign or not.
+With no radio and no co-sign, where does NBA YoungBoy actually rank against Drake, Jay-Z, and Kanye? He been YouTube's most played rapper five years straight. Billions of views. And he did almost all of it with no radio. No magazine covers. No mainstream push. The machine acted like he wasnt there. His fans aint care. They went straight to him, every drop. The gatekeepers aint the door no more. A direct line to ya own fans is the door. He aint wait to get picked. He built a audience that shows up no matter what radio do. So where do all them direct fans put him? In January 2026 the RIAA made him the most certified rapper ever, 126 plaques, past Drake, past Jay-Z, past Kanye, and he did it with barely any radio at all.
 
 ---
 
@@ -27,15 +27,15 @@ If you can blow up with no radio and no co-sign, then what you really waiting on
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If you can blow up with no radio and no co-sign, then what you really waiting on? NBA YoungBoy already showed it. [write "NO RADIO" at the top with an X over a radio, write "STILL #1"]
+**HOOK:** With no radio and no co-sign, where does NBA YoungBoy actually rank against Drake, Jay-Z, and Kanye? [write "NO RADIO" at the top with an X over a radio, write "RANKS WHERE?"]
 
-**FORESHADOW:** He been YouTube's most played rapper five years straight. Billions of views. [write "YOUTUBE'S #1 RAPPER", "5 YEARS STRAIGHT", "15 BILLION+ VIEWS"]
+**FORESHADOW:** He been YouTube's most played rapper five years straight. Billions of views. And he did almost all of it with no radio. No magazine covers. No mainstream push. [write "YOUTUBE'S #1 RAPPER", "5 YEARS STRAIGHT", "15 BILLION+ VIEWS", cross out "RADIO", "COVERS", "PUSH"]
 
-**RISING ACTION:** He got the most gold songs in history. More than Ariana Grande, Ed Sheeran, and Michael Jackson put together. And he did almost all of it with no radio. No magazine covers. No mainstream push. [write "MOST GOLD SONGS EVER", draw three small stick figures labeled "ARIANA", "ED", "MJ" with a "+" then "<" pointing to "NBA YB", cross out "RADIO", "COVERS", "PUSH"]
+**RISING ACTION:** The machine acted like he wasnt there. His fans aint care. They went straight to him, every drop. [draw a radio off to the side X'd out, draw a crowd of stick figures walking straight to a stick figure]
 
-**TWIST:** The machine acted like he wasnt there. His fans aint care. They went straight to him, every drop. The gatekeepers aint the door no more. A direct line to ya own fans is the door. [draw a closed gate labeled "GATEKEEPERS" crossed out, draw an open door with a crowd of stick figures walking straight through to a stick figure]
+**TWIST:** The gatekeepers aint the door no more. A direct line to ya own fans is the door. He aint wait to get picked. He built a audience that shows up no matter what radio do. [draw a closed gate labeled "GATEKEEPERS" crossed out, draw an open door with a crowd of stick figures walking straight through]
 
-**PAYOFF:** He aint wait to get picked. He built a audience that shows up no matter what radio do. Radio used to hand out the wins. Now the artist with the realest direct fans just takes em, co-sign or not. [box at the bottom: "RADIO PICKED WINNERS / NOW DIRECT FANS DO"]
+**PAYOFF:** So where do all them direct fans put him? In January 2026 the RIAA made him the most certified rapper ever, 126 plaques, past Drake, past Jay-Z, past Kanye, and he did it with barely any radio at all. [write "126 RIAA PLAQUES", draw three small stick figures labeled "DRAKE", "JAY-Z", "KANYE" with "< NBA YB", box at the bottom: "MOST CERTIFIED RAPPER EVER / ALMOST NO RADIO"]
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to own a fan list that pays you instead of a following that doesn't 
 
 **SCRIPT:**
 
-This is how you make 2 million dollars off 15,000 people. Not 15 million streams. 15,000 phone numbers. And the man who did it gave up his cell number to get there. Ryan Leslie is a Grammy-nominated producer and artist. Years back he posted his real number, 646-887-6978, for fans to text him direct. Then he built his own app to handle all them texts. He sold his music straight through that line. No label. No playlist. No algorithm deciding who saw it. Just him and a list he owned. About 15,000 real fans on that list paid him close to 2 million dollars. Investors even backed the app for a reported million and a half. Now sit with what he said about it. Having 2 million followers dont mean you connected to a single one of them. A number you can text beats a follower you only hope is watching.
+Ryan Leslie gave 15,000 fans his real cell number, and where that one experiment ended up is the part nobody sees coming. He's a Grammy-nominated producer and artist. Years back he posted his actual number, 646-887-6978, for fans to text him direct. Then he built his own app to handle all them texts. He sold his music straight through that line. No label. No playlist. No algorithm decidin who saw it. Just him and a list he owned. Investors even backed the app, reportedly a million and a half. That little list paid him close to 2 million dollars, around 130 dollars a head off fans you could fit in one arena. But here go the part nobody expects. He turned that fan-texting setup into a real tech company called SuperPhone, and the biggest client signed up to run they own artists through it was Atlantic Records, the same kind of major he started out tryna route around.
 
 ---
 
@@ -27,13 +27,13 @@ This is how you make 2 million dollars off 15,000 people. Not 15 million streams
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is how you make 2 million dollars off 15,000 people. Not 15 million streams. 15,000 phone numbers. [write "$2,000,000" huge at top, under it "← 15,000 PHONE NUMBERS"]
+**HOOK:** Ryan Leslie gave 15,000 fans his real cell number, and where that one experiment ended up is the part nobody sees coming. [write "15,000 PHONE NUMBERS" huge at top, under it "= ???"]
 
-**FORESHADOW:** And the man who did it gave up his cell number to get there. [draw a phone with "646-887-6978" on the screen]
+**FORESHADOW:** He's a Grammy-nominated producer and artist who posted his actual number for fans to text him direct. [draw a phone with "646-887-6978" on the screen]
 
-**RISING ACTION:** Ryan Leslie is a Grammy-nominated producer and artist. He posted his real number for fans to text him direct, then built his own app to handle the texts. He sold his music straight through that line. No label. No playlist. No algorithm deciding who saw it. Just him and a list he owned. About 15,000 real fans paid him close to 2 million dollars. Investors backed the app for a reported million and a half. [write "TEXT → SOLD MUSIC DIRECT", cross out "LABEL", "PLAYLIST", "ALGORITHM", write "A LIST HE OWNED", "~15,000 FANS = ~$2M", "APP BACKED ~$1.5M"]
+**RISING ACTION:** Then he built his own app to handle the texts. He sold his music straight through that line. No label. No playlist. No algorithm deciding who saw it. Just him and a list he owned. Investors backed the app, reportedly a million and a half. [write "TEXT → SOLD MUSIC DIRECT", cross out "LABEL", "PLAYLIST", "ALGORITHM", write "A LIST HE OWNED", "APP BACKED ~$1.5M"]
 
-**TWIST / SURPRISE ENDING:** Now sit with what he said about it. Having 2 million followers dont mean you connected to a single one of them. A number you can text beats a follower you only hope is watching. [draw a big quote box: "2 MILLION FOLLOWERS ≠ CONNECTED TO ANY OF THEM", box at the bottom: "A NUMBER YOU TEXT BEATS A FOLLOWER YOU HOPE SEES YOU"]
+**TWIST / SURPRISE ENDING:** That little list paid him close to 2 million dollars, around 130 dollars a head off fans you could fit in one arena. But here go the part nobody expects. He turned that fan-texting setup into a real tech company called SuperPhone, and the biggest client signed up to run they own artists through it was Atlantic Records, the same kind of major he started out tryna route around. [write "~15,000 FANS = ~$2M", under it "≈ $130 A HEAD", box at the bottom: "BUILT 'SUPERPHONE' → ATLANTIC RECORDS SIGNED UP"]
 
 ---
 

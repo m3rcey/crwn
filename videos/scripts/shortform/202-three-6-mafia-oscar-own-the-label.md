@@ -10,15 +10,13 @@ Link in bio to own the label your music pays instead of feeding someone else's w
 
 **SCRIPT:**
 
-Who actually cashed in when a Memphis rap group became the first to ever win a Oscar?
-
-Back in 2006, Three 6 Mafia win Best Original Song. First hip-hop group to ever take a Academy Award home. They aint just win it. They got on that stage and performed it live too.
+Three 6 Mafia became the first rap group ever to win a Oscar back in 2006, and what's still true about that record twenty years later is the part most people get wrong. Back in 2006, Three 6 Mafia win Best Original Song. First hip-hop group to ever take a Academy Award home. They aint just win it. They got on that stage and performed it live too.
 
 Now here go what most people miss. They was never some major-label act somebody discovered. DJ Paul and Juicy J built they own label back in 97. Hypnotize Minds. They owned it.
 
 So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. A signed artist win a award, the label get richer first. Three 6 was the label.
 
-So the first Academy Award in the history of hip-hop aint have a single major label name attached to the money. It cashed straight into two dudes from Memphis who signed theyself.
+And here go the part that still trips people up twenty years later. Plenty of solo rappers won Best Original Song since, Eminem, Common. But a whole rap group, all of em up there together. Three 6 is the only one to ever do it. Two decades gone and aint another group in hip-hop history matched it.
 
 ---
 
@@ -35,7 +33,7 @@ So the first Academy Award in the history of hip-hop aint have a single major la
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Who actually cashed in when a Memphis rap group became the first to ever win a Oscar? [Top center, large block letters: "WHO CASHED THE OSCAR?" then under it "MEMPHIS → OSCAR" with an arrow between them. Draw a small gold statue (a simple standing figure) next to OSCAR. Beside it draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of DJ Paul and Juicy J of Three 6 Mafia from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "DJ PAUL" and "JUICY J" underneath.] And the part that flipped my head wasnt the trophy. [Under it write small "(not the trophy)" and draw a tiny trophy crossed out with an X.]
+**HOOK:** Three 6 Mafia became the first rap group ever to win a Oscar back in 2006, and what's still true about that record twenty years later is the part most people get wrong. [Top center, large block letters: "FIRST RAP GROUP WITH A OSCAR" then under it "THREE 6 → OSCAR" with an arrow between them. Draw a small gold statue (a simple standing figure) next to OSCAR. Beside it draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of DJ Paul and Juicy J of Three 6 Mafia from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "DJ PAUL" and "JUICY J" underneath.] And what's still true twenty years later is the part most people get wrong. [Under it write small "(still true today)" with a tiny gold statue beside it.]
 
 **FORESHADOW:** Back in 2006, Three 6 Mafia win Best Original Song. [Write "2006" circled on the left, then "BEST ORIGINAL SONG" under it.] First hip-hop group to ever take a Academy Award home. [Underline "FIRST HIP-HOP GROUP" once.] They aint just win it. They got on that stage and performed it live too. [Draw a small stage with a stick figure on it, mouth open, a music note above.]
 
@@ -43,7 +41,7 @@ So the first Academy Award in the history of hip-hop aint have a single major la
 
 **TWIST:** So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. [Draw a ladder going up on the left, with "PARENT CO." at the top, and a big X over the top rung.] It land with the two dudes who own the company. [Draw an arrow from the statue pointing straight to "DJ PAUL + JUICY J" boxed.] A signed artist win a award, the label get richer first. Three 6 was the label. [Two-line equation: "SIGNED → LABEL EATS FIRST" over "THREE 6 = THE LABEL". Box the bottom line.]
 
-**PAYOFF:** So the first Academy Award in the history of hip-hop aint have a single major label name attached to the money. It cashed straight into two dudes from Memphis who signed theyself. [Bottom center, large: "OWN IT → THE WIN IS YOURS".] [Under it, smaller, "NOT WHOEVER SIGNED YOU", with "SIGNED YOU" crossed out. Double underline the top line.]
+**PAYOFF:** And here go the part that still trips people up twenty years later. Plenty of solo rappers won Best Original Song since, Eminem, Common. But a whole rap group, all of em up there together. Three 6 is the only one to ever do it. Two decades gone and aint another group in hip-hop history matched it. [Bottom center, large: "STILL THE ONLY RAP GROUP EVER".] [Under it, smaller, "20+ YEARS, NOBODY ELSE", double underline the top line.]
 
 ---
 
