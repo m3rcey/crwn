@@ -26,7 +26,7 @@ Write prompts to `/home/merce/.openclaw/workspace-crwn/generate-images.mjs` and 
 The script must:
 1. Load style reference images from the references folder (exclude `crwn-logo.png` from style refs)
 2. If any prompt mentions CRWN or the CRWN logo, also load `crwn-logo.png` as a separate reference and instruct the model to reproduce it exactly
-3. Include the style instruction: "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly."
+3. Include the style instruction: "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and diagrams, high contrast black on white, no gray tones, no background texture. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. The reference images convey drawing STYLE ONLY (line weight, lettering, hand-drawn icon look), not content. Do NOT copy any text, words, logos, crowns, brand marks, or taglines from the reference images. Never draw the word 'CRWN', a crown symbol or logo, or marketing taglines unless the prompt explicitly asks for them. Draw ONLY what the prompt specifies."
 4. Save output as `.jpg` files
 5. Add 8-second delays between requests
 6. Track success/failure counts

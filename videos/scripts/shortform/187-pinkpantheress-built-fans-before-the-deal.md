@@ -10,7 +10,7 @@ Link in bio to grow a fanbase that's yours before any label comes calling with C
 
 **SCRIPT:**
 
-How did PinkPantheress turn 90-second loops posted free after school into a number 3 record? Back in early 2021 she was still in school. After class she'd spend like an hour makin one song a day. Short loops, 90 seconds or less. Then she posted em straight to TikTok for free. One caption said "day 11 of posting a song every day." A snippet of her song Pain caught fire. The fans was already there. Already listenin, already sharin, already hers. Then in April that year Parlophone signed her. Watch the order. The fans came first. The deal came after. So by the time "Boy's a Liar Pt 2" with Ice Spice landed, that audience wasn't new. The label aint build it. A girl postin free clips after school did, and that crowd carried her to number 3 on the Hot 100.
+How did PinkPantheress turn 90-second loops posted free after school into a number 3 record? Back in early 2021 she was still in school. After class she'd spend like an hour makin one song a day. Short loops, 90 seconds or less. Then she posted em straight to TikTok for free. One caption said "day 11 of posting a song every day." A snippet of her song Pain caught fire. The fans was already there. Already listenin, already sharin, already hers. Then in April that year Parlophone signed her. Watch the order. The fans came first. The deal came after. The label aint build that. A girl postin free 90-second clips after school did. And those after-school loops carried "Boy's a Liar Pt 2" all the way to number 3 on the Hot 100, one spot off the top of the whole country.
 
 ---
 
@@ -33,9 +33,9 @@ How did PinkPantheress turn 90-second loops posted free after school into a numb
 
 **RISING ACTION:** One caption said "day 11 of posting a song every day." [Write "DAY 11" in quotes.] A snippet of her song Pain caught fire. [Draw a small flame, write "PAIN" beside it.] Now the fans was already there. Already listenin, already sharin, already hers. [Draw 4 stick figures in a row, write "ALREADY HERS" under them.] Then in April that year Parlophone signed her. [Write "APRIL 2021 - SIGNED" with an arrow pointing right after the stick figures.]
 
-**TWIST:** Watch the order though. The fans came first. The deal came after. [Draw a left-to-right arrow: "FANS" then "DEAL", number them 1 and 2.] So when "Boy's a Liar Pt 2" with Ice Spice hit number 3 on the Hot 100, that audience wasn't new. [Write "#3 HOT 100" and circle it.] The label aint build that. [Cross out the word "LABEL".] A girl postin free clips after school did.
+**TWIST:** Watch the order though. The fans came first. The deal came after. [Draw a left-to-right arrow: "FANS" then "DEAL", number them 1 and 2.] The label aint build that. [Cross out the word "LABEL".] A girl postin free 90-second clips after school did.
 
-**PAYOFF:** The fans was the asset before anybody put a dollar on it. [Box the words "THE FANS = THE ASSET" at the bottom, underline twice.]
+**PAYOFF:** And those after-school loops carried "Boy's a Liar Pt 2" all the way to number 3 on the Hot 100, one spot off the top of the whole country. [Box the words "#3 HOT 100" at the bottom, write "1 OFF #1" beside it, circle "#3".]
 
 ---
 

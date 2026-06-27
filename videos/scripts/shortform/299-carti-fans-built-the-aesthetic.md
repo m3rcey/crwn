@@ -18,7 +18,7 @@ So when Whole Lotta Red hit in 2020 and the internet turned on it, "Whole Lotta 
 
 But them same fans wouldnt let it die. They argued for that record in every thread, every comment, for years.
 
-It wasnt Carti who saved it. The room of fans he built dragged that "trash" into the classic everybody calls it now.
+Carti aint lift a finger. The room of fans he built dragged that "trash" all the way to number one, the first number-one album of his whole career.
 
 ---
 
@@ -43,7 +43,7 @@ It wasnt Carti who saved it. The room of fans he built dragged that "trash" into
 
 **TWIST:** So when Whole Lotta Red hit and the internet turned on it, "Whole Lotta Trash" was trendin within hours. Carti aint say nothin. He let it sit. The fans wouldnt let it die. They argued for that album in every thread, every comment, for years. [Write "WHOLE LOTTA RED 2020" then below it crossed out: "TRASH"]
 
-**PAYOFF:** Same record. Same room of fans. That trash they was draggin on day one is the project everybody calls a classic now. [Draw arrow from crossed-out "TRASH" to "CLASSIC" circled and boxed]
+**PAYOFF:** Same record. Same room of fans. That "trash" they was draggin on day one debuted at number one, the first number-one album Carti ever had. [Draw arrow from crossed-out "TRASH" to "#1" circled and boxed]
 
 ---
 

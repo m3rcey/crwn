@@ -14,7 +14,7 @@ Why did Pi'erre Bourne, the man behind one of the biggest beats in rap, have to 
 
 Then 6ix9ine used one of his beats for "Gummo." Pi'erre say he aint even approve it. The beat got passed to him through somebody else.
 
-So what Pi'erre do? He aint cry on the timeline. He got lawyers and waited til the song was a hit. The man behind the sound everybody copied had to bring lawyers and claw back a piece of his own beat, and 6ix9ine disputed it even then.
+So what Pi'erre do? He aint cry on the timeline. He got lawyers and waited til the song was a hit. On a beat he say he never even approved, Pi'erre claim he walked off with 75 percent of "Gummo," and 6ix9ine got on the internet callin it a lie.
 
 ---
 
@@ -39,7 +39,7 @@ So what Pi'erre do? He aint cry on the timeline. He got lawyers and waited til t
 
 **TWIST:** So what Pi'erre do? He aint cry on the timeline. He got lawyers and waited til the song was a hit. [Draw a stick figure with a briefcase labeled "LAWYERS". Write "WAITED TIL IT HIT" beside it.]
 
-**PAYOFF:** The man behind the sound everybody copied had to bring lawyers and claw back a piece of his own beat, and 6ix9ine disputed it even then. [Write "HAD TO FIGHT FOR HIS OWN BEAT" big and underline "FIGHT". Next to it, small: "(6ix9ine disputed it)".]
+**PAYOFF:** On a beat he say he never even approved, Pi'erre claim he walked off with 75 percent of "Gummo," and 6ix9ine got on the internet callin it a lie. [Write "75% OF GUMMO" big and circle "75%". Next to it, small: "(6ix9ine called it a lie)".]
 
 ---
 

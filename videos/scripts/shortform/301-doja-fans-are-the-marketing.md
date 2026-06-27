@@ -10,7 +10,7 @@ Link in bio to give your fans a home base and turn them into your free street te
 
 **SCRIPT:**
 
-Where does Doja Cat's marketing department, the one she never hired, actually live? Millions of people push her music every single day. They cut the edits. They make the memes. They start the trends before she even post anything. And she dont pay none of em. Doja dont run them pages either. The fans built em on they own and post around the clock, every time zone, never clock out. Now most artists would kill for that and pay millions tryna fake it. A real ad agency would charge her a fortune to run a fraction of what these fans run for her. One clip outta that crowd can go bigger than the song she actually dropped. So if it aint an office, and it aint a team she hired, then where is it? Posts every hour, trends started for her, reach no budget could buy. A full marketing department, top to bottom, runnin every day. It lives in her fans, every group chat and stan account, and the bill comes to zero.
+Where does Doja Cat's marketing department, the one she never hired, actually live? Millions of people push her music every single day. They cut the edits. They make the memes. They start the trends before she even post anything. And she dont pay none of em. Doja dont run them pages either. The fans built em on they own and post around the clock, every time zone, never clock out. Now most artists would kill for that and pay millions tryna fake it. A real ad agency would charge her a fortune to run a fraction of what these fans run for her. One clip outta that crowd can go bigger than the song she actually dropped. So if it aint an office, and it aint a team she hired, then where is it? Posts every hour, trends started for her, reach no budget could buy. It lives in her fans, every group chat and stan account. And here go the part that flip it: them fan edits got so good that movie studios like Lionsgate started hirin the fan editors and payin em real money to cut official ads.
 
 ---
 
@@ -35,7 +35,7 @@ Where does Doja Cat's marketing department, the one she never hired, actually li
 
 **TWIST:** Now most artists would kill for that and pay millions tryna fake it. A real ad agency would charge her a fortune to run a fraction of what these fans run for her. [Draw many tiny scattered dots across the page flowing toward one box labeled "AGENCY $$$" crossed out] One clip outta that crowd can go bigger than the song she actually dropped. [Draw a small arrow shooting up from "FAN CLIP"]
 
-**PAYOFF:** So if it aint an office, and it aint a team she hired, then where is it? Posts every hour, trends started for her, reach no budget could buy. A full marketing department, top to bottom, running every day. It lives in her fans, every group chat and stan account, and the bill comes to zero. [Write "FULL MARKETING DEPT" with a big circled "$0" beside it, underline "$0"]
+**PAYOFF:** So if it aint an office, and it aint a team she hired, then where is it? It lives in her fans, every group chat and stan account. And the edits got so good that studios like Lionsgate started hirin the fan editors and payin em to cut official ads. [Write "FAN EDITORS" with an arrow to "STUDIOS PAY $$$", circle it]
 
 ---
 

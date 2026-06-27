@@ -24,9 +24,9 @@ Now here go the math nobody talks about. A major would split that worldwide mone
 
 She stayed small on paper and kept the bigger half.
 
-The label sells you reach like you cant get it on ya own. Jorja got it on her own and held her money. Going global and going independent aint enemies. She did both at once.
+The label sells you reach like you cant get it on ya own. Jorja got it on her own and held her money.
 
-And that debut she put out herself, on her own label. It landed at number 3 on the UK chart, number 1 on the UK R&B chart.
+And that debut she put out herself, on her own little label with no major owning a thing. It landed at number 3 on the whole UK album chart and number 1 on the UK R&B chart, sittin up there next to records a major spent millions on.
 
 ---
 
@@ -49,9 +49,9 @@ And that debut she put out herself, on her own label. It landed at number 3 on t
 
 **RISING ACTION:** Jorja Smith out of Walsall, England. She put her music out through FAMM, her own little label. No major bought her recordings. [Write "JORJA SMITH" then "FAMM = HER OWN LABEL" under it, box "FAMM", cross out "MAJOR LABEL" beside it.] She got reportedly the first independent female artist to win the Brit Rising Star. [Write "BRIT RISING STAR", draw a small trophy.] A Grammy nomination the next year. [Write "GRAMMY NOM", underline it.] She toured Europe, North America, all the way out to Japan. [Draw three small dots on the globe with tiny lines connecting them.]
 
-**TWIST:** Now here go the math nobody talks about. A major would split that worldwide money down the middle and call it a favor. [Draw a circle split in half down the middle, write "LABEL" on one half, "ARTIST" on the other.] She stayed small on paper and kept the bigger half. [Draw a second circle, shade the big slice, write "HER" on it.] The label sells you reach like you cant get it on ya own. Jorja got it on her own and held her money. Going global and going independent aint enemies. She did both at once. [Write "GLOBAL + INDEPENDENT" with a plus sign between the two words, circle it.]
+**TWIST:** Now here go the math nobody talks about. A major would split that worldwide money down the middle and call it a favor. [Draw a circle split in half down the middle, write "LABEL" on one half, "ARTIST" on the other.] She stayed small on paper and kept the bigger half. [Draw a second circle, shade the big slice, write "HER" on it.] The label sells you reach like you cant get it on ya own. Jorja got it on her own and held her money. [Write "GLOBAL + INDEPENDENT" with a plus sign between the two words, circle it.]
 
-**PAYOFF:** And that debut she put out herself, on her own label. It landed at number 3 on the UK chart, number 1 on the UK R&B chart. [At the bottom write "UK #3" and "UK R&B #1" big, circle both, box the pair.]
+**PAYOFF:** And that debut she put out herself, on her own little label with no major owning a thing. It landed at number 3 on the whole UK album chart and number 1 on the UK R&B chart, sittin up there next to records a major spent millions on. [At the bottom write "UK #3" and "UK R&B #1" big, circle both, box the pair.]
 
 ---
 

@@ -26,7 +26,7 @@ Day six, set ya tiers, free up top so anybody gets in, paid for the ones who rid
 
 Day seven, check ya numbers and see exactly who showed up.
 
-Run that week, and you got what Kendrick had. GNX hit number one off a cold drop, three hundred nineteen thousand the first week, cause the people were already his.
+Run that week, and you got what Kendrick had. No single, no warnin, GNX still moved three hundred nineteen thousand the first week.
 
 ---
 

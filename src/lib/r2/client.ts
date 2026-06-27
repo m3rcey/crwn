@@ -60,7 +60,7 @@ export async function getSignedDownloadUrl(
 
 export function generateFileKey(
   artistSlug: string,
-  type: 'audio' | 'art' | 'banner' | 'avatar',
+  type: 'audio' | 'art' | 'banner' | 'avatar' | 'vod',
   filename: string
 ): string {
   const timestamp = Date.now();

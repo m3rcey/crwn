@@ -6,8 +6,8 @@ import { execSync, execFileSync } from 'node:child_process';
 // one 3:4 sheet per page. Matches the existing "Hip-Hop Industry 43-100.pdf".
 
 const IMG_DIR = '/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Posts/Hip-Hop Industry';
-const START = 101;
-const END = 140;
+const START = 48;
+const END = 170;
 const OUT_PDF = `/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Posts/Hip-Hop Industry ${START}-${END}.pdf`;
 const TMP_HTML = '/tmp/hiphop-img-pdf.html';
 const CHROME = '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe';

@@ -22,7 +22,7 @@ Nope. There a big company moving GÉNESIS to Spotify and Apple, but they dont ow
 
 So if the company shipping it dont own it, who does?
 
-He owns the masters himself, on his own label Double P. The major just ships it.
+He do. The number 3 album in the country come off Double P, his own label, and that major moving it to Spotify aint nothin but a mailman gettin paid to drop off his files.
 
 ---
 
@@ -47,7 +47,7 @@ He owns the masters himself, on his own label Double P. The major just ships it.
 
 **TWIST:** Now here the thing everybody assume. They think a major label found him and built all that. [Write "MAJOR LABEL?" then draw a big X over it.] Nope. There a big company moving GÉNESIS to Spotify and Apple, but they dont own none of it. [Draw an envelope/box with an arrow pointing to Spotify and Apple.] They just ship the files. They a delivery service. [Write "= DELIVERY" next to the envelope.]
 
-**PAYOFF:** So if the company shipping it dont own it, who does? He owns the masters himself, on his own label Double P. The major just ships it. [Write "DOUBLE P" and underline it twice, write "OWNS THE MASTERS" and box it. Draw a simple stick-figure mailman holding an envelope, write "JUST SHIPS IT" under it.]
+**PAYOFF:** So if the company shipping it dont own it, who does? He do. The number 3 album in the country come off Double P, his own label, and that major moving it to Spotify aint nothin but a mailman gettin paid to drop off his files. [Write "DOUBLE P" and underline it twice, write "OWNS THE MASTERS" and box it. Draw a simple stick-figure mailman holding an envelope, write "JUST SHIPS IT" under it.]
 
 ---
 

@@ -16,7 +16,7 @@ Then it get worse. The deal trap him for like five years. They had him makin hun
 
 When he finally got free, he named his first album Free 6lack. Came out late 2016, on a deal he controlled this time.
 
-PRBLMS, off that same album, sittin at 4 times platinum. The platinum aint come from the first deal. It came the second he got his control back.
+First deal paid him $1,250. The first song he dropped on his own terms, PRBLMS, off that Free 6lack album, sittin at 4 times platinum today. That's around 4 million units, off the deal he controlled, after the one that paid him twelve hundred dollars.
 
 ---
 
@@ -41,7 +41,7 @@ PRBLMS, off that same album, sittin at 4 times platinum. The platinum aint come 
 
 **TWIST:** When he finally got free, he named his first album Free 6lack. [Right side, write "FREE 6LACK" big. Draw broken cage bars beside it.] Came out late 2016 on a deal he controlled this time. [Write "2016" and "HIS CONTROL".]
 
-**PAYOFF:** PRBLMS, off that same album, sittin at 4 times platinum. [Write "PRBLMS" then "4x PLATINUM". Box "4x PLATINUM".] The song he made after he got his control back is the one that printed. [Draw an arrow from "$1,250" on the left all the way to "4x PLATINUM" on the right.]
+**PAYOFF:** First deal paid him $1,250. The first song he dropped on his own terms, PRBLMS, off that Free 6lack album, sittin at 4 times platinum today. That's around 4 million units, off the deal he controlled, after the one that paid him twelve hundred dollars. [Write "PRBLMS" then "4x PLATINUM" then "~4 MILLION". Box "4x PLATINUM". Draw an arrow from "$1,250" on the left all the way to "4x PLATINUM" on the right.]
 
 ---
 

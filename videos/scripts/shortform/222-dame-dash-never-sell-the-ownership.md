@@ -10,7 +10,7 @@ Link in bio to own your music and your fans instead of selling the piece that ke
 
 **SCRIPT:**
 
-What did Dame Dash sell in 2004 that Jay-Z said he woulda traded the entire company to keep? Back in 2004 him, Jay, and Biggs sold they half of Roc-A-Fella to Def Jam for reportedly around ten million. Split three ways that aint generational money. Jay took the president job and kept his masters. Dame walked off with a check and a third of a catalog he aint really run no more. Ten million sound like a win in 2004. But a catalog like that keep payin every year, forever. Dame been preachin it ever since. Own the equity, dont sell the piece. Cause Jay said he woulda gave up Roc-A-Fella and that whole president job, all of it, just to own one album by hisself. Reasonable Doubt. The masters was the prize the whole time.
+What did Dame Dash sell in 2004 that Jay-Z said he woulda traded the entire company to keep? Back in 2004 him, Jay, and Biggs sold they half of Roc-A-Fella to Def Jam for reportedly around ten million. Split three ways that aint generational money. Jay took the president job and kept his masters. Dame walked off with a check and a third of a catalog he aint really run no more. Ten million sound like a win in 2004. But a catalog like that keep payin every year, forever. Dame been preachin it ever since. Own the equity, dont sell the piece. And here the twist Dame aint see comin. The masters to Reasonable Doubt are set to revert straight back to Jay in 2031, reportedly under that 35-year copyright law, so the one album become the most valuable thing the whole company ever held while Dame check ran dry decades ago.
 
 ---
 
@@ -35,7 +35,7 @@ What did Dame Dash sell in 2004 that Jay-Z said he woulda traded the entire comp
 
 **TWIST:** Dame been preaching it ever since. Own the equity, dont sell the piece. [Write "OWN THE EQUITY" big, box it]
 
-**PAYOFF:** Cause Jay said he woulda gave up Roc-A-Fella and that whole president job, all of it, just to own one album by hisself. Reasonable Doubt. The masters was the prize the whole time. [Cross out "ROC-A-FELLA" and "PRESIDENT" in a small list, write "REASONABLE DOUBT" big with a check mark, underline "THE PRIZE"]
+**PAYOFF:** And here the twist Dame aint see comin. The masters to Reasonable Doubt are set to revert straight back to Jay in 2031, reportedly under that 35-year copyright law, so the one album become the most valuable thing the whole company ever held while Dame check ran dry decades ago. [Cross out "ROC-A-FELLA" and "PRESIDENT" in a small list, write "REASONABLE DOUBT" big with a check mark, underline "THE PRIZE"]
 
 ---
 

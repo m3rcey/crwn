@@ -41,7 +41,7 @@ Who would turn down 25 million dollars cash? NBA YoungBoy did, reportedly. And o
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top, large "$25,000,000" with a big X drawn over it. A hand offering a money bag labeled "$25M RE-SIGN", with a stick figure pushing it away. A flat line labeled "ONE CHECK" that stops, and "THEY GIVE $25M -> THEY OWN YOU" written. A rising line labeled "OWN YOUR LANE" climbing up past the flat "ONE CHECK" line. At the bottom, a boxed phrase "A CHECK ENDS / CONTROL KEEPS PAYING". The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. The dominant central illustration: a recognizable NBA YoungBoy figure shoves away a money bag labeled "$25M RE-SIGN" being held out to him, and instead stands on a steep rising line labeled "OWN YOUR LANE" that climbs up past a short flat line labeled "ONE CHECK" that just stops. Keep the supporting data: "THEY GIVE $25M → THEY OWN YOU". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "HE TURNED DOWN $25 MILLION". At the bottom, in a boxed line: "A CHECK ENDS. CONTROL KEEPS PAYING." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 

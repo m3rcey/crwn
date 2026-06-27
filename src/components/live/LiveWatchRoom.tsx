@@ -55,10 +55,38 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
   const [url, setUrl] = useState('');
   const [joinError, setJoinError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
+  const [vodUrl, setVodUrl] = useState<string | null>(null);
+  const [vodError, setVodError] = useState<string | null>(null);
   const joinedRef = useRef(false);
 
+  const isPrerecorded = session.source_type === 'prerecorded';
+  const isPrivate = session.visibility === 'private';
   const allowedTiers = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
-  const canAccess = isOwner || session.is_free || (!!tierId && allowedTiers.includes(tierId));
+  // Private prerecorded is owner-only; everything else uses the tier gate.
+  const canAccess =
+    isOwner || (!isPrivate && (session.is_free || (!!tierId && allowedTiers.includes(tierId))));
+
+  // Prerecorded: fetch a signed playback URL once the viewer is allowed.
+  useEffect(() => {
+    if (!isPrerecorded || !currentUserId || subLoading || !canAccess) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/live/watch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: session.id }),
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        if (!res.ok) setVodError(data.reason || data.error || 'Could not load video');
+        else setVodUrl(data.url);
+      } catch {
+        if (!cancelled) setVodError('Network error');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isPrerecorded, currentUserId, subLoading, canAccess, session.id]);
 
   // Free the slot on unmount / page hide.
   useEffect(() => {
@@ -99,6 +127,47 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
       setJoining(false);
     }
   };
+
+  // --- Prerecorded video (not a live room) ---
+  if (isPrerecorded) {
+    if (isPrivate && !isOwner) {
+      return <Centered title="Not available" subtitle="This video isn't public." />;
+    }
+    if (!currentUserId) {
+      return (
+        <Centered title={session.title} subtitle="Log in to watch this video.">
+          <a href={`/login`} className="neu-button-accent px-6 py-3 rounded-xl font-semibold">Log in</a>
+        </Centered>
+      );
+    }
+    if (subLoading) {
+      return <div className="h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 text-crwn-gold animate-spin" /></div>;
+    }
+    if (!canAccess) {
+      return (
+        <div className="max-w-lg mx-auto py-16 px-4">
+          <SubscribeCTA artistName={artistName} artistSlug={artistSlug} />
+        </div>
+      );
+    }
+    if (vodError) {
+      return <Centered title="Unavailable" subtitle={vodError} />;
+    }
+    if (!vodUrl) {
+      return <div className="h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 text-crwn-gold animate-spin" /></div>;
+    }
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <h1 className="text-xl font-bold text-crwn-text mb-1">{session.title}</h1>
+        <p className="text-crwn-text-secondary text-sm mb-4">{artistName}</p>
+        <div className="bg-black rounded-2xl overflow-hidden">
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+          <video src={vodUrl} controls autoPlay playsInline className="w-full h-auto max-h-[75vh]" />
+        </div>
+        {session.description && <p className="text-crwn-text-secondary mt-4">{session.description}</p>}
+      </div>
+    );
+  }
 
   // --- Non-live states ---
   if (session.status === 'ended') {

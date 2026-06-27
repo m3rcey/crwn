@@ -18,7 +18,7 @@ The move Kennedy does on CRWN is release in a waterfall. The song don't go out f
 
 Ya biggest fans buy in cause payin finally gets em somethin real, which is bein first.
 
-So here how the song actually moves. Highest paid tier hears it first. Then ya lower tiers. Then ya free crowd. And Spotify? Spotify don't get it early. Spotify gets the leftovers.
+So here how the song actually moves. Highest paid tier hears it first. Then ya lower tiers. Then ya free crowd. And Spotify last. Which matters cause since 2024 a song on Spotify reportedly gotta clear a thousand streams in a year before it pays ya a single cent. The crowd that already paid her? They paid the day it dropped.
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to own a fan list that walks out the door with you, not the label, w
 
 **SCRIPT:**
 
-What audience can Drake never take with him when he leaves a deal? He reportedly just walked out on Universal, and watch what stayed on the table. Reports say his catalog, the old albums, stay with the label. He walk out the door, the masters dont. Now this man got over 140 million followers on one app alone. Sound like the safest audience in the game, right? But he cant take none of em with him. Instagram own that list. TikTok own that list. The app change the rules tomorrow, that reach is gone. You dont own a follower. You rent em from a app that can die. Now flip it to you. Say you own 4,000 emails and numbers. 300 on a $12 tier, 40 on a $35 tier, a handful payin $90 for a call. That money moves with you to any app, any year. The followers, the reach, the 140 million. That's the audience Drake can never take with him.
+What audience can Drake never take with him when he leaves a deal? He reportedly just walked out on Universal, and watch what stayed on the table. Reports say his catalog, the old albums, stay with the label. He walk out the door, the masters dont. Now this man got over 140 million followers on one app alone. Sound like the safest audience in the game, right? But he cant take none of em with him. Instagram own that list. TikTok own that list. The app change the rules tomorrow, that reach is gone. You dont own a follower. You rent em from a app that can die. Now flip it to you. Say you own 4,000 emails and numbers. 300 on a $12 tier, 40 on a $35 tier, a handful payin $90 for a call. That money moves with you to any app, any year. So your 4,000 is worth more than his 140 million, cause Drake got the biggest audience on earth and cant take a single one of em out the door.
 
 ---
 
@@ -35,7 +35,7 @@ What audience can Drake never take with him when he leaves a deal? He reportedly
 
 **TWIST:** This what they dont tell you. You dont own a follower. You rent em from a app that can die. [cross out the word "OWN" and write "RENT" above it in bigger letters, draw a small tombstone with "APP" on it]
 
-**PAYOFF:** Now flip it to you. Say you own 4,000 emails and numbers. 300 on a $12 tier, 40 on a $35 tier, a handful payin $90 for a call. That money moves with you to any app, any year. Drake got the biggest audience nobody can export. The small artist who owns they list got the only one that travels. [write "YOUR LIST = 4,000" with an envelope and a phone drawn next to it, then a small stack: "300 x $12", "40 x $35", "calls $90", box the whole stack, draw an arrow from the box leading to three small app logos labeled "ANY APP" with a check mark]
+**PAYOFF:** Now flip it to you. Say you own 4,000 emails and numbers. 300 on a $12 tier, 40 on a $35 tier, a handful payin $90 for a call. That money moves with you to any app, any year. So your 4,000 is worth more than his 140 million, cause Drake got the biggest audience on earth and cant take a single one of em out the door. [write "YOUR LIST = 4,000" with an envelope and a phone drawn next to it, then a small stack: "300 x $12", "40 x $35", "calls $90", box the whole stack, draw an arrow from the box leading to three small app logos labeled "ANY APP" with a check mark]
 
 ---
 

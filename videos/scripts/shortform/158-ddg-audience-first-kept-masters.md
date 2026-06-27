@@ -10,7 +10,7 @@ Link in bio to build your own audience first so you sign on your terms and keep 
 
 **SCRIPT:**
 
-What did DDG walk into a major label with that almost no rapper has? Before rap, DDG was a YouTuber. He built over 9 million subscribers across his channels and was already making real money every month on his own. So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So when he put his name on a major label deal, the one thing almost no signed rapper walks out with, he kept his masters.
+What did DDG walk into a major label with that almost no rapper has? Before rap, DDG was a YouTuber. He built over 9 million subscribers across his channels and was already making real money every month on his own. So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So flip it around. He aint sign to Epic to get put on. Epic signed the audience he already built, and they had to let him keep his masters just to get in the room.
 
 ---
 
@@ -33,7 +33,7 @@ What did DDG walk into a major label with that almost no rapper has? Before rap,
 
 **RISING ACTION:** So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. [draw a stick figure walking into a label building holding a bag labeled "FANS + $", draw another figure walking in empty-handed labeled "OWNS NOTHING", write "MAJOR DEAL = LOSE MASTERS"]
 
-**PAYOFF / SURPRISE ENDING:** But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So when he signed that major, he kept his masters. [write "DDG = ALREADY RICH -> KEPT MASTERS", draw a vault labeled "KEPT MASTERS" with a check, box at the bottom: "THE ONE WHO DONT NEED THE DEAL KEEPS THE MASTERS"]
+**PAYOFF / SURPRISE ENDING:** But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So flip it around. He aint sign to Epic to get put on. Epic signed the audience he already built, and they had to let him keep his masters just to get in the room. [write "DDG = ALREADY RICH -> KEPT MASTERS", draw a vault labeled "KEPT MASTERS" with a check, box at the bottom: "EPIC SIGNED HIS AUDIENCE, NOT THE OTHER WAY ROUND"]
 
 ---
 

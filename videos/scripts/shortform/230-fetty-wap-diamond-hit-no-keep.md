@@ -18,9 +18,7 @@ But here go the catch. The song wasn't really his to keep. It came up through a 
 
 The fans who screamed Trap Queen was a list, and he aint never own that list. So the second the stage went dark, he had no way to reach em.
 
-Then 2020 hit and every show stopped. His own lawyer said it himself. No shows, the income dried all the way up.
-
-A plaque counts plays. It dont count what you keep. He never owned the song and he never owned the fan list, so when the shows stopped, the money stopped.
+A plaque counts plays. It dont count what you keep. He never owned the song and he never owned the fan list, so the money was never really his to hold. Then 2020 hit and every show stopped. And here go the part that dont make sense till you know the deal. The man behind a song that sold over 10 million copies got so broke his own lawyers told a federal judge the lockdown left him with barely any income at all.
 
 ---
 
@@ -45,7 +43,7 @@ A plaque counts plays. It dont count what you keep. He never owned the song and 
 
 **TWIST:** The fans who screamed Trap Queen was a list, and he aint never own that list. [draw a stick-figure crowd, draw a contact list page, cross it out, write "NOT HIS"] So the second the stage went dark, he had no way to reach em. Then 2020 hit and every show stopped. [draw a big X over the stage, write "2020"] His own lawyer said it himself. No shows, the income dried all the way up. [write "NO SHOWS = NO INCOME"]
 
-**PAYOFF:** A plaque counts plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] He never owned the song and he never owned the fan list, so when the shows stopped, the money stopped. [write "NO SONG + NO FAN LIST", draw a down-arrow to "SHOWS STOP = MONEY STOPS", box it]
+**PAYOFF:** A plaque counts plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] He never owned the song and he never owned the fan list, so the money was never really his to hold. [write "NO SONG + NO FAN LIST", draw a down-arrow to "SHOWS STOP = MONEY STOPS", box it] And here go the part that dont make sense till you know the deal. The man behind a song that sold over 10 million copies got so broke his own lawyers told a federal judge the lockdown left him with barely any income at all. [write "10,000,000 SOLD" arrow to "BARELY ANY INCOME", box it]
 
 ---
 

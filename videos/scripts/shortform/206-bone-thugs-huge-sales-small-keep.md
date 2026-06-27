@@ -10,7 +10,7 @@ Link in bio to get paid direct so the sales actually reach you with CRWN. Free t
 
 **SCRIPT:**
 
-How did Bone Thugs sell 15 million records and still end up in court saying the money never came? They was one of the biggest groups in the game. E. 1999 Eternal went 4 times platinum off Ruthless. Tha Crossroads won a Grammy in 1997 and sat at number one for 8 weeks. That is monster numbers. But years later the group was in court fighting over money, and members said the advances and the royalties never came right. This what they dont tell you. A label advance aint a gift. It a loan, and they charge everything they spend back against your sales first. So you can sell millions and still owe. Now picture you sell straight to ya own fans. 60 on a $9 tier, 12 on a $30 tier, 3 song breakdowns at $80. That over a thousand dollars a month, and you touch all of it. The talent sold the 15 million. The deal is what decided how little of it ever reached the group.
+How did Bone Thugs sell 15 million records and still end up in court saying the money never came? They was one of the biggest groups in the game. E. 1999 Eternal went 4 times platinum off Ruthless. Tha Crossroads won a Grammy in 1997 and sat at number one for 8 weeks. That is monster numbers. But years later the group was in court fighting over money, and members said the advances and the royalties never came right. This what they dont tell you. A label advance aint a gift. It a loan, and they charge everything they spend back against your sales first. So you can sell millions and still owe. Now picture you sell straight to ya own fans. 60 on a $9 tier, 12 on a $30 tier, 3 song breakdowns at $80. That over a thousand dollars a month, and you touch all of it. Bone Thugs moved 15 million records and still walked into a courtroom sayin they got handed a bill instead of a check.
 
 ---
 
@@ -35,7 +35,7 @@ How did Bone Thugs sell 15 million records and still end up in court saying the 
 
 **TWIST:** This what they dont tell you. A label advance aint a gift. It a loan, and they charge everything they spend back against your sales first. [Cross out the word "GIFT" and write "LOAN" above it, circled. Draw an arrow: "SALES -> LABEL EATS FIRST -> you".] So you can sell millions and still owe. [Write "SELL MILLIONS = STILL OWE" and underline "STILL OWE".]
 
-**PAYOFF:** Now picture you sell straight to ya own fans. [Draw three smiley stick figures with a line straight to a single dollar sign, no middleman.] 60 on a $9 tier, 12 on a $30 tier, 3 song breakdowns at $80. [Write the stack: "60 x $9 = $540 / 12 x $30 = $360 / 3 x $80 = $240".] That a thousand dollars a month, and you touch all of it. [Write "= $1,140 / MO" and box it, then write "YOU TOUCH IT ALL".] The talent sold 15 million. The deal decided how little came back. [Bottom: write "TALENT: 15,000,000" over "DEAL: the check" with a heavy line between them.]
+**PAYOFF:** Now picture you sell straight to ya own fans. [Draw three smiley stick figures with a line straight to a single dollar sign, no middleman.] 60 on a $9 tier, 12 on a $30 tier, 3 song breakdowns at $80. [Write the stack: "60 x $9 = $540 / 12 x $30 = $360 / 3 x $80 = $240".] That a thousand dollars a month, and you touch all of it. [Write "= $1,140 / MO" and box it, then write "YOU TOUCH IT ALL".] Bone Thugs moved 15 million records and still walked into a courtroom sayin they got handed a bill instead of a check. [Bottom: write "TALENT: 15,000,000" over "DEAL: the check" with a heavy line between them.]
 
 ---
 

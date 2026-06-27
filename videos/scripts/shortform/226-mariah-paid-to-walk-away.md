@@ -16,9 +16,7 @@ In 2001 Mariah signed with Virgin for a reported $80 million. Four albums, like 
 
 She drop one. Glitter. It came out the same week as 9/11 and it sold soft.
 
-So the label panic. In January 2002 they pay her $28 million just to walk away. Add up what she already got on signing and the label sank around $49 million into one album that flopped.
-
-They didn't pay her to make a hit. They paid her to leave. Cause a huge advance ain't ya money. It a bet the label make on you, and they charge it all back outta what you earn. Three more albums on that deal meant three more shots to lose money on her. So writing one $28 million check was the cheap way out.
+So the label panic. They didn't pay her to make a hit. In January 2002 they pay her $28 million just to walk away. Cause a huge advance ain't ya money. It a bet the label make on you, and they charge it all back outta what you earn. Three more albums on that deal meant three more shots to lose money on her. So writing one $28 million check was the cheap way out. Here go the wild part. Add up the signing money and that exit check and the label burned around $49 million on one album that flopped, then paid extra to make her stop recording.
 
 ---
 
@@ -43,7 +41,7 @@ They didn't pay her to make a hit. They paid her to leave. Cause a huge advance 
 
 **TWIST:** Now think about that. They didn't pay her to make a hit. They paid her to leave. [cross out "HIT", write "PAID HER TO LEAVE" big] Cause a huge advance ain't ya money. It a bet the label make on you, and they charge it all back outta what you earn. [write "ADVANCE = A BET" then draw an arrow looping back labeled "charged back"]
 
-**PAYOFF:** Three more albums on that deal meant three more shots to lose money on her. So writing one $28 million check was the cheap way out. [write "3 MORE ALBUMS = 3 MORE LOSSES" then under it "ONE $28M CHECK = CHEAPER" boxed]
+**PAYOFF:** Three more albums on that deal meant three more shots to lose money on her, so writing one $28 million check was the cheap way out. [write "3 MORE ALBUMS = 3 MORE LOSSES" then under it "ONE $28M CHECK = CHEAPER" boxed] Here go the wild part. Add up the signing money and that exit check and the label burned around $49 million on one album that flopped, then paid extra to make her stop recording. [write "$49M BURNED ON ONE FLOP" boxed and underline "PAID HER TO STOP"]
 
 ---
 

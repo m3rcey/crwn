@@ -16,9 +16,9 @@ Back in 2016 she was uploading songs to SoundCloud by herself. No deal. No team.
 
 She built that crowd for years. Posting, dropping, talking to em direct. Then one song hit on TikTok and that crowd got loud.
 
-By 2022 she signed to Top Dawg. The first woman they ever put on. And in 2025 she won Best Rap Album off a mixtape, only the third woman to ever win that.
+By 2022 she signed to Top Dawg. The first woman they ever put on. She aint beg for none of it. The people she built went and got the deal for her.
 
-She aint beg for none of it. She built the people first, and the people went and got the deal for her.
+Then in 2025, off a mixtape, no studio album, she won Best Rap Album at the Grammys. Only the third woman in history to ever take that home.
 
 ---
 
@@ -41,9 +41,9 @@ She aint beg for none of it. She built the people first, and the people went and
 
 **RISING ACTION:** Back in 2016 she was uploading songs to SoundCloud by herself. No deal. No team. Just her and the people who kept coming back. [Write "2016" with a small phone and music notes, write "JUST HER + THE PEOPLE" under it.] She built that crowd for years. Posting, dropping, talking to em direct. Then one song hit on TikTok and that crowd got loud. [Draw a small stick crowd growing bigger, add a "TIKTOK" tag and a speaker getting louder.]
 
-**TWIST:** Now watch what the people did. They got so loud that the label came to her. [Draw an arrow from the crowd pointing at a "LABEL" box, label flipped toward her.] By 2022 she signed to Top Dawg. The first woman they ever put on. She aint go beg for that. The fans made the call she couldn't make for herself. [Write "2022 TDE" and "FIRST WOMAN", circle "FIRST WOMAN".] And in 2025 she won Best Rap Album. Off a mixtape. Only the third woman to ever win that. [Write "2025 BEST RAP ALBUM" big, draw a small trophy, write "3rd WOMAN EVER" and circle "3rd".]
+**TWIST:** Now watch what the people did. They got so loud that the label came to her. [Draw an arrow from the crowd pointing at a "LABEL" box, label flipped toward her.] By 2022 she signed to Top Dawg. The first woman they ever put on. She aint go beg for that. The fans made the call she couldn't make for herself. [Write "2022 TDE" and "FIRST WOMAN", circle "FIRST WOMAN".] The deal aint find her. The people went and got it. [Write "THE PEOPLE GOT THE DEAL", underline "PEOPLE" twice.]
 
-**PAYOFF:** She built the people first. The deal aint find her. The people went and got it. [Write "THE PEOPLE GOT THE DEAL" big at the bottom, underline "PEOPLE" twice.]
+**PAYOFF:** Then in 2025, off a mixtape, no studio album, she won Best Rap Album at the Grammys. Only the third woman in history to ever take that home. [Write "2025 BEST RAP ALBUM" big at the bottom, draw a small trophy, write "OFF A MIXTAPE" and "3rd WOMAN EVER", circle "3rd".]
 
 ---
 

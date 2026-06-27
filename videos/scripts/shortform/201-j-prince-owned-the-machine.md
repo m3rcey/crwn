@@ -18,7 +18,7 @@ When the big labels came around, he aint sign the company over to em. He used em
 
 Then it loops. His own son is the one who found Drake in 2008. Put him on with Cash Money.
 
-Years later, when Drake money got tangled up, who you think stepped in to get what was owed? The same man who never let nobody hold his. He never had to ask permission, cause he owned the lane everybody else had to rent.
+So years later, when Drake money got tangled up, the man who stepped in to get what was owed wasnt no lawyer or no label. It was the same Houston dude who, almost 40 years back, looked every major in the face and told em they could move his records but they wasnt never gon own em.
 
 ---
 
@@ -43,7 +43,7 @@ Years later, when Drake money got tangled up, who you think stepped in to get wh
 
 **TWIST:** And here go the part most people dont know. His own son is the one who found Drake in 2008. [Write "SON → found DRAKE, 2008" center.] Put him on with Cash Money. [Draw an arrow from "DRAKE" to "CASH MONEY."] Years later, when Drake money got tangled up, who you think stepped in to get what was owed? [Draw a tangled knot of lines around a dollar sign.] The same man who never let nobody hold his. [Circle the key drawing again.]
 
-**PAYOFF:** He aint just own a label. He owned the lane everybody else had to rent. [Bottom, large, two lines: "OWN THE LANE" over crossed-out "RENT THE LANE." Box the whole thing.]
+**PAYOFF:** So years later, when Drake money got tangled up, the man who stepped in to get what was owed wasnt no lawyer or no label. It was the same Houston dude who, almost 40 years back, looked every major in the face and told em they could move his records but they wasnt never gon own em. [Bottom, large, two lines: "OWN THE LANE" over crossed-out "RENT THE LANE." Box the whole thing.]
 
 ---
 

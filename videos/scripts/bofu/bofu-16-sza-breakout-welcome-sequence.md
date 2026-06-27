@@ -20,7 +20,7 @@ The move on CRWN is a welcome sequence. New fan land on ya page, it kick in by i
 
 You aint gotta be online. The sequence catch every new fan in they first few days and turn the feeling into a follow.
 
-A wave that big aint the flex. What you keep off it is. Stop letting Friday wash em out.
+And the wave gets real big. After SZA hit that Super Bowl stage in 2025, her monthly listeners reportedly jumped from around seventy million to ninety seven million in a few weeks. That's near thirty million strangers who showed up warm at once. Without a welcome sequence, almost every one of em is gone by Friday.
 
 ---
 

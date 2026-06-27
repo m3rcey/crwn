@@ -18,7 +18,7 @@ And they did it. Happily. Stood there provin they was real for the chance at a s
 
 It look like a anti-bot thing on the surface. Bigger than that. Every fan who walked through that gate handed her a way to reach em directly, before a single dollar moved.
 
-So now she aint waitin on a algorithm or a ticket site to find her people. She got a list of millions of verified fans she can reach on her own, whenever she want. That was never about the tickets. That was her buildin a direct line to every real fan she got.
+So now she aint waitin on a algorithm or a ticket site to find her people. She got a list of millions of verified fans she can reach on her own, whenever she want. And she didn't spend a dollar to get it. The fans paid her in their own contact info, just for the chance to maybe buy somethin later.
 
 ---
 

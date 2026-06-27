@@ -10,7 +10,7 @@ Link in bio to own your masters and keep the money your music makes with CRWN. F
 
 **SCRIPT:**
 
-Freddie Gibbs got a Grammy nomination going up against major label money, so how did he beat their budgets? Most rappers in that room got a label paying for everything. The marketing, the rollout, the budget. Gibbs ain't have that. Alfredo came out in 2020 and debuted at 15 on the Billboard 200, around 30,000 in the first week. The major labels spend millions pushing one album. He competed against all that with way less behind him. Then it got nominated for Best Rap Album at the 2021 Grammys. Lost to Nas, but he was in the room. Here is the part that flips it. A signed artist in that same category might win and still owe the label for the budget that got em there. Gibbs got that Grammy nomination off his own label ESGN, masters owned, on his own dime, and owed nobody a thing.
+Freddie Gibbs got a Grammy nomination going up against major label money, so how did he beat their budgets? Most rappers in that room got a label paying for everything. The marketing, the rollout, the budget. Gibbs ain't have that. Alfredo came out in 2020 and debuted at 15 on the Billboard 200, around 30,000 in the first week. The major labels spend millions pushing one album. He competed against all that with way less behind him. Then it got nominated for Best Rap Album at the 2021 Grammys. Lost to Nas, but he was in the room. Here is the part that flips it. A signed artist in that same category could win the whole thing and walk out still in the red to the label. Gibbs walked into the Grammys off his own label ESGN owing nobody a single dollar.
 
 ---
 
@@ -31,9 +31,9 @@ Freddie Gibbs got a Grammy nomination going up against major label money, so how
 
 **RISING ACTION:** Most rappers in that room got a label paying for everything. The marketing, the rollout, the budget. [draw a big building labeled "LABEL $$$" on the left] Gibbs ain't have that. Alfredo came out in 2020 and debuted at 15 on the Billboard 200, around 30,000 in the first week. [write "ALFREDO 2020", under it "#15 BILLBOARD" and "~30,000 WEEK 1"] The major labels spend millions pushing one album. He competed against all that with way less behind him. [draw a small stick figure on the right facing the big building, write "WAY LESS BEHIND HIM" under the figure]
 
-**TWIST:** Then it got nominated for Best Rap Album at the 2021 Grammys. Lost to Nas, but he was in the room. [write "BEST RAP ALBUM NOM '21" and circle "NOM", under it "lost to Nas" small] Here is the part that flips it. A signed artist in that same category might win and still owe the label for the budget that got em there. [draw a trophy on the left with "OWES $" under it and an X]
+**TWIST:** Then it got nominated for Best Rap Album at the 2021 Grammys. Lost to Nas, but he was in the room. [write "BEST RAP ALBUM NOM '21" and circle "NOM", under it "lost to Nas" small] Here is the part that flips it. A signed artist in that same category could win the whole thing and walk out still in the red to the label. [draw a trophy on the left with "OWES $" under it and an X]
 
-**PAYOFF:** Gibbs got that Grammy nomination off his own label ESGN, masters owned, on his own dime, and owed nobody a thing. [at the bottom write "ESGN / OWNED MASTERS / OWN DIME / OWES $0" boxed and underlined]
+**PAYOFF:** Gibbs walked into the Grammys off his own label ESGN owing nobody a single dollar. [at the bottom write "ESGN / OWNED MASTERS / OWN DIME / OWES $0" boxed and underlined]
 
 ---
 

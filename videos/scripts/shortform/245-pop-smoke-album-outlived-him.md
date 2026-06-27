@@ -10,7 +10,7 @@ Link in bio to own the music your name keeps eating off of, not rent it, with CR
 
 **SCRIPT:**
 
-When Pop Smoke's debut hit number one after he was gone, who did that check really pay? Hold up, cause the answer hits different than you think. At 19 he signed his first record deal. By 20 he was murdered in a home invasion in LA, February 2020. Then in July, months after he passed, they dropped his debut album. It went straight to number one on the Billboard 200. First week it moved 251,000. A number one record, and the man who made it never heard the news. He signed that deal at 19. Pop Smoke made the music, but the deal he signed at 19 is what cashed the check. So when that album printed money at number one, the masters paid the owner, not Pop Smoke.
+When Pop Smoke's debut hit number one after he was gone, who did that check really pay? Hold up, cause the answer hits different than you think. At 19 he signed his first record deal. By 20 he was murdered in a home invasion in LA, February 2020. Then in July, months after he passed, they dropped his debut album. It went straight to number one on the Billboard 200. First week it moved 251,000. Pop Smoke made the music, but the deal he signed at 19 is what cashed the check. So when that album printed money at number one, the masters paid the owner, not Pop Smoke. And sit with this. He moved 251,000 records in a single week, debuted on top of the entire country, and the man who made every song was killed at 20 and never lived to hear that he hit number one.
 
 ---
 
@@ -35,7 +35,7 @@ When Pop Smoke's debut hit number one after he was gone, who did that check real
 
 **TWIST:** A number one record, and the man who made it never heard the news. [Under "#1" draw a small radio with an X through it.] Now here is the part that should sit with you. He signed that deal at 19. Pop Smoke made the music, but the deal he signed at 19 is what cashed the check. [Draw a line down the middle. Left write "MASTERS = OWNER". Right write "POP = MADE IT".]
 
-**PAYOFF:** So when that album printed money at number one, the masters paid the owner, not Pop Smoke. [Circle "OWNER". Draw a $ arrow from "#1" to "MASTERS = OWNER", and a crossed-out arrow toward "POP = MADE IT".]
+**PAYOFF:** So when that album printed money at number one, the masters paid the owner, not Pop Smoke. [Circle "OWNER". Draw a $ arrow from "#1" to "MASTERS = OWNER", and a crossed-out arrow toward "POP = MADE IT".] And sit with this. He moved 251,000 records in a single week, debuted on top of the entire country, and the man who made every song was killed at 20 and never lived to hear that he hit number one. [Write "251,000 IN A WEEK" then under it "KILLED AT 20, NEVER HEARD #1" boxed.]
 
 ---
 

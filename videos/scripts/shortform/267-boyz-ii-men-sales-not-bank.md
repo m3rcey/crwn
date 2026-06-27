@@ -10,7 +10,7 @@ Link in bio to get paid direct by your own fans instead of waiting on a check th
 
 **SCRIPT:**
 
-Why was the biggest-selling R&B group ever standing on Capitol Hill fighting to get paid? Stay with me. This Boyz II Men. Reportedly tens of millions of albums moved. Their album "II" sold over 12 million copies in this country by itself. "End of the Road" sat at number one for 13 weeks. That was a record at the time. Then "I'll Make Love to You" did 14. So they set the bar, right? Back in February 2025 they was up on Capitol Hill, decades after all them sales. A sales record is a plaque on the wall. It dont mean the money made it home. The number on the chart and the number in the bank aint the same number. So here go why. They moved tens of millions and still had to go fight in Washington so artists actually get paid when they songs play.
+Why was the biggest-selling R&B group ever standing on Capitol Hill fighting to get paid? Stay with me. This Boyz II Men. Reportedly tens of millions of albums moved. Their album "II" sold over 12 million copies in this country by itself. "End of the Road" sat at number one for 13 weeks. That was a record at the time. Then "I'll Make Love to You" did 14. So they set the bar, right? Back in February 2025 they was up on Capitol Hill, decades after all them sales. A sales record is a plaque on the wall. It dont mean the money made it home. The number on the chart and the number in the bank aint the same number. So here go why. They song "One Sweet Day" sat at number one for 16 weeks straight, a record that aint get broke for over twenty years, and these same men was still up in Washington in 2025 tryna get artists paid.
 
 ---
 
@@ -35,7 +35,7 @@ Why was the biggest-selling R&B group ever standing on Capitol Hill fighting to 
 
 **TWIST:** Here go the part that mess with ya head. Back in February 2025 they was up on Capitol Hill. [Draw a simple government building with columns, label it "CAPITOL HILL / FEB 2025"] The biggest R&B group ever, decades after all them sales, still fighting so artists get paid when they own songs play. [Beside the building: "STILL FIGHTING TO GET PAID" with "STILL" circled] They moved tens of millions and the fight to actually get the money aint over. [Under it: "TENS OF MILLIONS SOLD -> STILL CHASING THE MONEY" with an arrow]
 
-**PAYOFF:** A sales record is a plaque on the wall. It dont mean the money made it home. [Draw a framed plaque on a wall, then an arrow from it to a small house with a "$" and a big X over the dollar] The number on the chart and the number in the bank aint the same number. [Bottom, two lines: "CHART NUMBER" and under it "BANK NUMBER" with a "=/=" sign drawn between them and "BANK NUMBER" circled]
+**PAYOFF:** A sales record is a plaque on the wall. It dont mean the money made it home. [Draw a framed plaque on a wall, then an arrow from it to a small house with a "$" and a big X over the dollar] The number on the chart and the number in the bank aint the same number. [Bottom, two lines: "CHART NUMBER" and under it "BANK NUMBER" with a "=/=" sign drawn between them and "BANK NUMBER" circled] They song "One Sweet Day" sat at number one for 16 weeks straight, a record that aint get broke for over twenty years, and these same men was still up in Washington in 2025 tryna get artists paid. [Final line bottom: "16 WEEKS #1 (20+ YR RECORD) -> STILL IN D.C. 2025" with "STILL" circled]
 
 ---
 

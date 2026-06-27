@@ -10,7 +10,7 @@ Link in bio to get paid by your fans before your song ever hits streaming with C
 
 **SCRIPT:**
 
-Kennedy Ryon got paid for her song Martha before it ever hit Spotify, so how did she get paid before streaming even had it? Kennedy is an Atlanta R&B singer with over 200,000 followers and no major label. Most artists drop straight to streaming and pray for a playlist. She did the opposite. When Martha was ready, she aint run to Spotify first. The people closest to her got the full song, not a clip, before anybody else on earth heard a second of it. They paid to get it early, and that paid her before the song was even public. She runs a paid Fam Club, and they had the full Martha a week before streaming ever got it.
+Kennedy Ryon got paid for her song Martha before it ever hit Spotify, so how did she get paid before streaming even had it? Kennedy is an Atlanta R&B singer with over 200,000 followers and no major label. Most artists drop straight to streaming and pray for a playlist. She did the opposite. When Martha was ready, she aint run to Spotify first. She runs a paid Fam Club, and they got the full song, not a clip, before anybody else on earth heard a second of it. By the time Spotify finally got Martha, her paying fans had already been playing it for a full week.
 
 ---
 
@@ -31,9 +31,9 @@ Kennedy Ryon got paid for her song Martha before it ever hit Spotify, so how did
 
 **FORESHADOW:** Meet Kennedy Ryon, an Atlanta R&B singer with over 200,000 followers and no major label. [draw a simple portrait of an R&B singer labeled "KENNEDY RYON", write "200K+ / NO MAJOR"]
 
-**RISING ACTION:** Most artists drop straight to streaming and pray for a playlist. She did the opposite. When Martha was ready, she aint run to Spotify first. The people closest to her got the full song, not a clip, before anybody else on earth heard a second of it. They paid to get it early, and that paid her before the song was even public. [write "MOST: STRAIGHT TO STREAMING", "SHE DID THE OPPOSITE", "FULL SONG, NOT A CLIP", "PAID BEFORE IT WAS PUBLIC"]
+**RISING ACTION:** Most artists drop straight to streaming and pray for a playlist. She did the opposite. When Martha was ready, she aint run to Spotify first. [write "MOST: STRAIGHT TO STREAMING", "SHE DID THE OPPOSITE", "FULL SONG, NOT A CLIP"]
 
-**TWIST / SURPRISE ENDING:** So who were those people, and how'd they hear it first? [draw an arrow line: "PAYING FANS (FIRST)" → "... → SPOTIFY (LAST)"] She runs a paid Fam Club, and they had the full Martha a week before streaming ever got it. [box at the bottom: "FAM CLUB HAD MARTHA 1 WEEK BEFORE STREAMING"]
+**TWIST / SURPRISE ENDING:** She runs a paid Fam Club, and they got the full song before anybody else on earth heard a second of it. [draw an arrow line: "PAYING FANS (FIRST)" → "... → SPOTIFY (LAST)"] By the time Spotify finally got Martha, her paying fans had already been playing it for a full week. [box at the bottom: "FAM CLUB HAD MARTHA 1 WEEK BEFORE STREAMING"]
 
 ---
 

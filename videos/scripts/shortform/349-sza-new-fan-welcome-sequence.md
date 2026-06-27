@@ -10,7 +10,7 @@ Link in bio to catch every new fan at their hottest and turn them into paying fa
 
 **SCRIPT:**
 
-What happens in the seven days right after somebody finds SZA for the first time? SZA made fans wait five years between Ctrl and SOS. So when somebody finally fall in, they fall all the way in. That first week they got Kill Bill on repeat. They reading every lyric. They deep in her old songs. That fan aint never gon be that hot again. Now here go the thing most independent artists miss. A new fan finds you Tuesday, loves it, and by Friday they forgot ya name. You aint there to catch em. But you could be. One message goes out the second they follow. Then one more two days later. Then a little offer while they still glued. Fans paid for that early access plenty of times. That lane open to anybody. And here go why it matters. The fan you catch warm is worth more than ten you chase cold.
+What happens in the seven days right after somebody finds SZA for the first time? SZA made fans wait five years between Ctrl and SOS. So when somebody finally fall in, they fall all the way in. That first week they got Kill Bill on repeat. They reading every lyric. They deep in her old songs. That fan aint never gon be that hot again. Now here go the thing most independent artists miss. A new fan finds you Tuesday, loves it, and by Friday they forgot ya name. You aint there to catch em. But you could be. One message goes out the second they follow. Then one more two days later. Then a little offer while they still glued. Fans paid for that early access plenty of times. That lane open to anybody. And that warm-fan window is exactly what SZA milked. Them binge fans kept SOS at number one on the R&B chart longer than any album in the chart's sixty year history, past Michael Jackson's Thriller.
 
 ---
 
@@ -35,7 +35,7 @@ What happens in the seven days right after somebody finds SZA for the first time
 
 **TWIST:** Now here go the thing most independent artists miss. A new fan finds you Tuesday, loves it, and by Friday they forgot ya name. [write "TUE" with a heart, arrow to "FRI" with a question mark over a stick figure head] You aint there to catch em. But you could be. One message goes out the second they follow. Then one more two days later. Then a little offer while they still glued. [draw 3 stacked envelopes going down the page, label them "FOLLOW", "+2 DAYS", "OFFER", draw a small arrow auto-loop around them]
 
-**PAYOFF:** Fans paid for that early access plenty of times. That lane open to anybody. [write "EARLY ACCESS = $$" and put a check mark] The fan you catch warm is worth more than ten you chase cold. [draw a scale: left pan has "1 WARM" circled, right pan has "10 COLD", tip the scale toward the warm side]
+**PAYOFF:** Fans paid for that early access plenty of times. That lane open to anybody. [write "EARLY ACCESS = $$" and put a check mark] And that warm-fan window is exactly what SZA milked. Them binge fans kept SOS at number one on the R&B chart longer than any album in the chart's sixty year history, past Michael Jackson's Thriller. [draw a scale: left pan has "1 WARM" circled, right pan has "10 COLD", tip the scale toward the warm side]
 
 ---
 

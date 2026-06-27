@@ -10,7 +10,7 @@ Link in bio to give your fans a signal so they find each other and build the cul
 
 **SCRIPT:**
 
-Tyler, the Creator handed his fans a pastel hoodie in 2011, and that one piece of cloth turned into somethin he never had to pay for. Back then he started a clothing brand called Golf Wang. Pastel hoodies, loud socks, that little donut and flower stuff. It wasnt just merch. It turned into a uniform. A kid in line at the show could spot another fan from across the street. They aint gotta talk. The clothes already said it. The merch was the handshake between two strangers. So what was Tyler buildin with all them matching colors. He built a whole festival called Camp Flog Gnaw. Thousands of em in the same colors, all in one place, findin they own people. And he aint pay a dime for a street team. Every fan in that hoodie recruited the next one for free.
+Tyler, the Creator handed his fans a pastel hoodie in 2011, and that one piece of cloth turned into somethin he never had to pay for. Back then he started a clothing brand called Golf Wang. Pastel hoodies, loud socks, that little donut and flower stuff. It wasnt just merch. It turned into a uniform. A kid in line at the show could spot another fan from across the street. They aint gotta talk. The clothes already said it. The merch was the handshake between two strangers. So what was Tyler buildin with all them matching colors. He built a whole festival called Camp Flog Gnaw. Thousands of em in the same colors, all in one place, findin they own people. And he aint pay a dime for a street team. By 2019 that hoodie filled Dodger Stadium with close to 50,000 fans, and he aint hire a single one of em.
 
 ---
 
@@ -35,7 +35,7 @@ Tyler, the Creator handed his fans a pastel hoodie in 2011, and that one piece o
 
 **TWIST:** So what was Tyler buildin with all them matching colors. He built a whole festival called Camp Flog Gnaw. [Write "CAMP FLOG GNAW" center, draw a simple ferris wheel beside it. Write "MEETUP" with a pin drop next to it.] Thousands of em in the same colors, all in one place, findin they own people. [Draw a cluster of five tiny stick figures grouped together inside a circle.]
 
-**PAYOFF:** And he aint pay a dime for a street team. [Write "STREET TEAM = $0" big in the center, underline it.] Every fan in that hoodie recruited the next one for free. [Write "FANS = STREET TEAM" at the bottom, circle it, draw arrows from one stick figure to two more, box the whole phrase.]
+**PAYOFF:** And he aint pay a dime for a street team. [Write "STREET TEAM = $0" big in the center, underline it.] By 2019 that hoodie filled Dodger Stadium with close to 50,000 fans, and he aint hire a single one of em. [Write "DODGER STADIUM 2019 = ~50,000 FANS" at the bottom, circle "50,000", draw arrows from one stick figure to two more.]
 
 ---
 

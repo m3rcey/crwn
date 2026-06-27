@@ -18,7 +18,7 @@ Most artists do it backwards. They drop the record first, then go beg strangers 
 
 So by the time he made a song to sell, he wasn't startin cold. He had a real audience already watchin him, already in the room, ready to push whatever he put out.
 
-That platinum record? It went platinum off a audience he built first and never let go of.
+And that audience bought him somethin most signed rappers never get. When he did deal with Epic, DDG reportedly walked in with enough leverage to keep ownership of his own masters. Most artists sign that away day one. He didn't have to, cause he showed up already ownin the room.
 
 ---
 

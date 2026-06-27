@@ -10,7 +10,7 @@ Link in bio to sell your fans the closeness only you can give with CRWN. Free to
 
 **SCRIPT:**
 
-Why does one photo standin next to Nicki Minaj cost more than the ticket to her whole show? She sold out arenas in 2024. The Pink Friday 2 tour pulled in $108.8 million. The cheap seat ran like $65. The fans paid it happy. But that aint where the real money was sittin. The seat get you in the building. It dont get you close. You wanna actually meet her, get the photo, stand right next to her? Meet and greets at this level run hundreds, sometimes way past a thousand. Same night, same artist. One fan paid $65 to watch from the dark. Another paid past a thousand to stand in the light. The label sold the room. Nicki sold the closeness. And here go why that photo cost more. Closeness aint got a back row. She can only let a handful stand next to her a night, so the few spots cost everything.
+Why does one photo standin next to Nicki Minaj cost more than the ticket to her whole show? She sold out arenas in 2024. The Pink Friday 2 tour pulled in $108.8 million. The cheap seat ran like $65. The fans paid it happy. But that aint where the real money was sittin. The seat get you in the building. It dont get you close. You wanna actually meet her, get the photo, stand right next to her? Meet and greets at this level run hundreds, sometimes way past a thousand. Same night, same artist. One fan paid $65 to watch from the dark. Another paid to stand in the light. The label sold the room. Nicki sold the closeness. And here go how far that closeness ran the price up. That same $65 fan could watch the whole show, but a meet and greet to stand next to her for one photo reportedly ran from around 1,100 up past 4,500 dollars.
 
 ---
 
@@ -35,7 +35,7 @@ Why does one photo standin next to Nicki Minaj cost more than the ticket to her 
 
 **TWIST:** Same night, same artist. One fan paid $65 to watch from the dark. Another paid past a thousand to stand in the light. The label sold the room. Nicki sold the closeness. [Draw two stick figures: one far back in a dark box marked "$65", one up close next to a star marked "$1,000+". Write "LABEL = ROOM" and underneath "NICKI = CLOSE", box "NICKI = CLOSE"]
 
-**PAYOFF:** And closeness aint got a back row. A megastar can only let in a handful a night. You aint a megastar. So yo closeness aint never gon sell out. [Bottom: write "CLOSENESS = NO BACK ROW". Under it write "SOLD OUT" and cross it out with a big X]
+**PAYOFF:** Same show, same night. The seat ran $65. But one photo standin next to her, a meet and greet, reportedly ran from around 1,100 past 4,500. [Bottom: write "SEAT $65" small, then big "PHOTO ~$1,100-$4,500+", circle it]
 
 ---
 

@@ -18,7 +18,7 @@ So how he move that fast and still own it all? He left No Limit. He left Young M
 
 Every project go straight to a core fanbase that already there. No label deciding when. No label taking the big half.
 
-A signed artist might drop one big album and split it down to pennies. The majors been chasing that one moment. Curren$y drop ten small ones and keep all of it each time. That's how the catalog got past 90 with his name on every deed, Jet Life owns every one.
+A signed artist might drop one big album and split it down to pennies. Curren$y drop ten small ones and keep all of it each time. While the majors was still planning one rollout, he stacked past 90 projects with his name on every single deed.
 
 ---
 
@@ -41,7 +41,7 @@ A signed artist might drop one big album and split it down to pennies. The major
 
 **TWIST:** So think about what that mean. Every project go straight to a core fanbase that already there. No label deciding when. No label taking the big half. [draw an arrow from "JET LIFE" straight to three stick-figure fans labeled "CORE FANS"] A signed artist might drop one big album and split it down to pennies. Curren$y drop ten small ones and keep all of it each time. [left: one big circle labeled "1 ALBUM" sliced thin with "ARTIST = SLIVER"; right: ten small circles each whole labeled "KEEPS IT" with check marks]
 
-**PAYOFF:** One huge rollout you don't own. Or a hundred small ones you do. [draw a scale: one big bag on the left tipping up, a long row of small bags on the right tipping down and heavier, label the right side "OWNED"] The majors been chasing that one moment. He kept the catalog past 90 with his name on every deed, Jet Life owns every one. [at the bottom write "CHASED THE MOMENT" with an X, under it "90+ PROJECTS, JET LIFE OWNS EVERY ONE" boxed and underlined]
+**PAYOFF:** One huge rollout you don't own. Or a hundred small ones you do. [draw a scale: one big bag on the left tipping up, a long row of small bags on the right tipping down and heavier, label the right side "OWNED"] While the majors was still planning one rollout, he stacked past 90 projects with his name on every single deed. [at the bottom write "1 ROLLOUT" with an X, under it "90+ PROJECTS, HIS NAME ON EVERY DEED" boxed and underlined]
 
 ---
 

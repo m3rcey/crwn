@@ -10,7 +10,7 @@ Link in bio to own your masters and sell direct to your fans with CRWN. Free to 
 
 **SCRIPT:**
 
-Kota the Friend turned down three major labels, and what that decision let him buy should scare every label. This a Brooklyn rapper who got the deals on the table, the ones most artists pray for, and he passed on all three. Then he started his own label, FLTBYS, and kept every master he ever made. No advance to pay back. No 80/20 split where the label eats first. Just his music, his fans, his money. He sold direct off his own site. Vinyl, CDs, merch, straight to the people. A free tier for the day-ones, a $9 tier, a $30 tier, a $200 video call for the real ones. Then he toured the world off it and sold out the rooms, Boston to London. Off that run, the kid who said no three times bought a whole building in Pennsylvania. He didn't get discovered. He kept the keys the whole time.
+Kota the Friend turned down three major labels, and what that decision let him buy should scare every label. This a Brooklyn rapper who got the deals on the table, the ones most artists pray for, and he passed on all three. Then he started his own label, FLTBYS, and kept every master he ever made. No advance to pay back. No 80/20 split where the label eats first. Just his music, his fans, his money. He sold direct off his own site. Vinyl, CDs, merch, straight to the people. A free tier for the day-ones, a $9 tier, a $30 tier, a $200 video call for the real ones. Then he toured the world off it and sold out the rooms, Boston to London. He aint get discovered, he aint sign nothing, and the kid who said no three times turned that fan money into a whole building in Pennsylvania.
 
 ---
 
@@ -31,11 +31,11 @@ Kota the Friend turned down three major labels, and what that decision let him b
 
 **FORESHADOW:** This a Brooklyn rapper who got the deals on the table, the ones most artists pray for, and he passed on all three. [under the arrow write "THE DEALS EVERYBODY WANTS" then a crossed-out "SIGN HERE" line]
 
-**RISING ACTION:** Then he started his own label, FLTBYS, and kept every master he ever made. [write "FLTBYS" in a box, next to it "OWNS 100% MASTERS" circled] No advance to pay back. No 80/20 split where the label eats first. [write "NO ADVANCE" and "NO 80/20" with X marks] Just his music, his fans, his money. [draw three small stick figures labeled "MUSIC / FANS / MONEY"] He sold direct off his own site. Vinyl, CDs, merch, straight to the people. [draw a small record, a CD, a shirt, with arrows pointing to a stick figure fan] Then he toured the world off it and sold out the rooms, Boston to London. [write "SOLD OUT: BOSTON → LONDON"] He bought a whole building in Pennsylvania off that run. [draw a simple building with "BOUGHT IT" next to it]
+**RISING ACTION:** Then he started his own label, FLTBYS, and kept every master he ever made. [write "FLTBYS" in a box, next to it "OWNS 100% MASTERS" circled] No advance to pay back. No 80/20 split where the label eats first. [write "NO ADVANCE" and "NO 80/20" with X marks] Just his music, his fans, his money. [draw three small stick figures labeled "MUSIC / FANS / MONEY"] He sold direct off his own site. Vinyl, CDs, merch, straight to the people. [draw a small record, a CD, a shirt, with arrows pointing to a stick figure fan] Then he toured the world off it and sold out the rooms, Boston to London. [write "SOLD OUT: BOSTON → LONDON"]
 
 **TWIST:** Now look at the math a small artist could copy. [write "YOUR MATH" underlined] A free tier for the day-ones. A $9 tier and a $30 tier. Add a $200 video call for the real ones. [write a small stack: "FREE", "$9", "$30", "$200 CALL" with the $200 circled]
 
-**PAYOFF:** He didn't get discovered. He kept the keys the whole time. [draw a key, big, at the bottom, with "KEPT THE KEYS" boxed under it]
+**PAYOFF:** He aint get discovered, he aint sign nothing, and the kid who said no three times turned that fan money into a whole building in Pennsylvania. [draw a simple building, big, at the bottom, with "BOUGHT THE BUILDING" boxed under it]
 
 ---
 

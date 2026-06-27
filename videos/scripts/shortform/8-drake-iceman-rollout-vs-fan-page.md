@@ -20,7 +20,7 @@ And the part everybody scrolled past is who walks away owning all three.
 
 Since 2021 Drake stopped handing his new music over. He own Iceman. He own all three. So that whole circus aint a label selling you Drake. That's Drake selling Drake and keeping it.
 
-He owned the music and he owned the moment. The ice melted in a week. The masters he kept.
+So the biggest debut of the year, 140 million streams in a day, aint a single dollar of it splitting with a label. Drake threw himself a party nobody got a cut of but him.
 
 ---
 
@@ -45,7 +45,7 @@ He owned the music and he owned the moment. The ice melted in a week. The master
 
 **TWIST:** And the part everybody scrolled past is who walks away owning all three. Since 2021 Drake stopped handing his new music over. He own Iceman. He own all three. [write "DRAKE OWNS ALL 3" in big caps and circle it once, with "SINCE 2021" written small underneath] So that whole circus aint a label selling you Drake. That's Drake selling Drake and keeping it. [write "LABEL SELLING DRAKE" crossed out, then "DRAKE SELLING DRAKE" written below it and underlined]
 
-**PAYOFF:** He owned the music and he owned the moment. [write "OWN THE MUSIC + OWN THE MOMENT" in caps] The ice melted in a week. The masters he kept. [write "ICE MELTED" on the left and "MASTERS KEPT" on the right, both circled together inside one rough oval at the bottom]
+**PAYOFF:** So the biggest debut of the year, 140 million streams in a day, aint a single dollar of it splitting with a label. [write "BIGGEST DEBUT OF THE YEAR" in caps] Drake threw himself a party nobody got a cut of but him. [write "NOBODY GOT A CUT BUT HIM" circled inside one rough oval at the bottom]
 
 ---
 

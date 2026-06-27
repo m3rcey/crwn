@@ -10,7 +10,7 @@ Link in bio to give your day-one fans a spot that says they were here first with
 
 **SCRIPT:**
 
-Why did Beyonce put a velvet rope on her own tour, and why did millions of fans line up gladly to prove they belonged behind it? She showed it in 2023. Her Renaissance tour ran on a verified fan system. You couldnt just buy a ticket. You had to register, prove you was a person, not a bot, not a reseller. Fans signed up, waited on a text, prayed for a code. Some got picked. Some got the waitlist. And they did it happy. Cause Ticketmaster basically told em the real ones come first, and the bots and flippers get pushed to the back. That ranking did somethin. It aint feel like a hoop. So somebody tested it small. They put a wall where the day-ones get they name up top. A spot that say you was here before anybody. The fans paid for that spot quicker than they paid for the music. Here go why she put up the rope and why they ran to it. Bein told you the real one feel like bein chosen, and a fan will pay to be chosen.
+Why did Beyonce put a velvet rope on her own tour, and why did millions of fans line up gladly to prove they belonged behind it? She showed it in 2023. Her Renaissance tour ran on a verified fan system. You couldnt just buy a ticket. You had to register, prove you was a person, not a bot, not a reseller. Fans signed up, waited on a text, prayed for a code. Some got picked. Some got the waitlist. And they did it happy. Cause Ticketmaster basically told em the real ones come first, and the bots and flippers get pushed to the back. That ranking did somethin. It aint feel like a hoop. So somebody tested it small. They put a wall where the day-ones get they name up top. A spot that say you was here before anybody. The fans paid for that spot quicker than they paid for the music. So here go what that rope was really worth. Beyonce made every single fan prove to a machine they was a real human before they could spend a dime, and that tour went on to gross around 579 million dollars, the biggest tour any Black artist ever ran.
 
 ---
 
@@ -35,7 +35,7 @@ Why did Beyonce put a velvet rope on her own tour, and why did millions of fans 
 
 **TWIST:** That ranking did somethin. It aint feel like a hoop. It felt like bein chosen. So somebody tested it small. They put a wall where the day-ones get they name up top. A spot that say you was here before anybody. The fans paid for that spot quicker than they paid for the music. [Draw a vertical "WALL" with three names stacked: "FAN #1", "FAN #2", "FAN #3" and a crown over the top name. Arrow to the side: "PAID FOR THE SPOT."]
 
-**PAYOFF:** Beyonce made millions tell her they was real. Yo fans waitin to do the same. [Bottom of page, bold two lines: "MILLIONS TOLD HER THEY WAS REAL" / "YO FANS WAITIN TO DO THE SAME." Circle "REAL."]
+**PAYOFF:** Beyonce made every fan prove to a machine they was a real human before they could spend a dime, and that tour grossed around 579 million, the biggest any Black artist ever ran. [Bottom of page, bold: "PROVE YOU REAL" then "~$579M" circled, write "BIGGEST EVER" beside it]
 
 ---
 

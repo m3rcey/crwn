@@ -10,7 +10,7 @@ Link in bio to build the direct line to your fans, contacts you actually own, wi
 
 **SCRIPT:**
 
-How did Kendrick move 319 thousand copies of GNX with zero warning, no announcement, no rollout, no pre-save? Just here it go at noon on a Friday, and somehow the planet knew in minutes. It aint magic. He already own the room before he walk in it. pgLang behind him, millions already locked in, so the second he hit go, the audience already there waitin. Now run that same play as a regular artist. You surprise drop a song nobody knew was comin. Who hear it? Almost nobody. You aint got a direct line to ya fans, so a surprise just mean silence. The platform decide who finds out, and most times they decide nobody. The no-warning drop only land when you already hold the audience. Email, number, a page they actually check. You build that line before you need it, not the day you wanna drop. Kendrick aint move 319 thousand cause he kept it secret. He moved it cause he had somewhere to send the secret.
+How did Kendrick move 319 thousand copies of GNX with zero warning, no announcement, no rollout, no pre-save? Just here it go at noon on a Friday, and somehow the planet knew in minutes. It aint magic. He already own the room before he walk in it. pgLang behind him, millions already locked in, so the second he hit go, the audience already there waitin. Now run that same play as a regular artist. You surprise drop a song nobody knew was comin. Who hear it? Almost nobody. You aint got a direct line to ya fans, so a surprise just mean silence. The platform decide who finds out, and most times they decide nobody. The no-warning drop only land when you already hold the audience. Email, number, a page they actually check. You build that line before you need it, not the day you wanna drop. So Kendrick dropped GNX with no ad, no pre-save, no rollout, and it was still the sixth biggest debut of the whole year.
 
 ---
 
@@ -35,7 +35,7 @@ How did Kendrick move 319 thousand copies of GNX with zero warning, no announcem
 
 **TWIST:** That's the part people miss about the no-warning drop. It only land when you already hold the audience. Email, number, a page they actually check. You build that line before you need it, not the day you wanna drop. [Draw an arrow from the artist to a box labeled "YOUR LINE" containing three stacked lines: "EMAIL", "NUMBER", "PAGE". Beside it draw a crowd now turning toward the artist. Write "BUILD IT BEFORE YOU NEED IT" underneath.]
 
-**PAYOFF:** Kendrick aint win cause he kept it secret. GNX moved 319 thousand in its first week cause he had somewhere to send the secret. [At the bottom write "SECRET" on the left and "SOMEWHERE TO SEND IT" on the right, with a line down the middle. Under that, big, write "319K FIRST WEEK" and underline it.]
+**PAYOFF:** So Kendrick dropped GNX with no ad, no pre-save, no rollout, and 319 thousand in week one made it the sixth biggest debut of the whole year. [At the bottom write "NO AD / NO PRE-SAVE / NO ROLLOUT" on the left and "SOMEWHERE TO SEND IT" on the right, with a line down the middle. Under that, big, write "319K = #6 DEBUT OF THE YEAR" and underline it.]
 
 ---
 

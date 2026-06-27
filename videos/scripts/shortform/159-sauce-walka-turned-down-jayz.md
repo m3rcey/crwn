@@ -10,7 +10,7 @@ Link in bio to own your fanbase so you never need a co-sign to eat with CRWN. Fr
 
 **SCRIPT:**
 
-Sauce Walka turned down Jay-Z. Yea, THE Jay-Z. Most artists would crawl for that co-sign. Roc Nation came to the Houston rapper with a deal worth a reported 5 million dollars. He said no. Why would anybody say no to that? Because the deal wanted his catalog, the music he already owned. He built his own thing, TSF, his own label, and his money come straight from his fans, no permission needed. So look at what the no really was. He wasnt turning down 5 million for nothing. He was refusing to sell the one thing that pays him forever. He let the one-time check walk out the door and kept the catalog that keeps printing money long after that 5 million woulda been gone.
+Sauce Walka turned down Jay-Z. Yea, THE Jay-Z. Most artists would crawl for that co-sign. Roc Nation came to the Houston rapper with a deal worth a reported 5 million dollars. He said no. Why would anybody say no to that? Because the deal wanted his catalog, the music he already owned. He built his own thing, TSF, his own label, and his money come straight from his fans, no permission needed. So look at what the no really was. He wasnt turning down 5 million for nothing. He bet he could make it himself, direct, off the fans he already owned. And here go the part that dont sound real. Off OnlyFans alone, one direct-to-fan platform, Sauce reportedly pulled around 6 million. He turned down Jay-Z 5 million, then made more than that selling straight to his own fans.
 
 ---
 
@@ -33,7 +33,7 @@ Sauce Walka turned down Jay-Z. Yea, THE Jay-Z. Most artists would crawl for that
 
 **RISING ACTION:** Because the deal wanted his catalog, the music he already owned. He built his own thing, TSF, his own label, and his money come straight from his fans, no permission needed. [write "TSF = HIS OWN LABEL", draw an arrow from a crowd of fans straight to a stick figure with dollar signs, labeled "STRAIGHT FROM FANS"]
 
-**PAYOFF / SURPRISE ENDING:** He wasnt turning down 5 million for nothing. He was refusing to sell the one thing that pays him forever. He let the one-time check walk out the door and kept the catalog that keeps printing money long after that 5 million woulda been gone. [draw a check labeled "$5M = ONE TIME" walking out a door, next to a vault labeled "CATALOG = PAYS FOREVER" with a check, box at the bottom: "HE AINT SELL WHAT PAYS FOREVER"]
+**PAYOFF / SURPRISE ENDING:** He wasnt turning down 5 million for nothing. He bet he could make it himself, direct, off the fans he already owned. And here go the part that dont sound real. Off OnlyFans alone, one direct-to-fan platform, Sauce reportedly pulled around 6 million. He turned down Jay-Z 5 million, then made more than that selling straight to his own fans. [draw a check labeled "$5M = ONE TIME" walking out a door, next to a vault labeled "DIRECT FROM FANS ≈ $6M" with a check, box at the bottom: "TURNED DOWN $5M, MADE MORE OFF HIS OWN FANS"]
 
 ---
 

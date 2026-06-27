@@ -10,7 +10,7 @@ Link in bio to drop your music straight to the fans who already wait on you with
 
 **SCRIPT:**
 
-Steve Lacy recorded a song on a iPhone in his bedroom, and where that song ended up should not be possible. Back in 2017 he made his whole first project inside GarageBand on the phone. Guitar plugged straight in, vocals into the little phone mic. No big room, no label budget behind it. Years go by. Then one of them phone records does something a label spends real money chasing. Same gear you already own, so the studio aint the gate no more. So what is the gate. Reaching the people. Steve had a crowd that already rode for him from his old stuff, so the song aint start from zero. And in 2022 that bedroom song, "Bad Habit," went number one on the Hot 100 and sat up top three weeks straight. The phone was free. The fans was the part he already built.
+Steve Lacy recorded a song on a iPhone in his bedroom, and where that song ended up should not be possible. Back in 2017 he made his whole first project inside GarageBand on the phone. Guitar plugged straight in, vocals into the little phone mic. No big room, no label budget behind it. Years go by. Then one of them phone records does something a label spends real money chasing. Same gear you already own, so the studio aint the gate no more. So what is the gate. Reaching the people. Steve had a crowd that already rode for him from his old stuff, so the song aint start from zero. The phone was free. The fans was the part he already built. And in 2022 that bedroom song, "Bad Habit," beat out every label-funded record in the country and went number one on the Hot 100, then sat up there three weeks straight.
 
 ---
 
@@ -33,7 +33,7 @@ Steve Lacy recorded a song on a iPhone in his bedroom, and where that song ended
 
 **TWIST:** Same gear you already own, so the studio aint the gate no more. So what is the gate? [Write "WHAT STILL COSTS?" in the center.] Reaching the people. [Draw a single tall door, write "FANS" on the door, circle it.] Steve had a crowd that already rode for him from his old stuff, so the song aint start from zero. [Write "CROWD ALREADY THERE" with a check mark.]
 
-**PAYOFF:** And in 2022 that bedroom song, "Bad Habit," went number one on the Hot 100 and sat up top three weeks straight. [Write "2022" then "BAD HABIT = #1" and underline "#1", write "3 WEEKS" small under it.] The phone was free. The fans was the part he already built. [At the bottom write "PHONE = FREE" on the left and "FANS = THE WORK" on the right, underline "FANS = THE WORK".]
+**PAYOFF:** The phone was free. The fans was the part he already built. [At the bottom write "PHONE = FREE" on the left and "FANS = THE WORK" on the right, underline "FANS = THE WORK".] And in 2022 that bedroom song, "Bad Habit," beat out every label-funded record in the country and went number one on the Hot 100, then sat up there three weeks straight. [Write "2022" then "BAD HABIT = #1" and underline "#1", write "3 WEEKS" small under it.]
 
 ---
 

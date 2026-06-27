@@ -4,16 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Problem-Solving Principles
 
-**First Principles Thinking:** When fixing any issue, start by LISTING what you KNOW is true, then reason up from there.
+Three tools. Each answers a different question. Use the one that matches.
 
-**Five-Step Improvement Process** — apply before building, fixing, or improving anything:
-1. **Question the requirement.** Should this exist at all? Challenge it regardless of who gave it.
-2. **Delete.** Try to remove parts/steps. If you're not occasionally adding things back, you're not deleting enough.
-3. **Simplify/optimize.** Only after confirming it should exist and can't be deleted.
-4. **Accelerate.** Go faster — but only after steps 1–3.
-5. **Automate.** Always last. Never automate what shouldn't exist.
+WHEN EXECUTING EACH AND EVERY PROMPT, EXECUTE THIS PROCESS:
+{
+**"Which of these should I do first?"** → Most-critical-first.
+When you have a list, queue, or backlog, pick the item that most threatens the current goal. Critical means "what fails worst if ignored," not "what's quickest" or "what's loudest." Pre-PMF, critical = blocks artist acquisition or breaks money flows.
 
-Never work these steps backwards. When deciding which task to handle first, always start with the most critical.
+**"What's actually true here?"** → First principles.
+Before fixing, diagnosing, or arguing about anything: list what you KNOW is true. Reason up from there. Use this when the situation is murky, when you've inherited assumptions, or when you suspect you're reasoning from someone else's frame.
+
+**"What should I do about this one thing?"** → Five-step pass.
+Apply in order, never reversed:
+1. Question the requirement. Should this exist at all? Challenge it regardless of who gave it.
+2. Delete. Try to remove parts/steps. If you're not occasionally adding things back, you're not deleting enough.
+3. Simplify. Only after confirming it should exist and can't be deleted.
+4. Accelerate. Go faster — but only after steps 1–3.
+5. Automate. Always last. Never automate what shouldn't exist.
+
+**The full loop:** triage with most-critical-first → diagnose with first principles → decide with five-step.
+}
 
 ## Project Overview
 

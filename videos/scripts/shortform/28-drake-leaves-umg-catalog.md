@@ -20,7 +20,7 @@ But everything since 2021 he kept. Certified Lover Boy. For All The Dogs. Iceman
 
 He spent the back half of his career taking back what the front half signed away.
 
-Drake had to climb to the very top to start owning his masters. The artist starting today can own em on the way up.
+So here go the part that stings. The albums that made Drake Drake, Take Care, Views, Scorpion, them he can never buy back. The biggest artist alive can walk from his label and still dont own the records that built him.
 
 ---
 
@@ -45,7 +45,7 @@ Drake had to climb to the very top to start owning his masters. The artist start
 
 **TWIST:** But everything since 2021 he kept. Certified Lover Boy. For All The Dogs. Iceman. His. [stack the list "CERTIFIED LOVER BOY / FOR ALL THE DOGS / ICEMAN" with a bracket labeled "DRAKE OWNS" and circle the bracket] So when Drake walks, he walks owning his last five years and leaving his first nine behind. He didn't lose the masters fight. He won the second half of it. [write "LOST FIRST 9 YEARS" on the left and "WON LAST 5" on the right, with a sharpie line splitting them]
 
-**PAYOFF:** He spent the back half of his career taking back what the front half signed away. [write "BACK HALF BUYS BACK THE FRONT HALF" boxed] Drake had to climb to the top to start owning his masters. The artist starting today can own em on the way up. [write "DRAKE: OWN AT THE TOP" on the left and "YOU: OWN ON THE WAY UP" on the right at the bottom, both circled together inside one rough oval]
+**PAYOFF:** He spent the back half of his career taking back what the front half signed away. [write "BACK HALF BUYS BACK THE FRONT HALF" boxed] So here go the part that stings. The albums that made Drake Drake, Take Care, Views, Scorpion, them he can never buy back. The biggest artist alive can walk and still dont own the records that built him. [write "THE RECORDS THAT BUILT HIM = NEVER HIS" circled inside one rough oval at the bottom]
 
 ---
 

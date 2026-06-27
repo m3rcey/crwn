@@ -10,7 +10,7 @@ Link in bio to build the audience that makes labels come to you with CRWN. Free 
 
 **SCRIPT:**
 
-When Ice Spice put out Munch with no label behind her, what was the label actually buying when it finally showed up? In 2022 she dropped Munch on her own. No major behind it. Just a Bronx girl, a song, and the internet. Drake played it on his radio. TikTok ran with it. That hashtag passed two billion views before any deal was even on the table. Then a few months later the label came knocking. Look at that order. She blew up first. The contract came after. So they aint show up for her talent. Watch what they was really there for. Most artists wait on a label to hand em fans. She brought the fans to the table, so the table came to her. The label wasn't buying her. They was renting the crowd she already built for free.
+When Ice Spice put out Munch with no label behind her, what was the label actually buying when it finally showed up? In 2022 she dropped Munch on her own. No major behind it. Just a Bronx girl, a song, and the internet. Drake played it on his radio. TikTok ran with it and it spread fast. Most artists wait on a label to hand em fans. She brought the fans to the table, so the table came to her. Look at that order. She blew up first. The contract came after. So when the deal finally got signed, here's what it was buying. A song that already crossed two billion views, off zero label dollars, before they ever walked in the room.
 
 ---
 
@@ -31,11 +31,11 @@ When Ice Spice put out Munch with no label behind her, what was the label actual
 
 **FORESHADOW:** Watch how fast it can flip. [Draw a small arrow curving from a stick crowd over to a big dollar sign, question mark next to it.]
 
-**RISING ACTION:** In 2022 Ice Spice put out Munch on her own. No major label behind it. [Write "MUNCH 2022", below it "NO LABEL" and cross out a tiny label-building drawing.] Just a Bronx girl, a song, and the internet. Drake played it on his radio. TikTok ran with it. [Draw a phone with a play button, write "DRAKE" and "TIKTOK" beside it.] That hashtag passed two billion views before any deal was even on the table. [Write "2 BILLION VIEWS" and circle it.] Then a few months later, the label came knocking. [Draw a door with a stick figure knocking, write "LABEL" on the door.]
+**RISING ACTION:** In 2022 Ice Spice put out Munch on her own. No major label behind it. [Write "MUNCH 2022", below it "NO LABEL" and cross out a tiny label-building drawing.] Just a Bronx girl, a song, and the internet. Drake played it on his radio. TikTok ran with it and it spread fast. [Draw a phone with a play button, write "DRAKE" and "TIKTOK" beside it.] Then a few months later, the label came knocking. [Draw a door with a stick figure knocking, write "LABEL" on the door.]
 
 **TWIST:** Look at that order close. She blew up first. The contract came after. [Draw a timeline: "VIRAL" then arrow then "DEAL", number them 1 and 2.] The label aint make her. They paid to get next to a crowd she already built herself. [Write "THEY PAID TO GET CLOSE" and box it.] Read that part again. They wasn't buying her talent. They was renting the audience she made for free. [Write "RENTING THE CROWD" and underline "RENTING".]
 
-**PAYOFF:** Most artists wait for a label to hand em fans. She brought the fans to the table, so the table came to her. [Draw a stick figure with a crowd walking toward a table.] The crowd is the asset. Whoever owns the crowd owns the leverage. [Write "OWN THE CROWD = OWN THE LEVERAGE" big at the bottom, circle "CROWD".]
+**PAYOFF:** Most artists wait for a label to hand em fans. She brought the fans to the table, so the table came to her. [Draw a stick figure with a crowd walking toward a table.] So when the deal finally got signed, here's what it was buying. A song that already crossed two billion views, off zero label dollars, before they ever walked in the room. [Write "2 BILLION VIEWS" big at the bottom, under it "$0 FROM A LABEL", circle "2 BILLION VIEWS".]
 
 ---
 

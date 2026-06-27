@@ -16,7 +16,7 @@ Nipsey moved different. He kept his masters under his own label, All Money In. H
 
 Then he went past the music. He opened the Marathon Clothing store on Crenshaw in 2017. He bought the plaza it sat on. A barbershop, a burger spot, real property on the block he grew up on.
 
-Most artists leave they family a royalty check that somebody else still controls. So when Nipsey passed in 2019, his kids aint inherit a contract, they inherited the keys to a business he owned outright. The store, the masters, the building.
+Most artists leave they family a royalty check that somebody else still controls. So when Nipsey passed in 2019, his kids didn't inherit a contract. They inherited the actual keys. The Marathon store, the plaza it sat on, the barbershop, the masters, every brick on Crenshaw, owned outright with no label holding a piece.
 
 ---
 
@@ -41,7 +41,7 @@ Most artists leave they family a royalty check that somebody else still controls
 
 **TWIST:** So when he passed in 2019, his kids aint inherit a contract. [Draw two small stick figures, write "HIS KIDS" above them] They inherited a business. [Draw a hand holding a set of keys, write "KEYS" beside it] The store, the masters, the building, reportedly all built to be owned. [Circle "STORE", "MASTERS", "BUILDING"]
 
-**PAYOFF:** Most artists leave they family a royalty check that somebody else still controls. [Draw a check with a chain/lock on it] Nipsey left his family the keys. [Underline "THE KEYS"] What you own outright is what your name keeps after you. [Box the whole bottom line "WHAT YOU OWN IS WHAT YOU KEEP"]
+**PAYOFF:** Most artists leave they family a royalty check that somebody else still controls. [Draw a check with a chain/lock on it] Nipsey left his family the actual keys. [Underline "THE KEYS"] The Marathon store, the plaza it sat on, the barbershop, the masters, every brick on Crenshaw, owned outright with no label holding a piece. [Box the bottom line "OWNED OUTRIGHT"]
 
 ---
 

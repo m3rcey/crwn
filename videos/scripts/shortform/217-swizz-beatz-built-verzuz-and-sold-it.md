@@ -18,7 +18,7 @@ That free little battle turned into Verzuz. The biggest names in music lined up 
 
 One year later, they sold it to Triller. They aint just make the music. They built a thing, then they owned it enough to sell it.
 
-A streamin check pay you once and it gone. So when they sold Verzuz, they cut in all 43 artists who ever performed, every person who showed up got a piece of the bag.
+A streamin check pay you once and it gone. So when the Triller money hit, Swizz and Tim aint pocket it alone like every other owner woulda. They split that sale 43 ways, one piece for every artist who ever stepped on that Verzuz stage.
 
 ---
 
@@ -43,7 +43,7 @@ A streamin check pay you once and it gone. So when they sold Verzuz, they cut in
 
 **TWIST:** So here go the part that hit me. When they sold, they cut in all 43 artists who ever performed. [Write "43 ARTISTS GOT A PIECE" and box it, draw a small pie chart with many slices] The people who showed up got a piece too. [Draw a few small stick figures with smiley faces next to the pie]
 
-**PAYOFF:** A streamin check pay you once and it gone. [Write "STREAM = PAID ONCE", draw a small dollar sign with an X through a second one] A thing you own, you can sell, and bring ya people with you. [Write "OWN IT = SELL IT + BRING YA PEOPLE", underline the whole line]
+**PAYOFF:** A streamin check pay you once and it gone. [Write "STREAM = PAID ONCE", draw a small dollar sign with an X through a second one] So when the Triller money hit, Swizz and Tim aint pocket it alone like every other owner woulda. They split that sale 43 ways, one piece for every artist who ever stepped on that Verzuz stage. [Write "OWN IT = SELL IT + BRING YA PEOPLE", underline the whole line]
 
 ---
 

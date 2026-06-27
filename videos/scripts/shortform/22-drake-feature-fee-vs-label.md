@@ -18,7 +18,7 @@ Now here go the irony. Drake owns every one of his own masters since 2021. On hi
 
 The verse made the song hot. Owning it is what makes it pay. A fee gets paid once. A master gets paid every time somebody presses play.
 
-And here's what that one walk-away check actually skips: around 4 dollars per 1,000 plays, so a million plays is 4 grand, 100 million plays is 400 grand, and ten years deep it's still landing on the owner, not the guest.
+And here go the kicker. Drake reportedly charge around a million dollars for one verse, the highest feature price in rap. The richest one-time check in the game, and it still lose to the artist who paid it. Cause that million stop the day it clear, and the song keep paying the owner for the next ten years.
 
 ---
 
@@ -45,7 +45,7 @@ And here's what that one walk-away check actually skips: around 4 dollars per 1,
 
 **MID PAYOFF:** The verse made the song hot. Owning it is what makes it pay. A fee gets paid once. A master gets paid every time somebody presses play. [write "FEE = PAID ONCE" on the left, "MASTER = PAID EVERY PLAY" on the right, with a vertical line between] [write "VERSE = MAKES IT HOT" and "OWNING IT = MAKES IT PAY" stacked inside one rough oval]
 
-**PAYOFF:** And here's what that one walk-away check actually skips: around 4 dollars per 1,000 plays, so a million plays is 4 grand, 100 million plays is 400 grand, and ten years deep it's still landing on the owner, not the guest. [write "~$4 PER 1,000 PLAYS", then stack "1,000,000 PLAYS = $4,000", "100,000,000 PLAYS = $400,000" in big caps at the bottom and circle it]
+**PAYOFF:** And here go the kicker. Drake reportedly charge around a million dollars for one verse, the highest feature price in rap. The richest one-time check in the game, and it still lose to the artist who paid it. Cause that million stop the day it clear, and the song keep paying the owner for the next ten years. [write "DRAKE VERSE ≈ $1,000,000" then "HIGHEST FEE IN RAP" boxed, then "STILL LOSES TO THE OWNER" in big caps at the bottom and circle it]
 
 ---
 

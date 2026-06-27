@@ -10,7 +10,7 @@ Link in bio to put your most loyal fans on a supporter wall they pay to be on wi
 
 **SCRIPT:**
 
-What did the fan in Eminem's "Stan," the one who mailed letter after letter, actually want? Em dropped that song back in 2000. The fan in it aint want a refund. He aint want free merch. He kept writin and writin. That fan got so big the word "stan" landed in the Oxford dictionary in 2017. Now think about who really ride for you. Ya top fan dont care about a discount. They want you to know they was here first. So somebody put it to the test. They added a wall where the real ones get they name up. A small monthly badge that say you belong. And the fans paid for it, faster than they paid for any song. Stan died waitin, and he never got the one thing he wrote in for. He just wanted Em to say his name back. He wanted to be seen. And ya realest fans will pay for exactly that.
+What did the fan in Eminem's "Stan," the one who mailed letter after letter, actually want? Em dropped that song back in 2000. The fan in it aint want a refund. He aint want free merch. He kept writin and writin. He just wanted Em to say his name back. He wanted to be seen. Now think about who really ride for you. Ya top fan dont care about a discount. They want you to know they was here first. So somebody put it to the test. They added a wall where the real ones get they name up. A small monthly badge that say you belong. And the fans paid for it, faster than they paid for any song. And that one made-up fan who only wanted to be seen? He got so big the word "stan" got added to the real Oxford English Dictionary in 2017.
 
 ---
 
@@ -35,7 +35,7 @@ What did the fan in Eminem's "Stan," the one who mailed letter after letter, act
 
 **TWIST:** So somebody put it to the test. They added a wall where the real ones get they name up. [draw a wall of bricks with little names written inside it] A small monthly badge that say you belong. [draw a small star badge] And the fans paid for it, faster than they paid for any song. [draw an arrow from the badge to a "$"]
 
-**PAYOFF:** Stan aint never get his name said back. He died waiting on it. [draw a small broken heart next to the envelopes] Ya realest fans alive, and they will pay just to be seen. [write "SEEN" big at the bottom and circle it]
+**PAYOFF:** Stan aint never get his name said back. But that made-up fan who just wanted to be seen got so big the word "stan" got added to the real Oxford dictionary in 2017. [draw a small open dictionary, write "stan (n.)" inside, write "OXFORD 2017" big at the bottom and circle it]
 
 ---
 

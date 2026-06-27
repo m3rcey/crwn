@@ -18,7 +18,7 @@ They meet that new fan once and never reach back. Busy chasin the next post whil
 
 The move on CRWN is to let it run without you. New follower come in, CRWN auto-send em three things. A welcome so they know you saw em. A free unlock so they got a reason to stay. And one ask, while the window still open.
 
-You sleepin, it's still workin, catchin every new fan the day they hottest. Cause that fan who found you today? Give it about a week and they can't tell you who you was, and the wave you pulled drains right back out.
+You sleepin, it's still workin, catchin every new fan the day they hottest. And here go proof the wave drains. SZA's monthly listeners reportedly ran up to around ninety seven million right after her 2025 Super Bowl moment, then slid back to about seventy million. Near thirty million people washed in and washed right back out, cause nothin caught em the day they was hot.
 
 ---
 

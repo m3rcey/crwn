@@ -18,7 +18,7 @@ Now here go what most people miss. They was never some major-label act somebody 
 
 So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. A signed artist win a award, the label get richer first. Three 6 was the label.
 
-The win cashed in with the two dudes who own the company. Not whoever signed em, cause aint nobody sign em.
+So the first Academy Award in the history of hip-hop aint have a single major label name attached to the money. It cashed straight into two dudes from Memphis who signed theyself.
 
 ---
 
@@ -43,7 +43,7 @@ The win cashed in with the two dudes who own the company. Not whoever signed em,
 
 **TWIST:** So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. [Draw a ladder going up on the left, with "PARENT CO." at the top, and a big X over the top rung.] It land with the two dudes who own the company. [Draw an arrow from the statue pointing straight to "DJ PAUL + JUICY J" boxed.] A signed artist win a award, the label get richer first. Three 6 was the label. [Two-line equation: "SIGNED → LABEL EATS FIRST" over "THREE 6 = THE LABEL". Box the bottom line.]
 
-**PAYOFF:** When you own the thing, the win belong to you. [Bottom center, large: "OWN IT → THE WIN IS YOURS".] Not whoever signed you. [Under it, smaller, "NOT WHOEVER SIGNED YOU", with "SIGNED YOU" crossed out. Double underline the top line.]
+**PAYOFF:** So the first Academy Award in the history of hip-hop aint have a single major label name attached to the money. It cashed straight into two dudes from Memphis who signed theyself. [Bottom center, large: "OWN IT → THE WIN IS YOURS".] [Under it, smaller, "NOT WHOEVER SIGNED YOU", with "SIGNED YOU" crossed out. Double underline the top line.]
 
 ---
 

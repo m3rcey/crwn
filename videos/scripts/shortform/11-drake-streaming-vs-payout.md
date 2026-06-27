@@ -16,7 +16,7 @@ Cause everybody point at the label taking his cut. He handled that part. Used to
 
 He fixed who gets the money. And the number aint move. So the problem was never just who owns it. Owning your masters fixes who keeps the share. It dont change what one play is worth.
 
-Streaming pays you by the million. A fan pays you by the month. And here's what one play is actually worth: Spotify pay out around 4 dollars for every 1,000 plays, less than half a cent each, so 100 million ears come back as fractions of a penny apiece.
+Streaming pays you by the million. A fan pays you by the month. And here go the part that dont sound real: Drake the most streamed artist in Spotify history, over 100 billion plays, and a whole career of that record run reportedly came back around 400 million dollars before the label and distributor even took they cut. The biggest streaming run a human ever put up, and a few thousand fans paying monthly direct woulda matched it.
 
 ---
 
@@ -41,7 +41,7 @@ Streaming pays you by the million. A fan pays you by the month. And here's what 
 
 **TWIST:** So the problem was never just who owns it. Owning your masters fixes who keeps the share. It dont change what one play is worth. [write "OWN THE MASTER → KEEP THE PENNIES" on the left, "STILL PENNIES" on the right with an arrow between]
 
-**PAYOFF:** Streaming pays you by the million. A fan pays you by the month. [write "STREAMING = BY THE MILLION" and "FAN = BY THE MONTH" stacked at the bottom inside one rough oval] And here's what one play is actually worth: Spotify pay out around 4 dollars for every 1,000 plays, less than half a cent each, so 100 million ears come back as fractions of a penny apiece. [write "1,000 PLAYS = ~$4" boxed, then "1 PLAY < HALF A CENT" in big caps underlined twice, then "100M × FRACTIONS OF A PENNY = THE MODEL" in caps]
+**PAYOFF:** Streaming pays you by the million. A fan pays you by the month. [write "STREAMING = BY THE MILLION" and "FAN = BY THE MONTH" stacked inside one rough oval] And here go the part that dont sound real: Drake the most streamed artist in Spotify history, over 100 billion plays, a whole career of that run reportedly came back around 400 million before the label and distributor even took they cut. [write "MOST STREAMED EVER" then "100,000,000,000+ PLAYS" boxed, then "≈ $400M (BEFORE CUTS)" in big caps underlined twice] The biggest streaming run a human ever put up, and a few thousand fans paying monthly direct woulda matched it. [write "A FEW THOUSAND DIRECT FANS = SAME MONEY" in caps at the bottom]
 
 ---
 

@@ -10,7 +10,7 @@ Link in bio to give your day-one fans a name and a badge they climb for with CRW
 
 **SCRIPT:**
 
-Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. What are they really payin for? Cause it aint the radio. He never had a hit on it. Tech N9ne built one of the most loyal fanbases in rap with no major label and no radio single. Him and his partner started they own label back in 1999 and kept it the whole way. So when a Technician shows up, they aint just buying songs. The closer ones pay for the meet and greet, the merch, the photo, the front of the line. Megastars hand fans a song and keep it moving. A small artist like Tech hand a fan a spot on the team. People quit a playlist every day. So ask yaself why a Technician will line up and pay again and again, year after year. It aint the music. They payin for the rank, and the proof they earned they way onto a team that aint never had to beg radio. And aint nobody quit a team they climbed they way up.
+Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. What are they really payin for? Cause it aint the radio. He never had a hit on it. Tech N9ne built one of the most loyal fanbases in rap with no major label and no radio single. Him and his partner started they own label back in 1999 and kept it the whole way. So when a Technician shows up, they aint just buying songs. The closer ones pay for the meet and greet, the merch, the photo, the front of the line. Megastars hand fans a song and keep it moving. A small artist like Tech hand a fan a spot on the team. People quit a playlist every day. So ask yaself why a Technician will line up and pay again and again, year after year. It aint the music. It aint radio neither. With no radio hit and no major label, Tech sold over two million albums and his label Strange Music has reportedly pulled in around 20 million dollars a year, off nothin but Technicians who climbed they way onto the team.
 
 ---
 
@@ -35,7 +35,7 @@ Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. Wha
 
 **TWIST:** The closer ones pay for the meet and greet, the merch, the photo, the front of the line. [draw a small ladder; rungs labeled "PHOTO", "MEET", "FRONT LINE"] Megastars hand fans a song and keep it moving. A small artist like Tech hand a fan a spot on the team. [left write "SONG", right write "A SPOT", draw a line down the middle] People quit a playlist every day. [write "QUIT A PLAYLIST" with an X]
 
-**PAYOFF:** So ask yaself why a Technician will line up and pay again and again, year after year. It aint the music. They payin for the rank, and the proof they earned they way onto a team that aint never had to beg radio. And aint nobody quit a team they climbed they way up. [cross out "MUSIC", circle "RANK". bottom, big bold: "THEY PAYIN FOR THE RANK" with a check]
+**PAYOFF:** So ask yaself why a Technician pay again and again. It aint the music and it aint radio. With no radio hit, Tech sold over 2 million albums and Strange Music reportedly pulls around 20 million a year off them Technicians. [cross out "MUSIC" and "RADIO". bottom, big bold: "2M+ ALBUMS / ~$20M A YEAR" circled, write "NO RADIO HIT" with an X]
 
 ---
 

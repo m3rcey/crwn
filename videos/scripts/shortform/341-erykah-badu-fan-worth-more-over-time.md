@@ -18,9 +18,9 @@ Say one fan buy your vinyl for $45. One time. Feel good, right? Now say another 
 
 That $12 a month keeps coming in, month after month, year after year. The vinyl money came once and stopped. The tier fan keeps paying and aint going nowhere.
 
-So the loud sale aint always the big one. The quiet fan who just keeps showing up is the one funding the next album. You aint looking for the biggest buyer today. You looking for the one who never leaves.
+So the loud sale aint always the big one. The quiet fan who just keeps showing up is the one funding the next album.
 
-So just stretch that $12 fan out ten years, like a Badu fan who stuck around. The vinyl buyer is still sitting right where they started, at $45. That fan who stayed is worth over fourteen hundred dollars.
+So just stretch that $12 fan out ten years, like a Badu fan who stuck around. The vinyl buyer is still sitting right where they started, at $45. That fan who stayed is worth over fourteen hundred dollars. Thats thirty two of that vinyl buyer, off one fan you almost ignored.
 
 ---
 
@@ -45,7 +45,7 @@ So just stretch that $12 fan out ten years, like a Badu fan who stuck around. Th
 
 **TWIST:** So the loud sale aint always the big one. The quiet fan who just keeps showing up is the one funding the next album. You aint looking for the biggest buyer today. You looking for the one who never leaves. [Cross out "BIG SALE" on the left. Box "LONG FAN" on the right. Below write "THE ONE WHO NEVER LEAVES".]
 
-**PAYOFF:** So just stretch that $12 fan out ten years, like a Badu fan who stuck around. The vinyl buyer is still sitting right where they started, at $45. That fan who stayed is worth over fourteen hundred dollars. [On the left, next to "$45", write "STILL $45". On the right write "10 YRS = $1,400+" big, circle it.]
+**PAYOFF:** So just stretch that $12 fan out ten years, like a Badu fan who stuck around. The vinyl buyer is still sitting right where they started, at $45. That fan who stayed is worth over fourteen hundred dollars. Thats thirty two of that vinyl buyer, off one fan you almost ignored. [On the left, next to "$45", write "STILL $45". On the right write "10 YRS = $1,400+" big, circle it.]
 
 ---
 

@@ -14,7 +14,7 @@ How did Metro Boomin get a $70 million check and still keep most of his catalog?
 
 Metro aint do that. He held onto his own publishing. So in 2023 a company named Shamrock came knocking and paid him around $70 million.
 
-But that $70 million only bought a piece of it. He aint sell the whole thing, so the rest of the catalog still his and still pays him. When you own what you make, somebody gotta pay YOU to get even a slice of it.
+But here the part that get me. That $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play.
 
 ---
 
@@ -39,7 +39,7 @@ But that $70 million only bought a piece of it. He aint sell the whole thing, so
 
 **TWIST:** Metro aint do that. He held onto his own publishing. [Write "HE KEPT IT" and box it] So in 2023 a company named Shamrock came knocking. They paid him around $70 million for a piece of it. [Write "SHAMROCK -> METRO" with an arrow, then "~$70M" big, underline "~$70M"] Read that again. A piece of it. [Write "A PIECE" and circle it] He aint sell the whole thing. That $70 million was only part of what he owned. [Draw a pie chart, shade one slice labeled "$70M", leave the rest blank labeled "STILL HIS"]
 
-**PAYOFF:** When you own what you make, somebody gotta pay YOU to get it. [Write "OWN IT = THEY PAY YOU" and underline "YOU"] When you dont, you the one who already got paid and walked off. [Write "DONT = PAID ONCE, GONE", draw a small stick figure walking away from a money bag]
+**PAYOFF:** But here the part that get me. That $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play. [Write "OWN IT = THEY PAY YOU" and underline "YOU"] [Write "DONT = PAID ONCE, GONE", draw a small stick figure walking away from a money bag]
 
 ---
 

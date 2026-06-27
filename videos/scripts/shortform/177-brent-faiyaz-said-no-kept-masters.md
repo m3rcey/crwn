@@ -18,7 +18,7 @@ Him and his manager put up their own money, reportedly like $30K, and dropped th
 
 Now here the part that flip it. He still got the big check. He signed a partnership reportedly worth up to $50 million. But it was for distribution only. He kept his masters. He kept Lost Kids.
 
-So the $50 million came after he said no, not before. The artist who owns the music decide the terms. The one who signed em away just take what they given.
+So the $50 million didn't talk him out of his masters. It showed up after he said no, just to move the music he already owned.
 
 ---
 
@@ -41,7 +41,7 @@ So the $50 million came after he said no, not before. The artist who owns the mu
 
 **TWIST:** Now here the part that flip it. He still got the big check. He signed a partnership reportedly worth up to $50 million. [write "$50,000,000" big and box it] But it was for distribution only. He kept his masters. He kept Lost Kids. [write "DISTRIBUTION ONLY" with an arrow to "MASTERS = HIS" and a check mark, circle "MASTERS = HIS"]
 
-**PAYOFF:** The $50 million came after he said no, not before. [draw a simple timeline: "SAID NO" -> "$50M", arrow pointing right] The artist who owns the music decide the terms. The one who signed em away just take what they given. [draw two stick figures: left one holding a paper labeled "OWNS / SETS TERMS" standing tall, right one with empty hands labeled "SIGNED AWAY / TAKES WHAT'S GIVEN", circle the left one]
+**PAYOFF:** So the $50 million didn't talk him out of his masters. [draw a simple timeline: "SAID NO" -> "$50M", arrow pointing right] It showed up after he said no, just to move the music he already owned. [draw two stick figures: left one holding a paper labeled "OWNS / SETS TERMS" standing tall, right one with empty hands labeled "SIGNED AWAY / TAKES WHAT'S GIVEN", circle the left one]
 
 ---
 

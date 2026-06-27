@@ -18,7 +18,7 @@ Every one of em saw the numbers before he did. By the time anything reached Wayn
 
 He wasn't broke. He was blind. Sellin millions and still the last person in the room to know what it added up to.
 
-Wayne moved millions of records, and the man whose name was on em couldn't see a clear dollar of it for years.
+It got so bad that in 2015 Wayne reportedly had to sue his own label for fifty one million dollars just to find out what he was owed, and his finished album sat locked up for years while they fought over it.
 
 ---
 

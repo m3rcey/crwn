@@ -10,7 +10,7 @@ Link in bio to keep the bigger half of every dollar your fans spend on you with 
 
 **SCRIPT:**
 
-Why would Big K.R.I.T. walk out on a top five debut and years left on his Def Jam deal? Stay with me. His first album dropped in 2012, debuted number five on the big chart, number one on the rap chart. That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. He charted, he toured, he did everything right, and still aint own a thing. That first album sold like 41,000 copies week one and he aint own none of it. So in 2016 he left. Started his own label, Multi Alumni. He dropped three more albums since, makes his own beats now. That's why he walked. Off his own label he owns the songs, the masters, every dollar a fan spend on em.
+Why would Big K.R.I.T. walk out on a top five debut and years left on his Def Jam deal? Stay with me. His first album dropped in 2012, debuted number five on the big chart, number one on the rap chart. That's a real hit. But this what they dont tell you. On a major deal the label take the bigger half off all them sales, before K.R.I.T. ever touch a dollar. He charted, he toured, he did everything right, and still aint own a thing. That first album sold like 41,000 copies week one and he aint own none of it. So in 2016 he left. Started his own label, Multi Alumni. He dropped three more albums since, makes his own beats now, owns the songs and the masters. Now here go the part that flips it. That top five debut everybody clapped for sold around 41,000 copies its first week, and on the major deal he didn't own a single one of em. The hit went on his record, the money went on somebody else's.
 
 ---
 
@@ -35,7 +35,7 @@ Why would Big K.R.I.T. walk out on a top five debut and years left on his Def Ja
 
 **TWIST:** He charted, he toured, he did everything right, and still aint own a thing. So in 2016 he left. Started his own label, Multi Alumni. [write "2016 LEFT" then "MULTI ALUMNI" boxed] He dropped three more albums since, same talent that charted on Def Jam, only now somethin different. K.R.I.T. make his own beats. [write "3 ALBUMS" and circle it, draw two simple bars side by side, label left bar "ON LABEL" short, right bar "ON HIS OWN" tall]
 
-**PAYOFF:** So here go the reason he walked. That first album sold like 41,000 copies week one and he aint own none of it. Now he own the songs, the masters, every dollar a fan spend on em. [write "41,000 WK 1" then draw arrows from "MULTI ALUMNI" to three small words: "SONGS", "MASTERS", "BEATS", put a check mark by each, write "ALL HIS" big and underline it]
+**PAYOFF:** Off his own label he owns the songs, the masters, the beats. [draw arrows from "MULTI ALUMNI" to three small words: "SONGS", "MASTERS", "BEATS", put a check mark by each, write "ALL HIS" big and underline it] Now here go the part that flips it. That top five debut everybody clapped for sold around 41,000 copies its first week, and on the major deal he didn't own a single one of em. [write "41,000 WK 1" then under it "OWNED NONE OF IT" boxed]
 
 ---
 

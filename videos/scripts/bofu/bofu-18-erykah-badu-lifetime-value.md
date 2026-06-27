@@ -20,7 +20,7 @@ Here what most artists miss. They chasing the new follower all day, the number t
 
 The move on CRWN is to track lifetime value. The dashboard show you who spent the most over time, not just today. So you know exactly who ya Badu-from-97 fan is, and you protect that relationship.
 
-The new follow feel good for a second. The long fan is the one writing the checks for the next thirty years. Count the right one.
+And that 97 fan aint a memory. Near thirty years later Badu is out here in 2026 sellin tickets at the Hollywood Bowl and Royal Albert Hall, and it's the same people still pullin up. That one fan been payin her since before some of her new listeners was born.
 
 ---
 

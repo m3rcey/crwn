@@ -10,7 +10,7 @@ Link in bio to build an audience that buys from you direct and stays for the lon
 
 **SCRIPT:**
 
-How did XXXTentacion keep hitting number one after he was gone? Watch what his fans did. He passed in 2018 at 20 years old, and his music aint slow down one bit. His album "?" already hit number one while he was here. Then in December that same year, after he was gone, they dropped SKINS. It went straight to number one too. 132,000 in week one. Nobody promoting it the normal way. The fans just showed up. A year later they dropped another album, and that one went top five. His song SAD! even went diamond, 10 million sold, and that plaque came in 2021. Streams come and go, they spike then drop right back down. The answer is the part that lasts. The people who actually loved him aint go nowhere, so they kept buying long after he couldnt.
+How did XXXTentacion keep hitting number one after he was gone? Watch what his fans did. He passed in 2018 at 20 years old, and his music aint slow down one bit. His album "?" already hit number one while he was here. Then in December that same year, after he was gone, they dropped SKINS. It went straight to number one too. 132,000 in week one. Nobody promoting it the normal way. The fans just showed up. A year later they dropped another album, and that one went top five. Streams come and go, they spike then drop right back down. The people who actually loved him aint go nowhere, so they kept buying long after he couldnt. And here go the proof that floored me. His song SAD! crossed diamond, 10 million sold, but that plaque didn't even land till 2021. The man been dead three years and his fans were still pushing one song past 10 million.
 
 ---
 
@@ -35,7 +35,7 @@ How did XXXTentacion keep hitting number one after he was gone? Watch what his f
 
 **TWIST:** Streams come and go, they spike then drop right back down. But the people who actually ride for you, they the part that lasts. [Draw a line down the middle. Left side write "STREAMS", under it a small arrow pointing up then down. Right side write "THE FANS", under it a flat line that keeps going off the page edge.]
 
-**PAYOFF:** And here go the proof. His song SAD! went diamond, 10 million sold, and that plaque came in 2021, years after he was gone. [Write "SAD! = DIAMOND" big, then under it "10,000,000 SOLD". Draw a small diamond shape next to it. Write "2021" and circle it, draw an arrow from the halo figure to the "2021".]
+**PAYOFF:** And here go the proof that floored me. His song SAD! crossed diamond, 10 million sold, but that plaque didn't even land till 2021. The man been dead three years and his fans were still pushing one song past 10 million. [Write "SAD! = DIAMOND" big, then under it "10,000,000 SOLD". Draw a small diamond shape next to it. Write "PLAQUE 2021" and circle it, then under it "DEAD 3 YEARS, STILL CLIMBING" boxed.]
 
 ---
 
