@@ -10,7 +10,7 @@ Link in bio to grow a fanbase that's yours before any label comes calling with C
 
 **SCRIPT:**
 
-How did PinkPantheress turn 90-second loops posted free after school into a number 3 record? Back in early 2021 she was still in school. After class she'd spend like an hour makin one song a day. Short loops, 90 seconds or less. Then she posted em straight to TikTok for free. One caption said "day 11 of posting a song every day." A snippet of her song Pain caught fire. The fans was already there. Already listenin, already sharin, already hers. Then in April that year Parlophone signed her. Watch the order. The fans came first. The deal came after. The label aint build that. A girl postin free 90-second clips after school did. And those after-school loops carried "Boy's a Liar Pt 2" all the way to number 3 on the Hot 100, one spot off the top of the whole country.
+How high on the Hot 100 can 90-second loops PinkPantheress posted free after school carry her? She found out, and the number gon catch ya off guard. Back in early 2021 she was still in school. After class she'd spend like an hour makin one song a day. Short loops, 90 seconds or less. Then she posted em straight to TikTok for free. One caption said "day 11 of posting a song every day." A snippet of her song Pain caught fire. The fans was already there. Already listenin, already sharin, already hers. Then in April that year Parlophone signed her. Watch the order. The fans came first. The deal came after. The label aint build that. A girl postin free 90-second clips after school did. And those after-school loops carried "Boy's a Liar Pt 2" all the way to number 3 on the Hot 100, one spot off the top of the whole country.
 
 ---
 
@@ -27,7 +27,7 @@ How did PinkPantheress turn 90-second loops posted free after school into a numb
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did PinkPantheress turn 90-second loops posted free after school into a number 3 record? [Top of page, big bold caps: "90 SECONDS". Draw a small clock under it.] [Write "NO DEAL YET" beside the clock, draw a small X over a tiny contract page.]
+**HOOK:** How high on the Hot 100 can 90-second loops PinkPantheress posted free after school carry her? She found out, and the number gon catch ya off guard. [Top of page, big bold caps: "90 SECONDS". Draw a small clock under it.] [Write "HOW HIGH?" beside the clock, draw a small chart arrow climbing up.]
 
 **FORESHADOW:** Back in early 2021 she was in school. After class she'd spend like an hour makin one song a day. [Write "1 SONG A DAY" and underline it.] Short loops, 90 seconds or less. Then she posted em straight to TikTok for free. [Draw a phone with a play button, write "FREE" next to it.]
 

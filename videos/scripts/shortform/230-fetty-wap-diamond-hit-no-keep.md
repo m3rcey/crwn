@@ -10,15 +10,15 @@ Link in bio to turn one loyal fanbase into income that doesn't dry up when the s
 
 **SCRIPT:**
 
-Why couldn't Fetty Wap's diamond plaque save him from going broke? Stay with me, cause this song did everything right.
+What happened to Fetty Wap after Trap Queen went diamond? Stay with me, cause this song did everything right.
 
 Trap Queen dropped in 2014. By 2015 it hit number 2 on the Billboard Hot 100, sat in the top 10 for 25 weeks straight. It went diamond. Over 10 million.
 
 But here go the catch. The song wasn't really his to keep. It came up through a label deal, and the real money was in him being out there. Touring. Shows.
 
-The fans who screamed Trap Queen was a list, and he aint never own that list. So the second the stage went dark, he had no way to reach em.
+The fans who screamed Trap Queen was a list, and he aint never own that list. So the day the stage went dark, he had no way to reach em.
 
-A plaque counts plays. It dont count what you keep. He never owned the song and he never owned the fan list, so the money was never really his to hold. Then 2020 hit and every show stopped. And here go the part that dont make sense till you know the deal. The man behind a song that sold over 10 million copies got so broke his own lawyers told a federal judge the lockdown left him with barely any income at all.
+A plaque counts plays. It dont count what you keep. He aint own the song, he aint own the fans, all he had left was the next show. And here go the part that dont make sense till you know the deal. The man behind a song that sold over 10 million copies, once 2020 hit and the shows stopped, his own lawyers told a federal judge he was left with barely any income at all.
 
 ---
 
@@ -35,15 +35,15 @@ A plaque counts plays. It dont count what you keep. He never owned the song and 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Why couldn't Fetty Wap's diamond plaque save him from going broke? [draw a simple framed plaque top left, write "DIAMOND" inside it; draw an empty wallet next to it, write "?" inside the wallet; draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath]
+**HOOK:** What happened to Fetty Wap after Trap Queen went diamond? [draw a simple framed plaque top left, write "DIAMOND" inside it; draw a hand next to it with "?" beside it; draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Fetty Wap from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FETTY WAP" underneath]
 
 **FORESHADOW:** Stay with me, cause this song did everything right. [underline "did everything right"]
 
 **RISING ACTION:** Trap Queen dropped in 2014. [write "TRAP QUEEN 2014"] By 2015 it hit number 2 on the Billboard Hot 100, sat in the top 10 for 25 weeks straight. [write "#2 HOT 100", under it "25 WEEKS TOP 10", circle "#2"] It went diamond. Over 10 million. [write "DIAMOND = 10,000,000+", box it] But here go the catch. The song wasn't really his to keep. [cross out the word "his"] It came up through a label deal, and the real money was in him being out there. Touring. Shows. [draw a small stage with a stick figure on it, arrow pointing to "$"]
 
-**TWIST:** The fans who screamed Trap Queen was a list, and he aint never own that list. [draw a stick-figure crowd, draw a contact list page, cross it out, write "NOT HIS"] So the second the stage went dark, he had no way to reach em. Then 2020 hit and every show stopped. [draw a big X over the stage, write "2020"] His own lawyer said it himself. No shows, the income dried all the way up. [write "NO SHOWS = NO INCOME"]
+**TWIST:** The fans who screamed Trap Queen was a list, and he aint never own that list. [draw a stick-figure crowd, draw a contact list page, cross it out, write "NOT HIS"] So the day the stage went dark, he had no way to reach em. [write "NO WAY TO REACH EM"]
 
-**PAYOFF:** A plaque counts plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] He never owned the song and he never owned the fan list, so the money was never really his to hold. [write "NO SONG + NO FAN LIST", draw a down-arrow to "SHOWS STOP = MONEY STOPS", box it] And here go the part that dont make sense till you know the deal. The man behind a song that sold over 10 million copies got so broke his own lawyers told a federal judge the lockdown left him with barely any income at all. [write "10,000,000 SOLD" arrow to "BARELY ANY INCOME", box it]
+**PAYOFF:** A plaque counts plays. It dont count what you keep. [write "PLAYS" with arrow to plaque, "KEEP?" with a question mark and nothing next to it] He aint own the song, he aint own the fans, all he had left was the next show. [write "NO SONG + NO FAN LIST", draw a down-arrow to "ALL HE HAD = THE NEXT SHOW", box it] And here go the part that dont make sense till you know the deal. The man behind a song that sold over 10 million copies, once 2020 hit and the shows stopped, his own lawyers told a federal judge he was left with barely any income at all. [draw a big X over the stage, write "2020 SHOWS STOP", then "10,000,000 SOLD" arrow to "BARELY ANY INCOME", box it]
 
 ---
 

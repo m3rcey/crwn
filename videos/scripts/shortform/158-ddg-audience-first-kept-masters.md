@@ -10,7 +10,7 @@ Link in bio to build your own audience first so you sign on your terms and keep 
 
 **SCRIPT:**
 
-What did DDG walk into a major label with that almost no rapper has? Before rap, DDG was a YouTuber. He built over 9 million subscribers across his channels and was already making real money every month on his own. So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So flip it around. He aint sign to Epic to get put on. Epic signed the audience he already built, and they had to let him keep his masters just to get in the room.
+DDG signed to a major label and walked out still owning his masters, so what did Epic actually sign him for? Before rap, DDG was a YouTuber. He built a massive following and was already making real money every month on his own. So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. But DDG walked in already rich off YouTube, so he aint need the deal. And the one who dont need the deal sets the terms. So flip it around. He aint sign to Epic to get put on. Epic signed the audience he already built, and they had to let him keep his masters just to get in the room.
 
 ---
 
@@ -27,9 +27,9 @@ What did DDG walk into a major label with that almost no rapper has? Before rap,
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What did DDG walk into a major label with that almost no rapper has? [write "WHAT DID DDG WALK IN WITH?" at the top, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of DDG from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DDG" underneath]
+**HOOK:** DDG signed to a major label and walked out still owning his masters, so what did Epic actually sign him for? [write "DDG KEPT HIS MASTERS" at the top, then "SO WHAT DID EPIC SIGN?" with a question mark, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of DDG from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DDG" underneath]
 
-**FORESHADOW:** Before rap, DDG was a YouTuber. He built over 9 million subscribers across his channels and was already making real money every month on his own. [draw a play button labeled "YOUTUBE", write "9,000,000+ SUBS", "REAL $ EVERY MONTH"]
+**FORESHADOW:** Before rap, DDG was a YouTuber. He built a massive following and was already making real money every month on his own. [draw a play button labeled "YOUTUBE", write "HUGE FOLLOWING", "REAL $ EVERY MONTH"]
 
 **RISING ACTION:** So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. Most artists sign and the label own everything they make. Signing to a major almost always means handing over your masters for good. [draw a stick figure walking into a label building holding a bag labeled "FANS + $", draw another figure walking in empty-handed labeled "OWNS NOTHING", write "MAJOR DEAL = LOSE MASTERS"]
 

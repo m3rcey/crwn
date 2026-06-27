@@ -10,13 +10,13 @@ Link in bio to own everything you drop from day one, not 12 years in, with CRWN.
 
 **SCRIPT:**
 
-Drake dropped three albums in one night and a lot of people read it as him clearing out his label deal.
+Drake dropped three albums in one night, and if he walks from the label tomorrow there's one thing he can never take with him. Most people read the triple drop as him clearing out his deal.
 
-So if he walked tomorrow, here go the split nobody draws up. What leaves with him, and what can't.
+So if he walked, here go the split nobody draws up. What leaves with him, and what stays.
 
-Drake signed under Cash Money and Universal back in 2009. Take Care. Nothing Was The Same. Views. Scorpion. Universal owns every one of em. They bought up the Young Money catalog back in 2020. That early run, the run that made him, that's theirs.
+Drake signed under Cash Money and Universal back in 2009. He dropped album after album under that deal for years. That early run is where the deal locked everything down the tightest. The run that made him is the part the label held onto hardest.
 
-But everything since 2021 he kept. Certified Lover Boy. For All The Dogs. Iceman. His. So when Drake walks, he walks owning his last five years and leaving his first nine behind. He didn't lose the masters fight. He won the second half of it.
+But everything since 2021 he kept. Certified Lover Boy. For All The Dogs. Iceman. Those are his. He didn't lose the masters fight. He won the second half of it.
 
 He spent the back half of his career taking back what the front half signed away.
 
@@ -37,13 +37,13 @@ So here go the part that stings. The albums that made Drake Drake, Take Care, Vi
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Drake dropped three albums in one night and a lot of people read it as him clearing out his label deal. [write "3 ALBUMS, 1 NIGHT" at the top, then "CLEARING THE DEAL?" underneath with a question mark and circle it]
+**HOOK:** Drake dropped three albums in one night, and if he walks from the label tomorrow there's one thing he can never take with him. Most people read the triple drop as him clearing out his deal. [write "3 ALBUMS, 1 NIGHT" at the top, then "ONE THING HE CAN NEVER TAKE?" underneath with a question mark and circle it]
 
 **FORESHADOW:** So if he walked tomorrow, here go the split nobody draws up. [draw a vertical line down the page with "LEAVES WITH HIM" on one side header and "CAN'T" on the other side header]
 
-**RISING ACTION:** Drake signed under Cash Money and Universal back in 2009. [write "DRAKE → CASH MONEY → UMG : 2009" with arrows] Take Care. Nothing Was The Same. Views. Scorpion. Universal owns every one of em, bought up the Young Money catalog back in 2020. [stack the list "TAKE CARE / NOTHING WAS THE SAME / VIEWS / SCORPION" with a bracket labeled "UMG OWNS (BOUGHT 2020)"] That early run, the run that made him, that's theirs. [write "THE RUN THAT MADE HIM = THEIRS" and underline it]
+**RISING ACTION:** Drake signed under Cash Money and Universal back in 2009. [write "DRAKE → CASH MONEY → UMG : 2009" with arrows] He dropped album after album under that deal for years. That early run is where the deal locked everything down the tightest. [stack the list "TAKE CARE / NOTHING WAS THE SAME / VIEWS / SCORPION" with a bracket labeled "THE EARLY RUN"] The run that made him is the part the label held onto hardest. [write "THE RUN THAT MADE HIM" and underline it]
 
-**TWIST:** But everything since 2021 he kept. Certified Lover Boy. For All The Dogs. Iceman. His. [stack the list "CERTIFIED LOVER BOY / FOR ALL THE DOGS / ICEMAN" with a bracket labeled "DRAKE OWNS" and circle the bracket] So when Drake walks, he walks owning his last five years and leaving his first nine behind. He didn't lose the masters fight. He won the second half of it. [write "LOST FIRST 9 YEARS" on the left and "WON LAST 5" on the right, with a sharpie line splitting them]
+**TWIST:** But everything since 2021 he kept. Certified Lover Boy. For All The Dogs. Iceman. Those are his. [stack the list "CERTIFIED LOVER BOY / FOR ALL THE DOGS / ICEMAN" with a bracket labeled "DRAKE OWNS" and circle the bracket] He didn't lose the masters fight. He won the second half of it. [write "LOST THE EARLY RUN" on the left and "WON THE LATE ONE" on the right, with a sharpie line splitting them]
 
 **PAYOFF:** He spent the back half of his career taking back what the front half signed away. [write "BACK HALF BUYS BACK THE FRONT HALF" boxed] So here go the part that stings. The albums that made Drake Drake, Take Care, Views, Scorpion, them he can never buy back. The biggest artist alive can walk and still dont own the records that built him. [write "THE RECORDS THAT BUILT HIM = NEVER HIS" circled inside one rough oval at the bottom]
 

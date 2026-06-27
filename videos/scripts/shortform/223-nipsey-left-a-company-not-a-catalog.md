@@ -10,13 +10,13 @@ Link in bio to build something you actually own and can pass down with CRWN. Fre
 
 **SCRIPT:**
 
-What did Nipsey Hussle leave his kids that a record deal never could? Most rappers, they spend a career buildin songs the label own. The hits stay, but the money flow through somebody else hands.
+What did Nipsey Hussle put under his kids name that a label could never hand em? Most rappers, they spend a career buildin songs the label own. The hits stay, but the money flow through somebody else hands.
 
 Nipsey moved different. He kept his masters under his own label, All Money In. His Atlantic deal was a partnership, not a handover. The recordings stayed his.
 
-Then he went past the music. He opened the Marathon Clothing store on Crenshaw in 2017. He bought the plaza it sat on. A barbershop, a burger spot, real property on the block he grew up on.
+Then he went past the music. He kept buildin real things off the block he grew up on, things that hold value whether a new song drop or not.
 
-Most artists leave they family a royalty check that somebody else still controls. So when Nipsey passed in 2019, his kids didn't inherit a contract. They inherited the actual keys. The Marathon store, the plaza it sat on, the barbershop, the masters, every brick on Crenshaw, owned outright with no label holding a piece.
+Most artists leave they family a royalty check that somebody else still controls. So when Nipsey passed in 2019, his kids aint inherit a contract. They inherited a company. When the courts added it all up, his estate came back at over 4 million dollars, and his own label was worth around 2 million of it by itself, owned outright, no label holdin a piece of a single thing he built.
 
 ---
 
@@ -33,15 +33,15 @@ Most artists leave they family a royalty check that somebody else still controls
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What did Nipsey Hussle leave his kids that a record deal never could? [Write "NIPSEY" large at the top, sharpie portrait of Nipsey beside it: short beard, durag/headband, calm expression] [Cross out the word "CATALOG", write "COMPANY" big and underline it]
+**HOOK:** What did Nipsey Hussle put under his kids name that a label could never hand em? [Write "NIPSEY" large at the top, sharpie portrait of Nipsey beside it: short beard, durag/headband, calm expression] [Cross out the word "CATALOG", write "COMPANY" big and underline it]
 
 **FORESHADOW:** Most rappers, they spend a career building songs the label own. [Draw a small stick figure handing a music note to a bigger box labeled "LABEL", arrow shows money flowing to the box] The hits stay, but the money flow through somebody else hands.
 
-**RISING ACTION:** Nipsey moved different. He kept his masters under his own label, All Money In. [Write "ALL MONEY IN" and box it, draw a master tape reel beside it with a check mark] His Atlantic deal was a partnership, not a handover. The recordings stayed his. Then he went past the music. He opened the Marathon Clothing store on Crenshaw in 2017. [Draw a small storefront labeled "MARATHON 2017"] He bought the plaza it sat on. [Draw a building, circle it, write "OWNS THE BLOCK"] A barbershop, a burger spot, real property on the block he grew up on. [List "BARBERSHOP / BURGERS / PROPERTY" with check marks]
+**RISING ACTION:** Nipsey moved different. He kept his masters under his own label, All Money In. [Write "ALL MONEY IN" and box it, draw a master tape reel beside it with a check mark] His Atlantic deal was a partnership, not a handover. The recordings stayed his. Then he went past the music. [Draw a small storefront] He kept buildin real things off the block he grew up on, things that hold value whether a new song drop or not. [Draw a building, circle it, write "OWNS THE BLOCK"]
 
 **TWIST:** So when he passed in 2019, his kids aint inherit a contract. [Draw two small stick figures, write "HIS KIDS" above them] They inherited a business. [Draw a hand holding a set of keys, write "KEYS" beside it] The store, the masters, the building, reportedly all built to be owned. [Circle "STORE", "MASTERS", "BUILDING"]
 
-**PAYOFF:** Most artists leave they family a royalty check that somebody else still controls. [Draw a check with a chain/lock on it] Nipsey left his family the actual keys. [Underline "THE KEYS"] The Marathon store, the plaza it sat on, the barbershop, the masters, every brick on Crenshaw, owned outright with no label holding a piece. [Box the bottom line "OWNED OUTRIGHT"]
+**PAYOFF:** Most artists leave they family a royalty check that somebody else still controls. [Draw a check with a chain/lock on it] So when Nipsey passed in 2019, his kids aint inherit a contract. They inherited a company. When the courts added it all up, his estate came back at over 4 million dollars, and his own label was worth around 2 million of it by itself, owned outright, no label holdin a piece of a single thing he built. [Write "ESTATE = $4M+", under it "ALL MONEY IN = ~$2M", box "OWNED OUTRIGHT"]
 
 ---
 

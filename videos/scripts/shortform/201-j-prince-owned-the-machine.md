@@ -10,15 +10,15 @@ Link in bio to own your label instead of renting one from a major with CRWN. Fre
 
 **SCRIPT:**
 
-How a Houston label boss ended up the man Drake called when his money got tangled up.
+How did J Prince, a Houston label boss who never sold his company to a major, end up tied to Drake's whole come-up?
 
 Back in 1986 J Prince started Rap-A-Lot out of Houston. No major owned it. He did.
 
 When the big labels came around, he aint sign the company over to em. He used em. They moved his records, they pressed his records, but the label stayed his. Geto Boys, Scarface, all of it ran through his house, not theirs. So while other founders was handing over they masters for an advance, J Prince kept the building and kept the keys.
 
-Then it loops. His own son is the one who found Drake in 2008. Put him on with Cash Money.
+That same independence is why, years later, when Drake money got tangled up, the man who stepped in to get what was owed wasnt no lawyer or no label. It was J Prince.
 
-So years later, when Drake money got tangled up, the man who stepped in to get what was owed wasnt no lawyer or no label. It was the same Houston dude who, almost 40 years back, looked every major in the face and told em they could move his records but they wasnt never gon own em.
+And the reason them two ever crossed? His own son is the one who found Drake back in 2008 and put him on.
 
 ---
 
@@ -35,9 +35,9 @@ So years later, when Drake money got tangled up, the man who stepped in to get w
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How a Houston label boss ended up the man Drake called when his money got tangled up. [Top center, large block letters: "WHY DID DRAKE CALL HIM?" with "DRAKE" circled.] [Under it write small "→ a label boss" with an arrow.]
+**HOOK:** How did J Prince, a Houston label boss who never sold his company to a major, end up tied to Drake's whole come-up? [Top center, large block letters: "THE ONE THEY NEVER OWNED" with "NEVER" circled.] [Under it write small "→ J PRINCE" with an arrow.]
 
-**FORESHADOW:** [The "→ Drake?" line carries the tease that this label story somehow loops into Drake by the end.]
+**FORESHADOW:** [The "→ J PRINCE" line carries the tease that every major moved his records but none of em ever got to own the man or his label.]
 
 **RISING ACTION:** Back in 1986 he started Rap-A-Lot out of Houston. [Write "1986 · RAP-A-LOT · HOUSTON" on the left.] No major owned it. He did. [Draw a small building box, label it "HIS," put a check mark next to it.] When the big labels came around, he aint sign the company over to em. He used em. [Draw an arrow from a box labeled "MAJORS" pointing to the building, but the arrow stops at a wall.] They moved his records, they pressed his records, but the label stayed his. [Write "DISTRIBUTION ONLY" and underline it.] Geto Boys, Scarface, all of it ran through his house, not theirs. [List "GETO BOYS / SCARFACE" with a bracket pointing to "HIS HOUSE."] So while other founders was handing over they masters for an advance, J Prince kept the building and kept the keys. [Draw a key, circle it. Next to it write crossed-out "MASTERS" with an X for the others.]
 

@@ -10,7 +10,7 @@ Link in bio to catch every fan on a release page you own before they leave for t
 
 **SCRIPT:**
 
-Why did Frank Ocean make the whole internet watch him saw wood on a livestream for weeks? In 2016 he put up a stream of himself building a wooden staircase, on his own website. No song yet. Just him, sawing wood, and millions of fans refreshing the page every day. They wasnt waiting on Spotify. They wasnt waiting on radio. They was sitting on a page Frank controlled. Then he drop one album to clear his old contract. The next day he drop the real one, Blonde, all by himself. No label in between. That album hit number one, around 232,000 copies that first week. The stream send a fan away. The page he own keep em. So holding fans on his own page didnt just sell records. With no label, Blonde became the first independent album to hit number one in America in three years, since a Garth Brooks box set.
+When Frank Ocean dropped Blonde with no label behind it, what did that no-label move put in the record books? In 2016 he put up a stream of himself building a wooden staircase, on his own website. No song yet. Just him, sawing wood, and millions of fans refreshing the page every day. They wasnt waiting on Spotify. They wasnt waiting on radio. They was sitting on a page Frank controlled. Then he drop one album to clear his old contract. The next day he drop the real one, Blonde, all by himself. No label in between. That album hit number one, around 232,000 copies that first week. The stream send a fan away. The page he own keep em. So holding fans on his own page didnt just sell records. With no label, Blonde became the first independent album to hit number one in America in three years, since a Garth Brooks box set.
 
 ---
 
@@ -27,7 +27,7 @@ Why did Frank Ocean make the whole internet watch him saw wood on a livestream f
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Why did Frank Ocean make the whole internet watch him saw wood on a livestream for weeks? [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Frank Ocean from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FRANK OCEAN" underneath. Beside it write "A PAGE YOU OWN" big across the top and box it. Draw a small stick figure underneath staring up at it.]
+**HOOK:** When Frank Ocean dropped Blonde with no label behind it, what did that no-label move put in the record books? [Draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Frank Ocean from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "FRANK OCEAN" underneath. Beside it write "A PAGE YOU OWN" big across the top and box it. Draw a small stick figure underneath staring up at it.]
 
 **FORESHADOW:** In 2016 he put up a stream of himself building a wooden staircase, on his own website. [Write "FRANK OCEAN" under the box. Draw a laptop with a loading circle on the screen. Write "WEEKS" next to it and underline it.]
 

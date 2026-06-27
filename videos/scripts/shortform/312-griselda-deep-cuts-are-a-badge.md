@@ -10,7 +10,7 @@ Link in bio to give your real fans a badge they wear and outsiders chase with CR
 
 **SCRIPT:**
 
-Griselda built a fanbase where knowing the deep cuts is the whole flex, and watch what that does. Westside Gunn, Conway, Benny outta Buffalo. They drop these limited records, small pressings, weird cover art, gone fast. And the fans who know every alias, every loosie, every piece of the lore, they wear that like a badge. You either get it or you dont. That knowing IS the membership. Now watch what flips. Them fans aint just listenin. They teachin each other, puttin new people on, defendin the catalog for free. The deep cut is a door, and they the ones holdin it open. So peep this. A megastar got too many fans to make any one feel like a insider. You sittin on 5,000 dont got that problem. You can hand a real one a mark that says day one, seen, in. And them limited records the day-ones grabbed for cheap? One rare Westside Gunn pressing reportedly resold for around 6,000 dollars on Discogs, so the badge of knowin literally turned into a small fortune.
+What does one of them limited Griselda records the day-ones grabbed end up worth years later? Westside Gunn, Conway, Benny outta Buffalo. They drop these limited records, small pressings, weird cover art, gone fast. And the fans who know every alias, every loosie, every piece of the lore, they wear that like a badge. You either get it or you dont. That knowing IS the membership. Now watch what flips. Them fans aint just listenin. They teachin each other, puttin new people on, defendin the catalog for free. The deep cut is a door, and they the ones holdin it open. So peep this. A megastar got too many fans to make any one feel like a insider. You sittin on 5,000 dont got that problem. You can hand a real one a mark that says day one, seen, in. So what was that knowin worth? One rare Westside Gunn pressing reportedly resold for around 6,000 dollars on Discogs, so the badge of knowin literally turned into a small fortune.
 
 ---
 
@@ -27,7 +27,7 @@ Griselda built a fanbase where knowing the deep cuts is the whole flex, and watc
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Griselda built a fanbase where knowing the deep cuts is the whole flex, and watch what that does. [Top of page, big bold: "KNOWING = THE FLEX". Underline "KNOWING". Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Griselda (Westside Gunn, Conway, and Benny the Butcher) from the attached photo reference, drawn in confident sharpie line work, not generic stick figures, labeled "GRISELDA" underneath.]
+**HOOK:** What does one of them limited Griselda records the day-ones grabbed end up worth years later? [Top of page, big bold: "KNOWING = THE FLEX". Underline "KNOWING". Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Griselda (Westside Gunn, Conway, and Benny the Butcher) from the attached photo reference, drawn in confident sharpie line work, not generic stick figures, labeled "GRISELDA" underneath.]
 
 **FORESHADOW:** [Center, write "GRISELDA" big. Draw the Griselda group portrait likeness from the hook, smaller, beside it.] Westside Gunn, Conway, Benny outta Buffalo. [Under "GRISELDA" write three small names stacked: "WESTSIDE GUNN / CONWAY / BENNY", then small "(BUFFALO)" beside them.]
 
@@ -35,7 +35,7 @@ Griselda built a fanbase where knowing the deep cuts is the whole flex, and watc
 
 **TWIST:** Now watch what flips. [Small arrow flipping direction, write "FLIP".] Them fans aint just listenin. They teachin each other, puttin new people on, defendin the catalog for free. [Draw two stick figures facing each other, one with an arrow to a third figure. Write "FOR FREE" under them, circle it.] The deep cut is a door, and they the ones holdin it open. [Draw a simple door, slightly open, a stick-figure hand on it.]
 
-**PAYOFF:** So peep this. A megastar got too many fans to make any one feel like a insider. [Right side, draw a crowd of tiny figures, write "TOO MANY" over them with an X.] You sittin on 5,000 dont got that problem. [Write "5,000" boxed, with a check.] You can hand a real one a mark that says day one, seen, in. [Draw the badge again bigger, inside write "DAY ONE".] And one rare Westside Gunn pressing the day-ones knew to grab reportedly resold for around 6,000 dollars on Discogs, so the badge of knowin turned into a small fortune. [Bottom, draw a small vinyl record, write "~$6,000" beside it and circle it.]
+**PAYOFF:** So peep this. A megastar got too many fans to make any one feel like a insider. [Right side, draw a crowd of tiny figures, write "TOO MANY" over them with an X.] You sittin on 5,000 dont got that problem. [Write "5,000" boxed, with a check.] You can hand a real one a mark that says day one, seen, in. [Draw the badge again bigger, inside write "DAY ONE".] So what was that knowin worth? One rare Westside Gunn pressing the day-ones knew to grab reportedly resold for around 6,000 dollars on Discogs, so the badge of knowin turned into a small fortune. [Bottom, draw a small vinyl record, write "~$6,000" beside it and circle it.]
 
 ---
 

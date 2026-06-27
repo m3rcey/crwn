@@ -10,15 +10,15 @@ Link in bio to drop as much as you want and keep what every project makes with C
 
 **SCRIPT:**
 
-Curren$y owns more than 90 projects outright, and how one man pulled that off when signed artists can't is the part nobody breaks down.
+How many albums can Curren$y own outright while the majors still planning one rollout? He been answerin that for years, and the count gon stop ya.
 
-This man got mixtapes, albums, all of it, past 90 and counting. A major label gotta plan a rollout for months. Pick a quarter, pick a single, wait on the budget. Curren$y don't wait. He wake up, record, and drop it.
+This man got mixtapes, albums, all of it, and he aint slowin down. A major label gotta plan a rollout for months. Pick a quarter, pick a single, wait on the budget. Curren$y don't wait. He wake up, record, and drop it.
 
 So how he move that fast and still own it all? He left No Limit. He left Young Money. Then in 2009 he built his own label, Jet Life.
 
 Every project go straight to a core fanbase that already there. No label deciding when. No label taking the big half.
 
-A signed artist might drop one big album and split it down to pennies. Curren$y drop ten small ones and keep all of it each time. While the majors was still planning one rollout, he stacked past 90 projects with his name on every single deed.
+A signed artist might drop one big album and split it down to pennies. Curren$y drop ten small ones and keep all of it each time. While the majors was still planning one rollout, he stacked more than 90 projects with his name on every single deed.
 
 ---
 
@@ -35,13 +35,13 @@ A signed artist might drop one big album and split it down to pennies. Curren$y 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Curren$y owns more than 90 projects outright, and how one man pulled that off when signed artists can't is the part nobody breaks down. [write "CURREN$Y" big at the top, under it "90+ PROJECTS" with "90+" circled, draw a little jet plane next to the name] [draw a small lock under "90+ PROJECTS", then a question mark beside it]
+**HOOK:** How many albums can Curren$y own outright while the majors still planning one rollout? He been answerin that for years, and the count gon stop ya. [write "CURREN$Y" big at the top, under it "HOW MANY?" with a question mark circled, draw a little jet plane next to the name] [draw a small lock under "HOW MANY?", then write "OWNS EVERY ONE" beside it]
 
-**RISING ACTION:** This man got more than 90 projects out. Mixtapes, albums, all of it. A major label gotta plan a rollout for months. Pick a quarter, pick a single, wait on the budget. Curren$y don't wait. He wake up, record, and drop it. [on the left write "LABEL" and under it a stack: "PLAN", "PICK SINGLE", "WAIT ON BUDGET", "MONTHS" with a slow clock drawn next to it; on the right write "CURREN$Y" and under it "RECORD -> DROP" with a fast arrow] He left No Limit. He left Young Money. Then in 2009 he built his own label, Jet Life, and kept his music his. [draw two small label boxes "NO LIMIT" and "YOUNG MONEY" each with an X, then an arrow to a box labeled "JET LIFE 2009" circled, with "OWNS IT" under it and a check mark]
+**RISING ACTION:** This man been droppin nonstop. Mixtapes, albums, all of it. A major label gotta plan a rollout for months. Pick a quarter, pick a single, wait on the budget. Curren$y don't wait. He wake up, record, and drop it. [on the left write "LABEL" and under it a stack: "PLAN", "PICK SINGLE", "WAIT ON BUDGET", "MONTHS" with a slow clock drawn next to it; on the right write "CURREN$Y" and under it "RECORD -> DROP" with a fast arrow] He left No Limit. He left Young Money. Then in 2009 he built his own label, Jet Life, and kept his music his. [draw two small label boxes "NO LIMIT" and "YOUNG MONEY" each with an X, then an arrow to a box labeled "JET LIFE 2009" circled, with "OWNS IT" under it and a check mark]
 
 **TWIST:** So think about what that mean. Every project go straight to a core fanbase that already there. No label deciding when. No label taking the big half. [draw an arrow from "JET LIFE" straight to three stick-figure fans labeled "CORE FANS"] A signed artist might drop one big album and split it down to pennies. Curren$y drop ten small ones and keep all of it each time. [left: one big circle labeled "1 ALBUM" sliced thin with "ARTIST = SLIVER"; right: ten small circles each whole labeled "KEEPS IT" with check marks]
 
-**PAYOFF:** One huge rollout you don't own. Or a hundred small ones you do. [draw a scale: one big bag on the left tipping up, a long row of small bags on the right tipping down and heavier, label the right side "OWNED"] While the majors was still planning one rollout, he stacked past 90 projects with his name on every single deed. [at the bottom write "1 ROLLOUT" with an X, under it "90+ PROJECTS, HIS NAME ON EVERY DEED" boxed and underlined]
+**PAYOFF:** One huge rollout you don't own. Or a hundred small ones you do. [draw a scale: one big bag on the left tipping up, a long row of small bags on the right tipping down and heavier, label the right side "OWNED"] While the majors was still planning one rollout, he stacked more than 90 projects with his name on every single deed. [at the bottom write "1 ROLLOUT" with an X, under it "90+ PROJECTS, HIS NAME ON EVERY DEED" boxed and underlined]
 
 ---
 

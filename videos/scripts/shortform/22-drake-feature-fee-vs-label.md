@@ -10,13 +10,13 @@ Link in bio to own the songs you drop so every play pays you forever, not just o
 
 **SCRIPT:**
 
-Drake will hop on your song for one verse and take a single check to do it. And that one check is the worst seat in the room. The biggest name on the song, the smallest seat at the table.
+How much does the most expensive verse in rap actually take home in the end? Drake will hop on your song for one verse and take a single check to do it. And that one check is the worst seat in the room. The biggest name on the song, the smallest seat at the table.
 
 A Drake verse is a one-time fee. You pay it, he sends it, the check clears, done. But the song he just blessed plays forever, and that forever money goes to whoever owns the song, not the guest who rapped on it.
 
 Now here go the irony. Drake owns every one of his own masters since 2021. On his records he keeps the money that keeps coming. But the second he's a guest on your song, he's right back to taking the one check and walking.
 
-The verse made the song hot. Owning it is what makes it pay. A fee gets paid once. A master gets paid every time somebody presses play.
+The verse made the song hot, but the verse aint what makes it pay.
 
 And here go the kicker. Drake reportedly charge around a million dollars for one verse, the highest feature price in rap. The richest one-time check in the game, and it still lose to the artist who paid it. Cause that million stop the day it clear, and the song keep paying the owner for the next ten years.
 
@@ -35,7 +35,7 @@ And here go the kicker. Drake reportedly charge around a million dollars for one
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Drake will hop on your song for one verse and take a single check to do it. And that one check is the worst seat in the room. The biggest name on the song, the smallest seat at the table. [write "ONE DRAKE VERSE" at the top, then "> A DECADE OF CHECKS" underneath and underline it]
+**HOOK:** How much does the most expensive verse in rap actually take home in the end? Drake will hop on your song for one verse and take a single check to do it. And that one check is the worst seat in the room. The biggest name on the song, the smallest seat at the table. [write "THE MOST EXPENSIVE VERSE IN RAP" at the top, then "> WHAT'S IT TAKE HOME?" underneath and underline it]
 
 **FORESHADOW:** The biggest name on the song, the smallest seat at the table. [write "THE BIG CHECK = THE WORST SEAT?" in caps with a question mark]
 
@@ -43,7 +43,7 @@ And here go the kicker. Drake reportedly charge around a million dollars for one
 
 **TWIST:** Now here go the irony. Drake owns every one of his own masters since 2021. On his records he keeps the money that keeps coming. [write "HIS RECORDS: DRAKE = FOREVER MONEY" boxed] But the second he's a guest on your song, he's right back to taking the one check and walking. [write "YOUR RECORD: DRAKE = ONE CHECK" boxed and circle it]
 
-**MID PAYOFF:** The verse made the song hot. Owning it is what makes it pay. A fee gets paid once. A master gets paid every time somebody presses play. [write "FEE = PAID ONCE" on the left, "MASTER = PAID EVERY PLAY" on the right, with a vertical line between] [write "VERSE = MAKES IT HOT" and "OWNING IT = MAKES IT PAY" stacked inside one rough oval]
+**MID PAYOFF:** The verse made the song hot, but the verse aint what makes it pay. [write "VERSE = MAKES IT HOT" stacked inside one rough oval]
 
 **PAYOFF:** And here go the kicker. Drake reportedly charge around a million dollars for one verse, the highest feature price in rap. The richest one-time check in the game, and it still lose to the artist who paid it. Cause that million stop the day it clear, and the song keep paying the owner for the next ten years. [write "DRAKE VERSE ≈ $1,000,000" then "HIGHEST FEE IN RAP" boxed, then "STILL LOSES TO THE OWNER" in big caps at the bottom and circle it]
 

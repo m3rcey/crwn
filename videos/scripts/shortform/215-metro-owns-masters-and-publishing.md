@@ -10,11 +10,13 @@ Link in bio to own the music you make so the catalog pays you, not a label, with
 
 **SCRIPT:**
 
-How did Metro Boomin get a $70 million check and still keep most of his catalog? Metro the most wanted producer in rap. Bad and Boujee, Mask Off, Congratulations, his fingerprints on all of it. Now most producers, they sell that work to the label and the label own it. Every play, every license, every time that song land in a movie, the label eat. The producer already got paid one time and moved on.
+In 2023 Metro Boomin sold part of his catalog for around $70 million, and what that check actually bought him gon flip how you see the deal. Metro the most wanted producer in rap. Bad and Boujee, Mask Off, Congratulations, his fingerprints on all of it.
 
-Metro aint do that. He held onto his own publishing. So in 2023 a company named Shamrock came knocking and paid him around $70 million.
+Now most producers, they sell that work to the label and the label own it. Every play, every license, every time that song land in a movie, the label eat. The producer already got paid one time and moved on.
 
-But here the part that get me. That $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play.
+Metro aint do that. He held onto his own publishing. So when Shamrock came knocking, he aint hand em the keys to the house. He sold em one room.
+
+That is the part that get me. $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play.
 
 ---
 
@@ -31,15 +33,15 @@ But here the part that get me. That $70 million aint even buy the whole thing. I
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Metro Boomin get a $70 million check and still keep most of his catalog? [Write "$70M CHECK + STILL KEEPS IT?" big and bold at the top, circle the dollar figure] [Write "METRO BOOMIN" underneath, underline it]
+**HOOK:** In 2023 Metro Boomin sold part of his catalog for around $70 million, and what that check actually bought him gon flip how you see the deal. [Write "$70M CHECK" big and bold at the top, circle the dollar figure, write "FOR WHAT?" beside it] [Write "METRO BOOMIN" underneath, underline it]
 
 **FORESHADOW:** Metro the most wanted producer in rap. [Write "MOST WANTED PRODUCER" with a small star next to it] Bad and Boujee, Mask Off, Congratulations, his fingerprints on all of it. [List "BAD AND BOUJEE", "MASK OFF", "CONGRATULATIONS" in a small stacked column]
 
 **RISING ACTION:** Now most producers, they sell that work to the label and the label own it. [Draw a stick figure handing a music note to a box labeled "LABEL", arrow from note to box] Every play, every license, every time that song land in a movie, the label eat. [Write "PLAY / LICENSE / MOVIE" with arrows all pointing to "LABEL $"] The producer already got paid one time and moved on. [Write "PAID ONCE" and cross it out with a single line]
 
-**TWIST:** Metro aint do that. He held onto his own publishing. [Write "HE KEPT IT" and box it] So in 2023 a company named Shamrock came knocking. They paid him around $70 million for a piece of it. [Write "SHAMROCK -> METRO" with an arrow, then "~$70M" big, underline "~$70M"] Read that again. A piece of it. [Write "A PIECE" and circle it] He aint sell the whole thing. That $70 million was only part of what he owned. [Draw a pie chart, shade one slice labeled "$70M", leave the rest blank labeled "STILL HIS"]
+**TWIST:** Metro aint do that. He held onto his own publishing. [Write "HE KEPT IT" and box it] So when Shamrock came knocking, he aint hand em the keys to the house. He sold em one room. [Write "SHAMROCK -> METRO" with an arrow, then draw a house, point an arrow to one small room inside it]
 
-**PAYOFF:** But here the part that get me. That $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play. [Write "OWN IT = THEY PAY YOU" and underline "YOU"] [Write "DONT = PAID ONCE, GONE", draw a small stick figure walking away from a money bag]
+**PAYOFF:** That is the part that get me. $70 million aint even buy the whole thing. It bought a slice. Metro still sittin on the rest of his catalog, and it still cuttin him a check every single time one of them songs play. [Draw a pie chart, shade one slice labeled "$70M", leave the bigger rest blank labeled "STILL HIS"] [Write "OWN IT = THEY PAY YOU" and underline "YOU"]
 
 ---
 

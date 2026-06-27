@@ -10,15 +10,15 @@ Link in bio to sell direct to your fans and keep ownership of your music with CR
 
 **SCRIPT:**
 
-Brent Faiyaz turned down the major label deal, then a $50 million check came anyway, and the order it happened in is the whole point.
+Brent Faiyaz turned down the majors, and a $50 million check still came anyway, but what that check was actually for is where it gets crazy.
 
 So labels came at him. The best offer he looked at only gave him 18% of the royalties. So 82 cents of every dollar his music made would go to somebody else. And they wanted his masters too. He said no.
 
-Him and his manager put up their own money, reportedly like $30K, and dropped the album themselves. They built they own company, Lost Kids, and sold straight to the fans. No major in the middle taking they cut.
+Him and his manager put up their own money, reportedly like $30K, and dropped the album themselves. They built they own company, Lost Kids, and sold straight to the fans. No major in the middle taking they cut. He bet on himself before anybody bet on him.
 
-Now here the part that flip it. He still got the big check. He signed a partnership reportedly worth up to $50 million. But it was for distribution only. He kept his masters. He kept Lost Kids.
+Then the big check showed up. He signed a partnership reportedly worth up to $50 million. But the order is everything here.
 
-So the $50 million didn't talk him out of his masters. It showed up after he said no, just to move the music he already owned.
+That $50 million came after he already said no, and it was for distribution only. He kept his masters. He kept Lost Kids. They paid him eight figures just to move the music he already owned.
 
 ---
 
@@ -35,13 +35,13 @@ So the $50 million didn't talk him out of his masters. It showed up after he sai
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Brent Faiyaz turned down the major label deal, then a $50 million check came anyway, and the order it happened in is the whole point. [write "BRENT FAIYAZ" big at the top, then "WALKED AWAY" under it, underline "WALKED AWAY", draw a stick figure walking away from a big bag labeled "$"] [write "SAID NO" and circle it, draw an arrow pointing to "KEPT EVERYTHING" boxed]
+**HOOK:** Brent Faiyaz turned down the majors, and a $50 million check still came anyway, but what that check was actually for is where it gets crazy. [write "BRENT FAIYAZ" big at the top, then "WALKED AWAY" under it, underline "WALKED AWAY", draw a stick figure walking away from a big bag labeled "$"] [write "SAID NO" and circle it, draw an arrow pointing to "$50M FOR WHAT?" boxed]
 
-**RISING ACTION:** So labels came at him. The best offer he looked at only gave him 18% of the royalties. [write "BEST OFFER = 18%" and circle the "18%"] So 82 cents of every dollar his music made would go to somebody else. [draw a dollar split: small slice "ARTIST 18¢", big slice "LABEL 82¢", X through the big slice] And they wanted his masters too. He said no. [write "WANTED THE MASTERS" then a big "NO" with a line through "MASTERS"] Him and his manager put up their own money, reportedly like $30K, and dropped the album themselves. [write "OWN $$ ~$30K" with a check mark] They built they own company, Lost Kids, and sold straight to the fans. [write "LOST KIDS" and draw an arrow straight to a row of stick figures labeled "FANS"] No major in the middle taking they cut. [draw a wall between "LABEL" and "FANS" with an X on the label]
+**RISING ACTION:** So labels came at him. The best offer he looked at only gave him 18% of the royalties. [write "BEST OFFER = 18%" and circle the "18%"] So 82 cents of every dollar his music made would go to somebody else. [draw a dollar split: small slice "ARTIST 18¢", big slice "LABEL 82¢", X through the big slice] And they wanted his masters too. He said no. [write "WANTED THE MASTERS" then a big "NO" with a line through "MASTERS"] Him and his manager put up their own money, reportedly like $30K, and dropped the album themselves. [write "OWN $$ ~$30K" with a check mark] They built they own company, Lost Kids, and sold straight to the fans. [write "LOST KIDS" and draw an arrow straight to a row of stick figures labeled "FANS"] No major in the middle taking they cut. He bet on himself before anybody bet on him. [draw a wall between "LABEL" and "FANS" with an X on the label]
 
-**TWIST:** Now here the part that flip it. He still got the big check. He signed a partnership reportedly worth up to $50 million. [write "$50,000,000" big and box it] But it was for distribution only. He kept his masters. He kept Lost Kids. [write "DISTRIBUTION ONLY" with an arrow to "MASTERS = HIS" and a check mark, circle "MASTERS = HIS"]
+**TWIST:** Then the big check showed up. He signed a partnership reportedly worth up to $50 million. But the order is everything here. [write "$50,000,000" big and box it, beside it write "BUT THE ORDER..." with three dots]
 
-**PAYOFF:** So the $50 million didn't talk him out of his masters. [draw a simple timeline: "SAID NO" -> "$50M", arrow pointing right] It showed up after he said no, just to move the music he already owned. [draw two stick figures: left one holding a paper labeled "OWNS / SETS TERMS" standing tall, right one with empty hands labeled "SIGNED AWAY / TAKES WHAT'S GIVEN", circle the left one]
+**PAYOFF:** That $50 million came after he already said no, and it was for distribution only. [draw a simple timeline: "SAID NO" -> "$50M", arrow pointing right, write "DISTRIBUTION ONLY"] He kept his masters. He kept Lost Kids. They paid him eight figures just to move the music he already owned. [write "MASTERS = HIS" and circle it with a check mark, draw two stick figures: left one holding a paper labeled "OWNS / SETS TERMS" standing tall, right one with empty hands labeled "SIGNED AWAY / TAKES WHAT'S GIVEN", circle the left one]
 
 ---
 

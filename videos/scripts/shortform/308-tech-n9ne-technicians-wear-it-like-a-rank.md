@@ -10,7 +10,7 @@ Link in bio to give your day-one fans a name and a badge they climb for with CRW
 
 **SCRIPT:**
 
-Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. What are they really payin for? Cause it aint the radio. He never had a hit on it. Tech N9ne built one of the most loyal fanbases in rap with no major label and no radio single. Him and his partner started they own label back in 1999 and kept it the whole way. So when a Technician shows up, they aint just buying songs. The closer ones pay for the meet and greet, the merch, the photo, the front of the line. Megastars hand fans a song and keep it moving. A small artist like Tech hand a fan a spot on the team. People quit a playlist every day. So ask yaself why a Technician will line up and pay again and again, year after year. It aint the music. It aint radio neither. With no radio hit and no major label, Tech sold over two million albums and his label Strange Music has reportedly pulled in around 20 million dollars a year, off nothin but Technicians who climbed they way onto the team.
+How much money did Tech N9ne pull off fans who tattoo his logo and call themselves Technicians, with no radio hit? Cause it aint the radio. He never had a hit on it. Tech N9ne built one of the most loyal fanbases in rap with no major label and no radio single. Him and his partner started they own label back in 1999 and kept it the whole way. So when a Technician shows up, they aint just buying songs. The closer ones pay for the meet and greet, the merch, the photo, the front of the line. Megastars hand fans a song and keep it moving. A small artist like Tech hand a fan a spot on the team. People quit a playlist every day. So ask yaself what a Technician will line up and pay for again and again, year after year. It aint the music. It aint radio neither. With no radio hit and no major label, Tech sold over two million albums and his label Strange Music has reportedly pulled in around 20 million dollars a year, off nothin but Technicians who climbed they way onto the team.
 
 ---
 
@@ -27,7 +27,7 @@ Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. Wha
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Tech N9ne fans tattoo his logo on they skin and call themselves Technicians. What are they really payin for? [top left, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tech N9ne from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TECH N9NE" underneath] [top right, write "WHAT THEY REALLY PAYIN FOR?" big, underline it. draw a small arm with a tiny tattoo mark and box "TECHNICIANS" beside it]
+**HOOK:** How much money did Tech N9ne pull off fans who tattoo his logo and call themselves Technicians, with no radio hit? [top left, draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Tech N9ne from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "TECH N9NE" underneath] [top right, write "NO RADIO HIT -> HOW MUCH MONEY?" big, underline it. draw a small arm with a tiny tattoo mark and box "TECHNICIANS" beside it]
 
 **FORESHADOW:** Cause it aint the radio. He never had a hit on it. [center, cross out "RADIO HIT"]
 

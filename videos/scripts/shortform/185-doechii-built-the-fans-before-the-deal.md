@@ -10,13 +10,13 @@ Link in bio to grow your own audience so the offers chase you with CRWN. Free to
 
 **SCRIPT:**
 
-How did Doechii get a Top Dawg deal she never went and asked for? Most artists chase a label first and pray the fans show up later. She went the other way.
+How far can fans take Doechii when she built em up before any label? She built it backwards, and it paid off bigger than anybody saw coming.
 
-Back in 2016 she was uploading songs to SoundCloud by herself. No deal. No team. Just her and the people who kept coming back.
+Most artists chase a label first and pray the fans show up later. She went the other way. Back in 2016 she was uploading songs to SoundCloud by herself. No deal. No team. Just her and the people who kept coming back.
 
 She built that crowd for years. Posting, dropping, talking to em direct. Then one song hit on TikTok and that crowd got loud.
 
-By 2022 she signed to Top Dawg. The first woman they ever put on. She aint beg for none of it. The people she built went and got the deal for her.
+By 2022 she signed to Top Dawg, but she aint beg for none of it. The people she built went and got the deal for her.
 
 Then in 2025, off a mixtape, no studio album, she won Best Rap Album at the Grammys. Only the third woman in history to ever take that home.
 
@@ -35,13 +35,13 @@ Then in 2025, off a mixtape, no studio album, she won Best Rap Album at the Gram
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Doechii get a Top Dawg deal she never went and asked for? [Write "DID IT BACKWARDS" big at the top, draw a big arrow pointing left under it.]
+**HOOK:** How far can fans take Doechii when she built em up before any label? She built it backwards, and it paid off bigger than anybody saw coming. [Write "DID IT BACKWARDS" big at the top, draw a big arrow pointing left under it.]
 
 **FORESHADOW:** Most artists chase a label first and pray the fans show up later. She went the other way. [Draw two stick figures: one chasing a box labeled "LABEL", one with a crowd already behind em. Circle the crowd.]
 
 **RISING ACTION:** Back in 2016 she was uploading songs to SoundCloud by herself. No deal. No team. Just her and the people who kept coming back. [Write "2016" with a small phone and music notes, write "JUST HER + THE PEOPLE" under it.] She built that crowd for years. Posting, dropping, talking to em direct. Then one song hit on TikTok and that crowd got loud. [Draw a small stick crowd growing bigger, add a "TIKTOK" tag and a speaker getting louder.]
 
-**TWIST:** Now watch what the people did. They got so loud that the label came to her. [Draw an arrow from the crowd pointing at a "LABEL" box, label flipped toward her.] By 2022 she signed to Top Dawg. The first woman they ever put on. She aint go beg for that. The fans made the call she couldn't make for herself. [Write "2022 TDE" and "FIRST WOMAN", circle "FIRST WOMAN".] The deal aint find her. The people went and got it. [Write "THE PEOPLE GOT THE DEAL", underline "PEOPLE" twice.]
+**TWIST:** Now watch what the people did. They got so loud that the label came to her. [Draw an arrow from the crowd pointing at a "LABEL" box, label flipped toward her.] By 2022 she signed to Top Dawg, but she aint go beg for that. The fans made the call she couldn't make for herself. [Write "2022 TDE" and "FIRST WOMAN", circle "FIRST WOMAN".] The deal aint find her. The people went and got it. [Write "THE PEOPLE GOT THE DEAL", underline "PEOPLE" twice.]
 
 **PAYOFF:** Then in 2025, off a mixtape, no studio album, she won Best Rap Album at the Grammys. Only the third woman in history to ever take that home. [Write "2025 BEST RAP ALBUM" big at the bottom, draw a small trophy, write "OFF A MIXTAPE" and "3rd WOMAN EVER", circle "3rd".]
 

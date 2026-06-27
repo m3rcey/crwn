@@ -10,7 +10,7 @@ Link in bio to catch every new fan at their hottest and turn them into paying fa
 
 **SCRIPT:**
 
-What happens in the seven days right after somebody finds SZA for the first time? SZA made fans wait five years between Ctrl and SOS. So when somebody finally fall in, they fall all the way in. That first week they got Kill Bill on repeat. They reading every lyric. They deep in her old songs. That fan aint never gon be that hot again. Now here go the thing most independent artists miss. A new fan finds you Tuesday, loves it, and by Friday they forgot ya name. You aint there to catch em. But you could be. One message goes out the second they follow. Then one more two days later. Then a little offer while they still glued. Fans paid for that early access plenty of times. That lane open to anybody. And that warm-fan window is exactly what SZA milked. Them binge fans kept SOS at number one on the R&B chart longer than any album in the chart's sixty year history, past Michael Jackson's Thriller.
+How long can a fanbase of pure binge fans hold one SZA album at the top of a chart? SZA made fans wait five years between Ctrl and SOS. So when somebody finally fall in, they fall all the way in. That first week they got Kill Bill on repeat. They reading every lyric. They deep in her old songs. That fan aint never gon be that hot again. Now here go the thing most independent artists miss. A new fan finds you Tuesday, loves it, and by Friday they forgot ya name. You aint there to catch em. But you could be. One message goes out the second they follow. Then one more two days later. Then a little offer while they still glued. Fans paid for that early access plenty of times. That lane open to anybody. And that warm-fan window is exactly what SZA milked. Them binge fans kept SOS at number one on the R&B chart longer than any album in the chart's sixty year history, past Michael Jackson's Thriller.
 
 ---
 
@@ -27,7 +27,7 @@ What happens in the seven days right after somebody finds SZA for the first time
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What happens in the seven days right after somebody finds SZA for the first time? [at the top draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of SZA from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "SZA" underneath. Below, on the left write "DAY 1" with a small stick figure, on the right write "WEEK 1" big and circle it, draw a play button next to it]
+**HOOK:** How long can a fanbase of pure binge fans hold one SZA album at the top of a chart? [at the top draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of SZA from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "SZA" underneath. Below, on the left write "DAY 1" with a small stick figure, on the right write "WEEK 1" big and circle it, draw a play button next to it]
 
 **FORESHADOW:** Watch what happen in them seven days. [draw a row of 7 small boxes labeled 1 through 7, put a heart inside box 1]
 

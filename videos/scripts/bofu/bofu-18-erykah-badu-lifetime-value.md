@@ -10,17 +10,15 @@ Link in bio to track lifetime value with CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Erykah Badu dropped Baduizm back in 1997. Neo-soul, brand new sound, and a fan locked in.
+What is a fan who locked in on Erykah Badu's Baduizm back in 1997 actually still worth to her right now, today?
 
-Now do the math on that fan. Almost thirty years. Albums, shows, merch, the kid they put on. One person, paying you for decades.
+Most artists couldn't tell you. They chasing the new follower all day, the number that go up, and ignoring the one who been ride or die since day one.
 
-Now line that up against a fan who buy one thing and bounce. Same one purchase. Wildly different person.
+But line that day-one fan up against a person who buy one thing and bounce. Same one purchase to start. Wildly different person over time.
 
-Here what most artists miss. They chasing the new follower all day, the number that go up, and ignoring the one who been ride or die since day one.
+The move on CRWN is to track lifetime value. The dashboard show you who spent the most over the long run, not just today. So you know exactly who ya day-one fan is, and you protect that relationship instead of chasin a stranger.
 
-The move on CRWN is to track lifetime value. The dashboard show you who spent the most over time, not just today. So you know exactly who ya Badu-from-97 fan is, and you protect that relationship.
-
-And that 97 fan aint a memory. Near thirty years later Badu is out here in 2026 sellin tickets at the Hollywood Bowl and Royal Albert Hall, and it's the same people still pullin up. That one fan been payin her since before some of her new listeners was born.
+So what's that Badu-from-97 fan worth now? Near thirty years later Badu out here in 2026 sellin out the Hollywood Bowl and Royal Albert Hall, and it's that same person pullin up, payin her since before half her new listeners was even born.
 
 ---
 

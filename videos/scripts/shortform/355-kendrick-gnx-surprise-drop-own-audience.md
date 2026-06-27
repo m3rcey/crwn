@@ -10,7 +10,7 @@ Link in bio to build the direct line to your fans, contacts you actually own, wi
 
 **SCRIPT:**
 
-How did Kendrick move 319 thousand copies of GNX with zero warning, no announcement, no rollout, no pre-save? Just here it go at noon on a Friday, and somehow the planet knew in minutes. It aint magic. He already own the room before he walk in it. pgLang behind him, millions already locked in, so the second he hit go, the audience already there waitin. Now run that same play as a regular artist. You surprise drop a song nobody knew was comin. Who hear it? Almost nobody. You aint got a direct line to ya fans, so a surprise just mean silence. The platform decide who finds out, and most times they decide nobody. The no-warning drop only land when you already hold the audience. Email, number, a page they actually check. You build that line before you need it, not the day you wanna drop. So Kendrick dropped GNX with no ad, no pre-save, no rollout, and it was still the sixth biggest debut of the whole year.
+Where does a surprise drop with no announcement and no rollout land Kendrick on the year-end debut list? Just here go GNX at noon on a Friday, no warning, and somehow the planet knew in minutes. It aint magic. He already own the room before he walk in it. pgLang behind him, millions already locked in, so the second he hit go, the audience already there waitin. Now run that same play as a regular artist. You surprise drop a song nobody knew was comin. Who hear it? Almost nobody. You aint got a direct line to ya fans, so a surprise just mean silence. The platform decide who finds out, and most times they decide nobody. The no-warning drop only land when you already hold the audience. Email, number, a page they actually check. You build that line before you need it, not the day you wanna drop. So Kendrick dropped GNX with no ad, no pre-save, no rollout, and it was still the sixth biggest debut of the whole year.
 
 ---
 
@@ -27,7 +27,7 @@ How did Kendrick move 319 thousand copies of GNX with zero warning, no announcem
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Kendrick move 319 thousand copies of GNX with zero warning, no announcement, no rollout, no pre-save? Just here it go at noon on a Friday, and somehow the planet knew in minutes. [Write "KENDRICK" big at top. Under it write "GNX" inside a box. Beside it write "NO WARNING" and draw a small clock showing noon. Draw a stick figure with both arms up, surprised.]
+**HOOK:** Where does a surprise drop with no announcement and no rollout land Kendrick on the year-end debut list? Just here go GNX at noon on a Friday, no warning, and somehow the planet knew in minutes. [Write "KENDRICK" big at top. Under it write "GNX" inside a box. Beside it write "NO WARNING" and draw a small clock showing noon. Draw a stick figure with both arms up, surprised.]
 
 **FORESHADOW:** It aint magic. He already own the room before he walk in it. pgLang behind him, millions already locked in, so the second he hit go, the audience already there waitin. [Cross out the word "MAGIC" with a single line. Next to it write "OWNS THE ROOM" and circle it. Draw a big crowd of small stick figures already standing together, with "pgLang" written small above them.]
 

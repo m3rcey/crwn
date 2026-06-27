@@ -10,7 +10,7 @@ Link in bio to own your catalog so it pays you and your family for life with CRW
 
 **SCRIPT:**
 
-What mattered more than the $3 million record deal Juice WRLD signed at 19? Stay with me. He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. Then after he was gone, a posthumous album dropped and went number one. Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings, somebody cashes every play forever. The check you sign for today is loud, but it spends once. What you own keeps paying long after you cant. So what mattered more than that $3 million? The vault. Reports say he left close to 2,000 finished songs nobody ever heard, more music dead at 21 than most artists make in a 40 year career alive.
+What mattered more than the $3 million record deal Juice WRLD signed at 19? Stay with me. He made music nonstop, more in three years than most artists finish in a lifetime. Then after he was gone, a posthumous album dropped and went number one. Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings, somebody cashes every play forever. The check you sign for today is loud, but it spends once. What you own keeps paying long after you cant. So what mattered more than that $3 million? The vault. Reports say he left close to 2,000 finished songs nobody ever heard, more music dead at 21 than most artists make in a 40 year career alive.
 
 ---
 
@@ -31,7 +31,7 @@ What mattered more than the $3 million record deal Juice WRLD signed at 19? Stay
 
 **FORESHADOW:** But the part that mattered most aint the $3 million. Stay with me. [Cross out "$3,000,000" with a single line. Draw a small arrow pointing down to a question mark.]
 
-**RISING ACTION:** He made music nonstop. By the time he passed at 21, reports say he left close to 2,000 songs nobody had heard. [Draw a big box labeled "VAULT" with "~2,000 SONGS" inside it.] Then after he was gone, a posthumous album dropped and went number one. [Write "#1" big and circle it. Next to it write "497K FIRST WEEK".] Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. [Draw a printer with dollar signs coming out of it.]
+**RISING ACTION:** He made music nonstop, more in three years than most artists finish in a lifetime. [Draw a big box labeled "VAULT" with a "?" inside it.] Then after he was gone, a posthumous album dropped and went number one. [Write "#1" big and circle it. Next to it write "497K FIRST WEEK".] Hundreds of thousands sold the first week. The kid was gone, but the catalog kept printing. [Draw a printer with dollar signs coming out of it.]
 
 **TWIST:** So who gets that money now? [Write "WHO GETS PAID?" with a question mark, box it.] A deal a teenager signed dont stop paying when the artist stop. Somebody holds them recordings. Somebody cashes every play forever. [Draw a small set of master tapes / reels, write "OWNER" with an arrow to it.] The check you sign for today is loud, but it spends once. The thing you own keeps paying long after you cant. [draw a line down the middle. Left side write "THE CHECK", under it a single dollar bill. Right side write "WHAT YOU OWN", under it a small infinity loop with "$" inside it, circle it.]
 

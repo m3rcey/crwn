@@ -10,15 +10,15 @@ Link in bio to gate one exclusive behind a free signup and turn listeners into a
 
 **SCRIPT:**
 
-Why did Beyonce make millions of fans register, hand over they info, and prove they was a real human before she'd let em near a ticket?
+What did Beyonce quietly walk away with after she made millions of fans register and prove they was real before she'd let em near a ticket?
 
 She coulda just put the tickets up. Instead she built a gate, and fans had to give they name and they contact to even get in line.
 
 And they did it. Happily. Stood there provin they was real for the chance at a seat.
 
-It look like a anti-bot thing on the surface. Bigger than that. Every fan who walked through that gate handed her a way to reach em directly, before a single dollar moved.
+It look like a anti-bot thing on the surface. Most people stop readin it right there.
 
-So now she aint waitin on a algorithm or a ticket site to find her people. She got a list of millions of verified fans she can reach on her own, whenever she want. And she didn't spend a dollar to get it. The fans paid her in their own contact info, just for the chance to maybe buy somethin later.
+But she didn't spend a dollar on ads, and she aint waitin on no algorithm or ticket site to find her people no more. She walked off with a list of millions of verified fans she can reach direct, whenever she want, before a single one of em ever spends again.
 
 ---
 

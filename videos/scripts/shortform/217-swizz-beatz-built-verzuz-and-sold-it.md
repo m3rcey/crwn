@@ -10,7 +10,7 @@ Link in bio to build something you own and can sell with CRWN. Free to start at 
 
 **SCRIPT:**
 
-How did Swizz Beatz turn a free Instagram battle into a sale that paid out 43 artists?
+When Swizz Beatz sold Verzuz, who else got a piece of that check besides him and Tim?
 
 March 2020. Swizz call Timbaland out on Instagram Live. Just two friends playin they own beats, free, anybody could watch. They aint charge a dime.
 
@@ -35,13 +35,13 @@ A streamin check pay you once and it gone. So when the Triller money hit, Swizz 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How did Swizz Beatz turn a free Instagram battle into a sale that paid out 43 artists? [Top left, draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of Swizz Beatz and Timbaland from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "SWIZZ BEATZ" and "TIMBALAND" underneath, with "2 PRODUCERS" written under them] [Top right, draw an arrow from the portraits to a price tag shape with "SOLD" written on it, circle "SOLD"]
+**HOOK:** When Swizz Beatz sold Verzuz, who else got a piece of that check besides him and Tim? [Top left, draw two hand-drawn sharpie head-and-shoulders portraits capturing the recognizable likenesses of Swizz Beatz and Timbaland from the attached photo references, drawn in confident sharpie line work, not generic stick figures, labeled "SWIZZ BEATZ" and "TIMBALAND" underneath, with "2 PRODUCERS" written under them] [Top right, draw an arrow from the portraits to a price tag shape with "SOLD" written on it, circle "SOLD"]
 
-**FORESHADOW:** [Under the hook write "43 ARTISTS PAID?" and underline it]
+**FORESHADOW:** [Under the hook write "WHO ELSE GOT PAID?" and underline it]
 
 **RISING ACTION:** March 2020. Swizz Beatz call Timbaland out on Instagram Live. [Write "MARCH 2020" then "SWIZZ vs TIM" with a small phone drawing] Just two friends playin they own beats, free, anybody could watch. They aint charge a dime. [Write "FREE" big, circle it] That free little battle turned into Verzuz. [Write "VERZUZ" in bold capitals, underline it] The biggest names in music lined up to do it. The biggest ones pulled millions of people watchin across every platform. [Write "MILLIONS WATCHING" and circle it] One year later, they sold it to Triller. [Draw a right arrow to "TRILLER 2021"] They aint just make the music. They built a thing, and then they owned it enough to sell it. [Write "MADE IT + OWNED IT" and underline "OWNED IT"]
 
-**TWIST:** So here go the part that hit me. When they sold, they cut in all 43 artists who ever performed. [Write "43 ARTISTS GOT A PIECE" and box it, draw a small pie chart with many slices] The people who showed up got a piece too. [Draw a few small stick figures with smiley faces next to the pie]
+**TWIST:** So here go the part that hit me. When they sold, they aint keep the bag to themselves. [Write "THEY AINT KEEP IT ALL" and box it, draw a small pie chart with many slices] The people who showed up got a piece too. [Draw a few small stick figures with smiley faces next to the pie]
 
 **PAYOFF:** A streamin check pay you once and it gone. [Write "STREAM = PAID ONCE", draw a small dollar sign with an X through a second one] So when the Triller money hit, Swizz and Tim aint pocket it alone like every other owner woulda. They split that sale 43 ways, one piece for every artist who ever stepped on that Verzuz stage. [Write "OWN IT = SELL IT + BRING YA PEOPLE", underline the whole line]
 

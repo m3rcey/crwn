@@ -10,7 +10,7 @@ Link in bio to put your most loyal fans on a supporter wall they pay to be on wi
 
 **SCRIPT:**
 
-What did the fan in Eminem's "Stan," the one who mailed letter after letter, actually want? Em dropped that song back in 2000. The fan in it aint want a refund. He aint want free merch. He kept writin and writin. He just wanted Em to say his name back. He wanted to be seen. Now think about who really ride for you. Ya top fan dont care about a discount. They want you to know they was here first. So somebody put it to the test. They added a wall where the real ones get they name up. A small monthly badge that say you belong. And the fans paid for it, faster than they paid for any song. And that one made-up fan who only wanted to be seen? He got so big the word "stan" got added to the real Oxford English Dictionary in 2017.
+How did one made-up fan in an Eminem song end up changing the actual dictionary? Em dropped "Stan" back in 2000. The fan in it aint want a refund. He aint want free merch. He kept writin and writin. He just wanted Em to say his name back. Now think about who really ride for you. Ya top fan dont care about a discount. They want you to know they was here first. So somebody put it to the test. They added a wall where the real ones get they name up. A small monthly badge that say you belong. And the fans paid for it, faster than they paid for any song. And that one made-up fan who just wanted his name said back? He got so big the word "stan" got added to the real Oxford English Dictionary in 2017.
 
 ---
 
@@ -27,15 +27,15 @@ What did the fan in Eminem's "Stan," the one who mailed letter after letter, act
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What did the fan in Eminem's "Stan," the one who mailed letter after letter, actually want? [write "STAN" big at top, draw a small musical note next to it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Eminem from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "EMINEM" underneath. Under it write "stan (n.)" and draw a small open book]
+**HOOK:** How did one made-up fan in an Eminem song end up changing the actual dictionary? [write "STAN" big at top, draw a small musical note next to it. Beside it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Eminem from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "EMINEM" underneath. Under it write "ONE FAN -> THE DICTIONARY?" and underline it]
 
 **FORESHADOW:** Eminem dropped "Stan" back in 2000 [write "2000" and circle it], and watch what it really tell you about your fans. [draw a small arrow pointing down]
 
-**RISING ACTION:** The song about a fan who wrote letter after letter. [draw 3 stacked envelopes] He aint want a refund. He aint want free merch. [write "REFUND" and "MERCH", cross both out with an X] He just wanted Em to say his name back. [write "SAY MY NAME" and underline it] That fan got so big the word "stan" landed in the Oxford dictionary in 2017. [write "OXFORD 2017" and box it] Now think about who really ride for you. [draw a stick figure with a smiley face] Ya top fan dont care about a discount. They want you to know they was here first. [write "HERE FIRST" and underline twice]
+**RISING ACTION:** The song about a fan who wrote letter after letter. [draw 3 stacked envelopes] He aint want a refund. He aint want free merch. [write "REFUND" and "MERCH", cross both out with an X] He just wanted Em to say his name back. [write "SAY MY NAME" and underline it] Now think about who really ride for you. [draw a stick figure with a smiley face] Ya top fan dont care about a discount. They want you to know they was here first. [write "HERE FIRST" and underline twice]
 
 **TWIST:** So somebody put it to the test. They added a wall where the real ones get they name up. [draw a wall of bricks with little names written inside it] A small monthly badge that say you belong. [draw a small star badge] And the fans paid for it, faster than they paid for any song. [draw an arrow from the badge to a "$"]
 
-**PAYOFF:** Stan aint never get his name said back. But that made-up fan who just wanted to be seen got so big the word "stan" got added to the real Oxford dictionary in 2017. [draw a small open dictionary, write "stan (n.)" inside, write "OXFORD 2017" big at the bottom and circle it]
+**PAYOFF:** Stan aint never get his name said back. But that made-up fan who just wanted his name said back got so big the word "stan" got added to the real Oxford dictionary in 2017. [draw a small open dictionary, write "stan (n.)" inside, write "OXFORD 2017" big at the bottom and circle it]
 
 ---
 

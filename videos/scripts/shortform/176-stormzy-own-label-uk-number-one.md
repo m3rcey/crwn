@@ -10,7 +10,7 @@ Link in bio to own your masters and your fans instead of renting both to a label
 
 **SCRIPT:**
 
-Stormzy hit a UK number one without a single major label owning him, and how he pulled it is the part they dont want you to clock.
+Stormzy hit a UK number one with no major label owning him, and the number it pulled the first week is the part they dont want you to clock.
 
 Back in 2017 he drop Gang Signs and Prayer. His debut. Straight to number one, over 68,000 sold the first week.
 
@@ -18,9 +18,9 @@ First grime album to ever top that chart. And the first independent one too.
 
 Most artists hand a label three things just to get on the shelf. The masters. The company. The fans.
 
-Stormzy flipped it. The masters stayed his. The company his. The fans his. He owned the shelf and only rented the truck.
+Stormzy flipped it. The masters stayed his. The company his, his own label, Merky Records. The fans his. He owned the shelf and only rented the truck.
 
-So that album aint come out on a major. It came out on his own label, Merky Records. The number one grime record in UK history was owned by a label the majors had nothing to do with. They just drove the truck.
+And here go the part nobody saw coming. That same week his independent grime album pulled 13.9 million streams. The most first-week streams any number one album had ever done in the UK at that point. He beat the opening week of Drake's Views, on his own label, with no major behind him.
 
 ---
 
@@ -37,13 +37,13 @@ So that album aint come out on a major. It came out on his own label, Merky Reco
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Stormzy hit a UK number one without a single major label owning him, and how he pulled it is the part they dont want you to clock. [write "#1 UK" big at the top, draw a small "NO MAJOR" with an X through a label box next to it] [under the #1 write "THE PART LABELS HIDE" and underline it]
+**HOOK:** Stormzy hit a UK number one with no major label owning him, and the number it pulled the first week is the part they dont want you to clock. [write "#1 UK" big at the top, draw a small "NO MAJOR" with an X through a label box next to it] [under the #1 write "THE WEEK 1 NUMBER THEY HIDE" and underline it]
 
 **RISING ACTION:** Back in 2017 he drop Gang Signs and Prayer. His debut. Straight to number one, over 68,000 sold the first week. [write "GANG SIGNS & PRAYER 2017", under it "68,000 WEEK 1" and circle the number] First grime album to ever top that chart. And the first independent one too. [write "1ST GRIME #1" and below it "1ST INDIE #1", check mark beside each] Now here the thing most people miss. That album aint come out on a major. It came out on his own label, Merky Records. [cross out "MAJOR LABEL", write "#MERKY RECORDS" and box it]
 
 **TWIST:** The major aint own it. They just delivered it. Moved the files to the stores and took a small cut for the delivery. [draw a small delivery truck with "JUST THE TRUCK" under it, draw a tiny "small cut" pie slice] The masters? His. The company? His. The fans? His. [write a stacked list "MASTERS - HIS", "COMPANY - HIS", "FANS - HIS", check mark beside all three]
 
-**PAYOFF:** Most artists hand all three to a label just to get on the shelf. [draw a shelf, write "HAND OVER ALL 3" with a sad stick figure handing a box away] He flipped it. He owned the shelf and rented the truck. [draw a happy stick figure standing on the shelf, write "OWN THE SHELF / RENT THE TRUCK" and box it] A small room of fans who buy direct beats a big room a label rents you. [draw two rooms side by side: left small room of stick figures with "$ DIRECT" and a check, right big room with "RENTED" and an X, the left one circled] So that album aint come out on a major. The number one grime record in UK history was owned by a label the majors had nothing to do with. They just drove the truck. [cross out "MAJOR", write "#MERKY OWNED #1" and box it, draw a small truck labeled "MAJOR = DELIVERY"]
+**PAYOFF:** Most artists hand all three to a label just to get on the shelf. [draw a shelf, write "HAND OVER ALL 3" with a sad stick figure handing a box away] He flipped it. He owned the shelf and rented the truck. [draw a happy stick figure standing on the shelf, write "OWN THE SHELF / RENT THE TRUCK" and box it] And here go the part nobody saw coming. That same week his independent grime album pulled 13.9 million streams, the most first-week streams any number one album had ever done in the UK at that point. He beat the opening week of Drake's Views, on his own label, with no major behind him. [write "13.9 MILLION STREAMS, WEEK 1" big and box it, under it write "BEAT DRAKE'S VIEWS OPENING WEEK" and circle it]
 
 ---
 
