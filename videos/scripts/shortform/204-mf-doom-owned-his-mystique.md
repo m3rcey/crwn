@@ -10,7 +10,7 @@ Link in bio to turn what makes you different into the thing fans pay for with CR
 
 **SCRIPT:**
 
-MF DOOM pulled a stunt at his own shows that woulda ended any other rapper, so why aint his fans care one bit? Most rappers sell you they self. They face, they story, they name on the chain. DOOM sold you a mask. A metal mask, a villain he made up. You never really seen his face. He put out records under different names on different labels, and none of it belonged to the label. The mystique was his. The scarcity was the point. The less you got of DOOM, the more fans wanted him. So heres the stunt, and why nobody held it against him. Fans aint come for the man, they came for the myth he built and kept, so the man behind it stopped mattering. DOOM started sending other dudes in the same mask to lip sync his shows, fans paid full price for a DOOM that wasnt even DOOM, and they ate it up.
+MF DOOM did something with his own metal mask at his live shows that woulda ended any other rapper, so why aint his fans care one bit? Most rappers sell you they self. They face, they story, they name on the chain. DOOM sold you a mask. A metal mask, a villain he made up. You never really seen his face. He put out records under different names on different labels, and none of it belonged to the label. The mystique was his. The scarcity was the point. The less you got of DOOM, the more fans wanted him. So heres the stunt, and why nobody held it against him. Fans aint come for the man, they came for the myth he built and kept, so the man behind it stopped mattering. DOOM started sending other dudes in the same mask to lip sync his shows, fans paid full price for a DOOM that wasnt even DOOM, and they ate it up.
 
 ---
 
@@ -27,7 +27,7 @@ MF DOOM pulled a stunt at his own shows that woulda ended any other rapper, so w
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** MF DOOM pulled a stunt at his own shows that woulda ended any other rapper, so why aint his fans care one bit? [Top center, large: "A STUNT AT HIS OWN SHOW?", with "STUNT" circled.] [Under it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of MF DOOM from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MF DOOM" underneath, his face wearing the metal mask exactly as in the photo reference.]
+**HOOK:** MF DOOM did something with his own metal mask at his live shows that woulda ended any other rapper, so why aint his fans care one bit? [Top center, large: "A STUNT AT HIS OWN SHOW?", with "STUNT" circled.] [Under it draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of MF DOOM from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "MF DOOM" underneath, his face wearing the metal mask exactly as in the photo reference.]
 
 **FORESHADOW:** Most rappers sell you they self. They face, they story, they name on the chain. [Left side, draw a stick figure with a smiley face and write "ME" with an arrow pointing at the face.] DOOM sold you a mask. [Right side, draw a stick figure with the mask instead of a face, write "DOOM".]
 

@@ -10,13 +10,13 @@ Link in bio to own the label your music pays instead of feeding someone else's w
 
 **SCRIPT:**
 
-Three 6 Mafia became the first rap group ever to win a Oscar back in 2006, and what's still true about that record twenty years later is the part most people get wrong. Back in 2006, Three 6 Mafia win Best Original Song. First hip-hop group to ever take a Academy Award home. They aint just win it. They got on that stage and performed it live too.
+Three 6 Mafia pulled something off at the 2006 Academy Awards that no rap group has matched in the twenty years since, so what was it? Back in 2006, Three 6 Mafia won Best Original Song. They aint just win it. They got on that Oscar stage and performed it live too.
 
 Now here go what most people miss. They was never some major-label act somebody discovered. DJ Paul and Juicy J built they own label back in 97. Hypnotize Minds. They owned it.
 
 So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. A signed artist win a award, the label get richer first. Three 6 was the label.
 
-And here go the part that still trips people up twenty years later. Plenty of solo rappers won Best Original Song since, Eminem, Common. But a whole rap group, all of em up there together. Three 6 is the only one to ever do it. Two decades gone and aint another group in hip-hop history matched it.
+And here go the part that still trips people up twenty years later. Plenty of solo rappers won Best Original Song since, Eminem, Common. But a full rap group, all of em up there together. Three 6 is the first and still the only one to ever do it. Two decades gone and aint another group in hip-hop history matched it.
 
 ---
 
@@ -41,7 +41,7 @@ And here go the part that still trips people up twenty years later. Plenty of so
 
 **TWIST:** So when that gold statue go to the song, it dont go up some corporate ladder to a parent company. [Draw a ladder going up on the left, with "PARENT CO." at the top, and a big X over the top rung.] It land with the two dudes who own the company. [Draw an arrow from the statue pointing straight to "DJ PAUL + JUICY J" boxed.] A signed artist win a award, the label get richer first. Three 6 was the label. [Two-line equation: "SIGNED → LABEL EATS FIRST" over "THREE 6 = THE LABEL". Box the bottom line.]
 
-**PAYOFF:** And here go the part that still trips people up twenty years later. Plenty of solo rappers won Best Original Song since, Eminem, Common. But a whole rap group, all of em up there together. Three 6 is the only one to ever do it. Two decades gone and aint another group in hip-hop history matched it. [Bottom center, large: "STILL THE ONLY RAP GROUP EVER".] [Under it, smaller, "20+ YEARS, NOBODY ELSE", double underline the top line.]
+**PAYOFF:** And here go the part that still trips people up twenty years later. Plenty of solo rappers won Best Original Song since, Eminem, Common. But a full rap group, all of em up there together. Three 6 is the first and still the only one to ever do it. Two decades gone and aint another group in hip-hop history matched it. [Bottom center, large: "STILL THE ONLY RAP GROUP EVER".] [Under it, smaller, "20+ YEARS, NOBODY ELSE", double underline the top line.]
 
 ---
 
