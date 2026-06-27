@@ -10,15 +10,15 @@ Link in bio to keep the bigger slice of every release with CRWN. Free to start a
 
 **SCRIPT:**
 
-Blonde sold 232,000 copies its first week. With no label behind it. Watch where the money went.
+Frank Ocean sold 232,000 copies of Blonde its first week with no label. The question aint how many he sold. It's how much of that money he got to keep.
 
 Yall been told you need a major to move numbers like that. Frank just proved you don't.
 
-276,000 total units counting streams. Number 1 in the country. Third biggest debut of the whole year, behind only Drake and Beyonce. No label. No radio push. After he paid the songwriters, Frank cleared about $1.77 million off Blonde in seven days, keeping 70 cents on the dollar.
+276,000 total units counting streams. Number 1 in the country. Third biggest debut of the whole year, behind only Drake and Beyonce. No label, no radio push. He owned the master himself, so after the songwriters got paid he kept about $1.77 million off seven days.
 
-Now run that exact week through the old Def Jam deal. 18 cents on the dollar after the label eats first. He clears about $600,000. Maybe. That's almost 1.2 million dollars that disappears, not because the music got worse, but because somebody else owned it.
+Now run that exact same week through the old Def Jam deal. 18 cents on the dollar after the label eats first. Same album, same 232,000 copies, and his royalty check is about $383,000.
 
-The album didn't get better in 24 hours. The math did. The number that pays you aint how many you sold. It's the slice of every sale you actually keep.
+Same songs, same week, same fans. One version pays him $1.77 million. The other pays him $383,000. The thing that decided which check he got wasn't the music. It was whose name sat on top of the master.
 
 ---
 
@@ -35,15 +35,15 @@ The album didn't get better in 24 hours. The math did. The number that pays you 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Blonde sold 232,000 copies its first week. [write "BLONDE WK 1: 232,000 SOLD" in bold caps at top] With no label behind it. [write "LABEL: NONE" underneath, boxed]
+**HOOK:** Frank Ocean sold 232,000 copies of Blonde its first week with no label. The question aint how many he sold. It's how much he kept. [write "BLONDE WK 1: 232,000 SOLD" in bold caps at top] [write "HOW MUCH DID HE KEEP?" underneath, boxed]
 
 **FORESHADOW:** Yall been told you need a major to move numbers like that. Frank just proved you don't. [draw a crossed-out building labeled "MAJOR"]
 
-**RISING ACTION:** 276,000 total units counting streams. Number 1 in the country. [write "#1 -- 276,000 UNITS" centered] Third biggest debut of the whole year, behind only Drake and Beyonce. After he paid the songwriters, Frank cleared about $1.77 million in seven days, keeping 70 cents on the dollar. [write "OWN IT: $1,770,000" on the left with "70¢ kept" under it]
+**RISING ACTION:** 276,000 total units counting streams. Number 1 in the country. [write "#1 -- 276,000 UNITS" centered] Third biggest debut of the whole year, behind only Drake and Beyonce. He owned the master himself, so after the songwriters got paid he kept about $1.77 million off seven days. [write "OWNED IT: $1,770,000" on the left]
 
-**TWIST:** Now run that exact week through the old Def Jam deal. 18 cents on the dollar after the label eats first. He clears about $600,000. [write "DEF JAM: ~$600,000" on the right with "18¢ kept" under it] Maybe. That's almost 1.2 million dollars that disappears, not because the music got worse, but because somebody else owned it. [draw a big arrow from $1,770,000 down to $600,000 with "-$1.2M" written beside it]
+**TWIST:** Now run that exact same week through the old Def Jam deal. 18 cents on the dollar after the label eats first. Same album, same 232,000 copies, and his royalty check is about $383,000. [write "DEF JAM DEAL: ~$383,000" on the right with "18¢ kept" under it] [draw a big arrow from $1,770,000 down to $383,000]
 
-**PAYOFF:** The album didn't get better in 24 hours. The math did. [write "ALBUM: SAME" then "MATH: CHANGED" below it] The number that pays you aint how many you sold. It's the slice of every sale you actually keep. [write "WHAT PAYS YOU = THE SLICE YOU KEEP" and underline it twice]
+**PAYOFF:** Same songs, same week, same fans. One version pays him $1.77 million. The other pays him $383,000. [write "$1,770,000" then "vs" then "$383,000" stacked] The thing that decided which check he got wasn't the music. It was whose name sat on top of the master. [write "THE NAME ON THE MASTER PICKED THE CHECK" and underline it twice]
 
 ---
 

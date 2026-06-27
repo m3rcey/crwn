@@ -10,15 +10,15 @@ Link in bio to keep what you make instead of splitting it with a label with CRWN
 
 **SCRIPT:**
 
-The Fall Off did about 290K units first week. Yall think Cole got rich. He got 15%.
+The Fall Off moved 290,861 units its first week. So how much of that $2.9 million did Cole actually pocket? Aint what ya think.
 
-Run the math on what the label really took.
+Run the math slow.
 
-290K units at $10 a unit is $2.9 million. Cole on a standard major deal get like 15% of that. The rest go to the label. So Cole made like $435K off The Fall Off in week one. The label kept about $2.5 million. That a near 6 to 1 split. Plus Cole gotta recoup the advance, the videos, the marketing before he see any of his 15%. So the real check is even smaller. He gotta pay back the label out his own slice first.
+290K units at $10 a unit is about $2.9 million the album pulled in week one. On a standard major deal the artist see like 15% of that. So on paper Cole earnin around $435K and the label sittin on the other $2.5 million. That already near a 6 to 1 split. But here the part that get glossed over. Cole dont even touch that $435K clean. The advance, the videos, the marketing, all that come out his slice first. So before he see a dollar of the 15%, he payin the label back out his own cut.
 
-This what they dont tell you. 290K first week look like a flex. The artist hold a small slice. The label hold the rest. Big numbers dont mean big checks under a label deal.
+This what they dont tell you. The 290K aint the number that matter. The split is. A #1 album can clear millions and still leave the artist diggin out a hole.
 
-If Cole sold 290K direct at $10 each, Cole keep about $2.67 million in week one. Same album. Two different paydays.
+If Cole moved that same 290,861 direct to his own fans at $10, the part recoupment eats disappears. The hole was never his to dig. The label dug it and handed him the shovel.
 
 ---
 
@@ -35,15 +35,15 @@ If Cole sold 290K direct at $10 each, Cole keep about $2.67 million in week one.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** The Fall Off did about 290K units first week. [write "THE FALL OFF" in caps at top, then "≈290K WEEK 1" huge and circle it twice] Yall think Cole got rich. He got 15%. [write "COLE = 15%" boxed beside it]
+**HOOK:** The Fall Off moved 290,861 units its first week. [write "THE FALL OFF" in caps at top, then "290,861 WEEK 1" huge and circle it twice] So how much of that $2.9 million did Cole actually pocket? [write "COLE KEPT = ?" boxed beside it]
 
-**FORESHADOW:** Run the math on what the label really took. [write "REAL MATH ↓" in caps with a downward arrow]
+**FORESHADOW:** Run the math slow. [write "REAL MATH ↓" in caps with a downward arrow]
 
 **RISING ACTION:** 290K units at $10 a unit is $2.9 million. [write "290K × $10 = $2,900,000" in big caps and underline it] Cole on a standard major deal get like 15% of that. The rest go to the label. [draw a simple pie chart with a small slice labeled "COLE 15%" and the big slice labeled "LABEL 85%"] So Cole made like $435K off The Fall Off in week one. The label kept about $2.5M. [write "COLE = $435,000" on the left, "LABEL = $2,465,000" on the right] That a near 6 to 1 split. [write "≈ 6 TO 1 SPLIT" boxed in caps] Plus Cole gotta recoup the advance, the videos, the marketing before he see any of his 15%. [draw a stick figure labeled "COLE" digging in a hole with the dirt labeled "RECOUPMENT"] So the real check is even smaller. He gotta pay back the label out his own slice first. [write "PAY BACK FROM HIS SLICE" boxed and underlined]
 
 **TWIST:** This what they dont tell you. 290K first week look like a flex. The artist hold a small slice. The label hold the rest. [write "290K = FLEX?" with a question mark, then "SLICE ≠ BAG" beside it] Big numbers dont mean big checks under a label deal. [write "BIG NUMBERS ≠ BIG CHECKS" in caps and underline it twice]
 
-**PAYOFF:** If Cole sold 290K direct at $10 each, Cole keep about $2.67 million in week one. [write "290K × $10 DIRECT = ≈$2,670,000 → COLE" big and circled] Same album. Two different paydays. [write "ONE ALBUM" on the left, "TWO PAYDAYS" on the right at the bottom, both circled together in one oval]
+**PAYOFF:** If Cole moved that same 290,861 direct to his own fans at $10, the part recoupment eats disappears. [write "290,861 DIRECT → NO RECOUP HOLE" big and circled] The hole was never his to dig. The label dug it and handed him the shovel. [write "LABEL DUG THE HOLE" on the left, "HANDED HIM THE SHOVEL" on the right at the bottom, both circled together in one oval]
 
 ---
 

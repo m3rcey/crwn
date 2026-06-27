@@ -10,17 +10,15 @@ Link in bio to set up a free tier that turns strangers into paying fans with CRW
 
 **SCRIPT:**
 
-The Weeknd's first big project was free. That free tape is the whole reason you know him.
+The Weeknd put out his best tape for zero dollars on purpose. Why give the best one away free. The answer is what that free tape was actually buying.
 
-Yall scared to give anything away. Watch why free was the smartest money move he made.
+Yall scared to give anything away. He gave away the strongest thing he had.
 
-House of Balloons, March 2011. Zero dollars. He didn't lose money giving it away. He bought an audience with it. The people who found it free that year are the same people who paid for arena tickets, vinyl, and every album since. The free tape was the front door. Everything after it had a price.
+House of Balloons, March 2011. Free download, no label, no name attached. Looked like he was giving his best work away for nothing. He wasn't. Every person who grabbed that free tape just put their attention in his pocket, and he never let it go.
 
-That's the order. Free gets the stranger in. Then the ones who really f with you start paying. Not all of em. The real ones. A handful on a low tier, fewer on a higher one, some grabbing a vinyl or a one-off thing now and then. Different people, different amounts, every month.
+Those same people are who bought the arena tickets. The vinyl. Every album for the next ten years. The free tape wasn't the product. The free tape was him collecting the customer, one download at a time, then selling to that same customer for a decade.
 
-He didn't charge at the door. He charged the people who never left.
-
-Free aint losing. Free is how a stranger turns into a fan who pays you for years. He gave away one tape and sold everything else for a decade.
+So he aint charge at the door. He let the door stay open, kept everybody who walked through, and put a price on everything after. He gave away one tape one time and got paid by those same hands for ten years straight.
 
 ---
 
@@ -37,15 +35,15 @@ Free aint losing. Free is how a stranger turns into a fan who pays you for years
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** The Weeknd's first big project was free. That free tape is the whole reason you know him. [write "HOUSE OF BALLOONS = $0" in bold caps at top]
+**HOOK:** The Weeknd put out his best tape for zero dollars on purpose. Why give the best one away free. [write "HOUSE OF BALLOONS = $0" in bold caps at top] [write "WHY GIVE THE BEST ONE AWAY?" boxed underneath]
 
-**FORESHADOW:** Yall scared to give anything away. Watch why free was the smartest money move he made. [draw a hand holding something out, labeled "FREE"]
+**FORESHADOW:** Yall scared to give anything away. He gave away the strongest thing he had. [draw a hand holding something out, labeled "FREE"]
 
-**RISING ACTION:** March 2011. Zero dollars. He didn't lose money. He bought an audience. The people who found it free are the same ones who paid for tickets, vinyl, every album since. The free tape was the front door. Everything after had a price. [draw a door labeled "FREE" on the left, then a short path of arrows leading right to a small list: "TICKETS", "VINYL", "ALBUMS" each with a "$" beside it]
+**RISING ACTION:** March 2011. Free download, no label, no name. Looked like he gave his best work away for nothing. He wasn't. Every person who grabbed it just put their attention in his pocket, and he never let it go. [draw a door labeled "FREE" on the left, then a short path of arrows leading right to a small list: "TICKETS", "VINYL", "ALBUMS" each with a "$" beside it]
 
-**TWIST:** Free gets the stranger in. Then the real ones start paying. Not all of em. A handful on a low tier, fewer on a higher one, some grabbing a vinyl now and then. [write "FREE → LOW TIER → HIGHER TIER → 1-OFFS" across with small arrows, numbers different each step like "90 / 14 / 3"]
+**TWIST:** Those same people bought the arena tickets. The vinyl. Every album for ten years. The free tape wasn't the product. It was him collecting the customer, one download at a time. [write "FREE TAPE = COLLECTING THE CUSTOMER" then below "SAME HANDS PAY FOR 10 YEARS"]
 
-**PAYOFF:** He didn't charge at the door. He charged the people who never left. [write "DON'T CHARGE THE DOOR. CHARGE WHO STAYS." and underline it] Free aint losing. Free is how a stranger turns into a fan who pays you for years. [write "FREE = THE FRONT DOOR, NOT THE LOSS" at the bottom and circle it]
+**PAYOFF:** So he aint charge at the door. He let the door stay open, kept everybody who walked through, and priced everything after. [write "DON'T CHARGE THE DOOR. KEEP WHO WALKS THROUGH." and underline it] One free tape, one time, and the same hands paid him for a decade. [write "ONE FREE TAPE = 10 YEARS OF THE SAME BUYERS" at the bottom and circle it]
 
 ---
 

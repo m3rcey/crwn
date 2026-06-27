@@ -10,15 +10,15 @@ Link in bio to release music when you want without asking a label with CRWN. Fre
 
 **SCRIPT:**
 
-Has anybody ever wanted to quit they own job? Lil Uzi tweeted it. Multiple times.
+Lil Uzi posted he was done with music, deleted everything, said he wanna wake up in 2013. So what was Atlantic actually holding over him?
 
-He couldn't even put out music. Wait til you see why.
+He couldn't even put out his own album. Wait til you see why.
 
-Uzi signed to Atlantic young. Blew up off "XO Tour Llif3". Then the next album sat. And sat. And sat. Uzi tweeted he was done. Said he wanted to give it up. The fans was sitting on tracks they ain't never gon hear. Pink Tape took years to come out. Years. The label hold the release date. The label hold the masters. The artist hold a phone and a screenshot. The contract was so deep he couldnt even leave the way he wanted.
+Uzi blew up off "XO Tour Llif3" on Atlantic under Generation Now. Then the next project sat. He went public sayin when people don't love you, they hold your life if you sign a contract. Said he was retiring. Pink Tape didn't drop til 2023, years after fans expected it. The whole fight was never about the music. It was about who controlled when the music came out.
 
-This what they don't tell you. You aint quitting music. You quitting the contract that wont let you release music.
+Here go the part nobody points to. Uzi didn't beat the label by quitting.
 
-A free man drop when he ready. A signed man drop when the label say go. Yo song aint yo song til the deal say it is.
+He waited out the deal, walked from Atlantic, and in 2025 signed a distribution deal with Roc Nation instead of another label. Distribution mean he keeps the ownership and just pays for the pipes. He didn't quit music. He quit being owned.
 
 ---
 
@@ -35,15 +35,15 @@ A free man drop when he ready. A signed man drop when the label say go. Yo song 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Has anybody ever wanted to quit they own job? Lil Uzi tweeted it. Multiple times. [draw a hand-drawn phone screen at the top showing three stacked tweets each with "I QUIT" written inside, with "LIL UZI" written above the phone]
+**HOOK:** Lil Uzi posted he was done with music, deleted everything, said he wanna wake up in 2013. So what was Atlantic actually holding over him? [draw a hand-drawn phone screen at the top showing a post that reads "I'M DONE" and "DELETED EVERYTHING", with "LIL UZI" written above the phone]
 
-**FORESHADOW:** He couldn't even put out music. Wait til you see why. [write "COULDNT RELEASE = WHY?" in caps with a big question mark beside it]
+**FORESHADOW:** He couldn't even put out his own album. Wait til you see why. [write "COULDNT RELEASE = WHY?" in caps with a big question mark beside it]
 
 **RISING ACTION:** Uzi signed to Atlantic young. Blew up off "XO Tour Llif3". [write "ATLANTIC + UZI" in caps then below it "XO TOUR LLIF3 = HIT" with a check mark] Then the next album sat. And sat. And sat. [draw three boxes stacked labeled "ALBUM" each with a clock on it and "WAITING" written below] Uzi tweeted he was done. Said he wanted to give it up. [draw a stick figure labeled "UZI" with a thought bubble that says "DONE"] The fans was sitting on tracks they ain't never gon hear. [write "FANS ↔ TRACKS" with a wall labeled "ATLANTIC" drawn between them] Pink Tape took years to come out. Years. [write "PINK TAPE = YEARS LATE" in caps and circle it] The label hold the release date. The label hold the masters. [write two lines stacked: "RELEASE DATE = LABEL" and "MASTERS = LABEL"] The artist hold a phone and a screenshot. [draw a small hand-drawn phone with a tweet icon on it labeled "ARTIST"] The contract was so deep he couldnt even leave the way he wanted. [write "CONTRACT = TOO DEEP" in caps and circle it]
 
-**TWIST:** This what they don't tell you. You aint quitting music. You quitting the contract that wont let you release music. [write "QUIT MUSIC ≠ QUIT MUSIC" with the second crossed out, then below it write "QUIT THE DEAL" boxed]
+**TWIST:** Here go the part nobody points to. Uzi didn't beat the label by quitting. [write "QUIT ≠ THE WIN" with "QUIT" crossed out, then below it write "WAIT OUT THE DEAL" boxed]
 
-**PAYOFF:** A free man drop when he ready. A signed man drop when the label say go. [write "FREE = DROP NOW" on the left and "SIGNED = DROP WHEN" on the right with a dividing line between them] Yo song aint yo song til the deal say it is. [write "YOUR SONG = THEIR SONG" in caps at the bottom and circle it]
+**PAYOFF:** He waited out the deal, walked from Atlantic, and in 2025 signed a distribution deal with Roc Nation instead of another label. Distribution mean he keeps the ownership and just pays for the pipes. [write "LABEL = THEY OWN IT" on the left and "DISTRIBUTION = YOU OWN IT" on the right with a dividing line between them] He didn't quit music. He quit being owned. [write "QUIT BEING OWNED" in big caps at the bottom and circle it]
 
 ---
 

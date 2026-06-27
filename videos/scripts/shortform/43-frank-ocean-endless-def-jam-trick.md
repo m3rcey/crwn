@@ -10,15 +10,15 @@ Link in bio to own your music from day one instead of buying it back with CRWN. 
 
 **SCRIPT:**
 
-Frank Ocean owed Def Jam one more album. So he gave them one nobody asked for and walked.
+Frank Ocean owed Def Jam one more album. So he handed em a quiet video project nobody asked for. What was that really for?
 
 Yall think you stuck in a deal til it ends. Watch what he did instead.
 
-August 2016. Frank drop a 45-minute video album called Endless. Quiet. No singles. That was the whole point. Endless was the last thing he owed Def Jam. The second it went up, the contract was done. Less than 24 hours later he drop Blonde. His own label, Boys Don't Cry. Not Def Jam.
+August 2016. Frank drop a 45-minute visual album called Endless. No singles, barely a rollout, and that was on purpose. Endless was the exact last thing his contract said he owed Def Jam. The second it went up, the deal was done. Less than 24 hours later, he drop Blonde, on his own label, Boys Don't Cry, with Def Jam nowhere on it. Reports say he went from keeping around 17 cents on the dollar under Def Jam to about 70 on Blonde.
 
-Under Def Jam he was keeping 14 cents on every dollar. On Blonde he kept 70. One album cleared the debt. The next one paid him for life. He bought his old masters back too, so now when Blonde plays, that check go to Frank.
+Here go the part that makes it a chess move, not just an exit. Blonde wasn't only his.
 
-A contract ends the day you give em exactly what it says. Not the day they feel like letting you go. Frank read the paper close enough to find the door, gave em the minimum, and kept everything that mattered.
+Because he owned it outright, Frank turned around and sold Apple the exclusive, and reports put that check near 20 million dollars. Def Jam got Endless, the throwaway. Frank kept Blonde, the masters, the 70 percent, AND the Apple bag on top. The free version doesn't just earn more. It lets you sell the same record twice.
 
 ---
 
@@ -35,15 +35,15 @@ A contract ends the day you give em exactly what it says. Not the day they feel 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Frank Ocean owed Def Jam one more album. [write "FRANK OWED: 1 ALBUM" in bold caps at the top] So he gave them one nobody asked for and walked. [draw a simple door to the right with an arrow pointing out through it]
+**HOOK:** Frank Ocean owed Def Jam one more album. So he handed em a quiet video project nobody asked for. What was that really for? [write "FRANK OWED: 1 ALBUM" in bold caps at the top] [draw a simple door to the right with a question mark beside it]
 
 **FORESHADOW:** Yall think you stuck in a deal til it ends. Watch what he did instead. [draw a small padlock, then a key beside it]
 
-**RISING ACTION:** August 2016. Frank drop a 45-minute video album called Endless. [write "ENDLESS = the debt" centered] Quiet. No singles. That was the whole point. The second it went up, the contract was done. Less than 24 hours later he drop Blonde. His own label, Boys Don't Cry. [write "BLONDE = his own" underneath, draw a short arrow from "ENDLESS = the debt" down to "BLONDE = his own" labeled "24 HRS"]
+**RISING ACTION:** August 2016. Frank drop a 45-minute visual album called Endless. No singles, barely a rollout, and that was on purpose. [write "ENDLESS = the debt" centered] Endless was the exact last thing the contract said he owed. The second it went up, the deal was done. Less than 24 hours later he drop Blonde, on his own label, Boys Don't Cry, Def Jam nowhere on it. [write "BLONDE = his own" underneath, draw a short arrow from "ENDLESS = the debt" down to "BLONDE = his own" labeled "24 HRS"] Reports say he went from keeping around 17 cents on the dollar to about 70. [write "DEF JAM: ~17¢" on the left and "OWN: ~70¢" on the right in larger letters]
 
-**TWIST:** Under Def Jam he was keeping 14 cents on every dollar. [write "DEF JAM: 14¢" on the left] On Blonde he kept 70. [write "OWN: 70¢" on the right in larger letters] He bought his old masters back too, so now when Blonde plays, that check go to Frank. [draw a dollar sign with an arrow pointing to the word "FRANK" circled]
+**TWIST:** Here go the part that makes it a chess move, not just an exit. Blonde wasn't only his. [write "OWNED OUTRIGHT" boxed]
 
-**PAYOFF:** A contract ends the day you give em exactly what it says. Not the day they feel like letting you go. [write "CONTRACT ENDS WHEN YOU CLOSE IT" and underline it twice] Frank read the paper close enough to find the door, gave em the minimum, and kept everything that mattered. [draw the open door again with "MINIMUM IN" written small at the entrance and "EVERYTHING OUT" written larger on the exit side]
+**PAYOFF:** Because he owned it, Frank sold Apple the exclusive, reports put it near 20 million dollars. Def Jam got the throwaway. Frank kept the masters, the 70 percent, AND the Apple bag. [draw a dollar sign with "~$20M APPLE" beside it and an arrow pointing to the word "FRANK" circled] The free version doesn't just earn more. It lets you sell the same record twice. [write "SELL THE SAME RECORD TWICE" and underline it twice]
 
 ---
 

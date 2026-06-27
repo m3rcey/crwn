@@ -10,15 +10,15 @@ Link in bio to turn 50K fans into a $6M year with CRWN. Free to start at thecrwn
 
 **SCRIPT:**
 
-Drake just got a $40 million advance on an album. 50,000 fans woulda paid him more.
+Drake's UMG deal reportedly fronts him around 40 million dollars on an album. So whats the catch on a check that big? Every dollar of it is a loan.
 
-Yall think the advance is the prize. Wait til you see the other side of the math.
+Yall think the advance is the prize. Theres a word buried in the paperwork that changes everything.
 
-Drake's current UMG deal pay him around $40 million per album as an advance. Sound like a lot. Advance is recoupable money the label want back before Drake see another check. So that $40 million is really a loan. The label take it back out of streaming, sales, sync, all of it. Til the hole get filled, Drake aint seeing nothing on the next album.
+Drake's deal with Universal is reportedly a licensing-style setup that pays him around 40 million up front per project. Sound like a check. It aint. Its an advance, and an advance is recoupable. That means the label earn it back first, out of his streaming, his sales, his sync, all of it, before Drake see another dollar. So the "biggest deal in music" is money he gotta dig out from under before the next album pay him anything. Til that hole fill back up, hes working it off.
 
-50,000 fans at $10 a month is $500,000 a month. Over a year, that come out to $6 million a year direct. Two albums of fan income is $12 million. Three years of fan income is $18 million. And none of it gotta be paid back.
+This what they dont tell you. A recoupable advance aint money they gave you. Its money they spotted you against your own future earnings.
 
-The advance is a loan against yo own future. The fan paid in cash. Drake getting fronted. The artist with 50K fans getting paid.
+So compare it to fans paying direct. Picture 50,000 fans at around $10 a month. Thats $6 million a year, and not one dollar of it is recoupable, theres nothing to pay back. Drake's 40 million is a loan he has to earn off before he profits. The independent artist's 6 million a year is already his the day it lands.
 
 ---
 
@@ -35,15 +35,15 @@ The advance is a loan against yo own future. The fan paid in cash. Drake getting
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Drake just got a $40 million advance on an album. 50,000 fans woulda paid him more. [write "DRAKE = $40M ADVANCE" in big bold caps at the top and "50K FANS = MORE" below it]
+**HOOK:** Drake's UMG deal reportedly fronts him around 40 million dollars on an album. So whats the catch on a check that big? [write "DRAKE ≈ $40M / ALBUM" in big bold caps at the top and "WHATS THE CATCH?" below it] Every dollar of it is a loan. [write "ITS A LOAN" boxed]
 
-**FORESHADOW:** Yall think the advance is the prize. Wait til you see the other side of the math. [write "ADVANCE = PRIZE?" with a big question mark beside it]
+**FORESHADOW:** Yall think the advance is the prize. Theres a word buried in the paperwork that changes everything. [write "ONE WORD IN THE PAPER" with a big question mark beside it]
 
-**RISING ACTION:** Drake's current UMG deal pay him around $40 million per album as an advance. [write "UMG → DRAKE = $40M / ALBUM" with an arrow] Sound like a lot. Advance is recoupable money the label want back before Drake see another check. [write "ADVANCE = RECOUPABLE" boxed] So that $40 million is really a loan. [write "LOAN" big and circle it twice with a hand-drawn arrow pointing to "$40M"] The label take it back out of streaming, sales, sync, all of it. [draw three small icons: a play button, a record, and a TV with money flowing from each into a hand-drawn UMG bucket] Til the hole get filled, Drake aint seeing nothing on the next album. [draw a stick figure labeled "DRAKE" standing in a hole with "$40M HOLE" written above it]
+**RISING ACTION:** Drake's deal with Universal is reportedly a licensing-style setup that pays around 40 million up front per project. Sound like a check. It aint. [write "UMG → DRAKE ≈ $40M UP FRONT" with an arrow] Its an advance, and an advance is recoupable. [write "RECOUPABLE" big and circle it twice] That means the label earn it back first, out of his streaming, his sales, his sync, before Drake see another dollar. [draw three small icons: a play button, a record, and a TV with money flowing from each into a hand-drawn UMG bucket] So the "biggest deal in music" is money he gotta dig out from under. Til that hole fill back up, hes working it off. [draw a stick figure labeled "DRAKE" standing in a hole with "$40M HOLE" written above it]
 
-**TWIST:** 50,000 fans at $10 a month is $500,000 a month. [write "50,000 FANS × $10 = $500,000/MO" centered and boxed] Over a year, that come out to $6 million a year direct. [write "= $6,000,000 / YEAR" underlined twice] Two albums of fan income is $12 million. Three years of fan income is $18 million. [write "2 YR = $12M / 3 YR = $18M" stacked] And none of it gotta be paid back. [write "NONE PAID BACK" boxed and circle the whole line]
+**TWIST:** This what they dont tell you. A recoupable advance aint money they gave you. Its money they spotted you against your own future earnings. [write "NOT A GIFT / A LOAN ON YOUR FUTURE" centered and circled]
 
-**PAYOFF:** The advance is a loan against yo own future. [write "ADVANCE = LOAN ON U" on the left with a hand-drawn arrow] The fan paid in cash. [write "FAN = CASH" on the right with a hand-drawn arrow] Drake getting fronted. The artist with 50K fans getting paid. [write "FRONTED" on the left and "PAID" on the right, both phrases circled together inside one rough oval at the bottom]
+**PAYOFF:** So compare it to fans paying direct. Picture 50,000 fans at around $10 a month. [write "50,000 FANS × ~$10/MO" centered and boxed] Thats $6 million a year, and not one dollar of it is recoupable, theres nothing to pay back. [write "= $6,000,000 / YEAR" underlined twice, then "NOTHING TO PAY BACK" boxed] Drake's 40 million is a loan he has to earn off. The independent artist's 6 million a year is already his the day it lands. [write "DRAKE = LOAN" on the left and "INDIE = HIS THE DAY IT LANDS" on the right, both phrases circled together inside one rough oval at the bottom]
 
 ---
 

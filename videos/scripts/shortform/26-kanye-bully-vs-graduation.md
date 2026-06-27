@@ -10,17 +10,15 @@ Link in bio to keep more of every dollar your music makes with CRWN. Free to sta
 
 **SCRIPT:**
 
-If you sold a million records in 2007, you got a check. If you sold a million in 2026, you get a different one.
+Kanye sold 957,000 copies of Graduation in week one back in 2007. So how much of that money did he actually get to keep? Way less than you think.
 
-Kanye dropped Graduation in 2007 and Bully in 2026. Same artist. Different keep rate. Watch the gap.
+Same artist, two albums, 19 years apart. The number that changed aint the sales.
 
-Graduation came out under Roc-A-Fella through Def Jam. Standard major deal at the time was around 15% to the artist after recoupment. Kanye sold 957K first week. Most of the money flowed to the label first.
+Graduation came out in 2007 under Roc-A-Fella through Def Jam. Standard major deal at the time put the artist around 15% after the label recoup every dollar they spent first. So nearly a million sold week one, and most of that money flow to the label before Kanye touch a cent. Fast forward. Bully drop in 2026 through Gamma, a distribution deal not a label deal. He own the music, he just pay em to get it out. Same name on the marquee. Completely different paper.
 
-Bully in 2026 dropped through Gamma. Gamma is a distribution deal not a label deal. Reports say artists keep like 50% or more depending on the terms. Same artist. Same name on the marquee. Different paper.
+This what they dont tell you. The thing that decide ya check aint how good the album sell. Its the deal you signed before anybody heard it.
 
-This what they dont tell you. The same album sale make the artist way more in 2026 than 2007. Not because the music change. Because the deal change.
-
-Yo deal is what decide how much of you, you actually own.
+So heres the gap. On Graduation, reportedly around 15 cents of a dollar came home. On Bully, through a distro deal, its reportedly 50 cents or more on that same dollar. Same album sale, more than triple the keep, and the only thing that changed was who he signed with.
 
 ---
 
@@ -37,15 +35,15 @@ Yo deal is what decide how much of you, you actually own.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** If you sold a million records in 2007, you got a check. If you sold a million in 2026, you get a different one. [write "2007" big on the left and "2026" big on the right with "1,000,000 SOLD" centered between them]
+**HOOK:** Kanye sold 957,000 copies of Graduation in week one back in 2007. So how much of that money did he actually get to keep? Way less than you think. [write "957,000 SOLD WEEK 1" big and "HOW MUCH DID HE KEEP?" below it]
 
-**FORESHADOW:** Kanye dropped Graduation in 2007 and Bully in 2026. Same artist. Different keep rate. Watch the gap. [write "KEEP RATE" in caps with a question mark below the year split]
+**FORESHADOW:** Same artist, two albums, 19 years apart. The number that changed aint the sales. [write "GRADUATION 2007 vs BULLY 2026" with a question mark below]
 
-**RISING ACTION:** Graduation came out under Roc-A-Fella through Def Jam. Standard major deal at the time was around 15% to the artist after recoupment. [write "GRADUATION 2007" on the left with "ROC-A-FELLA / DEF JAM" below it, then "ARTIST = 15%" boxed] Kanye sold 957K first week. Most of the money flowed to the label first. [write "957K WEEK 1" with an arrow to a money bag labeled "LABEL FIRST"] Bully in 2026 dropped through Gamma. Gamma is a distribution deal not a label deal. [write "BULLY 2026" on the right with "GAMMA = DISTRIBUTION" below it] Reports say artists keep like 50% or more depending on the terms. [write "ARTIST = 50%+" boxed and underlined]
+**RISING ACTION:** Graduation came out in 2007 under Roc-A-Fella through Def Jam. Standard major deal at the time put the artist around 15% after the label recoup every dollar first. [write "GRADUATION 2007" on the left with "ROC-A-FELLA / DEF JAM" below it, then "LABEL RECOUPS FIRST" boxed] So nearly a million sold week one, and most of that money flow to the label before Kanye touch a cent. [write "957K WEEK 1" with an arrow to a money bag labeled "LABEL FIRST"] Fast forward. Bully drop in 2026 through Gamma, a distribution deal not a label deal. He own the music, he just pay em to get it out. [write "BULLY 2026" on the right with "GAMMA = DISTRO" below it and "HE OWNS IT" beside it] Same name on the marquee. Completely different paper. [draw two hand-drawn contracts side by side, one labeled "2007 PAPER" and one labeled "2026 PAPER" with a hand-drawn "≠" between them]
 
-**TWIST:** Same artist. Same name on the marquee. Different paper. [draw two hand-drawn contracts side by side, one labeled "2007 PAPER" and one labeled "2026 PAPER" with a hand-drawn "≠" between them] This what they dont tell you. The same album sale make the artist way more in 2026 than 2007. Not because the music change. Because the deal change. [write "MUSIC SAME / DEAL DIFFERENT" centered and circled]
+**TWIST:** This what they dont tell you. The thing that decide ya check aint how good the album sell. Its the deal you signed before anybody heard it. [write "THE DEAL > THE SALES" centered and circled]
 
-**PAYOFF:** Yo deal is what decide how much of you, you actually own. [write "YOUR DEAL = HOW MUCH OF YOU" boxed in the middle] Old paper keep the artist working for the label. [write "OLD PAPER → WORK FOR LABEL" on the left with a hand-drawn arrow] New paper let the artist work for they self. [write "NEW PAPER → WORK FOR SELF" on the right with a hand-drawn arrow, both phrases circled together inside one rough oval at the bottom]
+**PAYOFF:** So heres the gap. On Graduation, reportedly around 15 cents of a dollar came home. [write "GRADUATION = ~15¢ / $1" on the left with a hand-drawn arrow] On Bully, through a distro deal, its reportedly 50 cents or more on that same dollar. [write "BULLY = 50¢+ / $1" on the right boxed and underlined] Same album sale, more than triple the keep, and the only thing that changed was who he signed with. [write "SAME SALE, 3X THE KEEP" boxed at the bottom, both rates circled together inside one rough oval]
 
 ---
 

@@ -10,17 +10,15 @@ Link in bio to build the audience that's actually yours with CRWN. Free to start
 
 **SCRIPT:**
 
-Before The Weeknd ever signed a deal, he gave away three full projects for free.
+When The Weeknd finally signed to a major, he walked in holding one thing most artists give away to get the deal. Watch what it was.
 
 Yall rushing to get signed. He did it backwards on purpose.
 
-2011. Nobody knew his face. He drop House of Balloons free. Then Thursday, free. Then Echoes of Silence, free. Three projects, one year, zero dollars asked. Him and his people built XO to put em out themselves. By the end of that year he had a whole audience that belonged to him, not a label.
+2011. Nobody knew his face. He drop House of Balloons free. Then Thursday, free. Then Echoes of Silence, free. Three projects, one year, zero dollars asked. Him and his people put em out under their own label, XO. By the end of that year he had a whole crowd that knew his name, and Republic was calling him.
 
-Then Republic came. He signed in 2012. But he came in holding something. He kept XO. He didn't walk in begging for a chance off one buzzing song. He walked in with the crowd already his.
+Most artists walk into that room off one buzzing song and sign their label away to get in the door. The Weeknd didn't. September 2012, he signed to Republic as a joint venture and kept XO as his own. Republic distributes. He still owns the imprint his name lives on.
 
-The label didn't make The Weeknd. The free year made him. Republic just got on after the line already formed.
-
-When you bring the audience first, you sign as a partner. When you don't, you sign as a product. He spent a year making real sure he'd never be the product.
+That's the thing he carried in. Not a hit. A label of his own and a crowd that was already his. The free year aint make him broke. It made him the one holding the leverage when the major finally showed up.
 
 ---
 
@@ -37,15 +35,15 @@ When you bring the audience first, you sign as a partner. When you don't, you si
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Before The Weeknd ever signed a deal, he gave away three full projects for free. [write "3 PROJECTS. FREE. NO DEAL." in bold caps at top]
+**HOOK:** When The Weeknd finally signed to a major, he walked in holding one thing most artists give away to get the deal. [write "WHAT DID HE WALK IN HOLDING?" in bold caps at top]
 
 **FORESHADOW:** Yall rushing to get signed. He did it backwards on purpose. [draw an arrow pointing left labeled "EVERYONE" and an arrow pointing right labeled "HIM"]
 
-**RISING ACTION:** 2011. Nobody knew his face. House of Balloons, free. Thursday, free. Echoes of Silence, free. [write "2011:" then list "HOUSE OF BALLOONS -- $0", "THURSDAY -- $0", "ECHOES OF SILENCE -- $0" stacked] Him and his people built XO to put em out themselves. By the end of that year he had an audience that belonged to him. [write "XO = his" and circle it]
+**RISING ACTION:** 2011. Nobody knew his face. House of Balloons, free. Thursday, free. Echoes of Silence, free. [write "2011:" then list "HOUSE OF BALLOONS -- $0", "THURSDAY -- $0", "ECHOES OF SILENCE -- $0" stacked] Him and his people put em out under their own label, XO. By the end of that year a whole crowd knew his name. [write "XO = his" and circle it]
 
-**TWIST:** Then Republic came. He signed in 2012. But he kept XO. He walked in with the crowd already his, not begging off one song. [write "2012: SIGNED -- KEPT XO" with a checkmark]
+**TWIST:** Most artists sign their label away to get in the door. He didn't. 2012, he signed Republic as a joint venture and kept XO. Republic distributes, he still owns the imprint. [write "2012: REPUBLIC = JOINT VENTURE", "KEPT XO" with a checkmark]
 
-**PAYOFF:** The label didn't make The Weeknd. The free year made him. [write "FREE YEAR = made him" and underline it] Bring the audience first, you sign as a partner. Bring nothing, you sign as a product. [write "AUDIENCE FIRST = PARTNER" then "NOTHING FIRST = PRODUCT" right below it, circle "PARTNER"]
+**PAYOFF:** That's the thing he carried in. Not a hit. A label of his own and a crowd already his. [write "WALKED IN WITH: HIS OWN LABEL + HIS OWN CROWD" and underline it] The free year aint make him broke. It made him the one holding the leverage when the major showed up. [write "FREE YEAR = THE LEVERAGE" at the bottom, circle it]
 
 ---
 

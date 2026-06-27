@@ -10,15 +10,15 @@ Link in bio to drop music when you ready instead of waiting on a label with CRWN
 
 **SCRIPT:**
 
-This is Ari Lennox signed. This is Ari Lennox begging to be let out. Same artist. Two different feelings.
+Ari Lennox publicly begged to be released from Dreamville, said she was lied to and manipulated. So when she finally got out, was she free?
 
-Cole's label was supposed to be the good one. Wait til you hear what Ari said.
+Cole's label was supposed to be the good one. Wait til you hear how it actually ended.
 
-Ari signed to Dreamville in 2015. Made one of the best R&B projects of the decade with Shea Butter Baby. Then the rollouts slowed. The releases stalled. Fans was asking where she at for years. Ari took to live streams and socials and said she wanted out. Said she felt like the label aint pushing her music right. The same label JID called a dream got real complicated for Ari. A good owner can still run a bad rollout for the wrong artist.
+Ari dropped Shea Butter Baby, one of the best R&B projects of the decade. Then the rollouts slowed and the next moves stalled. In 2024 she went public, said not one person at the label ever knew how to market or protect her, and asked straight up to be let go. Said she just wanna be free. April 2025, she officially left Dreamville. So she won, right?
 
-This what they don't tell you. Even the best label is still a label.
+Here go the catch nobody clocked. Ari left Dreamville and was still signed to Interscope.
 
-The artist is still waiting on someone else to press the button. Yo career shouldnt depend on someone else's calendar.
+She traded one boss for the boss above it. Gettin out the small deal don't mean you own nothin. The only artist who can't get dropped is the one who never handed the keys over in the first place.
 
 ---
 
@@ -35,15 +35,15 @@ The artist is still waiting on someone else to press the button. Yo career shoul
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** This is Ari Lennox signed. [draw a stick figure on the left labeled "ARI 2015" smiling with "DREAMVILLE" written above her] This is Ari Lennox begging to be let out. [draw a stick figure on the right labeled "ARI NOW" with hands up and "LET ME OUT" in a speech bubble] Same artist. Two different feelings. [write "SAME ARTIST / TWO FEELINGS" centered between them]
+**HOOK:** Ari Lennox publicly begged to be released from Dreamville, said she was lied to and manipulated. So when she finally got out, was she free? [draw a stick figure labeled "ARI" with hands up and "RELEASE ME" in a speech bubble, with "DREAMVILLE" written above her] [write "FINALLY OUT = FREE?" centered beside her]
 
-**FORESHADOW:** Cole's label was supposed to be the good one. Wait til you hear what Ari said. [write "GOOD LABEL = ?" with a question mark]
+**FORESHADOW:** Cole's label was supposed to be the good one. Wait til you hear how it actually ended. [write "GOOD LABEL = ?" with a question mark]
 
-**RISING ACTION:** Ari signed to Dreamville in 2015. [write "ARI + DREAMVILLE = 2015" in caps] Made one of the best R&B projects of the decade with Shea Butter Baby. [draw a hand-drawn album cover labeled "SHEA BUTTER BABY" with a check mark and a star beside it] Then the rollouts slowed. The releases stalled. Fans was asking where she at for years. [draw three clocks in a row each getting bigger and label them "MONTHS", "YEARS", and "???"] Ari took to live streams and socials and said she wanted out. [draw a hand-drawn phone with a live stream icon and "LET ME OUT" written on the screen] Said she felt like the label aint pushing her music right. [write "LABEL = NOT PUSHING" with an X next to it] The same label JID called a dream got real complicated for Ari. [write "DREAM FOR JID" on the left and "MESS FOR ARI" on the right with a dividing line] A good owner can still run a bad rollout for the wrong artist. [write "GOOD OWNER / BAD ROLLOUT" in caps and underline it]
+**RISING ACTION:** Ari dropped Shea Butter Baby, one of the best R&B projects of the decade. [draw a hand-drawn album cover labeled "SHEA BUTTER BABY" with a check mark and a star beside it] Then the rollouts slowed and the next moves stalled. [draw three clocks in a row each getting bigger and label them "MONTHS", "YEARS", and "???"] In 2024 she went public, said not one person at the label ever knew how to market or protect her. [draw a hand-drawn phone with a live stream icon and "RELEASE ME" written on the screen] Asked straight up to be let go. Said she just wanna be free. [write "I JUST WANNA BE FREE" with quotes around it] April 2025, she officially left Dreamville. [write "APRIL 2025 = LEFT DREAMVILLE" in caps with a check mark] So she won, right? [write "SO SHE WON?" and underline it]
 
-**TWIST:** This what they don't tell you. Even the best label is still a label. [draw a stick figure labeled "ARTIST" reaching for a hand-drawn button with "DROP" written on it, and a wall in between labeled "LABEL"]
+**TWIST:** Here go the catch nobody clocked. Ari left Dreamville and was still signed to Interscope. [draw a stick figure labeled "ARI" stepping out one door labeled "DREAMVILLE" straight into a bigger door labeled "INTERSCOPE"]
 
-**PAYOFF:** The artist is still waiting on someone else to press the button. [write "ARTIST = WAITING" in caps with a clock next to it] Yo career shouldnt depend on someone else's calendar. [write "YOUR CAREER ≠ THEIR CALENDAR" in big bold caps at the bottom and circle it once]
+**PAYOFF:** She traded one boss for the boss above it. Gettin out the small deal don't mean you own nothin. [write "OUT THE SMALL DEAL" crossed out on the left and "STILL DON'T OWN IT" on the right with a dividing line] The only artist who can't get dropped is the one who never handed the keys over. [write "CAN'T GET DROPPED IF YOU OWN IT" in big bold caps at the bottom and circle it once]
 
 ---
 

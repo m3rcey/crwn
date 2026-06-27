@@ -10,15 +10,15 @@ Link in bio to own your voice before AI rents it with CRWN. Free to start at the
 
 **SCRIPT:**
 
-Kanye just put AI vocals on his own album. The artist asked to be removed.
+James Blake built a whole track for Kanye's Bully album. Then he asked Kanye to take his name off it. Why would the man who made it want gone?
 
-Yall thought AI was a far-off problem. Wait til you see who it hit.
+A producer doesnt usually run from a Kanye credit. So what happened here.
 
-Kanye dropped Bully in 2026. The album used AI generated vocals on tracks. James Blake worked on a song on it. When the final version came out with AI vocals on it, he asked for his name off the credits. Said it wasnt what he made. The credit page end up listing real artists next to AI. The streams pay both lanes the same. So a singer who recorded for hours and a model trained for free both show up in the splits. Real artist get fractions. The AI piece get the rest.
+Bully dropped March 2026 through Gamma. James Blake produced one of the songs. He freestyled the vocals, pitched em, built the track around em. Then the final version came out and it wasnt his. New vocal takes on top, the spirit of what he made mostly gone. Reports said AI was in the mix, Kanye went back and forth on it. Blake aint argue the deal. He just said publicly, take my name off, this aint what I created. He didnt want a credit on work that wasnt his anymore.
 
-This what they dont tell you. The label dont care which voice it is. They care that the song lands. AI fits the budget. You dont.
+This what they dont tell you. Once you hand the file over, somebody else decide what the final sound is. You can build the whole foundation and still not control what go out under it.
 
-Yo voice is the only thing AI cant copy if you own the relationship. The fan pay you because you you. The platform pay whoever fills the slot.
+Heres the part nobody clocked. Blake walked from the credit, but he still got his own fans, his own catalog, his own direct line. The name on a Kanye song he could give up. The name on his own audience nobody could take.
 
 ---
 
@@ -35,15 +35,15 @@ Yo voice is the only thing AI cant copy if you own the relationship. The fan pay
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Kanye just put AI vocals on his own album. The artist asked to be removed. [write "KANYE + AI VOCALS" in big bold caps at the top and underline twice]
+**HOOK:** James Blake built a whole track for Kanye's Bully album. Then he asked Kanye to take his name off it. Why would the man who made it want gone? [write "JAMES BLAKE → REMOVE MY NAME" in big bold caps at the top and underline twice]
 
-**FORESHADOW:** Yall thought AI was a far-off problem. Wait til you see who it hit. [write "AI = FAR OFF?" with a big question mark beside it]
+**FORESHADOW:** A producer doesnt usually run from a Kanye credit. So what happened here. [write "RUN FROM A KANYE CREDIT?" with a big question mark beside it]
 
-**RISING ACTION:** Kanye dropped Bully in 2026. The album used AI generated vocals on tracks. [write "BULLY 2026" centered with "AI VOCALS" written below it and a small robot face drawn beside it] James Blake worked on a song. AI vocals got added. He asked for his name off the credits, said it wasnt what he made. [write "JAMES BLAKE" with an arrow pointing to "REMOVE ME" boxed] The credit page list real artists next to fake voices. [draw a hand-drawn credits list with two lines: "JAMES BLAKE (REAL)" and "AI VOICE (FAKE)"] The streams pay both lanes the same. [write "STREAMS = SAME PAY" in caps and circle it] So a singer who recorded for hours and a model trained for free both show up in the splits. Real artist get fractions. The AI piece get the rest. [draw a hand-drawn pie chart split with "REAL ARTIST" on a small slice and "AI + LABEL" on the big slice]
+**RISING ACTION:** Bully dropped March 2026 through Gamma. James Blake produced one of the songs. [write "BULLY 2026" centered with "JAMES BLAKE PRODUCED" written below it] He freestyled the vocals, pitched em, built the track around em. [write "FREESTYLE → PITCHED → BUILT TRACK" listed] Then the final version came out and it wasnt his. New vocal takes on top, the spirit of what he made mostly gone. [draw two boxes side by side, one labeled "HIS VERSION" and one labeled "FINAL VERSION" with a "≠" between them] Reports said AI was in the mix, Kanye went back and forth on it. [write "AI? KANYE SAID YES THEN NO" with a question mark] Blake aint argue the deal. He just said take my name off, this aint what I created. [write "TAKE MY NAME OFF" boxed and circled]
 
-**TWIST:** This what they dont tell you. The label dont care which voice it is. They care that the song lands. AI fits the budget. You dont. [write "LABEL = SONG LANDS" then below "AI = FREE" then "YOU = $$" with the AI line circled]
+**TWIST:** This what they dont tell you. Once you hand the file over, somebody else decide what the final sound is. [write "HAND OVER THE FILE = LOSE THE FINAL" centered and circled] You can build the whole foundation and still not control what go out under it. [draw a hand-drawn house with a strong foundation labeled "YOU BUILT THIS" and the top half scribbled over labeled "SOMEBODY ELSE"]
 
-**PAYOFF:** Yo voice is the only thing AI cant copy if you own the relationship. [write "YOUR VOICE + YOUR FAN" boxed in the lower middle] The fan pay you because you you. [write "FAN PAYS U BECAUSE U" with an arrow on the left] The platform pay whoever fills the slot. [write "PLATFORM PAYS THE SLOT" with an arrow on the right, both phrases circled together inside one rough oval at the bottom]
+**PAYOFF:** Heres the part nobody clocked. Blake walked from the credit, but he still got his own fans, his own catalog, his own direct line. [write "OWN FANS + OWN CATALOG + OWN LINE" boxed in the lower middle] The name on a Kanye song he could give up. [write "KANYE CREDIT → GAVE IT UP" with an arrow on the left] The name on his own audience nobody could take. [write "HIS OWN AUDIENCE → NOBODY TAKES" with an arrow on the right, both phrases circled together inside one rough oval at the bottom]
 
 ---
 

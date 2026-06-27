@@ -10,15 +10,15 @@ Link in bio to release on the terms you set from day one with CRWN. Free to star
 
 **SCRIPT:**
 
-What does it mean to fulfill a record contract? Frank Ocean showed you live.
+Frank Ocean owed Def Jam one more album to go free. What he handed em to close that deal is the part nobody expects.
 
-Yall hear artists say they owe the label albums. Here's what that actually mean.
+Yall hear artists say they owe the label albums. A deal aint forever, it's a number.
 
-A record deal aint forever. It's a number. Most deals say you owe the label a set amount of albums. Til you deliver that number, they own what you make and they decide when it comes out. Frank owed Def Jam one more. So he made Endless. A 45-minute video, no real rollout, posted one time. It counted. The paper said one album. He gave em one album.
+Most deals say you owe a set amount of albums. Til you deliver that number, they own what you make and they decide when it comes out. Frank owed em one. The paper said one album. It didn't say it had to be a good one, or a real rollout, or even mostly music.
 
-Soon as it posted, the debt hit zero. He was free. The next day he dropped Blonde on his own and kept most of the money for the rest of his life.
+So he made Endless. A 45-minute black-and-white video of Frank quietly building a wooden staircase in a warehouse, with songs playing under it. Posted one time, no singles, no push. Def Jam took it as the album. The debt hit zero.
 
-He didn't sit around waiting for the deal to expire. He read what closed it and closed it himself. Fulfilling a contract means handing em exactly what the paper says and not one thing more. Most artists give the label their best years hoping to get let go. Frank gave em the minimum and took his career back the next morning.
+The next morning he dropped Blonde on his own and kept it for life. He didn't wait years for the deal to expire. He read the one line that closed it, gave em the cheapest thing that satisfied it, and walked out the next day owning everything that mattered.
 
 ---
 
@@ -35,15 +35,15 @@ He didn't sit around waiting for the deal to expire. He read what closed it and 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What does it mean to fulfill a record contract? Frank Ocean showed you live. [write "FULFILL THE CONTRACT = ?" in bold caps at top]
+**HOOK:** Frank Ocean owed Def Jam one more album to go free. What he handed em to close it is the part nobody expects. [write "OWED DEF JAM: 1 MORE ALBUM" in bold caps at top] [write "WHAT HE HANDED EM = ?" underneath, boxed]
 
-**FORESHADOW:** Yall hear artists say they owe the label albums. Here's what that actually mean. [draw a small stack of records labeled "OWED"]
+**FORESHADOW:** Yall hear artists say they owe the label albums. A deal aint forever, it's a number. [draw a small stack of records labeled "OWED"]
 
-**RISING ACTION:** A record deal aint forever. It's a number. [write "DEAL = A NUMBER, NOT FOREVER" centered] Most deals say you owe a set amount of albums. Til you deliver, they own what you make and they decide when it drop. Frank owed Def Jam one more. He made Endless. 45 minutes, no rollout, posted once. It counted. [write "OWED: 1" then "DELIVERED: 1 (ENDLESS)" right below it, with a checkmark]
+**RISING ACTION:** Til you deliver that number, they own what you make and decide when it drop. The paper said one album. It didn't say good, or a real rollout, or even mostly music. [write "DEAL = A NUMBER, NOT FOREVER" centered, then "PAPER SAID: 1 ALBUM" below it]
 
-**TWIST:** Soon as it posted, the debt hit zero. He was free. [write "DEBT = 0" and circle it] The next day he dropped Blonde on his own and kept most of the money for life. [draw a short arrow from "DEBT = 0" to the word "FREE" written larger]
+**TWIST:** So he made Endless. A 45-minute black-and-white video of Frank quietly building a wooden staircase in a warehouse, songs under it. Posted once, no singles. Def Jam took it as the album. [draw a small spiral staircase, label it "ENDLESS = 45 MIN OF BUILDING STAIRS"] The debt hit zero. [write "DEBT = 0" and circle it]
 
-**PAYOFF:** He didn't wait for the deal to expire. He closed it himself. [write "DON'T WAIT. CLOSE IT." and underline it] Fulfilling a contract means handing em exactly what the paper says and not one thing more. Most artists give the label their best years hoping to get let go. Frank gave em the minimum and took his career back the next morning. [write "MINIMUM GIVEN -- CAREER KEPT" at the bottom and box it]
+**PAYOFF:** The next morning he dropped Blonde on his own and kept it for life. [draw a short arrow from "DEBT = 0" to the word "FREE" written larger] He didn't wait years for the deal to expire. He read the one line that closed it, gave em the cheapest thing that satisfied it, and walked out owning everything that mattered. [write "CHEAPEST THING THAT COUNTED -- THEN GONE" at the bottom and box it]
 
 ---
 

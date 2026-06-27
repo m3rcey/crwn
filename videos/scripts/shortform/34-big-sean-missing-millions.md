@@ -10,15 +10,15 @@ Link in bio to see every dollar your fans pay you with CRWN. Free to start at th
 
 **SCRIPT:**
 
-Big Sean said millions in royalties went missing under his GOOD Music deal. The label couldnt account for em.
+Big Sean said $6 million of his money was missing under GOOD Music. So who was sittin on it? Aint who he assumed.
 
-This how they dont tell you.
+Watch how the money hide in plain sight.
 
-Sean was the biggest artist on GOOD outside of Kanye. Platinum records, hit features, sold out tours. When he asked for his money, the numbers didnt match. He said it was millions unaccounted for. Not a hundred bucks. Not a thousand. Millions. He had to lawyer up just to see what his own music made. The artist made the song. The artist sold the song. The artist had to fight to find out how much the song actually made.
+Sean was the biggest artist on GOOD outside Kanye. Platinum records, hit features, sold out tours. He said he put $30 million or more in that camp pocket. But when he went lookin for his own cut, the numbers aint add up. So he hired an auditor and started diggin. He spent hundreds of thousands of his own dollars just to find out what his music actually earned. Read that again. He paid out his own pocket to go find his own money.
 
-This what they dont tell you. Under a label deal you dont see the books. You see a statement. The statement come from the same people countin the money.
+This what they dont tell you. Under a label deal you dont get the books. You get a statement. And the statement come from the same people holdin the bag.
 
-When the fan pay direct you see every dollar the second it hit. No statement. No lawyer. Just the receipt.
+Sean thought Universal had his money all along. The audit showed it had been paid straight to GOOD Music. The money was never lost. It was just sittin on the other side of the table.
 
 ---
 
@@ -35,15 +35,15 @@ When the fan pay direct you see every dollar the second it hit. No statement. No
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Big Sean said millions in royalties went missing under his GOOD Music deal. [write "BIG SEAN" in caps at top, then "$MILLIONS MISSING" huge and circle it twice, with "GOOD MUSIC" written underneath as a label] The label couldnt account for em. [draw a simple ledger book with a question mark on the cover]
+**HOOK:** Big Sean said $6 million of his money was missing under GOOD Music. [write "BIG SEAN" in caps at top, then "$6 MILLION MISSING" huge and circle it twice, with "GOOD MUSIC" written underneath as a label] So who was sittin on it? [draw a simple ledger book with a question mark on the cover]
 
-**FORESHADOW:** This how they dont tell you. [write "BEHIND THE BOOKS ↓" in caps with a downward arrow]
+**FORESHADOW:** Watch how the money hide in plain sight. [write "BEHIND THE BOOKS ↓" in caps with a downward arrow]
 
-**RISING ACTION:** Sean was the biggest artist on GOOD outside of Kanye. Platinum records, hit features, sold out tours. [draw a small platinum record, a microphone, and a tour bus in a row each labeled below] When he asked for his money, the numbers didnt match. [write "ASKED FOR MONEY" with an arrow to "NUMBERS DIDNT MATCH" boxed] He said it was millions unaccounted for. Not a hundred bucks. Not a thousand. Millions. [write "$100? NO" "$1,000? NO" "$MILLIONS? YES" stacked in caps with check mark beside the third] He had to lawyer up just to see what his own music made. [draw a stick figure labeled "SEAN" with a briefcase labeled "LAWYER"] The artist made the song. The artist sold the song. The artist had to fight to find out how much the song actually made. [write "MADE → SOLD → FOUGHT" in big caps with arrows between]
+**RISING ACTION:** Sean was the biggest artist on GOOD outside Kanye. Platinum records, hit features, sold out tours. [draw a small platinum record, a microphone, and a tour bus in a row each labeled below] He said he put $30 million or more in that camp pocket. [write "PUT IN $30M+" boxed] But when he went lookin for his own cut, the numbers aint add up. [write "ASKED FOR HIS CUT" with an arrow to "NUMBERS DIDNT MATCH" boxed] So he hired an auditor and started diggin. He spent hundreds of thousands of his own dollars just to find out what his music actually earned. [draw a stick figure labeled "SEAN" with a briefcase labeled "AUDITOR" and "$100Ks OUT HIS POCKET" beside it] He paid out his own pocket to go find his own money. [write "PAID TO FIND HIS OWN $$$" in big caps and underline it]
 
-**TWIST:** This what they dont tell you. Under a label deal you dont see the books. You see a statement. [draw a closed book labeled "BOOKS" with a lock on it, beside a single sheet labeled "STATEMENT"] The statement come from the same people countin the money. [write "WRITER = COUNTER" with two arrows pointing at "LABEL"]
+**TWIST:** This what they dont tell you. Under a label deal you dont get the books. You get a statement. [draw a closed book labeled "BOOKS" with a lock on it, beside a single sheet labeled "STATEMENT"] And the statement come from the same people holdin the bag. [write "WRITER = HOLDER" with two arrows pointing at "LABEL"]
 
-**PAYOFF:** When the fan pay direct you see every dollar the second it hit. No statement. No lawyer. Just the receipt. [write "FAN PAY → RECEIPT" on the left, "LABEL PAY → STATEMENT" on the right at the bottom, both circled together in one oval]
+**PAYOFF:** Sean thought Universal had his money. The audit showed it went straight to GOOD Music. The money was never lost, it was sittin on the other side of the table. [write "THOUGHT: UNIVERSAL" on the left, "TRUTH: GOOD MUSIC HAD IT" on the right at the bottom, both circled together in one oval]
 
 ---
 

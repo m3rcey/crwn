@@ -10,15 +10,15 @@ Link in bio to sell direct to your fans the way Cole started with CRWN. Free to 
 
 **SCRIPT:**
 
-J. Cole just signed a Roc Nation deal worth millions. Before that, he sold CDs out his trunk.
+The man who signed J. Cole turned down his CD to his face first. Ask Jay-Z.
 
-Watch how the small move turn into the big one.
+Watch how the no turn into the deal.
 
-Cole was at NYC subway stops handing CDs to strangers. $5 a CD. No label. No playlist. No algorithm. Just him and the fan. One sale at a time. He kept doin this for years before any deal. He built a list. He built a buzz. He built a buyer before he ever built a brand. By the time Jay-Z called, Cole already had thousands of fans payin him direct. The label aint discover him. The trunk did.
+Before any label, Cole was movin his own music hand to hand. Burnin CDs, sellin em cheap, buildin a fanbase one person at a time off "The Come Up." No playlist. No algorithm. Just him and whoever would take a copy. Then he stood outside Jay-Z studio in the rain for hours holdin a beat CD, hopin for one shot. Jay pulled up, saw the CD, and said give it to one of them. Walked right past him. Didnt even use the beat. Cole went back and kept buildin his own thing anyway. A year later it aint Cole chasin Jay no more. It was Jay-Z askin to meet the kid he brushed off.
 
-This what they dont tell you. Roc Nation didnt build Cole. Cole built Cole. The label came in after the line already formed.
+This what they dont tell you. The deal didnt come cause Cole begged for it. It came cause Cole built somethin that pulled Jay back to him.
 
-Every artist signed today started with the same move Cole made. A direct sale to a real fan. The trunk was the platform. The fan was the proof.
+The same Jay-Z who waved off his CD made him the first artist on Roc Nation. The fanbase came first. The call came second.
 
 ---
 
@@ -35,15 +35,15 @@ Every artist signed today started with the same move Cole made. A direct sale to
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** J. Cole just signed a Roc Nation deal worth millions. [write "J. COLE → ROC NATION" in bold caps at the top, then "$MILLIONS" huge and circle it twice] Before that, he sold CDs out his trunk. [draw a simple car with the trunk open and CDs stacked inside, label "$5 EACH"]
+**HOOK:** The man who signed J. Cole turned down his CD to his face first. [write "J. COLE → ROC NATION" in bold caps at the top, then "TURNED DOWN FIRST" huge and circle it twice] Ask Jay-Z. [draw a stick figure labeled "JAY-Z" waving off a CD held out by a stick figure labeled "COLE"]
 
-**FORESHADOW:** Watch how the small move turn into the big one. [write "SMALL MOVE → BIG ONE" with an arrow]
+**FORESHADOW:** Watch how the no turn into the deal. [write "NO → DEAL" with an arrow]
 
 **RISING ACTION:** Cole was at NYC subway stops handing CDs to strangers. $5 a CD. [draw a simple subway sign labeled "NYC" with a stick figure handing a CD to another stick figure] No label. No playlist. No algorithm. [write "NO LABEL / NO PLAYLIST / NO ALGORITHM" stacked vertically with X marks beside each] Just him and the fan. One sale at a time. [draw two stick figures, one labeled "COLE" handing a CD to one labeled "FAN", with "$5" in between] He kept doin this for years before any deal. [write "YEARS OF HUSTLE" boxed and underlined] He built a list. He built a buzz. He built a buyer before he ever built a brand. [write "LIST → BUZZ → BUYER → BRAND" in caps with arrows] By the time Jay-Z called, Cole already had thousands of fans payin him direct. The label aint discover him. The trunk did. [write "THE TRUNK = THE LABEL" in caps and underline twice]
 
 **TWIST:** This what they dont tell you. Roc Nation didnt build Cole. Cole built Cole. [draw a stick figure labeled "COLE" with an arrow pointing up to "ROC NATION", then write "COLE BUILT COLE" boxed beside it] The label came in after the line already formed. [draw a long line of stick figures with one at the front labeled "COLE" and one at the back labeled "LABEL"]
 
-**PAYOFF:** Every artist signed today started with the same move Cole made. A direct sale to a real fan. [write "DIRECT SALE = THE START" in caps centered] The trunk was the platform. The fan was the proof. [write "TRUNK = PLATFORM" on the left and "FAN = PROOF" on the right at the bottom, both circled together in one oval]
+**PAYOFF:** The same Jay-Z who waved off his CD made him the first artist on Roc Nation. [write "JAY WAVED HIM OFF → SIGNED HIM" in caps centered] The fanbase came first. The call came second. [write "FANBASE FIRST" on the left and "CALL SECOND" on the right at the bottom, both circled together in one oval]
 
 ---
 

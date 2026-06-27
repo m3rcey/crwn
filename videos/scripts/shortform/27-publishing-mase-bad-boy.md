@@ -10,15 +10,15 @@ Link in bio to keep your publishing and own the song with CRWN. Free to start at
 
 **SCRIPT:**
 
-Has anybody ever sold 24 years of they own songs for $20,000? Want to see who?
+In 1996 Mase signed his publishing to Bad Boy for one check. How much was that check for the songs he wrote his whole career? Twenty thousand dollars.
 
-Mase signed his publishing to Bad Boy and said he got $20K total. Watch what that mean.
+Publishing is the money the song itself make, separate from the recording. So what does $20K really cost over time.
 
-Publishing is the money the song itself make. Anytime ya song play on radio, in a movie, on a sample, that check go to whoever own the publishing. Mase made hits like "Mo Money Mo Problems" in the late 90s. Diddy and Bad Boy held his publishing for 24 years. Mase said his total upfront was $20,000. The songs make millions every year in licensing. Mase aint see most of it.
+Anytime ya song play on the radio, in a movie, in a sample, the publishing check go to whoever own it. Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good" in the late 90s, songs that licensed for decades. He signed all that over for a one-time $20,000 in 1996. Bad Boy held it. Years later Mase said he tried to buy it back, and the offer on the table to repurchase his own catalog was reportedly around 2 million dollars.
 
-This what they dont tell you. The masters is the recording. The publishing is the song. The label want both. They give you a small check up front and keep the engine that print money for 24 years.
+This what they dont tell you. The masters is the recording. The publishing is the song itself. The small upfront check feel like the win in the moment. The song keep earning long after the check is spent.
 
-If you write it you own it. The check on the song is bigger than the check on the play.
+Heres the turn nobody expects. After 24 years, Diddy gave the Bad Boy writers their publishing back in 2023, Mase included. The $20,000 song catalog he signed away in his 20s, he was sitting on it again in his 40s. The check was small. The thing he signed away was worth fighting two decades to get back.
 
 ---
 
@@ -35,15 +35,15 @@ If you write it you own it. The check on the song is bigger than the check on th
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Has anybody ever sold 24 years of they own songs for $20,000? Want to see who? [write "$20,000 FOR 24 YEARS" in big bold caps at the top and underline twice]
+**HOOK:** In 1996 Mase signed his publishing to Bad Boy for one check. How much was that check for the songs he wrote his whole career? [write "MASE SIGNED HIS PUBLISHING, 1996" big and "ONE CHECK = ?" below it] Twenty thousand dollars. [write "$20,000" boxed and underlined twice]
 
-**FORESHADOW:** Mase signed his publishing to Bad Boy and said he got $20K total. Watch what that mean. [write "MASE → BAD BOY" with a hand-drawn arrow then a question mark]
+**FORESHADOW:** Publishing is the money the song itself make, separate from the recording. So what does $20K really cost over time. [write "WHAT DOES $20K COST?" with a question mark]
 
-**RISING ACTION:** Publishing is the money the song itself make. [write "PUBLISHING = THE SONG" boxed] Anytime ya song play on radio, in a movie, on a sample, that check go to whoever own the publishing. [draw three small icons: a radio, a movie clapboard, and a turntable, each with "$" beside it] Mase made hits like "Mo Money Mo Problems" and "Feel So Good" in the late 90s. [write "HITS: MO MONEY MO PROBLEMS / FEEL SO GOOD" listed below] Diddy and Bad Boy held his publishing rights for 24 years. [write "BAD BOY HELD 24 YEARS" with a hand-drawn calendar and a long arrow] Mase said his total upfront for all of it was $20,000. [write "MASE PAID = $20,000" boxed and circled] The songs make millions every year in licensing. Mase aint see most of it. [draw a hand-drawn pie chart with a tiny slice labeled "MASE" and a huge slice labeled "BAD BOY"]
+**RISING ACTION:** Anytime ya song play on radio, in a movie, in a sample, the publishing check go to whoever own it. [draw three small icons: a radio, a movie clapboard, and a turntable, each with "$" beside it] Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good," songs that licensed for decades. [write "MO MONEY MO PROBLEMS / FEEL SO GOOD" listed below] He signed all that over for a one-time $20,000 in 1996. [write "ALL OF IT → $20,000" with an arrow] Bad Boy held it. Years later Mase said he tried to buy it back, and the offer to repurchase his own catalog was reportedly around 2 million dollars. [write "BUY IT BACK = ~$2,000,000?" boxed and circled]
 
-**TWIST:** This what they dont tell you. The masters is the recording. The publishing is the song. The label want both. [write "MASTERS = RECORDING" on the left and "PUBLISHING = SONG" on the right with "LABEL WANTS BOTH" written below and arrows pointing to both] They give you a small check up front and keep the engine that print money for 24 years. [draw a hand-drawn printing press with dollar signs flying out, labeled "24 YR ENGINE"]
+**TWIST:** This what they dont tell you. The masters is the recording. The publishing is the song itself. [write "MASTERS = RECORDING" on the left and "PUBLISHING = SONG" on the right] The small upfront check feel like the win in the moment. The song keep earning long after the check is spent. [write "SMALL CHECK NOW / SONG EARNS FOREVER" centered and circled]
 
-**PAYOFF:** If you write it you own it. [write "WRITE IT = OWN IT" boxed in the middle and underlined] The check on the song is bigger than the check on the play. [write "SONG CHECK > PLAY CHECK" boxed at the very bottom and circle the whole line]
+**PAYOFF:** Heres the turn nobody expects. After 24 years, Diddy gave the Bad Boy writers their publishing back in 2023, Mase included. [write "2023: GOT IT BACK AFTER 24 YEARS" boxed in the middle and underlined] The $20,000 catalog he signed away in his 20s, he was sitting on it again in his 40s. [write "$20K IN HIS 20s → OWNS IT IN HIS 40s" on the left with an arrow] The check was small. The thing he signed away was worth fighting two decades to get back. [write "SMALL CHECK" on the left and "20 YR FIGHT TO GET IT BACK" on the right, both circled together inside one rough oval at the bottom]
 
 ---
 

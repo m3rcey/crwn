@@ -10,15 +10,15 @@ Link in bio to keep the bigger share of what you sell with CRWN. Free to start a
 
 **SCRIPT:**
 
-50 Cent's first album sold 872,000 copies in one week. It went on to move 12 million worldwide. Watch who kept the bigger share.
+50 Cent's debut sold 872,000 copies in one week and 12 million worldwide. Count how many companies got paid off that album before 50 did.
 
-Yall see "best selling album of the year" and think the artist got rich off the records. The records made other people rich first.
+Yall see "biggest album of the year" and think the artist got rich off it. Look at who got paid first.
 
-Get Rich or Die Tryin', February 2003. Number 1. Biggest album of the year. But look at the names on it. Shady Records. Aftermath. Interscope. Three companies in line in front of 50 on his own debut. The artist who made it is last to eat. After recording costs, videos, marketing, all charged back to him, the label keeps the bigger share of every copy and he keeps the small slice that's left.
+Get Rich or Die Tryin', February 2003. Number 1. Look at the labels stacked on the cover. Shady Records. Aftermath. Interscope. That's three companies sitting in line ahead of him on his own debut. And it's worse than the split. Every dollar Interscope spent on his recording, his videos, his marketing, gets charged back and pulled out of 50's slice first, before he sees a cent. They spend it, he repays it.
 
-12 million records and the man is still splitting his own catalog four ways.
+So count it up. Three logos take their cut, then the costs come off what's left, and the man who made the album eats fourth. 12 million records and 50 is the fourth one to the register on his own song.
 
-Big sales is real. They just don't mean a big check when three logos cash before you do. The records broke records. The deal decided who actually got paid off em.
+Big sales is real. They just don't mean a big check when you the last name in a line of four on your own album cover.
 
 ---
 
@@ -35,15 +35,15 @@ Big sales is real. They just don't mean a big check when three logos cash before
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** 50 Cent's first album sold 872,000 copies in one week. 12 million worldwide. [write "WK 1: 872,000" then "WORLDWIDE: 12,000,000" stacked at top]
+**HOOK:** 50 Cent's debut sold 872,000 copies in one week, 12 million worldwide. Count how many companies got paid before 50 did. [write "WK 1: 872,000" then "WORLDWIDE: 12,000,000" stacked at top] [write "PAID BEFORE 50 = ?" boxed]
 
-**FORESHADOW:** Yall think the artist got rich off the records. The records made other people rich first. [draw a line of three small money bags with a tiny stick figure at the very end]
+**FORESHADOW:** Yall think the artist got rich off it. Look at who got paid first. [draw a line of three small money bags with a tiny stick figure at the very end]
 
-**RISING ACTION:** Get Rich or Die Tryin', 2003. Number 1. Biggest album of the year. But look at the names on it. [write "ON THE ALBUM:" then list "SHADY", "AFTERMATH", "INTERSCOPE", "50 -- last" with the first three boxed and "50 -- last" circled at the bottom] Three companies in line in front of 50 on his own debut.
+**RISING ACTION:** Get Rich or Die Tryin', 2003. Number 1. Look at the labels stacked on the cover. Shady. Aftermath. Interscope. Three companies in line ahead of him on his own debut. [write "ON THE COVER:" then list "SHADY", "AFTERMATH", "INTERSCOPE" boxed]
 
-**TWIST:** After recording, videos, marketing all charged back to him, the label keeps the bigger share of every copy. He keeps the small slice that's left. [write "EVERY COPY:" then "LABEL = bigger share" on the left, "50 = small slice" on the right, with an arrow showing costs subtracted from the 50 side]
+**TWIST:** And it's worse than the split. Every dollar Interscope spent on recording, videos, marketing gets charged back and pulled from 50's slice first. They spend it, he repays it. [write "COSTS (recording/videos/marketing)" with an arrow pulling out of "50's slice"]
 
-**PAYOFF:** 12 million records and the man is still splitting his own catalog four ways. Big sales don't mean a big check when three logos cash before you do. [write "BIG SALES =/= BIG CHECK" and underline it twice] The records broke records. The deal decided who got paid. [write "THE DEAL DECIDES WHO EATS" at the bottom, circled]
+**PAYOFF:** Three logos take their cut, costs come off what's left, and the man who made it eats fourth. 12 million records and 50 is fourth to the register on his own song. [write "50 = 4th TO THE REGISTER" and underline it twice] Big sales don't mean a big check when you the last name in a line of four on your own cover. [write "LAST NAME IN A LINE OF FOUR" at the bottom, circled]
 
 ---
 

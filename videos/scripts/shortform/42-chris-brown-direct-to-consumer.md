@@ -10,7 +10,7 @@ Link in bio to open the shop your fans walk to with CRWN. Free to start at thecr
 
 **SCRIPT:**
 
-Chris Brown just dropped a $55 vinyl direct on his own website. The same album already on every streamin service. So why he sellin direct AND lettin Spotify stream it? Wait til you see the math. Spotify pay about 3 cents for every 10 streams. That vinyl on his shop? $55. One direct sale equal 18,000 streams worth of money. That's right. Eighteen thousand. Now think about 10,000 fans buyin one. That's 180 million streams worth of money from one product. Now here's what they aint tellin you. Chris Brown still on RCA. The streams still go to the label. But the vinyl? The shop? That's his. The label dont touch it. Spotify dont touch it. He get the whole bag from the direct sale. Streamin aint the business no more. Streamin the ad. The shop is the business. Yea the label still gon collect what Spotify pays em. But the fans walkin to the shop? The label aint in that room.
+Chris Brown put his new album on every streaming service AND sold a $55 vinyl direct on his own site, brown.live. Same album, two doors. So which door actually pays him? Wait til you see the gap. Streaming pays roughly a few cents for every ten plays, and before he sees a dime of that, RCA takes the label split first. So on the streaming side Chris Brown is splittin pennies. Now flip to the vinyl. He still on RCA. The streams still flow to the label. But the shop on brown.live? RCA don't touch it. Spotify don't touch it. So watch the real number. To match what he keeps off one $55 direct sale, that same fan would have to stream the album somewhere around eighteen thousand times. Eighteen thousand plays to equal one sale he could've just made at the door.
 
 ---
 
@@ -27,15 +27,15 @@ Chris Brown just dropped a $55 vinyl direct on his own website. The same album a
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Chris Brown just dropped a $55 vinyl direct on his own website. [draw a stick figure with a smiley face at the top center labeled "CB". Draw an arrow from CB going to the lower-right to a hand-drawn vinyl record labeled "BROWN.LIVE" with "$55" written on the vinyl] The same album already on every streamin service. [draw an arrow from CB going to the lower-left to a box labeled "SPOTIFY" with a small arrow continuing from SPOTIFY to another box labeled "RCA"]
+**HOOK:** Chris Brown put his new album on every streaming service AND sold a $55 vinyl direct on his own site, brown.live. [draw a stick figure with a smiley face at the top center labeled "CB". Draw an arrow from CB going to the lower-right to a hand-drawn vinyl record labeled "BROWN.LIVE" with "$55" written on the vinyl, and an arrow from CB going to the lower-left to a box labeled "SPOTIFY" with a small arrow continuing from SPOTIFY to another box labeled "RCA"] Same album, two doors. So which door actually pays him? [write "WHICH DOOR PAYS?" in large caps with a question mark, circled, between the two arrows]
 
-**FORESHADOW:** So why he sellin direct AND lettin Spotify stream it? Wait til you see the math. [write "BOTH AT ONCE?" in large caps with a question mark, circled, between the two arrows]
+**FORESHADOW:** Wait til you see the gap. [write "THE GAP = ?" in caps with a question mark]
 
-**RISING ACTION:** Spotify pay about 3 cents for every 10 streams. [write "STREAM = 3¢ / 10 PLAYS" in bold caps on the middle-left] That vinyl on his shop? $55. [write "VINYL = $55" in bold caps on the middle-right with a box around it] One direct sale equal 18,000 streams worth of money. That's right. Eighteen thousand. [write "1 VINYL = 18,000 STREAMS" in bold caps below center, with the number underlined] Now think about 10,000 fans buyin one. That's 180 million streams worth of money from one product. [write "10,000 FANS = 180 MILLION STREAMS" in bold caps below the previous line, with the number circled]
+**RISING ACTION:** Streaming pays roughly a few cents for every ten plays, and before he sees a dime, RCA takes the label split first. So on the streaming side Chris Brown is splittin pennies. [write "STREAM = PENNIES (AFTER RCA)" in bold caps on the middle-left] Now flip to the vinyl. He still on RCA. The streams still flow to the label. [draw a small column labeled "STREAMING" with an arrow pointing to a box labeled "LABEL"] But the shop on brown.live? RCA don't touch it. Spotify don't touch it. [draw a small column labeled "SHOP" with an arrow pointing to a box labeled "ARTIST" and "$55 KEPT" written under it]
 
-**TWIST:** Now here's what they aint tellin you. Chris Brown still on RCA. The streams still go to the label. [draw a small column on the bottom-left labeled "STREAMING" with an arrow pointing to a box labeled "LABEL"] But the vinyl? The shop? That's his. The label dont touch it. Spotify dont touch it. He get the whole bag from the direct sale. [draw a small column on the bottom-right labeled "SHOP" with an arrow pointing to a box labeled "ARTIST"]
+**TWIST:** So watch the real number. To match what he keeps off one $55 direct sale, that same fan would have to stream the album somewhere around eighteen thousand times. [write "1 SALE = ~18,000 STREAMS" in bold caps with "18,000" underlined heavy]
 
-**PAYOFF:** Streamin aint the business no more. Streamin the ad. The shop is the business. [write "STREAMING = AD" on one line and "SHOP = BUSINESS" on the next line, with both in bold caps and the equals signs aligned] Yea the label still gon collect what Spotify pays em. But the fans walkin to the shop? The label aint in that room. [write "THE LABEL AINT IN THAT ROOM" in very large bold caps at the very bottom of the page with a heavy underline]
+**PAYOFF:** Eighteen thousand plays to equal one sale he could've just made at the door. [write "18,000 PLAYS = 1 SALE AT THE DOOR" in very large bold caps at the very bottom of the page with a heavy underline]
 
 ---
 
