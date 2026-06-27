@@ -10,15 +10,15 @@ Link in bio to keep your own label and just rent the reach with CRWN. Free to st
 
 **SCRIPT:**
 
-Burna Boy works with Atlantic, one of the biggest labels in the world. He still owns his own label. That order is the whole lesson. Watch it.
+Burna Boy works with Atlantic but he kept his own label out front of the deal. The size of what that order let him pull off in London is the part to sit with.
 
-Yall think working with a major means you belong to the major. Burna Boy built it so the major works for him.
+Yall think working with a major means you belong to the major. Burna built it so the major works for him.
 
-2015. Burna Boy starts Spaceship in Nigeria. His own label. It sits inside a bigger thing his mother and manager built called the Spaceship Collective, and that Collective got one stated job: helping African artists keep creative control and own their catalogs. Ownership first, on purpose, from the start.
+2015. Burna starts Spaceship in Nigeria, his own label. It sits inside a bigger thing his mother and manager built, the Spaceship Collective, with one stated job: helping African artists keep creative control and own their catalogs. Ownership first, on purpose.
 
-Then he partners with Atlantic in the US and Warner internationally. But look at the order. The albums come out through Spaceship in partnership with Atlantic. His label is the front of the deal. The major is the reach he plugged into, not the owner he answered to.
+Then he partners with Atlantic in the US and Warner internationally. But peep the order. Albums come out through Spaceship in partnership with Atlantic. His label is the front of the deal. The major is the reach he plugged into, not the owner he answered to.
 
-Most artists sign to the major and hope to start a label someday. He started the label, then let the major in on his terms. Same major. Opposite power. Build the house first, then let the big company rent a room.
+So in 2023, off his own label out front, he became the first African artist to sell out London Stadium. 80,000 seats. By himself, no warm-up act. He aint do it from under a major. He did it with the major renting space in his house.
 
 ---
 
@@ -35,7 +35,7 @@ Most artists sign to the major and hope to start a label someday. He started the
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Burna Boy works with Atlantic, one of the biggest labels alive. He still owns his own label. [write "WORKS WITH: ATLANTIC" at top, then "OWNS: HIS OWN LABEL" below it]
+**HOOK:** Burna Boy works with Atlantic but kept his own label out front of the deal. The size of what that order let him pull off in London is the part to sit with. [write "WORKS WITH: ATLANTIC" at top, then "OWNS: HIS OWN LABEL" then "→ LONDON: ???"]
 
 **FORESHADOW:** Yall think working with a major means you belong to it. He built it so the major works for him. [draw two arrows: "MAJOR → owns artist" crossed out, "ARTIST ← major works for" circled]
 
@@ -43,7 +43,7 @@ Most artists sign to the major and hope to start a label someday. He started the
 
 **TWIST:** He partners with Atlantic in the US, Warner internationally. But the albums come out through Spaceship in partnership with Atlantic. His label is the front. The major is the reach he plugged in. [write "RELEASE = SPACESHIP + Atlantic" with "SPACESHIP" boxed and bigger]
 
-**PAYOFF:** Most artists sign to the major and hope to start a label someday. He started the label, then let the major in on his terms. [write "MOST: sign first, label maybe later" then "HIM: label first, major in on his terms"] Build the house first, then let the big company rent a room. [write "BUILD THE HOUSE -- RENT THEM A ROOM" at the bottom and underline it twice]
+**PAYOFF:** So in 2023, off his own label out front, he became the first African artist to sell out London Stadium. 80,000 seats, by himself, no warm-up act. [write "2023: 1st AFRICAN ARTIST TO SELL OUT LONDON STADIUM -- 80,000" and circle "80,000"] He aint do it from under a major. He did it with the major renting space in his house. [write "NOT under a major -- the major rented his house" at the bottom and underline it twice]
 
 ---
 

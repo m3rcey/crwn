@@ -10,17 +10,15 @@ Link in bio to own it from day one so there's nothing to buy back with CRWN. Fre
 
 **SCRIPT:**
 
-Snoop bought Death Row back in 2022. Nobody will tell you what it cost him. That silence is the lesson.
+Snoop bought Death Row back in 2022. Try to find what he paid for it. You can't, and there's a reason they hid it.
 
-Yall think buyback got a price tag you can plan for. It don't even get printed.
+Yall think a buyback got a price tag you can save up for. It don't even get printed. Watch.
 
-When Snoop bought the label holding his own catalog, the terms were never disclosed. Not by Snoop. Not by the private equity firm that had it. The number is sealed. Every big buyback works like that. The selling price of giving your music away is loud. The price of getting it back is a secret nobody outside the room ever sees.
+When Snoop bought the label holding his own catalog, the terms were never disclosed. Not by Snoop. Not by the private equity firm that had it. Sealed. Every big buyback works like that. The price of giving your music away gets announced loud. The price of getting it back, nobody outside that room ever sees.
 
-Think about what that means. You can't budget for it. You can't save up the right amount, because they won't say the amount. The only number you ever really know is what you gave it up for as a kid.
+So you can't plan for it. You can't save the right amount, because they won't say the amount. It's a number with a black bar over it.
 
-Here's the part that should stick. The cost of owning your music day one is zero. The cost of buying it back is a sealed number, paid decades later, only after somebody else got rich off it first.
-
-You only find out the real price when it's too late to choose the cheap one.
+But here's the one number that does get printed. It's the deal you sign as a broke kid. That's the only price they let you see, and it's the cheapest one you'll ever be offered, on the way in, before anybody else gets rich off you first.
 
 ---
 
@@ -37,15 +35,15 @@ You only find out the real price when it's too late to choose the cheap one.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Snoop bought Death Row back in 2022. Nobody will tell you what it cost. [write "BUYBACK PRICE: ?" in bold caps at top, draw a thick black box around the "?" like it's redacted]
+**HOOK:** Snoop bought Death Row back in 2022. Try to find what he paid. You can't, and there's a reason they hid it. [write "BUYBACK PRICE: ?" in bold caps at top, draw a thick black box around the "?" like it's redacted]
 
-**FORESHADOW:** Yall think buyback got a price tag you can plan for. It don't even get printed. [draw a price tag shape with a question mark on it]
+**FORESHADOW:** Yall think a buyback got a price tag you can save up for. It don't even get printed. [draw a price tag shape with a question mark on it]
 
-**RISING ACTION:** Terms never disclosed. Not by Snoop. Not by the firm that had it. Every big buyback works like that. [write "SNOOP: no number" and "THE FIRM: no number" stacked] The price of giving your music away is loud. The price of getting it back is a secret. [write "GAVE IT UP = loud" then "GOT IT BACK = sealed" below it, draw a small lock on the word "sealed"]
+**RISING ACTION:** Terms never disclosed. Not by Snoop. Not by the firm that had it. Every big buyback works like that. [write "SNOOP: no number" and "THE FIRM: no number" stacked] The price of giving your music away gets announced loud. The price of getting it back, nobody outside that room sees. [write "GAVE IT UP = loud" then "GOT IT BACK = sealed" below it, draw a small lock on the word "sealed"]
 
-**TWIST:** You can't budget for it. You can't save the right amount, because they won't say the amount. The only number you ever really know is what you gave it up for as a kid. [write "ONLY KNOWN NUMBER = what you signed away young" and underline it]
+**TWIST:** So you can't plan for it. You can't save the right amount, because they won't say the amount. It's a number with a black bar over it. [write "CAN'T BUDGET FOR A SEALED NUMBER" and underline it]
 
-**PAYOFF:** Owning it day one costs zero. Buying it back is a sealed number, decades later, after somebody else got rich first. [write "DAY 1 = $0" on the left, "BUY BACK = ?, decades late" on the right] You only find out the real price when it's too late to choose the cheap one. [write "YOU LEARN THE PRICE TOO LATE TO PICK $0" at the bottom and underline it twice]
+**PAYOFF:** But here's the one number that does get printed. It's the deal you sign as a broke kid. [write "ONLY VISIBLE PRICE = the day-one deal you sign young" and box it] That's the only price they let you see, and it's the cheapest one you'll ever be offered, on the way in, before anybody else gets rich off you first. [write "THE CHEAPEST PRICE IS THE ONLY ONE THEY SHOW YOU" at the bottom and underline it twice]
 
 ---
 

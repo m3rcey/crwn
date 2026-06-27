@@ -10,15 +10,15 @@ Link in bio to reach fans without handing over the asset with CRWN. Free to star
 
 **SCRIPT:**
 
-Tech N9ne sells millions and isn't signed to a label. He pays a distributor instead. That one word is the whole difference. Let me break the math.
+Tech N9ne aint signed to a label, he pays a distributor instead, and Forbes once clocked his year-earnings way higher than you'd guess for an indie. Watch where that money actually came from.
 
 Yall hear "deal" and think it's all the same trap. A distribution deal and a record deal are not the same animal.
 
-Strange Music makes the music and owns it. To get it in every store and on every app, they pay a distribution company to move it. The distributor takes a cut to handle the pipes. Then the rest comes back to Strange Music. Tech and his label keep the big share and own the recordings forever.
+Strange Music makes the music and owns it. To get it in every store and on every app, they pay a distribution company to move it. The distributor takes a cut to handle the pipes. The rest comes back. Tech and his label keep the big share and own the recordings forever.
 
 Now the record deal. The label fronts money, but they own the masters, they keep the bigger share, and you gotta recoup before you see real money. Different animal entirely.
 
-Here's the clean version. Distributor: you own it, you pay them a fee to ship it, you keep most. Label: they own it, they front you, they keep most. One is a vendor you hire. The other is a landlord you rent from. Tech hired the vendor. Most artists signed the lease.
+So Forbes puts him on the Hip-Hop Cash Kings list at 8 and a half million in one year. Here's the kicker. Barely any of that was album sales. It was tour and merch, money the label would've been first in line for. The distributor just shipped his files for a fee and never touched the rest.
 
 ---
 
@@ -35,7 +35,7 @@ Here's the clean version. Distributor: you own it, you pay them a fee to ship it
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Tech N9ne sells millions and isn't signed to a label. He pays a distributor instead. [write "NOT SIGNED -- PAYS A DISTRIBUTOR" at top]
+**HOOK:** Tech N9ne aint signed to a label, he pays a distributor instead, and Forbes clocked his year way higher than you'd guess for an indie. [write "NOT SIGNED -- PAYS A DISTRIBUTOR" at top, then "Forbes $$$ ???" below it]
 
 **FORESHADOW:** Yall hear "deal" and think it's all the same trap. It's two different animals. [draw two simple boxes labeled "DISTRO" and "RECORD DEAL"]
 
@@ -43,7 +43,7 @@ Here's the clean version. Distributor: you own it, you pay them a fee to ship it
 
 **TWIST:** The record deal. The label fronts money, owns the masters, keeps the bigger share, and you recoup before you see real money. [write "RECORD DEAL: label fronts → owns masters → keeps bigger share → you recoup first"]
 
-**PAYOFF:** Distributor: you own it, pay a fee to ship it, keep most. Label: they own it, they front you, they keep most. [write "DISTRO = you own, pay a fee" then "LABEL = they own, you owe" below it] One is a vendor you hire. The other is a landlord you rent from. [write "VENDOR YOU HIRE vs LANDLORD YOU RENT" at the bottom, circle "VENDOR YOU HIRE"]
+**PAYOFF:** So Forbes puts him on the Hip-Hop Cash Kings list at 8 and a half million in a year. The kicker: barely any of it was album sales. It was tour and merch, the money a label would've been first in line for. [write "FORBES: $8.5M IN A YEAR" then "barely any from album sales" below it] The distributor just shipped his files for a fee and never touched the rest. [write "DISTRIBUTOR SHIPPED THE FILES, TOUCHED NONE OF THE REST" at the bottom, circle it]
 
 ---
 

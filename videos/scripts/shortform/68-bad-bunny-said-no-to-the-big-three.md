@@ -10,15 +10,15 @@ Link in bio to grow on your own label instead of theirs with CRWN. Free to start
 
 **SCRIPT:**
 
-Universal, Sony, and Warner all chased Bad Bunny. He told all three no and stayed on a label nobody had heard of. Watch why that was the move.
+Sony chased Bad Bunny for years and he told em no every time. So watch what Sony came back asking him for instead.
 
-Yall think a major chasing you is the dream. Sometimes the dream is being able to say no and mean it.
+Yall think a major chasing you is the dream. The flip on this one is the real dream.
 
-2016. A manager named Noah Assad signs Bad Bunny to Rimas, a small independent he was building. Debut album, 2018, comes out on Rimas. Not a major. Over the years the big three kept courting both of them hard. The answer kept being no. He stayed independent the entire run, even as he turned into one of the biggest artists alive.
+2016. Manager Noah Assad signs Bad Bunny to Rimas, a small independent he was building. 2018 debut drops on Rimas, not a major. The big three kept courting hard. The answer kept being no. He stayed independent the entire run, even as he turned into one of the biggest artists alive.
 
-Here's the part that should land. Saying no to a major is only possible if you don't need one. He didn't, because Rimas already did the job and he wasn't owned by anybody.
+So Sony stopped trying to sign him. They went a different way. As of 2025, Sony been reported in talks to buy a stake in Rimas itself, the independent company he said no to.
 
-Most artists can't say no because they got nothing of their own to stand on. He built the thing he could stand on first. Then the offers became something he could turn down, not something he had to take.
+Read that again. He turned down being signed by the major. Now the major's tryna buy a piece of the thing he built instead. You say no long enough from something real, and they stop asking to own you. They start asking to buy in.
 
 ---
 
@@ -35,15 +35,15 @@ Most artists can't say no because they got nothing of their own to stand on. He 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Universal, Sony, and Warner all chased Bad Bunny. He told all three no. [write "UMG / SONY / WARNER → chased him" at top, then "ANSWER: NO" below it]
+**HOOK:** Sony chased Bad Bunny for years and he told em no every time. Watch what Sony came back asking him for instead. [write "SONY → chased him" at top, then "ANSWER: NO" below it, then "...THEN?" below that]
 
-**FORESHADOW:** Yall think a major chasing you is the dream. Sometimes the dream is saying no and meaning it. [draw a phone ringing with a hand pushing it away]
+**FORESHADOW:** Yall think a major chasing you is the dream. The flip on this one is the real dream. [draw a phone ringing with a hand pushing it away]
 
 **RISING ACTION:** 2016. Manager Noah Assad signs him to Rimas, a small independent. 2018 debut, on Rimas, not a major. The big three kept courting. The answer kept being no. [write "2016: RIMAS (indie)" then "2018: DEBUT on RIMAS" then "BIG 3: kept asking -- still NO"]
 
-**TWIST:** Saying no to a major is only possible if you don't need one. He didn't, because Rimas did the job and he wasn't owned by anybody. [write "CAN SAY NO = DON'T NEED THEM" and underline it]
+**TWIST:** So Sony stopped trying to sign him and went a different way. As of 2025, Sony been reported in talks to buy a stake in Rimas itself, the company he said no to. [write "2025: SONY in talks to BUY INTO RIMAS" and underline it]
 
-**PAYOFF:** Most artists can't say no because they got nothing of their own to stand on. He built that first. [draw a small figure standing on a solid block labeled "HIS OWN", versus a figure with no block reaching up for "MAJOR"] Then the offers became something he could turn down, not something he had to take. [write "BUILD YOURS FIRST → OFFERS BECOME OPTIONAL" at the bottom and circle it]
+**PAYOFF:** He turned down being signed by the major. Now the major's tryna buy a piece of what he built instead. [draw a small figure on a block labeled "HIS OWN" with a big "SONY" figure reaching up to buy in] You say no long enough from something real, and they stop asking to own you. They start asking to buy in. [write "SAY NO FROM SOMETHING REAL → THEY ASK TO BUY IN" at the bottom and circle it]
 
 ---
 

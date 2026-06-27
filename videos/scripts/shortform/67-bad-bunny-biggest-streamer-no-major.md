@@ -10,15 +10,15 @@ Link in bio to grow huge without handing it to a major with CRWN. Free to start 
 
 **SCRIPT:**
 
-Bad Bunny was Spotify's most-streamed artist on the whole planet. Three years in a row. He never signed to a major label. Watch what that proves.
+Bad Bunny been Spotify's most-streamed artist on the planet four times, and he never signed a major. So how much of every streaming dollar he actually keeps is the part nobody guesses.
 
-Yall been told the majors are the only road to the top. The biggest streaming artist alive took a different one.
+Yall been told the majors are the only road, and the road is where the money lives. Hold that thought.
 
-Spotify's number 1 global artist, 2020, 2021, 2022. Then again in 2025. The first artist who doesn't even sing in English to ever top that list. Universal didn't do that. Sony didn't do that. Warner didn't do that. His whole career, every album, runs through Rimas. An independent company built by his own team, not one of the big three.
+Spotify's number 1 global artist, 2020, 2021, 2022, then again in 2025. First artist not even singing in English to top that list. Universal aint do that. Sony aint do that. Warner aint do that. His whole run goes through Rimas, an independent his own team built, and he became a co-owner of it.
 
-Read that again. The most-streamed human on the biggest platform on earth is independent. Not signed up under a major. His side.
+Now here go the cut. A major artist usually sees around 15 cents on a streaming dollar, sometimes less. The rest goes up the chain.
 
-That breaks the story you been sold. The top isn't a place only a major can take you. He proved the ceiling everybody warned you about doesn't exist. You don't need their logo to be the biggest in the world. You need the music and a team that's actually yours.
+Bad Bunny's setup been reported as a 90/10. His side keeps about 90 cents of that same dollar, not 15. The biggest streamer alive aint just bigger than the major artists. He's keeping six times more of every dollar he earns.
 
 ---
 
@@ -35,15 +35,15 @@ That breaks the story you been sold. The top isn't a place only a major can take
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Bad Bunny was Spotify's most-streamed artist on the whole planet. Three years in a row. No major label. [write "SPOTIFY #1 GLOBAL: '20 '21 '22" at top, then "MAJOR: NONE" below it]
+**HOOK:** Bad Bunny been Spotify's most-streamed artist on the planet four times, and he never signed a major. How much of every streaming dollar he keeps is the part nobody guesses. [write "SPOTIFY #1 GLOBAL x4" at top, then "HIS CUT = ???" below it]
 
-**FORESHADOW:** Yall told the majors are the only road to the top. The biggest streamer alive took another one. [draw two roads splitting, one labeled "MAJOR", one labeled "HIM"]
+**FORESHADOW:** Yall told the majors are the only road, and the road is where the money lives. Hold that thought. [draw a dollar sign with a question mark over it]
 
-**RISING ACTION:** Number 1 global artist 2020, 2021, 2022. Again in 2025. First artist not even singing in English to top that list. [write "1st NON-ENGLISH #1 EVER" and underline it] Universal didn't do it. Sony didn't. Warner didn't. [write "UMG / SONY / WARNER" each crossed out]
+**RISING ACTION:** Number 1 global artist 2020, 2021, 2022, again in 2025. First artist not even singing in English to top that list. Universal aint do it. Sony aint do it. Warner aint do it. His run goes through Rimas, an independent his team built, and he co-owns it. [write "1st NON-ENGLISH #1 EVER" underlined, then "ALL → RIMAS (he co-owns)" boxed]
 
-**TWIST:** His whole career runs through Rimas. An independent company built by his own team. The most-streamed human on the biggest platform is independent. [write "ALL OF IT → RIMAS (independent, his team)" and box it]
+**TWIST:** A major artist usually sees around 15 cents on a streaming dollar, sometimes less. The rest goes up the chain. [write "MAJOR ARTIST: ~15c / $1" then draw most of a dollar leaving]
 
-**PAYOFF:** That breaks the story you been sold. The top isn't a place only a major can take you. [write "THE 'MAJOR-ONLY CEILING' = MYTH" and underline it twice] You don't need their logo to be the biggest in the world. You need the music and a team that's actually yours. [write "NO LOGO NEEDED -- JUST MUSIC + YOUR TEAM" at the bottom and circle it]
+**PAYOFF:** His setup been reported as a 90/10. His side keeps about 90 cents of that same dollar, not 15. [write "HIM: ~90c / $1 (reported)" and circle it] The biggest streamer alive aint just bigger than the major artists. He's keeping six times more of every dollar he earns. [write "~6X MORE OF EVERY DOLLAR" at the bottom and underline it twice]
 
 ---
 

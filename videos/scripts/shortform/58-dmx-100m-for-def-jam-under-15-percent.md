@@ -10,15 +10,15 @@ Link in bio to keep most of what you make instead of a sliver with CRWN. Free to
 
 **SCRIPT:**
 
-DMX brought his label over 100 million dollars. He was paid less than 15 percent of it. The talent was never the problem.
+DMX put two albums at number 1 in the same year. Guess how many months apart they were.
 
 Yall think a star going broke means they messed up. Watch what the deal did first.
 
-1998. DMX drops his debut on a Ruff Ryders and Def Jam joint venture. Number 1. Quadruple platinum. Then he does it again. And again. Reports say he generated no less than 100 million dollars for that label across his run. But late-90s deals paid the artist under 15 cents on the dollar of album sales. So out of the 100 million he made the company, the man himself was only ever touching a sliver of it.
+1998. DMX drops his debut on a Ruff Ryders and Def Jam joint venture. Number 1. Quadruple platinum. Most artists wait years for the follow up. He didn't. That same year, December, he drops a second album. Number 1 again. Reports say his run made that label well over 100 million dollars. But late-90s deals paid the artist under 15 cents on the dollar of album sales. So the man printing money twice in twelve months was touching a sliver of it.
 
 A sliver of a hundred million is still real money. Then years of legal fees, taxes, and his own struggles ate the sliver, because a sliver got no cushion.
 
-People say DMX lost it all. Look closer. He never got most of it. The deal handed the label the 85 and gave the artist the fight to keep the 15. The size of the star was real. The size of the slice is what broke him.
+People say DMX lost it all. Look closer. He never got most of it. The deal handed the label the 85 and gave the artist the fight to keep the 15. He dropped both of them number 1 albums seven months apart. Seven. And the deal still left him fighting for scraps off his own run.
 
 ---
 
@@ -35,7 +35,7 @@ People say DMX lost it all. Look closer. He never got most of it. The deal hande
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** DMX brought his label over 100 million dollars. He was paid less than 15 percent. [write "DMX → LABEL: $100,000,000+" at top, then "DMX KEPT: under 15%" right below it]
+**HOOK:** DMX put two albums at number 1 in the same year. Guess how many months apart they were. [write "TWO #1 ALBUMS, ONE YEAR" at top, then "____ MONTHS APART?" right below it]
 
 **FORESHADOW:** Yall think a star going broke means they messed up. Watch what the deal did first. [draw a star shape with a small crack drawn through it]
 
@@ -43,7 +43,7 @@ People say DMX lost it all. Look closer. He never got most of it. The deal hande
 
 **TWIST:** A sliver of a hundred million is still real money. Then legal fees, taxes, his own struggles ate the sliver, because a sliver got no cushion. [draw a big circle labeled "$100M", shade most of it "LABEL", a thin slice "DMX", then small arrows nibbling the thin slice labeled "taxes / legal / life"]
 
-**PAYOFF:** People say DMX lost it all. He never got most of it. The deal handed the label the 85 and left the artist fighting for the 15. [write "LOST IT? NO -- NEVER GOT IT" and underline it] The size of the star was real. The size of the slice is what broke him. [write "STAR: HUGE -- SLICE: TINY" at the bottom, circle "SLICE: TINY"]
+**PAYOFF:** People say DMX lost it all. He never got most of it. The deal handed the label the 85 and left the artist fighting for the 15. [write "LOST IT? NO -- NEVER GOT IT" and underline it] He dropped both number 1 albums seven months apart. Seven. And the deal still left him fighting for scraps off his own run. [write "7 MONTHS APART -- STILL GOT SCRAPS" at the bottom, circle "7 MONTHS"]
 
 ---
 

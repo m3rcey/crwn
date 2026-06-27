@@ -10,15 +10,15 @@ Link in bio to keep your music reachable on your terms with CRWN. Free to start 
 
 **SCRIPT:**
 
-For almost 20 years you could not stream most of Aaliyah's music. One of the most important artists ever. Locked off. Watch why.
+For almost 20 years you could not stream most of Aaliyah's music. When it finally came back, guess who found out last. Watch this.
 
 Yall think your music is always one tap away once it's out. Aaliyah proves that's not your call.
 
 Aaliyah passed in 2001. Her albums lived on Blackground, the label run by her uncle. After she was gone, that catalog just sat. For about two decades a whole generation grew up unable to pull One in a Million or her self-titled album on Spotify or Apple. Not because nobody wanted it. The internet begged for it for years. It stayed off because of who controlled it and what was going on behind the scenes.
 
-When it finally hit streaming in 2021, it was on the 20th anniversary of her death. 20 years a fan had to go find a burned CD to hear a legend.
+In 2021 it finally hit streaming. The label and a distributor cut the deal and pushed the music out.
 
-Here is the part that should land. She made the music. She didn't control where it lived or when the world could hear it again. Someone else held that switch. When you don't own it, you don't decide if it disappears.
+Here is the part that should land. Aaliyah's own estate, the people closest to her, said they didn't even know it was coming til the deal was already done. The family that should've been first found out after everybody else. She made the music. She aint control where it lived or when it came back, and neither did the people she left behind. Somebody else held that switch from start to finish.
 
 ---
 
@@ -35,15 +35,15 @@ Here is the part that should land. She made the music. She didn't control where 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** For almost 20 years you could not stream most of Aaliyah's music. [write "AALIYAH: OFF STREAMING ~20 YRS" in bold caps at top]
+**HOOK:** For almost 20 years you could not stream most of Aaliyah's music. When it finally came back, guess who found out last. [write "AALIYAH: OFF STREAMING ~20 YRS" in caps at top, then "WHO FOUND OUT LAST?" under it]
 
 **FORESHADOW:** Yall think your music is always one tap away once it's out. That's not your call. [draw a play button with a line through it]
 
 **RISING ACTION:** Aaliyah passed in 2001. Her albums lived on Blackground, the label run by her uncle. After she was gone, the catalog just sat. [write "2001: passed" then "CATALOG: on Blackground -- sat"] The internet begged for it for years. It stayed off because of who controlled it. [write "DEMAND: yes" and "AVAILABLE: no" stacked, draw a switch in the OFF position labeled "someone else holds this"]
 
-**TWIST:** When it finally hit streaming in 2021, it was the 20th anniversary of her death. 20 years a fan had to find a burned CD to hear a legend. [write "2021: finally on -- 20 yrs late" and underline "20 yrs late"]
+**TWIST:** In 2021 it finally hit streaming. The label and a distributor cut the deal and pushed the music out. [write "2021: finally on" then "LABEL + DISTRIBUTOR cut the deal"]
 
-**PAYOFF:** She made the music. She didn't control where it lived or when the world could hear it. Someone else held the switch. [write "MADE IT: her" then "CONTROLLED IT: not her"] When you don't own it, you don't decide if it disappears. [write "DON'T OWN IT = DON'T DECIDE IF IT DISAPPEARS" at the bottom and underline it twice]
+**PAYOFF:** Aaliyah's own estate, the people closest to her, said they didn't even know it was coming til the deal was already done. The family that should've been first found out after everybody else. [write "HER ESTATE: found out LAST" and underline "LAST"] She made the music, but she aint control where it lived, and neither did the people she left behind. [write "MADE IT: her -- CONTROLLED IT: not her, not her family" at the bottom and underline it twice]
 
 ---
 

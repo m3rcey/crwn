@@ -10,15 +10,15 @@ Link in bio to build a catalog you own with CRWN. Free to start at thecrwn.app.
 
 **SCRIPT:**
 
-Tech N9ne sold over 2 million albums. No major label ever signed him. He owns the company that owns the music. Watch how that flips everything.
+Tech N9ne sold over 2 million albums with no major label, and there's one Billboard record he holds that no signed rapper ever caught. Watch what it is.
 
-Yall think you need a major to move real numbers. A dude from Kansas City been disproving that for 25 years.
+Yall think you need a major to stack chart plaques. A dude from Kansas City been disproving that for 25 years.
 
-1999. Tech N9ne and a business partner start Strange Music. Their own label. No Universal. No Sony. No Warner. Just two people building it from nothing. Over time Tech earns 3 gold records, clears 2 million albums, lands on Forbes money lists for rappers. All of it independent.
+1999. Tech N9ne and a business partner start Strange Music. Their own label. No Universal. No Sony. No Warner. Just two people building it from nothing. Over time he clears 2 million albums, all of it independent, all of it his.
 
-Here's the part that flips it. A major artist sells 2 million and keeps a small slice after the label. Tech sells 2 million through his own house and the slice that's left is his, because he owns the house.
+Now think about who's chasing the rap charts. Jay. Wayne. Gucci. E-40. Major money behind em for decades.
 
-Same 2 million records. One man keeps a sliver. The other man keeps the company. Tech's not the most famous name you know. He might be one of the few who actually owns the catalog with his name on it. 25 years. No major. Still standing on his own label.
+Here's the part nobody expects. The rapper with the most top-10 albums in the history of Billboard's rap chart aint none of them. It's Tech. Twenty top-10 rap albums, more than anybody, and he did every one without a major signing the check.
 
 ---
 
@@ -35,15 +35,15 @@ Same 2 million records. One man keeps a sliver. The other man keeps the company.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Tech N9ne sold over 2 million albums. No major ever signed him. He owns the company that owns the music. [write "2,000,000+ ALBUMS" at top, then "MAJOR LABEL: NONE" below it]
+**HOOK:** Tech N9ne sold over 2 million albums with no major, and there's one Billboard record he holds no signed rapper ever caught. [write "2,000,000+ ALBUMS / NO MAJOR" at top, then "ONE BILLBOARD RECORD: ???" below it]
 
-**FORESHADOW:** Yall think you need a major to move real numbers. A dude from KC been disproving that 25 years. [write "KC -- 25 YEARS -- INDEPENDENT"]
+**FORESHADOW:** Yall think you need a major to stack chart plaques. A dude from KC been disproving that 25 years. [write "KC -- 25 YEARS -- INDEPENDENT"]
 
-**RISING ACTION:** 1999. Tech and a partner start Strange Music. Their own label. No Universal, no Sony, no Warner. Over time: 3 gold records, 2 million sold, Forbes money lists. All independent. [write "1999: STRANGE MUSIC (his own)" then list "3 GOLD", "2M SOLD", "FORBES LISTS" with checkmarks]
+**RISING ACTION:** 1999. Tech and a partner start Strange Music. Their own label. No Universal, no Sony, no Warner. Over time: 2 million sold, all independent, all his. [write "1999: STRANGE MUSIC (his own)" then "2M SOLD / INDEPENDENT" with checkmarks]
 
-**TWIST:** A major artist sells 2 million and keeps a small slice after the label. Tech sells 2 million through his own house and the slice that's left is his. [draw two circles labeled "2M SOLD": left circle mostly shaded "LABEL" with thin "ARTIST"; right circle mostly clear "TECH (owns the house)" with thin shaded "distributor cut"]
+**TWIST:** Think who chases the rap charts. Jay. Wayne. Gucci. E-40. Major money behind em for decades. [write "JAY / WAYNE / GUCCI / E-40 = major backed"]
 
-**PAYOFF:** One man keeps a sliver. The other keeps the company. He might be one of the few who actually owns the catalog with his name on it. [write "SLIVER vs THE WHOLE COMPANY"] 25 years. No major. Still standing on his own label. [write "25 YRS, NO MAJOR, STILL HIS" at the bottom and underline it twice]
+**PAYOFF:** The rapper with the most top-10 albums in Billboard rap chart history aint none of them. It's Tech. [write "MOST TOP-10 RAP ALBUMS EVER:" then "TECH N9NE" below it, circle it] Twenty top-10 rap albums, more than anybody, every one with no major signing the check. [write "20 TOP-10 ALBUMS, NO MAJOR" at the bottom and underline it twice]
 
 ---
 

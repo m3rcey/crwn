@@ -10,15 +10,15 @@ Link in bio to build income that keeps running when you can't with CRWN. Free to
 
 **SCRIPT:**
 
-Young Thug spent more than 900 days in custody during his case. The music business did not pause for him. Watch what that does to a career you don't fully control.
+Young Thug walked out of custody in 2024 a free man, but the sentence has a hidden number sitting on him still. Watch how many years.
 
-Yall think your spot waits for you. It doesn't wait for anybody, no matter how big.
+Yall think once he walked, the case was closed and done. The deal he signed keeps a clock running on him.
 
-Timeline, straight off the record. 2014, Thug builds his name and later starts his own label, Young Stoner Life. May 2022, he's indicted in Georgia on RICO and gang charges. He sits in custody. October 2024, he takes a plea, pleads no contest to the RICO and gang counts, guilty to gun and drug counts, gets time served and 15 years probation, and walks after over 900 days.
+Timeline, straight off the record. 2014, Thug builds his name, later starts his own label, Young Stoner Life. May 2022, indicted in Georgia on RICO and gang charges. He sits in custody more than 900 days. October 2024, he takes a plea, no contest to RICO and gang, guilty to gun and drug counts, gets time served and walks.
 
-Here's the part. For almost three years, one of the most influential artists alive is locked up. The catalog he made keeps streaming. The genre keeps moving. New stars fill the lane. The work earns the whole time, just not the way it would if he could steer it.
+Here's the part most missed. Walking out aint the end of it. The plea put him on 15 years of probation, a stretch that hangs over how he moves, where he goes, who he's around.
 
-A career you don't fully own and control can keep generating without you, and keep moving on without you. The music never clocks out. The artist can be forced to. Build the part that runs when you can't.
+And there's a number under that nobody talks about. If he slips on that probation, the deal drops a backloaded sentence on him: 20 years.
 
 ---
 
@@ -35,15 +35,15 @@ A career you don't fully own and control can keep generating without you, and ke
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Young Thug spent more than 900 days in custody during his case. The music business did not pause. [write "900+ DAYS IN CUSTODY" at top, then "MUSIC: never paused" below it]
+**HOOK:** Young Thug walked out of custody in 2024 a free man, but the sentence has a hidden number sitting on him still. [write "WALKED FREE -- 2024" at top, then "HIDDEN NUMBER STILL ON HIM?" below it]
 
-**FORESHADOW:** Yall think your spot waits for you. It doesn't wait for anybody. [draw a clock with no hands, "no pause" written by it]
+**FORESHADOW:** Yall think once he walked, the case was closed. The deal he signed keeps a clock running. [draw a clock still ticking after a cell door opens]
 
-**RISING ACTION:** Off the record. 2014, builds his name, later starts his own label Young Stoner Life. May 2022, indicted in Georgia on RICO and gang charges, held in custody. [write "2014: YSL label (his)" then "MAY 2022: indicted -- held"]
+**RISING ACTION:** 2014, builds his name, later starts his own label Young Stoner Life. May 2022, indicted in Georgia on RICO and gang charges, held more than 900 days. [write "2014: YSL label (his)" then "MAY 2022: indicted -- 900+ days held"]
 
-**TWIST:** October 2024, plea: no contest to RICO and gang counts, guilty to gun and drug counts, time served and 15 years probation, walks after 900+ days. The catalog streamed the whole time. New stars filled the lane. [write "OCT 2024: plea -- time served + 15 yr probation -- released" then "CATALOG: streamed all 3 yrs" with an arrow showing the genre moving on]
+**TWIST:** October 2024, plea: no contest to RICO and gang, guilty to gun and drug counts, time served, and he walks. [write "OCT 2024: plea -- time served -- WALKS"]
 
-**PAYOFF:** A career you don't fully own and control can keep generating without you, and move on without you. The music never clocks out. The artist can be forced to. [write "MUSIC: never clocks out" then "ARTIST: can be forced to" below it] Build the part that runs when you can't. [write "BUILD THE PART THAT RUNS WHEN YOU CAN'T" at the bottom and underline it twice]
+**PAYOFF:** Walking out aint the end. The plea put him on 15 years probation hanging over how he moves. And there's a number under that nobody talks about: slip on that probation and the deal drops a backloaded sentence on him, 20 years. [draw a free figure walking out, a heavy "20 YRS" weight hanging over him on a "15 yr probation" string] [write "WALK FREE, BUT 20 YEARS HANGS OVER HIM" at the bottom and underline it twice]
 
 ---
 

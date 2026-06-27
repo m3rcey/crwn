@@ -10,17 +10,15 @@ Link in bio to be the one your old songs keep paying with CRWN. Free to start at
 
 **SCRIPT:**
 
-The Miseducation of Lauryn Hill still earns serious money every single year, 25 plus years later. The question that should bother you is who it's earning for.
+Lauryn Hill made a Diamond album that prints money every year it exists. Years later, that same artist sat in a federal cell. Watch how long.
 
-Yall think old music goes quiet. A real classic never stops. It just keeps paying whoever holds it.
+Yall think a classic that big means the artist is set for life. Made money aint the same as held money.
 
-That album streams constantly. It still sells. It gets sampled, licensed, put in shows and movies. A record that big throws off money every year on its own, decades after it dropped. That's the dream, a catalog that pays you while you sleep.
+The Miseducation of Lauryn Hill went Diamond. 10 million units in the US alone. It streams, it sells, it gets sampled and put in shows and movies, decades after it dropped. A record that big throws off money on its own every single year. That's supposed to be the dream, a catalog that pays ya while ya sleep.
 
-Here's the part that flips the dream. The recording sits with Sony. So every year that classic keeps printing, the bigger share runs to the company that holds the master, not automatically to the woman who poured her whole self into it.
+Here's the part that flips it. The album never stopped earning. But years later, the IRS came for back taxes she aint pay, over a million in income, and a court handed down real time.
 
-She made a forever asset. Forever just doesn't point at her. The wild part isn't that the album still earns. It's that she made the most timeless thing in the genre and the timeless part pays someone else.
-
-A classic is a money machine that never turns off. Owning it decides whose account it's pointed at.
+The wild part aint that the classic kept printing. It's that the woman who made it, with a Diamond record still earning under her name, did three months in federal prison.
 
 ---
 
@@ -37,15 +35,15 @@ A classic is a money machine that never turns off. Owning it decides whose accou
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Miseducation still earns serious money every year, 25 plus years later. The question is who for. [write "STILL EARNS -- 25+ YRS" at top, then "FOR WHO?" big below it]
+**HOOK:** Lauryn Hill made a Diamond album that prints money every year. Years later, that same artist sat in a federal cell. [write "DIAMOND ALBUM -- STILL PRINTS" at top, then "ARTIST → FEDERAL CELL?" below it]
 
-**FORESHADOW:** Yall think old music goes quiet. A real classic never stops. [draw a record with motion lines, still spinning, "still on" written by it]
+**FORESHADOW:** Yall think a classic that big means set for life. Made money aint held money. [draw a record spinning out cash, then a question mark over the artist]
 
-**RISING ACTION:** It streams constantly. Still sells. Sampled, licensed, in shows and movies. A record that big throws off money every year on its own. [write a small stacked list: "STREAMS", "SALES", "SAMPLES", "SYNC -- TV / FILM" with "$" beside each] That's the dream, a catalog that pays while you sleep.
+**RISING ACTION:** Miseducation went Diamond. 10 million units in the US alone. Streams, sells, sampled, in shows and movies, decades on. Throws off money on its own every year. [write "DIAMOND = 10M US" then a small list: "STREAMS / SALES / SAMPLES / SYNC" each "$"] That's supposed to be the dream.
 
-**TWIST:** The recording sits with Sony. Every year it prints, the bigger share runs to the master holder, not automatically to the woman who poured herself into it. [draw a money machine with bills coming out, an arrow from it to a box "SONY (holds master)", a thin arrow to "ARTIST"]
+**TWIST:** The album never stopped earning. But years later the IRS came for back taxes she aint pay, over a million in income, and a court handed down real time. [write "ALBUM: still earning" then "IRS: back taxes -- $1M+ income" below it]
 
-**PAYOFF:** She made a forever asset. Forever just doesn't point at her. The timeless part pays someone else. [write "FOREVER ASSET → not pointed at her"] A classic is a money machine that never turns off. Owning it decides whose account it's pointed at. [write "OWN IT = WHOSE ACCOUNT IT POINTS AT" at the bottom and underline it twice]
+**PAYOFF:** The wild part aint that the classic kept printing. It's that the woman who made it, with a Diamond record still earning under her name, did three months in federal prison. [draw a jail cell, a record still spinning outside it labeled "STILL EARNING"] [write "DIAMOND RECORD EARNING. SHE DID 3 MONTHS." at the bottom and underline it twice]
 
 ---
 

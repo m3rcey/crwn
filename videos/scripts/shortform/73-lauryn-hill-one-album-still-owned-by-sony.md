@@ -10,15 +10,15 @@ Link in bio to own the one classic you've got in you with CRWN. Free to start at
 
 **SCRIPT:**
 
-Lauryn Hill made one of the greatest albums ever. One. And the company that holds it is the same one that always did. Watch what one deal locked up.
+Lauryn Hill made one of the greatest albums ever. The credit on it got fought over in court. Watch how many songs.
 
-Yall think the legends own their masterpiece. Hers been sitting with a major since 1998.
+Yall think the legend just sat down and wrote her masterpiece solo, start to finish. The paperwork tells a different story.
 
-1998. The Miseducation of Lauryn Hill. It came out on Ruffhouse and Columbia, which is Sony. It debuted at number 1. First debut album by a woman to ever do that. Over 20 million sold worldwide. Diamond in the US. Then she never put out another studio album. To this day. Twenty-five plus years on one body of work.
+1998. The Miseducation of Lauryn Hill. Came out on Ruffhouse and Columbia, which is Sony. Debuted at number 1. First debut album by a woman to ever do that. Over 20 million sold worldwide, Diamond in the US. Then she never dropped another studio album. To this day.
 
-Here's the part that should sit with you. Whatever her reasons were, the album itself, the recording, lived with Sony from day one and never moved. She made the masterpiece. The masterpiece answers to the label.
+Here's the part that should sit with ya. Months after it dropped, a group of musicians who worked on it, New Ark, took her to court. They said they helped write and produce it and never got the credit. And they aint claim one or two songs.
 
-The hardest album to make is the one classic everybody got in them. She made hers. She just didn't own where it lived. One album that big should have been a foundation she stood on. Instead it became an asset somebody else has held for two and a half decades.
+That credit fight got settled quiet. But the number on the claim is the part that stays with ya. New Ark went after writing or production credit on 13 of the 14 tracks.
 
 ---
 
@@ -35,15 +35,15 @@ The hardest album to make is the one classic everybody got in them. She made her
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Lauryn Hill made one of the greatest albums ever. One. The company that holds it is the same one that always did. [write "ALBUMS: 1" at top, then "HELD BY: a major since 1998" below it]
+**HOOK:** Lauryn Hill made one of the greatest albums ever. The credit on it got fought over in court. [write "GREATEST ALBUM EVER" at top, then "CREDIT = FOUGHT IN COURT" below it]
 
-**FORESHADOW:** Yall think the legends own their masterpiece. Hers been with a major since 1998. [draw a vault with one record inside it]
+**FORESHADOW:** Yall think she wrote her masterpiece solo, start to finish. The paperwork tells a different story. [draw a credits page with a question mark over the writer line]
 
-**RISING ACTION:** 1998. The Miseducation of Lauryn Hill. Ruffhouse and Columbia, which is Sony. Number 1. First debut album by a woman to ever do that. 20 million plus worldwide. Diamond in the US. Then no other studio album. To this day. [write "1998: #1 -- 20M+ -- DIAMOND" then "STUDIO ALBUMS SINCE: 0"]
+**RISING ACTION:** 1998. The Miseducation of Lauryn Hill. Ruffhouse and Columbia, which is Sony. Number 1. First debut album by a woman to ever do that. 20 million plus worldwide. Diamond in the US. Then no other studio album. [write "1998: #1 -- 20M+ -- DIAMOND" then "STUDIO ALBUMS SINCE: 0"]
 
-**TWIST:** Whatever her reasons, the recording lived with Sony from day one and never moved. She made the masterpiece. The masterpiece answers to the label. [write "MADE IT: her" then "HOLDS IT: Sony" with an arrow from "her" to "Sony"]
+**TWIST:** Months after it dropped, a group of musicians, New Ark, took her to court. Said they helped write and produce it and never got credit. And they aint claim just one or two songs. [write "NEW ARK → COURT" then "claimed: write / produce credit"]
 
-**PAYOFF:** One album that big should have been a foundation she stood on. Instead it became an asset somebody else has held 25 plus years. [draw a small figure standing on a block labeled "SHOULD BE: foundation", then the same block floating away labeled "IS: their asset 25+ yrs"] [write "YOUR ONE CLASSIC = FOUNDATION OR THEIR ASSET" at the bottom and underline it twice]
+**PAYOFF:** That fight settled quiet. But the number on the claim is what stays with ya. New Ark went after credit on 13 of the 14 tracks. [draw a tracklist of 14, 13 of them circled, labeled "CLAIMED: 13 of 14"] [write "ONE CLASSIC. CREDIT FOUGHT ON 13 OF 14." at the bottom and underline it twice]
 
 ---
 

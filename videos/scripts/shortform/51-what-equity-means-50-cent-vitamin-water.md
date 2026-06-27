@@ -10,17 +10,17 @@ Link in bio to build something you own a piece of with CRWN. Free to start at th
 
 **SCRIPT:**
 
-What does "equity" actually mean? 50 Cent turned that one word into a hundred million dollars.
+50 Cent got offered a flat check for one water endorsement. He asked for a word instead, and that word printed him a fortune. Watch which word.
 
-Yall hear rich people say "equity" and tune out. It's simpler than they make it sound.
+Yall hear rich people say it and tune out. It's simpler than they make it sound.
 
-Getting paid is somebody handing you money for a job. Once. It's done. Equity is owning a piece of the thing itself. You don't get paid for showing up. You get a slice of whatever it grows into, forever, or til it sells.
+Getting paid is somebody handing you money for a job. Once. It's done. That word means owning a piece of the thing itself. Not paid for showing up. A slice of whatever it grows into.
 
-50 Cent could've took a flat check to promote Vitamin Water. A job. Instead he took a piece of the company. When the company sold for billions, his little piece turned into a reported 60 to 100 million. The check would've been gone in a year. The piece paid like a bomb went off.
+So 50 said no to the flat check on Vitamin Water and took a slice of the company. When it sold, the check would've been long gone. His slice paid like a bomb went off.
 
-Here's where it hits you. Your masters are equity. A fan who pays you every month instead of streaming you once is equity. One is a tip that ends. The other is a piece that keeps paying.
+Now point it back at your own catalog. A stream is the flat check. It pays you a fraction of a cent, once, then it's done. A fan paying you 10 dollars a month is the slice. That same fan over three years is 360 dollars off one person.
 
-Stop only asking what they'll pay you. Start asking what you own a piece of. That word is the whole game.
+The word is equity. And one fan who owns a piece of you beats a thousand strangers who streamed you and forgot your name.
 
 ---
 
@@ -37,15 +37,15 @@ Stop only asking what they'll pay you. Start asking what you own a piece of. Tha
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** What does "equity" actually mean? 50 Cent turned that word into a hundred million dollars. [write "EQUITY = ?" in bold caps at top]
+**HOOK:** 50 Cent got offered a flat check for one water endorsement. He asked for a word instead, and that word printed him a fortune. [write "ONE WORD = A FORTUNE" in bold caps at top, with "= ?" beside it]
 
 **FORESHADOW:** Yall hear rich people say it and tune out. It's simpler than they make it sound. [draw a small ear with a line through it, then a lightbulb]
 
-**RISING ACTION:** Getting paid is somebody handing you money for a job. Once. Done. [write "PAID = once, then gone" on the left] Equity is owning a piece of the thing itself. A slice of whatever it grows into, forever. [write "EQUITY = a piece that grows" on the right and underline it]
+**RISING ACTION:** Getting paid is somebody handing you money for a job. Once. Done. [write "PAID = once, then gone" on the left] That word means owning a piece of the thing itself. A slice of whatever it grows into. [write "= a slice that grows" on the right and underline it]
 
-**TWIST:** 50 could've took a flat check for Vitamin Water. A job. Instead he took a piece. When it sold for billions, his piece turned into a reported 60 to 100 million. [write "FLAT CHECK" crossed out, arrow to "PIECE → ~$60M-$100M"] The check would've been gone in a year. The piece paid like a bomb went off.
+**TWIST:** So 50 said no to the flat check on Vitamin Water and took a slice. When it sold, the check would've been long gone. His slice paid like a bomb went off. [write "FLAT CHECK" crossed out, arrow to "SLICE → paid like a bomb went off"]
 
-**PAYOFF:** Here's where it hits you. Your masters are equity. A fan who pays you every month instead of streaming you once is equity. [write "YOUR MASTERS = EQUITY" then "MONTHLY FAN = EQUITY" stacked, both boxed] One is a tip that ends. The other keeps paying. Stop only asking what they'll pay you. Start asking what you own a piece of. [write "STOP: WHAT WILL THEY PAY ME" then "START: WHAT DO I OWN A PIECE OF" below it, circle the second line]
+**PAYOFF:** Point it at your catalog. A stream is the flat check: a fraction of a cent, once, done. A fan paying 10 a month is the slice. Three years is 360 off one person. [write "1,000 STREAMS = a few dollars" then "1 FAN x $10/mo x 3 YRS = $360" below it] The word is equity. One fan who owns a piece of you beats a thousand strangers who streamed you and forgot your name. [write "EQUITY" big and circle it, then under it "1 FAN > 1,000 STRANGERS" underlined twice]
 
 ---
 

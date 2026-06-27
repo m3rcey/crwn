@@ -10,17 +10,15 @@ Link in bio to own the recordings your hits live on with CRWN. Free to start at 
 
 **SCRIPT:**
 
-DMX put out album after album that hit number 1. Every one of them recordings is owned by the label, not him. Watch what that means now.
+DMX did something no artist in history had ever done before him. And he don't own a single piece of it. Watch what he pulled off.
 
 Yall measure a career in plaques. The plaque don't tell you who keeps the recording.
 
-His debut was quadruple platinum out the gate. He stacked hit albums back to back. The man was one of the biggest rappers alive. But the recordings, the actual masters, sat with the Ruff Ryders and Def Jam side of the deal. He made the music. They held the asset it lives on.
+His debut hit number 1. So did his second. And his third. And his fourth. And his fifth. DMX is the first artist ever to have his first five albums all debut at number 1. Nobody had done it. But the recordings, the actual masters, sat with the Ruff Ryders and Def Jam side of the deal. He made the music. They held the asset it lives on.
 
 So today, every time those albums stream, that money runs through the people who own the masters first. The artist made every bar. The owner collects the play.
 
-DMX is gone. The catalog is not. It still earns, every single day. The question that should scare you is simple: when your music keeps making money after you, who's it making it for? He filled a label's vault with classics and never got the key to it.
-
-A hit proves you made it. Owning the master decides who it pays.
+DMX is gone. The catalog is not. It still earns, every single day. So here's the part that should sit with you. The man set a record no human being had ever set, five straight albums at number 1, and his kids don't own one of em. He made history and handed somebody else the receipts.
 
 ---
 
@@ -37,15 +35,15 @@ A hit proves you made it. Owning the master decides who it pays.
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** DMX put out album after album that hit number 1. Every recording is owned by the label, not him. [write "ALBUMS: #1, #1, #1" at top, then "MASTERS: not his" below it]
+**HOOK:** DMX did something no artist in history had ever done. And he don't own a single piece of it. [write "FIRST 5 ALBUMS: ALL #1" at top, then "OWNS: 0 of em" below it]
 
 **FORESHADOW:** Yall measure a career in plaques. The plaque don't say who keeps the recording. [draw a simple plaque shape with a question mark on it]
 
-**RISING ACTION:** Debut 4x platinum out the gate. Hit albums back to back. One of the biggest rappers alive. But the masters sat with the Ruff Ryders and Def Jam side. [write "HE MADE IT" on the left, arrow to "THEY HOLD IT (the master)" on the right] He made the music. They held the asset it lives on.
+**RISING ACTION:** Debut number 1. Second, number 1. Third, fourth, fifth, all number 1. First artist ever to do it. [write "5 STRAIGHT #1s -- 1st EVER"] But the masters sat with the Ruff Ryders and Def Jam side. [write "HE MADE IT" on the left, arrow to "THEY HOLD IT (the master)" on the right] He made the music. They held the asset it lives on.
 
 **TWIST:** Every time those albums stream now, the money runs through the owners first. [draw "STREAM $" with an arrow into a box labeled "OWNS MASTERS", then a thin arrow out to "ARTIST/ESTATE"] DMX is gone. The catalog is not. It still earns every single day.
 
-**PAYOFF:** When your music keeps making money after you, who's it making it for? He filled a label's vault with classics and never got the key. [draw a vault with records inside it and a key drawn outside the vault, circled and crossed out] A hit proves you made it. Owning the master decides who it pays. [write "HIT = YOU MADE IT" then "MASTER = WHO IT PAYS" below it and underline the second line twice]
+**PAYOFF:** The man set a record no human being had ever set, five straight number 1 albums, and his kids don't own one of em. [draw a vault with five #1 records inside it and a key drawn outside the vault, circled and crossed out] He made history and handed somebody else the receipts. [write "MADE HISTORY" then "HANDED OVER THE RECEIPTS" below it and underline the second line twice]
 
 ---
 

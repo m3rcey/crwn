@@ -10,17 +10,15 @@ Link in bio to self-release and still reach the whole world with CRWN. Free to s
 
 **SCRIPT:**
 
-Renaissance was one of the biggest albums of its year. It was, basically, a self-release. The major was the pipes, not the boss. Watch how that works.
+Beyonce's Renaissance debuted at number 1 and it was basically a self-release. Watch how big a self-release can actually open.
 
-Yall think self-released means small and quiet. Done right, it can be the biggest thing out.
+Yall think self-released means small and quiet, a couple thousand streams in ya room. Done right, it can open bigger than anything else out that year.
 
-2022. Renaissance comes out under Parkwood Entertainment, her own company, with Columbia handling distribution. Strip the labels off and look at the machine. The artist's own company decides the music, the rollout, the vision. A major's distribution arm handles one job, getting it onto every shelf and app on the planet. That's it. Pipes.
+2022. Renaissance comes out under Parkwood Entertainment, her own company, with Columbia just handling distribution. Strip the logos off and look at the machine. Her own company decides the music, the rollout, the vision. The major's distribution arm does one job, getting it onto every shelf and app on the planet. That's it. Pipes.
 
-Number 1. Massive. Global. And the company steering it answers to her, not the other way around.
+That aint a small operation dressed up. The company steering it answers to her, not the other way around. Keep the wheel, rent the pipes.
 
-That's the model people sleep on. Self-release was never about going small. It's about keeping the wheel and renting the pipes. The reach you thought only a label could give you is a service you can hire while you still own the thing.
-
-Biggest album of the year, run out of her own house, shipped by somebody she pays. You don't need to be owned to be everywhere.
+And the opening week proves a self-release aint small. Run out of her own house, Renaissance opened at number 1 with 332 thousand units, the biggest debut by a woman that whole year.
 
 ---
 
@@ -37,15 +35,15 @@ Biggest album of the year, run out of her own house, shipped by somebody she pay
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Renaissance was one of the biggest albums of its year. Basically a self-release. The major was the pipes, not the boss. [write "BIGGEST OF THE YEAR = ~SELF-RELEASE" at top]
+**HOOK:** Beyonce's Renaissance debuted at number 1 and it was basically a self-release. [write "RENAISSANCE = #1 DEBUT" at top, then "= basically a SELF-RELEASE" below it]
 
-**FORESHADOW:** Yall think self-released means small and quiet. Done right it can be the biggest thing out. [draw a small speaker, then a huge speaker beside it]
+**FORESHADOW:** Yall think self-released means small and quiet, a couple thousand streams in ya room. Done right it opens bigger than anything out. [draw a small speaker, then a huge speaker beside it]
 
-**RISING ACTION:** 2022. Renaissance under Parkwood, her company, Columbia handling distribution. Her company decides music, rollout, vision. The major's distribution arm does one job, every shelf and app worldwide. [draw a steering wheel labeled "PARKWOOD (steers)", then a pipe shape labeled "COLUMBIA (pipes only)"]
+**RISING ACTION:** 2022. Renaissance under Parkwood, her company, Columbia just handling distribution. Her company decides music, rollout, vision. The major's distribution arm does one job, every shelf and app worldwide. [draw a steering wheel labeled "PARKWOOD (steers)", then a pipe shape labeled "COLUMBIA (pipes only)"]
 
-**TWIST:** Number 1. Massive. Global. The company steering it answers to her, not the other way around. [write "#1 -- GLOBAL" then "STEERED BY: her" below it]
+**TWIST:** That aint a small operation dressed up. The company steering it answers to her, not the other way around. Keep the wheel, rent the pipes. [write "STEERED BY: her" then "KEEP THE WHEEL -- RENT THE PIPES" below it]
 
-**PAYOFF:** Self-release was never about small. It's keeping the wheel and renting the pipes. The reach you thought only a label gives you is a service you can hire. [write "KEEP THE WHEEL -- RENT THE PIPES" and underline it] Biggest album of the year, run out of her own house, shipped by somebody she pays. You don't need to be owned to be everywhere. [write "OWNED =/= EVERYWHERE" at the bottom and circle it]
+**PAYOFF:** The opening week proves a self-release aint small. Run out of her own house, Renaissance opened at number 1 with 332 thousand units, the biggest debut by a woman that whole year. [draw a chart bar topping out labeled "332K -- #1 -- biggest female debut of the year"] [write "A SELF-RELEASE OPENED #1 WITH 332K" at the bottom and underline it twice]
 
 ---
 

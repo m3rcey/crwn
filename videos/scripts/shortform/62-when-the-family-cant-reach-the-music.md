@@ -10,15 +10,15 @@ Link in bio to keep your music in your family's hands with CRWN. Free to start a
 
 **SCRIPT:**
 
-Aaliyah's mother and brother run her estate. They still didn't control her catalog. Watch how that splits a family in half.
+Aaliyah's own mother and brother run her estate, and they still couldn't put her music on streaming. Watch how they found out it finally happened.
 
 Yall think if it stays in the family it's safe. Depends which side of the family holds the paper.
 
 Here's the setup. The label, Blackground, was run by Aaliyah's uncle. Her estate, the side protecting her legacy, is run by her mother and her brother. Same family. Two sides. One side had the recordings. The other side had her name and her memory and almost no say over the music itself.
 
-When the catalog finally went to streaming in 2021, the estate said publicly they weren't even told until the deal was already done. Their lawyer said the label had failed to properly account to them for nearly 20 years. The people closest to her, fighting in the dark for her own songs.
+For nearly twenty years her catalog stayed off streaming. The estate said the label never properly accounted to em for any of it. Decades of fighting in the dark for her own songs.
 
-That's the lesson. Blood don't equal control. The contract decides who controls the music, not who loved the artist. If the masters live with somebody else, even your mother can be locked out of your life's work.
+So in 2021 the music finally hit Spotify and Apple. Her own family said they didn't get a call, didn't sign off, didn't see a contract. They found out the same day you did, off a press release. The blood that loved her most got told by the internet.
 
 ---
 
@@ -35,15 +35,15 @@ That's the lesson. Blood don't equal control. The contract decides who controls 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Aaliyah's mother and brother run her estate. They still didn't control her catalog. [write "ESTATE: mother + brother" then "CONTROL OF CATALOG: no" below it]
+**HOOK:** Aaliyah's own mother and brother run her estate, and they still couldn't put her music on streaming. [write "ESTATE: mother + brother" then "PUT MUSIC ON STREAMING? no" below it]
 
 **FORESHADOW:** Yall think if it stays in the family it's safe. Depends which side holds the paper. [draw a simple family-tree fork: one branch, two lines splitting]
 
 **RISING ACTION:** The label, Blackground, was run by her uncle. The estate, protecting her legacy, is her mother and brother. Same family. Two sides. [write "UNCLE → LABEL (the recordings)" on the left, "MOM + BROTHER → ESTATE (the name, the memory)" on the right, draw a jagged line down the middle splitting them] One side had the recordings. The other had her name and almost no say.
 
-**TWIST:** When the catalog went to streaming in 2021, the estate said they weren't even told until the deal was done. Their lawyer said the label failed to account to them for nearly 20 years. [write "2021: estate not told til it was done" then "label: didn't account ~20 yrs (per estate)"]
+**TWIST:** For nearly twenty years her catalog stayed off streaming. The estate said the label never properly accounted to em for any of it. [write "~20 YRS off streaming" then "label: never accounted (per estate)"]
 
-**PAYOFF:** Blood don't equal control. The contract decides who controls the music, not who loved the artist. [write "BLOOD =/= CONTROL" and underline it twice] If the masters live with somebody else, even your mother can be locked out of your life's work. [write "MASTERS ELSEWHERE = EVEN MOM LOCKED OUT" at the bottom and circle it]
+**PAYOFF:** So in 2021 the music finally hit Spotify and Apple. Her own family said they didn't get a call, didn't sign off, didn't see a contract. [write "2021: HIT STREAMING" then "family: no call, no sign-off" below it] They found out the same day you did, off a press release. [write "FAMILY FOUND OUT OFF A PRESS RELEASE" at the bottom and circle it]
 
 ---
 

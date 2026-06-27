@@ -10,17 +10,15 @@ Link in bio to own a piece of what you build instead of getting paid once with C
 
 **SCRIPT:**
 
-50 Cent's biggest payday wasn't a record. It was a water nobody remembers him singing about.
+50 Cent was offered a flat check to put his name on a water. He turned it down for a piece of the company. Watch what that one piece grew into.
 
-Yall chase the upfront check. He chased the piece. Watch what that did.
+Yall would've grabbed the check. He grabbed something most artists never even get offered.
 
-2004. Vitamin Water offers 50 Cent money to be the face of it. He says no to a flat fee. He takes a 5 million dollar fee plus a piece of the company. Equity. He owns part of the thing, not just a paycheck for showing up.
+2004. Vitamin Water offers him money to be the face of it. He says no to the flat fee. He takes 5 million plus equity. He owns part of the thing, not just a paycheck for showing up.
 
-2007. Coca-Cola buys that company for 4.1 billion dollars. Because 50 owned a piece, he walks with a reported 60 to 100 million dollars. Off water. Not music.
+2007. Coca-Cola buys that company for 4.1 billion dollars. The records made him famous. They didn't make him a fortune. Watch the gap.
 
-That one piece paid him more than every album he ever sold. The records made him famous. The slice of something he owned made him rich.
-
-A check pays you once and it's gone. A piece of what you build pays you the day it gets big. He took the piece. Most artists never even get offered it. You have to build the thing you own.
+His album royalties over a whole career didn't touch it. That one piece of water, the thing he owned and never even sang about, paid him a reported 60 to 100 million off a single sale. More than every record he ever dropped, combined.
 
 ---
 
@@ -37,15 +35,15 @@ A check pays you once and it's gone. A piece of what you build pays you the day 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** 50 Cent's biggest payday wasn't a record. It was a water. [write "BIGGEST PAYDAY: NOT MUSIC" in bold caps at top, draw a small bottle shape beside it]
+**HOOK:** 50 Cent was offered a flat check to put his name on a water. He turned it down for a piece of the company. [write "TURNED DOWN THE CHECK" in bold caps at top, draw a small bottle shape beside it]
 
-**FORESHADOW:** Yall chase the upfront check. He chased the piece. [draw "CHECK" on the left and "PIECE" on the right, circle "PIECE"]
+**FORESHADOW:** Yall would've grabbed the check. He grabbed something most artists never even get offered. [draw "CHECK" on the left and "PIECE" on the right, circle "PIECE"]
 
-**RISING ACTION:** 2004. Vitamin Water offers him money to be the face. He says no to a flat fee. He takes 5 million plus a piece of the company. [write "FLAT FEE" crossed out, then "$5M + EQUITY" written below it] Equity. He owns part of the thing, not just a paycheck for showing up. [write "OWNS PART" and underline it]
+**RISING ACTION:** 2004. Vitamin Water offers him money to be the face. He says no to the flat fee. He takes 5 million plus equity. [write "FLAT FEE" crossed out, then "$5M + EQUITY" written below it] He owns part of the thing, not just a paycheck for showing up. [write "OWNS PART" and underline it]
 
-**TWIST:** 2007. Coca-Cola buys the company for 4.1 billion. Because 50 owned a piece, he walks with a reported 60 to 100 million. Off water. [write "COKE BUYS IT: $4,100,000,000" then below it "50's PIECE: ~$60M-$100M" with an arrow connecting them]
+**TWIST:** 2007. Coca-Cola buys the company for 4.1 billion. The records made him famous. They didn't make him a fortune. [write "COKE BUYS IT: $4,100,000,000" then below it "FAMOUS =/= RICH" with an arrow pointing down to the piece]
 
-**PAYOFF:** That one piece paid him more than every album he ever sold. [write "1 PIECE > EVERY ALBUM" and underline it twice] A check pays you once and it's gone. A piece of what you build pays you the day it gets big. He took the piece. You have to build the thing you own. [write "CHECK = ONCE" then "PIECE = WHEN IT GROWS" below it, circle "PIECE = WHEN IT GROWS"]
+**PAYOFF:** His album royalties over a whole career didn't touch it. That one piece of water, the thing he owned and never even sang about, paid him a reported 60 to 100 million off a single sale. More than every record he ever dropped, combined. [write "1 PIECE OF WATER: ~$60M-$100M" then under it "> EVERY ALBUM, COMBINED" and underline it twice]
 
 ---
 

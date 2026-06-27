@@ -10,17 +10,17 @@ Link in bio to make sure one deal can't cost you decades with CRWN. Free to star
 
 **SCRIPT:**
 
-People think a bad deal costs you one check. Lauryn Hill shows you it costs you decades. Watch the real math.
+People think a bad deal costs you one check. Lauryn Hill ended up with a bill that had her writing a near-seven-figure check years later. Watch the number.
 
-Yall focus on the advance, the first-week split, the one number. The damage isn't the one number. It's the time.
+Yall focus on the advance, the first-week split, the one number up front. The damage aint the front number. It's the back end that catches up to ya.
 
-She signed one deal for one album in 1998. Picture the bill on that one signature. It's not just the cut she lost that first year. It's 25 plus years of that classic streaming, selling, getting sampled and synced, all of it running through a master she didn't hold. Every year is a new line on the same bill from the same signature.
+She made the Diamond classic in 1998. The kind of run that's supposed to set ya up clean for life. But a messy career built on other people holding the pieces means the money side stays tangled. Years down the line, the IRS comes knocking on income that never got squared away.
 
-A bad deal isn't a one-time fee. It's a subscription you didn't know you signed, that bills for decades, on the best thing you ever made.
+A bad deal aint a one-time fee. It's a tangle that keeps billing long after the moment passed, on the best work ya ever made.
 
-That's the trap. A normal mistake costs you once and you recover. A deal mistake compounds. The longer the song lives, the more it takes, because the deal outlives the moment by 25 years.
+That's the trap. A clean mistake costs ya once and ya recover. A money-and-paperwork mistake compounds in the dark, then lands all at once years later when ya least expect it.
 
-The size of the deal isn't the advance. It's how long the meter runs after you sign. Read the years, not just the number.
+By the time it landed, she had to pay around 970 thousand dollars in back taxes and penalties, plus a 60 thousand dollar fine, and still did time. One messy run, one near-million-dollar check, years after the music.
 
 ---
 
@@ -37,15 +37,15 @@ The size of the deal isn't the advance. It's how long the meter runs after you s
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** People think a bad deal costs you one check. It costs you decades. [write "BAD DEAL = 1 check?" at top, then "= DECADES" below it, cross out the first line]
+**HOOK:** People think a bad deal costs you one check. She ended up writing a near-seven-figure check years later. [write "BAD DEAL = 1 check?" at top, then "= ~7-FIGURE CHECK, YEARS LATER" below it, cross out the first line]
 
-**FORESHADOW:** Yall focus on the advance, the one number. The damage is the time. [draw a small dollar sign, then a long arrow stretching far to the right labeled "TIME"]
+**FORESHADOW:** Yall focus on the advance up front. The damage is the back end that catches up. [draw a small dollar sign, then a long arrow stretching far to the right labeled "BACK END"]
 
-**RISING ACTION:** One deal, one album, 1998. The bill isn't the cut she lost year one. It's 25 plus years of that classic streaming, selling, sampled, synced, through a master she didn't hold. [draw a vertical stack of small lines, each labeled with a year "1998 ... 2008 ... 2018 ... now", each with a "$" beside it, brace labeled "ONE SIGNATURE"]
+**RISING ACTION:** Diamond classic, 1998. Supposed to set ya for life. But a career built on other people holding the pieces leaves the money side tangled. Years later, the IRS comes for income that never got squared. [write "1998: Diamond classic" then "money side: tangled → IRS years later"]
 
-**TWIST:** A bad deal isn't a one-time fee. It's a subscription you didn't know you signed, billing for decades, on the best thing you ever made. [write "ONE-TIME FEE" crossed out, "SUBSCRIPTION YOU DIDN'T KNOW YOU SIGNED" written below it and underlined]
+**TWIST:** A bad deal aint a one-time fee. It's a tangle that keeps billing long after the moment passed, on the best work ya ever made. [write "ONE-TIME FEE" crossed out, "A TANGLE THAT KEEPS BILLING" written below it and underlined]
 
-**PAYOFF:** A normal mistake costs you once. A deal mistake compounds. The longer the song lives, the more it takes. [write "MISTAKE = once" then "DEAL MISTAKE = compounds" below it] The size of the deal isn't the advance. It's how long the meter runs after you sign. [write "READ THE YEARS, NOT THE NUMBER" at the bottom and underline it twice]
+**PAYOFF:** A clean mistake costs ya once. A money-and-paperwork mistake compounds in the dark, then lands all at once. By the time it hit, she paid around 970 thousand in back taxes and penalties, a 60 thousand fine, and still did time. [draw a check made out for "~$970,000" plus a "$60K FINE" tag and a small jail cell] [write "ONE MESSY RUN = A NEAR-MILLION-DOLLAR CHECK" at the bottom and underline it twice]
 
 ---
 

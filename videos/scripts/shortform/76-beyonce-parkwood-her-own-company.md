@@ -10,17 +10,15 @@ Link in bio to release through a company that's yours with CRWN. Free to start a
 
 **SCRIPT:**
 
-Beyonce's last two albums came out through a company she owns. The major label on the cover is just the delivery truck. Watch the order.
+Look at the label name on Beyonce's last two albums. Most people read it backwards. Watch whose name actually comes first.
 
-Yall see a big album and assume a big label runs it. Look at whose name is first.
+Yall see "Columbia" on a Beyonce cover and assume the major signed her and runs the show. Read the credit line slow.
 
-She started Parkwood Entertainment back in 2008. Her own company. Her words on why, she wanted her own empire and to not share her money and her success with somebody else. That was the whole point of building it.
+She started Parkwood Entertainment back in 2008. Her own company. In her own words, she wanted her own empire, and to not share her money and her success with nobody else. That was the point of building it.
 
-So when Renaissance dropped, and again with Cowboy Carter, the release reads Parkwood Entertainment and Columbia. Her company first. Columbia is the distribution side, the part that ships it to every store and platform. The major is the truck. The company calling it is hers.
+So Renaissance drops, then Cowboy Carter. And the release credit aint just "Columbia." It reads Parkwood Entertainment first, Columbia second. Most artists got it the other way, signed under the major, dreaming of a Parkwood they never get to build.
 
-Most artists are signed to the major and Parkwood would be a dream they never get to build. She built the company first, then handed a major the delivery job. Same Columbia logo other artists are owned under. She's not under it. It's working a route for her.
-
-The biggest artist on earth release like an independent who scaled. Build the company. Let the major drive.
+Here's the flip. On her records, Columbia aint the boss. It's the hired hand. The credit reads Parkwood and Columbia because her company runs it and Columbia is the one she pays to ship it.
 
 ---
 
@@ -37,15 +35,15 @@ The biggest artist on earth release like an independent who scaled. Build the co
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Beyonce's last two albums came out through a company she owns. The major on the cover is the delivery truck. [write "RELEASED BY: PARKWOOD (hers)" at top, then "COLUMBIA = the truck" below it]
+**HOOK:** Look at the label name on Beyonce's last two albums. Most people read it backwards. [write "BEYONCE ALBUM CREDIT" at top, then "READ IT BACKWARDS?" below it]
 
-**FORESHADOW:** Yall see a big album and assume a big label runs it. Look at whose name is first. [draw two name slots: "1. ____" and "2. ____", point an arrow at slot 1]
+**FORESHADOW:** Yall see "Columbia" and assume the major signed her and runs it. Read the credit line slow. [draw a credit line "____ + ____" with a magnifying glass over it]
 
 **RISING ACTION:** 2008. She starts Parkwood Entertainment. Her own company. Her words, she wanted her own empire and to not share her money and success. [write "2008: PARKWOOD (her own)" then a quote-style line "own empire -- don't share the success"]
 
-**TWIST:** Renaissance, then Cowboy Carter, read Parkwood Entertainment and Columbia. Her company first. Columbia ships it everywhere. The major is the truck. [write "RENAISSANCE / COWBOY CARTER = PARKWOOD + Columbia" with "PARKWOOD" boxed and bigger, draw a small truck by "Columbia"]
+**TWIST:** Renaissance, then Cowboy Carter. The credit reads Parkwood Entertainment first, Columbia second. Most artists got it the other way, signed under the major. [write "CREDIT: PARKWOOD first / Columbia second" with "PARKWOOD" boxed and bigger]
 
-**PAYOFF:** Most artists are signed to the major and Parkwood is a dream they never build. She built it first, then gave a major the delivery job. [write "MOST: signed under it" then "HER: it drives for her" below it] Build the company. Let the major drive. [write "BUILD THE COMPANY -- LET THE MAJOR DRIVE" at the bottom and underline it twice]
+**PAYOFF:** On her records, Columbia aint the boss. It's the hired hand. Her company runs it, and Columbia is the one she pays to ship it. [draw "PARKWOOD" up top holding the wheel, "COLUMBIA" below labeled "the hired hand she pays"] [write "THE MAJOR ON HER COVER IS THE ONE SHE PAYS" at the bottom and underline it twice]
 
 ---
 

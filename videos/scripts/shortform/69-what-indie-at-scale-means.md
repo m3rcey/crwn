@@ -10,17 +10,15 @@ Link in bio to run major-size moves while staying independent with CRWN. Free to
 
 **SCRIPT:**
 
-People hear independent and think small. Bad Bunny's setup says independent can mean the biggest in the world. Let me show you what indie at scale really is.
+People hear independent and think small, so they figure Bad Bunny's Rimas is some little label. What that "little label" is worth now is the part that flips it.
 
-Yall been taught indie equals broke, broke equals limited. That math is old.
+Yall been taught indie equals broke, broke equals limited. That math old.
 
-Old indie meant you do everything yourself, small, with no reach. New indie, what they call indie at scale, means the artist still owns his side, but the company around him does every single thing a major does. Rimas isn't a kid with a laptop. It markets like a major. It plugs into distribution to hit every store and app worldwide. It books the stadiums. It put an artist on the biggest stages on the planet. It even buys stakes in other companies.
+The story is Rimas started off small. Reported as built on around 2 million dollars of startup money. Not major money. Indie money. Bad Bunny becomes a co-owner and the whole thing runs through it, no big three on top.
 
-It does the major's whole job. It just isn't a major, and the artist was never owned.
+Then watch the size flip. Rimas aint stay the one getting bought. It became the one buying. In 2025 it picked up a stake in another label, Dale Play. The indie turned into the acquirer.
 
-That's the shift. You used to trade ownership to get reach. Indie at scale is reach without giving up the ownership. Big moves, your name still on the deed.
-
-Independent stopped meaning small. It started meaning you got major-size power and you still kept the keys.
+And the company been reported valued near a billion dollars. That little indie grew bigger than most of the majors people told you to go sign with. Independent stopped meaning small. It started meaning you own the thing doing the buying.
 
 ---
 
@@ -37,15 +35,15 @@ Independent stopped meaning small. It started meaning you got major-size power a
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** People hear independent and think small. Bad Bunny's setup says it can mean the biggest in the world. [write "INDIE = small?" at top with a question mark, then "→ BIGGEST IN THE WORLD" below it]
+**HOOK:** People hear independent and think small, so they figure Bad Bunny's Rimas is some little label. What that little label is worth now flips it. [write "INDIE = little label?" at top with a question mark, then "WORTH NOW = ???" below it]
 
-**FORESHADOW:** Yall taught indie equals broke, broke equals limited. That math is old. [write "OLD MATH: INDIE = BROKE = LIMITED" and cross it out]
+**FORESHADOW:** Yall taught indie equals broke, broke equals limited. That math old. [write "OLD MATH: INDIE = BROKE = LIMITED" and cross it out]
 
-**RISING ACTION:** Old indie: do it all yourself, small, no reach. Indie at scale: the artist owns his side, the company does every job a major does. [write "INDIE AT SCALE:" then list "MARKETS like a major", "DISTRIBUTES worldwide", "BOOKS stadiums", "BIGGEST stages", "BUYS other companies" with checkmarks] It does the major's whole job. It just isn't one, and the artist was never owned.
+**RISING ACTION:** Rimas started small, reported built on around 2 million in startup money. Indie money, not major money. Bad Bunny becomes a co-owner and the whole thing runs through it, no big three on top. [write "START: ~$2M (indie money)" then "BB = co-owner, no big 3 on top"]
 
-**TWIST:** You used to trade ownership to get reach. Indie at scale is reach without giving up ownership. [write "OLD: OWNERSHIP traded for REACH" then "NEW: REACH + KEEP OWNERSHIP" below it, circle the new line]
+**TWIST:** Then the size flips. Rimas aint stay the one getting bought. It became the one buying. In 2025 it picked up a stake in another label, Dale Play. [write "2025: RIMAS BUYS into Dale Play" then "THE INDIE = THE ACQUIRER" and circle it]
 
-**PAYOFF:** Independent stopped meaning small. It started meaning major-size power with the keys still in your hand. [draw a hand holding a key with "MAJOR-SIZE POWER" written above it] [write "INDIE = POWER + YOU KEEP THE KEYS" at the bottom and underline it twice]
+**PAYOFF:** And the company been reported valued near a billion dollars. That little indie grew bigger than most of the majors people told you to go sign with. [write "RIMAS: reported ~$1 BILLION" and box it] Independent stopped meaning small. It started meaning you own the thing doing the buying. [write "INDIE = YOU OWN THE THING DOING THE BUYING" at the bottom and underline it twice]
 
 ---
 
