@@ -1,8 +1,8 @@
-## MASE GOT $20K FOR 24 YEARS OF PUBLISHING
+## DIDDY PAID MASE $20K FOR SONGS WORTH MILLIONS
 
 **CAPTION:**
 
-Mase Got $20K For 24 Years Of Hits
+Diddy Paid Mase $20K For Songs Worth Millions
 
 Link in bio to keep your publishing and own the song with CRWN. Free to start at thecrwn.app.
 
@@ -10,60 +10,54 @@ Link in bio to keep your publishing and own the song with CRWN. Free to start at
 
 **SCRIPT:**
 
-In 1996 Mase signed his publishing away at Bad Boy for one check. What did it end up costing him to claw that one signature back?
+What did Diddy and Bad Boy pay Mase for the publishing on every hit he wrote for em?
 
-Publishing is the money the song itself make, separate from the recording. So what does that one signature really cost over time.
+You bout to find out.
 
-Anytime ya song play on the radio, in a movie, in a sample, the publishing check go to whoever own it. Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good" in the late 90s, songs that licensed for decades. He signed all that over for a one-time check in 1996. Bad Boy held it. The records kept earnin, year after year, all of it landin in somebody else pocket.
+Publishing is the money a song earns every time it plays, for as long as it plays. Mase wrote on Mo Money Mo Problems, Can't Nobody Hold Me Down, records that kept licensing for decades. And by his own account, he signed all that future money over in 1996 for one check, around twenty thousand dollars.
 
-This what they dont tell you. The masters is the recording. The publishing is the song itself. The upfront check feel like the win in the moment. The song keep earning long after the check is spent.
+So years later, when Mase says he offered two million to buy his own songs back and got told no, how'd he ever get em?
 
-Heres the turn nobody expects. That check Mase took in 1996 was twenty thousand dollars. When he tried to buy the catalog back, the number he heard was around two million. It took til 2023, twenty four years later, for Diddy to hand the Bad Boy writers their publishing back. Twenty grand out, two million to undo it, and he still had to wait half a lifetime for the paper to flip.
+Well, he didn't buy em. He outlasted em. In 2023 Diddy reassigned Bad Boy's publishing straight to its writers, and Mase got every song back for free.
 
 ---
 
 **TITLES (suggested is in CAPTION above; alternates below):**
-1. Mase Got $20K For 24 Years Of Hits -- Structure 2  ← SUGGESTED
-2. POV: $20K For 24 Years Of Songs -- Structure 6
-3. Mase Sold His Publishing For $20K -- Structure 4
-4. Publishing Vs Masters For Artists -- Structure 8
+1. Diddy Paid Mase $20K For Songs Worth Millions -- Structure 4  ← SUGGESTED
+2. What Did Bad Boy Pay Mase For His Hits? -- Structure 8
+3. Mase Sold His Publishing For $20K -- Structure 2
+4. He Offered $2M And Still Got Told No -- Structure 8
 5. If You Write It, You Own It -- Structure 3
 
-**TOPIC:** Mase signed his publishing rights to Bad Boy and reportedly received only $20K upfront for 24 years of his hit catalog's licensing revenue. Publishing is the songwriting royalty, separate from masters (recording).
+**TOPIC:** By his own account, Mase signed his publishing to Bad Boy in 1996 for roughly $20,000 (he co-wrote hits like "Mo Money Mo Problems" and "Can't Nobody Hold Me Down"). He says he later offered $2M to buy it back and was refused. In Sept 2023 Diddy reassigned Bad Boy's publishing back to its writers, and Mase got his catalog back for free. Lesson for the artist: keep your publishing from the start so you never have to claw it back.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** In 1996 Mase signed one piece of paper at Bad Boy that took him til 2023 to undo. What did he sign away that ate 24 years to claw back? [write "MASE SIGNED ONE PAGE, 1996" big and "24 YEARS TO UNDO = ?" below it] His publishing. [write "HIS PUBLISHING" boxed and underlined twice]
+**HOOK:** What did Diddy and Bad Boy pay Mase for the publishing on every hit he wrote for em? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Diddy (Sean Combs) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DIDDY / BAD BOY" underneath; beside it write "MASE'S PUBLISHING = ?" with a question mark]
 
-**FORESHADOW:** Publishing is the money the song itself make, separate from the recording. So what does that one signature really cost over time. [write "WHAT DID THAT SIGNATURE COST?" with a question mark]
+**RISING ACTION:** Publishing is the money a song earns every time it plays, for as long as it plays. [write "PUBLISHING = THE SONG, FOREVER"] Mase wrote on Mo Money Mo Problems, Can't Nobody Hold Me Down, records that kept licensing for decades. [write "MO MONEY MO PROBLEMS / CANT NOBODY HOLD ME DOWN" listed] And by his own account, he signed all that future money over in 1996 for one check, around twenty thousand dollars. [write "1996: ONE CHECK = ~$20,000" boxed and underlined]
 
-**RISING ACTION:** Anytime ya song play on radio, in a movie, in a sample, the publishing check go to whoever own it. [draw three small icons: a radio, a movie clapboard, and a turntable, each with "$" beside it] Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good," songs that licensed for decades. [write "MO MONEY MO PROBLEMS / FEEL SO GOOD" listed below] He signed all that over for one upfront check in 1996. [write "ALL OF IT → ONE CHECK" with an arrow] Bad Boy held it. The records kept earnin, year after year, all landin in somebody else pocket. [write "KEEPS EARNIN → SOMEBODY ELSE" boxed and circled]
+**RE-HOOK:** So years later, when Mase says he offered two million to buy his own songs back and got told no, how'd he ever get em? [write "OFFERED $2M -> TOLD NO. SO HOW?" with a big question mark]
 
-**TWIST:** This what they dont tell you. The masters is the recording. The publishing is the song itself. [write "MASTERS = RECORDING" on the left and "PUBLISHING = SONG" on the right] The small upfront check feel like the win in the moment. The song keep earning long after the check is spent. [write "SMALL CHECK NOW / SONG EARNS FOREVER" centered and circled]
-
-**PAYOFF:** Heres the turn nobody expects. That check Mase took in 1996 was twenty thousand dollars. [write "THE CHECK = $20,000" boxed in the middle] When he tried to buy the catalog back, the number he heard was around two million. [write "BUY IT BACK = ~$2,000,000" underlined twice] It took til 2023, twenty four years later, for Diddy to hand the writers their publishing back. [write "WAITED 24 YEARS → 2023" with a long arrow] Twenty grand out, two million to undo it, and he still waited half a lifetime for the paper to flip. [write "$20K OUT" on the left and "$2M + 24 YRS TO FIX IT" on the right, both circled together inside one rough oval at the bottom]
+**PAYOFF:** He didn't buy em. He outlasted em. In 2023 Diddy reassigned Bad Boy's publishing straight to its writers, and Mase got every song back for free. [write "2023: GOT EM BACK" big and bold, then "FREE" underlined twice, circled at the bottom]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top center of the page, "$20,000 FOR 24 YEARS" is written in big bold capital letters and underlined twice. Below that, "MASE → BAD BOY ?" is written with a hand-drawn arrow and a question mark. In the upper middle of the page, "PUBLISHING = THE SONG" is written in capitals and boxed. Below that on the left, three small hand-drawn icons are drawn in a row: a simple radio, a movie clapboard, and a turntable, each with a "$" symbol beside it. To the right of the icons, "HITS: MO MONEY MO PROBLEMS / FEEL SO GOOD" is written listed. Below that, "BAD BOY HELD 24 YEARS" is written with a small hand-drawn calendar and a long hand-drawn arrow stretching across the page. Below that, "MASE PAID = $20,000" is written in capitals, boxed, and circled. Below that, a hand-drawn pie chart is drawn with a tiny slice labeled "MASE" and a huge slice labeled "BAD BOY". In the middle of the page on the left, "MASTERS = RECORDING" is written. On the right, "PUBLISHING = SONG" is written. Below them centered, "LABEL WANTS BOTH" is written with two hand-drawn arrows pointing up to both terms. Below that, a hand-drawn printing press is drawn with dollar signs flying out of it, labeled "24 YR ENGINE". In the lower middle of the page, "WRITE IT = OWN IT" is written in capitals, boxed, and underlined. At the very bottom of the page, "SONG CHECK > PLAY CHECK" is written in capitals, boxed, and the whole line circled. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top left, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Diddy (Sean Combs) from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, with "DIDDY / BAD BOY" written in capitals underneath. To the right of the portrait, "MASE'S PUBLISHING = ?" is written with a question mark. Below the portrait, "PUBLISHING = THE SONG, FOREVER" is written in capitals. Below that, "MO MONEY MO PROBLEMS / CANT NOBODY HOLD ME DOWN" is written as a short stacked list. Below that, "1996: ONE CHECK = ~$20,000" is written, boxed, and underlined. In the middle of the page, "OFFERED $2M -> TOLD NO. SO HOW?" is written with a large hand-drawn question mark. In the lower half of the page, "2023: GOT EM BACK" is written very large and bold, and beneath it "FREE" is written and underlined twice, with a rough sharpie oval circled around the whole bottom line. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "$20,000 FOR 24 YEARS" underlined at top
-2. "MASE → BAD BOY ?" with arrow
-3. "PUBLISHING = THE SONG" boxed
-4. Radio / movie / turntable icons with $
-5. "HITS: MO MONEY MO PROBLEMS / FEEL SO GOOD"
-6. "BAD BOY HELD 24 YEARS" calendar and long arrow
-7. "MASE PAID = $20,000" boxed and circled
-8. Pie chart Mase tiny / Bad Boy huge
-9. "MASTERS = RECORDING" / "PUBLISHING = SONG" / "LABEL WANTS BOTH"
-10. Printing press with $ "24 YR ENGINE"
-11. "WRITE IT = OWN IT" boxed
-12. "SONG CHECK > PLAY CHECK" circled at bottom
+1. Sharpie portrait of Diddy labeled "DIDDY / BAD BOY"
+2. "MASE'S PUBLISHING = ?" with question mark
+3. "PUBLISHING = THE SONG, FOREVER"
+4. "MO MONEY MO PROBLEMS / CANT NOBODY HOLD ME DOWN"
+5. "1996: ONE CHECK = ~$20,000" boxed and underlined
+6. "OFFERED $2M -> TOLD NO. SO HOW?" with question mark
+7. "2023: GOT EM BACK" big
+8. "FREE" underlined twice, circled at bottom

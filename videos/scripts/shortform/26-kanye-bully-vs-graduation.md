@@ -18,7 +18,7 @@ Back in 2007 Graduation moved 957,000 copies week one, under Roc-A-Fella through
 
 So nineteen years later, how much of that same dollar does Kanye keep on Bully, the album he put out a completely different way?
 
-Through a distribution deal, where he own the music and just pay to get it out, that dollar reportedly bring him 50 cents or more. More than triple what Graduation ever kept him.
+Through a distribution deal, where he own the music and just pay to get it out, that dollar reportedly bring him 50 cents or more. More than triple what Graduation ever made him.
 
 ---
 
