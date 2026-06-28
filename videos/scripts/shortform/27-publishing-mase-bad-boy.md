@@ -10,15 +10,15 @@ Link in bio to keep your publishing and own the song with CRWN. Free to start at
 
 **SCRIPT:**
 
-In 1996 Mase signed his publishing to Bad Boy for one check. How much was that check for the songs he wrote his whole career? Twenty thousand dollars.
+In 1996 Mase signed his publishing away at Bad Boy for one check. What did it end up costing him to claw that one signature back?
 
-Publishing is the money the song itself make, separate from the recording. So what does $20K really cost over time.
+Publishing is the money the song itself make, separate from the recording. So what does that one signature really cost over time.
 
-Anytime ya song play on the radio, in a movie, in a sample, the publishing check go to whoever own it. Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good" in the late 90s, songs that licensed for decades. He signed all that over for a one-time $20,000 in 1996. Bad Boy held it. Years later Mase said he tried to buy it back, and the offer on the table to repurchase his own catalog was reportedly around 2 million dollars.
+Anytime ya song play on the radio, in a movie, in a sample, the publishing check go to whoever own it. Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good" in the late 90s, songs that licensed for decades. He signed all that over for a one-time check in 1996. Bad Boy held it. The records kept earnin, year after year, all of it landin in somebody else pocket.
 
-This what they dont tell you. The masters is the recording. The publishing is the song itself. The small upfront check feel like the win in the moment. The song keep earning long after the check is spent.
+This what they dont tell you. The masters is the recording. The publishing is the song itself. The upfront check feel like the win in the moment. The song keep earning long after the check is spent.
 
-Heres the turn nobody expects. After 24 years, Diddy gave the Bad Boy writers their publishing back in 2023, Mase included. The $20,000 song catalog he signed away in his 20s, he was sitting on it again in his 40s. The check was small. The thing he signed away was worth fighting two decades to get back.
+Heres the turn nobody expects. That check Mase took in 1996 was twenty thousand dollars. When he tried to buy the catalog back, the number he heard was around two million. It took til 2023, twenty four years later, for Diddy to hand the Bad Boy writers their publishing back. Twenty grand out, two million to undo it, and he still had to wait half a lifetime for the paper to flip.
 
 ---
 
@@ -35,15 +35,15 @@ Heres the turn nobody expects. After 24 years, Diddy gave the Bad Boy writers th
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** In 1996 Mase signed his publishing to Bad Boy for one check. How much was that check for the songs he wrote his whole career? [write "MASE SIGNED HIS PUBLISHING, 1996" big and "ONE CHECK = ?" below it] Twenty thousand dollars. [write "$20,000" boxed and underlined twice]
+**HOOK:** In 1996 Mase signed one piece of paper at Bad Boy that took him til 2023 to undo. What did he sign away that ate 24 years to claw back? [write "MASE SIGNED ONE PAGE, 1996" big and "24 YEARS TO UNDO = ?" below it] His publishing. [write "HIS PUBLISHING" boxed and underlined twice]
 
-**FORESHADOW:** Publishing is the money the song itself make, separate from the recording. So what does $20K really cost over time. [write "WHAT DOES $20K COST?" with a question mark]
+**FORESHADOW:** Publishing is the money the song itself make, separate from the recording. So what does that one signature really cost over time. [write "WHAT DID THAT SIGNATURE COST?" with a question mark]
 
-**RISING ACTION:** Anytime ya song play on radio, in a movie, in a sample, the publishing check go to whoever own it. [draw three small icons: a radio, a movie clapboard, and a turntable, each with "$" beside it] Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good," songs that licensed for decades. [write "MO MONEY MO PROBLEMS / FEEL SO GOOD" listed below] He signed all that over for a one-time $20,000 in 1996. [write "ALL OF IT → $20,000" with an arrow] Bad Boy held it. Years later Mase said he tried to buy it back, and the offer to repurchase his own catalog was reportedly around 2 million dollars. [write "BUY IT BACK = ~$2,000,000?" boxed and circled]
+**RISING ACTION:** Anytime ya song play on radio, in a movie, in a sample, the publishing check go to whoever own it. [draw three small icons: a radio, a movie clapboard, and a turntable, each with "$" beside it] Mase wrote on records like "Mo Money Mo Problems" and "Feel So Good," songs that licensed for decades. [write "MO MONEY MO PROBLEMS / FEEL SO GOOD" listed below] He signed all that over for one upfront check in 1996. [write "ALL OF IT → ONE CHECK" with an arrow] Bad Boy held it. The records kept earnin, year after year, all landin in somebody else pocket. [write "KEEPS EARNIN → SOMEBODY ELSE" boxed and circled]
 
 **TWIST:** This what they dont tell you. The masters is the recording. The publishing is the song itself. [write "MASTERS = RECORDING" on the left and "PUBLISHING = SONG" on the right] The small upfront check feel like the win in the moment. The song keep earning long after the check is spent. [write "SMALL CHECK NOW / SONG EARNS FOREVER" centered and circled]
 
-**PAYOFF:** Heres the turn nobody expects. After 24 years, Diddy gave the Bad Boy writers their publishing back in 2023, Mase included. [write "2023: GOT IT BACK AFTER 24 YEARS" boxed in the middle and underlined] The $20,000 catalog he signed away in his 20s, he was sitting on it again in his 40s. [write "$20K IN HIS 20s → OWNS IT IN HIS 40s" on the left with an arrow] The check was small. The thing he signed away was worth fighting two decades to get back. [write "SMALL CHECK" on the left and "20 YR FIGHT TO GET IT BACK" on the right, both circled together inside one rough oval at the bottom]
+**PAYOFF:** Heres the turn nobody expects. That check Mase took in 1996 was twenty thousand dollars. [write "THE CHECK = $20,000" boxed in the middle] When he tried to buy the catalog back, the number he heard was around two million. [write "BUY IT BACK = ~$2,000,000" underlined twice] It took til 2023, twenty four years later, for Diddy to hand the writers their publishing back. [write "WAITED 24 YEARS → 2023" with a long arrow] Twenty grand out, two million to undo it, and he still waited half a lifetime for the paper to flip. [write "$20K OUT" on the left and "$2M + 24 YRS TO FIX IT" on the right, both circled together inside one rough oval at the bottom]
 
 ---
 

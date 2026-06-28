@@ -10,15 +10,15 @@ Link in bio to promote your own music to your own fans with CRWN. Free to start 
 
 **SCRIPT:**
 
-Teyana Taylor dropped one of the best reviewed R&B albums of her career. Then she quit. So what made her walk? It wasnt the music.
+Teyana Taylor quit music right after one of the best reviewed albums of her career, so where did walkin away actually take her?
 
-The reason aint about talent.
+It wasnt the music. Watch where she ended up.
 
-The Album dropped in 2020. Critics loved it. Fans loved it. But Teyana said she got little to no real push from the machine, kept catchin the shorter end of the stick while her labelmates got the rollouts. GOOD Music had Kanye and bigger acts to feed first. So in December 2020 she went on Instagram, said she felt under appreciated, and announced she was retiring this chapter. The album was good. The belief from the label wasnt there.
+Critics loved the album. Fans loved it. But Teyana said she got little to no real push from the machine, kept catchin the shorter end of the stick while her labelmates got the rollouts. GOOD Music had Kanye and bigger acts to feed first. So in December 2020 she went on Instagram, said she felt under appreciated, and announced she was retiring this chapter.
 
 This what they dont tell you. A label deal dont guarantee promotion. It guarantee a contract. You can be signed and still be invisible.
 
-The same Instagram post where she thanked fans for the streams is the one where she quit. The fans showed up. The machine didnt. So she walked, and came back years later with her own people pushin her.
+Here go the part that flips it. Walkin away wasnt the end of her. Inside three years, Teyana landed a movie role that got her a Golden Globe nomination, then came back with a Grammy nominated album, all on her own terms.
 
 ---
 
@@ -37,13 +37,13 @@ The same Instagram post where she thanked fans for the streams is the one where 
 
 **HOOK:** Teyana Taylor dropped one of the best reviewed R&B albums of her career. Then she quit. [write "TEYANA TAYLOR" in caps at top, then "THE ALBUM" in big caps with a record icon beside it, then "RETIRED" boxed and circled] So what made her walk? [write "WHY QUIT?" underneath and underline twice]
 
-**FORESHADOW:** It wasnt the music. [write "TALENT ≠ THE PROBLEM" in caps with an arrow]
+**FORESHADOW:** It wasnt the music. Watch where she ended up. [write "TALENT ≠ THE PROBLEM" in caps with an arrow]
 
-**RISING ACTION:** The Album dropped in 2020. Critics loved it. Fans loved it. [draw three check marks in a row each labeled "CRITICS ✓", "FANS ✓", "REVIEWS ✓"] But Teyana said she got little to no real push from the machine, kept catchin the shorter end of the stick. [draw a roster sheet with names listed and "TEYANA" at the bottom small] No real push. The shorter end of the stick. [write "NO REAL PUSH / SHORTER END" stacked vertically with X marks beside each] So in December 2020 she went on Instagram and announced she was retiring this chapter. [draw a simple phone screen with the word "RETIRED" big on it] The album was good. The belief from the label wasnt there. The label had Kanye and bigger acts to feed first. [write "KANYE FIRST" in caps and underline it] She felt under appreciated. [write "UNDER APPRECIATED" boxed]
+**RISING ACTION:** Critics loved the album. Fans loved it. [draw three check marks in a row each labeled "CRITICS ✓", "FANS ✓", "REVIEWS ✓"] But Teyana said she got little to no real push from the machine, kept catchin the shorter end of the stick. [draw a roster sheet with names listed and "TEYANA" at the bottom small] No real push. The shorter end of the stick. [write "NO REAL PUSH / SHORTER END" stacked vertically with X marks beside each] So in December 2020 she went on Instagram and announced she was retiring this chapter. [draw a simple phone screen with the word "RETIRED" big on it] The label had Kanye and bigger acts to feed first. [write "KANYE FIRST" in caps and underline it] She felt under appreciated. [write "UNDER APPRECIATED" boxed]
 
 **TWIST:** This what they dont tell you. A label deal dont guarantee promotion. It guarantee a contract. [write "CONTRACT ≠ PROMOTION" in caps and underline twice] You can be signed and still be invisible. [draw a stick figure labeled "ARTIST" with a question mark above it next to a building labeled "LABEL"]
 
-**PAYOFF:** The same post where she thanked fans for the streams is the one where she quit. The fans showed up. The machine didnt. [write "FANS SHOWED UP" on the left, "THE MACHINE DIDNT" on the right at the bottom, both circled together in one oval]
+**PAYOFF:** Here go the part that flips it. Inside three years off bein free, Teyana landed a movie role that got her a Golden Globe nomination, then came back to music on her own terms with a Grammy nominated album. The label couldnt push her. Owning her own moves did. [write "QUIT THE LABEL" on the left, then an arrow to "GOLDEN GLOBE NOM → GRAMMY NOM" on the right at the bottom, both circled together in one oval]
 
 ---
 

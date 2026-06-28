@@ -16,9 +16,9 @@ Yall hear artists say they owe the label albums. A deal aint forever, it's a num
 
 Most deals say you owe a set amount of albums. Til you deliver that number, they own what you make and they decide when it comes out. Frank owed em one. The paper said one album. It didn't say it had to be a good one, or a real rollout, or even mostly music.
 
-So he made Endless. A 45-minute black-and-white video of Frank quietly building a wooden staircase in a warehouse, with songs playing under it. Posted one time, no singles, no push. Def Jam took it as the album. The debt hit zero.
+He read that one line close, real close. Then he made the cheapest possible thing that still counted as an album, handed it over, and the debt hit zero. The next morning he dropped Blonde on his own and kept it for life. He aint wait years for the deal to expire. He just closed it himself.
 
-The next morning he dropped Blonde on his own and kept it for life. He didn't wait years for the deal to expire. He read the one line that closed it, gave em the cheapest thing that satisfied it, and walked out the next day owning everything that mattered.
+So what did he actually hand Def Jam to satisfy a whole album? Endless. A 45-minute black-and-white video of Frank quietly building a wooden staircase in a warehouse, songs playing under it. Posted one time, no singles, no push. A man building stairs for 45 minutes counted as the album that set him free.
 
 ---
 
@@ -41,9 +41,9 @@ The next morning he dropped Blonde on his own and kept it for life. He didn't wa
 
 **RISING ACTION:** Til you deliver that number, they own what you make and decide when it drop. The paper said one album. It didn't say good, or a real rollout, or even mostly music. [write "DEAL = A NUMBER, NOT FOREVER" centered, then "PAPER SAID: 1 ALBUM" below it]
 
-**TWIST:** So he made Endless. A 45-minute black-and-white video of Frank quietly building a wooden staircase in a warehouse, songs under it. Posted once, no singles. Def Jam took it as the album. [draw a small spiral staircase, label it "ENDLESS = 45 MIN OF BUILDING STAIRS"] The debt hit zero. [write "DEBT = 0" and circle it]
+**TWIST:** So he read that line close, made the cheapest thing that still counted as an album, and handed it over. The debt hit zero. The next morning he dropped Blonde on his own and kept it for life. He aint wait years for the deal to expire, he just closed it himself. [write "DEBT = 0" and circle it, then a short arrow to the word "FREE" written larger]
 
-**PAYOFF:** The next morning he dropped Blonde on his own and kept it for life. [draw a short arrow from "DEBT = 0" to the word "FREE" written larger] He didn't wait years for the deal to expire. He read the one line that closed it, gave em the cheapest thing that satisfied it, and walked out owning everything that mattered. [write "CHEAPEST THING THAT COUNTED -- THEN GONE" at the bottom and box it]
+**PAYOFF:** So what did he actually hand Def Jam to satisfy a whole album? Endless. A 45-minute black-and-white video of Frank quietly building a wooden staircase in a warehouse, songs under it. [draw a small staircase, label it "ENDLESS = 45 MIN BUILDING STAIRS"] A man building stairs for 45 minutes counted as the album that set him free. [write "STAIRS FOR 45 MIN = ONE WHOLE ALBUM" at the bottom and box it]
 
 ---
 

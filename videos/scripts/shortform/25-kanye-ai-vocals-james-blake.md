@@ -14,11 +14,11 @@ James Blake built a whole track for Kanye's Bully album. Then he asked Kanye to 
 
 A producer doesnt usually run from a Kanye credit. So what happened here.
 
-Bully dropped March 2026 through Gamma. James Blake produced one of the songs. He freestyled the vocals, pitched em, built the track around em. Then the final version came out and it wasnt his. New vocal takes on top, the spirit of what he made mostly gone. Reports said AI was in the mix, Kanye went back and forth on it. Blake aint argue the deal. He just said publicly, take my name off, this aint what I created. He didnt want a credit on work that wasnt his anymore.
+Bully dropped March 2026 through Gamma. James Blake produced one of the songs, "This One Here." He took Kanye freestyle, pitched the vocals, built the whole track around em. Then the album came out and fans started askin questions about that closer. Blake saw the comments and stepped in public. Take my name off the credits, he said. Aint about the deal, aint about the money.
 
 This what they dont tell you. Once you hand the file over, somebody else decide what the final sound is. You can build the whole foundation and still not control what go out under it.
 
-Heres the part nobody clocked. Blake walked from the credit, but he still got his own fans, his own catalog, his own direct line. The name on a Kanye song he could give up. The name on his own audience nobody could take.
+Heres the part nobody expected. He didnt walk over money or a beef. He walked cause the version that came out wasnt the one he made. New takes on top, the AI sittin where his work used to. He'd rather have no credit on a Kanye album than his name on somethin he didnt create.
 
 ---
 
@@ -39,11 +39,11 @@ Heres the part nobody clocked. Blake walked from the credit, but he still got hi
 
 **FORESHADOW:** A producer doesnt usually run from a Kanye credit. So what happened here. [write "RUN FROM A KANYE CREDIT?" with a big question mark beside it]
 
-**RISING ACTION:** Bully dropped March 2026 through Gamma. James Blake produced one of the songs. [write "BULLY 2026" centered with "JAMES BLAKE PRODUCED" written below it] He freestyled the vocals, pitched em, built the track around em. [write "FREESTYLE → PITCHED → BUILT TRACK" listed] Then the final version came out and it wasnt his. New vocal takes on top, the spirit of what he made mostly gone. [draw two boxes side by side, one labeled "HIS VERSION" and one labeled "FINAL VERSION" with a "≠" between them] Reports said AI was in the mix, Kanye went back and forth on it. [write "AI? KANYE SAID YES THEN NO" with a question mark] Blake aint argue the deal. He just said take my name off, this aint what I created. [write "TAKE MY NAME OFF" boxed and circled]
+**RISING ACTION:** Bully dropped March 2026 through Gamma. James Blake produced one of the songs, "This One Here." [write "BULLY 2026" centered with "JAMES BLAKE → THIS ONE HERE" written below it] He took Kanye freestyle, pitched the vocals, built the whole track around em. [write "FREESTYLE → PITCHED → BUILT TRACK" listed] Then the album came out and fans started askin questions about that closer. [write "FANS ASKIN QUESTIONS" with a question mark] Blake saw the comments and stepped in public. Take my name off the credits, he said. [write "TAKE MY NAME OFF" boxed and circled] Aint about the deal, aint about the money. [write "NOT THE DEAL / NOT THE MONEY" with X marks beside each]
 
 **TWIST:** This what they dont tell you. Once you hand the file over, somebody else decide what the final sound is. [write "HAND OVER THE FILE = LOSE THE FINAL" centered and circled] You can build the whole foundation and still not control what go out under it. [draw a hand-drawn house with a strong foundation labeled "YOU BUILT THIS" and the top half scribbled over labeled "SOMEBODY ELSE"]
 
-**PAYOFF:** Heres the part nobody clocked. Blake walked from the credit, but he still got his own fans, his own catalog, his own direct line. [write "OWN FANS + OWN CATALOG + OWN LINE" boxed in the lower middle] The name on a Kanye song he could give up. [write "KANYE CREDIT → GAVE IT UP" with an arrow on the left] The name on his own audience nobody could take. [write "HIS OWN AUDIENCE → NOBODY TAKES" with an arrow on the right, both phrases circled together inside one rough oval at the bottom]
+**PAYOFF:** Heres the part nobody expected. He didnt walk over money or a beef. [write "NOT MONEY. NOT A BEEF." in the lower middle] He walked cause the version that came out wasnt the one he made. New takes on top, the AI sittin where his work used to. [draw two boxes side by side, one labeled "WHAT HE MADE" and one labeled "WHAT DROPPED" with a "≠" between them and "AI" scribbled in the second box] He'd rather have no credit on a Kanye album than his name on somethin he didnt create. [write "NO CREDIT" on the left and "> NAME ON A FAKE" on the right at the bottom, both circled together inside one rough oval]
 
 ---
 

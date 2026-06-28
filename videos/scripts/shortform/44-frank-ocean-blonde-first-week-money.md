@@ -10,15 +10,15 @@ Link in bio to keep the bigger slice of every release with CRWN. Free to start a
 
 **SCRIPT:**
 
-Frank Ocean sold 232,000 copies of Blonde its first week with no label. The question aint how many he sold. It's how much of that money he got to keep.
+Frank Ocean sold 232,000 copies of Blonde its first week with no label, so how much of that money did he keep compared to if Def Jam had owned it?
 
 Yall been told you need a major to move numbers like that. Frank just proved you don't.
 
-276,000 total units counting streams. Number 1 in the country. Third biggest debut of the whole year, behind only Drake and Beyonce. No label, no radio push. He owned the master himself, so after the songwriters got paid he kept about $1.77 million off seven days.
+276,000 total units counting streams. Number 1 in the country. Third biggest debut of the whole year, behind only Drake and Beyonce. No label, no radio push. He put it out himself and kept the master.
 
-Now run that exact same week through the old Def Jam deal. 18 cents on the dollar after the label eats first. Same album, same 232,000 copies, and his royalty check is about $383,000.
+Now picture that exact same week run through his old Def Jam deal instead. Same 232,000 copies sold. Same chart spot. The only thing that changes is whose name sits on top of the master, and the label eats first at 18 cents on the dollar.
 
-Same songs, same week, same fans. One version pays him $1.77 million. The other pays him $383,000. The thing that decided which check he got wasn't the music. It was whose name sat on top of the master.
+So here go the gap. One seven-day week, one album, two checks. Owning it himself, Frank kept about one point seven seven million dollars. Run through the Def Jam deal, that same week pays him three hundred eighty three thousand.
 
 ---
 
@@ -35,15 +35,15 @@ Same songs, same week, same fans. One version pays him $1.77 million. The other 
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** Frank Ocean sold 232,000 copies of Blonde its first week with no label. The question aint how many he sold. It's how much he kept. [write "BLONDE WK 1: 232,000 SOLD" in bold caps at top] [write "HOW MUCH DID HE KEEP?" underneath, boxed]
+**HOOK:** Frank Ocean sold 232,000 copies of Blonde its first week with no label. Same songs, same week, same fans, but two different checks depending on who owned it. [write "BLONDE WK 1: 232,000 SOLD" in bold caps at top] [write "TWO CHECKS, ONE WEEK = ?" underneath, boxed]
 
 **FORESHADOW:** Yall been told you need a major to move numbers like that. Frank just proved you don't. [draw a crossed-out building labeled "MAJOR"]
 
-**RISING ACTION:** 276,000 total units counting streams. Number 1 in the country. [write "#1 -- 276,000 UNITS" centered] Third biggest debut of the whole year, behind only Drake and Beyonce. He owned the master himself, so after the songwriters got paid he kept about $1.77 million off seven days. [write "OWNED IT: $1,770,000" on the left]
+**RISING ACTION:** 276,000 total units counting streams. Number 1 in the country. [write "#1 -- 276,000 UNITS" centered] Third biggest debut of the whole year, behind only Drake and Beyonce. He put it out himself and kept the master. [write "PUT IT OUT HIMSELF" on the left]
 
-**TWIST:** Now run that exact same week through the old Def Jam deal. 18 cents on the dollar after the label eats first. Same album, same 232,000 copies, and his royalty check is about $383,000. [write "DEF JAM DEAL: ~$383,000" on the right with "18¢ kept" under it] [draw a big arrow from $1,770,000 down to $383,000]
+**TWIST:** Now picture that exact same week run through his old Def Jam deal. Same 232,000 copies, same chart spot. The only thing that changes is whose name sits on the master, and the label eats first at 18 cents on the dollar. [write "SAME WEEK -> DEF JAM DEAL" on the right with "label eats first, 18¢" under it]
 
-**PAYOFF:** Same songs, same week, same fans. One version pays him $1.77 million. The other pays him $383,000. [write "$1,770,000" then "vs" then "$383,000" stacked] The thing that decided which check he got wasn't the music. It was whose name sat on top of the master. [write "THE NAME ON THE MASTER PICKED THE CHECK" and underline it twice]
+**PAYOFF:** So here go the gap. One week, one album, two checks. Owning it himself, Frank kept about one point seven seven million. Run through the Def Jam deal, that same week pays him three hundred eighty three thousand. [write "OWNED IT: $1,770,000" then "vs" then "DEF JAM: $383,000" stacked, and underline both numbers twice] [draw a big arrow from $1,770,000 down to $383,000]
 
 ---
 

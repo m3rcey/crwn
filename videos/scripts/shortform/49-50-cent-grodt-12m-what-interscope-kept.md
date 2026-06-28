@@ -16,9 +16,9 @@ Yall see "biggest album of the year" and think the artist got rich off it. Look 
 
 Get Rich or Die Tryin', February 2003. Number 1. Look at the labels stacked on the cover. Shady Records. Aftermath. Interscope. That's three companies sitting in line ahead of him on his own debut. And it's worse than the split. Every dollar Interscope spent on his recording, his videos, his marketing, gets charged back and pulled out of 50's slice first, before he sees a cent. They spend it, he repays it.
 
-So count it up. Three logos take their cut, then the costs come off what's left, and the man who made the album eats fourth. 12 million records and 50 is the fourth one to the register on his own song.
+So count the line at the register. Shady cashes. Aftermath cashes. Interscope cashes, then pulls its costs back out. And the man whose face is on the cover, the man who made every song? He steps up fourth.
 
-Big sales is real. They just don't mean a big check when you the last name in a line of four on your own album cover.
+12 million records sold, and on his own debut, 50 is the fourth name to the register.
 
 ---
 
@@ -43,7 +43,7 @@ Big sales is real. They just don't mean a big check when you the last name in a 
 
 **TWIST:** And it's worse than the split. Every dollar Interscope spent on recording, videos, marketing gets charged back and pulled from 50's slice first. They spend it, he repays it. [write "COSTS (recording/videos/marketing)" with an arrow pulling out of "50's slice"]
 
-**PAYOFF:** Three logos take their cut, costs come off what's left, and the man who made it eats fourth. 12 million records and 50 is fourth to the register on his own song. [write "50 = 4th TO THE REGISTER" and underline it twice] Big sales don't mean a big check when you the last name in a line of four on your own cover. [write "LAST NAME IN A LINE OF FOUR" at the bottom, circled]
+**PAYOFF:** Count the line at the register. Shady cashes. Aftermath cashes. Interscope cashes, then pulls its costs back out. And the man whose face is on the cover, who made every song, steps up fourth. [draw four spots in a line at a register, label the first three SHADY, AFTERMATH, INTERSCOPE and the last one "50"] 12 million records sold, and on his own debut, 50 is the fourth name to the register. [write "50 = 4th TO THE REGISTER ON HIS OWN ALBUM" at the bottom and underline it twice]
 
 ---
 

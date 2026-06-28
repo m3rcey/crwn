@@ -18,7 +18,7 @@ Before any label, Cole was movin his own music hand to hand. Burnin CDs, sellin 
 
 This what they dont tell you. The deal didnt come cause Cole begged for it. It came cause Cole built somethin that pulled Jay back to him.
 
-The same Jay-Z who waved off his CD made him the first artist on Roc Nation. The fanbase came first. The call came second.
+Heres the part that flips it. The same Jay-Z who waved his CD off in the rain didnt just sign him. Cole became the first artist Roc Nation ever signed, the whole label built around the kid Jay walked past.
 
 ---
 
@@ -43,7 +43,7 @@ The same Jay-Z who waved off his CD made him the first artist on Roc Nation. The
 
 **TWIST:** This what they dont tell you. Roc Nation didnt build Cole. Cole built Cole. [draw a stick figure labeled "COLE" with an arrow pointing up to "ROC NATION", then write "COLE BUILT COLE" boxed beside it] The label came in after the line already formed. [draw a long line of stick figures with one at the front labeled "COLE" and one at the back labeled "LABEL"]
 
-**PAYOFF:** The same Jay-Z who waved off his CD made him the first artist on Roc Nation. [write "JAY WAVED HIM OFF → SIGNED HIM" in caps centered] The fanbase came first. The call came second. [write "FANBASE FIRST" on the left and "CALL SECOND" on the right at the bottom, both circled together in one oval]
+**PAYOFF:** Heres the part that flips it. The same Jay-Z who waved his CD off didnt just sign him. [write "JAY WAVED HIM OFF → SIGNED HIM" in caps centered] Cole became the first artist Roc Nation ever signed, the whole label built around the kid Jay walked past. [write "ARTIST #1" huge on the left and "ROC NATION BUILT ON COLE" on the right at the bottom, both circled together in one oval]
 
 ---
 

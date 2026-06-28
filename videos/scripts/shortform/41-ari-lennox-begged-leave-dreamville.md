@@ -16,9 +16,9 @@ Cole's label was supposed to be the good one. Wait til you hear how it actually 
 
 Ari dropped Shea Butter Baby, one of the best R&B projects of the decade. Then the rollouts slowed and the next moves stalled. In 2024 she went public, said not one person at the label ever knew how to market or protect her, and asked straight up to be let go. Said she just wanna be free. April 2025, she officially left Dreamville. So she won, right?
 
-Here go the catch nobody clocked. Ari left Dreamville and was still signed to Interscope.
+Here go the catch nobody clocked. She didn't go independent.
 
-She traded one boss for the boss above it. Gettin out the small deal don't mean you own nothin. The only artist who can't get dropped is the one who never handed the keys over in the first place.
+She left Dreamville and signed a fresh deal straight to Interscope, the major that was sittin above Dreamville all along. She walked out the small office and into the big one upstairs.
 
 ---
 
@@ -41,9 +41,9 @@ She traded one boss for the boss above it. Gettin out the small deal don't mean 
 
 **RISING ACTION:** Ari dropped Shea Butter Baby, one of the best R&B projects of the decade. [draw a hand-drawn album cover labeled "SHEA BUTTER BABY" with a check mark and a star beside it] Then the rollouts slowed and the next moves stalled. [draw three clocks in a row each getting bigger and label them "MONTHS", "YEARS", and "???"] In 2024 she went public, said not one person at the label ever knew how to market or protect her. [draw a hand-drawn phone with a live stream icon and "RELEASE ME" written on the screen] Asked straight up to be let go. Said she just wanna be free. [write "I JUST WANNA BE FREE" with quotes around it] April 2025, she officially left Dreamville. [write "APRIL 2025 = LEFT DREAMVILLE" in caps with a check mark] So she won, right? [write "SO SHE WON?" and underline it]
 
-**TWIST:** Here go the catch nobody clocked. Ari left Dreamville and was still signed to Interscope. [draw a stick figure labeled "ARI" stepping out one door labeled "DREAMVILLE" straight into a bigger door labeled "INTERSCOPE"]
+**TWIST:** Here go the catch nobody clocked. She didn't go independent. [write "FREE? NOT QUITE" in caps with the word "FREE" crossed out]
 
-**PAYOFF:** She traded one boss for the boss above it. Gettin out the small deal don't mean you own nothin. [write "OUT THE SMALL DEAL" crossed out on the left and "STILL DON'T OWN IT" on the right with a dividing line] The only artist who can't get dropped is the one who never handed the keys over. [write "CAN'T GET DROPPED IF YOU OWN IT" in big bold caps at the bottom and circle it once]
+**PAYOFF:** She left Dreamville and signed a fresh deal straight to Interscope, the major that was sittin above Dreamville all along. She walked out the small office and into the big one upstairs. [draw a stick figure labeled "ARI" stepping out one door labeled "DREAMVILLE" straight into a bigger door labeled "INTERSCOPE", then write "SAME BUILDING, FLOOR UP" in big bold caps underneath and circle it once]
 
 ---
 

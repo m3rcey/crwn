@@ -10,13 +10,13 @@ Link in bio to make income that you actually own with CRWN. Free to start at the
 
 **SCRIPT:**
 
-Trinidad James signed a $2 million Def Jam deal off one hit. So why did he say he had no money to pay anybody? That word "advance."
+Trinidad James signed a $2 million Def Jam deal off one hit, so why did he end up puttin his next project out for free?
 
-Watch what advance actually mean.
+It come down to one word in that contract. Advance.
 
 Late 2012 "All Gold Everything" blew up and Def Jam handed Trinidad a deal reported around $2 million. But reports say only about $500K of that was the upfront money. Another chunk was a recording budget. The rest tied to albums he hadnt even made yet. None of it a gift. All of it a loan against music that didnt exist. Every video, every studio session, every flight, every promo run come out that money. Then he gotta sell records to pay it all back before he see a check on his own work. He couldnt follow up the hit. Def Jam dropped him by 2014. And the bill didnt vanish.
 
-This what they dont tell you. An advance aint a check. Its a loan you signed for. You aint gettin paid up front, you borrowin up front.
+This what they dont tell you. The bigger the number on the deal, the bigger the bill that come back before you ever see a cent.
 
 When the label let him go, Trinidad put his music out free and told the producers and rappers on it not to expect a dime, cause off a $2 million deal, he aint have it.
 
@@ -37,7 +37,7 @@ When the label let him go, Trinidad put his music out free and told the producer
 
 **HOOK:** Trinidad James signed a $2 million Def Jam deal off one hit. [write "TRINIDAD JAMES → DEF JAM" in caps at top with "LATE 2012" beside it, then "$2,000,000 DEAL" huge and circle it twice] So why did he say he had no money to pay anybody? [write "BROKE? HOW" boxed and underlined]
 
-**FORESHADOW:** Watch what advance actually mean. [write "ADVANCE = ?" with a big question mark]
+**FORESHADOW:** It come down to one word in that contract. Advance. [write "ADVANCE = ?" with a big question mark]
 
 **RISING ACTION:** After "All Gold Everything" blew up, Def Jam handed Trinidad a deal reportedly worth $2 million. [write "ALL GOLD EVERYTHING" in caps with a viral arrow going up beside it, then "$2M DEAL" big] Reports say about $500K was the upfront money. Another $500K was a recording budget. The rest tied to albums he hadn't made yet. [write three stacked lines: "~$500K UPFRONT", "~$500K RECORDING BUDGET", "REST = UNMADE ALBUMS"] None of that a gift. All of it a loan against music that didn't exist. [write "GIFT" with an X through it, then "LOAN" circled beside it] Every video, every studio session, every flight, every promo run, all of it come out that money. [draw a receipt stacked with items: "VIDEOS $", "STUDIO $", "FLIGHTS $", "PROMO $"] Then he gotta sell records to pay it back before he see a check on his own work. [draw a stick figure labeled "TRINIDAD" climbing out a hole labeled "$2M"] He couldnt follow up the hit. Label dropped him by 2014. The money didnt get forgiven. It just kept sittin on his ledger like rent. [write "STILL DUE" in big caps and underline twice]
 

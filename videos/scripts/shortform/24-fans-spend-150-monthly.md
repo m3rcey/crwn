@@ -12,8 +12,6 @@ Link in bio to get on your fan's full music budget with CRWN. Free to start at t
 
 Which part of ya fan budget pays you the most? Let's find out.
 
-A dedicated music fan spend like $150 a month on music. You only on the menu for a fraction of it.
-
 A real, dedicated US music fan spend around $150 a month. Concerts. Merch. Streaming. Vinyl. Tips on lives. Of that $150, streaming is like $11 a month. Of that $11 Spotify keep most of it. Yo cut from one listener is pennies a month. They paying $150. You getting pennies. That math aint matching.
 
 The fan got the budget. You aint on the menu. The label got you fighting for the $11 streaming slot while the other $139 walk past you to somebody else.

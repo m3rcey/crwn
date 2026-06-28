@@ -10,15 +10,15 @@ Link in bio to build something fans cant take from you with CRWN. Free to start 
 
 **SCRIPT:**
 
-JID said the Dreamville roster got a check big enough that some of em never gotta rap again. So what kinda exit pays the artist on the way out?
+When Dreamville closed out its deal with UMG, JID went on camera and called what Cole did one of the most beautiful things in hip-hop. So what did Cole do that JID couldnt stop talking about?
 
-He said it out loud on camera. Wait til you hear the part that don't happen in this industry.
+Wait til you hear the part that don't happen in this industry.
 
-When Dreamville closed out they partnership with UMG, Cole shared the windfall with the roster. Bas, EARTHGANG, Cozz, Lute, JID. JID called it one of the most beautiful things in hip-hop and called the industry around it predatory. Think about what that means. Most rappers leave a deal owing money. Advances they gotta pay back outta the next album.
+When the UMG partnership ended in 2025, a windfall came with it. Bas, EARTHGANG, Cozz, Lute, JID, every artist on it. JID called it beautiful and called the industry around it predatory. Think about why. Most rappers leave a deal owing money. Advances they gotta pay back outta the next album.
 
 Here go the flip nobody expects. Dreamville artists didn't walk out owing.
 
-They walked out paid. Cole didn't keep the bag from closing the deal, he split it with the people who built the thing. That's the opposite of an exit. That's the artists gettin a cut of the company they helped grow.
+They walked out paid. Cole split the bag from closin the UMG deal with the roster, and JID said some of em never gotta rap again if they don't want to.
 
 ---
 
@@ -35,7 +35,7 @@ They walked out paid. Cole didn't keep the bag from closing the deal, he split i
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** JID said the Dreamville roster got a check big enough that some of em never gotta rap again. So what kinda exit pays the artist on the way out? [write "NEVER GOTTA RAP AGAIN" huge in bold caps at the top with "JID ON DREAMVILLE" written above it as a label and circle this top section once]
+**HOOK:** When Dreamville closed out its deal with UMG, JID went on camera and called what Cole did one of the most beautiful things in hip-hop. So what did Cole do that JID couldnt stop talking about? [write "MOST BEAUTIFUL THING IN HIP-HOP" huge in bold caps at the top with "JID ON DREAMVILLE" written above it as a label and circle this top section once]
 
 **FORESHADOW:** He said it out loud on camera. Wait til you hear the part that don't happen in this industry. [draw a hand-drawn microphone with "JID INTERVIEW" written beside it]
 
@@ -43,7 +43,7 @@ They walked out paid. Cole didn't keep the bag from closing the deal, he split i
 
 **TWIST:** Here go the flip nobody expects. Dreamville artists didn't walk out owing. [draw two stick figures side by side: one labeled "NORMAL EXIT" laying on the ground with X eyes and a minus sign, one labeled "DREAMVILLE" standing tall with a money bag]
 
-**PAYOFF:** They walked out paid. Cole didn't keep the bag from closing the deal, he split it with the people who built the thing. [write "OWNER KEEPS IT" crossed out on the left and "SPLIT WITH THE BUILDERS" on the right with a dividing line] That's the artists gettin a cut of the company they helped grow. [write "A CUT OF WHAT YOU BUILT" in big bold caps at the bottom and circle it once]
+**PAYOFF:** They walked out paid. Cole split the bag from closing the deal with the roster, and JID said some of em never gotta rap again if they don't want to. [write "OWNER KEEPS IT" crossed out on the left and "SPLIT WITH THE BUILDERS" on the right with a dividing line, then "NEVER GOTTA RAP AGAIN" underneath] That's the artists gettin a cut of the company they helped grow. [write "A CUT OF WHAT YOU BUILT" in big bold caps at the bottom and circle it once]
 
 ---
 
