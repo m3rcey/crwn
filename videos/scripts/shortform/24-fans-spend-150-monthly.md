@@ -22,9 +22,9 @@ Then go live, let em buy into the listening session and tip while you on, anothe
 
 That $11 streaming turn into a paid sub on ya own page, like $15 a month, and all of it come to you, not no 30 cents.
 
-Add it up. Same fan, same $150, only now it land on you, not Ticketmaster, not the venue, not Spotify.
+The total lands on you, not Ticketmaster, not the venue, not Spotify. What's the total when you add it up?
 
-You sell em the same things they already buyin, straight from you.
+$150. You sold them the same things they already buyin, straight from you.
 
 ---
 
