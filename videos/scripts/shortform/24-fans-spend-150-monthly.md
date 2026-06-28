@@ -12,24 +12,30 @@ Link in bio to get on your fan's full music budget with CRWN. Free to start at t
 
 Which part of ya fan budget pays you the most? Let's find out.
 
-A real, dedicated US music fan spend around $150 a month. Concerts. Merch. Streaming. Vinyl. Tips on lives. Of that $150, streaming is like $11 a month. Of that $11 Spotify keep most of it. Yo cut from one listener is pennies a month. They paying $150. You getting pennies. That math aint matching.
+A real, dedicated US music fan spend around $150 a month. Concerts. Merch. Streaming. Vinyl. Tips on lives. Of that $150, streaming is like $11 a month, and Spotify keep most of that $11, so ya cut from one listener is pennies. That's the problem. So how do you go from pennies to that fan's whole budget?
 
-The fan got the budget. You aint on the menu. The label got you fighting for the $11 streaming slot while the other $139 walk past you to somebody else.
+That $11 streaming turn into a paid sub on ya own page, like $15 a month, and all of it come to you, not no 30 cents.
 
-Here is the flip. Direct from a fan at $15 a month is $180 a year. From one person. No middle man. No payout split. You went from pennies to ya fan whole budget.
+The merch they was gon grab at the show, you drop it yourself off ya own link, a hoodie or a tee, $50 that month.
 
-Streaming put you on the cheap shelf. Direct put you on the receipt.
+For the day ones, press a numbered vinyl they cant get nowhere else, $35.
+
+Then go live, let em buy into the listening session and tip while you on, another $50.
+
+Add it up. Same fan, same $150, only now it land on you, not Ticketmaster, not the venue, not Spotify.
+
+You sell em the same things they already buyin, straight from you.
 
 ---
 
 **TITLES (suggested is in CAPTION above; alternates below):**
 1. Your Fans Spend $150 A Month On Music -- Structure 6  ← SUGGESTED
-2. POV: You're On A $11 Slot Of $150 -- Structure 6
-3. $11 Streaming Vs $150 Fan Budget -- Structure 8
-4. Streaming Vs The Whole Receipt -- Structure 8
-5. Cheap Shelf Vs Real Receipt For Music -- Structure 9
+2. You Only Get $11 Of Your Fan's $150 -- Structure 8
+3. How To Get On Your Fan's Whole Budget -- Structure 3
+4. Streaming Is $11 Of A $150 Habit -- Structure 8
+5. Stop Fighting For The $11 Slot -- Structure 6
 
-**TOPIC:** A dedicated US music fan spends well past the streaming sub — often $100-150+/month on music across concerts, merch, vinyl, tips, and streaming. Streaming is roughly $11 of that. Artists fighting for streaming slots are competing for a fraction of the budget that's already in motion.
+**TOPIC:** A dedicated US music fan spends well past the streaming sub, often $100-150+/month on music across concerts, merch, vinyl, tips, and streaming. Streaming is roughly $11 of that. Instead of fighting for the streaming slot, the artist sells across the same lanes direct (paid sub, merch, vinyl, paid livestream/tips) to capture the budget that's already moving.
 
 ---
 
@@ -37,19 +43,19 @@ Streaming put you on the cheap shelf. Direct put you on the receipt.
 
 **HOOK:** Which part of ya fan budget pays you the most? Let's find out. [write "FAN BUDGET = $150/MO" in big bold caps at the top and underline it twice]
 
-**FORESHADOW:** A dedicated music fan spend like $150 a month on music. You only on the menu for a fraction of it. [write "YOU = ?" in caps below with a question mark]
+**FORESHADOW:** A dedicated music fan spend like $150 a month on music. You only on the menu for a sliver of it. [write "YOU = ?" in caps below with a question mark]
 
-**RISING ACTION:** A real, dedicated US music fan spend around $150 a month. Concerts. Merch. Streaming. Vinyl. Tips on lives. [draw a hand-drawn receipt with 5 line items each with a "$": "CONCERTS $", "MERCH $", "STREAMING $", "VINYL $", "TIPS $"] Of that $150, streaming is like $11 a month. [write "STREAMING = $11/MO" boxed] Of that $11 Spotify keep most of it. Yo cut from one listener is pennies a month. [write "YOUR CUT = PENNIES" with an arrow from "$11" to "PENNIES"] They paying $150. You getting pennies. That math aint matching. [draw a small unbalanced scale with "$150" on one side weighing down and "PENNIES" on the other side up high]
+**RISING ACTION:** A real, dedicated US music fan spend around $150 a month. Concerts. Merch. Streaming. Vinyl. Tips on lives. [draw a hand-drawn receipt with 5 line items each with a "$": "CONCERTS $", "MERCH $", "STREAMING $", "VINYL $", "TIPS $"] Of that $150, streaming is like $11 a month, and Spotify keep most of that $11, so ya cut from one listener is pennies. [write "STREAMING = $11/MO" boxed, then "YOUR CUT = PENNIES" with an arrow from "$11" to "PENNIES"]
 
-**TWIST:** The fan got the budget. You aint on the menu. [draw a hand-drawn menu with "STREAMING $11" listed and the other $139 scribbled out as "????"] The label got you fighting for the $11 streaming slot while the other $139 walk past you to somebody else. [write "$139 → SOMEBODY ELSE" with an arrow pointing off to the right]
+**TURN:** That's the problem. So how do you go from pennies to that fan's whole budget? [write a big "PENNIES  ->  $150 ???" across the middle with a large question mark]
 
-**PAYOFF:** Here is the flip. Direct from a fan at $15 a month is $180 a year. [write "DIRECT = $15/MO" then "$180/YR" boxed below] From one person. No middle man. No payout split. You went from pennies to ya fan whole budget. Streaming put you on the cheap shelf. [write "STREAMING → CHEAP SHELF" on the left with a hand-drawn arrow] Direct put you on the receipt. [write "DIRECT → THE RECEIPT" on the right with a hand-drawn arrow, both phrases circled together inside one rough oval at the bottom]
+**PAYOFF:** You sell em the same things they already buyin, straight from you. A paid sub on ya own page, $15 a month, all of it yours. [write a stacked list: "SUB $15"] Your own merch drop, a hoodie or a tee, $50. [under it write "MERCH $50"] A numbered vinyl for the day ones, $35. [under it write "VINYL $35"] A live listening session they buy into and tip on, $50. [under it write "LIVE + TIPS $50"] Add it up, same fan, same $150, landing on you. [draw a line under the list and write "= $150" boxed with an arrow "-> YOU"] Not Ticketmaster, not the venue, not Spotify. [write "TICKETMASTER / VENUE / SPOTIFY" off to the side and cross all three out with one line]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top center of the page, "FAN BUDGET = $150/MO" is written in big bold capital letters and underlined twice. Below that, "YOU = ?" is written in capitals with a question mark. In the upper middle of the page on the left, a hand-drawn receipt is drawn with five stacked line items each with a "$" symbol: "CONCERTS $", "MERCH $", "STREAMING $", "VINYL $", "TIPS $". To the right of the receipt, "STREAMING = $11/MO" is written in capitals and boxed. Below that, "YOUR CUT = PENNIES" is written with a hand-drawn arrow pointing from "$11" to "PENNIES". Below that, a small hand-drawn unbalanced scale is drawn with "$150" written on the heavier side weighing down and "PENNIES" written on the lighter side raised up. In the middle of the page, a hand-drawn menu is drawn with "STREAMING $11" listed on it and the rest of the menu scribbled out as "????". To the right of the menu, "$139 → SOMEBODY ELSE" is written with a hand-drawn arrow pointing off the page to the right. Below that, "DIRECT = $15/MO" is written and below it "$180/YR" boxed. At the very bottom of the page on the left, "STREAMING → CHEAP SHELF" is written with a hand-drawn arrow. On the right, "DIRECT → THE RECEIPT" is written with a hand-drawn arrow. Both phrases are circled together inside one rough sharpie oval. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top center of the page, "FAN BUDGET = $150/MO" is written in big bold capital letters and underlined twice. Below that, "YOU = ?" is written in capitals with a question mark. In the upper left, a hand-drawn receipt is drawn with five stacked line items each with a "$" symbol: "CONCERTS $", "MERCH $", "STREAMING $", "VINYL $", "TIPS $". To the right of the receipt, "STREAMING = $11/MO" is written in capitals and boxed, and below it "YOUR CUT = PENNIES" is written with a hand-drawn arrow pointing from "$11" to "PENNIES". Across the middle of the page, large text reads "PENNIES -> $150 ???" with a big hand-drawn question mark. In the lower half of the page, a hand-drawn stacked list of four line items: "SUB $15", "MERCH $50", "VINYL $35", "LIVE + TIPS $50". A horizontal line is drawn under the list and below it "= $150" is written and boxed, with a hand-drawn arrow pointing from the box to the word "YOU". Off to the right side, the words "TICKETMASTER", "VENUE", and "SPOTIFY" are stacked and all three crossed out with a single diagonal sharpie line through them. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
@@ -60,8 +66,7 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 3. Receipt with 5 line items
 4. "STREAMING = $11/MO" boxed
 5. "YOUR CUT = PENNIES" arrow
-6. Unbalanced scale $150 vs PENNIES
-7. Menu with $139 scribbled
-8. "$139 → SOMEBODY ELSE" arrow off page
-9. "DIRECT = $15/MO" then "$180/YR" boxed
-10. "STREAMING → CHEAP SHELF" / "DIRECT → THE RECEIPT" in oval at bottom
+6. "PENNIES -> $150 ???" across the middle
+7. The stacked list: "SUB $15", "MERCH $50", "VINYL $35", "LIVE + TIPS $50"
+8. "= $150" boxed with arrow "-> YOU"
+9. "TICKETMASTER / VENUE / SPOTIFY" crossed out
