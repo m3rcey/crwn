@@ -12,7 +12,7 @@ Link in bio to drop your music on a platform you control, where nobody can chang
 
 Why would a producer build a song on Kanye's new album, then turn around and demand his own name come off it?
 
-That producer is James Blake. He built the closer, This One Here, off a Ye freestyle. Then Bully dropped end of March, and the version that came out wasnt the one he made. His production stripped down, new vocals dropped in over his, the ones fans clocked as AI, on a album Ye had just swore up and down had none. Blake said it plain, this aint what I created, and he wont put his name on music he cant control.
+That producer is James Blake. He built the closer, This One Here, off a Ye freestyle. Then Bully dropped end of March, and the version that came out wasnt the one he made. His production stripped down, new vocals dropped in over his, the ones fans clocked as AI, on a album Ye had just swore up and down had none.
 
 But why he pulled his name aint even the part that get me. It's where he said it.
 
@@ -35,7 +35,7 @@ Not a label statement. Not a tweet. He said it on Vault, the direct-to-fan platf
 
 **HOOK:** Why would a producer build a song on Kanye's new album, then turn around and demand his own name come off it? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Kanye West from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "KANYE - BULLY 2026" underneath; beside it write "A PRODUCER SAID: TAKE MY NAME OFF" and underline "TAKE MY NAME OFF" twice]
 
-**RISING ACTION:** That producer is James Blake. He built the closer, This One Here, off a Ye freestyle. [write "JAMES BLAKE -> THIS ONE HERE" with "BUILT OFF A YE FREESTYLE" under it] Then Bully dropped end of March, and the version that came out wasnt the one he made. [write "BULLY - MAR 2026" then "HIS VERSION =/= WHAT DROPPED"] His production stripped down, new vocals dropped in over his, the ones fans clocked as AI. [write "NEW VOCALS OVER HIS" and "FANS: AI?" with a question mark] And this on a album Ye had just swore up and down had none. [write "YE SWORE: NO AI" and box it] Blake said it plain, this aint what I created, and he wont put his name on music he cant control. [write "NOT WHAT I CREATED" boxed]
+**RISING ACTION:** That producer is James Blake. He built the closer, This One Here, off a Ye freestyle. [write "JAMES BLAKE -> THIS ONE HERE" with "BUILT OFF A YE FREESTYLE" under it] Then Bully dropped end of March, and the version that came out wasnt the one he made. [write "BULLY - MAR 2026" then "HIS VERSION =/= WHAT DROPPED"] His production stripped down, new vocals dropped in over his, the ones fans clocked as AI. [write "NEW VOCALS OVER HIS" and "FANS: AI?" with a question mark] And this on a album Ye had just swore up and down had none. [write "YE SWORE: NO AI" and box it]
 
 **RE-HOOK:** But why he pulled his name aint even the part that get me. It's where he said it. [write "WHY? -> not the point" then "WHERE? -> ???" with a big question mark]
 
