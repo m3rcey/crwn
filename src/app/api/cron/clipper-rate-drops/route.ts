@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { resolveClipperRateTimeline } from '@/lib/clipperRate';
+import { resolveClipperRateTimeline, capTimeline } from '@/lib/clipperRate';
 import { clipperRateChangeEmail } from '@/lib/emails/clipperRateChange';
 
 const supabaseAdmin = createClient(
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   // Artists currently running a clipper ramp.
   const { data: artists } = await supabaseAdmin
     .from('artist_profiles')
-    .select('id, user_id, clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
+    .select('id, user_id, platform_tier, clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
     .not('clipper_campaign_started_at', 'is', null);
 
   if (!artists || artists.length === 0) {
@@ -36,12 +36,16 @@ export async function GET(req: NextRequest) {
   const results: { artistId: string; status: string; drop?: string }[] = [];
 
   for (const artist of artists) {
-    const timeline = resolveClipperRateTimeline({
-      schedule: artist.clipper_rate_schedule,
-      campaignStartedAt: artist.clipper_campaign_started_at,
-      standardRate: artist.clipper_commission_rate || 0,
-      now,
-    });
+    // Cap to PAID rates so we warn with real numbers and skip drops the cap flattens.
+    const timeline = capTimeline(
+      resolveClipperRateTimeline({
+        schedule: artist.clipper_rate_schedule,
+        campaignStartedAt: artist.clipper_campaign_started_at,
+        standardRate: artist.clipper_commission_rate || 0,
+        now,
+      }),
+      artist.platform_tier
+    );
 
     // Only warn for an actual DECREASE inside the warning window.
     const drop = timeline.changes.find((c) => {

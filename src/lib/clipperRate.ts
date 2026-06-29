@@ -58,6 +58,42 @@ export const CLIPPER_RAMP_PRESETS: ClipperRampPreset[] = [
 
 const MS_PER_DAY = 86_400_000;
 
+// Imported lazily-safe: platformTier has no dependency on this module (no cycle).
+import { getTierLimits } from './platformTier';
+
+/**
+ * The highest clipper cut actually payable on a tier. Checkout enforces
+ * fee + cut <= 100%, so a "100%" step pays at most (100 - platform fee).
+ */
+export function maxClipperRate(platformTier?: string | null): number {
+  return 100 - getTierLimits(platformTier).platformFeePercent;
+}
+
+/** Clamp a rate to what's truly paid after the platform fee. */
+export function capClipperRate(rate: number, platformTier?: string | null): number {
+  return Math.min(Math.max(0, Math.round(rate || 0)), maxClipperRate(platformTier));
+}
+
+/**
+ * Re-express a timeline in PAID rates (post platform-fee cap) and drop any
+ * "change" that the cap flattens to a no-op (e.g. 100% -> 95% both cap to 94%).
+ * Use this for everything clipper-facing so shown numbers equal paid numbers.
+ */
+export function capTimeline(
+  timeline: ClipperRateTimeline,
+  platformTier?: string | null
+): ClipperRateTimeline {
+  const currentRate = capClipperRate(timeline.currentRate, platformTier);
+  const changes = timeline.changes
+    .map((c) => ({
+      date: c.date,
+      from: capClipperRate(c.from, platformTier),
+      to: capClipperRate(c.to, platformTier),
+    }))
+    .filter((c) => c.to !== c.from);
+  return { currentRate, changes, nextChange: changes[0] ?? null };
+}
+
 /**
  * Resolve the clipper cut that is live right now.
  *

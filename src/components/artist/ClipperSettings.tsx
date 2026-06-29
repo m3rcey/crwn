@@ -6,8 +6,9 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Scissors, Plus, Trash2, Play, Square, Loader2 } from 'lucide-react';
 import {
   CLIPPER_RAMP_PRESETS,
-  resolveClipperRate,
   resolveClipperRateTimeline,
+  capTimeline,
+  maxClipperRate,
   type ClipperRateStep,
 } from '@/lib/clipperRate';
 
@@ -21,17 +22,19 @@ export function ClipperSettings() {
   const [standardRate, setStandardRate] = useState(10);
   const [steps, setSteps] = useState<ClipperRateStep[]>([]);
   const [campaignStartedAt, setCampaignStartedAt] = useState<string | null>(null);
+  const [platformTier, setPlatformTier] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     async function load() {
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
+        .select('id, platform_tier, clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (!artist) { setIsLoading(false); return; }
       setArtistId(artist.id);
+      setPlatformTier(artist.platform_tier ?? null);
       setStandardRate(artist.clipper_commission_rate ?? 10);
       setSteps(Array.isArray(artist.clipper_rate_schedule) ? artist.clipper_rate_schedule : []);
       setCampaignStartedAt(artist.clipper_campaign_started_at ?? null);
@@ -77,8 +80,14 @@ export function ClipperSettings() {
   }
 
   const rampActive = !!campaignStartedAt && steps.length > 0;
-  const liveRate = resolveClipperRate({ schedule: steps, campaignStartedAt, standardRate });
-  const timeline = resolveClipperRateTimeline({ schedule: steps, campaignStartedAt, standardRate });
+  // Display PAID rates (after the platform-fee cap), matching what checkout charges.
+  const timeline = capTimeline(
+    resolveClipperRateTimeline({ schedule: steps, campaignStartedAt, standardRate }),
+    platformTier
+  );
+  const liveRate = timeline.currentRate;
+  const rateCap = maxClipperRate(platformTier);
+  const capped = standardRate > rateCap || steps.some((s) => s.percent > rateCap);
   const nextChange = timeline.nextChange;
   const nextChangeLabel = nextChange
     ? new Date(nextChange.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -201,8 +210,11 @@ export function ClipperSettings() {
           </button>
         )}
         <p className="text-xs text-crwn-text-secondary mt-3">
-          After all steps elapse, clippers earn your standard rate. The cut is capped at checkout so the
+          After all steps elapse, clippers earn your standard rate. The cut is capped so the
           platform fee plus the clipper cut never exceeds 100%.
+          {capped && (
+            <span className="text-crwn-gold"> On your plan the most a clipper can be paid is {rateCap}%, so anything above that pays {rateCap}%.</span>
+          )}
         </p>
       </div>
 

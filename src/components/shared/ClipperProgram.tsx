@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Scissors, Check, Link2 } from 'lucide-react';
 import { canUseFeature } from '@/lib/platformTier';
-import { resolveClipperRateTimeline, type ClipperRateStep } from '@/lib/clipperRate';
+import { resolveClipperRateTimeline, capTimeline, type ClipperRateStep } from '@/lib/clipperRate';
 
 interface ClipperProgramProps {
   artistSlug: string;
@@ -25,7 +25,11 @@ export function ClipperProgram({
   if (!user || !profile) return null;
   if (!canUseFeature(platformTier, 'allowsClipper')) return null;
 
-  const timeline = resolveClipperRateTimeline({ schedule, campaignStartedAt, standardRate });
+  // Show PAID rates (after the platform-fee cap), so the panel never overstates.
+  const timeline = capTimeline(
+    resolveClipperRateTimeline({ schedule, campaignStartedAt, standardRate }),
+    platformTier
+  );
   const currentRate = timeline.currentRate;
   if (currentRate <= 0) return null; // artist isn't paying clippers
 
