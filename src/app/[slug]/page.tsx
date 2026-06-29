@@ -11,6 +11,7 @@ import { ArtistProfileContent } from '@/components/artist/ArtistProfileContent';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
+import { ClipperProgram } from '@/components/shared/ClipperProgram';
 import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 
@@ -319,11 +320,21 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                   <span data-tour="founding-badge"><span data-tour="founding-badge"><FoundingBadge number={artist.founding_artist_number} size="sm" /></span></span>
                 )}
               </div>
-              <ShareEarnWrapper
-                artistSlug={artist.slug}
-                artistId={artist.id}
-                commissionRate={artist.referral_commission_rate || 10}
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                <ShareEarnWrapper
+                  artistSlug={artist.slug}
+                  artistId={artist.id}
+                  commissionRate={artist.referral_commission_rate || 10}
+                />
+                <ClipperProgram
+                  artistSlug={artist.slug}
+                  artistName={artist.profile?.display_name || 'this artist'}
+                  platformTier={artist.platform_tier}
+                  standardRate={artist.clipper_commission_rate || 0}
+                  schedule={artist.clipper_rate_schedule}
+                  campaignStartedAt={artist.clipper_campaign_started_at}
+                />
+              </div>
               {artist.tagline && (
                 <p className="text-crwn-text-secondary mt-1">{artist.tagline}</p>
               )}

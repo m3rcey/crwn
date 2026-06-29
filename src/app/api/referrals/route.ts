@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   // Get all referrals by this fan
   const { data: referrals } = await supabaseAdmin
     .from('referrals')
-    .select('id, artist_id, referred_fan_id, commission_rate, status, created_at')
+    .select('id, artist_id, referred_fan_id, commission_rate, status, created_at, source')
     .eq('referrer_fan_id', fanId)
     .order('created_at', { ascending: false });
 

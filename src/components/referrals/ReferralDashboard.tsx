@@ -19,6 +19,7 @@ interface ReferralData {
     commission_rate: number;
     status: string;
     created_at: string;
+    source?: string;
   }[];
   recentEarnings: {
     id: string;
@@ -188,6 +189,9 @@ export function ReferralDashboard() {
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${ref.status === 'active' ? 'bg-green-400' : 'bg-crwn-text-secondary'}`} />
                 <span className="text-crwn-text">{ref.referredName}</span>
+                {ref.source === 'clipper' && (
+                  <span className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-crwn-gold/15 text-crwn-gold">Clip</span>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-crwn-text-secondary">{ref.commission_rate}%</span>
