@@ -464,10 +464,10 @@ export function LivestreamManager({ artistId, artistSlug, tiers }: LivestreamMan
                         onClick={() => handleDownloadVod(session)}
                         disabled={busyId === session.id}
                         className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 disabled:opacity-50"
-                        title="Download recording"
+                        title="Download video"
                       >
                         {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                        Recording
+                        Download
                       </button>
                     )}
                   </>
@@ -507,12 +507,23 @@ export function LivestreamManager({ artistId, artistSlug, tiers }: LivestreamMan
                     title="Download recording"
                   >
                     {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                    Recording
+                    Download
                   </button>
                 )}
                 {session.status === 'ended' && (session.vod_status === 'recording' || session.vod_status === 'processing') && (
                   <span className="text-crwn-text-dim text-sm flex items-center gap-1">
                     <Loader2 className="w-4 h-4 animate-spin" /> Processing recording
+                  </span>
+                )}
+                {/* Recording never produced a file — say so instead of showing nothing. */}
+                {session.status === 'ended' && session.vod_status === 'failed' && (
+                  <span className="text-crwn-error text-sm" title="The recording could not be saved. Check that LiveKit Egress and R2 are configured.">
+                    Recording failed
+                  </span>
+                )}
+                {session.status === 'ended' && (!session.vod_status || session.vod_status === 'none') && (
+                  <span className="text-crwn-text-dim text-sm" title="No recording was captured for this session (recording was not enabled or could not start).">
+                    Not recorded
                   </span>
                 )}
                 {session.status !== 'live' && (
