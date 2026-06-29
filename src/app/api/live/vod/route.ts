@@ -36,7 +36,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
-  // Verify caller owns the artist profile (RLS-respecting client).
+  // Authorize the caller: the artist who owns the session, OR a clipper who has
+  // driven at least one clipper-attributed subscription for this artist (the VOD
+  // handoff — a clipper downloads the raw footage to chop).
   const { data: ownedArtist } = await supabase
     .from('artist_profiles')
     .select('id')
@@ -45,7 +47,18 @@ export async function GET(req: NextRequest) {
     .maybeSingle();
 
   if (!ownedArtist) {
-    return NextResponse.json({ error: 'Not your session' }, { status: 403 });
+    const { data: clipperRow } = await supabaseAdmin
+      .from('referrals')
+      .select('id')
+      .eq('artist_id', session.artist_id)
+      .eq('referrer_fan_id', user.id)
+      .eq('source', 'clipper')
+      .limit(1)
+      .maybeSingle();
+
+    if (!clipperRow) {
+      return NextResponse.json({ error: 'Not your session' }, { status: 403 });
+    }
   }
 
   if (session.vod_status !== 'ready' || !session.vod_key) {

@@ -33,6 +33,7 @@ export async function processReferral(params: {
   referralCode: string;
   earningId: string;
   grossAmount: number;
+  attributionSource?: string;
 }): Promise<void> {
   const { createClient } = await import('@supabase/supabase-js');
   const supabaseAdmin = createClient(
@@ -40,7 +41,9 @@ export async function processReferral(params: {
     process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
   );
 
-  const { artistId, referredFanId, subscriptionId, referralCode, earningId, grossAmount } = params;
+  const { artistId, referredFanId, subscriptionId, referralCode, earningId, grossAmount, attributionSource } = params;
+  // 'clipper' links carry ?src=clipper; everything else is an ordinary fan referral.
+  const source = attributionSource === 'clipper' ? 'clipper' : 'fan';
 
   // Find the referrer by code (username match)
   const { data: referrer } = await supabaseAdmin
@@ -61,14 +64,15 @@ export async function processReferral(params: {
     return;
   }
 
-  // Get artist's commission rate
+  // Get artist's commission rate — clippers get the clipper cut, fans the referral cut.
   const { data: artist } = await supabaseAdmin
     .from('artist_profiles')
-    .select('referral_commission_rate, user_id')
+    .select('referral_commission_rate, clipper_commission_rate, user_id')
     .eq('id', artistId)
     .single();
 
-  const commissionRate = artist?.referral_commission_rate || 10;
+  const commissionRate =
+    (source === 'clipper' ? artist?.clipper_commission_rate : artist?.referral_commission_rate) || 10;
   const commissionAmount = Math.round(grossAmount * (commissionRate / 100));
 
   // Create referral record (upsert in case referred fan already exists)
@@ -81,6 +85,7 @@ export async function processReferral(params: {
       subscription_id: subscriptionId,
       referral_code: referralCode,
       commission_rate: commissionRate,
+      source,
       status: 'active',
     }, { onConflict: 'artist_id,referred_fan_id' })
     .select('id')
