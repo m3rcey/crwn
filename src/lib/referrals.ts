@@ -34,6 +34,7 @@ export async function processReferral(params: {
   earningId: string;
   grossAmount: number;
   attributionSource?: string;
+  clipperRate?: number;
 }): Promise<void> {
   const { createClient } = await import('@supabase/supabase-js');
   const supabaseAdmin = createClient(
@@ -41,7 +42,7 @@ export async function processReferral(params: {
     process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
   );
 
-  const { artistId, referredFanId, subscriptionId, referralCode, earningId, grossAmount, attributionSource } = params;
+  const { artistId, referredFanId, subscriptionId, referralCode, earningId, grossAmount, attributionSource, clipperRate } = params;
   // 'clipper' links carry ?src=clipper; everything else is an ordinary fan referral.
   const source = attributionSource === 'clipper' ? 'clipper' : 'fan';
 
@@ -71,8 +72,13 @@ export async function processReferral(params: {
     .eq('id', artistId)
     .single();
 
+  // For clippers, prefer the rate locked at checkout (which also set the matching
+  // application_fee_percent) so the commission paid equals the fee the artist was
+  // charged. Fall back to the column only if the lock is absent.
   const commissionRate =
-    (source === 'clipper' ? artist?.clipper_commission_rate : artist?.referral_commission_rate) || 10;
+    source === 'clipper'
+      ? (clipperRate ?? artist?.clipper_commission_rate ?? 10)
+      : (artist?.referral_commission_rate || 10);
   const commissionAmount = Math.round(grossAmount * (commissionRate / 100));
 
   // Create referral record (upsert in case referred fan already exists)

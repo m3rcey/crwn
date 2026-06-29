@@ -68,6 +68,23 @@ export async function POST(req: NextRequest) {
 
     const platformFeePercent = await getArtistFeePercent(tier.artist_id);
 
+    // Clipper-attributed subs: the clipper's cut is funded by the ARTIST, not the
+    // platform. Add the clipper rate on top of the platform fee so the artist's
+    // payout is reduced by exactly the cut; the platform holds that portion and pays
+    // the clipper via the existing referral_earnings -> fan-cashout rail (platform
+    // stays whole). The rate is locked here (and capped so fee+cut <= 100%) then
+    // echoed in metadata, so the fee charged equals the commission paid in the webhook.
+    let clipperRate = 0;
+    if (attributionSource === 'clipper') {
+      const { data: artistRate } = await supabase
+        .from('artist_profiles')
+        .select('clipper_commission_rate')
+        .eq('id', tier.artist_id)
+        .single();
+      clipperRate = Math.min(artistRate?.clipper_commission_rate || 0, 100 - platformFeePercent);
+    }
+    const effectiveFeePercent = platformFeePercent + clipperRate;
+
     // Get fan profile
     const { data: fan } = await supabase
       .from('profiles')
@@ -129,7 +146,7 @@ export async function POST(req: NextRequest) {
         discounts: [{ coupon: discountResult.stripeCouponId }],
       } : {}),
       subscription_data: {
-        application_fee_percent: platformFeePercent,
+        application_fee_percent: effectiveFeePercent,
         transfer_data: {
           destination: tier.artist.stripe_connect_id,
         },
@@ -147,6 +164,7 @@ export async function POST(req: NextRequest) {
         type: 'subscription',
         referral_code: referralCode || '',
         attribution_source: attributionSource || '',
+        clipper_rate: String(clipperRate),
         discount_code_id: discountResult.discountId || '',
         utm_source: utmSource || '',
         utm_medium: utmMedium || '',

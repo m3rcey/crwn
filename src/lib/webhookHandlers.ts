@@ -244,6 +244,7 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
       // Process referral if code provided
       const referralCode = session.metadata?.referral_code;
       const attributionSource = session.metadata?.attribution_source;
+      const clipperRate = session.metadata?.clipper_rate ? Number(session.metadata.clipper_rate) : undefined;
       if (referralCode && earning) {
         try {
           await processReferral({
@@ -254,6 +255,7 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
             earningId: earning.id,
             grossAmount: grossAmount,
             attributionSource,
+            clipperRate,
           });
         } catch (err) {
           console.error('Referral processing failed:', err);
