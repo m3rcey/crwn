@@ -7,7 +7,7 @@ import { notifyCashout } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { cashoutEmail } from '@/lib/emails/cashout';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy-stripe-key-for-build');
 
 const CASHOUT_FEE_CENTS = 200;
 

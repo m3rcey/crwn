@@ -3,7 +3,7 @@ import { Album, AlbumTrack, Track } from '@/types';
 
 const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-anon-key-for-build'
 );
 
 // Artist: Get all albums for their artist profile

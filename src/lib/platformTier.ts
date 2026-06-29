@@ -6,13 +6,13 @@ export const TIER_PRICING = {
 } as const;
 
 export const STRIPE_PRICE_IDS = {
-  pro_monthly: process.env.STRIPE_CRWN_PRO_PRICE_ID!,
-  pro_annual: process.env.STRIPE_CRWN_PRO_ANNUAL_PRICE_ID!,
-  label_monthly: process.env.STRIPE_CRWN_LABEL_PRICE_ID!,
-  label_annual: process.env.STRIPE_CRWN_LABEL_ANNUAL_PRICE_ID!,
-  empire_monthly: process.env.STRIPE_CRWN_EMPIRE_PRICE_ID!,
-  empire_annual: process.env.STRIPE_CRWN_EMPIRE_ANNUAL_PRICE_ID!,
-} as const;
+  pro_monthly: process.env.STRIPE_CRWN_PRO_PRICE_ID || '',
+  pro_annual: process.env.STRIPE_CRWN_PRO_ANNUAL_PRICE_ID || '',
+  label_monthly: process.env.STRIPE_CRWN_LABEL_PRICE_ID || '',
+  label_annual: process.env.STRIPE_CRWN_LABEL_ANNUAL_PRICE_ID || '',
+  empire_monthly: process.env.STRIPE_CRWN_EMPIRE_PRICE_ID || '',
+  empire_annual: process.env.STRIPE_CRWN_EMPIRE_ANNUAL_PRICE_ID || '',
+};
 
 // Platform Tier Limits Configuration
 // NOTE: TIER_LIMITS is the SINGLE SOURCE OF TRUTH for the platform fee.
