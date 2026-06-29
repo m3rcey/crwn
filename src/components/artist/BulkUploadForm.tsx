@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { hapticMedium } from '@/lib/haptics';
+import { audioContentType } from '@/lib/uploadValidation';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image } from 'lucide-react';
 
@@ -235,7 +236,9 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
 
         const { error: uploadError } = await supabase.storage
           .from('audio')
-          .upload(audioPath, item.file);
+          .upload(audioPath, item.file, {
+            contentType: audioContentType(item.file.name, item.file.type),
+          });
 
         let audioUrl = '';
         if (uploadError) {

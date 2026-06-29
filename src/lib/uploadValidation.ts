@@ -31,6 +31,22 @@ const CATEGORY_CONFIG: Record<FileCategory, { types: string[]; maxSize: number; 
   product: { types: [...ALLOWED_IMAGE_TYPES, 'application/pdf', 'application/zip'], maxSize: MAX_PRODUCT_FILE_SIZE, label: 'File' },
 };
 
+const EXT_TO_AUDIO_MIME: Record<string, string> = {
+  mp3: 'audio/mpeg', wav: 'audio/wav', m4a: 'audio/mp4', aac: 'audio/aac',
+  ogg: 'audio/ogg', oga: 'audio/ogg', flac: 'audio/flac', aiff: 'audio/aiff',
+  aif: 'audio/aiff', opus: 'audio/opus', mp4: 'audio/mp4',
+};
+
+// Pick a content-type to store audio with. Browsers leave File.type empty for
+// many valid files (esp. .m4a/.flac); Supabase Storage then defaults to
+// text/plain, which breaks <audio> playback. Derive a real audio MIME from the
+// extension so uploaded tracks always play.
+export function audioContentType(fileName: string, fileType?: string): string {
+  if (fileType) return fileType;
+  const ext = fileName.includes('.') ? fileName.split('.').pop()!.toLowerCase() : '';
+  return EXT_TO_AUDIO_MIME[ext] || 'audio/mpeg';
+}
+
 export function validateUpload(file: File, category: FileCategory): { valid: boolean; error?: string } {
   const config = CATEGORY_CONFIG[category];
 

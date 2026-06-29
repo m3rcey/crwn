@@ -1,5 +1,5 @@
 'use client';
-import { validateUpload } from '@/lib/uploadValidation';
+import { validateUpload, audioContentType } from '@/lib/uploadValidation';
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -374,7 +374,9 @@ export function TrackUploadForm() {
         
         const { error: audioError } = await supabase.storage
           .from('audio')
-          .upload(audioPath, formData.audioFile);
+          .upload(audioPath, formData.audioFile, {
+            contentType: audioContentType(formData.audioFile.name, formData.audioFile.type),
+          });
 
         if (audioError) {
           console.error('Audio upload error:', audioError);
