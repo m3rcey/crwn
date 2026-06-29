@@ -116,6 +116,30 @@ export function ArtistProfileForm() {
     e.preventDefault();
     setIsSaving(true);
 
+    // Explicit, visible validation — never let a save fail silently (e.g. an
+    // empty required field that the browser blocks without an obvious message).
+    const slug = formData.slug.trim();
+    if (!formData.display_name.trim()) {
+      showToast('Add a display name before saving.', 'error');
+      setIsSaving(false);
+      return;
+    }
+    if (!slug) {
+      showToast('Pick your artist URL (the thecrwn.app/… handle) before saving.', 'error');
+      setIsSaving(false);
+      return;
+    }
+    if (isReservedSlug(slug)) {
+      showToast('That URL is reserved. Choose a different handle.', 'error');
+      setIsSaving(false);
+      return;
+    }
+    if (!user?.id) {
+      showToast('Your session expired. Refresh the page and try again.', 'error');
+      setIsSaving(false);
+      return;
+    }
+
     try {
       console.log('Saving profile with display_name:', formData.display_name);
       
@@ -141,7 +165,7 @@ export function ArtistProfileForm() {
 
       // Update or create artist profile
       if (artistProfile) {
-        await supabase
+        const { error: updateError } = await supabase
           .from('artist_profiles')
           .update({
             slug: formData.slug,
@@ -154,6 +178,17 @@ export function ArtistProfileForm() {
             genres: formData.genres,
           })
           .eq('id', artistProfile.id);
+
+        if (updateError) {
+          console.error('artist_profiles update error:', updateError);
+          const msg =
+            updateError.code === '23505'
+              ? `That handle (thecrwn.app/${formData.slug}) is already taken. Pick a different one.`
+              : `Couldn't save your page: ${updateError.message}`;
+          showToast(msg, 'error');
+          setIsSaving(false);
+          return;
+        }
       } else {
         const recruiterCode = typeof window !== 'undefined' ? localStorage.getItem('crwn_recruiter') : null;
         const { data, error: insertError } = await supabase
