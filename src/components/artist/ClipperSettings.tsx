@@ -7,6 +7,7 @@ import { Scissors, Plus, Trash2, Play, Square, Loader2 } from 'lucide-react';
 import {
   CLIPPER_RAMP_PRESETS,
   resolveClipperRate,
+  resolveClipperRateTimeline,
   type ClipperRateStep,
 } from '@/lib/clipperRate';
 
@@ -77,6 +78,11 @@ export function ClipperSettings() {
 
   const rampActive = !!campaignStartedAt && steps.length > 0;
   const liveRate = resolveClipperRate({ schedule: steps, campaignStartedAt, standardRate });
+  const timeline = resolveClipperRateTimeline({ schedule: steps, campaignStartedAt, standardRate });
+  const nextChange = timeline.nextChange;
+  const nextChangeLabel = nextChange
+    ? new Date(nextChange.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : null;
   const dayInCampaign = campaignStartedAt
     ? Math.floor((Date.now() - new Date(campaignStartedAt).getTime()) / 86_400_000)
     : null;
@@ -103,14 +109,26 @@ export function ClipperSettings() {
         </div>
         <div className="text-right">
           {rampActive ? (
-            <p className="text-sm text-green-400">
-              Ramp running{dayInCampaign !== null ? ` — day ${dayInCampaign}` : ''}
-            </p>
+            <>
+              <p className="text-sm text-green-400">
+                Ramp running{dayInCampaign !== null ? ` — day ${dayInCampaign}` : ''}
+              </p>
+              {nextChange && (
+                <p className="text-xs text-crwn-text-secondary mt-1">
+                  Drops to {nextChange.to}% on {nextChangeLabel}
+                </p>
+              )}
+            </>
           ) : (
             <p className="text-sm text-crwn-text-secondary">Flat standard rate (no ramp)</p>
           )}
         </div>
       </div>
+      {rampActive && nextChange && (
+        <p className="text-xs text-crwn-text-secondary -mt-2">
+          Clippers are notified by email and in-app ~3 days before each decrease, so nobody is caught off guard.
+        </p>
+      )}
 
       {/* Standard rate */}
       <div className="border-t border-crwn-elevated pt-4">

@@ -79,6 +79,10 @@
     {
       "path": "/api/cron/agent-health",
       "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/clipper-rate-drops",
+      "schedule": "0 19 * * *"
     }
   ]
 }

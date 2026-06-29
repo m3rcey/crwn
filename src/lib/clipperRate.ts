@@ -94,6 +94,62 @@ export function resolveClipperRate(params: {
   return standard;
 }
 
+export interface ClipperRateChange {
+  /** ISO date the cut changes. */
+  date: string;
+  /** Cut before this date. */
+  from: number;
+  /** Cut on/after this date. */
+  to: number;
+}
+
+export interface ClipperRateTimeline {
+  /** The cut live right now. */
+  currentRate: number;
+  /** Every upcoming (future-dated) change, in chronological order. */
+  changes: ClipperRateChange[];
+  /** The next change, or null if the rate is flat / fully ramped. */
+  nextChange: ClipperRateChange | null;
+}
+
+/**
+ * Compute the full future schedule of rate changes so clippers can be shown
+ * exactly when (and to what) their cut drops — no surprises. Drops are derived
+ * deterministically from the campaign start + step days, so this needs no cron.
+ */
+export function resolveClipperRateTimeline(params: {
+  schedule?: ClipperRateStep[] | null;
+  campaignStartedAt?: string | null;
+  standardRate: number;
+  now?: Date;
+}): ClipperRateTimeline {
+  const { schedule, campaignStartedAt, standardRate } = params;
+  const currentRate = resolveClipperRate(params);
+  const now = (params.now ?? new Date()).getTime();
+
+  if (!schedule || schedule.length === 0 || !campaignStartedAt) {
+    return { currentRate, changes: [], nextChange: null };
+  }
+  const start = new Date(campaignStartedAt).getTime();
+  if (Number.isNaN(start)) return { currentRate, changes: [], nextChange: null };
+
+  const standard = Math.max(0, Math.round(standardRate || 0));
+  const changes: ClipperRateChange[] = [];
+  let cumulative = 0;
+  for (let i = 0; i < schedule.length; i++) {
+    cumulative += Math.max(0, schedule[i].days || 0);
+    const date = start + cumulative * MS_PER_DAY;
+    const from = Math.max(0, Math.round(schedule[i].percent || 0));
+    const to = i + 1 < schedule.length
+      ? Math.max(0, Math.round(schedule[i + 1].percent || 0))
+      : standard;
+    if (date > now && to !== from) {
+      changes.push({ date: new Date(date).toISOString(), from, to });
+    }
+  }
+  return { currentRate, changes, nextChange: changes[0] ?? null };
+}
+
 /**
  * Validate + normalize a schedule coming from client input. Drops malformed steps,
  * clamps to sane bounds, caps length. Returns null for an empty/flat schedule.
