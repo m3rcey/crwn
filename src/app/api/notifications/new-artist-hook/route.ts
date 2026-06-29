@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
     }
 
+    // Skip the synthetic onboarding-health canary (it inserts + deletes a row daily).
+    if (slug.startsWith('__canary')) {
+      return NextResponse.json({ ok: true, skipped: 'canary' });
+    }
+
     let displayName = slug;
     if (user_id) {
       const { data: profile } = await supabaseAdmin

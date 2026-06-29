@@ -88,5 +88,26 @@ CREATE POLICY "Gated artist profile insert"
     )
   );
 
--- 7. Sanity check (optional): should return one row with enabled=false and a working function.
--- SELECT artist_gate_enabled() AS gate_on, (SELECT value FROM admin_settings WHERE key='artist_gate') AS gate_row;
+-- 7. SELF-VERIFY: fail LOUDLY if any piece didn't land. This is the template for
+--    every future migration — end with assertions so a partial apply ERRORS in the
+--    SQL editor instead of silently leaving onboarding half-broken (which is exactly
+--    how artist_gate_enabled() went missing for months). Copy this pattern.
+DO $$
+BEGIN
+  IF to_regprocedure('public.artist_gate_enabled()') IS NULL THEN
+    RAISE EXCEPTION 'MIGRATION INCOMPLETE: function artist_gate_enabled() is missing';
+  END IF;
+  IF to_regprocedure('public.redeem_invite(text,uuid)') IS NULL THEN
+    RAISE EXCEPTION 'MIGRATION INCOMPLETE: function redeem_invite(text,uuid) is missing';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM admin_settings WHERE key = 'artist_gate') THEN
+    RAISE EXCEPTION 'MIGRATION INCOMPLETE: admin_settings artist_gate row is missing';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'artist_profiles' AND cmd = 'INSERT'
+  ) THEN
+    RAISE EXCEPTION 'MIGRATION INCOMPLETE: artist_profiles has NO INSERT policy — publishing is blocked';
+  END IF;
+  RAISE NOTICE 'OK: approval gate verified — function, redeem_invite, gate row, and insert policy all present.';
+END $$;

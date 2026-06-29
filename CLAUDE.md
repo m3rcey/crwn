@@ -164,11 +164,18 @@ Check `package.json` before importing. Key packages: @supabase/supabase-js, @sup
 - `playlist_tracks` uses `position`.
 - Albums use `is_active` (not `is_published`), and have no `slug` field.
 
+### Onboarding Safety Net — DO NOT REMOVE
+
+The artist onboarding path (signup → publish page → upload track) once broke silently for **months** because a migration half-applied and left `artist_gate_enabled()` missing, so the `artist_profiles` INSERT policy referenced a non-existent function and RLS rejected every publish. Two guards now prevent a silent recurrence:
+
+1. **Daily canary** — `/api/cron/onboarding-health` (cron `0 7 * * *`) creates a throwaway user, performs the REAL RLS `artist_profiles` insert, exercises `validateUpload`, then deletes the user. **Emails joshn.wms@gmail.com the moment any step fails.** The `new-artist-hook` skips `__canary*` slugs so this doesn't spam the founder. If you change the publish or upload flow, keep this check in sync.
+2. **Self-verifying migrations** — every migration MUST end with a `DO $$ ... RAISE EXCEPTION ... $$` block asserting its functions/policies/rows/columns exist (template: `supabase/schema-phase2-artist-approval-gate-repair.sql`). A partial apply then errors loudly in the SQL editor instead of silently half-landing.
+
 ### Workflow
 
 - **Always run `npm run build` after changes** — never push code that doesn't build clean.
 - **Surgical, one-file-at-a-time fixes** — don't refactor adjacent code unless asked.
-- SQL migrations go in `supabase/schema-phase2-[name].sql` — DO NOT auto-run. Josh applies them manually in the Supabase SQL Editor.
+- SQL migrations go in `supabase/schema-phase2-[name].sql` — DO NOT auto-run. Josh applies them manually in the Supabase SQL Editor. **End every migration with a self-verify assertion block** (see Onboarding Safety Net above).
 - Git workflow: `npm run build && git add -A && git commit -m "description" && git push`
 
 ### Domain & Infrastructure
