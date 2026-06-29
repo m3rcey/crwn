@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateAndApplyDiscount } from '@/lib/discountCodes';
+import { resolveClipperRate } from '@/lib/clipperRate';
 
 export async function POST(req: NextRequest) {
   try {
@@ -78,10 +79,16 @@ export async function POST(req: NextRequest) {
     if (attributionSource === 'clipper') {
       const { data: artistRate } = await supabase
         .from('artist_profiles')
-        .select('clipper_commission_rate')
+        .select('clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
         .eq('id', tier.artist_id)
         .single();
-      clipperRate = Math.min(artistRate?.clipper_commission_rate || 0, 100 - platformFeePercent);
+      // Ramp resolves from the calendar (no cron); cap so fee + cut <= 100%.
+      const resolved = resolveClipperRate({
+        schedule: artistRate?.clipper_rate_schedule,
+        campaignStartedAt: artistRate?.clipper_campaign_started_at,
+        standardRate: artistRate?.clipper_commission_rate || 0,
+      });
+      clipperRate = Math.min(resolved, 100 - platformFeePercent);
     }
     const effectiveFeePercent = platformFeePercent + clipperRate;
 

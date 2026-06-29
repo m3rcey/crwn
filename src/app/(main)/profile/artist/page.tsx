@@ -13,6 +13,7 @@ import { LivestreamManager } from '@/components/artist/LivestreamManager';
 import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
 import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
 import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
+import { ClipperSettings } from '@/components/artist/ClipperSettings';
 import { SyncDashboard } from '@/components/artist/SyncDashboard';
 import { AudienceTab } from '@/components/artist/AudienceTab';
 import { AiManagerCard, AiManagerTeaser } from '@/components/artist/AiManagerCard';
@@ -285,6 +286,7 @@ function ArtistDashboardContent() {
           {visitedTabs.has('referrals') && (
             <div className={activeTab !== 'referrals' ? 'hidden' : undefined}>
               <ArtistReferralStats />
+              <ClipperSettings />
             </div>
           )}
         </div>
