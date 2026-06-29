@@ -30,6 +30,12 @@ const NUDGE_RULES: NudgeRule[] = [
     stallDays: 2,
   },
   {
+    triggerType: 'activation_no_stripe',
+    requiresMilestone: 'tiers_created',
+    missingMilestone: 'stripe_connected',
+    stallDays: 1,
+  },
+  {
     triggerType: 'activation_no_subscribers',
     requiresMilestone: 'stripe_connected',
     missingMilestone: 'first_subscriber',
