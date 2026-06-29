@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Scissors, Plus, Trash2, Play, Square, Loader2 } from 'lucide-react';
+import { Scissors, Plus, Trash2, Play, Square, Loader2, Megaphone, Copy, Check } from 'lucide-react';
 import {
   CLIPPER_RAMP_PRESETS,
   resolveClipperRateTimeline,
@@ -23,17 +23,20 @@ export function ClipperSettings() {
   const [steps, setSteps] = useState<ClipperRateStep[]>([]);
   const [campaignStartedAt, setCampaignStartedAt] = useState<string | null>(null);
   const [platformTier, setPlatformTier] = useState<string | null>(null);
+  const [slug, setSlug] = useState<string | null>(null);
+  const [copiedPitch, setCopiedPitch] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     async function load() {
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, platform_tier, clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
+        .select('id, slug, platform_tier, clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
         .eq('user_id', user!.id)
         .maybeSingle();
       if (!artist) { setIsLoading(false); return; }
       setArtistId(artist.id);
+      setSlug(artist.slug ?? null);
       setPlatformTier(artist.platform_tier ?? null);
       setStandardRate(artist.clipper_commission_rate ?? 10);
       setSteps(Array.isArray(artist.clipper_rate_schedule) ? artist.clipper_rate_schedule : []);
@@ -95,6 +98,30 @@ export function ClipperSettings() {
   const dayInCampaign = campaignStartedAt
     ? Math.floor((Date.now() - new Date(campaignStartedAt).getTime()) / 86_400_000)
     : null;
+
+  // Ready-to-paste invite for the artist to broadcast. Uses the PAID rate + real
+  // drop date so the pitch stays truthful, and regenerates from live state.
+  const profileUrl = slug ? `https://thecrwn.app/${slug}` : '';
+  const recruitPitch = slug
+    ? `Clip my content and get paid. You earn ${liveRate}% of every subscription your clips bring in. Recurring, for as long as they stay subscribed.`
+      + (nextChange ? ` Rate drops to ${nextChange.to}% on ${nextChangeLabel}, so get your clips up before then.` : '')
+      + ` Start here: ${profileUrl} then tap "Clip & Earn" to grab your link.`
+    : '';
+
+  const copyPitch = async () => {
+    try {
+      await navigator.clipboard.writeText(recruitPitch);
+    } catch {
+      const input = document.createElement('input');
+      input.value = recruitPitch;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+    }
+    setCopiedPitch(true);
+    setTimeout(() => setCopiedPitch(false), 2000);
+  };
 
   return (
     <div className="neu-raised rounded-xl p-6 mt-6 space-y-6">
@@ -246,6 +273,33 @@ export function ClipperSettings() {
           </button>
         )}
       </div>
+
+      {/* Recruit clippers — a program with no clippers earns nothing. */}
+      {slug && liveRate > 0 && (
+        <div className="border-t border-crwn-elevated pt-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Megaphone className="w-4 h-4 text-crwn-gold" />
+            <p className="text-sm font-medium text-crwn-text">Recruit clippers</p>
+          </div>
+          <p className="text-xs text-crwn-text-secondary mb-3">
+            Send this to creators on TikTok, IG, YouTube, Discord. They tap Clip &amp; Earn on your
+            page to grab their own tracked link.
+          </p>
+          <textarea
+            readOnly
+            value={recruitPitch}
+            rows={3}
+            className="w-full text-sm bg-crwn-elevated rounded-lg px-3 py-2 text-crwn-text-secondary resize-none"
+          />
+          <button
+            onClick={copyPitch}
+            className="mt-2 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-crwn-gold text-black hover:opacity-90"
+          >
+            {copiedPitch ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copiedPitch ? 'Copied' : 'Copy invite'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
