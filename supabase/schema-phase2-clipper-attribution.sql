@@ -18,14 +18,10 @@ ALTER TABLE referrals ADD CONSTRAINT referrals_source_chk
 ALTER TABLE artist_profiles
   ADD COLUMN IF NOT EXISTS clipper_commission_rate INTEGER NOT NULL DEFAULT 10;
 
--- 3. Payout: NO new column needed. Clipper earnings land in referral_earnings keyed
---    by referrer_fan_id (the clipper). Confirm the cashout RPC sums them in:
---
---    SELECT pg_get_functiondef(oid) FROM pg_proc WHERE proname = 'atomic_fan_cashout';
---
---    If it sums referral_earnings by referrer_fan_id = p_fan_id with NO source filter,
---    clipper earnings are already withdrawable — do nothing. If it filters by a type
---    or joins only fan rows, widen that predicate to include clipper earnings.
+-- 3. Payout: NO new column, NO RPC change needed (VERIFIED 2026-06-28). atomic_fan_cashout
+--    sums COALESCE(SUM(commission_amount),0) FROM referral_earnings WHERE referrer_fan_id
+--    = p_fan_id, with no source filter — so clipper earnings (referral_earnings rows keyed
+--    by the clipper's referrer_fan_id) are already withdrawable via /api/stripe/fan-cashout.
 --
 -- 4. RLS: the clipper reads their own earnings through the existing /api/referrals
 --    endpoint (filtered by referrer_fan_id), so no new policy is required for the
