@@ -174,11 +174,24 @@ export function ArtistProfileForm() {
           .single();
 
         if (insertError) {
-          // The approval RLS policy blocks the insert for un-approved accounts.
-          showToast(
-            "Your account isn't approved to publish an artist page yet. If you have an invite link, sign up through it, or reach out and we'll let you in.",
-            'error'
-          );
+          // Don't assume the cause — read the actual Postgres error so the toast
+          // tells the truth instead of always blaming approval.
+          console.error('artist_profiles insert error:', insertError);
+          let message: string;
+          if (insertError.code === '23505') {
+            // unique_violation — slug already taken
+            message = `That handle (thecrwn.app/${formData.slug}) is already taken. Pick a different one.`;
+          } else if (insertError.code === '23502') {
+            // not_null_violation — almost always an empty slug
+            message = 'Pick a handle for your page before saving.';
+          } else if (insertError.code === '42501') {
+            // RLS WITH CHECK failure — the approval gate is ON and you're not approved
+            message =
+              "Your account isn't approved to publish an artist page yet. If you have an invite link, sign up through it, or reach out and we'll let you in.";
+          } else {
+            message = `Couldn't publish your page: ${insertError.message}`;
+          }
+          showToast(message, 'error');
           setIsSaving(false);
           return;
         }
