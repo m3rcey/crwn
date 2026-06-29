@@ -1,71 +1,65 @@
-## J. COLE SOLD CDS OUT OF HIS TRUNK. HERE'S WHY THAT MATTERS.
+## JAY-Z WAVED OFF J. COLE, THEN SIGNED HIM FIRST
 
 **CAPTION:**
 
-J. Cole Sold CDs Out His Trunk
+Jay-Z Waved Off J. Cole, Then Made Him His First Signing
 
-Link in bio to sell direct to your fans the way Cole started with CRWN. Free to start at thecrwn.app.
+Link in bio to build a fanbase that's yours before any label with CRWN. Free to start at thecrwn.app.
 
 ---
 
 **SCRIPT:**
 
-The man who signed J. Cole turned down his CD to his face first. Ask Jay-Z.
+What happened to the kid Jay-Z waved off when he tried to hand him a CD outside a studio in the rain?
 
-Watch how the no turn into the deal.
+Stay with me.
 
-Before any label, Cole was movin his own music hand to hand. Burnin CDs, sellin em cheap, buildin a fanbase one person at a time off "The Come Up." No playlist. No algorithm. Just him and whoever would take a copy. Then he stood outside Jay-Z studio in the rain for hours holdin a beat CD, hopin for one shot. Jay pulled up, saw the CD, and said give it to one of them. Walked right past him. Didnt even use the beat. Cole went back and kept buildin his own thing anyway. A year later it aint Cole chasin Jay no more. It was Jay-Z askin to meet the kid he brushed off.
+The kid was J. Cole. He'd built his own buzz off a free mixtape, no label behind him. So he stood outside a New York studio for hours in the rain, holdin a beat CD, hopin Jay would take one listen. Jay pulled up, looked at the CD, told him to give it to somebody else, and walked right past.
 
-This what they dont tell you. The deal didnt come cause Cole begged for it. It came cause Cole built somethin that pulled Jay back to him.
+So how'd the kid Jay walked past end up the very first artist he ever signed to Roc Nation?
 
-Heres the part that flips it. The same Jay-Z who waved his CD off in the rain didnt just sign him. Cole became the first artist Roc Nation ever signed, the whole label built around the kid Jay walked past.
+About a year later one Cole song, Lights Please, got back to Jay, and this time he aint walk past. He made the kid he waved off in the rain the first artist Roc Nation ever signed.
 
 ---
 
 **TITLES (suggested is in CAPTION above; alternates below):**
-1. J. Cole Sold CDs Out His Trunk -- Structure 4  ← SUGGESTED
-2. Cole Built A Career Out His Trunk -- Structure 6
-3. If Cole Waited On A Label, Hed Be Broke -- Structure 3
-4. Cole Sold A $5 CD Before A $5M Deal -- Structure 4
-5. Subway Stops Vs Spotify For Artists -- Structure 9
+1. Jay-Z Waved Off J. Cole, Then Signed Him First -- Structure 2  ← SUGGESTED
+2. The Kid Jay-Z Brushed Off In The Rain -- Structure 4
+3. How J. Cole Became Roc Nation's First Artist -- Structure 8
+4. Jay-Z Said No, Then Built A Label On Him -- Structure 3
+5. Cole Built The Buzz, Jay Came Back -- Structure 6
 
-**TOPIC:** J. Cole sold CDs out his trunk at NYC subway stops for $5 each before any label deal. That direct-to-fan hustle built the buzz that led to Roc Nation. The label didnt discover him. He built the audience first.
+**TOPIC:** J. Cole built his own buzz off his free 2007 mixtape The Come Up, then waited hours in the rain outside a NYC studio to hand Jay-Z a beat CD; Jay declined it. About a year later, his manager played Jay the song "Lights Please," and Jay-Z signed Cole as the first artist on Roc Nation (2009). Lesson for the artist: build your own buzz first and the industry comes to you. (Scrubbed the fabricated "sold CDs out his trunk at subway stops" framing.)
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** The man who signed J. Cole turned down his CD to his face first. [write "J. COLE → ROC NATION" in bold caps at the top, then "TURNED DOWN FIRST" huge and circle it twice] Ask Jay-Z. [draw a stick figure labeled "JAY-Z" waving off a CD held out by a stick figure labeled "COLE"]
+**HOOK:** What happened to the kid Jay-Z waved off when he tried to hand him a CD outside a studio in the rain? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Jay-Z from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "JAY-Z" underneath; beside it write "WAVED OFF A KID'S CD" with a small CD drawn]
 
-**FORESHADOW:** Watch how the no turn into the deal. [write "NO → DEAL" with an arrow]
+**FORESHADOW:** Stay with me. [write "A NO THAT TURNED INTO HISTORY" with a question mark]
 
-**RISING ACTION:** Cole was at NYC subway stops handing CDs to strangers. $5 a CD. [draw a simple subway sign labeled "NYC" with a stick figure handing a CD to another stick figure] No label. No playlist. No algorithm. [write "NO LABEL / NO PLAYLIST / NO ALGORITHM" stacked vertically with X marks beside each] Just him and the fan. One sale at a time. [draw two stick figures, one labeled "COLE" handing a CD to one labeled "FAN", with "$5" in between] He kept doin this for years before any deal. [write "YEARS OF HUSTLE" boxed and underlined] He built a list. He built a buzz. He built a buyer before he ever built a brand. [write "LIST → BUZZ → BUYER → BRAND" in caps with arrows] By the time Jay-Z called, Cole already had thousands of fans payin him direct. The label aint discover him. The trunk did. [write "THE TRUNK = THE LABEL" in caps and underline twice]
+**RISING ACTION:** The kid was J. Cole. He'd built his own buzz off a free mixtape, no label behind him. [write "J. COLE - FREE MIXTAPE, NO LABEL"] So he stood outside a New York studio for hours in the rain, holdin a beat CD, hopin Jay would take one listen. [draw a plain-faced stick figure labeled "COLE" standing in the rain (a few hand-drawn rain lines) holding a small square labeled "CD" outside a building labeled "STUDIO"] Jay pulled up, looked at the CD, told him to give it to somebody else, and walked right past. [write "JAY: GIVE IT TO SOMEBODY ELSE" then "WALKED RIGHT PAST" boxed]
 
-**TWIST:** This what they dont tell you. Roc Nation didnt build Cole. Cole built Cole. [draw a stick figure labeled "COLE" with an arrow pointing up to "ROC NATION", then write "COLE BUILT COLE" boxed beside it] The label came in after the line already formed. [draw a long line of stick figures with one at the front labeled "COLE" and one at the back labeled "LABEL"]
+**RE-HOOK:** So how'd the kid Jay walked past end up the very first artist he ever signed to Roc Nation? [write "BRUSHED OFF -> FIRST SIGNING?" with a big question mark]
 
-**PAYOFF:** Heres the part that flips it. The same Jay-Z who waved his CD off didnt just sign him. [write "JAY WAVED HIM OFF → SIGNED HIM" in caps centered] Cole became the first artist Roc Nation ever signed, the whole label built around the kid Jay walked past. [write "ARTIST #1" huge on the left and "ROC NATION BUILT ON COLE" on the right at the bottom, both circled together in one oval]
+**PAYOFF:** About a year later one Cole song, Lights Please, got back to Jay, and this time he aint walk past. [write "1 YEAR LATER: LIGHTS PLEASE" with an arrow] He made the kid he waved off in the rain the first artist Roc Nation ever signed. [write "ROC NATION ARTIST #1" big and bold, circled at the bottom]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. CRITICAL: every stick figure and depiction of J. Cole in this image must be drawn with a plain face. NO sunglasses, NO shades, NO eyewear of any kind on Cole. Just a simple hand-drawn face with eyes visible. At the top of the page, "J. COLE → ROC NATION" is written in bold capital letters. Below that, "$MILLIONS" is written huge in bold capitals and circled twice with rough sharpie circles. Below that, a simple hand-drawn car is drawn with the trunk open and CDs stacked inside, labeled "$5 EACH". Below that, "SMALL MOVE → BIG ONE" is written with a hand-drawn arrow. In the upper middle of the page, a simple hand-drawn subway sign labeled "NYC" is drawn with a stick figure handing a CD to another stick figure. Beside that, "NO LABEL / NO PLAYLIST / NO ALGORITHM" is written stacked vertically in capitals with X marks beside each line. Below that, two stick figures are drawn, one labeled "COLE" handing a CD to one labeled "FAN", with "$5" written in between. Below that, "YEARS OF HUSTLE" is written boxed and underlined. Below that, "LIST → BUZZ → BUYER → BRAND" is written in capitals with hand-drawn arrows between each word. Below that, "THE TRUNK = THE LABEL" is written in capitals and underlined twice. In the lower middle of the page, a stick figure labeled "COLE" is drawn with an arrow pointing up to the words "ROC NATION", and "COLE BUILT COLE" is written boxed beside it. Below that, a long horizontal line of stick figures is drawn, with one at the front labeled "COLE" and one at the back labeled "LABEL". Near the bottom of the page, "DIRECT SALE = THE START" is written in capitals centered. At the very bottom on the left, "TRUNK = PLATFORM" is written, and on the right, "FAN = PROOF" is written. Both phrases are circled together inside one rough sharpie oval. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. CRITICAL: any stick figure depiction of J. Cole must have a plain simple face, NO sunglasses or eyewear. At the top left, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of Jay-Z from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, with "JAY-Z" written in capitals underneath. To the right of the portrait, "WAVED OFF A KID'S CD" is written, with a small hand-drawn CD disc beside it. Below the portrait, "J. COLE - FREE MIXTAPE, NO LABEL" is written in capitals. Below that, a plain-faced stick figure labeled "COLE" is drawn standing under a few hand-drawn rain lines, holding a small square labeled "CD", next to a simple rectangle building labeled "STUDIO". Below that, "JAY: GIVE IT TO SOMEBODY ELSE" is written, and under it "WALKED RIGHT PAST" written and boxed. In the middle of the page, "BRUSHED OFF -> FIRST SIGNING?" is written with a large hand-drawn question mark. In the lower half of the page, "1 YEAR LATER: LIGHTS PLEASE" is written with a hand-drawn arrow. At the bottom center, "ROC NATION ARTIST #1" is written very large and bold, circled with a rough sharpie oval. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "J. COLE → ROC NATION" at top
-2. "$MILLIONS" circled twice
-3. Car with trunk open and CDs labeled "$5 EACH"
-4. "SMALL MOVE → BIG ONE" arrow
-5. NYC subway sign with stick figures handing CD
-6. "NO LABEL / NO PLAYLIST / NO ALGORITHM" with X marks
-7. Two stick figures: COLE and FAN exchanging "$5"
-8. "YEARS OF HUSTLE" boxed and underlined
-9. "LIST → BUZZ → BUYER → BRAND" arrow chain
-10. "THE TRUNK = THE LABEL" underlined twice
-11. Stick figure COLE arrow to "ROC NATION" with "COLE BUILT COLE" boxed
-12. Long line of stick figures with COLE in front, LABEL at back
-13. "DIRECT SALE = THE START" centered
-14. "TRUNK = PLATFORM" / "FAN = PROOF" in oval at bottom
+1. Sharpie portrait of Jay-Z labeled "JAY-Z"
+2. "WAVED OFF A KID'S CD" with CD drawn
+3. "J. COLE - FREE MIXTAPE, NO LABEL"
+4. Plain-faced COLE stick figure in the rain with CD outside "STUDIO"
+5. "JAY: GIVE IT TO SOMEBODY ELSE" / "WALKED RIGHT PAST" boxed
+6. "BRUSHED OFF -> FIRST SIGNING?" with question mark
+7. "1 YEAR LATER: LIGHTS PLEASE" with arrow
+8. "ROC NATION ARTIST #1" big, circled at bottom

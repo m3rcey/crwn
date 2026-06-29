@@ -73,7 +73,14 @@ export async function GET(req: NextRequest) {
           if (insertErr) {
             checks.push({ name: 'publish_insert', ok: false, detail: `artist_profiles insert blocked (${insertErr.code}): ${insertErr.message}` });
           } else {
-            checks.push({ name: 'publish_insert', ok: true, detail: 'authenticated user published a page successfully' });
+            // Publishing a page must also promote the user to 'artist' (server-side
+            // trigger) — the client can't set role under RLS. Verify it actually flipped.
+            const { data: prof } = await supabaseAdmin.from('profiles').select('role').eq('id', testUserId).single();
+            if (prof?.role !== 'artist') {
+              checks.push({ name: 'publish_insert', ok: false, detail: `page created but role is '${prof?.role}', not 'artist' — promote-to-artist trigger missing` });
+            } else {
+              checks.push({ name: 'publish_insert', ok: true, detail: 'authenticated user published a page and was promoted to artist' });
+            }
           }
         }
       }

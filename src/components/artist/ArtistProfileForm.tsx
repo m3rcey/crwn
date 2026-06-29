@@ -233,13 +233,11 @@ export function ArtistProfileForm() {
 
         if (data) {
           setArtistProfile(data);
-          // Update user role to artist
-          await supabase
-            .from('profiles')
-            .update({ role: 'artist' })
-            .eq('id', user?.id);
-          // Founder is notified server-side via the artist_profiles INSERT trigger
-          // (see schema-phase2-new-artist-webhook.sql) — no client ping needed.
+          // Role is promoted to 'artist' SERVER-SIDE by the artist_profiles INSERT
+          // trigger (schema-phase2-promote-artist-role.sql). The client cannot set
+          // role — RLS forbids it (schema-phase2-rls-column-restrictions.sql) — so
+          // the old client-side role update here always failed silently and left
+          // new artists stuck as 'fan'. Founder is notified by the same trigger.
         }
       }
 

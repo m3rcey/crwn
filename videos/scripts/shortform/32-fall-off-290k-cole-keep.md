@@ -1,71 +1,65 @@
-## THE FALL OFF DID ABOUT 290K FIRST WEEK. HOW MUCH DID COLE KEEP?
+## J. COLE OWNS HIS OWN NUMBER-ONE ALBUM
 
 **CAPTION:**
 
-Cole Sold 290K Albums Week One. He Got 15%.
+J. Cole Owns His Own Number-One Album
 
-Link in bio to keep what you make instead of splitting it with a label with CRWN. Free to start at thecrwn.app.
+Link in bio to sell your album direct to your fans at the price you set with CRWN. Free to start at thecrwn.app.
 
 ---
 
 **SCRIPT:**
 
-The Fall Off moved 290,861 units its first week. So how much of that $2.9 million did Cole actually pocket? Aint what ya think.
+Who actually owns J. Cole's number-one final album?
 
-Run the math slow.
+Watch.
 
-290K units at $10 a unit is about $2.9 million the album pulled in week one. On a standard major deal the artist see like 15% of that. So on paper Cole earnin around $435K and the label sittin on the other $2.5 million. That already near a 6 to 1 split. But here the part that get glossed over. Cole dont even touch that $435K clean. The advance, the videos, the marketing, all that come out his slice first. So before he see a dollar of the 15%, he payin the label back out his own cut.
+Everybody figure when a star drops a number one, the label own it and keep the lion's share. But The Fall-Off came out under Cole World, Cole's own company, just licensed to Interscope to push it. Cole own the masters. The label just the delivery man.
 
-This what they dont tell you. The 290K aint the number that matter. The split is. A #1 album can clear millions and still leave the artist diggin out a hole.
+So when his old Interscope deal finally ran out and a fat payout landed, what did Cole do that most artists never would?
 
-If Cole moved that same 290,861 direct to his own fans at $10, the part recoupment eats disappears. The hole was never his to dig. The label dug it and handed him the shovel.
+He reportedly pulled the bulk of his masters back, then cut his own Dreamville artists a piece of that payout, off money he aint owe a single one of em.
 
 ---
 
 **TITLES (suggested is in CAPTION above; alternates below):**
-1. Cole Sold 290K Albums Week One. He Got 15%. -- Structure 4  ← SUGGESTED
-2. Cole Did 290K And Kept A Slice -- Structure 6
-3. If Cole Sold Direct, He Keeps $2.67M -- Structure 3
-4. The Fall Off Vs The Label Math -- Structure 8
-5. 15% Of A Hit Vs 92% Of A Hit -- Structure 9
+1. J. Cole Owns His Own Number-One Album -- Structure 4  ← SUGGESTED
+2. Who Owns The Fall-Off? Not The Label -- Structure 8
+3. Cole Owns It, The Label Just Ships It -- Structure 2
+4. He Sold His #1 Album Direct For $14.99 -- Structure 6
+5. Cole Shared His Label Payout With His Artists -- Structure 3
 
-**TOPIC:** J. Cole's The Fall Off debuted at #1 with about 290K units first week (290,861) under his Dreamville/Interscope deal. At a standard ~15% artist cut, Cole made roughly $435K vs the label's ~$2.5M, before recoupment. Direct-to-fan at the same volume keeps about 92% with the artist.
+**TOPIC:** J. Cole's The Fall-Off (released Feb 6, 2026, #1 debut) came out under "Cole World, Inc., under exclusive license to Interscope" — Cole owns the masters and licenses distribution (he also sold it direct on his own site for $14.99, while it was on streaming day one). When the Dreamville/Interscope deal expired in 2025, he reportedly got the bulk of his masters back and shared the payout with his Dreamville artists. Lesson for the artist: own your masters and license out distribution instead of handing the label your music.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** The Fall Off moved 290,861 units its first week. [write "THE FALL OFF" in caps at top, then "290,861 WEEK 1" huge and circle it twice] So how much of that $2.9 million did Cole actually pocket? [write "COLE KEPT = ?" boxed beside it]
+**HOOK:** Who actually owns J. Cole's number-one final album, the one he was sellin off his own site for fourteen ninety-nine? [draw a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of J. Cole from the attached photo reference, with a plain simple face and NO sunglasses or eyewear, drawn in confident sharpie line work, not a generic stick figure, labeled "J. COLE" underneath; beside it write "THE FALL-OFF - #1" and "WHO OWNS IT?"]
 
-**FORESHADOW:** Run the math slow. [write "REAL MATH ↓" in caps with a downward arrow]
+**FORESHADOW:** Watch. [write "$14.99 ON HIS OWN SITE" with a small CD/web icon]
 
-**RISING ACTION:** 290K units at $10 a unit is $2.9 million. [write "290K × $10 = $2,900,000" in big caps and underline it] Cole on a standard major deal get like 15% of that. The rest go to the label. [draw a simple pie chart with a small slice labeled "COLE 15%" and the big slice labeled "LABEL 85%"] So Cole made like $435K off The Fall Off in week one. The label kept about $2.5M. [write "COLE = $435,000" on the left, "LABEL = $2,465,000" on the right] That a near 6 to 1 split. [write "≈ 6 TO 1 SPLIT" boxed in caps] Plus Cole gotta recoup the advance, the videos, the marketing before he see any of his 15%. [draw a stick figure labeled "COLE" digging in a hole with the dirt labeled "RECOUPMENT"] So the real check is even smaller. He gotta pay back the label out his own slice first. [write "PAY BACK FROM HIS SLICE" boxed and underlined]
+**RISING ACTION:** Everybody figure when a star drops a number one, the label own it and keep the lion's share. [draw a pie chart with a tiny slice "ARTIST" and a huge slice "LABEL", with a question mark over it] But The Fall-Off came out under Cole World, Cole's own company, just licensed to Interscope to push it. [write "COLE WORLD -> licenses -> INTERSCOPE"] Cole own the masters. The label just the delivery man. [write "COLE OWNS THE MASTERS" boxed, then "LABEL = DELIVERY MAN" underlined]
 
-**TWIST:** This what they dont tell you. 290K first week look like a flex. The artist hold a small slice. The label hold the rest. [write "290K = FLEX?" with a question mark, then "SLICE ≠ BAG" beside it] Big numbers dont mean big checks under a label deal. [write "BIG NUMBERS ≠ BIG CHECKS" in caps and underline it twice]
+**RE-HOOK:** So when his old Interscope deal finally ran out and a fat payout landed, what did Cole do that most artists never would? [write "DEAL EXPIRED + A BIG BAG -> ?" with a big question mark]
 
-**PAYOFF:** If Cole moved that same 290,861 direct to his own fans at $10, the part recoupment eats disappears. [write "290,861 DIRECT → NO RECOUP HOLE" big and circled] The hole was never his to dig. The label dug it and handed him the shovel. [write "LABEL DUG THE HOLE" on the left, "HANDED HIM THE SHOVEL" on the right at the bottom, both circled together in one oval]
+**PAYOFF:** He reportedly pulled the bulk of his masters back, then cut his own Dreamville artists a piece of that payout, off money he aint owe a single one of em. [write "GOT HIS MASTERS BACK" then "SHARED THE BAG WITH HIS ARTISTS" big and bold, circled at the bottom]
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. At the top of the page, "THE FALL OFF" is written in capitals. Below that, "≈290K WEEK 1" is written huge in bold capitals and circled twice with rough sharpie circles. Beside that, "COLE = 15%" is written boxed. Below that, "REAL MATH ↓" is written in capitals with a hand-drawn downward arrow. In the upper middle of the page, "290K × $10 = $2,900,000" is written big in capitals and underlined. Below that, a simple hand-drawn pie chart is drawn with a small slice labeled "COLE 15%" and the big slice labeled "LABEL 85%". Below the pie chart on the left, "COLE = $435,000" is written. On the right, "LABEL = $2,465,000" is written. Below that, "≈ 6 TO 1 SPLIT" is written boxed in capitals. Below that, a stick figure labeled "COLE" is drawn digging in a hole with the dirt labeled "RECOUPMENT". Below that, "REAL CHECK = EVEN LESS" is written boxed and underlined. Below that, "PAY BACK FROM HIS SLICE" is written boxed and underlined. In the lower middle of the page, "290K = FLEX?" is written with a question mark, and "SLICE ≠ BAG" is written beside it. Below that, "BIG NUMBERS ≠ BIG CHECKS" is written in capitals and underlined twice. Below that, "290K × $10 DIRECT = ≈$2,670,000 → COLE" is written big in capitals and circled. At the very bottom of the page on the left, "ONE ALBUM" is written, and on the right, "TWO PAYDAYS" is written. Both phrases are circled together inside one rough sharpie oval. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. CRITICAL: the J. Cole portrait must have a plain simple face with NO sunglasses or eyewear of any kind. At the top left, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of J. Cole from the attached photo reference, plain-faced with no eyewear, drawn in confident sharpie line work, not a generic stick figure, with "J. COLE" written in capitals underneath. To the right of the portrait, "THE FALL-OFF - #1" is written, and below it "WHO OWNS IT?" with a question mark. Below the portrait, "$14.99 ON HIS OWN SITE" is written in capitals with a small hand-drawn web/CD icon. Below that, a hand-drawn pie chart with a tiny slice labeled "ARTIST" and a huge slice labeled "LABEL", with a question mark drawn over it. Below that, "COLE WORLD -> licenses -> INTERSCOPE" is written in capitals. Below that, "COLE OWNS THE MASTERS" is written and boxed, and under it "LABEL = DELIVERY MAN" written and underlined. In the middle of the page, "DEAL EXPIRED + A BIG BAG -> ?" is written with a large hand-drawn question mark. In the lower half, "GOT HIS MASTERS BACK" is written in capitals, and beneath it "SHARED THE BAG WITH HIS ARTISTS" written very large and bold, circled with a rough sharpie oval at the bottom. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. "THE FALL OFF" / "≈290K WEEK 1" circled twice
-2. "COLE = 15%" boxed
-3. "REAL MATH ↓" arrow
-4. "290K × $10 = $2,900,000" underlined
-5. Pie chart: COLE 15% / LABEL 85%
-6. "COLE = $435,000" / "LABEL = $2,465,000"
-7. "≈ 6 TO 1 SPLIT" boxed
-8. Stick figure COLE digging in "RECOUPMENT" hole
-9. "REAL CHECK = EVEN LESS" boxed and underlined
-10. "PAY BACK FROM HIS SLICE" boxed and underlined
-11. "290K = FLEX?" / "SLICE ≠ BAG"
-12. "BIG NUMBERS ≠ BIG CHECKS" underlined twice
-13. "290K × $10 DIRECT = ≈$2,670,000 → COLE" big and circled
-14. "ONE ALBUM" / "TWO PAYDAYS" in oval at bottom
+1. Plain-faced sharpie portrait of J. Cole labeled "J. COLE"
+2. "THE FALL-OFF - #1" / "WHO OWNS IT?"
+3. "$14.99 ON HIS OWN SITE"
+4. Pie chart ARTIST tiny / LABEL huge with question mark
+5. "COLE WORLD -> licenses -> INTERSCOPE"
+6. "COLE OWNS THE MASTERS" boxed / "LABEL = DELIVERY MAN" underlined
+7. "DEAL EXPIRED + A BIG BAG -> ?" with question mark
+8. "GOT HIS MASTERS BACK" / "SHARED THE BAG WITH HIS ARTISTS" circled at bottom
