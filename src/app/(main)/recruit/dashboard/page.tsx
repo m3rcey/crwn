@@ -88,9 +88,10 @@ export default function RecruiterDashboard() {
 
   if (!data) return null;
 
-  const { recruiter, referrals, payouts, stats, funnel } = data;
+  const { recruiter, referrals, payouts, stats, funnel, perArtist = [] } = data;
   const referralUrl = `thecrwn.app/join/${recruiter.referral_code}`;
   const hasStripe = !!recruiter.stripe_connect_id;
+  const money = (c: number) => `$${((c || 0) / 100).toFixed(2)}`;
 
   const funnelStages = funnel ? [
     { label: 'Link Clicks', value: funnel.clicks, color: '#6366f1' },
@@ -152,6 +153,33 @@ export default function RecruiterDashboard() {
         ))}
       </div>
 
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        {[
+          { label: 'Paid last 24h', value: money(stats.paidLast24h) },
+          { label: 'Paid this month', value: money(stats.paidThisMonth) },
+          { label: 'Paid this year', value: money(stats.paidThisYear) },
+          { label: 'Pending', value: money(stats.pendingEarnings) },
+        ].map((s, i) => (
+          <div key={i} className="bg-[#1a1a1a] rounded-xl p-4 text-center">
+            <p className="text-xl font-bold text-crwn-text">{s.value}</p>
+            <p className="text-xs text-crwn-text-secondary">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {(stats.flatTotal > 0 || stats.recurringTotal > 0) && (
+        <div className="flex gap-3 mb-8 text-xs">
+          <div className="flex-1 bg-[#1a1a1a] rounded-xl p-3 flex items-center justify-between">
+            <span className="text-crwn-text-secondary">Flat bounties</span>
+            <span className="font-semibold text-crwn-text">{money(stats.flatTotal)}</span>
+          </div>
+          <div className="flex-1 bg-[#1a1a1a] rounded-xl p-3 flex items-center justify-between">
+            <span className="text-crwn-text-secondary">Recurring (ongoing)</span>
+            <span className="font-semibold text-crwn-gold">{money(stats.recurringTotal)}</span>
+          </div>
+        </div>
+      )}
+
       {funnel && funnel.clicks + funnel.signups > 0 && (
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-crwn-text mb-3">Your Funnel</h2>
@@ -200,28 +228,42 @@ export default function RecruiterDashboard() {
         </div>
       )}
 
-      {referrals.length > 0 && (
+      {perArtist.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-crwn-text mb-3">Referred Artists</h2>
-          <div>
-            {referrals.map((ref: any) => (
-              <div key={ref.id} className="flex items-center justify-between py-3 border-b border-crwn-elevated/50">
-                <div>
-                  <p className="text-sm text-crwn-text">{ref.artist_user?.display_name || ref.artist_user?.email || 'Artist'}</p>
-                  <p className="text-xs text-crwn-text-secondary">
-                    {new Date(ref.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <span className={`text-xs px-2 py-1 rounded-full ${
-                  ref.status === 'qualified' ? 'bg-green-500/20 text-green-400' :
-                  ref.status === 'pending' ? 'bg-crwn-gold/20 text-crwn-gold' :
-                  'bg-red-500/20 text-red-400'
-                }`}>
-                  {ref.status}
-                </span>
-              </div>
-            ))}
+          <h2 className="text-lg font-semibold text-crwn-text mb-3">Your Artists</h2>
+          <div className="overflow-x-auto bg-[#1a1a1a] rounded-xl p-2">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-crwn-text-dim border-b border-crwn-elevated/50">
+                  <th className="text-left py-2 px-2">Artist</th>
+                  <th className="text-left py-2 px-2">Status</th>
+                  <th className="text-right py-2 px-2">CRWN fee</th>
+                  <th className="text-right py-2 px-2">Their revenue (mo)</th>
+                  <th className="text-right py-2 px-2">You earned (mo)</th>
+                  <th className="text-right py-2 px-2">You earned (all)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {perArtist.map((a: any) => (
+                  <tr key={a.referralId} className="border-b border-crwn-elevated/30">
+                    <td className="py-2.5 px-2 text-crwn-text font-medium">{a.artistName}</td>
+                    <td className="py-2.5 px-2">
+                      <span className={`px-2 py-0.5 rounded-full ${
+                        a.status === 'qualified' ? 'bg-green-500/20 text-green-400' :
+                        a.status === 'pending' ? 'bg-crwn-gold/20 text-crwn-gold' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>{a.status}</span>
+                    </td>
+                    <td className="py-2.5 px-2 text-right text-crwn-text-secondary">{a.crwnFeePercent}%</td>
+                    <td className="py-2.5 px-2 text-right text-crwn-text">{money(a.gmvThisMonth)}</td>
+                    <td className="py-2.5 px-2 text-right text-crwn-gold font-medium">{money(a.earnedThisMonth)}</td>
+                    <td className="py-2.5 px-2 text-right text-green-400">{money(a.earnedTotal)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          <p className="text-crwn-text-dim text-[10px] mt-2">&ldquo;Their revenue&rdquo; is the artist&rsquo;s gross fan sales on CRWN this month; &ldquo;CRWN fee&rdquo; is the platform&rsquo;s cut of that by their tier. &ldquo;You earned&rdquo; is your flat bounty + recurring share paid out.</p>
         </div>
       )}
 
