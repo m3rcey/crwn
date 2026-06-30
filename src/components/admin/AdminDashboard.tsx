@@ -86,6 +86,9 @@ interface Metrics {
   lgpCacRatio: number;
   lgp: number;
   cac: number;
+  avgRevenuePerArtist: number;
+  monthlyGrossProfitPerArtist: number;
+  fixedCostPerArtist: number;
   totalMRR: number;
   totalARR: number;
   platformMRR: number;
@@ -548,7 +551,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
                     <th className="text-left py-2 pr-3">Tier</th>
                     <th className="text-right py-2 pr-3">Price/mo</th>
                     <th className="text-right py-2 pr-3">Stripe Fee</th>
-                    <th className="text-right py-2 pr-3">Infra/Artist</th>
+                    <th className="text-right py-2 pr-3">Msg/Artist</th>
                     <th className="text-right py-2 pr-3">COGs</th>
                     <th className="text-right py-2 pr-3">CAC</th>
                     <th className="text-right py-2 pr-3">CAC+COGs</th>
@@ -583,7 +586,13 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
                 </tbody>
               </table>
             </div>
-            <p className="text-[#555] text-[10px] mt-3">GP/mo must be ≥ 2× (CAC + COGs) to self-fund acquisition. Infra/Artist decreases as you scale.</p>
+            <p className="text-[#555] text-[10px] mt-3">GP/mo must be ≥ 2× (CAC + COGs) to self-fund acquisition. COGs is marginal cost only (messaging + Stripe); fixed infra is excluded — it&apos;s a breakeven cost, not a unit cost.</p>
+            <p className="text-[#777] text-[11px] mt-2">
+              Fixed OPEX ≈ {fmt(metrics.fixedCostPerArtist)}/artist today
+              {metrics.monthlyGrossProfitPerArtist > 0 && (
+                <> · covered once <span className="text-crwn-gold font-medium">~{Math.ceil(metrics.totalFixedCostsCents / metrics.monthlyGrossProfitPerArtist)} paying artists</span> are live (breakeven)</>
+              )}
+            </p>
           </div>
         )}
 
