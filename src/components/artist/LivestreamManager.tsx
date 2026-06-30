@@ -42,8 +42,8 @@ export function LivestreamManager({ artistId, artistSlug, tiers }: LivestreamMan
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const loadSessions = useCallback(async () => {
-    setIsLoading(true);
+  const loadSessions = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('live_sessions')
@@ -56,13 +56,25 @@ export function LivestreamManager({ artistId, artistSlug, tiers }: LivestreamMan
     } catch (err) {
       console.error('Error loading live sessions:', err);
     } finally {
-      setIsLoading(false);
+      if (!opts?.silent) setIsLoading(false);
     }
   }, [artistId, supabase]);
 
   useEffect(() => {
     loadSessions();
   }, [loadSessions]);
+
+  // A recording finalizes on the server (LiveKit egress -> R2 -> webhook), not in
+  // this browser. While anything is still processing, quietly re-poll so the row
+  // flips to "Download" on its own — the artist can leave this screen entirely.
+  const hasProcessing = sessions.some(
+    (s) => s.vod_status === 'recording' || s.vod_status === 'processing'
+  );
+  useEffect(() => {
+    if (!hasProcessing) return;
+    const id = setInterval(() => loadSessions({ silent: true }), 8000);
+    return () => clearInterval(id);
+  }, [hasProcessing, loadSessions]);
 
   const resetForm = () => {
     setMode('live');
