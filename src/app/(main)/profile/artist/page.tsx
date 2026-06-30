@@ -265,7 +265,7 @@ function ArtistDashboardContent() {
           )}
           {visitedTabs.has('livestreams') && (
             <div className={activeTab !== 'livestreams' ? 'hidden' : undefined}>
-              {artistId && <LivestreamManager artistId={artistId} artistSlug={artistSlug} tiers={tiers} />}
+              {artistId && <LivestreamManager artistId={artistId} artistSlug={artistSlug} artistName={profile?.display_name || 'An artist'} tiers={tiers} />}
             </div>
           )}
           {visitedTabs.has('billing') && (

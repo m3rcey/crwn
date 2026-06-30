@@ -12,12 +12,13 @@ import { BroadcasterStudio } from './BroadcasterStudio';
 interface LivestreamManagerProps {
   artistId: string;
   artistSlug: string;
+  artistName: string;
   tiers: TierConfig[];
 }
 
 const SLOT_OPTIONS = [10, 25, 50, 100, 250, 500];
 
-export function LivestreamManager({ artistId, artistSlug, tiers }: LivestreamManagerProps) {
+export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: LivestreamManagerProps) {
   const supabase = createBrowserSupabaseClient();
   const { user } = useAuth();
 
@@ -178,8 +179,8 @@ export function LivestreamManager({ artistId, artistSlug, tiers }: LivestreamMan
         body: JSON.stringify({
           artistId,
           type: 'live_session',
-          title: 'Live now',
-          message: `${session.title} just started`,
+          title: `${artistName} is live`,
+          message: `${session.title} · Tap to join the live session`,
           link: `/${artistSlug}/live/${session.id}`,
         }),
       }).catch(() => {});

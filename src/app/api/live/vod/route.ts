@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
   const { data: session } = await supabaseAdmin
     .from('live_sessions')
-    .select('id, artist_id, vod_status, vod_key')
+    .select('id, artist_id, vod_status, vod_key, visibility, is_free, allowed_tier_ids')
     .eq('id', sessionId)
     .maybeSingle();
 
@@ -36,9 +36,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'not_found' }, { status: 404 });
   }
 
-  // Authorize the caller: the artist who owns the session, OR a clipper who has
-  // driven at least one clipper-attributed subscription for this artist (the VOD
-  // handoff — a clipper downloads the raw footage to chop).
+  // Authorize the caller. Allowed in any of these cases:
+  //   1. the artist who owns the session,
+  //   2. a clipper who has driven a clipper-attributed subscription for this
+  //      artist (the VOD handoff — a clipper downloads raw footage to chop;
+  //      works even for private footage),
+  //   3. on a PUBLIC session, any fan with access (free, or a tier in
+  //      allowed_tier_ids) — they can download the recording too.
   const { data: ownedArtist } = await supabase
     .from('artist_profiles')
     .select('id')
@@ -46,7 +50,9 @@ export async function GET(req: NextRequest) {
     .eq('user_id', user.id)
     .maybeSingle();
 
-  if (!ownedArtist) {
+  let authorized = !!ownedArtist;
+
+  if (!authorized) {
     const { data: clipperRow } = await supabaseAdmin
       .from('referrals')
       .select('id')
@@ -55,10 +61,28 @@ export async function GET(req: NextRequest) {
       .eq('source', 'clipper')
       .limit(1)
       .maybeSingle();
+    if (clipperRow) authorized = true;
+  }
 
-    if (!clipperRow) {
-      return NextResponse.json({ error: 'Not your session' }, { status: 403 });
+  // Public-session fans: free, or holding a tier in allowed_tier_ids.
+  if (!authorized && session.visibility !== 'private') {
+    if (session.is_free) {
+      authorized = true;
+    } else {
+      const { data: sub } = await supabaseAdmin
+        .from('subscriptions')
+        .select('tier_id')
+        .eq('fan_id', user.id)
+        .eq('artist_id', session.artist_id)
+        .eq('status', 'active')
+        .maybeSingle();
+      const allowed: string[] = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
+      if (sub?.tier_id && allowed.includes(sub.tier_id)) authorized = true;
     }
+  }
+
+  if (!authorized) {
+    return NextResponse.json({ error: 'Not your session' }, { status: 403 });
   }
 
   if (session.vod_status !== 'ready' || !session.vod_key) {
