@@ -97,6 +97,16 @@ export const livekitProvider: LiveProvider = {
     if (!r2Configured()) {
       return null;
     }
+    // Egress needs the room to already exist. At "go live" the broadcaster's
+    // browser hasn't connected yet, so the room is absent and egress 404s
+    // ("requested room does not exist"). Create it first (idempotent) so the
+    // egress compositor can attach and wait for the publisher to join.
+    try {
+      await roomService().createRoom({ name: room, emptyTimeout: 300 });
+    } catch (e) {
+      // Already exists (e.g. the broadcaster connected first) — safe to ignore.
+      console.warn('createRoom before egress (continuing):', e);
+    }
     const output = new EncodedFileOutput({
       fileType: EncodedFileType.MP4,
       filepath: key,
