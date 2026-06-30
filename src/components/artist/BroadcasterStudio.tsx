@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { LiveKitRoom, VideoConference } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { Loader2, X } from 'lucide-react';
@@ -19,6 +20,11 @@ export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: 
   const [token, setToken] = useState<string | null>(null);
   const [url, setUrl] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  // Portal to document.body so the studio escapes the (main) layout's
+  // `relative z-10` stacking context — otherwise the nav (z-50 at root) paints
+  // on top of it. Only render the portal after mount (document exists client-side).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,8 +52,10 @@ export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: 
     return () => { cancelled = true; };
   }, [sessionId]);
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[60] bg-black flex flex-col">
       <div className="flex items-center justify-between px-4 py-3 border-b border-crwn-elevated">
         <div className="flex items-center gap-2">
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
@@ -88,6 +96,7 @@ export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: 
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
