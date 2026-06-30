@@ -203,11 +203,16 @@ export async function GET(req: NextRequest) {
     : 0;
   const avgLifespanMonths = artistChurnRate > 0 ? (100 / artistChurnRate) : 24; // cap at 24 if no churn
 
-  // ---- COGS PER ARTIST (monthly cost to serve ONE person) ----
-  // COGS = infrastructure share + variable messaging share + Stripe fee on their subscription
-  // Infrastructure is shared across ALL artists (paid + free all use the platform)
+  // ---- COGS PER ARTIST (MARGINAL monthly cost to serve ONE paid artist) ----
+  // COGS = marginal cost only: messaging share + Stripe fee on their subscription.
+  // Fixed infra (Supabase/Vercel/Resend/Claude/etc.) is deliberately NOT in COGS — it is a
+  // breakeven cost, not a unit cost. Folding it in understates LGP at low artist counts and
+  // double-counts it (thirtyDayProfit below already subtracts totalFixedCostsCents). It is
+  // surfaced separately as fixedCostPerArtist (a breakeven signal, not a COGS input).
+  // NOTE: variable streaming/clipping/AI costs are ~$0 today on free tiers; add them to
+  // variable_costs and attribute per-artist once usage tracking (viewer-hours, clips) exists.
   const totalArtistCount = paidArtists.length + starterArtists.length;
-  const infraPerArtistMonthly = totalArtistCount > 0
+  const fixedCostPerArtistMonthly = totalArtistCount > 0
     ? totalFixedCostsCents / totalArtistCount
     : 0;
   const monthlyVariableCostsNormalized = days > 0 ? totalVariableCostsCents / (days / 30) : 0;
@@ -219,11 +224,22 @@ export async function GET(req: NextRequest) {
     ? platformStripeFeesMonthly / paidArtists.length
     : 0;
 
-  // COGS for a PAID artist = infra + messaging + Stripe on their sub
-  const cogsPerPaidArtist = Math.round(infraPerArtistMonthly + messagingPerArtistMonthly + avgStripeFeePerPaidArtist);
+  // Marginal COGS for a PAID artist = messaging + Stripe on their sub (NOT fixed infra)
+  const cogsPerPaidArtist = Math.round(messagingPerArtistMonthly + avgStripeFeePerPaidArtist);
 
   // ---- LGP (Lifetime Gross Profit per Artist) ----
-  const avgMonthlyRevenuePerArtist = paidArtists.length > 0 ? platformMRR / paidArtists.length : 0;
+  // Per-artist revenue to CRWN = their platform SaaS fee + the transaction fees THEY generate
+  // (the platform % of their GMV). The prior calc counted only SaaS MRR and ignored
+  // transaction-fee revenue, which massively understated LGP for artists with fan revenue.
+  // earnings.artist_id == artist_profiles.id (same convention as subs/referrals in this file).
+  const paidArtistIds = new Set(paidArtists.map(a => a.id));
+  const paidArtistTxFeesPeriod = periodEarnings
+    .filter(e => paidArtistIds.has(e.artist_id))
+    .reduce((s, e) => s + (e.platform_fee || 0), 0);
+  const paidArtistTxFeesMonthly = days > 0 ? paidArtistTxFeesPeriod / (days / 30) : paidArtistTxFeesPeriod;
+  const txFeePerPaidArtistMonthly = paidArtists.length > 0 ? paidArtistTxFeesMonthly / paidArtists.length : 0;
+  const saasPerPaidArtistMonthly = paidArtists.length > 0 ? platformMRR / paidArtists.length : 0;
+  const avgMonthlyRevenuePerArtist = saasPerPaidArtistMonthly + txFeePerPaidArtistMonthly;
   const monthlyGrossProfitPerArtist = avgMonthlyRevenuePerArtist - cogsPerPaidArtist;
   const lgp = Math.round(monthlyGrossProfitPerArtist * avgLifespanMonths);
 
@@ -492,9 +508,10 @@ export async function GET(req: NextRequest) {
   const tierHealthCheck = (['pro', 'label'] as const).map(tier => {
     const tierPrice = TIER_PRICES[tier]; // monthly price in cents
     const tierStripeFee = stripeFee(tierPrice);
-    // Per-person COGS for this tier: infra share + messaging share + Stripe on this tier's price
-    const tierInfraPerArtist = Math.round(infraPerArtistMonthly + messagingPerArtistMonthly);
-    const tierCogs = tierStripeFee + tierInfraPerArtist;
+    // Per-person MARGINAL COGS for this tier: messaging share + Stripe on this tier's price.
+    // Fixed infra excluded (breakeven, not unit cost) — matches the LGP calc above.
+    const tierMarginalPerArtist = Math.round(messagingPerArtistMonthly);
+    const tierCogs = tierStripeFee + tierMarginalPerArtist;
     const tierProfit = tierPrice - tierCogs;
     // Monthly amortized CAC for apples-to-apples comparison
     const tierMonthlyCac = monthlyCacAmortized;
@@ -504,7 +521,7 @@ export async function GET(req: NextRequest) {
       tier: tier.charAt(0).toUpperCase() + tier.slice(1),
       price: tierPrice,
       stripeFee: tierStripeFee,
-      infraPerArtist: tierInfraPerArtist,
+      infraPerArtist: tierMarginalPerArtist,
       cogs: tierCogs,
       cac: tierMonthlyCac,
       cacPlusCogs: tierMonthlyCac + tierCogs,
@@ -724,6 +741,9 @@ export async function GET(req: NextRequest) {
     lgpCacRatio,
     lgp,
     cac,
+    avgRevenuePerArtist: Math.round(avgMonthlyRevenuePerArtist),
+    monthlyGrossProfitPerArtist: Math.round(monthlyGrossProfitPerArtist),
+    fixedCostPerArtist: Math.round(fixedCostPerArtistMonthly),
 
     // Financial health
     totalMRR,
