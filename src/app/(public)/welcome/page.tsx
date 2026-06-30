@@ -126,8 +126,10 @@ export default function WelcomePage() {
           body: JSON.stringify({ milestone: 'onboarding_completed' }),
         }).catch(() => {});
       }
-      // Redirect to home (tour will fire based on role)
-      router.push('/home');
+      // Artists land on the Tiers tab (Stripe Connect + tier creation — the monetization
+      // gate that turns a signup into a paid artist) instead of the generic home feed.
+      // Fans go home. Tour still fires based on role.
+      router.push(effectiveRole === 'artist' ? '/profile/artist?tab=tiers' : '/home');
     } catch (err) {
       console.error('Onboarding error:', err);
       setIsSubmitting(false);

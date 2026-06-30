@@ -344,6 +344,14 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
       icon: User,
       steps: [
         {
+          id: 'stripe',
+          label: 'Connect Stripe',
+          description: 'Do this first — it unlocks paid tiers and is how you get paid. Takes 2 minutes.',
+          completed: p.hasStripeConnect,
+          actionLabel: 'Connect',
+          actionTab: 'tiers',
+        },
+        {
           id: 'avatar',
           label: 'Add a profile photo',
           description: 'First thing fans see — make it count.',
@@ -382,14 +390,6 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
           completed: p.hasSocialLinks,
           actionLabel: 'Add',
           actionTab: 'profile',
-        },
-        {
-          id: 'stripe',
-          label: 'Connect Stripe',
-          description: 'Required to create tiers and get paid. Takes 2 minutes.',
-          completed: p.hasStripeConnect,
-          actionLabel: 'Connect',
-          actionTab: 'tiers',
         },
       ],
     },
