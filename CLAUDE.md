@@ -129,7 +129,7 @@ Check `package.json` before importing. Key packages: @supabase/supabase-js, @sup
 - **Middleware matcher MUST exclude `api/` routes** — otherwise all POST requests return 404. Check `src/middleware.ts` matcher config.
 - **Internal navigation: use `router.push()`**, never `window.location.href` — preserves the audio player persistence. Only use `window.location.href` for external URLs (Stripe checkout).
 - **`NEXT_PUBLIC_` env vars require a full redeploy** (no cache) to take effect on Vercel.
-- **Service worker caches aggressively on iOS Safari** — test in incognito or clear Safari cache. Current SW version: `crwn-v27`.
+- **Service worker caches aggressively on iOS Safari** — test in incognito or clear Safari cache. Bump `CACHE_NAME` in `public/sw.js` after every frontend change (that file is the source of truth for the current version; do not hardcode the number here).
 
 ### Vercel Hobby Plan Limits — MUST FOLLOW
 
