@@ -489,7 +489,7 @@ export async function GET(req: NextRequest) {
   // ---- PER-TIER HORMOZI BREAKDOWN ----
   // For each tier: does LGP ≥ 2x CAC? (lifetime comparison, not monthly)
   // Monthly view: tier monthly profit vs amortized monthly (CAC + COGs)
-  const tierHealthCheck = (['pro', 'label', 'empire'] as const).map(tier => {
+  const tierHealthCheck = (['pro', 'label'] as const).map(tier => {
     const tierPrice = TIER_PRICES[tier]; // monthly price in cents
     const tierStripeFee = stripeFee(tierPrice);
     // Per-person COGS for this tier: infra share + messaging share + Stripe on this tier's price
