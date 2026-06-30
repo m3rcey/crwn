@@ -9,6 +9,8 @@ import { TierCards } from '@/components/artist/SubscribeSection';
 import { SubscribeCTA } from '@/components/gating';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
 import { FanLeaderboard } from '@/components/community/FanLeaderboard';
+import { LiveSessionsList } from '@/components/live/LiveSessionsList';
+import { LiveSession } from '@/types/live';
 import { TierConfig, Album, Playlist, Product, Track } from '@/types';
 import { GatedTrackPlayer } from '@/components/gating';
 import { FadeIn } from '@/components/ui/FadeIn';
@@ -43,6 +45,7 @@ interface ArtistProfileContentProps {
   tracks: Track[];
   isArtistProfile: boolean;
   commissionRate?: number;
+  liveSessions?: LiveSession[];
 }
 
 export function ArtistProfileContent({
@@ -54,12 +57,13 @@ export function ArtistProfileContent({
   tracks,
   isArtistProfile,
   commissionRate = 10,
+  liveSessions = [],
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const searchParams = useSearchParams();
   const returningFromCheckout = searchParams.get('subscription') === 'success' || searchParams.get('subscription') === 'canceled';
-  const [activeTab, setActiveTab] = useState<'music' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'music');
+  const [activeTab, setActiveTab] = useState<'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'music');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Check if user is subscribed to this artist
@@ -101,6 +105,7 @@ export function ArtistProfileContent({
 
   const tabs = [
     { id: 'music' as const, label: 'Music', tourId: 'fan-tab-music' },
+    ...(liveSessions.length > 0 ? [{ id: 'live' as const, label: 'Live', tourId: 'fan-tab-live' }] : []),
     { id: 'tiers' as const, label: 'Tiers', tourId: 'fan-tab-tiers' },
     { id: 'shop' as const, label: 'Shop', tourId: 'fan-tab-shop' },
     { id: 'community' as const, label: 'Community', tourId: 'fan-tab-community' },
@@ -158,6 +163,12 @@ export function ArtistProfileContent({
               )}
             </section>
           </div>
+        )}
+
+        {activeTab === 'live' && (
+          <section data-tour="artist-page-live">
+            <LiveSessionsList sessions={liveSessions} artistId={artist.id} artistSlug={artist.slug} />
+          </section>
         )}
 
         {activeTab === 'tiers' && (

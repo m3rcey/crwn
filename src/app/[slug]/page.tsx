@@ -257,6 +257,17 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .limit(1)
     .maybeSingle();
 
+  // Public live sessions + recordings for the "Live & Recordings" tab. Excludes
+  // private uploads (owner-only clipper footage); access to watch/download is
+  // gated per-session client-side.
+  const { data: liveSessions } = await supabase
+    .from('live_sessions')
+    .select('*')
+    .eq('artist_id', artist.id)
+    .eq('is_active', true)
+    .eq('visibility', 'public')
+    .order('created_at', { ascending: false });
+
 
   return (
     <div className="relative min-h-screen pb-20 md:pb-0 page-fade-in">
@@ -371,6 +382,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           tracks={tracks || []}
           isArtistProfile={isArtistProfile}
           commissionRate={artist.referral_commission_rate || 10}
+          liveSessions={liveSessions || []}
         />
       </div>
     </div>
