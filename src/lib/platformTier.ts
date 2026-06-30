@@ -1,8 +1,9 @@
 // Platform Tier Pricing
+// Pro is monthly-only at launch ($9.99/mo, no annual plan); annual fields mirror monthly.
 export const TIER_PRICING = {
-  pro: { monthly: 6900, annual: 62100, monthlyDisplay: 69, annualMonthlyDisplay: 52, annualTotal: 621, savings: 207 },
-  label: { monthly: 17500, annual: 157500, monthlyDisplay: 175, annualMonthlyDisplay: 131, annualTotal: 1575, savings: 525 },
-  empire: { monthly: 35000, annual: 314400, monthlyDisplay: 350, annualMonthlyDisplay: 262, annualTotal: 3144, savings: 956 },
+  pro: { monthly: 999, annual: 11988, monthlyDisplay: 9.99, annualMonthlyDisplay: 9.99, annualTotal: 120, savings: 0 },
+  // SPEC ONLY — $99/mo tier (internal key 'label'), not billable/gated in v1.
+  label: { monthly: 9900, annual: 118800, monthlyDisplay: 99, annualMonthlyDisplay: 99, annualTotal: 1188, savings: 0 },
 } as const;
 
 export const STRIPE_PRICE_IDS = {

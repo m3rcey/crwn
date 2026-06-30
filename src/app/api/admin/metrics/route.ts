@@ -141,12 +141,10 @@ export async function GET(req: NextRequest) {
   const TIER_PRICES: Record<string, number> = {
     pro: TIER_PRICING.pro.monthly,
     label: TIER_PRICING.label.monthly,
-    empire: TIER_PRICING.empire.monthly,
   };
   const ANNUAL_PRICES: Record<string, number> = {
     pro: Math.round(TIER_PRICING.pro.annual / 12),
     label: Math.round(TIER_PRICING.label.annual / 12),
-    empire: Math.round(TIER_PRICING.empire.annual / 12),
   };
 
   const paidArtists = artists.filter(a => a.platform_subscription_status === 'active' && a.platform_tier && a.platform_tier !== 'starter');

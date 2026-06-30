@@ -189,11 +189,10 @@ The artist onboarding path (signup → publish page → upload track) once broke
 
 ### Platform Tiers (Artist SaaS)
 
-- Starter: free, 8% fee
-- Pro: $69/mo ($52 annual), 6% fee
-- Label: $175/mo ($131 annual), 5% fee
-- Empire: $350/mo ($262 annual), 3% fee
-- Annual = 25% off. Constants in `platformTier.ts`.
+- Free (internal key `starter`): 12% fee
+- Pro: $9/mo, 8% fee
+- $99/mo tier (rolling out later; internal key `label`): 5% fee. SPEC ONLY, not billable/gated in v1.
+- Fee % is sourced from `TIER_LIMITS` in `platformTier.ts` (the single source of truth for fees). NOTE: `TIER_PRICING` display values in that file still show the old $69/$175/$350 and the dead Empire tier; they need fixing to match ($9 Pro, $99 future tier).
 
 ### Fan Subscription Tiers (M3rcey test artist)
 
