@@ -86,15 +86,21 @@ export function TierManager() {
 
   const checkStripeConnection = useCallback(async () => {
     if (!user) return;
-    
-    const { data } = await supabase
-      .from('artist_profiles')
-      .select('stripe_connect_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    setStripeConnected(!!data?.stripe_connect_id);
-  }, [user, supabase]);
+    // Gate on the account being charges-enabled (can actually take money), not on the
+    // account id merely existing. The status endpoint also records the stripe_connected
+    // activation milestone once the account is genuinely connected.
+    try {
+      const res = await fetch('/api/stripe/connect/status');
+      if (res.ok) {
+        const data = await res.json();
+        setStripeConnected(!!data.chargesEnabled);
+      } else {
+        setStripeConnected(false);
+      }
+    } catch {
+      setStripeConnected(false);
+    }
+  }, [user]);
 
   const handleStripeConnect = async () => {
     if (!artistProfileId) {

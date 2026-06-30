@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
-import { recordActivationMilestone } from '@/lib/activationMilestones';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -63,8 +62,9 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      // Record activation milestone
-      recordActivationMilestone(artist.id, 'stripe_connected').catch(() => {});
+      // NOTE: do NOT record the `stripe_connected` milestone here. The account object
+      // exists but the artist has not completed Stripe's onboarding yet (no charges_enabled).
+      // The milestone is recorded by /api/stripe/connect/status once charges_enabled is true.
     }
 
     // Create account link for onboarding
