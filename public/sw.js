@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crwn-v82';
+const CACHE_NAME = 'crwn-v83';
 const STATIC_ASSETS = [
   '/favicon.ico',
   '/icon-192x192.png',
@@ -39,8 +39,22 @@ self.addEventListener('fetch', (event) => {
   // Skip audio files
   if (event.request.url.match(/\.(mp3|wav|flac|m4a|ogg)$/i)) return;
 
-  // Navigation requests - let browser handle natively (iOS Safari SW bugs)
+  // Navigation requests - network FIRST so a new deploy reaches the client on
+  // the next load (no manual cache-clear). Cache the shell only as an offline
+  // fallback. Previously this bypassed the SW entirely, which let iOS hold a
+  // stale app shell across deploys.
   if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || caches.match('/'))
+        )
+    );
     return;
   }
 
