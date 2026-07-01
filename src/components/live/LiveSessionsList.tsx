@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSubscription } from '@/hooks/useSubscription';
 import { LiveSession } from '@/types/live';
-import { Radio, Video, Download, Loader2, Lock, Calendar } from 'lucide-react';
+import { Radio, Video, Download, Loader2, Lock, Calendar, Play } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LiveSessionsListProps {
@@ -34,6 +34,19 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+  const fmtAgo = (iso: string | null) => {
+    if (!iso) return '';
+    const secs = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+    const d = Math.floor(secs / 86400);
+    if (d >= 365) return `${Math.floor(d / 365)}y ago`;
+    if (d >= 30) return `${Math.floor(d / 30)}mo ago`;
+    if (d >= 1) return `${d} day${d > 1 ? 's' : ''} ago`;
+    const h = Math.floor(secs / 3600);
+    if (h >= 1) return `${h}h ago`;
+    const m = Math.floor(secs / 60);
+    if (m >= 1) return `${m}m ago`;
+    return 'just now';
   };
 
   const download = async (s: LiveSession) => {
@@ -116,49 +129,95 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
       {recordings.length > 0 && (
         <section>
           <h2 className="text-xl font-semibold text-crwn-text mb-4">Recordings</h2>
-          <div className="space-y-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {recordings.map((s) => {
               const access = hasAccess(s);
               const duration = fmtDuration(s.vod_duration_seconds);
+              const ago = fmtAgo(s.ended_at || s.vod_ready_at || s.created_at);
               const isPrerecorded = s.source_type === 'prerecorded';
+
+              const media = (
+                <div className="relative aspect-video bg-gradient-to-br from-crwn-elevated to-crwn-bg flex items-center justify-center">
+                  {access ? (
+                    <span className="w-14 h-14 rounded-full bg-crwn-gold/90 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                      <Play className="w-6 h-6 text-black fill-black ml-0.5" />
+                    </span>
+                  ) : (
+                    <span className="w-14 h-14 rounded-full bg-black/50 flex items-center justify-center">
+                      <Lock className="w-6 h-6 text-white/70" />
+                    </span>
+                  )}
+                  {duration && (
+                    <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/70 text-white text-xs font-semibold">
+                      {duration}
+                    </span>
+                  )}
+                  {ago && (
+                    <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/70 text-white text-xs font-medium">
+                      {ago}
+                    </span>
+                  )}
+                  {!s.is_free && (
+                    <span className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/70 text-crwn-gold text-xs font-semibold">
+                      Subscribers
+                    </span>
+                  )}
+                </div>
+              );
+
               return (
-                <div key={s.id} className="flex items-center justify-between gap-3 py-3 border-b border-crwn-elevated/50">
-                  <div className="min-w-0">
-                    <p className="text-crwn-text font-medium truncate">{s.title}</p>
-                    <p className="text-crwn-text-secondary text-sm flex flex-wrap items-center gap-x-2">
-                      <span>{fmtDate(s.ended_at || s.vod_ready_at || s.created_at)}</span>
-                      {duration && (<><span>·</span><span>{duration}</span></>)}
-                      {!s.is_free && (<><span>·</span><span>Subscribers</span></>)}
-                      {errorId === s.id && <span className="text-crwn-error">· Couldn&apos;t fetch download</span>}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 text-crwn-text-dim animate-spin" />
-                    ) : access ? (
-                      <>
-                        {isPrerecorded && (
-                          <Link
-                            href={`/${artistSlug}/live/${s.id}`}
-                            className="neu-button px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5"
+                <div key={s.id} className="group flex flex-col rounded-2xl overflow-hidden bg-crwn-surface border border-crwn-elevated/50">
+                  {access && isPrerecorded ? (
+                    <Link href={`/${artistSlug}/live/${s.id}`} className="block">{media}</Link>
+                  ) : access ? (
+                    <button
+                      onClick={() => download(s)}
+                      disabled={busyId === s.id}
+                      className="block w-full text-left disabled:opacity-70"
+                      aria-label={`Download ${s.title}`}
+                    >
+                      {media}
+                    </button>
+                  ) : (
+                    media
+                  )}
+
+                  <div className="flex flex-col flex-1 gap-2 p-3">
+                    <div className="min-w-0">
+                      <p className="text-crwn-text font-semibold leading-snug line-clamp-2">{s.title}</p>
+                      <p className="text-crwn-text-secondary text-xs mt-0.5 flex flex-wrap items-center gap-x-1.5">
+                        <span>{fmtDate(s.ended_at || s.vod_ready_at || s.created_at)}</span>
+                        {errorId === s.id && <span className="text-crwn-error">· Couldn&apos;t fetch download</span>}
+                      </p>
+                    </div>
+                    <div className="mt-auto flex items-center gap-2">
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 text-crwn-text-secondary animate-spin" />
+                      ) : access ? (
+                        <>
+                          {isPrerecorded && (
+                            <Link
+                              href={`/${artistSlug}/live/${s.id}`}
+                              className="neu-button px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5"
+                            >
+                              <Video className="w-3.5 h-3.5" /> Watch
+                            </Link>
+                          )}
+                          <button
+                            onClick={() => download(s)}
+                            disabled={busyId === s.id}
+                            className="neu-button-accent px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50"
                           >
-                            <Video className="w-4 h-4" /> Watch
-                          </Link>
-                        )}
-                        <button
-                          onClick={() => download(s)}
-                          disabled={busyId === s.id}
-                          className="neu-button-accent px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 disabled:opacity-50"
-                        >
-                          {busyId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                          Download
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-crwn-text-dim text-sm flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5" /> Subscribers only
-                      </span>
-                    )}
+                            {busyId === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                            Download
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-crwn-text-secondary text-xs flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5" /> Subscribers only
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
