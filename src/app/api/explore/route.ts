@@ -67,6 +67,18 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Only surface artists with published music, so empty/incomplete signups
+  // (no tracks, no avatar) don't appear as broken placeholder tiles.
+  const artistsWithMusic = new Set<string>();
+  if (artistIds.length > 0) {
+    const { data: musicRows } = await supabaseAdmin
+      .from('tracks')
+      .select('artist_id')
+      .eq('is_active', true)
+      .in('artist_id', artistIds);
+    for (const r of musicRows || []) artistsWithMusic.add(r.artist_id);
+  }
+
   const now = new Date().toISOString();
 
   // New releases - latest tracks across all artists
@@ -126,7 +138,7 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const formatArtists = (artists || []).map((a: unknown) => {
+  const formatArtists = (artists || []).filter((a: unknown) => artistsWithMusic.has((a as { id: string }).id)).map((a: unknown) => {
     const artist = a as { id: string; slug: string; tagline: string; banner_url: string; profile: { display_name: string; avatar_url: string }[] };
     const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
     return {

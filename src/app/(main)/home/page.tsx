@@ -49,10 +49,24 @@ export default function HomePage() {
       const { data: artistsData, error } = await supabase
         .from('artist_profiles')
         .select('*, profile:profiles(*)')
-        .limit(12);
+        .limit(50);
 
       if (!error && artistsData) {
-        setFeaturedArtists(artistsData as ArtistProfile[]);
+        // Only feature artists with published music, so empty/incomplete signups
+        // (no tracks, no avatar) don't show up as broken placeholder tiles.
+        const ids = (artistsData as ArtistProfile[]).map((a) => a.id);
+        let withMusic = new Set<string>();
+        if (ids.length > 0) {
+          const { data: musicRows } = await supabase
+            .from('tracks')
+            .select('artist_id')
+            .eq('is_active', true)
+            .in('artist_id', ids);
+          withMusic = new Set((musicRows || []).map((t) => t.artist_id as string));
+        }
+        setFeaturedArtists(
+          (artistsData as ArtistProfile[]).filter((a) => withMusic.has(a.id)).slice(0, 12)
+        );
       }
 
       // Check if current user has an artist profile
