@@ -138,7 +138,12 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const formatArtists = (artists || []).filter((a: unknown) => artistsWithMusic.has((a as { id: string }).id)).map((a: unknown) => {
+  const formatArtists = (artists || []).filter((a: unknown) => {
+    const artist = a as { id: string; profile: { avatar_url?: string }[] | { avatar_url?: string } };
+    const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
+    // A featured tile must be complete: has music AND an uploaded avatar.
+    return artistsWithMusic.has(artist.id) && !!profile?.avatar_url;
+  }).map((a: unknown) => {
     const artist = a as { id: string; slug: string; tagline: string; banner_url: string; profile: { display_name: string; avatar_url: string }[] };
     const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
     return {

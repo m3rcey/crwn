@@ -64,8 +64,17 @@ export default function HomePage() {
             .in('artist_id', ids);
           withMusic = new Set((musicRows || []).map((t) => t.artist_id as string));
         }
+        // A featured tile must be complete: has music AND an uploaded avatar,
+        // otherwise it renders as a broken placeholder.
+        const hasAvatar = (a: ArtistProfile) => {
+          const p = (a as unknown as { profile?: { avatar_url?: string } | { avatar_url?: string }[] }).profile;
+          const prof = Array.isArray(p) ? p[0] : p;
+          return !!prof?.avatar_url;
+        };
         setFeaturedArtists(
-          (artistsData as ArtistProfile[]).filter((a) => withMusic.has(a.id)).slice(0, 12)
+          (artistsData as ArtistProfile[])
+            .filter((a) => withMusic.has(a.id) && hasAvatar(a))
+            .slice(0, 12)
         );
       }
 
