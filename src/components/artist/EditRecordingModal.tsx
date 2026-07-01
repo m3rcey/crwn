@@ -98,22 +98,29 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
     setThumbPreview(URL.createObjectURL(file));
   };
 
-  const uploadThumbnail = async (blob: Blob, filename: string): Promise<{ key: string; url: string } | null> => {
-    try {
-      const contentType = blob.type || 'image/jpeg';
-      const signRes = await fetch('/api/live/thumbnail-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artistId, filename, contentType }),
-      });
-      if (!signRes.ok) return null;
-      const { uploadUrl, key, publicUrl } = await signRes.json();
-      const putRes = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: blob });
-      if (!putRes.ok) return null;
-      return { key, url: publicUrl };
-    } catch {
-      return null;
+  // Throws a specific message so the UI can distinguish a presign/auth failure
+  // from R2 rejecting the upload (usually CORS not allowing PUT for this domain).
+  const uploadThumbnail = async (blob: Blob, filename: string): Promise<{ key: string; url: string }> => {
+    const contentType = blob.type || 'image/jpeg';
+    const signRes = await fetch('/api/live/thumbnail-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artistId, filename, contentType }),
+    });
+    if (!signRes.ok) {
+      const body = await signRes.json().catch(() => ({}));
+      throw new Error(`Could not prepare upload (${signRes.status}${body.error ? `: ${body.error}` : ''}).`);
     }
+    const { uploadUrl, key, publicUrl } = await signRes.json();
+    let putRes: Response;
+    try {
+      putRes = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: blob });
+    } catch {
+      // A network-level failure here is almost always CORS blocking the PUT.
+      throw new Error('Upload blocked by R2 — add PUT to the bucket CORS policy for this domain.');
+    }
+    if (!putRes.ok) throw new Error(`R2 rejected the upload (${putRes.status}).`);
+    return { key, url: publicUrl };
   };
 
   // Access is editable for live sessions, and for prerecorded videos set to public.
@@ -139,7 +146,6 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
       if (thumbBlob) {
         const name = thumbBlob instanceof File ? thumbBlob.name : `${title.trim() || 'cover'}.jpg`;
         const up = await uploadThumbnail(thumbBlob, name);
-        if (!up) throw new Error('Cover image upload failed.');
         update.vod_thumbnail_key = up.key;
         update.vod_thumbnail_url = up.url;
       }
