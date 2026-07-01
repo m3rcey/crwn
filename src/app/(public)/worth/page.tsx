@@ -4,8 +4,7 @@ import { useMemo, useState } from 'react';
 import { Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight } from 'lucide-react';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
-// TODO: set this to the real booking link (Calendly / cal.com / etc.).
-const BOOK_CALL_URL = 'https://REPLACE-ME.example.com';
+const BOOK_CALL_URL = 'https://cal.com/jnwcreative';
 import {
   calculate,
   getAssumptions,
