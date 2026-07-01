@@ -287,7 +287,7 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
         <div className="flex justify-center mb-4">
           <ShareButtons
             url={shareUrl}
-            title={`${album.title} — ${artist.displayName}`}
+            title={`${album.title} by ${artist.displayName}`}
             description={`${tracks.length} tracks on CRWN`}
           />
         </div>

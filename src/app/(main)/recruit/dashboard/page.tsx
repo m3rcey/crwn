@@ -221,7 +221,7 @@ export default function RecruiterDashboard() {
                   ? `${Math.round((funnel.first_subscriber / funnel.clicks) * 100)}%`
                   : funnel.signups > 0
                     ? `${Math.round((funnel.first_subscriber / funnel.signups) * 100)}%`
-                    : '—'}
+                    : '–'}
               </span>
             </div>
           </div>

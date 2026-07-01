@@ -84,7 +84,7 @@ export function TrueRegulars({ artistId }: TrueRegularsProps) {
             Your 10 True Regulars
           </h3>
           <p className="text-xs text-crwn-text-secondary mt-0.5">
-            Your most engaged fans — introduce new members to them, spotlight them, keep them close.
+            Your most engaged fans. Introduce new members to them, spotlight them, keep them close.
           </p>
         </div>
       </div>

@@ -52,7 +52,7 @@ export const fanHomeTourSteps: DriveStep[] = [
   {
     popover: {
       title: 'Share & Earn',
-      description: 'Once you subscribe to an artist, share any link — their page, a track, the shop — and earn a recurring commission when someone subscribes through it.',
+      description: 'Once you subscribe to an artist, share any link (their page, a track, the shop) and earn a recurring commission when someone subscribes through it.',
     },
   },
   {

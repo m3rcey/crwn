@@ -35,11 +35,11 @@ export async function generateMetadata({ params }: TrackPageProps): Promise<Meta
   const url = `https://thecrwn.app/${slug}/track/${id}`;
 
   return {
-    title: `${track.title} — ${artistName} | CRWN`,
+    title: `${track.title} by ${artistName} | CRWN`,
     description,
     metadataBase: new URL('https://thecrwn.app'),
     openGraph: {
-      title: `${track.title} — ${artistName}`,
+      title: `${track.title} by ${artistName}`,
       description,
       url,
       siteName: 'CRWN',
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: TrackPageProps): Promise<Meta
     },
     twitter: {
       card: 'summary',
-      title: `${track.title} — ${artistName}`,
+      title: `${track.title} by ${artistName}`,
       description,
       images: ogImage ? [ogImage] : [],
     },

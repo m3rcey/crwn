@@ -68,7 +68,7 @@ export function CampaignStats({ campaignId, onBack }: CampaignStatsProps) {
   }
 
   const formatDate = (iso: string | null) => {
-    if (!iso) return '—';
+    if (!iso) return '–';
     return new Date(iso).toLocaleDateString('en-US', {
       month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit',
     });
@@ -137,7 +137,7 @@ export function CampaignStats({ campaignId, onBack }: CampaignStatsProps) {
                 <div
                   className="w-full bg-crwn-gold/60 rounded-t-sm transition-all hover:bg-crwn-gold"
                   style={{ height: `${Math.max(height, 2)}%` }}
-                  title={`${hour}:00 — ${count} opens`}
+                  title={`${hour}:00, ${count} opens`}
                 />
               </div>
             );

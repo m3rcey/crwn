@@ -338,7 +338,7 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
           <div className="flex justify-center">
             <ShareButtons
               url={shareUrl}
-              title={`${track.title} — ${artist.displayName}`}
+              title={`${track.title} by ${artist.displayName}`}
               description={`Listen on CRWN`}
             />
           </div>

@@ -139,7 +139,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
         <div className="flex justify-center mb-8">
           <ShareButtons
             url={`https://thecrwn.app/${slug}/playlist/${playlistId}`}
-            title={`${playlist.title} — ${artist.profile?.display_name || "Artist"}`}
+            title={`${playlist.title} by ${artist.profile?.display_name || "Artist"}`}
             description={`${tracks.length} tracks on CRWN`}
           />
         </div>

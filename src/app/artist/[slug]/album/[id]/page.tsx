@@ -36,11 +36,11 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
   const url = `https://thecrwn.app/${slug}/album/${id}`;
 
   return {
-    title: `${album.title} — ${artistName} | CRWN`,
+    title: `${album.title} by ${artistName} | CRWN`,
     description,
     metadataBase: new URL('https://thecrwn.app'),
     openGraph: {
-      title: `${album.title} — ${artistName}`,
+      title: `${album.title} by ${artistName}`,
       description,
       url,
       siteName: 'CRWN',
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${album.title} — ${artistName}`,
+      title: `${album.title} by ${artistName}`,
       description,
       images: ogImage ? [ogImage] : [],
     },

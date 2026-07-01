@@ -398,7 +398,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
                   {analytics.retentionBenchmark.rating === 'excellent' || analytics.retentionBenchmark.rating === 'good'
                     ? 'Your fans stay longer than most'
                     : analytics.retentionBenchmark.rating === 'average'
-                    ? 'Room to improve — try a welcome sequence'
+                    ? 'Room to improve. Try a welcome sequence'
                     : 'Focus on onboarding & content cadence'}
                 </p>
               </div>
@@ -493,7 +493,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             </div>
             {analytics.subscribers.fanActivity.atRisk > 0 && (
               <p className="text-xs text-yellow-400/80 mt-3">
-                {analytics.subscribers.fanActivity.atRisk} fan{analytics.subscribers.fanActivity.atRisk > 1 ? 's' : ''} haven&apos;t engaged in over a week — consider posting new content or reaching out.
+                {analytics.subscribers.fanActivity.atRisk} fan{analytics.subscribers.fanActivity.atRisk > 1 ? 's' : ''} haven&apos;t engaged in over a week. Consider posting new content or reaching out.
               </p>
             )}
           </div>
@@ -598,7 +598,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         </div>
         {analytics.subscribers.mrr > 0 && analytics.projections.hypotheticalMaxMRR > analytics.subscribers.mrr && (
           <p className="text-xs text-green-400/80 mt-3 bg-green-400/5 rounded-lg px-3 py-2">
-            Your MRR is heading toward {formatCurrency(analytics.projections.hypotheticalMaxMRR)}/mo — you&apos;re still growing toward your ceiling.
+            Your MRR is heading toward {formatCurrency(analytics.projections.hypotheticalMaxMRR)}/mo, and you&apos;re still growing toward your ceiling.
           </p>
         )}
       </section>
@@ -668,7 +668,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
             <p className="text-2xl font-bold text-crwn-text mt-1">
               {analytics.subscribers.active > 0 && analytics.referrals.totalReferrals > 0
                 ? `${Math.round((analytics.referrals.activeReferrals / analytics.subscribers.active) * 100)}%`
-                : '—'}
+                : '–'}
             </p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">of subs via referral</p>
           </div>

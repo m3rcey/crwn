@@ -211,7 +211,7 @@ async function executeSendReengagement(artistId: string, params: Record<string, 
     }
   }
 
-  if (targetFanIds.length === 0) return 'No inactive fans found — everyone is active!';
+  if (targetFanIds.length === 0) return 'No inactive fans found. Everyone is active!';
 
   // Enroll fans not already in this sequence
   let enrolled = 0;
@@ -384,7 +384,7 @@ async function executeAction(
   const lock = await acquireLock(supabaseAdmin, 'artist', 'artist_manager', artistId, action.type, lockKey);
 
   if (!lock.acquired) {
-    const msg = `Action blocked — another agent is already running: ${lock.conflict}`;
+    const msg = `Action blocked: another agent is already running: ${lock.conflict}`;
     if (existingActionId) {
       await supabaseAdmin
         .from('artist_agent_actions')

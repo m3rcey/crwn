@@ -193,7 +193,7 @@ export default function NotificationsPage() {
         <div className="bg-crwn-surface rounded-xl p-6">
           <h2 className="text-sm font-semibold text-crwn-text mb-1">Email Frequency</h2>
           <p className="text-xs text-crwn-text-secondary mb-4">
-            Feeling overwhelmed? Switch to a weekly digest — one email every Sunday with everything you missed.
+            Feeling overwhelmed? Switch to a weekly digest: one email every Sunday with everything you missed.
           </p>
           <div className="grid grid-cols-2 gap-3">
             <button

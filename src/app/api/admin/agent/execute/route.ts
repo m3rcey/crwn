@@ -85,7 +85,7 @@ async function executeUpdatePipelineStages(params: Record<string, unknown>): Pro
     .eq('pipeline_stage', from_stage);
 
   if (!count || count === 0) {
-    return `No artists found in "${from_stage}" stage — nothing to update`;
+    return `No artists found in "${from_stage}" stage. Nothing to update`;
   }
 
   const { error } = await supabaseAdmin
@@ -142,7 +142,7 @@ async function executeFlagAtRisk(params: Record<string, unknown>): Promise<strin
     .eq('pipeline_stage', from_stage);
 
   if (!count || count === 0) {
-    return `No artists found in "${from_stage}" stage — nothing to flag`;
+    return `No artists found in "${from_stage}" stage. Nothing to flag`;
   }
 
   const { error } = await supabaseAdmin
@@ -174,7 +174,7 @@ async function executeEnrollInSequence(params: Record<string, unknown>): Promise
     .single();
 
   if (!seq) throw new Error(`Sequence "${sequence_trigger}" not found`);
-  if (!seq.is_active) throw new Error(`Sequence "${seq.name}" is disabled — enable it first`);
+  if (!seq.is_active) throw new Error(`Sequence "${seq.name}" is disabled. Enable it first`);
 
   // Get user_ids for the artist_ids
   const { data: artists } = await supabaseAdmin
@@ -245,7 +245,7 @@ async function executePauseRecruiter(params: Record<string, unknown>): Promise<s
       .eq('recruiter_id', recruiter_id);
   }
 
-  return `Paused recruiter ${recruiter.referral_code} — deactivated ${codes?.length || 0} referral code${(codes?.length || 0) === 1 ? '' : 's'}. Reason: ${reason || 'agent recommendation'}`;
+  return `Paused recruiter ${recruiter.referral_code}, deactivated ${codes?.length || 0} referral code${(codes?.length || 0) === 1 ? '' : 's'}. Reason: ${reason || 'agent recommendation'}`;
 }
 
 async function executeApproveApplication(params: Record<string, unknown>): Promise<string> {
@@ -488,7 +488,7 @@ export async function POST(req: NextRequest) {
     const lock = await acquireLock(supabaseAdmin, 'platform', 'admin_agent', null, action.type, lockKey);
 
     if (!lock.acquired) {
-      const msg = `Action blocked — another agent is already running: ${lock.conflict}`;
+      const msg = `Action blocked: another agent is already running: ${lock.conflict}`;
       await logAction(userId, action, 'failed', msg);
       return NextResponse.json({ success: false, message: msg }, { status: 409 });
     }

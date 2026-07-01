@@ -240,7 +240,7 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
                           const colIdx = csvHeader ? csvHeaders.indexOf(csvHeader) : -1;
                           return (
                             <td key={field} className="px-2 py-1 text-crwn-text">
-                              {colIdx >= 0 ? row[colIdx] || '—' : '—'}
+                              {colIdx >= 0 ? row[colIdx] || '–' : '–'}
                             </td>
                           );
                         })}

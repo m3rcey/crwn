@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: 'We received your support request — CRWN',
+      subject: 'We received your support request: CRWN',
       html: `
         <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; background: #1A1A1A; border-radius: 12px; padding: 32px; color: #ffffff;">
           <div style="text-align: center; margin-bottom: 24px;">

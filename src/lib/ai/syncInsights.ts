@@ -24,14 +24,14 @@ export function generateSyncInsights(data: ArtistDataForAI): InsightInput[] {
   for (const opp of urgentOpps.slice(0, 2)) {
     const daysLeft = Math.ceil((new Date(opp.deadline!).getTime() - now) / (24 * 60 * 60 * 1000));
     const priceRange = opp.priceMax > 0
-      ? ` — pays ${formatPrice(opp.priceMin)}-${formatPrice(opp.priceMax)}`
+      ? `, pays ${formatPrice(opp.priceMin)}-${formatPrice(opp.priceMax)}`
       : '';
 
     insights.push({
       type: 'sync_match',
       priority: 'urgent',
       title: `Sync deadline in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}: "${opp.title}"`,
-      body: `This ${opp.type} matches your genre and closes soon${priceRange}. These fill up fast — submit now before it's gone.`,
+      body: `This ${opp.type} matches your genre and closes soon${priceRange}. These fill up fast, so submit now before it's gone.`,
       data: { syncId: opp.id, deadline: opp.deadline },
       action_type: 'link',
       action_url: '/profile/artist?tab=sync',
@@ -49,7 +49,7 @@ export function generateSyncInsights(data: ArtistDataForAI): InsightInput[] {
     for (const opp of soonOpps.slice(0, 1)) {
       const daysLeft = Math.ceil((new Date(opp.deadline!).getTime() - now) / (24 * 60 * 60 * 1000));
       const priceRange = opp.priceMax > 0
-        ? ` — pays ${formatPrice(opp.priceMin)}-${formatPrice(opp.priceMax)}`
+        ? `, pays ${formatPrice(opp.priceMin)}-${formatPrice(opp.priceMax)}`
         : '';
 
       insights.push({

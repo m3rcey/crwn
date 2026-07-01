@@ -31,25 +31,25 @@ const TEMPLATES: Template[] = [
     steps: [
       { delay: 0, subject: "Welcome to {{tier_name}}, {{first_name}}!", body: "Thanks for joining! Here's what you've unlocked as a {{tier_name}} member..." },
       { delay: 3, subject: "Here's what you get, {{first_name}}", body: "As a {{tier_name}} subscriber, you have access to exclusive tracks, community posts, and more. Here's a quick tour..." },
-      { delay: 7, subject: "Your first exclusive drop", body: "Hey {{first_name}} — check out the latest release, available now for {{tier_name}} members." },
+      { delay: 7, subject: "Your first exclusive drop", body: "Hey {{first_name}}, check out the latest release, available now for {{tier_name}} members." },
     ],
   },
   {
     name: 'Win-Back (Canceled)',
     trigger: 'win_back',
     steps: [
-      { delay: 1, subject: "We miss you, {{first_name}}", body: "Hey {{first_name}}, we noticed you canceled your subscription. We're sorry to see you go.\n\nIf there's anything we could have done better, just reply to this email — I read every message.\n\nYour access is still active until the end of your billing period." },
-      { delay: 5, subject: "A gift for you, {{first_name}}", body: "Hey {{first_name}}, I just dropped something special — and I wanted to make sure you didn't miss it.\n\nEven though your subscription ended, I'd love to have you back. Come check out what's new and see if there's something for you." },
-      { delay: 14, subject: "Last chance — exclusive offer inside", body: "Hey {{first_name}}, this is my last email since your subscription ended.\n\nI've been working on new music and exclusive content that I think you'd really love. If you ever want to come back, you're always welcome.\n\nHope to see you again." },
+      { delay: 1, subject: "We miss you, {{first_name}}", body: "Hey {{first_name}}, we noticed you canceled your subscription. We're sorry to see you go.\n\nIf there's anything we could have done better, just reply to this email. I read every message.\n\nYour access is still active until the end of your billing period." },
+      { delay: 5, subject: "A gift for you, {{first_name}}", body: "Hey {{first_name}}, I just dropped something special, and I wanted to make sure you didn't miss it.\n\nEven though your subscription ended, I'd love to have you back. Come check out what's new and see if there's something for you." },
+      { delay: 14, subject: "Last chance: exclusive offer inside", body: "Hey {{first_name}}, this is my last email since your subscription ended.\n\nI've been working on new music and exclusive content that I think you'd really love. If you ever want to come back, you're always welcome.\n\nHope to see you again." },
     ],
   },
   {
     name: 'Abandoned Cart Recovery',
     trigger: 'abandoned_cart',
     steps: [
-      { delay: 0, subject: "You left something behind, {{first_name}}", body: "Hey {{first_name}}, looks like you started to check out but didn't finish.\n\nNo worries — your spot is still open. Click below to pick up where you left off.\n\nIf you ran into any issues, just reply to this email and I'll help you out." },
-      { delay: 1, subject: "Still thinking it over?", body: "Hey {{first_name}}, just a friendly nudge — you were so close to unlocking exclusive content.\n\nSubscribers get access to unreleased tracks, community posts, and direct connection with me. Don't miss out." },
-      { delay: 3, subject: "Final reminder — your cart is expiring", body: "Hey {{first_name}}, this is my last reminder about your checkout.\n\nI won't bug you again, but if you change your mind, you can always subscribe from my page. Hope to see you on the inside." },
+      { delay: 0, subject: "You left something behind, {{first_name}}", body: "Hey {{first_name}}, looks like you started to check out but didn't finish.\n\nNo worries, your spot is still open. Click below to pick up where you left off.\n\nIf you ran into any issues, just reply to this email and I'll help you out." },
+      { delay: 1, subject: "Still thinking it over?", body: "Hey {{first_name}}, just a friendly nudge, you were so close to unlocking exclusive content.\n\nSubscribers get access to unreleased tracks, community posts, and direct connection with me. Don't miss out." },
+      { delay: 3, subject: "Final reminder: your cart is expiring", body: "Hey {{first_name}}, this is my last reminder about your checkout.\n\nI won't bug you again, but if you change your mind, you can always subscribe from my page. Hope to see you on the inside." },
     ],
   },
   {
@@ -65,14 +65,14 @@ const TEMPLATES: Template[] = [
     trigger: 'new_purchase',
     steps: [
       { delay: 0, subject: "Your download is ready, {{first_name}}", body: "Hey {{first_name}}, thanks for your purchase! You can access everything from your Library.\n\nIf you have any questions or need help, just reply to this email." },
-      { delay: 3, subject: "How's everything, {{first_name}}?", body: "Hey {{first_name}}, just checking in — how are you enjoying your purchase?\n\nIf you love what you got, check out the rest of the shop. There's more where that came from." },
+      { delay: 3, subject: "How's everything, {{first_name}}?", body: "Hey {{first_name}}, just checking in, how are you enjoying your purchase?\n\nIf you love what you got, check out the rest of the shop. There's more where that came from." },
     ],
   },
   {
     name: 'Loyalty Survey (90+ Day Fans)',
     trigger: 'loyalty_survey',
     steps: [
-      { delay: 0, subject: "You're one of my day-ones, {{first_name}}", body: "Hey {{first_name}}, you've been with me for a while now and I just want to say — thank you. Seriously.\n\nI'd love to hear what keeps you coming back. Would you take 30 seconds to answer a quick survey? Your feedback helps me create better content for you.\n\n{{survey_link}}" },
+      { delay: 0, subject: "You're one of my day-ones, {{first_name}}", body: "Hey {{first_name}}, you've been with me for a while now and I just want to say: thank you. Seriously.\n\nI'd love to hear what keeps you coming back. Would you take 30 seconds to answer a quick survey? Your feedback helps me create better content for you.\n\n{{survey_link}}" },
     ],
   },
   {
@@ -80,7 +80,7 @@ const TEMPLATES: Template[] = [
     trigger: 'tier_upgrade',
     steps: [
       { delay: 0, subject: "Welcome to {{tier_name}}, {{first_name}}!", body: "Hey {{first_name}}, thank you for upgrading to {{tier_name}}! You just unlocked a whole new level of content.\n\nHere's what's now available to you:\n- All exclusive {{tier_name}} tracks\n- Priority access to new drops\n- Exclusive community content\n\nEnjoy!" },
-      { delay: 3, subject: "Your {{tier_name}} perks, {{first_name}}", body: "Hey {{first_name}}, just wanted to make sure you're taking full advantage of your {{tier_name}} membership.\n\nCheck your Library for any new content that's been unlocked. And keep an eye out — I have some exclusive drops coming soon just for {{tier_name}} members." },
+      { delay: 3, subject: "Your {{tier_name}} perks, {{first_name}}", body: "Hey {{first_name}}, just wanted to make sure you're taking full advantage of your {{tier_name}} membership.\n\nCheck your Library for any new content that's been unlocked. And keep an eye out: I have some exclusive drops coming soon just for {{tier_name}} members." },
     ],
   },
 ];

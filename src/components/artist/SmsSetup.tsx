@@ -211,7 +211,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
         <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6 space-y-4">
           <h3 className="text-sm font-medium text-crwn-text">Set Up Your Keyword</h3>
           <p className="text-xs text-crwn-text-secondary">
-            Fans text this keyword to your number to opt in. Choose something memorable — your artist name works great.
+            Fans text this keyword to your number to opt in. Choose something memorable; your artist name works great.
           </p>
           <div className="flex gap-3">
             <input
@@ -238,7 +238,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
           <ol className="space-y-2 text-xs text-crwn-text-secondary list-decimal list-inside">
             <li>You set a keyword (e.g. "M3RCEY")</li>
             <li>Fans text your keyword to opt in (double opt-in required)</li>
-            <li>You send targeted messages — only allowed categories, frequency-limited</li>
+            <li>You send targeted messages: only allowed categories, frequency-limited</li>
             <li>Fans can reply STOP anytime to unsubscribe</li>
           </ol>
         </div>
@@ -328,7 +328,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
             >
               <option value="">Select category...</option>
               {SMS_CATEGORIES.map(c => (
-                <option key={c.value} value={c.value}>{c.label} — {c.description}</option>
+                <option key={c.value} value={c.value}>{c.label}: {c.description}</option>
               ))}
             </select>
           </div>
@@ -390,7 +390,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
             <div className="text-xs text-crwn-text-secondary space-y-1">
               <p>Fans in quiet hours (9pm-9am local) will be skipped.</p>
               <p>Fans at their monthly limit ({MAX_SMS_PER_FAN_PER_MONTH}/mo) will be skipped.</p>
-              {mediaFile && <p>MMS messages cost more than SMS — each counts as 1 message toward your quota.</p>}
+              {mediaFile && <p>MMS messages cost more than SMS: each counts as 1 message toward your quota.</p>}
             </div>
           </div>
 
@@ -444,13 +444,13 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
                       </span>
                     </td>
                     <td className="px-4 py-2 text-sm text-crwn-text-secondary">
-                      {[sub.city, sub.state].filter(Boolean).join(', ') || '—'}
+                      {[sub.city, sub.state].filter(Boolean).join(', ') || '–'}
                     </td>
                     <td className="px-4 py-2 text-sm text-crwn-text">
                       {sub.monthly_receive_count}/{MAX_SMS_PER_FAN_PER_MONTH}
                     </td>
                     <td className="px-4 py-2 text-sm text-crwn-text-secondary whitespace-nowrap">
-                      {sub.opted_in_at ? new Date(sub.opted_in_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
+                      {sub.opted_in_at ? new Date(sub.opted_in_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '–'}
                     </td>
                   </tr>
                 ))}

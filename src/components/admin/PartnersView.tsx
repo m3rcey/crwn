@@ -342,7 +342,7 @@ export default function PartnersView() {
                                 </div>
                                 <div>
                                   <p className="text-xs font-medium text-crwn-text-secondary mb-1">Why CRWN</p>
-                                  <p className="text-xs text-crwn-text">{app.why_crwn || '—'}</p>
+                                  <p className="text-xs text-crwn-text">{app.why_crwn || '–'}</p>
                                 </div>
                                 {app.notes && (
                                   <div className="col-span-2">
@@ -471,7 +471,7 @@ export default function PartnersView() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-crwn-text">
-                          {p.totalPaid > 0 ? `$${(p.totalPaid / 100).toFixed(0)}` : '—'}
+                          {p.totalPaid > 0 ? `$${(p.totalPaid / 100).toFixed(0)}` : '–'}
                         </td>
                         <td className="px-4 py-3 text-xs text-crwn-text-secondary whitespace-nowrap">
                           {timeAgo(p.joinedAt)}

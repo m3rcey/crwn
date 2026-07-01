@@ -263,10 +263,10 @@ export default function PipelineView() {
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-crwn-text">
-                          {artist.revenue > 0 ? `$${(artist.revenue / 100).toFixed(0)}` : '—'}
+                          {artist.revenue > 0 ? `$${(artist.revenue / 100).toFixed(0)}` : '–'}
                         </td>
                         <td className="px-4 py-3 text-sm text-crwn-text">
-                          {artist.subscribers > 0 ? artist.subscribers : '—'}
+                          {artist.subscribers > 0 ? artist.subscribers : '–'}
                         </td>
                         <td className="px-4 py-3 text-xs text-crwn-text-secondary whitespace-nowrap">
                           {timeAgo(artist.last_active)}

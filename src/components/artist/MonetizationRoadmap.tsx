@@ -346,7 +346,7 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
         {
           id: 'stripe',
           label: 'Connect Stripe',
-          description: 'Do this first — it unlocks paid tiers and is how you get paid. Takes 2 minutes.',
+          description: 'Do this first. It unlocks paid tiers and is how you get paid. Takes 2 minutes.',
           completed: p.hasStripeConnect,
           actionLabel: 'Connect',
           actionTab: 'tiers',
@@ -354,7 +354,7 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
         {
           id: 'avatar',
           label: 'Add a profile photo',
-          description: 'First thing fans see — make it count.',
+          description: 'First thing fans see. Make it count.',
           completed: p.hasAvatar,
           actionLabel: 'Upload',
           actionTab: 'profile',
@@ -386,7 +386,7 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
         {
           id: 'social',
           label: 'Add social links',
-          description: 'Connect your IG, Twitter, TikTok — fans want to find you everywhere.',
+          description: 'Connect your IG, Twitter, TikTok. Fans want to find you everywhere.',
           completed: p.hasSocialLinks,
           actionLabel: 'Add',
           actionTab: 'profile',
@@ -402,7 +402,7 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
         {
           id: 'first-track',
           label: 'Upload your first track',
-          description: 'Start with a free track — this is the hook that draws fans in.',
+          description: 'Start with a free track: this is the hook that draws fans in.',
           completed: p.trackCount >= 1,
           actionLabel: 'Upload',
           actionTab: 'tracks',
@@ -426,7 +426,7 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
         {
           id: 'gate-track',
           label: 'Gate a track behind your free tier',
-          description: 'Lock your best track — fans will subscribe to hear it.',
+          description: 'Lock your best track. Fans will subscribe to hear it.',
           completed: p.gatedTrackCount >= 1,
           actionLabel: 'Gate a track',
           actionTab: 'tracks',
@@ -478,7 +478,7 @@ function buildPhases(p: RoadmapProgress): RoadmapPhase[] {
         {
           id: 'gate-paid',
           label: 'Gate new music behind the paid tier',
-          description: 'This is the conversion engine — new drops are for paying supporters first.',
+          description: 'This is the conversion engine: new drops are for paying supporters first.',
           completed: p.hasPaidTier && p.gatedTrackCount >= 2,
           actionLabel: 'Gate a track',
           actionTab: 'tracks',

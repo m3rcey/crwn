@@ -10,8 +10,8 @@ const WELCOME_TEMPLATE = {
   triggerType: 'new_subscription',
   steps: [
     { delay_days: 0, subject: "Welcome to {{tier_name}}, {{first_name}}!", body: "Thanks for joining! Here's what you've unlocked as a {{tier_name}} member:\n\n- Exclusive tracks and early releases\n- Community posts and updates\n- Direct connection with me\n\nCheck out my page to start exploring what's available to you." },
-    { delay_days: 3, subject: "Here's what you get, {{first_name}}", body: "As a {{tier_name}} subscriber, you have access to exclusive tracks, community posts, and more. Here's a quick tour of what's waiting for you:\n\n1. Library — all your exclusive content in one place\n2. Community — posts, updates, and behind-the-scenes\n3. New drops — you'll be first to know\n\nDon't be a stranger — I love hearing from my supporters." },
-    { delay_days: 7, subject: "Your first exclusive drop", body: "Hey {{first_name}} — check out the latest release, available now for {{tier_name}} members.\n\nI've been working hard on new content and I'm excited to share it with you. Keep an eye out for more coming soon." },
+    { delay_days: 3, subject: "Here's what you get, {{first_name}}", body: "As a {{tier_name}} subscriber, you have access to exclusive tracks, community posts, and more. Here's a quick tour of what's waiting for you:\n\n1. Library: all your exclusive content in one place\n2. Community: posts, updates, and behind-the-scenes\n3. New drops: you'll be first to know\n\nDon't be a stranger. I love hearing from my supporters." },
+    { delay_days: 7, subject: "Your first exclusive drop", body: "Hey {{first_name}}, check out the latest release, available now for {{tier_name}} members.\n\nI've been working hard on new content and I'm excited to share it with you. Keep an eye out for more coming soon." },
   ],
 };
 
@@ -138,7 +138,7 @@ export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium text-crwn-text">Welcome new subscribers automatically</p>
-              <p className="text-xs text-crwn-text-secondary">Activate a 3-email welcome series in one click — fans who get onboarded early stay 2x longer.</p>
+              <p className="text-xs text-crwn-text-secondary">Activate a 3-email welcome series in one click. Fans who get onboarded early stay 2x longer.</p>
             </div>
           </div>
           <button

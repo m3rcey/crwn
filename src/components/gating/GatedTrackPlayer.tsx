@@ -142,7 +142,7 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
               <span className="text-xs text-crwn-gold flex items-center gap-1">
                 <Lock size={12} />
                 {isEarlyAccess
-                  ? 'Early access — subscribe to listen'
+                  ? 'Early access: subscribe to listen'
                   : track.price
                     ? `$${(track.price / 100).toFixed(2)} to buy`
                     : 'Subscribe to listen'}

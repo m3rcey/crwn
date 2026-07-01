@@ -280,7 +280,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 transition-colors text-white px-4 py-3 text-center text-sm font-semibold"
           >
             <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-            {(artist.profile?.display_name || 'Artist')} is live now — {liveNow.title}. Tap to join.
+            {(artist.profile?.display_name || 'Artist')} is live now: {liveNow.title}. Tap to join.
           </a>
         )}
         {/* Banner */}

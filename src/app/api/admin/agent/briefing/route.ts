@@ -133,8 +133,8 @@ Return ONLY the JSON array.`;
     for (const email of adminEmails) {
       const hasCritical = insights.some((i: { priority: string }) => i.priority === 'critical');
       const subject = hasCritical
-        ? `⚠️ CRWN Daily Briefing — Critical items need attention`
-        : `CRWN Daily Briefing — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+        ? `⚠️ CRWN Daily Briefing: Critical items need attention`
+        : `CRWN Daily Briefing: ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
       await resend.emails.send({
         from: FROM_EMAIL,

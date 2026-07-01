@@ -269,7 +269,7 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
                   Upgrade to Pro for AI-powered insights and autonomous actions
                 </p>
                 <p className="text-xs text-crwn-text-secondary mt-1">
-                  Get churn prevention, VIP fan detection, auto re-engagement emails, smart pricing suggestions, and more — all tailored to your data.
+                  Get churn prevention, VIP fan detection, auto re-engagement emails, smart pricing suggestions, and more, all tailored to your data.
                 </p>
                 <button
                   onClick={() => router.push('/profile/artist?tab=billing')}
