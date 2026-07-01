@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
   const { data: session } = await supabaseAdmin
     .from('live_sessions')
-    .select('id, artist_id, vod_status, vod_key, visibility, is_free, allowed_tier_ids')
+    .select('id, artist_id, title, vod_status, vod_key, visibility, is_free, allowed_tier_ids')
     .eq('id', sessionId)
     .maybeSingle();
 
@@ -89,6 +89,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'not_ready', vod_status: session.vod_status }, { status: 409 });
   }
 
-  const url = await getSignedDownloadUrl(session.vod_key, 3600);
+  // ?download=1 forces a file download; without it the URL plays inline (used by
+  // the in-card player). Derive a friendly filename from the session title.
+  const wantsDownload = req.nextUrl.searchParams.get('download') === '1';
+  const filename = wantsDownload
+    ? `${String(session.title || 'recording').replace(/[^a-zA-Z0-9 ._-]/g, '_').trim() || 'recording'}.mp4`
+    : undefined;
+
+  const url = await getSignedDownloadUrl(session.vod_key, 3600, filename);
   return NextResponse.json({ url });
 }

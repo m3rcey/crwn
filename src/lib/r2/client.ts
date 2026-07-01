@@ -48,11 +48,17 @@ export async function getSignedUploadUrl(
 
 export async function getSignedDownloadUrl(
   key: string,
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
+  // When set, the URL forces a browser download (Content-Disposition: attachment)
+  // instead of playing the file inline. Leave undefined for inline <video> playback.
+  downloadFilename?: string
 ): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
+    ...(downloadFilename
+      ? { ResponseContentDisposition: `attachment; filename="${downloadFilename.replace(/"/g, '')}"` }
+      : {}),
   });
 
   return getSignedUrl(r2Client, command, { expiresIn });
@@ -60,7 +66,7 @@ export async function getSignedDownloadUrl(
 
 export function generateFileKey(
   artistSlug: string,
-  type: 'audio' | 'art' | 'banner' | 'avatar' | 'vod',
+  type: 'audio' | 'art' | 'banner' | 'avatar' | 'vod' | 'vod-thumbnail',
   filename: string
 ): string {
   const timestamp = Date.now();

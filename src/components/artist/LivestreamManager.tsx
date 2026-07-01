@@ -5,9 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { LiveSession } from '@/types/live';
-import { Loader2, Plus, Trash2, X, Radio, Video, Download } from 'lucide-react';
+import { Loader2, Plus, Trash2, X, Radio, Video, Download, Image as ImageIcon } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { BroadcasterStudio } from './BroadcasterStudio';
+import { validateUpload } from '@/lib/uploadValidation';
 
 interface LivestreamManagerProps {
   artistId: string;
@@ -33,6 +34,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   const [mode, setMode] = useState<'live' | 'prerecorded'>('live');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [maxSlots, setMaxSlots] = useState(50);
@@ -81,6 +83,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setMode('live');
     setVisibility('public');
     setVideoFile(null);
+    setThumbnailFile(null);
     setTitle('');
     setDescription('');
     setMaxSlots(50);
@@ -88,6 +91,81 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setSelectedTiers([]);
     setScheduledAt('');
     setShowForm(false);
+  };
+
+  // Grab a real still frame from an uploaded video, client-side (no server
+  // pipeline). Seeks a beat in so we don't capture a black leader frame.
+  const captureVideoFrame = (file: File): Promise<Blob | null> =>
+    new Promise((resolve) => {
+      try {
+        const url = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.src = url;
+        const done = (blob: Blob | null) => { URL.revokeObjectURL(url); resolve(blob); };
+        video.onloadedmetadata = () => {
+          const t = Math.min(1, (video.duration || 2) * 0.25);
+          video.currentTime = isFinite(t) ? t : 0;
+        };
+        video.onseeked = () => {
+          try {
+            const w = video.videoWidth || 1280;
+            const h = video.videoHeight || 720;
+            const scale = Math.min(1, 1280 / w);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(w * scale);
+            canvas.height = Math.round(h * scale);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return done(null);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob((blob) => done(blob), 'image/jpeg', 0.82);
+          } catch { done(null); }
+        };
+        video.onerror = () => done(null);
+      } catch { resolve(null); }
+    });
+
+  // Upload a cover image to R2 via a signed PUT. Returns the stored key + public URL.
+  const uploadThumbnail = async (blob: Blob, filename: string): Promise<{ key: string; url: string } | null> => {
+    try {
+      const contentType = blob.type || 'image/jpeg';
+      const signRes = await fetch('/api/live/thumbnail-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artistId, filename, contentType }),
+      });
+      if (!signRes.ok) return null;
+      const { uploadUrl, key, publicUrl } = await signRes.json();
+      const putRes = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: blob });
+      if (!putRes.ok) return null;
+      return { key, url: publicUrl };
+    } catch {
+      return null;
+    }
+  };
+
+  // Set (or replace) the cover image on an already-saved recording — the only
+  // path for live-recorded VODs, which have no browser-side file to auto-grab.
+  const handleSetCover = async (session: LiveSession, file: File) => {
+    const v = validateUpload(file, 'image');
+    if (!v.valid) { console.error(v.error); return; }
+    setBusyId(session.id);
+    try {
+      const up = await uploadThumbnail(file, file.name);
+      if (!up) throw new Error('thumbnail upload failed');
+      const { error } = await supabase
+        .from('live_sessions')
+        .update({ vod_thumbnail_key: up.key, vod_thumbnail_url: up.url })
+        .eq('id', session.id);
+      if (error) throw error;
+      await loadSessions();
+    } catch (err) {
+      console.error('Error setting cover image:', err);
+    } finally {
+      setBusyId(null);
+    }
   };
 
   const handleCreate = async () => {
@@ -114,6 +192,20 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         });
         if (!putRes.ok) throw new Error('Upload failed');
 
+        // 2b) cover image: a custom upload overrides; otherwise auto-grab a real
+        // frame from the video. Either way it's best-effort — a failed cover
+        // never blocks the upload (the card falls back to a placeholder).
+        let vodThumbKey: string | null = null;
+        let vodThumbUrl: string | null = null;
+        const coverBlob: Blob | null = thumbnailFile || await captureVideoFrame(videoFile);
+        if (coverBlob) {
+          const coverName = thumbnailFile
+            ? thumbnailFile.name
+            : `${videoFile.name.replace(/\.[^.]+$/, '')}-cover.jpg`;
+          const up = await uploadThumbnail(coverBlob, coverName);
+          if (up) { vodThumbKey = up.key; vodThumbUrl = up.url; }
+        }
+
         // 3) create the session — the uploaded file IS the VOD (ready immediately).
         const isPublic = visibility === 'public';
         const { error } = await supabase.from('live_sessions').insert({
@@ -132,6 +224,8 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           vod_key: key,
           vod_url: publicUrl,
           vod_size_bytes: videoFile.size,
+          vod_thumbnail_key: vodThumbKey,
+          vod_thumbnail_url: vodThumbUrl,
         });
         if (error) throw error;
         resetForm();
@@ -214,10 +308,16 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   const handleDownloadVod = async (session: LiveSession) => {
     setBusyId(session.id);
     try {
-      const res = await fetch(`/api/live/vod?sessionId=${session.id}`);
+      const res = await fetch(`/api/live/vod?sessionId=${session.id}&download=1`);
       if (!res.ok) throw new Error('vod fetch failed');
       const { url } = await res.json();
-      if (url) window.open(url, '_blank'); // external R2 signed URL — not internal nav
+      if (url) {
+        // URL carries Content-Disposition: attachment, so this saves the file.
+        const a = document.createElement('a');
+        a.href = url;
+        a.rel = 'noopener';
+        a.click();
+      }
     } catch (err) {
       console.error('Error fetching VOD:', err);
     } finally {
@@ -298,6 +398,25 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     className="neu-inset w-full px-3 py-2 text-crwn-text text-sm focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-crwn-gold file:text-black file:font-semibold"
                   />
                   {videoFile && <p className="text-crwn-text-dim text-xs mt-1">{videoFile.name} ({(videoFile.size / 1_000_000).toFixed(1)} MB)</p>}
+                </div>
+                <div>
+                  <label className="block text-crwn-text-dim text-sm mb-1">Thumbnail (optional)</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] || null;
+                      if (f) {
+                        const v = validateUpload(f, 'image');
+                        if (!v.valid) { console.error(v.error); e.target.value = ''; return; }
+                      }
+                      setThumbnailFile(f);
+                    }}
+                    className="neu-inset w-full px-3 py-2 text-crwn-text text-sm focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-crwn-gold file:text-black file:font-semibold"
+                  />
+                  <p className="text-crwn-text-dim text-xs mt-1">
+                    {thumbnailFile ? thumbnailFile.name : "Leave blank and we'll grab a frame from your video."}
+                  </p>
                 </div>
                 <div>
                   <label className="block text-crwn-text-dim text-sm mb-1">Visibility</label>
@@ -473,15 +592,30 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                       </a>
                     )}
                     {session.vod_status === 'ready' && (
-                      <button
-                        onClick={() => handleDownloadVod(session)}
-                        disabled={busyId === session.id}
-                        className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 disabled:opacity-50"
-                        title="Download video"
-                      >
-                        {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                        Download
-                      </button>
+                      <>
+                        <label
+                          className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 cursor-pointer"
+                          title={session.vod_thumbnail_url ? 'Change cover image' : 'Set cover image'}
+                        >
+                          {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                          Cover
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSetCover(session, f); e.target.value = ''; }}
+                          />
+                        </label>
+                        <button
+                          onClick={() => handleDownloadVod(session)}
+                          disabled={busyId === session.id}
+                          className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 disabled:opacity-50"
+                          title="Download video"
+                        >
+                          {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                          Download
+                        </button>
+                      </>
                     )}
                   </>
                 )}
@@ -513,15 +647,30 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                   </>
                 )}
                 {session.status === 'ended' && session.vod_status === 'ready' && (
-                  <button
-                    onClick={() => handleDownloadVod(session)}
-                    disabled={busyId === session.id}
-                    className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 disabled:opacity-50"
-                    title="Download recording"
-                  >
-                    {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                    Download
-                  </button>
+                  <>
+                    <label
+                      className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 cursor-pointer"
+                      title={session.vod_thumbnail_url ? 'Change cover image' : 'Set cover image'}
+                    >
+                      {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                      Cover
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSetCover(session, f); e.target.value = ''; }}
+                      />
+                    </label>
+                    <button
+                      onClick={() => handleDownloadVod(session)}
+                      disabled={busyId === session.id}
+                      className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 disabled:opacity-50"
+                      title="Download recording"
+                    >
+                      {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                      Download
+                    </button>
+                  </>
                 )}
                 {session.status === 'ended' && (session.vod_status === 'recording' || session.vod_status === 'processing') && (
                   <span className="text-crwn-text-dim text-sm flex items-center gap-1">

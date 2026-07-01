@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSubscription } from '@/hooks/useSubscription';
 import { LiveSession } from '@/types/live';
-import { Radio, Video, Download, Loader2, Lock, Calendar, Play } from 'lucide-react';
+import { Radio, Download, Loader2, Lock, Calendar, Play } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LiveSessionsListProps {
@@ -17,6 +17,8 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
   const { tierId, isLoading } = useSubscription(artistId);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [errorId, setErrorId] = useState<string | null>(null);
+  const [playId, setPlayId] = useState<string | null>(null);
+  const [playUrl, setPlayUrl] = useState<string | null>(null);
 
   // A fan can watch/download if the session is free, or they hold one of its tiers.
   const hasAccess = (s: LiveSession) =>
@@ -53,12 +55,37 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
     setBusyId(s.id);
     setErrorId(null);
     try {
+      const res = await fetch(`/api/live/vod?sessionId=${s.id}&download=1`);
+      if (!res.ok) throw new Error('vod fetch failed');
+      const { url } = await res.json();
+      if (url) {
+        // URL carries Content-Disposition: attachment, so this saves the file
+        // instead of navigating away to play it.
+        const a = document.createElement('a');
+        a.href = url;
+        a.rel = 'noopener';
+        a.click();
+      }
+    } catch (err) {
+      console.error('Error downloading recording:', err);
+      setErrorId(s.id);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // Play a recording inline: fetch the same access-gated signed URL the download
+  // uses, then swap the card's cover for a <video>. Works for live + uploaded VODs.
+  const play = async (s: LiveSession) => {
+    setBusyId(s.id);
+    setErrorId(null);
+    try {
       const res = await fetch(`/api/live/vod?sessionId=${s.id}`);
       if (!res.ok) throw new Error('vod fetch failed');
       const { url } = await res.json();
-      if (url) window.open(url, '_blank'); // external R2 signed URL — not internal nav
+      if (url) { setPlayUrl(url); setPlayId(s.id); }
     } catch (err) {
-      console.error('Error downloading recording:', err);
+      console.error('Error playing recording:', err);
       setErrorId(s.id);
     } finally {
       setBusyId(null);
@@ -134,16 +161,28 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
               const access = hasAccess(s);
               const duration = fmtDuration(s.vod_duration_seconds);
               const ago = fmtAgo(s.ended_at || s.vod_ready_at || s.created_at);
-              const isPrerecorded = s.source_type === 'prerecorded';
 
-              const media = (
-                <div className="relative aspect-video bg-gradient-to-br from-crwn-elevated to-crwn-bg flex items-center justify-center">
+              const isPlaying = playId === s.id && !!playUrl;
+
+              const cover = (
+                <div
+                  className="relative aspect-video flex items-center justify-center bg-gradient-to-br from-crwn-elevated to-crwn-bg bg-cover bg-center"
+                  style={s.vod_thumbnail_url ? { backgroundImage: `url(${s.vod_thumbnail_url})` } : undefined}
+                >
+                  {/* scrim so overlays stay legible over a photo cover */}
+                  {s.vod_thumbnail_url && <span className="absolute inset-0 bg-black/25" />}
                   {access ? (
-                    <span className="w-14 h-14 rounded-full bg-crwn-gold/90 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
-                      <Play className="w-6 h-6 text-black fill-black ml-0.5" />
-                    </span>
+                    busyId === s.id ? (
+                      <span className="relative w-14 h-14 rounded-full bg-black/50 flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-white animate-spin" />
+                      </span>
+                    ) : (
+                      <span className="relative w-14 h-14 rounded-full bg-crwn-gold/90 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110">
+                        <Play className="w-6 h-6 text-black fill-black ml-0.5" />
+                      </span>
+                    )
                   ) : (
-                    <span className="w-14 h-14 rounded-full bg-black/50 flex items-center justify-center">
+                    <span className="relative w-14 h-14 rounded-full bg-black/50 flex items-center justify-center">
                       <Lock className="w-6 h-6 text-white/70" />
                     </span>
                   )}
@@ -167,19 +206,22 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
 
               return (
                 <div key={s.id} className="group flex flex-col rounded-2xl overflow-hidden bg-crwn-surface border border-crwn-elevated/50">
-                  {access && isPrerecorded ? (
-                    <Link href={`/${artistSlug}/live/${s.id}`} className="block">{media}</Link>
+                  {isPlaying ? (
+                    <div className="aspect-video bg-black">
+                      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                      <video src={playUrl!} controls autoPlay playsInline className="w-full h-full object-contain" />
+                    </div>
                   ) : access ? (
                     <button
-                      onClick={() => download(s)}
+                      onClick={() => play(s)}
                       disabled={busyId === s.id}
                       className="block w-full text-left disabled:opacity-70"
-                      aria-label={`Download ${s.title}`}
+                      aria-label={`Play ${s.title}`}
                     >
-                      {media}
+                      {cover}
                     </button>
                   ) : (
-                    media
+                    cover
                   )}
 
                   <div className="flex flex-col flex-1 gap-2 p-3">
@@ -187,31 +229,21 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
                       <p className="text-crwn-text font-semibold leading-snug line-clamp-2">{s.title}</p>
                       <p className="text-crwn-text-secondary text-xs mt-0.5 flex flex-wrap items-center gap-x-1.5">
                         <span>{fmtDate(s.ended_at || s.vod_ready_at || s.created_at)}</span>
-                        {errorId === s.id && <span className="text-crwn-error">· Couldn&apos;t fetch download</span>}
+                        {errorId === s.id && <span className="text-crwn-error">· Couldn&apos;t load recording</span>}
                       </p>
                     </div>
                     <div className="mt-auto flex items-center gap-2">
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 text-crwn-text-secondary animate-spin" />
                       ) : access ? (
-                        <>
-                          {isPrerecorded && (
-                            <Link
-                              href={`/${artistSlug}/live/${s.id}`}
-                              className="neu-button px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5"
-                            >
-                              <Video className="w-3.5 h-3.5" /> Watch
-                            </Link>
-                          )}
-                          <button
-                            onClick={() => download(s)}
-                            disabled={busyId === s.id}
-                            className="neu-button-accent px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50"
-                          >
-                            {busyId === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-                            Download
-                          </button>
-                        </>
+                        <button
+                          onClick={() => download(s)}
+                          disabled={busyId === s.id}
+                          className="neu-button px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          {busyId === s.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                          Download
+                        </button>
                       ) : (
                         <span className="text-crwn-text-secondary text-xs flex items-center gap-1.5">
                           <Lock className="w-3.5 h-3.5" /> Subscribers only

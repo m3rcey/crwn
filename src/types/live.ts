@@ -36,6 +36,10 @@ export interface LiveSession {
   vod_duration_seconds: number | null;
   vod_size_bytes: number | null;
   vod_ready_at: string | null;
+  // Cover image for the recording card — a custom upload, or an auto-grabbed
+  // frame from a prerecorded upload. Null falls back to a placeholder.
+  vod_thumbnail_key: string | null;
+  vod_thumbnail_url: string | null;
   created_at: string;
   updated_at: string;
 }
