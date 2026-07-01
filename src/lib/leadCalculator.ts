@@ -90,10 +90,13 @@ export interface CalcResult {
 export function calculate(inputs: CalcInputs, a: CalcAssumptions): CalcResult {
   const monthlyListeners = Math.max(0, inputs.monthlyListeners || 0);
 
-  // Prefer a real addressable number; otherwise discount listeners by reach.
-  const addressable = inputs.engagedFollowers > 0
+  // Only a fraction of any audience is realistically reachable/engaged enough to
+  // ever pay. Apply reachRate to BOTH followers and listeners (prefer followers
+  // when given) so large follower counts don't produce non-credible numbers.
+  const rawAudience = inputs.engagedFollowers > 0
     ? inputs.engagedFollowers
-    : monthlyListeners * a.reachRate;
+    : monthlyListeners;
+  const addressable = rawAudience * a.reachRate;
 
   const payers = addressable * a.superfanRate;
 
