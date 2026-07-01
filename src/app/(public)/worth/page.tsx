@@ -185,7 +185,8 @@ export default function WorthCalculatorPage() {
                 onChange={setAlacarte}
               />
               <p className="text-xs text-crwn-text-secondary/70">
-                Tier prices: ${RECOMMENDED_TIER_PRICES.tier1PriceCents / 100} / $
+                Reach: {Math.round(assumptions.reachRate * 100)}% of your audience counted as engaged · Tier prices: $
+                {RECOMMENDED_TIER_PRICES.tier1PriceCents / 100} / $
                 {RECOMMENDED_TIER_PRICES.tier2PriceCents / 100} / $
                 {RECOMMENDED_TIER_PRICES.tier3PriceCents / 100} · Whale split 70 / 22 / 8 · Fee 8% (Pro)
               </p>
