@@ -183,7 +183,7 @@ export default function SurveyPage() {
             <textarea
               value={freeform}
               onChange={(e) => setFreeform(e.target.value)}
-              placeholder="Optional — we read every response"
+              placeholder="Optional. We read every response"
               rows={3}
               className="w-full bg-[#0D0D0D] border border-[#2a2a2a] rounded-xl px-4 py-3 text-sm text-white placeholder-[#555] focus:outline-none focus:border-[#D4AF37]/50 resize-none"
             />

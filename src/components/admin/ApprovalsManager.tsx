@@ -146,7 +146,7 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
                   {!c.is_active && <span className="text-xs text-red-400">disabled</span>}
                 </div>
                 <div className="text-crwn-text-secondary text-xs truncate">
-                  {c.label || '—'} · {c.uses}{c.max_uses != null ? `/${c.max_uses}` : ''} used
+                  {c.label || '–'} · {c.uses}{c.max_uses != null ? `/${c.max_uses}` : ''} used
                 </div>
               </div>
               <button

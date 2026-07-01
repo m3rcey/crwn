@@ -32,7 +32,7 @@ export const libraryTourSteps: DriveStep[] = [
     element: '[data-tour="library-tab-referrals"]',
     popover: {
       title: 'Earn by sharing',
-      description: 'Share any link — an artist page, a track, the shop — and if someone subscribes through it, you earn a recurring commission. Your earnings accumulate here.',
+      description: 'Share any link (an artist page, a track, the shop) and if someone subscribes through it, you earn a recurring commission. Your earnings accumulate here.',
       side: 'bottom',
       align: 'start',
     },

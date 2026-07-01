@@ -40,8 +40,8 @@ const tiers = [
     score: '12–17',
     access: 'Free Pro (6 mo)',
     flat: '$50/artist',
-    recurring: '—',
-    contentBonus: '—',
+    recurring: '–',
+    contentBonus: '–',
     highlight: false,
   },
 ];
@@ -107,7 +107,7 @@ export default function PartnerPage() {
             Earn While You <span className="text-[#D4AF37]">Put Artists On</span>
           </h1>
           <p className="text-lg md:text-xl text-[#999] max-w-2xl mx-auto mb-8">
-            Partner with CRWN and get paid every time an artist you refer joins. Free platform access, cash per signup, and content bonuses — scaled to your reach.
+            Partner with CRWN and get paid every time an artist you refer joins. Free platform access, cash per signup, and content bonuses, scaled to your reach.
           </p>
           <a
             href="#apply"
@@ -141,7 +141,7 @@ export default function PartnerPage() {
             {
               icon: Video,
               title: 'Content Bonus',
-              desc: 'Up to $250 per post that results in an artist signup. Performance-based — your content converts, you get paid.',
+              desc: 'Up to $250 per post that results in an artist signup. Performance-based: your content converts, you get paid.',
             },
           ].map((benefit, i) => (
             <div key={i} className="bg-[#1a1a1a] rounded-2xl p-6">
@@ -157,7 +157,7 @@ export default function PartnerPage() {
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-white text-center mb-4">Partner Tiers</h2>
         <p className="text-zinc-400 text-center mb-12 max-w-xl mx-auto">
-          Your tier is based on a scoring system (audience size, engagement, platform, niche relevance). We evaluate when you apply — higher score = better deal.
+          Your tier is based on a scoring system (audience size, engagement, platform, niche relevance). We evaluate when you apply: a higher score means a better deal.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -198,7 +198,7 @@ export default function PartnerPage() {
           {[
             { step: '1', title: 'Apply below', desc: 'Tell us about your audience and platforms. We score and assign your tier.' },
             { step: '2', title: 'Get your link', desc: 'We set you up with a custom /join/[code] partner link and free platform access.' },
-            { step: '3', title: 'Create content', desc: 'Talk about CRWN however feels natural to you. Reviews, tutorials, rants — your style.' },
+            { step: '3', title: 'Create content', desc: 'Talk about CRWN however feels natural to you. Reviews, tutorials, rants, whatever fits your style.' },
             { step: '4', title: 'Get paid', desc: 'Track signups in your dashboard. Cash out via Stripe.' },
           ].map((item, i) => (
             <div key={i} className="flex-1 text-center relative md:px-2">
@@ -256,7 +256,7 @@ export default function PartnerPage() {
           This program is for music industry creators, educators, and tastemakers.
         </p>
         <p className="text-zinc-400 max-w-2xl mx-auto">
-          If you make content about the business of music, produce tutorials, review tools for artists, or have an audience of independent musicians — this is for you.
+          If you make content about the business of music, produce tutorials, review tools for artists, or have an audience of independent musicians, this is for you.
         </p>
       </div>
 

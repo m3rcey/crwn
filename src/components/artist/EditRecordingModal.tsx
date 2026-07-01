@@ -119,7 +119,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
       putRes = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': contentType }, body: blob });
     } catch {
       // A network-level failure here is almost always CORS blocking the PUT.
-      throw new Error('Upload blocked by R2 — add PUT to the bucket CORS policy for this domain.');
+      throw new Error('Upload blocked by R2: add PUT to the bucket CORS policy for this domain.');
     }
     if (!putRes.ok) throw new Error(`R2 rejected the upload (${putRes.status}).`);
     return { key, url: publicUrl };
@@ -221,7 +221,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
                 {thumbNote && <p className="text-crwn-text-dim text-xs">{thumbNote}</p>}
                 {thumbBlob && (
                   <p className="text-crwn-success text-xs flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> New cover ready — Save to apply
+                    <Check className="w-3.5 h-3.5" /> New cover ready: Save to apply
                   </p>
                 )}
               </div>

@@ -84,7 +84,7 @@ function LockedCard({ title, description }: { title: string; description: string
         </a>
       </div>
       <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">{title}</p>
-      <p className="text-2xl font-bold text-crwn-text-secondary/30 mt-1">—</p>
+      <p className="text-2xl font-bold text-crwn-text-secondary/30 mt-1">–</p>
       <p className="text-xs text-crwn-text-secondary/30 mt-0.5">{description}</p>
     </div>
   );
@@ -452,12 +452,12 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
             </>
           ) : totalSpend > 0 ? (
             <>
-              <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">—</p>
+              <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">–</p>
               <p className="text-[10px] text-crwn-text-secondary mt-0.5">No new fans yet this month</p>
             </>
           ) : (
             <>
-              <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">—</p>
+              <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">–</p>
               <p className="text-[10px] text-crwn-text-secondary mt-0.5">Log costs to see CAC</p>
             </>
           )}
@@ -467,7 +467,7 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
         <div className="bg-crwn-surface p-4 rounded-xl border border-crwn-elevated">
           <p className="text-xs text-crwn-text-secondary uppercase tracking-wide">
             LTV:CAC
-            <InfoTooltip text="Fan Lifetime Value divided by acquisition cost. 3:1+ is healthy — you earn 3x what you spend to get a fan." />
+            <InfoTooltip text="Fan Lifetime Value divided by acquisition cost. 3:1+ is healthy: you earn 3x what you spend to get a fan." />
           </p>
           {ltvCacRatio > 0 ? (
             <>
@@ -475,14 +475,14 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
                 {ltvCacRatio.toFixed(1)}:1
               </p>
               <p className="text-[10px] text-crwn-text-secondary mt-0.5">
-                {ltvCacRatio >= 3 ? 'Healthy — spending efficiently' :
-                 ltvCacRatio >= 1 ? 'Watch it — tightening up' :
-                 'Unsustainable — costs exceed fan value'}
+                {ltvCacRatio >= 3 ? 'Healthy: spending efficiently' :
+                 ltvCacRatio >= 1 ? 'Watch it: tightening up' :
+                 'Unsustainable: costs exceed fan value'}
               </p>
             </>
           ) : (
             <>
-              <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">—</p>
+              <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">–</p>
               <p className="text-[10px] text-crwn-text-secondary mt-0.5">
                 {totalSpend === 0 ? 'Log costs to calculate' : 'Need fans & costs'}
               </p>
@@ -503,14 +503,14 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
                   {paybackMonths.toFixed(1)}mo
                 </p>
                 <p className="text-[10px] text-crwn-text-secondary mt-0.5">
-                  {paybackMonths <= 6 ? 'Great — fast payback' :
-                   paybackMonths <= 12 ? 'Okay — could improve' :
-                   'Slow — review your spend'}
+                  {paybackMonths <= 6 ? 'Great: fast payback' :
+                   paybackMonths <= 12 ? 'Okay: could improve' :
+                   'Slow: review your spend'}
                 </p>
               </>
             ) : (
               <>
-                <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">—</p>
+                <p className="text-2xl font-bold text-crwn-text-secondary/40 mt-1">–</p>
                 <p className="text-[10px] text-crwn-text-secondary mt-0.5">Need CAC & ARPU data</p>
               </>
             )}
@@ -576,9 +576,9 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
             </div>
             <p className="text-sm font-medium text-crwn-text-secondary/30 mb-3">Gross Margin</p>
             <div className="space-y-2 opacity-30">
-              <div className="flex justify-between text-sm"><span>Revenue</span><span>—</span></div>
-              <div className="flex justify-between text-sm"><span>Costs</span><span>—</span></div>
-              <div className="border-t border-crwn-elevated pt-2 flex justify-between text-sm"><span>Profit</span><span>—</span></div>
+              <div className="flex justify-between text-sm"><span>Revenue</span><span>–</span></div>
+              <div className="flex justify-between text-sm"><span>Costs</span><span>–</span></div>
+              <div className="border-t border-crwn-elevated pt-2 flex justify-between text-sm"><span>Profit</span><span>–</span></div>
             </div>
           </div>
         )}
@@ -619,9 +619,9 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
                       passed >= 2 ? 'bg-yellow-500/10 text-yellow-400' :
                       'bg-red-500/10 text-red-400'
                     }`}>
-                      {passed === total ? 'Your pricing is sustainable — keep going!' :
-                       passed >= 2 ? 'Some areas need attention — review the tips above.' :
-                       'Your unit economics need work — focus on the red items.'}
+                      {passed === total ? 'Your pricing is sustainable. Keep going!' :
+                       passed >= 2 ? 'Some areas need attention. Review the tips above.' :
+                       'Your unit economics need work. Focus on the red items.'}
                     </div>
                   );
                 })()}
@@ -644,7 +644,7 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
             <div className="space-y-2.5 opacity-30">
               {['LTV:CAC above 3:1', 'Payback under 6 months', 'Gross margin above 50%', 'Churn rate under 5%'].map((label, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="text-sm text-crwn-text-secondary">—</span>
+                  <span className="text-sm text-crwn-text-secondary">–</span>
                   <span className="text-sm text-crwn-text-secondary">{label}</span>
                 </div>
               ))}

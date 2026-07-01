@@ -37,7 +37,7 @@ export function presaveReleaseEmail(
         ${fanName ? `${fanName}, ` : ''}${artistName} just dropped <strong style="color:#fff;">${releaseTitle}</strong>.
       </p>
       <p style="color:#A0A0A0;font-size:14px;line-height:1.6;margin:0 0 24px;">
-        You pre-saved this — now go listen.
+        You pre-saved this. Now go listen.
       </p>
       ${platformButtons || `<a href="https://thecrwn.app/link/${linkSlug}" style="display:block;padding:14px 24px;background:linear-gradient(to right,#9a7b2a,#D4AF37);color:#0D0D0D;text-decoration:none;border-radius:12px;font-weight:700;font-size:14px;text-align:center;">Listen Now</a>`}
     </div>

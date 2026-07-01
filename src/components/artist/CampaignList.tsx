@@ -48,7 +48,7 @@ export function CampaignList({ artistId, onNewCampaign, onEditCampaign, onViewSt
   };
 
   const formatDate = (iso: string | null) => {
-    if (!iso) return '—';
+    if (!iso) return '–';
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 

@@ -96,7 +96,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <p className="font-medium text-crwn-text">Command Center</p>
-              <p className="text-sm text-crwn-text-secondary">Admin dashboard — metrics, agent, settings</p>
+              <p className="text-sm text-crwn-text-secondary">Admin dashboard: metrics, agent, settings</p>
             </div>
           </div>
         </Link>

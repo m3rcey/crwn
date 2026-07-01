@@ -1641,7 +1641,7 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
       user_id: artistProfile.user_id,
       type: 'refund',
       title: '⚠️ Refund processed',
-      message: `$${(amountRefunded / 100).toFixed(2)} refunded — ${originalEarning.description}`,
+      message: `$${(amountRefunded / 100).toFixed(2)} refunded: ${originalEarning.description}`,
       link: '/profile/artist?tab=payouts',
     });
   }

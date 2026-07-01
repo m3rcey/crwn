@@ -97,7 +97,7 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
       <EmptyState
         icon="📡"
         title="No Live Sessions Yet"
-        description="When this artist goes live, it'll show up here — and recordings stay available to watch and download afterward."
+        description="When this artist goes live, it'll show up here, and recordings stay available to watch and download afterward."
       />
     );
   }

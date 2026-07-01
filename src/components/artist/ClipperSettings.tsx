@@ -147,7 +147,7 @@ export function ClipperSettings() {
           {rampActive ? (
             <>
               <p className="text-sm text-green-400">
-                Ramp running{dayInCampaign !== null ? ` — day ${dayInCampaign}` : ''}
+                Ramp running{dayInCampaign !== null ? `, day ${dayInCampaign}` : ''}
               </p>
               {nextChange && (
                 <p className="text-xs text-crwn-text-secondary mt-1">

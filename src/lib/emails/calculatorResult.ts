@@ -38,15 +38,15 @@ export function calculatorResultEmail(params: {
       <h3 style="color:#FFFFFF;font-size:18px;margin:0 0 12px;">The setup that captures it</h3>
       <div style="margin:0 0 24px;">
         <div style="padding:12px 0;border-bottom:1px solid #333;">
-          <span style="color:#D4AF37;font-weight:600;">Inner Circle &mdash; $10/mo</span>
+          <span style="color:#D4AF37;font-weight:600;">Inner Circle: $10/mo</span>
           <span style="color:#A0A0A0;"> Exclusive tracks, 7-day early access, DMs, shop discount</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
-          <span style="color:#D4AF37;font-weight:600;">The Vault &mdash; $25/mo</span>
+          <span style="color:#D4AF37;font-weight:600;">The Vault: $25/mo</span>
           <span style="color:#A0A0A0;"> Stems &amp; multitracks, 14-day early access, monthly live Q&amp;A</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
-          <span style="color:#D4AF37;font-weight:600;">Throne &mdash; $100/mo</span>
+          <span style="color:#D4AF37;font-weight:600;">Throne: $100/mo</span>
           <span style="color:#A0A0A0;"> Day-0 first listen, monthly 1-on-1 call, a custom song each quarter</span>
         </div>
         <div style="padding:12px 0;">
@@ -57,12 +57,12 @@ export function calculatorResultEmail(params: {
 
       <p style="color:#A0A0A0;font-size:15px;line-height:1.6;margin:0 0 8px;">
         <strong style="color:#FFFFFF;">Release like the majors don't:</strong> new music hits Throne first,
-        then steps down to each tier, then the free tier &mdash; and the DSPs get it last. Every tier is a skip-the-line pass.
+        then steps down to each tier, then the free tier, and the DSPs get it last. Every tier is a skip-the-line pass.
       </p>
 
       <div style="text-align:center;margin:32px 0 0;">
         <a href="https://thecrwn.app/signup?ref=calculator-email" style="display:inline-block;background:linear-gradient(135deg,#9a7b2a,#D4AF37);color:#1A1A1A;font-weight:700;font-size:16px;padding:14px 32px;border-radius:12px;text-decoration:none;">
-          Start free &mdash; keep this money
+          Start free, keep this money
         </a>
       </div>
       <p style="color:#666;font-size:13px;text-align:center;margin:16px 0 0;">

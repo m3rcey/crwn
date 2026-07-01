@@ -20,16 +20,16 @@ import SurveySummary from '@/components/shared/SurveySummary';
 // Metric tooltips — what it is and why it matters
 const TOOLTIPS: Record<string, string> = {
   // Hero
-  'LGP:CAC': 'Lifetime Gross Profit ÷ Customer Acquisition Cost. THE fundamental ratio — how much profit you make per customer vs. what it costs to get them. Below 3:1 means you can\'t scale. Above 10:1 means print money.',
+  'LGP:CAC': 'Lifetime Gross Profit ÷ Customer Acquisition Cost. THE fundamental ratio: how much profit you make per customer vs. what it costs to get them. Below 3:1 means you can\'t scale. Above 10:1 means print money.',
   'LGP per Artist': 'Total gross profit a single artist generates over their entire lifetime on the platform. Factors in their tier fee minus Stripe fees, recruiter cuts, and allocated fixed costs, multiplied by average lifespan.',
-  'CAC': 'True Customer Acquisition Cost per recruited artist. Includes flat fees already paid + recurring commissions paid + projected remaining recurring obligation (up to 12 months). Only divides by recruited artists — organic signups are excluded since they cost $0.',
+  'CAC': 'True Customer Acquisition Cost per recruited artist. Includes flat fees already paid + recurring commissions paid + projected remaining recurring obligation (up to 12 months). Only divides by recruited artists, since organic signups are excluded because they cost $0.',
   'Blended CAC': 'Total recruiter spend ÷ ALL new artists (including organic). Lower than true CAC because organic signups dilute it. Useful for understanding overall acquisition efficiency.',
 
   // Financial
   'MRR': 'Monthly Recurring Revenue. Platform tier subscriptions + estimated monthly transaction fees. This is your predictable income baseline.',
   'ARR': 'Annual Recurring Revenue. MRR × 12. What the business would make in a year at the current run rate.',
   'Gross Margin': 'Revenue minus direct costs (Stripe fees, recruiter payouts, fixed costs) as a percentage. Target 80%+. Below 80% means scaling will be painful because there\'s not enough left to reinvest.',
-  '30-Day Cash': 'Total cash collected in the last 30 days. Must exceed CAC + fulfillment cost for "client financed acquisition" — meaning customers pay for their own acquisition.',
+  '30-Day Cash': 'Total cash collected in the last 30 days. Must exceed CAC + fulfillment cost for "client financed acquisition", meaning customers pay for their own acquisition.',
   'Payback Period': 'How many months until a new artist\'s revenue covers their acquisition cost. Under 1 month = you can scale with credit cards. Under 3 months = healthy. Over 6 = problem.',
   'Period Revenue': 'Total revenue collected during the selected trailing period from platform fees and transaction fees.',
   'Period Costs': 'Total costs during the period: Stripe processing fees + recruiter payouts + allocated fixed infrastructure costs.',
@@ -56,7 +56,7 @@ const TOOLTIPS: Record<string, string> = {
   'Hypothetical Max Customers': 'Where total customer count will plateau if sales velocity and churn stay the same. Formula: velocity ÷ churn rate.',
 
   // Fan metrics
-  'Total Active Fans': 'Unique fans with at least one active subscription. Fans are the demand side — without fans, artists have no revenue.',
+  'Total Active Fans': 'Unique fans with at least one active subscription. Fans are the demand side: without fans, artists have no revenue.',
   'New Fans': 'Fans who made their first-ever subscription during this period. Tracks demand-side growth.',
   'Churned Fans': 'Fans who canceled ALL subscriptions during this period with none remaining. Platform-level fan loss.',
   'Fan Churn Rate': 'Percentage of fans who fully churned during the period. Fan churn leads to artist revenue decline, which leads to artist churn.',
@@ -71,8 +71,8 @@ const TOOLTIPS: Record<string, string> = {
   '30-Day Health': 'Hormozi rule: monthly profit must be ≥ 2× (monthly amortized CAC + COGs). CAC is spread over avg lifespan for apples-to-apples comparison. Below 2× means you cannot self-fund acquisition.',
 
   // Organic vs Recruited
-  'Organic Artists': 'Artists who signed up without a recruiter referral. Organic CAC is $0 — the best kind of growth.',
-  'Recruited Artists': 'Artists brought in through the recruiter program. Paid acquisition — track ROI to ensure it\'s worth the spend.',
+  'Organic Artists': 'Artists who signed up without a recruiter referral. Organic CAC is $0, the best kind of growth.',
+  'Recruited Artists': 'Artists brought in through the recruiter program. Paid acquisition, so track ROI to ensure it\'s worth the spend.',
 
   // Per-Tier Health Check
   'Tier Health Check': 'Hormozi rule per tier: monthly profit must be ≥ 2× (amortized monthly CAC + COGs). CAC is the full recruited cost spread over avg lifespan. If a tier fails, its pricing doesn\'t cover acquisition + serving costs.',
@@ -586,7 +586,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
                 </tbody>
               </table>
             </div>
-            <p className="text-[#555] text-[10px] mt-3">GP/mo must be ≥ 2× (CAC + COGs) to self-fund acquisition. COGs is marginal cost only (messaging + Stripe); fixed infra is excluded — it&apos;s a breakeven cost, not a unit cost.</p>
+            <p className="text-[#555] text-[10px] mt-3">GP/mo must be ≥ 2× (CAC + COGs) to self-fund acquisition. COGs is marginal cost only (messaging + Stripe); fixed infra is excluded because it&apos;s a breakeven cost, not a unit cost.</p>
             <p className="text-[#777] text-[11px] mt-2">
               Fixed OPEX ≈ {fmt(metrics.fixedCostPerArtist)}/artist today
               {metrics.monthlyGrossProfitPerArtist > 0 && (
@@ -647,7 +647,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* FAN METRICS */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <Section title="Fan Metrics" icon={Heart} tooltip="Fans are the demand side of the marketplace. Without fans subscribing and purchasing, artists have no revenue — and without revenue, artists churn. Fan health is a leading indicator of artist health.">
+      <Section title="Fan Metrics" icon={Heart} tooltip="Fans are the demand side of the marketplace. Without fans subscribing and purchasing, artists have no revenue, and without revenue, artists churn. Fan health is a leading indicator of artist health.">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
           <MetricCard label="Total Active Fans" value={metrics.totalActiveFans.toLocaleString()} color={GOLD} />
           <MetricCard label="New Fans" value={metrics.newFans.toLocaleString()} subValue={`${period} trailing`} color={GREEN} />
@@ -661,7 +661,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* REFERRAL VS CHURN SCOREBOARD */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <Section title="Referral vs Churn Scoreboard" icon={ArrowUpDown} tooltip="Hormozi rule: you need more referrals than people who churn. If net growth is negative on either side, you're shrinking — fix the leak before scaling acquisition.">
+      <Section title="Referral vs Churn Scoreboard" icon={ArrowUpDown} tooltip="Hormozi rule: you need more referrals than people who churn. If net growth is negative on either side, you're shrinking. Fix the leak before scaling acquisition.">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Artist Side */}
           <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-5">
@@ -864,11 +864,11 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           </div>
           {/* Survey / why they stay */}
           <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
-            <p className="text-white text-sm font-medium mb-3">Fan Loyalty — Why They Stay</p>
+            <p className="text-white text-sm font-medium mb-3">Fan Loyalty: Why They Stay</p>
             <SurveySummary data={metrics.surveySummary.fan} context="fan" />
           </div>
           <div className="bg-[#141414] rounded-xl border border-[#2a2a2a] p-4">
-            <p className="text-white text-sm font-medium mb-3">Artist Loyalty — Why They Stay</p>
+            <p className="text-white text-sm font-medium mb-3">Artist Loyalty: Why They Stay</p>
             <SurveySummary data={metrics.surveySummary.artist} context="artist" />
           </div>
         </div>
@@ -895,8 +895,8 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
 
         {/* Organic vs Recruited + Upgrade Rate */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-          <MetricCard label="Organic Artists" value={metrics.organicArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.organicArtists / metrics.totalArtists) * 100) : 0}% of total — $0 CAC`} color={GREEN} />
-          <MetricCard label="Recruited Artists" value={metrics.recruitedArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.recruitedArtists / metrics.totalArtists) * 100) : 0}% of total — paid acquisition`} color={GOLD} />
+          <MetricCard label="Organic Artists" value={metrics.organicArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.organicArtists / metrics.totalArtists) * 100) : 0}% of total, $0 CAC`} color={GREEN} />
+          <MetricCard label="Recruited Artists" value={metrics.recruitedArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.recruitedArtists / metrics.totalArtists) * 100) : 0}% of total, paid acquisition`} color={GOLD} />
           <MetricCard
             label="Pro → Label+ Rate"
             value={`${metrics.tierUpgradeMetrics.upgradeRate}%`}
@@ -1007,7 +1007,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
       {/* Footer */}
       <div className="text-center py-8 border-t border-[#1a1a1a] mt-8">
         <p className="text-[#444] text-xs">
-          CRWN Command Center — Metrics from Hormozi's playbook
+          CRWN Command Center: Metrics from Hormozi's playbook
         </p>
       </div>
     </div>

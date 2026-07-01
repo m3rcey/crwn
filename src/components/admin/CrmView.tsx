@@ -401,7 +401,7 @@ export default function CrmView() {
                               On Platform
                             </span>
                           ) : (
-                            <span className="text-xs text-crwn-text-secondary">—</span>
+                            <span className="text-xs text-crwn-text-secondary">–</span>
                           )}
                         </td>
                         <td className="px-4 py-3 text-xs text-crwn-text-secondary whitespace-nowrap">
@@ -726,7 +726,7 @@ export default function CrmView() {
                 <textarea
                   value={outreachBody}
                   onChange={e => setOutreachBody(e.target.value)}
-                  placeholder={"Hey {{first_name}},\n\nI came across your music and think you'd be a great fit for CRWN...\n\n— Josh"}
+                  placeholder={"Hey {{first_name}},\n\nI came across your music and think you'd be a great fit for CRWN...\n\nJosh"}
                   rows={8}
                   className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-none"
                 />

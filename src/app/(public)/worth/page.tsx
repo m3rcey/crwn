@@ -36,7 +36,7 @@ const TIERS = [
 ];
 
 const WATERFALL = [
-  { day: 'Day 0', label: 'Throne — first listen + stems on sale' },
+  { day: 'Day 0', label: 'Throne: first listen + stems on sale' },
   { day: 'Day 14', label: 'The Vault' },
   { day: 'Day 30', label: 'Inner Circle' },
   { day: 'Day 45', label: 'Free tier on CRWN' },
@@ -111,7 +111,7 @@ export default function WorthCalculatorPage() {
             How much money are you leaving on the table?
           </h1>
           <p className="text-crwn-text-secondary max-w-xl mx-auto">
-            Streaming pays pennies. Your real superfans would pay you directly — if you gave them
+            Streaming pays pennies. Your real superfans would pay you directly, if you gave them
             somewhere to. Punch in your numbers and see what you&apos;re walking away from every month.
           </p>
         </div>
@@ -181,7 +181,7 @@ export default function WorthCalculatorPage() {
             You&apos;re leaving roughly
           </div>
           <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
-            {hasNumber ? fmtDollars(result.netAnnualCents) : '—'}
+            {hasNumber ? fmtDollars(result.netAnnualCents) : '–'}
           </div>
           <div className="text-crwn-text-secondary mb-6">on the table every year</div>
 
@@ -192,7 +192,7 @@ export default function WorthCalculatorPage() {
                 <Stat label="Paying superfans" value={fmtCount(result.payers)} />
                 <Stat
                   label="vs. streaming income"
-                  value={result.multipleVsStreaming ? `${Math.round(result.multipleVsStreaming)}×` : '—'}
+                  value={result.multipleVsStreaming ? `${Math.round(result.multipleVsStreaming)}×` : '–'}
                 />
                 <Stat label="Subscriptions / mo" value={fmtDollars(result.subsMrrCents)} />
                 <Stat label="À la carte / mo" value={fmtDollars(result.alacarteMrrCents)} />
@@ -201,7 +201,7 @@ export default function WorthCalculatorPage() {
               <p className="text-xs text-crwn-text-secondary/70 mt-4">
                 Estimate from {fmtCount(result.addressable)} addressable fans ·{' '}
                 {Math.round(assumptions.superfanRate * 1000) / 10}% become paying superfans. Adjust the
-                assumptions above — the math is yours to check.
+                assumptions above. The math is yours to check.
               </p>
             </>
           )}
@@ -211,7 +211,7 @@ export default function WorthCalculatorPage() {
         <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-12">
           {captureState === 'done' ? (
             <div className="flex items-center gap-2 text-crwn-gold justify-center py-2">
-              <Check className="w-5 h-5" /> On its way — check your inbox for the full breakdown.
+              <Check className="w-5 h-5" /> On its way. Check your inbox for the full breakdown.
             </div>
           ) : (
             <>
@@ -247,7 +247,7 @@ export default function WorthCalculatorPage() {
             href="/signup?ref=calculator"
             className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
           >
-            Start free on CRWN — keep this money <ArrowRight className="w-5 h-5" />
+            Start free on CRWN, keep this money <ArrowRight className="w-5 h-5" />
           </Link>
           <p className="text-center text-xs text-crwn-text-secondary mt-3">
             Free to start. No card required. Set up your tiers in minutes.
@@ -296,7 +296,7 @@ export default function WorthCalculatorPage() {
             <h2 className="text-2xl font-bold">Release like the majors don&apos;t</h2>
           </div>
           <p className="text-crwn-text-secondary mb-6 text-sm">
-            The scarce good isn&apos;t the song — it&apos;s time. Every tier is a skip-the-line pass.
+            The scarce good isn&apos;t the song: it&apos;s time. Every tier is a skip-the-line pass.
             DSPs get it last, on purpose.
           </p>
           <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
@@ -317,7 +317,7 @@ export default function WorthCalculatorPage() {
             href="/signup?ref=calculator"
             className="inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors"
           >
-            Claim your {hasNumber ? fmtDollars(result.netAnnualCents) : 'money'} — start free <ArrowRight className="w-5 h-5" />
+            Claim your {hasNumber ? fmtDollars(result.netAnnualCents) : 'money'}, start free <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </div>

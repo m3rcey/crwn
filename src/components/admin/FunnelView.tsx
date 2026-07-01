@@ -66,7 +66,7 @@ const SOURCE_COLORS: Record<string, string> = {
 };
 
 function conversionRate(from: number, to: number): string {
-  if (from === 0) return '—';
+  if (from === 0) return '–';
   return `${Math.round((to / from) * 100)}%`;
 }
 
@@ -124,7 +124,7 @@ export default function FunnelView() {
         <div>
           <h2 className="text-lg font-semibold text-crwn-text">Acquisition Funnel</h2>
           <p className="text-sm text-crwn-text-secondary mt-0.5">
-            {data.filteredArtists} artists{source !== 'all' ? ` (${source})` : ''} — {data.totalArtists} total
+            {data.filteredArtists} artists{source !== 'all' ? ` (${source})` : ''}, {data.totalArtists} total
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export default function FunnelView() {
             <span className="text-xs font-medium">Avg to First Track</span>
           </div>
           <p className="text-xl font-bold text-crwn-text">
-            {timeToMilestone.first_track_uploaded != null ? `${timeToMilestone.first_track_uploaded}d` : '—'}
+            {timeToMilestone.first_track_uploaded != null ? `${timeToMilestone.first_track_uploaded}d` : '–'}
           </p>
         </div>
         <div className="bg-crwn-card rounded-xl p-4 border border-crwn-elevated">
@@ -254,7 +254,7 @@ export default function FunnelView() {
                 <div key={key} className="flex items-center justify-between">
                   <span className="text-sm text-crwn-text-secondary">{label}</span>
                   <span className="text-sm font-medium text-crwn-text">
-                    {days != null ? `${days} days` : '—'}
+                    {days != null ? `${days} days` : '–'}
                   </span>
                 </div>
               );

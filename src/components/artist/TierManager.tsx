@@ -377,7 +377,7 @@ export function TierManager() {
           </p>
           <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3 mb-4">
             <p className="text-sm text-crwn-gold">
-              💡 Stripe will ask for a website — use your CRWN page: <strong>thecrwn.app/yourname</strong>
+              💡 Stripe will ask for a website. Use your CRWN page: <strong>thecrwn.app/yourname</strong>
             </p>
           </div>
           <div className="flex items-start gap-3 mb-4">
@@ -517,7 +517,7 @@ export function TierManager() {
               <p className="text-xs text-crwn-text-secondary mt-1">
                 {parseFloat(formData.price) > 0
                   ? `Platform fee: ${getPlatformFeePercent(tier)}% (you receive ${100 - getPlatformFeePercent(tier)}%)`
-                  : 'Free tier — no platform fee'}
+                  : 'Free tier: no platform fee'}
               </p>
             </div>
 

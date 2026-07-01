@@ -34,22 +34,22 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Choose your artist name',
-        content: 'Go to your Profile tab and tap your display name to edit it. This is the name fans see everywhere — on your page, in search results, and in their library. Keep it consistent with your brand across other platforms. Your URL will be thecrwn.app/yourname based on the slug auto-generated from your display name.',
+        content: 'Go to your Profile tab and tap your display name to edit it. This is the name fans see everywhere: on your page, in search results, and in their library. Keep it consistent with your brand across other platforms. Your URL will be thecrwn.app/yourname based on the slug auto-generated from your display name.',
         tip: 'Your slug (URL name) is set when you first create your account. If you need to change it, update it in your artist profile settings before sharing links.',
       },
       {
         title: 'Upload a profile photo',
-        content: 'Tap your avatar to upload a profile photo. Use a high-quality image (at least 400x400 pixels). This appears as a circle everywhere on the platform — in search results, subscriber lists, and community posts. A professional, recognizable photo builds trust and increases subscription rates.',
+        content: 'Tap your avatar to upload a profile photo. Use a high-quality image (at least 400x400 pixels). This appears as a circle everywhere on the platform: in search results, subscriber lists, and community posts. A professional, recognizable photo builds trust and increases subscription rates.',
         tip: 'Use the same profile photo across CRWN, Instagram, Spotify, and Twitter so fans instantly recognize you.',
       },
       {
         title: 'Add a banner image',
-        content: 'Your banner is the large image at the top of your artist page. It should be at least 1200x400 pixels. This is prime real estate — use it to showcase your latest release, upcoming event, or brand aesthetic. You can update it any time from your Profile tab.',
+        content: 'Your banner is the large image at the top of your artist page. It should be at least 1200x400 pixels. This is prime real estate: use it to showcase your latest release, upcoming event, or brand aesthetic. You can update it any time from your Profile tab.',
         tip: 'Change your banner seasonally or when you drop new music. It signals to returning fans that you are active and there is something new.',
       },
       {
         title: 'Write your bio',
-        content: 'Your bio appears on your public artist page. Keep it concise but compelling — 2-3 sentences max. Lead with what makes you unique, mention your genre, and include a call to action. Think of it as your elevator pitch to a potential fan who has never heard your music.',
+        content: 'Your bio appears on your public artist page. Keep it concise but compelling: 2-3 sentences max. Lead with what makes you unique, mention your genre, and include a call to action. Think of it as your elevator pitch to a potential fan who has never heard your music.',
         tip: 'End your bio with something actionable: "Subscribe for unreleased tracks every week" or "Join Inner Circle for 1-on-1 sessions."',
       },
       {
@@ -63,7 +63,7 @@ export const guides: GuideData[] = [
       },
     ],
     proTips: [
-      'Complete 100% of your profile before promoting your page — incomplete profiles convert 60% fewer visitors.',
+      'Complete 100% of your profile before promoting your page: incomplete profiles convert 60% fewer visitors.',
       'Use consistent branding colors and imagery across your banner, profile photo, and social media.',
       'Update your bio whenever you release new music or hit a milestone.',
       'Your artist page is your storefront. Treat it like a landing page, not a social media bio.',
@@ -106,10 +106,10 @@ export const guides: GuideData[] = [
       },
     ],
     proTips: [
-      'Enable Stripe notifications so you get an alert every time you earn money — it is motivating.',
+      'Enable Stripe notifications so you get an alert every time you earn money, it is motivating.',
       'Save a percentage of every payout for taxes. As a creator, you are responsible for self-employment tax.',
       'If you plan to offer products in multiple currencies, Stripe handles conversion automatically.',
-      'The Founding Artist program gives you 5% fees for your first year — claim your spot early.',
+      'The Founding Artist program gives you 5% fees for your first year. Claim your spot early.',
     ],
     nextGuide: { slug: 'subscription-tiers', title: 'Subscription Tiers' },
     prevGuide: { slug: 'profile-setup', title: 'Profile & Branding' },
@@ -126,12 +126,12 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Plan your tier structure',
-        content: 'Most successful artists use 2-3 tiers: a free entry tier to get fans in the door, a mid-tier with the best value ($15/mo), and a premium tier for superfans ($30/mo). Each tier should feel like a clear step up in value. Do not create more than 3 — too many choices causes decision paralysis.',
+        content: 'Most successful artists use 2-3 tiers: a free entry tier to get fans in the door, a mid-tier with the best value ($15/mo), and a premium tier for superfans ($30/mo). Each tier should feel like a clear step up in value. Do not create more than 3: too many choices causes decision paralysis.',
         tip: 'Price your entry tier low enough that it feels like a no-brainer. The goal is to get fans in the door, then upgrade them over time.',
       },
       {
         title: 'Create your tiers',
-        content: 'Go to Profile > Tiers and tap "Create Tier." Give each tier a compelling name (not just "Tier 1"). Good names evoke exclusivity: "The Wave," "Inner Circle," "Throne." Set a monthly price — annual pricing is automatically calculated at 25% off. Add a clear description of what fans get.',
+        content: 'Go to Profile > Tiers and tap "Create Tier." Give each tier a compelling name (not just "Tier 1"). Good names evoke exclusivity: "The Wave," "Inner Circle," "Throne." Set a monthly price. Annual pricing is automatically calculated at 25% off. Add a clear description of what fans get.',
       },
       {
         title: 'Assign benefits to each tier',
@@ -140,7 +140,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Gate your content by tier',
-        content: 'When you upload a track or create a post, you can set which tiers can access it. Use the "Allowed Tier IDs" setting to restrict content. Keep 2-3 tracks free for discovery — these are the hooks that convince listeners to subscribe. Gate your best content behind your mid-tier.',
+        content: 'When you upload a track or create a post, you can set which tiers can access it. Use the "Allowed Tier IDs" setting to restrict content. Keep 2-3 tracks free for discovery: these are the hooks that convince listeners to subscribe. Gate your best content behind your mid-tier.',
       },
       {
         title: 'Set up annual pricing',
@@ -153,7 +153,7 @@ export const guides: GuideData[] = [
       },
     ],
     proTips: [
-      'The most common mistake is pricing too low. Your superfans will pay more than you think — do not leave money on the table.',
+      'The most common mistake is pricing too low. Your superfans will pay more than you think. Do not leave money on the table.',
       'Update your tier benefits quarterly. Adding fresh perks keeps retention high and gives you an excuse to email fans.',
       'Create a "tier upgrade" post once a month showcasing what higher-tier fans are getting.',
       'Use limited-time tier benefits (e.g., "first 10 subscribers to Inner Circle get a signed vinyl") to drive urgency.',
@@ -173,12 +173,12 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Upload your first track',
-        content: 'Go to Profile > Music and tap "Upload Track." Select an audio file (MP3 or WAV, max 50MB). Add the track title, and optionally set a cover image. The upload processes in the background — you will see a progress indicator.',
+        content: 'Go to Profile > Music and tap "Upload Track." Select an audio file (MP3 or WAV, max 50MB). Add the track title, and optionally set a cover image. The upload processes in the background. You will see a progress indicator.',
         tip: 'WAV files sound better but are larger. For streaming, 320kbps MP3 is indistinguishable from WAV for most listeners.',
       },
       {
         title: 'Set access levels',
-        content: 'For each track, decide: is it free, or exclusive to specific tiers? Free tracks are your discovery hooks — anyone can listen. Tier-gated tracks are the reason fans subscribe. Set the "Allowed Tier IDs" to restrict access. You can also set a one-time purchase price for fans who do not want to subscribe.',
+        content: 'For each track, decide: is it free, or exclusive to specific tiers? Free tracks are your discovery hooks: anyone can listen. Tier-gated tracks are the reason fans subscribe. Set the "Allowed Tier IDs" to restrict access. You can also set a one-time purchase price for fans who do not want to subscribe.',
         tip: 'Keep 2-3 of your best tracks free. These are the songs that convert listeners into subscribers.',
       },
       {
@@ -188,7 +188,7 @@ export const guides: GuideData[] = [
       {
         title: 'Organize your catalog',
         content: 'As your catalog grows, keep it organized. Use albums for official releases and individual tracks for loosies, freestyles, and one-offs. Consider creating a "Greatest Hits" or "Start Here" album that showcases your best work for new visitors.',
-        tip: 'Pin your best content to the top of your page. First impressions matter — make sure new visitors hear your strongest tracks first.',
+        tip: 'Pin your best content to the top of your page. First impressions matter, so make sure new visitors hear your strongest tracks first.',
       },
       {
         title: 'Update release strategy',
@@ -197,7 +197,7 @@ export const guides: GuideData[] = [
     ],
     proTips: [
       'Release exclusive tracks on the same day each week. Fans will look forward to "New Music Fridays" or whatever day you pick.',
-      'Use your free tracks as a funnel — end each free track with a spoken tag like "Subscribe for the full tape."',
+      'Use your free tracks as a funnel: end each free track with a spoken tag like "Subscribe for the full tape."',
       'Subscriber-exclusive tracks do not need to be polished albums. Demos, freestyles, and behind-the-scenes recordings feel more intimate and valuable.',
       'Upload cover art for every track. Tracks without art look incomplete and get fewer plays.',
     ],
@@ -220,7 +220,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Create your first product',
-        content: 'Go to Profile > Shop and tap "Add Product." Set a name, description, price (in dollars — it converts to cents), and upload a cover image. For digital downloads, upload the file that buyers will receive. Set access: free for all, or exclusive to specific tiers.',
+        content: 'Go to Profile > Shop and tap "Add Product." Set a name, description, price (in dollars, it converts to cents), and upload a cover image. For digital downloads, upload the file that buyers will receive. Set access: free for all, or exclusive to specific tiers.',
         tip: 'Price digital products at $5-25 for broad appeal. Premium experiences ($50-200) work best for established artists with engaged fanbases.',
       },
       {
@@ -243,7 +243,7 @@ export const guides: GuideData[] = [
     ],
     proTips: [
       'Bundle products for higher perceived value: "The Producer Pack" (5 beats + stems + sample kit) at a bundle discount.',
-      'Offer a free product as a lead magnet — a free beat or sample pack in exchange for subscribing to your free tier.',
+      'Offer a free product as a lead magnet: a free beat or sample pack in exchange for subscribing to your free tier.',
       'Update your shop monthly with fresh inventory. A stale shop with old products signals inactivity.',
       'Cross-promote: mention your shop products in community posts, and mention community exclusives on product pages.',
       'Price in round numbers ($10, $25, $50) for cleaner purchase decisions.',
@@ -344,7 +344,7 @@ export const guides: GuideData[] = [
       'Use community posts for updates and conversations. Use notifications for important announcements and drops.',
       'Personalize when possible. "Hey Jordan, just dropped something I think you will love" converts 4x better than generic blasts.',
       'Track your notification click-through rates. If they are dropping, your content is not compelling enough.',
-      'The best time to send is when your fans are online — check your analytics for peak engagement hours.',
+      'The best time to send is when your fans are online. Check your analytics for peak engagement hours.',
     ],
     nextGuide: { slug: 'referral-program', title: 'Fan Referral Program' },
     prevGuide: { slug: 'fan-funnel', title: 'Fan Funnel & Acquisition' },
@@ -361,20 +361,20 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Understand how referrals work',
-        content: 'Every subscribed fan gets a unique referral link they can generate from any page — your artist profile, a track, the shop, or community. When someone subscribes through that link, the referrer earns a recurring commission on every payment for as long as the new subscriber stays. You set the commission rate — typically 10-20%. CRWN tracks everything automatically.',
+        content: 'Every subscribed fan gets a unique referral link they can generate from any page: your artist profile, a track, the shop, or community. When someone subscribes through that link, the referrer earns a recurring commission on every payment for as long as the new subscriber stays. You set the commission rate, typically 10-20%. CRWN tracks everything automatically.',
       },
       {
         title: 'Set your commission rate',
-        content: 'Go to Profile > Settings > Referrals and set your commission percentage. Higher rates motivate more sharing but reduce your revenue per subscriber. Start at 15% — it is high enough to motivate fans without cutting too deeply into your earnings.',
-        tip: 'A 15% commission on a $15/month subscription means the referrer earns $2.25/month per referral — forever. That adds up fast and motivates consistent sharing.',
+        content: 'Go to Profile > Settings > Referrals and set your commission percentage. Higher rates motivate more sharing but reduce your revenue per subscriber. Start at 15%. It is high enough to motivate fans without cutting too deeply into your earnings.',
+        tip: 'A 15% commission on a $15/month subscription means the referrer earns $2.25/month per referral, forever. That adds up fast and motivates consistent sharing.',
       },
       {
         title: 'Promote the referral program',
-        content: 'Most fans do not know they can earn commissions. Post about it in your community, mention it in your bio, and remind fans regularly. Let them know they can share any link — not just your profile — and still earn. Create a dedicated "How to Earn" post explaining exactly how to share and what they can earn.',
+        content: 'Most fans do not know they can earn commissions. Post about it in your community, mention it in your bio, and remind fans regularly. Let them know they can share any link (not just your profile) and still earn. Create a dedicated "How to Earn" post explaining exactly how to share and what they can earn.',
       },
       {
         title: 'Identify and reward top referrers',
-        content: 'Check your analytics to see which fans bring in the most new subscribers. Your top referrers are your most valuable fans — give them extra attention, exclusive content, or public recognition. A shoutout goes a long way.',
+        content: 'Check your analytics to see which fans bring in the most new subscribers. Your top referrers are your most valuable fans. Give them extra attention, exclusive content, or public recognition. A shoutout goes a long way.',
         tip: 'Consider creating a private group or special benefits for fans who refer 5+ subscribers. Gamify it.',
       },
       {
@@ -386,7 +386,7 @@ export const guides: GuideData[] = [
       'The best referrers are fans who genuinely love your music. Focus on creating incredible content and the referrals follow naturally.',
       'Give fans something to share: an exclusive snippet, a compelling story, a behind-the-scenes video. People share content, not links.',
       'Referral commissions are paid from your revenue. Think of it as a marketing cost that only triggers when it actually works.',
-      'Fans can cash out once they reach $25. Make sure they know this — it makes the program feel real.',
+      'Fans can cash out once they reach $25. Make sure they know this, it makes the program feel real.',
     ],
     nextGuide: { slug: 'analytics-insights', title: 'Analytics & Insights' },
     prevGuide: { slug: 'email-campaigns', title: 'Email & Text Campaigns' },
@@ -407,12 +407,12 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Understand MRR (Monthly Recurring Revenue)',
-        content: 'MRR is the total monthly revenue from active subscriptions. It is your most important metric — it tells you exactly how much you are earning each month from subscriptions alone. Track MRR week over week to see if you are growing, flat, or declining.',
+        content: 'MRR is the total monthly revenue from active subscriptions. It is your most important metric: it tells you exactly how much you are earning each month from subscriptions alone. Track MRR week over week to see if you are growing, flat, or declining.',
         tip: 'If your MRR is growing but slowing down, it usually means churn is catching up. Focus on retention before acquisition.',
       },
       {
         title: 'Track subscriber growth',
-        content: 'Net subscriber growth = new subscribers minus churned subscribers. If net growth is positive, you are building momentum. If it is negative, you are losing fans faster than you are gaining them. Dig into why fans are leaving — is it pricing, content quality, or engagement?',
+        content: 'Net subscriber growth = new subscribers minus churned subscribers. If net growth is positive, you are building momentum. If it is negative, you are losing fans faster than you are gaining them. Dig into why fans are leaving. Is it pricing, content quality, or engagement?',
       },
       {
         title: 'Analyze content performance',
@@ -434,7 +434,7 @@ export const guides: GuideData[] = [
     ],
     proTips: [
       'Your AI manager generates a weekly report that summarizes key metrics and recommends actions. Read it every week.',
-      'Compare month-over-month, not day-over-day. Daily fluctuations are noise — monthly trends are signal.',
+      'Compare month-over-month, not day-over-day. Daily fluctuations are noise: monthly trends are signal.',
       'The most actionable metric is ARPS (average revenue per subscriber). If ARPS is rising, your tier structure and upselling are working.',
       'Export your data periodically for your own records. Build a spreadsheet that tracks MRR, subscribers, and churn over time.',
     ],
@@ -453,7 +453,7 @@ export const guides: GuideData[] = [
     steps: [
       {
         title: 'Understand the community feed',
-        content: 'Your community feed is like a private social media page for your fans. Post updates, photos, videos, polls, and behind-the-scenes content. Fans can like, comment, and engage. Unlike social media, you own this audience — no algorithm deciding who sees your posts.',
+        content: 'Your community feed is like a private social media page for your fans. Post updates, photos, videos, polls, and behind-the-scenes content. Fans can like, comment, and engage. Unlike social media, you own this audience: no algorithm deciding who sees your posts.',
       },
       {
         title: 'Create your first post',
@@ -525,10 +525,10 @@ export const guides: GuideData[] = [
       },
     ],
     proTips: [
-      'Treat the AI manager like a real manager — check in weekly, act on the recommendations, and track results.',
+      'Treat the AI manager like a real manager: check in weekly, act on the recommendations, and track results.',
       'The AI is a tool, not a replacement for genuine fan interaction. Use its insights to inform your personal engagement strategy.',
       'If a recommendation does not feel right for your brand, skip it. You know your audience better than any algorithm.',
-      'The AI report also identifies your funnel bottlenecks — where fans are dropping off in their journey from visitor to subscriber.',
+      'The AI report also identifies your funnel bottlenecks: where fans are dropping off in their journey from visitor to subscriber.',
     ],
     nextGuide: { slug: 'sync-licensing', title: 'Sync Licensing' },
     prevGuide: { slug: 'community-posts', title: 'Community & Posts' },
@@ -558,7 +558,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Submit to briefs',
-        content: 'When you find a matching brief, submit your track. Include a short pitch explaining why it fits. Music supervisors review hundreds of submissions — make yours stand out with a concise, specific pitch that matches their brief description.',
+        content: 'When you find a matching brief, submit your track. Include a short pitch explaining why it fits. Music supervisors review hundreds of submissions. Make yours stand out with a concise, specific pitch that matches their brief description.',
         tip: 'Tailor each submission. Do not blast the same track to every brief. Quality, targeted submissions win over quantity.',
       },
       {
@@ -569,7 +569,7 @@ export const guides: GuideData[] = [
     proTips: [
       'Create instrumental versions of all your best tracks. Many sync placements need instrumentals, not vocal versions.',
       'Write music with sync in mind: clear themes, buildable dynamics, and strong hooks work best.',
-      'Keep your metadata clean — track title, artist name, genre, BPM, mood tags. This helps music supervisors find your music.',
+      'Keep your metadata clean: track title, artist name, genre, BPM, mood tags. This helps music supervisors find your music.',
       'Sync income is separate from subscription revenue. It is a bonus income stream that can be significant.',
     ],
     nextGuide: { slug: 'growth-roadmap', title: 'Growth Roadmap' },
@@ -588,7 +588,7 @@ export const guides: GuideData[] = [
       {
         title: 'Month 1: Foundation (0-10 subscribers)',
         content: 'Complete your profile 100%. Connect Stripe. Upload at least 5 tracks (3 free, 2 exclusive). Create 2-3 subscription tiers. Write your first 5 community posts. Share your CRWN page with your existing audience on Instagram, Twitter, and any other platforms. Your goal is 10 subscribers from people who already know your music.',
-        tip: 'Do not try to go viral in month 1. Convert your existing audience first — they are the easiest subscribers to get.',
+        tip: 'Do not try to go viral in month 1. Convert your existing audience first. They are the easiest subscribers to get.',
       },
       {
         title: 'Month 2: Consistency (10-30 subscribers)',
@@ -597,7 +597,7 @@ export const guides: GuideData[] = [
       {
         title: 'Month 3: Activation (30-75 subscribers)',
         content: 'Launch your first shop product (beat pack or digital download). Run a limited-time offer for new subscribers. Create a "subscriber milestone" post celebrating 50 fans. Identify and personally thank your top 5 referrers. Start cross-promoting with other CRWN artists. Goal: 75 subscribers.',
-        tip: 'This is the phase where most artists quit. Push through — the compound effect is about to kick in.',
+        tip: 'This is the phase where most artists quit. Push through. The compound effect is about to kick in.',
       },
       {
         title: 'Month 4-6: Momentum (75-250 subscribers)',
@@ -605,7 +605,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Month 7-9: Scale (250-500 subscribers)',
-        content: 'Your referral network should be generating organic growth. Focus on retention — engage your community, keep content fresh, and address churn. Launch a premium product or experience. Partner with 3-5 other CRWN artists for cross-promotion. Goal: 500 subscribers.',
+        content: 'Your referral network should be generating organic growth. Focus on retention: engage your community, keep content fresh, and address churn. Launch a premium product or experience. Partner with 3-5 other CRWN artists for cross-promotion. Goal: 500 subscribers.',
       },
       {
         title: 'Month 10-12: Authority (500-1,000 subscribers)',
@@ -622,7 +622,7 @@ export const guides: GuideData[] = [
       'Every artist grows at a different pace. These numbers are targets, not requirements. Focus on the activities, not just the subscriber count.',
       'The hardest stretch is 0-50 subscribers. After 50, referrals and organic discovery start compounding.',
       'Review this roadmap monthly and adjust based on your actual data. Your path will look different from anyone else\'s.',
-      'The artists who succeed are not the most talented — they are the most consistent.',
+      'The artists who succeed are not the most talented: they are the most consistent.',
     ],
     nextGuide: { slug: 'content-calendar', title: 'Content Calendar' },
     prevGuide: { slug: 'sync-licensing', title: 'Sync Licensing' },

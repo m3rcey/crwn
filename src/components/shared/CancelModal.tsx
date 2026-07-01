@@ -76,7 +76,7 @@ export default function CancelModal({ context, subscriptionId, itemName, onClose
           </div>
 
           <p className="text-sm text-[#ccc] mb-4">
-            We&apos;re sorry to see you go. Your feedback helps us improve — please let us know why you&apos;re canceling.
+            We&apos;re sorry to see you go. Your feedback helps us improve, so please let us know why you&apos;re canceling.
           </p>
 
           {/* Reasons */}

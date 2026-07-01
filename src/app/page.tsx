@@ -71,9 +71,9 @@ function HeroSection() {
     if (!isInView) return;
     
     const notifs = [
-      'Jordan subscribed to VIP — $10',
-      'Marcus purchased exclusive track — $5',
-      'Emily sent a fan tip — $3',
+      'Jordan subscribed to VIP: $10',
+      'Marcus purchased exclusive track: $5',
+      'Emily sent a fan tip: $3',
     ];
     
     notifs.forEach((notif, i) => {
@@ -288,7 +288,7 @@ function AISection() {
             <div className="mt-4 pt-4 border-t border-crwn-elevated">
               <p className="text-crwn-text text-sm">
                 <span className="text-crwn-gold font-semibold">Recommendation:</span><br />
-                Post acoustic snippet tonight — engagement predicted +32%
+                Post acoustic snippet tonight. Engagement predicted +32%
               </p>
             </div>
           </div>
@@ -601,7 +601,7 @@ function CTASection() {
           Build Your Artist Business
         </h2>
         <p className="text-xl text-crwn-text-secondary mb-8">
-          Artists don't need labels to build sustainable careers — they need real fans.
+          Artists don't need labels to build sustainable careers, they need real fans.
           CRWN gives you the tools to make it happen.
         </p>
         <a href="/signup" className="neu-button-accent px-12 py-4 text-crwn-bg font-bold rounded-xl text-xl inline-block">

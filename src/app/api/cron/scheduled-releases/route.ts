@@ -200,7 +200,7 @@ export async function GET(req: NextRequest) {
                 resend.emails.send({
                   from: FROM_EMAIL,
                   to: capture.email!,
-                  subject: `${artistName} just dropped "${campaign.title || 'a new release'}" — listen now`,
+                  subject: `${artistName} just dropped "${campaign.title || 'a new release'}". Listen now`,
                   html: presaveReleaseEmail(
                     capture.name || '',
                     artistName,

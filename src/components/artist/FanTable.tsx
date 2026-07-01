@@ -188,7 +188,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
 
   const formatSpent = (cents: number) => `$${(cents / 100).toFixed(0)}`;
   const formatDate = (iso: string | null) => {
-    if (!iso) return '—';
+    if (!iso) return '–';
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
   };
 
@@ -506,7 +506,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
                           )}
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-crwn-text truncate">{fan.display_name}</p>
-                            <p className="text-xs text-crwn-text-secondary truncate">{fan.email || '—'}</p>
+                            <p className="text-xs text-crwn-text-secondary truncate">{fan.email || '–'}</p>
                           </div>
                         </div>
                       </td>
@@ -530,7 +530,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-crwn-text">
-                        {fan.total_spent > 0 ? formatSpent(fan.total_spent) : '—'}
+                        {fan.total_spent > 0 ? formatSpent(fan.total_spent) : '–'}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -545,7 +545,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
                         {formatDate(fan.subscribed_at)}
                       </td>
                       <td className="px-4 py-3 text-sm text-crwn-text">
-                        {fan.referral_count > 0 ? fan.referral_count : '—'}
+                        {fan.referral_count > 0 ? fan.referral_count : '–'}
                       </td>
                     </tr>
                   );

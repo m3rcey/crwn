@@ -77,8 +77,8 @@ function MiniDashboard() {
   }, [isInView]);
 
   const notifs = [
-    { text: 'New subscriber — The Wave', amount: '+$10' },
-    { text: 'Track purchased — Midnight', amount: '+$5' },
+    { text: 'New subscriber: The Wave', amount: '+$10' },
+    { text: 'Track purchased: Midnight', amount: '+$5' },
     { text: 'Fan referral commission', amount: '+$2' },
     { text: 'Inner Circle upgrade', amount: '+$50' },
   ];
@@ -225,7 +225,7 @@ const fanSteps = [
   { icon: Store, step: 4, title: 'Shop for Exclusives', description: 'Buy digital products like beat packs, or book experiences like 1-on-1 video calls with your favorite artists.' },
   { icon: Headphones, step: 5, title: 'Listen Anywhere', description: 'Music keeps playing as you browse. Add CRWN to your home screen for the best mobile experience.' },
   { icon: MessageCircle, step: 6, title: 'Join Communities', description: 'Comment on posts, engage with artists and other fans. Higher tiers unlock exclusive community content.' },
-  { icon: Share2, step: 7, title: 'Share & Earn', description: 'Share any link — an artist page, a track, the shop — with friends. When someone subscribes through your link, you earn a recurring commission on every payment.' },
+  { icon: Share2, step: 7, title: 'Share & Earn', description: 'Share any link (an artist page, a track, the shop) with friends. When someone subscribes through your link, you earn a recurring commission on every payment.' },
   { icon: DollarSign, step: 8, title: 'Cash Out', description: 'Once your referral balance reaches $25, connect Stripe and cash out. No fees. Free weekly payouts or $2 instant.' },
 ];
 

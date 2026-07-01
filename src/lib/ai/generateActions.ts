@@ -195,7 +195,7 @@ ACTION TYPES:
 RULES:
 - Only use exact IDs from the context. Never guess.
 - Max 3 actions. Every action must be justified by a specific metric.
-- In the description, explain the metric-based reasoning (e.g. "RPV up 45% with 0% churn — your audience can bear a higher price").
+- In the description, explain the metric-based reasoning (e.g. "RPV up 45% with 0% churn, your audience can bear a higher price").
 - Return 0 actions if everything is healthy and no intervention needed.
 - All prices in CENTS. Convert to dollars in labels.
 
@@ -205,11 +205,11 @@ If PAST ACTION OUTCOMES are provided, use them to calibrate your recommendations
 - If an action type had NEGATIVE outcomes, avoid it unless conditions have changed significantly.
 - Reference specific past results in your description when relevant (e.g. "Last re-engagement gained +2 subs").
 
-LABEL FORMAT — CRITICAL:
-Every label MUST lead with the ACTION VERB, then the justification. Format: "[Verb] [what] — [metric reason]"
-- Good: "Activate win-back sequence — 3 churned fans this month"
-- Good: "Re-engage 5 inactive fans — 21+ days silent"
-- Good: "Gate 'Midnight Drive' behind Wave — RPV up 45%"
+LABEL FORMAT, CRITICAL:
+Every label MUST lead with the ACTION VERB, then the justification. Format: "[Verb] [what]: [metric reason]"
+- Good: "Activate win-back sequence: 3 churned fans this month"
+- Good: "Re-engage 5 inactive fans: 21+ days silent"
+- Good: "Gate 'Midnight Drive' behind Wave: RPV up 45%"
 - Bad: "Churn rate is rising" (observation, not action)
 - Bad: "Consider re-engaging fans" (wishy-washy)`;
 
