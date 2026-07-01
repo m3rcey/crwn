@@ -15,21 +15,6 @@ interface EditRecordingModalProps {
   onSaved: () => void;
 }
 
-// Seek a video element to a timestamp and resolve once the frame is decoded.
-const seekTo = (v: HTMLVideoElement, t: number) =>
-  new Promise<void>((resolve, reject) => {
-    const cleanup = () => {
-      v.removeEventListener('seeked', onSeeked);
-      v.removeEventListener('error', onErr);
-    };
-    const onSeeked = () => { cleanup(); resolve(); };
-    const onErr = () => { cleanup(); reject(new Error('seek error')); };
-    if (v.readyState >= 2 && Math.abs(v.currentTime - t) < 0.05) { resolve(); return; }
-    v.addEventListener('seeked', onSeeked);
-    v.addEventListener('error', onErr);
-    v.currentTime = t;
-  });
-
 export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved }: EditRecordingModalProps) {
   const supabase = createBrowserSupabaseClient();
   const isPrerecorded = session.source_type === 'prerecorded';
@@ -51,8 +36,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const videoRef = useRef<HTMLVideoElement>(null);   // visible player (no CORS needed)
-  const captureRef = useRef<HTMLVideoElement>(null); // hidden CORS clone, for frame export
+  const videoRef = useRef<HTMLVideoElement>(null); // CORS player — plays and exports frames
 
   // Fetch the access-gated signed URL for both playback and capture.
   useEffect(() => {
@@ -76,29 +60,30 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
   // so the canvas isn't tainted — requires R2 bucket CORS; if it fails we tell
   // them to upload instead.
   const captureFrame = async () => {
-    const main = videoRef.current;
-    const cap = captureRef.current;
-    if (!main || !cap) return;
+    const v = videoRef.current;
+    if (!v) return;
     setCapturing(true);
     setThumbNote(null);
     try {
-      await seekTo(cap, main.currentTime || 0);
-      const w = cap.videoWidth || 1280;
-      const h = cap.videoHeight || 720;
+      const w = v.videoWidth;
+      const h = v.videoHeight;
+      if (!w || !h) throw new Error('video not ready');
       const scale = Math.min(1, 1280 / w);
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(w * scale);
       canvas.height = Math.round(h * scale);
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('no canvas');
-      ctx.drawImage(cap, 0, 0, canvas.width, canvas.height);
+      // Draw the frame the player is currently on (tainted-canvas-safe: the
+      // player is crossOrigin and R2 returns CORS headers).
+      ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
       const blob = await new Promise<Blob | null>((res) => canvas.toBlob((b) => res(b), 'image/jpeg', 0.85));
       if (!blob) throw new Error('capture failed');
       if (thumbPreview && thumbPreview.startsWith('blob:')) URL.revokeObjectURL(thumbPreview);
       setThumbBlob(blob);
       setThumbPreview(URL.createObjectURL(blob));
     } catch {
-      setThumbNote('Could not grab this frame yet (R2 CORS may not be enabled). You can upload an image instead.');
+      setThumbNote('Could not grab this frame (R2 CORS may not be applied to this domain). You can upload an image instead.');
     } finally {
       setCapturing(false);
     }
@@ -190,13 +175,8 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
                     <Loader2 className="w-6 h-6 text-crwn-gold animate-spin" />
                   </div>
                 ) : videoUrl ? (
-                  <>
-                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <video ref={videoRef} src={videoUrl} controls playsInline className="w-full aspect-video object-contain" />
-                    {/* hidden CORS clone used only to export a clean (untainted) frame */}
-                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <video ref={captureRef} src={videoUrl} crossOrigin="anonymous" preload="auto" muted playsInline className="hidden" />
-                  </>
+                  /* eslint-disable-next-line jsx-a11y/media-has-caption */
+                  <video ref={videoRef} src={videoUrl} crossOrigin="anonymous" controls playsInline className="w-full aspect-video object-contain" />
                 ) : (
                   <div className="aspect-video flex items-center justify-center text-crwn-text-dim text-sm px-4 text-center">
                     Video unavailable
