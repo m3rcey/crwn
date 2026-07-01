@@ -134,10 +134,13 @@ export default function WorthCalculatorPage() {
         {/* Inputs */}
         <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-6">
           <div className="grid sm:grid-cols-3 gap-4">
-            <Field label="Monthly listeners" hint="required" value={listeners} onChange={setListeners} placeholder="50,000" />
-            <Field label="Engaged followers" hint="optional" value={followers} onChange={setFollowers} placeholder="auto" />
+            <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="50,000" />
+            <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
             <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
           </div>
+          <p className="text-xs text-crwn-text-secondary/70 mt-3">
+            Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.
+          </p>
 
           {/* Preset */}
           <div className="mt-6">
