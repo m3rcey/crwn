@@ -1,8 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight } from 'lucide-react';
+
+// Primary CTA target: the scheduling page where the artist books a Zoom call.
+const BOOK_CALL_URL = 'https://cal.com/jnwcreative';
 import {
   calculate,
   getAssumptions,
@@ -243,14 +245,16 @@ export default function WorthCalculatorPage() {
             </>
           )}
 
-          <Link
-            href="/signup?ref=calculator"
+          <a
+            href={BOOK_CALL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
           >
-            Start free on CRWN, keep this money <ArrowRight className="w-5 h-5" />
-          </Link>
+            Book a free 15-min call, keep this money <ArrowRight className="w-5 h-5" />
+          </a>
           <p className="text-center text-xs text-crwn-text-secondary mt-3">
-            Free to start. No card required. Set up your tiers in minutes.
+            A quick Zoom. We&apos;ll show you exactly how to capture this. No pitch.
           </p>
         </div>
 
@@ -313,12 +317,14 @@ export default function WorthCalculatorPage() {
         </div>
 
         <div className="text-center pb-8">
-          <Link
-            href="/signup?ref=calculator"
+          <a
+            href={BOOK_CALL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors"
           >
-            Claim your {hasNumber ? fmtDollars(result.netAnnualCents) : 'money'}, start free <ArrowRight className="w-5 h-5" />
-          </Link>
+            Book a call, claim your {hasNumber ? fmtDollars(result.netAnnualCents) : 'money'} <ArrowRight className="w-5 h-5" />
+          </a>
         </div>
       </div>
     </div>
