@@ -65,6 +65,10 @@
       "schedule": "0 2 * * *"
     },
     {
+      "path": "/api/cron/onboarding-reminder",
+      "schedule": "0 21 * * *"
+    },
+    {
       "path": "/api/cron/platform-sequences",
       "schedule": "0 10 * * *"
     },
