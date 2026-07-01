@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { calculatorResultEmail } from '@/lib/emails/calculatorResult';
 
 // PUBLIC endpoint (no auth) — captures leads from the /worth lead-magnet calculator
 // into the existing crm_contacts table. Uses the service-role client because
@@ -53,18 +55,35 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', existing.id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ success: true });
+  } else {
+    const { error } = await supabaseAdmin.from('crm_contacts').insert({
+      name,
+      email,
+      source: 'calculator',
+      status: 'lead',
+      tags: ['calculator'],
+      notes: `[${new Date().toISOString().split('T')[0]}] ${note}`,
+    });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const { error } = await supabaseAdmin.from('crm_contacts').insert({
-    name,
-    email,
-    source: 'calculator',
-    status: 'lead',
-    tags: ['calculator'],
-    notes: `[${new Date().toISOString().split('T')[0]}] ${note}`,
-  });
+  // Deliver on the "we'll email your breakdown" promise. Non-blocking: a mail
+  // failure must never fail the capture (the lead is already saved above).
+  try {
+    const dollars = (cents: number) => '$' + Math.round(cents / 100).toLocaleString('en-US');
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `You're leaving ${dollars(annual)} on the table 👑`,
+      html: calculatorResultEmail({
+        annualDisplay: dollars(annual),
+        monthlyDisplay: dollars(Math.round(annual / 12)),
+        listeners,
+      }),
+    });
+  } catch (err) {
+    console.error('Calculator lead email failed:', err);
+  }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }
