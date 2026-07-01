@@ -5,9 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { LiveSession } from '@/types/live';
-import { Loader2, Plus, Trash2, X, Radio, Video, Download, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { BroadcasterStudio } from './BroadcasterStudio';
+import { EditRecordingModal } from './EditRecordingModal';
 import { validateUpload } from '@/lib/uploadValidation';
 
 interface LivestreamManagerProps {
@@ -29,6 +30,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   const [isSaving, setIsSaving] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [studioSession, setStudioSession] = useState<LiveSession | null>(null);
+  const [editingSession, setEditingSession] = useState<LiveSession | null>(null);
 
   // Form state
   const [mode, setMode] = useState<'live' | 'prerecorded'>('live');
@@ -143,28 +145,6 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
       return { key, url: publicUrl };
     } catch {
       return null;
-    }
-  };
-
-  // Set (or replace) the cover image on an already-saved recording — the only
-  // path for live-recorded VODs, which have no browser-side file to auto-grab.
-  const handleSetCover = async (session: LiveSession, file: File) => {
-    const v = validateUpload(file, 'image');
-    if (!v.valid) { console.error(v.error); return; }
-    setBusyId(session.id);
-    try {
-      const up = await uploadThumbnail(file, file.name);
-      if (!up) throw new Error('thumbnail upload failed');
-      const { error } = await supabase
-        .from('live_sessions')
-        .update({ vod_thumbnail_key: up.key, vod_thumbnail_url: up.url })
-        .eq('id', session.id);
-      if (error) throw error;
-      await loadSessions();
-    } catch (err) {
-      console.error('Error setting cover image:', err);
-    } finally {
-      setBusyId(null);
     }
   };
 
@@ -593,19 +573,13 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     )}
                     {session.vod_status === 'ready' && (
                       <>
-                        <label
-                          className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 cursor-pointer"
-                          title={session.vod_thumbnail_url ? 'Change cover image' : 'Set cover image'}
+                        <button
+                          onClick={() => setEditingSession(session)}
+                          className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+                          title="Edit recording"
                         >
-                          {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
-                          Cover
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSetCover(session, f); e.target.value = ''; }}
-                          />
-                        </label>
+                          <Pencil className="w-4 h-4" /> Edit
+                        </button>
                         <button
                           onClick={() => handleDownloadVod(session)}
                           disabled={busyId === session.id}
@@ -648,19 +622,13 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 )}
                 {session.status === 'ended' && session.vod_status === 'ready' && (
                   <>
-                    <label
-                      className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 cursor-pointer"
-                      title={session.vod_thumbnail_url ? 'Change cover image' : 'Set cover image'}
+                    <button
+                      onClick={() => setEditingSession(session)}
+                      className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+                      title="Edit recording"
                     >
-                      {busyId === session.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
-                      Cover
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleSetCover(session, f); e.target.value = ''; }}
-                      />
-                    </label>
+                      <Pencil className="w-4 h-4" /> Edit
+                    </button>
                     <button
                       onClick={() => handleDownloadVod(session)}
                       disabled={busyId === session.id}
@@ -710,6 +678,16 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           title={studioSession.title}
           currentUserId={user?.id || ''}
           onClose={() => setStudioSession(null)}
+        />
+      )}
+
+      {editingSession && (
+        <EditRecordingModal
+          session={editingSession}
+          artistId={artistId}
+          tiers={tiers}
+          onClose={() => setEditingSession(null)}
+          onSaved={() => { setEditingSession(null); loadSessions(); }}
         />
       )}
 
