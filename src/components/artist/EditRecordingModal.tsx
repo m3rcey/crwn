@@ -31,7 +31,9 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
   const [loadingVideo, setLoadingVideo] = useState(true);
   const [capturing, setCapturing] = useState(false);
   const [thumbBlob, setThumbBlob] = useState<Blob | null>(null); // new cover, not yet saved
-  const [thumbPreview, setThumbPreview] = useState<string | null>(session.vod_thumbnail_url);
+  const [thumbPreview, setThumbPreview] = useState<string | null>(
+    session.vod_thumbnail_url ? `/api/live/thumbnail?sessionId=${session.id}` : null
+  );
   const [thumbNote, setThumbNote] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -167,7 +167,7 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
               const cover = (
                 <div
                   className="relative aspect-video flex items-center justify-center bg-gradient-to-br from-crwn-elevated to-crwn-bg bg-cover bg-center"
-                  style={s.vod_thumbnail_url ? { backgroundImage: `url(${s.vod_thumbnail_url})` } : undefined}
+                  style={s.vod_thumbnail_url ? { backgroundImage: `url(/api/live/thumbnail?sessionId=${s.id})` } : undefined}
                 >
                   {/* scrim so overlays stay legible over a photo cover */}
                   {s.vod_thumbnail_url && <span className="absolute inset-0 bg-black/25" />}
