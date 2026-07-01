@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight } from 'lucide-react';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
@@ -59,6 +59,19 @@ export default function WorthCalculatorPage() {
 
   const [email, setEmail] = useState('');
   const [captureState, setCaptureState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+
+  // Prefill inputs from URL query params so outreach links land on the artist's
+  // own number, e.g. /worth?listeners=50000&followers=20000 (followers optional).
+  // Runs once on the client; commas/spaces in the values are ignored.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const l = params.get('listeners');
+    const f = params.get('followers');
+    const s = params.get('streaming');
+    if (l && /\d/.test(l)) setListeners(l.replace(/\D/g, ''));
+    if (f && /\d/.test(f)) setFollowers(f.replace(/\D/g, ''));
+    if (s && /[\d.]/.test(s)) setStreaming(s.replace(/[^\d.]/g, ''));
+  }, []);
 
   const assumptions: CalcAssumptions = {
     ...base,
@@ -121,10 +134,13 @@ export default function WorthCalculatorPage() {
         {/* Inputs */}
         <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-6">
           <div className="grid sm:grid-cols-3 gap-4">
-            <Field label="Monthly listeners" hint="required" value={listeners} onChange={setListeners} placeholder="50,000" />
-            <Field label="Engaged followers" hint="optional" value={followers} onChange={setFollowers} placeholder="auto" />
+            <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="50,000" />
+            <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
             <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
           </div>
+          <p className="text-xs text-crwn-text-secondary/70 mt-3">
+            Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.
+          </p>
 
           {/* Preset */}
           <div className="mt-6">
