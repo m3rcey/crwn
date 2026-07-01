@@ -12,17 +12,35 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useAuth();
+  const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
+  // A new signup that hasn't completed /welcome yet. Admins are exempt so the
+  // founder is never trapped by the onboarding gate.
+  const needsOnboarding =
+    !!user && !!profile && profile.role !== 'admin' && !profile.onboarding_completed;
+
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (isLoading) return;
+    if (!user) {
       router.push('/login');
+      return;
     }
-  }, [user, isLoading, router]);
+    // Force new signups through onboarding before they can use the app. This is the
+    // single enforcement point: email signup, Google OAuth, and direct navigation all
+    // land on a (main) page, so gating here catches every bypass path into /welcome.
+    if (needsOnboarding) {
+      router.push('/welcome');
+    }
+  }, [user, needsOnboarding, isLoading, router]);
 
 
   if (!isLoading && !user) {
+    return null;
+  }
+
+  // Avoid flashing the app shell while we redirect an unonboarded user to /welcome.
+  if (needsOnboarding) {
     return null;
   }
 
