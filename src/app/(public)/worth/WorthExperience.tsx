@@ -533,6 +533,19 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <LiveMock />
         </section>
 
+        {/* Clip & Earn — fans as a paid marketing army */}
+        <section className="mb-14">
+          <SectionHeading icon={Scissors}>Your fans are your marketing team</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            Turn on Clip &amp; Earn: your fans download your streams, cut them into clips, and post them
+            across TikTok, Reels, and Shorts, the same loop that blows up streamers. When a clip brings
+            in a subscriber, that clipper earns a recurring commission, a % you set, every month that
+            fan stays. An army of promoters you only pay when they work, and keep paying only while it
+            keeps working.
+          </p>
+          <ClipperMock />
+        </section>
+
         {/* Release waterfall (visual timeline) */}
         <section className="mb-14">
           <SectionHeading icon={TrendingUp}>Release like the majors don&apos;t</SectionHeading>
@@ -594,19 +607,6 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </div>
           <p className="text-crwn-text-secondary text-sm mt-6 mb-4">Set your automations once, they run forever:</p>
           <SequencesMock />
-        </section>
-
-        {/* Clip & Earn — fans as a paid marketing army */}
-        <section className="mb-14">
-          <SectionHeading icon={Scissors}>Your fans are your marketing team</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
-            Turn on Clip &amp; Earn: your fans download your streams, cut them into clips, and post them
-            across TikTok, Reels, and Shorts, the same loop that blows up streamers. When a clip brings
-            in a subscriber, that clipper earns a recurring commission, a % you set, every month that
-            fan stays. An army of promoters you only pay when they work, and keep paying only while it
-            keeps working.
-          </p>
-          <ClipperMock />
         </section>
 
         {/* AI manager + mock */}
