@@ -524,11 +524,11 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
 
         {/* Go live */}
         <section className="mb-14">
-          <SectionHeading icon={Radio}>Go live, then sell the replay</SectionHeading>
+          <SectionHeading icon={Radio}>Go live, and get paid for it</SectionHeading>
           <p className="text-crwn-text-secondary text-sm mb-6">
-            Stream live right on your page: listening parties, beat sessions, Q&amp;As. Charge a ticket or
-            make it a tier perk. Every stream auto-saves as a recording you can sell, gate, or hand to
-            your clippers.
+            Stream live right on your page: listening parties, beat sessions, Q&amp;As. Sell tickets in
+            advance or put it behind a tier. Every stream auto-saves as a recording you can sell, gate,
+            or hand to your clippers.
           </p>
           <LiveMock />
         </section>
