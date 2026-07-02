@@ -5,7 +5,7 @@ import {
   Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight, ArrowDown,
   Music, DollarSign, Users, Mail, Zap, Wallet, BarChart3, HelpCircle,
   Disc3, Radio, Video, ShoppingBag, CreditCard, Landmark, Repeat, X, Star,
-  MessageCircle, Globe,
+  MessageCircle, Globe, Scissors,
 } from 'lucide-react';
 import {
   calculate,
@@ -19,7 +19,7 @@ import {
 
 import {
   TiersMock, EarningsMock, LeaderboardMock, AiActionsMock,
-  CommunityMock, ShopMock, SyncMock, SequencesMock,
+  CommunityMock, ShopMock, SyncMock, SequencesMock, LiveMock, ClipperMock,
 } from './mocks';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
@@ -522,6 +522,17 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <ShopMock />
         </section>
 
+        {/* Go live */}
+        <section className="mb-14">
+          <SectionHeading icon={Radio}>Go live, then sell the replay</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            Stream live right on your page: listening parties, beat sessions, Q&amp;As. Charge a ticket or
+            make it a tier perk. Every stream auto-saves as a recording you can sell, gate, or hand to
+            your clippers.
+          </p>
+          <LiveMock />
+        </section>
+
         {/* Release waterfall (visual timeline) */}
         <section className="mb-14">
           <SectionHeading icon={TrendingUp}>Release like the majors don&apos;t</SectionHeading>
@@ -583,6 +594,18 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </div>
           <p className="text-crwn-text-secondary text-sm mt-6 mb-4">Set your automations once, they run forever:</p>
           <SequencesMock />
+        </section>
+
+        {/* Clip & Earn — fans as a paid marketing army */}
+        <section className="mb-14">
+          <SectionHeading icon={Scissors}>Your fans are your marketing team</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            Turn on Clip &amp; Earn: your fans download your streams, cut them into clips, and post them
+            across TikTok, Reels, and Shorts, the same loop that blows up streamers. They earn a
+            commission every time a clip converts a new subscriber. An army of promoters you only pay
+            when they actually work.
+          </p>
+          <ClipperMock />
         </section>
 
         {/* AI manager + mock */}
