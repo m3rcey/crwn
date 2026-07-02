@@ -44,7 +44,10 @@ export default function WelcomePage() {
   }, [profile, router]);
 
   const handleSubmit = async () => {
-    if (!user || !displayName.trim() || !phone.trim()) return;
+    // Phone is optional — a name is all we need to spin up the page/slug. Requiring
+    // a phone here was pure friction (and silently disabled the button when empty,
+    // which read as "nothing happens"). Collect it later if we want it.
+    if (!user || !displayName.trim()) return;
     setIsSubmitting(true);
 
     try {
@@ -63,7 +66,7 @@ export default function WelcomePage() {
         .from('profiles')
         .update({
           display_name: displayName.trim(),
-          phone: phone.trim(),
+          phone: phone.trim() || null,
           role: effectiveRole,
           onboarding_completed: true,
         })
@@ -173,7 +176,7 @@ export default function WelcomePage() {
           {/* Phone */}
           <div className="mb-5">
             <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-              Phone number
+              Phone number <span className="text-crwn-text-secondary/60 font-normal">(optional)</span>
             </label>
             <input
               type="tel"
@@ -222,7 +225,7 @@ export default function WelcomePage() {
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || !displayName.trim() || !phone.trim()}
+            disabled={isSubmitting || !displayName.trim()}
             className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors disabled:opacity-50"
           >
             {isSubmitting ? 'Setting up...' : 'Get Started'}
