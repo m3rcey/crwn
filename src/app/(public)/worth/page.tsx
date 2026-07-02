@@ -4,10 +4,8 @@ import { useEffect, useMemo, useState, type ReactNode, type ComponentType } from
 import {
   Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight,
   Music, DollarSign, Users, Mail, Zap, Wallet, BarChart3, HelpCircle,
+  Disc3, Radio, Video, ShoppingBag, CreditCard, Landmark, Repeat, X, Star,
 } from 'lucide-react';
-
-// Primary CTA target: the scheduling page where the artist books a Zoom call.
-const BOOK_CALL_URL = 'https://cal.com/jnwcreative';
 import {
   calculate,
   getAssumptions,
@@ -17,6 +15,12 @@ import {
   type AggressivenessPreset,
   type CalcAssumptions,
 } from '@/lib/leadCalculator';
+
+// Primary CTA target: the scheduling page where the artist books a Zoom call.
+const BOOK_CALL_URL = 'https://cal.com/jnwcreative';
+
+// Brand gold as RGB for inline opacity steps (single-hue composition bar).
+const GOLD = '212,175,55';
 
 const PRESETS: { key: AggressivenessPreset; label: string }[] = [
   { key: 'conservative', label: 'Conservative' },
@@ -41,30 +45,48 @@ const TIERS = [
 ];
 
 const WATERFALL = [
-  { day: 'Day 0', label: 'Throne: first listen + stems on sale' },
-  { day: 'Day 14', label: 'The Vault' },
-  { day: 'Day 30', label: 'Inner Circle' },
-  { day: 'Day 45', label: 'Free tier on CRWN' },
-  { day: 'Day 60', label: 'Spotify / Apple / DSPs' },
+  { day: 'Day 0', label: 'Throne gets it first', sub: 'First listen + stems on sale' },
+  { day: 'Day 14', label: 'The Vault', sub: 'Second in line' },
+  { day: 'Day 30', label: 'Inner Circle', sub: 'Entry tier unlocks it' },
+  { day: 'Day 45', label: 'Free tier on CRWN', sub: 'Everyone on CRWN, email captured' },
+  { day: 'Day 60', label: 'Spotify / Apple / DSPs', sub: 'The leftovers get the pennies' },
 ];
 
 // Every revenue stream that adds up to the number at the top of the page.
-const MONETIZE_WAYS = [
-  { icon: '👑', title: 'Monthly memberships', body: 'Fans subscribe every month for exclusive tracks, early access, and perks. Run up to 3 tiers (like $10 / $25 / $100). This is your recurring backbone: income that shows up whether or not you drop that month.' },
-  { icon: '🎚️', title: 'Sell tracks, stems & remixes', body: 'Sell individual songs, beat stems, multitracks, and remixes as one-off downloads. Gate them behind a tier or charge a flat price. Producers and superfans pay for what casual listeners scroll past.' },
-  { icon: '🔴', title: 'Go live & sell live sessions', body: 'Stream live to your fans. Charge a flat ticket for a session or make it a tier perk. Listening parties, beat cook-ups, and Q&As, all monetized in real time.' },
-  { icon: '📞', title: 'Sell access to you', body: 'The highest-value thing you sell is you. Priority DMs, voice-note replies, 1-on-1 video calls, and custom songs made for one fan. People pay a premium to actually reach the artist they love.' },
-  { icon: '🛍️', title: 'Your shop: products & merch', body: 'Open a shop and sell digital products, sample packs, and merch. Members get automatic discounts, so a subscription starts paying for itself.' },
-  { icon: '✨', title: 'Experiences & custom work', body: 'Custom verses, shoutouts, personalized versions of your songs, one-of-one experiences. Name your price. These are the whale purchases that move the number the most.' },
+const MONETIZE_WAYS: { icon: ComponentType<{ className?: string }>; title: string; line: string; tag: string }[] = [
+  { icon: Crown, title: 'Monthly memberships', line: 'Fans subscribe every month for exclusive drops and perks. Up to 3 tiers.', tag: 'Recurring' },
+  { icon: Disc3, title: 'Tracks, stems & remixes', line: 'Sell songs, beat stems, and multitracks as one-off downloads.', tag: 'One-off' },
+  { icon: Radio, title: 'Live sessions', line: 'Charge a ticket to go live, or make it a tier perk.', tag: 'Ticketed' },
+  { icon: Video, title: 'Access to you', line: 'Priority DMs, voice notes, 1-on-1 video calls, custom songs.', tag: 'Premium' },
+  { icon: ShoppingBag, title: 'Shop & merch', line: 'Digital products, sample packs, merch. Members get discounts.', tag: 'Shop' },
+  { icon: Star, title: 'Custom & experiences', line: 'Custom verses, shoutouts, one-of-one experiences. Name your price.', tag: 'Whale' },
+];
+
+// Illustrative revenue composition (a healthy artist's mix). Single-hue bar.
+const REVENUE_MIX = [
+  { label: 'Memberships', pct: 52 },
+  { label: 'Tracks & stems', pct: 16 },
+  { label: 'Access & customs', pct: 16 },
+  { label: 'Live', pct: 9 },
+  { label: 'Shop', pct: 7 },
+];
+const MIX_OPACITY = [1, 0.78, 0.6, 0.44, 0.3];
+
+const COMPARE = [
+  { label: 'Pay per fan', streaming: 'Fractions of a cent', crwn: '$10–$200 / month' },
+  { label: 'Who you reach', streaming: 'The algorithm decides', crwn: 'Every fan, directly' },
+  { label: 'Your cut', streaming: 'They keep most of it', crwn: 'You keep up to 92%' },
+  { label: 'Fan data', streaming: 'You get none', crwn: 'Names, emails, phones' },
+  { label: 'Payout', streaming: 'Months later, if at all', crwn: 'Straight to your bank' },
 ];
 
 const AUDIENCE_TOOLS = [
-  { icon: '✉️', name: 'Email campaigns', desc: 'Reach every fan directly. Track opens and clicks.' },
-  { icon: '💬', name: 'SMS marketing', desc: 'Text your supporters when it matters most.' },
-  { icon: '🔁', name: 'Automated sequences', desc: 'Welcome, win-back, and release drops on autopilot.' },
-  { icon: '🔗', name: 'Smart links & presaves', desc: 'Capture emails on every release and link you share.' },
-  { icon: '🏷️', name: 'Discount codes', desc: 'Run drops and promos with fixed or % off codes.' },
-  { icon: '🛒', name: 'Cart recovery', desc: 'Win back fans who almost checked out.' },
+  { icon: '✉️', name: 'Email campaigns', desc: 'Reach every fan directly.' },
+  { icon: '💬', name: 'SMS marketing', desc: 'Text supporters when it matters.' },
+  { icon: '🔁', name: 'Automated sequences', desc: 'Welcome & win-back on autopilot.' },
+  { icon: '🔗', name: 'Smart links & presaves', desc: 'Capture emails on every release.' },
+  { icon: '🏷️', name: 'Discount codes', desc: 'Run drops and promos.' },
+  { icon: '🛒', name: 'Cart recovery', desc: 'Win back near-checkouts.' },
 ];
 
 const OBJECTIONS = [
@@ -75,16 +97,16 @@ const OBJECTIONS = [
 ];
 
 const STEPS = [
-  { n: '1', title: 'Book a quick call', body: 'We build your setup live on a 15-minute Zoom: tiers, pricing, the whole plan.' },
-  { n: '2', title: 'Publish your page', body: 'Your artist page and tiers go live in minutes. No tech skills needed.' },
-  { n: '3', title: 'Point your fans to it', body: 'Drop the link in your bio and posts. Start earning from the fans you already have.' },
+  { n: '1', title: 'Book a quick call', body: 'We build your setup live on a 15-minute Zoom: tiers, pricing, the plan.' },
+  { n: '2', title: 'Publish your page', body: 'Your artist page and tiers go live in minutes. No tech skills.' },
+  { n: '3', title: 'Point your fans to it', body: 'Drop the link in your bio. Earn from the fans you already have.' },
 ];
 
 const FAQS = [
   { q: 'What does it cost?', a: 'Free to start. You keep 88–92% of what you earn depending on your plan; CRWN only takes a small fee on actual sales.' },
   { q: 'How do fans pay me?', a: 'By card through Stripe. Every subscription, sale, and tip is paid straight to your bank account.' },
   { q: 'Do I keep my masters and rights?', a: 'Yes, 100%. It’s your catalog, your audience, and your data. CRWN is a tool, not a label.' },
-  { q: 'Can I still release on Spotify and Apple?', a: 'Absolutely. CRWN is additive. Use the release waterfall so your paying fans get new music first and the DSPs get it last.' },
+  { q: 'Can I still release on Spotify and Apple?', a: 'Absolutely. CRWN is additive. Use the release waterfall so paying fans get new music first and the DSPs get it last.' },
   { q: 'How fast can I set up?', a: 'Same day. Most artists are live within an hour of their call.' },
 ];
 
@@ -111,7 +133,6 @@ export default function WorthCalculatorPage() {
 
   // Prefill inputs from URL query params so outreach links land on the artist's
   // own number, e.g. /worth?listeners=50000&followers=20000 (followers optional).
-  // Runs once on the client; commas/spaces in the values are ignored.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const l = params.get('listeners');
@@ -162,6 +183,7 @@ export default function WorthCalculatorPage() {
   };
 
   const hasNumber = inputs.monthlyListeners > 0 || inputs.engagedFollowers > 0;
+  const numberLabel = hasNumber ? fmtDollars(result.netAnnualCents) : 'money';
 
   return (
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
@@ -276,7 +298,7 @@ export default function WorthCalculatorPage() {
         </div>
 
         {/* Email capture + CTA */}
-        <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-12">
+        <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
           {captureState === 'done' ? (
             <div className="flex items-center gap-2 text-crwn-gold justify-center py-2">
               <Check className="w-5 h-5" /> On its way. Check your inbox for the full breakdown.
@@ -324,13 +346,93 @@ export default function WorthCalculatorPage() {
           </p>
         </div>
 
-        {/* The recommended setup */}
-        <div className="mb-12">
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-5 h-5 text-crwn-gold" />
-            <h2 className="text-2xl font-bold">The setup that captures it</h2>
+        {/* Streaming vs CRWN */}
+        <section className="mb-14">
+          <SectionHeading icon={DollarSign}>Streaming vs. CRWN</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            Same fans. Wildly different math. Streaming rents your audience back to you.
+          </p>
+          <CompareTable />
+        </section>
+
+        {/* Where the number comes from */}
+        <section className="mb-14">
+          <SectionHeading icon={BarChart3}>Where {hasNumber ? fmtDollars(result.netMrrCents) + '/mo' : 'the number'} comes from</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            It&apos;s not one big thing. It&apos;s a stack of small ones, all from the same fans.
+          </p>
+          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
+            <RevenueStack />
           </div>
-          <p className="text-crwn-text-secondary mb-6 text-sm">
+        </section>
+
+        {/* Fan math */}
+        <section className="mb-6">
+          <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            A small group of real supporters changes everything. Do the math on paying fans, not plays:
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {FAN_MATH.map((m) => (
+              <div key={m.fans} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-crwn-gold">{m.fans}</div>
+                <div className="text-xs text-crwn-text-secondary mb-2">fans × $15/mo</div>
+                <div className="text-lg font-semibold">{m.rev}/mo</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <BookCTA sub="A 15-minute Zoom. We map your exact setup. No pitch.">
+          {hasNumber ? `Show me how to capture my ${fmtDollars(result.netAnnualCents)}` : 'Show me how it works'}
+        </BookCTA>
+
+        {/* What is CRWN + product mock */}
+        <section className="mb-14">
+          <SectionHeading icon={Music}>Wait, what is CRWN?</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            A platform to sell directly to your fans: memberships, songs, stems, live sessions, even
+            access to you. No label. No middleman. No algorithm. You keep up to 92%, paid to your bank.
+          </p>
+          <MockCard title="crwn.app · your dashboard">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-crwn-text-secondary">Today&apos;s revenue</span>
+              <span className="text-2xl font-bold text-crwn-gold">$147</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              <MockRow label="VIP subscriptions" value="$87" />
+              <MockRow label="Exclusive track sales" value="$42" />
+              <MockRow label="Fan tips" value="$18" />
+            </div>
+          </MockCard>
+        </section>
+
+        {/* Everything you can charge for */}
+        <section className="mb-14">
+          <SectionHeading icon={Sparkles}>Everything you can charge for</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            Every one of these is a revenue stream you switch on. Stack them, and the number adds up fast.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {MONETIZE_WAYS.map((w) => (
+              <div key={w.title} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-crwn-gold/15 flex items-center justify-center shrink-0">
+                    <w.icon className="w-5 h-5 text-crwn-gold" />
+                  </div>
+                  <div className="font-semibold">{w.title}</div>
+                </div>
+                <p className="text-sm text-crwn-text-secondary leading-relaxed mb-3">{w.line}</p>
+                <span className="inline-block text-[10px] uppercase tracking-wide text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-1">{w.tag}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* The tier setup */}
+        <section className="mb-14">
+          <SectionHeading icon={Crown}>The setup that captures it</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
             A free tier to capture everyone, then three paid tiers built to catch the whale.
           </p>
           <div className="grid sm:grid-cols-3 gap-4">
@@ -353,128 +455,49 @@ export default function WorthCalculatorPage() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-crwn-text-secondary/70 mt-3">
-            Plus sold à la carte to everyone: stem packs, paid live sessions, custom songs, voice
-            notes & video shoutouts, individual track and product sales.
-          </p>
-        </div>
+        </section>
 
-        {/* Release waterfall */}
-        <div className="mb-16">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-5 h-5 text-crwn-gold" />
-            <h2 className="text-2xl font-bold">Release like the majors don&apos;t</h2>
-          </div>
-          <p className="text-crwn-text-secondary mb-6 text-sm">
-            The scarce good isn&apos;t the song: it&apos;s time. Every tier is a skip-the-line pass.
+        {/* Release waterfall (visual timeline) */}
+        <section className="mb-14">
+          <SectionHeading icon={TrendingUp}>Release like the majors don&apos;t</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            The scarce good isn&apos;t the song, it&apos;s time. Every tier is a skip-the-line pass.
             DSPs get it last, on purpose.
           </p>
           <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
             {WATERFALL.map((w, i) => (
-              <div key={w.day} className="flex items-center gap-4 py-2">
-                <div className="w-16 shrink-0 text-crwn-gold font-semibold text-sm">{w.day}</div>
-                <div className="flex items-center gap-3">
-                  <Lock className={`w-4 h-4 ${i === WATERFALL.length - 1 ? 'text-crwn-text-secondary/40' : 'text-crwn-gold'}`} />
-                  <span className="text-sm text-crwn-text-secondary">{w.label}</span>
+              <div key={w.day} className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className={`w-3.5 h-3.5 rounded-full shrink-0 mt-1 ${i === WATERFALL.length - 1 ? 'bg-crwn-elevated' : 'bg-crwn-gold'}`} />
+                  {i < WATERFALL.length - 1 && <div className="w-0.5 flex-1 bg-crwn-elevated my-1" />}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ===== Long-form education (squeeze-page body) ===== */}
-        <div className="border-t border-crwn-elevated pt-12 mb-4 text-center">
-          <p className="text-crwn-text-secondary text-sm">
-            Never heard of CRWN? Here&apos;s exactly how that number becomes real.
-          </p>
-        </div>
-
-        {/* What is CRWN */}
-        <section className="mb-16">
-          <SectionHeading icon={Music}>Wait, what is CRWN?</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed">
-            CRWN is a platform that lets you sell directly to your fans: memberships, songs, stems, live
-            sessions, even access to you. No label, no middleman, no algorithm deciding who sees your
-            work. You keep up to 92% and get paid straight to your bank. That number up top isn&apos;t
-            hype, it&apos;s what happens when even a small slice of your audience pays you directly
-            instead of streaming you for pennies. Here&apos;s every piece of it.
-          </p>
-        </section>
-
-        {/* Streaming trap */}
-        <section className="mb-16">
-          <SectionHeading icon={DollarSign}>Why streaming keeps you broke</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed mb-6">
-            Streaming pays about $0.003 a play, and you split that with everyone who touched the record.
-            A million streams is roughly $3,000, once. Meanwhile 200 real fans at $15/mo is $3,000 every
-            single month. Streaming rents your audience back to you. CRWN lets you own it.
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-4 text-center">
-              <div className="text-xl sm:text-2xl font-bold text-crwn-gold">$0.003</div>
-              <div className="text-xs text-crwn-text-secondary">per stream</div>
-            </div>
-            <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-4 text-center">
-              <div className="text-xl sm:text-2xl font-bold text-crwn-gold">up to 92%</div>
-              <div className="text-xs text-crwn-text-secondary">you keep on CRWN</div>
-            </div>
-            <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-4 text-center">
-              <div className="text-xl sm:text-2xl font-bold text-crwn-gold">10–200×</div>
-              <div className="text-xs text-crwn-text-secondary">more per real fan</div>
-            </div>
-          </div>
-        </section>
-
-        {/* Fan math */}
-        <section className="mb-16">
-          <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed mb-6">
-            A small group of real supporters changes everything. Do the math on paying fans, not plays:
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            {FAN_MATH.map((m) => (
-              <div key={m.fans} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-crwn-gold">{m.fans}</div>
-                <div className="text-xs text-crwn-text-secondary mb-2">fans × $15/mo</div>
-                <div className="text-lg font-semibold">{m.rev}/mo</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <BookCTA sub="A 15-minute Zoom. We map your exact setup. No pitch.">
-          {hasNumber ? `Show me how to capture my ${fmtDollars(result.netAnnualCents)}` : 'Show me how it works'}
-        </BookCTA>
-
-        {/* Everything you can charge for */}
-        <section className="mb-16">
-          <SectionHeading icon={Sparkles}>Everything you can charge for on CRWN</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed mb-6">
-            This is where the number comes from. Every one of these is a revenue stream you switch on:
-          </p>
-          <div className="space-y-3">
-            {MONETIZE_WAYS.map((w) => (
-              <div key={w.title} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 flex gap-4">
-                <div className="text-2xl shrink-0">{w.icon}</div>
-                <div>
-                  <div className="font-semibold mb-1">{w.title}</div>
-                  <p className="text-sm text-crwn-text-secondary leading-relaxed">{w.body}</p>
+                <div className={i < WATERFALL.length - 1 ? 'pb-5' : ''}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-0.5">{w.day}</span>
+                    <span className="font-medium text-sm flex items-center gap-1">
+                      {i < WATERFALL.length - 1 && <Lock className="w-3 h-3 text-crwn-gold" />}
+                      {w.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-crwn-text-secondary mt-1">{w.sub}</p>
                 </div>
               </div>
             ))}
           </div>
         </section>
+
+        <BookCTA sub="Free to start. No card required.">Book my free 15-min call</BookCTA>
 
         {/* Own your audience */}
-        <section className="mb-16">
+        <section className="mb-14">
           <SectionHeading icon={Mail}>Own your audience, don&apos;t rent it</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed mb-6">
+          <p className="text-crwn-text-secondary text-sm mb-5">
             Algorithms decide who sees your posts. Your fan list doesn&apos;t. CRWN hands you their
-            contact info and the tools to reach them any time you want.
+            contact info and the tools to reach them any time.
           </p>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {AUDIENCE_TOOLS.map((t) => (
-              <div key={t.name} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
+              <div key={t.name} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-4">
                 <div className="text-2xl mb-2">{t.icon}</div>
                 <div className="font-semibold text-sm mb-1">{t.name}</div>
                 <p className="text-xs text-crwn-text-secondary">{t.desc}</p>
@@ -483,51 +506,95 @@ export default function WorthCalculatorPage() {
           </div>
         </section>
 
-        {/* AI manager */}
-        <section className="mb-16">
+        {/* AI manager + mock */}
+        <section className="mb-14">
           <SectionHeading icon={Zap}>A manager built in</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed">
-            Every artist on CRWN gets an AI manager that spots your biggest supporters, tells you
-            who&apos;s about to upgrade, and recommends what to post and when. You make the music; it
-            grows the business in the background.
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            An AI manager spots your biggest supporters, flags who&apos;s about to upgrade, and tells
+            you what to post. You make music; it grows the business.
           </p>
+          <MockCard title="crwn.app · AI manager">
+            <div className="text-xs uppercase tracking-wide text-crwn-gold mb-3">Weekly report</div>
+            <div className="space-y-2 text-sm">
+              <MockRow label="New subscribers" value="+24" />
+              <MockRow label="Revenue this week" value="$417" />
+              <MockRow label="Top supporters spotted" value="7" />
+            </div>
+            <div className="mt-3 pt-3 border-t border-crwn-elevated text-sm text-crwn-text-secondary">
+              <span className="text-crwn-gold font-medium">Recommendation:</span> post an acoustic snippet tonight, 3 fans likely to upgrade.
+            </div>
+          </MockCard>
         </section>
 
-        <BookCTA sub="Free to start. No card required.">Book my free 15-min call</BookCTA>
-
-        {/* Fees */}
-        <section className="mb-16">
-          <SectionHeading icon={Wallet}>Keep up to 92% of every dollar</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed">
-            Streaming pays fractions of a cent and keeps most of it. On CRWN you keep 88–92% depending on
-            your plan, and every sale, subscription, and tip is paid straight to your bank. No label cut,
-            no 30% middleman.
+        {/* Money flow + fees */}
+        <section className="mb-14">
+          <SectionHeading icon={Wallet}>Keep up to 92%, paid to your bank</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            Streaming pays fractions of a cent and keeps most of it. On CRWN the money flows straight
+            to you, powered by Stripe. No label cut, no 30% middleman.
           </p>
+          <MoneyFlow />
+          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mt-4">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-crwn-text-secondary">You keep</span>
+              <span className="text-crwn-gold font-bold">up to 92%</span>
+            </div>
+            <div className="h-3 rounded-full bg-crwn-elevated overflow-hidden">
+              <div className="h-full bg-crwn-gold rounded-full" style={{ width: '92%' }} />
+            </div>
+            <div className="text-xs text-crwn-text-secondary mt-2">Free plan keeps 88%. Pro keeps 92%. Every plan pays out straight to your bank.</div>
+          </div>
         </section>
 
-        {/* Payouts */}
-        <section className="mb-16">
-          <SectionHeading icon={DollarSign}>Your money, straight to your bank</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed">
-            Everything is powered by Stripe and paid out directly to you. Watch your balance and payout
-            history update in real time. No invoices, no waiting on a label to cut you a check.
+        {/* Payouts mock */}
+        <section className="mb-14">
+          <SectionHeading icon={CreditCard}>Watch it hit your account</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            Track your balance and payout history in real time. No invoices, no waiting on a label.
           </p>
+          <MockCard title="crwn.app · payouts">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-crwn-text-secondary">Available balance</span>
+              <span className="text-2xl font-bold text-crwn-gold">$2,418</span>
+            </div>
+            <div className="space-y-2 text-sm">
+              <MockRow label="Paid out · May 28" value="$1,940" />
+              <MockRow label="Paid out · May 21" value="$1,602" />
+              <MockRow label="Paid out · May 14" value="$1,275" />
+            </div>
+          </MockCard>
         </section>
 
-        {/* Analytics */}
-        <section className="mb-16">
-          <SectionHeading icon={BarChart3}>See who actually supports you</SectionHeading>
-          <p className="text-crwn-text-secondary leading-relaxed">
-            Know your top supporters by name, where your audience lives, and what they engage with most.
-            Your audience, your data, your business, not a platform&apos;s.
+        {/* Analytics mock */}
+        <section className="mb-14">
+          <SectionHeading icon={Users}>See who actually supports you</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            Know your top supporters by name and what they engage with most. Your audience, your data.
           </p>
+          <MockCard title="crwn.app · top supporters">
+            <div className="space-y-3">
+              {[
+                { n: '1', name: 'Jordan', meta: 'VIP · 8 months' },
+                { n: '2', name: 'Maya', meta: '34 plays this week' },
+                { n: '3', name: 'Devin', meta: 'Shared your track 12×' },
+              ].map((f) => (
+                <div key={f.n} className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-full bg-crwn-gold/15 text-crwn-gold font-bold text-sm flex items-center justify-center">{f.n}</div>
+                  <div>
+                    <div className="text-sm font-medium">{f.name}</div>
+                    <div className="text-xs text-crwn-text-secondary">{f.meta}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </MockCard>
         </section>
 
         <BookCTA sub="15 minutes. We&apos;ll build your plan live.">See it on your own catalog</BookCTA>
 
         {/* Objections */}
-        <section className="mb-16">
-          <SectionHeading icon={HelpCircle}>But will this actually work for me?</SectionHeading>
+        <section className="mb-14">
+          <SectionHeading icon={HelpCircle}>But will this work for me?</SectionHeading>
           <div className="space-y-3">
             {OBJECTIONS.map((o) => (
               <div key={o.q} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
@@ -539,8 +606,8 @@ export default function WorthCalculatorPage() {
         </section>
 
         {/* Steps */}
-        <section className="mb-16">
-          <SectionHeading icon={TrendingUp}>How it works</SectionHeading>
+        <section className="mb-14">
+          <SectionHeading icon={Repeat}>How it works</SectionHeading>
           <div className="grid sm:grid-cols-3 gap-3">
             {STEPS.map((s) => (
               <div key={s.n} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
@@ -553,7 +620,7 @@ export default function WorthCalculatorPage() {
         </section>
 
         {/* FAQ */}
-        <section className="mb-16">
+        <section className="mb-14">
           <SectionHeading icon={HelpCircle}>Questions</SectionHeading>
           <div className="divide-y divide-crwn-elevated">
             {FAQS.map((f) => (
@@ -566,21 +633,26 @@ export default function WorthCalculatorPage() {
         </section>
 
         {/* Final recap CTA */}
-        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-8 text-center mb-8">
+        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-8 text-center">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-crwn-gold/20 flex items-center justify-center">
+            <Crown className="w-7 h-7 text-crwn-gold" />
+          </div>
           <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-            You&apos;re leaving {hasNumber ? fmtDollars(result.netAnnualCents) : 'money'} on the table. Let&apos;s go get it.
+            You&apos;re leaving {numberLabel} on the table. Let&apos;s go get it.
           </h2>
           <p className="text-crwn-text-secondary">
             Book a free 15-minute Zoom and we&apos;ll set up every one of these revenue streams with you, live.
           </p>
           <BookCTA sub="Free to start. No card required. Keep up to 92%.">
-            Book a call, claim your {hasNumber ? fmtDollars(result.netAnnualCents) : 'money'}
+            Book a call, claim your {numberLabel}
           </BookCTA>
         </div>
       </div>
     </div>
   );
 }
+
+// ---- Presentational helpers ----
 
 // Reusable "Book a call" CTA, peppered throughout the long-form page.
 function BookCTA({ children, sub }: { children: ReactNode; sub?: string }) {
@@ -601,9 +673,111 @@ function BookCTA({ children, sub }: { children: ReactNode; sub?: string }) {
 
 function SectionHeading({ icon: Icon, children }: { icon: ComponentType<{ className?: string }>; children: ReactNode }) {
   return (
-    <div className="flex items-center gap-2 mb-3">
-      <Icon className="w-5 h-5 text-crwn-gold shrink-0" />
+    <div className="flex items-center gap-2 mb-2">
+      <div className="w-9 h-9 rounded-full bg-crwn-gold/15 flex items-center justify-center shrink-0">
+        <Icon className="w-5 h-5 text-crwn-gold" />
+      </div>
       <h2 className="text-2xl sm:text-3xl font-bold">{children}</h2>
+    </div>
+  );
+}
+
+// A faux product "screenshot" card to break up text with visuals.
+function MockCard({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="bg-crwn-bg border border-crwn-elevated rounded-2xl overflow-hidden">
+      <div className="flex items-center gap-1.5 px-4 py-3 border-b border-crwn-elevated">
+        <span className="w-2.5 h-2.5 rounded-full bg-crwn-elevated" />
+        <span className="w-2.5 h-2.5 rounded-full bg-crwn-elevated" />
+        <span className="w-2.5 h-2.5 rounded-full bg-crwn-elevated" />
+        <span className="ml-2 text-xs text-crwn-text-secondary truncate">{title}</span>
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+function MockRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between py-1.5 border-b border-crwn-elevated/50 last:border-0">
+      <span className="text-crwn-text-secondary">{label}</span>
+      <span className="text-crwn-gold font-medium">{value}</span>
+    </div>
+  );
+}
+
+function CompareTable() {
+  return (
+    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl overflow-hidden">
+      <div className="grid grid-cols-2 text-center">
+        <div className="py-3 text-sm font-semibold text-crwn-text-secondary border-b border-crwn-elevated">Streaming</div>
+        <div className="py-3 text-sm font-semibold text-crwn-gold bg-crwn-gold/5 border-b border-crwn-gold/30">CRWN</div>
+      </div>
+      {COMPARE.map((r) => (
+        <div key={r.label} className="grid grid-cols-2">
+          <div className="px-4 py-3 flex items-start gap-2 border-b border-crwn-elevated/60">
+            <X className="w-4 h-4 text-crwn-text-secondary/50 shrink-0 mt-0.5" />
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-crwn-text-secondary/50">{r.label}</div>
+              <div className="text-sm text-crwn-text-secondary">{r.streaming}</div>
+            </div>
+          </div>
+          <div className="px-4 py-3 flex items-start gap-2 bg-crwn-gold/5 border-b border-crwn-gold/20">
+            <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" />
+            <div>
+              <div className="text-[10px] uppercase tracking-wide text-crwn-gold/70">{r.label}</div>
+              <div className="text-sm text-crwn-text">{r.crwn}</div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Single-hue composition bar (magnitude by opacity step, direct-labeled).
+function RevenueStack() {
+  return (
+    <div>
+      <div className="flex w-full h-8 rounded-full overflow-hidden gap-[2px] bg-crwn-bg">
+        {REVENUE_MIX.map((s, i) => (
+          <div key={s.label} style={{ width: `${s.pct}%`, backgroundColor: `rgba(${GOLD},${MIX_OPACITY[i]})` }} />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mt-4">
+        {REVENUE_MIX.map((s, i) => (
+          <div key={s.label} className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: `rgba(${GOLD},${MIX_OPACITY[i]})` }} />
+            <span className="text-crwn-text-secondary truncate">{s.label}</span>
+            <span className="text-crwn-text font-medium ml-auto">{s.pct}%</span>
+          </div>
+        ))}
+      </div>
+      <p className="text-[11px] text-crwn-text-secondary/70 mt-4">Illustrative mix. Your split depends on what you turn on.</p>
+    </div>
+  );
+}
+
+function MoneyFlow() {
+  const nodes = [
+    { icon: CreditCard, label: 'Fan pays', sub: 'by card' },
+    { icon: Repeat, label: 'CRWN', sub: 'handles it' },
+    { icon: Landmark, label: 'Your bank', sub: 'up to 92%' },
+  ];
+  return (
+    <div className="flex items-stretch justify-between gap-2">
+      {nodes.map((n, i) => (
+        <div key={n.label} className="flex items-center gap-2 flex-1">
+          <div className="flex-1 bg-crwn-surface border border-crwn-elevated rounded-2xl p-4 text-center">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-crwn-gold/15 flex items-center justify-center">
+              <n.icon className="w-5 h-5 text-crwn-gold" />
+            </div>
+            <div className="text-sm font-semibold">{n.label}</div>
+            <div className="text-[11px] text-crwn-text-secondary">{n.sub}</div>
+          </div>
+          {i < nodes.length - 1 && <ArrowRight className="w-4 h-4 text-crwn-gold shrink-0" />}
+        </div>
+      ))}
     </div>
   );
 }
