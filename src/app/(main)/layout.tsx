@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Navigation } from '@/components/layout/Navigation';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 
@@ -20,6 +21,37 @@ export default function MainLayout({
   const needsOnboarding =
     !!user && !!profile && profile.role !== 'admin' && !profile.onboarding_completed;
 
+  // Second gate: an artist who finished /welcome but hasn't completed the focused
+  // setup wizard (/setup) is held there — the rest of the app is unreachable until
+  // Profile + Music are done and they reach the share screen. `null` = not yet
+  // resolved (block the shell to avoid a flash-then-redirect), true/false = answer.
+  const isArtist = !!profile && profile.role === 'artist';
+  const [needsSetup, setNeedsSetup] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function checkSetup() {
+      if (isLoading || !user || !profile) return;
+      if (profile.role !== 'artist') {
+        setNeedsSetup(false);
+        return;
+      }
+      const supabase = createBrowserSupabaseClient();
+      const { data } = await supabase
+        .from('artist_profiles')
+        .select('setup_completed')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!active) return;
+      // No artist_profiles row yet → nothing to gate on (welcome hasn't inserted it).
+      setNeedsSetup(!!data && data.setup_completed === false);
+    }
+    checkSetup();
+    return () => {
+      active = false;
+    };
+  }, [user, profile, isLoading]);
+
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
@@ -31,8 +63,13 @@ export default function MainLayout({
     // land on a (main) page, so gating here catches every bypass path into /welcome.
     if (needsOnboarding) {
       router.push('/welcome');
+      return;
     }
-  }, [user, needsOnboarding, isLoading, router]);
+    // Then hold artists in the focused setup wizard until it's complete.
+    if (needsSetup) {
+      router.push('/setup');
+    }
+  }, [user, needsOnboarding, needsSetup, isLoading, router]);
 
 
   if (!isLoading && !user) {
@@ -41,6 +78,15 @@ export default function MainLayout({
 
   // Avoid flashing the app shell while we redirect an unonboarded user to /welcome.
   if (needsOnboarding) {
+    return null;
+  }
+
+  // Block the shell until we know whether an artist still needs setup (null), and
+  // while we redirect them to /setup (true). Fans/admins resolve to false instantly.
+  if (isArtist && needsSetup === null) {
+    return null;
+  }
+  if (needsSetup) {
     return null;
   }
 

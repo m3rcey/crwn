@@ -126,10 +126,10 @@ export default function WelcomePage() {
           body: JSON.stringify({ milestone: 'onboarding_completed' }),
         }).catch(() => {});
       }
-      // Artists land on the Tiers tab (Stripe Connect + tier creation — the monetization
-      // gate that turns a signup into a paid artist) instead of the generic home feed.
-      // Fans go home. Tour still fires based on role.
-      router.push(effectiveRole === 'artist' ? '/profile/artist?tab=tiers' : '/home');
+      // Artists go into the focused, gated setup wizard (Profile → Monetize → Music →
+      // Shop → share link). They can't use the rest of the app until it's done. Fans
+      // go straight home.
+      router.push(effectiveRole === 'artist' ? '/setup' : '/home');
     } catch (err) {
       console.error('Onboarding error:', err);
       setIsSubmitting(false);
