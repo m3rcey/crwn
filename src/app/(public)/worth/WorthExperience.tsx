@@ -207,7 +207,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             <button
               key={p.key}
               onClick={() => setPreset(p.key)}
-              className={`py-2 px-3 rounded-full text-sm font-medium transition-colors ${
+              className={`py-2 px-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
                 preset === p.key
                   ? 'bg-crwn-gold text-crwn-bg'
                   : 'bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
@@ -268,8 +268,8 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
       </div>
       <p className="text-xs text-crwn-text-secondary/70 mt-4">
         Estimate from {fmtCount(result.addressable)} addressable fans ·{' '}
-        {Math.round(assumptions.superfanRate * 1000) / 10}% become paying superfans. Adjust the
-        assumptions {homepage ? 'below' : 'above'}. The math is yours to check.
+        {Math.round(assumptions.superfanRate * 1000) / 10}% become paying superfans. Flip the presets
+        to adjust. The math is yours to check.
       </p>
     </>
   ) : null;
@@ -387,9 +387,12 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
             {hasNumber ? fmtDollars(result.netMrrCents) : '–'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
           </div>
-          <div className={`text-crwn-text-secondary ${homepage ? '' : 'mb-6'}`}>
+          <div className={`text-crwn-text-secondary ${homepage ? 'mb-2' : 'mb-6'}`}>
             on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
           </div>
+          {/* Homepage: preset dial sits right under the number so they can flip it
+              and watch the figure move; the advanced sliders live inside it too. */}
+          {homepage && <div className="text-left max-w-md mx-auto">{assumptionsBlock}</div>}
           {!homepage && statsGrid}
         </div>
 
@@ -397,15 +400,10 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             the ask share the viewport the moment the visitor jumps here. */}
         {emailCaptureCard}
 
-        {/* Homepage: supporting stats + assumptions live below the CTA. */}
+        {/* Homepage: supporting stats live below the CTA. */}
         {homepage && hasNumber && (
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-6">
+          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
             {statsGrid}
-          </div>
-        )}
-        {homepage && (
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl px-6 pb-6 pt-2 mb-14">
-            {assumptionsBlock}
           </div>
         )}
 
