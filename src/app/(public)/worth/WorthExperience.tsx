@@ -407,36 +407,6 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </div>
         )}
 
-        {/* Streaming vs CRWN */}
-        <section className="mb-14">
-          <SectionHeading icon={DollarSign}>Streaming vs. CRWN</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
-            Same fans. Wildly different math. Streaming rents your audience back to you.
-          </p>
-          <CompareTable />
-        </section>
-
-        {/* Fan math */}
-        <section className="mb-6">
-          <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
-            A small group of real supporters changes everything. Do the math on paying fans, not plays:
-          </p>
-          <div className="grid grid-cols-3 gap-3">
-            {FAN_MATH.map((m) => (
-              <div key={m.fans} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-crwn-gold">{m.fans}</div>
-                <div className="text-xs text-crwn-text-secondary mb-2">fans × $15/mo</div>
-                <div className="text-lg font-semibold">{m.rev}/mo</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <PrimaryCTA homepage={homepage} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
-          {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
-        </PrimaryCTA>
-
         {/* Where the number comes from */}
         <section className="mb-14">
           <SectionHeading icon={BarChart3}>Where {hasNumber ? fmtDollars(result.netMrrCents) + '/mo' : 'the number'} comes from</SectionHeading>
@@ -497,6 +467,36 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </p>
           <TiersMock subs={hasNumber ? { t1: result.tier1Subs, t2: result.tier2Subs, t3: result.tier3Subs } : undefined} />
         </section>
+
+        {/* Streaming vs CRWN */}
+        <section className="mb-14">
+          <SectionHeading icon={DollarSign}>Streaming vs. CRWN</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            Same fans. Wildly different math. Streaming rents your audience back to you.
+          </p>
+          <CompareTable />
+        </section>
+
+        {/* Fan math */}
+        <section className="mb-6">
+          <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            A small group of real supporters changes everything. Do the math on paying fans, not plays:
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {FAN_MATH.map((m) => (
+              <div key={m.fans} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-crwn-gold">{m.fans}</div>
+                <div className="text-xs text-crwn-text-secondary mb-2">fans × $15/mo</div>
+                <div className="text-lg font-semibold">{m.rev}/mo</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <PrimaryCTA homepage={homepage} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
+          {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
+        </PrimaryCTA>
 
         {/* Everything you can charge for */}
         <section className="mb-14">
