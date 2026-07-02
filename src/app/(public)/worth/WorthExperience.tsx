@@ -251,6 +251,88 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
     </>
   );
 
+  // Supporting stats. Inside the result card on /worth; a separate card below the
+  // CTA on the homepage (so the reveal pairs the number with the ask).
+  const statsGrid = hasNumber ? (
+    <>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-left">
+        <Stat label="Per year" value={fmtDollars(result.netAnnualCents)} />
+        <Stat label="Paying superfans" value={fmtCount(result.payers)} />
+        <Stat
+          label="vs. streaming income"
+          value={result.multipleVsStreaming ? `${Math.round(result.multipleVsStreaming)}×` : '–'}
+        />
+        <Stat label="Subscriptions / mo" value={fmtDollars(result.subsMrrCents)} />
+        <Stat label="À la carte / mo" value={fmtDollars(result.alacarteMrrCents)} />
+        <Stat label="Streaming / mo" value={fmtDollars(result.streamingMrrCents)} />
+      </div>
+      <p className="text-xs text-crwn-text-secondary/70 mt-4">
+        Estimate from {fmtCount(result.addressable)} addressable fans ·{' '}
+        {Math.round(assumptions.superfanRate * 1000) / 10}% become paying superfans. Adjust the
+        assumptions {homepage ? 'below' : 'above'}. The math is yours to check.
+      </p>
+    </>
+  ) : null;
+
+  const emailCaptureCard = (
+    <div className={`bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 ${homepage ? 'mb-6' : 'mb-14'}`}>
+      {captureState === 'done' ? (
+        <div className="flex items-center gap-2 text-crwn-gold justify-center py-2">
+          <Check className="w-5 h-5" /> On its way. Check your inbox for the full breakdown.
+        </div>
+      ) : (
+        <>
+          <div className="text-center mb-4">
+            <div className="font-semibold mb-1">Get your full breakdown + the setup blueprint</div>
+            <div className="text-sm text-crwn-text-secondary">
+              We&apos;ll email the numbers and the exact tier setup to copy.
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); if (captureState === 'error') setCaptureState('idle'); }}
+              placeholder="you@email.com"
+              className="flex-1 px-4 py-3 bg-crwn-bg border border-crwn-elevated rounded-xl text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold transition-colors"
+            />
+            <button
+              onClick={handleCapture}
+              disabled={captureState === 'sending'}
+              className="px-6 py-3 bg-crwn-elevated text-crwn-text font-medium rounded-full hover:bg-crwn-elevated/70 transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              {captureState === 'sending' ? 'Sending…' : 'Email it to me'}
+            </button>
+          </div>
+          {captureState === 'error' && (
+            <p className="text-xs text-red-400 mt-2 text-center">Enter a valid email and try again.</p>
+          )}
+        </>
+      )}
+
+      {homepage ? (
+        <a
+          href="/signup?ref=homepage"
+          className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
+        >
+          Set up my page free, keep this money <ArrowRight className="w-5 h-5" />
+        </a>
+      ) : (
+        <a
+          href={BOOK_CALL_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
+        >
+          Book a free 15-min call, keep this money <ArrowRight className="w-5 h-5" />
+        </a>
+      )}
+      <p className="text-center text-xs text-crwn-text-secondary mt-3">
+        {homepage ? 'Free to start. No card required. Set up your tiers in minutes.' : 'A quick Zoom. We’ll show you exactly how to capture this. No pitch.'}
+      </p>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
       {homepage && <HomeNav />}
@@ -295,7 +377,9 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </button>
         )}
 
-        {/* Result */}
+        {/* Result: the number. On the homepage this is the scroll target and stays
+            compact so the CTA below it shares the viewport; on /worth the stats
+            stay inside. */}
         <div id="worth-result" className="scroll-mt-20 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8 mb-6 text-center">
           <div className="text-sm uppercase tracking-wide text-crwn-text-secondary mb-2">
             You&apos;re leaving roughly
@@ -303,96 +387,27 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
             {hasNumber ? fmtDollars(result.netMrrCents) : '–'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
           </div>
-          <div className="text-crwn-text-secondary mb-6">
+          <div className={`text-crwn-text-secondary ${homepage ? '' : 'mb-6'}`}>
             on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
           </div>
-
-          {hasNumber && (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-left">
-                <Stat label="Per year" value={fmtDollars(result.netAnnualCents)} />
-                <Stat label="Paying superfans" value={fmtCount(result.payers)} />
-                <Stat
-                  label="vs. streaming income"
-                  value={result.multipleVsStreaming ? `${Math.round(result.multipleVsStreaming)}×` : '–'}
-                />
-                <Stat label="Subscriptions / mo" value={fmtDollars(result.subsMrrCents)} />
-                <Stat label="À la carte / mo" value={fmtDollars(result.alacarteMrrCents)} />
-                <Stat label="Streaming / mo" value={fmtDollars(result.streamingMrrCents)} />
-              </div>
-              <p className="text-xs text-crwn-text-secondary/70 mt-4">
-                Estimate from {fmtCount(result.addressable)} addressable fans ·{' '}
-                {Math.round(assumptions.superfanRate * 1000) / 10}% become paying superfans. Adjust the
-                assumptions below. The math is yours to check.
-              </p>
-            </>
-          )}
+          {!homepage && statsGrid}
         </div>
 
-        {/* Homepage: assumptions live under the result to keep the hero tight */}
+        {/* Email capture + primary CTA — right under the reveal so the number and
+            the ask share the viewport the moment the visitor jumps here. */}
+        {emailCaptureCard}
+
+        {/* Homepage: supporting stats + assumptions live below the CTA. */}
+        {homepage && hasNumber && (
+          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-6">
+            {statsGrid}
+          </div>
+        )}
         {homepage && (
           <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl px-6 pb-6 pt-2 mb-14">
             {assumptionsBlock}
           </div>
         )}
-
-        {/* Email capture + CTA */}
-        <div className={`bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14 ${homepage ? '' : ''}`}>
-          {captureState === 'done' ? (
-            <div className="flex items-center gap-2 text-crwn-gold justify-center py-2">
-              <Check className="w-5 h-5" /> On its way. Check your inbox for the full breakdown.
-            </div>
-          ) : (
-            <>
-              <div className="text-center mb-4">
-                <div className="font-semibold mb-1">Get your full breakdown + the setup blueprint</div>
-                <div className="text-sm text-crwn-text-secondary">
-                  We&apos;ll email the numbers and the exact tier setup to copy.
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); if (captureState === 'error') setCaptureState('idle'); }}
-                  placeholder="you@email.com"
-                  className="flex-1 px-4 py-3 bg-crwn-bg border border-crwn-elevated rounded-xl text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold transition-colors"
-                />
-                <button
-                  onClick={handleCapture}
-                  disabled={captureState === 'sending'}
-                  className="px-6 py-3 bg-crwn-elevated text-crwn-text font-medium rounded-full hover:bg-crwn-elevated/70 transition-colors disabled:opacity-50 whitespace-nowrap"
-                >
-                  {captureState === 'sending' ? 'Sending…' : 'Email it to me'}
-                </button>
-              </div>
-              {captureState === 'error' && (
-                <p className="text-xs text-red-400 mt-2 text-center">Enter a valid email and try again.</p>
-              )}
-            </>
-          )}
-
-          {homepage ? (
-            <a
-              href="/signup?ref=homepage"
-              className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
-            >
-              Set up my page free, keep this money <ArrowRight className="w-5 h-5" />
-            </a>
-          ) : (
-            <a
-              href={BOOK_CALL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
-            >
-              Book a free 15-min call, keep this money <ArrowRight className="w-5 h-5" />
-            </a>
-          )}
-          <p className="text-center text-xs text-crwn-text-secondary mt-3">
-            {homepage ? 'Free to start. No card required. Set up your tiers in minutes.' : 'A quick Zoom. We’ll show you exactly how to capture this. No pitch.'}
-          </p>
-        </div>
 
         {/* Streaming vs CRWN */}
         <section className="mb-14">
