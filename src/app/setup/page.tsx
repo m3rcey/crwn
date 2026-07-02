@@ -9,70 +9,97 @@ import {
   ArrowRight,
   Copy,
   Palette,
+  Quote,
   CreditCard,
   Music,
   ShoppingBag,
   PartyPopper,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useArtistSetup, SetupStepKey } from '@/hooks/useArtistSetup';
+import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtistSetup';
 import { useToast } from '@/components/shared/Toast';
-import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
+import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
+import { OnboardingTaglineStep } from '@/components/onboarding/OnboardingTaglineStep';
 import { TierManager } from '@/components/artist/TierManager';
 import { MusicManager } from '@/components/artist/MusicManager';
 import { ShopManager } from '@/components/artist/ShopManager';
 
-const STEP_META: Record<SetupStepKey, { title: string; subtitle: string; icon: typeof Palette }> = {
-  profile: {
-    title: 'Set up your artist page',
-    subtitle: 'Add a profile photo and a tagline so fans know who they’re following.',
-    icon: Palette,
-  },
-  monetize: {
-    title: 'Turn on subscriptions',
-    subtitle:
-      'Connect Stripe and create at least one tier so fans can pay you. Haven’t got a minute for Stripe? Create a tier now and finish connecting later.',
-    icon: CreditCard,
-  },
-  music: {
-    title: 'Upload your first track',
-    subtitle: 'This is what fans come to hear. Add at least one track to go live.',
-    icon: Music,
-  },
-  shop: {
-    title: 'Add something to your shop',
-    subtitle: 'Sell digital products, merch, or experiences. Optional — skip if you’re not ready.',
-    icon: ShoppingBag,
-  },
-};
+// One thing per screen. Each screen belongs to a group (the four chips up top) and
+// derives its completion from live DB data via the setup hook.
+type ScreenKey = 'photo' | 'tagline' | 'tier' | 'track' | 'product';
 
-function StepBody({ stepKey }: { stepKey: SetupStepKey }) {
-  switch (stepKey) {
-    case 'profile':
-      return <ArtistProfileForm mode="onboarding" />;
-    case 'monetize':
-      return <TierManager />;
-    case 'music':
-      return <MusicManager />;
-    case 'shop':
-      return <ShopManager />;
-  }
+interface ScreenDef {
+  key: ScreenKey;
+  group: SetupStepKey;
+  required: boolean;
+  title: string;
+  subtitle: string;
+  icon: typeof Palette;
+  done: (s: ArtistSetupState) => boolean;
+  /** Embedded managers get a card wrapper; the focused profile steps don't. */
+  card: boolean;
 }
+
+const SCREENS: ScreenDef[] = [
+  {
+    key: 'photo',
+    group: 'profile',
+    required: true,
+    title: 'Add a profile photo',
+    subtitle: 'A face or logo is the first thing fans trust. Just one photo.',
+    icon: Palette,
+    done: (s) => s.hasAvatar,
+    card: false,
+  },
+  {
+    key: 'tagline',
+    group: 'profile',
+    required: true,
+    title: 'Write your tagline',
+    subtitle: 'One line that tells fans who you are.',
+    icon: Quote,
+    done: (s) => s.hasTagline,
+    card: false,
+  },
+  {
+    key: 'tier',
+    group: 'monetize',
+    required: false,
+    title: 'Set up a subscription tier',
+    subtitle: 'Let fans pay you monthly. Connect Stripe now or finish it later.',
+    icon: CreditCard,
+    done: (s) => s.hasTier,
+    card: true,
+  },
+  {
+    key: 'track',
+    group: 'music',
+    required: true,
+    title: 'Upload your first track',
+    subtitle: 'This is what fans come to hear. Add one to go live.',
+    icon: Music,
+    done: (s) => s.hasMusic,
+    card: true,
+  },
+  {
+    key: 'product',
+    group: 'shop',
+    required: false,
+    title: 'Add something to your shop',
+    subtitle: 'Sell merch, downloads, or experiences. Optional — skip if not ready.',
+    icon: ShoppingBag,
+    done: (s) => s.hasProduct,
+    card: true,
+  },
+];
 
 function SetupWizard() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
-  const {
-    loading,
-    isArtist,
-    slug,
-    setupCompleted,
-    steps,
-    stripeConnected,
-    refresh,
-    markComplete,
-  } = useArtistSetup();
+  const setup = useArtistSetup();
+  const { loading, isArtist, slug, setupCompleted, steps, stripeConnected, avatarUrl, tagline, refresh, markComplete } =
+    setup;
 
   const [stepIndex, setStepIndex] = useState(0);
   const [phase, setPhase] = useState<'steps' | 'share'>('steps');
@@ -82,10 +109,7 @@ function SetupWizard() {
   // ---- Route guards ------------------------------------------------------
   useEffect(() => {
     if (authLoading) return;
-    if (!user) {
-      router.replace('/login');
-      return;
-    }
+    if (!user) router.replace('/login');
   }, [authLoading, user, router]);
 
   useEffect(() => {
@@ -94,27 +118,23 @@ function SetupWizard() {
       router.replace('/home');
       return;
     }
-    if (setupCompleted) {
-      router.replace('/profile/artist');
-    }
+    if (setupCompleted) router.replace('/profile/artist');
   }, [loading, isArtist, setupCompleted, user, router]);
 
-  // ---- Resume at the first incomplete step (runs once) -------------------
+  // ---- Resume at the first incomplete screen (runs once) -----------------
   useEffect(() => {
     if (loading || initRef.current) return;
     initRef.current = true;
-    const firstIncomplete = steps.findIndex((s) => !s.done);
-    if (firstIncomplete === -1) {
-      setPhase('share');
-    } else {
-      setStepIndex(firstIncomplete);
-    }
-  }, [loading, steps]);
+    const firstIncomplete = SCREENS.findIndex((sc) => !sc.done(setup));
+    if (firstIncomplete === -1) setPhase('share');
+    else setStepIndex(firstIncomplete);
+  }, [loading, setup]);
 
-  // ---- Live re-check so Continue unlocks the moment a step is satisfied ---
-  const current = steps[stepIndex];
+  // ---- Live re-check so Continue unlocks the moment a screen is satisfied -
+  const current = SCREENS[stepIndex];
+  const currentDone = current ? current.done(setup) : false;
   useEffect(() => {
-    if (phase !== 'steps' || !current || current.done) return;
+    if (phase !== 'steps' || !current || currentDone) return;
     const iv = setInterval(refresh, 5000);
     const onFocus = () => refresh();
     window.addEventListener('focus', onFocus);
@@ -122,7 +142,7 @@ function SetupWizard() {
       clearInterval(iv);
       window.removeEventListener('focus', onFocus);
     };
-  }, [phase, stepIndex, current?.done, refresh]);
+  }, [phase, stepIndex, currentDone, current, refresh]);
 
   if (loading || authLoading || !current) {
     return (
@@ -132,16 +152,13 @@ function SetupWizard() {
     );
   }
 
-  const completedCount = steps.filter((s) => s.done).length;
-  const progressPct = phase === 'share' ? 100 : Math.round((completedCount / steps.length) * 100);
+  const completedScreens = SCREENS.filter((sc) => sc.done(setup)).length;
+  const progressPct = phase === 'share' ? 100 : Math.round((completedScreens / SCREENS.length) * 100);
 
   const goNext = async () => {
     await refresh();
-    if (stepIndex >= steps.length - 1) {
-      setPhase('share');
-    } else {
-      setStepIndex((i) => i + 1);
-    }
+    if (stepIndex >= SCREENS.length - 1) setPhase('share');
+    else setStepIndex((i) => i + 1);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -150,28 +167,51 @@ function SetupWizard() {
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ---- Share screen ------------------------------------------------------
+  async function handleFinish() {
+    setFinishing(true);
+    try {
+      await markComplete();
+      router.replace('/profile/artist');
+    } catch {
+      setFinishing(false);
+      showToast('Something went wrong. Please try again.', 'error');
+    }
+  }
+
   if (phase === 'share') {
     return <ShareScreen slug={slug} finishing={finishing} onFinish={handleFinish} showToast={showToast} />;
   }
 
-  const Meta = STEP_META[current.key];
-  const Icon = Meta.icon;
-  const canContinue = current.done || !current.required;
+  const Icon = current.icon;
+  const canContinue = currentDone || !current.required;
+
+  const renderScreen = () => {
+    switch (current.key) {
+      case 'photo':
+        return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={refresh} />;
+      case 'tagline':
+        return <OnboardingTaglineStep initialValue={tagline} onSaved={refresh} />;
+      case 'tier':
+        return <TierManager />;
+      case 'track':
+        return <MusicManager />;
+      case 'product':
+        return <ShopManager />;
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Progress header — sticky so it stays visible while forms scroll */}
+      {/* Progress header */}
       <header className="sticky top-0 z-20 bg-crwn-bg/80 backdrop-blur-md border-b border-crwn-elevated">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-5 pb-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-crwn-gold font-bold tracking-tight">CRWN setup</span>
             <span className="text-xs text-crwn-text-secondary">
-              Step {stepIndex + 1} of {steps.length}
+              Step {stepIndex + 1} of {SCREENS.length}
             </span>
           </div>
 
-          {/* Fill bar */}
           <div className="h-1.5 rounded-full bg-crwn-elevated overflow-hidden mb-4">
             <div
               className="h-full bg-crwn-gold rounded-full transition-all duration-500"
@@ -179,33 +219,32 @@ function SetupWizard() {
             />
           </div>
 
-          {/* Step chips */}
+          {/* Group chips (Profile / Monetize / Music / Shop) for orientation */}
           <div className="flex items-center gap-2">
-            {steps.map((s, i) => {
-              const state = s.done ? 'done' : i === stepIndex ? 'active' : 'todo';
+            {steps.map((g, i) => {
+              const isActive = g.key === current.group;
+              const state = g.done ? 'done' : isActive ? 'active' : 'todo';
               return (
-                <div key={s.key} className="flex items-center gap-2 flex-1 min-w-0">
-                  <div
-                    className={`flex items-center gap-1.5 min-w-0 ${
+                <div key={g.key} className="flex items-center gap-1.5 flex-1 min-w-0">
+                  <span
+                    className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border ${
+                      state === 'done'
+                        ? 'bg-crwn-gold text-crwn-bg border-crwn-gold'
+                        : state === 'active'
+                        ? 'border-crwn-gold text-crwn-gold'
+                        : 'border-crwn-elevated text-crwn-text-secondary/60'
+                    }`}
+                  >
+                    {g.done ? <Check className="w-3 h-3" /> : i + 1}
+                  </span>
+                  <span
+                    className={`text-xs font-medium truncate ${
                       state === 'active' ? 'text-crwn-gold' : state === 'done' ? 'text-crwn-text' : 'text-crwn-text-secondary/60'
                     }`}
                   >
-                    <span
-                      className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border ${
-                        state === 'done'
-                          ? 'bg-crwn-gold text-crwn-bg border-crwn-gold'
-                          : state === 'active'
-                          ? 'border-crwn-gold text-crwn-gold'
-                          : 'border-crwn-elevated text-crwn-text-secondary/60'
-                      }`}
-                    >
-                      {s.done ? <Check className="w-3 h-3" /> : i + 1}
-                    </span>
-                    <span className="text-xs font-medium truncate">
-                      {s.label}
-                      {!s.required && <span className="hidden sm:inline text-crwn-text-secondary/50"> · optional</span>}
-                    </span>
-                  </div>
+                    {g.label}
+                    {!g.required && <span className="hidden sm:inline text-crwn-text-secondary/50"> · optional</span>}
+                  </span>
                 </div>
               );
             })}
@@ -213,7 +252,7 @@ function SetupWizard() {
         </div>
       </header>
 
-      {/* Step content */}
+      {/* One-thing screen */}
       <main className="flex-1">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-start gap-3 mb-6">
@@ -221,9 +260,9 @@ function SetupWizard() {
               <Icon className="w-5 h-5 text-crwn-gold" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-crwn-text">{Meta.title}</h1>
-              <p className="text-crwn-text-secondary text-sm mt-1">{Meta.subtitle}</p>
-              {current.key === 'monetize' && !stripeConnected && (
+              <h1 className="text-2xl font-bold text-crwn-text">{current.title}</h1>
+              <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
+              {current.key === 'tier' && !stripeConnected && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
                   Stripe isn’t connected yet — that’s fine, you can finish it any time from your dashboard.
                 </p>
@@ -231,14 +270,15 @@ function SetupWizard() {
             </div>
           </div>
 
-          {/* Embedded manager */}
-          <div className="neu-raised rounded-2xl p-4 sm:p-6">
-            <StepBody stepKey={current.key} />
-          </div>
+          {current.card ? (
+            <div className="neu-raised rounded-2xl p-4 sm:p-6">{renderScreen()}</div>
+          ) : (
+            <div className="py-4">{renderScreen()}</div>
+          )}
         </div>
       </main>
 
-      {/* Sticky footer nav */}
+      {/* Footer nav */}
       <footer className="sticky bottom-0 z-20 bg-crwn-bg/90 backdrop-blur-md border-t border-crwn-elevated">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <button
@@ -251,7 +291,7 @@ function SetupWizard() {
           </button>
 
           <div className="flex items-center gap-3">
-            {!current.required && !current.done && (
+            {!current.required && !currentDone && (
               <button
                 onClick={goNext}
                 className="px-4 py-2.5 rounded-full text-sm font-medium text-crwn-text-secondary hover:text-crwn-text transition-colors"
@@ -267,13 +307,11 @@ function SetupWizard() {
                 className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {!canContinue && <Lock className="w-4 h-4" />}
-                {stepIndex >= steps.length - 1 ? 'Finish setup' : 'Continue'}
+                {stepIndex >= SCREENS.length - 1 ? 'Finish setup' : 'Continue'}
                 {canContinue && <ArrowRight className="w-4 h-4" />}
               </button>
               {!canContinue && (
-                <span className="text-[11px] text-crwn-text-secondary mt-1.5">
-                  Complete this step to continue
-                </span>
+                <span className="text-[11px] text-crwn-text-secondary mt-1.5">Complete this step to continue</span>
               )}
             </div>
           </div>
@@ -281,17 +319,6 @@ function SetupWizard() {
       </footer>
     </div>
   );
-
-  async function handleFinish() {
-    setFinishing(true);
-    try {
-      await markComplete();
-      router.replace('/profile/artist');
-    } catch {
-      setFinishing(false);
-      showToast('Something went wrong. Please try again.', 'error');
-    }
-  }
 }
 
 function ShareScreen({
@@ -318,18 +345,9 @@ function ShareScreen({
   };
 
   const socials = [
-    {
-      label: 'Share on X',
-      href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
-    },
-    {
-      label: 'Share on Facebook',
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-    },
-    {
-      label: 'Share on WhatsApp',
-      href: `https://wa.me/?text=${encodeURIComponent(shareText)}`,
-    },
+    { label: 'Share on X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}` },
+    { label: 'Share on Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+    { label: 'Share on WhatsApp', href: `https://wa.me/?text=${encodeURIComponent(shareText)}` },
   ];
 
   return (
@@ -340,11 +358,10 @@ function ShareScreen({
         </div>
         <h1 className="text-3xl font-bold text-crwn-text mb-2">Your page is live 🎉</h1>
         <p className="text-crwn-text-secondary mb-8">
-          Setup done. Now the most important step: get people on it. Share your link everywhere —
-          your bio, your stories, your group chats.
+          Setup done. Now the most important step: get people on it. Share your link everywhere — your bio, your
+          stories, your group chats.
         </p>
 
-        {/* The link */}
         <div className="neu-raised rounded-2xl p-4 mb-4 flex items-center gap-3">
           <div className="flex-1 min-w-0 text-left">
             <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-0.5">Your CRWN link</p>
@@ -359,7 +376,6 @@ function ShareScreen({
           </button>
         </div>
 
-        {/* Social buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           {socials.map((s) => (
             <a

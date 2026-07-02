@@ -18,8 +18,18 @@ export interface ArtistSetupState {
   isArtist: boolean;
   artistId: string | null;
   slug: string;
+  tagline: string;
+  avatarUrl: string;
   setupCompleted: boolean;
   steps: SetupStep[];
+  // Granular per-field completion — the wizard asks one thing per screen, so it
+  // needs avatar and tagline broken out (the `profile` step above is the two
+  // combined, kept for the hard gate / summary).
+  hasAvatar: boolean;
+  hasTagline: boolean;
+  hasMusic: boolean;
+  hasTier: boolean;
+  hasProduct: boolean;
   stripeConnected: boolean;
   allRequiredDone: boolean;
   refresh: () => Promise<void>;
@@ -45,8 +55,11 @@ export function useArtistSetup(): ArtistSetupState {
   const [loading, setLoading] = useState(true);
   const [artistId, setArtistId] = useState<string | null>(null);
   const [slug, setSlug] = useState('');
+  const [tagline, setTagline] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [setupCompleted, setSetupCompleted] = useState(false);
-  const [hasProfile, setHasProfile] = useState(false);
+  const [hasAvatar, setHasAvatar] = useState(false);
+  const [hasTagline, setHasTagline] = useState(false);
   const [hasMusic, setHasMusic] = useState(false);
   const [hasTier, setHasTier] = useState(false);
   const [hasProduct, setHasProduct] = useState(false);
@@ -88,9 +101,13 @@ export function useArtistSetup(): ArtistSetupState {
     setSlug(ap.slug || '');
     setSetupCompleted(!!ap.setup_completed);
 
-    // Profile is "done" when it has both a face and a tagline — the two things
-    // that make a shared link worth clicking.
-    setHasProfile(!!profileRes.data?.avatar_url && !!(ap.tagline && ap.tagline.trim()));
+    // The two things that make a shared link worth clicking — asked one per screen.
+    const avatar = profileRes.data?.avatar_url || '';
+    const tag = ap.tagline || '';
+    setAvatarUrl(avatar);
+    setTagline(tag);
+    setHasAvatar(!!avatar);
+    setHasTagline(!!tag.trim());
 
     const [tracks, tiers, products] = await Promise.all([
       supabase.from('tracks').select('id', { count: 'exact', head: true }).eq('artist_id', ap.id),
@@ -137,7 +154,7 @@ export function useArtistSetup(): ArtistSetupState {
   }, [user, supabase]);
 
   const steps: SetupStep[] = [
-    { key: 'profile', label: 'Profile', required: true, done: hasProfile },
+    { key: 'profile', label: 'Profile', required: true, done: hasAvatar && hasTagline },
     { key: 'monetize', label: 'Monetize', required: false, done: hasTier },
     { key: 'music', label: 'Music', required: true, done: hasMusic },
     { key: 'shop', label: 'Shop', required: false, done: hasProduct },
@@ -150,8 +167,15 @@ export function useArtistSetup(): ArtistSetupState {
     isArtist: !!isArtist,
     artistId,
     slug,
+    tagline,
+    avatarUrl,
     setupCompleted,
     steps,
+    hasAvatar,
+    hasTagline,
+    hasMusic,
+    hasTier,
+    hasProduct,
     stripeConnected,
     allRequiredDone,
     refresh: load,
