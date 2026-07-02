@@ -59,6 +59,10 @@ BEGIN
       WHERE con.contype = 'f'
         AND array_length(con.conkey, 1) = 1        -- single-column FKs only
         AND nsp.nspname = 'public'                  -- only clean public schema
+        -- NEVER sweep the parent tables themselves — deleting profiles/artist_profiles
+        -- here would cascade before their non-cascade children (sequences) are cleared.
+        -- They're removed explicitly, in order, after the sweep.
+        AND rel.relname NOT IN ('profiles', 'artist_profiles')
         AND (
           (tgt.relname = 'artist_profiles' AND tnsp.nspname = 'public') OR
           (tgt.relname = 'profiles'        AND tnsp.nspname = 'public') OR
