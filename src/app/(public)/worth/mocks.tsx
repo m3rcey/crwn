@@ -322,7 +322,7 @@ export function ShopMock() {
   const { ref, isInView } = useInView();
   const items = [
     { name: 'Early Access Pass', price: '$10', desc: 'Every release, 7 days early.', Icon: ShoppingBag },
-    { name: 'Producer Pack Vol. 1', price: '$25', desc: '5 beats, stems included.', Icon: Disc3 },
+    { name: 'Unreleased Pack', price: '$25', desc: '5 demos + unreleased cuts.', Icon: Disc3 },
   ];
   return (
     <PhoneFrame>
