@@ -13,98 +13,104 @@ import {
   CreditCard,
   Music,
   ShoppingBag,
+  UploadCloud,
   PartyPopper,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtistSetup';
 import { useToast } from '@/components/shared/Toast';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
 import { OnboardingTaglineStep } from '@/components/onboarding/OnboardingTaglineStep';
-import { TierManager } from '@/components/artist/TierManager';
-import { MusicManager } from '@/components/artist/MusicManager';
-import { ShopManager } from '@/components/artist/ShopManager';
+import {
+  createOnboardingTrack,
+  createOnboardingTier,
+  createOnboardingProduct,
+} from '@/lib/onboardingItems';
+import type { ProductType } from '@/types';
 
-// One thing per screen. Each screen belongs to a group (the four chips up top) and
-// derives its completion from live DB data via the setup hook.
-type ScreenKey = 'photo' | 'tagline' | 'tier' | 'track' | 'product';
+type ScreenKey =
+  | 'photo'
+  | 'tagline'
+  | 'tier-name'
+  | 'tier-price'
+  | 'track-audio'
+  | 'track-title'
+  | 'product-type'
+  | 'product-title'
+  | 'product-price';
 
 interface ScreenDef {
   key: ScreenKey;
   group: SetupStepKey;
-  required: boolean;
+  groupRequired: boolean;
   title: string;
   subtitle: string;
   icon: typeof Palette;
-  done: (s: ArtistSetupState) => boolean;
-  /** Embedded managers get a card wrapper; the focused profile steps don't. */
-  card: boolean;
+  create?: 'tier' | 'track' | 'product'; // last field of the item → create on Continue
 }
 
+// One FIELD per screen. Groups (the four chips) span multiple screens.
 const SCREENS: ScreenDef[] = [
-  {
-    key: 'photo',
-    group: 'profile',
-    required: true,
-    title: 'Add a profile photo',
-    subtitle: 'A face or logo is the first thing fans trust. Just one photo.',
-    icon: Palette,
-    done: (s) => s.hasAvatar,
-    card: false,
-  },
-  {
-    key: 'tagline',
-    group: 'profile',
-    required: true,
-    title: 'Write your tagline',
-    subtitle: 'One line that tells fans who you are.',
-    icon: Quote,
-    done: (s) => s.hasTagline,
-    card: false,
-  },
-  {
-    key: 'tier',
-    group: 'monetize',
-    required: false,
-    title: 'Set up a subscription tier',
-    subtitle: 'Let fans pay you monthly. Connect Stripe now or finish it later.',
-    icon: CreditCard,
-    done: (s) => s.hasTier,
-    card: true,
-  },
-  {
-    key: 'track',
-    group: 'music',
-    required: true,
-    title: 'Upload your first track',
-    subtitle: 'This is what fans come to hear. Add one to go live.',
-    icon: Music,
-    done: (s) => s.hasMusic,
-    card: true,
-  },
-  {
-    key: 'product',
-    group: 'shop',
-    required: false,
-    title: 'Add something to your shop',
-    subtitle: 'Sell merch, downloads, or experiences. Optional — skip if not ready.',
-    icon: ShoppingBag,
-    done: (s) => s.hasProduct,
-    card: true,
-  },
+  { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
+  { key: 'tagline', group: 'profile', groupRequired: true, title: 'Write your tagline', subtitle: 'One line that tells fans who you are.', icon: Quote },
+  { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your membership tier', subtitle: 'What supporters join. e.g. “Inner Circle”.', icon: CreditCard },
+  { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the monthly price', subtitle: 'What fans pay each month. Enter 0 for a free tier.', icon: CreditCard, create: 'tier' },
+  { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
+  { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
+  { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
+  { key: 'product-title', group: 'shop', groupRequired: false, title: 'Name your product', subtitle: 'What’s it called?', icon: ShoppingBag },
+  { key: 'product-price', group: 'shop', groupRequired: false, title: 'Set the price', subtitle: 'What fans pay. Enter 0 to give it away.', icon: ShoppingBag, create: 'product' },
+];
+
+function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
+  switch (s.key) {
+    case 'photo':
+      return setup.hasAvatar;
+    case 'tagline':
+      return setup.hasTagline;
+    case 'tier-name':
+    case 'tier-price':
+      return setup.hasTier;
+    case 'track-audio':
+    case 'track-title':
+      return setup.hasMusic;
+    default:
+      return setup.hasProduct;
+  }
+}
+
+const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;
+
+const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
+  { value: 'digital', label: 'Digital download', hint: 'Beats, stems, sample packs' },
+  { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
+  { value: 'experience', label: 'Experience', hint: '1-on-1s, shoutouts, features' },
 ];
 
 function SetupWizard() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
+  const supabase = createBrowserSupabaseClient();
   const setup = useArtistSetup();
-  const { loading, isArtist, slug, setupCompleted, steps, stripeConnected, avatarUrl, tagline, refresh, markComplete } =
+  const { loading, isArtist, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, tagline, refresh, markComplete } =
     setup;
 
   const [stepIndex, setStepIndex] = useState(0);
   const [phase, setPhase] = useState<'steps' | 'share'>('steps');
   const [finishing, setFinishing] = useState(false);
+  const [creating, setCreating] = useState(false);
   const initRef = useRef(false);
+
+  // Drafts for the multi-screen item flows (persisted only when the item is created).
+  const [tierDraft, setTierDraft] = useState({ name: '', price: '' });
+  const [trackDraft, setTrackDraft] = useState<{ audioFile: File | null; title: string }>({ audioFile: null, title: '' });
+  const [productDraft, setProductDraft] = useState<{ type: ProductType; title: string; price: '' | string }>({
+    type: 'digital',
+    title: '',
+    price: '',
+  });
 
   // ---- Route guards ------------------------------------------------------
   useEffect(() => {
@@ -125,14 +131,15 @@ function SetupWizard() {
   useEffect(() => {
     if (loading || initRef.current) return;
     initRef.current = true;
-    const firstIncomplete = SCREENS.findIndex((sc) => !sc.done(setup));
+    const firstIncomplete = SCREENS.findIndex((sc) => !screenDone(sc, setup));
     if (firstIncomplete === -1) setPhase('share');
     else setStepIndex(firstIncomplete);
   }, [loading, setup]);
 
-  // ---- Live re-check so Continue unlocks the moment a screen is satisfied -
   const current = SCREENS[stepIndex];
-  const currentDone = current ? current.done(setup) : false;
+  const currentDone = current ? screenDone(current, setup) : false;
+
+  // ---- Live re-check (managers/uploads can complete out of band) ----------
   useEffect(() => {
     if (phase !== 'steps' || !current || currentDone) return;
     const iv = setInterval(refresh, 5000);
@@ -152,19 +159,82 @@ function SetupWizard() {
     );
   }
 
-  const completedScreens = SCREENS.filter((sc) => sc.done(setup)).length;
-  const progressPct = phase === 'share' ? 100 : Math.round((completedScreens / SCREENS.length) * 100);
+  const progressPct = phase === 'share' ? 100 : Math.round((stepIndex / SCREENS.length) * 100);
 
-  const goNext = async () => {
-    await refresh();
+  // Local (draft) readiness for field screens that aren't derived from the DB.
+  const localReady = (): boolean => {
+    switch (current.key) {
+      case 'tier-name':
+        return tierDraft.name.trim() !== '';
+      case 'tier-price':
+        return isValidPrice(tierDraft.price);
+      case 'track-audio':
+        return !!trackDraft.audioFile;
+      case 'track-title':
+        return trackDraft.title.trim() !== '';
+      case 'product-type':
+        return true;
+      case 'product-title':
+        return productDraft.title.trim() !== '';
+      case 'product-price':
+        return isValidPrice(productDraft.price);
+      default:
+        return false; // photo/tagline gate on screenDone
+    }
+  };
+
+  const canContinue = currentDone || localReady();
+
+  const scrollTop = () => {
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const advance = () => {
     if (stepIndex >= SCREENS.length - 1) setPhase('share');
     else setStepIndex((i) => i + 1);
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollTop();
+  };
+
+  const runCreate = async (kind: 'tier' | 'track' | 'product'): Promise<string | undefined> => {
+    if (!artistId) return 'Your artist profile is still loading. Try again.';
+    if (kind === 'tier') {
+      return (await createOnboardingTier(supabase, artistId, { name: tierDraft.name, priceCents: Math.round(parseFloat(tierDraft.price) * 100) })).error;
+    }
+    if (kind === 'track') {
+      if (!trackDraft.audioFile) return 'Pick an audio file first.';
+      return (await createOnboardingTrack(supabase, artistId, { audioFile: trackDraft.audioFile, title: trackDraft.title })).error;
+    }
+    return (await createOnboardingProduct(supabase, artistId, { type: productDraft.type, title: productDraft.title, priceCents: Math.round(parseFloat(productDraft.price) * 100) })).error;
+  };
+
+  const goNext = async () => {
+    if (creating) return;
+    // Last field of an item → create it (unless it already exists).
+    if (current.create && !currentDone) {
+      setCreating(true);
+      const err = await runCreate(current.create);
+      setCreating(false);
+      if (err) {
+        showToast(err, 'error');
+        return;
+      }
+      await refresh();
+    }
+    advance();
   };
 
   const goBack = () => {
     setStepIndex((i) => Math.max(0, i - 1));
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollTop();
+  };
+
+  const skipGroup = () => {
+    const g = current.group;
+    let i = stepIndex + 1;
+    while (i < SCREENS.length && SCREENS[i].group === g) i++;
+    if (i >= SCREENS.length) setPhase('share');
+    else setStepIndex(i);
+    scrollTop();
   };
 
   async function handleFinish() {
@@ -183,28 +253,14 @@ function SetupWizard() {
   }
 
   const Icon = current.icon;
-  const canContinue = currentDone || !current.required;
-
-  const renderScreen = () => {
-    switch (current.key) {
-      case 'photo':
-        return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={refresh} />;
-      case 'tagline':
-        return <OnboardingTaglineStep initialValue={tagline} onSaved={refresh} />;
-      case 'tier':
-        return <TierManager />;
-      case 'track':
-        return <MusicManager />;
-      case 'product':
-        return <ShopManager />;
-    }
-  };
+  const isLast = stepIndex >= SCREENS.length - 1;
+  const showSkip = !current.groupRequired && !currentDone;
 
   return (
     <div className="min-h-screen flex flex-col">
       {/* Progress header */}
       <header className="sticky top-0 z-20 bg-crwn-bg/80 backdrop-blur-md border-b border-crwn-elevated">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-5 pb-4">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-5 pb-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-crwn-gold font-bold tracking-tight">CRWN setup</span>
             <span className="text-xs text-crwn-text-secondary">
@@ -213,13 +269,9 @@ function SetupWizard() {
           </div>
 
           <div className="h-1.5 rounded-full bg-crwn-elevated overflow-hidden mb-4">
-            <div
-              className="h-full bg-crwn-gold rounded-full transition-all duration-500"
-              style={{ width: `${progressPct}%` }}
-            />
+            <div className="h-full bg-crwn-gold rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
           </div>
 
-          {/* Group chips (Profile / Monetize / Music / Shop) for orientation */}
           <div className="flex items-center gap-2">
             {steps.map((g, i) => {
               const isActive = g.key === current.group;
@@ -252,38 +304,46 @@ function SetupWizard() {
         </div>
       </header>
 
-      {/* One-thing screen */}
+      {/* One field */}
       <main className="flex-1">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-          <div className="flex items-start gap-3 mb-6">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+          <div className="flex items-start gap-3 mb-8">
             <div className="w-11 h-11 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
               <Icon className="w-5 h-5 text-crwn-gold" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-crwn-text">{current.title}</h1>
               <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
-              {current.key === 'tier' && !stripeConnected && (
+              {current.key === 'tier-price' && !stripeConnected && parseFloat(tierDraft.price || '0') > 0 && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
-                  Stripe isn’t connected yet — that’s fine, you can finish it any time from your dashboard.
+                  You’ll connect Stripe to actually get paid — you can do that any time from your dashboard.
                 </p>
               )}
             </div>
           </div>
 
-          {current.card ? (
-            <div className="neu-raised rounded-2xl p-4 sm:p-6">{renderScreen()}</div>
-          ) : (
-            <div className="py-4">{renderScreen()}</div>
-          )}
+          <FieldBody
+            screen={current}
+            setup={setup}
+            refresh={refresh}
+            avatarUrl={avatarUrl}
+            tagline={tagline}
+            tierDraft={tierDraft}
+            setTierDraft={setTierDraft}
+            trackDraft={trackDraft}
+            setTrackDraft={setTrackDraft}
+            productDraft={productDraft}
+            setProductDraft={setProductDraft}
+          />
         </div>
       </main>
 
       {/* Footer nav */}
       <footer className="sticky bottom-0 z-20 bg-crwn-bg/90 backdrop-blur-md border-t border-crwn-elevated">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <button
             onClick={goBack}
-            disabled={stepIndex === 0}
+            disabled={stepIndex === 0 || creating}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -291,10 +351,11 @@ function SetupWizard() {
           </button>
 
           <div className="flex items-center gap-3">
-            {!current.required && !currentDone && (
+            {showSkip && (
               <button
-                onClick={goNext}
-                className="px-4 py-2.5 rounded-full text-sm font-medium text-crwn-text-secondary hover:text-crwn-text transition-colors"
+                onClick={skipGroup}
+                disabled={creating}
+                className="px-4 py-2.5 rounded-full text-sm font-medium text-crwn-text-secondary hover:text-crwn-text transition-colors disabled:opacity-40"
               >
                 Skip for now
               </button>
@@ -303,20 +364,168 @@ function SetupWizard() {
             <div className="flex flex-col items-end">
               <button
                 onClick={goNext}
-                disabled={!canContinue}
+                disabled={!canContinue || creating}
                 className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                {!canContinue && <Lock className="w-4 h-4" />}
-                {stepIndex >= SCREENS.length - 1 ? 'Finish setup' : 'Continue'}
-                {canContinue && <ArrowRight className="w-4 h-4" />}
+                {!canContinue && !creating && <Lock className="w-4 h-4" />}
+                {creating ? 'Adding…' : isLast ? 'Finish setup' : 'Continue'}
+                {canContinue && !creating && <ArrowRight className="w-4 h-4" />}
               </button>
-              {!canContinue && (
+              {!canContinue && !creating && (
                 <span className="text-[11px] text-crwn-text-secondary mt-1.5">Complete this step to continue</span>
               )}
             </div>
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// ---- Per-field bodies ----------------------------------------------------
+
+const INPUT =
+  'w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-4 text-lg text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold';
+
+function FieldBody({
+  screen,
+  setup,
+  refresh,
+  avatarUrl,
+  tagline,
+  tierDraft,
+  setTierDraft,
+  trackDraft,
+  setTrackDraft,
+  productDraft,
+  setProductDraft,
+}: {
+  screen: ScreenDef;
+  setup: ArtistSetupState;
+  refresh: () => Promise<void>;
+  avatarUrl: string;
+  tagline: string;
+  tierDraft: { name: string; price: string };
+  setTierDraft: React.Dispatch<React.SetStateAction<{ name: string; price: string }>>;
+  trackDraft: { audioFile: File | null; title: string };
+  setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
+  productDraft: { type: ProductType; title: string; price: string };
+  setProductDraft: React.Dispatch<React.SetStateAction<{ type: ProductType; title: string; price: string }>>;
+}) {
+  switch (screen.key) {
+    case 'photo':
+      return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={refresh} />;
+    case 'tagline':
+      return <OnboardingTaglineStep initialValue={tagline} onSaved={refresh} />;
+    case 'tier-name':
+      return (
+        <input
+          autoFocus
+          className={INPUT}
+          maxLength={40}
+          placeholder="Inner Circle"
+          value={tierDraft.name}
+          onChange={(e) => setTierDraft((d) => ({ ...d, name: e.target.value }))}
+        />
+      );
+    case 'tier-price':
+      return <PriceInput value={tierDraft.price} onChange={(v) => setTierDraft((d) => ({ ...d, price: v }))} suffix="/mo" done={setup.hasTier} />;
+    case 'track-audio':
+      return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done={setup.hasMusic} />;
+    case 'track-title':
+      return (
+        <input
+          autoFocus
+          className={INPUT}
+          maxLength={120}
+          placeholder="Track name"
+          value={trackDraft.title}
+          onChange={(e) => setTrackDraft((d) => ({ ...d, title: e.target.value }))}
+        />
+      );
+    case 'product-type':
+      return (
+        <div className="grid gap-3">
+          {PRODUCT_TYPES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => setProductDraft((d) => ({ ...d, type: t.value }))}
+              className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                productDraft.type === t.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+              }`}
+            >
+              <p className="font-medium text-crwn-text">{t.label}</p>
+              <p className="text-xs text-crwn-text-secondary mt-0.5">{t.hint}</p>
+            </button>
+          ))}
+        </div>
+      );
+    case 'product-title':
+      return (
+        <input
+          autoFocus
+          className={INPUT}
+          maxLength={120}
+          placeholder="Product name"
+          value={productDraft.title}
+          onChange={(e) => setProductDraft((d) => ({ ...d, title: e.target.value }))}
+        />
+      );
+    case 'product-price':
+      return <PriceInput value={productDraft.price} onChange={(v) => setProductDraft((d) => ({ ...d, price: v }))} done={setup.hasProduct} />;
+  }
+}
+
+function PriceInput({ value, onChange, suffix, done }: { value: string; onChange: (v: string) => void; suffix?: string; done?: boolean }) {
+  if (done) {
+    return <p className="text-crwn-text-secondary">Already added — hit Continue.</p>;
+  }
+  return (
+    <div className="flex items-center bg-crwn-surface border border-crwn-elevated rounded-xl px-4 focus-within:border-crwn-gold">
+      <span className="text-lg text-crwn-text-secondary">$</span>
+      <input
+        autoFocus
+        type="number"
+        min="0"
+        step="0.01"
+        inputMode="decimal"
+        className="flex-1 bg-transparent px-2 py-4 text-lg text-crwn-text outline-none"
+        placeholder="0.00"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {suffix && <span className="text-crwn-text-secondary">{suffix}</span>}
+    </div>
+  );
+}
+
+function AudioPicker({ file, onPick, done }: { file: File | null; onPick: (f: File) => void; done?: boolean }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  if (done) {
+    return <p className="text-crwn-text-secondary">Track already uploaded — hit Continue.</p>;
+  }
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className="w-full border-2 border-dashed border-crwn-elevated rounded-2xl py-12 flex flex-col items-center gap-3 hover:border-crwn-gold/50 transition-colors"
+      >
+        <UploadCloud className="w-8 h-8 text-crwn-gold" />
+        <span className="text-crwn-text font-medium">{file ? file.name : 'Tap to choose an audio file'}</span>
+        <span className="text-xs text-crwn-text-secondary">MP3, WAV, FLAC · up to the size limit</span>
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="audio/*,.mp3,.wav,.flac,.m4a,.aac"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onPick(f);
+        }}
+      />
     </div>
   );
 }
@@ -389,9 +598,7 @@ function ShareScreen({
             </a>
           ))}
         </div>
-        <p className="text-xs text-crwn-text-secondary mb-8">
-          On Instagram or TikTok? Copy the link and drop it in your bio.
-        </p>
+        <p className="text-xs text-crwn-text-secondary mb-8">On Instagram or TikTok? Copy the link and drop it in your bio.</p>
 
         <button
           onClick={onFinish}
@@ -401,9 +608,7 @@ function ShareScreen({
           {finishing ? 'Loading…' : 'Enter CRWN'}
           {!finishing && <ArrowRight className="w-4 h-4" />}
         </button>
-        <p className="text-xs text-crwn-text-secondary mt-4">
-          We’ll show you around the rest of your dashboard next.
-        </p>
+        <p className="text-xs text-crwn-text-secondary mt-4">We’ll show you around the rest of your dashboard next.</p>
       </div>
     </div>
   );
