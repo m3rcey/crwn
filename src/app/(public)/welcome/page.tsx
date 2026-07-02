@@ -12,7 +12,7 @@ export default function WelcomePage() {
 
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
-  const [role, setRole] = useState<'fan' | 'artist'>('fan');
+  const [role, setRole] = useState<'fan' | 'artist'>('artist');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
@@ -61,16 +61,27 @@ export default function WelcomePage() {
       // If they already have an artist profile, preserve their role
       const effectiveRole = existing ? 'artist' : role;
 
-      // Update profile
-      await supabase
+      // Update profile. Do NOT write `role` here — the profiles RLS policy freezes
+      // it (schema-phase2-rls-column-restrictions.sql), so including it makes the
+      // ENTIRE update fail for artists (fan->artist is a change), onboarding_completed
+      // never lands, and the user bounces back to /welcome. Role is promoted
+      // fan->artist server-side by trg_promote_to_artist when the artist_profiles
+      // row is inserted below.
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           display_name: displayName.trim(),
           phone: phone.trim() || null,
-          role: effectiveRole,
           onboarding_completed: true,
         })
         .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Onboarding profile update failed:', profileError);
+        alert('Something went wrong saving your info. Please try again or contact support@thecrwn.app');
+        setIsSubmitting(false);
+        return;
+      }
 
       if (effectiveRole === 'artist') {
 

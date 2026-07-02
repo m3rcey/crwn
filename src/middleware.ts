@@ -55,6 +55,16 @@ export async function middleware(request: NextRequest) {
   // Update session and get response
   const response = await updateSession(request);
 
+  // A PKCE code (email verification / password reset) means updateSession just
+  // exchanged it and returned a redirect carrying the NEW session cookies in its
+  // Set-Cookie headers. Return it untouched. Falling through to the auth-path
+  // redirect below builds a fresh /home redirect that DROPS those cookies, so the
+  // browser lands on /home with no session and useAuth sees user=null forever —
+  // a blank /home that never advances to /welcome.
+  if (request.nextUrl.searchParams.has('code')) {
+    return response;
+  }
+
   // Protected routes - redirect to login if not authenticated
   const protectedPaths = ['/home', '/explore', '/community', '/library', '/profile', '/setup', '/recruit/dashboard', '/admin'];
   const isProtectedPath = protectedPaths.some(path =>
@@ -67,9 +77,12 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
 
-  // Check for auth cookie - Supabase uses cookies named sb-REF-auth-token
+  // Check for auth cookie - Supabase uses cookies named sb-REF-auth-token.
+  // Exclude the PKCE code-verifier cookie (sb-REF-auth-token-code-verifier): it
+  // also contains "auth-token" but is NOT a session, so counting it would bounce a
+  // mid-signup user to /home with no session (the same black-screen failure mode).
   const hasAuthCookie = request.cookies.getAll().some(cookie =>
-    cookie.name.includes('auth-token')
+    cookie.name.includes('auth-token') && !cookie.name.includes('code-verifier')
   );
 
   if (isProtectedPath && !hasAuthCookie) {
