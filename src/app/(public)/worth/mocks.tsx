@@ -98,12 +98,13 @@ export function PhoneFrame({ children }: { children: ReactNode }) {
 
 // --- Screens ---
 
-export function TiersMock() {
+export function TiersMock({ subs }: { subs?: { t1: number; t2: number; t3: number } }) {
   const { ref, isInView } = useInView();
   const tiers = [
-    { name: 'The Wave', price: '$0', perks: ['🎵 Exclusive tracks', '💬 Community posts'], subscribed: false, accent: false },
-    { name: 'The Inner Circle', price: '$10', perks: ['🎵 Exclusive tracks', '⏰ 7-day early access', '🏅 Community badge', '🏷️ 10% shop discount'], subscribed: true, accent: true },
-    { name: 'The Throne', price: '$25', perks: ['📞 Monthly 1-on-1', '🎶 Custom song / qtr', '🏆 Supporter wall'], subscribed: false, accent: false },
+    { name: 'The Wave', price: '$0', members: null as number | null, perks: ['🎵 Exclusive tracks', '💬 Community posts'], subscribed: false, accent: false },
+    { name: 'The Inner Circle', price: '$10', members: subs ? Math.floor(subs.t1) : null, perks: ['🎵 Exclusive tracks', '⏰ 7-day early access', '🏷️ 10% shop discount'], subscribed: true, accent: true },
+    { name: 'The Vault', price: '$25', members: subs ? Math.floor(subs.t2) : null, perks: ['🎚️ Stems & multitracks', '🎤 Monthly live Q&A'], subscribed: false, accent: false },
+    { name: 'The Throne', price: '$100', members: subs ? Math.floor(subs.t3) : null, perks: ['📞 Monthly 1-on-1', '🎶 Custom song / qtr'], subscribed: false, accent: false },
   ];
   return (
     <PhoneFrame>
@@ -112,7 +113,7 @@ export function TiersMock() {
         {tiers.map((t, i) => (
           <div
             key={t.name}
-            style={{ animationDelay: `${i * 120}ms` }}
+            style={{ animationDelay: `${i * 110}ms` }}
             className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} rounded-xl p-3 border ${t.accent ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'}`}
           >
             {t.subscribed && (
@@ -120,7 +121,14 @@ export function TiersMock() {
                 <Check className="w-3 h-3" /> Subscribed
               </div>
             )}
-            <div className="text-crwn-gold font-semibold text-sm">{t.name}</div>
+            <div className="flex items-center justify-between">
+              <span className="text-crwn-gold font-semibold text-sm">{t.name}</span>
+              {t.members != null && (
+                <span className="flex items-center gap-1 text-[10px] text-crwn-text-secondary">
+                  <Users className="w-3 h-3" /> {t.members.toLocaleString('en-US')}
+                </span>
+              )}
+            </div>
             <div className="text-lg font-bold">
               {t.price}<span className="text-xs text-crwn-text-secondary font-normal">/mo</span>
             </div>
@@ -138,13 +146,14 @@ export function TiersMock() {
   );
 }
 
-export function EarningsMock() {
+export function EarningsMock({ balanceCents }: { balanceCents?: number }) {
   const { ref, isInView } = useInView();
+  const balance = balanceCents && balanceCents > 0 ? Math.round(balanceCents / 100) : 2418;
   const rows = [
-    { t: 'Inner Circle · Monthly', d: 'Today', a: '+$27.60' },
-    { t: 'Pro Subscription', d: 'Yesterday', a: '+$50.00' },
-    { t: 'The Wave · Monthly', d: '2 days ago', a: '+$13.80' },
-    { t: 'Label Subscription', d: 'This week', a: '+$175.00' },
+    { t: 'Throne · Monthly', d: 'Today', a: '+$100.00' },
+    { t: 'The Vault · Monthly', d: 'Today', a: '+$25.00' },
+    { t: 'Stem pack sale', d: 'Yesterday', a: '+$25.00' },
+    { t: 'Inner Circle · Monthly', d: '2 days ago', a: '+$10.00' },
   ];
   return (
     <PhoneFrame>
@@ -170,7 +179,7 @@ export function EarningsMock() {
       <div className="mt-3 rounded-xl bg-crwn-surface border border-crwn-elevated p-3 flex items-center justify-between">
         <div>
           <div className="text-[11px] text-crwn-text-secondary">Available balance</div>
-          <div className="text-xl font-bold text-crwn-gold"><AnimatedNumber end={2418} active={isInView} prefix="$" /></div>
+          <div className="text-xl font-bold text-crwn-gold"><AnimatedNumber end={balance} active={isInView} prefix="$" /></div>
         </div>
         <div className="bg-crwn-gold text-crwn-bg text-xs font-semibold rounded-full px-3 py-2">Cash Out</div>
       </div>
