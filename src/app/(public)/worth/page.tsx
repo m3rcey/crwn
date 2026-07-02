@@ -497,7 +497,7 @@ export default function WorthCalculatorPage() {
             Post exclusive updates, unreleased snippets, and behind-the-scenes only your paying fans can
             see. It&apos;s the room they subscribe to get into.
           </p>
-          <CommunityMock />
+          <CommunityMock fans={hasNumber ? result.payers : undefined} />
         </section>
 
         {/* Own your audience */}
@@ -567,7 +567,7 @@ export default function WorthCalculatorPage() {
             A live leaderboard ranks your biggest supporters by name and spend, so you know exactly who
             to keep close. Your audience, your data.
           </p>
-          <LeaderboardMock />
+          <LeaderboardMock payers={hasNumber ? result.payers : undefined} />
         </section>
 
         <BookCTA sub="15 minutes. We&apos;ll build your plan live.">See it on your own catalog</BookCTA>
