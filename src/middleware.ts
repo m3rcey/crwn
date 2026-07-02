@@ -80,6 +80,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/home', request.url));
   }
 
+  // Logged-in users skip the marketing homepage (an artist-acquisition pitch)
+  // and land in the app.
+  if (request.nextUrl.pathname === '/' && hasAuthCookie) {
+    return NextResponse.redirect(new URL('/home', request.url));
+  }
+
   // Fire-and-forget visitor tracking (non-blocking, skip bots)
   try {
     const visitorHash = await hashVisitor(request);
