@@ -36,7 +36,15 @@ interface ArtistFormData {
   genres: string[];
 }
 
-export function ArtistProfileForm() {
+/**
+ * @param mode  'full' (default) renders every field for the Profile dashboard tab.
+ *              'onboarding' renders only the focused set the setup wizard needs —
+ *              avatar + name + slug + tagline — and defers banner, bio, socials,
+ *              cal.com, location and genres to the full form later. See the
+ *              onboarding field-scoping rationale in the artist setup wizard.
+ */
+export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboarding' } = {}) {
+  const onboarding = mode === 'onboarding';
   const { user, profile } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const { showToast } = useToast();
@@ -334,7 +342,8 @@ export function ArtistProfileForm() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-      {/* Banner Preview */}
+      {/* Banner Preview — deferred in onboarding (polish, not on the critical path) */}
+      {!onboarding && (
       <div>
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
           Banner Image
@@ -375,6 +384,7 @@ export function ArtistProfileForm() {
           Recommended: 1500 x 500px &middot; JPG, PNG, or WebP &middot; Max 10MB
         </p>
       </div>
+      )}
 
       {/* Avatar */}
       <div data-tour="profile-media">
@@ -467,9 +477,15 @@ export function ArtistProfileForm() {
           className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
           maxLength={100}
         />
+        {onboarding && (
+          <p className="text-xs text-crwn-text-secondary mt-1">
+            Required — this is the one line fans read first. Save when you&apos;ve added a photo and a tagline.
+          </p>
+        )}
       </div>
 
-      {/* Bio */}
+      {/* Bio — deferred in onboarding (the tagline already gives the hook) */}
+      {!onboarding && (
       <div data-tour="profile-basics">
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
           Bio
@@ -482,8 +498,10 @@ export function ArtistProfileForm() {
           className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold resize-none"
         />
       </div>
+      )}
 
-      {/* Social Links */}
+      {/* Social Links — deferred in onboarding */}
+      {!onboarding && (
       <div>
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
           Social Links
@@ -506,7 +524,13 @@ export function ArtistProfileForm() {
           ))}
         </div>
       </div>
+      )}
 
+      {/* Calendar, Location and Genres — all deferred in onboarding. Calendar is a
+          booking product (belongs with Shop), location/genres feed sync + discovery
+          (later-stage), so none are on the "worth-clicking link" critical path. */}
+      {!onboarding && (
+      <>
       {/* Calendar Link */}
       <div>
         <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
@@ -577,6 +601,8 @@ export function ArtistProfileForm() {
           ))}
         </div>
       </div>
+      </>
+      )}
 
       {/* Submit */}
       <button

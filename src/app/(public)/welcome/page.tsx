@@ -44,7 +44,10 @@ export default function WelcomePage() {
   }, [profile, router]);
 
   const handleSubmit = async () => {
-    if (!user || !displayName.trim() || !phone.trim()) return;
+    // Phone is optional — a name is all we need to spin up the page/slug. Requiring
+    // a phone here was pure friction (and silently disabled the button when empty,
+    // which read as "nothing happens"). Collect it later if we want it.
+    if (!user || !displayName.trim()) return;
     setIsSubmitting(true);
 
     try {
@@ -68,7 +71,7 @@ export default function WelcomePage() {
         .from('profiles')
         .update({
           display_name: displayName.trim(),
-          phone: phone.trim(),
+          phone: phone.trim() || null,
           onboarding_completed: true,
         })
         .eq('id', user.id);
@@ -137,10 +140,10 @@ export default function WelcomePage() {
           body: JSON.stringify({ milestone: 'onboarding_completed' }),
         }).catch(() => {});
       }
-      // Artists land on the Tiers tab (Stripe Connect + tier creation — the monetization
-      // gate that turns a signup into a paid artist) instead of the generic home feed.
-      // Fans go home. Tour still fires based on role.
-      router.push(effectiveRole === 'artist' ? '/profile/artist?tab=tiers' : '/home');
+      // Artists go into the focused, gated setup wizard (Profile → Monetize → Music →
+      // Shop → share link). They can't use the rest of the app until it's done. Fans
+      // go straight home.
+      router.push(effectiveRole === 'artist' ? '/setup' : '/home');
     } catch (err) {
       console.error('Onboarding error:', err);
       setIsSubmitting(false);
@@ -184,7 +187,7 @@ export default function WelcomePage() {
           {/* Phone */}
           <div className="mb-5">
             <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-              Phone number
+              Phone number <span className="text-crwn-text-secondary/60 font-normal">(optional)</span>
             </label>
             <input
               type="tel"
@@ -233,7 +236,7 @@ export default function WelcomePage() {
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || !displayName.trim() || !phone.trim()}
+            disabled={isSubmitting || !displayName.trim()}
             className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors disabled:opacity-50"
           >
             {isSubmitting ? 'Setting up...' : 'Get Started'}

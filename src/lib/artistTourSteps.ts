@@ -327,3 +327,37 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
     },
   ];
 }
+
+// Surfaces the focused setup wizard (/setup) already walked the artist through.
+// The post-setup dashboard tour skips these so it only covers "everything else".
+const WIZARD_COVERED = new Set<string>([
+  '[data-tour="tab-profile"]',
+  '[data-tour="profile-basics"]',
+  '[data-tour="profile-media"]',
+  '[data-tour="profile-location"]',
+  '[data-tour="tab-tiers"]',
+  '[data-tour="tiers-stripe"]',
+  '[data-tour="tiers-list"]',
+  '[data-tour="tab-tracks"]',
+  '[data-tour="music-upload"]',
+  '[data-tour="tab-shop"]',
+  '[data-tour="shop-create"]',
+]);
+
+/**
+ * The tour an artist gets AFTER finishing the setup wizard. Profile, tiers,
+ * music and shop are already done, so drop those steps and reframe the opener —
+ * this tour is the rest of the dashboard (analytics, audience, sync, payouts,
+ * referrals, AI manager, preview).
+ */
+export function getPostSetupTourSteps(platformTier: string = 'starter'): DriveStep[] {
+  const steps = getArtistTourSteps(platformTier).filter(
+    (s) => !s.element || !WIZARD_COVERED.has(s.element as string)
+  );
+  if (steps[0]?.popover) {
+    steps[0].popover.title = 'Welcome to your dashboard';
+    steps[0].popover.description =
+      'Your page is set up and live. Here’s a quick tour of everything else your dashboard can do.';
+  }
+  return steps;
+}

@@ -173,6 +173,19 @@ The artist onboarding path (signup → publish page → upload track) once broke
    **Role promotion is SERVER-SIDE.** A user CANNOT change their own `role` — `schema-phase2-rls-column-restrictions.sql` freezes it. Publishing an artist page promotes `fan → artist` via the `trg_promote_to_artist` trigger (`schema-phase2-promote-artist-role.sql`). Never add a client-side `profiles.update({ role })` — RLS rejects it silently and leaves artists stuck as `fan`.
 2. **Self-verifying migrations** — every migration MUST end with a `DO $$ ... RAISE EXCEPTION ... $$` block asserting its functions/policies/rows/columns exist (template: `supabase/schema-phase2-artist-approval-gate-repair.sql`). A partial apply then errors loudly in the SQL editor instead of silently half-landing.
 
+### Artist Setup Wizard (post-signup onboarding)
+
+New artists do NOT get the old dashboard tour first. They flow **signup → `/welcome` (name/phone/role) → `/setup`**, a full-screen, hard-gated wizard. Reference this as **"the artist setup wizard"** (branch `claude/artist-onboarding-redesign-05hgns`, PR #27).
+
+- **Route:** `src/app/setup/page.tsx` (+ `layout.tsx`). Steps, in order: **Profile → Monetize → Music → Shop**, one at a time, progress bar up top, `Continue` locked until the step's data exists. Profile + Music are **mandatory**; Monetize + Shop are **skippable** ("Skip for now"). Stripe Connect is create-a-tier-now / finish-later, never a hard block. Ends on a **share screen** (public `thecrwn.app/{slug}` link + copy + X/Facebook/WhatsApp) → "Enter CRWN" → dashboard + trimmed tour.
+- **Source of truth:** `src/hooks/useArtistSetup.ts`. Step completion is **DERIVED from live data, never stored per-step** — profile = fresh `profiles.avatar_url` + `artist_profiles.tagline`; music = ≥1 `tracks`; monetize = ≥1 active `subscription_tiers`; shop = ≥1 `products`. Everything is read straight from the DB, **NOT the `useAuth` context, which lags** — right after `/welcome` flips `fan→artist` the context `profile.role` is still `'fan'` until the next token refresh. So both the hook AND the `(main)` gate derive "is an artist" from the **`artist_profiles` row existing**, never from `profile.role` (a role check there would bounce a brand-new artist out of `/setup` into a redirect loop). Continue unlocks live off DB reads; Stripe status is cosmetic-only, fetched once.
+- **The only stored flag** is `artist_profiles.setup_completed` (migration `supabase/schema-phase2-artist-setup-wizard.sql`, already applied). It just records "finished the wizard once." Existing artists were backfilled to `true`. The gate fails OPEN if the column is missing.
+- **Hard gate:** `src/app/(main)/layout.tsx` redirects any artist with `setup_completed = false` to `/setup` (the same single enforcement point that gates `/welcome`).
+- **Focused profile:** `ArtistProfileForm` takes `mode="onboarding"` → shows only avatar + name + slug + tagline. Banner, bio, socials, cal.com, location, genres are deferred to the full Profile tab (they serve discovery/sync/polish, not the "worth-clicking link" critical path).
+- **Tour:** `getPostSetupTourSteps()` in `artistTourSteps.ts` is the trimmed dashboard tour (skips profile/tiers/music/shop that the wizard already covered). The old post-tour action-picker modal was removed.
+- `/welcome` routes artists to `/setup` (not the Tiers tab). `middleware.ts` protects `/setup` and excludes it from artist-slug visitor tracking.
+- **If you change the publish/upload/tier/shop flows, keep `useArtistSetup` completion checks in sync**, and remember the daily onboarding canary (`/api/cron/onboarding-health`) still governs the underlying publish RLS path.
+
 ### Workflow
 
 - **Always run `npm run build` after changes** — never push code that doesn't build clean.
