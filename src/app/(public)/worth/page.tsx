@@ -5,6 +5,7 @@ import {
   Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight,
   Music, DollarSign, Users, Mail, Zap, Wallet, BarChart3, HelpCircle,
   Disc3, Radio, Video, ShoppingBag, CreditCard, Landmark, Repeat, X, Star,
+  MessageCircle, Globe,
 } from 'lucide-react';
 import {
   calculate,
@@ -15,6 +16,11 @@ import {
   type AggressivenessPreset,
   type CalcAssumptions,
 } from '@/lib/leadCalculator';
+
+import {
+  TiersMock, EarningsMock, LeaderboardMock, AiActionsMock,
+  CommunityMock, ShopMock, SyncMock, SequencesMock,
+} from './mocks';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
 const BOOK_CALL_URL = 'https://cal.com/jnwcreative';
@@ -393,18 +399,9 @@ export default function WorthCalculatorPage() {
           <p className="text-crwn-text-secondary text-sm mb-6">
             A platform to sell directly to your fans: memberships, songs, stems, live sessions, even
             access to you. No label. No middleman. No algorithm. You keep up to 92%, paid to your bank.
+            Fans pick a tier and pay you every month:
           </p>
-          <MockCard title="crwn.app · your dashboard">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-crwn-text-secondary">Today&apos;s revenue</span>
-              <span className="text-2xl font-bold text-crwn-gold">$147</span>
-            </div>
-            <div className="space-y-2 text-sm">
-              <MockRow label="VIP subscriptions" value="$87" />
-              <MockRow label="Exclusive track sales" value="$42" />
-              <MockRow label="Fan tips" value="$18" />
-            </div>
-          </MockCard>
+          <TiersMock />
         </section>
 
         {/* Everything you can charge for */}
@@ -427,6 +424,8 @@ export default function WorthCalculatorPage() {
               </div>
             ))}
           </div>
+          <p className="text-crwn-text-secondary text-sm mt-6 mb-4">Your storefront, live in minutes:</p>
+          <ShopMock />
         </section>
 
         {/* The tier setup */}
@@ -488,6 +487,16 @@ export default function WorthCalculatorPage() {
 
         <BookCTA sub="Free to start. No card required.">Book my free 15-min call</BookCTA>
 
+        {/* Community */}
+        <section className="mb-14">
+          <SectionHeading icon={MessageCircle}>A gated community they pay to be in</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            Post exclusive updates, unreleased snippets, and behind-the-scenes only your paying fans can
+            see. It&apos;s the room they subscribe to get into.
+          </p>
+          <CommunityMock />
+        </section>
+
         {/* Own your audience */}
         <section className="mb-14">
           <SectionHeading icon={Mail}>Own your audience, don&apos;t rent it</SectionHeading>
@@ -504,26 +513,18 @@ export default function WorthCalculatorPage() {
               </div>
             ))}
           </div>
+          <p className="text-crwn-text-secondary text-sm mt-6 mb-4">Set your automations once, they run forever:</p>
+          <SequencesMock />
         </section>
 
         {/* AI manager + mock */}
         <section className="mb-14">
           <SectionHeading icon={Zap}>A manager built in</SectionHeading>
           <p className="text-crwn-text-secondary text-sm mb-6">
-            An AI manager spots your biggest supporters, flags who&apos;s about to upgrade, and tells
-            you what to post. You make music; it grows the business.
+            An AI manager watches your numbers and hands you decisions to approve, raise a price, email
+            fans, win back churn. You make music; it grows the business.
           </p>
-          <MockCard title="crwn.app · AI manager">
-            <div className="text-xs uppercase tracking-wide text-crwn-gold mb-3">Weekly report</div>
-            <div className="space-y-2 text-sm">
-              <MockRow label="New subscribers" value="+24" />
-              <MockRow label="Revenue this week" value="$417" />
-              <MockRow label="Top supporters spotted" value="7" />
-            </div>
-            <div className="mt-3 pt-3 border-t border-crwn-elevated text-sm text-crwn-text-secondary">
-              <span className="text-crwn-gold font-medium">Recommendation:</span> post an acoustic snippet tonight, 3 fans likely to upgrade.
-            </div>
-          </MockCard>
+          <AiActionsMock />
         </section>
 
         {/* Money flow + fees */}
@@ -550,47 +551,33 @@ export default function WorthCalculatorPage() {
         <section className="mb-14">
           <SectionHeading icon={CreditCard}>Watch it hit your account</SectionHeading>
           <p className="text-crwn-text-secondary text-sm mb-6">
-            Track your balance and payout history in real time. No invoices, no waiting on a label.
+            Every subscription and sale lands in your balance in real time. Cash out anytime, or auto-payout
+            every week. No invoices, no waiting on a label.
           </p>
-          <MockCard title="crwn.app · payouts">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-crwn-text-secondary">Available balance</span>
-              <span className="text-2xl font-bold text-crwn-gold">$2,418</span>
-            </div>
-            <div className="space-y-2 text-sm">
-              <MockRow label="Paid out · May 28" value="$1,940" />
-              <MockRow label="Paid out · May 21" value="$1,602" />
-              <MockRow label="Paid out · May 14" value="$1,275" />
-            </div>
-          </MockCard>
+          <EarningsMock />
         </section>
 
         {/* Analytics mock */}
         <section className="mb-14">
           <SectionHeading icon={Users}>See who actually supports you</SectionHeading>
           <p className="text-crwn-text-secondary text-sm mb-6">
-            Know your top supporters by name and what they engage with most. Your audience, your data.
+            A live leaderboard ranks your biggest supporters by name and spend, so you know exactly who
+            to keep close. Your audience, your data.
           </p>
-          <MockCard title="crwn.app · top supporters">
-            <div className="space-y-3">
-              {[
-                { n: '1', name: 'Jordan', meta: 'VIP · 8 months' },
-                { n: '2', name: 'Maya', meta: '34 plays this week' },
-                { n: '3', name: 'Devin', meta: 'Shared your track 12×' },
-              ].map((f) => (
-                <div key={f.n} className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-full bg-crwn-gold/15 text-crwn-gold font-bold text-sm flex items-center justify-center">{f.n}</div>
-                  <div>
-                    <div className="text-sm font-medium">{f.name}</div>
-                    <div className="text-xs text-crwn-text-secondary">{f.meta}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </MockCard>
+          <LeaderboardMock />
         </section>
 
         <BookCTA sub="15 minutes. We&apos;ll build your plan live.">See it on your own catalog</BookCTA>
+
+        {/* Sync licensing (bonus) */}
+        <section className="mb-14">
+          <SectionHeading icon={Globe}>Bonus: get your music placed</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-6">
+            CRWN surfaces sync licensing briefs, TV, film, games, ads, matched to your genre. One
+            placement can pay more than a year of streaming.
+          </p>
+          <SyncMock />
+        </section>
 
         {/* Objections */}
         <section className="mb-14">
@@ -678,30 +665,6 @@ function SectionHeading({ icon: Icon, children }: { icon: ComponentType<{ classN
         <Icon className="w-5 h-5 text-crwn-gold" />
       </div>
       <h2 className="text-2xl sm:text-3xl font-bold">{children}</h2>
-    </div>
-  );
-}
-
-// A faux product "screenshot" card to break up text with visuals.
-function MockCard({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="bg-crwn-bg border border-crwn-elevated rounded-2xl overflow-hidden">
-      <div className="flex items-center gap-1.5 px-4 py-3 border-b border-crwn-elevated">
-        <span className="w-2.5 h-2.5 rounded-full bg-crwn-elevated" />
-        <span className="w-2.5 h-2.5 rounded-full bg-crwn-elevated" />
-        <span className="w-2.5 h-2.5 rounded-full bg-crwn-elevated" />
-        <span className="ml-2 text-xs text-crwn-text-secondary truncate">{title}</span>
-      </div>
-      <div className="p-5">{children}</div>
-    </div>
-  );
-}
-
-function MockRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between py-1.5 border-b border-crwn-elevated/50 last:border-0">
-      <span className="text-crwn-text-secondary">{label}</span>
-      <span className="text-crwn-gold font-medium">{value}</span>
     </div>
   );
 }
