@@ -2,7 +2,9 @@
 -- ONE-OFF CLEANUP (NOT a migration): remove test artist accounts created while
 -- testing the onboarding wizard — the "joshn.wms+onboard…" emails.
 --
--- Run in the Supabase SQL Editor. STEP 1 previews; STEP 2 deletes.
+-- Run in the Supabase SQL Editor. STEP 1 previews the accounts; STEP 2 lists
+-- their storage files (delete those in the Storage dashboard — SQL can't);
+-- STEP 3 deletes the DB rows + auth users.
 -- Scoped strictly to the matched user ids, so nothing else is touched.
 -- Deleting the profiles auto-removes them from Featured Artists / Explore
 -- (those are derived from active profiles with music + avatar, not a list).
@@ -20,7 +22,28 @@ WHERE u.email ILIKE 'joshn.wms+onboard%'
 ORDER BY u.email;
 
 -- ---------------------------------------------------------------------------
--- STEP 2 — DELETE. Run this only after STEP 1 looks right.
+-- STEP 2 — LIST storage folders to delete (run BEFORE STEP 3, while the rows
+-- still exist to resolve the ids). storage.objects can't be DELETEd via SQL, so
+-- copy these paths and delete them in the Supabase Storage dashboard (or via the
+-- Storage API). Deleting a top-level folder (the '<uuid>/' prefix) removes all
+-- files under it. This is OPTIONAL — orphaned files show nowhere once the rows
+-- are gone; it just frees space.
+-- ---------------------------------------------------------------------------
+SELECT o.bucket_id, o.name
+FROM storage.objects o
+WHERE (o.bucket_id = 'avatars'
+       AND o.name LIKE ANY (SELECT id::text || '/%' FROM auth.users WHERE email ILIKE 'joshn.wms+onboard%'))
+   OR (o.bucket_id IN ('audio', 'album-art', 'product-files')
+       AND o.name LIKE ANY (
+         SELECT ap.id::text || '/%'
+         FROM public.artist_profiles ap
+         JOIN auth.users u ON u.id = ap.user_id
+         WHERE u.email ILIKE 'joshn.wms+onboard%'))
+ORDER BY o.bucket_id, o.name;
+
+-- ---------------------------------------------------------------------------
+-- STEP 3 — DELETE the DB rows + users. Run this after STEP 1 looks right (and,
+-- if you want storage cleaned, after handling STEP 2's list).
 -- ---------------------------------------------------------------------------
 DO $$
 DECLARE
@@ -80,15 +103,11 @@ BEGIN
     END LOOP;
   END LOOP;
 
-  -- Storage files. avatars/banners are keyed by user id (name = '<uid>/...');
-  -- audio, album-art and product-files are keyed by artist id ('<aid>/...').
-  -- Removes them from the bucket listings so nothing is left dangling.
-  DELETE FROM storage.objects o
-  WHERE (o.bucket_id = 'avatars'
-         AND EXISTS (SELECT 1 FROM unnest(uids) x WHERE o.name LIKE x::text || '/%'))
-     OR (aids IS NOT NULL
-         AND o.bucket_id IN ('audio', 'album-art', 'product-files')
-         AND EXISTS (SELECT 1 FROM unnest(aids) x WHERE o.name LIKE x::text || '/%'));
+  -- NOTE: Storage files are NOT deleted here — Supabase blocks direct DELETE on
+  -- storage.objects (storage.protect_delete). Run "STEP 2" above BEFORE this block
+  -- to list the folders, then delete them from the Storage dashboard (or Storage
+  -- API). Orphaned files are harmless — they no longer appear anywhere in the app
+  -- once these rows are gone.
 
   -- Core rows (cascade-linked) + the auth users themselves.
   IF aids IS NOT NULL THEN
