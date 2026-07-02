@@ -431,10 +431,10 @@ export function LiveMock() {
 export function ClipperMock() {
   const { ref, isInView } = useInView();
   const rows = [
-    { name: '@dreadvisuals', views: '48K views', earned: '+$60' },
-    { name: '@thehiphopplug', views: '22K views', earned: '+$30' },
-    { name: '@clipgod', views: '15K views', earned: '+$20' },
-    { name: '@fancentral', views: '9K views', earned: '+$10' },
+    { name: '@dreadvisuals', views: '48K views · 6 subs', earned: '+$60/mo' },
+    { name: '@thehiphopplug', views: '22K views · 3 subs', earned: '+$30/mo' },
+    { name: '@clipgod', views: '15K views · 2 subs', earned: '+$20/mo' },
+    { name: '@fancentral', views: '9K views · 1 sub', earned: '+$10/mo' },
   ];
   return (
     <PhoneFrame>
@@ -442,7 +442,7 @@ export function ClipperMock() {
         <div className="flex items-center gap-1.5 text-sm font-bold">
           <Scissors className="w-4 h-4 text-crwn-gold" /> Clip & Earn
         </div>
-        <span className="text-[10px] text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-0.5">10% per signup</span>
+        <span className="text-[10px] text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-0.5">10% recurring · you set it</span>
       </div>
       <div ref={ref} className="space-y-2">
         {rows.map((r, i) => (
@@ -460,7 +460,7 @@ export function ClipperMock() {
           </div>
         ))}
       </div>
-      <p className="text-[10px] text-crwn-text-secondary mt-2">Clippers download your streams, cut them up, and post everywhere. They earn only when a clip converts a subscriber.</p>
+      <p className="text-[10px] text-crwn-text-secondary mt-2">Clippers download your streams, cut them up, and post everywhere. They earn a recurring monthly cut, a % you set, for as long as the fan they brought stays subscribed.</p>
     </PhoneFrame>
   );
 }
