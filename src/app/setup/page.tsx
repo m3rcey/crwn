@@ -9,7 +9,6 @@ import {
   ArrowRight,
   Copy,
   Palette,
-  Quote,
   CreditCard,
   Music,
   ShoppingBag,
@@ -21,7 +20,6 @@ import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtis
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
-import { OnboardingTaglineStep } from '@/components/onboarding/OnboardingTaglineStep';
 import {
   createOnboardingTrack,
   createOnboardingTier,
@@ -31,7 +29,6 @@ import type { ProductType } from '@/types';
 
 type ScreenKey =
   | 'photo'
-  | 'tagline'
   | 'tier-name'
   | 'tier-price'
   | 'tier-benefits'
@@ -54,7 +51,6 @@ interface ScreenDef {
 // One FIELD per screen. Groups (the four chips) span multiple screens.
 const SCREENS: ScreenDef[] = [
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
-  { key: 'tagline', group: 'profile', groupRequired: true, title: 'Write your tagline', subtitle: 'One line that tells fans who you are.', icon: Quote },
   { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your membership tier', subtitle: 'What supporters join. e.g. “Inner Circle”.', icon: CreditCard },
   { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the monthly price', subtitle: 'What fans pay each month. Enter 0 for a free tier.', icon: CreditCard },
   { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do members get?', subtitle: 'Pick the perks fans unlock. These show on your page — you can edit them anytime.', icon: CreditCard, create: 'tier' },
@@ -69,8 +65,6 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
   switch (s.key) {
     case 'photo':
       return setup.hasAvatar;
-    case 'tagline':
-      return setup.hasTagline;
     case 'tier-name':
     case 'tier-price':
     case 'tier-benefits':
@@ -112,7 +106,7 @@ function SetupWizard() {
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const setup = useArtistSetup();
-  const { loading, isArtist, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, tagline, refresh, markComplete } =
+  const { loading, isArtist, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, refresh, markComplete } =
     setup;
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -203,7 +197,7 @@ function SetupWizard() {
       case 'product-price':
         return isValidPrice(productDraft.price);
       default:
-        return false; // photo/tagline gate on screenDone
+        return false; // photo gates on screenDone (autosaves on upload)
     }
   };
 
@@ -357,7 +351,6 @@ function SetupWizard() {
             setup={setup}
             refresh={refresh}
             avatarUrl={avatarUrl}
-            tagline={tagline}
             tierDraft={tierDraft}
             setTierDraft={setTierDraft}
             trackDraft={trackDraft}
@@ -423,7 +416,6 @@ function FieldBody({
   setup,
   refresh,
   avatarUrl,
-  tagline,
   tierDraft,
   setTierDraft,
   trackDraft,
@@ -436,7 +428,6 @@ function FieldBody({
   setup: ArtistSetupState;
   refresh: () => Promise<void>;
   avatarUrl: string;
-  tagline: string;
   tierDraft: { name: string; price: string; benefits: string[] };
   setTierDraft: React.Dispatch<React.SetStateAction<{ name: string; price: string; benefits: string[] }>>;
   trackDraft: { audioFile: File | null; title: string };
@@ -448,8 +439,6 @@ function FieldBody({
   switch (screen.key) {
     case 'photo':
       return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={refresh} />;
-    case 'tagline':
-      return <OnboardingTaglineStep initialValue={tagline} onSaved={refresh} />;
     case 'tier-name':
       return (
         <input
