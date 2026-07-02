@@ -201,7 +201,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
   const assumptionsBlock = (
     <>
       <div className="mt-6">
-        <div className="text-xs text-crwn-text-secondary mb-2">Assumptions</div>
+        <div className="text-sm text-crwn-text-secondary mb-2">Assumptions</div>
         <div className="grid grid-cols-3 gap-2">
           {PRESETS.map((p) => (
             <button
@@ -221,7 +221,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
 
       <button
         onClick={() => setShowAdvanced((v) => !v)}
-        className="mt-4 flex items-center gap-1 text-xs text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+        className="mt-4 flex items-center gap-1 text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
       >
         <ChevronDown className={`w-4 h-4 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
         Adjust the assumptions yourself
@@ -240,7 +240,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             min={0} max={25} step={1} prefix="$"
             onChange={setAlacarte}
           />
-          <p className="text-xs text-crwn-text-secondary/70">
+          <p className="text-sm text-crwn-text-secondary/70">
             Reach: {Math.round(assumptions.reachRate * 100)}% of your audience counted as engaged · Tier prices: $
             {RECOMMENDED_TIER_PRICES.tier1PriceCents / 100} / $
             {RECOMMENDED_TIER_PRICES.tier2PriceCents / 100} / $
@@ -266,7 +266,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         <Stat label="À la carte / mo" value={fmtDollars(result.alacarteMrrCents)} />
         <Stat label="Streaming / mo" value={fmtDollars(result.streamingMrrCents)} />
       </div>
-      <p className="text-xs text-crwn-text-secondary/70 mt-4">
+      <p className="text-sm text-crwn-text-secondary/70 mt-4">
         Estimate from {fmtCount(result.addressable)} addressable fans ·{' '}
         {Math.round(assumptions.superfanRate * 1000) / 10}% become paying superfans. Flip the presets
         to adjust. The math is yours to check.
@@ -284,7 +284,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         <>
           <div className="text-center mb-4">
             <div className="font-semibold mb-1">Get your full breakdown + the setup blueprint</div>
-            <div className="text-sm text-crwn-text-secondary">
+            <div className="text-base text-crwn-text-secondary">
               We&apos;ll email the numbers and the exact tier setup to copy.
             </div>
           </div>
@@ -327,7 +327,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           Book a free 15-min call, keep this money <ArrowRight className="w-5 h-5" />
         </a>
       )}
-      <p className="text-center text-xs text-crwn-text-secondary mt-3">
+      <p className="text-center text-sm text-crwn-text-secondary mt-3">
         {homepage ? 'Free to start. No card required. Set up your tiers in minutes.' : 'A quick Zoom. We’ll show you exactly how to capture this. No pitch.'}
       </p>
     </div>
@@ -347,7 +347,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <h1 className={`font-bold mb-3 ${homepage ? 'text-2xl sm:text-4xl' : 'text-3xl sm:text-4xl'}`}>
             How much money are you leaving on the table?
           </h1>
-          <p className={`text-crwn-text-secondary max-w-xl mx-auto ${homepage ? 'text-sm' : ''}`}>
+          <p className={`text-crwn-text-secondary max-w-xl mx-auto text-base ${homepage ? '' : 'sm:text-lg'}`}>
             {homepage
               ? "Streaming pays pennies. Your superfans would pay you directly. See what you're walking away from every month:"
               : "Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you're walking away from every month."}
@@ -361,7 +361,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
             <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
           </div>
-          <p className="text-xs text-crwn-text-secondary/70 mt-3">
+          <p className="text-sm text-crwn-text-secondary/70 mt-3">
             Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.
           </p>
           {!homepage && assumptionsBlock}
@@ -410,7 +410,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Where the number comes from */}
         <section className="mb-14">
           <SectionHeading icon={BarChart3}>Where {hasNumber ? fmtDollars(result.netMrrCents) + '/mo' : 'the number'} comes from</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
+          <p className="text-crwn-text-secondary text-base mb-5">
             It&apos;s not one big thing. It&apos;s a stack of small ones, all from the same fans.
           </p>
           <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
@@ -421,7 +421,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* The setup that captures it, with the live headcount per tier */}
         <section className="mb-14">
           <SectionHeading icon={Crown}>The setup that captures it</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
+          <p className="text-crwn-text-secondary text-base mb-5">
             A free tier to capture everyone, then three paid tiers built to catch the whale.
             {hasNumber ? ` Here's how your ${fmtCount(result.payers)} paying fans split across them:` : ''}
           </p>
@@ -439,14 +439,14 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-crwn-gold text-lg font-bold">{t.price}</span>
                     {count != null && (
-                      <span className="flex items-center gap-1 text-xs text-crwn-text-secondary">
+                      <span className="flex items-center gap-1 text-sm text-crwn-text-secondary">
                         <Users className="w-3.5 h-3.5" /> {count.toLocaleString('en-US')}
                       </span>
                     )}
                   </div>
                   <ul className="space-y-1.5">
                     {t.perks.map((p) => (
-                      <li key={p} className="flex items-start gap-2 text-sm text-crwn-text-secondary">
+                      <li key={p} className="flex items-start gap-2 text-base text-crwn-text-secondary">
                         <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" /> {p}
                       </li>
                     ))}
@@ -460,7 +460,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* What is CRWN + product mock */}
         <section className="mb-14">
           <SectionHeading icon={Music}>Wait, what is CRWN?</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             A platform to sell directly to your fans: memberships, songs, stems, live sessions, even
             access to you. No label. No middleman. No algorithm. You keep up to 92%, paid to your bank.
             Fans pick a tier and pay you every month:
@@ -471,7 +471,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Streaming vs CRWN */}
         <section className="mb-14">
           <SectionHeading icon={DollarSign}>Streaming vs. CRWN</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
+          <p className="text-crwn-text-secondary text-base mb-5">
             Same fans. Wildly different math. Streaming rents your audience back to you.
           </p>
           <CompareTable />
@@ -480,14 +480,14 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Fan math */}
         <section className="mb-6">
           <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
+          <p className="text-crwn-text-secondary text-base mb-5">
             A small group of real supporters changes everything. Do the math on paying fans, not plays:
           </p>
           <div className="grid grid-cols-3 gap-3">
             {FAN_MATH.map((m) => (
               <div key={m.fans} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5 text-center">
                 <div className="text-2xl sm:text-3xl font-bold text-crwn-gold">{m.fans}</div>
-                <div className="text-xs text-crwn-text-secondary mb-2">fans × $15/mo</div>
+                <div className="text-sm text-crwn-text-secondary mb-2">fans × $15/mo</div>
                 <div className="text-lg font-semibold">{m.rev}/mo</div>
               </div>
             ))}
@@ -501,7 +501,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Everything you can charge for */}
         <section className="mb-14">
           <SectionHeading icon={Sparkles}>Everything you can charge for</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
+          <p className="text-crwn-text-secondary text-base mb-5">
             Every one of these is a revenue stream you switch on. Stack them, and the number adds up fast.
           </p>
           <div className="grid sm:grid-cols-2 gap-3">
@@ -513,19 +513,19 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
                   </div>
                   <div className="font-semibold">{w.title}</div>
                 </div>
-                <p className="text-sm text-crwn-text-secondary leading-relaxed mb-3">{w.line}</p>
+                <p className="text-base text-crwn-text-secondary leading-relaxed mb-3">{w.line}</p>
                 <span className="inline-block text-[10px] uppercase tracking-wide text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-1">{w.tag}</span>
               </div>
             ))}
           </div>
-          <p className="text-crwn-text-secondary text-sm mt-6 mb-4">Your storefront, live in minutes:</p>
+          <p className="text-crwn-text-secondary text-base mt-6 mb-4">Your storefront, live in minutes:</p>
           <ShopMock />
         </section>
 
         {/* Go live */}
         <section className="mb-14">
           <SectionHeading icon={Radio}>Go live, and get paid for it</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             Stream live right on your page: listening parties, beat sessions, Q&amp;As. Sell tickets in
             advance or put it behind a tier. Every stream auto-saves as a recording you can sell, gate,
             or hand to your clippers.
@@ -536,7 +536,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Clip & Earn — fans as a paid marketing army */}
         <section className="mb-14">
           <SectionHeading icon={Scissors}>Your fans are your marketing team</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             Turn on Clip &amp; Earn: your fans download your streams, cut them into clips, and post them
             across TikTok, Reels, and Shorts, the same loop that blows up streamers. When a clip brings
             in a subscriber, that clipper earns a recurring commission, a % you set, every month that
@@ -549,7 +549,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Release waterfall (visual timeline) */}
         <section className="mb-14">
           <SectionHeading icon={TrendingUp}>Release like the majors don&apos;t</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             The scarce good isn&apos;t the song, it&apos;s time. Every tier is a skip-the-line pass.
             DSPs get it last, on purpose.
           </p>
@@ -568,7 +568,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
                       {w.label}
                     </span>
                   </div>
-                  <p className="text-xs text-crwn-text-secondary mt-1">{w.sub}</p>
+                  <p className="text-sm text-crwn-text-secondary mt-1">{w.sub}</p>
                 </div>
               </div>
             ))}
@@ -582,7 +582,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Community */}
         <section className="mb-14">
           <SectionHeading icon={MessageCircle}>A gated community they pay to be in</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             Post exclusive updates, unreleased snippets, and behind-the-scenes only your paying fans can
             see. It&apos;s the room they subscribe to get into.
           </p>
@@ -592,7 +592,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Own your audience */}
         <section className="mb-14">
           <SectionHeading icon={Mail}>Own your audience, don&apos;t rent it</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
+          <p className="text-crwn-text-secondary text-base mb-5">
             Algorithms decide who sees your posts. Your fan list doesn&apos;t. CRWN hands you their
             contact info and the tools to reach them any time.
           </p>
@@ -601,18 +601,18 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
               <div key={t.name} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-4">
                 <div className="text-2xl mb-2">{t.icon}</div>
                 <div className="font-semibold text-sm mb-1">{t.name}</div>
-                <p className="text-xs text-crwn-text-secondary">{t.desc}</p>
+                <p className="text-sm text-crwn-text-secondary">{t.desc}</p>
               </div>
             ))}
           </div>
-          <p className="text-crwn-text-secondary text-sm mt-6 mb-4">Set your automations once, they run forever:</p>
+          <p className="text-crwn-text-secondary text-base mt-6 mb-4">Set your automations once, they run forever:</p>
           <SequencesMock />
         </section>
 
         {/* AI manager + mock */}
         <section className="mb-14">
           <SectionHeading icon={Zap}>A manager built in</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             An AI manager watches your numbers and hands you decisions to approve, raise a price, email
             fans, win back churn. You make music; it grows the business.
           </p>
@@ -622,7 +622,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Money flow + fees */}
         <section className="mb-14">
           <SectionHeading icon={Wallet}>Keep up to 92%, paid to your bank</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             Streaming pays fractions of a cent and keeps most of it. On CRWN the money flows straight
             to you, powered by Stripe. No label cut, no 30% middleman.
           </p>
@@ -635,14 +635,14 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             <div className="h-3 rounded-full bg-crwn-elevated overflow-hidden">
               <div className="h-full bg-crwn-gold rounded-full" style={{ width: '92%' }} />
             </div>
-            <div className="text-xs text-crwn-text-secondary mt-2">Free plan keeps 88%. Pro keeps 92%. Every plan pays out straight to your bank.</div>
+            <div className="text-sm text-crwn-text-secondary mt-2">Free plan keeps 88%. Pro keeps 92%. Every plan pays out straight to your bank.</div>
           </div>
         </section>
 
         {/* Payouts mock */}
         <section className="mb-14">
           <SectionHeading icon={CreditCard}>Watch it hit your account</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             Every subscription and sale lands in your balance in real time. Cash out anytime, or auto-payout
             every week. No invoices, no waiting on a label.
           </p>
@@ -652,7 +652,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Analytics mock */}
         <section className="mb-14">
           <SectionHeading icon={Users}>See who actually supports you</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             A live leaderboard ranks your biggest supporters by name and spend, so you know exactly who
             to keep close. Your audience, your data.
           </p>
@@ -666,7 +666,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         {/* Sync licensing (bonus) */}
         <section className="mb-14">
           <SectionHeading icon={Globe}>Bonus: get your music placed</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-6">
+          <p className="text-crwn-text-secondary text-base mb-6">
             CRWN surfaces sync licensing briefs, TV, film, games, ads, matched to your genre. One
             placement can pay more than a year of streaming.
           </p>
@@ -680,7 +680,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             {OBJECTIONS.map((o) => (
               <div key={o.q} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
                 <div className="font-semibold mb-1">&ldquo;{o.q}&rdquo;</div>
-                <p className="text-sm text-crwn-text-secondary leading-relaxed">{o.a}</p>
+                <p className="text-base text-crwn-text-secondary leading-relaxed">{o.a}</p>
               </div>
             ))}
           </div>
@@ -694,7 +694,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
               <div key={s.n} className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-5">
                 <div className="w-8 h-8 rounded-full bg-crwn-gold text-crwn-bg font-bold flex items-center justify-center mb-3">{s.n}</div>
                 <div className="font-semibold mb-1">{s.title}</div>
-                <p className="text-sm text-crwn-text-secondary">{s.body}</p>
+                <p className="text-base text-crwn-text-secondary">{s.body}</p>
               </div>
             ))}
           </div>
@@ -707,7 +707,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             {FAQS.map((f) => (
               <div key={f.q} className="py-4">
                 <div className="font-semibold mb-1">{f.q}</div>
-                <p className="text-sm text-crwn-text-secondary leading-relaxed">{f.a}</p>
+                <p className="text-base text-crwn-text-secondary leading-relaxed">{f.a}</p>
               </div>
             ))}
           </div>
@@ -771,7 +771,7 @@ function PrimaryCTA({ children, sub, homepage }: { children: ReactNode; sub?: st
           {children} <ArrowRight className="w-5 h-5" />
         </a>
       )}
-      {sub && <p className="text-xs text-crwn-text-secondary mt-3">{sub}</p>}
+      {sub && <p className="text-sm text-crwn-text-secondary mt-3">{sub}</p>}
     </div>
   );
 }
@@ -800,7 +800,7 @@ function CompareTable() {
             <X className="w-4 h-4 text-crwn-text-secondary/50 shrink-0 mt-0.5" />
             <div>
               <div className="text-[10px] uppercase tracking-wide text-crwn-text-secondary/50">{r.label}</div>
-              <div className="text-sm text-crwn-text-secondary">{r.streaming}</div>
+              <div className="text-base text-crwn-text-secondary">{r.streaming}</div>
             </div>
           </div>
           <div className="px-4 py-3 flex items-start gap-2 bg-crwn-gold/5 border-b border-crwn-gold/20">
@@ -899,7 +899,7 @@ function Slider({
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-sm text-crwn-text-secondary">{label}</span>
+        <span className="text-base text-crwn-text-secondary">{label}</span>
         <span className="text-sm font-semibold text-crwn-gold">{prefix}{value}{suffix}</span>
       </div>
       <input
@@ -916,7 +916,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-crwn-bg/40 rounded-xl p-3">
       <div className="text-lg font-bold">{value}</div>
-      <div className="text-xs text-crwn-text-secondary">{label}</div>
+      <div className="text-sm text-crwn-text-secondary">{label}</div>
     </div>
   );
 }
