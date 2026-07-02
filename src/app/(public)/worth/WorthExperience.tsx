@@ -416,17 +416,6 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <CompareTable />
         </section>
 
-        {/* Where the number comes from */}
-        <section className="mb-14">
-          <SectionHeading icon={BarChart3}>Where {hasNumber ? fmtDollars(result.netMrrCents) + '/mo' : 'the number'} comes from</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
-            It&apos;s not one big thing. It&apos;s a stack of small ones, all from the same fans.
-          </p>
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
-            <RevenueStack />
-          </div>
-        </section>
-
         {/* Fan math */}
         <section className="mb-6">
           <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
@@ -447,6 +436,56 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         <PrimaryCTA homepage={homepage} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
           {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
         </PrimaryCTA>
+
+        {/* Where the number comes from */}
+        <section className="mb-14">
+          <SectionHeading icon={BarChart3}>Where {hasNumber ? fmtDollars(result.netMrrCents) + '/mo' : 'the number'} comes from</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            It&apos;s not one big thing. It&apos;s a stack of small ones, all from the same fans.
+          </p>
+          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6">
+            <RevenueStack />
+          </div>
+        </section>
+
+        {/* The setup that captures it, with the live headcount per tier */}
+        <section className="mb-14">
+          <SectionHeading icon={Crown}>The setup that captures it</SectionHeading>
+          <p className="text-crwn-text-secondary text-sm mb-5">
+            A free tier to capture everyone, then three paid tiers built to catch the whale.
+            {hasNumber ? ` Here's how your ${fmtCount(result.payers)} paying fans split across them:` : ''}
+          </p>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {TIERS.map((t, i) => {
+              const count = hasNumber ? Math.floor([result.tier1Subs, result.tier2Subs, result.tier3Subs][i]) : null;
+              return (
+                <div
+                  key={t.name}
+                  className={`rounded-2xl p-5 border ${
+                    t.accent ? 'border-crwn-gold/50 bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'
+                  }`}
+                >
+                  <div className="font-semibold">{t.name}</div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-crwn-gold text-lg font-bold">{t.price}</span>
+                    {count != null && (
+                      <span className="flex items-center gap-1 text-xs text-crwn-text-secondary">
+                        <Users className="w-3.5 h-3.5" /> {count.toLocaleString('en-US')}
+                      </span>
+                    )}
+                  </div>
+                  <ul className="space-y-1.5">
+                    {t.perks.map((p) => (
+                      <li key={p} className="flex items-start gap-2 text-sm text-crwn-text-secondary">
+                        <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" /> {p}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
         {/* What is CRWN + product mock */}
         <section className="mb-14">
@@ -481,34 +520,6 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </div>
           <p className="text-crwn-text-secondary text-sm mt-6 mb-4">Your storefront, live in minutes:</p>
           <ShopMock />
-        </section>
-
-        {/* The tier setup */}
-        <section className="mb-14">
-          <SectionHeading icon={Crown}>The setup that captures it</SectionHeading>
-          <p className="text-crwn-text-secondary text-sm mb-5">
-            A free tier to capture everyone, then three paid tiers built to catch the whale.
-          </p>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {TIERS.map((t) => (
-              <div
-                key={t.name}
-                className={`rounded-2xl p-5 border ${
-                  t.accent ? 'border-crwn-gold/50 bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'
-                }`}
-              >
-                <div className="font-semibold">{t.name}</div>
-                <div className="text-crwn-gold text-lg font-bold mb-3">{t.price}</div>
-                <ul className="space-y-1.5">
-                  {t.perks.map((p) => (
-                    <li key={p} className="flex items-start gap-2 text-sm text-crwn-text-secondary">
-                      <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" /> {p}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* Release waterfall (visual timeline) */}
