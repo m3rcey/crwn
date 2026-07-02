@@ -187,21 +187,27 @@ export function EarningsMock({ balanceCents }: { balanceCents?: number }) {
   );
 }
 
-export function LeaderboardMock() {
+export function LeaderboardMock({ payers }: { payers?: number }) {
   const { ref, isInView } = useInView();
+  // Top-fan points scale with the size of the paying fanbase; spend is per-person (tier-based).
+  const base = payers && payers > 0 ? Math.max(70, Math.round(payers * 1.8)) : 161;
+  const fracs = [1, 0.68, 0.46, 0.43, 0.34, 0.32];
   const rows = [
-    { name: 'Aaliyah James', pts: 161, badge: '🥇' },
-    { name: 'Jordan Rivers', pts: 110, badge: '⭐' },
-    { name: 'Maya Chen', pts: 74, badge: '🔥' },
-    { name: 'Tyler Brooks', pts: 69, rank: 4 },
-    { name: 'Marcus Lee', pts: 55, rank: 5 },
-    { name: 'Dex Thompson', pts: 51, rank: 6 },
-  ];
+    { name: 'Aaliyah James', badge: '🥇', spent: '$175' },
+    { name: 'Jordan Rivers', badge: '⭐', spent: '$120' },
+    { name: 'Maya Chen', badge: '🔥', spent: '$80' },
+    { name: 'Tyler Brooks', rank: 4, spent: '$75' },
+    { name: 'Marcus Lee', rank: 5, spent: '$60' },
+    { name: 'Dex Thompson', rank: 6, spent: '$55' },
+  ].map((r, i) => ({ ...r, pts: Math.round(base * fracs[i]) }));
   return (
     <PhoneFrame>
       <TabRow active="Leaderboard" />
-      <div className="flex items-center gap-1.5 mb-2 text-sm font-bold">
+      <div className="flex items-center gap-1.5 text-sm font-bold">
         <Trophy className="w-4 h-4 text-crwn-gold" /> Top Supporters
+      </div>
+      <div className="text-[10px] text-crwn-text-secondary mb-2 ml-6">
+        {payers && payers > 0 ? `of ${Math.floor(payers).toLocaleString('en-US')} paying fans` : 'your biggest fans'}
       </div>
       <div ref={ref} className="divide-y divide-crwn-elevated">
         {rows.map((r, i) => (
@@ -212,7 +218,10 @@ export function LeaderboardMock() {
           >
             <div className="w-5 text-center text-xs text-crwn-text-secondary">{r.badge ?? r.rank}</div>
             <div className="w-6 h-6 rounded-full bg-crwn-elevated text-[10px] flex items-center justify-center text-crwn-text-secondary shrink-0">{r.name[0]}</div>
-            <div className="text-[12px] font-medium truncate">{r.name}</div>
+            <div className="min-w-0">
+              <div className="text-[12px] font-medium truncate">{r.name}</div>
+              <div className="text-[10px] text-crwn-text-secondary">{r.spent} spent</div>
+            </div>
             <div className="ml-auto text-crwn-gold font-semibold text-[12px]">
               <AnimatedNumber end={r.pts} active={isInView} suffix=" pts" />
             </div>
@@ -268,11 +277,12 @@ export function AiActionsMock() {
   );
 }
 
-export function CommunityMock() {
+export function CommunityMock({ fans }: { fans?: number }) {
   const { ref, isInView } = useInView();
+  const base = fans && fans > 0 ? Math.floor(fans) : 90;
   const posts = [
-    { text: "What do y'all want to see more of… BTS content or me making the song in real time? Lmk", exclusive: false, likes: 12, comments: 4 },
-    { text: 'Droppin an unreleased track in here this Friday for yall only', exclusive: true, likes: 38, comments: 9 },
+    { text: "What do y'all want to see more of… BTS content or me making the song in real time? Lmk", exclusive: false, likes: Math.max(6, Math.round(base * 0.42)), comments: Math.max(2, Math.round(base * 0.11)) },
+    { text: 'Droppin an unreleased track in here this Friday for yall only', exclusive: true, likes: Math.max(4, Math.round(base * 0.55)), comments: Math.max(1, Math.round(base * 0.14)) },
   ];
   return (
     <PhoneFrame>
