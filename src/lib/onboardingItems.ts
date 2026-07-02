@@ -83,49 +83,27 @@ export async function createOnboardingTrack(
   return {};
 }
 
+// Creates the tier ROW only — no Stripe prices. During onboarding the artist
+// hasn't connected Stripe yet (and /api/stripe/create-price hard-requires a
+// connected account), so we defer price creation. Paid tiers get their Stripe
+// prices backfilled automatically the moment the artist connects Stripe — see
+// backfillTierPrices() in /api/stripe/connect/status. Free tiers (price 0) never
+// need a Stripe price. This is the "connect Stripe later, never a hard block"
+// promise the wizard makes.
 export async function createOnboardingTier(
   supabase: Supa,
   artistId: string,
   { name, priceCents }: { name: string; priceCents: number }
 ): Promise<Result> {
-  let stripePriceId: string | null = null;
-  let stripeAnnualPriceId: string | null = null;
-  let stripeProductId: string | null = null;
-
-  // Paid tiers need Stripe prices (platform account). Free tiers don't.
-  if (priceCents > 0) {
-    try {
-      const res = await fetch('/api/stripe/create-price', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          price: priceCents,
-          description: '',
-          artistId,
-          offersAnnual: true,
-          annualDiscountPercent: 25,
-        }),
-      });
-      if (!res.ok) return { error: 'Could not set up payments for this tier. Try again.' };
-      const d = await res.json();
-      stripePriceId = d.stripePriceId ?? null;
-      stripeAnnualPriceId = d.stripeAnnualPriceId ?? null;
-      stripeProductId = d.stripeProductId ?? null;
-    } catch {
-      return { error: 'Could not set up payments for this tier. Try again.' };
-    }
-  }
-
   const { error } = await supabase.from('subscription_tiers').insert({
     artist_id: artistId,
     name: name.trim(),
     price: priceCents,
     description: '',
     access_config: { benefits: [] },
-    stripe_price_id: stripePriceId,
-    stripe_annual_price_id: stripeAnnualPriceId,
-    stripe_product_id: stripeProductId,
+    stripe_price_id: null,
+    stripe_annual_price_id: null,
+    stripe_product_id: null,
     offers_annual: true,
     annual_discount_percent: 25,
   });
