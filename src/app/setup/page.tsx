@@ -83,7 +83,7 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
 const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;
 
 const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
-  { value: 'digital', label: 'Digital download', hint: 'Beats, stems, sample packs' },
+  { value: 'digital', label: 'Digital download', hint: 'Unreleased tracks, videos, art' },
   { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
   { value: 'experience', label: 'Experience', hint: '1-on-1s, shoutouts, features' },
 ];
@@ -334,6 +334,7 @@ function SetupWizard() {
             setTrackDraft={setTrackDraft}
             productDraft={productDraft}
             setProductDraft={setProductDraft}
+            onSkipGroup={skipGroup}
           />
         </div>
       </main>
@@ -399,6 +400,7 @@ function FieldBody({
   setTrackDraft,
   productDraft,
   setProductDraft,
+  onSkipGroup,
 }: {
   screen: ScreenDef;
   setup: ArtistSetupState;
@@ -411,6 +413,7 @@ function FieldBody({
   setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
   productDraft: { type: ProductType; title: string; price: string };
   setProductDraft: React.Dispatch<React.SetStateAction<{ type: ProductType; title: string; price: string }>>;
+  onSkipGroup: () => void;
 }) {
   switch (screen.key) {
     case 'photo':
@@ -459,6 +462,14 @@ function FieldBody({
               <p className="text-xs text-crwn-text-secondary mt-0.5">{t.hint}</p>
             </button>
           ))}
+          <button
+            type="button"
+            onClick={onSkipGroup}
+            className="text-left px-4 py-4 rounded-xl border border-dashed border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/40 transition-colors"
+          >
+            <p className="font-medium">I don’t have anything to sell yet</p>
+            <p className="text-xs mt-0.5">Skip this — you can add products later from your dashboard.</p>
+          </button>
         </div>
       );
     case 'product-title':
