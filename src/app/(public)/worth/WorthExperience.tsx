@@ -35,17 +35,22 @@ const PRESETS: { key: AggressivenessPreset; label: string }[] = [
 ];
 
 // The recommended tier blueprint the calculator's math rests on.
-const TIERS = [
+// `subs` maps a paid tier to its computed headcount; the free tier has none.
+const TIERS: { name: string; price: string; accent: boolean; subs?: 'tier1' | 'tier2' | 'tier3'; perks: string[] }[] = [
   {
-    name: 'Inner Circle', price: '$10/mo', accent: false,
+    name: 'The Wave', price: 'Free', accent: false,
+    perks: ['Free tracks & community posts', 'Join the community', 'New music after the paid windows'],
+  },
+  {
+    name: 'Inner Circle', price: '$10/mo', accent: false, subs: 'tier1',
     perks: ['Exclusive tracks', '7-day early access', 'DMs with you', '10% shop discount'],
   },
   {
-    name: 'The Vault', price: '$25/mo', accent: true,
+    name: 'The Vault', price: '$25/mo', accent: true, subs: 'tier2',
     perks: ['Stems & multitracks', '14-day early access', 'Monthly group live Q&A', 'Voice-note replies'],
   },
   {
-    name: 'Throne', price: '$100/mo', accent: false,
+    name: 'Throne', price: '$100/mo', accent: false, subs: 'tier3',
     perks: ['Day-0 first listen', 'Monthly 1-on-1 video call', '1 custom song / quarter', 'Credits on releases'],
   },
 ];
@@ -425,9 +430,10 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
             A free tier to capture everyone, then three paid tiers built to catch the whale.
             {hasNumber ? ` Here's how your ${fmtCount(result.payers)} paying fans split across them:` : ''}
           </p>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {TIERS.map((t, i) => {
-              const count = hasNumber ? Math.floor([result.tier1Subs, result.tier2Subs, result.tier3Subs][i]) : null;
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {TIERS.map((t) => {
+              const subsById: Record<string, number> = { tier1: result.tier1Subs, tier2: result.tier2Subs, tier3: result.tier3Subs };
+              const count = hasNumber && t.subs ? Math.floor(subsById[t.subs]) : null;
               return (
                 <div
                   key={t.name}
