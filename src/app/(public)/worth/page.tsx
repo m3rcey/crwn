@@ -189,7 +189,8 @@ export default function WorthCalculatorPage() {
   };
 
   const hasNumber = inputs.monthlyListeners > 0 || inputs.engagedFollowers > 0;
-  const numberLabel = hasNumber ? fmtDollars(result.netAnnualCents) : 'money';
+  const monthlyLabel = hasNumber ? `${fmtDollars(result.netMrrCents)}/mo` : 'money';
+  const annualLabel = hasNumber ? fmtDollars(result.netAnnualCents) : '';
 
   return (
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
@@ -277,14 +278,16 @@ export default function WorthCalculatorPage() {
             You&apos;re leaving roughly
           </div>
           <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
-            {hasNumber ? fmtDollars(result.netAnnualCents) : '–'}
+            {hasNumber ? fmtDollars(result.netMrrCents) : '–'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
           </div>
-          <div className="text-crwn-text-secondary mb-6">on the table every year</div>
+          <div className="text-crwn-text-secondary mb-6">
+            on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
+          </div>
 
           {hasNumber && (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-left">
-                <Stat label="Net per month" value={fmtDollars(result.netMrrCents)} />
+                <Stat label="Per year" value={fmtDollars(result.netAnnualCents)} />
                 <Stat label="Paying superfans" value={fmtCount(result.payers)} />
                 <Stat
                   label="vs. streaming income"
@@ -390,7 +393,7 @@ export default function WorthCalculatorPage() {
         </section>
 
         <BookCTA sub="A 15-minute Zoom. We map your exact setup. No pitch.">
-          {hasNumber ? `Show me how to capture my ${fmtDollars(result.netAnnualCents)}` : 'Show me how it works'}
+          {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
         </BookCTA>
 
         {/* What is CRWN + product mock */}
@@ -401,7 +404,7 @@ export default function WorthCalculatorPage() {
             access to you. No label. No middleman. No algorithm. You keep up to 92%, paid to your bank.
             Fans pick a tier and pay you every month:
           </p>
-          <TiersMock />
+          <TiersMock subs={hasNumber ? { t1: result.tier1Subs, t2: result.tier2Subs, t3: result.tier3Subs } : undefined} />
         </section>
 
         {/* Everything you can charge for */}
@@ -554,7 +557,7 @@ export default function WorthCalculatorPage() {
             Every subscription and sale lands in your balance in real time. Cash out anytime, or auto-payout
             every week. No invoices, no waiting on a label.
           </p>
-          <EarningsMock />
+          <EarningsMock balanceCents={hasNumber ? result.netMrrCents : undefined} />
         </section>
 
         {/* Analytics mock */}
@@ -625,13 +628,13 @@ export default function WorthCalculatorPage() {
             <Crown className="w-7 h-7 text-crwn-gold" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-            You&apos;re leaving {numberLabel} on the table. Let&apos;s go get it.
+            You&apos;re leaving {monthlyLabel} on the table.{hasNumber ? ` That's ${annualLabel} a year.` : ''} Let&apos;s go get it.
           </h2>
           <p className="text-crwn-text-secondary">
             Book a free 15-minute Zoom and we&apos;ll set up every one of these revenue streams with you, live.
           </p>
           <BookCTA sub="Free to start. No card required. Keep up to 92%.">
-            Book a call, claim your {numberLabel}
+            Book a call, claim your {monthlyLabel}
           </BookCTA>
         </div>
       </div>
