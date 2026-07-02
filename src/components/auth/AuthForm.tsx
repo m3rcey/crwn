@@ -116,8 +116,17 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
 
         const { error } = await signUp(email, password, username, fullName);
         if (error) throw error;
+        // If email confirmation is DISABLED in Supabase, signUp returns an active
+        // session — the user is already logged in, so skip the "check your email"
+        // screen and drop them into onboarding. If confirmation is ON there's no
+        // session yet, so show the confirmation screen as before.
+        const { data: { session } } = await supabase.auth.getSession();
         onSignupComplete?.();
-        setShowConfirmation(true);
+        if (session) {
+          onSuccess?.();
+        } else {
+          setShowConfirmation(true);
+        }
       } else {
         const { error } = await signIn(email, password);
         if (error) throw error;
