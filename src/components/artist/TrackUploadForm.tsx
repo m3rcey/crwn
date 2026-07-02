@@ -210,6 +210,10 @@ export function TrackUploadForm() {
   };
 
   const executeDeleteTrack = async (track: Track) => {
+    // Close the confirm modal immediately (mirrors executeBulkDelete). Without
+    // this the prompt stayed open after confirming, even though the delete + toast
+    // fired.
+    setConfirmDeleteTrack(null);
     try {
       // Delete audio file from storage
       if (track.audio_url_128) {

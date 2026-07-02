@@ -154,7 +154,7 @@ export function useArtistSetup(): ArtistSetupState {
   }, [user, supabase]);
 
   const steps: SetupStep[] = [
-    { key: 'profile', label: 'Profile', required: true, done: hasAvatar && hasTagline },
+    { key: 'profile', label: 'Profile', required: true, done: hasAvatar },
     { key: 'monetize', label: 'Monetize', required: false, done: hasTier },
     { key: 'music', label: 'Music', required: true, done: hasMusic },
     { key: 'shop', label: 'Shop', required: false, done: hasProduct },

@@ -76,6 +76,16 @@ BEGIN
     END LOOP;
   END LOOP;
 
+  -- Storage files. avatars/banners are keyed by user id (name = '<uid>/...');
+  -- audio, album-art and product-files are keyed by artist id ('<aid>/...').
+  -- Removes them from the bucket listings so nothing is left dangling.
+  DELETE FROM storage.objects o
+  WHERE (o.bucket_id = 'avatars'
+         AND EXISTS (SELECT 1 FROM unnest(uids) x WHERE o.name LIKE x::text || '/%'))
+     OR (aids IS NOT NULL
+         AND o.bucket_id IN ('audio', 'album-art', 'product-files')
+         AND EXISTS (SELECT 1 FROM unnest(aids) x WHERE o.name LIKE x::text || '/%'));
+
   -- Core rows (cascade-linked) + the auth users themselves.
   IF aids IS NOT NULL THEN
     DELETE FROM public.artist_profiles WHERE id = ANY(aids);
