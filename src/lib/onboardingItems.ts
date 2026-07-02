@@ -93,14 +93,17 @@ export async function createOnboardingTrack(
 export async function createOnboardingTier(
   supabase: Supa,
   artistId: string,
-  { name, priceCents }: { name: string; priceCents: number }
+  { name, priceCents, benefits = [] }: { name: string; priceCents: number; benefits?: string[] }
 ): Promise<Result> {
+  // Benefits land in access_config.benefits — the public tier card merges these
+  // in as "legacy benefits" ([slug]/page.tsx), so they render for fans.
+  const cleanBenefits = benefits.map((b) => b.trim()).filter(Boolean);
   const { error } = await supabase.from('subscription_tiers').insert({
     artist_id: artistId,
     name: name.trim(),
     price: priceCents,
     description: '',
-    access_config: { benefits: [] },
+    access_config: { benefits: cleanBenefits },
     stripe_price_id: null,
     stripe_annual_price_id: null,
     stripe_product_id: null,

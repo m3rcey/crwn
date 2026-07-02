@@ -34,6 +34,7 @@ type ScreenKey =
   | 'tagline'
   | 'tier-name'
   | 'tier-price'
+  | 'tier-benefits'
   | 'track-audio'
   | 'track-title'
   | 'product-type'
@@ -55,7 +56,8 @@ const SCREENS: ScreenDef[] = [
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
   { key: 'tagline', group: 'profile', groupRequired: true, title: 'Write your tagline', subtitle: 'One line that tells fans who you are.', icon: Quote },
   { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your membership tier', subtitle: 'What supporters join. e.g. “Inner Circle”.', icon: CreditCard },
-  { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the monthly price', subtitle: 'What fans pay each month. Enter 0 for a free tier.', icon: CreditCard, create: 'tier' },
+  { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the monthly price', subtitle: 'What fans pay each month. Enter 0 for a free tier.', icon: CreditCard },
+  { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do members get?', subtitle: 'Pick the perks fans unlock. These show on your page — you can edit them anytime.', icon: CreditCard, create: 'tier' },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -71,6 +73,7 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
       return setup.hasTagline;
     case 'tier-name':
     case 'tier-price':
+    case 'tier-benefits':
       return setup.hasTier;
     case 'track-audio':
     case 'track-title':
@@ -82,11 +85,26 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
 
 const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;
 
+// Experiences/1-on-1s require scheduling — a Pro-only platform feature — so they're
+// NOT offered here; artists set those up in the dashboard Shop tab (which gates Pro).
 const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
   { value: 'digital', label: 'Digital download', hint: 'Unreleased tracks, videos, art' },
   { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
-  { value: 'experience', label: 'Experience', hint: '1-on-1s, shoutouts, features' },
 ];
+
+// Proven default tier (mirrors the landing-page "Inner Circle") so a Free artist —
+// who gets exactly ONE fan tier — lands a rich, benefit-loaded tier, not a bare one.
+const DEFAULT_TIER_NAME = 'Inner Circle';
+const DEFAULT_TIER_PRICE = '10';
+const TIER_BENEFIT_SUGGESTIONS = [
+  'Exclusive tracks',
+  'Early access to new releases',
+  'Members-only posts',
+  'Shout-outs from me',
+  'Behind-the-scenes content',
+  'Your name in the credits',
+];
+const DEFAULT_TIER_BENEFITS = TIER_BENEFIT_SUGGESTIONS.slice(0, 4);
 
 function SetupWizard() {
   const router = useRouter();
@@ -104,7 +122,11 @@ function SetupWizard() {
   const initRef = useRef(false);
 
   // Drafts for the multi-screen item flows (persisted only when the item is created).
-  const [tierDraft, setTierDraft] = useState({ name: '', price: '' });
+  const [tierDraft, setTierDraft] = useState<{ name: string; price: string; benefits: string[] }>({
+    name: DEFAULT_TIER_NAME,
+    price: DEFAULT_TIER_PRICE,
+    benefits: DEFAULT_TIER_BENEFITS,
+  });
   const [trackDraft, setTrackDraft] = useState<{ audioFile: File | null; title: string }>({ audioFile: null, title: '' });
   const [productDraft, setProductDraft] = useState<{ type: ProductType; title: string; price: '' | string }>({
     type: 'digital',
@@ -168,6 +190,8 @@ function SetupWizard() {
         return tierDraft.name.trim() !== '';
       case 'tier-price':
         return isValidPrice(tierDraft.price);
+      case 'tier-benefits':
+        return true; // benefits are optional; Continue creates the tier
       case 'track-audio':
         return !!trackDraft.audioFile;
       case 'track-title':
@@ -198,7 +222,13 @@ function SetupWizard() {
   const runCreate = async (kind: 'tier' | 'track' | 'product'): Promise<string | undefined> => {
     if (!artistId) return 'Your artist profile is still loading. Try again.';
     if (kind === 'tier') {
-      return (await createOnboardingTier(supabase, artistId, { name: tierDraft.name, priceCents: Math.round(parseFloat(tierDraft.price) * 100) })).error;
+      return (
+        await createOnboardingTier(supabase, artistId, {
+          name: tierDraft.name,
+          priceCents: Math.round(parseFloat(tierDraft.price) * 100),
+          benefits: tierDraft.benefits,
+        })
+      ).error;
     }
     if (kind === 'track') {
       if (!trackDraft.audioFile) return 'Pick an audio file first.';
@@ -407,8 +437,8 @@ function FieldBody({
   refresh: () => Promise<void>;
   avatarUrl: string;
   tagline: string;
-  tierDraft: { name: string; price: string };
-  setTierDraft: React.Dispatch<React.SetStateAction<{ name: string; price: string }>>;
+  tierDraft: { name: string; price: string; benefits: string[] };
+  setTierDraft: React.Dispatch<React.SetStateAction<{ name: string; price: string; benefits: string[] }>>;
   trackDraft: { audioFile: File | null; title: string };
   setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
   productDraft: { type: ProductType; title: string; price: string };
@@ -433,6 +463,14 @@ function FieldBody({
       );
     case 'tier-price':
       return <PriceInput value={tierDraft.price} onChange={(v) => setTierDraft((d) => ({ ...d, price: v }))} suffix="/mo" done={setup.hasTier} />;
+    case 'tier-benefits':
+      return (
+        <BenefitPicker
+          selected={tierDraft.benefits}
+          onChange={(benefits) => setTierDraft((d) => ({ ...d, benefits }))}
+          done={setup.hasTier}
+        />
+      );
     case 'track-audio':
       return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done={setup.hasMusic} />;
     case 'track-title':
@@ -537,6 +575,67 @@ function AudioPicker({ file, onPick, done }: { file: File | null; onPick: (f: Fi
           if (f) onPick(f);
         }}
       />
+    </div>
+  );
+}
+
+function BenefitPicker({ selected, onChange, done }: { selected: string[]; onChange: (v: string[]) => void; done?: boolean }) {
+  const [custom, setCustom] = useState('');
+  if (done) {
+    return <p className="text-crwn-text-secondary">Tier already created — hit Continue.</p>;
+  }
+  const toggle = (b: string) => onChange(selected.includes(b) ? selected.filter((x) => x !== b) : [...selected, b]);
+  const addCustom = () => {
+    const v = custom.trim();
+    if (v && !selected.includes(v)) onChange([...selected, v]);
+    setCustom('');
+  };
+  const extras = selected.filter((b) => !TIER_BENEFIT_SUGGESTIONS.includes(b));
+  const chips = [...TIER_BENEFIT_SUGGESTIONS, ...extras];
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {chips.map((b) => {
+          const on = selected.includes(b);
+          return (
+            <button
+              key={b}
+              type="button"
+              onClick={() => toggle(b)}
+              className={`px-3 py-2 rounded-full text-sm border transition-colors ${
+                on ? 'bg-crwn-gold text-crwn-bg border-crwn-gold font-medium' : 'border-crwn-elevated text-crwn-text-secondary hover:border-crwn-gold/40'
+              }`}
+            >
+              {on ? '✓ ' : ''}
+              {b}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-2 mt-4">
+        <input
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addCustom();
+            }
+          }}
+          maxLength={60}
+          placeholder="Add your own perk"
+          className="flex-1 bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
+        />
+        <button
+          type="button"
+          onClick={addCustom}
+          disabled={!custom.trim()}
+          className="px-4 py-3 rounded-xl border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text disabled:opacity-40 transition-colors"
+        >
+          Add
+        </button>
+      </div>
+      <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier — edit anytime in the dashboard.</p>
     </div>
   );
 }
