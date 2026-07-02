@@ -58,7 +58,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map(toast => (
           <div
             key={toast.id}
-            className={`pointer-events-auto neu-raised flex items-center gap-3 px-4 py-3 rounded-xl border ${getBorderColor(toast.type)} animate-slide-down`}
+            className={`pointer-events-auto bg-crwn-elevated shadow-xl flex items-center gap-3 px-4 py-3 rounded-xl border ${getBorderColor(toast.type)} animate-slide-down`}
             onClick={() => removeToast(toast.id)}
           >
             {getIcon(toast.type)}
