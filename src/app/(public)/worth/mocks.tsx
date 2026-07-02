@@ -10,7 +10,7 @@ import { useInView } from '@/hooks/useInView';
 import {
   Home, Compass, MessageCircle, Library, User, Signal, BatteryFull,
   Check, X, Users, Trophy, Zap, Bot, Crown, Lock, Heart, Share2,
-  ShoppingBag, Disc3, Globe, Power, Plus,
+  ShoppingBag, Disc3, Globe, Power, Plus, Scissors, Play, Download,
 } from 'lucide-react';
 
 // Count-up number that animates once its mock scrolls into view.
@@ -393,6 +393,74 @@ export function SequencesMock() {
           </div>
         ))}
       </div>
+    </PhoneFrame>
+  );
+}
+
+export function LiveMock() {
+  const { ref, isInView } = useInView();
+  return (
+    <PhoneFrame>
+      <TabRow active="Live" />
+      <div ref={ref} className={isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'}>
+        <div className="text-sm font-bold mb-2">Recordings</div>
+        <div className="rounded-xl bg-crwn-surface border border-crwn-elevated overflow-hidden">
+          <div className="relative h-36 bg-gradient-to-br from-crwn-gold/25 to-crwn-bg flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-crwn-gold flex items-center justify-center">
+              <Play className="w-5 h-5 text-crwn-bg ml-0.5" />
+            </div>
+            <span className="absolute top-2 left-2 text-[10px] font-semibold bg-red-500 text-white rounded px-1.5 py-0.5 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> LIVE
+            </span>
+            <span className="absolute bottom-2 right-2 text-[10px] bg-black/70 text-white rounded px-1.5 py-0.5">1:10:24</span>
+          </div>
+          <div className="p-3">
+            <div className="text-[13px] font-semibold">Friday listening party</div>
+            <div className="text-[10px] text-crwn-text-secondary mb-2">Ticketed · 84 watching</div>
+            <span className="inline-flex items-center gap-1 text-[11px] border border-crwn-elevated rounded-full px-3 py-1">
+              <Download className="w-3 h-3" /> Download full stream
+            </span>
+          </div>
+        </div>
+        <p className="text-[10px] text-crwn-text-secondary mt-2">Every stream auto-saves. Sell the replay, gate it, or hand it to your clippers.</p>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+export function ClipperMock() {
+  const { ref, isInView } = useInView();
+  const rows = [
+    { name: '@dreadvisuals', views: '48K views', earned: '+$60' },
+    { name: '@thehiphopplug', views: '22K views', earned: '+$30' },
+    { name: '@clipgod', views: '15K views', earned: '+$20' },
+    { name: '@fancentral', views: '9K views', earned: '+$10' },
+  ];
+  return (
+    <PhoneFrame>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-1.5 text-sm font-bold">
+          <Scissors className="w-4 h-4 text-crwn-gold" /> Clip & Earn
+        </div>
+        <span className="text-[10px] text-crwn-gold bg-crwn-gold/10 rounded-full px-2 py-0.5">10% per signup</span>
+      </div>
+      <div ref={ref} className="space-y-2">
+        {rows.map((r, i) => (
+          <div
+            key={r.name}
+            style={{ animationDelay: `${i * 90}ms` }}
+            className={`${isInView ? 'animate-[slideIn_0.4s_ease-out_both]' : 'opacity-0'} flex items-center gap-2 rounded-xl bg-crwn-surface border border-crwn-elevated p-2.5`}
+          >
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-crwn-gold shrink-0" />
+            <div className="min-w-0">
+              <div className="text-[12px] font-medium truncate">{r.name}</div>
+              <div className="text-[10px] text-crwn-text-secondary">{r.views}</div>
+            </div>
+            <div className="ml-auto text-crwn-gold font-bold text-sm">{r.earned}</div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-crwn-text-secondary mt-2">Clippers download your streams, cut them up, and post everywhere. They earn only when a clip converts a subscriber.</p>
     </PhoneFrame>
   );
 }
