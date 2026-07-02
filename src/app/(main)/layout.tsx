@@ -25,14 +25,19 @@ export default function MainLayout({
   // setup wizard (/setup) is held there — the rest of the app is unreachable until
   // Profile + Music are done and they reach the share screen. `null` = not yet
   // resolved (block the shell to avoid a flash-then-redirect), true/false = answer.
-  const isArtist = !!profile && profile.role === 'artist';
+  //
+  // Gate on the artist_profiles ROW, not profile.role. The useAuth context lags —
+  // right after /welcome flips fan→artist, profile.role is still 'fan' until the
+  // next token refresh — so a role check would wrongly wave a brand-new artist
+  // straight into the app, bypassing setup. The row is the fresh source of truth.
   const [needsSetup, setNeedsSetup] = useState<boolean | null>(null);
 
   useEffect(() => {
     let active = true;
     async function checkSetup() {
       if (isLoading || !user || !profile) return;
-      if (profile.role !== 'artist') {
+      // Admins (the founder) are never gated.
+      if (profile.role === 'admin') {
         setNeedsSetup(false);
         return;
       }
@@ -43,7 +48,8 @@ export default function MainLayout({
         .eq('user_id', user.id)
         .maybeSingle();
       if (!active) return;
-      // No artist_profiles row yet → nothing to gate on (welcome hasn't inserted it).
+      // No artist_profiles row → a fan, nothing to gate. Row with setup_completed
+      // false → an artist mid-setup, hold them in the wizard.
       setNeedsSetup(!!data && data.setup_completed === false);
     }
     checkSetup();
@@ -81,9 +87,12 @@ export default function MainLayout({
     return null;
   }
 
-  // Block the shell until we know whether an artist still needs setup (null), and
-  // while we redirect them to /setup (true). Fans/admins resolve to false instantly.
-  if (isArtist && needsSetup === null) {
+  // Anti-flash only: hold the shell for a known artist while the setup check is
+  // pending (null), and for anyone we're actively redirecting to /setup (true).
+  // Uses the context role purely to avoid delaying fans on every page load — the
+  // actual redirect decision above is driven by the DB row, not this flag.
+  const isArtistByRole = !!profile && profile.role === 'artist';
+  if (isArtistByRole && needsSetup === null) {
     return null;
   }
   if (needsSetup) {

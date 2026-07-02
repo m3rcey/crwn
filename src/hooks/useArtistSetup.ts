@@ -39,7 +39,7 @@ export interface ArtistSetupState {
  * end of the wizard once, so the hard gate can release them.
  */
 export function useArtistSetup(): ArtistSetupState {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
 
   const [loading, setLoading] = useState(true);
@@ -51,15 +51,18 @@ export function useArtistSetup(): ArtistSetupState {
   const [hasTier, setHasTier] = useState(false);
   const [hasProduct, setHasProduct] = useState(false);
   const [stripeConnected, setStripeConnected] = useState(false);
-
-  const isArtist = profile?.role === 'artist';
+  const [isArtist, setIsArtist] = useState(false);
 
   // Cheap, DB-only refresh — this is what the wizard polls to unlock "Continue"
-  // the moment a step is satisfied. Reads avatar_url straight from `profiles`
-  // (NOT the possibly-stale useAuth context) so an avatar just uploaded in the
-  // wizard is detected immediately.
+  // the moment a step is satisfied. Everything is read from the DB, NOT the
+  // useAuth context: (a) avatar_url so an avatar just uploaded in the wizard is
+  // detected immediately, and (b) artist status. The context's `profile.role`
+  // lags — right after /welcome flips fan→artist it's still 'fan' until the next
+  // token refresh — so we treat "has an artist_profiles row (or role=artist)" as
+  // the fresh source of truth. Deriving isArtist from stale context would bounce
+  // a brand-new artist out of /setup and into a redirect loop.
   const load = useCallback(async () => {
-    if (!user || !isArtist) {
+    if (!user) {
       setLoading(false);
       return;
     }
@@ -70,10 +73,12 @@ export function useArtistSetup(): ArtistSetupState {
         .select('id, slug, tagline, setup_completed')
         .eq('user_id', user.id)
         .maybeSingle(),
-      supabase.from('profiles').select('avatar_url').eq('id', user.id).maybeSingle(),
+      supabase.from('profiles').select('avatar_url, role').eq('id', user.id).maybeSingle(),
     ]);
 
     const ap = artistRes.data;
+    setIsArtist(!!ap || profileRes.data?.role === 'artist');
+
     if (!ap) {
       setLoading(false);
       return;
@@ -101,12 +106,14 @@ export function useArtistSetup(): ArtistSetupState {
     setHasTier((tiers.count ?? 0) > 0);
     setHasProduct((products.count ?? 0) > 0);
     setLoading(false);
-  }, [user, isArtist, supabase]);
+  }, [user, supabase]);
 
   // Stripe status is only a cosmetic note on the Monetize step, so fetch it once
-  // on mount rather than on every poll — it doesn't gate any step.
+  // on mount rather than on every poll — it doesn't gate any step. Guard on `user`
+  // only (not isArtist, which is set asynchronously by load()); the endpoint is a
+  // no-op for non-artists.
   const loadStripe = useCallback(async () => {
-    if (!user || !isArtist) return;
+    if (!user) return;
     try {
       const res = await fetch('/api/stripe/connect/status');
       if (res.ok) {
@@ -116,7 +123,7 @@ export function useArtistSetup(): ArtistSetupState {
     } catch {
       /* ignore — Stripe is skippable in the wizard */
     }
-  }, [user, isArtist]);
+  }, [user]);
 
   useEffect(() => {
     load();
