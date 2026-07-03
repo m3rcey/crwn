@@ -365,13 +365,25 @@
   pointer-events: none !important;
 }
 
+/* ROOT CAUSE of the uneven ring: driver.js's own stylesheet forces
+   `overflow: hidden !important` on the DIRECT PARENT of the highlighted
+   element (its rule: `:not(body):has(>.driver-active-element){overflow:hidden!important}`).
+   That parent then clips our highlight ring wherever the target is flush with
+   it — e.g. full-width cards get their left/right edges sliced — so the ring
+   looks thin/uneven no matter how we draw it (border, outline, or box-shadow
+   all extend past the element and get clipped). Undo driver's clip so the ring
+   renders fully. The `:not(#_driver_never)` only raises specificity above
+   driver's rule so this wins regardless of stylesheet load order. */
+:not(body):not(#_driver_never):has(> .driver-active-element) {
+  overflow: visible !important;
+}
+
 /* Gold highlight ring on highlighted elements (NOT on tab buttons).
-   Drawn as an `outline`, NOT a child ::after pseudo-element. Most target
-   cards use overflow:hidden to clip their background texture, which also
-   clips a child ::after ring — eating parts of it and leaving a thin, uneven
-   border. An outline is painted outside the border box and is never clipped
-   by the element's own overflow, so it stays a uniform thickness all the way
-   around and follows the element's own border-radius. */
+   Drawn as an `outline` (painted outside the border box, always a uniform
+   thickness, and follows the element's own border-radius) rather than a child
+   ::after — a child pseudo-element is additionally clipped by the target's own
+   overflow:hidden. Combined with the parent-clip override above, the ring is
+   now a consistent thickness all the way around every target. */
 .driver-active-element {
   z-index: 10001 !important;
   position: relative !important;
