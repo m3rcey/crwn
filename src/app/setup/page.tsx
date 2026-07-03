@@ -114,6 +114,9 @@ function SetupWizard() {
   const [phase, setPhase] = useState<'steps' | 'share'>('steps');
   const [finishing, setFinishing] = useState(false);
   const [creating, setCreating] = useState(false);
+  // Optimistic photo-done flag so Continue unlocks the instant the upload saves,
+  // without waiting on the DB refresh (which could be slow).
+  const [photoUploaded, setPhotoUploaded] = useState(false);
   const initRef = useRef(false);
 
   // Drafts for the multi-screen item flows (persisted only when the item is created).
@@ -202,7 +205,7 @@ function SetupWizard() {
     }
   };
 
-  const canContinue = currentDone || localReady();
+  const canContinue = currentDone || localReady() || (current.key === 'photo' && photoUploaded);
 
   const scrollTop = () => {
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -251,13 +254,12 @@ function SetupWizard() {
         showToast(err, 'error');
         return; // stay on this screen so they can retry
       }
-      // Create succeeded — refreshing completion is best-effort; never block
-      // advancing on it (the live poll will catch up otherwise).
-      try {
-        await refresh();
-      } catch {
-        /* ignore */
-      }
+      // Create succeeded → ADVANCE IMMEDIATELY. Do NOT await refresh() here: the
+      // next screen is a different item and doesn't need this one's completion,
+      // and a slow/hanging refresh (it runs several Supabase queries) would freeze
+      // the wizard right after a successful submit — the actual "stuck on submit"
+      // bug. refresh runs in the background; the group chip / live poll catch up.
+      refresh().catch(() => {});
     }
     advance();
   };
@@ -364,7 +366,10 @@ function SetupWizard() {
           <FieldBody
             screen={current}
             setup={setup}
-            refresh={refresh}
+            onPhotoSaved={() => {
+              setPhotoUploaded(true);
+              refresh().catch(() => {});
+            }}
             avatarUrl={avatarUrl}
             tierDraft={tierDraft}
             setTierDraft={setTierDraft}
@@ -429,7 +434,7 @@ const INPUT =
 function FieldBody({
   screen,
   setup,
-  refresh,
+  onPhotoSaved,
   avatarUrl,
   tierDraft,
   setTierDraft,
@@ -441,7 +446,7 @@ function FieldBody({
 }: {
   screen: ScreenDef;
   setup: ArtistSetupState;
-  refresh: () => Promise<void>;
+  onPhotoSaved: () => void;
   avatarUrl: string;
   tierDraft: { name: string; price: string; benefits: string[] };
   setTierDraft: React.Dispatch<React.SetStateAction<{ name: string; price: string; benefits: string[] }>>;
@@ -453,7 +458,7 @@ function FieldBody({
 }) {
   switch (screen.key) {
     case 'photo':
-      return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={refresh} />;
+      return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={onPhotoSaved} />;
     case 'tier-name':
       return (
         <input
