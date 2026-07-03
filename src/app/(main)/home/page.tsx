@@ -103,22 +103,25 @@ export default function HomePage() {
   useEffect(() => {
     if (!shouldShowHomeTour || !profile) return;
 
-    // If resuming a partially completed tour, auto-fire
+    // Artists are already onboarded via the setup wizard + the dashboard tour —
+    // don't nag them with a SECOND, separate home tour right after. Silently mark
+    // it done so the prompt never pops up on Home. Fans still get the home tour.
+    if (profile.role === 'artist') {
+      markHomeTourComplete();
+      return;
+    }
+
+    // Fans: resume a partially completed tour, or prompt on first visit.
     if (homeStartStep > 0) {
       const timer = setTimeout(() => {
-        if (profile.role === 'artist') {
-          startTour(artistHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
-        } else {
-          startTour(fanHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
-        }
+        startTour(fanHomeTourSteps, markHomeTourComplete, saveHomeStep, homeStartStep);
       }, 1500);
       return () => clearTimeout(timer);
     }
 
-    // First time — show prompt
     const timer = setTimeout(() => setShowTourPrompt(true), 1000);
     return () => clearTimeout(timer);
-  }, [shouldShowHomeTour, profile, markHomeTourComplete]);
+  }, [shouldShowHomeTour, profile, homeStartStep, markHomeTourComplete, saveHomeStep]);
 
   const handleStartTour = () => {
     setShowTourPrompt(false);
