@@ -43,6 +43,11 @@ export function startTour(
         if (tourAttr && (tourAttr.startsWith('tab-') || tourAttr.startsWith('fan-tab-'))) {
           el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
           setTimeout(() => el.click(), 300);
+        } else {
+          // Content elements: driver's smoothScroll doesn't reliably reach
+          // sections further down the page (e.g. subscriber metrics, top fans
+          // on the analytics tab). Center the highlighted area ourselves.
+          el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
         }
       }
     },

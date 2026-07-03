@@ -149,38 +149,43 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
     },
 
     // --- REFERRALS TAB ---
-    // 14. Switch to Referrals tab
-    {
-      element: '[data-tour="tab-referrals"]',
-      popover: {
-        title: 'Fan referrals',
-        description: 'Your fans can earn money by referring new subscribers to you. Here is where you manage that.',
-        side: 'bottom',
-        align: 'start',
+    // The Referrals tab is hidden on the Free (starter) plan, so only include
+    // these steps when the tab actually renders — otherwise driver.js shows a
+    // floating popover with nothing highlighted.
+    ...(isStarter ? [] : [
+      // 14. Switch to Referrals tab
+      {
+        element: '[data-tour="tab-referrals"]',
+        popover: {
+          title: 'Fan referrals',
+          description: 'Your fans can earn money by referring new subscribers to you. Here is where you manage that.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
 
-    // 15. Referrals: Commission Rate
-    {
-      element: '[data-tour="referral-commission"]',
-      popover: {
-        title: 'Commission rate',
-        description: 'Set the commission rate your fans earn when they refer new subscribers to you. Higher rates motivate more sharing.',
-        side: 'bottom',
-        align: 'start',
+      // 15. Referrals: Commission Rate
+      {
+        element: '[data-tour="referral-commission"]',
+        popover: {
+          title: 'Commission rate',
+          description: 'Set the commission rate your fans earn when they refer new subscribers to you. Higher rates motivate more sharing.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
 
-    // 16. Referrals: Referral List
-    {
-      element: '[data-tour="referral-list"]',
-      popover: {
-        title: 'Referral tracking',
-        description: 'As fans share your page and bring in new subscribers, their referrals and earnings show up here.',
-        side: 'bottom',
-        align: 'start',
+      // 16. Referrals: Referral List
+      {
+        element: '[data-tour="referral-list"]',
+        popover: {
+          title: 'Referral tracking',
+          description: 'As fans share your page and bring in new subscribers, their referrals and earnings show up here.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
+    ]),
 
     // --- ANALYTICS TAB ---
     // 17. Switch to Analytics tab
