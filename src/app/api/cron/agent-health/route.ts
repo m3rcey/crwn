@@ -37,25 +37,32 @@ export async function GET(req: NextRequest) {
     const issues: { severity: 'critical' | 'warning' | 'info'; message: string }[] = [];
     const stats: Record<string, number | string> = {};
 
-    // 1. Check AI manager runs today
+    // 1. AI manager LIVENESS — did the cron actually complete a run recently?
+    //    Measured via the heartbeat the ai-manager cron writes UNCONDITIONALLY
+    //    on every completed run. Do NOT infer liveness from artist_agent_runs:
+    //    that table only fills for Pro-tier artists WITH activity, so pre-PMF it
+    //    is legitimately empty and would fire a daily false critical.
+    const { count: aiHeartbeats, error: heartbeatError } = await supabaseAdmin
+      .from('cron_heartbeat')
+      .select('id', { count: 'exact', head: true })
+      .eq('job', 'ai-manager')
+      .gte('created_at', yesterdayIso);
+
+    // Fail OPEN if the heartbeat table isn't migrated yet — never alarm on our
+    // own missing infrastructure. Once the migration lands and one run writes a
+    // heartbeat, this begins catching a genuinely dead cron.
+    if (!heartbeatError && (aiHeartbeats || 0) === 0) {
+      issues.push({ severity: 'critical', message: 'AI Manager has not run in 24+ hours' });
+    }
+
+    // Informational only: per-artist autonomous runs logged today. Zero is
+    // normal pre-PMF (no Pro artists with activity) and is NOT an alert.
     const { count: aiManagerRuns } = await supabaseAdmin
       .from('artist_agent_runs')
       .select('id', { count: 'exact', head: true })
       .gte('created_at', todayIso);
 
     stats.aiManagerRunsToday = aiManagerRuns || 0;
-    if ((aiManagerRuns || 0) === 0) {
-      // Check if it ran yesterday (maybe cron hasn't fired yet today)
-      const { count: yesterdayRuns } = await supabaseAdmin
-        .from('artist_agent_runs')
-        .select('id', { count: 'exact', head: true })
-        .gte('created_at', yesterdayIso)
-        .lt('created_at', todayIso);
-
-      if ((yesterdayRuns || 0) === 0) {
-        issues.push({ severity: 'critical', message: 'AI Manager has not run in 24+ hours' });
-      }
-    }
 
     // 2. Check admin autonomous runs today
     const { count: adminRuns } = await supabaseAdmin
