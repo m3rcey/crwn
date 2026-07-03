@@ -365,39 +365,27 @@
   pointer-events: none !important;
 }
 
-/* ROOT CAUSE of the uneven ring: driver.js's own stylesheet forces
-   `overflow: hidden !important` on the DIRECT PARENT of the highlighted
-   element (its rule: `:not(body):has(>.driver-active-element){overflow:hidden!important}`).
-   That parent then clips our highlight ring wherever the target is flush with
-   it — e.g. full-width cards get their left/right edges sliced — so the ring
-   looks thin/uneven no matter how we draw it (border, outline, or box-shadow
-   all extend past the element and get clipped). Undo driver's clip so the ring
-   renders fully. The `:not(#_driver_never)` only raises specificity above
-   driver's rule so this wins regardless of stylesheet load order. */
-:not(body):not(#_driver_never):has(> .driver-active-element) {
-  overflow: visible !important;
-}
-
-/* Gold highlight ring on highlighted elements (NOT on tab buttons).
-   Drawn as an `outline` (painted outside the border box, always a uniform
-   thickness, and follows the element's own border-radius) rather than a child
-   ::after — a child pseudo-element is additionally clipped by the target's own
-   overflow:hidden. Combined with the parent-clip override above, the ring is
-   now a consistent thickness all the way around every target. */
 .driver-active-element {
   z-index: 10001 !important;
   position: relative !important;
-  outline: 3px solid #D4AF37 !important;
-  outline-offset: 2px !important;
-  animation: tourGlowPulse 2s ease-in-out infinite !important;
 }
 
-/* EXCEPTION: Dashboard/fan tab buttons keep their gold underline only, no ring. */
-.driver-active-element[data-tour^="tab-"],
-.driver-active-element[data-tour^="fan-tab-"] {
-  outline: none !important;
-  box-shadow: none !important;
-  animation: none !important;
+/* Gold highlight ring — a single fixed-position element appended to <body>
+   (see startTour in src/lib/tour.ts), positioned/resized over the active
+   target. Drawing it at the top of the DOM instead of ON the target is what
+   finally fixes the uneven thickness: anything drawn on the target (border,
+   outline, box-shadow, ::after) is clipped by an ancestor's overflow:hidden —
+   and driver.js forces overflow:hidden on the target's parent — slicing the
+   ring. A top-level fixed element has no clipping ancestor, so the ring is a
+   perfectly uniform 3px all the way around every target. Geometry (top/left/
+   width/height/border-radius) is set inline in JS; styling lives here. */
+.crwn-tour-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10001;
+  border: 3px solid #D4AF37;
+  box-sizing: border-box;
+  animation: tourGlowPulse 2s ease-in-out infinite;
 }
 
 /* === Getting Started Guide Animations === */
