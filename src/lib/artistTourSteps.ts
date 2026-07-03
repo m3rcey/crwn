@@ -149,38 +149,43 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
     },
 
     // --- REFERRALS TAB ---
-    // 14. Switch to Referrals tab
-    {
-      element: '[data-tour="tab-referrals"]',
-      popover: {
-        title: 'Fan referrals',
-        description: 'Your fans can earn money by referring new subscribers to you. Here is where you manage that.',
-        side: 'bottom',
-        align: 'start',
+    // The Referrals tab is hidden on the Free (starter) plan, so only include
+    // these steps when the tab actually renders — otherwise driver.js shows a
+    // floating popover with nothing highlighted.
+    ...(isStarter ? [] : [
+      // 14. Switch to Referrals tab
+      {
+        element: '[data-tour="tab-referrals"]',
+        popover: {
+          title: 'Fan referrals',
+          description: 'Your fans can earn money by referring new subscribers to you. Here is where you manage that.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
 
-    // 15. Referrals: Commission Rate
-    {
-      element: '[data-tour="referral-commission"]',
-      popover: {
-        title: 'Commission rate',
-        description: 'Set the commission rate your fans earn when they refer new subscribers to you. Higher rates motivate more sharing.',
-        side: 'bottom',
-        align: 'start',
+      // 15. Referrals: Commission Rate
+      {
+        element: '[data-tour="referral-commission"]',
+        popover: {
+          title: 'Commission rate',
+          description: 'Set the commission rate your fans earn when they refer new subscribers to you. Higher rates motivate more sharing.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
 
-    // 16. Referrals: Referral List
-    {
-      element: '[data-tour="referral-list"]',
-      popover: {
-        title: 'Referral tracking',
-        description: 'As fans share your page and bring in new subscribers, their referrals and earnings show up here.',
-        side: 'bottom',
-        align: 'start',
+      // 16. Referrals: Referral List
+      {
+        element: '[data-tour="referral-list"]',
+        popover: {
+          title: 'Referral tracking',
+          description: 'As fans share your page and bring in new subscribers, their referrals and earnings show up here.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
+    ]),
 
     // --- ANALYTICS TAB ---
     // 17. Switch to Analytics tab
@@ -205,16 +210,20 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       },
     },
 
-    // 19. Analytics: Subscribers
-    {
-      element: '[data-tour="analytics-subscribers"]',
-      popover: {
-        title: 'Subscriber metrics',
-        description: 'Active subscriber count, average revenue per fan, churn rate, and lifetime value. These numbers tell you how healthy your fan base is.',
-        side: 'bottom',
-        align: 'start',
+    // 19. Analytics: Subscribers (Pro only — the Subscribers section is
+    // display:none on the Free plan, so skip the step or it points at an
+    // invisible element with no highlight and no scroll).
+    ...(isStarter ? [] : [
+      {
+        element: '[data-tour="analytics-subscribers"]',
+        popover: {
+          title: 'Subscriber metrics',
+          description: 'Active subscriber count, average revenue per fan, churn rate, and lifetime value. These numbers tell you how healthy your fan base is.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
+    ]),
 
     // 20. Analytics: Plays
     {
@@ -227,16 +236,19 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       },
     },
 
-    // 21. Analytics: Top Fans
-    {
-      element: '[data-tour="analytics-top-fans"]',
-      popover: {
-        title: 'Top fans',
-        description: 'Your biggest supporters ranked by spending and engagement. These are the fans to pay attention to.',
-        side: 'bottom',
-        align: 'start',
+    // 21. Analytics: Top Fans (Pro only — the Top Fans section is
+    // display:none on the Free plan, same as Subscribers above).
+    ...(isStarter ? [] : [
+      {
+        element: '[data-tour="analytics-top-fans"]',
+        popover: {
+          title: 'Top fans',
+          description: 'Your biggest supporters ranked by spending and engagement. These are the fans to pay attention to.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
+    ]),
 
     // --- AUDIENCE TAB ---
     {

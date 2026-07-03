@@ -262,15 +262,10 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Gold border trace animation for highlighted elements */
-@keyframes tourTraceBorder {
-  0% { clip-path: inset(0 100% 100% 0); }
-  25% { clip-path: inset(0 0 100% 0); }
-  50% { clip-path: inset(0 0 0 0); }
-  75% { clip-path: inset(0 0 0 0); }
-  100% { clip-path: inset(0 0 0 0); }
-}
-
+/* Soft gold glow that pulses around the highlighted element. The solid ring
+   itself is an `outline` (see .driver-active-element below); this only adds the
+   ambient glow via box-shadow, which — like outline — is painted outside the
+   box and is never clipped by the target's own overflow. */
 @keyframes tourGlowPulse {
   0%, 100% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.35); }
   50% { box-shadow: 0 0 18px rgba(212, 175, 55, 0.55); }
@@ -370,25 +365,27 @@
   pointer-events: none !important;
 }
 
-/* Gold border trace on highlighted elements (NOT on tab buttons) */
 .driver-active-element {
   z-index: 10001 !important;
   position: relative !important;
 }
 
-.driver-active-element::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border: 2.5px solid #D4AF37;
-  border-radius: 14px;
+/* Gold highlight ring — a single fixed-position element appended to <body>
+   (see startTour in src/lib/tour.ts), positioned/resized over the active
+   target. Drawing it at the top of the DOM instead of ON the target is what
+   finally fixes the uneven thickness: anything drawn on the target (border,
+   outline, box-shadow, ::after) is clipped by an ancestor's overflow:hidden —
+   and driver.js forces overflow:hidden on the target's parent — slicing the
+   ring. A top-level fixed element has no clipping ancestor, so the ring is a
+   perfectly uniform 3px all the way around every target. Geometry (top/left/
+   width/height/border-radius) is set inline in JS; styling lives here. */
+.crwn-tour-ring {
+  position: fixed;
   pointer-events: none;
-  animation: tourTraceBorder 0.8s ease-out forwards, tourGlowPulse 2s ease-in-out 0.8s infinite;
-}
-
-/* EXCEPTION: Dashboard tab buttons keep gold underline only, no border trace */
-.driver-active-element[data-tour^="tab-"]::after {
-  display: none !important;
+  z-index: 10001;
+  border: 3px solid #D4AF37;
+  box-sizing: border-box;
+  animation: tourGlowPulse 2s ease-in-out infinite;
 }
 
 /* === Getting Started Guide Animations === */
