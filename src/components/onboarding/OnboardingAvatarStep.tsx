@@ -7,6 +7,7 @@ import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { validateUpload } from '@/lib/uploadValidation';
 import { detectBlur } from '@/lib/blurDetection';
+import { withTimeout } from '@/lib/promiseTimeout';
 import ImageCropModal from '@/components/shared/ImageCropModal';
 
 /**
@@ -57,19 +58,18 @@ export function OnboardingAvatarStep({
     setBusy(true);
     try {
       const path = `${user.id}/avatar/${Date.now()}.jpg`;
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(path, blob, { contentType: 'image/jpeg' });
+      const { error: uploadError } = await withTimeout(
+        supabase.storage.from('avatars').upload(path, blob, { contentType: 'image/jpeg' })
+      );
       if (uploadError) {
         showToast(`Upload failed: ${uploadError.message}`, 'error');
         setBusy(false);
         return;
       }
       const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-      const { error: saveError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: data.publicUrl })
-        .eq('id', user.id);
+      const { error: saveError } = await withTimeout(
+        supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('id', user.id)
+      );
       if (saveError) {
         showToast('Could not save your photo. Please try again.', 'error');
         setBusy(false);

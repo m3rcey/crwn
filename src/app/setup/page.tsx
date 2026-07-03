@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtistSetup';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { withTimeout } from '@/lib/promiseTimeout';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
 import {
   createOnboardingTrack,
@@ -236,13 +237,27 @@ function SetupWizard() {
     // Last field of an item → create it (unless it already exists).
     if (current.create && !currentDone) {
       setCreating(true);
-      const err = await runCreate(current.create);
-      setCreating(false);
+      let err: string | undefined;
+      try {
+        err = await withTimeout(runCreate(current.create));
+      } catch (e) {
+        // A thrown error must NOT leave the button stuck — always fall through to
+        // the finally so `creating` resets.
+        err = e instanceof Error ? e.message : 'Something went wrong. Please try again.';
+      } finally {
+        setCreating(false);
+      }
       if (err) {
         showToast(err, 'error');
-        return;
+        return; // stay on this screen so they can retry
       }
-      await refresh();
+      // Create succeeded — refreshing completion is best-effort; never block
+      // advancing on it (the live poll will catch up otherwise).
+      try {
+        await refresh();
+      } catch {
+        /* ignore */
+      }
     }
     advance();
   };
@@ -264,7 +279,7 @@ function SetupWizard() {
   async function handleFinish() {
     setFinishing(true);
     try {
-      await markComplete();
+      await withTimeout(markComplete());
       router.replace('/profile/artist');
     } catch {
       setFinishing(false);
