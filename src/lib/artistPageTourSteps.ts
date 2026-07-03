@@ -39,24 +39,11 @@ export function getArtistPageTourSteps(artistSlug: string): DriveStep[] {
         align: 'start',
       },
     },
-    {
-      element: '[data-tour="founding-badge"]',
-      popover: {
-        title: 'Founding Artist badge',
-        description: 'This badge shows fans you were one of the first artists on CRWN. It is visible on your public page and builds trust with new fans.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-    {
-      element: '[data-tour="share-earn"]',
-      popover: {
-        title: 'Share and Earn',
-        description: 'When fans subscribe to you, they see this button. If they share your page and someone new subscribes through their link, that fan earns the commission you set.',
-        side: 'top',
-        align: 'start',
-      },
-    },
+    // NOTE: the Founding Artist badge and the Share & Earn button are intentionally
+    // NOT in this tour. The badge only renders for founding artists, and Share &
+    // Earn (ShareEarnWrapper) only renders for a *subscribed fan* — neither is
+    // visible while a new artist previews their own page, so highlighting them left
+    // the popover floating over nothing.
     // Switch to Community tab
     {
       element: '[data-tour="fan-tab-community"]',
