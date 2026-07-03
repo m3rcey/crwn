@@ -117,6 +117,8 @@ function SetupWizard() {
   // Optimistic photo-done flag so Continue unlocks the instant the upload saves,
   // without waiting on the DB refresh (which could be slow).
   const [photoUploaded, setPhotoUploaded] = useState(false);
+  // Rights/Artist-Agreement consent for uploading music (same as the Music tab).
+  const [trackTermsAgreed, setTrackTermsAgreed] = useState(false);
   const initRef = useRef(false);
 
   // Drafts for the multi-screen item flows (persisted only when the item is created).
@@ -191,7 +193,7 @@ function SetupWizard() {
       case 'tier-benefits':
         return true; // benefits are optional; Continue creates the tier
       case 'track-audio':
-        return !!trackDraft.audioFile;
+        return !!trackDraft.audioFile && trackTermsAgreed;
       case 'track-title':
         return trackDraft.title.trim() !== '';
       case 'product-type':
@@ -375,6 +377,8 @@ function SetupWizard() {
             setTierDraft={setTierDraft}
             trackDraft={trackDraft}
             setTrackDraft={setTrackDraft}
+            trackTermsAgreed={trackTermsAgreed}
+            setTrackTermsAgreed={setTrackTermsAgreed}
             productDraft={productDraft}
             setProductDraft={setProductDraft}
             onSkipGroup={skipGroup}
@@ -440,6 +444,8 @@ function FieldBody({
   setTierDraft,
   trackDraft,
   setTrackDraft,
+  trackTermsAgreed,
+  setTrackTermsAgreed,
   productDraft,
   setProductDraft,
   onSkipGroup,
@@ -452,6 +458,8 @@ function FieldBody({
   setTierDraft: React.Dispatch<React.SetStateAction<{ name: string; price: string; benefits: string[] }>>;
   trackDraft: { audioFile: File | null; title: string };
   setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
+  trackTermsAgreed: boolean;
+  setTrackTermsAgreed: React.Dispatch<React.SetStateAction<boolean>>;
   productDraft: { type: ProductType; title: string; price: string };
   setProductDraft: React.Dispatch<React.SetStateAction<{ type: ProductType; title: string; price: string }>>;
   onSkipGroup: () => void;
@@ -481,7 +489,35 @@ function FieldBody({
         />
       );
     case 'track-audio':
-      return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done={setup.hasMusic} />;
+      if (setup.hasMusic) {
+        return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done />;
+      }
+      return (
+        <div>
+          <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} />
+          <label className="flex items-start gap-3 mt-5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={trackTermsAgreed}
+              onChange={(e) => setTrackTermsAgreed(e.target.checked)}
+              className="mt-0.5 w-4 h-4 accent-crwn-gold flex-shrink-0"
+            />
+            <span className="text-sm text-crwn-text-secondary">
+              I own or have the rights to distribute this music, and I agree to the{' '}
+              <a
+                href="/artist-agreement"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-crwn-gold hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Artist Agreement
+              </a>
+              .
+            </span>
+          </label>
+        </div>
+      );
     case 'track-title':
       return (
         <input
