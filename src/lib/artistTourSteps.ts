@@ -210,16 +210,20 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       },
     },
 
-    // 19. Analytics: Subscribers
-    {
-      element: '[data-tour="analytics-subscribers"]',
-      popover: {
-        title: 'Subscriber metrics',
-        description: 'Active subscriber count, average revenue per fan, churn rate, and lifetime value. These numbers tell you how healthy your fan base is.',
-        side: 'bottom',
-        align: 'start',
+    // 19. Analytics: Subscribers (Pro only — the Subscribers section is
+    // display:none on the Free plan, so skip the step or it points at an
+    // invisible element with no highlight and no scroll).
+    ...(isStarter ? [] : [
+      {
+        element: '[data-tour="analytics-subscribers"]',
+        popover: {
+          title: 'Subscriber metrics',
+          description: 'Active subscriber count, average revenue per fan, churn rate, and lifetime value. These numbers tell you how healthy your fan base is.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
+    ]),
 
     // 20. Analytics: Plays
     {
@@ -232,16 +236,19 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       },
     },
 
-    // 21. Analytics: Top Fans
-    {
-      element: '[data-tour="analytics-top-fans"]',
-      popover: {
-        title: 'Top fans',
-        description: 'Your biggest supporters ranked by spending and engagement. These are the fans to pay attention to.',
-        side: 'bottom',
-        align: 'start',
+    // 21. Analytics: Top Fans (Pro only — the Top Fans section is
+    // display:none on the Free plan, same as Subscribers above).
+    ...(isStarter ? [] : [
+      {
+        element: '[data-tour="analytics-top-fans"]',
+        popover: {
+          title: 'Top fans',
+          description: 'Your biggest supporters ranked by spending and engagement. These are the fans to pay attention to.',
+          side: 'bottom' as const,
+          align: 'start' as const,
+        },
       },
-    },
+    ]),
 
     // --- AUDIENCE TAB ---
     {
