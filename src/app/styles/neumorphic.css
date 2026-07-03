@@ -262,15 +262,10 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Gold ring reveal for highlighted elements — uniform fade-in.
-   NOTE: do NOT reintroduce a clip-path trace here. A plain inset() clip is
-   rectangular and slices the ring's rounded corners, making the border look
-   uneven/thin on the corners. Fade the whole ring in at once instead. */
-@keyframes tourRingIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
+/* Soft gold glow that pulses around the highlighted element. The solid ring
+   itself is an `outline` (see .driver-active-element below); this only adds the
+   ambient glow via box-shadow, which — like outline — is painted outside the
+   box and is never clipped by the target's own overflow. */
 @keyframes tourGlowPulse {
   0%, 100% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.35); }
   50% { box-shadow: 0 0 18px rgba(212, 175, 55, 0.55); }
@@ -370,26 +365,27 @@
   pointer-events: none !important;
 }
 
-/* Gold border trace on highlighted elements (NOT on tab buttons) */
+/* Gold highlight ring on highlighted elements (NOT on tab buttons).
+   Drawn as an `outline`, NOT a child ::after pseudo-element. Most target
+   cards use overflow:hidden to clip their background texture, which also
+   clips a child ::after ring — eating parts of it and leaving a thin, uneven
+   border. An outline is painted outside the border box and is never clipped
+   by the element's own overflow, so it stays a uniform thickness all the way
+   around and follows the element's own border-radius. */
 .driver-active-element {
   z-index: 10001 !important;
   position: relative !important;
+  outline: 3px solid #D4AF37 !important;
+  outline-offset: 2px !important;
+  animation: tourGlowPulse 2s ease-in-out infinite !important;
 }
 
-.driver-active-element::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border: 3px solid #D4AF37;
-  border-radius: 14px;
-  box-sizing: border-box;
-  pointer-events: none;
-  animation: tourRingIn 0.35s ease-out forwards, tourGlowPulse 2s ease-in-out 0.35s infinite;
-}
-
-/* EXCEPTION: Dashboard tab buttons keep gold underline only, no border trace */
-.driver-active-element[data-tour^="tab-"]::after {
-  display: none !important;
+/* EXCEPTION: Dashboard/fan tab buttons keep their gold underline only, no ring. */
+.driver-active-element[data-tour^="tab-"],
+.driver-active-element[data-tour^="fan-tab-"] {
+  outline: none !important;
+  box-shadow: none !important;
+  animation: none !important;
 }
 
 /* === Getting Started Guide Animations === */
