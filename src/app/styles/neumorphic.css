@@ -262,13 +262,13 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Gold border trace animation for highlighted elements */
-@keyframes tourTraceBorder {
-  0% { clip-path: inset(0 100% 100% 0); }
-  25% { clip-path: inset(0 0 100% 0); }
-  50% { clip-path: inset(0 0 0 0); }
-  75% { clip-path: inset(0 0 0 0); }
-  100% { clip-path: inset(0 0 0 0); }
+/* Gold ring reveal for highlighted elements — uniform fade-in.
+   NOTE: do NOT reintroduce a clip-path trace here. A plain inset() clip is
+   rectangular and slices the ring's rounded corners, making the border look
+   uneven/thin on the corners. Fade the whole ring in at once instead. */
+@keyframes tourRingIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes tourGlowPulse {
@@ -380,10 +380,11 @@
   content: '';
   position: absolute;
   inset: -3px;
-  border: 2.5px solid #D4AF37;
+  border: 3px solid #D4AF37;
   border-radius: 14px;
+  box-sizing: border-box;
   pointer-events: none;
-  animation: tourTraceBorder 0.8s ease-out forwards, tourGlowPulse 2s ease-in-out 0.8s infinite;
+  animation: tourRingIn 0.35s ease-out forwards, tourGlowPulse 2s ease-in-out 0.35s infinite;
 }
 
 /* EXCEPTION: Dashboard tab buttons keep gold underline only, no border trace */
