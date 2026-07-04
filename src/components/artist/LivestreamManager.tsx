@@ -9,6 +9,7 @@ import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil } from 'lucide
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { BroadcasterStudio } from './BroadcasterStudio';
 import { EditRecordingModal } from './EditRecordingModal';
+import { GoLiveAgreementModal } from '@/components/live/GoLiveAgreementModal';
 import { validateUpload } from '@/lib/uploadValidation';
 
 interface LivestreamManagerProps {
@@ -31,6 +32,8 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   const [busyId, setBusyId] = useState<string | null>(null);
   const [studioSession, setStudioSession] = useState<LiveSession | null>(null);
   const [editingSession, setEditingSession] = useState<LiveSession | null>(null);
+  // Session awaiting Live-Streaming Agreement acceptance before it can go live.
+  const [pendingLiveSession, setPendingLiveSession] = useState<LiveSession | null>(null);
 
   // Form state
   const [mode, setMode] = useState<'live' | 'prerecorded'>('live');
@@ -236,7 +239,10 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     }
   };
 
-  const handleGoLive = async (session: LiveSession) => {
+  // Fires only AFTER the Live-Streaming Agreement modal records acceptance.
+  // (The go-live API independently re-checks the persisted acceptance server-side.)
+  const proceedGoLive = async (session: LiveSession) => {
+    setPendingLiveSession(null);
     setBusyId(session.id);
     try {
       const res = await fetch('/api/live/session', {
@@ -595,7 +601,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 )}
                 {session.source_type !== 'prerecorded' && session.status === 'scheduled' && (
                   <button
-                    onClick={() => handleGoLive(session)}
+                    onClick={() => setPendingLiveSession(session)}
                     disabled={busyId === session.id}
                     className="neu-button-accent px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 disabled:opacity-50"
                   >
@@ -678,6 +684,14 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           title={studioSession.title}
           currentUserId={user?.id || ''}
           onClose={() => setStudioSession(null)}
+        />
+      )}
+
+      {pendingLiveSession && (
+        <GoLiveAgreementModal
+          artistId={artistId}
+          onAccepted={() => proceedGoLive(pendingLiveSession)}
+          onCancel={() => setPendingLiveSession(null)}
         />
       )}
 
