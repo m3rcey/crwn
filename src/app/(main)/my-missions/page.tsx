@@ -159,7 +159,16 @@ export default function MyMissionsPage() {
 
   return (
     <div className="max-w-2xl mx-auto page-fade-in">
-      <h1 className="text-2xl font-bold text-crwn-text mb-1">My Missions</h1>
+      <div className="flex items-start justify-between gap-3 mb-1">
+        <h1 className="text-2xl font-bold text-crwn-text">My Missions</h1>
+        <button
+          onClick={() => router.push('/command')}
+          className="shrink-0 mt-1 text-xs font-semibold text-crwn-gold hover:text-crwn-gold/80 transition-colors flex items-center gap-1"
+        >
+          Command Center
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
       <p className="text-sm text-crwn-text-secondary mb-6">
         The missions you&apos;ve joined — every one is an artist counting on you.
       </p>
