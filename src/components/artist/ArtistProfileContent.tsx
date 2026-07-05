@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Lightbulb } from 'lucide-react';
 import { AlbumsSection } from '@/components/artist/AlbumCard';
 import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
 import { ShopSection } from '@/components/artist/ShopSection';
@@ -61,6 +62,7 @@ export function ArtistProfileContent({
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const returningFromCheckout = searchParams.get('subscription') === 'success' || searchParams.get('subscription') === 'canceled';
   const [activeTab, setActiveTab] = useState<'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'music');
@@ -195,7 +197,17 @@ export function ArtistProfileContent({
 
         {activeTab === 'community' && (
           <div className="space-y-6" data-tour="artist-page-community">
-                        <CommunityFeed
+            {/* Fan mission suggestions — a proposal only; the artist approves and sets the reward. */}
+            {!isArtistProfile && (
+              <button
+                onClick={() => router.push(`/${artist.slug}/suggest-mission`)}
+                className="inline-flex items-center gap-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+              >
+                <Lightbulb className="w-4 h-4 text-crwn-gold" />
+                Got a mission idea for {artist.profile?.display_name || 'this artist'}? Suggest a mission
+              </button>
+            )}
+            <CommunityFeed
               artistId={artist.id}
               artistSlug={artist.slug}
               isArtistProfile={isArtistProfile}

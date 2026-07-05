@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Flag, Plus } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Flag, Lightbulb, Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import {
@@ -136,13 +136,23 @@ export default function MissionsPage() {
           One trackable fan action toward a goal — rally your fans and watch the count climb.
         </p>
 
-        <button
-          onClick={() => router.push('/missions/new')}
-          className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors mb-10"
-        >
-          <Plus className="w-4 h-4" />
-          New Mission
-        </button>
+        <div className="flex flex-wrap items-center gap-4 mb-10">
+          <button
+            onClick={() => router.push('/missions/new')}
+            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            New Mission
+          </button>
+          <button
+            onClick={() => router.push('/missions/suggestions')}
+            className="inline-flex items-center gap-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+          >
+            <Lightbulb className="w-4 h-4" />
+            Fan suggestions
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
         {missions.length === 0 ? (
           <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center">
