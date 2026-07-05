@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -29,6 +30,7 @@ interface Tier {
 }
 
 export function TierManager() {
+  const router = useRouter();
   const { user } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
@@ -366,6 +368,14 @@ export function TierManager() {
 
   return (
     <div className="space-y-8">
+      {/* Offer Builder entry — guided wizard that packages a tier/product + promotion */}
+      <button
+        onClick={() => router.push('/offers/new')}
+        className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 transition-colors"
+      >
+        ✨ Open Offer Builder
+      </button>
+
       {/* Stripe Connect Status */}
       {!stripeConnected && (
         <div className="bg-crwn-surface border border-crwn-gold/30 rounded-xl p-6" data-tour="tiers-stripe">

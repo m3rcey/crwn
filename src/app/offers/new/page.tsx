@@ -1,0 +1,839 @@
+'use client';
+
+import { useCallback, useEffect, useState, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CreditCard,
+  Lock,
+  Megaphone,
+  Package,
+  PartyPopper,
+  Scissors,
+  Sparkles,
+  Target,
+  X,
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { withTimeout } from '@/lib/promiseTimeout';
+import { createOnboardingTier, createOnboardingProduct } from '@/lib/onboardingItems';
+import { CLIPPER_RAMP_PRESETS, sanitizeClipperSchedule } from '@/lib/clipperRate';
+import type { ProductType } from '@/types';
+
+/**
+ * Offer Builder — a guided, one-decision-per-screen wizard that packages a fan
+ * offer and turns on promotion. REUSES existing rails end to end:
+ *  - a subscription offer IS a subscription_tiers row (createOnboardingTier;
+ *    Stripe prices are backfilled when the artist connects Stripe)
+ *  - a one-time offer IS a products row (createOnboardingProduct)
+ *  - Share-to-Earn = the artist-wide fan referral commission
+ *    (/api/referrals/artist/commission)
+ *  - Clip-to-Earn = the artist-wide clipper rev-share ramp
+ *    (/api/referrals/artist/clipper)
+ * No new tables, no new money logic. Promotion rates are GLOBAL per artist for
+ * now — the copy says so explicitly; per-offer rates come later.
+ */
+
+type OfferType = 'subscription' | 'onetime';
+
+type StepKey = 'goal' | 'type' | 'price' | 'tier-details' | 'product-details' | 'share' | 'clip' | 'review';
+
+interface StepDef {
+  key: StepKey;
+  title: string;
+  subtitle: string;
+  icon: typeof Target;
+}
+
+interface GoalDef {
+  id: string;
+  label: string;
+  hint: string;
+  // Presets only — the goal itself is NOT persisted anywhere.
+  offerType: OfferType;
+  price: string;
+  tierName: string;
+  benefits: string[];
+  productTitle: string;
+  productType: Exclude<ProductType, 'experience' | 'bundle'>;
+}
+
+const GOALS: GoalDef[] = [
+  {
+    id: 'grow-supporters',
+    label: 'Grow Supporters',
+    hint: 'A monthly membership your core fans join',
+    offerType: 'subscription',
+    price: '10',
+    tierName: 'Inner Circle',
+    benefits: ['Exclusive tracks', 'Members-only posts', 'Shout-outs from me'],
+    productTitle: '',
+    productType: 'digital',
+  },
+  {
+    id: 'fund-video',
+    label: 'Fund a Video',
+    hint: 'A one-time backer pack that pays for the shoot',
+    offerType: 'onetime',
+    price: '25',
+    tierName: 'Inner Circle',
+    benefits: [],
+    productTitle: 'Music Video Backer Pack',
+    productType: 'digital',
+  },
+  {
+    id: 'vault-access',
+    label: 'Vault Access',
+    hint: 'Unreleased music behind a monthly sub',
+    offerType: 'subscription',
+    price: '5',
+    tierName: 'The Vault',
+    benefits: ['Unreleased vault tracks', 'Early access to new releases', 'Behind-the-scenes content'],
+    productTitle: '',
+    productType: 'digital',
+  },
+  {
+    id: 'unlock-drop',
+    label: 'Unlock a Drop',
+    hint: 'Sell one exclusive drop, one time',
+    offerType: 'onetime',
+    price: '15',
+    tierName: 'Inner Circle',
+    benefits: [],
+    productTitle: 'Exclusive Drop',
+    productType: 'digital',
+  },
+  {
+    id: 'reward-day-ones',
+    label: 'Reward Day Ones',
+    hint: 'A one-time pack for the fans who were here first',
+    offerType: 'onetime',
+    price: '30',
+    tierName: 'Inner Circle',
+    benefits: [],
+    productTitle: 'Day One Backer Pack',
+    productType: 'digital',
+  },
+];
+
+const BENEFIT_SUGGESTIONS = [
+  'Exclusive tracks',
+  'Early access to new releases',
+  'Members-only posts',
+  'Shout-outs from me',
+  'Behind-the-scenes content',
+  'Unreleased vault tracks',
+];
+
+// Experiences require Pro-only scheduling, so the builder offers digital/physical only.
+const PRODUCT_TYPES: { value: Exclude<ProductType, 'experience' | 'bundle'>; label: string; hint: string }[] = [
+  { value: 'digital', label: 'Digital download', hint: 'Unreleased tracks, videos, art' },
+  { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
+];
+
+const ARTIST_WIDE_NOTE =
+  'This is your artist-wide rate — it applies to everyone promoting your page, not just this offer (per-offer rates come later).';
+
+const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;
+
+const INPUT =
+  'w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-4 text-lg text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold';
+
+function stepList(offerType: OfferType): StepDef[] {
+  return [
+    { key: 'goal', title: 'What are you trying to do?', subtitle: 'Pick a goal — we preset smart defaults you can change on the next screens.', icon: Target },
+    { key: 'type', title: 'How do fans pay?', subtitle: 'A monthly membership, or one payment for one thing.', icon: CreditCard },
+    {
+      key: 'price',
+      title: offerType === 'subscription' ? 'Set the monthly price' : 'Set the price',
+      subtitle: offerType === 'subscription' ? 'What fans pay each month.' : 'What fans pay, once.',
+      icon: CreditCard,
+    },
+    offerType === 'subscription'
+      ? { key: 'tier-details' as const, title: 'Name it and load the perks', subtitle: 'The tier name fans join, and what they get. Edit anytime later.', icon: Sparkles }
+      : { key: 'product-details' as const, title: 'Name it and pick the kind', subtitle: 'What fans see in your shop.', icon: Package },
+    { key: 'share', title: 'Share-to-Earn', subtitle: 'Pay fans a cut for referring subscribers with their share link.', icon: Megaphone },
+    { key: 'clip', title: 'Clip-to-Earn', subtitle: 'Pay clippers a cut of every subscription their clips bring in.', icon: Scissors },
+    { key: 'review', title: 'Review your offer', subtitle: 'Check everything, then publish.', icon: Check },
+  ];
+}
+
+function OfferBuilder() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
+  const { showToast } = useToast();
+  const supabase = createBrowserSupabaseClient();
+
+  const [loading, setLoading] = useState(true);
+  const [artistId, setArtistId] = useState<string | null>(null);
+
+  const [stepIndex, setStepIndex] = useState(0);
+  const [phase, setPhase] = useState<'steps' | 'done'>('steps');
+  const [publishing, setPublishing] = useState(false);
+
+  // ---- Draft state (nothing persists until Publish) -----------------------
+  const [goalId, setGoalId] = useState<string | null>(null);
+  const [offerType, setOfferType] = useState<OfferType>('subscription');
+  const [price, setPrice] = useState('10');
+  const [tierName, setTierName] = useState('Inner Circle');
+  const [benefits, setBenefits] = useState<string[]>(GOALS[0].benefits);
+  const [productTitle, setProductTitle] = useState('');
+  const [productType, setProductType] = useState<Exclude<ProductType, 'experience' | 'bundle'>>('digital');
+  const [shareOn, setShareOn] = useState(false);
+  const [sharePercent, setSharePercent] = useState('20');
+  const [clipOn, setClipOn] = useState(false);
+  const [clipPresetId, setClipPresetId] = useState('balanced');
+  const [clipStandardRate, setClipStandardRate] = useState('10');
+
+  // ---- Resolve the artist (artist_profiles.id via user_id — same as useArtistSetup)
+  const loadArtist = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('artist_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    setArtistId(data?.id ?? null);
+    setLoading(false);
+  }, [user, supabase]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+    loadArtist();
+  }, [authLoading, user, router, loadArtist]);
+
+  if (loading || authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" />
+      </div>
+    );
+  }
+
+  if (!artistId) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+        <p className="text-crwn-text mb-4">The Offer Builder is for artists. Publish your artist page first.</p>
+        <button
+          onClick={() => router.push('/home')}
+          className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 transition-colors"
+        >
+          Back to CRWN
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === 'done') {
+    return <DoneScreen offerType={offerType} onOffers={() => router.push('/offers')} onDashboard={() => router.push('/profile/artist')} />;
+  }
+
+  const steps = stepList(offerType);
+  const current = steps[stepIndex];
+  const isLast = stepIndex >= steps.length - 1;
+  const progressPct = Math.round((stepIndex / steps.length) * 100);
+  const clipPreset = CLIPPER_RAMP_PRESETS.find((p) => p.id === clipPresetId) ?? CLIPPER_RAMP_PRESETS[1];
+
+  const applyGoal = (g: GoalDef) => {
+    setGoalId(g.id);
+    // Goal only presets defaults + type — it is never persisted.
+    setOfferType(g.offerType);
+    setPrice(g.price);
+    if (g.offerType === 'subscription') {
+      setTierName(g.tierName);
+      setBenefits(g.benefits);
+    } else {
+      setProductTitle(g.productTitle);
+      setProductType(g.productType);
+    }
+  };
+
+  const canContinue = (): boolean => {
+    switch (current.key) {
+      case 'goal':
+        return goalId !== null;
+      case 'type':
+        return true;
+      case 'price':
+        return isValidPrice(price);
+      case 'tier-details':
+        return tierName.trim() !== '';
+      case 'product-details':
+        return productTitle.trim() !== '';
+      case 'share':
+        return !shareOn || (sharePercent.trim() !== '' && Number(sharePercent) >= 0 && Number(sharePercent) <= 50);
+      case 'clip':
+        return !clipOn || (clipStandardRate.trim() !== '' && Number(clipStandardRate) >= 0 && Number(clipStandardRate) <= 100);
+      case 'review':
+        return true;
+    }
+  };
+
+  const scrollTop = () => {
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const publish = async () => {
+    if (publishing) return;
+    setPublishing(true);
+    try {
+      const priceCents = Math.round(parseFloat(price) * 100);
+
+      // 1) Create the offer on the existing entity (tier row or product row).
+      let err: string | undefined;
+      if (offerType === 'subscription') {
+        err = (
+          await withTimeout(
+            createOnboardingTier(supabase, artistId, { name: tierName, priceCents, benefits })
+          )
+        ).error;
+      } else {
+        err = (
+          await withTimeout(
+            createOnboardingProduct(supabase, artistId, { type: productType, title: productTitle, priceCents })
+          )
+        ).error;
+      }
+      if (err) {
+        showToast(err, 'error');
+        return; // stay on Review so they can retry
+      }
+
+      // 2) Promotion — artist-wide rails. The offer already exists at this point,
+      // so a promo failure warns (fix later in the dashboard) instead of blocking.
+      let promoWarned = false;
+      if (shareOn) {
+        try {
+          const res = await fetch('/api/referrals/artist/commission', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ artistId, commissionRate: Math.round(Number(sharePercent)) }),
+          });
+          if (!res.ok) promoWarned = true;
+        } catch {
+          promoWarned = true;
+        }
+      }
+      if (clipOn) {
+        try {
+          const schedule = sanitizeClipperSchedule(clipPreset.steps) ?? [];
+          const res = await fetch('/api/referrals/artist/clipper', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              artistId,
+              standardRate: Math.round(Number(clipStandardRate)),
+              schedule,
+              // Only (re)start the campaign clock when there's an actual ramp.
+              ...(schedule.length > 0 ? { startCampaign: true } : {}),
+            }),
+          });
+          if (!res.ok) promoWarned = true;
+        } catch {
+          promoWarned = true;
+        }
+      }
+
+      if (promoWarned) {
+        showToast('Offer created, but promotion settings didn’t save — set them from your dashboard.', 'error');
+      }
+      setPhase('done');
+      scrollTop();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Something went wrong. Please try again.', 'error');
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const goNext = () => {
+    if (isLast) {
+      publish();
+      return;
+    }
+    setStepIndex((i) => i + 1);
+    scrollTop();
+  };
+
+  const goBack = () => {
+    setStepIndex((i) => Math.max(0, i - 1));
+    scrollTop();
+  };
+
+  const Icon = current.icon;
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Progress header */}
+      <header className="sticky top-0 z-20 bg-crwn-bg/80 backdrop-blur-md border-b border-crwn-elevated">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-5 pb-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-crwn-gold font-bold tracking-tight">Offer Builder</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-crwn-text-secondary">
+                Step {stepIndex + 1} of {steps.length}
+              </span>
+              <button
+                onClick={() => router.push('/profile/artist')}
+                aria-label="Exit to dashboard"
+                className="text-crwn-text-secondary hover:text-crwn-text transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          <div className="h-1.5 rounded-full bg-crwn-elevated overflow-hidden">
+            <div className="h-full bg-crwn-gold rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+          </div>
+        </div>
+      </header>
+
+      {/* One decision */}
+      <main className="flex-1">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+          <div className="flex items-start gap-3 mb-8">
+            <div className="w-11 h-11 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
+              <Icon className="w-5 h-5 text-crwn-gold" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-crwn-text">{current.title}</h1>
+              <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
+            </div>
+          </div>
+
+          {current.key === 'goal' && (
+            <div className="grid gap-3">
+              {GOALS.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  onClick={() => applyGoal(g)}
+                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                    goalId === g.id ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                  }`}
+                >
+                  <p className="font-medium text-crwn-text">{g.label}</p>
+                  <p className="text-xs text-crwn-text-secondary mt-0.5">{g.hint}</p>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {current.key === 'type' && (
+            <div className="grid gap-3">
+              <button
+                type="button"
+                onClick={() => setOfferType('subscription')}
+                className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                  offerType === 'subscription' ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                }`}
+              >
+                <p className="font-medium text-crwn-text">Subscription</p>
+                <p className="text-xs text-crwn-text-secondary mt-0.5">Recurring — fans pay monthly to stay in.</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setOfferType('onetime')}
+                className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                  offerType === 'onetime' ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                }`}
+              >
+                <p className="font-medium text-crwn-text">One-time</p>
+                <p className="text-xs text-crwn-text-secondary mt-0.5">One payment for one thing — a drop, a pack, merch.</p>
+              </button>
+            </div>
+          )}
+
+          {current.key === 'price' && (
+            <div className="flex items-center bg-crwn-surface border border-crwn-elevated rounded-xl px-4 focus-within:border-crwn-gold">
+              <span className="text-lg text-crwn-text-secondary">$</span>
+              <input
+                autoFocus
+                type="number"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                className="flex-1 bg-transparent px-2 py-4 text-lg text-crwn-text outline-none"
+                placeholder="0.00"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+              {offerType === 'subscription' && <span className="text-crwn-text-secondary">/mo</span>}
+            </div>
+          )}
+
+          {current.key === 'tier-details' && (
+            <div className="space-y-6">
+              <input
+                autoFocus
+                className={INPUT}
+                maxLength={40}
+                placeholder="Inner Circle"
+                value={tierName}
+                onChange={(e) => setTierName(e.target.value)}
+              />
+              <BenefitPicker selected={benefits} onChange={setBenefits} />
+            </div>
+          )}
+
+          {current.key === 'product-details' && (
+            <div className="space-y-6">
+              <input
+                autoFocus
+                className={INPUT}
+                maxLength={120}
+                placeholder="Product name"
+                value={productTitle}
+                onChange={(e) => setProductTitle(e.target.value)}
+              />
+              <div className="grid gap-3">
+                {PRODUCT_TYPES.map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setProductType(t.value)}
+                    className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                      productType === t.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                    }`}
+                  >
+                    <p className="font-medium text-crwn-text">{t.label}</p>
+                    <p className="text-xs text-crwn-text-secondary mt-0.5">{t.hint}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {current.key === 'share' && (
+            <div className="space-y-5">
+              <ToggleRow
+                on={shareOn}
+                onToggle={() => setShareOn((v) => !v)}
+                label="Turn on Share-to-Earn"
+                hint="Fans grab a share link on your page; you pay them a % of subscriptions they refer."
+              />
+              {shareOn && (
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text mb-2">Referral commission</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={0}
+                      max={50}
+                      inputMode="numeric"
+                      value={sharePercent}
+                      onChange={(e) => setSharePercent(e.target.value)}
+                      className="w-24 bg-crwn-surface border border-crwn-elevated rounded-xl px-3 py-3 text-lg text-crwn-text focus:outline-none focus:border-crwn-gold"
+                    />
+                    <span className="text-crwn-text-secondary">%</span>
+                  </div>
+                  <p className="text-xs text-crwn-text-secondary mt-2">We suggest 20%. Max 50%.</p>
+                </div>
+              )}
+              <p className="text-xs text-crwn-text-secondary">{ARTIST_WIDE_NOTE}</p>
+            </div>
+          )}
+
+          {current.key === 'clip' && (
+            <div className="space-y-5">
+              <ToggleRow
+                on={clipOn}
+                onToggle={() => setClipOn((v) => !v)}
+                label="Turn on Clip-to-Earn"
+                hint="Clippers post clips of your content with tracked links and earn a cut of the subs they convert."
+              />
+              {clipOn && (
+                <>
+                  <div className="grid gap-3">
+                    {CLIPPER_RAMP_PRESETS.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setClipPresetId(p.id)}
+                        className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                          clipPresetId === p.id ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                        }`}
+                      >
+                        <p className="font-medium text-crwn-text">{p.label}</p>
+                        <p className="text-xs text-crwn-text-secondary mt-0.5">
+                          {p.steps.length > 0
+                            ? `${p.steps.map((s) => `${s.percent}% for ${s.days} days`).join(' → ')} → your standard rate`
+                            : p.description}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-crwn-text mb-2">Standard rate (after the ramp ends)</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        inputMode="numeric"
+                        value={clipStandardRate}
+                        onChange={(e) => setClipStandardRate(e.target.value)}
+                        className="w-24 bg-crwn-surface border border-crwn-elevated rounded-xl px-3 py-3 text-lg text-crwn-text focus:outline-none focus:border-crwn-gold"
+                      />
+                      <span className="text-crwn-text-secondary">%</span>
+                    </div>
+                    <p className="text-xs text-crwn-text-secondary mt-2">We suggest 10%.</p>
+                  </div>
+                  <p className="text-xs text-crwn-gold/80">Publishing with a ramp (re)starts your clipper campaign clock from today.</p>
+                </>
+              )}
+              <p className="text-xs text-crwn-text-secondary">{ARTIST_WIDE_NOTE}</p>
+            </div>
+          )}
+
+          {current.key === 'review' && (
+            <div className="space-y-6">
+              <div className="border border-crwn-elevated rounded-2xl divide-y divide-crwn-elevated">
+                <ReviewRow label="Offer" value={offerType === 'subscription' ? 'Subscription (recurring)' : 'One-time'} />
+                <ReviewRow
+                  label={offerType === 'subscription' ? 'Tier name' : 'Title'}
+                  value={offerType === 'subscription' ? tierName : productTitle}
+                />
+                <ReviewRow
+                  label="Price"
+                  value={`$${(Math.round(parseFloat(price || '0') * 100) / 100).toFixed(2)}${offerType === 'subscription' ? '/mo' : ''}`}
+                />
+                {offerType === 'subscription' ? (
+                  <ReviewRow label="Benefits" value={benefits.length > 0 ? benefits.join(' · ') : 'None yet'} />
+                ) : (
+                  <ReviewRow label="Kind" value={productType === 'digital' ? 'Digital download' : 'Physical / merch'} />
+                )}
+                <ReviewRow
+                  label="Share-to-Earn"
+                  value={shareOn ? `On — ${Math.round(Number(sharePercent))}% referral commission` : 'Off'}
+                />
+                <ReviewRow
+                  label="Clip-to-Earn"
+                  value={
+                    clipOn
+                      ? clipPreset.steps.length > 0
+                        ? `On — ${clipPreset.steps.map((s) => `${s.percent}%`).join(' → ')} → ${Math.round(Number(clipStandardRate))}% standard`
+                        : `On — flat ${Math.round(Number(clipStandardRate))}%`
+                      : 'Off'
+                  }
+                />
+              </div>
+
+              {(shareOn || clipOn) && <p className="text-xs text-crwn-text-secondary">{ARTIST_WIDE_NOTE}</p>}
+
+              <div className="bg-crwn-gold/5 border border-crwn-gold/20 rounded-2xl p-4">
+                <p className="text-sm font-semibold text-crwn-gold mb-2">What CRWN sets up</p>
+                <ul className="space-y-1.5 text-sm text-crwn-text-secondary">
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
+                    {offerType === 'subscription'
+                      ? 'Your membership tier, live on your page (Stripe prices are added automatically when you connect Stripe)'
+                      : 'Your product, live in your shop (add the file or shipping details from the Shop tab)'}
+                  </li>
+                  {shareOn && (
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
+                      Auto share links for fans, paying {Math.round(Number(sharePercent))}% on referred subs
+                    </li>
+                  )}
+                  {clipOn && (
+                    <li className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
+                      The clipper commission ladder + tracked Clip &amp; Earn links on your page
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Footer nav */}
+      <footer className="sticky bottom-0 z-20 bg-crwn-bg/90 backdrop-blur-md border-t border-crwn-elevated">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+          <button
+            onClick={goBack}
+            disabled={stepIndex === 0 || publishing}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+
+          <div className="flex flex-col items-end">
+            <button
+              onClick={goNext}
+              disabled={!canContinue() || publishing}
+              className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              {!canContinue() && !publishing && <Lock className="w-4 h-4" />}
+              {publishing ? 'Publishing…' : isLast ? 'Publish offer' : 'Continue'}
+              {canContinue() && !publishing && <ArrowRight className="w-4 h-4" />}
+            </button>
+            {!canContinue() && !publishing && (
+              <span className="text-[11px] text-crwn-text-secondary mt-1.5">Complete this step to continue</span>
+            )}
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// ---- Small pieces ----------------------------------------------------------
+
+function ToggleRow({ on, onToggle, label, hint }: { on: boolean; onToggle: () => void; label: string; hint: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={`w-full text-left px-4 py-4 rounded-xl border transition-colors flex items-center gap-4 ${
+        on ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+      }`}
+    >
+      <div className="flex-1">
+        <p className="font-medium text-crwn-text">{label}</p>
+        <p className="text-xs text-crwn-text-secondary mt-0.5">{hint}</p>
+      </div>
+      <span
+        className={`flex-shrink-0 w-11 h-6 rounded-full relative transition-colors ${on ? 'bg-crwn-gold' : 'bg-crwn-elevated'}`}
+      >
+        <span
+          className={`absolute top-0.5 w-5 h-5 rounded-full bg-crwn-bg transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
+        />
+      </span>
+    </button>
+  );
+}
+
+function ReviewRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4 px-4 py-3">
+      <span className="text-sm text-crwn-text-secondary flex-shrink-0">{label}</span>
+      <span className="text-sm text-crwn-text text-right">{value}</span>
+    </div>
+  );
+}
+
+function BenefitPicker({ selected, onChange }: { selected: string[]; onChange: (v: string[]) => void }) {
+  const [custom, setCustom] = useState('');
+  const toggle = (b: string) => onChange(selected.includes(b) ? selected.filter((x) => x !== b) : [...selected, b]);
+  const addCustom = () => {
+    const v = custom.trim();
+    if (v && !selected.includes(v)) onChange([...selected, v]);
+    setCustom('');
+  };
+  const extras = selected.filter((b) => !BENEFIT_SUGGESTIONS.includes(b));
+  const chips = [...BENEFIT_SUGGESTIONS, ...extras];
+  return (
+    <div>
+      <p className="text-sm font-medium text-crwn-text mb-2">What do members get?</p>
+      <div className="flex flex-wrap gap-2">
+        {chips.map((b) => {
+          const on = selected.includes(b);
+          return (
+            <button
+              key={b}
+              type="button"
+              onClick={() => toggle(b)}
+              className={`px-3 py-2 rounded-full text-sm border transition-colors ${
+                on ? 'bg-crwn-gold text-crwn-bg border-crwn-gold font-medium' : 'border-crwn-elevated text-crwn-text-secondary hover:border-crwn-gold/40'
+              }`}
+            >
+              {on ? '✓ ' : ''}
+              {b}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-2 mt-4">
+        <input
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addCustom();
+            }
+          }}
+          maxLength={60}
+          placeholder="Add your own perk"
+          className="flex-1 bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
+        />
+        <button
+          type="button"
+          onClick={addCustom}
+          disabled={!custom.trim()}
+          className="px-4 py-3 rounded-xl border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text disabled:opacity-40 transition-colors"
+        >
+          Add
+        </button>
+      </div>
+      <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier — edit anytime in the dashboard.</p>
+    </div>
+  );
+}
+
+function DoneScreen({
+  offerType,
+  onOffers,
+  onDashboard,
+}: {
+  offerType: OfferType;
+  onOffers: () => void;
+  onDashboard: () => void;
+}) {
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg text-center page-fade-in">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
+          <PartyPopper className="w-9 h-9 text-crwn-gold" />
+        </div>
+        <h1 className="text-3xl font-bold text-crwn-text mb-2">Your offer is live 🎉</h1>
+        <p className="text-crwn-text-secondary mb-8">
+          {offerType === 'subscription'
+            ? 'Your membership tier is on your page. Now put the link everywhere fans already watch you.'
+            : 'Your offer is in your shop. Now put the link everywhere fans already watch you.'}
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={onOffers}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-8 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors"
+          >
+            View My Offers
+            <ArrowRight className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onDashboard}
+            className="w-full sm:w-auto px-8 py-3 rounded-full border border-crwn-elevated text-sm font-medium text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 transition-colors"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function NewOfferPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" />
+        </div>
+      }
+    >
+      <OfferBuilder />
+    </Suspense>
+  );
+}
