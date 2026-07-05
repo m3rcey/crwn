@@ -147,11 +147,20 @@ export default function OffersPage() {
 
         <button
           onClick={() => router.push('/offers/new')}
-          className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors mb-10"
+          className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors mb-3"
         >
           <Plus className="w-4 h-4" />
           Build an Offer
         </button>
+
+        <p className="mb-10">
+          <button
+            onClick={() => router.push('/proof-of-demand/new')}
+            className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+          >
+            Not sure fans want it? Test demand first →
+          </button>
+        </p>
 
         {empty ? (
           <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center">

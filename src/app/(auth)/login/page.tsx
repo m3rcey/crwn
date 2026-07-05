@@ -11,6 +11,9 @@ export default function LoginPage() {
   const { user, isLoading } = useAuth();
   const searchParams = useSearchParams();
   const verified = searchParams.get('verified') === 'true';
+  // Optional return path (e.g. a public demand-test page) — internal paths only.
+  const nextParam = searchParams.get('next');
+  const next = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//') ? nextParam : null;
 
   useEffect(() => {
     if (user && !isLoading) {
@@ -24,14 +27,14 @@ export default function LoginPage() {
           .eq('id', user.id)
           .single();
         if (profile?.onboarding_completed) {
-          router.replace('/home');
+          router.replace(next || '/home');
         } else {
           router.replace('/welcome');
         }
       };
       checkOnboarding();
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, next]);
 
   if (isLoading) {
     return (

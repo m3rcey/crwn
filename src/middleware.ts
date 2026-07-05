@@ -66,7 +66,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ['/home', '/explore', '/community', '/library', '/profile', '/setup', '/offers', '/recruit/dashboard', '/admin'];
+  const protectedPaths = ['/home', '/explore', '/community', '/library', '/profile', '/setup', '/offers', '/proof-of-demand', '/recruit/dashboard', '/admin'];
   const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   );
@@ -109,7 +109,7 @@ export async function middleware(request: NextRequest) {
     // Detect artist page visits: /{slug} pattern (single segment, not a known route)
     const knownRoutes = ['home', 'explore', 'community', 'library', 'profile', 'login', 'signup',
       'admin', 'recruit', 'onboarding', 'support', 'terms', 'privacy', 'dmca', 'about',
-      'welcome', 'setup', 'offers', 'verify', 'reset-password', 'forgot-password', 'partner', 'join',
+      'welcome', 'setup', 'offers', 'proof-of-demand', 'verify', 'reset-password', 'forgot-password', 'partner', 'join',
       'artist', 'artist-agreement', 'founding-artists', 'getting-started', 'embed', 'link', 'worth'];
     const pathname = request.nextUrl.pathname;
     const segments = pathname.split('/').filter(Boolean);
