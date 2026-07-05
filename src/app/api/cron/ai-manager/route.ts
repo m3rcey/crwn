@@ -20,6 +20,18 @@ const supabaseAdmin = createClient(
 
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
 
+// Liveness heartbeat: written on EVERY completed run, even when there are zero
+// qualifying artists. agent-health reads this to detect a genuinely dead cron
+// without false-alarming when the run simply had nothing per-artist to log.
+// Non-fatal: a missing table (migration not yet applied) must not fail the cron.
+async function recordHeartbeat(detail: string) {
+  try {
+    await supabaseAdmin.from('cron_heartbeat').insert({ job: 'ai-manager', detail });
+  } catch (err) {
+    console.error('ai-manager heartbeat insert failed (non-fatal):', err);
+  }
+}
+
 async function getExistingInsightTypes(artistId: string): Promise<Set<string>> {
   const { data } = await supabaseAdmin
     .from('ai_insights')
@@ -253,6 +265,7 @@ export async function GET(req: NextRequest) {
       .eq('is_active', true);
 
     if (!artists || artists.length === 0) {
+      await recordHeartbeat('No active artists');
       return NextResponse.json({ message: 'No active artists' });
     }
 
@@ -319,6 +332,10 @@ export async function GET(req: NextRequest) {
     const totalCreated = results.reduce((s, r) => s + (r.insightsCreated || 0), 0);
     const totalExecuted = results.reduce((s, r) => s + (r.actionsExecuted || 0), 0);
     const totalEscalated = results.reduce((s, r) => s + (r.actionsEscalated || 0), 0);
+
+    await recordHeartbeat(
+      `processed ${results.length}, insights ${totalCreated}, executed ${totalExecuted}, escalated ${totalEscalated}`
+    );
 
     return NextResponse.json({
       processed: results.length,
