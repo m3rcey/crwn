@@ -12,6 +12,7 @@ import { artistNewPurchaseEmail } from '@/lib/emails/artistNewPurchase';
 import { receiptEmail } from '@/lib/emails/receipt';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
+import { insertHeldReferralEarning } from '@/lib/attribution';
 import { recordDiscountCodeUse } from '@/lib/discountCodes';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
 import { getArtistFeePercent } from '@/lib/platformTier';
@@ -479,7 +480,7 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
     if (existingReferral && earning) {
       const commissionAmount = Math.round(grossAmount * (existingReferral.commission_rate / 100));
 
-      await supabaseAdmin.from('referral_earnings').insert({
+      await insertHeldReferralEarning(supabaseAdmin, {
         referral_id: existingReferral.id,
         artist_id: sub.artist_id,
         referrer_fan_id: existingReferral.referrer_fan_id,
@@ -766,6 +767,10 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
   const prodSourceCampaignId = prodUtmSource === 'crwn_campaign' && prodUtmCampaign ? prodUtmCampaign : null;
   const prodSourceSequenceId = prodUtmSource === 'crwn_sequence' && prodUtmCampaign ? prodUtmCampaign : null;
 
+  // Referral attribution capture only (NO referral_earnings row for one-time purchases; pay later)
+  const prodReferralCode = metadata.referral_code || '';
+  const prodAttributionSource = metadata.attribution_source || '';
+
   // Write earnings record
   const { data: earning } = await supabaseAdmin
     .from('earnings')
@@ -778,7 +783,12 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
       platform_fee: platformFee,
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
-      metadata: { productTitle, fanDisplayName: fanName },
+      metadata: {
+        productTitle,
+        fanDisplayName: fanName,
+        ...(prodReferralCode && { referral_code: prodReferralCode }),
+        ...(prodAttributionSource && { attribution_source: prodAttributionSource }),
+      },
       fan_city: fanCity,
       fan_state: fanState,
       fan_country: fanCountry,
@@ -1059,6 +1069,10 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
   const sourceCampaignId = utmSource === 'crwn_campaign' && utmCampaign ? utmCampaign : null;
   const sourceSequenceId = utmSource === 'crwn_sequence' && utmCampaign ? utmCampaign : null;
 
+  // Referral attribution capture only (NO referral_earnings row for one-time purchases; pay later)
+  const trackReferralCode = metadata.referral_code || '';
+  const trackAttributionSource = metadata.attribution_source || '';
+
   const { data: earning } = await supabaseAdmin
     .from('earnings')
     .insert({
@@ -1070,7 +1084,13 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
       platform_fee: platformFee,
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
-      metadata: { trackTitle, fanDisplayName: fanName, track_id },
+      metadata: {
+        trackTitle,
+        fanDisplayName: fanName,
+        track_id,
+        ...(trackReferralCode && { referral_code: trackReferralCode }),
+        ...(trackAttributionSource && { attribution_source: trackAttributionSource }),
+      },
       fan_city: fanCity,
       fan_state: fanState,
       fan_country: fanCountry,
@@ -1248,7 +1268,14 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
       platform_fee: platformFee,
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
-      metadata: { bookingTitle, durationMinutes: booking.duration_minutes, fanDisplayName: fanName },
+      metadata: {
+        bookingTitle,
+        durationMinutes: booking.duration_minutes,
+        fanDisplayName: fanName,
+        // Referral attribution capture only (NO referral_earnings row for one-time purchases; pay later)
+        ...(metadata.referral_code && { referral_code: metadata.referral_code }),
+        ...(metadata.attribution_source && { attribution_source: metadata.attribution_source }),
+      },
       fan_city: fanCity,
       fan_state: fanState,
       fan_country: fanCountry,
@@ -1598,13 +1625,28 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
     return;
   }
 
+  // Idempotency: Stripe redelivers webhooks and amount_refunded is cumulative, so
+  // re-processing the same charge would double-count both the negative earning and the
+  // referral clawback. Skip if a refund earning already exists for this payment.
+  // (Trade-off: multiple distinct partial refunds on one charge collapse to the first —
+  // errs toward under-clawback, which favors the fan over over-charging them.)
+  const { data: alreadyRefunded } = await supabaseAdmin
+    .from('earnings')
+    .select('id')
+    .eq('stripe_payment_id', paymentIntentId + '_refund')
+    .maybeSingle();
+  if (alreadyRefunded) {
+    console.log('Refund already processed, skipping:', paymentIntentId);
+    return;
+  }
+
   // Calculate refund proportions
   const refundRatio = amountRefunded / originalEarning.gross_amount;
   const refundedNet = Math.round(originalEarning.net_amount * refundRatio);
   const refundedFee = Math.round(originalEarning.platform_fee * refundRatio);
 
   // Write negative earnings record
-  await supabaseAdmin
+  const { data: refundEarning } = await supabaseAdmin
     .from('earnings')
     .insert({
       artist_id: originalEarning.artist_id,
@@ -1619,7 +1661,46 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
         original_earning_id: originalEarning.id,
         refund_amount: amountRefunded,
       },
-    });
+    })
+    .select('id')
+    .single();
+
+  // Clawback: if this earning generated a referral commission, mirror it negative so
+  // the refunded commission is subtracted from the referrer's cashout balance.
+  // cleared_at = now (immediate) so the clawback always nets against held earnings.
+  try {
+    const { data: origReferralEarning } = await supabaseAdmin
+      .from('referral_earnings')
+      .select('id, referral_id, artist_id, referrer_fan_id, gross_amount, commission_amount')
+      .eq('earning_id', originalEarning.id)
+      .maybeSingle();
+
+    if (origReferralEarning) {
+      // Scale by the refund ratio so partial refunds only claw back their share.
+      const clawbackGross = -Math.round(origReferralEarning.gross_amount * refundRatio);
+      const clawbackCommission = -Math.round(origReferralEarning.commission_amount * refundRatio);
+      if (clawbackCommission !== 0) {
+        await insertHeldReferralEarning(
+          supabaseAdmin,
+          {
+            referral_id: origReferralEarning.referral_id,
+            artist_id: origReferralEarning.artist_id,
+            referrer_fan_id: origReferralEarning.referrer_fan_id,
+            earning_id: refundEarning?.id || originalEarning.id,
+            gross_amount: clawbackGross,
+            commission_amount: clawbackCommission,
+          },
+          new Date().toISOString(),
+        );
+        console.log('Referral clawback recorded:', {
+          referrerFanId: origReferralEarning.referrer_fan_id,
+          amount: clawbackCommission,
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Referral clawback failed:', err);
+  }
 
   // Update purchase status if it was a product purchase
   if (originalEarning.type === 'purchase') {

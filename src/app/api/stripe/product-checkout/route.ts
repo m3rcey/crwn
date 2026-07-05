@@ -25,6 +25,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { productId, variantSelections, discountCode, utmSource, utmMedium, utmCampaign } = body;
 
+    // Referral attribution (capture only, no payout for one-time purchases yet).
+    // Body param takes priority; fall back to the first-party crwn_ref cookie.
+    const referralCode = body.referralCode || request.cookies.get('crwn_ref')?.value || '';
+    const attributionSource = body.attributionSource || request.cookies.get('crwn_ref_src')?.value || '';
+
     if (!productId) {
       return NextResponse.json(
         { error: 'Missing productId' },
@@ -167,6 +172,8 @@ export async function POST(request: NextRequest) {
           artist_id: product.artist_id,
           type: 'product',
           ...(variantSelections ? { variant_selections: JSON.stringify(variantSelections) } : {}),
+          referral_code: referralCode,
+          attribution_source: attributionSource,
           utm_source: utmSource || '',
           utm_medium: utmMedium || '',
           utm_campaign: utmCampaign || '',
@@ -179,6 +186,8 @@ export async function POST(request: NextRequest) {
         product_id: productId,
         artist_id: product.artist_id,
         discount_code_id: discountCodeId,
+        referral_code: referralCode,
+        attribution_source: attributionSource,
         utm_source: utmSource || '',
         utm_medium: utmMedium || '',
         utm_campaign: utmCampaign || '',

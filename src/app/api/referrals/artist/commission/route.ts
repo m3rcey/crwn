@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -11,6 +12,23 @@ export async function POST(req: NextRequest) {
 
   if (!artistId || commissionRate === undefined) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  }
+
+  // The admin client below bypasses RLS, so ownership must be checked explicitly —
+  // otherwise any caller could set any artist's commission rate.
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const { data: owned } = await supabase
+    .from('artist_profiles')
+    .select('id')
+    .eq('id', artistId)
+    .eq('user_id', user.id)
+    .single();
+  if (!owned) {
+    return NextResponse.json({ error: 'Not your artist profile' }, { status: 403 });
   }
 
   // Validate: 0-50% range

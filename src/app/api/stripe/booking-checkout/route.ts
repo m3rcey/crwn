@@ -8,11 +8,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_fo
 
 export async function POST(request: NextRequest) {
   try {
-    const { sessionId, artistId } = await request.json();
+    const body = await request.json();
+    const { sessionId, artistId } = body;
 
     if (!sessionId || !artistId) {
       return NextResponse.json({ error: 'Missing sessionId or artistId' }, { status: 400 });
     }
+
+    // Referral attribution (capture only, no payout for one-time purchases yet).
+    // Body param takes priority; fall back to the first-party crwn_ref cookie.
+    const referralCode = body.referralCode || request.cookies.get('crwn_ref')?.value || '';
+    const attributionSource = body.attributionSource || request.cookies.get('crwn_ref_src')?.value || '';
 
     const supabase = await createServerSupabaseClient();
 
@@ -82,6 +88,8 @@ export async function POST(request: NextRequest) {
         booking_session_id: session.id,
         buyer_id: user.id,
         artist_id: artistId,
+        referral_code: referralCode,
+        attribution_source: attributionSource,
       },
     });
 

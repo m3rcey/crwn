@@ -1,4 +1,5 @@
 import { fanReferralEarningEmail } from "@/lib/emails/fanReferralEarning";
+import { insertHeldReferralEarning } from "@/lib/attribution";
 /**
  * Referral system utilities for CRWN
  */
@@ -81,38 +82,77 @@ export async function processReferral(params: {
       : (artist?.referral_commission_rate || 10);
   const commissionAmount = Math.round(grossAmount * (commissionRate / 100));
 
-  // Create referral record (upsert in case referred fan already exists)
-  const { data: referral, error: refError } = await supabaseAdmin
+  // Overwrite guard: if a referral already exists for (artist_id, referred_fan_id),
+  // the ORIGINAL referrer keeps the attribution: referrer_fan_id / referral_code /
+  // source / commission_rate are NEVER reassigned. Only the subscription linkage
+  // is refreshed (e.g. resubscribe). The commission below is credited to whoever
+  // actually holds the referral row.
+  const { data: existingReferral } = await supabaseAdmin
     .from('referrals')
-    .upsert({
-      artist_id: artistId,
-      referrer_fan_id: referrer.id,
-      referred_fan_id: referredFanId,
-      subscription_id: subscriptionId,
-      referral_code: referralCode,
-      commission_rate: commissionRate,
-      source,
-      status: 'active',
-    }, { onConflict: 'artist_id,referred_fan_id' })
-    .select('id')
-    .single();
+    .select('id, referrer_fan_id, commission_rate')
+    .eq('artist_id', artistId)
+    .eq('referred_fan_id', referredFanId)
+    .maybeSingle();
 
-  if (refError) {
-    console.error('Failed to create referral:', refError);
-    return;
+  let referralId: string;
+  let creditReferrerId: string;
+  let creditCommissionAmount: number;
+
+  if (existingReferral) {
+    const { error: refUpdateError } = await supabaseAdmin
+      .from('referrals')
+      .update({
+        subscription_id: subscriptionId,
+        status: 'active',
+      })
+      .eq('id', existingReferral.id);
+
+    if (refUpdateError) {
+      console.error('Failed to update referral:', refUpdateError);
+      return;
+    }
+
+    referralId = existingReferral.id;
+    creditReferrerId = existingReferral.referrer_fan_id;
+    creditCommissionAmount = Math.round(
+      grossAmount * ((existingReferral.commission_rate ?? commissionRate) / 100)
+    );
+  } else {
+    const { data: referral, error: refError } = await supabaseAdmin
+      .from('referrals')
+      .insert({
+        artist_id: artistId,
+        referrer_fan_id: referrer.id,
+        referred_fan_id: referredFanId,
+        subscription_id: subscriptionId,
+        referral_code: referralCode,
+        commission_rate: commissionRate,
+        source,
+        status: 'active',
+      })
+      .select('id')
+      .single();
+
+    if (refError || !referral) {
+      console.error('Failed to create referral:', refError);
+      return;
+    }
+
+    referralId = referral.id;
+    creditReferrerId = referrer.id;
+    creditCommissionAmount = commissionAmount;
   }
 
-  // Create referral earning
-  await supabaseAdmin
-    .from('referral_earnings')
-    .insert({
-      referral_id: referral.id,
-      artist_id: artistId,
-      referrer_fan_id: referrer.id,
-      earning_id: earningId,
-      gross_amount: grossAmount,
-      commission_amount: commissionAmount,
-    });
+  // Create referral earning (held for PAYOUT_HOLD_DAYS before it is cashout-eligible;
+  // column-tolerant so it still records even before the hold migration is applied).
+  await insertHeldReferralEarning(supabaseAdmin, {
+    referral_id: referralId,
+    artist_id: artistId,
+    referrer_fan_id: creditReferrerId,
+    earning_id: earningId,
+    gross_amount: grossAmount,
+    commission_amount: creditCommissionAmount,
+  });
 
   // Notify the referrer
   const { data: referredProfile } = await supabaseAdmin
@@ -124,9 +164,9 @@ export async function processReferral(params: {
   const referredName = referredProfile?.display_name || 'Someone';
 
   await supabaseAdmin.from('notifications').insert({
-    user_id: referrer.id,
+    user_id: creditReferrerId,
     type: 'referral_earning',
-    title: `💸 +$${(commissionAmount / 100).toFixed(2)} referral commission`,
+    title: `💸 +$${(creditCommissionAmount / 100).toFixed(2)} referral commission`,
     message: `${referredName} subscribed through your link!`,
     link: '/library?tab=referrals',
   });
@@ -134,11 +174,11 @@ export async function processReferral(params: {
   // Send referral earning email
   try {
     const { resend, FROM_EMAIL } = await import('@/lib/resend');
-    const referrerEmail = (await supabaseAdmin.auth.admin.getUserById(referrer.id)).data?.user?.email;
+    const referrerEmail = (await supabaseAdmin.auth.admin.getUserById(creditReferrerId)).data?.user?.email;
     const { data: referrerProfile } = await supabaseAdmin
       .from('profiles')
       .select('display_name')
-      .eq('id', referrer.id)
+      .eq('id', creditReferrerId)
       .single();
     const { data: artistData } = await supabaseAdmin
       .from('artist_profiles')
@@ -148,7 +188,7 @@ export async function processReferral(params: {
     if (referrerEmail) {
       const firstName = (referrerProfile?.display_name || '').split(' ')[0] || 'there';
       const artName = (artistData?.profile as any)?.display_name || 'an artist';
-      const emailContent = fanReferralEarningEmail({ fanName: firstName, artistName: artName, amount: commissionAmount, referredName });
+      const emailContent = fanReferralEarningEmail({ fanName: firstName, artistName: artName, amount: creditCommissionAmount, referredName });
       await resend.emails.send({ from: FROM_EMAIL, to: referrerEmail, subject: emailContent.subject, html: emailContent.html });
     }
   } catch (emailErr) {
