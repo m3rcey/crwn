@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Coins } from 'lucide-react';
 import { PlaylistManager } from '@/components/library/PlaylistManager';
 import { LikedSongs } from '@/components/library/LikedSongs';
 import { PurchasesSection } from '@/components/library/PurchasesSection';
@@ -109,7 +109,26 @@ export default function LibraryPage() {
         {activeTab === 'purchases' && <PurchasesSection />}
         {activeTab === 'liked' && <LikedSongs />}
         {activeTab === 'playlists' && <PlaylistManager />}
-        {activeTab === 'referrals' && <ReferralDashboard />}
+        {activeTab === 'referrals' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between neu-raised rounded-xl p-4">
+              <div>
+                <p className="text-sm font-medium text-crwn-text">Earn Center</p>
+                <p className="text-xs text-crwn-text-secondary mt-0.5">
+                  Your full earnings breakdown, payout history, and share links.
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/earn')}
+                className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold neu-button-accent text-crwn-bg"
+              >
+                <Coins className="w-4 h-4" />
+                Open Earn Center
+              </button>
+            </div>
+            <ReferralDashboard />
+          </div>
+        )}
       </div>
     </div>
   );
