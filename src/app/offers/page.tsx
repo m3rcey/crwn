@@ -153,12 +153,21 @@ export default function OffersPage() {
           Build an Offer
         </button>
 
-        <p className="mb-10">
+        <p className="mb-3">
           <button
             onClick={() => router.push('/proof-of-demand/new')}
             className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
           >
             Not sure fans want it? Test demand first →
+          </button>
+        </p>
+
+        <p className="mb-10">
+          <button
+            onClick={() => router.push('/missions/new')}
+            className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+          >
+            Rally your fans with a mission →
           </button>
         </p>
 

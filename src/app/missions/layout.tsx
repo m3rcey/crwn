@@ -1,0 +1,12 @@
+import { BackgroundImage } from '@/components/ui/BackgroundImage';
+
+// Full-screen, no sidebar/nav — same shell as /offers. Unlike the setup wizard
+// this is NOT a hard gate: the artist can exit back to /profile/artist any time.
+export default function MissionsLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative min-h-screen bg-crwn-bg">
+      <BackgroundImage src="/backgrounds/bg-dashboard.jpg" overlayOpacity="bg-black/85" />
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
+}
