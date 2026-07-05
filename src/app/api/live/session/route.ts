@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { liveProvider } from '@/lib/livekit';
 import { generateFileKey } from '@/lib/r2/client';
 import { getTierLimits } from '@/lib/platformTier';
+import { LIVE_AGREEMENT_VERSION } from '@/lib/liveAgreement';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -56,6 +57,29 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       );
     }
+
+    // Mandatory Live-Streaming Agreement gate (server-side enforcement).
+    // Going live is blocked unless a PERSISTED acceptance of the CURRENT
+    // agreement version exists for this user — a client that skips the
+    // pre-stream UI is still rejected here. Bumping LIVE_AGREEMENT_VERSION
+    // invalidates old acceptances and forces a re-prompt.
+    const { data: acceptance } = await supabaseAdmin
+      .from('live_agreement_acceptances')
+      .select('id')
+      .eq('fan_id', user.id)
+      .eq('version', LIVE_AGREEMENT_VERSION)
+      .maybeSingle();
+    if (!acceptance) {
+      return NextResponse.json(
+        {
+          error: 'You must accept the CRWN Live-Streaming Agreement before going live.',
+          reason: 'agreement_required',
+          version: LIVE_AGREEMENT_VERSION,
+        },
+        { status: 403 }
+      );
+    }
+
     // Best-effort recording: start egress to R2, but never block go-live if it fails.
     const vodFields: Record<string, unknown> = {};
     try {
