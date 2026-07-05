@@ -9,6 +9,7 @@ import { ShopSection } from '@/components/artist/ShopSection';
 import { TierCards } from '@/components/artist/SubscribeSection';
 import { SubscribeCTA } from '@/components/gating';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
+import { ArtistMissions } from '@/components/missions/ArtistMissions';
 import { FanLeaderboard } from '@/components/community/FanLeaderboard';
 import { LiveSessionsList } from '@/components/live/LiveSessionsList';
 import { LiveSession } from '@/types/live';
@@ -197,6 +198,14 @@ export function ArtistProfileContent({
 
         {activeTab === 'community' && (
           <div className="space-y-6" data-tour="artist-page-community">
+            {/* Active missions — fans join (a commitment we record honestly; never auto-completed). */}
+            {!isArtistProfile && (
+              <ArtistMissions
+                artistId={artist.id}
+                artistSlug={artist.slug}
+                artistName={artist.profile?.display_name || 'This artist'}
+              />
+            )}
             {/* Fan mission suggestions — a proposal only; the artist approves and sets the reward. */}
             {!isArtistProfile && (
               <button

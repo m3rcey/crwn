@@ -109,3 +109,23 @@ export function missionCurrentCount(
   if (m.target_kind === 'demand_test' && m.target_id) return demandCounts[m.target_id] ?? 0;
   return m.manual_count;
 }
+
+/** The fields the action-link builder needs — any mission row shape satisfies this. */
+export interface MissionActionFields {
+  type: MissionType;
+  target_kind: MissionTargetKind;
+  target_id: string | null;
+}
+
+/**
+ * Where "doing" a mission actually happens. Conservative on purpose: only the
+ * demand-test page has a dedicated route; everything else lands on the artist
+ * page (where tiers, shop, music, and live all live). Never builds a link to a
+ * route that doesn't exist.
+ */
+export function missionActionHref(m: MissionActionFields, artistSlug: string): string {
+  if (m.target_kind === 'demand_test' && m.target_id) {
+    return `/${artistSlug}/demand/${m.target_id}`;
+  }
+  return `/${artistSlug}`;
+}

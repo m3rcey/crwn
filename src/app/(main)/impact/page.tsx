@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import {
-  Loader2, TrendingUp, Users, Heart, Sparkles, ArrowRight,
+  Loader2, TrendingUp, Users, Heart, Sparkles, ArrowRight, Flag,
 } from 'lucide-react';
 
 interface ImpactData {
@@ -88,6 +88,23 @@ export default function ImpactPage() {
       <p className="text-sm text-crwn-text-secondary mb-6">
         The difference you&apos;ve made for the artists you back.
       </p>
+
+      {/* Fan missions entry point — the missions you've joined live at /my-missions. */}
+      <button
+        onClick={() => router.push('/my-missions')}
+        className="w-full neu-raised rounded-xl p-4 mb-6 flex items-center justify-between gap-3 text-left hover:opacity-90 transition-opacity"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <Flag className="w-5 h-5 text-crwn-gold flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-crwn-text">My Missions</p>
+            <p className="text-xs text-crwn-text-secondary truncate">
+              The artist missions you&apos;ve joined — pick them up here.
+            </p>
+          </div>
+        </div>
+        <ArrowRight className="w-4 h-4 text-crwn-text-secondary flex-shrink-0" />
+      </button>
 
       {!data || !hasImpact ? (
         /* Empty state */
