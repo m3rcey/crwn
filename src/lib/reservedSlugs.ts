@@ -19,7 +19,7 @@ export const RESERVED_SLUGS = new Set([
   // Partner program
   'partner',
   // Offers/commerce
-  'offers', 'proof-of-demand', 'missions', 'earn',
+  'offers', 'proof-of-demand', 'missions', 'earn', 'impact',
 ]);
 
 export function isReservedSlug(slug: string): boolean {

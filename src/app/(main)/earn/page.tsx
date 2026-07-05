@@ -8,7 +8,7 @@ import { buildReferralUrl } from '@/lib/referrals';
 import { CLIPPER_RAMP_PRESETS } from '@/lib/clipperRate';
 import {
   Loader2, DollarSign, Wallet, Users, Clock, TrendingUp,
-  Link2, Check, Gift, Scissors,
+  Link2, Check, Gift, Scissors, ArrowRight,
 } from 'lucide-react';
 
 interface EarnData {
@@ -163,7 +163,16 @@ export default function EarnPage() {
 
   return (
     <div className="max-w-2xl mx-auto page-fade-in">
-      <h1 className="text-2xl font-bold text-crwn-text mb-1">Earn Center</h1>
+      <div className="flex items-start justify-between gap-3 mb-1">
+        <h1 className="text-2xl font-bold text-crwn-text">Earn Center</h1>
+        <button
+          onClick={() => router.push('/impact')}
+          className="shrink-0 mt-1 text-xs font-semibold text-crwn-gold hover:text-crwn-gold/80 transition-colors flex items-center gap-1"
+        >
+          View your impact
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
       <p className="text-sm text-crwn-text-secondary mb-6">
         Everything you&apos;ve earned sharing artists on CRWN, in one place.
       </p>
