@@ -416,8 +416,8 @@ function OfferBuilder() {
                 Step {stepIndex + 1} of {steps.length}
               </span>
               <button
-                onClick={() => router.push('/profile/artist')}
-                aria-label="Exit to dashboard"
+                onClick={() => router.push('/studio')}
+                aria-label="Exit to Studio"
                 className="text-crwn-text-secondary hover:text-crwn-text transition-colors"
               >
                 <X className="w-4 h-4" />
