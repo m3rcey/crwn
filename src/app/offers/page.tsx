@@ -125,11 +125,11 @@ export default function OffersPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <button
-          onClick={() => router.push('/profile/artist')}
+          onClick={() => router.push('/studio')}
           className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to dashboard
+          Back to Studio
         </button>
 
         <div className="flex items-start justify-between gap-3 mb-2">
