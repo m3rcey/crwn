@@ -99,13 +99,48 @@ export async function POST(
       ? Math.min(100000, rawGoal)
       : suggestion.goal_count;
 
+    // Target ownership: a fan-suggested target must belong to THIS artist, or
+    // the approved mission could point at another artist's tier/test/etc.
+    // If it doesn't (or the kind can't be verified), strip the target rather
+    // than failing the whole approve.
+    let targetKind = suggestion.target_kind;
+    let targetId = suggestion.target_id;
+    if (targetId && targetKind !== 'none') {
+      const TARGET_TABLES: Record<string, string> = {
+        demand_test: 'proof_of_demand',
+        tier: 'subscription_tiers',
+        offer: 'subscription_tiers',
+        product: 'products',
+        track: 'tracks',
+        album: 'albums',
+        live: 'live_sessions',
+        campaign: 'campaigns',
+        smart_link: 'smart_links',
+      };
+      const table = TARGET_TABLES[targetKind];
+      let ownsTarget = false;
+      if (table) {
+        const { data: targetRow } = await supabaseAdmin
+          .from(table)
+          .select('id')
+          .eq('id', targetId)
+          .eq('artist_id', suggestion.artist_id)
+          .maybeSingle();
+        ownsTarget = !!targetRow;
+      }
+      if (!ownsTarget) {
+        targetKind = 'none';
+        targetId = null;
+      }
+    }
+
     const { data: mission, error: missionError } = await supabaseAdmin
       .from('missions')
       .insert({
         artist_id: suggestion.artist_id,
         type: suggestion.type,
-        target_kind: suggestion.target_kind,
-        target_id: suggestion.target_id,
+        target_kind: targetKind,
+        target_id: targetId,
         target_label: suggestion.target_label,
         goal_count: goalCount,
         reward_type: rewardType,

@@ -26,10 +26,10 @@ export const artistHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="nav-library"]',
+    element: '[data-tour="nav-studio"]',
     popover: {
-      title: 'Fan library',
-      description: 'Fans save their liked songs, playlists, and purchases here. When someone subscribes to you, it shows up in their library.',
+      title: 'Studio',
+      description: 'Your artist workspace: build offers, run fan missions, open clips, review demand tests, and see your next best moves — all in one place.',
       side: 'top',
       align: 'center',
     },

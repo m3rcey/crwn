@@ -43,12 +43,16 @@ export async function POST(req: NextRequest) {
   // Load the test with the admin client (source of truth, RLS-free).
   const { data: test } = await supabaseAdmin
     .from('proof_of_demand')
-    .select('id, status, goal_count, test_promoter_interest')
+    .select('id, status, goal_count, test_promoter_interest, deadline')
     .eq('id', testId)
     .maybeSingle();
 
   if (!test || test.status !== 'active') {
     return NextResponse.json({ error: 'Test not found' }, { status: 404 });
+  }
+
+  if (test.deadline && new Date(test.deadline) < new Date()) {
+    return NextResponse.json({ error: 'This test has ended' }, { status: 400 });
   }
 
   const { error: insertError } = await supabaseAdmin

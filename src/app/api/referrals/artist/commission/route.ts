@@ -31,8 +31,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Not your artist profile' }, { status: 403 });
   }
 
-  // Validate: 0-50% range
-  const rate = Math.min(50, Math.max(0, Math.round(Number(commissionRate))));
+  // Validate: must be a real number (NaN would flow through the clamp,
+  // store null, and silently default to 10% downstream), then 0-50% range.
+  const n = Number(commissionRate);
+  if (!Number.isFinite(n)) {
+    return NextResponse.json({ error: 'Invalid commission rate' }, { status: 400 });
+  }
+  const rate = Math.min(50, Math.max(0, Math.round(n)));
 
   const { error } = await supabaseAdmin
     .from('artist_profiles')

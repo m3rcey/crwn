@@ -1646,7 +1646,7 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
   const refundedFee = Math.round(originalEarning.platform_fee * refundRatio);
 
   // Write negative earnings record
-  const { data: refundEarning } = await supabaseAdmin
+  const { data: refundEarning, error: refundEarningError } = await supabaseAdmin
     .from('earnings')
     .insert({
       artist_id: originalEarning.artist_id,
@@ -1664,6 +1664,14 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
     })
     .select('id')
     .single();
+
+  // The _refund earning is the idempotency marker for this whole handler. If it
+  // didn't land, we must NOT proceed to the referral clawback (Stripe will
+  // redeliver the webhook and we'd retry the whole thing then).
+  if (refundEarningError || !refundEarning) {
+    console.error('Refund earning insert failed, skipping clawback:', paymentIntentId, refundEarningError);
+    return;
+  }
 
   // Clawback: if this earning generated a referral commission, mirror it negative so
   // the refunded commission is subtracted from the referrer's cashout balance.
@@ -1686,7 +1694,7 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
             referral_id: origReferralEarning.referral_id,
             artist_id: origReferralEarning.artist_id,
             referrer_fan_id: origReferralEarning.referrer_fan_id,
-            earning_id: refundEarning?.id || originalEarning.id,
+            earning_id: refundEarning.id,
             gross_amount: clawbackGross,
             commission_amount: clawbackCommission,
           },

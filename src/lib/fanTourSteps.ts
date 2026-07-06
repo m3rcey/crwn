@@ -26,10 +26,10 @@ export const fanHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="nav-library"]',
+    element: '[data-tour="nav-earn"]',
     popover: {
-      title: 'Your library',
-      description: 'Your liked songs, playlists, purchases, and subscriptions all live here. Come back to this as you build your collection.',
+      title: 'Earn',
+      description: 'Your hub for supporting artists: promote them, track your earnings and impact, and see today’s best move. Your saved music is one tap away here too.',
       side: 'top',
       align: 'center',
     },

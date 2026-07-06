@@ -73,6 +73,7 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
 
   const [loading, setLoading] = useState(true);
   const [mission, setMission] = useState<MissionDetail | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
   const [demandCount, setDemandCount] = useState(0);
   const [updating, setUpdating] = useState(false);
   const [progressInput, setProgressInput] = useState('');
@@ -90,6 +91,17 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
     const m = data as MissionDetail;
     setMission(m);
     setProgressInput(String(m.manual_count));
+
+    // Ownership: only the artist who owns this mission can manage it. Anyone
+    // else (public RLS read) gets a read-only view — the owner-gated UPDATEs
+    // would match 0 rows for them and fake success otherwise.
+    const { data: ownedArtist } = await supabase
+      .from('artist_profiles')
+      .select('id')
+      .eq('id', m.artist_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    setIsOwner(!!ownedArtist);
 
     // Progress rule: demand_test missions read the live response_count.
     if (m.target_kind === 'demand_test' && m.target_id) {
@@ -113,7 +125,7 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
   }, [authLoading, user, router, load]);
 
   const setStatus = async (status: 'completed' | 'archived') => {
-    if (!mission || updating) return;
+    if (!mission || updating || !isOwner) return;
     setUpdating(true);
     const { error } = await supabase.from('missions').update({ status }).eq('id', mission.id);
     if (error) {
@@ -126,7 +138,7 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
   };
 
   const saveProgress = async () => {
-    if (!mission || updating) return;
+    if (!mission || updating || !isOwner) return;
     const count = Math.round(Number(progressInput));
     if (progressInput.trim() === '' || isNaN(count) || count < 0) {
       showToast('Enter a valid count (0 or more).', 'error');
@@ -252,8 +264,9 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
           {mission.description && <DetailRow label="Description" value={mission.description} />}
         </div>
 
-        {/* Update progress — manual missions only; demand_test missions auto-track. */}
-        {isDemandTracked ? (
+        {/* Update progress — manual missions only; demand_test missions auto-track.
+            Owner-only: non-owners get a read-only view of progress/details. */}
+        {!isOwner ? null : isDemandTracked ? (
           <div className="flex items-center justify-between gap-3 border border-crwn-elevated rounded-2xl px-4 py-3.5 mb-6">
             <p className="text-sm text-crwn-text-secondary">
               Progress is auto-tracked from the demand test — no manual updates needed.
@@ -294,8 +307,8 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        {/* Actions */}
-        {mission.status === 'active' && (
+        {/* Actions — owner-only */}
+        {isOwner && mission.status === 'active' && (
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setStatus('completed')}

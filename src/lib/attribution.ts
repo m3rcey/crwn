@@ -43,6 +43,16 @@ export async function insertHeldReferralEarning(
     .from('referral_earnings')
     .insert({ ...row, cleared_at: clearedAtValue });
   if (!withHold.error) return;
+  // Only fall back when the error means cleared_at doesn't exist yet
+  // (PGRST204 = PostgREST unknown column, 42703 = Postgres undefined column).
+  // Any other error must NOT be retried: if the first insert actually
+  // committed, a retry would double-insert the commission.
+  const missingColumn =
+    withHold.error.code === 'PGRST204' || withHold.error.code === '42703';
+  if (!missingColumn) {
+    console.error('referral_earnings insert failed:', withHold.error);
+    return;
+  }
   const fallback = await admin.from('referral_earnings').insert(row);
   if (fallback.error) {
     console.error('referral_earnings insert failed:', fallback.error);

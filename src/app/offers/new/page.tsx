@@ -287,6 +287,32 @@ function OfferBuilder() {
     try {
       const priceCents = Math.round(parseFloat(price) * 100);
 
+      // Plan cap: enforce the fan-tier limit the same way TierManager does —
+      // /api/platform/limits (getTierLimitsV2(platform_tier).fanTiers) vs the
+      // live count of ACTIVE subscription_tiers. Fail-open on fetch errors.
+      if (offerType === 'subscription') {
+        try {
+          const limitsRes = await fetch(`/api/platform/limits?artistId=${artistId}`);
+          if (limitsRes.ok) {
+            const { limits, usage } = await limitsRes.json();
+            const maxFanTiers = limits?.fanTiers;
+            if (
+              typeof maxFanTiers === 'number' &&
+              maxFanTiers !== -1 &&
+              (usage?.fanTiers ?? 0) >= maxFanTiers
+            ) {
+              showToast(
+                `Your plan allows ${maxFanTiers} fan tier${maxFanTiers === 1 ? '' : 's'}. Upgrade to add more.`,
+                'error'
+              );
+              return; // stay on Review
+            }
+          }
+        } catch {
+          // Limits check is best-effort — don't block publish on a fetch failure.
+        }
+      }
+
       // 1) Create the offer on the existing entity (tier row or product row).
       let err: string | undefined;
       if (offerType === 'subscription') {
@@ -305,6 +331,14 @@ function OfferBuilder() {
       if (err) {
         showToast(err, 'error');
         return; // stay on Review so they can retry
+      }
+
+      // Subscription tiers are inserted with stripe_price_id: null; the connect
+      // status endpoint idempotently backfills Stripe prices for connected
+      // artists, making the tier purchasable now instead of at next dashboard
+      // visit. Best-effort — never block the success screen on it.
+      if (offerType === 'subscription') {
+        await fetch('/api/stripe/connect/status').catch(() => {});
       }
 
       // 2) Promotion — artist-wide rails. The offer already exists at this point,
