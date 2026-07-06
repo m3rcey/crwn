@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Flag, Lightbulb, Plus, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Flag, Lightbulb, Megaphone, Plus, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import {
@@ -158,6 +158,14 @@ export default function MissionsPage() {
           >
             <Sparkles className="w-4 h-4" />
             Action Plan
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => router.push('/campaign-hub')}
+            className="inline-flex items-center gap-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+          >
+            <Megaphone className="w-4 h-4" />
+            Campaign Hub
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
