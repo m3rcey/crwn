@@ -24,9 +24,9 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { Eye } from 'lucide-react';
 import { FadeIn } from '@/components/ui/FadeIn';
-import { startTour } from '@/lib/tour';
 import { getPostSetupTourSteps } from '@/lib/artistTourSteps';
-import { useTourCheck } from '@/hooks/useTourCheck';
+import { usePageTour } from '@/hooks/usePageTour';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'livestreams';
 
@@ -53,22 +53,16 @@ function ArtistDashboardContent() {
     });
   }, []);
 
-  // Trigger artist tour on first visit
-  const { shouldShowTour: shouldShowDashboardTour, startStep: dashboardStartStep, markComplete: markDashboardTourComplete, saveStep: saveDashboardStep } = useTourCheck('dashboard', profile?.id);
-
-  const handleTourComplete = useCallback(async () => {
-    await markDashboardTourComplete();
-  }, [markDashboardTourComplete]);
-
-  useEffect(() => {
-    if (!shouldShowDashboardTour || !artistId) return;
-
-    const timer = setTimeout(() => {
-      startTour(getPostSetupTourSteps(platformTier), handleTourComplete, saveDashboardStep, dashboardStartStep);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [shouldShowDashboardTour, artistId]);
+  // First-visit auto-start + replay button. This keeps the setup-wizard →
+  // dashboard handoff working: the wizard never sets completed_tours.dashboard,
+  // so the tour auto-starts the first time a new artist lands here.
+  const { replay: replayDashboardTour } = usePageTour({
+    tourId: 'dashboard',
+    steps: getPostSetupTourSteps(platformTier),
+    userId: profile?.id,
+    enabled: !!artistId,
+    delayMs: 1500,
+  });
   useEffect(() => {
     const tab = searchParams.get('tab');
     const upgrade = searchParams.get('upgrade');
@@ -180,11 +174,14 @@ function ArtistDashboardContent() {
       <div className="relative z-10">
         {/* Header */}
         <div className="border-b border-crwn-elevated">
-          <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-2">
-            <h1 className="text-2xl font-bold text-crwn-text">Artist Dashboard</h1>
-            <p className="text-crwn-text-secondary mt-1">
-              Manage your profile, music, and monetization
-            </p>
+          <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-2 flex items-start justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-crwn-text">Artist Dashboard</h1>
+              <p className="text-crwn-text-secondary mt-1">
+                Manage your profile, music, and monetization
+              </p>
+            </div>
+            <TourReplayButton onClick={replayDashboardTour} className="shrink-0 mt-1" />
           </div>
 
           {/* Preview + Tabs */}

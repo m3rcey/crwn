@@ -14,6 +14,9 @@ import {
 import {
   Loader2, Zap, Flag, ArrowRight, Link2, Check, Compass, DollarSign, Library,
 } from 'lucide-react';
+import { usePageTour } from '@/hooks/usePageTour';
+import { getCommandTourSteps } from '@/lib/commandTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface CommandMission {
   missionId: string;
@@ -90,6 +93,21 @@ export default function CommandPage() {
       .catch(() => setIsLoading(false));
   }, [user, authLoading, router]);
 
+  // First-visit tour + on-demand replay (button in the header). Sections here
+  // render conditionally, so the steps only include anchors that exist.
+  const tourMissions = data?.joinedMissions?.length ?? 0;
+  const tourOpportunities = data?.earningOpportunities?.length ?? 0;
+  const { replay } = usePageTour({
+    tourId: 'command',
+    steps: getCommandTourSteps({
+      hasMissions: tourMissions > 0,
+      hasWeek: tourMissions > 0 || tourOpportunities > 0,
+      hasOpportunities: tourOpportunities > 0,
+    }),
+    userId: user?.id,
+    enabled: !authLoading && !isLoading && !!user,
+  });
+
   const handleCopyLink = async (artistId: string, slug: string) => {
     if (!data) return;
     const url = buildReferralUrl(slug, data.referralCode);
@@ -144,13 +162,16 @@ export default function CommandPage() {
     <div className="max-w-2xl mx-auto page-fade-in">
       <div className="flex items-start justify-between gap-3 mb-1">
         <h1 className="text-2xl font-bold text-crwn-text">Command Center</h1>
-        <button
-          onClick={() => router.push('/library')}
-          className="shrink-0 mt-1 text-xs font-semibold text-crwn-gold hover:text-crwn-gold/80 transition-colors flex items-center gap-1"
-        >
-          <Library className="w-3.5 h-3.5" />
-          Your Library
-        </button>
+        <div className="shrink-0 mt-1 flex items-center gap-3">
+          <button
+            onClick={() => router.push('/library')}
+            className="text-xs font-semibold text-crwn-gold hover:text-crwn-gold/80 transition-colors flex items-center gap-1"
+          >
+            <Library className="w-3.5 h-3.5" />
+            Your Library
+          </button>
+          <TourReplayButton onClick={replay} />
+        </div>
       </div>
       <p className="text-sm text-crwn-text-secondary mb-6">
         Your next move for the artists you back — one action at a time.
@@ -158,7 +179,7 @@ export default function CommandPage() {
 
       <div className="space-y-6 stagger-fade-in">
         {/* 1. Today's move — the single highest-priority action */}
-        <div className="neu-raised rounded-xl p-5 border border-crwn-gold/20">
+        <div className="neu-raised rounded-xl p-5 border border-crwn-gold/20" data-tour="command-today">
           <div className="flex items-center gap-2 mb-3">
             <Zap className="w-4 h-4 text-crwn-gold" />
             <p className="text-xs font-semibold text-crwn-gold uppercase tracking-wide">Today&apos;s move</p>
@@ -235,7 +256,7 @@ export default function CommandPage() {
           <>
             {/* 2. Your missions */}
             {missions.length > 0 && (
-              <div className="neu-raised rounded-xl p-4">
+              <div className="neu-raised rounded-xl p-4" data-tour="command-missions">
                 <div className="flex items-center gap-2 mb-1">
                   <Flag className="w-4 h-4 text-crwn-gold" />
                   <p className="text-sm text-crwn-text font-medium">Your missions</p>
@@ -283,7 +304,7 @@ export default function CommandPage() {
             )}
 
             {/* 3. This week — money snapshot, links to the detail surfaces */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4" data-tour="command-week">
               <button
                 onClick={() => router.push('/earn')}
                 className="neu-raised rounded-xl p-4 text-left hover:opacity-90 transition-opacity"
@@ -310,7 +331,7 @@ export default function CommandPage() {
 
             {/* 4. Earning opportunities */}
             {opportunities.length > 0 && (
-              <div className="neu-raised rounded-xl p-4">
+              <div className="neu-raised rounded-xl p-4" data-tour="command-opportunities">
                 <div className="flex items-center gap-2 mb-1">
                   <DollarSign className="w-4 h-4 text-green-400" />
                   <p className="text-sm text-crwn-text font-medium">Earning opportunities</p>

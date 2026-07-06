@@ -6,22 +6,27 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Sparkles } from 'lucide-react';
+import { usePageTour } from '@/hooks/usePageTour';
+import { studioTourSteps } from '@/lib/studioTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface StudioCard {
   href: string;
   title: string;
   /** Gold-toned product photo in /public, matching the Home Quick Actions tiles. */
   image: string;
+  /** data-tour anchor for the studio tour (studioTourSteps.ts). */
+  tour?: string;
 }
 
 const STUDIO_CARDS: StudioCard[] = [
-  { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
-  { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg' },
-  { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg' },
+  { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg',      tour: 'studio-offers' },
+  { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg',    tour: 'studio-campaign-hub' },
+  { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg',    tour: 'studio-missions' },
   { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg' },
-  { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg' },
-  { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg' },
-  { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg' },
+  { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg',       tour: 'studio-clips' },
+  { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg',  tour: 'studio-action-plan' },
+  { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg',      tour: 'studio-demand' },
 ];
 
 /**
@@ -36,6 +41,14 @@ export default function StudioPage() {
   // Derived from the artist_profiles ROW, not profile.role — the useAuth
   // context role lags right after signup (see CLAUDE.md). null = still checking.
   const [isArtist, setIsArtist] = useState<boolean | null>(null);
+
+  // First-visit tour + on-demand replay (button in the header).
+  const { replay } = usePageTour({
+    tourId: 'studio',
+    steps: studioTourSteps,
+    userId: user?.id,
+    enabled: isArtist === true,
+  });
 
   useEffect(() => {
     if (authLoading) return;
@@ -91,13 +104,19 @@ export default function StudioPage() {
 
   return (
     <div className="max-w-2xl mx-auto page-fade-in">
-      <h1 className="text-2xl font-bold text-crwn-text mb-1">Studio</h1>
-      <p className="text-sm text-crwn-text-secondary mb-6">Your artist workspace.</p>
+      <div className="flex items-start justify-between gap-3 mb-6">
+        <div data-tour="studio-welcome">
+          <h1 className="text-2xl font-bold text-crwn-text mb-1">Studio</h1>
+          <p className="text-sm text-crwn-text-secondary">Your artist workspace.</p>
+        </div>
+        <TourReplayButton onClick={replay} className="shrink-0 mt-1" />
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 stagger-fade-in">
         {STUDIO_CARDS.map((card) => (
           <button
             key={card.href}
+            data-tour={card.tour}
             onClick={() => router.push(card.href)}
             className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
           >
