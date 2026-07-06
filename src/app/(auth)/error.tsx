@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
-import { isChunkLoadError, reloadOnceForChunkError } from '@/lib/chunkReload';
 
 export default function AuthError({
   error,
@@ -13,10 +12,6 @@ export default function AuthError({
   reset: () => void;
 }) {
   useEffect(() => {
-    if (isChunkLoadError(error)) {
-      reloadOnceForChunkError();
-      return;
-    }
     console.error('Auth error:', error);
   }, [error]);
 

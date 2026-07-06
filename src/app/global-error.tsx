@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { isChunkLoadError, reloadOnceForChunkError } from '@/lib/chunkReload';
 
 export default function Error({
   error,
@@ -11,10 +10,6 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    if (isChunkLoadError(error)) {
-      reloadOnceForChunkError();
-      return;
-    }
     console.error('Application error:', error);
   }, [error]);
 
