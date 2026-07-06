@@ -58,9 +58,9 @@ const SCREENS: ScreenDef[] = [
   { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do members get?', subtitle: 'Pick the perks fans unlock. These show on your page — you can edit them anytime.', icon: CreditCard, create: 'tier' },
   { key: 'stripe-connect', group: 'monetize', groupRequired: true, title: 'Connect your bank', subtitle: 'Where fan payments land. Takes about 2 minutes via Stripe.', icon: CreditCard },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
-  { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
+  { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: "What's this one called?", icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
-  { key: 'product-title', group: 'shop', groupRequired: false, title: 'Name your product', subtitle: 'What’s it called?', icon: ShoppingBag },
+  { key: 'product-title', group: 'shop', groupRequired: false, title: 'Name your product', subtitle: "What's it called?", icon: ShoppingBag },
   { key: 'product-price', group: 'shop', groupRequired: false, title: 'Set the price', subtitle: 'What fans pay. Enter 0 to give it away.', icon: ShoppingBag, create: 'product' },
 ];
 
@@ -375,9 +375,9 @@ function SetupWizard() {
             <div>
               <h1 className="text-2xl font-bold text-crwn-text">{current.title}</h1>
               <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
-              {current.key === ‘tier-price’ && !stripeConnected && parseFloat(tierDraft.price || ‘0’) > 0 && (
+              {current.key === 'tier-price' && !stripeConnected && parseFloat(tierDraft.price || '0') > 0 && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
-                  You’ll connect Stripe on the next screen to start receiving payments.
+                  You'll connect Stripe on the next screen to start receiving payments.
                 </p>
               )}
             </div>
@@ -570,7 +570,7 @@ function FieldBody({
             onClick={onSkipGroup}
             className="text-left px-4 py-4 rounded-xl border border-dashed border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/40 transition-colors"
           >
-            <p className="font-medium">I don’t have anything to sell yet</p>
+            <p className="font-medium">I don't have anything to sell yet</p>
             <p className="text-xs mt-0.5">Skip this — you can add products later from your dashboard.</p>
           </button>
         </div>
@@ -831,7 +831,7 @@ function ShareScreen({
           {finishing ? 'Loading…' : 'Enter CRWN'}
           {!finishing && <ArrowRight className="w-4 h-4" />}
         </button>
-        <p className="text-xs text-crwn-text-secondary mt-4">We’ll show you around the rest of your dashboard next.</p>
+        <p className="text-xs text-crwn-text-secondary mt-4">We'll show you around the rest of your dashboard next.</p>
       </div>
     </div>
   );
