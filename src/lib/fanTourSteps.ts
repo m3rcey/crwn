@@ -29,7 +29,7 @@ export const fanHomeTourSteps: DriveStep[] = [
     element: '[data-tour="nav-earn"]',
     popover: {
       title: 'Earn',
-      description: 'Your hub to promote artists and track your earnings. Your daily move, your missions, and your money all live there.',
+      description: 'Your hub for supporting artists: promote them, track your earnings and impact, and see today’s best move. Your saved music is one tap away here too.',
       side: 'top',
       align: 'center',
     },
@@ -56,12 +56,9 @@ export const fanHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="tour-replay"]',
     popover: {
       title: 'You are all set!',
-      description: 'Head to Explore to discover your first artist. And you can replay this tour anytime by tapping this button.',
-      side: 'bottom',
-      align: 'end',
+      description: 'Head to Explore to discover your first artist. When you find someone you love, subscribe to unlock their exclusive content and start earning by sharing.',
     },
   },
 ];

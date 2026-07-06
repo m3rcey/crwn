@@ -324,21 +324,17 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       element: '[data-tour="view-as-fan"]',
       popover: {
         title: 'Preview your page',
-        description: 'Tap here anytime to see exactly what fans see when they visit your page.',
+        description: 'Your page is taking shape. Tap here to see exactly what fans see when they visit.',
         side: 'bottom',
         align: 'start',
       },
     },
 
-    // 27. Closing — self-contained: ends on the replay button in the dashboard
-    // header instead of promising more steps on another page.
+    // 27. Closing
     {
-      element: '[data-tour="tour-replay"]',
       popover: {
-        title: 'That is your dashboard',
-        description: 'You are all set. Replay this tour anytime by tapping this button.',
-        side: 'bottom',
-        align: 'end',
+        title: 'Almost there!',
+        description: 'Click "View as Fan" to see your page from a fan perspective. We will show you a few more things there.',
       },
     },
   ];

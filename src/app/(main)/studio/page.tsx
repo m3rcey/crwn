@@ -2,31 +2,72 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, Sparkles } from 'lucide-react';
-import { usePageTour } from '@/hooks/usePageTour';
-import { studioTourSteps } from '@/lib/studioTourSteps';
-import { TourReplayButton } from '@/components/shared/TourReplayButton';
+import {
+  Loader2, Package, Megaphone, Flag, Inbox, Scissors, Sparkles,
+  FlaskConical, ArrowRight,
+} from 'lucide-react';
 
 interface StudioCard {
   href: string;
   title: string;
-  /** Gold-toned product photo in /public, matching the Home Quick Actions tiles. */
-  image: string;
-  /** data-tour anchor for the studio tour (studioTourSteps.ts). */
-  tour?: string;
+  description: string;
+  icon: typeof Package;
+  /** The AI card gets the purple accent; everything else is gold. */
+  accent: 'gold' | 'purple';
 }
 
 const STUDIO_CARDS: StudioCard[] = [
-  { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg',      tour: 'studio-offers' },
-  { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg',    tour: 'studio-campaign-hub' },
-  { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg',    tour: 'studio-missions' },
-  { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg' },
-  { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg',       tour: 'studio-clips' },
-  { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg',  tour: 'studio-action-plan' },
-  { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg',      tour: 'studio-demand' },
+  {
+    href: '/offers',
+    title: 'Offer Builder',
+    description: 'Package what fans can buy and how promoters earn',
+    icon: Package,
+    accent: 'gold',
+  },
+  {
+    href: '/campaign-hub',
+    title: 'Campaign Hub',
+    description: 'Your promotion engine at a glance',
+    icon: Megaphone,
+    accent: 'gold',
+  },
+  {
+    href: '/missions',
+    title: 'Fan Missions',
+    description: 'Turn supporters into a growth team',
+    icon: Flag,
+    accent: 'gold',
+  },
+  {
+    href: '/missions/suggestions',
+    title: 'Fan Suggestions',
+    description: 'Review fan-proposed missions',
+    icon: Inbox,
+    accent: 'gold',
+  },
+  {
+    href: '/clip-controls',
+    title: 'Live Clip Controls',
+    description: 'Turn VOD moments into clip missions',
+    icon: Scissors,
+    accent: 'gold',
+  },
+  {
+    href: '/action-plan',
+    title: 'Action Plan',
+    description: 'Your next best moves, ranked',
+    icon: Sparkles,
+    accent: 'purple',
+  },
+  {
+    href: '/proof-of-demand',
+    title: 'Proof of Demand',
+    description: 'Test an idea before you build it',
+    icon: FlaskConical,
+    accent: 'gold',
+  },
 ];
 
 /**
@@ -41,14 +82,6 @@ export default function StudioPage() {
   // Derived from the artist_profiles ROW, not profile.role — the useAuth
   // context role lags right after signup (see CLAUDE.md). null = still checking.
   const [isArtist, setIsArtist] = useState<boolean | null>(null);
-
-  // First-visit tour + on-demand replay (button in the header).
-  const { replay } = usePageTour({
-    tourId: 'studio',
-    steps: studioTourSteps,
-    userId: user?.id,
-    enabled: isArtist === true,
-  });
 
   useEffect(() => {
     if (authLoading) return;
@@ -104,34 +137,41 @@ export default function StudioPage() {
 
   return (
     <div className="max-w-2xl mx-auto page-fade-in">
-      <div className="flex items-start justify-between gap-3 mb-6">
-        <div data-tour="studio-welcome">
-          <h1 className="text-2xl font-bold text-crwn-text mb-1">Studio</h1>
-          <p className="text-sm text-crwn-text-secondary">Your artist workspace.</p>
-        </div>
-        <TourReplayButton onClick={replay} className="shrink-0 mt-1" />
-      </div>
+      <h1 className="text-2xl font-bold text-crwn-text mb-1">Studio</h1>
+      <p className="text-sm text-crwn-text-secondary mb-6">Your artist workspace.</p>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 stagger-fade-in">
-        {STUDIO_CARDS.map((card) => (
-          <button
-            key={card.href}
-            data-tour={card.tour}
-            onClick={() => router.push(card.href)}
-            className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
-          >
-            <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
-              <Image
-                src={card.image}
-                alt={card.title}
-                fill
-                className="object-cover opacity-0 transition-opacity duration-500"
-                onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
-              />
-            </div>
-            <p className="font-medium text-crwn-text text-sm mt-2 text-center">{card.title}</p>
-          </button>
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-fade-in">
+        {STUDIO_CARDS.map((card) => {
+          const Icon = card.icon;
+          const purple = card.accent === 'purple';
+          return (
+            <button
+              key={card.href}
+              onClick={() => router.push(card.href)}
+              className={`neu-raised rounded-xl p-4 text-left hover:opacity-90 transition-opacity ${
+                purple ? 'border border-purple-400/25' : ''
+              }`}
+            >
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center mb-3 ${
+                  purple ? 'bg-purple-500/15' : 'bg-crwn-gold/15'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${purple ? 'text-purple-400' : 'text-crwn-gold'}`} />
+              </div>
+              <p className="text-sm font-semibold text-crwn-text">{card.title}</p>
+              <p className="text-xs text-crwn-text-secondary mt-1">{card.description}</p>
+              <p
+                className={`text-[11px] font-semibold mt-2 flex items-center gap-1 ${
+                  purple ? 'text-purple-400' : 'text-crwn-gold'
+                }`}
+              >
+                Open
+                <ArrowRight className="w-3 h-3" />
+              </p>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

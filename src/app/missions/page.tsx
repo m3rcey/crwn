@@ -124,11 +124,11 @@ export default function MissionsPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <button
-          onClick={() => router.push('/studio')}
+          onClick={() => router.push('/profile/artist')}
           className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Studio
+          Back to dashboard
         </button>
 
         <h1 className="text-3xl font-bold text-crwn-text mb-2">Missions</h1>

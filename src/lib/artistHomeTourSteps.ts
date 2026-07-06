@@ -4,7 +4,7 @@ export const artistHomeTourSteps: DriveStep[] = [
   {
     popover: {
       title: 'Welcome to CRWN!',
-      description: 'Here is a quick look at the app your fans use, and where your own tools live.',
+      description: 'Before we set up your artist page, here is a quick look at the app your fans will use.',
     },
   },
   {
@@ -29,7 +29,7 @@ export const artistHomeTourSteps: DriveStep[] = [
     element: '[data-tour="nav-studio"]',
     popover: {
       title: 'Studio',
-      description: 'Your workspace. Build offers, run fan missions, open clips, test demand, and see your next best moves, all in one place.',
+      description: 'Your artist workspace: build offers, run fan missions, open clips, review demand tests, and see your next best moves — all in one place.',
       side: 'top',
       align: 'center',
     },
@@ -47,18 +47,9 @@ export const artistHomeTourSteps: DriveStep[] = [
     element: '[data-tour="home-artist-dashboard"]',
     popover: {
       title: 'Your artist dashboard',
-      description: 'Tap here anytime to manage your page: music, tiers, shop, payouts, and analytics.',
+      description: 'Ready to build your page? Tap here to open your artist dashboard. That is where we will set everything up.',
       side: 'bottom',
       align: 'start',
-    },
-  },
-  {
-    element: '[data-tour="tour-replay"]',
-    popover: {
-      title: 'Replay anytime',
-      description: 'That is the tour. Replay it anytime by tapping this button.',
-      side: 'bottom',
-      align: 'end',
     },
   },
 ];
