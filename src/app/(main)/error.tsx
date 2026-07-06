@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { Loader2, Home } from 'lucide-react';
 import Link from 'next/link';
+import { isChunkLoadError, reloadOnceForChunkError } from '@/lib/chunkReload';
 
 export default function MainError({
   error,
@@ -12,6 +13,12 @@ export default function MainError({
   reset: () => void;
 }) {
   useEffect(() => {
+    // A stale-deploy chunk error can't be fixed by re-rendering (reset) — reload
+    // once to fetch fresh HTML + chunks instead of stranding the user here.
+    if (isChunkLoadError(error)) {
+      reloadOnceForChunkError();
+      return;
+    }
     console.error('Page error:', error);
   }, [error]);
 

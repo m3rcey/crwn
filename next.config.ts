@@ -18,6 +18,17 @@ const nextConfig: NextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+      {
+        // Never let the HTTP cache serve a stale service worker — always revalidate
+        // so a deploy's new sw.js is fetched, activates (skipWaiting), and reloads
+        // installed home-screen PWAs. Without this, the SW that fixes staleness can
+        // itself be served stale.
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
     ];
   },
   images: {
