@@ -10,23 +10,33 @@ import { hapticLight } from '@/lib/haptics';
 import {
   Home,
   Compass,
-  Library,
+  Coins,
   MessageCircle,
+  Rocket,
   User,
   LogOut
 } from 'lucide-react';
 
-const navItems = [
+// The 3rd slot is role-aware: artists get their Studio workspace, fans get the
+// Earn hub (/command). Everything else is shared. Role comes from the useAuth
+// profile — it can lag briefly right after signup (documented in CLAUDE.md),
+// which is fine here: the nav is a convenience surface, not a gate.
+const artistSlot = { href: '/studio', label: 'Studio', icon: Rocket, tourId: 'nav-studio' };
+const fanSlot = { href: '/command', label: 'Earn', icon: Coins, tourId: 'nav-earn' };
+
+const buildNavItems = (isArtist: boolean) => [
   { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
   { href: '/explore', label: 'Explore', icon: Compass, tourId: 'nav-explore' },
+  isArtist ? artistSlot : fanSlot,
   { href: '/messages', label: 'Messages', icon: MessageCircle, tourId: 'nav-messages' },
-  { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' },
   { href: '/profile', label: 'Profile', icon: User, tourId: 'nav-profile' },
 ];
 
 export function Navigation() {
   const pathname = usePathname();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isArtist } = useAuth();
+  // No profile yet (or a fan) → fan set. Artists + admins → Studio.
+  const navItems = buildNavItems(isArtist());
   const { resetPlayer } = usePlayer();
   const router = useRouter();
 

@@ -12,7 +12,7 @@ import {
   type MissionType,
 } from '@/lib/missions';
 import {
-  Loader2, Zap, Flag, ArrowRight, Link2, Check, Compass, DollarSign,
+  Loader2, Zap, Flag, ArrowRight, Link2, Check, Compass, DollarSign, Library,
 } from 'lucide-react';
 
 interface CommandMission {
@@ -142,7 +142,16 @@ export default function CommandPage() {
 
   return (
     <div className="max-w-2xl mx-auto page-fade-in">
-      <h1 className="text-2xl font-bold text-crwn-text mb-1">Command Center</h1>
+      <div className="flex items-start justify-between gap-3 mb-1">
+        <h1 className="text-2xl font-bold text-crwn-text">Command Center</h1>
+        <button
+          onClick={() => router.push('/library')}
+          className="shrink-0 mt-1 text-xs font-semibold text-crwn-gold hover:text-crwn-gold/80 transition-colors flex items-center gap-1"
+        >
+          <Library className="w-3.5 h-3.5" />
+          Your Library
+        </button>
+      </div>
       <p className="text-sm text-crwn-text-secondary mb-6">
         Your next move for the artists you back — one action at a time.
       </p>
