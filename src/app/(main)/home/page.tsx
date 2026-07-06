@@ -22,6 +22,7 @@ import { startTour } from '@/lib/tour';
 import { fanHomeTourSteps } from '@/lib/fanTourSteps';
 import { artistHomeTourSteps } from '@/lib/artistHomeTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface ArtistProfile {
   id: string;
@@ -137,6 +138,17 @@ export default function HomePage() {
     markHomeTourComplete();
   };
 
+  // On-demand replay (header button) — role-aware, never touches completed_tours.
+  // Artists are suppressed from the auto-start above, but their replay button
+  // still plays the artist home steps.
+  const handleReplayTour = () => {
+    if (profile?.role === 'artist') {
+      startTour(artistHomeTourSteps);
+    } else {
+      startTour(fanHomeTourSteps);
+    }
+  };
+
 
   const quickActions = [
     {
@@ -181,6 +193,7 @@ export default function HomePage() {
         >
           <HelpCircle className="w-5 h-5" />
         </Link>
+        <TourReplayButton onClick={handleReplayTour} className="absolute top-4 right-14" />
         <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
           {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!
         </h1>
