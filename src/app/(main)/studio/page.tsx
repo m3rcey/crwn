@@ -2,72 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import {
-  Loader2, Package, Megaphone, Flag, Inbox, Scissors, Sparkles,
-  FlaskConical,
-} from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 interface StudioCard {
   href: string;
   title: string;
-  description: string;
-  icon: typeof Package;
-  /** The AI card gets the purple accent; everything else is gold. */
-  accent: 'gold' | 'purple';
+  /** Gold-toned product photo in /public, matching the Home Quick Actions tiles. */
+  image: string;
 }
 
 const STUDIO_CARDS: StudioCard[] = [
-  {
-    href: '/offers',
-    title: 'Offer Builder',
-    description: 'Package what fans can buy and how promoters earn',
-    icon: Package,
-    accent: 'gold',
-  },
-  {
-    href: '/campaign-hub',
-    title: 'Campaign Hub',
-    description: 'Your promotion engine at a glance',
-    icon: Megaphone,
-    accent: 'gold',
-  },
-  {
-    href: '/missions',
-    title: 'Fan Missions',
-    description: 'Turn supporters into a growth team',
-    icon: Flag,
-    accent: 'gold',
-  },
-  {
-    href: '/missions/suggestions',
-    title: 'Fan Suggestions',
-    description: 'Review fan-proposed missions',
-    icon: Inbox,
-    accent: 'gold',
-  },
-  {
-    href: '/clip-controls',
-    title: 'Live Clip Controls',
-    description: 'Turn VOD moments into clip missions',
-    icon: Scissors,
-    accent: 'gold',
-  },
-  {
-    href: '/action-plan',
-    title: 'Action Plan',
-    description: 'Your next best moves, ranked',
-    icon: Sparkles,
-    accent: 'purple',
-  },
-  {
-    href: '/proof-of-demand',
-    title: 'Proof of Demand',
-    description: 'Test an idea before you build it',
-    icon: FlaskConical,
-    accent: 'gold',
-  },
+  { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
+  { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg' },
+  { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg' },
+  { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg' },
+  { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg' },
+  { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg' },
+  { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg' },
 ];
 
 /**
@@ -141,26 +95,24 @@ export default function StudioPage() {
       <p className="text-sm text-crwn-text-secondary mb-6">Your artist workspace.</p>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 stagger-fade-in">
-        {STUDIO_CARDS.map((card) => {
-          const Icon = card.icon;
-          const purple = card.accent === 'purple';
-          return (
-            <button
-              key={card.href}
-              onClick={() => router.push(card.href)}
-              className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
-            >
-              <div
-                className={`aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br ${
-                  purple ? 'from-purple-400 to-purple-700' : 'from-crwn-gold to-[#8a6d1f]'
-                }`}
-              >
-                <Icon className="w-12 h-12 text-[#0D0D0D]" strokeWidth={1.5} />
-              </div>
-              <p className="font-medium text-crwn-text text-sm mt-2 text-center">{card.title}</p>
-            </button>
-          );
-        })}
+        {STUDIO_CARDS.map((card) => (
+          <button
+            key={card.href}
+            onClick={() => router.push(card.href)}
+            className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
+          >
+            <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
+              <Image
+                src={card.image}
+                alt={card.title}
+                fill
+                className="object-cover opacity-0 transition-opacity duration-500"
+                onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
+              />
+            </div>
+            <p className="font-medium text-crwn-text text-sm mt-2 text-center">{card.title}</p>
+          </button>
+        ))}
       </div>
     </div>
   );
