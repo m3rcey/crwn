@@ -130,7 +130,10 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         platform_fee: platformFee,
         net_amount: netAmount,
         stripe_payment_id: session.payment_intent || session.id,
-        metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName },
+        // subscription_id is groundwork so a future refund resolver can match an
+        // initial-subscription earning (keyed by session id) back from a refund's
+        // charge.invoice -> invoice.subscription.
+        metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, ...(sessionWithFee.subscription ? { subscription_id: sessionWithFee.subscription } : {}) },
         fan_city: fanCity,
         fan_state: fanState,
         fan_country: fanCountry,
@@ -1613,15 +1616,31 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
   const amountRefunded = charge.amount_refunded;
   console.log('Charge refunded:', paymentIntentId, 'amount:', amountRefunded);
 
-  // Find the original earning by stripe_payment_id
-  const { data: originalEarning } = await supabaseAdmin
+  // Match the original earning. One-time purchases are keyed by the payment intent
+  // (pi_). Subscription RENEWALS are keyed by the invoice id (in_) because
+  // invoice.payment_intent is absent on the current Stripe API version — and a charge
+  // created from an invoice carries charge.invoice, so we fall back to that.
+  // (Initial-subscription earnings are keyed by the checkout session id (cs_) and are
+  // NOT yet matchable here; subscription_id is now stored in their metadata as
+  // groundwork for a resolver, which still needs live-event verification.)
+  const invoiceId = (charge as unknown as { invoice?: string | null }).invoice || null;
+  const earningCols = 'id, artist_id, fan_id, net_amount, gross_amount, platform_fee, type, description';
+  let { data: originalEarning } = await supabaseAdmin
     .from('earnings')
-    .select('id, artist_id, fan_id, net_amount, gross_amount, platform_fee, type, description')
+    .select(earningCols)
     .eq('stripe_payment_id', paymentIntentId)
     .maybeSingle();
 
+  if (!originalEarning && invoiceId) {
+    ({ data: originalEarning } = await supabaseAdmin
+      .from('earnings')
+      .select(earningCols)
+      .eq('stripe_payment_id', invoiceId)
+      .maybeSingle());
+  }
+
   if (!originalEarning) {
-    console.log('No earning found for refunded payment:', paymentIntentId);
+    console.log('No earning found for refunded payment:', paymentIntentId, invoiceId);
     return;
   }
 
