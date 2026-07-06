@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
@@ -23,6 +24,7 @@ const SLOT_OPTIONS = [10, 25, 50, 100, 250, 500];
 
 export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: LivestreamManagerProps) {
   const supabase = createBrowserSupabaseClient();
+  const router = useRouter();
   const { user } = useAuth();
 
   const [sessions, setSessions] = useState<LiveSession[]>([]);
@@ -336,13 +338,22 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         <h2 className="text-xl font-bold text-crwn-text flex items-center gap-2">
           <Radio className="w-5 h-5 text-crwn-gold" /> Live Sessions
         </h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="neu-button-accent px-4 py-2 rounded-xl flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          New Session
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Markers-only clip workflow: mark moments on a VOD, spin up clip missions. */}
+          <button
+            onClick={() => router.push('/clip-controls')}
+            className="bg-crwn-gold text-crwn-bg text-sm font-semibold px-4 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
+          >
+            🎬 Clip Controls
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="neu-button-accent px-4 py-2 rounded-xl flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Session
+          </button>
+        </div>
       </div>
 
       {showForm && (
