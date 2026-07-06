@@ -19,6 +19,8 @@ import { FadeIn } from '@/components/ui/FadeIn';
 import { hapticLight } from '@/lib/haptics';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
+import { EarnWithArtist } from '@/components/artist/EarnWithArtist';
+import type { ClipperRateStep } from '@/lib/clipperRate';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { startTour } from '@/lib/tour';
@@ -29,10 +31,16 @@ interface ArtistProfileContentProps {
   artist: {
     id: string;
     slug: string;
+    user_id: string;
     tagline: string | null;
     banner_url: string | null;
     merch_store_url?: string | null;
     is_verified: boolean;
+    platform_tier?: string | null;
+    referral_commission_rate?: number | null;
+    clipper_commission_rate?: number | null;
+    clipper_rate_schedule?: ClipperRateStep[] | null;
+    clipper_campaign_started_at?: string | null;
     profile: {
       display_name: string | null;
       bio: string | null;
@@ -117,6 +125,19 @@ export function ArtistProfileContent({
 
   return (
     <>
+      {/* Earn With This Artist — surfaces the artist's live promotion (share/clip
+          commission + step-down timer) for fans. Hides itself on the owner's own
+          page and when no promotion is active. */}
+      <EarnWithArtist
+        artistSlug={artist.slug}
+        artistName={artist.profile?.display_name || 'this artist'}
+        artistUserId={artist.user_id}
+        platformTier={artist.platform_tier ?? null}
+        referralRate={artist.referral_commission_rate ?? null}
+        clipperStandardRate={artist.clipper_commission_rate || 0}
+        clipperSchedule={artist.clipper_rate_schedule ?? null}
+        clipperCampaignStartedAt={artist.clipper_campaign_started_at ?? null}
+      />
 
       {/* Tabs */}
       <div className="px-4 sm:px-6 lg:px-8 mt-6 mb-3 page-fade-in" data-tour="artist-page-tabs">
