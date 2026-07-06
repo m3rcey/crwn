@@ -121,7 +121,7 @@ Dark theme. Background: #0D0D0D, Cards: #1A1A1A, Elevated: #2A2A2A, Gold accent:
 
 ## Dependencies
 
-Check `package.json` before importing. Key packages: @supabase/supabase-js, @supabase/ssr, stripe, @stripe/stripe-js, @aws-sdk/client-s3, lucide-react, recharts, @dnd-kit/core, driver.js, resend. If a package isn't installed, run `npm install` first.
+Check `package.json` before importing. Key packages: @supabase/supabase-js, @supabase/ssr, stripe, @aws-sdk/client-s3, lucide-react, recharts, @dnd-kit/core, driver.js, resend, openai, livekit-client, livekit-server-sdk. If a package isn't installed, run `npm install` first. Note: `@stripe/stripe-js` is NOT installed — checkout uses server-redirect pattern (`data.url` → `window.location.href`), not client-side Stripe.js. `@livekit/components-styles` is used via side-effect import (`import '@livekit/components-styles'`) in live-streaming components.
 
 
 ### Next.js 16 / Vercel Gotchas

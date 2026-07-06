@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
         imported_at: new Date().toISOString(),
       };
     })
-    .filter(Boolean);
+    .filter((c): c is NonNullable<typeof c> => c !== null);
 
   if (contacts.length === 0) {
     return NextResponse.json({ error: 'No new contacts to import (all duplicates or missing emails)' }, { status: 400 });
