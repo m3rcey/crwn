@@ -68,10 +68,19 @@ export async function GET(req: NextRequest) {
     }
 
     // Create account link for onboarding
+    const returnTo = req.nextUrl.searchParams.get('returnTo');
+    const base = process.env.NEXT_PUBLIC_BASE_URL;
+    const returnUrl = returnTo === 'setup'
+      ? `${base}/setup?stripe=success`
+      : `${base}/profile/artist?stripe=success`;
+    const refreshUrl = returnTo === 'setup'
+      ? `${base}/setup?stripe=refresh`
+      : `${base}/profile/artist?stripe=refresh`;
+
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/artist?stripe=refresh`,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/artist?stripe=success`,
+      refresh_url: refreshUrl,
+      return_url: returnUrl,
       type: 'account_onboarding',
     });
 

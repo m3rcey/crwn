@@ -33,6 +33,7 @@ export interface ArtistSetupState {
   stripeConnected: boolean;
   allRequiredDone: boolean;
   refresh: () => Promise<void>;
+  refreshStripe: () => Promise<void>;
   markComplete: () => Promise<void>;
 }
 
@@ -155,7 +156,7 @@ export function useArtistSetup(): ArtistSetupState {
 
   const steps: SetupStep[] = [
     { key: 'profile', label: 'Profile', required: true, done: hasAvatar },
-    { key: 'monetize', label: 'Monetize', required: false, done: hasTier },
+    { key: 'monetize', label: 'Monetize', required: false, done: hasTier && stripeConnected },
     { key: 'music', label: 'Music', required: true, done: hasMusic },
     { key: 'shop', label: 'Shop', required: false, done: hasProduct },
   ];
@@ -179,6 +180,7 @@ export function useArtistSetup(): ArtistSetupState {
     stripeConnected,
     allRequiredDone,
     refresh: load,
+    refreshStripe: loadStripe,
     markComplete,
   };
 }

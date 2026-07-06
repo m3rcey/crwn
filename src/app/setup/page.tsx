@@ -33,6 +33,7 @@ type ScreenKey =
   | 'tier-name'
   | 'tier-price'
   | 'tier-benefits'
+  | 'stripe-connect'
   | 'track-audio'
   | 'track-title'
   | 'product-type'
@@ -55,6 +56,7 @@ const SCREENS: ScreenDef[] = [
   { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your membership tier', subtitle: 'What supporters join. e.g. “Inner Circle”.', icon: CreditCard },
   { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the monthly price', subtitle: 'What fans pay each month. Enter 0 for a free tier.', icon: CreditCard },
   { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do members get?', subtitle: 'Pick the perks fans unlock. These show on your page — you can edit them anytime.', icon: CreditCard, create: 'tier' },
+  { key: 'stripe-connect', group: 'monetize', groupRequired: true, title: 'Connect your bank', subtitle: 'Where fan payments land. Takes about 2 minutes via Stripe.', icon: CreditCard },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -70,6 +72,9 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
     case 'tier-price':
     case 'tier-benefits':
       return setup.hasTier;
+    case 'stripe-connect':
+      // If no tier exists (monetize was skipped), Stripe is a no-op — pass through.
+      return setup.stripeConnected || !setup.hasTier;
     case 'track-audio':
     case 'track-title':
       return setup.hasMusic;
@@ -107,7 +112,7 @@ function SetupWizard() {
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const setup = useArtistSetup();
-  const { loading, isArtist, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, refresh, markComplete } =
+  const { loading, isArtist, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, refresh, refreshStripe, markComplete } =
     setup;
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -133,6 +138,19 @@ function SetupWizard() {
     title: '',
     price: '',
   });
+
+  // ---- Stripe redirect detection -----------------------------------------
+  // When Stripe's OAuth flow returns to /setup?stripe=success, re-check status
+  // so stripeConnected becomes true and the Continue button unlocks.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const stripeParam = params.get('stripe');
+    if (stripeParam === 'success' || stripeParam === 'refresh') {
+      refreshStripe();
+      window.history.replaceState({}, '', '/setup');
+    }
+  }, [refreshStripe]);
 
   // ---- Route guards ------------------------------------------------------
   useEffect(() => {
@@ -357,9 +375,9 @@ function SetupWizard() {
             <div>
               <h1 className="text-2xl font-bold text-crwn-text">{current.title}</h1>
               <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
-              {current.key === 'tier-price' && !stripeConnected && parseFloat(tierDraft.price || '0') > 0 && (
+              {current.key === ‘tier-price’ && !stripeConnected && parseFloat(tierDraft.price || ‘0’) > 0 && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
-                  You’ll connect Stripe to actually get paid — you can do that any time from your dashboard.
+                  You’ll connect Stripe on the next screen to start receiving payments.
                 </p>
               )}
             </div>
@@ -488,6 +506,8 @@ function FieldBody({
           done={setup.hasTier}
         />
       );
+    case 'stripe-connect':
+      return <StripeConnectStep stripeConnected={setup.stripeConnected} hasTier={setup.hasTier} />;
     case 'track-audio':
       if (setup.hasMusic) {
         return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done />;
@@ -569,6 +589,54 @@ function FieldBody({
     case 'product-price':
       return <PriceInput value={productDraft.price} onChange={(v) => setProductDraft((d) => ({ ...d, price: v }))} done={setup.hasProduct} />;
   }
+}
+
+function StripeConnectStep({ stripeConnected, hasTier }: { stripeConnected: boolean; hasTier: boolean }) {
+  if (stripeConnected) {
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-xl bg-crwn-gold/10 border border-crwn-gold/30">
+        <Check className="w-5 h-5 text-crwn-gold flex-shrink-0" />
+        <div>
+          <p className="font-medium text-crwn-text">Stripe connected</p>
+          <p className="text-sm text-crwn-text-secondary">Fan payments will go directly to your bank account.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasTier) {
+    return (
+      <div className="p-4 rounded-xl border border-crwn-elevated">
+        <p className="text-crwn-text-secondary text-sm">No membership tier set up yet — you can connect Stripe later from your dashboard once you're ready to get paid.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="p-5 rounded-xl border border-crwn-elevated space-y-3">
+        <p className="text-crwn-text-secondary text-sm">
+          Your tier is set up. Connect Stripe so fans can actually pay you — Stripe handles all card processing securely. You'll need a bank account and a few minutes.
+        </p>
+        <ul className="space-y-1.5">
+          {['Payouts go directly to your bank', 'Stripe handles taxes and compliance', 'Takes about 2 minutes'].map((item) => (
+            <li key={item} className="flex items-center gap-2 text-sm text-crwn-text-secondary">
+              <Check className="w-3.5 h-3.5 text-crwn-gold flex-shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <a
+        href="/api/stripe/connect?returnTo=setup"
+        className="flex items-center justify-center gap-2 w-full bg-crwn-gold text-crwn-bg font-semibold px-6 py-3.5 rounded-full hover:bg-crwn-gold/90 transition-colors"
+      >
+        <CreditCard className="w-4 h-4" />
+        Connect with Stripe
+      </a>
+      <p className="text-xs text-crwn-text-secondary text-center">You'll leave this page briefly, then return here to continue.</p>
+    </div>
+  );
 }
 
 function PriceInput({ value, onChange, suffix, done }: { value: string; onChange: (v: string) => void; suffix?: string; done?: boolean }) {
