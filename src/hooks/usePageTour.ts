@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 import { DriveStep } from 'driver.js';
-import { startTour } from '@/lib/tour';
+import { startTour, endActiveTour } from '@/lib/tour';
 import { useTourCheck } from '@/hooks/useTourCheck';
 
 interface UsePageTourOptions {
@@ -53,6 +53,10 @@ export function usePageTour({
     }, delayMs);
     return () => clearTimeout(timer);
   }, [enabled, shouldShowTour, startStep, markComplete, saveStep, delayMs]);
+
+  // Tear down a running tour when the user navigates away from this page — driver.js
+  // DOM is global and would otherwise leak onto the next page (the stray "?" bug).
+  useEffect(() => () => { endActiveTour(); }, []);
 
   const replay = useCallback(() => {
     if (stepsRef.current.length === 0) return;

@@ -48,12 +48,35 @@ function positionRing(ring: HTMLDivElement, el: HTMLElement) {
   ring.style.display = 'block';
 }
 
+// Track the currently-running tour so it can be torn down on navigation. driver.js
+// renders global DOM (overlay + popover) and our body-level ring, none tied to the
+// React tree — so a tour left running when the user navigates away leaks its elements
+// onto the next page (e.g. a stray "?" replay highlight / ghost popover on the Studio
+// grid). usePageTour calls endActiveTour() on unmount; startTour also ends any prior
+// tour before starting a new one.
+let activeDriver: ReturnType<typeof driver> | null = null;
+let activeCleanup: (() => void) | null = null;
+
+export function endActiveTour() {
+  try { activeCleanup?.(); } catch { /* ignore */ }
+  try { activeDriver?.destroy(); } catch { /* ignore */ }
+  activeCleanup = null;
+  activeDriver = null;
+  if (typeof document !== 'undefined') {
+    // Backstop: sweep any orphaned tour DOM a prior leak may have left behind.
+    document.querySelectorAll('.crwn-tour-ring, .driver-overlay, .driver-popover').forEach((n) => n.remove());
+    document.querySelectorAll('.driver-active-element').forEach((n) => n.classList.remove('driver-active-element'));
+  }
+}
+
 export function startTour(
   steps: DriveStep[],
   onComplete?: () => void,
   onDismiss?: (stepIndex: number) => void,
   startIndex?: number
 ) {
+  endActiveTour(); // tear down any prior/leaked tour before starting a new one
+
   let currentStep = startIndex || 0;
 
   const ring = createRing();
@@ -112,12 +135,16 @@ export function startTour(
     onDestroyStarted: () => {
       cleanup();
       driverObj.destroy();
+      if (activeDriver === driverObj) { activeDriver = null; activeCleanup = null; }
       onComplete?.();
     },
   });
 
+  activeDriver = driverObj;
+  activeCleanup = cleanup;
   driverObj.setSteps(steps);
   driverObj.drive(startIndex || 0);
+  return driverObj;
 }
 
 export { waitForElement };
