@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import {
   Loader2, Package, Megaphone, Flag, Inbox, Scissors, Sparkles,
-  FlaskConical, ArrowRight,
+  FlaskConical,
 } from 'lucide-react';
 
 interface StudioCard {
@@ -140,7 +140,7 @@ export default function StudioPage() {
       <h1 className="text-2xl font-bold text-crwn-text mb-1">Studio</h1>
       <p className="text-sm text-crwn-text-secondary mb-6">Your artist workspace.</p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 stagger-fade-in">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 stagger-fade-in">
         {STUDIO_CARDS.map((card) => {
           const Icon = card.icon;
           const purple = card.accent === 'purple';
@@ -148,27 +148,16 @@ export default function StudioPage() {
             <button
               key={card.href}
               onClick={() => router.push(card.href)}
-              className={`neu-raised rounded-xl p-4 text-left hover:opacity-90 transition-opacity ${
-                purple ? 'border border-purple-400/25' : ''
-              }`}
+              className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
             >
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center mb-3 ${
-                  purple ? 'bg-purple-500/15' : 'bg-crwn-gold/15'
+                className={`aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden flex items-center justify-center bg-gradient-to-br ${
+                  purple ? 'from-purple-400 to-purple-700' : 'from-crwn-gold to-[#8a6d1f]'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${purple ? 'text-purple-400' : 'text-crwn-gold'}`} />
+                <Icon className="w-12 h-12 text-[#0D0D0D]" strokeWidth={1.5} />
               </div>
-              <p className="text-sm font-semibold text-crwn-text">{card.title}</p>
-              <p className="text-xs text-crwn-text-secondary mt-1">{card.description}</p>
-              <p
-                className={`text-[11px] font-semibold mt-2 flex items-center gap-1 ${
-                  purple ? 'text-purple-400' : 'text-crwn-gold'
-                }`}
-              >
-                Open
-                <ArrowRight className="w-3 h-3" />
-              </p>
+              <p className="font-medium text-crwn-text text-sm mt-2 text-center">{card.title}</p>
             </button>
           );
         })}
