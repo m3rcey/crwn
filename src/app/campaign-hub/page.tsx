@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { MISSION_TYPE_LABELS, type MissionType } from '@/lib/missions';
+import { usePageTour } from '@/hooks/usePageTour';
+import { getCampaignHubTourSteps } from '@/lib/campaignHubTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface Promoter {
   fanId: string;
@@ -106,6 +109,16 @@ export default function CampaignHubPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  // First-visit tour + on-demand replay. MUST stay above the early returns
+  // below (rules of hooks) — gated by `enabled` so it only fires once the
+  // real page content is rendered.
+  const { replay } = usePageTour({
+    tourId: 'campaign-hub',
+    steps: getCampaignHubTourSteps({ onOverview: tab === 'overview' }),
+    userId: user?.id,
+    enabled: !authLoading && !loading && isArtist,
+  });
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -157,9 +170,12 @@ export default function CampaignHubPage() {
           Back to Studio
         </button>
 
-        <div className="flex items-center gap-2 mb-2">
-          <Megaphone className="w-6 h-6 text-crwn-gold" />
-          <h1 className="text-3xl font-bold text-crwn-text">Campaign Hub</h1>
+        <div className="flex items-center justify-between gap-3 mb-2" data-tour="campaign-hub-header">
+          <div className="flex items-center gap-2">
+            <Megaphone className="w-6 h-6 text-crwn-gold" />
+            <h1 className="text-3xl font-bold text-crwn-text">Campaign Hub</h1>
+          </div>
+          <TourReplayButton onClick={replay} />
         </div>
         <p className="text-crwn-text-secondary text-sm mb-4">Your promotion engine at a glance.</p>
 
@@ -168,7 +184,7 @@ export default function CampaignHubPage() {
         </span>
 
         {/* Tabs — hand-rolled like the artist dashboard */}
-        <div className="flex items-center gap-2 mb-8 overflow-x-auto">
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto" data-tour="campaign-hub-tabs">
           {TABS.map(t => (
             <button
               key={t.id}
@@ -187,7 +203,7 @@ export default function CampaignHubPage() {
         {/* ---- OVERVIEW ---- */}
         {tab === 'overview' && (
           <div>
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="grid grid-cols-2 gap-3 mb-6" data-tour="campaign-hub-stats">
               <div className="bg-crwn-card rounded-2xl p-4">
                 <p className="text-xs text-crwn-text-secondary mb-1">Gross revenue driven</p>
                 <p className="text-xl font-bold text-green-400">{money(gross)}</p>

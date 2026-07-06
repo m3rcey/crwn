@@ -17,6 +17,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { capClipperRate, resolveClipperRate, type ClipperRateStep } from '@/lib/clipperRate';
+import { usePageTour } from '@/hooks/usePageTour';
+import { clipControlsTourSteps } from '@/lib/clipControlsTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 /**
  * Live Clip Controls (markers-only). The artist marks noteworthy MOMENTS on a
@@ -147,6 +150,16 @@ export default function ClipControlsPage() {
     }
     load();
   }, [authLoading, user, router, load]);
+
+  // First-visit tour + on-demand replay. MUST stay above the early returns
+  // below (rules of hooks) — gated by `enabled` so it only fires once the
+  // real page content is rendered.
+  const { replay } = usePageTour({
+    tourId: 'clip-controls',
+    steps: clipControlsTourSteps,
+    userId: user?.id,
+    enabled: !authLoading && !loading && !!artistId,
+  });
 
   // ---- Actions --------------------------------------------------------------
 
@@ -286,14 +299,17 @@ export default function ClipControlsPage() {
           Back to Studio
         </button>
 
-        <h1 className="text-3xl font-bold text-crwn-text mb-2">Live Clip Controls</h1>
+        <div className="flex items-center justify-between gap-3 mb-2" data-tour="clip-controls-header">
+          <h1 className="text-3xl font-bold text-crwn-text">Live Clip Controls</h1>
+          <TourReplayButton onClick={replay} />
+        </div>
         <p className="text-crwn-text-secondary text-sm mb-6">
           Mark the moments worth clipping on your recorded sessions, then point clippers at them with a
           clip mission. Clippers download the recording and cut it themselves.
         </p>
 
         {/* Current clip commission — the rate the existing clipper rail pays. */}
-        <div className="border border-crwn-elevated rounded-2xl px-4 py-4 mb-10 flex flex-wrap items-center justify-between gap-3">
+        <div className="border border-crwn-elevated rounded-2xl px-4 py-4 mb-10 flex flex-wrap items-center justify-between gap-3" data-tour="clip-controls-commission">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
               <Scissors className="w-5 h-5 text-green-400" />
@@ -315,9 +331,9 @@ export default function ClipControlsPage() {
           </button>
         </div>
 
-        {/* Sessions */}
+        {/* Sessions — the tour anchor sits on whichever branch renders */}
         {sessions.length === 0 ? (
-          <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center">
+          <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center" data-tour="clip-controls-sessions">
             <Video className="w-8 h-8 text-crwn-gold mx-auto mb-3" />
             <p className="text-crwn-text font-medium mb-1">No recordings yet</p>
             <p className="text-sm text-crwn-text-secondary">
@@ -326,7 +342,7 @@ export default function ClipControlsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6" data-tour="clip-controls-sessions">
             {sessions.map((session) => {
               const sessionMarkers = markers.filter((m) => m.session_id === session.id);
               const isAdding = addingFor === session.id;

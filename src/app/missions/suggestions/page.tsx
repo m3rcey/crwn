@@ -15,6 +15,9 @@ import {
   type MissionTargetKind,
   type MissionType,
 } from '@/lib/missions';
+import { usePageTour } from '@/hooks/usePageTour';
+import { missionSuggestionsTourSteps } from '@/lib/missionSuggestionsTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 type SuggestionStatus = 'pending' | 'approved' | 'rejected';
 
@@ -116,6 +119,16 @@ export default function MissionSuggestionsPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  // First-visit tour + on-demand replay. MUST stay above the early returns
+  // below (rules of hooks) — gated by `enabled` so it only fires once the
+  // real page content is rendered.
+  const { replay } = usePageTour({
+    tourId: 'mission-suggestions',
+    steps: missionSuggestionsTourSteps,
+    userId: user?.id,
+    enabled: !authLoading && !loading && isArtist,
+  });
+
   const openDecision = (s: SuggestionRow, mode: 'approve' | 'reject') => {
     setOpenId(s.id);
     setOpenMode(mode);
@@ -210,13 +223,16 @@ export default function MissionSuggestionsPage() {
           All missions
         </button>
 
-        <h1 className="text-3xl font-bold text-crwn-text mb-2">Fan suggestions</h1>
+        <div className="flex items-center justify-between gap-3 mb-2" data-tour="mission-suggestions-header">
+          <h1 className="text-3xl font-bold text-crwn-text">Fan suggestions</h1>
+          <TourReplayButton onClick={replay} />
+        </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
           Mission ideas from your fans. Nothing goes live until you approve it — and you set the real reward.
         </p>
 
         {/* Pending / Reviewed toggle */}
-        <div className="flex items-center gap-2 mb-8">
+        <div className="flex items-center gap-2 mb-8" data-tour="mission-suggestions-toggle">
           <button
             onClick={() => setView('pending')}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${

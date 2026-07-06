@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, FlaskConical, Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { usePageTour } from '@/hooks/usePageTour';
+import { proofOfDemandTourSteps } from '@/lib/proofOfDemandTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface TestRow {
   id: string;
@@ -84,6 +87,16 @@ export default function ProofOfDemandPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  // First-visit tour + on-demand replay. MUST stay above the early returns
+  // below (rules of hooks) — gated by `enabled` so it only fires once the
+  // real page content is rendered.
+  const { replay } = usePageTour({
+    tourId: 'proof-of-demand',
+    steps: proofOfDemandTourSteps,
+    userId: user?.id,
+    enabled: !authLoading && !loading && isArtist,
+  });
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -118,21 +131,26 @@ export default function ProofOfDemandPage() {
           Back to Studio
         </button>
 
-        <h1 className="text-3xl font-bold text-crwn-text mb-2">Demand Tests</h1>
+        <div className="flex items-center justify-between gap-3 mb-2" data-tour="proof-of-demand-header">
+          <h1 className="text-3xl font-bold text-crwn-text">Demand Tests</h1>
+          <TourReplayButton onClick={replay} />
+        </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
           Prove fans want an idea before you build it — no money moves until you say so.
         </p>
 
         <button
           onClick={() => router.push('/proof-of-demand/new')}
+          data-tour="proof-of-demand-new"
           className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors mb-10"
         >
           <Plus className="w-4 h-4" />
           New Test
         </button>
 
+        {/* Tests — the tour anchor sits on whichever branch renders */}
         {tests.length === 0 ? (
-          <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center">
+          <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center" data-tour="proof-of-demand-tests">
             <FlaskConical className="w-8 h-8 text-crwn-gold mx-auto mb-3" />
             <p className="text-crwn-text font-medium mb-1">No demand tests yet</p>
             <p className="text-sm text-crwn-text-secondary">
@@ -140,7 +158,7 @@ export default function ProofOfDemandPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-0">
+          <div className="space-y-0" data-tour="proof-of-demand-tests">
             {tests.map((t, i) => {
               const pct = Math.min(100, Math.round((t.response_count / Math.max(1, t.goal_count)) * 100));
               const deadlinePassed = !!t.deadline && new Date(t.deadline).getTime() < now;

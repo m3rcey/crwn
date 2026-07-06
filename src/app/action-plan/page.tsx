@@ -16,6 +16,9 @@ import {
   Users,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { usePageTour } from '@/hooks/usePageTour';
+import { getActionPlanTourSteps } from '@/lib/actionPlanTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 type Priority = 'high' | 'medium' | 'low';
 
@@ -92,6 +95,16 @@ export default function ActionPlanPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  // First-visit tour + on-demand replay. MUST stay above the early returns
+  // below (rules of hooks) — gated by `enabled` so it only fires once the
+  // real page content is rendered.
+  const { replay } = usePageTour({
+    tourId: 'action-plan',
+    steps: getActionPlanTourSteps({ hasTopMove: recommendations.length > 0 }),
+    userId: user?.id,
+    enabled: !authLoading && !loading && isArtist,
+  });
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -129,9 +142,12 @@ export default function ActionPlanPage() {
           Back to Studio
         </button>
 
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-6 h-6 text-purple-400" />
-          <h1 className="text-3xl font-bold text-crwn-text">Your Action Plan</h1>
+        <div className="flex items-center justify-between gap-3 mb-2" data-tour="action-plan-header">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-purple-400" />
+            <h1 className="text-3xl font-bold text-crwn-text">Your Action Plan</h1>
+          </div>
+          <TourReplayButton onClick={replay} />
         </div>
         <p className="text-crwn-text-secondary text-sm mb-8">Your next best moves, ranked.</p>
 
@@ -148,7 +164,7 @@ export default function ActionPlanPage() {
         ) : (
           <>
             {/* Top move — the single highest-priority recommendation */}
-            <div className="border border-purple-500/30 rounded-2xl p-5 sm:p-6 mb-8 bg-purple-500/5">
+            <div className="border border-purple-500/30 rounded-2xl p-5 sm:p-6 mb-8 bg-purple-500/5" data-tour="action-plan-top-move">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-purple-400">
                   Top move
@@ -216,7 +232,7 @@ export default function ActionPlanPage() {
         )}
 
         {/* Advisory-only footer */}
-        <p className="text-xs text-crwn-text-secondary text-center mt-10">
+        <p className="text-xs text-crwn-text-secondary text-center mt-10" data-tour="action-plan-advisory">
           These are suggestions — nothing happens automatically. You&apos;re always in control.
         </p>
       </div>

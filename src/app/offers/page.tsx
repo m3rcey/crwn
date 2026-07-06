@@ -6,6 +6,9 @@ import { ArrowLeft, CreditCard, Megaphone, Package, Plus, Sparkles } from 'lucid
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import type { ProductType } from '@/types';
+import { usePageTour } from '@/hooks/usePageTour';
+import { offersTourSteps } from '@/lib/offersTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface TierRow {
   id: string;
@@ -96,6 +99,16 @@ export default function OffersPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  // First-visit tour + on-demand replay. MUST stay above the early returns
+  // below (rules of hooks) — gated by `enabled` so it only fires once the
+  // real page content is rendered.
+  const { replay } = usePageTour({
+    tourId: 'offers',
+    steps: offersTourSteps,
+    userId: user?.id,
+    enabled: !authLoading && !loading && isArtist,
+  });
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -132,14 +145,17 @@ export default function OffersPage() {
           Back to Studio
         </button>
 
-        <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-start justify-between gap-3 mb-2" data-tour="offers-header">
           <h1 className="text-3xl font-bold text-crwn-text">My Offers</h1>
-          {promotionActive && (
-            <span className="inline-flex items-center gap-1.5 flex-shrink-0 mt-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold border border-crwn-gold/40">
-              <Megaphone className="w-3.5 h-3.5" />
-              Promotion active
-            </span>
-          )}
+          <div className="flex items-center gap-3 flex-shrink-0 mt-1">
+            {promotionActive && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold border border-crwn-gold/40">
+                <Megaphone className="w-3.5 h-3.5" />
+                Promotion active
+              </span>
+            )}
+            <TourReplayButton onClick={replay} />
+          </div>
         </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
           Everything fans can buy from you — memberships and one-time offers.
@@ -147,29 +163,32 @@ export default function OffersPage() {
 
         <button
           onClick={() => router.push('/offers/new')}
+          data-tour="offers-build"
           className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors mb-3"
         >
           <Plus className="w-4 h-4" />
           Build an Offer
         </button>
 
-        <p className="mb-3">
-          <button
-            onClick={() => router.push('/proof-of-demand/new')}
-            className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
-          >
-            Not sure fans want it? Test demand first →
-          </button>
-        </p>
+        <div className="mb-10" data-tour="offers-links">
+          <p className="mb-3">
+            <button
+              onClick={() => router.push('/proof-of-demand/new')}
+              className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+            >
+              Not sure fans want it? Test demand first →
+            </button>
+          </p>
 
-        <p className="mb-10">
-          <button
-            onClick={() => router.push('/missions/new')}
-            className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
-          >
-            Rally your fans with a mission →
-          </button>
-        </p>
+          <p>
+            <button
+              onClick={() => router.push('/missions/new')}
+              className="text-sm text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+            >
+              Rally your fans with a mission →
+            </button>
+          </p>
+        </div>
 
         {empty ? (
           <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center">

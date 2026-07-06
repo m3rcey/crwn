@@ -15,6 +15,9 @@ import {
   type MissionTargetKind,
   type MissionType,
 } from '@/lib/missions';
+import { usePageTour } from '@/hooks/usePageTour';
+import { missionsTourSteps } from '@/lib/missionsTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface MissionRow {
   id: string;
@@ -97,6 +100,16 @@ export default function MissionsPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  // First-visit tour + on-demand replay. MUST stay above the early returns
+  // below (rules of hooks) — gated by `enabled` so it only fires once the
+  // real page content is rendered.
+  const { replay } = usePageTour({
+    tourId: 'missions',
+    steps: missionsTourSteps,
+    userId: user?.id,
+    enabled: !authLoading && !loading && isArtist,
+  });
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -131,7 +144,10 @@ export default function MissionsPage() {
           Back to Studio
         </button>
 
-        <h1 className="text-3xl font-bold text-crwn-text mb-2">Missions</h1>
+        <div className="flex items-center justify-between gap-3 mb-2" data-tour="missions-header">
+          <h1 className="text-3xl font-bold text-crwn-text">Missions</h1>
+          <TourReplayButton onClick={replay} />
+        </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
           One trackable fan action toward a goal — rally your fans and watch the count climb.
         </p>
@@ -139,6 +155,7 @@ export default function MissionsPage() {
         <div className="flex flex-wrap items-center gap-4 mb-10">
           <button
             onClick={() => router.push('/missions/new')}
+            data-tour="missions-new"
             className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -146,6 +163,7 @@ export default function MissionsPage() {
           </button>
           <button
             onClick={() => router.push('/missions/suggestions')}
+            data-tour="missions-suggestions"
             className="inline-flex items-center gap-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
           >
             <Lightbulb className="w-4 h-4" />
