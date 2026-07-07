@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
 import { createSurveyToken } from '@/lib/surveyTokens';
+import { dispatchCalendarReminders } from '@/lib/calendarReminders';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -17,6 +18,15 @@ export async function GET(req: NextRequest) {
 
   const now = new Date().toISOString();
 
+  // Promise / My-CRWN Calendar daily reminders. Piggybacks this cron (no new cron
+  // entry, respects Hobby's daily limit). Fully wrapped — must never break sequences.
+  let reminders: unknown = null;
+  try {
+    reminders = await dispatchCalendarReminders(supabaseAdmin);
+  } catch (err) {
+    console.error('Calendar reminder dispatch failed:', err);
+  }
+
   // Find all due enrollments
   const { data: dueEnrollments } = await supabaseAdmin
     .from('sequence_enrollments')
@@ -25,7 +35,7 @@ export async function GET(req: NextRequest) {
     .lte('next_send_at', now);
 
   if (!dueEnrollments || dueEnrollments.length === 0) {
-    return NextResponse.json({ processed: 0 });
+    return NextResponse.json({ processed: 0, reminders });
   }
 
   let sentCount = 0;
@@ -283,5 +293,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ processed: dueEnrollments.length, sent: sentCount, errors: errorCount });
+  return NextResponse.json({ processed: dueEnrollments.length, sent: sentCount, errors: errorCount, reminders });
 }
