@@ -16,8 +16,9 @@ interface SubscriptionTier {
 }
 import {
   Loader2, Plus, Edit2, Trash2, X, Upload,
-  Eye, EyeOff, Disc3
+  Eye, EyeOff, Disc3, Award
 } from 'lucide-react';
+import { ReleaseCreditsModal } from './ReleaseCreditsModal';
 
 interface AlbumFormData {
   title: string;
@@ -39,6 +40,8 @@ export function AlbumManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
+  // Album whose fan-credits modal is open (feature: credits on releases).
+  const [creditsAlbum, setCreditsAlbum] = useState<Album | null>(null);
   const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   
@@ -747,6 +750,9 @@ export function AlbumManager() {
                   <button onClick={() => handleEdit(album)} className="p-2 bg-crwn-gold rounded-full">
                     <Edit2 className="w-4 h-4 text-crwn-bg" />
                   </button>
+                  <button onClick={() => setCreditsAlbum(album)} className="p-2 bg-crwn-elevated rounded-full" title="Credit fans">
+                    <Award className="w-4 h-4 text-crwn-gold" />
+                  </button>
                   <button onClick={() => handleDelete(album.id)} className="p-2 bg-crwn-error rounded-full">
                     <Trash2 className="w-4 h-4 text-white" />
                   </button>
@@ -801,6 +807,16 @@ export function AlbumManager() {
           variant="danger"
           onConfirm={executeDeleteAlbum}
           onCancel={() => setConfirmDeleteAlbum(null)}
+        />
+      )}
+
+      {/* Release credits modal */}
+      {creditsAlbum && (
+        <ReleaseCreditsModal
+          releaseType="album"
+          releaseId={creditsAlbum.id}
+          releaseTitle={creditsAlbum.title}
+          onClose={() => setCreditsAlbum(null)}
         />
       )}
     </div>

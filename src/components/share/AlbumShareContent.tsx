@@ -8,6 +8,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useToast } from '@/components/shared/Toast';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
+import { ReleaseCredits } from '@/components/share/ReleaseCredits';
 import { Lock, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { GatedTrackPlayer } from '@/components/gating';
@@ -218,6 +219,9 @@ export function AlbumShareContent({ album, tracks, artist, tiers }: AlbumShareCo
             </p>
           </div>
         </div>
+
+        {/* Fan credits on this release */}
+        <ReleaseCredits releaseType="album" releaseId={album.id} />
 
         {/* Subscribe CTA if gated */}
         {!hasAccess && (

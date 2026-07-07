@@ -1,0 +1,52 @@
+## DDG SIGNED A MAJOR AND STILL KEPT HIS MASTERS
+
+**CAPTION:**
+
+What DDG Walked Into Epic With
+
+Link in bio to build your own audience first so you sign on your terms and keep your masters with CRWN. Free to start at thecrwn.app.
+
+---
+
+**SCRIPT:**
+
+DDG chased a major label rap deal for years, but which one of his two careers actually pays him more? Before rap, DDG was a YouTuber. He built a massive following posting videos and was already pulling real money every month on his own. So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. To most artists thats the dream, the deal that finally puts you on. DDG got the rap deal and the rap fame off it. But ask him which side feeds him, and the answer aint the rap. He went on record saying YouTubers and streamers make more money than rappers and it aint even close. His biggest single month off YouTube was reportedly around 300 to 400 thousand dollars. The major label deal everybody chases. And the free platform he started on out-earns it.
+
+---
+
+**TITLES (suggested is in CAPTION above; alternates below):**
+1. DDG Got A Deal And Kept Masters -- Structure 2  ← SUGGESTED
+2. DDG Made A Power Move -- Structure 6
+3. Leverage Vs Begging For A Deal -- Structure 8
+4. Would You Sign And Keep Masters -- Structure 1
+5. If You Got Fans, You Got Power -- Structure 3
+
+**TOPIC:** DDG built 9M+ YouTube subscribers and his own money before rap, so when he signed to Epic he kept his masters; the twist is signing a major almost always means losing your masters, and the only reason he kept his is he didn't need the deal.
+
+---
+
+**SCRIPT WITH VISUALS:**
+
+**HOOK:** DDG chased a major label rap deal for years, but which one of his two careers actually pays him more? [write "WHICH CAREER PAYS HIM MORE?" at the top, draw two lanes "RAP" and "YOUTUBE" with a "?" between em, and add a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of DDG from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DDG" underneath]
+
+**FORESHADOW:** Before rap, DDG was a YouTuber. He built a massive following posting videos and was already pulling real money every month on his own. [draw a play button labeled "YOUTUBE", write "HUGE FOLLOWING", "REAL $ EVERY MONTH"]
+
+**RISING ACTION:** So when he started rapping, he wasnt broke and begging. He had a audience and his own bag. Then he signed to Epic, a major label. To most artists thats the dream, the deal that finally puts you on. DDG got the rap deal and the rap fame off it. [draw a stick figure walking into a label building labeled "EPIC", write "THE DREAM DEAL", "GOT PUT ON"]
+
+**PAYOFF / SURPRISE ENDING:** But ask him which side feeds him, and the answer aint the rap. He went on record saying YouTubers and streamers make more money than rappers and it aint even close. His biggest single month off YouTube was reportedly around 300 to 400 thousand dollars. The major label deal everybody chases. And the free platform he started on out-earns it. [draw the RAP lane small and the YOUTUBE lane towering over it, write "YOUTUBE > RAP (HIS OWN WORDS)", "ONE MONTH = ~$300-400K", box at the bottom: "THE FREE PLATFORM PAYS MORE THAN THE MAJOR DEAL"]
+
+---
+
+**NANO BANANA PRO PROMPT:**
+
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. Near the hook at the top, a hand-drawn sharpie head-and-shoulders portrait capturing the recognizable likeness of DDG from the attached photo reference, drawn in confident sharpie line work, not a generic stick figure, labeled "DDG" underneath. The dominant central illustration: a recognizable DDG figure strides into a label building carrying a fat bag labeled "FANS + $", while next to him a generic broke artist walks in empty-handed and comes out labeled "OWNS NOTHING". Keep the supporting data: a play button "YOUTUBE / 9,000,000+ SUBS / REAL $ EVERY MONTH". Lower in the frame, as the final reveal, a vault labeled "KEPT MASTERS" with a check, and "MAJOR DEAL = LOSE MASTERS" crossed out → "DDG = ALREADY RICH → KEPT MASTERS". At the very top in large hand-lettered black sharpie capitals (thick uneven hand-drawn marker strokes, not a printed, bold, or display font): "WHAT DID DDG WALK IN WITH?". At the bottom, in a boxed line: "THE ONE WHO DONT NEED THE DEAL KEEPS THE MASTERS." The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+
+---
+
+**PAN ORDER:**
+
+1. DDG portrait + "WHAT DID DDG WALK IN WITH?" (top)
+2. "YOUTUBE / 9,000,000+ SUBS / REAL $ EVERY MONTH"
+3. Figure with "FANS + $" bag into label vs empty-handed "OWNS NOTHING" + "MAJOR DEAL = LOSE MASTERS"
+4. "DDG = ALREADY RICH -> KEPT MASTERS" + "KEPT MASTERS" vault check
+5. Boxed "THE ONE WHO DONT NEED THE DEAL KEEPS THE MASTERS" (bottom)

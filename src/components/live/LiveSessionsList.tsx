@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSubscription } from '@/hooks/useSubscription';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { LiveSession } from '@/types/live';
-import { Radio, Download, Loader2, Lock, Calendar, Play } from 'lucide-react';
+import { Radio, Download, Loader2, Lock, Calendar, Play, Ticket } from 'lucide-react';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 interface LiveSessionsListProps {
@@ -19,10 +20,62 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
   const [errorId, setErrorId] = useState<string | null>(null);
   const [playId, setPlayId] = useState<string | null>(null);
   const [playUrl, setPlayUrl] = useState<string | null>(null);
+  // Session ids the fan already holds a paid ticket for.
+  const [ticketIds, setTicketIds] = useState<Set<string>>(new Set());
+  const [buyingId, setBuyingId] = useState<string | null>(null);
 
-  // A fan can watch/download if the session is free, or they hold one of its tiers.
+  // Load the fan's paid tickets so ticketed sessions unlock like a tier does.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const supabase = createBrowserSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from('live_ticket_purchases')
+        .select('session_id')
+        .eq('buyer_id', user.id)
+        .eq('status', 'paid');
+      if (active && data) setTicketIds(new Set(data.map((r) => r.session_id as string)));
+    })();
+    return () => { active = false; };
+  }, []);
+
+  // A fan can watch/download if the session is free, they hold one of its tiers,
+  // or they bought a pre-sale ticket for it.
   const hasAccess = (s: LiveSession) =>
-    s.is_free || (!!tierId && Array.isArray(s.allowed_tier_ids) && s.allowed_tier_ids.includes(tierId));
+    s.is_free ||
+    (!!tierId && Array.isArray(s.allowed_tier_ids) && s.allowed_tier_ids.includes(tierId)) ||
+    ticketIds.has(s.id);
+
+  // A ticket is offered when the session is priced and the fan lacks other access.
+  const canBuyTicket = (s: LiveSession) => !!s.price && s.price > 0 && !hasAccess(s);
+
+  const buyTicket = async (s: LiveSession) => {
+    setBuyingId(s.id);
+    try {
+      const res = await fetch('/api/stripe/live-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: s.id }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        // External Stripe URL — full navigation is correct here.
+        window.location.href = data.url;
+        return;
+      }
+      setErrorId(s.id);
+    } catch (err) {
+      console.error('Error buying ticket:', err);
+      setErrorId(s.id);
+    } finally {
+      setBuyingId(null);
+    }
+  };
+
+  const fmtPrice = (cents: number | null) =>
+    cents ? `$${(cents / 100).toFixed(2)}` : '';
 
   const liveNow = sessions.filter((s) => s.status === 'live');
   const upcoming = sessions.filter((s) => s.source_type === 'live' && s.status === 'scheduled');
@@ -116,15 +169,26 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
                 <div className="min-w-0">
                   <p className="text-crwn-text font-medium truncate">{s.title}</p>
                   <p className="text-crwn-text-secondary text-sm">
-                    {s.is_free ? 'Free for all' : 'Subscribers'}
+                    {s.is_free ? 'Free for all' : canBuyTicket(s) ? `Ticket ${fmtPrice(s.price)}` : 'Subscribers'}
                   </p>
                 </div>
-                <Link
-                  href={`/${artistSlug}/live/${s.id}`}
-                  className="neu-button-accent px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 flex-shrink-0"
-                >
-                  <Radio className="w-4 h-4" /> Join
-                </Link>
+                {canBuyTicket(s) ? (
+                  <button
+                    onClick={() => buyTicket(s)}
+                    disabled={buyingId === s.id}
+                    className="neu-button-accent px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 flex-shrink-0 disabled:opacity-60"
+                  >
+                    {buyingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ticket className="w-4 h-4" />}
+                    Buy ticket {fmtPrice(s.price)}
+                  </button>
+                ) : (
+                  <Link
+                    href={`/${artistSlug}/live/${s.id}`}
+                    className="neu-button-accent px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 flex-shrink-0"
+                  >
+                    <Radio className="w-4 h-4" /> Join
+                  </Link>
+                )}
               </div>
             ))}
           </div>
@@ -145,7 +209,22 @@ export function LiveSessionsList({ sessions, artistId, artistSlug }: LiveSession
                     {s.scheduled_at ? new Date(s.scheduled_at).toLocaleString() : 'Time TBA'}
                   </p>
                 </div>
-                <span className="text-crwn-gold text-sm font-medium flex-shrink-0">Scheduled</span>
+                {canBuyTicket(s) ? (
+                  <button
+                    onClick={() => buyTicket(s)}
+                    disabled={buyingId === s.id}
+                    className="neu-button-accent px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 flex-shrink-0 disabled:opacity-60"
+                  >
+                    {buyingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ticket className="w-4 h-4" />}
+                    Pre-order {fmtPrice(s.price)}
+                  </button>
+                ) : ticketIds.has(s.id) ? (
+                  <span className="text-crwn-gold text-sm font-medium flex-shrink-0 flex items-center gap-1.5">
+                    <Ticket className="w-3.5 h-3.5" /> Ticket ready
+                  </span>
+                ) : (
+                  <span className="text-crwn-gold text-sm font-medium flex-shrink-0">Scheduled</span>
+                )}
               </div>
             ))}
           </div>

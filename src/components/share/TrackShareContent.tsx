@@ -10,6 +10,7 @@ import { usePlayer } from '@/hooks/usePlayer';
 import { useToast } from '@/components/shared/Toast';
 import { ShareButtons } from '@/components/shared/ShareButtons';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
+import { ReleaseCredits } from '@/components/share/ReleaseCredits';
 import { Play, Lock, ArrowLeft, Check, Loader2, ShoppingBag } from 'lucide-react';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
@@ -233,6 +234,9 @@ export function TrackShareContent({ track, artist, tiers }: TrackShareContentPro
               {formatDuration(track.duration)}
             </p>
           </div>
+
+          {/* Fan credits on this release */}
+          <ReleaseCredits releaseType="track" releaseId={track.id} />
 
           {/* Play or Subscribe */}
           {hasAccess ? (

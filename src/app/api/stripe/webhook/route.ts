@@ -13,6 +13,7 @@ import {
   handleProductPurchase,
   handleTrackPurchase,
   handleBookingPurchase,
+  handleLiveTicketPurchase,
   handlePlatformCheckoutCompleted,
   handlePlatformSubscriptionUpdated,
   handlePlatformSubscriptionDeleted,
@@ -96,6 +97,10 @@ export async function POST(req: NextRequest) {
         // Check if this is a booking purchase
         else if (session.metadata?.booking_session_id) {
           await handleBookingPurchase(supabaseAdmin, session);
+        }
+        // Check if this is a live-session pre-sale ticket
+        else if (session.metadata?.live_session_id) {
+          await handleLiveTicketPurchase(supabaseAdmin, session);
         }
         // Otherwise it's an artist Connect subscription
         else {

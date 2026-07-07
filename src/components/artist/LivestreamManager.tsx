@@ -48,6 +48,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   const [isFree, setIsFree] = useState(false);
   const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
   const [scheduledAt, setScheduledAt] = useState('');
+  // Optional pre-sale ticket price (dollars, as typed). Only meaningful on gated
+  // live sessions — a ticket lets non-subscribers buy their way in.
+  const [ticketPrice, setTicketPrice] = useState('');
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -97,6 +100,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setIsFree(false);
     setSelectedTiers([]);
     setScheduledAt('');
+    setTicketPrice('');
     setShowForm(false);
   };
 
@@ -230,6 +234,11 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         status: 'scheduled',
         room_name: roomName,
         source_type: 'live',
+        // Pre-sale ticket price (cents). Only on gated lives; a ticket buys access
+        // for fans who don't hold an allowed tier.
+        price: !isFree && ticketPrice && parseFloat(ticketPrice) > 0
+          ? Math.round(parseFloat(ticketPrice) * 100)
+          : null,
       });
       if (error) throw error;
       resetForm();
@@ -519,6 +528,30 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 )}
                 {!isFree && tiers.length === 0 && (
                   <p className="text-crwn-text-dim text-sm ml-6">Create subscription tiers first to gate access.</p>
+                )}
+                {/* Pre-sale ticket: gated lives only. Lets non-subscribers buy in. */}
+                {!isFree && mode === 'live' && (
+                  <div className="mt-4 ml-6">
+                    <label className="block text-crwn-text-dim text-sm mb-1">
+                      Pre-sale ticket price (optional)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-crwn-text-dim">$</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={ticketPrice}
+                        onChange={(e) => setTicketPrice(e.target.value)}
+                        className="neu-inset w-32 px-3 py-2 text-crwn-text focus:outline-none"
+                      />
+                    </div>
+                    <p className="text-crwn-text-dim text-xs mt-1">
+                      Leave blank for tier-only access. Set a price and fans who
+                      aren&apos;t subscribed can buy a ticket to get in.
+                    </p>
+                  </div>
                 )}
               </div>
             )}

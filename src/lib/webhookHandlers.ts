@@ -731,7 +731,10 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
 
   const fanName = fanProfile?.display_name || 'A fan';
   const productTitle = product.title || 'Unknown product';
-  const grossAmount = product.price || 0;
+  // Record the amount ACTUALLY charged, not the sticker price. Tier shop_discount
+  // (and discount codes) reduce unit_amount at checkout, so session.amount_total is
+  // the truth. Falling back to product.price only when Stripe omits the total.
+  const grossAmount = session.amount_total ?? product.price ?? 0;
 
   // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
   const feePercent = await getArtistFeePercent(artist_id);
@@ -746,7 +749,7 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
       product_id,
       artist_id,
       stripe_payment_intent_id: session.payment_intent as string,
-      amount: product.price,
+      amount: grossAmount,
       status: 'completed',
       purchased_at: new Date().toISOString(),
       ...(shippingAddress && { shipping_address: shippingAddress }),
@@ -1317,6 +1320,113 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
   }
 
   console.log('Booking purchase recorded:', { booking_session_id, buyer_id, artist_id, netAmount });
+}
+
+// ─── Live pre-sale ticket ────────────────────────────────────────────────────
+
+export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {
+  const metadata = session.metadata;
+  if (!metadata?.live_session_id || !metadata?.buyer_id || !metadata?.artist_id) {
+    console.log('No live ticket metadata found');
+    return;
+  }
+
+  const { live_session_id, buyer_id, artist_id } = metadata;
+
+  const { fanCity, fanState, fanCountry, fanCountryCode } = extractGeo(session);
+
+  const { data: liveSession } = await supabaseAdmin
+    .from('live_sessions')
+    .select('title')
+    .eq('id', live_session_id)
+    .single();
+
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name')
+    .eq('id', buyer_id)
+    .single();
+
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', artist_id)
+    .single();
+
+  const fanName = fanProfile?.display_name || 'A fan';
+  const liveTitle = liveSession?.title || 'Live session';
+  // Record what was actually charged.
+  const grossAmount = session.amount_total ?? 0;
+
+  const feePercent = await getArtistFeePercent(artist_id);
+  const platformFee = Math.round(grossAmount * (feePercent / 100));
+  const netAmount = grossAmount - platformFee;
+
+  // Flip the pending ticket to paid — THIS is what grants access at the token mint.
+  await supabaseAdmin
+    .from('live_ticket_purchases')
+    .update({
+      status: 'paid',
+      stripe_payment_intent_id: session.payment_intent as string,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('session_id', live_session_id)
+    .eq('buyer_id', buyer_id)
+    .eq('status', 'pending');
+
+  // Write earnings record
+  const { data: earning } = await supabaseAdmin
+    .from('earnings')
+    .insert({
+      artist_id,
+      fan_id: buyer_id,
+      type: 'live_ticket',
+      description: `${fanName} bought a ticket: ${liveTitle}`,
+      gross_amount: grossAmount,
+      platform_fee: platformFee,
+      net_amount: netAmount,
+      stripe_payment_id: session.payment_intent || session.id,
+      metadata: {
+        liveTitle,
+        fanDisplayName: fanName,
+        ...(metadata.referral_code && { referral_code: metadata.referral_code }),
+        ...(metadata.attribution_source && { attribution_source: metadata.attribution_source }),
+      },
+      fan_city: fanCity,
+      fan_state: fanState,
+      fan_country: fanCountry,
+      fan_country_code: fanCountryCode,
+    })
+    .select('id')
+    .single();
+
+  if (artistProfile) {
+    await supabaseAdmin.from('notifications').insert({
+      user_id: artistProfile.user_id,
+      type: 'live_ticket',
+      title: '🎟️ Ticket sold',
+      message: `${fanName} bought a ticket to ${liveTitle}`,
+      link: `/profile/artist?tab=live`,
+    });
+
+    if (earning) {
+      await supabaseAdmin.from('notifications').insert({
+        user_id: artistProfile.user_id,
+        type: 'earning',
+        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
+        message: `${fanName} bought a ticket to ${liveTitle}`,
+        link: `/profile/artist?tab=payouts&earning=${earning?.id}`,
+      });
+    }
+
+    try {
+      await checkAndAwardMilestones(artist_id, artistProfile.user_id);
+    } catch (err) {
+      console.error('Milestone check failed:', err);
+    }
+  }
+
+  console.log('Live ticket recorded:', { live_session_id, buyer_id, artist_id, netAmount });
 }
 
 // ─── Platform (CRWN) tier checkout ───────────────────────────────────────────

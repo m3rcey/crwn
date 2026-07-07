@@ -153,10 +153,15 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { conversationId, artistId, body } = await req.json().catch(() => ({}));
-  const text = typeof body === 'string' ? body.trim() : '';
-  if (!text) return NextResponse.json({ error: 'Empty message' }, { status: 400 });
-  if (text.length > 2000) return NextResponse.json({ error: 'Message too long' }, { status: 400 });
+  const { conversationId, artistId, body, audioUrl, audioDurationMs } = await req.json().catch(() => ({}));
+  const rawText = typeof body === 'string' ? body.trim() : '';
+  // A voice note is a valid message with no typed body — accept it as an audio-only send.
+  const isVoice = typeof audioUrl === 'string' && /^https?:\/\//.test(audioUrl);
+  if (!rawText && !isVoice) return NextResponse.json({ error: 'Empty message' }, { status: 400 });
+  if (rawText.length > 2000) return NextResponse.json({ error: 'Message too long' }, { status: 400 });
+  // Body is NOT NULL in the schema, so voice-only messages carry a label as their body.
+  const text = rawText || (isVoice ? '🎤 Voice message' : '');
+  const audioDuration = isVoice && Number.isFinite(audioDurationMs) ? Math.max(0, Math.round(audioDurationMs)) : null;
 
   const allowed = await checkRateLimit(user.id, 'direct-message', 60, 20);
   if (!allowed) return NextResponse.json({ error: 'Slow down' }, { status: 429 });
@@ -235,13 +240,15 @@ export async function POST(req: NextRequest) {
       sender_id: user.id,
       sender_is_artist: senderIsArtist,
       body: text,
+      audio_url: isVoice ? audioUrl : null,
+      audio_duration_ms: audioDuration,
     })
-    .select('id, conversation_id, sender_id, sender_is_artist, body, is_deleted, created_at')
+    .select('id, conversation_id, sender_id, sender_is_artist, body, audio_url, audio_duration_ms, is_deleted, created_at')
     .single();
   if (msgErr) return NextResponse.json({ error: msgErr.message }, { status: 500 });
 
   // Update conversation: bump the recipient's unread, refresh preview + tier snapshot.
-  const preview = text.length > 120 ? `${text.slice(0, 117)}...` : text;
+  const preview = isVoice ? '🎤 Voice message' : (text.length > 120 ? `${text.slice(0, 117)}...` : text);
   const update: Record<string, any> = {
     last_message_at: message.created_at,
     last_message_preview: preview,

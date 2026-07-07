@@ -18,10 +18,13 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { artistId, body, tierIds } = await req.json().catch(() => ({}));
-  const text = typeof body === 'string' ? body.trim() : '';
-  if (!artistId || !text) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
-  if (text.length > 2000) return NextResponse.json({ error: 'Message too long' }, { status: 400 });
+  const { artistId, body, tierIds, audioUrl, audioDurationMs } = await req.json().catch(() => ({}));
+  const rawText = typeof body === 'string' ? body.trim() : '';
+  const isVoice = typeof audioUrl === 'string' && /^https?:\/\//.test(audioUrl);
+  if (!artistId || (!rawText && !isVoice)) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+  if (rawText.length > 2000) return NextResponse.json({ error: 'Message too long' }, { status: 400 });
+  const text = rawText || (isVoice ? '🎤 Voice message' : '');
+  const audioDuration = isVoice && Number.isFinite(audioDurationMs) ? Math.max(0, Math.round(audioDurationMs)) : null;
 
   // Ownership check.
   const owned = await getOwnedArtistIds(supabaseAdmin, user.id);
@@ -57,7 +60,7 @@ export async function POST(req: NextRequest) {
     return idx < 0 ? { rank: 0, name: null as string | null } : { rank: idx + 1, name: tiers![idx].name };
   };
 
-  const preview = text.length > 120 ? `${text.slice(0, 117)}...` : text;
+  const preview = isVoice ? '🎤 Voice message' : (text.length > 120 ? `${text.slice(0, 117)}...` : text);
   let sent = 0;
 
   for (const sub of subs) {
@@ -91,6 +94,8 @@ export async function POST(req: NextRequest) {
       sender_id: user.id,
       sender_is_artist: true,
       body: text,
+      audio_url: isVoice ? audioUrl : null,
+      audio_duration_ms: audioDuration,
     });
     if (msgErr) continue;
 

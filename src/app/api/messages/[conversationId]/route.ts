@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ conv
 
   const { data: messages } = await supabaseAdmin
     .from('dm_messages')
-    .select('id, conversation_id, sender_id, sender_is_artist, body, is_deleted, created_at')
+    .select('id, conversation_id, sender_id, sender_is_artist, body, audio_url, audio_duration_ms, is_deleted, created_at')
     .eq('conversation_id', conversationId)
     .eq('is_deleted', false)
     .order('created_at', { ascending: true })

@@ -237,7 +237,16 @@ export const BENEFIT_CATALOG: BenefitDefinition[] = [
     description: 'Your name in the credits of new releases',
     icon: '📝',
     category: 'recognition',
-    available: false,
+    available: true,
+    configFields: [
+      {
+        key: 'role_label',
+        label: 'How they\'re credited',
+        type: 'text',
+        maxLength: 40,
+        default: 'Executive Producer',
+      },
+    ],
   },
   {
     type: 'shoutout',
@@ -273,6 +282,10 @@ export function getBenefitDisplayText(type: string, config: Record<string, any> 
       return config.badge_text ? `"${config.badge_text}" community badge` : 'Community badge';
     case 'shop_discount':
       return `${config.discount_percent || 10}% shop discount`;
+    case 'credits_on_releases':
+      return config.role_label
+        ? `Credited as "${config.role_label}" on new releases`
+        : 'Credited on new releases';
     case 'one_on_one_call': {
       const labels: Record<string, string> = { monthly: 'Monthly ', quarterly: 'Quarterly ', one_time: '' };
       return `${labels[config.frequency] ?? ''}1-on-1 video call`;

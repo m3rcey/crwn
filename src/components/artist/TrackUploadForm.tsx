@@ -15,7 +15,8 @@ import { BulkUploadForm } from './BulkUploadForm';
 import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
 import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { Edit2, X, Upload, Plus, Loader2, Music } from 'lucide-react';
+import { ReleaseCreditsModal } from './ReleaseCreditsModal';
+import { Edit2, X, Upload, Plus, Loader2, Music, Award } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
 
 interface SubscriptionTier {
@@ -59,6 +60,8 @@ export function TrackUploadForm() {
   const [artistProfileId, setArtistProfileId] = useState<string | null>(null);
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [editingTrack, setEditingTrack] = useState<Track | null>(null);
+  // Track whose fan-credits modal is open (feature: credits on releases).
+  const [creditsTrack, setCreditsTrack] = useState<Track | null>(null);
   const [uploadMode, setUploadMode] = useState<'single' | 'bulk'>('single');
 
   const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
@@ -1016,6 +1019,13 @@ export function TrackUploadForm() {
                 >
                   <Edit2 size={16} />
                 </button>
+                <button
+                  onClick={() => setCreditsTrack(track)}
+                  className="p-2 text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+                  title="Credit fans on this release"
+                >
+                  <Award size={16} />
+                </button>
                 <AddToPlaylistMenu track={track} />
               </div>
             )}
@@ -1033,6 +1043,16 @@ export function TrackUploadForm() {
           <p className="text-crwn-text font-medium mb-1">No tracks yet</p>
           <p className="text-crwn-text-secondary text-sm">Use the form above to upload your first track</p>
         </div>
+      )}
+
+      {/* Release credits modal */}
+      {creditsTrack && (
+        <ReleaseCreditsModal
+          releaseType="track"
+          releaseId={creditsTrack.id}
+          releaseTitle={creditsTrack.title}
+          onClose={() => setCreditsTrack(null)}
+        />
       )}
 
       {/* Quick Create Album Modal */}

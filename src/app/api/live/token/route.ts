@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   // Load session (admin client bypasses RLS for the gate logic).
   const { data: session } = await supabaseAdmin
     .from('live_sessions')
-    .select('id, artist_id, status, is_free, allowed_tier_ids, max_slots, room_name, is_active')
+    .select('id, artist_id, status, is_free, allowed_tier_ids, price, max_slots, room_name, is_active')
     .eq('id', sessionId)
     .maybeSingle();
 
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ token, url: LIVEKIT_URL, role: 'broadcaster' });
   }
 
-  // --- Viewer branch: tier gate ---
+  // --- Viewer branch: access = allowed tier OR a paid pre-sale ticket ---
   if (!session.is_free) {
     const { data: sub } = await supabaseAdmin
       .from('subscriptions')
@@ -84,7 +84,22 @@ export async function POST(req: NextRequest) {
 
     const allowed: string[] = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
     const tierId = sub?.tier_id || null;
-    if (!tierId || !allowed.includes(tierId)) {
+    const hasTierAccess = !!tierId && allowed.includes(tierId);
+
+    // "Ticket = access": a paid ticket lets a fan in even without the tier.
+    let hasTicket = false;
+    if (!hasTierAccess && session.price && session.price > 0) {
+      const { data: ticket } = await supabaseAdmin
+        .from('live_ticket_purchases')
+        .select('id')
+        .eq('session_id', session.id)
+        .eq('buyer_id', user.id)
+        .eq('status', 'paid')
+        .maybeSingle();
+      hasTicket = !!ticket;
+    }
+
+    if (!hasTierAccess && !hasTicket) {
       return NextResponse.json(
         { error: 'locked', reason: 'Your tier does not have access to this session' },
         { status: 403 }

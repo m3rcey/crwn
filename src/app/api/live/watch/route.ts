@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
   const { data: session } = await supabaseAdmin
     .from('live_sessions')
-    .select('id, artist_id, source_type, visibility, is_free, allowed_tier_ids, vod_status, vod_key, is_active')
+    .select('id, artist_id, source_type, visibility, is_free, allowed_tier_ids, price, vod_status, vod_key, is_active')
     .eq('id', sessionId)
     .maybeSingle();
 
@@ -66,7 +66,22 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
       const allowed: string[] = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
       const tierId = sub?.tier_id || null;
-      if (!tierId || !allowed.includes(tierId)) {
+      const hasTierAccess = !!tierId && allowed.includes(tierId);
+
+      // A paid pre-sale ticket keeps replay access to the recording too.
+      let hasTicket = false;
+      if (!hasTierAccess && session.price && session.price > 0) {
+        const { data: ticket } = await supabaseAdmin
+          .from('live_ticket_purchases')
+          .select('id')
+          .eq('session_id', session.id)
+          .eq('buyer_id', user.id)
+          .eq('status', 'paid')
+          .maybeSingle();
+        hasTicket = !!ticket;
+      }
+
+      if (!hasTierAccess && !hasTicket) {
         return NextResponse.json(
           { error: 'locked', reason: 'Your tier does not have access to this video' },
           { status: 403 }

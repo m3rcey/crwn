@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Send, Loader2, ArrowLeft, BellOff, Bell, Crown } from 'lucide-react';
+import { VoiceRecorderButton } from './VoiceRecorderButton';
 
 interface DMMessage {
   id: string;
@@ -10,6 +11,8 @@ interface DMMessage {
   sender_id: string;
   sender_is_artist: boolean;
   body: string;
+  audio_url?: string | null;
+  audio_duration_ms?: number | null;
   is_deleted: boolean;
   created_at: string;
 }
@@ -85,18 +88,16 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages]);
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text || sending) return;
+  // Shared sender for both text and voice. `extra` carries audioUrl/audioDurationMs
+  // for a voice note (no typed body needed).
+  const postMessage = async (extra: Record<string, unknown>) => {
     setSending(true);
     try {
-      const payload = conversationId
-        ? { conversationId, body: text }
-        : { artistId: pendingArtist?.id, body: text };
+      const target = conversationId ? { conversationId } : { artistId: pendingArtist?.id };
       const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...target, ...extra }),
       });
       if (res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -114,6 +115,17 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
     } finally {
       setSending(false);
     }
+  };
+
+  const send = async () => {
+    const text = input.trim();
+    if (!text || sending) return;
+    await postMessage({ body: text });
+  };
+
+  const sendVoice = async (audioUrl: string, durationMs: number) => {
+    if (sending) return;
+    await postMessage({ audioUrl, audioDurationMs: durationMs });
   };
 
   const toggleMute = async () => {
@@ -171,7 +183,19 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
               <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm break-words ${
                 mine ? 'bg-crwn-gold text-black rounded-br-sm' : 'bg-crwn-elevated text-crwn-text rounded-bl-sm'
               }`}>
-                {m.body}
+                {m.audio_url ? (
+                  <span className="flex flex-col gap-1">
+                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                    <audio controls src={m.audio_url} className="max-w-[220px]" />
+                    {m.audio_duration_ms ? (
+                      <span className={`text-[10px] ${mine ? 'text-black/60' : 'text-crwn-text-secondary'}`}>
+                        🎤 {Math.round(m.audio_duration_ms / 1000)}s
+                      </span>
+                    ) : null}
+                  </span>
+                ) : (
+                  m.body
+                )}
               </div>
             </div>
           );
@@ -189,14 +213,19 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
           placeholder="Type a message..."
           className="neu-inset flex-1 px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none text-sm rounded-xl"
         />
-        <button
-          onClick={send}
-          disabled={!input.trim() || sending}
-          className="neu-button-accent p-2 rounded-xl disabled:opacity-50"
-          aria-label="Send"
-        >
-          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-        </button>
+        {/* Voice note: shown when there's nothing typed; sending swaps to text send. */}
+        {input.trim() ? (
+          <button
+            onClick={send}
+            disabled={sending}
+            className="neu-button-accent p-2 rounded-xl disabled:opacity-50"
+            aria-label="Send"
+          >
+            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          </button>
+        ) : (
+          <VoiceRecorderButton onRecorded={sendVoice} disabled={sending} />
+        )}
       </div>
     </div>
   );
