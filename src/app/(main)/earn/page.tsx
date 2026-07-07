@@ -182,9 +182,24 @@ export default function EarnPage() {
           </button>
         </div>
       </div>
-      <p className="text-sm text-crwn-text-secondary mb-6">
+      <p className="text-sm text-crwn-text-secondary mb-3">
         Everything you&apos;ve earned sharing artists on CRWN, in one place.
       </p>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        <button
+          onClick={() => router.push('/my-bounties')}
+          className="text-xs font-medium px-3 py-1.5 rounded-full border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-gold hover:border-crwn-gold/40 transition-colors"
+        >
+          🏆 Clip Bounties
+        </button>
+        <button
+          onClick={() => router.push('/my-squads')}
+          className="text-xs font-medium px-3 py-1.5 rounded-full border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-gold hover:border-crwn-gold/40 transition-colors"
+        >
+          🤝 My Squads
+        </button>
+      </div>
 
       {!data || !hasEarnings ? (
         /* Empty state */

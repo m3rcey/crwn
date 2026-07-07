@@ -11,13 +11,20 @@ interface StudioCard {
   href: string;
   title: string;
   /** Gold-toned product photo in /public, matching the Home Quick Actions tiles. */
-  image: string;
+  image?: string;
+  /** Emoji tile fallback for newer tools that don't have a product photo yet. */
+  emoji?: string;
 }
 
 const STUDIO_CARDS: StudioCard[] = [
+  { href: '/playbooks',            title: 'AI Playbooks',       emoji: '🧭' },
   { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
   { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg' },
   { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg' },
+  { href: '/squads',               title: 'Fan Squads',         emoji: '🤝' },
+  { href: '/bounties',             title: 'Clip Bounties',      emoji: '🏆' },
+  { href: '/city-unlocks',         title: 'City Unlocks',       emoji: '📍' },
+  { href: '/profile/artist?tab=audience', title: 'Fan CRM',     emoji: '📇' },
   { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg' },
   { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg' },
   { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg' },
@@ -103,14 +110,18 @@ export default function StudioPage() {
             onClick={() => router.push(card.href)}
             className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
           >
-            <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
-              <Image
-                src={card.image}
-                alt={card.title}
-                fill
-                className="object-cover opacity-0 transition-opacity duration-500"
-                onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
-              />
+            <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated flex items-center justify-center">
+              {card.image ? (
+                <Image
+                  src={card.image}
+                  alt={card.title}
+                  fill
+                  className="object-cover opacity-0 transition-opacity duration-500"
+                  onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
+                />
+              ) : (
+                <span className="text-5xl">{card.emoji}</span>
+              )}
             </div>
             <p className="font-medium text-crwn-text text-sm mt-2 text-center">{card.title}</p>
           </button>
