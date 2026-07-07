@@ -56,11 +56,32 @@ export default function PlaybookRunPage() {
     } catch (e: any) { showToast(e.message || 'Failed', 'error'); } finally { setBusy(null); }
   };
 
+  // Approve + create every pending BUILD step in one tap (drafts stay manual).
+  const approveAllBuilds = async () => {
+    const pendingBuilds = steps.filter(s => s.status === 'pending' && s.step_type.startsWith('create_'));
+    if (pendingBuilds.length === 0) return;
+    setBusy('__all__');
+    let lastSteps = steps;
+    try {
+      for (const s of pendingBuilds) {
+        const res = await fetch(`/api/playbooks/runs/${runId}/steps`, {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stepId: s.id, action: 'approve' }),
+        });
+        const json = await res.json();
+        if (res.ok) lastSteps = json.steps || lastSteps;
+        else showToast(json.error || `Failed: ${s.title}`, 'error');
+      }
+      setSteps(lastSteps);
+      showToast('Build steps created', 'success');
+    } finally { setBusy(null); }
+  };
+
   if (loading || authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-crwn-gold" /></div>;
   if (!run) return null;
 
   const done = steps.filter(s => ['executed', 'approved', 'skipped'].includes(s.status)).length;
   const pct = steps.length > 0 ? Math.round((done / steps.length) * 100) : 0;
+  const pendingBuilds = steps.filter(s => s.status === 'pending' && s.step_type.startsWith('create_')).length;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
@@ -73,9 +94,19 @@ export default function PlaybookRunPage() {
         <div className="h-full bg-crwn-gold rounded-full transition-all" style={{ width: `${pct}%` }} />
       </div>
 
-      <p className="text-xs text-crwn-text-secondary bg-crwn-card rounded-xl px-4 py-3 border border-crwn-elevated mb-5">
-        Nothing is created or sent until you approve it. Approving a build step creates the real thing; message and post steps are drafts you send yourself.
+      <p className="text-xs text-crwn-text-secondary bg-crwn-card rounded-xl px-4 py-3 border border-crwn-elevated mb-4">
+        Approve <span className="text-crwn-text font-medium">each step</span> below — nothing is created or sent until you do. Build steps (squad, mission, bounty, city unlock) create the real thing; message and post steps are drafts you send yourself.
       </p>
+
+      {pendingBuilds > 0 && (
+        <button
+          onClick={approveAllBuilds}
+          disabled={busy === '__all__'}
+          className="w-full mb-5 py-3 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold disabled:opacity-50"
+        >
+          {busy === '__all__' ? 'Creating…' : `Approve & create all ${pendingBuilds} build step${pendingBuilds !== 1 ? 's' : ''}`}
+        </button>
+      )}
 
       <div className="space-y-3">
         {steps.map(s => {

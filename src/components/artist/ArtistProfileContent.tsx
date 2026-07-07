@@ -21,6 +21,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { EarnWithArtist } from '@/components/artist/EarnWithArtist';
 import { MovementStats } from '@/components/artist/MovementStats';
+import { ArtistCityUnlocks } from '@/components/artist/ArtistCityUnlocks';
+import { ArtistBounties } from '@/components/artist/ArtistBounties';
 import type { ClipperRateStep } from '@/lib/clipperRate';
 import { useAuth } from '@/hooks/useAuth';
 import { startTour } from '@/lib/tour';
@@ -171,6 +173,10 @@ export function ArtistProfileContent({
                 artistName={artist.profile?.display_name || 'This artist'}
               />
             )}
+
+            {/* City Unlocks + Clip Bounties — fan-actionable, only render when active. */}
+            <ArtistCityUnlocks artistId={artist.id} />
+            <ArtistBounties artistId={artist.id} />
 
             {/* Proof of Movement — public aggregates only (counts + top city). */}
             <MovementStats artistId={artist.id} />

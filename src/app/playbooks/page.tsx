@@ -71,7 +71,7 @@ export default function PlaybooksPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.push('/profile/artist')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <div><h1 className="text-xl font-bold text-crwn-text">AI Playbooks</h1><p className="text-xs text-crwn-text-secondary">Proven campaigns, generated for you. You approve every step.</p></div>
       </div>
 

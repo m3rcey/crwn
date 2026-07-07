@@ -61,7 +61,7 @@ export default function CityUnlocksPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.push('/profile/artist')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">City Unlocks</h1><p className="text-xs text-crwn-text-secondary">Unlock local experiences with proven demand.</p></div>
         <button onClick={() => router.push('/city-unlocks/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm"><Plus className="w-4 h-4" /> New</button>
       </div>
