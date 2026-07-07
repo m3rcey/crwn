@@ -60,6 +60,14 @@ interface GoalDef {
   benefits: string[];
   productTitle: string;
   productType: Exclude<ProductType, 'experience' | 'bundle'>;
+  // One-time only: whether to ask the digital/physical delivery kind. Funding /
+  // backer-pack goals skip it — "digital download vs physical merch" doesn't fit them
+  // (the type is preset and delivery is refined later in the Shop tab).
+  askKind?: boolean;
+  // Optional per-goal copy so each goal's steps read coherently for that goal.
+  priceHint?: string;
+  detailsTitle?: string;
+  detailsHint?: string;
 }
 
 const GOALS: GoalDef[] = [
@@ -77,13 +85,17 @@ const GOALS: GoalDef[] = [
   {
     id: 'fund-video',
     label: 'Fund a Video',
-    hint: 'A one-time backer pack that pays for the shoot',
+    hint: 'A one-time backer pack fans buy to help fund the shoot',
     offerType: 'onetime',
     price: '25',
     tierName: 'Inner Circle',
     benefits: [],
     productTitle: 'Music Video Backer Pack',
     productType: 'digital',
+    askKind: false,
+    priceHint: 'What each backer pays to help fund it.',
+    detailsTitle: 'Name your backer pack',
+    detailsHint: 'Fans buy this once to support the video. Add perks and delivery details later in the Shop tab.',
   },
   {
     id: 'vault-access',
@@ -106,6 +118,10 @@ const GOALS: GoalDef[] = [
     benefits: [],
     productTitle: 'Exclusive Drop',
     productType: 'digital',
+    askKind: true,
+    priceHint: 'What fans pay to unlock it.',
+    detailsTitle: 'Name the drop and pick the kind',
+    detailsHint: 'The exclusive thing fans get when they buy.',
   },
   {
     id: 'reward-day-ones',
@@ -117,6 +133,10 @@ const GOALS: GoalDef[] = [
     benefits: [],
     productTitle: 'Day One Backer Pack',
     productType: 'digital',
+    askKind: true,
+    priceHint: 'What the pack costs.',
+    detailsTitle: 'Name the pack and pick the kind',
+    detailsHint: 'A one-time reward for your earliest fans.',
   },
 ];
 
@@ -143,19 +163,26 @@ const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && 
 const INPUT =
   'w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-4 text-lg text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold';
 
-function stepList(offerType: OfferType): StepDef[] {
+function stepList(offerType: OfferType, goal: GoalDef | null): StepDef[] {
   // The goal (screen 1) already determines the offer type, so we don't re-ask it.
   const steps: StepDef[] = [
     { key: 'goal', title: 'What do you want to create?', subtitle: 'Pick one — this sets up the right kind of offer with smart defaults you can change next.', icon: Target },
     {
       key: 'price',
       title: offerType === 'subscription' ? 'Set the monthly price' : 'Set the price',
-      subtitle: offerType === 'subscription' ? 'What fans pay each month.' : 'What fans pay, once.',
+      subtitle: offerType === 'subscription' ? 'What fans pay each month.' : (goal?.priceHint ?? 'What fans pay, once.'),
       icon: CreditCard,
     },
     offerType === 'subscription'
       ? { key: 'tier-details' as const, title: 'Name it and load the perks', subtitle: 'The tier name fans join, and what they get. Edit anytime later.', icon: Sparkles }
-      : { key: 'product-details' as const, title: 'Name it and pick the kind', subtitle: 'What fans see in your shop.', icon: Package },
+      : {
+          key: 'product-details' as const,
+          // Goal-aware: funding/backer goals skip the delivery "kind" question, so the
+          // title doesn't promise a choice the screen won't show.
+          title: goal?.detailsTitle ?? (goal?.askKind ? 'Name it and pick the kind' : 'Name your offer'),
+          subtitle: goal?.detailsHint ?? 'What fans buy from you, once.',
+          icon: Package,
+        },
   ];
 
   // Share-to-Earn / Clip-to-Earn pay commission on SUBSCRIPTIONS only, so promotion
@@ -245,7 +272,8 @@ function OfferBuilder() {
     return <DoneScreen offerType={offerType} onOffers={() => router.push('/offers')} onDashboard={() => router.push('/profile/artist')} />;
   }
 
-  const steps = stepList(offerType);
+  const selectedGoal = GOALS.find((g) => g.id === goalId) ?? null;
+  const steps = stepList(offerType, selectedGoal);
   const current = steps[stepIndex];
   const isLast = stepIndex >= steps.length - 1;
   const progressPct = Math.round((stepIndex / steps.length) * 100);
@@ -515,21 +543,29 @@ function OfferBuilder() {
                 value={productTitle}
                 onChange={(e) => setProductTitle(e.target.value)}
               />
-              <div className="grid gap-3">
-                {PRODUCT_TYPES.map((t) => (
-                  <button
-                    key={t.value}
-                    type="button"
-                    onClick={() => setProductType(t.value)}
-                    className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                      productType === t.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                    }`}
-                  >
-                    <p className="font-medium text-crwn-text">{t.label}</p>
-                    <p className="text-xs text-crwn-text-secondary mt-0.5">{t.hint}</p>
-                  </button>
-                ))}
-              </div>
+              {/* The digital/physical delivery kind only shows for goals where it
+                  actually applies (e.g. a drop or a merch pack) — funding/backer
+                  goals skip it (type is preset, delivery is set later in the Shop tab). */}
+              {selectedGoal?.askKind && (
+                <div>
+                  <label className="block text-sm font-medium text-crwn-text mb-2">What kind is it?</label>
+                  <div className="grid gap-3">
+                    {PRODUCT_TYPES.map((t) => (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => setProductType(t.value)}
+                        className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                          productType === t.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                        }`}
+                      >
+                        <p className="font-medium text-crwn-text">{t.label}</p>
+                        <p className="text-xs text-crwn-text-secondary mt-0.5">{t.hint}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -629,9 +665,9 @@ function OfferBuilder() {
                 />
                 {offerType === 'subscription' ? (
                   <ReviewRow label="Benefits" value={benefits.length > 0 ? benefits.join(' · ') : 'None yet'} />
-                ) : (
+                ) : selectedGoal?.askKind ? (
                   <ReviewRow label="Kind" value={productType === 'digital' ? 'Digital download' : 'Physical / merch'} />
-                )}
+                ) : null}
                 {offerType === 'subscription' && (
                   <>
                     <ReviewRow
