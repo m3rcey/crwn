@@ -16,6 +16,7 @@ import { insertHeldReferralEarning } from '@/lib/attribution';
 import { recordDiscountCodeUse } from '@/lib/discountCodes';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
 import { getArtistFeePercent } from '@/lib/platformTier';
+import { maybeCreateVipWelcomeTask } from '@/lib/promiseTasks';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,6 +186,22 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         await recordActivationMilestone(artist_id, 'first_subscriber');
       } catch (err) {
         console.error('Activation milestone failed:', err);
+      }
+
+      // Promise Calendar: high-ticket (VIP) supporters get a 48h personal-welcome
+      // task on the artist's Promise Calendar. Best-effort — never blocks checkout.
+      try {
+        await maybeCreateVipWelcomeTask(supabaseAdmin, {
+          artistId: artist_id,
+          artistUserId: artistProfile.user_id,
+          tierId: tier_id,
+          tierName,
+          fanId: fan_id,
+          fanName,
+          tierPriceCents: grossAmount,
+        });
+      } catch (err) {
+        console.error('VIP welcome task creation failed:', err);
       }
 
       // Send subscription confirmation + receipt email to fan

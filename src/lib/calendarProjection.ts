@@ -222,6 +222,45 @@ export async function getFanCalendar(
     });
   }
 
+  // Promised benefits the fan is eligible for. fulfillment_events are the artist's
+  // private task list, but the ones flagged auto_create_fan_items and whose
+  // obligation audience matches this fan's tier are things the fan GETS — surface
+  // them as "what's coming". Only future/pending (gte now) so a fan never sees an
+  // artist's overdue/missed promise.
+  const { data: fEvents } = await supabase
+    .from('fulfillment_events')
+    .select('id, title, due_at, obligation_id, artist_id')
+    .in('artist_id', artistIds)
+    .eq('status', 'pending')
+    .gte('due_at', nowIso)
+    .order('due_at', { ascending: true })
+    .limit(100);
+  const obIds = [...new Set((fEvents || []).map((e) => e.obligation_id))];
+  const { data: obs } = obIds.length
+    ? await supabase
+        .from('fulfillment_obligations')
+        .select('id, artist_id, audience_kind, audience_id, auto_create_fan_items, status')
+        .in('id', obIds)
+    : { data: [] as any[] };
+  const obById = new Map((obs || []).map((o: any) => [o.id, o]));
+  for (const e of fEvents || []) {
+    const ob = obById.get(e.obligation_id);
+    if (!ob || ob.status !== 'active' || !ob.auto_create_fan_items) continue;
+    if (!fanEligibleForObligation(ob, tierByArtist.get(e.artist_id) ?? null)) continue;
+    items.push({
+      id: `fulfillment_event:${e.id}`,
+      sourceType: 'fulfillment_event',
+      sourceId: e.id,
+      type: 'promise',
+      title: e.title,
+      subtitle: label(e.artist_id),
+      dueAt: e.due_at,
+      status: statusForDue(e.due_at),
+      cta: 'Notify me',
+      href: hrefFor(nameByArtist, e.artist_id),
+    });
+  }
+
   // Fan's own subscription renewals.
   for (const s of activeSubs) {
     if (!s.current_period_end) continue;
@@ -326,6 +365,20 @@ function fanItem(
     href: extra.href,
     reward: extra.reward,
   };
+}
+
+/** Is the fan eligible for a promised benefit, given the obligation's audience? */
+function fanEligibleForObligation(ob: any, fanTierId: string | null): boolean {
+  switch (ob.audience_kind) {
+    case 'all_supporters':
+      return true; // any active subscriber
+    case 'tier':
+      return !!ob.audience_id && ob.audience_id === fanTierId;
+    // squad / campaign audiences are not yet resolved here — hide rather than
+    // risk over-exposing an item to an ineligible fan.
+    default:
+      return false;
+  }
 }
 
 /** live_sessions: free OR no gating list OR the fan's tier is in allowed_tier_ids. */
