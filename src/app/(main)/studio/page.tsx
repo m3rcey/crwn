@@ -17,6 +17,7 @@ interface StudioCard {
 }
 
 const STUDIO_CARDS: StudioCard[] = [
+  { href: '/campaigns',            title: 'Road To',            image: '/studio_campaigns.jpg' },
   { href: '/playbooks',            title: 'AI Playbooks',       image: '/studio_playbooks.jpg' },
   { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
   { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg' },

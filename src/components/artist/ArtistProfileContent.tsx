@@ -23,6 +23,7 @@ import { EarnWithArtist } from '@/components/artist/EarnWithArtist';
 import { MovementStats } from '@/components/artist/MovementStats';
 import { ArtistCityUnlocks } from '@/components/artist/ArtistCityUnlocks';
 import { ArtistBounties } from '@/components/artist/ArtistBounties';
+import { ArtistRoadCampaign } from '@/components/artist/ArtistRoadCampaign';
 import type { ClipperRateStep } from '@/lib/clipperRate';
 import { useAuth } from '@/hooks/useAuth';
 import { startTour } from '@/lib/tour';
@@ -150,6 +151,14 @@ export function ArtistProfileContent({
       <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 stagger-fade-in">
         {activeTab === 'movement' && (
           <div className="space-y-6" data-tour="artist-page-movement">
+            {/* Current Mission — the active Road-To campaign hero (renders if one exists). */}
+            <ArtistRoadCampaign
+              artistId={artist.id}
+              artistSlug={artist.slug}
+              artistName={artist.profile?.display_name || 'This artist'}
+              onSupportMoney={() => setActiveTab('tiers')}
+            />
+
             {/* The artist's live promotion — fans see the earn card; the owner
                 sees a preview (or a set-up prompt when nothing is running). */}
             <EarnWithArtist
