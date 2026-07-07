@@ -6,6 +6,7 @@
 // as `fan`) and loads the rest from /api/crm/fan. Mobile: full-screen sheet.
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { AudienceFan } from '@/types';
 import { useToast } from '@/components/shared/Toast';
 import {
@@ -50,6 +51,7 @@ const scoreColor = (score: number, invert = false) => {
 
 export function FanDetailDrawer({ fan, isOpen, onClose }: FanDetailDrawerProps) {
   const { showToast } = useToast();
+  const router = useRouter();
   const [bundle, setBundle] = useState<FanDetailBundle | null>(null);
   const [loading, setLoading] = useState(false);
   const [noteText, setNoteText] = useState('');
@@ -213,7 +215,7 @@ export function FanDetailDrawer({ fan, isOpen, onClose }: FanDetailDrawerProps) 
             <h4 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2">Actions</h4>
             <div className="grid grid-cols-2 gap-2">
               <ActionBtn icon={<MessageSquare className="w-4 h-4" />} label="Message" busy={busyAction === 'message'}
-                onClick={() => runAction('message', {}, 'Logged — opening messages').then(() => { window.location.href = '/messages'; })} />
+                onClick={() => runAction('message', {}, 'Logged — opening messages').then(() => router.push('/messages'))} />
               <ActionBtn icon={<Heart className="w-4 h-4" />} label="Thank" busy={busyAction === 'thank'}
                 onClick={() => runAction('thank', {}, `Thanked ${fan.display_name}`)} />
               {!isLead && (
