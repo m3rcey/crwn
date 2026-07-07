@@ -76,9 +76,13 @@ export default function SquadDetailPage() {
     const t = setTimeout(async () => {
       setSearching(true);
       try {
-        const res = await fetch(`/api/audience?artistId=${artistId}&search=${encodeURIComponent(searchQ)}&limit=8`);
+        const res = await fetch(`/api/audience?artistId=${artistId}&search=${encodeURIComponent(searchQ)}&limit=12`);
         const json = await res.json();
-        setSearchResults((json.fans || []).map((f: any) => ({ fan_id: f.fan_id, display_name: f.display_name, email: f.email, avatar_url: f.avatar_url })));
+        // Leads (imported contacts) have no profiles row and can't be squad members — exclude them.
+        setSearchResults((json.fans || [])
+          .filter((f: any) => f.lifecycle !== 'lead')
+          .slice(0, 8)
+          .map((f: any) => ({ fan_id: f.fan_id, display_name: f.display_name, email: f.email, avatar_url: f.avatar_url })));
       } catch { /* silent */ } finally { setSearching(false); }
     }, 300);
     return () => clearTimeout(t);
