@@ -6,6 +6,9 @@ import { ArrowLeft, Plus, Users, ChevronRight, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { SQUAD_TYPE_MAP, type SquadType } from '@/lib/squads';
+import { usePageTour } from '@/hooks/usePageTour';
+import { squadsTourSteps } from '@/lib/squadsTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface SquadRow {
   id: string;
@@ -52,6 +55,13 @@ export default function SquadsPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  const { replay } = usePageTour({
+    tourId: 'squads',
+    steps: squadsTourSteps,
+    userId: user?.id,
+    enabled: !authLoading && !loading && isArtist,
+  });
+
   if (loading || authLoading) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-crwn-gold" /></div>;
   }
@@ -69,7 +79,7 @@ export default function SquadsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-6" data-tour="squads-header">
         <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text">
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -77,7 +87,8 @@ export default function SquadsPage() {
           <h1 className="text-xl font-bold text-crwn-text">Fan Squads</h1>
           <p className="text-xs text-crwn-text-secondary">Organize your fans into role-based teams.</p>
         </div>
-        <button onClick={() => router.push('/squads/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm">
+        <TourReplayButton onClick={replay} />
+        <button data-tour="squads-new" onClick={() => router.push('/squads/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm">
           <Plus className="w-4 h-4" /> New
         </button>
       </div>

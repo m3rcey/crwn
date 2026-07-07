@@ -7,6 +7,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import type { PlaybookDef } from '@/lib/playbooks';
+import { usePageTour } from '@/hooks/usePageTour';
+import { playbooksTourSteps } from '@/lib/playbooksTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface Rec { id: string; reason: string; playbook: PlaybookDef; }
 interface Run { id: string; playbook_id: string; playbook_name: string; status: string; }
@@ -44,6 +47,8 @@ export default function PlaybooksPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  const { replay } = usePageTour({ tourId: 'playbooks', steps: playbooksTourSteps, userId: user?.id, enabled: !authLoading && !loading && isArtist });
+
   const start = async (playbookId: string) => {
     setStarting(playbookId);
     try {
@@ -70,9 +75,10 @@ export default function PlaybooksPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-6" data-tour="playbooks-header">
         <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
-        <div><h1 className="text-xl font-bold text-crwn-text">AI Playbooks</h1><p className="text-xs text-crwn-text-secondary">Proven campaigns, generated for you. You approve every step.</p></div>
+        <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">AI Playbooks</h1><p className="text-xs text-crwn-text-secondary">Proven campaigns, generated for you. You approve every step.</p></div>
+        <TourReplayButton onClick={replay} />
       </div>
 
       {/* Active runs */}
@@ -107,7 +113,7 @@ export default function PlaybooksPage() {
       )}
 
       {/* Catalog */}
-      <h2 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2">All playbooks</h2>
+      <h2 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2" data-tour="playbooks-catalog">All playbooks</h2>
       <div className="space-y-2">
         {playbooks.map(p => (
           <div key={p.id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-4">

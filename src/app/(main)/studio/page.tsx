@@ -17,14 +17,14 @@ interface StudioCard {
 }
 
 const STUDIO_CARDS: StudioCard[] = [
-  { href: '/playbooks',            title: 'AI Playbooks',       emoji: '🧭' },
+  { href: '/playbooks',            title: 'AI Playbooks',       image: '/studio_playbooks.jpg' },
   { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
   { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg' },
   { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg' },
-  { href: '/squads',               title: 'Fan Squads',         emoji: '🤝' },
-  { href: '/bounties',             title: 'Clip Bounties',      emoji: '🏆' },
-  { href: '/city-unlocks',         title: 'City Unlocks',       emoji: '📍' },
-  { href: '/profile/artist?tab=audience', title: 'Fan CRM',     emoji: '📇' },
+  { href: '/squads',               title: 'Fan Squads',         image: '/studio_squads.jpg' },
+  { href: '/bounties',             title: 'Clip Bounties',      image: '/studio_bounties.jpg' },
+  { href: '/city-unlocks',         title: 'City Unlocks',       image: '/studio_cityunlocks.jpg' },
+  { href: '/profile/artist?tab=audience', title: 'Fan CRM',     image: '/studio_crm.jpg' },
   { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg' },
   { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg' },
   { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg' },

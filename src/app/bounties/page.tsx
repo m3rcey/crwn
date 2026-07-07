@@ -6,6 +6,9 @@ import { ArrowLeft, Plus, ChevronRight, Loader2, Clock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { BOUNTY_TYPE_MAP, type BountyType } from '@/lib/bounties';
+import { usePageTour } from '@/hooks/usePageTour';
+import { bountiesTourSteps } from '@/lib/bountiesTourSteps';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
 interface BountyRow {
   id: string; title: string; bounty_type: BountyType; status: string; reward_type: string;
@@ -46,6 +49,8 @@ export default function BountiesPage() {
     load();
   }, [authLoading, user, router, load]);
 
+  const { replay } = usePageTour({ tourId: 'bounties', steps: bountiesTourSteps, userId: user?.id, enabled: !authLoading && !loading && isArtist });
+
   if (loading || authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-crwn-gold" /></div>;
   if (!isArtist) {
     return (
@@ -60,10 +65,11 @@ export default function BountiesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-6" data-tour="bounties-header">
         <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">Clip Bounties</h1><p className="text-xs text-crwn-text-secondary">Bonus challenges on top of Clip-to-Earn.</p></div>
-        <button onClick={() => router.push('/bounties/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm"><Plus className="w-4 h-4" /> New</button>
+        <TourReplayButton onClick={replay} />
+        <button data-tour="bounties-new" onClick={() => router.push('/bounties/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm"><Plus className="w-4 h-4" /> New</button>
       </div>
 
       {live.length === 0 ? (
