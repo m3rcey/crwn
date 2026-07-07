@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode, type ComponentType } from 'react';
 import {
-  Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight, ArrowDown,
+  Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight,
   Music, DollarSign, Users, Mail, Zap, Wallet, BarChart3, HelpCircle,
   Disc3, Radio, Video, ShoppingBag, CreditCard, Landmark, Repeat, X, Star,
   MessageCircle, Globe, Scissors,
@@ -197,12 +197,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
   const monthlyLabel = hasNumber ? `${fmtDollars(result.netMrrCents)}/mo` : 'money';
   const annualLabel = hasNumber ? fmtDollars(result.netAnnualCents) : '';
 
-  const scrollToResult = () => {
-    document.getElementById('worth-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  // Assumptions controls (presets + advanced sliders). Lives inside the input card
-  // on /worth; drops below the result on the homepage so the hero stays compact.
+  // Assumptions controls (presets + advanced sliders), shown inside the input card.
   const assumptionsBlock = (
     <>
       <div className="mt-6">
@@ -280,7 +275,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
   ) : null;
 
   const emailCaptureCard = (
-    <div className={`bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 ${homepage ? 'mb-6' : 'mb-14'}`}>
+    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
       {captureState === 'done' ? (
         <div className="flex items-center gap-2 text-crwn-gold justify-center py-2">
           <Check className="w-5 h-5" /> On its way. Check your inbox for the full breakdown.
@@ -341,21 +336,17 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
   return (
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
       {homepage && <HomeNav />}
-      <div className={`max-w-3xl mx-auto px-4 page-fade-in ${homepage ? 'pt-6 pb-12 sm:pt-10 sm:pb-16' : 'py-12 sm:py-16'}`}>
+      <div className="max-w-3xl mx-auto px-4 page-fade-in py-12 sm:py-16">
         {/* Hero */}
-        <div className={`text-center ${homepage ? 'mb-5' : 'mb-8'}`}>
-          {!homepage && (
-            <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-crwn-gold/20 flex items-center justify-center">
-              <Crown className="w-8 h-8 text-crwn-gold" />
-            </div>
-          )}
-          <h1 className={`font-bold mb-3 ${homepage ? 'text-2xl sm:text-4xl' : 'text-3xl sm:text-4xl'}`}>
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-crwn-gold/20 flex items-center justify-center">
+            <Crown className="w-8 h-8 text-crwn-gold" />
+          </div>
+          <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
             How much money are you leaving on the table?
           </h1>
-          <p className={`text-crwn-text-secondary max-w-xl mx-auto text-xl ${homepage ? '' : 'sm:text-2xl'}`}>
-            {homepage
-              ? "Streaming pays pennies. Your superfans would pay you directly. See what you're walking away from every month:"
-              : "Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you're walking away from every month."}
+          <p className="text-crwn-text-secondary max-w-xl mx-auto text-xl sm:text-2xl">
+            {"Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you're walking away from every month."}
           </p>
         </div>
 
@@ -369,22 +360,10 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <p className="text-lg text-crwn-text-secondary/70 mt-3">
             Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.
           </p>
-          {!homepage && assumptionsBlock}
+          {assumptionsBlock}
         </div>
 
-        {/* Homepage: above-the-fold CTA that reveals the number below */}
-        {homepage && (
-          <button
-            onClick={scrollToResult}
-            className="w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors mb-8"
-          >
-            Show me what I&apos;m leaving on the table <ArrowDown className="w-5 h-5" />
-          </button>
-        )}
-
-        {/* Result: the number. On the homepage this is the scroll target and stays
-            compact so the CTA below it shares the viewport; on /worth the stats
-            stay inside. */}
+        {/* Result: the number, with the supporting stats inside (the /worth layout). */}
         <div id="worth-result" className="scroll-mt-20 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8 mb-6 text-center">
           <div className="text-sm uppercase tracking-wide text-crwn-text-secondary mb-2">
             You&apos;re leaving roughly
@@ -392,25 +371,15 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
             {hasNumber ? fmtDollars(result.netMrrCents) : '–'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
           </div>
-          <div className={`text-crwn-text-secondary ${homepage ? 'mb-2' : 'mb-6'}`}>
+          <div className="text-crwn-text-secondary mb-6">
             on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
           </div>
-          {/* Homepage: preset dial sits right under the number so they can flip it
-              and watch the figure move; the advanced sliders live inside it too. */}
-          {homepage && <div className="text-left max-w-md mx-auto">{assumptionsBlock}</div>}
-          {!homepage && statsGrid}
+          {statsGrid}
         </div>
 
         {/* Email capture + primary CTA — right under the reveal so the number and
             the ask share the viewport the moment the visitor jumps here. */}
         {emailCaptureCard}
-
-        {/* Homepage: supporting stats live below the CTA. */}
-        {homepage && hasNumber && (
-          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-14">
-            {statsGrid}
-          </div>
-        )}
 
         {/* Where the number comes from */}
         <section className="mb-14">
