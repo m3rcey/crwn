@@ -26,6 +26,45 @@ interface FanRecord {
   referral_count: number;
   is_subscriber: boolean;
   lifecycle: FanLifecycle;
+  churn_risk_score: number; // 0-100, only meaningful for (ex-)subscribers
+  upgrade_likelihood_score: number; // 0-100, "how ready to spend more / start paying"
+}
+
+// Churn risk: chance an active paying relationship is about to be lost.
+// Leads / never-subscribed fans have nothing to churn from → 0.
+function computeChurnRisk(
+  subscriptionStatus: 'active' | 'canceled' | 'never',
+  lastActive: string,
+): number {
+  if (subscriptionStatus === 'never') return 0;
+  if (subscriptionStatus === 'canceled') return 90;
+  const daysSinceActive = Math.floor((Date.now() - new Date(lastActive).getTime()) / 86400000);
+  if (daysSinceActive >= 30) return 75;
+  if (daysSinceActive >= 14) return 55;
+  if (daysSinceActive >= 7) return 35;
+  return 10;
+}
+
+// Upgrade likelihood: readiness to start paying (free fan) or spend more (subscriber).
+function computeUpgradeLikelihood(
+  subscriptionStatus: 'active' | 'canceled' | 'never',
+  engagementScore: number,
+  totalSpent: number,
+): number {
+  if (subscriptionStatus === 'never') {
+    // High-intent free fan: lots of engagement but hasn't paid yet
+    if (engagementScore >= 50) return 70;
+    if (engagementScore >= 20) return 45;
+    if (engagementScore >= 5) return 25;
+    return 5;
+  }
+  if (subscriptionStatus === 'active') {
+    // Superfan on a modest plan: high engagement relative to spend
+    if (engagementScore >= 100 && totalSpent < 5000) return 65;
+    if (engagementScore >= 50) return 40;
+    return 15;
+  }
+  return 0; // canceled: win-back, not upgrade
 }
 
 function computeLifecycle(
@@ -340,6 +379,10 @@ export async function GET(req: NextRequest) {
       referral_count: refs,
       is_subscriber: data.subscription_status === 'active',
       lifecycle,
+      churn_risk_score: computeChurnRisk(data.subscription_status, last_active),
+      upgrade_likelihood_score: computeUpgradeLikelihood(
+        data.subscription_status, engagement_score, data.total_spent,
+      ),
     };
   });
 
@@ -373,6 +416,8 @@ export async function GET(req: NextRequest) {
         referral_count: 0,
         is_subscriber: false,
         lifecycle: 'lead' as FanLifecycle,
+        churn_risk_score: 0,
+        upgrade_likelihood_score: (c.lead_score || 0) >= 50 ? 60 : (c.lead_score || 0) >= 20 ? 35 : 15,
       });
     });
   }

@@ -407,6 +407,8 @@ export interface AudienceFan {
   referral_count: number;
   is_subscriber: boolean;
   lifecycle: FanLifecycle;
+  churn_risk_score: number;
+  upgrade_likelihood_score: number;
 }
 
 // AI Artist Manager

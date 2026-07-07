@@ -8,6 +8,8 @@ import {
   Bookmark, BookmarkCheck, Trash2, X,
 } from 'lucide-react';
 import { FanImportModal } from '@/components/artist/FanImportModal';
+import { FanDetailDrawer } from '@/components/artist/FanDetailDrawer';
+import { FanCrmSuggestions } from '@/components/artist/FanCrmSuggestions';
 import { useToast } from '@/components/shared/Toast';
 
 interface SavedSegment {
@@ -49,6 +51,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [selectedFan, setSelectedFan] = useState<AudienceFan | null>(null);
 
   // Saved segments
   const [segments, setSegments] = useState<SavedSegment[]>([]);
@@ -212,6 +215,9 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
 
   return (
     <div className="space-y-6">
+      {/* Rule-based next-best-actions (recommendations only; artist acts) */}
+      <FanCrmSuggestions onSegment={(lifecycle) => { setLifecycleFilter(lifecycle); setShowFilters(true); }} />
+
       {/* Header with Segments + Import */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -494,7 +500,11 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
                 data.fans.map(fan => {
                   const eng = engagementLabel(fan.engagement_score);
                   return (
-                    <tr key={fan.fan_id} className="border-b border-crwn-elevated/50 hover:bg-crwn-elevated/30 transition-colors">
+                    <tr
+                      key={fan.fan_id}
+                      onClick={() => setSelectedFan(fan)}
+                      className="border-b border-crwn-elevated/50 hover:bg-crwn-elevated/30 transition-colors cursor-pointer"
+                    >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3 min-w-[200px]">
                           {fan.avatar_url ? (
@@ -586,6 +596,13 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
         isOpen={showImport}
         onClose={() => setShowImport(false)}
         onImported={() => fetchAudience()}
+      />
+
+      {/* Fan detail drawer (Fan Growth CRM) */}
+      <FanDetailDrawer
+        fan={selectedFan}
+        isOpen={!!selectedFan}
+        onClose={() => setSelectedFan(null)}
       />
     </div>
   );
