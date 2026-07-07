@@ -66,7 +66,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ['/home', '/explore', '/community', '/library', '/profile', '/setup', '/offers', '/proof-of-demand', '/missions', '/my-missions', '/earn', '/impact', '/command', '/clip-controls', '/action-plan', '/campaign-hub', '/studio', '/recruit/dashboard', '/admin'];
+  const protectedPaths = ['/home', '/explore', '/community', '/library', '/profile', '/setup', '/offers', '/proof-of-demand', '/missions', '/my-missions', '/earn', '/impact', '/command', '/clip-controls', '/action-plan', '/campaign-hub', '/studio', '/recruit/dashboard', '/admin', '/squads', '/my-squads', '/bounties', '/my-bounties', '/city-unlocks', '/grow'];
   const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   );
@@ -110,6 +110,7 @@ export async function middleware(request: NextRequest) {
     const knownRoutes = ['home', 'explore', 'community', 'library', 'profile', 'login', 'signup',
       'admin', 'recruit', 'onboarding', 'support', 'terms', 'privacy', 'dmca', 'about',
       'welcome', 'setup', 'offers', 'proof-of-demand', 'missions', 'my-missions', 'earn', 'impact', 'command', 'clip-controls', 'action-plan', 'campaign-hub', 'studio', 'verify', 'reset-password', 'forgot-password', 'partner', 'join',
+      'squads', 'my-squads', 'bounties', 'my-bounties', 'city-unlocks', 'city', 'grow',
       'artist', 'artist-agreement', 'founding-artists', 'getting-started', 'embed', 'link', 'worth'];
     const pathname = request.nextUrl.pathname;
     const segments = pathname.split('/').filter(Boolean);
