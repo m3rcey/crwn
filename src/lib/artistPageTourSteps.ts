@@ -11,6 +11,17 @@ export function getArtistPageTourSteps(artistSlug: string): DriveStep[] {
         align: 'center',
       },
     },
+    // Switch to Music tab (the page now lands on Movement by default, so the
+    // music content below only exists after this tab step clicks it active).
+    {
+      element: '[data-tour="fan-tab-music"]',
+      popover: {
+        title: 'Your music tab',
+        description: 'Everything you upload lives here. Let us take a look.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
     {
       element: '[data-tour="artist-page-music"]',
       popover: {

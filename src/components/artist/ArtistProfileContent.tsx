@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Lightbulb } from 'lucide-react';
+import { ArrowRight, Lightbulb } from 'lucide-react';
 import { AlbumsSection } from '@/components/artist/AlbumCard';
 import { ArtistPlaylistsSection } from '@/components/artist/ArtistPlaylistCard';
 import { ShopSection } from '@/components/artist/ShopSection';
@@ -20,9 +20,9 @@ import { hapticLight } from '@/lib/haptics';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { EarnWithArtist } from '@/components/artist/EarnWithArtist';
+import { MovementStats } from '@/components/artist/MovementStats';
 import type { ClipperRateStep } from '@/lib/clipperRate';
 import { useAuth } from '@/hooks/useAuth';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { startTour } from '@/lib/tour';
 import { getArtistPageTourSteps } from '@/lib/artistPageTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
@@ -70,35 +70,13 @@ export function ArtistProfileContent({
   liveSessions = [],
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
-  const supabase = createBrowserSupabaseClient();
   const router = useRouter();
   const searchParams = useSearchParams();
   const returningFromCheckout = searchParams.get('subscription') === 'success' || searchParams.get('subscription') === 'canceled';
-  const [activeTab, setActiveTab] = useState<'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'music');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  // Check if user is subscribed to this artist
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from('subscriptions')
-      .select('id')
-      .eq('fan_id', user.id)
-      .eq('artist_id', artist.id)
-      .eq('status', 'active')
-      .maybeSingle()
-      .then(({ data }) => {
-        setIsSubscribed(!!data);
-      });
-  }, [user, supabase, artist.id]);
-
-  // Default to community tab if subscribed, tiers if not
-  useEffect(() => {
-    if (returningFromCheckout) return;
-    if (isSubscribed) {
-      setActiveTab('music');
-    }
-  }, [isSubscribed, returningFromCheckout]);
+  // Movement is the default landing tab for everyone; returning from checkout
+  // still lands on Tiers. (The old subscribed-check effect existed only to pick
+  // the default tab, so it's gone — Movement is the default regardless.)
+  const [activeTab, setActiveTab] = useState<'movement' | 'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'movement');
 
   // Trigger artist page tour on first visit (only when viewing own page)
   const isOwnPage = isArtistProfile;
@@ -115,6 +93,7 @@ export function ArtistProfileContent({
   }, [isOwnPage, shouldShowArtistPageTour, markArtistPageTourComplete]);
 
   const tabs = [
+    { id: 'movement' as const, label: 'Movement', tourId: 'fan-tab-movement' },
     { id: 'music' as const, label: 'Music', tourId: 'fan-tab-music' },
     ...(liveSessions.length > 0 ? [{ id: 'live' as const, label: 'Live', tourId: 'fan-tab-live' }] : []),
     { id: 'tiers' as const, label: 'Tiers', tourId: 'fan-tab-tiers' },
@@ -127,17 +106,20 @@ export function ArtistProfileContent({
     <>
       {/* Earn With This Artist — surfaces the artist's live promotion (share/clip
           commission + step-down timer) for fans. Hides itself on the owner's own
-          page and when no promotion is active. */}
-      <EarnWithArtist
-        artistSlug={artist.slug}
-        artistName={artist.profile?.display_name || 'this artist'}
-        artistUserId={artist.user_id}
-        platformTier={artist.platform_tier ?? null}
-        referralRate={artist.referral_commission_rate ?? null}
-        clipperStandardRate={artist.clipper_commission_rate || 0}
-        clipperSchedule={artist.clipper_rate_schedule ?? null}
-        clipperCampaignStartedAt={artist.clipper_campaign_started_at ?? null}
-      />
+          page and when no promotion is active. Hidden while the Movement tab is
+          active — the same card renders inside that tab, never twice. */}
+      {activeTab !== 'movement' && (
+        <EarnWithArtist
+          artistSlug={artist.slug}
+          artistName={artist.profile?.display_name || 'this artist'}
+          artistUserId={artist.user_id}
+          platformTier={artist.platform_tier ?? null}
+          referralRate={artist.referral_commission_rate ?? null}
+          clipperStandardRate={artist.clipper_commission_rate || 0}
+          clipperSchedule={artist.clipper_rate_schedule ?? null}
+          clipperCampaignStartedAt={artist.clipper_campaign_started_at ?? null}
+        />
+      )}
 
       {/* Tabs */}
       <div className="px-4 sm:px-6 lg:px-8 mt-6 mb-3 page-fade-in" data-tour="artist-page-tabs">
@@ -164,6 +146,49 @@ export function ArtistProfileContent({
 
       {/* Content */}
       <div key={activeTab} className="px-4 sm:px-6 lg:px-8 pb-8 stagger-fade-in">
+        {activeTab === 'movement' && (
+          <div className="space-y-6" data-tour="artist-page-movement">
+            {/* The artist's live promotion — fans see the earn card; the owner
+                sees a preview (or a set-up prompt when nothing is running). */}
+            <EarnWithArtist
+              artistSlug={artist.slug}
+              artistName={artist.profile?.display_name || 'this artist'}
+              artistUserId={artist.user_id}
+              platformTier={artist.platform_tier ?? null}
+              referralRate={artist.referral_commission_rate ?? null}
+              clipperStandardRate={artist.clipper_commission_rate || 0}
+              clipperSchedule={artist.clipper_rate_schedule ?? null}
+              clipperCampaignStartedAt={artist.clipper_campaign_started_at ?? null}
+              ownerPreview={isOwnPage}
+              embedded
+            />
+
+            {/* Active missions — same fan-facing block as the Community tab. */}
+            {!isArtistProfile && (
+              <ArtistMissions
+                artistId={artist.id}
+                artistSlug={artist.slug}
+                artistName={artist.profile?.display_name || 'This artist'}
+              />
+            )}
+
+            {/* Proof of Movement — public aggregates only (counts + top city). */}
+            <MovementStats artistId={artist.id} />
+
+            {/* Top Supporters — compact top 3; full list lives on the Leaderboard tab. */}
+            <section>
+              <FanLeaderboard artistId={artist.id} limit={3} />
+              <button
+                onClick={() => { hapticLight(); setActiveTab('leaderboard'); }}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-crwn-gold hover:text-crwn-gold/80 transition-colors mt-3"
+              >
+                View full leaderboard
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </section>
+          </div>
+        )}
+
         {activeTab === 'music' && (
           <div data-tour="artist-page-music">
             {/* Albums */}

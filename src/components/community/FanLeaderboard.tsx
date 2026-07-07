@@ -20,9 +20,11 @@ interface LeaderboardEntry {
 
 interface FanLeaderboardProps {
   artistId: string;
+  /** Show only the top N entries (compact mode, e.g. the Movement tab). */
+  limit?: number;
 }
 
-export function FanLeaderboard({ artistId }: FanLeaderboardProps) {
+export function FanLeaderboard({ artistId, limit }: FanLeaderboardProps) {
   const { user } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +83,7 @@ export function FanLeaderboard({ artistId }: FanLeaderboardProps) {
       </div>
 
       <div className="divide-y divide-crwn-elevated">
-        {leaderboard.map(entry => (
+        {(limit ? leaderboard.slice(0, limit) : leaderboard).map(entry => (
           <div
             key={entry.fanId}
             className={`flex items-center gap-3 px-4 py-3 ${
