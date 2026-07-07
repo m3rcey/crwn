@@ -106,10 +106,13 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
     const tierName = tierData?.name || 'Unknown tier';
     const grossAmount = tierData?.price || 0;
 
-    // Calculate fee - use application_fee_percent from session or default to 8%
-    const sessionWithFee = session as unknown as { subscription?: string; application_fee_percent?: number };
-    const feeRate = sessionWithFee.application_fee_percent ? sessionWithFee.application_fee_percent / 100 : 0.08;
-    const platformFee = Math.round(grossAmount * feeRate);
+    // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
+    // session.application_fee_percent does NOT exist on a Checkout Session, so the old
+    // code always fell back to 8% and under-reported the fee for Free-tier (12%)
+    // artists. Match the renewal/purchase handlers, which use getArtistFeePercent.
+    const subStripeId = (session as unknown as { subscription?: string }).subscription;
+    const feePercent = await getArtistFeePercent(artist_id);
+    const platformFee = Math.round(grossAmount * (feePercent / 100));
     const netAmount = grossAmount - platformFee;
 
     // Resolve campaign attribution from UTM params
@@ -134,7 +137,7 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         // subscription_id is groundwork so a future refund resolver can match an
         // initial-subscription earning (keyed by session id) back from a refund's
         // charge.invoice -> invoice.subscription.
-        metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, ...(sessionWithFee.subscription ? { subscription_id: sessionWithFee.subscription } : {}) },
+        metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, ...(subStripeId ? { subscription_id: subStripeId } : {}) },
         fan_city: fanCity,
         fan_state: fanState,
         fan_country: fanCountry,
@@ -1764,6 +1767,40 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
       .select(earningCols)
       .eq('stripe_payment_id', invoiceId)
       .maybeSingle());
+  }
+
+  // Third fallback: INITIAL-subscription earnings are keyed by the checkout session id
+  // (cs_), which no refund charge references. Resolve via the invoice's subscription id,
+  // matched against the subscription_id stored in the initial earning's metadata
+  // (groundwork from commit 27d66a0). Renewals never reach here (they match above) and
+  // don't carry subscription_id in metadata, so this can only hit the initial payment.
+  // The subscription id path moved on newer Stripe API versions, so check both.
+  if (!originalEarning && invoiceId) {
+    try {
+      const inv = await stripe.invoices.retrieve(invoiceId);
+      const invAny = inv as unknown as {
+        subscription?: string | null;
+        parent?: { subscription_details?: { subscription?: string | null } | null } | null;
+      };
+      const subId = invAny.subscription || invAny.parent?.subscription_details?.subscription || null;
+      if (subId) {
+        ({ data: originalEarning } = await supabaseAdmin
+          .from('earnings')
+          .select(earningCols)
+          .eq('type', 'subscription')
+          .eq('metadata->>subscription_id', subId)
+          .not('stripe_payment_id', 'like', '%_refund')
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle());
+        if (originalEarning) {
+          console.log('Refund matched initial sub via subscription_id:', subId, originalEarning.id);
+        }
+      }
+    } catch (err) {
+      // Non-fatal: if the invoice retrieve or match fails we simply don't claw back.
+      console.error('Initial-sub refund resolver failed (non-fatal):', paymentIntentId, err);
+    }
   }
 
   if (!originalEarning) {

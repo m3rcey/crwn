@@ -1,70 +1,73 @@
 # THE DIRECT AUDIT: PLAYBOI CARTI
 
-*Series: "The Direct-to-Consumer Audit." Recurring hook — "How much is [ARTIST] losing by not going direct to his fans? Let's find out." Mirrors the /worth calculator exactly: monthly listeners drive the streaming side, Instagram followers drive the direct/tier side (reach 15% → pay 3% → 70/22/8 across $10/$25/$100 → 8% fee).*
+*Series: "The Direct-to-Consumer Audit." Recurring hook — "How much is [ARTIST] losing by not going direct to his fans? Let's find out." Mirrors the /worth calculator: monthly listeners drive the streaming side ($0.0035/stream on real kworb counts), Instagram followers drive the direct/tier side (reach 15% → pay 3% → 70/22/8 across $10/$25/$100 → 8% fee). Tier perks lifted from the /worth tier cards. No label-cut framing. Verified 2026-07-07.*
 
 **CAPTION:**
 
-Carti Is Losing $13M A Year
+Carti Is Losing $5M A Year
 
-Link in bio to see how much you're losing by not going direct with CRWN. Free to start at thecrwn.app.
+Comment WORTH and I'll send you the free calculator that shows exactly how much you're leaving on the table, plus the setup that gets it back. Free to start at thecrwn.app.
 
 ---
 
 **SCRIPT:**
 
-How much is Playboi Carti losing by not going direct to his fans? Let's find out. 
+How much is Playboi Carti losing by not going direct to his fans? Let's find out.
 
-Carti got 40 million monthly listeners. Sound like a lot. On streaming that's about $12 million a year for his music. But he signed. The label eat first. Carti might see two, three million.
+Carti got 40 million monthly listeners. On streaming that's about $11 million a year for his music.
 
-Now watch the same fans on a page he own. He got 13 million followers. Take less than half a percent. That's 60,000 real fans. Put em on tiers. Ten a month. Twenty five. A hundred.
+Now the same fans, on a page he own. He got 13 million followers. Take less than half a percent. That's 60,000 real fans. Ten dollars, early tracks and your DMs. Twenty five, stems and a live Q&A. A hundred, a one on one call and a custom song.
 
-And before somebody say Carti make millions off tours and brand deals. Facts. But we not counting that. This just his music money. Streaming against direct. The tour money sit on top of both.
+And before somebody bring up his tours and his brand deals. Facts. But we not counting that. This just his music money. Streaming against direct. The tour money sit on top of both.
 
 Them 60,000 fans pay him about $16 million a year. And he keep almost all of it.
 
-So how much Carti losing by renting his fans instead of owning em? Around $13 million. Every year.
+So how much Carti losing by not going direct? About $5 million. Every year.
+
+Wanna know ya own number? Comment WORTH and I'll send you the calculator that shows what you leaving on the table, and the setup to get it back.
 
 ---
 
 **TITLES (suggested is in CAPTION above; alternates below):**
-1. Carti Is Losing $13M A Year -- Structure 6  ← SUGGESTED
+1. Carti Is Losing $5M A Year -- Structure 6  ← SUGGESTED
 2. Carti Streaming Vs Direct Money -- Structure 8
 3. If Carti Went Direct He'd Make 16M -- Structure 3
 4. Showing Carti What Direct Would Pay -- Structure 10
-5. Carti Got Beat By His Own Deal -- Structure 2
+5. Carti Left $5M On The Table -- Structure 4
 
-**TOPIC:** Audit of Playboi Carti's recorded-music money. Streaming (40.6M monthly listeners, ~3B streams/yr) pays his catalog ~$12M/yr gross and the label keeps most. The same fanbase, direct — a sub-half-percent slice of his 13.6M followers on $10/$25/$100 tiers, per the /worth model — pays him ~$16M/yr that he keeps. Not counting tours or brand deals. Net loss from renting his fans: ~$13M/yr.
+**TOPIC:** Audit of Playboi Carti's recorded-music money. Streaming (40.6M monthly listeners, ~3B streams/yr at $0.0035) pays his catalog ~$11M/yr. The same fanbase, direct — a sub-half-percent slice of his 13.6M followers across itemized $10/$25/$100 tiers, per the /worth model — pays him ~$16M/yr that he keeps. Not counting tours or brand deals. Net loss: ~$5M/yr.
 
 ---
 
 **SCRIPT WITH VISUALS:**
 
-**HOOK:** How much is Playboi Carti losing by not going direct to his fans? Let's find out. Stay with me. [at the very top, a simple sharpie portrait of Playboi Carti in the top-right corner. Across the top write "PLAYBOI CARTI" in big bold caps, and under it in smaller letters "GOING DIRECT? LET'S FIND OUT"]
+**HOOK:** How much is Playboi Carti losing by not going direct to his fans? Let's find out. [a simple sharpie portrait of Playboi Carti in the top-right corner. Across the top write "PLAYBOI CARTI" in big bold caps, and under it in smaller letters "GOING DIRECT? LET'S FIND OUT"]
 
-**FORESHADOW:** Carti got 40 million monthly listeners. Sound like a lot. On streaming that's about $12 million a year for his music. [on the left side write "40M LISTENERS", draw a short arrow down to "$12M / YR"] But he signed. The label eat first. Carti might see two, three million. [draw a pie/coin split into a big slice labeled "LABEL" and a small slice labeled "CARTI ~$2-3M"]
+**FORESHADOW:** Carti got 40 million monthly listeners. On streaming that's about $11 million a year for his music. [on the left write "40M LISTENERS" and under it "STREAMING = $11M / YR"]
 
-**RISING ACTION:** Now watch the same fans on a page he own. He got 13 million followers. [on the right side write "13M FOLLOWERS"] Take less than half a percent. That's 60,000 real fans. [under it write "< 0.5% = 60,000 FANS" and underline "60,000"] Put em on tiers. Ten a month. Twenty five. A hundred. [draw a small 4-step ladder with rungs labeled "FREE", "$10", "$25", "$100" climbing up]
+**RISING ACTION:** Now the same fans, on a page he own. He got 13 million followers. Take less than half a percent. That's 60,000 real fans. [on the right write "13M FOLLOWERS" and under it "< 0.5% = 60,000 FANS"] Ten dollars, early tracks and your DMs. Twenty five, stems and a live Q&A. A hundred, a one on one call and a custom song. [draw 4 stacked tier cards down the middle: "FREE — free tracks + community", "$10 — early access + DMs — 43,000 fans", "$25 — stems + live Q&A — 13,000 fans", "$100 — 1-on-1 + custom song — 5,000 fans"]
 
-**TWIST:** And before somebody say Carti make millions off tours and brand deals. Facts. But we not counting that. This just his music money. Streaming against direct. The tour money sit on top of both. [off to the side draw a bracket labeled "TOURS + DEALS" with an arrow pointing up and the words "ON TOP, NOT COUNTED"]
+**TWIST:** And before somebody bring up his tours and his brand deals. Facts. But we not counting that. This just his music money. Streaming against direct. The tour money sit on top of both. [off to the side draw a bracket labeled "TOURS + DEALS" with an arrow pointing up and "ON TOP, NOT COUNTED"]
 
-**PAYOFF:** Them 60,000 fans pay him about $16 million a year. And he keep almost all of it. [draw an arrow from the ladder to "$16M / YR" and write "HE KEEPS IT" next to it] So how much Carti losing by renting his fans instead of owning em? Around $13 million. Every year. [at the bottom draw a big box and inside it write "LOSING ≈ $13M A YEAR" in the biggest letters on the page, underline it twice]
+**PAYOFF:** Them 60,000 fans pay him about $16 million a year. And he keep almost all of it. [draw an arrow from the tier cards to "DIRECT = $16M / YR" and write "HE KEEPS IT"] So how much Carti losing by not going direct? About $5 million. Every year. [at the bottom draw a big box with "LOSING ≈ $5M A YEAR" in the biggest letters on the page, underline it twice] Wanna know ya own number? Comment WORTH and I'll send you the calculator that shows what you leaving on the table, and the setup to get it back.
 
 ---
 
 **NANO BANANA PRO PROMPT:**
 
-Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. In the top-right corner, a simple hand-drawn black sharpie portrait of Playboi Carti, the recording artist, drawn in a few loose confident lines. Across the top of the page "PLAYBOI CARTI" is written in big bold capital letters, and directly under it in smaller capitals "GOING DIRECT? LET'S FIND OUT". On the left side of the page "40M LISTENERS" is written in caps with a short hand-drawn arrow pointing down to "$12M / YR". Below that a hand-drawn pie chart is split into one big slice labeled "LABEL" and one small slice labeled "CARTI ~$2-3M". On the right side of the page "13M FOLLOWERS" is written in caps, and under it "< 0.5% = 60,000 FANS" with "60,000" underlined. Below that a simple hand-drawn 4-step ladder climbs upward with the rungs labeled from bottom to top "FREE", "$10", "$25", "$100". A hand-drawn arrow runs from the top of the ladder to "$16M / YR" with "HE KEEPS IT" written beside it. Off to the side a hand-drawn bracket is labeled "TOURS + DEALS" with an upward arrow and the words "ON TOP, NOT COUNTED". At the bottom of the page a large hand-drawn rectangular box contains "LOSING ≈ $13M A YEAR" written in the biggest capital letters on the page, underlined twice. All text is hand-drawn black sharpie, no typeset fonts. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
+Flat scan of a white sheet of paper filling the entire frame. No desk, no surface, no edges visible, just white paper. Black sharpie marker handwriting. In the top-right corner, a simple hand-drawn black sharpie portrait of Playboi Carti, the recording artist, drawn in a few loose confident lines. Across the top "PLAYBOI CARTI" in big bold capitals, under it in smaller capitals "GOING DIRECT? LET'S FIND OUT". On the left "40M LISTENERS" with "STREAMING = $11M / YR" under it. On the right "13M FOLLOWERS" with "< 0.5% = 60,000 FANS" under it. Down the middle four stacked hand-drawn tier cards, each a rounded rectangle: first card "FREE — free tracks + community"; second card "$10 — early access + DMs — 43,000 fans"; third card "$25 — stems + live Q&A — 13,000 fans"; fourth card "$100 — 1-on-1 + custom song — 5,000 fans". A hand-drawn arrow runs from the tier cards to "DIRECT = $16M / YR" with "HE KEEPS IT" written beside it. Off to the side a hand-drawn bracket labeled "TOURS + DEALS" with an upward arrow and "ON TOP, NOT COUNTED". At the bottom a large hand-drawn rectangular box contains "LOSING ≈ $5M A YEAR" in the biggest capitals on the page, underlined twice. All text hand-drawn black sharpie, no typeset fonts. The background is pure white (#FFFFFF). The image is shot perfectly straight on, no angle, no shadow, no background elements. Pure white paper fills the entire 3:4 frame edge to edge.
 
 ---
 
 **PAN ORDER:**
 
-1. Playboi Carti portrait + "PLAYBOI CARTI" / "GOING DIRECT? LET'S FIND OUT" at top
-2. "40M LISTENERS" → "$12M / YR" on the left
-3. Pie split: "LABEL" big slice / "CARTI ~$2-3M" small slice
-4. "13M FOLLOWERS" on the right
-5. "< 0.5% = 60,000 FANS" with 60,000 underlined
-6. The 4-step ladder: FREE / $10 / $25 / $100
-7. Bracket "TOURS + DEALS — ON TOP, NOT COUNTED"
-8. Arrow to "$16M / YR" + "HE KEEPS IT"
-9. Bottom box: "LOSING ≈ $13M A YEAR" underlined twice
+1. Carti portrait + "PLAYBOI CARTI" / "GOING DIRECT? LET'S FIND OUT"
+2. "40M LISTENERS" → "STREAMING = $11M / YR"
+3. "13M FOLLOWERS" → "< 0.5% = 60,000 FANS"
+4. Tier card FREE — free tracks + community
+5. Tier card $10 — early access + DMs — 43,000 fans
+6. Tier card $25 — stems + live Q&A — 13,000 fans
+7. Tier card $100 — 1-on-1 + custom song — 5,000 fans
+8. Bracket "TOURS + DEALS — ON TOP, NOT COUNTED"
+9. "DIRECT = $16M / YR" + "HE KEEPS IT"
+10. Bottom box: "LOSING ≈ $5M A YEAR" underlined twice

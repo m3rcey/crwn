@@ -47,6 +47,15 @@ export async function processReferral(params: {
   // 'clipper' links carry ?src=clipper; everything else is an ordinary fan referral.
   const source = attributionSource === 'clipper' ? 'clipper' : 'fan';
 
+  // Referral codes are lowercased usernames or hex UUID fragments, so a legitimate
+  // code is always [a-zA-Z0-9_-]. Reject anything else BEFORE interpolating it into
+  // the PostgREST .or() filter below — a crafted code with commas/parens/dots could
+  // otherwise inject extra filter clauses (filter injection).
+  if (!/^[a-zA-Z0-9_-]+$/.test(referralCode)) {
+    console.log('Referral code has invalid characters, ignoring:', referralCode);
+    return;
+  }
+
   // Find the referrer by code (username match)
   const { data: referrer } = await supabaseAdmin
     .from('profiles')
