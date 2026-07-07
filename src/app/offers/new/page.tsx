@@ -40,7 +40,7 @@ import type { ProductType } from '@/types';
 
 type OfferType = 'subscription' | 'onetime';
 
-type StepKey = 'goal' | 'type' | 'price' | 'tier-details' | 'product-details' | 'share' | 'clip' | 'review';
+type StepKey = 'goal' | 'price' | 'tier-details' | 'product-details' | 'share' | 'clip' | 'review';
 
 interface StepDef {
   key: StepKey;
@@ -144,9 +144,9 @@ const INPUT =
   'w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-4 text-lg text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold';
 
 function stepList(offerType: OfferType): StepDef[] {
-  return [
-    { key: 'goal', title: 'What are you trying to do?', subtitle: 'Pick a goal — we preset smart defaults you can change on the next screens.', icon: Target },
-    { key: 'type', title: 'How do fans pay?', subtitle: 'A monthly membership, or one payment for one thing.', icon: CreditCard },
+  // The goal (screen 1) already determines the offer type, so we don't re-ask it.
+  const steps: StepDef[] = [
+    { key: 'goal', title: 'What do you want to create?', subtitle: 'Pick one — this sets up the right kind of offer with smart defaults you can change next.', icon: Target },
     {
       key: 'price',
       title: offerType === 'subscription' ? 'Set the monthly price' : 'Set the price',
@@ -156,10 +156,19 @@ function stepList(offerType: OfferType): StepDef[] {
     offerType === 'subscription'
       ? { key: 'tier-details' as const, title: 'Name it and load the perks', subtitle: 'The tier name fans join, and what they get. Edit anytime later.', icon: Sparkles }
       : { key: 'product-details' as const, title: 'Name it and pick the kind', subtitle: 'What fans see in your shop.', icon: Package },
-    { key: 'share', title: 'Share-to-Earn', subtitle: 'Pay fans a cut for referring subscribers with their share link.', icon: Megaphone },
-    { key: 'clip', title: 'Clip-to-Earn', subtitle: 'Pay clippers a cut of every subscription their clips bring in.', icon: Scissors },
-    { key: 'review', title: 'Review your offer', subtitle: 'Check everything, then publish.', icon: Check },
   ];
+
+  // Share-to-Earn / Clip-to-Earn pay commission on SUBSCRIPTIONS only, so promotion
+  // only makes sense for a membership offer — skip both screens for one-time offers.
+  if (offerType === 'subscription') {
+    steps.push(
+      { key: 'share', title: 'Share-to-Earn', subtitle: 'Pay fans a cut for referring subscribers with their share link.', icon: Megaphone },
+      { key: 'clip', title: 'Clip-to-Earn', subtitle: 'Pay clippers a cut of every subscription their clips bring in.', icon: Scissors },
+    );
+  }
+
+  steps.push({ key: 'review', title: 'Review your offer', subtitle: 'Check everything, then publish.', icon: Check });
+  return steps;
 }
 
 function OfferBuilder() {
@@ -260,8 +269,6 @@ function OfferBuilder() {
     switch (current.key) {
       case 'goal':
         return goalId !== null;
-      case 'type':
-        return true;
       case 'price':
         return isValidPrice(price);
       case 'tier-details':
@@ -454,35 +461,15 @@ function OfferBuilder() {
                     goalId === g.id ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
                   }`}
                 >
-                  <p className="font-medium text-crwn-text">{g.label}</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-medium text-crwn-text">{g.label}</p>
+                    <span className="text-[10px] uppercase tracking-wide font-semibold text-crwn-gold/90 bg-crwn-gold/10 px-2 py-0.5 rounded-full flex-shrink-0">
+                      {g.offerType === 'subscription' ? 'Monthly membership' : 'One-time'}
+                    </span>
+                  </div>
                   <p className="text-xs text-crwn-text-secondary mt-0.5">{g.hint}</p>
                 </button>
               ))}
-            </div>
-          )}
-
-          {current.key === 'type' && (
-            <div className="grid gap-3">
-              <button
-                type="button"
-                onClick={() => setOfferType('subscription')}
-                className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                  offerType === 'subscription' ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                }`}
-              >
-                <p className="font-medium text-crwn-text">Subscription</p>
-                <p className="text-xs text-crwn-text-secondary mt-0.5">Recurring — fans pay monthly to stay in.</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setOfferType('onetime')}
-                className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                  offerType === 'onetime' ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                }`}
-              >
-                <p className="font-medium text-crwn-text">One-time</p>
-                <p className="text-xs text-crwn-text-secondary mt-0.5">One payment for one thing — a drop, a pack, merch.</p>
-              </button>
             </div>
           )}
 
@@ -645,20 +632,24 @@ function OfferBuilder() {
                 ) : (
                   <ReviewRow label="Kind" value={productType === 'digital' ? 'Digital download' : 'Physical / merch'} />
                 )}
-                <ReviewRow
-                  label="Share-to-Earn"
-                  value={shareOn ? `On — ${Math.round(Number(sharePercent))}% referral commission` : 'Off'}
-                />
-                <ReviewRow
-                  label="Clip-to-Earn"
-                  value={
-                    clipOn
-                      ? clipPreset.steps.length > 0
-                        ? `On — ${clipPreset.steps.map((s) => `${s.percent}%`).join(' → ')} → ${Math.round(Number(clipStandardRate))}% standard`
-                        : `On — flat ${Math.round(Number(clipStandardRate))}%`
-                      : 'Off'
-                  }
-                />
+                {offerType === 'subscription' && (
+                  <>
+                    <ReviewRow
+                      label="Share-to-Earn"
+                      value={shareOn ? `On — ${Math.round(Number(sharePercent))}% referral commission` : 'Off'}
+                    />
+                    <ReviewRow
+                      label="Clip-to-Earn"
+                      value={
+                        clipOn
+                          ? clipPreset.steps.length > 0
+                            ? `On — ${clipPreset.steps.map((s) => `${s.percent}%`).join(' → ')} → ${Math.round(Number(clipStandardRate))}% standard`
+                            : `On — flat ${Math.round(Number(clipStandardRate))}%`
+                          : 'Off'
+                      }
+                    />
+                  </>
+                )}
               </div>
 
               {(shareOn || clipOn) && <p className="text-xs text-crwn-text-secondary">{ARTIST_WIDE_NOTE}</p>}
