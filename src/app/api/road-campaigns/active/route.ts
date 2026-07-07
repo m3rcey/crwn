@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
   const { data: campaign } = await supabaseAdmin
     .from('road_campaigns').select('*').eq('artist_id', artistId)
-    .in('status', ['active', 'reached']).order('created_at', { ascending: false }).limit(1).maybeSingle();
+    .in('status', ['active', 'reached']).order('started_at', { ascending: false }).limit(1).maybeSingle();
   if (!campaign) return NextResponse.json({ campaign: null });
 
   // Live progress for money goals

@@ -29,7 +29,7 @@ export async function GET() {
   const { artistId } = await getUserAndArtist();
   if (!artistId) return NextResponse.json({ error: 'Not an artist' }, { status: 403 });
   const { data: campaigns } = await supabaseAdmin
-    .from('road_campaigns').select('*').eq('artist_id', artistId).order('created_at', { ascending: false });
+    .from('road_campaigns').select('*').eq('artist_id', artistId).order('started_at', { ascending: false });
   const withCurrent = await Promise.all((campaigns || []).map(async c => ({ ...c, current_value: await liveCurrent(c) })));
   return NextResponse.json({ campaigns: withCurrent });
 }
