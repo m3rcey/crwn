@@ -14,6 +14,7 @@ import {
   Scissors,
   Sparkles,
   Target,
+  Upload,
   X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -40,7 +41,7 @@ import type { ProductType } from '@/types';
 
 type OfferType = 'subscription' | 'onetime';
 
-type StepKey = 'goal' | 'price' | 'tier-details' | 'product-details' | 'share' | 'clip' | 'review';
+type StepKey = 'goal' | 'price' | 'tier-details' | 'product-details' | 'upload' | 'share' | 'clip' | 'review';
 
 interface StepDef {
   key: StepKey;
@@ -64,6 +65,10 @@ interface GoalDef {
   // backer-pack goals skip it — "digital download vs physical merch" doesn't fit them
   // (the type is preset and delivery is refined later in the Shop tab).
   askKind?: boolean;
+  // One-time only: a backer/funding contribution — fans buy it to SUPPORT, not to
+  // download something. Contributions never require a delivered file, even when
+  // their productType is 'digital'.
+  isContribution?: boolean;
   // Optional per-goal copy so each goal's steps read coherently for that goal.
   priceHint?: string;
   detailsTitle?: string;
@@ -93,6 +98,7 @@ const GOALS: GoalDef[] = [
     productTitle: 'Music Video Backer Pack',
     productType: 'digital',
     askKind: false,
+    isContribution: true,
     priceHint: 'What each backer pays to help fund it.',
     detailsTitle: 'Name your backer pack',
     detailsHint: 'Fans buy this once to support the video. Add perks and delivery details later in the Shop tab.',
@@ -163,7 +169,22 @@ const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && 
 const INPUT =
   'w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-4 text-lg text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold';
 
-function stepList(offerType: OfferType, goal: GoalDef | null): StepDef[] {
+// A "digital deliverable" — the fan downloads a file after buying. Only these
+// offers get the upload step: one-time + digital + not a backer contribution.
+// Subscriptions, physical/merch, and Fund-a-Video style contributions don't.
+function offerDeliversFile(
+  offerType: OfferType,
+  goal: GoalDef | null,
+  productType: Exclude<ProductType, 'experience' | 'bundle'>
+): boolean {
+  return offerType === 'onetime' && productType === 'digital' && !goal?.isContribution;
+}
+
+function stepList(
+  offerType: OfferType,
+  goal: GoalDef | null,
+  productType: Exclude<ProductType, 'experience' | 'bundle'>
+): StepDef[] {
   // The goal (screen 1) already determines the offer type, so we don't re-ask it.
   const steps: StepDef[] = [
     { key: 'goal', title: 'What do you want to create?', subtitle: 'Pick one — this sets up the right kind of offer with smart defaults you can change next.', icon: Target },
@@ -184,6 +205,18 @@ function stepList(offerType: OfferType, goal: GoalDef | null): StepDef[] {
           icon: Package,
         },
   ];
+
+  // A digital deliverable must ship WITH its file — otherwise the product is
+  // purchasable but delivers nothing. Always directly after product-details, so
+  // switching digital/physical on that screen can't desync the current step index.
+  if (offerDeliversFile(offerType, goal, productType)) {
+    steps.push({
+      key: 'upload',
+      title: 'Upload what fans get',
+      subtitle: 'The file fans download after buying — the track, video, art, or zip.',
+      icon: Upload,
+    });
+  }
 
   // Share-to-Earn / Clip-to-Earn pay commission on SUBSCRIPTIONS only, so promotion
   // only makes sense for a membership offer — skip both screens for one-time offers.
@@ -219,6 +252,10 @@ function OfferBuilder() {
   const [benefits, setBenefits] = useState<string[]>(GOALS[0].benefits);
   const [productTitle, setProductTitle] = useState('');
   const [productType, setProductType] = useState<Exclude<ProductType, 'experience' | 'bundle'>>('digital');
+  // Digital deliverable file — uploaded on the 'upload' step, attached at publish.
+  const [productFileUrl, setProductFileUrl] = useState<string | null>(null);
+  const [productFileName, setProductFileName] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
   const [shareOn, setShareOn] = useState(false);
   const [sharePercent, setSharePercent] = useState('20');
   const [clipOn, setClipOn] = useState(false);
@@ -273,7 +310,8 @@ function OfferBuilder() {
   }
 
   const selectedGoal = GOALS.find((g) => g.id === goalId) ?? null;
-  const steps = stepList(offerType, selectedGoal);
+  const steps = stepList(offerType, selectedGoal, productType);
+  const deliversFile = offerDeliversFile(offerType, selectedGoal, productType);
   const current = steps[stepIndex];
   const isLast = stepIndex >= steps.length - 1;
   const progressPct = Math.round((stepIndex / steps.length) * 100);
@@ -291,6 +329,45 @@ function OfferBuilder() {
       setProductTitle(g.productTitle);
       setProductType(g.productType);
     }
+    // A file uploaded for a previous goal must not ride along to the new one.
+    setProductFileUrl(null);
+    setProductFileName('');
+  };
+
+  const pickProductType = (t: Exclude<ProductType, 'experience' | 'bundle'>) => {
+    setProductType(t);
+    // Physical ships — never attach a previously uploaded digital file to it.
+    if (t === 'physical') {
+      setProductFileUrl(null);
+      setProductFileName('');
+    }
+  };
+
+  // Same bucket + path convention + public-URL derivation as ShopManager's
+  // digital product file upload, so wizard files deliver identically to
+  // Shop-tab files (album-art bucket, {artistId}/product-files/).
+  const handleFileSelect = async (file: File | null) => {
+    if (!file || !artistId || uploadingFile) return;
+    setUploadingFile(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const fileName = `${Date.now()}-product.${ext}`;
+      const path = `${artistId}/product-files/${fileName}`;
+      const { error: uploadError } = await supabase.storage.from('album-art').upload(path, file);
+      if (uploadError) {
+        showToast(`Upload failed: ${uploadError.message}`, 'error');
+        return;
+      }
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('album-art').getPublicUrl(path);
+      setProductFileUrl(publicUrl);
+      setProductFileName(file.name);
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Upload failed. Please try again.', 'error');
+    } finally {
+      setUploadingFile(false);
+    }
   };
 
   const canContinue = (): boolean => {
@@ -303,6 +380,9 @@ function OfferBuilder() {
         return tierName.trim() !== '';
       case 'product-details':
         return productTitle.trim() !== '';
+      case 'upload':
+        // The file IS the product for a digital deliverable — required.
+        return productFileUrl !== null;
       case 'share':
         return !shareOn || (sharePercent.trim() !== '' && Number(sharePercent) >= 0 && Number(sharePercent) <= 50);
       case 'clip':
@@ -359,7 +439,14 @@ function OfferBuilder() {
       } else {
         err = (
           await withTimeout(
-            createOnboardingProduct(supabase, artistId, { type: productType, title: productTitle, priceCents })
+            createOnboardingProduct(supabase, artistId, {
+              type: productType,
+              title: productTitle,
+              priceCents,
+              // Digital deliverables ship complete: the file uploaded on the
+              // upload step is attached now, not "added later in the Shop tab".
+              fileUrl: deliversFile ? productFileUrl : null,
+            })
           )
         ).error;
       }
@@ -554,7 +641,7 @@ function OfferBuilder() {
                       <button
                         key={t.value}
                         type="button"
-                        onClick={() => setProductType(t.value)}
+                        onClick={() => pickProductType(t.value)}
                         className={`text-left px-4 py-4 rounded-xl border transition-colors ${
                           productType === t.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
                         }`}
@@ -566,6 +653,49 @@ function OfferBuilder() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {current.key === 'upload' && (
+            <div className="space-y-4">
+              <label
+                className={`block cursor-pointer rounded-xl border px-4 py-8 text-center transition-colors ${
+                  productFileUrl ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                } ${uploadingFile ? 'opacity-60 pointer-events-none' : ''}`}
+              >
+                {uploadingFile ? (
+                  <span className="inline-flex items-center gap-3 text-crwn-text">
+                    <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-crwn-gold" />
+                    Uploading…
+                  </span>
+                ) : productFileUrl ? (
+                  <span className="flex flex-col items-center gap-1">
+                    <span className="inline-flex items-center gap-2 text-crwn-text font-medium">
+                      <Check className="w-5 h-5 text-crwn-gold" />
+                      <span className="truncate max-w-full">{productFileName}</span>
+                    </span>
+                    <span className="text-sm text-crwn-gold">Replace file</span>
+                  </span>
+                ) : (
+                  <span className="flex flex-col items-center gap-2">
+                    <Upload className="w-6 h-6 text-crwn-gold" />
+                    <span className="text-crwn-text font-medium">Choose the file</span>
+                    <span className="text-xs text-crwn-text-secondary">ZIP, PDF, WAV, MP3, etc.</span>
+                  </span>
+                )}
+                <input
+                  type="file"
+                  className="hidden"
+                  disabled={uploadingFile}
+                  onChange={(e) => {
+                    handleFileSelect(e.target.files?.[0] ?? null);
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+              <p className="text-xs text-crwn-text-secondary">
+                Fans get this file instantly after buying. You can swap it anytime from the Shop tab.
+              </p>
             </div>
           )}
 
@@ -668,6 +798,7 @@ function OfferBuilder() {
                 ) : selectedGoal?.askKind ? (
                   <ReviewRow label="Kind" value={productType === 'digital' ? 'Digital download' : 'Physical / merch'} />
                 ) : null}
+                {deliversFile && <ReviewRow label="File" value={productFileName || 'No file'} />}
                 {offerType === 'subscription' && (
                   <>
                     <ReviewRow
@@ -697,7 +828,9 @@ function OfferBuilder() {
                     <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
                     {offerType === 'subscription'
                       ? 'Your membership tier, live on your page (Stripe prices are added automatically when you connect Stripe)'
-                      : 'Your product, live in your shop (add the file or shipping details from the Shop tab)'}
+                      : deliversFile
+                        ? 'Your product, live in your shop — the file is attached and ready to sell'
+                        : 'Your product, live in your shop (add the file or shipping details from the Shop tab)'}
                   </li>
                   {shareOn && (
                     <li className="flex items-start gap-2">

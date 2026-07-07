@@ -119,7 +119,10 @@ export async function createOnboardingTier(
 export async function createOnboardingProduct(
   supabase: Supa,
   artistId: string,
-  { type, title, priceCents }: { type: ProductType; title: string; priceCents: number }
+  // fileUrl: the delivered file for a digital product (uploaded by the caller to
+  // the same `album-art` bucket / `{artistId}/product-files/` path ShopManager
+  // uses). Optional so existing callers (the setup wizard) are unchanged.
+  { type, title, priceCents, fileUrl }: { type: ProductType; title: string; priceCents: number; fileUrl?: string | null }
 ): Promise<Result> {
   const { error } = await supabase.from('products').insert({
     artist_id: artistId,
@@ -132,7 +135,7 @@ export async function createOnboardingProduct(
     is_free: priceCents === 0,
     allowed_tier_ids: [],
     delivery_type: type === 'experience' ? 'scheduled' : type === 'physical' ? 'shipped' : 'instant',
-    file_url: null,
+    file_url: fileUrl ?? null,
     is_active: true,
   });
   if (error) return { error: error.message };
