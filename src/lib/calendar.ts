@@ -103,7 +103,9 @@ export function relativeDueLabel(dueAt: string, now: Date = new Date()): string 
   const dayDiff = Math.round((dueDay - nowDay) / dayMs);
 
   if (ms < 0) {
-    const overdueDays = Math.max(1, Math.abs(dayDiff));
+    // Same calendar day but the time already passed — hours late, not a full day.
+    if (dayDiff === 0) return 'Overdue today';
+    const overdueDays = Math.abs(dayDiff);
     return overdueDays === 1 ? 'Overdue 1d' : `Overdue ${overdueDays}d`;
   }
   if (dayDiff === 0) {

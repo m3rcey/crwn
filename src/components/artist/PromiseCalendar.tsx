@@ -1,24 +1,26 @@
 'use client';
 
-// PromiseCalendar — the artist's fulfillment view. Phase 1 is READ-ONLY: it
-// surfaces what the artist owes supporters (fulfillment tasks) alongside every
-// deadline already flowing from campaigns, missions, city unlocks, bounties,
-// demand tests and scheduled livestreams. Creating obligations from the tier
-// builder + Mark-complete actions land in later phases.
+// PromiseCalendar — the artist's fulfillment view. Surfaces what the artist owes
+// supporters (fulfillment tasks) alongside every deadline already flowing from
+// campaigns, missions, city unlocks, bounties, demand tests and scheduled
+// livestreams. Artists can create a tracked promise and mark each cycle complete;
+// completing a recurring promise auto-schedules the next cycle.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Loader2, CalendarClock, AlertTriangle, CheckCircle2, ArrowRight, CalendarCheck,
+  Loader2, CalendarClock, AlertTriangle, CheckCircle2, ArrowRight, CalendarCheck, Plus, X,
 } from 'lucide-react';
 import {
   type CalendarItem,
   type CalendarBucket,
   ITEM_TYPE_LABEL,
-  BUCKET_LABEL,
   bucketFor,
   relativeDueLabel,
 } from '@/lib/calendar';
+import {
+  RECURRENCE_LABEL, FULFILLMENT_TYPE_LABEL, type Recurrence,
+} from '@/lib/fulfillment';
 
 type ViewTab = 'week' | 'overdue' | 'completed';
 
@@ -28,14 +30,19 @@ const TABS: { id: ViewTab; label: string }[] = [
   { id: 'completed', label: 'Completed' },
 ];
 
+const RECURRENCE_OPTIONS: Recurrence[] = ['none', 'weekly', 'biweekly', 'monthly', 'quarterly'];
+const FULFILLMENT_OPTIONS = Object.keys(FULFILLMENT_TYPE_LABEL);
+
 export function PromiseCalendar() {
   const router = useRouter();
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState<ViewTab>('week');
+  const [showForm, setShowForm] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch('/api/promise-calendar')
+  const refetch = useCallback(() => {
+    return fetch('/api/promise-calendar')
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d.items)) setItems(d.items);
@@ -43,6 +50,8 @@ export function PromiseCalendar() {
       })
       .catch(() => setIsLoading(false));
   }, []);
+
+  useEffect(() => { refetch(); }, [refetch]);
 
   const buckets = useMemo(() => {
     const b: Record<CalendarBucket, CalendarItem[]> = {
@@ -55,6 +64,21 @@ export function PromiseCalendar() {
   const overdueCount = buckets.overdue.length;
   const thisWeek = [...buckets.today, ...buckets.week];
 
+  const completeEvent = useCallback(async (item: CalendarItem) => {
+    if (item.sourceType !== 'fulfillment_event') return;
+    setBusyId(item.id);
+    try {
+      await fetch(`/api/promise-calendar/events/${item.sourceId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'complete' }),
+      });
+      await refetch();
+    } finally {
+      setBusyId(null);
+    }
+  }, [refetch]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
@@ -65,9 +89,18 @@ export function PromiseCalendar() {
 
   return (
     <div className="max-w-2xl">
-      <div className="mb-1 flex items-center gap-2">
-        <CalendarCheck className="w-5 h-5 text-crwn-gold" />
-        <h2 className="text-xl font-bold text-crwn-text">Promise Calendar</h2>
+      <div className="flex items-start justify-between gap-3 mb-1">
+        <div className="flex items-center gap-2">
+          <CalendarCheck className="w-5 h-5 text-crwn-gold" />
+          <h2 className="text-xl font-bold text-crwn-text">Promise Calendar</h2>
+        </div>
+        <button
+          onClick={() => setShowForm(true)}
+          className="shrink-0 inline-flex items-center gap-1.5 bg-crwn-gold text-crwn-bg text-sm font-semibold px-4 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          New promise
+        </button>
       </div>
       <p className="text-sm text-crwn-text-secondary mb-5">
         What you promised supporters, and every deadline coming from your campaigns,
@@ -90,8 +123,8 @@ export function PromiseCalendar() {
         )}
         {thisWeek.length === 0 && overdueCount === 0 ? (
           <p className="text-sm text-crwn-text-secondary">
-            Nothing due this week. When you attach recurring benefits to a tier, those
-            fulfillment tasks will show up here automatically.
+            Nothing due this week. Add a promise, or attach recurring benefits to a
+            tier, and those fulfillment tasks show up here automatically.
           </p>
         ) : (
           <p className="text-sm text-crwn-text-secondary">
@@ -124,19 +157,28 @@ export function PromiseCalendar() {
       </div>
 
       {/* Lists */}
-      {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} />}
-      {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} />}
-      {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} />}
+      {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+      {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+      {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+
+      {showForm && (
+        <NewPromiseModal
+          onClose={() => setShowForm(false)}
+          onCreated={async () => { setShowForm(false); await refetch(); }}
+        />
+      )}
     </div>
   );
 }
 
 function ItemList({
-  items, emptyLabel, onOpen,
+  items, emptyLabel, onOpen, onComplete, busyId,
 }: {
   items: CalendarItem[];
   emptyLabel: string;
   onOpen: (href: string) => void;
+  onComplete: (item: CalendarItem) => void;
+  busyId: string | null;
 }) {
   if (items.length === 0) {
     return (
@@ -152,6 +194,8 @@ function ItemList({
         {items.map((it) => {
           const overdue = it.status === 'overdue' || it.status === 'missed';
           const done = it.status === 'completed';
+          const isPromise = it.sourceType === 'fulfillment_event';
+          const busy = busyId === it.id;
           return (
             <div key={it.id} className="py-3 first:pt-1 last:pb-0 flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -174,7 +218,16 @@ function ItemList({
                   <p className="text-xs text-crwn-text-secondary truncate">{it.subtitle}</p>
                 )}
               </div>
-              {it.cta && it.href && !done && (
+              {!done && isPromise ? (
+                <button
+                  onClick={() => onComplete(it)}
+                  disabled={busy}
+                  className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold hover:bg-crwn-gold/25 transition-colors disabled:opacity-50"
+                >
+                  {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                  Mark complete
+                </button>
+              ) : !done && it.cta && it.href ? (
                 <button
                   onClick={() => onOpen(it.href!)}
                   className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold hover:bg-crwn-gold/25 transition-colors"
@@ -182,11 +235,129 @@ function ItemList({
                   {it.cta}
                   <ArrowRight className="w-3 h-3" />
                 </button>
-              )}
+              ) : null}
             </div>
           );
         })}
       </div>
     </div>
   );
+}
+
+function NewPromiseModal({
+  onClose, onCreated,
+}: {
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [title, setTitle] = useState('');
+  const [fulfillmentType, setFulfillmentType] = useState('content_drop');
+  const [recurrence, setRecurrence] = useState<Recurrence>('monthly');
+  const [firstDueAt, setFirstDueAt] = useState(defaultDueDate());
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    if (!title.trim()) { setError('Give the promise a name.'); return; }
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/promise-calendar/obligations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          fulfillmentType,
+          recurrence,
+          firstDueAt: new Date(firstDueAt).toISOString(),
+        }),
+      });
+      const d = await res.json();
+      if (!res.ok) { setError(d.error || 'Could not save.'); setSaving(false); return; }
+      onCreated();
+    } catch {
+      setError('Could not save.');
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div className="neu-modal p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-crwn-text">New promise</h3>
+          <button onClick={onClose} className="text-crwn-text-secondary hover:text-crwn-text">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <label className="block text-xs font-semibold text-crwn-text-secondary uppercase tracking-wide mb-1">What you owe supporters</label>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g. Monthly unreleased demo"
+          className="w-full bg-crwn-elevated rounded-lg px-3 py-2.5 text-sm text-crwn-text placeholder:text-crwn-text-secondary/60 mb-4 outline-none focus:ring-1 focus:ring-crwn-gold"
+        />
+
+        <label className="block text-xs font-semibold text-crwn-text-secondary uppercase tracking-wide mb-1">Type</label>
+        <select
+          value={fulfillmentType}
+          onChange={(e) => setFulfillmentType(e.target.value)}
+          className="w-full bg-crwn-elevated rounded-lg px-3 py-2.5 text-sm text-crwn-text mb-4 outline-none focus:ring-1 focus:ring-crwn-gold"
+        >
+          {FULFILLMENT_OPTIONS.map((t) => (
+            <option key={t} value={t}>{FULFILLMENT_TYPE_LABEL[t]}</option>
+          ))}
+        </select>
+
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div>
+            <label className="block text-xs font-semibold text-crwn-text-secondary uppercase tracking-wide mb-1">Repeats</label>
+            <select
+              value={recurrence}
+              onChange={(e) => setRecurrence(e.target.value as Recurrence)}
+              className="w-full bg-crwn-elevated rounded-lg px-3 py-2.5 text-sm text-crwn-text outline-none focus:ring-1 focus:ring-crwn-gold"
+            >
+              {RECURRENCE_OPTIONS.map((r) => (
+                <option key={r} value={r}>{RECURRENCE_LABEL[r]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-crwn-text-secondary uppercase tracking-wide mb-1">First due</label>
+            <input
+              type="date"
+              value={firstDueAt}
+              onChange={(e) => setFirstDueAt(e.target.value)}
+              className="w-full bg-crwn-elevated rounded-lg px-3 py-2.5 text-sm text-crwn-text outline-none focus:ring-1 focus:ring-crwn-gold"
+            />
+          </div>
+        </div>
+
+        {error && <p className="text-sm text-crwn-error mb-3">{error}</p>}
+
+        <button
+          onClick={submit}
+          disabled={saving}
+          className="w-full bg-crwn-gold text-crwn-bg text-sm font-semibold py-3 rounded-full hover:bg-crwn-gold/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+          Add to calendar
+        </button>
+        {recurrence !== 'none' && (
+          <p className="text-xs text-crwn-text-secondary mt-3 text-center">
+            {RECURRENCE_LABEL[recurrence]} — completing each one schedules the next automatically.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Default the first-due date input to 7 days out (YYYY-MM-DD, local).
+function defaultDueDate(): string {
+  const d = new Date(Date.now() + 7 * 86400000);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
 }
