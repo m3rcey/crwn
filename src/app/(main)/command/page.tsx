@@ -17,6 +17,7 @@ import {
 import { usePageTour } from '@/hooks/usePageTour';
 import { getCommandTourSteps } from '@/lib/commandTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
+import { UpcomingCalendarCard } from '@/components/fan/UpcomingCalendarCard';
 
 interface CommandMission {
   missionId: string;
@@ -241,6 +242,9 @@ export default function CommandPage() {
             </>
           )}
         </div>
+
+        {/* Upcoming for you — self-hides when the fan's calendar is empty */}
+        <UpcomingCalendarCard />
 
         {isBrandNew ? (
           /* Brand-new fan — nothing joined, nothing to share yet */
