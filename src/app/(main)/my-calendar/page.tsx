@@ -9,7 +9,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Loader2, CalendarHeart, Radio, Flag, DollarSign, CreditCard, ArrowRight, Sparkles,
+  List, CalendarDays,
 } from 'lucide-react';
+import { CalendarMonthGrid } from '@/components/calendar/CalendarMonthGrid';
 import {
   type CalendarItem,
   type CalendarItemType,
@@ -44,6 +46,7 @@ export default function MyCalendarPage() {
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState<FanTab>('upcoming');
+  const [view, setView] = useState<'list' | 'calendar'>('list');
 
   useEffect(() => {
     if (authLoading) return;
@@ -126,6 +129,30 @@ export default function MyCalendarPage() {
             </div>
           )}
 
+          {/* List / Calendar toggle */}
+          <div className="inline-flex rounded-full neu-raised p-1">
+            <button
+              onClick={() => setView('list')}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                view === 'list' ? 'bg-crwn-gold text-crwn-bg' : 'text-crwn-text-secondary hover:text-crwn-text'
+              }`}
+            >
+              <List className="w-3.5 h-3.5" /> List
+            </button>
+            <button
+              onClick={() => setView('calendar')}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                view === 'calendar' ? 'bg-crwn-gold text-crwn-bg' : 'text-crwn-text-secondary hover:text-crwn-text'
+              }`}
+            >
+              <CalendarDays className="w-3.5 h-3.5" /> Calendar
+            </button>
+          </div>
+
+          {view === 'calendar' ? (
+            <CalendarMonthGrid items={items} onOpen={router.push} />
+          ) : (
+            <>
           {/* Tabs */}
           <div className="flex gap-5 border-b border-crwn-elevated overflow-x-auto">
             {TABS.map((t) => {
@@ -195,6 +222,8 @@ export default function MyCalendarPage() {
                 })}
               </div>
             </div>
+          )}
+            </>
           )}
         </div>
       )}

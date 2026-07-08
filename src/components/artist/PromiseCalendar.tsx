@@ -10,7 +10,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Loader2, CalendarClock, AlertTriangle, CheckCircle2, ArrowRight, CalendarCheck, Plus, X,
+  List, CalendarDays,
 } from 'lucide-react';
+import { CalendarMonthGrid } from '@/components/calendar/CalendarMonthGrid';
 import {
   type CalendarItem,
   type CalendarBucket,
@@ -38,6 +40,7 @@ export function PromiseCalendar() {
   const [items, setItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState<ViewTab>('week');
+  const [view, setView] = useState<'list' | 'calendar'>('list');
   const [showForm, setShowForm] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -133,33 +136,59 @@ export function PromiseCalendar() {
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-6 border-b border-crwn-elevated mb-4">
-        {TABS.map((t) => {
-          const count =
-            t.id === 'week' ? thisWeek.length
-            : t.id === 'overdue' ? buckets.overdue.length
-            : buckets.completed.length;
-          return (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                tab === t.id
-                  ? 'text-crwn-gold border-crwn-gold'
-                  : 'text-crwn-text-secondary border-transparent hover:text-crwn-text'
-              }`}
-            >
-              {t.label}{count > 0 ? ` (${count})` : ''}
-            </button>
-          );
-        })}
+      {/* List / Calendar view toggle */}
+      <div className="inline-flex rounded-full neu-raised p-1 mb-4">
+        <button
+          onClick={() => setView('list')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+            view === 'list' ? 'bg-crwn-gold text-crwn-bg' : 'text-crwn-text-secondary hover:text-crwn-text'
+          }`}
+        >
+          <List className="w-3.5 h-3.5" /> List
+        </button>
+        <button
+          onClick={() => setView('calendar')}
+          className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+            view === 'calendar' ? 'bg-crwn-gold text-crwn-bg' : 'text-crwn-text-secondary hover:text-crwn-text'
+          }`}
+        >
+          <CalendarDays className="w-3.5 h-3.5" /> Calendar
+        </button>
       </div>
 
-      {/* Lists */}
-      {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
-      {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
-      {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+      {view === 'calendar' ? (
+        <CalendarMonthGrid items={items} onOpen={router.push} onComplete={completeEvent} busyId={busyId} />
+      ) : (
+        <>
+          {/* Tabs */}
+          <div className="flex gap-6 border-b border-crwn-elevated mb-4">
+            {TABS.map((t) => {
+              const count =
+                t.id === 'week' ? thisWeek.length
+                : t.id === 'overdue' ? buckets.overdue.length
+                : buckets.completed.length;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    tab === t.id
+                      ? 'text-crwn-gold border-crwn-gold'
+                      : 'text-crwn-text-secondary border-transparent hover:text-crwn-text'
+                  }`}
+                >
+                  {t.label}{count > 0 ? ` (${count})` : ''}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Lists */}
+          {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+          {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+          {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+        </>
+      )}
 
       {showForm && (
         <NewPromiseModal
