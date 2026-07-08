@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, Users, Copy, Check } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { CAMPAIGN_GOAL_MAP, formatCampaignValue, type CampaignGoalType } from '@/lib/roadCampaigns';
+import { TeamSplitImpact } from '@/components/team/TeamSplitImpact';
 
 interface Detail {
   campaign: { id: string; title: string; description: string | null; goal_type: CampaignGoalType; goal_value: number; current_value: number; status: string; reached_message: string | null };
@@ -73,6 +74,8 @@ export default function CampaignDetailPage() {
         {!isMoney && <p className="text-xs text-crwn-text-secondary mt-2 inline-flex items-center gap-1"><Users className="w-3 h-3" />{supporterCount} supporter{supporterCount !== 1 ? 's' : ''}</p>}
         {isMoney && <p className="text-xs text-crwn-text-secondary mt-2">Revenue since launch. Fans support via checkout on your page.</p>}
       </div>
+
+      {isMoney && <TeamSplitImpact sourceType="road_campaign" sourceId={campaign.id} grossCents={campaign.current_value} />}
 
       <button onClick={copyLink} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-crwn-elevated text-sm font-medium text-crwn-text hover:border-crwn-gold/40 mb-4">
         {copied ? <><Check className="w-4 h-4 text-crwn-gold" /> Copied</> : <><Copy className="w-4 h-4" /> Copy page link</>}

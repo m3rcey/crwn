@@ -91,6 +91,10 @@
     {
       "path": "/api/cron/clipper-rate-drops",
       "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/cron/team-split-accruals",
+      "schedule": "0 20 * * *"
     }
   ]
 }

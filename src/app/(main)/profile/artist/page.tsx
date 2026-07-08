@@ -17,6 +17,7 @@ import { ClipperSettings } from '@/components/artist/ClipperSettings';
 import { SyncDashboard } from '@/components/artist/SyncDashboard';
 import { AudienceTab } from '@/components/artist/AudienceTab';
 import { PromiseCalendar } from '@/components/artist/PromiseCalendar';
+import { TeamManager } from '@/components/artist/TeamManager';
 import { AiManagerCard, AiManagerTeaser } from '@/components/artist/AiManagerCard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
@@ -29,7 +30,7 @@ import { getPostSetupTourSteps } from '@/lib/artistTourSteps';
 import { usePageTour } from '@/hooks/usePageTour';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
-type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'livestreams' | 'promise';
+type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'livestreams' | 'promise' | 'team';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
@@ -82,6 +83,9 @@ function ArtistDashboardContent() {
     }
     if (tab === 'promise') {
       switchTab('promise');
+    }
+    if (tab === 'team') {
+      switchTab('team');
     }
 
     if (upgrade === 'success') {
@@ -144,6 +148,7 @@ function ArtistDashboardContent() {
     { id: 'promise' as const, label: 'Promise Calendar', tourId: 'tab-promise' },
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
     { id: 'audience' as const, label: 'Audience', tourId: 'tab-audience' },
+    { id: 'team' as const, label: 'Team', tourId: 'tab-team' },
     { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
     { id: 'livestreams' as const, label: 'Live', tourId: 'tab-livestreams' },
     { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
@@ -236,6 +241,11 @@ function ArtistDashboardContent() {
           {visitedTabs.has('audience') && (
             <div className={activeTab !== 'audience' ? 'hidden' : undefined}>
               <AudienceTab />
+            </div>
+          )}
+          {visitedTabs.has('team') && (
+            <div className={activeTab !== 'team' ? 'hidden' : undefined}>
+              {artistId && <TeamManager artistId={artistId} platformTier={platformTier} />}
             </div>
           )}
           {visitedTabs.has('promise') && (

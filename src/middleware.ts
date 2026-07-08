@@ -111,7 +111,7 @@ export async function middleware(request: NextRequest) {
       'admin', 'recruit', 'onboarding', 'support', 'terms', 'privacy', 'dmca', 'about',
       'welcome', 'setup', 'offers', 'proof-of-demand', 'missions', 'my-missions', 'earn', 'impact', 'command', 'clip-controls', 'action-plan', 'campaign-hub', 'studio', 'verify', 'reset-password', 'forgot-password', 'partner', 'join',
       'squads', 'my-squads', 'bounties', 'my-bounties', 'city-unlocks', 'city', 'playbooks', 'campaigns',
-      'artist', 'artist-agreement', 'founding-artists', 'getting-started', 'embed', 'link', 'worth'];
+      'team', 'artist', 'artist-agreement', 'founding-artists', 'getting-started', 'embed', 'link', 'worth'];
     const pathname = request.nextUrl.pathname;
     const segments = pathname.split('/').filter(Boolean);
     const artistSlug = segments.length === 1 && !knownRoutes.includes(segments[0])
