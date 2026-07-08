@@ -84,10 +84,14 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
   }
 
   const canRespond = isCollaborator && ['sent', 'viewed', 'changes_requested'].includes(deal.status);
+  // Deterministic back: return to where the user came from (the artist's Team
+  // tab, or the collaborator dashboard) — never the bare dashboard. router.back()
+  // is unreliable here because the dashboard tab switch doesn't change the URL.
+  const backHref = isArtist ? '/profile/artist?tab=team' : '/team';
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 page-fade-in">
-      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-crwn-text-secondary mb-4"><ArrowLeft className="w-4 h-4" /> Back</button>
+      <button onClick={() => router.push(backHref)} className="flex items-center gap-1 text-sm text-crwn-text-secondary mb-4"><ArrowLeft className="w-4 h-4" /> Back</button>
 
       <div className="mb-1 flex items-center gap-2">
         <span className="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full font-semibold bg-crwn-elevated text-crwn-text-secondary">{deal.status.replace(/_/g, ' ')}</span>

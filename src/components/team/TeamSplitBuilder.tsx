@@ -158,13 +158,15 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-crwn-bg overflow-y-auto">
+    <div className="fixed inset-0 z-[60] bg-crwn-bg overflow-y-auto overscroll-contain">
       <div className="max-w-lg mx-auto px-4 py-6 min-h-screen flex flex-col">
         {/* header */}
         <div className="flex items-center justify-between mb-4">
-          <button onClick={step === 0 ? onClose : () => setStep((s) => s - 1)} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text">
-            {step === 0 ? <X className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-          </button>
+          {step > 0 ? (
+            <button onClick={() => setStep((s) => s - 1)} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+          ) : (
+            <span className="w-9" />
+          )}
           <p className="text-sm font-medium text-crwn-text-secondary">Team Split Builder</p>
           <button onClick={onClose} className="p-2 -mr-2 text-crwn-text-secondary hover:text-crwn-text"><X className="w-5 h-5" /></button>
         </div>
@@ -426,8 +428,8 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
 
         {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
 
-        {/* footer */}
-        <div className="mt-6 flex gap-2 sticky bottom-0 bg-crwn-bg pt-2 pb-1">
+        {/* footer — sticky above the mobile nav, with safe-area clearance */}
+        <div className="mt-6 flex gap-2 sticky bottom-0 bg-crwn-bg pt-3" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
           {step < STEPS.length - 1 ? (
             <button disabled={!canContinue()} onClick={() => setStep((s) => s + 1)}
               className="flex-1 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-full disabled:opacity-40">Continue</button>
