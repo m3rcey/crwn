@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { buildLockKey, acquireLock, releaseLock } from '@/lib/ai/coordinationLock';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
-
-async function verifyAdmin(userId: string): Promise<boolean> {
-  const { data } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single();
-  return data?.role === 'admin';
-}
 
 interface AgentAction {
   type: string;
@@ -451,21 +443,20 @@ async function executeSendBriefing(): Promise<string> {
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, action } = await req.json() as { userId: string; action: AgentAction };
+    const admin = await requireAdmin();
+    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
-    if (!userId || !action) {
-      return NextResponse.json({ error: 'Missing userId or action' }, { status: 400 });
-    }
+    const { action } = await req.json() as { action: AgentAction };
 
-    if (!(await verifyAdmin(userId))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!action) {
+      return NextResponse.json({ error: 'Missing action' }, { status: 400 });
     }
 
     const actionHandlers: Record<string, (params: Record<string, unknown>) => Promise<string>> = {
       toggle_sequence: (p) => executeToggleSequence(p),
       update_pipeline_stages: (p) => executeUpdatePipelineStages(p),
       send_briefing: () => executeSendBriefing(),
-      add_pipeline_note: (p) => executeAddPipelineNote(p, userId),
+      add_pipeline_note: (p) => executeAddPipelineNote(p, admin.id),
       flag_at_risk: (p) => executeFlagAtRisk(p),
       enroll_in_sequence: (p) => executeEnrollInSequence(p),
       pause_recruiter: (p) => executePauseRecruiter(p),
@@ -489,7 +480,7 @@ export async function POST(req: NextRequest) {
 
     if (!lock.acquired) {
       const msg = `Action blocked: another agent is already running: ${lock.conflict}`;
-      await logAction(userId, action, 'failed', msg);
+      await logAction(admin.id, action, 'failed', msg);
       return NextResponse.json({ success: false, message: msg }, { status: 409 });
     }
 
@@ -499,12 +490,12 @@ export async function POST(req: NextRequest) {
       message = await handler(action.params);
 
       await releaseLock(supabaseAdmin, lock.lockId!, 'completed');
-      await logAction(userId, action, 'success', message);
+      await logAction(admin.id, action, 'success', message);
       return NextResponse.json({ success: true, message });
     } catch (execError: unknown) {
       const errMsg = execError instanceof Error ? execError.message : 'Execution failed';
       await releaseLock(supabaseAdmin, lock.lockId!, 'failed');
-      await logAction(userId, action, 'failed', errMsg);
+      await logAction(admin.id, action, 'failed', errMsg);
       return NextResponse.json({ success: false, message: errMsg }, { status: 400 });
     }
   } catch (error: unknown) {

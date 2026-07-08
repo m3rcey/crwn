@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { TIER_PRICING } from '@/lib/platformTier';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -32,26 +33,12 @@ function getDailyBuckets(days: number): { label: string; start: Date; end: Date 
 }
 
 export async function GET(req: NextRequest) {
-  // Auth check — only admin role
-  const authHeader = req.headers.get('authorization');
-  const userId = req.nextUrl.searchParams.get('userId');
+  // Auth check — identity from session, admin role required
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
   const period = req.nextUrl.searchParams.get('period') || '30d';
   const forceRefresh = req.nextUrl.searchParams.get('refresh') === 'true';
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
-  }
-
-  // Verify admin role
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single();
-
-  if (!profile || profile.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-  }
 
   // Check cache (1 hour TTL)
   if (!forceRefresh) {

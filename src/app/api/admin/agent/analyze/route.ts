@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 import { buildPipelineScope, buildPartnersScope, buildFunnelScope, buildSequencesScope, buildEmailScope, buildCrmScope } from '../scopes';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -102,26 +103,14 @@ export const maxDuration = 60; // Allow up to 60s for Kimi response
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, scope = 'dashboard' } = await req.json();
+    const admin = await requireAdmin();
+    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
-    }
+    const { scope = 'dashboard' } = await req.json();
 
     const validScopes = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm'];
     if (!validScopes.includes(scope)) {
       return NextResponse.json({ error: `Invalid scope: ${scope}` }, { status: 400 });
-    }
-
-    // Verify admin role
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     // Non-dashboard scopes use dedicated builders

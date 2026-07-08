@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -10,6 +11,24 @@ export async function GET(req: NextRequest) {
   const artistId = req.nextUrl.searchParams.get('artistId');
   if (!artistId) {
     return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
+  }
+
+  // Ownership: the caller must own this artist profile (matches the sibling
+  // referrals/artist/commission + clipper routes). Without it, any signed-in
+  // user could dump any artist's referral roster and per-referrer earnings.
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const { data: owned } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('id')
+    .eq('id', artistId)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (!owned) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   // Get referrals for this artist

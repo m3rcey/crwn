@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -43,15 +44,6 @@ Return JSON:
   "needs_escalation": true/false,
   "escalation_reason": "Why this needs Joshua's attention (if applicable)"
 }`;
-
-async function verifyAdmin(userId: string): Promise<boolean> {
-  const { data } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single();
-  return data?.role === 'admin';
-}
 
 async function lookupArtist(identifier: string): Promise<string> {
   // Try by slug first
@@ -115,18 +107,16 @@ Active Subscribers: ${subCount || 0}`;
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, message, artistLookup } = await req.json() as {
-      userId: string;
+    const admin = await requireAdmin();
+    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+    const { message, artistLookup } = await req.json() as {
       message: string;
       artistLookup?: string;
     };
 
-    if (!userId || !message) {
-      return NextResponse.json({ error: 'Missing userId or message' }, { status: 400 });
-    }
-
-    if (!(await verifyAdmin(userId))) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    if (!message) {
+      return NextResponse.json({ error: 'Missing message' }, { status: 400 });
     }
 
     // Build context

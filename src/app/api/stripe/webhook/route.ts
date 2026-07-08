@@ -56,23 +56,25 @@ export async function POST(req: NextRequest) {
 
   console.log('Webhook event received:', event.type);
 
-  // Idempotency check — skip if already processed
-  const { data: existing } = await supabaseAdmin
+  // Idempotency — claim the event atomically via the UNIQUE(event_id)
+  // constraint instead of check-then-insert. Two concurrent redeliveries of the
+  // same event id could both pass a prior SELECT and double-process (earnings
+  // inserts are not idempotent); letting the insert be the claim closes that
+  // race. Requires UNIQUE(event_id) on processed_webhook_events.
+  const { error: claimError } = await supabaseAdmin
     .from('processed_webhook_events')
-    .select('event_id')
-    .eq('event_id', event.id)
-    .maybeSingle();
+    .insert({ event_id: event.id, event_type: event.type });
 
-  if (existing) {
-    console.log('Duplicate webhook event, skipping:', event.id);
-    return NextResponse.json({ received: true, duplicate: true });
+  if (claimError) {
+    // 23505 = unique_violation → this event was already claimed, skip.
+    if (claimError.code === '23505') {
+      console.log('Duplicate webhook event, skipping:', event.id);
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    // Any other error (e.g. missing table): log and continue so a real event
+    // is not silently dropped.
+    console.error('Idempotency claim insert error (continuing):', claimError.message);
   }
-
-  // Mark as processing
-  await supabaseAdmin.from('processed_webhook_events').insert({
-    event_id: event.id,
-    event_type: event.type,
-  });
 
   try {
     switch (event.type) {

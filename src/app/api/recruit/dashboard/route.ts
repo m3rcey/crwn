@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { TIER_LIMITS } from '@/lib/platformTier';
 
 // CRWN's platform fee % for the artist's tier (Free 12 / Pro 8 / $99-tier 5).
@@ -13,12 +14,16 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get('userId');
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+export async function GET() {
+  // Identity from the session, never a client-supplied userId — this returns
+  // the recruiter's full financials, so trusting the query let anyone dump
+  // another recruiter's earnings by guessing their user id.
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const userId = user.id;
 
   const { data: recruiter } = await supabaseAdmin
     .from('recruiters')

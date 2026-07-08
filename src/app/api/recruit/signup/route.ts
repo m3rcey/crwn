@@ -1,19 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterWelcomeEmail } from '@/lib/emails/recruiterWelcome';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-export async function POST(req: NextRequest) {
-  const { userId } = await req.json();
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+export async function POST() {
+  // Identity from the session, never a client-supplied userId — this creates a
+  // recruiter row and emails that user, so trusting the body let anyone
+  // enroll (and spam) an arbitrary account.
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const userId = user.id;
 
   const { data: profile } = await supabaseAdmin
     .from('profiles')

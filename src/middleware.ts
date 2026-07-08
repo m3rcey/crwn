@@ -124,9 +124,14 @@ export async function middleware(request: NextRequest) {
       : undefined;
 
     const trackUrl = new URL('/api/admin/track', request.url);
+    const trackSecret = process.env.INTERNAL_TRACK_SECRET;
     fetch(trackUrl.toString(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        // Proves this call is the internal middleware, not a forged public POST.
+        ...(trackSecret && { 'x-internal-secret': trackSecret }),
+      },
       body: JSON.stringify({ visitorHash, userId, artistSlug, ...(recruiterCode && { recruiterCode }) }),
     }).catch(() => {}); // Silent fail
   } catch {

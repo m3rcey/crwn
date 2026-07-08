@@ -40,10 +40,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     city = e?.fan_city || null; region = e?.fan_state || region; country = e?.fan_country || country;
   }
 
+  // For a revenue goal the contribution value must be the fan's REAL spend on
+  // this artist (summed from earnings), never a client-supplied number —
+  // otherwise a fan could self-report an inflated figure to force an unlock.
+  let contributionValue = 1;
+  if (contributionType === 'revenue') {
+    const { data: spendRows } = await supabaseAdmin
+      .from('earnings')
+      .select('gross_amount')
+      .eq('fan_id', user.id)
+      .eq('artist_id', unlock.artist_id);
+    contributionValue = (spendRows || []).reduce((s: number, r: any) => s + (r.gross_amount || 0), 0);
+  }
+
   // Insert the contribution (idempotent per fan+type)
   await supabaseAdmin.from('city_unlock_contributions').upsert({
     city_unlock_id: id, fan_id: user.id, contribution_type: contributionType,
-    value: contributionType === 'revenue' ? (parseInt(body.value) || 0) : 1,
+    value: contributionValue,
     city, region, country,
   }, { onConflict: 'city_unlock_id,fan_id,contribution_type', ignoreDuplicates: true });
 
@@ -81,6 +94,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         `${unlock.target_city} hit its goal. Time to deliver.`,
         `/city-unlocks/${id}`,
       ).catch(() => {});
+    }
+
+    // Notify everyone who contributed — their city hit the goal (re-engagement).
+    const { data: contributors } = await supabaseAdmin
+      .from('city_unlock_contributions')
+      .select('fan_id')
+      .eq('city_unlock_id', id);
+    const fanIds = [...new Set((contributors || []).map((c: any) => c.fan_id).filter(Boolean))];
+    if (fanIds.length) {
+      try {
+        await supabaseAdmin.from('notifications').insert(
+          fanIds.map((fid: string) => ({
+            user_id: fid,
+            type: 'city_unlocked',
+            title: `📍 ${unlock.target_city} unlocked it!`,
+            message: `${unlock.title} is unlocked — you helped make it happen.`,
+            link: `/city-unlocks/${id}`,
+          }))
+        );
+      } catch {
+        // best-effort — the contribution already succeeded
+      }
     }
   }
 

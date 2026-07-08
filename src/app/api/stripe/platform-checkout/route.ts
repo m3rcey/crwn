@@ -14,7 +14,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
     }
 
-    // Look up partner code if provided
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Must be logged in' }, { status: 401 });
+    }
+
+    const allowed = await checkRateLimit(user.id, 'platform-checkout', 60, 5);
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    }
+
+    // Look up partner code if provided. Runs AFTER auth + rate-limit so an
+    // unauthenticated caller can't inflate a code's use counter.
     let validPartnerCode: { id: string; code: string; recruiter_id: string | null } | null = null;
     if (partnerCode) {
       const { createClient } = await import('@supabase/supabase-js');
@@ -33,18 +46,6 @@ export async function POST(request: NextRequest) {
         // Increment uses
         await supabaseAdmin.rpc('increment_partner_code_uses', { code_id: codeData.id });
       }
-    }
-
-    const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Must be logged in' }, { status: 401 });
-    }
-
-    const allowed = await checkRateLimit(user.id, 'platform-checkout', 60, 5);
-    if (!allowed) {
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     // Get the user's artist profile

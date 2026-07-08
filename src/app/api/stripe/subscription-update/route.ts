@@ -49,11 +49,15 @@ export async function POST(req: NextRequest) {
       .eq('id', currentSubscription.tier_id)
       .single();
 
-    // Get new tier
+    // Get new tier — scoped to THIS artist. Without the artist_id filter a fan
+    // could attach a foreign artist's tier price to their subscription (data
+    // integrity break + potential underpay, since the charge still transfers to
+    // the original artist's Connect account).
     const { data: newTier, error: tierError } = await supabaseAdmin
       .from('subscription_tiers')
       .select('id, name, price, stripe_price_id, stripe_product_id')
       .eq('id', newTierId)
+      .eq('artist_id', artistId)
       .eq('is_active', true)
       .single();
 

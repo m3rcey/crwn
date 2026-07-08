@@ -1,20 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-// Lightweight endpoint called from middleware to track visits and activity
+// Lightweight endpoint called from middleware to track visits and activity.
+// It writes via the service role, so it must not blindly trust an arbitrary
+// body from a public caller (which could pollute funnel data or forge referral
+// conversions that later drive recruiter payouts).
+//
+// Trust model:
+//  - Middleware calls this with the shared INTERNAL_TRACK_SECRET header → fully
+//    trusted (it writes visit/click rows + last_active).
+//  - Fail OPEN until INTERNAL_TRACK_SECRET is configured, so tracking never
+//    silently dies on a deploy. Once the secret is set on the server, only the
+//    header-bearing internal caller can write tracking rows.
+//  - The conversion-marking path has a legitimate client caller (the /welcome
+//    page), so it is allowed either for the trusted internal caller OR for an
+//    authenticated user marking THEIR OWN signup (userId === session user).
 export async function POST(req: NextRequest) {
   try {
+    const expected = process.env.INTERNAL_TRACK_SECRET;
+    const trustedInternal = !!expected && req.headers.get('x-internal-secret') === expected;
+    const trackingAllowed = !expected || trustedInternal;
+
     const { visitorHash, userId, artistSlug, recruiterCode, markConverted } = await req.json();
     const today = new Date().toISOString().split('T')[0];
 
     // Track site visit (unique per day per visitor)
-    if (visitorHash) {
+    if (trackingAllowed && visitorHash) {
       await supabaseAdmin
         .from('site_visits')
         .upsert(
@@ -28,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Track artist page visit if on an artist page
-    if (visitorHash && artistSlug) {
+    if (trackingAllowed && visitorHash && artistSlug) {
       const { data: artist } = await supabaseAdmin
         .from('artist_profiles')
         .select('id')
@@ -50,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Track referral click if recruiter code present
-    if (visitorHash && recruiterCode) {
+    if (trackingAllowed && visitorHash && recruiterCode) {
       try {
         const { data: recruiter } = await supabaseAdmin
           .from('recruiters')
@@ -74,34 +91,44 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Mark referral click as converted when an artist signs up with a recruiter code
+    // Mark referral click as converted when an artist signs up with a recruiter
+    // code. Allowed for the trusted internal caller, or an authenticated user
+    // marking their own signup (prevents forging conversions for others).
     if (markConverted && markConverted.recruiterCode && markConverted.userId) {
-      try {
-        // Find the most recent unconverted click for this recruiter code (within 30 days)
-        const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
-        const { data: click } = await supabaseAdmin
-          .from('referral_clicks')
-          .select('id')
-          .eq('referral_code', markConverted.recruiterCode)
-          .eq('converted', false)
-          .gte('clicked_at', thirtyDaysAgo)
-          .order('clicked_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (click) {
-          await supabaseAdmin
+      let allowed = trustedInternal;
+      if (!allowed) {
+        const supabase = await createServerSupabaseClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        allowed = !!user && user.id === markConverted.userId;
+      }
+      if (allowed) {
+        try {
+          // Find the most recent unconverted click for this recruiter code (within 30 days)
+          const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+          const { data: click } = await supabaseAdmin
             .from('referral_clicks')
-            .update({ converted: true, converted_user_id: markConverted.userId })
-            .eq('id', click.id);
+            .select('id')
+            .eq('referral_code', markConverted.recruiterCode)
+            .eq('converted', false)
+            .gte('clicked_at', thirtyDaysAgo)
+            .order('clicked_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (click) {
+            await supabaseAdmin
+              .from('referral_clicks')
+              .update({ converted: true, converted_user_id: markConverted.userId })
+              .eq('id', click.id);
+          }
+        } catch {
+          // Silent fail
         }
-      } catch {
-        // Silent fail
       }
     }
 
     // Update last_active_at for authenticated users
-    if (userId) {
+    if (trackingAllowed && userId) {
       await supabaseAdmin
         .from('profiles')
         .update({ last_active_at: new Date().toISOString() })
