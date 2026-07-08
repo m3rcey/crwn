@@ -15,7 +15,34 @@
 --
 -- Idempotent + defensive: only touches tables that exist. Applies cleanly even
 -- if RLS is already on.
+--
+-- Also drops any PERMISSIVE (USING true / WITH CHECK true) policy on these
+-- tables that is reachable by a non-service role. service_role bypasses RLS, so
+-- such a policy grants nothing it needs — but if it defaulted to PUBLIC (no TO
+-- clause) it silently exposes the ledger to every authenticated user. Verified
+-- no session/browser client reads these tables, so dropping is safe.
 -- ============================================================================
+
+-- Drop permissive policies reachable by non-service roles -----------------
+DO $$
+DECLARE
+  tbl text;
+  pol record;
+BEGIN
+  FOREACH tbl IN ARRAY ARRAY['referrals','referral_earnings','fan_payouts','processed_webhook_events']
+  LOOP
+    IF to_regclass('public.' || tbl) IS NULL THEN CONTINUE; END IF;
+    FOR pol IN
+      SELECT policyname FROM pg_policies
+      WHERE schemaname = 'public' AND tablename = tbl
+        AND (qual = 'true' OR with_check = 'true')
+        AND roles <> ARRAY['service_role']::name[]
+    LOOP
+      EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', pol.policyname, tbl);
+      RAISE NOTICE 'Dropped permissive policy %.% (was reachable by non-service roles)', tbl, pol.policyname;
+    END LOOP;
+  END LOOP;
+END $$;
 
 -- referrals ------------------------------------------------------------------
 DO $$ BEGIN
@@ -69,15 +96,18 @@ BEGIN
     END IF;
   END LOOP;
 
-  -- 2) No permissive (USING true) read policy may expose a ledger table.
+  -- 2) No permissive (USING/WITH CHECK true) policy reachable by a NON-service
+  --    role may remain. A policy scoped strictly TO service_role is harmless
+  --    (service_role bypasses RLS anyway), so it is not flagged.
   SELECT tablename || '.' || policyname INTO bad
   FROM pg_policies
   WHERE schemaname = 'public'
     AND tablename IN ('referrals','referral_earnings','fan_payouts','processed_webhook_events')
-    AND qual = 'true'
+    AND (qual = 'true' OR with_check = 'true')
+    AND roles <> ARRAY['service_role']::name[]
   LIMIT 1;
   IF bad IS NOT NULL THEN
-    RAISE EXCEPTION 'Permissive USING(true) policy exposes a money ledger: %', bad;
+    RAISE EXCEPTION 'Permissive policy still exposes a money ledger to non-service roles: %', bad;
   END IF;
 
   -- 3) The webhook idempotency unique index must exist (if the table exists).
