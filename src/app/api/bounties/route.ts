@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { notifyClippersOfNewBounty } from '@/lib/bountyNotify';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -97,5 +98,15 @@ export async function POST(req: NextRequest) {
   }).select('*').single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Live bounty → ping proven clippers (skipped for drafts).
+  if (data.status === 'active') {
+    try {
+      await notifyClippersOfNewBounty(supabaseAdmin, artistId, data.title);
+    } catch (e) {
+      console.error('new-bounty clipper notify failed:', e);
+    }
+  }
+
   return NextResponse.json({ bounty: data });
 }

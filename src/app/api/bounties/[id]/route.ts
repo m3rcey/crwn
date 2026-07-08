@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { notifyClippersOfNewBounty } from '@/lib/bountyNotify';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -46,7 +47,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const artistId = await getArtistId();
   if (!artistId) return NextResponse.json({ error: 'Not an artist' }, { status: 403 });
 
-  const { data: bounty } = await supabaseAdmin.from('clip_bounties').select('id').eq('id', id).eq('artist_id', artistId).single();
+  const { data: bounty } = await supabaseAdmin.from('clip_bounties').select('id, status').eq('id', id).eq('artist_id', artistId).single();
   if (!bounty) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const body = await req.json();
@@ -56,6 +57,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const { data, error } = await supabaseAdmin.from('clip_bounties').update(patch).eq('id', id).eq('artist_id', artistId).select('*').single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // A draft flipped to active is "going live" — ping proven clippers. Guarded on
+  // the PRE-update status so re-saving an already-active bounty can't re-notify.
+  if (bounty.status === 'draft' && data.status === 'active') {
+    try {
+      await notifyClippersOfNewBounty(supabaseAdmin, artistId, data.title);
+    } catch (e) {
+      console.error('bounty publish clipper notify failed:', e);
+    }
+  }
+
   return NextResponse.json({ bounty: data });
 }
 
