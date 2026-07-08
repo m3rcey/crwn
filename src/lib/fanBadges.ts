@@ -86,6 +86,31 @@ export async function awardFanBadge(
         `${who}Your status just leveled up.`,
         '/impact',
       ).catch(() => {});
+
+      // Also tell the ARTIST one of their fans just leveled up — a CRM/retention
+      // signal (superfan, bounty winner, city captain...) the artist previously
+      // never saw. Links to the Fan CRM so they can act on the moment.
+      if (params.artistId) {
+        try {
+          const [{ data: ap }, { data: fp }] = await Promise.all([
+            supabaseAdmin.from('artist_profiles').select('user_id').eq('id', params.artistId).single(),
+            supabaseAdmin.from('profiles').select('display_name').eq('id', params.fanId).single(),
+          ]);
+          if (ap?.user_id) {
+            const fanName = fp?.display_name || 'A fan';
+            await createNotification(
+              supabaseAdmin,
+              ap.user_id,
+              'fan_milestone',
+              `${icon} ${fanName} earned ${label}`,
+              `${fanName} just hit ${label} status — a great moment to reach out.`,
+              '/profile/artist?tab=audience',
+            ).catch(() => {});
+          }
+        } catch {
+          // best-effort — never block the award
+        }
+      }
     }
     return true;
   } catch (err) {

@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createNotification } from '@/lib/notifications';
 import { awardFanBadge } from '@/lib/fanBadges';
 import { recordFanEvent } from '@/lib/fanEvents';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { bountyWonEmail } from '@/lib/emails/bountyWon';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -119,6 +121,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       bounty.reward_detail || 'Your clip took the bounty.',
       '/earn',
     ).catch(() => {});
+
+    // Best-effort: email the winning clipper. Never let a send failure break the route.
+    try {
+      const { data: winnerData } = await supabaseAdmin.auth.admin.getUserById(submission.clipper_id);
+      const winnerEmail = winnerData?.user?.email;
+      if (winnerEmail) {
+        const { subject, html } = bountyWonEmail({
+          clipperName: null,
+          bountyTitle: bounty.title,
+          artistName: null,
+          rewardLabel: bounty.reward_detail || null,
+        });
+        await resend.emails.send({ from: FROM_EMAIL, to: winnerEmail, subject, html });
+      }
+    } catch (e) {
+      console.error('bountyWon email failed:', e);
+    }
   }
 
   return NextResponse.json({ submission: updated });

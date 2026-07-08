@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { resend, FROM_EMAIL } from '@/lib/resend';
+import { releaseCreditEmail } from '@/lib/emails/releaseCredit';
 
 // Artist-facing management of release credits (feature #3). The artist assigns
 // which subscribing fans are credited on a specific release (track or album).
@@ -188,6 +190,25 @@ export async function POST(request: NextRequest) {
         link,
       }))
     );
+
+    // Best-effort: email each newly credited fan. Never let a send failure break the route.
+    for (const r of newlyCredited as any[]) {
+      try {
+        const { data: fanData } = await supabaseAdmin.auth.admin.getUserById(r.fan_id);
+        const fanEmail = fanData?.user?.email;
+        if (fanEmail) {
+          const { subject, html } = releaseCreditEmail({
+            fanName: null,
+            artistName: artistName === 'The artist' ? null : artistName,
+            releaseTitle: release?.title || null,
+            role: r.role_label || null,
+          });
+          await resend.emails.send({ from: FROM_EMAIL, to: fanEmail, subject, html });
+        }
+      } catch (e) {
+        console.error('releaseCredit email failed:', e);
+      }
+    }
   }
 
   return NextResponse.json({ ok: true, count: rows.length });

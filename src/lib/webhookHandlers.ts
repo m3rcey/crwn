@@ -1456,6 +1456,36 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
     }
   }
 
+  // Buyer: in-app confirmation + email receipt (mirrors the product/track flow,
+  // which previously left live-ticket buyers with no confirmation at all).
+  await supabaseAdmin.from('notifications').insert({
+    user_id: buyer_id,
+    type: 'live_ticket',
+    title: "🎟️ You're in",
+    message: `Your ticket to ${liveTitle} is confirmed.`,
+    link: `/my-calendar`,
+  });
+
+  const buyerEmail = session.customer_email || session.customer_details?.email;
+  if (buyerEmail && artistProfile?.user_id) {
+    try {
+      const { data: artistNameRow } = await supabaseAdmin
+        .from('profiles')
+        .select('display_name')
+        .eq('id', artistProfile.user_id)
+        .single();
+      const artistDisplayName = artistNameRow?.display_name || 'the artist';
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: buyerEmail,
+        subject: `Your ticket to ${liveTitle} is confirmed 🎟️`,
+        html: purchaseEmail(fanName, artistDisplayName, liveTitle, (grossAmount / 100).toFixed(2), 'live ticket'),
+      });
+    } catch (err) {
+      console.error('Live ticket buyer email failed:', err);
+    }
+  }
+
   console.log('Live ticket recorded:', { live_session_id, buyer_id, artist_id, netAmount });
 }
 
