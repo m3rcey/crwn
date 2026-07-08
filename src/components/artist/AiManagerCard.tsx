@@ -37,6 +37,7 @@ const TYPE_CONFIG: Record<AiInsightType, { icon: React.ElementType; label: strin
   content_nudge: { icon: Pen, label: 'Content' },
   weekly_digest: { icon: FileText, label: 'Digest' },
   sync_match: { icon: Music, label: 'Sync Opportunity' },
+  fulfillment: { icon: Calendar, label: 'Promise' },
 };
 
 const PRIORITY_STYLES: Record<string, string> = {

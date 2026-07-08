@@ -4,13 +4,14 @@ import { collectArtistData } from '@/lib/ai/collectArtistData';
 import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
+import { generateFulfillmentInsights } from '@/lib/ai/fulfillmentInsights';
 import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generateActions';
 import { getCrossArtistPatterns, formatPatternsForPrompt } from '@/lib/ai/crossArtistPatterns';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
 
 // Insight types that warrant a push notification
-const NOTIFY_TYPES = new Set(['churn', 'booking_reminder', 'sync_match', 'revenue']);
+const NOTIFY_TYPES = new Set(['churn', 'booking_reminder', 'sync_match', 'revenue', 'fulfillment']);
 const NOTIFY_PRIORITIES = new Set(['urgent', 'high']);
 
 const supabaseAdmin = createClient(
@@ -310,6 +311,11 @@ export async function GET(req: NextRequest) {
             const syncInsights = generateSyncInsights(data);
             insights = [...insights, ...syncInsights];
           }
+
+          // Promise Calendar fulfillment insights apply to every tier — an overdue
+          // supporter promise is a retention risk regardless of plan.
+          const fulfillmentInsights = await generateFulfillmentInsights(supabaseAdmin, artist.id);
+          if (fulfillmentInsights.length) insights = [...insights, ...fulfillmentInsights];
 
           const inserted = await insertInsights(artist.id, artist.user_id, insights, existingTypes);
 

@@ -67,6 +67,16 @@ export function PromiseCalendar() {
   const overdueCount = buckets.overdue.length;
   const thisWeek = [...buckets.today, ...buckets.week];
 
+  // Fulfillment health = of your resolved promises, how many you kept (completed)
+  // vs let go overdue/missed. Null when there's no track record yet.
+  const health = useMemo(() => {
+    const promises = items.filter((i) => i.sourceType === 'fulfillment_event');
+    const completed = promises.filter((i) => i.status === 'completed').length;
+    const missed = promises.filter((i) => i.status === 'overdue' || i.status === 'missed').length;
+    const resolved = completed + missed;
+    return resolved > 0 ? { pct: Math.round((completed / resolved) * 100), completed, resolved } : null;
+  }, [items]);
+
   const completeEvent = useCallback(async (item: CalendarItem) => {
     if (item.sourceType !== 'fulfillment_event') return;
     setBusyId(item.id);
@@ -118,6 +128,21 @@ export function PromiseCalendar() {
             This week&apos;s promises
           </p>
         </div>
+        {health && (
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-crwn-elevated">
+            <span className="text-xs text-crwn-text-secondary">Fulfillment health</span>
+            <span
+              className={`text-sm font-bold ${
+                health.pct >= 80 ? 'text-green-400' : health.pct >= 50 ? 'text-crwn-gold' : 'text-crwn-error'
+              }`}
+            >
+              {health.pct}%{' '}
+              <span className="text-xs font-normal text-crwn-text-secondary">
+                ({health.completed}/{health.resolved} kept)
+              </span>
+            </span>
+          </div>
+        )}
         {overdueCount > 0 && (
           <div className="flex items-center gap-2 mb-3 text-sm text-crwn-error">
             <AlertTriangle className="w-4 h-4" />

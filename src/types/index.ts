@@ -412,7 +412,7 @@ export interface AudienceFan {
 }
 
 // AI Artist Manager
-export type AiInsightType = 'revenue' | 'churn' | 'vip_fan' | 'booking_reminder' | 'content_nudge' | 'weekly_digest' | 'sync_match';
+export type AiInsightType = 'revenue' | 'churn' | 'vip_fan' | 'booking_reminder' | 'content_nudge' | 'weekly_digest' | 'sync_match' | 'fulfillment';
 export type AiInsightPriority = 'urgent' | 'high' | 'normal' | 'low';
 
 export interface AiInsight {
