@@ -435,6 +435,23 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
   const fanCountry = prevEarning?.fan_country || null;
   const fanCountryCode = prevEarning?.fan_country_code || null;
 
+  // Look up any active referral BEFORE writing the earning so net_amount reflects the
+  // artist's TRUE take. A recurring referral commission is funded from the artist's
+  // payout (it's part of the application_fee Stripe deducted), so it must come out of
+  // net. platform_fee stays = the platform's BASE cut — its real revenue; the
+  // commission is pass-through to the referrer — so admin revenue metrics stay correct.
+  // Cap the commission at what the fee could cover so the platform never funds a gap.
+  const { data: existingReferral } = await supabaseAdmin
+    .from('referrals')
+    .select('id, referrer_fan_id, commission_rate')
+    .eq('artist_id', sub.artist_id)
+    .eq('referred_fan_id', sub.fan_id)
+    .eq('status', 'active')
+    .maybeSingle();
+  const referralCommission = existingReferral
+    ? Math.min(Math.round(grossAmount * (existingReferral.commission_rate / 100)), grossAmount - platformFee)
+    : 0;
+
   // Write earnings record for renewal
   const invoiceWithPayment = invoice as unknown as { payment_intent?: string; id: string };
   const { data: earning } = await supabaseAdmin
@@ -446,7 +463,7 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
       description: `${fanName} renewed subscription to ${tierName}`,
       gross_amount: grossAmount,
       platform_fee: platformFee,
-      net_amount: netAmount,
+      net_amount: netAmount - referralCommission,
       stripe_payment_id: invoiceWithPayment.payment_intent || invoiceWithPayment.id,
       metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, renewal: true },
       fan_city: fanCity,
@@ -491,17 +508,10 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
       console.error('Milestone check failed:', err);
     }
 
-    // Process recurring referral commission
-    const { data: existingReferral } = await supabaseAdmin
-      .from('referrals')
-      .select('id, referrer_fan_id, commission_rate')
-      .eq('artist_id', sub.artist_id)
-      .eq('referred_fan_id', sub.fan_id)
-      .eq('status', 'active')
-      .single();
-
+    // Pay the recurring referral commission (referral looked up above). Uses the same
+    // capped amount that was subtracted from the earning's net, so paid == collected.
     if (existingReferral && earning) {
-      const commissionAmount = Math.round(grossAmount * (existingReferral.commission_rate / 100));
+      const commissionAmount = referralCommission;
 
       await insertHeldReferralEarning(supabaseAdmin, {
         referral_id: existingReferral.id,

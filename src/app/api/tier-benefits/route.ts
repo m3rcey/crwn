@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { syncTierObligations } from '@/lib/tierObligations';
 
 export async function GET(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -91,7 +92,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
+    // Promise Calendar: auto-create/archive fulfillment obligations from the
+    // recurring benefits. Best-effort — never fails the benefit save.
+    try {
+      await syncTierObligations(supabase, {
+        tierId: tier_id,
+        artistId: tier.artist_id,
+        benefitTypes: benefits.map((b: { benefit_type: string }) => b.benefit_type),
+      });
+    } catch (err) {
+      console.error('Tier obligation sync failed:', err);
+    }
+
     return NextResponse.json(inserted);
+  }
+
+  // No benefits left — archive any promise obligations tied to this tier.
+  try {
+    await syncTierObligations(supabase, {
+      tierId: tier_id,
+      artistId: tier.artist_id,
+      benefitTypes: [],
+    });
+  } catch (err) {
+    console.error('Tier obligation sync (empty) failed:', err);
   }
 
   return NextResponse.json([]);

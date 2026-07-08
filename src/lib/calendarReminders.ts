@@ -116,6 +116,55 @@ export async function dispatchCalendarReminders(
     }
   }
 
+  // ── C) Fan deadline reminders (campaigns/missions/bounties/demand tests) ────
+  const DEADLINE_SOURCES = [
+    { table: 'road_campaigns', subjectType: 'road_campaign' },
+    { table: 'missions', subjectType: 'mission' },
+    { table: 'clip_bounties', subjectType: 'clip_bounty' },
+    { table: 'proof_of_demand', subjectType: 'proof_of_demand' },
+  ];
+  const deadlineRows: { id: string; title: string; artist_id: string; deadline: string; subjectType: string }[] = [];
+  for (const src of DEADLINE_SOURCES) {
+    const { data } = await admin
+      .from(src.table)
+      .select('id, title, artist_id, deadline')
+      .eq('status', 'active')
+      .gte('deadline', nowIso)
+      .lte('deadline', windowEndIso)
+      .limit(200);
+    for (const r of data || []) deadlineRows.push({ ...r, subjectType: src.subjectType });
+  }
+  if (deadlineRows.length) {
+    const dArtistIds = [...new Set(deadlineRows.map((r) => r.artist_id))];
+    const nameByArtist = await artistNames(admin, dArtistIds);
+    const { data: dsubs } = await admin
+      .from('subscriptions')
+      .select('fan_id, artist_id')
+      .in('artist_id', dArtistIds)
+      .eq('status', 'active');
+    const fansByArtist = new Map<string, string[]>();
+    for (const s of dsubs || []) {
+      const arr = fansByArtist.get(s.artist_id) || [];
+      arr.push(s.fan_id);
+      fansByArtist.set(s.artist_id, arr);
+    }
+    for (const r of deadlineRows) {
+      for (const fanId of fansByArtist.get(r.artist_id) || []) {
+        candidates.push({
+          userId: fanId,
+          subjectType: r.subjectType,
+          subjectId: r.id,
+          audience: 'fan',
+          line: {
+            title: r.title,
+            whenLabel: relativeDueLabel(r.deadline, now),
+            context: nameByArtist.get(r.artist_id) || 'An artist',
+          },
+        });
+      }
+    }
+  }
+
   if (candidates.length === 0) return { sent: 0, users: 0, skipped: 0 };
 
   // ── Dedup: claim the in_app channel. Only NEWLY inserted rows are "new". ────
