@@ -56,7 +56,9 @@ CREATE POLICY "Artists view own discount code uses"
   ON discount_code_uses FOR SELECT
   USING (artist_id IN (SELECT id FROM artist_profiles WHERE user_id = auth.uid()));
 
--- System inserts uses (via service role in webhooks)
+-- System inserts uses (via service role in webhooks). WITH CHECK(false): the
+-- service role bypasses RLS, so it still inserts; this just stops a signed-in
+-- client from forging redemptions to grief per-user/global usage caps.
 CREATE POLICY "Service role inserts discount code uses"
   ON discount_code_uses FOR INSERT
-  WITH CHECK (true);
+  WITH CHECK (false);
