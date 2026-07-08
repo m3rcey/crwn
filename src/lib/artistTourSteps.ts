@@ -272,6 +272,17 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       },
     },
 
+    // --- PROMISE CALENDAR TAB ---
+    {
+      element: '[data-tour="tab-promise"]',
+      popover: {
+        title: 'Promise Calendar',
+        description: 'Every perk you promise a tier — monthly tracks, shout-outs, behind-the-scenes — gets tracked here with a deadline. Fans see the same promises on their own calendar, so delivering on time is what keeps them subscribed. Overdue promises are flagged before fans notice.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
     // --- MUSIC TAB ---
     // 22. Switch to Music tab
     {
@@ -290,6 +301,17 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       popover: {
         title: 'Upload your music',
         description: 'Upload tracks here. Each track starts as free. Uncheck the free toggle to select which subscription tiers can access it. Keep at least 2 to 3 tracks free so new fans can discover your sound.',
+        side: 'bottom',
+        align: 'start',
+      },
+    },
+
+    // --- LIVE TAB ---
+    {
+      element: '[data-tour="tab-livestreams"]',
+      popover: {
+        title: 'Go live & sell tickets',
+        description: 'Host listening sessions and live streams for your fans. You can also sell pre-sale tickets to a live event ahead of time, so fans lock in and you get paid before you ever go on.',
         side: 'bottom',
         align: 'start',
       },

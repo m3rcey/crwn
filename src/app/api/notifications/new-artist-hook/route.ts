@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { newArtistSignupEmail } from '@/lib/emails/newArtistSignup';
+import { artistWelcomeEmail } from '@/lib/emails/artistWelcome';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -53,6 +54,27 @@ export async function POST(req: NextRequest) {
       subject: email.subject,
       html: email.html,
     });
+
+    // Personal welcome from Josh to the artist, with the Cal.com onboarding-call
+    // link. Best-effort: a failure here must NOT fail the founder notify above.
+    if (user_id) {
+      try {
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(user_id);
+        const artistEmail = authUser?.user?.email;
+        if (artistEmail) {
+          const welcome = artistWelcomeEmail({ name: displayName });
+          await resend.emails.send({
+            from: 'Josh at CRWN <hello@thecrwn.app>',
+            replyTo: 'joshn.wms@gmail.com',
+            to: artistEmail,
+            subject: welcome.subject,
+            html: welcome.html,
+          });
+        }
+      } catch (welcomeErr) {
+        console.error('new-artist-hook: artist welcome email failed:', welcomeErr);
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {

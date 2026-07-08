@@ -26,6 +26,7 @@ const STUDIO_CARDS: StudioCard[] = [
   { href: '/bounties',             title: 'Clip Bounties',      image: '/studio_bounties.jpg' },
   { href: '/city-unlocks',         title: 'City Unlocks',       image: '/studio_cityunlocks.jpg' },
   { href: '/profile/artist?tab=audience', title: 'Fan CRM',     image: '/studio_crm.jpg' },
+  { href: '/profile/artist?tab=promise',  title: 'Promise Calendar', emoji: '📅' },
   { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg' },
   { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg' },
   { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg' },
