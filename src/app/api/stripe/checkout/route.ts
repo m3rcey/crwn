@@ -75,19 +75,25 @@ export async function POST(req: NextRequest) {
     // the clipper via the existing referral_earnings -> fan-cashout rail (platform
     // stays whole). The rate is locked here (and capped so fee+cut <= 100%) then
     // echoed in metadata, so the fee charged equals the commission paid in the webhook.
-    let clipperRate = 0;
-    if (attributionSource === 'clipper') {
-      // L1 fix: the referral commission is LIFETIME-locked at the original rate
-      // (referrals.commission_rate) and the webhook pays that locked rate on every
-      // charge, including resubscribes. If we instead charged the fee at the LIVE
-      // (stepped-down) ramp rate, a resubscribe would collect less fee than the
-      // commission paid and the platform would fund the gap. So when an existing
-      // clipper referral is already on file for this fan+artist, charge the fee at
-      // its locked rate; only brand-new subs use the live ramp.
+    // Attributed commission (clipper OR fan referral) is ARTIST-funded: it's added on
+    // top of the platform fee so the artist's payout drops by exactly the cut and the
+    // platform passes it through, staying whole. This is the ONLY correct funder — a
+    // recurring commission can exceed the platform's whole fee (10% > 8% Pro), so
+    // platform-funding would be permanent negative margin. Fee cut == the commission
+    // the webhook pays, by construction, incl. lifetime-locked rate on resubscribes.
+    // Fan referrals are OPT-IN (0% default) — an artist turns on a rate deliberately.
+    let clipperRate = 0;   // echoed to the webhook so NEW clipper payouts match the fee
+    let attributedCut = 0; // the % actually added to the platform fee
+    const safeReferralCode =
+      typeof referralCode === 'string' && /^[A-Za-z0-9_-]+$/.test(referralCode) ? referralCode : '';
+
+    if (attributionSource === 'clipper' || safeReferralCode) {
       const svc = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
         process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
       );
+      // Resubscribe: an existing referral carries the lifetime-locked rate the webhook
+      // will pay (referrals.commission_rate). Charge the fee at exactly that rate.
       const { data: existingRef } = await svc
         .from('referrals')
         .select('commission_rate, source')
@@ -95,24 +101,46 @@ export async function POST(req: NextRequest) {
         .eq('referred_fan_id', fanId)
         .maybeSingle();
 
-      if (existingRef?.source === 'clipper' && existingRef.commission_rate != null) {
-        clipperRate = Math.min(existingRef.commission_rate, 100 - platformFeePercent);
-      } else {
+      if (existingRef?.commission_rate != null) {
+        attributedCut = existingRef.commission_rate;
+        if (existingRef.source === 'clipper') clipperRate = attributedCut;
+      } else if (attributionSource === 'clipper') {
         const { data: artistRate } = await supabase
           .from('artist_profiles')
           .select('clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
           .eq('id', tier.artist_id)
           .single();
-        // Ramp resolves from the calendar (no cron); cap so fee + cut <= 100%.
-        const resolved = resolveClipperRate({
+        // Ramp resolves from the calendar (no cron).
+        clipperRate = resolveClipperRate({
           schedule: artistRate?.clipper_rate_schedule,
           campaignStartedAt: artistRate?.clipper_campaign_started_at,
           standardRate: artistRate?.clipper_commission_rate || 0,
         });
-        clipperRate = Math.min(resolved, 100 - platformFeePercent);
+        attributedCut = clipperRate;
+      } else {
+        // Fan referral. Only charge the artist if the code resolves to a real,
+        // non-self referrer — else the webhook pays no one and the artist would be
+        // overcharged. Mirrors processReferral's referrer resolution + opt-in default.
+        const { data: referrer } = await svc
+          .from('profiles')
+          .select('id')
+          .or(`username.eq.${safeReferralCode},id.ilike.${safeReferralCode}%`)
+          .limit(1)
+          .maybeSingle();
+        if (referrer && referrer.id !== fanId) {
+          const { data: ap } = await supabase
+            .from('artist_profiles')
+            .select('referral_commission_rate')
+            .eq('id', tier.artist_id)
+            .single();
+          attributedCut = ap?.referral_commission_rate ?? 0;
+        }
       }
+      // Cap so platform fee + cut never exceeds 100%; floor at 0.
+      attributedCut = Math.min(Math.max(attributedCut, 0), 100 - platformFeePercent);
+      clipperRate = Math.min(Math.max(clipperRate, 0), 100 - platformFeePercent);
     }
-    const effectiveFeePercent = platformFeePercent + clipperRate;
+    const effectiveFeePercent = platformFeePercent + attributedCut;
 
     // Get fan profile
     const { data: fan } = await supabase

@@ -85,10 +85,14 @@ export async function processReferral(params: {
   // For clippers, prefer the rate locked at checkout (which also set the matching
   // application_fee_percent) so the commission paid equals the fee the artist was
   // charged. Fall back to the column only if the lock is absent.
+  // Fan referrals are OPT-IN and ARTIST-funded: default 0 (no program) unless the
+  // artist has set a rate, which checkout also adds to application_fee_percent so the
+  // platform stays whole. (Was `|| 10`, which silently made every artist run a
+  // platform-funded 10% program — negative margin, since 10% > the 8% Pro fee.)
   const commissionRate =
     source === 'clipper'
       ? (clipperRate ?? artist?.clipper_commission_rate ?? 10)
-      : (artist?.referral_commission_rate || 10);
+      : (artist?.referral_commission_rate ?? 0);
   const commissionAmount = Math.round(grossAmount * (commissionRate / 100));
 
   // Overwrite guard: if a referral already exists for (artist_id, referred_fan_id),
