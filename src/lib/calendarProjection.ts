@@ -148,6 +148,13 @@ export async function getFanCalendar(
   const tierByArtist = new Map<string, string | null>();
   for (const s of activeSubs) tierByArtist.set(s.artist_id, s.tier_id ?? null);
 
+  // Squad memberships → resolves squad-audience promised benefits.
+  const { data: squadRows } = await supabase
+    .from('artist_squad_members')
+    .select('squad_id')
+    .eq('fan_id', fanId);
+  const fanSquadIds = new Set((squadRows || []).map((r: any) => r.squad_id).filter(Boolean));
+
   // Artist display names + slugs for labeling/links.
   const nameByArtist = await artistNameMap(supabase, artistIds);
 
@@ -246,7 +253,7 @@ export async function getFanCalendar(
   for (const e of fEvents || []) {
     const ob = obById.get(e.obligation_id);
     if (!ob || ob.status !== 'active' || !ob.auto_create_fan_items) continue;
-    if (!fanEligibleForObligation(ob, tierByArtist.get(e.artist_id) ?? null)) continue;
+    if (!fanEligibleForObligation(ob, tierByArtist.get(e.artist_id) ?? null, fanSquadIds)) continue;
     items.push({
       id: `fulfillment_event:${e.id}`,
       sourceType: 'fulfillment_event',
@@ -368,14 +375,19 @@ function fanItem(
 }
 
 /** Is the fan eligible for a promised benefit, given the obligation's audience? */
-function fanEligibleForObligation(ob: any, fanTierId: string | null): boolean {
+function fanEligibleForObligation(
+  ob: any,
+  fanTierId: string | null,
+  fanSquadIds: Set<string>,
+): boolean {
   switch (ob.audience_kind) {
     case 'all_supporters':
       return true; // any active subscriber
     case 'tier':
       return !!ob.audience_id && ob.audience_id === fanTierId;
-    // squad / campaign audiences are not yet resolved here — hide rather than
-    // risk over-exposing an item to an ineligible fan.
+    case 'squad':
+      return !!ob.audience_id && fanSquadIds.has(ob.audience_id);
+    // campaign audience not yet resolved here — hide rather than over-expose.
     default:
       return false;
   }

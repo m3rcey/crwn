@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Loader2, CalendarClock, AlertTriangle, CheckCircle2, ArrowRight, CalendarCheck, Plus, X,
-  List, CalendarDays,
+  List, CalendarDays, MoreHorizontal,
 } from 'lucide-react';
 import { CalendarMonthGrid } from '@/components/calendar/CalendarMonthGrid';
 import {
@@ -25,6 +25,15 @@ import {
 } from '@/lib/fulfillment';
 
 type ViewTab = 'week' | 'overdue' | 'completed';
+
+interface TierHealth {
+  tierId: string;
+  tierName: string;
+  obligations: number;
+  completed: number;
+  resolved: number;
+  pct: number | null;
+}
 
 const TABS: { id: ViewTab; label: string }[] = [
   { id: 'week', label: 'This week' },
@@ -43,6 +52,14 @@ export function PromiseCalendar() {
   const [view, setView] = useState<'list' | 'calendar'>('list');
   const [showForm, setShowForm] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [tierHealth, setTierHealth] = useState<TierHealth[]>([]);
+
+  useEffect(() => {
+    fetch('/api/promise-calendar/health')
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d.tiers)) setTierHealth(d.tiers); })
+      .catch(() => {});
+  }, []);
 
   const refetch = useCallback(() => {
     return fetch('/api/promise-calendar')
@@ -77,20 +94,24 @@ export function PromiseCalendar() {
     return resolved > 0 ? { pct: Math.round((completed / resolved) * 100), completed, resolved } : null;
   }, [items]);
 
-  const completeEvent = useCallback(async (item: CalendarItem) => {
+  const eventAction = useCallback(async (item: CalendarItem, body: Record<string, unknown>) => {
     if (item.sourceType !== 'fulfillment_event') return;
     setBusyId(item.id);
     try {
       await fetch(`/api/promise-calendar/events/${item.sourceId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'complete' }),
+        body: JSON.stringify(body),
       });
       await refetch();
     } finally {
       setBusyId(null);
     }
   }, [refetch]);
+
+  const completeEvent = useCallback((item: CalendarItem) => eventAction(item, { action: 'complete' }), [eventAction]);
+  const rescheduleEvent = useCallback((item: CalendarItem, dueAt: string) => eventAction(item, { action: 'reschedule', dueAt }), [eventAction]);
+  const cancelEvent = useCallback((item: CalendarItem) => eventAction(item, { action: 'cancel' }), [eventAction]);
 
   if (isLoading) {
     return (
@@ -161,6 +182,44 @@ export function PromiseCalendar() {
         )}
       </div>
 
+      {/* Per-tier fulfillment health */}
+      {tierHealth.length > 0 && (
+        <div className="neu-raised rounded-xl p-5 mb-6">
+          <p className="text-xs font-semibold text-crwn-gold uppercase tracking-wide mb-3">
+            Tier fulfillment health
+          </p>
+          <div className="space-y-3">
+            {tierHealth.map((t) => {
+              const color =
+                t.pct === null ? 'text-crwn-text-secondary'
+                : t.pct >= 80 ? 'text-green-400'
+                : t.pct >= 50 ? 'text-crwn-gold'
+                : 'text-crwn-error';
+              const bar =
+                t.pct === null ? 'bg-crwn-text-secondary'
+                : t.pct >= 80 ? 'bg-green-400'
+                : t.pct >= 50 ? 'bg-crwn-gold'
+                : 'bg-crwn-error';
+              return (
+                <div key={t.tierId}>
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="text-crwn-text font-medium">{t.tierName}</span>
+                    <span className={`font-bold ${color}`}>{t.pct === null ? '—' : `${t.pct}%`}</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-crwn-elevated overflow-hidden">
+                    <div className={`h-full rounded-full ${bar}`} style={{ width: `${t.pct ?? 0}%` }} />
+                  </div>
+                  <p className="text-[11px] text-crwn-text-secondary mt-1">
+                    {t.resolved > 0 ? `${t.completed}/${t.resolved} kept` : 'No promises resolved yet'}
+                    {' · '}{t.obligations} promise{t.obligations !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* List / Calendar view toggle */}
       <div className="inline-flex rounded-full neu-raised p-1 mb-4">
         <button
@@ -209,9 +268,9 @@ export function PromiseCalendar() {
           </div>
 
           {/* Lists */}
-          {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
-          {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
-          {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} onComplete={completeEvent} busyId={busyId} />}
+          {tab === 'week' && <ItemList items={thisWeek} emptyLabel="Nothing due this week." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} />}
+          {tab === 'overdue' && <ItemList items={buckets.overdue} emptyLabel="Nothing overdue. You're on top of it." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} />}
+          {tab === 'completed' && <ItemList items={buckets.completed} emptyLabel="No completed promises yet." onOpen={router.push} onComplete={completeEvent} onReschedule={rescheduleEvent} onCancel={cancelEvent} busyId={busyId} />}
         </>
       )}
 
@@ -226,14 +285,19 @@ export function PromiseCalendar() {
 }
 
 function ItemList({
-  items, emptyLabel, onOpen, onComplete, busyId,
+  items, emptyLabel, onOpen, onComplete, onReschedule, onCancel, busyId,
 }: {
   items: CalendarItem[];
   emptyLabel: string;
   onOpen: (href: string) => void;
   onComplete: (item: CalendarItem) => void;
+  onReschedule: (item: CalendarItem, dueAt: string) => void;
+  onCancel: (item: CalendarItem) => void;
   busyId: string | null;
 }) {
+  const [menuId, setMenuId] = useState<string | null>(null);
+  const [rescheduleId, setRescheduleId] = useState<string | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState('');
   if (items.length === 0) {
     return (
       <div className="neu-raised rounded-xl p-8 text-center">
@@ -251,45 +315,105 @@ function ItemList({
           const isPromise = it.sourceType === 'fulfillment_event';
           const busy = busyId === it.id;
           return (
-            <div key={it.id} className="py-3 first:pt-1 last:pb-0 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-crwn-gold/80">
-                    {ITEM_TYPE_LABEL[it.type]}
-                  </span>
-                  <span
-                    className={`text-[11px] font-medium ${
-                      overdue ? 'text-crwn-error' : done ? 'text-green-400' : 'text-crwn-text-secondary'
-                    }`}
-                  >
-                    {done ? 'Done' : relativeDueLabel(it.dueAt)}
-                  </span>
+            <div key={it.id} className="py-3 first:pt-1 last:pb-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-crwn-gold/80">
+                      {ITEM_TYPE_LABEL[it.type]}
+                    </span>
+                    <span
+                      className={`text-[11px] font-medium ${
+                        overdue ? 'text-crwn-error' : done ? 'text-green-400' : 'text-crwn-text-secondary'
+                      }`}
+                    >
+                      {done ? 'Done' : relativeDueLabel(it.dueAt)}
+                    </span>
+                  </div>
+                  <p className={`text-sm font-medium truncate mt-0.5 ${done ? 'text-crwn-text-secondary line-through' : 'text-crwn-text'}`}>
+                    {it.title}
+                  </p>
+                  {it.subtitle && (
+                    <p className="text-xs text-crwn-text-secondary truncate">{it.subtitle}</p>
+                  )}
                 </div>
-                <p className={`text-sm font-medium truncate mt-0.5 ${done ? 'text-crwn-text-secondary line-through' : 'text-crwn-text'}`}>
-                  {it.title}
-                </p>
-                {it.subtitle && (
-                  <p className="text-xs text-crwn-text-secondary truncate">{it.subtitle}</p>
-                )}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {!done && isPromise ? (
+                    <>
+                      <button
+                        onClick={() => onComplete(it)}
+                        disabled={busy}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold hover:bg-crwn-gold/25 transition-colors disabled:opacity-50"
+                      >
+                        {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                        Mark complete
+                      </button>
+                      <button
+                        onClick={() => { setMenuId(menuId === it.id ? null : it.id); setRescheduleId(null); }}
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-crwn-text-secondary hover:text-crwn-text hover:bg-crwn-elevated/50"
+                        aria-label="More"
+                      >
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+                    </>
+                  ) : !done && it.cta && it.href ? (
+                    <button
+                      onClick={() => onOpen(it.href!)}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold hover:bg-crwn-gold/25 transition-colors"
+                    >
+                      {it.cta}
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  ) : null}
+                </div>
               </div>
-              {!done && isPromise ? (
-                <button
-                  onClick={() => onComplete(it)}
-                  disabled={busy}
-                  className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold hover:bg-crwn-gold/25 transition-colors disabled:opacity-50"
-                >
-                  {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
-                  Mark complete
-                </button>
-              ) : !done && it.cta && it.href ? (
-                <button
-                  onClick={() => onOpen(it.href!)}
-                  className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold/15 text-crwn-gold hover:bg-crwn-gold/25 transition-colors"
-                >
-                  {it.cta}
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              ) : null}
+
+              {/* Reschedule / cancel menu */}
+              {menuId === it.id && (
+                <div className="mt-2 flex items-center gap-2 flex-wrap">
+                  {rescheduleId === it.id ? (
+                    <>
+                      <input
+                        type="date"
+                        value={rescheduleDate}
+                        onChange={(e) => setRescheduleDate(e.target.value)}
+                        className="bg-crwn-elevated rounded-lg px-2 py-1.5 text-xs text-crwn-text outline-none focus:ring-1 focus:ring-crwn-gold"
+                      />
+                      <button
+                        onClick={() => {
+                          if (!rescheduleDate) return;
+                          onReschedule(it, new Date(rescheduleDate + 'T12:00:00').toISOString());
+                          setMenuId(null); setRescheduleId(null); setRescheduleDate('');
+                        }}
+                        className="px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-gold text-crwn-bg hover:bg-crwn-gold/90"
+                      >
+                        Move
+                      </button>
+                      <button onClick={() => setRescheduleId(null)} className="px-2 py-1.5 text-xs text-crwn-text-secondary hover:text-crwn-text">
+                        Back
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          setRescheduleId(it.id);
+                          setRescheduleDate(new Date(it.dueAt).toISOString().slice(0, 10));
+                        }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-elevated text-crwn-text hover:bg-crwn-elevated/70"
+                      >
+                        <CalendarClock className="w-3 h-3" /> Reschedule
+                      </button>
+                      <button
+                        onClick={() => { onCancel(it); setMenuId(null); }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-crwn-error hover:bg-crwn-error/10"
+                      >
+                        <X className="w-3 h-3" /> Cancel promise
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
