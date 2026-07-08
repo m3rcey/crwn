@@ -77,18 +77,40 @@ export async function POST(req: NextRequest) {
     // echoed in metadata, so the fee charged equals the commission paid in the webhook.
     let clipperRate = 0;
     if (attributionSource === 'clipper') {
-      const { data: artistRate } = await supabase
-        .from('artist_profiles')
-        .select('clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
-        .eq('id', tier.artist_id)
-        .single();
-      // Ramp resolves from the calendar (no cron); cap so fee + cut <= 100%.
-      const resolved = resolveClipperRate({
-        schedule: artistRate?.clipper_rate_schedule,
-        campaignStartedAt: artistRate?.clipper_campaign_started_at,
-        standardRate: artistRate?.clipper_commission_rate || 0,
-      });
-      clipperRate = Math.min(resolved, 100 - platformFeePercent);
+      // L1 fix: the referral commission is LIFETIME-locked at the original rate
+      // (referrals.commission_rate) and the webhook pays that locked rate on every
+      // charge, including resubscribes. If we instead charged the fee at the LIVE
+      // (stepped-down) ramp rate, a resubscribe would collect less fee than the
+      // commission paid and the platform would fund the gap. So when an existing
+      // clipper referral is already on file for this fan+artist, charge the fee at
+      // its locked rate; only brand-new subs use the live ramp.
+      const svc = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+        process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+      );
+      const { data: existingRef } = await svc
+        .from('referrals')
+        .select('commission_rate, source')
+        .eq('artist_id', tier.artist_id)
+        .eq('referred_fan_id', fanId)
+        .maybeSingle();
+
+      if (existingRef?.source === 'clipper' && existingRef.commission_rate != null) {
+        clipperRate = Math.min(existingRef.commission_rate, 100 - platformFeePercent);
+      } else {
+        const { data: artistRate } = await supabase
+          .from('artist_profiles')
+          .select('clipper_commission_rate, clipper_rate_schedule, clipper_campaign_started_at')
+          .eq('id', tier.artist_id)
+          .single();
+        // Ramp resolves from the calendar (no cron); cap so fee + cut <= 100%.
+        const resolved = resolveClipperRate({
+          schedule: artistRate?.clipper_rate_schedule,
+          campaignStartedAt: artistRate?.clipper_campaign_started_at,
+          standardRate: artistRate?.clipper_commission_rate || 0,
+        });
+        clipperRate = Math.min(resolved, 100 - platformFeePercent);
+      }
     }
     const effectiveFeePercent = platformFeePercent + clipperRate;
 

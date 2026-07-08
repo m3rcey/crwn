@@ -112,10 +112,9 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
   const personRefs = await ensurePersonRefs(peopleSlugs);
   const personRefParts = buildPersonRefParts(personRefs);
 
-  // This series is a data-rich AUDIT layout (tier cards + numbers), NOT an
-  // action scene. Keep the face ref binding to the top-right PORTRAIT that the
-  // prompt already specifies, rather than rewriting the artist into a central
-  // acting figure that would crowd out the tier cards.
+  // Story-first: bind the face to the CENTRAL acting figure the prompt
+  // describes (artist hugging the DIRECT cash sack atop the tier staircase),
+  // not a floating portrait. The tiers/numbers ride alongside as retained data.
   let finalPrompt = promptText;
   if (personRefParts.length) {
     const titleCase = (s) =>
@@ -125,7 +124,7 @@ for (let idx = 0; idx < scriptFiles.length; idx++) {
     if (!primary.length) primary = refSlugs;
     const names = primary.map(titleCase);
     const nameList = names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-    const portraitDirective = ` The portrait in the top-right corner must be ${nameList}, with a clearly recognizable face taken from the attached reference photo (face shape, hair, facial hair if any, signature look), rendered in raw black sharpie line work only (not photo-real, no shading, no color), so it still reads unmistakably as ${nameList} in simple marker style. Keep it a top-right corner portrait as described; do not turn it into a large central figure and do not let it crowd the tier cards or numbers.`;
+    const portraitDirective = ` Draw ${nameList} as the single central recognizable character in the scene, a full or half figure actually performing the action the prompt describes (grinning and hugging the giant DIRECT money sack at the top of the tier staircase), not a separate floating head-shot, with a clearly recognizable face from the attached reference photo (face shape, hairstyle, and signature look; do NOT add a beard or mustache or any facial hair unless the reference photo clearly shows one), rendered in the same raw black sharpie line work as the rest of the page (not photo-real, no shading or color); the face must still read unmistakably as ${nameList} even in simple sharpie style.`;
     const anchor = "The background is pure white (#FFFFFF).";
     finalPrompt = promptText.includes(anchor)
       ? promptText.replace(anchor, `${portraitDirective.trim()} ${anchor}`)

@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   // Load the test with the admin client (source of truth, RLS-free).
   const { data: test } = await supabaseAdmin
     .from('proof_of_demand')
-    .select('id, status, goal_count, test_promoter_interest, deadline')
+    .select('id, status, goal_count, test_promoter_interest, deadline, audience, artist_id')
     .eq('id', testId)
     .maybeSingle();
 
@@ -53,6 +53,25 @@ export async function POST(req: NextRequest) {
 
   if (test.deadline && new Date(test.deadline) < new Date()) {
     return NextResponse.json({ error: 'This test has ended' }, { status: 400 });
+  }
+
+  // L6: enforce the test's audience ('all' open; 'subscribers' needs an active sub
+  // to this artist; 'free' for non-subscribers). Was stored but never checked.
+  if (test.audience && test.audience !== 'all') {
+    const { data: sub } = await supabaseAdmin
+      .from('subscriptions')
+      .select('id')
+      .eq('fan_id', user.id)
+      .eq('artist_id', test.artist_id)
+      .eq('status', 'active')
+      .maybeSingle();
+    const isSubscriber = !!sub;
+    if (test.audience === 'subscribers' && !isSubscriber) {
+      return NextResponse.json({ error: 'This is for subscribers only.' }, { status: 403 });
+    }
+    if (test.audience === 'free' && isSubscriber) {
+      return NextResponse.json({ error: 'This is for non-subscribers.' }, { status: 403 });
+    }
   }
 
   const { error: insertError } = await supabaseAdmin

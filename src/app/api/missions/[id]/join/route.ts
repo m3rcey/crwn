@@ -45,12 +45,33 @@ export async function POST(
   // Load the mission with the admin client (source of truth, RLS-free).
   const { data: mission } = await supabaseAdmin
     .from('missions')
-    .select('id, status')
+    .select('id, status, audience, artist_id')
     .eq('id', missionId)
     .maybeSingle();
 
   if (!mission || mission.status !== 'active') {
     return NextResponse.json({ error: 'Mission not found' }, { status: 404 });
+  }
+
+  // L6: enforce the mission's audience on join ('all' is open). Previously the
+  // audience field was stored but never checked, so a 'subscribers'-only mission
+  // was joinable by anyone. 'subscribers' => needs an active sub to this artist;
+  // 'free' => for non-subscribers only.
+  if (action === 'join' && mission.audience && mission.audience !== 'all') {
+    const { data: sub } = await supabaseAdmin
+      .from('subscriptions')
+      .select('id')
+      .eq('fan_id', user.id)
+      .eq('artist_id', mission.artist_id)
+      .eq('status', 'active')
+      .maybeSingle();
+    const isSubscriber = !!sub;
+    if (mission.audience === 'subscribers' && !isSubscriber) {
+      return NextResponse.json({ error: 'This mission is for subscribers only.' }, { status: 403 });
+    }
+    if (mission.audience === 'free' && isSubscriber) {
+      return NextResponse.json({ error: 'This mission is for non-subscribers.' }, { status: 403 });
+    }
   }
 
   let joined: boolean;
