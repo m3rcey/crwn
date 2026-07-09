@@ -67,11 +67,15 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
       const [tiers, products, campaigns] = await Promise.all([
         supabase.from('subscription_tiers').select('id, name, price').eq('artist_id', artistId).eq('is_active', true),
         supabase.from('products').select('id, title, price').eq('artist_id', artistId).eq('is_active', true),
-        supabase.from('road_campaigns').select('id, title').eq('artist_id', artistId),
+        supabase.from('road_campaigns').select('id, title, linked_tier_id, linked_product_id').eq('artist_id', artistId),
       ]);
       if (!active) return;
       const opts: SourceOption[] = [];
-      (campaigns.data || []).forEach((c: { id: string; title: string }) => opts.push({ id: c.id, label: c.title, type: 'road_campaign' }));
+      // Only campaigns with a checkout target generate revenue a split can pay from.
+      // The API rejects the rest; don't offer them.
+      (campaigns.data || [])
+        .filter((c: { linked_tier_id: string | null; linked_product_id: string | null }) => c.linked_tier_id || c.linked_product_id)
+        .forEach((c: { id: string; title: string }) => opts.push({ id: c.id, label: c.title, type: 'road_campaign' }));
       (tiers.data || []).forEach((t: { id: string; name: string; price: number }) => opts.push({ id: t.id, label: `${t.name} ($${(t.price / 100).toFixed(0)}/mo)`, type: 'tier' }));
       (products.data || []).forEach((p: { id: string; title: string; price: number }) => opts.push({ id: p.id, label: `${p.title} ($${(p.price / 100).toFixed(0)})`, type: 'product' }));
       setSources(opts);

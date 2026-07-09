@@ -56,7 +56,7 @@ function typesForSource(sourceType: string): string[] {
     case 'booking':
       return ['booking'];
     default:
-      return POSITIVE_TYPES; // all_earnings, road_campaign, custom
+      return POSITIVE_TYPES; // all_earnings only — every other source is fenced or returns []
   }
 }
 
@@ -66,6 +66,54 @@ export function dealWindow(deal: TeamSplitDeal): { start: string; end: string } 
   const end = deal.ends_at || new Date().toISOString();
   return { start, end };
 }
+
+/** The tier/product a road campaign drives revenue to, plus its own time window. */
+interface ResolvedCampaign {
+  src: 'tier' | 'product';
+  srcId: string;
+  start: string;
+  end: string;
+}
+
+/**
+ * Resolve a `road_campaign` deal down to the tier/product fence it actually
+ * sells. `earnings` has NO road_campaigns FK (earnings.source_campaign_id points
+ * at `campaigns`, the email-blast table — a different thing), so the only honest
+ * attribution is the campaign's linked checkout target, bounded by the
+ * campaign's own [started_at, deadline].
+ *
+ * Returns null when the campaign drives no revenue target (goal_type of
+ * supporters/rsvps/votes/... with no linked tier or product). Callers MUST then
+ * accrue nothing: an unfenceable source pays $0, never "everything".
+ */
+async function resolveRoadCampaign(
+  admin: SupabaseClient,
+  deal: TeamSplitDeal,
+): Promise<ResolvedCampaign | null> {
+  if (!deal.revenue_source_id) return null;
+
+  const { data: campaign } = await admin
+    .from('road_campaigns')
+    .select('artist_id, linked_tier_id, linked_product_id, started_at, deadline')
+    .eq('id', deal.revenue_source_id)
+    .maybeSingle();
+
+  // Must exist and belong to the same artist as the deal.
+  if (!campaign || campaign.artist_id !== deal.artist_id) return null;
+
+  const srcId = campaign.linked_tier_id || campaign.linked_product_id;
+  if (!srcId) return null;
+
+  return {
+    src: campaign.linked_tier_id ? 'tier' : 'product',
+    srcId,
+    start: campaign.started_at,
+    end: campaign.deadline || new Date().toISOString(),
+  };
+}
+
+const laterOf = (a: string, b: string) => (a > b ? a : b);
+const earlierOf = (a: string, b: string) => (a < b ? a : b);
 
 /**
  * Return the earnings rows that qualify for this deal and have NOT yet been
@@ -77,8 +125,29 @@ export async function getQualifyingEarnings(
   admin: SupabaseClient,
   deal: TeamSplitDeal,
 ): Promise<EarningRow[]> {
-  const { start, end } = dealWindow(deal);
-  const types = typesForSource(deal.revenue_source_type);
+  let { start, end } = dealWindow(deal);
+
+  // Resolve the effective fence. `road_campaign` is not a first-class revenue
+  // source — it collapses to the tier/product it sells, intersected with the
+  // campaign's own window. Anything that cannot be fenced accrues NOTHING.
+  let src: string = deal.revenue_source_type;
+  let srcId = deal.revenue_source_id;
+
+  if (src === 'road_campaign') {
+    const resolved = await resolveRoadCampaign(admin, deal);
+    if (!resolved) return [];
+    src = resolved.src;
+    srcId = resolved.srcId;
+    start = laterOf(start, resolved.start);
+    end = earlierOf(end, resolved.end);
+    if (start >= end) return [];
+  }
+
+  // `custom` / `none` name no revenue source. Paying them on every earning is an
+  // unlabelled `all_earnings` deal — the one thing Team Splits exists to prevent.
+  if (src === 'custom' || src === 'none') return [];
+
+  const types = typesForSource(src);
 
   // Rows already accrued for this deal (exclude them).
   const { data: accrued } = await admin
@@ -102,13 +171,13 @@ export async function getQualifyingEarnings(
   candidates = candidates.filter((e) => !accruedIds.has(e.id));
   if (candidates.length === 0) return [];
 
-  // Narrow by specific source via the parallel table.
-  const src = deal.revenue_source_type;
-  const srcId = deal.revenue_source_id;
+  // `all_earnings` is the ONE legitimate unfenced source: it is explicitly
+  // labelled, hard-flagged high-risk in warnings.ts, and the artist opted in.
+  if (src === 'all_earnings') return candidates;
 
-  if (src === 'all_earnings' || src === 'road_campaign' || src === 'custom' || src === 'none' || !srcId) {
-    return candidates;
-  }
+  // Every other source needs an id to fence against. Without one there is
+  // nothing to attribute, so accrue nothing.
+  if (!srcId) return [];
 
   if (src === 'tier') {
     // A fan has one subscription per (fan_id, artist_id); attribute subscription

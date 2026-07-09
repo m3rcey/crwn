@@ -65,6 +65,81 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'A deal title is required.' }, { status: 400 });
     }
 
+    // ---- revenue fence ----
+    // A percentage deal must attach to revenue the accrual cron can actually
+    // attribute. getQualifyingEarnings() fails closed (accrues $0) on anything
+    // unfenceable, so reject it here rather than create a deal that looks active
+    // and silently never pays.
+    const sourceType = body.revenueSourceType || 'none';
+    if (meta.requiresPercentage) {
+      if (sourceType === 'custom' || sourceType === 'none') {
+        return NextResponse.json(
+          { error: 'Pick a revenue source. A percentage deal needs revenue it can be measured against.' },
+          { status: 400 },
+        );
+      }
+      if (sourceType !== 'all_earnings' && !body.revenueSourceId) {
+        return NextResponse.json({ error: 'Choose which specific source this split pays from.' }, { status: 400 });
+      }
+      // `all_earnings` is the only source that reaches the artist's whole
+      // business. Bounded by a cap it is a finite obligation; uncapped it is a
+      // perpetual claim on everything they ever earn here. Require the cap.
+      if (sourceType === 'all_earnings' && !body.capAmount) {
+        return NextResponse.json(
+          {
+            error:
+              'A share of all your earnings must have a payout cap. Set the total this collaborator can earn, or split one tier, product, or track instead.',
+          },
+          { status: 400 },
+        );
+      }
+
+      // A track only produces revenue when it is SOLD. Tracks that are free, or
+      // gated behind a tier with no price, never generate a `purchase` earning —
+      // so a track-scoped split would sit 'active' and accrue $0 forever.
+      if (sourceType === 'track') {
+        const { data: track } = await supabaseAdmin
+          .from('tracks')
+          .select('artist_id, is_free, price')
+          .eq('id', body.revenueSourceId)
+          .maybeSingle();
+        if (!track || track.artist_id !== artistId) {
+          return NextResponse.json({ error: 'That track was not found on your profile.' }, { status: 400 });
+        }
+        if (track.is_free !== false || !track.price || track.price <= 0) {
+          return NextResponse.json(
+            {
+              error:
+                'This track is not sold individually, so it earns nothing to split. Set a price on the track, or split the tier it sits behind and add a payout cap so the deal ends once the collaborator is paid in full.',
+            },
+            { status: 400 },
+          );
+        }
+      }
+
+      // A road campaign only earns through the tier/product it sells. Goal types
+      // like supporters/rsvps/votes drive no revenue — nothing to split.
+      if (sourceType === 'road_campaign') {
+        const { data: campaign } = await supabaseAdmin
+          .from('road_campaigns')
+          .select('artist_id, linked_tier_id, linked_product_id')
+          .eq('id', body.revenueSourceId)
+          .maybeSingle();
+        if (!campaign || campaign.artist_id !== artistId) {
+          return NextResponse.json({ error: 'That campaign was not found on your profile.' }, { status: 400 });
+        }
+        if (!campaign.linked_tier_id && !campaign.linked_product_id) {
+          return NextResponse.json(
+            {
+              error:
+                'This campaign has no tier or product attached, so it generates no revenue to split. Link a checkout target to the campaign first, or split a tier or product directly.',
+            },
+            { status: 400 },
+          );
+        }
+      }
+    }
+
     // ---- resolve collaborator (email auto-binds to an existing account) ----
     let collaboratorUserId: string | null = body.collaboratorUserId || null;
     const collaboratorEmail: string | null = body.collaboratorEmail?.trim() || null;
