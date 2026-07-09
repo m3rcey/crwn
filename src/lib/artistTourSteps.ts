@@ -265,8 +265,8 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
     {
       element: '[data-tour="tab-ai-manager"]',
       popover: {
-        title: 'AI Artist Manager',
-        description: `Your AI-powered manager analyzes your data and surfaces actionable insights: churn alerts, VIP fan highlights, revenue trends, and content suggestions.${isStarter ? ' Upgrade to Pro to unlock.' : ''}`,
+        title: 'Artist Manager',
+        description: `Your manager analyzes your data and surfaces actionable insights: churn alerts, VIP fan highlights, revenue trends, and content suggestions.${isStarter ? ' Upgrade to Pro to unlock.' : ''}`,
         side: 'bottom',
         align: 'start',
       },
