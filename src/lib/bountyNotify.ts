@@ -53,7 +53,7 @@ export async function notifyClippersOfNewBounty(
       user_id: fid,
       type: 'bounty_available',
       title: `✂️ New clip bounty from ${artistName}`,
-      message: `${bountyTitle} — clip it and earn.`,
+      message: `${bountyTitle}. Clip it and earn.`,
       link: '/my-bounties',
     })),
   );

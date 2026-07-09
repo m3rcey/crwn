@@ -54,7 +54,7 @@ const SCREENS: ScreenDef[] = [
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
   { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your membership tier', subtitle: 'What supporters join. e.g. “Inner Circle”.', icon: CreditCard },
   { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the monthly price', subtitle: 'What fans pay each month. Enter 0 for a free tier.', icon: CreditCard },
-  { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do members get?', subtitle: 'Pick the perks fans unlock. These show on your page — you can edit them anytime.', icon: CreditCard, create: 'tier' },
+  { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do members get?', subtitle: 'Pick the perks fans unlock. These show on your page. You can edit them anytime.', icon: CreditCard, create: 'tier' },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -359,7 +359,7 @@ function SetupWizard() {
               <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
               {current.key === 'tier-price' && !stripeConnected && parseFloat(tierDraft.price || '0') > 0 && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
-                  You’ll connect Stripe to actually get paid — you can do that any time from your dashboard.
+                  You’ll connect Stripe to actually get paid. You can do that any time from your dashboard.
                 </p>
               )}
             </div>
@@ -551,7 +551,7 @@ function FieldBody({
             className="text-left px-4 py-4 rounded-xl border border-dashed border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/40 transition-colors"
           >
             <p className="font-medium">I don’t have anything to sell yet</p>
-            <p className="text-xs mt-0.5">Skip this — you can add products later from your dashboard.</p>
+            <p className="text-xs mt-0.5">Skip this. You can add products later from your dashboard.</p>
           </button>
         </div>
       );
@@ -573,7 +573,7 @@ function FieldBody({
 
 function PriceInput({ value, onChange, suffix, done }: { value: string; onChange: (v: string) => void; suffix?: string; done?: boolean }) {
   if (done) {
-    return <p className="text-crwn-text-secondary">Already added — hit Continue.</p>;
+    return <p className="text-crwn-text-secondary">Already added. Hit Continue.</p>;
   }
   return (
     <div className="flex items-center bg-crwn-surface border border-crwn-elevated rounded-xl px-4 focus-within:border-crwn-gold">
@@ -597,7 +597,7 @@ function PriceInput({ value, onChange, suffix, done }: { value: string; onChange
 function AudioPicker({ file, onPick, done }: { file: File | null; onPick: (f: File) => void; done?: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
   if (done) {
-    return <p className="text-crwn-text-secondary">Track already uploaded — hit Continue.</p>;
+    return <p className="text-crwn-text-secondary">Track already uploaded. Hit Continue.</p>;
   }
   return (
     <div>
@@ -627,7 +627,7 @@ function AudioPicker({ file, onPick, done }: { file: File | null; onPick: (f: Fi
 function BenefitPicker({ selected, onChange, done }: { selected: string[]; onChange: (v: string[]) => void; done?: boolean }) {
   const [custom, setCustom] = useState('');
   if (done) {
-    return <p className="text-crwn-text-secondary">Tier already created — hit Continue.</p>;
+    return <p className="text-crwn-text-secondary">Tier already created. Hit Continue.</p>;
   }
   const toggle = (b: string) => onChange(selected.includes(b) ? selected.filter((x) => x !== b) : [...selected, b]);
   const addCustom = () => {
@@ -680,7 +680,7 @@ function BenefitPicker({ selected, onChange, done }: { selected: string[]; onCha
           Add
         </button>
       </div>
-      <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier — edit anytime in the dashboard.</p>
+      <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier. Edit anytime in the dashboard.</p>
     </div>
   );
 }
@@ -697,14 +697,14 @@ function ShareScreen({
   showToast: (msg: string, type?: 'success' | 'error') => void;
 }) {
   const shareUrl = `https://thecrwn.app/${slug}`;
-  const shareText = `I just launched my page on CRWN — come support me here: ${shareUrl}`;
+  const shareText = `I just launched my page on CRWN. Come support me here: ${shareUrl}`;
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       showToast('Link copied!', 'success');
     } catch {
-      showToast('Could not copy — long-press the link to copy it.', 'error');
+      showToast('Could not copy. Long-press the link to copy it.', 'error');
     }
   };
 
@@ -722,7 +722,7 @@ function ShareScreen({
         </div>
         <h1 className="text-3xl font-bold text-crwn-text mb-2">Your page is live 🎉</h1>
         <p className="text-crwn-text-secondary mb-8">
-          Setup done. Now the most important step: get people on it. Share your link everywhere — your bio, your
+          Setup done. Now the most important step: get people on it. Share your link everywhere: your bio, your
           stories, your group chats.
         </p>
 

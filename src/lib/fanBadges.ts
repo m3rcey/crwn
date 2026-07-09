@@ -103,7 +103,7 @@ export async function awardFanBadge(
               ap.user_id,
               'fan_milestone',
               `${icon} ${fanName} earned ${label}`,
-              `${fanName} just hit ${label} status — a great moment to reach out.`,
+              `${fanName} just hit ${label} status. A great moment to reach out.`,
               '/profile/artist?tab=audience',
             ).catch(() => {});
           }

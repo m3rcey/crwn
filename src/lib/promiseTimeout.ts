@@ -5,7 +5,7 @@ export function withTimeout<T>(p: PromiseLike<T>, ms = 60000): Promise<T> {
   return Promise.race([
     Promise.resolve(p),
     new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error('That took too long — check your connection and try again.')), ms)
+      setTimeout(() => reject(new Error('That took too long. Check your connection and try again.')), ms)
     ),
   ]);
 }

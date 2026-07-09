@@ -7,7 +7,7 @@ export const bountiesTourSteps: DriveStep[] = [
     popover: {
       title: 'Bonus challenges for your clippers',
       description:
-        'A bounty adds a targeted reward on top of Clip-to-Earn — best clip tonight, first to convert 5 subs, top 3 split. v1 rewards are non-cash (badges, access, boosts).',
+        'A bounty adds a targeted reward on top of Clip-to-Earn: best clip tonight, first to convert 5 subs, top 3 split. v1 rewards are non-cash (badges, access, boosts).',
       side: 'bottom',
       align: 'start',
     },

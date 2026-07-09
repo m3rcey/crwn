@@ -277,7 +277,7 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       element: '[data-tour="tab-promise"]',
       popover: {
         title: 'Promise Calendar',
-        description: 'Every perk you promise a tier — monthly tracks, shout-outs, behind-the-scenes — gets tracked here with a deadline. Fans see the same promises on their own calendar, so delivering on time is what keeps them subscribed. Overdue promises are flagged before fans notice.',
+        description: 'Every perk you promise a tier (monthly tracks, shout-outs, behind-the-scenes) gets tracked here with a deadline. Fans see the same promises on their own calendar, so delivering on time is what keeps them subscribed. Overdue promises are flagged before fans notice.',
         side: 'bottom',
         align: 'start',
       },

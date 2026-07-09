@@ -8,7 +8,7 @@
 export const TEAM_SPLIT_AGREEMENT_VERSION = '2026-07-08.v1';
 
 export const TEAM_SPLIT_DISCLAIMER_PARAGRAPHS: string[] = [
-  'This Team Split records a revenue-share arrangement between an artist and a collaborator for services or creative work. It is a record of what both parties agreed to on CRWN — it is not legal advice and CRWN is not a party to your agreement.',
+  'This Team Split records a revenue-share arrangement between an artist and a collaborator for services or creative work. It is a record of what both parties agreed to on CRWN. It is not legal advice, and CRWN is not a party to your agreement.',
   'A Team Split only governs the share of the specific CRWN revenue named in this deal. It does not by itself transfer ownership of masters, publishing, video, footage, artwork, or any other intellectual property. If you need to clarify IP ownership, licensing, publishing splits, or master rights, put that in a separate written agreement and consult an attorney.',
   'Estimated earnings shown anywhere in Team Splits are projections, not guarantees. Actual payouts depend on real revenue, refunds, chargebacks, cancellations, and platform fees.',
   'Payouts are made through Stripe. The collaborator is responsible for their own taxes, and must complete Stripe payout onboarding (identity/KYC) before any money can be released. Payouts may be held during refund windows, disputes, or risk review.',
@@ -27,7 +27,7 @@ export function dealTypeLegalNote(role: string, sourceType: string): string | nu
     return 'Management commissions can be legally sensitive. Prefer a source-specific, time-limited deal and get legal review before a broad or long-term arrangement.';
   }
   if (sourceType === 'all_earnings') {
-    return 'This deal shares a percentage of your broader CRWN earnings, not one specific source. This is higher risk — keep the percentage and duration conservative.';
+    return 'This deal shares a percentage of your broader CRWN earnings, not one specific source. This is higher risk. Keep the percentage and duration conservative.';
   }
   return null;
 }

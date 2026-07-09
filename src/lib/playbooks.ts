@@ -89,7 +89,7 @@ export function generatePlaybookSteps(playbookId: string, s: ArtistSnapshot): Ge
       ];
     case 'churn_winback':
       return [
-        { stepType: 'draft_message', title: 'Winback message', description: `A draft message to your ${s.churnedCount} churned supporters (you send it).`, payload: { channel: 'email', subject: 'We saved your spot', body: `We noticed you stepped away. Here's what you've missed — come back and pick up where you left off.` } },
+        { stepType: 'draft_message', title: 'Winback message', description: `A draft message to your ${s.churnedCount} churned supporters (you send it).`, payload: { channel: 'email', subject: 'We saved your spot', body: `We noticed you stepped away. Here's what you've missed. Come back and pick up where you left off.` } },
         { stepType: 'create_mission', title: 'Comeback mission', description: 'A subscribe mission framed as a comeback.', payload: { type: 'subscribe', title: 'Welcome back — resubscribe', goalCount: Math.max(5, s.churnedCount), rewardType: 'points', rewardDetail: 'Comeback perk', cta: 'Come back' } },
       ];
     case 'founder_offer':

@@ -249,7 +249,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                   )}
                   {form.revenueSourceType === 'all_earnings' ? (
                     <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 text-sm text-amber-200">
-                      This shares a percentage of ALL your CRWN earnings. Advanced and high-risk — keep it small and short.
+                      This shares a percentage of ALL your CRWN earnings. Advanced and high-risk. Keep it small and short.
                     </div>
                   ) : sourceOptionsForType.length === 0 ? (
                     <p className="text-sm text-crwn-text-secondary">No {SOURCE_LABELS[form.revenueSourceType].toLowerCase()} found. Create one first, or pick a different source.</p>
@@ -392,7 +392,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                   className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text outline-none" />
                 <p className="text-xs text-crwn-text-secondary mt-1">Earnings stay held this long so refunds/chargebacks can clear before cashout.</p>
               </div>
-              <textarea value={form.rightsNotes} onChange={(e) => patch({ rightsNotes: e.target.value })} placeholder="Rights / usage notes (optional) — e.g. how the footage or beats may be used"
+              <textarea value={form.rightsNotes} onChange={(e) => patch({ rightsNotes: e.target.value })} placeholder="Rights / usage notes (optional), e.g. how the footage or beats may be used"
                 className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none min-h-[70px]" />
               <input value={form.externalAgreementUrl} onChange={(e) => patch({ externalAgreementUrl: e.target.value })} placeholder="Link to a separate written agreement (optional)"
                 className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />

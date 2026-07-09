@@ -162,7 +162,7 @@ const PRODUCT_TYPES: { value: Exclude<ProductType, 'experience' | 'bundle'>; lab
 ];
 
 const ARTIST_WIDE_NOTE =
-  'This is your artist-wide rate — it applies to everyone promoting your page, not just this offer (per-offer rates come later).';
+  'This is your artist-wide rate. It applies to everyone promoting your page, not just this offer (per-offer rates come later).';
 
 const isValidPrice = (v: string) => v.trim() !== '' && !isNaN(parseFloat(v)) && parseFloat(v) >= 0;
 
@@ -187,7 +187,7 @@ function stepList(
 ): StepDef[] {
   // The goal (screen 1) already determines the offer type, so we don't re-ask it.
   const steps: StepDef[] = [
-    { key: 'goal', title: 'What do you want to create?', subtitle: 'Pick one — this sets up the right kind of offer with smart defaults you can change next.', icon: Target },
+    { key: 'goal', title: 'What do you want to create?', subtitle: 'Pick one. This sets up the right kind of offer with smart defaults you can change next.', icon: Target },
     {
       key: 'price',
       title: offerType === 'subscription' ? 'Set the monthly price' : 'Set the price',
@@ -213,7 +213,7 @@ function stepList(
     steps.push({
       key: 'upload',
       title: 'Upload what fans get',
-      subtitle: 'The file fans download after buying — the track, video, art, or zip.',
+      subtitle: 'The file fans download after buying: the track, video, art, or zip.',
       icon: Upload,
     });
   }
@@ -499,7 +499,7 @@ function OfferBuilder() {
       }
 
       if (promoWarned) {
-        showToast('Offer created, but promotion settings didn’t save — set them from your dashboard.', 'error');
+        showToast('Offer created, but promotion settings didn’t save. Set them from your dashboard.', 'error');
       }
       setPhase('done');
       scrollTop();
@@ -829,7 +829,7 @@ function OfferBuilder() {
                     {offerType === 'subscription'
                       ? 'Your membership tier, live on your page (Stripe prices are added automatically when you connect Stripe)'
                       : deliversFile
-                        ? 'Your product, live in your shop — the file is attached and ready to sell'
+                        ? 'Your product, live in your shop. The file is attached and ready to sell'
                         : 'Your product, live in your shop (add the file or shipping details from the Shop tab)'}
                   </li>
                   {shareOn && (
@@ -972,7 +972,7 @@ function BenefitPicker({ selected, onChange }: { selected: string[]; onChange: (
           Add
         </button>
       </div>
-      <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier — edit anytime in the dashboard.</p>
+      <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier. Edit anytime in the dashboard.</p>
     </div>
   );
 }

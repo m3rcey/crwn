@@ -53,7 +53,7 @@ export async function generateFulfillmentInsights(
           body:
             n === 1
               ? `"${overdue[0].title}" is past due. Fulfilling overdue promises is the fastest way to protect retention.`
-              : `Including "${overdue[0].title}". Overdue supporter promises are a top churn driver — clear these first.`,
+              : `Including "${overdue[0].title}". Overdue supporter promises are a top churn driver. Clear these first.`,
           data: { overdue: n, sample: overdue.slice(0, 3).map((e) => e.title) },
           action_type: 'link',
           action_url: PROMISE_LINK,

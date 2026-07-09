@@ -479,7 +479,7 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
         />
         {onboarding && (
           <p className="text-xs text-crwn-text-secondary mt-1">
-            Required — this is the one line fans read first. Save when you&apos;ve added a photo and a tagline.
+            Required. This is the one line fans read first. Save when you&apos;ve added a photo and a tagline.
           </p>
         )}
       </div>

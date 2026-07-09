@@ -269,7 +269,7 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
         {!isOwner ? null : isDemandTracked ? (
           <div className="flex items-center justify-between gap-3 border border-crwn-elevated rounded-2xl px-4 py-3.5 mb-6">
             <p className="text-sm text-crwn-text-secondary">
-              Progress is auto-tracked from the demand test — no manual updates needed.
+              Progress is auto-tracked from the demand test. No manual updates needed.
             </p>
             <button
               onClick={() => router.push(`/proof-of-demand/${mission.target_id}`)}
@@ -302,7 +302,7 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
               </button>
             </div>
             <p className="text-xs text-crwn-text-secondary mt-2">
-              How many fans have done it so far — deeper live tracking comes in a later phase.
+              How many fans have done it so far. Deeper live tracking comes in a later phase.
             </p>
           </div>
         )}

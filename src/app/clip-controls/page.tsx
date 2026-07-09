@@ -337,7 +337,7 @@ export default function ClipControlsPage() {
             <Video className="w-8 h-8 text-crwn-gold mx-auto mb-3" />
             <p className="text-crwn-text font-medium mb-1">No recordings yet</p>
             <p className="text-sm text-crwn-text-secondary">
-              Go live or upload a video in the Livestreams tab — once a recording is ready it shows up here
+              Go live or upload a video in the Livestreams tab. Once a recording is ready it shows up here
               for marking.
             </p>
           </div>
@@ -375,7 +375,7 @@ export default function ClipControlsPage() {
                   {/* Markers */}
                   {sessionMarkers.length === 0 && !isAdding && (
                     <p className="text-sm text-crwn-text-secondary border border-dashed border-crwn-elevated rounded-xl px-4 py-4 mb-3">
-                      No moments marked yet. Add the first one — the timestamp where something worth
+                      No moments marked yet. Add the first one: the timestamp where something worth
                       clipping happens.
                     </p>
                   )}
@@ -494,7 +494,7 @@ export default function ClipControlsPage() {
         {/* Honest footer — markers guide clippers; nothing is auto-cut. */}
         <p className="text-xs text-crwn-text-secondary mt-10 flex items-start gap-2">
           <Clapperboard className="w-4 h-4 flex-shrink-0 mt-0.5" />
-          Markers don&apos;t cut video — they tell clippers exactly where the good moments are. Clippers
+          Markers don&apos;t cut video. They tell clippers exactly where the good moments are. Clippers
           download the recording, cut the clip themselves, and earn your clip commission on the subs it
           brings in.
         </p>

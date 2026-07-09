@@ -156,7 +156,7 @@ export default function NewCampaignPage() {
         {step.id === 'link' && (
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">What do fans buy to support?</h2>
-            <p className="text-sm text-crwn-text-secondary mb-4">Optional — link a tier or product. "Support" sends fans to check out. Skip to just send them to your page.</p>
+            <p className="text-sm text-crwn-text-secondary mb-4">Optional. Link a tier or product. "Support" sends fans to check out. Skip to just send them to your page.</p>
             <div className="space-y-2">
               {tiers.map(t => (
                 <button key={t.id} onClick={() => { setLinkedTierId(t.id); setLinkedProductId(null); }} className={`w-full flex items-center justify-between p-3 rounded-xl border text-left ${linkedTierId === t.id ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
@@ -168,7 +168,7 @@ export default function NewCampaignPage() {
                   <span className="text-sm text-crwn-text">🛍️ {p.title} · ${(p.price / 100).toFixed(0)}</span>{linkedProductId === p.id && <Check className="w-4 h-4 text-crwn-gold" />}
                 </button>
               ))}
-              {tiers.length === 0 && products.length === 0 && <p className="text-xs text-crwn-text-secondary">No tiers or products yet — fans will be sent to your page to support.</p>}
+              {tiers.length === 0 && products.length === 0 && <p className="text-xs text-crwn-text-secondary">No tiers or products yet. Fans will be sent to your page to support.</p>}
             </div>
           </div>
         )}

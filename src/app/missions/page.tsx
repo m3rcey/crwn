@@ -149,7 +149,7 @@ export default function MissionsPage() {
           <TourReplayButton onClick={replay} />
         </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
-          One trackable fan action toward a goal — rally your fans and watch the count climb.
+          One trackable fan action toward a goal. Rally your fans and watch the count climb.
         </p>
 
         <div className="flex flex-wrap items-center gap-4 mb-10">
@@ -193,7 +193,7 @@ export default function MissionsPage() {
             <Flag className="w-8 h-8 text-crwn-gold mx-auto mb-3" />
             <p className="text-crwn-text font-medium mb-1">No missions yet</p>
             <p className="text-sm text-crwn-text-secondary">
-              Give your fans one clear action — share, clip, RSVP, vote — and a goal to hit together.
+              Give your fans one clear action (share, clip, RSVP, vote) and a goal to hit together.
             </p>
           </div>
         ) : (

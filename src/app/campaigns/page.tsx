@@ -65,7 +65,7 @@ export default function CampaignsPage() {
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6" data-tour="campaigns-header">
         <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
-        <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">Campaigns</h1><p className="text-xs text-crwn-text-secondary">Your "Road to ___" — the big goal fans rally behind.</p></div>
+        <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">Campaigns</h1><p className="text-xs text-crwn-text-secondary">Your "Road to ___": the big goal fans rally behind.</p></div>
         <TourReplayButton onClick={replay} />
         <button data-tour="campaigns-new" onClick={() => router.push('/campaigns/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm"><Plus className="w-4 h-4" /> New</button>
       </div>
@@ -74,7 +74,7 @@ export default function CampaignsPage() {
         <div className="text-center py-16">
           <span className="text-5xl mb-4 block">🏁</span>
           <h3 className="text-lg font-semibold text-crwn-text mb-2">No campaigns yet</h3>
-          <p className="text-sm text-crwn-text-secondary max-w-sm mx-auto mb-6">A campaign is your rollout goal — "Road to First Music Video", "Road to 100 Supporters". It becomes the hero on your page and everything else rallies behind it.</p>
+          <p className="text-sm text-crwn-text-secondary max-w-sm mx-auto mb-6">A campaign is your rollout goal: "Road to First Music Video", "Road to 100 Supporters". It becomes the hero on your page and everything else rallies behind it.</p>
           <button onClick={() => router.push('/campaigns/new')} className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full text-sm">Start a campaign</button>
         </div>
       ) : (

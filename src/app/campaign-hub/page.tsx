@@ -180,7 +180,7 @@ export default function CampaignHubPage() {
         <p className="text-crwn-text-secondary text-sm mb-4">Your promotion engine at a glance.</p>
 
         <span className="inline-block px-3 py-1 rounded-full text-[11px] font-medium bg-crwn-elevated text-crwn-text-secondary mb-8">
-          Artist-wide view — per-campaign breakdowns coming soon
+          Artist-wide view. Per-campaign breakdowns coming soon
         </span>
 
         {/* Tabs — hand-rolled like the artist dashboard */}
@@ -350,7 +350,7 @@ export default function CampaignHubPage() {
                 <Flag className="w-8 h-8 text-crwn-gold mx-auto mb-3" />
                 <p className="text-crwn-text font-medium mb-1">No active missions</p>
                 <p className="text-sm text-crwn-text-secondary">
-                  Give your fans one clear action and a goal — mission progress shows up here.
+                  Give your fans one clear action and a goal. Mission progress shows up here.
                 </p>
               </div>
             ) : (
@@ -409,7 +409,7 @@ export default function CampaignHubPage() {
 
         {/* Read-only footer */}
         <p className="text-xs text-crwn-text-secondary text-center mt-10">
-          Read-only summary — manage rates in Clip Controls and missions in Missions.
+          Read-only summary. Manage rates in Clip Controls and missions in Missions.
         </p>
       </div>
     </div>

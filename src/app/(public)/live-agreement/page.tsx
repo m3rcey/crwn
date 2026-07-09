@@ -41,7 +41,7 @@ export default function LiveAgreementPage() {
           <h2 className="text-xl font-semibold text-crwn-text">2. Rights Warranty</h2>
           <p>
             You represent and warrant that you own or control everything you broadcast during a live
-            session — including any masters, sound recordings, compositions, publishing, samples,
+            session, including any masters, sound recordings, compositions, publishing, samples,
             beats, visuals, and other content shown or played on screen or over audio. You further
             represent that broadcasting this content on CRWN breaches no agreement you are party to,
             including any recording, distribution, publishing, management, or exclusivity deal.
@@ -53,7 +53,7 @@ export default function LiveAgreementPage() {
             Inc., its officers, and its agents from and against any claims, damages, liabilities,
             losses, and expenses (including reasonable attorneys&apos; fees) arising out of or
             related to the content you broadcast, your live sessions, or your breach of this Live
-            Agreement. This supplements — and does not limit — the indemnification obligations in the
+            Agreement. This supplements, and does not limit, the indemnification obligations in the
             Artist Agreement.
           </p>
 

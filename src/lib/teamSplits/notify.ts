@@ -112,7 +112,7 @@ export async function notifyDeliverableSubmitted(admin: SupabaseClient, artistUs
     artistUserId,
     'team_split_deliverable',
     `Deliverable submitted: ${deliverableTitle}`,
-    `${dealTitle} — review before payouts begin`,
+    `${dealTitle}: review before payouts begin`,
     `/profile/artist?tab=team`,
   );
 }
