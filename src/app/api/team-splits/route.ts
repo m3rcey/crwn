@@ -81,6 +81,42 @@ export async function POST(req: NextRequest) {
       if (sourceType !== 'all_earnings' && !body.revenueSourceId) {
         return NextResponse.json({ error: 'Choose which specific source this split pays from.' }, { status: 400 });
       }
+      // `all_earnings` is the only source that reaches the artist's whole
+      // business. Bounded by a cap it is a finite obligation; uncapped it is a
+      // perpetual claim on everything they ever earn here. Require the cap.
+      if (sourceType === 'all_earnings' && !body.capAmount) {
+        return NextResponse.json(
+          {
+            error:
+              'A share of all your earnings must have a payout cap. Set the total this collaborator can earn, or split one tier, product, or track instead.',
+          },
+          { status: 400 },
+        );
+      }
+
+      // A track only produces revenue when it is SOLD. Tracks that are free, or
+      // gated behind a tier with no price, never generate a `purchase` earning —
+      // so a track-scoped split would sit 'active' and accrue $0 forever.
+      if (sourceType === 'track') {
+        const { data: track } = await supabaseAdmin
+          .from('tracks')
+          .select('artist_id, is_free, price')
+          .eq('id', body.revenueSourceId)
+          .maybeSingle();
+        if (!track || track.artist_id !== artistId) {
+          return NextResponse.json({ error: 'That track was not found on your profile.' }, { status: 400 });
+        }
+        if (track.is_free !== false || !track.price || track.price <= 0) {
+          return NextResponse.json(
+            {
+              error:
+                'This track is not sold individually, so it earns nothing to split. Set a price on the track, or split the tier it sits behind and add a payout cap so the deal ends once the collaborator is paid in full.',
+            },
+            { status: 400 },
+          );
+        }
+      }
+
       // A road campaign only earns through the tier/product it sells. Goal types
       // like supporters/rsvps/votes drive no revenue — nothing to split.
       if (sourceType === 'road_campaign') {
