@@ -262,7 +262,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
               { tool: 'Fan subscriptions', price: '$80+/mo', note: 'Patreon Pro takes 8-12%' },
               { tool: 'Email marketing', price: '$59+/mo', note: 'ConvertKit, Mailchimp' },
               { tool: 'SMS messaging', price: '$99+/mo', note: 'Community, Twilio' },
-              { tool: 'AI insights + CRM', price: '$49+/mo', note: 'Chartmetric, Linkfire' },
+              { tool: 'Insights + CRM', price: '$49+/mo', note: 'Chartmetric, Linkfire' },
             ].map((item) => (
               <div key={item.tool} className="text-center">
                 <p className="text-lg font-bold text-crwn-text-secondary line-through decoration-crwn-text/30">

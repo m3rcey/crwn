@@ -210,7 +210,7 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
           supabaseAdmin,
           artistUserId,
           'ai_insight',
-          `AI Manager wants to: ${action.label}`,
+          `Your manager wants to: ${action.label}`,
           action.description,
           '/profile/artist?tab=ai-manager'
         );

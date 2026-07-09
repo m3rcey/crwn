@@ -289,7 +289,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Reduce churn',
-        content: 'Retention is where the money is. A subscriber who stays for 12 months is worth 12x a one-month subscriber. Post consistently, drop exclusive content regularly, and engage with your community. Your AI manager will flag at-risk subscribers so you can act before they cancel.',
+        content: 'Retention is where the money is. A subscriber who stays for 12 months is worth 12x a one-month subscriber. Post consistently, drop exclusive content regularly, and engage with your community. Your manager will flag at-risk subscribers so you can act before they cancel.',
         tip: 'Send a personal message to fans who have been subscribed for 3+ months. A "thank you for your support" goes a long way.',
       },
     ],
@@ -336,7 +336,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Re-engage inactive fans',
-        content: 'Fans who have not engaged in 30+ days are at risk of churning. Send them a personal update, a free exclusive track, or a reminder of what they are missing. Your AI manager identifies at-risk subscribers automatically.',
+        content: 'Fans who have not engaged in 30+ days are at risk of churning. Send them a personal update, a free exclusive track, or a reminder of what they are missing. Your manager identifies at-risk subscribers automatically.',
       },
     ],
     proTips: [
@@ -433,7 +433,7 @@ export const guides: GuideData[] = [
       },
     ],
     proTips: [
-      'Your AI manager generates a weekly report that summarizes key metrics and recommends actions. Read it every week.',
+      'Your manager generates a weekly report that summarizes key metrics and recommends actions. Read it every week.',
       'Compare month-over-month, not day-over-day. Daily fluctuations are noise: monthly trends are signal.',
       'The most actionable metric is ARPS (average revenue per subscriber). If ARPS is rising, your tier structure and upselling are working.',
       'Export your data periodically for your own records. Build a spreadsheet that tracks MRR, subscribers, and churn over time.',
@@ -485,7 +485,7 @@ export const guides: GuideData[] = [
       'Pin your best post or most important announcement to the top of your community.',
       'Cross-post your best public content to Instagram/Twitter/TikTok with a link back to your CRWN page.',
     ],
-    nextGuide: { slug: 'ai-manager', title: 'AI Artist Manager' },
+    nextGuide: { slug: 'ai-manager', title: 'Artist Manager' },
     prevGuide: { slug: 'analytics-insights', title: 'Analytics & Insights' },
   },
 
@@ -493,42 +493,42 @@ export const guides: GuideData[] = [
   {
     slug: 'ai-manager',
     icon: Bot,
-    title: 'AI Artist Manager',
-    subtitle: 'Your built-in AI that analyzes engagement and suggests growth strategies',
+    title: 'Artist Manager',
+    subtitle: 'Your built-in manager that analyzes engagement and suggests growth strategies',
     category: 'Mastering the Platform',
     estimatedTime: '10 min',
     steps: [
       {
-        title: 'What the AI manager does',
-        content: 'Every CRWN artist gets a built-in AI manager that analyzes your data and provides actionable recommendations. It reviews subscriber behavior, content performance, revenue trends, and fan engagement to generate weekly reports with specific action items.',
+        title: 'What your manager does',
+        content: 'Every CRWN artist gets a built-in manager that analyzes your data and provides actionable recommendations. It reviews subscriber behavior, content performance, revenue trends, and fan engagement to generate weekly reports with specific action items.',
       },
       {
         title: 'Read your weekly report',
-        content: 'Each week, your AI manager generates a report covering: new subscribers and who they are, at-risk subscribers and why, top performing content, revenue trends, and recommended actions. Find this in your Analytics tab under "AI Report."',
-        tip: 'The AI report is generated using real data from your account. The recommendations are specific to your situation, not generic advice.',
+        content: 'Each week, your manager generates a report covering: new subscribers and who they are, at-risk subscribers and why, top performing content, revenue trends, and recommended actions. Find this in your Analytics tab under "Weekly Report."',
+        tip: 'The weekly report is generated using real data from your account. The recommendations are specific to your situation, not generic advice.',
       },
       {
         title: 'Act on at-risk subscriber alerts',
-        content: 'The AI identifies subscribers who show signs of churning: decreased engagement, skipped content, or approaching a common cancel point. When flagged, reach out personally with exclusive content or a thank-you message. Early intervention prevents cancellations.',
+        content: 'Your manager identifies subscribers who show signs of churning: decreased engagement, skipped content, or approaching a common cancel point. When flagged, reach out personally with exclusive content or a thank-you message. Early intervention prevents cancellations.',
       },
       {
         title: 'Use content recommendations',
-        content: 'Based on what your fans engage with most, the AI suggests what type of content to post next. If your acoustic snippets get 4x more engagement than produced tracks, it will recommend more acoustic content. Follow the data.',
+        content: 'Based on what your fans engage with most, your manager suggests what type of content to post next. If your acoustic snippets get 4x more engagement than produced tracks, it will recommend more acoustic content. Follow the data.',
       },
       {
         title: 'Review upgrade opportunities',
-        content: 'The AI identifies fans who are likely candidates for tier upgrades based on their engagement patterns. Fans who consistently like, comment, and listen are prime candidates. The AI tells you who they are and suggests how to approach the upgrade conversation.',
+        content: 'Your manager identifies fans who are likely candidates for tier upgrades based on their engagement patterns. Fans who consistently like, comment, and listen are prime candidates. It tells you who they are and suggests how to approach the upgrade conversation.',
       },
       {
-        title: 'Track AI-driven improvements',
-        content: 'Over time, following AI recommendations should correlate with improved metrics. Compare your MRR growth, churn rate, and ARPS before and after acting on recommendations. The AI learns from your specific audience, so its suggestions get more accurate over time.',
+        title: 'Track the improvements',
+        content: 'Over time, following these recommendations should correlate with improved metrics. Compare your MRR growth, churn rate, and ARPS before and after acting on recommendations. Your manager learns from your specific audience, so its suggestions get more accurate over time.',
       },
     ],
     proTips: [
-      'Treat the AI manager like a real manager: check in weekly, act on the recommendations, and track results.',
-      'The AI is a tool, not a replacement for genuine fan interaction. Use its insights to inform your personal engagement strategy.',
+      'Treat it like a real manager: check in weekly, act on the recommendations, and track results.',
+      'It is a tool, not a replacement for genuine fan interaction. Use its insights to inform your personal engagement strategy.',
       'If a recommendation does not feel right for your brand, skip it. You know your audience better than any algorithm.',
-      'The AI report also identifies your funnel bottlenecks: where fans are dropping off in their journey from visitor to subscriber.',
+      'The weekly report also identifies your funnel bottlenecks: where fans are dropping off in their journey from visitor to subscriber.',
     ],
     nextGuide: { slug: 'sync-licensing', title: 'Sync Licensing' },
     prevGuide: { slug: 'community-posts', title: 'Community & Posts' },
@@ -573,7 +573,7 @@ export const guides: GuideData[] = [
       'Sync income is separate from subscription revenue. It is a bonus income stream that can be significant.',
     ],
     nextGuide: { slug: 'growth-roadmap', title: 'Growth Roadmap' },
-    prevGuide: { slug: 'ai-manager', title: 'AI Artist Manager' },
+    prevGuide: { slug: 'ai-manager', title: 'Artist Manager' },
   },
 
   // ─── 13. Growth Roadmap ───
@@ -609,7 +609,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Month 10-12: Authority (500-1,000 subscribers)',
-        content: 'At this stage, you have a real fan business. Optimize your tier structure for maximum ARPS. Consider adding a high-ticket tier for superfans. Use your AI manager data to predict trends and act proactively. Your goal: 1,000 subscribers generating $5,000-10,000/month in MRR.',
+        content: 'At this stage, you have a real fan business. Optimize your tier structure for maximum ARPS. Consider adding a high-ticket tier for superfans. Use your manager\'s data to predict trends and act proactively. Your goal: 1,000 subscribers generating $5,000-10,000/month in MRR.',
         tip: 'At 1,000 subscribers, you are earning more than 99% of independent artists. This is a sustainable career.',
       },
       {

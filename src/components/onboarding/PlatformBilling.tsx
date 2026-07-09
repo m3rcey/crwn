@@ -137,7 +137,7 @@ export function PlatformBilling() {
               Scheduling: {limits.allowsScheduling ? '✓ Yes' : '✗ No'}
             </div>
             <div className="text-crwn-text">
-              AI Manager: {tier !== 'starter' ? '✓ Yes' : '✗ No'}
+              Manager: {tier !== 'starter' ? '✓ Yes' : '✗ No'}
             </div>
             <div className="text-crwn-text">
               Email Campaigns: ✓ Yes

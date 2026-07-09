@@ -12,7 +12,7 @@ export function artistTierEmail(displayName: string, tierName: string): string {
     { icon: '🚀', label: 'Early Access', desc: 'First to get new features' },
   ] : isPro ? [
     { icon: '🎵', label: 'Unlimited Uploads', desc: 'No more track limits' },
-    { icon: '🤖', label: 'AI Artist Manager', desc: 'AI-powered insights, churn alerts, and VIP fan detection' },
+    { icon: '📈', label: 'Artist Manager', desc: 'Insights, churn alerts, and VIP fan detection' },
     { icon: '📧', label: 'Email Campaigns', desc: 'Personalized broadcasts with open/click tracking' },
     { icon: '📱', label: '500 SMS/month', desc: 'Text fans about shows, drops, and milestones' },
     { icon: '⚡', label: 'Welcome Sequences', desc: 'Automated drip emails for new subscribers' },

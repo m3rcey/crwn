@@ -144,7 +144,7 @@ function ArtistDashboardContent() {
   }
 
   const allTabs = [
-    { id: 'ai-manager' as const, label: 'AI Manager', tourId: 'tab-ai-manager' },
+    { id: 'ai-manager' as const, label: 'Manager', tourId: 'tab-ai-manager' },
     { id: 'promise' as const, label: 'Promise Calendar', tourId: 'tab-promise' },
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
     { id: 'audience' as const, label: 'Audience', tourId: 'tab-audience' },
