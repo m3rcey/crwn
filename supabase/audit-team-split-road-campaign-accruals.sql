@@ -15,6 +15,16 @@
 -- calls /api/team-splits/:id/release AND cleared_at passes. So over-accrual is
 -- recoverable *if nothing has been released or paid*. Query 1 tells you that.
 --
+-- STATUS as of 2026-07-09: run against production, ALL THREE returned zero rows.
+-- team_split_deals, team_split_earnings, and team_split_payouts were completely
+-- empty — the feature had never been used, so the bug never moved a cent. No
+-- cleanup was required and the REMEDIATION block below was never run.
+--
+-- This file is retained as a POST-LAUNCH GUARD. Once real deals exist, re-run it
+-- to confirm the fence holds: query 1 must always return zero rows, and query 3
+-- must never show a 'road_campaign' deal accruing against a 'booking' or an
+-- unrelated 'subscription'.
+--
 -- Run 1 -> 2 -> 3 in order. Do not skip 1.
 -- ============================================================================
 
