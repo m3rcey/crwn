@@ -58,15 +58,19 @@ export function Navigation() {
 
   return (
     <>
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#1a1a1a] z-50 md:hidden" style={{ borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 12px rgba(0,0,0,0.5)' }}>
-        <div className="flex items-center justify-between px-2 py-1">
-          <Link href="/home" className="text-xl font-bold text-crwn-gold px-2">
-            CRWN
-          </Link>
-          <div className="flex items-center gap-1">
-            <NotificationBell />
-          </div>
+      {/* Mobile Bottom Navigation. Equal-width grid cells so the row can never
+          overflow: five destinations plus the bell. The CRWN wordmark used to
+          live here and ate ~60px on a 360px viewport for no navigational gain
+          (the Home cell already routes to /home). */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 bg-[#1a1a1a] z-50 md:hidden"
+        style={{
+          borderRadius: '16px 16px 0 0',
+          boxShadow: '0 -4px 12px rgba(0,0,0,0.5)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        <div className="grid grid-cols-6">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -75,17 +79,21 @@ export function Navigation() {
                 key={item.href}
                 href={item.href}
                 data-tour={item.tourId}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg ${
-                  active 
-                    ? 'neu-tab-active font-semibold' 
+                onClick={() => hapticLight()}
+                className={`flex flex-col items-center justify-center gap-0.5 min-h-[56px] px-0.5 rounded-lg ${
+                  active
+                    ? 'neu-tab-active font-semibold'
                     : 'neu-tab-inactive hover:text-crwn-text'
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs">{item.label}</span>
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                <span className="w-full text-center text-[10px] leading-none truncate">{item.label}</span>
               </Link>
             );
           })}
+          <div className="flex items-center justify-center min-h-[56px]">
+            <NotificationBell />
+          </div>
         </div>
       </nav>
 

@@ -104,8 +104,10 @@ export default function MainLayout({
       <BackgroundImage src="/backgrounds/bg-home.jpg" />
       <Navigation />
       
-      {/* Main Content - with padding for mobile nav and sidebar */}
-      <div className="relative z-10 md:pl-64 pb-20 md:pb-0">
+      {/* Main Content - with padding for mobile nav and sidebar. The mobile nav
+          is 56px tall plus its own safe-area inset, so the clearance has to
+          track that inset too or the last row of content sits under it. */}
+      <div className="relative z-10 md:pl-64 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
         <main className="p-4 md:p-8">
           {children}
         </main>
