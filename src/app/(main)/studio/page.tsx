@@ -34,6 +34,16 @@ const STUDIO_CARDS: StudioCard[] = [
   { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg' },
 ];
 
+// Studio is a hub artists bounce in and out of all day. Without a cache the
+// page blocks on a Supabase round trip behind a full-page spinner on EVERY
+// mount, which is what makes backing out of a sub-page feel slow.
+//
+// Only the positive is cached. "Is an artist" is one-way: once an
+// artist_profiles row exists it never disappears. Caching a negative would
+// strand a fan who publishes their page mid-session on the "Studio is for
+// artists" screen until a reload.
+const knownArtists = new Set<string>();
+
 /**
  * Studio — the artist workspace hub. Pure navigation: one card per connector
  * feature (offers, campaigns, missions, clips, action plan, demand tests) so
@@ -45,12 +55,18 @@ export default function StudioPage() {
 
   // Derived from the artist_profiles ROW, not profile.role — the useAuth
   // context role lags right after signup (see CLAUDE.md). null = still checking.
-  const [isArtist, setIsArtist] = useState<boolean | null>(null);
+  const [isArtist, setIsArtist] = useState<boolean | null>(
+    () => (user && knownArtists.has(user.id) ? true : null)
+  );
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
       router.push('/login');
+      return;
+    }
+    if (knownArtists.has(user.id)) {
+      setIsArtist(true);
       return;
     }
     let active = true;
@@ -61,6 +77,7 @@ export default function StudioPage() {
       .eq('user_id', user.id)
       .maybeSingle()
       .then(({ data }) => {
+        if (data) knownArtists.add(user.id);
         if (active) setIsArtist(!!data);
       });
     return () => {
@@ -119,6 +136,7 @@ export default function StudioPage() {
                   src={card.image}
                   alt={card.title}
                   fill
+                  sizes="(max-width: 768px) 50vw, 200px"
                   className="object-cover opacity-0 transition-opacity duration-500"
                   onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
                 />
