@@ -23,10 +23,40 @@ const R2_ACCESS_KEY = process.env.R2_ACCESS_KEY_ID || '';
 const R2_SECRET = process.env.R2_SECRET_ACCESS_KEY || '';
 const R2_ENDPOINT = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
 
+// `<APIxxxx>` is a real value someone pasted with the docs' angle brackets still
+// on it. It is truthy, so a plain presence check passes and LiveKit only rejects
+// the signed token at join time — i.e. after the fan has paid for the ticket.
+const isPlaceholder = (v: string) => /^<.*>$/.test(v.trim());
+
 function assertConfigured() {
   if (!API_KEY || !API_SECRET || !WS_URL) {
     throw new Error(
       'LiveKit not configured: set LIVEKIT_API_KEY, LIVEKIT_API_SECRET, and NEXT_PUBLIC_LIVEKIT_URL.'
+    );
+  }
+  const bracketed = (
+    [
+      ['LIVEKIT_API_KEY', API_KEY],
+      ['LIVEKIT_API_SECRET', API_SECRET],
+      ['NEXT_PUBLIC_LIVEKIT_URL', WS_URL],
+    ] as const
+  )
+    .filter(([, v]) => isPlaceholder(v))
+    .map(([k]) => k);
+
+  if (bracketed.length) {
+    throw new Error(
+      `LiveKit misconfigured: ${bracketed.join(', ')} still wrapped in angle brackets. ` +
+        'Remove the < > from the value — tokens signed with it are rejected at join time.'
+    );
+  }
+
+  // A credential pasted into the URL slot is a well-formed, non-empty string, so
+  // every presence check above still passes. Assert the URL is actually a URL.
+  if (!/^wss?:\/\//.test(WS_URL)) {
+    throw new Error(
+      'LiveKit misconfigured: NEXT_PUBLIC_LIVEKIT_URL must start with ws:// or wss://. ' +
+        'It currently holds something else — check you have not pasted a key or secret into it.'
     );
   }
 }
