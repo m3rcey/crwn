@@ -1,19 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { ARTIST_BUILDS } from '@/lib/quests/builds';
-import { Check, Loader2 } from 'lucide-react';
+import { ARTIST_BUILDS, getArtistBuild } from '@/lib/quests/builds';
+import { Check, ChevronDown, Loader2 } from 'lucide-react';
 
-// First-run Rise Mode step: the artist picks a Build. Come-Up is recommended for
-// most (it's the from-zero path). The choice prioritizes quests; it never locks
-// anyone out of features — every tool stays reachable regardless of build.
+// First-run Rise Mode step: pick a Build from a dropdown (defaults to the
+// recommended Come-Up). The choice prioritizes quests; nothing is ever locked.
 export function ArtistBuildPicker({ onChosen }: { onChosen: (primary: string) => void }) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState('come_up');
+  const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sel = getArtistBuild(selected)!;
 
   async function save() {
-    if (!selected || saving) return;
+    if (saving) return;
     setSaving(true);
     setError(null);
     try {
@@ -31,63 +32,81 @@ export function ArtistBuildPicker({ onChosen }: { onChosen: (primary: string) =>
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-2xl mx-auto px-1">
       <div className="text-center mb-8">
-        <div className="text-xs font-semibold tracking-widest text-crwn-gold uppercase mb-2">Rise Mode</div>
-        <h2 className="text-2xl font-bold text-crwn-text">Choose your Build</h2>
-        <p className="text-crwn-text-secondary mt-2 max-w-lg mx-auto">
-          Your Build shapes which moves CRWN puts first. You can switch anytime, and nothing is
-          ever locked away — this just points you at your next best move.
+        <div className="text-base font-bold tracking-widest text-crwn-gold uppercase mb-3">Rise Mode</div>
+        <h2 className="text-3xl font-bold text-crwn-text">Choose your Build</h2>
+        <p className="text-lg text-crwn-text-secondary mt-4 leading-relaxed max-w-lg mx-auto">
+          Your Build decides what CRWN shows you first. You can change it anytime — nothing is ever locked away.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {ARTIST_BUILDS.map((b) => {
-          const isRec = b.id === 'come_up';
-          const isSel = selected === b.id;
-          return (
-            <button
-              key={b.id}
-              onClick={() => setSelected(b.id)}
-              className={`text-left rounded-2xl p-4 border transition-all ${
-                isSel
-                  ? 'border-crwn-gold bg-crwn-gold/10'
-                  : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3A3A3A]'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{b.emoji}</span>
-                  <span className="font-semibold text-crwn-text">{b.title}</span>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {isRec && (
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-crwn-gold border border-crwn-gold/40 rounded-full px-2 py-0.5">
-                      Recommended
-                    </span>
-                  )}
-                  {isSel && <Check className="w-4 h-4 text-crwn-gold" />}
-                </div>
-              </div>
-              <p className="text-sm text-crwn-text-secondary mt-2">{b.tagline}</p>
-              <p className="text-xs text-crwn-text-secondary/70 mt-2">{b.recommendedFor}</p>
-            </button>
-          );
-        })}
-      </div>
-
-      {error && <p className="text-red-400 text-sm text-center mt-4">{error}</p>}
-
-      <div className="flex justify-center mt-6">
+      {/* Dropdown */}
+      <div className="relative">
         <button
-          onClick={save}
-          disabled={!selected || saving}
-          className="neu-button-accent px-8 py-3 rounded-full font-semibold disabled:opacity-40 inline-flex items-center gap-2"
+          onClick={() => setOpen((o) => !o)}
+          className="w-full flex items-center justify-between gap-3 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] px-5 py-5 text-left"
         >
-          {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-          Start my rise
+          <span className="flex items-center gap-3 min-w-0">
+            <span className="text-3xl">{sel.emoji}</span>
+            <span className="text-xl font-bold text-crwn-text truncate">{sel.title}</span>
+            {selected === 'come_up' && (
+              <span className="hidden sm:inline text-sm font-bold uppercase tracking-wide text-crwn-gold border border-crwn-gold/40 rounded-full px-2.5 py-1 shrink-0">
+                Recommended
+              </span>
+            )}
+          </span>
+          <ChevronDown className={`w-7 h-7 text-crwn-text-secondary shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
+
+        {open && (
+          <div className="absolute z-30 mt-2 w-full rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] shadow-2xl overflow-hidden max-h-[60vh] overflow-y-auto">
+            {ARTIST_BUILDS.map((b) => (
+              <button
+                key={b.id}
+                onClick={() => {
+                  setSelected(b.id);
+                  setOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-5 py-4 text-left border-b border-[#242424] last:border-0 ${
+                  b.id === selected ? 'bg-crwn-gold/10' : 'hover:bg-[#222]'
+                }`}
+              >
+                <span className="text-3xl shrink-0">{b.emoji}</span>
+                <span className="flex-1 min-w-0">
+                  <span className="flex items-center gap-2 flex-wrap">
+                    <span className="text-lg font-bold text-crwn-text">{b.title}</span>
+                    {b.id === 'come_up' && (
+                      <span className="text-xs font-bold uppercase tracking-wide text-crwn-gold border border-crwn-gold/40 rounded-full px-2 py-0.5">
+                        Recommended
+                      </span>
+                    )}
+                  </span>
+                  <span className="block text-base text-crwn-text-secondary mt-1 leading-snug">{b.tagline}</span>
+                </span>
+                {b.id === selected && <Check className="w-6 h-6 text-crwn-gold shrink-0" />}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Selected build description */}
+      <div className="mt-5 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+        <p className="text-lg text-crwn-text leading-relaxed">{sel.tagline}</p>
+        <p className="text-base text-crwn-text-secondary mt-3">Best for: {sel.recommendedFor}</p>
+      </div>
+
+      {error && <p className="text-red-400 text-base text-center mt-4">{error}</p>}
+
+      <button
+        onClick={save}
+        disabled={saving}
+        className="neu-button-accent w-full mt-6 py-4 rounded-full font-bold text-lg disabled:opacity-40 inline-flex items-center justify-center gap-2"
+      >
+        {saving && <Loader2 className="w-5 h-5 animate-spin" />}
+        Start my rise
+      </button>
     </div>
   );
 }

@@ -12,9 +12,8 @@ const DIFF_COLOR: Record<string, string> = {
   boss: 'text-red-400',
 };
 
-// One quest, rendered as a card. `variant='hero'` is the big Main Quest treatment;
-// `compact` is used in side-quest grids. Progress + reward come straight off the
-// server-evaluated instance — the client never asserts completion.
+// One quest card. `variant='hero'` is the big Main Quest treatment; `compact` is
+// used in grids. Text is sized to the app's readable scale (lg/xl body, 2xl hero).
 export function QuestCard({
   quest,
   variant = 'default',
@@ -22,7 +21,7 @@ export function QuestCard({
 }: {
   quest: QuestInstance;
   variant?: 'hero' | 'default' | 'compact';
-  ctaHref?: string; // override (e.g. fan quests needing the artist slug)
+  ctaHref?: string;
 }) {
   const router = useRouter();
   const done = quest.status === 'completed';
@@ -37,48 +36,46 @@ export function QuestCard({
     <div
       className={`rounded-2xl border bg-[#1A1A1A] ${
         done ? 'border-emerald-500/30' : isHero ? 'border-crwn-gold/40' : 'border-[#2A2A2A]'
-      } ${isHero ? 'p-6' : 'p-4'}`}
+      } ${isHero ? 'p-6' : 'p-5'}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1.5">
             {done ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
             ) : (
-              <Circle className="w-4 h-4 text-crwn-text-secondary shrink-0" />
+              <Circle className="w-5 h-5 text-crwn-text-secondary shrink-0" />
             )}
-            <span className={`text-[10px] uppercase tracking-wide font-semibold ${DIFF_COLOR[quest.difficulty] || 'text-crwn-text-secondary'}`}>
+            <span className={`text-sm uppercase tracking-wide font-bold ${DIFF_COLOR[quest.difficulty] || 'text-crwn-text-secondary'}`}>
               {quest.quest_type.replace(/_/g, ' ')}
             </span>
             {quest.estimated_time && (
-              <span className="text-[10px] text-crwn-text-secondary/60">· {quest.estimated_time}</span>
+              <span className="text-sm text-crwn-text-secondary/70">· {quest.estimated_time}</span>
             )}
           </div>
-          <h3 className={`font-bold text-crwn-text ${isHero ? 'text-xl' : 'text-base'} truncate`}>
-            {quest.title}
-          </h3>
-          {quest.subtitle && <p className="text-sm text-crwn-text-secondary mt-0.5">{quest.subtitle}</p>}
+          <h3 className={`font-bold text-crwn-text ${isHero ? 'text-2xl' : 'text-lg'}`}>{quest.title}</h3>
+          {quest.subtitle && <p className="text-base text-crwn-text-secondary mt-1">{quest.subtitle}</p>}
         </div>
         {xp > 0 && (
-          <span className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-crwn-gold bg-crwn-gold/10 rounded-full px-2.5 py-1">
-            <Zap className="w-3 h-3" />+{xp}
+          <span className="shrink-0 inline-flex items-center gap-1 text-base font-bold text-crwn-gold bg-crwn-gold/10 rounded-full px-3 py-1.5">
+            <Zap className="w-4 h-4" />+{xp}
           </span>
         )}
       </div>
 
       {isHero && quest.why_it_matters && (
-        <p className="text-sm text-crwn-text-secondary mt-3 leading-relaxed">{quest.why_it_matters}</p>
+        <p className="text-lg text-crwn-text-secondary mt-4 leading-relaxed">{quest.why_it_matters}</p>
       )}
 
       {/* Inline "how" — the concrete steps, current one highlighted */}
       {isHero && (quest.steps?.length ?? 0) > 0 && !done && (
-        <div className="mt-4">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">How</div>
-          <ol className="space-y-1.5">
+        <div className="mt-5">
+          <div className="text-sm font-bold uppercase tracking-wide text-crwn-text-secondary mb-3">How</div>
+          <ol className="space-y-2.5">
             {quest.steps.map((s, idx) => (
-              <li key={idx} className="flex items-center gap-2 text-sm">
+              <li key={idx} className="flex items-center gap-3 text-lg">
                 <span
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
                     idx < quest.current_step
                       ? 'bg-emerald-500/20 text-emerald-400'
                       : idx === quest.current_step
@@ -88,7 +85,7 @@ export function QuestCard({
                 >
                   {idx + 1}
                 </span>
-                <span className={idx === quest.current_step ? 'text-crwn-text font-medium' : 'text-crwn-text-secondary'}>
+                <span className={idx === quest.current_step ? 'text-crwn-text font-semibold' : 'text-crwn-text-secondary'}>
                   {s.title}
                 </span>
               </li>
@@ -98,35 +95,35 @@ export function QuestCard({
       )}
 
       {isHero && nextStep && !done && (quest.steps?.length ?? 0) === 0 && (
-        <div className="mt-3 text-sm">
+        <div className="mt-4 text-lg">
           <span className="text-crwn-text-secondary">Next step: </span>
-          <span className="text-crwn-text font-medium">{nextStep}</span>
+          <span className="text-crwn-text font-semibold">{nextStep}</span>
         </div>
       )}
 
       {quest.progress_percent > 0 && !done && (
-        <div className="mt-3">
-          <div className="h-1.5 rounded-full bg-[#2A2A2A] overflow-hidden">
+        <div className="mt-4">
+          <div className="h-2 rounded-full bg-[#2A2A2A] overflow-hidden">
             <div className="h-full bg-crwn-gold rounded-full transition-all" style={{ width: `${quest.progress_percent}%` }} />
           </div>
-          <div className="text-[11px] text-crwn-text-secondary mt-1">{quest.progress_percent}%</div>
+          <div className="text-sm text-crwn-text-secondary mt-1.5">{quest.progress_percent}%</div>
         </div>
       )}
 
       {!done && href && (
         <button
           onClick={() => router.push(href)}
-          className={`rounded-full font-semibold ${
+          className={`rounded-full font-bold ${
             isHero
-              ? 'neu-button-accent w-full mt-5 py-3.5 text-base'
-              : 'mt-4 text-sm text-crwn-gold hover:underline'
+              ? 'neu-button-accent w-full mt-6 py-4 text-lg'
+              : 'mt-4 text-base text-crwn-gold hover:underline'
           }`}
         >
           {cta.label} →
         </button>
       )}
 
-      {done && <div className="mt-3 text-xs font-semibold text-emerald-400">Completed</div>}
+      {done && <div className="mt-3 text-base font-bold text-emerald-400">Completed</div>}
     </div>
   );
 }

@@ -85,42 +85,42 @@ export function QuestCompletionModal({
         </button>
 
         <div className={`mx-auto mb-3 flex items-center justify-center ${v.accent}`}>{v.icon}</div>
-        <div className="text-[11px] font-semibold uppercase tracking-widest text-crwn-gold">{v.banner}</div>
-        <h2 className="text-xl font-bold text-crwn-text mt-1">
+        <div className="text-sm font-bold uppercase tracking-widest text-crwn-gold">{v.banner}</div>
+        <h2 className="text-2xl font-bold text-crwn-text mt-2">
           {e.leveledUp ? e.levelTitle : e.title}
         </h2>
 
         {/* Rewards */}
-        <div className="mt-4 space-y-2 text-sm">
+        <div className="mt-5 space-y-2.5 text-lg">
           {e.xpAwarded > 0 && (
-            <div className="flex items-center justify-center gap-1.5 text-crwn-text">
-              <Zap className="w-4 h-4 text-crwn-gold" />
-              <span className="font-semibold">+{e.xpAwarded} XP</span>
+            <div className="flex items-center justify-center gap-2 text-crwn-text">
+              <Zap className="w-5 h-5 text-crwn-gold" />
+              <span className="font-bold text-xl">+{e.xpAwarded} XP</span>
             </div>
           )}
           {e.badges.length > 0 && (
             <div className="text-crwn-text-secondary">
-              Badge earned: <span className="text-crwn-text font-medium">{e.badges.map(prettify).join(', ')}</span>
+              Badge earned: <span className="text-crwn-text font-semibold">{e.badges.map(prettify).join(', ')}</span>
             </div>
           )}
           {e.unlocked.length > 0 && (
             <div className="text-crwn-text-secondary">
-              Unlocked: <span className="text-crwn-text font-medium">{e.unlocked.map(prettify).join(', ')}</span>
+              Unlocked: <span className="text-crwn-text font-semibold">{e.unlocked.map(prettify).join(', ')}</span>
             </div>
           )}
           {e.proofCard && <div className="text-crwn-text-secondary">Proof card created 🧾</div>}
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-2">
+        <div className="mt-7 flex items-center justify-center gap-2">
           {(e.proofCard || e.leveledUp) && (
             <button
               onClick={share}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#2A2A2A] text-sm text-crwn-text hover:border-crwn-gold/40"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#2A2A2A] text-base text-crwn-text hover:border-crwn-gold/40"
             >
-              <Share2 className="w-4 h-4" /> Share
+              <Share2 className="w-5 h-5" /> Share
             </button>
           )}
-          <button onClick={next} className="neu-button-accent px-6 py-2 rounded-full font-semibold">
+          <button onClick={next} className="neu-button-accent px-7 py-3 rounded-full font-bold text-lg">
             {last ? 'Continue' : 'Next'}
           </button>
         </div>

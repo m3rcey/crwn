@@ -91,19 +91,19 @@ export function SupporterMode() {
     return (
       <div className="rounded-xl bg-crwn-surface p-6">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs font-semibold tracking-widest text-crwn-gold uppercase">Supporter Mode</span>
+          <span className="text-base font-bold tracking-widest text-crwn-gold uppercase">Supporter Mode</span>
         </div>
-        <h2 className="text-xl font-bold text-crwn-text">Find an artist to rise with</h2>
-        <p className="text-crwn-text-secondary mt-2 max-w-lg">
+        <h2 className="text-2xl font-bold text-crwn-text">Find an artist to rise with</h2>
+        <p className="text-lg text-crwn-text-secondary mt-3 max-w-lg leading-relaxed">
           Supporter Mode gives you a role, daily assignments, and proof you were early — the moment
           you back your first artist. Pick someone below to begin.
         </p>
-        <div className="flex flex-wrap gap-3 mt-4">
+        <div className="flex flex-wrap gap-3 mt-5">
           <Link
             href="/explore"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-crwn-gold text-crwn-bg rounded-full font-semibold hover:bg-crwn-gold-hover transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-crwn-gold text-crwn-bg rounded-full font-bold text-lg hover:bg-crwn-gold-hover transition-colors"
           >
-            <Compass className="w-4 h-4" /> Explore artists
+            <Compass className="w-5 h-5" /> Explore artists
           </Link>
         </div>
       </div>
@@ -141,28 +141,28 @@ export function SupporterMode() {
               </div>
             )}
             <div>
-              <div className="text-xs font-semibold tracking-widest text-crwn-gold uppercase">Supporter Mode</div>
-              <div className="text-lg font-bold text-crwn-text leading-tight">
+              <div className="text-base font-bold tracking-widest text-crwn-gold uppercase">Supporter Mode</div>
+              <div className="text-2xl font-bold text-crwn-text leading-tight">
                 Supporting {data.primaryArtist?.displayName}
               </div>
               <button
                 onClick={() => setShowRolePicker((s) => !s)}
-                className="text-xs text-crwn-text-secondary hover:text-crwn-gold mt-0.5"
+                className="text-base text-crwn-text-secondary hover:text-crwn-gold mt-1"
               >
                 {role.emoji} {role.title} · change role
               </button>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-crwn-text">
-              <Zap className="w-4 h-4 text-crwn-gold" />
-              <span className="font-bold">{p.xp}</span>
-              <span className="text-xs text-crwn-text-secondary">XP</span>
+            <div className="flex items-center gap-2 text-crwn-text">
+              <Zap className="w-5 h-5 text-crwn-gold" />
+              <span className="text-2xl font-bold">{p.xp}</span>
+              <span className="text-base text-crwn-text-secondary">XP</span>
             </div>
             {p.streak > 0 && (
-              <div className="flex items-center gap-1.5 text-crwn-text">
-                <Flame className="w-4 h-4 text-orange-400" />
-                <span className="font-bold">{p.streak}</span>
+              <div className="flex items-center gap-2 text-crwn-text">
+                <Flame className="w-5 h-5 text-orange-400" />
+                <span className="text-2xl font-bold">{p.streak}</span>
               </div>
             )}
           </div>
@@ -174,7 +174,7 @@ export function SupporterMode() {
               <button
                 key={r.id}
                 onClick={() => chooseRole(r.id)}
-                className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${
+                className={`text-sm rounded-full px-4 py-2 border transition-colors ${
                   r.id === role.id
                     ? 'border-crwn-gold text-crwn-gold bg-crwn-gold/10'
                     : 'border-[#2A2A2A] text-crwn-text-secondary hover:border-[#3A3A3A]'
@@ -190,7 +190,7 @@ export function SupporterMode() {
       {/* Today's Assignment */}
       {todaysAssignment && (
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">
+          <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">
             Today's Assignment
           </h3>
           <QuestCard quest={todaysAssignment} variant="hero" ctaHref={ctaFor(todaysAssignment)} />
@@ -200,10 +200,10 @@ export function SupporterMode() {
       {/* Recommended next move */}
       {recommendedQuest && data.recommended && recommendedQuest.id !== todaysAssignment?.id && (
         <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2 flex items-center gap-1.5">
+          <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-crwn-gold" /> Recommended for you
           </h3>
-          <p className="text-sm text-crwn-text-secondary italic mb-3">“{data.recommended.reason}”</p>
+          <p className="text-lg text-crwn-text-secondary italic mb-3">“{data.recommended.reason}”</p>
           <QuestCard quest={recommendedQuest} variant="compact" ctaHref={ctaFor(recommendedQuest)} />
         </div>
       )}
@@ -212,7 +212,7 @@ export function SupporterMode() {
         <div className="lg:col-span-2 space-y-5">
           {questline.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">
+              <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">
                 Your Questline
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -225,7 +225,7 @@ export function SupporterMode() {
 
           {rewardsClose.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">
+              <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">
                 Rewards Close to Unlock
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -244,20 +244,20 @@ export function SupporterMode() {
           <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-4 space-y-2">
             <button
               onClick={() => router.push('/earn')}
-              className="w-full flex items-center gap-2 text-sm text-crwn-text hover:text-crwn-gold"
+              className="w-full flex items-center gap-2 text-base text-crwn-text hover:text-crwn-gold"
             >
               <UserPlus className="w-4 h-4 text-crwn-gold" /> Invite a friend
             </button>
             <button
               onClick={() => router.push('/explore')}
-              className="w-full flex items-center gap-2 text-sm text-crwn-text hover:text-crwn-gold"
+              className="w-full flex items-center gap-2 text-base text-crwn-text hover:text-crwn-gold"
             >
               <Compass className="w-4 h-4 text-crwn-gold" /> Scout more artists
             </button>
             {multi && (
               <button
                 onClick={() => router.push('/command')}
-                className="w-full flex items-center justify-between text-sm text-crwn-text hover:text-crwn-gold"
+                className="w-full flex items-center justify-between text-base text-crwn-text hover:text-crwn-gold"
               >
                 <span className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-crwn-gold" /> Fan Command Center

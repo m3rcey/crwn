@@ -156,9 +156,9 @@ export function RiseMode() {
   if (!data || !data.enabled) {
     return (
       <div className="max-w-lg mx-auto text-center py-16">
-        <div className="text-4xl mb-3">👑</div>
-        <h2 className="text-xl font-bold text-crwn-text">Rise Mode is on its way</h2>
-        <p className="text-crwn-text-secondary mt-2">
+        <div className="text-5xl mb-3">👑</div>
+        <h2 className="text-2xl font-bold text-crwn-text">Rise Mode is on its way</h2>
+        <p className="text-lg text-crwn-text-secondary mt-3 leading-relaxed">
           Your guided career mode — your next move, every day — is being prepared for your CRWN.
         </p>
       </div>
@@ -199,20 +199,20 @@ export function RiseMode() {
       <div className="max-w-2xl mx-auto space-y-5">
         <Confetti trigger={confetti} />
         <QuestCompletionModal events={data.completions} />
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-crwn-text-secondary">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-lg text-crwn-text-secondary">
             Level {p.level} · {p.levelTitle} ·{' '}
-            <span className={`text-crwn-gold font-semibold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>
+            <span className={`text-crwn-gold font-bold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>
               {xpAnim.value} XP
             </span>
           </span>
-          <button onClick={() => setFocusMode(false)} className="text-xs text-crwn-gold hover:underline">
+          <button onClick={() => setFocusMode(false)} className="text-base text-crwn-gold hover:underline shrink-0">
             Show full dashboard
           </button>
         </div>
         {mainQuest ? (
           <div>
-            <div className="text-sm font-bold text-crwn-gold uppercase tracking-wide mb-2">👉 Your next move</div>
+            <div className="text-lg font-bold text-crwn-gold uppercase tracking-wide mb-2">👉 Your next move</div>
             <QuestCard quest={mainQuest} variant="hero" />
           </div>
         ) : (
@@ -230,32 +230,32 @@ export function RiseMode() {
       <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold tracking-widest text-crwn-gold uppercase">Rise Mode</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-base font-bold tracking-widest text-crwn-gold uppercase">Rise Mode</span>
               {build && (
-                <span className="text-xs text-crwn-text-secondary">· {build.emoji} {build.title}</span>
+                <span className="text-base text-crwn-text-secondary">· {build.emoji} {build.title}</span>
               )}
             </div>
-            <h2 className="text-2xl font-bold text-crwn-text mt-1">
+            <h2 className="text-3xl font-bold text-crwn-text mt-1.5">
               Level {p.level} — {p.levelTitle}
             </h2>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-crwn-text">
-              <Zap className="w-4 h-4 text-crwn-gold" />
-              <span className={`font-bold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>{xpAnim.value}</span>
-              <span className="text-xs text-crwn-text-secondary">XP</span>
+            <div className="flex items-center gap-2 text-crwn-text">
+              <Zap className="w-5 h-5 text-crwn-gold" />
+              <span className={`text-2xl font-bold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>{xpAnim.value}</span>
+              <span className="text-base text-crwn-text-secondary">XP</span>
             </div>
             {p.streak > 0 && (
-              <div className="flex items-center gap-1.5 text-crwn-text">
-                <Flame className="w-4 h-4 text-orange-400" />
-                <span className="font-bold">{p.streak}</span>
-                <span className="text-xs text-crwn-text-secondary">day streak</span>
+              <div className="flex items-center gap-2 text-crwn-text">
+                <Flame className="w-5 h-5 text-orange-400" />
+                <span className="text-2xl font-bold">{p.streak}</span>
+                <span className="text-base text-crwn-text-secondary">day streak</span>
               </div>
             )}
             <button
               onClick={() => setFocusMode(true)}
-              className="text-xs text-crwn-text-secondary hover:text-crwn-gold border border-[#2A2A2A] rounded-full px-3 py-1"
+              className="text-base text-crwn-text-secondary hover:text-crwn-gold border border-[#2A2A2A] rounded-full px-4 py-1.5"
             >
               Focus
             </button>
@@ -266,7 +266,7 @@ export function RiseMode() {
             <div className="h-2 rounded-full bg-[#2A2A2A] overflow-hidden">
               <div className="h-full bg-crwn-gold rounded-full transition-all duration-700 ease-out" style={{ width: `${p.percentToNext}%` }} />
             </div>
-            <div className="text-[11px] text-crwn-text-secondary mt-1">{p.percentToNext}% to next level</div>
+            <div className="text-sm text-crwn-text-secondary mt-1.5">{p.percentToNext}% to next level</div>
           </div>
         )}
       </div>
@@ -275,7 +275,7 @@ export function RiseMode() {
       {mainQuest ? (
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-bold text-crwn-gold uppercase tracking-wide">👉 Your next move</span>
+            <span className="text-lg font-bold text-crwn-gold uppercase tracking-wide">👉 Your next move</span>
           </div>
           <QuestCard quest={mainQuest} variant="hero" />
         </div>
@@ -286,11 +286,11 @@ export function RiseMode() {
       {/* AI Recommended Quest */}
       {recommendedQuest && data.recommended && recommendedQuest.id !== mainQuest?.id && (
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2 flex items-center gap-1.5">
+          <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-crwn-gold" /> AI Recommended
           </h3>
           <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-4">
-            <p className="text-sm text-crwn-text-secondary italic mb-3">“{data.recommended.reason}”</p>
+            <p className="text-lg text-crwn-text-secondary italic mb-3">“{data.recommended.reason}”</p>
             <QuestCard quest={recommendedQuest} variant="compact" />
           </div>
         </div>
@@ -301,13 +301,13 @@ export function RiseMode() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {dailyMove && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">Daily Move</h3>
+              <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">Daily Move</h3>
               <QuestCard quest={dailyMove} />
             </div>
           )}
           {weeklyGoal && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">Weekly Goal</h3>
+              <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">Weekly Goal</h3>
               <QuestCard quest={weeklyGoal} />
             </div>
           )}
@@ -319,7 +319,7 @@ export function RiseMode() {
         <div className="lg:col-span-2 space-y-6">
           {sideQuests.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">Side Quests</h3>
+              <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">Side Quests</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {sideQuests.slice(0, 6).map((q) => (
                   <QuestCard key={q.id} quest={q} variant="compact" />
@@ -330,7 +330,7 @@ export function RiseMode() {
 
           {rewardsClose.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">
+              <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">
                 Rewards Close to Unlock
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -343,7 +343,7 @@ export function RiseMode() {
 
           {completed.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">
+              <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">
                 Recent Milestones
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -389,9 +389,9 @@ function NextGrowthMove({
       };
   return (
     <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6">
-      <div className="text-sm font-bold text-crwn-gold uppercase tracking-wide mb-2">👉 Your next move</div>
-      <h3 className="text-xl font-bold text-crwn-text">{move.title}</h3>
-      <p className="text-crwn-text-secondary text-sm mt-1 leading-relaxed">{move.body}</p>
+      <div className="text-lg font-bold text-crwn-gold uppercase tracking-wide mb-2">👉 Your next move</div>
+      <h3 className="text-2xl font-bold text-crwn-text">{move.title}</h3>
+      <p className="text-crwn-text-secondary text-lg mt-2 leading-relaxed">{move.body}</p>
       <button
         onClick={() => router.push(move.href)}
         className="neu-button-accent w-full mt-5 py-3.5 rounded-full font-semibold text-base"
