@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { fetchPlayableAudio } from '@/lib/trackAudio';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { Purchase, BookingToken, Product, Track } from '@/types';
@@ -50,8 +51,6 @@ export function PurchasesSection() {
             title,
             album_art_url,
             duration,
-            audio_url_128,
-            audio_url_320,
             artist_id
           ),
           artist_profiles (
@@ -63,7 +62,22 @@ export function PurchasesSection() {
         .eq('status', 'completed')
         .order('purchased_at', { ascending: false });
 
-      setPurchases(purchaseData || []);
+      // Audio is not selectable through the embed any more. tracks_public serves
+      // it, and a completed purchase is one of the things that entitles a reader,
+      // so every purchased track here comes back playable.
+      const rows = (purchaseData || []) as PurchaseWithProduct[];
+      const audio = await fetchPlayableAudio(
+        supabase,
+        rows.map(p => p.tracks?.id).filter((id): id is string => !!id)
+      );
+      for (const p of rows) {
+        if (p.tracks) {
+          p.tracks.audio_url_128 = audio.get(p.tracks.id)?.audio_url_128 ?? null;
+          p.tracks.audio_url_320 = audio.get(p.tracks.id)?.audio_url_320 ?? null;
+        }
+      }
+
+      setPurchases(rows);
 
       // Fetch booking tokens
       try {

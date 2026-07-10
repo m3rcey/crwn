@@ -103,7 +103,7 @@ export function AlbumManager() {
         (albumsData || []).map(async (album) => {
           const { data: albumTracks } = await supabase
             .from('album_tracks')
-            .select('*, track:tracks(*)')
+            .select('*, track:tracks_public(*)')
             .eq('album_id', album.id)
             .order('track_number');
 
@@ -121,9 +121,11 @@ export function AlbumManager() {
 
       setAlbums(albumsWithData as Album[]);
 
-      // Load available tracks (not in any album)
+      // Load available tracks (not in any album). tracks_public, because the audio
+      // columns are no longer selectable on `tracks`; the owner is entitled, so
+      // the view returns their URLs.
       const { data: allTracks } = await supabase
-        .from('tracks')
+        .from('tracks_public')
         .select('*')
         .eq('artist_id', artistProfile.id)
         .eq('is_active', true)
@@ -215,8 +217,10 @@ export function AlbumManager() {
         audioUrl = publicUrl;
       }
 
-      // Save track to DB
-      const { data: newTrack, error } = await supabase
+      // `.select()` here would RETURN *, which now requires SELECT on the audio
+      // columns nobody holds. Return the id, then read the row back through
+      // tracks_public.
+      const { data: inserted, error } = await supabase
         .from('tracks')
         .insert({
           artist_id: artistProfile.id,
@@ -226,10 +230,16 @@ export function AlbumManager() {
           duration,
           access_level: 'free',
         })
-        .select()
+        .select('id')
         .single();
 
       if (error) throw error;
+
+      const { data: newTrack } = await supabase
+        .from('tracks_public')
+        .select('*')
+        .eq('id', inserted.id)
+        .single();
 
       // Add to selected tracks
       if (newTrack) {
@@ -388,7 +398,7 @@ export function AlbumManager() {
     // Load album tracks
     const { data: albumTracks } = await supabase
       .from('album_tracks')
-      .select('*, track:tracks(*)')
+      .select('*, track:tracks_public(*)')
       .eq('album_id', album.id)
       .order('track_number');
 
@@ -400,7 +410,7 @@ export function AlbumManager() {
 
     // Load available tracks
     const { data: allTracks } = await supabase
-      .from('tracks')
+      .from('tracks_public')
       .select('*')
       .eq('artist_id', album.artist_id)
       .eq('is_active', true);

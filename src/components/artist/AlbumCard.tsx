@@ -32,7 +32,7 @@ export function AlbumCard({ album, artistSlug }: AlbumCardProps) {
 
     const { data } = await supabase
       .from('album_tracks')
-      .select('*, track:tracks(*)')
+      .select('*, track:tracks_public(*)')
       .eq('album_id', album.id)
       .order('track_number');
 

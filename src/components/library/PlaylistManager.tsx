@@ -67,7 +67,7 @@ export function PlaylistManager() {
 
     // Load all available tracks for adding to playlists
     const { data: tracksData } = await supabase
-      .from('tracks')
+      .from('tracks_public')
       .select('*, artist:artist_profiles(id, slug, profile:profiles(display_name))')
       .order('created_at', { ascending: false });
 

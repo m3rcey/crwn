@@ -83,7 +83,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
   // Get album tracks
   const { data: albumTracks } = await supabase
     .from('album_tracks')
-    .select('track_number, track:tracks(*)')
+    .select('track_number, track:tracks_public(*)')
     .eq('album_id', id)
     .order('track_number', { ascending: true });
 

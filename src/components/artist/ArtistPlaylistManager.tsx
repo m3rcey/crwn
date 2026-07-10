@@ -97,7 +97,7 @@ export function ArtistPlaylistManager() {
 
       // Load available tracks (artist's own tracks)
       const { data: allTracks } = await supabase
-        .from('tracks')
+        .from('tracks_public')
         .select('*')
         .eq('artist_id', artistProfile.id)
         .eq('is_active', true)
@@ -254,7 +254,7 @@ export function ArtistPlaylistManager() {
     // Load playlist tracks
     const { data: playlistTracks } = await supabase
       .from('playlist_tracks')
-      .select('*, track:tracks(*)')
+      .select('*, track:tracks_public(*)')
       .eq('playlist_id', playlist.id)
       .order('position');
 
@@ -274,7 +274,7 @@ export function ArtistPlaylistManager() {
     if (!artistProfile) return;
 
     const { data: allTracks } = await supabase
-      .from('tracks')
+      .from('tracks_public')
       .select('*')
       .eq('artist_id', artistProfile.id)
       .eq('is_active', true);

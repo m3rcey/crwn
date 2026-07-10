@@ -26,7 +26,7 @@ export function ArtistPlaylistCard({ playlist, artistSlug }: ArtistPlaylistCardP
 
     const { data } = await supabase
       .from('playlist_tracks')
-      .select('*, track:tracks(*)')
+      .select('*, track:tracks_public(*)')
       .eq('playlist_id', playlist.id)
       .order('position');
 
