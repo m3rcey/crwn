@@ -127,7 +127,41 @@ export async function GET(req: NextRequest) {
       checks.push({ name: 'tracks_public_serves_free', ok, detail });
     }
 
-    // ── 5. Paid community posts stay unreadable (the first leak we closed) ────
+    // ── 5. Stripe ids stay unreadable on artist_profiles ─────────────────────
+    // Not a credential -- an acct_ id cannot move money without the platform's
+    // secret key -- but no browser has any reason to read it.
+    for (const col of ['stripe_connect_id', 'platform_stripe_customer_id']) {
+      const { status, body } = await rest(`artist_profiles?select=${col}&limit=1`);
+      const denied = status === 401 || status === 403;
+      checks.push({
+        name: `artist_profiles.${col}_denied`,
+        ok: denied,
+        detail: denied ? `denied (${status})` : `LEAK: anon read ${col}, http ${status}: ${body.slice(0, 120)}`,
+      });
+    }
+
+    {
+      const { status, body } = await rest('artist_profiles?select=*&limit=1');
+      const denied = status === 401 || status === 403;
+      checks.push({
+        name: 'artist_profiles_select_star_denied',
+        ok: denied,
+        detail: denied ? `denied (${status})` : `LEAK: select=* returned http ${status}: ${body.slice(0, 120)}`,
+      });
+    }
+
+    // …while the public artist page's source still works, or every profile 500s.
+    {
+      const { status, body } = await rest('artist_profiles_public?select=slug,platform_tier&limit=1');
+      const ok = status === 200 && body.includes('"slug"');
+      checks.push({
+        name: 'artist_profiles_public_readable',
+        ok,
+        detail: ok ? 'anon reads the redacted view' : `BROKEN: http ${status}: ${body.slice(0, 120)}`,
+      });
+    }
+
+    // ── 6. Paid community posts stay unreadable (the first leak we closed) ────
     {
       const { status, body } = await rest('community_posts?select=id,content&is_free=eq.false&limit=1');
       // Either the rows are invisible (RLS) or the request is denied. Both are fine.
@@ -139,7 +173,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // ── 6. Agent tables reject anonymous writes (the second leak we closed) ───
+    // ── 7. Agent tables reject anonymous writes (the second leak we closed) ───
     {
       const status = await restWrite('agent_coordination', { lock_key: '__canary_should_never_insert' });
       const denied = status === 401 || status === 403;
