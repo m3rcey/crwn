@@ -5,6 +5,7 @@ import {
   ensureRoleQuests,
   unlockEligibleQuests,
   refreshQuests,
+  reconcileXp,
   getQuests,
   isQuestEngineEnabled,
   levelFromXp,
@@ -93,6 +94,8 @@ export async function GET() {
       completions = completions.concat(res.completions);
       if (unlocked === 0 && res.completions.length === 0) break;
     }
+    // Self-heal: grant XP for quests that completed before XP granting worked.
+    await reconcileXp(supabaseAdmin, { userId: user.id, role });
   }
 
   const quests = await getQuests(supabaseAdmin, { userId: user.id, role });

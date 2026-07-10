@@ -56,11 +56,10 @@ interface HubData {
   missionPerformance: MissionPerf[];
 }
 
-type Tab = 'overview' | 'campaigns' | 'engine' | 'missions';
+type Tab = 'overview' | 'engine' | 'missions';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'campaigns', label: 'Campaigns' },
   { id: 'engine', label: 'Promotion Engine' },
   { id: 'missions', label: 'Missions' },
 ];
@@ -144,7 +143,7 @@ export default function CampaignHubPage() {
   // useState initializer) to avoid an SSR/client hydration mismatch.
   useEffect(() => {
     const t = new URLSearchParams(window.location.search).get('tab');
-    if (t === 'campaigns' || t === 'engine' || t === 'missions') setTab(t as Tab);
+    if (t === 'engine' || t === 'missions') setTab(t as Tab);
   }, []);
 
   // First-visit tour + on-demand replay. MUST stay above the early returns
@@ -241,6 +240,69 @@ export default function CampaignHubPage() {
         {/* ---- OVERVIEW ---- */}
         {tab === 'overview' && (
           <div>
+            {/* Campaigns (Road To) — the goals fans rally behind, now on Overview */}
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h2 className="text-sm font-semibold text-crwn-text">Campaigns</h2>
+              <button
+                onClick={() => router.push('/campaigns/new?returnTo=%2Fcampaign-hub')}
+                className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-3.5 py-1.5 rounded-full text-xs shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" /> New
+              </button>
+            </div>
+            {campaigns.filter((c) => c.status !== 'archived').length === 0 ? (
+              <div className="border border-dashed border-crwn-elevated rounded-2xl py-8 px-6 text-center mb-8">
+                <span className="text-3xl mb-2 block">🏁</span>
+                <p className="text-crwn-text font-medium mb-1 text-sm">No campaigns yet</p>
+                <p className="text-xs text-crwn-text-secondary mb-3">
+                  A rollout goal — “Road to First Music Video”. It becomes the hero on your page.
+                </p>
+                <button
+                  onClick={() => router.push('/campaigns/new?returnTo=%2Fcampaign-hub')}
+                  className="bg-crwn-gold text-crwn-bg font-semibold px-5 py-2 rounded-full text-xs"
+                >
+                  Start a campaign
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3 mb-8">
+                {campaigns
+                  .filter((c) => c.status !== 'archived')
+                  .map((c) => {
+                    const def = CAMPAIGN_GOAL_MAP[c.goal_type];
+                    const pct = Math.min(100, Math.round((c.current_value / Math.max(1, c.goal_value)) * 100));
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => router.push(`/campaigns/${c.id}`)}
+                        className="w-full bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-2xl">{def?.icon || '🏁'}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-crwn-text truncate">{c.title}</p>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${campaignStatusColor[c.status] || ''}`}>
+                                {c.status}
+                              </span>
+                            </div>
+                            <p className="text-xs text-crwn-text-secondary">{def?.label}</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-crwn-text-secondary shrink-0" />
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-crwn-elevated overflow-hidden mb-1">
+                          <div className="h-full bg-crwn-gold rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                        <p className="text-xs text-crwn-text-secondary">
+                          {formatCampaignValue(c.goal_type, c.current_value)} / {formatCampaignValue(c.goal_type, c.goal_value)}{' '}
+                          {def?.unit}
+                        </p>
+                      </button>
+                    );
+                  })}
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3 mb-6" data-tour="campaign-hub-stats">
               <div className="bg-crwn-card rounded-2xl p-4">
                 <p className="text-xs text-crwn-text-secondary mb-1">Gross revenue driven</p>
@@ -294,74 +356,6 @@ export default function CampaignHubPage() {
                 <p className="text-sm text-crwn-text-secondary">
                   When fans share or clip and their referrals pay, the money shows up here.
                 </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ---- CAMPAIGNS (Road To) ---- */}
-        {tab === 'campaigns' && (
-          <div>
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <p className="text-sm text-crwn-text-secondary">Your “Road to ___” goals fans rally behind.</p>
-              <button
-                onClick={() => router.push('/campaigns/new?returnTo=%2Fcampaign-hub%3Ftab%3Dcampaigns')}
-                className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm shrink-0"
-              >
-                <Plus className="w-4 h-4" /> New
-              </button>
-            </div>
-            {campaigns.filter((c) => c.status !== 'archived').length === 0 ? (
-              <div className="border border-dashed border-crwn-elevated rounded-2xl py-10 px-6 text-center">
-                <span className="text-4xl mb-3 block">🏁</span>
-                <p className="text-crwn-text font-medium mb-1">No campaigns yet</p>
-                <p className="text-sm text-crwn-text-secondary mb-4">
-                  A campaign is your rollout goal — “Road to First Music Video”, “Road to 100 Supporters”.
-                  It becomes the hero on your page.
-                </p>
-                <button
-                  onClick={() => router.push('/campaigns/new?returnTo=%2Fcampaign-hub%3Ftab%3Dcampaigns')}
-                  className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full text-sm"
-                >
-                  Start a campaign
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {campaigns
-                  .filter((c) => c.status !== 'archived')
-                  .map((c) => {
-                    const def = CAMPAIGN_GOAL_MAP[c.goal_type];
-                    const pct = Math.min(100, Math.round((c.current_value / Math.max(1, c.goal_value)) * 100));
-                    return (
-                      <button
-                        key={c.id}
-                        onClick={() => router.push(`/campaigns/${c.id}`)}
-                        className="w-full bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors"
-                      >
-                        <div className="flex items-center gap-3 mb-3">
-                          <span className="text-2xl">{def?.icon || '🏁'}</span>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-semibold text-crwn-text truncate">{c.title}</p>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${campaignStatusColor[c.status] || ''}`}>
-                                {c.status}
-                              </span>
-                            </div>
-                            <p className="text-xs text-crwn-text-secondary">{def?.label}</p>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-crwn-text-secondary shrink-0" />
-                        </div>
-                        <div className="h-1.5 w-full rounded-full bg-crwn-elevated overflow-hidden mb-1">
-                          <div className="h-full bg-crwn-gold rounded-full" style={{ width: `${pct}%` }} />
-                        </div>
-                        <p className="text-xs text-crwn-text-secondary">
-                          {formatCampaignValue(c.goal_type, c.current_value)} / {formatCampaignValue(c.goal_type, c.goal_value)}{' '}
-                          {def?.unit}
-                        </p>
-                      </button>
-                    );
-                  })}
               </div>
             )}
           </div>

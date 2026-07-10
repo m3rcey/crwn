@@ -302,6 +302,84 @@ export async function generateConnectedFanQuests(
   return assigned;
 }
 
+/**
+ * Backfill XP for quests that COMPLETED before XP granting worked (the xp_ledger
+ * ON CONFLICT bug). For each completed instance with reward.xp that has no ledger
+ * row, insert the grant and bump progression. Idempotent + silent (no celebration —
+ * these are historical). Self-heals any account stuck at 0 XP. Returns XP added.
+ */
+export async function reconcileXp(
+  admin: any,
+  opts: { userId: string; role: QuestRole },
+): Promise<number> {
+  try {
+    const completed = await getQuests(admin, { userId: opts.userId, role: opts.role, statuses: ['completed'] });
+    let added = 0;
+    for (const inst of completed) {
+      const xp = (inst.reward as any)?.xp ?? 0;
+      if (xp <= 0) continue;
+      const { data: existing } = await admin
+        .from('xp_ledger')
+        .select('id')
+        .eq('user_id', opts.userId)
+        .eq('quest_instance_id', inst.id)
+        .eq('reason', 'quest_complete')
+        .maybeSingle();
+      if (existing) continue;
+      const { error } = await admin.from('xp_ledger').insert({
+        user_id: opts.userId,
+        artist_id: inst.artist_id,
+        quest_instance_id: inst.id,
+        amount: xp,
+        reason: 'quest_complete',
+      });
+      if (error) continue;
+      const primaryArtistId = inst.role === 'artist' ? null : inst.artist_id;
+      await bumpProgressionXp(admin, opts.userId, primaryArtistId, inst.role, xp);
+      if (inst.role === 'fan' && inst.artist_id) {
+        await bumpProgressionXp(admin, opts.userId, null, 'fan', xp);
+      }
+      added += xp;
+    }
+    return added;
+  } catch (err) {
+    console.error('[quests] reconcileXp failed:', err);
+    return 0;
+  }
+}
+
+// Minimal XP bump used only by reconciliation (mirrors evaluator.bumpProgression
+// but without the celebration return shape). Read-modify-write on user_progression.
+async function bumpProgressionXp(
+  admin: any,
+  userId: string,
+  artistId: string | null,
+  role: QuestRole,
+  deltaXp: number,
+): Promise<void> {
+  let q = admin.from('user_progression').select('*').eq('user_id', userId);
+  q = artistId ? q.eq('artist_id', artistId) : q.is('artist_id', null);
+  const { data: existing } = await q.maybeSingle();
+  const newXp = (existing?.xp ?? 0) + deltaXp;
+  const level = levelFromXp(role, newXp);
+  if (existing) {
+    await admin
+      .from('user_progression')
+      .update({ xp: newXp, level: level.level, level_key: level.levelKey, updated_at: new Date().toISOString() })
+      .eq('id', existing.id);
+  } else {
+    await admin.from('user_progression').insert({
+      user_id: userId,
+      artist_id: artistId,
+      scope: artistId ? 'artist' : 'global',
+      role,
+      xp: newXp,
+      level: level.level,
+      level_key: level.levelKey,
+    });
+  }
+}
+
 /** Is the Quest Engine dark-launch flag on? Reads admin_settings.quest_engine. */
 export async function isQuestEngineEnabled(admin: any): Promise<boolean> {
   try {

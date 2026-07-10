@@ -90,7 +90,13 @@ export function RiseMode() {
     }
   }, []);
 
+  // Guard against concurrent loads (mount + rise:activate can fire together on
+  // return) — the in-flight fetch already runs the completion cascade, so a second
+  // one would only race and risk clobbering the completion result.
+  const loadingRef = useRef(false);
   const load = useCallback(async () => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
     try {
       const res = await fetch('/api/quests', { cache: 'no-store' });
       const json = await res.json();
@@ -98,6 +104,7 @@ export function RiseMode() {
     } catch {
       setData(null);
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
   }, []);
@@ -177,6 +184,11 @@ export function RiseMode() {
   );
   const rewardsClose = open.filter((q) => q.progress_percent >= 50 && (q.reward?.unlocks?.length || q.unlocks?.length));
   const recommendedQuest = data.recommended ? open.find((q) => q.id === data.recommended!.questId) : undefined;
+  // Has the artist already launched a campaign? Drives the empty-state next move so
+  // it never tells them to "launch a campaign" right after they launched one.
+  const hasCampaign = data.quests.some(
+    (q) => q.template_key === 'artist_create_road_campaign' && q.status === 'completed',
+  );
 
   const p = data.progression;
   const build = getArtistBuild(data.build.primary);
@@ -204,7 +216,7 @@ export function RiseMode() {
             <QuestCard quest={mainQuest} variant="hero" />
           </div>
         ) : (
-          <NextGrowthMove router={router} />
+          <NextGrowthMove router={router} hasCampaign={hasCampaign} />
         )}
       </div>
     );
@@ -268,7 +280,7 @@ export function RiseMode() {
           <QuestCard quest={mainQuest} variant="hero" />
         </div>
       ) : (
-        <NextGrowthMove router={router} />
+        <NextGrowthMove router={router} hasCampaign={hasCampaign} />
       )}
 
       {/* AI Recommended Quest */}
@@ -353,21 +365,38 @@ export function RiseMode() {
 }
 
 // The single, obvious growth move shown once the setup ladder is cleared — ONE
-// action, not a menu of three (per the "one obvious next move" principle).
-function NextGrowthMove({ router }: { router: ReturnType<typeof useRouter> }) {
+// action (per the "one obvious next move" principle). Context-aware: if they've
+// already launched a campaign, it moves them on instead of repeating itself.
+function NextGrowthMove({
+  router,
+  hasCampaign,
+}: {
+  router: ReturnType<typeof useRouter>;
+  hasCampaign: boolean;
+}) {
+  const move = hasCampaign
+    ? {
+        title: 'Rally your fans with a mission',
+        body: 'Your campaign is live. Give supporters one clear action — share, clip, or invite — and watch it move.',
+        cta: 'Create a fan mission →',
+        href: '/missions/new',
+      }
+    : {
+        title: 'Launch a campaign',
+        body: "You've built the foundation. Now give your supporters a goal to rally behind — a Road To campaign turns quiet fans into active backers.",
+        cta: 'Launch a campaign →',
+        href: '/campaigns/new?returnTo=%2Fprofile%2Fartist%3Ftab%3Drise',
+      };
   return (
     <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6">
       <div className="text-sm font-bold text-crwn-gold uppercase tracking-wide mb-2">👉 Your next move</div>
-      <h3 className="text-xl font-bold text-crwn-text">Launch a campaign</h3>
-      <p className="text-crwn-text-secondary text-sm mt-1 leading-relaxed">
-        You've built the foundation. Now give your supporters a goal to rally behind — a Road To
-        campaign turns quiet fans into active backers.
-      </p>
+      <h3 className="text-xl font-bold text-crwn-text">{move.title}</h3>
+      <p className="text-crwn-text-secondary text-sm mt-1 leading-relaxed">{move.body}</p>
       <button
-        onClick={() => router.push('/campaigns/new?returnTo=%2Fprofile%2Fartist%3Ftab%3Drise')}
+        onClick={() => router.push(move.href)}
         className="neu-button-accent w-full mt-5 py-3.5 rounded-full font-semibold text-base"
       >
-        Launch a campaign →
+        {move.cta}
       </button>
     </div>
   );

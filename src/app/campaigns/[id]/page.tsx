@@ -31,7 +31,7 @@ export default function CampaignDetailPage() {
       const json = await res.json();
       // Deleted/invalid campaign: REPLACE (never push) so this dead URL is removed
       // from history — otherwise the back arrow keeps returning here and re-toasting.
-      if (!res.ok) { showToast(json.error || 'Campaign not found', 'error'); router.replace('/campaign-hub?tab=campaigns'); return; }
+      if (!res.ok) { showToast(json.error || 'Campaign not found', 'error'); router.replace('/campaign-hub'); return; }
       setDetail(json);
     } catch { /* silent */ } finally { setLoading(false); }
   }, [id, router, showToast]);
@@ -55,7 +55,7 @@ export default function CampaignDetailPage() {
       if (json.deleted) {
         showToast('Campaign deleted.', 'success');
         // REPLACE so the deleted campaign's URL leaves history (no back-arrow loop).
-        router.replace('/campaign-hub?tab=campaigns');
+        router.replace('/campaign-hub');
       } else if (json.archived) {
         showToast('This campaign has supporters, so it was archived to keep their records.', 'success');
         load();
