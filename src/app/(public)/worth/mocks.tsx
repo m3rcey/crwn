@@ -235,7 +235,7 @@ export function LeaderboardMock({ payers }: { payers?: number }) {
 export function AiActionsMock() {
   const { ref, isInView } = useInView();
   const cards = [
-    { cat: 'TIER PRICING', status: 'Caution', statusColor: 'text-red-400 bg-red-500/10', title: 'Raise Wave tier to $15/mo — RPV up 62%', desc: 'Audience converting better and can bear a higher price. Adds ~$40/mo to MRR.' },
+    { cat: 'TIER PRICING', status: 'Caution', statusColor: 'text-red-400 bg-red-500/10', title: 'Raise Wave tier to $15/mo (RPV up 62%)', desc: 'Audience converting better and can bear a higher price. Adds ~$40/mo to MRR.' },
     { cat: 'EMAIL CAMPAIGN', status: 'Review', statusColor: 'text-crwn-gold bg-crwn-gold/10', title: 'Email fans: 1-on-1 sessions to $100', desc: 'Selling out at $75 with 6 slots left. Draft ready.' },
     { cat: 'DISCOUNT CODE', status: 'Review', statusColor: 'text-crwn-gold bg-crwn-gold/10', title: '20% off code for churned fans', desc: 'Win-back sequence active. Targets 3 fans who canceled on price.' },
   ];

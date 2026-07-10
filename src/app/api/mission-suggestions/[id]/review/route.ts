@@ -213,7 +213,7 @@ export async function POST(
       suggestion.suggested_by,
       'mission_suggestion',
       'Update on your mission suggestion',
-      `${artistName} passed on "${suggestion.title}" this time — keep the ideas coming`,
+      `${artistName} passed on "${suggestion.title}" this time. Keep the ideas coming`,
       '/home'
     );
   } catch (e) {

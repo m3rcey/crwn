@@ -63,7 +63,7 @@ async function notifyFansOfFulfillment(
       user_id: fid,
       type: 'promise_fulfilled',
       title: `🎁 ${artistName} delivered`,
-      message: `${title} — a promise to you was just fulfilled.`,
+      message: `${title}. A promise to you was just fulfilled.`,
       link: '/my-calendar',
     })),
   );

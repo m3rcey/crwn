@@ -60,7 +60,7 @@ async function executeStep(
     }
     case 'create_city_unlock': {
       const city = (payload.targetCity || '').trim();
-      if (!city) throw new Error('No city available — set a city and try again');
+      if (!city) throw new Error('No city available. Set a city and try again.');
       const { data, error } = await supabaseAdmin.from('city_unlocks').insert({
         artist_id: artistId, title: payload.title || 'City unlock', target_city: city,
         unlock_type: payload.unlockType || 'event', goal_type: payload.goalType || 'supporters',

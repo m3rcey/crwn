@@ -109,7 +109,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             user_id: fid,
             type: 'city_unlocked',
             title: `📍 ${unlock.target_city} unlocked it!`,
-            message: `${unlock.title} is unlocked — you helped make it happen.`,
+            message: `${unlock.title} is unlocked. You helped make it happen.`,
             link: `/city-unlocks/${id}`,
           }))
         );
