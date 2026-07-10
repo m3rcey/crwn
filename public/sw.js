@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crwn-v182';
+const CACHE_NAME = 'crwn-v183';
 const STATIC_ASSETS = [
   '/favicon.ico',
   '/icon-192x192.png',
@@ -36,8 +36,19 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Skip audio files
-  if (event.request.url.match(/\.(mp3|wav|flac|m4a|ogg)$/i)) return;
+  // Skip audio files, and every API response.
+  //
+  // Test the PATHNAME, not the whole url. The audio bucket is private now, so
+  // audio arrives as a signed url ending in `?token=...` -- against the full url
+  // a `\.mp3$` test never matches, which would quietly route all media through
+  // this worker instead of leaving it to the browser, and SW-mediated range
+  // requests are exactly where iOS Safari breaks seeking.
+  //
+  // /api/ is skipped outright: those responses are short-lived signed urls marked
+  // no-store, and nothing good comes of a service worker holding a credential.
+  const url = new URL(event.request.url);
+  if (url.pathname.match(/\.(mp3|wav|flac|m4a|ogg|webm)$/i)) return;
+  if (url.pathname.startsWith('/api/')) return;
 
   // Navigation requests - network FIRST so a new deploy reaches the client on
   // the next load (no manual cache-clear). Cache the shell only as an offline
