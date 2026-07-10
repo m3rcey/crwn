@@ -75,15 +75,17 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased bg-[#0D0D0D] text-crwn-text min-h-screen pb-20`}
       >
         <AuthProvider>
-          <PlayerProvider>
-            <ToastProvider>
+          {/* ToastProvider wraps PlayerProvider so the player can tell a fan why a
+              locked track did not start. Toast has no player dependency. */}
+          <ToastProvider>
+            <PlayerProvider>
               {children}
               <MiniPlayer />
               <FullScreenPlayer />
               <Suspense><ReferralPersist /></Suspense>
               <ServiceWorkerRegistration />
-            </ToastProvider>
-          </PlayerProvider>
+            </PlayerProvider>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

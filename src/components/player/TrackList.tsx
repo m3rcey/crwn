@@ -20,10 +20,10 @@ export function TrackList({ tracks }: TrackListProps) {
   };
 
   const getAccessBadge = (track: Track) => {
-    const { canPlay } = canPlayTrack(track);
-    
-    if (!canPlay) {
-      return <span className="text-xs text-crwn-gold-muted flex items-center gap-1"><Lock size={12} /> Preview</span>;
+    // No audio URL means the database withheld it: this listener is not entitled.
+    // The old label said "Preview", but no preview was ever implemented.
+    if (!canPlayTrack(track)) {
+      return <span className="text-xs text-crwn-gold-muted flex items-center gap-1"><Lock size={12} /> Locked</span>;
     }
     
     switch (track.access_level) {

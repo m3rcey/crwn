@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useRef, useEffect, useCallback } f
 import { Track } from '@/types';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/shared/Toast';
 
 type RepeatMode = 'off' | 'all' | 'one';
 
@@ -38,13 +39,15 @@ interface PlayerContextType {
   isFavorite: (trackId: string) => boolean;
   toggleFavorite: (trackId: string) => Promise<void>;
   favorites: Set<string>;
-  canPlayTrack: (track: Track) => { canPlay: boolean; isPreview: boolean };
+  /** True when the database handed this reader a playable audio URL. */
+  canPlayTrack: (track: Track) => boolean;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
@@ -92,10 +95,17 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [user?.id, supabase]);
 
   // Can play track - declared before play
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const canPlayTrack = useCallback((_track: Track): { canPlay: boolean; isPreview: boolean } => {
-    // For now, allow all tracks to be played (access control can be added later)
-    return { canPlay: true, isPreview: false };
+  //
+  // The DATABASE decides, not this hook. `tracks_public` NULLs audio_url_* for any
+  // reader who is not entitled (free / owner / purchaser / subscribed on an allowed
+  // tier), and anon+authenticated hold no grant on those columns of `tracks`. So a
+  // missing URL IS the gate, already enforced server-side. The client only reflects
+  // it -- it never re-derives entitlement, which is exactly how the old leak worked.
+  //
+  // This used to `return { canPlay: true }` unconditionally ("access control can be
+  // added later"), so any surface calling play() streamed paid tracks in full.
+  const canPlayTrack = useCallback((track: Track): boolean => {
+    return !!track.audio_url_128;
   }, []);
 
   // Log play history - declared before play
@@ -130,7 +140,17 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       }
     }
     
-    if (nextIndex < queue.length) {
+    // Skip past locked tracks rather than stalling on an empty <audio src>. A queue
+    // can legitimately mix free and gated tracks (an album, a playlist), and
+    // tracks_public hands back a NULL url for the ones this listener cannot play.
+    // Bounded by queue.length so an all-locked queue terminates.
+    let scanned = 0;
+    while (nextIndex < queue.length && !queue[nextIndex]?.audio_url_128 && scanned < queue.length) {
+      nextIndex = repeat === 'all' && nextIndex + 1 >= queue.length ? 0 : nextIndex + 1;
+      scanned++;
+    }
+
+    if (nextIndex < queue.length && queue[nextIndex]?.audio_url_128) {
       setCurrentIndex(nextIndex);
       // play will be called from handleTrackEnd or UI
       const nextTrack = queue[nextIndex];
@@ -138,9 +158,11 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setCurrentTrack(nextTrack);
         setCurrentTime(0);
         setPlayStartTime(Date.now());
-        audioRef.current.src = nextTrack.audio_url_128 || '';
+        audioRef.current.src = nextTrack.audio_url_128 as string;
         audioRef.current.play().then(() => setIsPlaying(true));
       }
+    } else {
+      setIsPlaying(false);
     }
   }, [queue, currentIndex, shuffle, repeat]);
 
@@ -181,14 +203,16 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   // Play - declared after dependencies
   const play = useCallback(async (track: Track, trackList?: Track[]) => {
-    const { canPlay, isPreview } = canPlayTrack(track);
-    
-    if (!canPlay && !isPreview) {
-      console.log('Track cannot be played:', track);
+    if (!canPlayTrack(track)) {
+      // Surfaces that render their own lock (GatedTrackPlayer) never reach here.
+      // Explore, Liked Songs, playlists and share pages call play() directly, so
+      // without this they would fail silently with an empty <audio src>.
+      showToast(
+        track.price ? 'Buy this track to listen' : 'Subscribe to listen',
+        'info'
+      );
       return;
     }
-
-    console.log('Playing track:', track.title, 'URL:', track.audio_url_128);
 
     // If trackList provided, set as queue
     if (trackList && trackList.length > 0) {
@@ -242,14 +266,10 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       setPlayStartTime(Date.now());
       
       if (audioRef.current) {
-        const audioSrc = isPreview 
-          ? `${track.audio_url_128}#t=0,30`
-          : track.audio_url_128 || '';
-        console.log('Setting audio src:', audioSrc);
-        audioRef.current.src = audioSrc;
+        audioRef.current.src = track.audio_url_128 as string;
       }
     }
-    
+
     if (audioRef.current) {
       try {
         await audioRef.current.play();
@@ -258,7 +278,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         console.error('Error playing audio:', error);
       }
     }
-  }, [currentTrack, playStartTime, canPlayTrack, logPlayHistory]);
+  }, [currentTrack, playStartTime, canPlayTrack, logPlayHistory, showToast]);
 
   // Play all - plays a list of tracks starting from a specific index
   const playAll = useCallback(async (tracks: Track[], startIndex = 0) => {
@@ -270,25 +290,24 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     
     const track = tracks[startIndex];
     if (track) {
-      const { canPlay, isPreview } = canPlayTrack(track);
-      if (!canPlay && !isPreview) {
-        console.log('Track cannot be played:', track);
+      if (!canPlayTrack(track)) {
+        showToast(
+          track.price ? 'Buy this track to listen' : 'Subscribe to listen',
+          'info'
+        );
         return;
       }
-      
+
       setCurrentTrack(track);
       setCurrentTime(0);
       setPlayStartTime(Date.now());
-      
+
       if (audioRef.current) {
-        const audioSrc = isPreview 
-          ? `${track.audio_url_128}#t=0,30`
-          : track.audio_url_128 || '';
-        audioRef.current.src = audioSrc;
+        audioRef.current.src = track.audio_url_128 as string;
         audioRef.current.play().then(() => setIsPlaying(true));
       }
     }
-  }, [canPlayTrack]);
+  }, [canPlayTrack, showToast]);
 
   // Pause
   const pause = useCallback(() => {
