@@ -89,7 +89,10 @@ export default function NewCampaignPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
       showToast('Campaign live', 'success');
-      router.push(`/campaigns/${json.campaign.id}`);
+      // If launched from a quest, return to Rise Mode where the celebration fires.
+      const returnTo =
+        typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('returnTo') : null;
+      router.push(returnTo || `/campaigns/${json.campaign.id}`);
     } catch (e: any) { showToast(e.message || 'Failed', 'error'); setSaving(false); }
   };
 

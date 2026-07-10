@@ -8,10 +8,15 @@ export interface QuestCta {
   href: string;
 }
 
+// Encoded so it survives as a single query value (it contains its own ?tab=).
+// Creators (offers/new, campaigns/new) read ?returnTo and bounce back to Rise Mode
+// on success, where the completion celebration fires.
+const RETURN_TO_RISE = '%2Fprofile%2Fartist%3Ftab%3Drise';
+
 const CATEGORY_CTA: Record<string, QuestCta> = {
   setup: { label: 'Go to setup', href: '/profile/artist?tab=profile' },
-  offer: { label: 'Build offer', href: '/offers/new' },
-  campaign: { label: 'Start campaign', href: '/campaigns/new' },
+  offer: { label: 'Build offer', href: `/offers/new?returnTo=${RETURN_TO_RISE}` },
+  campaign: { label: 'Start campaign', href: `/campaigns/new?returnTo=${RETURN_TO_RISE}` },
   support: { label: 'View supporters', href: '/profile/artist?tab=audience' },
   promotion: { label: 'Open Earn Center', href: '/earn' },
   live: { label: 'Go to Live', href: '/profile/artist?tab=livestreams' },
@@ -26,9 +31,10 @@ const CATEGORY_CTA: Record<string, QuestCta> = {
 // A few templates deserve a more specific destination than their category default.
 const TEMPLATE_CTA: Record<string, QuestCta> = {
   artist_add_photo: { label: 'Add photo', href: '/profile/artist?tab=profile' },
-  artist_upload_first_track: { label: 'Upload track', href: '/profile/artist?tab=tracks' },
-  artist_build_first_offer: { label: 'Build offer', href: '/offers/new' },
-  artist_create_road_campaign: { label: 'Launch campaign', href: '/campaigns/new' },
+  artist_upload_first_track: { label: 'Upload a track', href: '/profile/artist?tab=tracks' },
+  artist_create_free_tier: { label: 'Create free tier', href: `/offers/new?returnTo=${RETURN_TO_RISE}` },
+  artist_build_first_offer: { label: 'Create paid tier', href: `/offers/new?returnTo=${RETURN_TO_RISE}` },
+  artist_create_road_campaign: { label: 'Launch campaign', href: `/campaigns/new?returnTo=${RETURN_TO_RISE}` },
   // fan-side
   fan_subscribe_to_artist: { label: 'Become a supporter', href: '' }, // filled with artist slug by caller
   fan_share_campaign: { label: 'Share', href: '' },

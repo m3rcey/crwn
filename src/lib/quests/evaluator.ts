@@ -85,6 +85,45 @@ async function evalDomain(admin: any, instance: QuestInstance, cond: Extract<Com
       const n = artistId ? await countActive(admin, 'products', { artist_id: artistId, is_active: true }) : 0;
       return { done: n >= 1, progressPercent: n >= 1 ? 100 : 0, current: n, target: 1 };
     }
+    case 'artist_has_free_tier': {
+      if (!artistId) return EMPTY_EVAL;
+      try {
+        const { count } = await admin
+          .from('subscription_tiers')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('is_active', true)
+          .eq('price', 0);
+        const n = count || 0;
+        return { done: n >= 1, progressPercent: n >= 1 ? 100 : 0, current: n, target: 1 };
+      } catch {
+        return EMPTY_EVAL;
+      }
+    }
+    case 'artist_has_paid_offer': {
+      if (!artistId) return EMPTY_EVAL;
+      try {
+        const { count: tierC } = await admin
+          .from('subscription_tiers')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('is_active', true)
+          .gt('price', 0);
+        let n = tierC || 0;
+        if (n === 0) {
+          const { count: prodC } = await admin
+            .from('products')
+            .select('id', { count: 'exact', head: true })
+            .eq('artist_id', artistId)
+            .eq('is_active', true)
+            .gt('price', 0);
+          n = prodC || 0;
+        }
+        return { done: n >= 1, progressPercent: n >= 1 ? 100 : 0, current: n, target: 1 };
+      } catch {
+        return EMPTY_EVAL;
+      }
+    }
     case 'artist_has_offer': {
       if (!artistId) return EMPTY_EVAL;
       const tiers = await countActive(admin, 'subscription_tiers', { artist_id: artistId, is_active: true });

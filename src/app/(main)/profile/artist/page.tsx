@@ -54,6 +54,11 @@ function ArtistDashboardContent() {
       if (prev.has(tabId)) return prev;
       return new Set(prev).add(tabId);
     });
+    // Tell Rise Mode to refetch when the artist returns to it (updated XP/progress
+    // + completion celebration for anything they just did on another tab).
+    if (tabId === 'rise' && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('rise:activate'));
+    }
   }, []);
 
   // First-visit auto-start + replay button. This keeps the setup-wizard →

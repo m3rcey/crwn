@@ -283,6 +283,15 @@ function OfferBuilder() {
     loadArtist();
   }, [authLoading, user, router, loadArtist]);
 
+  // If launched from a Rise Mode quest, bounce back on completion so the
+  // celebration fires there instead of stranding the artist on the done screen.
+  useEffect(() => {
+    if (phase !== 'done') return;
+    const returnTo =
+      typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('returnTo') : null;
+    if (returnTo) router.replace(returnTo);
+  }, [phase, router]);
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

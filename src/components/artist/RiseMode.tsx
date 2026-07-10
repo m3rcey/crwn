@@ -1,15 +1,46 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { QuestInstance, CompletionEvent } from '@/lib/quests/types';
 import { ArtistBuildPicker } from '@/components/quests/ArtistBuildPicker';
 import { QuestCard } from '@/components/quests/QuestCard';
 import { MovementMap } from '@/components/quests/MovementMap';
 import { QuestCompletionModal } from '@/components/quests/QuestCompletionModal';
-import { LiveQuestLauncher } from '@/components/quests/LiveQuestLauncher';
+import { Confetti } from '@/components/quests/Confetti';
 import { getArtistBuild } from '@/lib/quests/builds';
-import { Flame, Zap, Loader2, Trophy, Sparkles } from 'lucide-react';
+import { Flame, Zap, Loader2, Sparkles } from 'lucide-react';
+
+// Count-up animation for XP. performance.now() is allowed (Date.now is not, but
+// only in workflow scripts — this is app code). Animates whenever the target moves.
+function useCountUp(target: number, durationMs = 900): { value: number; bumped: boolean } {
+  const [value, setValue] = useState(target);
+  const [bumped, setBumped] = useState(false);
+  const prev = useRef(target);
+
+  useEffect(() => {
+    const from = prev.current;
+    const to = target;
+    if (from === to) return;
+    setBumped(true);
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setValue(Math.round(from + (to - from) * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else {
+        prev.current = to;
+        setTimeout(() => setBumped(false), 400);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, durationMs]);
+
+  return { value, bumped };
+}
 
 interface QuestsResponse {
   enabled: boolean;
@@ -75,6 +106,38 @@ export function RiseMode() {
     load();
   }, [load]);
 
+  // Refetch whenever the artist RETURNS — from a creator page (window focus /
+  // tab visibility) or by switching back to the Rise tab (the dashboard dispatches
+  // 'rise:activate'). This is what makes XP/progress update + the celebration fire
+  // on return instead of showing a stale board.
+  useEffect(() => {
+    const refetch = () => load();
+    const onVis = () => {
+      if (document.visibilityState === 'visible') load();
+    };
+    window.addEventListener('focus', refetch);
+    window.addEventListener('rise:activate', refetch);
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      window.removeEventListener('focus', refetch);
+      window.removeEventListener('rise:activate', refetch);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [load]);
+
+  // Fire confetti once per fresh completion.
+  const [confetti, setConfetti] = useState(0);
+  const seenCompletions = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const fresh = (data?.completions ?? []).filter((c) => !seenCompletions.current.has(c.questId));
+    if (fresh.length > 0) {
+      fresh.forEach((c) => seenCompletions.current.add(c.questId));
+      setConfetti((n) => n + 1);
+    }
+  }, [data]);
+
+  const xpAnim = useCountUp(data?.progression?.xp ?? 0);
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
@@ -122,10 +185,14 @@ export function RiseMode() {
   if (focus) {
     return (
       <div className="max-w-2xl mx-auto space-y-5">
+        <Confetti trigger={confetti} />
         <QuestCompletionModal events={data.completions} />
         <div className="flex items-center justify-between">
           <span className="text-sm text-crwn-text-secondary">
-            Level {p.level} · {p.levelTitle} · <span className="text-crwn-gold font-semibold">{p.xp} XP</span>
+            Level {p.level} · {p.levelTitle} ·{' '}
+            <span className={`text-crwn-gold font-semibold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>
+              {xpAnim.value} XP
+            </span>
           </span>
           <button onClick={() => setFocusMode(false)} className="text-xs text-crwn-gold hover:underline">
             Show full dashboard
@@ -137,16 +204,7 @@ export function RiseMode() {
             <QuestCard quest={mainQuest} variant="hero" />
           </div>
         ) : (
-          <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6 text-center">
-            <Trophy className="w-6 h-6 text-crwn-gold mx-auto mb-2" />
-            <p className="text-crwn-text font-bold text-lg">You've cleared the essentials 🎉</p>
-            <button
-              onClick={() => setFocusMode(false)}
-              className="neu-button-accent px-6 py-2.5 rounded-full font-semibold text-sm mt-4"
-            >
-              See growth moves
-            </button>
-          </div>
+          <NextGrowthMove router={router} />
         )}
       </div>
     );
@@ -154,6 +212,7 @@ export function RiseMode() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+      <Confetti trigger={confetti} />
       <QuestCompletionModal events={data.completions} />
       {/* Progression header */}
       <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
@@ -172,7 +231,7 @@ export function RiseMode() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-crwn-text">
               <Zap className="w-4 h-4 text-crwn-gold" />
-              <span className="font-bold">{p.xp}</span>
+              <span className={`font-bold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>{xpAnim.value}</span>
               <span className="text-xs text-crwn-text-secondary">XP</span>
             </div>
             {p.streak > 0 && (
@@ -193,7 +252,7 @@ export function RiseMode() {
         {!p.isMax && (
           <div className="mt-4">
             <div className="h-2 rounded-full bg-[#2A2A2A] overflow-hidden">
-              <div className="h-full bg-crwn-gold rounded-full transition-all" style={{ width: `${p.percentToNext}%` }} />
+              <div className="h-full bg-crwn-gold rounded-full transition-all duration-700 ease-out" style={{ width: `${p.percentToNext}%` }} />
             </div>
             <div className="text-[11px] text-crwn-text-secondary mt-1">{p.percentToNext}% to next level</div>
           </div>
@@ -209,33 +268,7 @@ export function RiseMode() {
           <QuestCard quest={mainQuest} variant="hero" />
         </div>
       ) : (
-        <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6">
-          <div className="text-center mb-4">
-            <Trophy className="w-6 h-6 text-crwn-gold mx-auto mb-2" />
-            <p className="text-crwn-text font-bold text-lg">You've cleared the essentials 🎉</p>
-            <p className="text-crwn-text-secondary text-sm mt-1">Here's how to keep your movement growing.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <button
-              onClick={() => router.push('/campaigns/new')}
-              className="neu-button-accent py-3 rounded-full font-semibold text-sm"
-            >
-              Launch a campaign
-            </button>
-            <button
-              onClick={() => router.push('/missions/new')}
-              className="py-3 rounded-full font-semibold text-sm border border-[#2A2A2A] text-crwn-text hover:border-crwn-gold/40"
-            >
-              Create a fan mission
-            </button>
-            <button
-              onClick={() => router.push('/profile/artist?tab=livestreams')}
-              className="py-3 rounded-full font-semibold text-sm border border-[#2A2A2A] text-crwn-text hover:border-crwn-gold/40"
-            >
-              Go live
-            </button>
-          </div>
-        </div>
+        <NextGrowthMove router={router} />
       )}
 
       {/* AI Recommended Quest */}
@@ -310,12 +343,32 @@ export function RiseMode() {
           )}
         </div>
 
-        {/* Movement Map + Live Quest CTA */}
+        {/* Movement Map */}
         <div className="space-y-4">
           <MovementMap role="artist" currentLevel={p.level} />
-          <LiveQuestLauncher />
         </div>
       </div>
+    </div>
+  );
+}
+
+// The single, obvious growth move shown once the setup ladder is cleared — ONE
+// action, not a menu of three (per the "one obvious next move" principle).
+function NextGrowthMove({ router }: { router: ReturnType<typeof useRouter> }) {
+  return (
+    <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6">
+      <div className="text-sm font-bold text-crwn-gold uppercase tracking-wide mb-2">👉 Your next move</div>
+      <h3 className="text-xl font-bold text-crwn-text">Launch a campaign</h3>
+      <p className="text-crwn-text-secondary text-sm mt-1 leading-relaxed">
+        You've built the foundation. Now give your supporters a goal to rally behind — a Road To
+        campaign turns quiet fans into active backers.
+      </p>
+      <button
+        onClick={() => router.push('/campaigns/new?returnTo=%2Fprofile%2Fartist%3Ftab%3Drise')}
+        className="neu-button-accent w-full mt-5 py-3.5 rounded-full font-semibold text-base"
+      >
+        Launch a campaign →
+      </button>
     </div>
   );
 }

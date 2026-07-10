@@ -59,6 +59,8 @@ export type DomainCheck =
   // artist-side
   | 'artist_has_offer' // >=1 active subscription_tier OR product
   | 'artist_has_tier' // >=1 active subscription_tier
+  | 'artist_has_free_tier' // >=1 active subscription_tier priced at 0 (the free front door)
+  | 'artist_has_paid_offer' // >=1 active PAID subscription_tier (price>0) OR paid product
   | 'artist_has_product' // >=1 active product
   | 'artist_has_track' // >=1 active track
   | 'artist_has_avatar' // profiles.avatar_url set
