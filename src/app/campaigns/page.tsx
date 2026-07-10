@@ -9,6 +9,7 @@ import { usePageTour } from '@/hooks/usePageTour';
 import { campaignsTourSteps } from '@/lib/campaignsTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
 import { CAMPAIGN_GOAL_MAP, formatCampaignValue, type CampaignGoalType } from '@/lib/roadCampaigns';
+import { smartBack } from '@/lib/navigation';
 
 interface CampaignRow {
   id: string; title: string; goal_type: CampaignGoalType; goal_value: number; current_value: number; status: string;
@@ -64,7 +65,7 @@ export default function CampaignsPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6" data-tour="campaigns-header">
-        <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">Campaigns</h1><p className="text-xs text-crwn-text-secondary">Your "Road to ___": the big goal fans rally behind.</p></div>
         <TourReplayButton onClick={replay} />
         <button data-tour="campaigns-new" onClick={() => router.push('/campaigns/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm"><Plus className="w-4 h-4" /> New</button>

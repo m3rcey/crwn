@@ -11,6 +11,7 @@ import {
   BOUNTY_TYPES, BOUNTY_TYPE_MAP, BOUNTY_REWARDS,
   type BountyType, type BountyRewardType, type BountyEligibility,
 } from '@/lib/bounties';
+import { smartBack } from '@/lib/navigation';
 
 const STEPS: WizardStep[] = [
   { id: 'source', group: 'Source' },
@@ -114,7 +115,7 @@ export default function NewBountyPage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => router.push('/bounties')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/bounties')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <h1 className="text-lg font-bold text-crwn-text">New Bounty</h1>
       </div>
 

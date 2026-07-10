@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { CAMPAIGN_GOAL_MAP, formatCampaignValue, type CampaignGoalType } from '@/lib/roadCampaigns';
 import { TeamSplitImpact } from '@/components/team/TeamSplitImpact';
+import { smartBack } from '@/lib/navigation';
 
 interface Detail {
   campaign: { id: string; title: string; description: string | null; goal_type: CampaignGoalType; goal_value: number; current_value: number; status: string; reached_message: string | null };
@@ -60,7 +61,7 @@ export default function CampaignDetailPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => router.push('/campaigns')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/campaigns')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <span className="text-2xl">{def?.icon || '🏁'}</span>
         <div className="flex-1 min-w-0"><h1 className="text-lg font-bold text-crwn-text truncate">{campaign.title}</h1><p className="text-xs text-crwn-text-secondary capitalize">{def?.label} · {campaign.status}</p></div>
       </div>

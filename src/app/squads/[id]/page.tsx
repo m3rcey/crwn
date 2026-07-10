@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { SQUAD_TYPE_MAP, VISIBILITY_LABELS, type SquadType } from '@/lib/squads';
+import { smartBack } from '@/lib/navigation';
 
 interface Member {
   id: string; fan_id: string; role: string; status: string;
@@ -150,7 +151,7 @@ export default function SquadDetailPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => router.push('/squads')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/squads')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <span className="text-2xl">{def.icon}</span>
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-bold text-crwn-text truncate">{squad.name}</h1>

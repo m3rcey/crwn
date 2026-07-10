@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Archive, Check, Copy, Megaphone, Trophy } from '
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { smartBack } from '@/lib/navigation';
 
 interface TestDetail {
   id: string;
@@ -187,7 +188,7 @@ export default function DemandTestDetailPage({ params }: { params: Promise<{ id:
     <div className="min-h-screen">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         <button
-          onClick={() => router.push('/proof-of-demand')}
+          onClick={() => smartBack(router, '/proof-of-demand')}
           className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />

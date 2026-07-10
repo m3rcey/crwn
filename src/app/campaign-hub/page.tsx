@@ -18,6 +18,7 @@ import { MISSION_TYPE_LABELS, type MissionType } from '@/lib/missions';
 import { usePageTour } from '@/hooks/usePageTour';
 import { getCampaignHubTourSteps } from '@/lib/campaignHubTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
+import { smartBack } from '@/lib/navigation';
 
 interface Promoter {
   fanId: string;
@@ -163,7 +164,7 @@ export default function CampaignHubPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <button
-          onClick={() => router.push('/studio')}
+          onClick={() => smartBack(router, '/studio')}
           className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />

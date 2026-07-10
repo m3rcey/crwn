@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, Check, X, Trophy, ExternalLink, Clock } from 'lucid
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { BOUNTY_TYPE_MAP, type BountyType } from '@/lib/bounties';
+import { smartBack } from '@/lib/navigation';
 
 interface Submission {
   id: string; clipper_id: string; clip_url: string | null; status: string;
@@ -71,7 +72,7 @@ export default function BountyDetailPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => router.push('/bounties')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/bounties')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <span className="text-2xl">{def.icon}</span>
         <div className="flex-1 min-w-0"><h1 className="text-lg font-bold text-crwn-text truncate">{bounty.title}</h1><p className="text-xs text-crwn-text-secondary capitalize">{def.label} · {bounty.status}</p></div>
         {bounty.status === 'active' && <button onClick={() => setStatus('ended')} className="text-xs bg-crwn-elevated text-crwn-text-secondary px-3 py-1.5 rounded-full">End</button>}

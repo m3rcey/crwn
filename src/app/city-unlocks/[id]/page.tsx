@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, MapPin, Users, Copy, Check } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { UNLOCK_TYPE_MAP, GOAL_TYPE_MAP, type UnlockType } from '@/lib/cityUnlocks';
+import { smartBack } from '@/lib/navigation';
 
 interface Detail {
   unlock: {
@@ -64,7 +65,7 @@ export default function CityUnlockDetailPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => router.push('/city-unlocks')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/city-unlocks')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <span className="text-2xl">{def?.icon || '📍'}</span>
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-bold text-crwn-text truncate">{unlock.title}</h1>

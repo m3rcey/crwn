@@ -9,6 +9,7 @@ import { SQUAD_TYPE_MAP, type SquadType } from '@/lib/squads';
 import { usePageTour } from '@/hooks/usePageTour';
 import { squadsTourSteps } from '@/lib/squadsTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
+import { smartBack } from '@/lib/navigation';
 
 interface SquadRow {
   id: string;
@@ -80,7 +81,7 @@ export default function SquadsPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6" data-tour="squads-header">
-        <button onClick={() => router.push('/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text">
+        <button onClick={() => smartBack(router, '/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1">

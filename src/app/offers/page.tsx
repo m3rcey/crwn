@@ -9,6 +9,7 @@ import type { ProductType } from '@/types';
 import { usePageTour } from '@/hooks/usePageTour';
 import { offersTourSteps } from '@/lib/offersTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
+import { smartBack } from '@/lib/navigation';
 
 interface TierRow {
   id: string;
@@ -138,7 +139,7 @@ export default function OffersPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <button
-          onClick={() => router.push('/studio')}
+          onClick={() => smartBack(router, '/studio')}
           className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" />

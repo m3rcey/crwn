@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Loader2, Check, X, ExternalLink, FileText } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
+import { smartBack } from '@/lib/navigation';
 
 interface Step {
   id: string; step_index: number; step_type: string; title: string; description: string | null;
@@ -86,7 +87,7 @@ export default function PlaybookRunPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-4">
-        <button onClick={() => router.push('/playbooks')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/playbooks')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <div className="flex-1 min-w-0"><h1 className="text-lg font-bold text-crwn-text truncate">{run.playbook_name}</h1><p className="text-xs text-crwn-text-secondary capitalize">{run.status} · {done}/{steps.length} done</p></div>
       </div>
 

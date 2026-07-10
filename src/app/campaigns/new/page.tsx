@@ -8,6 +8,7 @@ import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Wizard, type WizardStep } from '@/components/ui/Wizard';
 import { CAMPAIGN_GOALS, CAMPAIGN_GOAL_MAP, type CampaignGoalType } from '@/lib/roadCampaigns';
+import { smartBack } from '@/lib/navigation';
 
 interface Tier { id: string; name: string; price: number; }
 interface Product { id: string; title: string; price: number; }
@@ -105,7 +106,7 @@ export default function NewCampaignPage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => router.push('/campaigns')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <button onClick={() => smartBack(router, '/campaigns')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
         <h1 className="text-lg font-bold text-crwn-text">New Campaign</h1>
       </div>
 

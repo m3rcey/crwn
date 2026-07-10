@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { smartBack } from '@/lib/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Mail, MessageSquare, Loader2, BellOff, Clock, Zap } from 'lucide-react';
@@ -19,6 +21,7 @@ interface ArtistPref {
 }
 
 export default function NotificationsPage() {
+  const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [prefs, setPrefs] = useState<ArtistPref[]>([]);
@@ -178,9 +181,9 @@ export default function NotificationsPage() {
     <div className="max-w-2xl mx-auto space-y-6 stagger-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link href="/profile" className="p-2 rounded-lg hover:bg-crwn-surface transition-colors">
+        <button onClick={() => smartBack(router, '/profile')} className="p-2 rounded-lg hover:bg-crwn-surface transition-colors">
           <ArrowLeft className="w-5 h-5 text-crwn-text-secondary" />
-        </Link>
+        </button>
         <h1 className="text-2xl font-bold text-crwn-text">Communication Preferences</h1>
       </div>
 
