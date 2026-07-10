@@ -64,7 +64,7 @@ const STEPS: StepDef[] = [
   { key: 'type', title: 'What should fans do?', subtitle: 'Pick the one action your mission idea asks for.', icon: Flag },
   { key: 'target', title: 'What is it connected to?', subtitle: 'Point your idea at the page itself or one of the artist\'s demand tests.', icon: Target },
   { key: 'goal', title: 'Suggest a goal', subtitle: 'How many fans doing it would make this mission a win?', icon: Check },
-  { key: 'reward', title: 'Suggest a reward', subtitle: 'Just a suggestion — the artist decides the real reward.', icon: Gift },
+  { key: 'reward', title: 'Suggest a reward', subtitle: 'Just a suggestion. The artist decides the real reward.', icon: Gift },
   { key: 'pitch', title: 'Make your pitch', subtitle: 'Name the mission and tell the artist why fans would show up for it.', icon: FileText },
   { key: 'review', title: 'Review your suggestion', subtitle: 'Check everything, then send it for approval.', icon: Check },
 ];
@@ -110,7 +110,7 @@ export function SuggestMissionWizard({
   if (isOwnPage) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <p className="text-crwn-text mb-4">This is your own page — create the mission directly instead.</p>
+        <p className="text-crwn-text mb-4">This is your own page. Create the mission directly instead.</p>
         <button
           onClick={() => router.push('/missions/new')}
           className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 transition-colors"
@@ -241,7 +241,7 @@ export function SuggestMissionWizard({
             </div>
           </div>
           <p className="text-xs text-crwn-text-secondary mb-3">
-            You&apos;re pitching an idea to {artistName} — it only goes live if they approve it, and they set the reward.
+            You&apos;re pitching an idea to {artistName}. It only goes live if they approve it, and they set the reward.
           </p>
           <div className="h-1.5 rounded-full bg-crwn-elevated overflow-hidden">
             <div className="h-full bg-crwn-gold rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
@@ -318,7 +318,7 @@ export function SuggestMissionWizard({
                   <p className="text-sm font-medium text-crwn-text mb-2">Which demand test?</p>
                   {demandTests.length === 0 ? (
                     <p className="text-sm text-crwn-text-secondary border border-dashed border-crwn-elevated rounded-xl px-4 py-5">
-                      {artistName} has no live demand tests right now — point the mission at the page instead.
+                      {artistName} has no live demand tests right now. Point the mission at the page instead.
                     </p>
                   ) : (
                     <div className="grid gap-2">
@@ -381,7 +381,7 @@ export function SuggestMissionWizard({
               </div>
               <div className="bg-crwn-gold/5 border border-crwn-gold/20 rounded-2xl p-4">
                 <p className="text-sm text-crwn-text-secondary">
-                  <span className="text-crwn-gold font-medium">Just a suggestion</span> — the artist decides the real
+                  <span className="text-crwn-gold font-medium">Just a suggestion</span>. The artist decides the real
                   reward. Nothing you write here is binding, and no money is involved.
                 </p>
               </div>
@@ -406,7 +406,7 @@ export function SuggestMissionWizard({
                 <textarea
                   rows={4}
                   maxLength={500}
-                  placeholder={`Why fans would show up for this — make the case to ${artistName}.`}
+                  placeholder={`Why fans would show up for this. Make the case to ${artistName}.`}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   className={`${INPUT} resize-none text-base`}
@@ -434,7 +434,7 @@ export function SuggestMissionWizard({
                 <ul className="space-y-1.5 text-sm text-crwn-text-secondary">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
-                    Your idea lands in {artistName}&apos;s review queue — nothing goes live until they approve it.
+                    Your idea lands in {artistName}&apos;s review queue. Nothing goes live until they approve it.
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
@@ -480,7 +480,7 @@ export function SuggestMissionWizard({
               {(!isLoggedIn || canContinue()) && !submitting && <ArrowRight className="w-4 h-4" />}
             </button>
             {!isLoggedIn ? (
-              <span className="text-[11px] text-crwn-text-secondary mt-1.5">Free CRWN account required — takes a few seconds</span>
+              <span className="text-[11px] text-crwn-text-secondary mt-1.5">Free CRWN account required. Takes a few seconds</span>
             ) : (
               !canContinue() && !submitting && (
                 <span className="text-[11px] text-crwn-text-secondary mt-1.5">Complete this step to continue</span>
@@ -524,8 +524,8 @@ function DoneScreen({
         </h1>
         <p className="text-crwn-text-secondary mb-8">
           {duplicate
-            ? `You already suggested this — it's with ${artistName}. You'll hear back once they review it.`
-            : `${artistName} will review your idea. If they approve it, they set the reward and the mission goes live — you'll get a notification either way.`}
+            ? `You already suggested this. It's with ${artistName}. You'll hear back once they review it.`
+            : `${artistName} will review your idea. If they approve it, they set the reward and the mission goes live. You'll get a notification either way.`}
         </p>
         <button
           onClick={onBack}

@@ -212,7 +212,7 @@ export function MonetizationRoadmap({ artistId, onSwitchTab }: MonetizationRoadm
                 <h3 className="text-lg font-bold text-crwn-text">Path to Monetization</h3>
                 <p className="text-sm text-crwn-text-secondary">
                   {isComplete
-                    ? 'You\'re monetized! Your AI Manager will guide you from here.'
+                    ? 'You\'re monetized! Your manager will guide you from here.'
                     : `${completedSteps} of ${totalSteps} steps complete`}
                 </p>
               </div>

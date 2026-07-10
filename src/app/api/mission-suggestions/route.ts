@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   // 5 suggestions per day per user (window is in seconds).
   const allowed = await checkRateLimit(user.id, 'mission-suggest', 86400, 5);
   if (!allowed) {
-    return NextResponse.json({ error: 'You’ve hit today’s limit — try again tomorrow.' }, { status: 429 });
+    return NextResponse.json({ error: 'You’ve hit today’s limit. Try again tomorrow.' }, { status: 429 });
   }
 
   let body: {
@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Artist not found' }, { status: 404 });
   }
   if (artist.user_id === user.id) {
-    return NextResponse.json({ error: 'This is your own page — create the mission directly instead.' }, { status: 400 });
+    return NextResponse.json({ error: 'This is your own page. Create the mission directly instead.' }, { status: 400 });
   }
 
   // DEDUPE: one pending suggestion per fan + artist + mission type. A repeat is

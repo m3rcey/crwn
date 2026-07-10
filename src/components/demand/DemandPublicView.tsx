@@ -130,7 +130,7 @@ export function DemandPublicView({
             <p className="text-sm font-medium text-crwn-text group-hover:text-crwn-gold transition-colors">
               {artistName}
             </p>
-            <p className="text-xs text-crwn-text-secondary">is testing an idea — help decide</p>
+            <p className="text-xs text-crwn-text-secondary">is testing an idea. Help decide</p>
           </div>
         </button>
 
@@ -182,7 +182,7 @@ export function DemandPublicView({
           <p className="text-sm text-crwn-text-secondary mb-6">
             If this happens, it would be around{' '}
             <span className="text-crwn-text font-semibold">${(test.test_price / 100).toFixed(2)}</span>. Responding
-            costs nothing — you will never be charged from this page.
+            costs nothing. You will never be charged from this page.
           </p>
         )}
 
@@ -194,13 +194,13 @@ export function DemandPublicView({
             </div>
             <p className="text-xl font-bold text-crwn-text mb-1">You&apos;re in! 🎉</p>
             <p className="text-sm text-crwn-text-secondary">
-              {SUCCESS_LINES[test.signal_type]} {count} of {test.goal_count} fans are in — {artistName} will see it.
+              {SUCCESS_LINES[test.signal_type]} {count} of {test.goal_count} fans are in. {artistName} will see it.
             </p>
           </div>
         ) : deadlinePassed ? (
           <div className="text-center border border-crwn-elevated rounded-2xl px-6 py-8">
             <p className="text-crwn-text font-medium mb-1">This test has ended</p>
-            <p className="text-sm text-crwn-text-secondary">The deadline passed — watch {artistName} for what&apos;s next.</p>
+            <p className="text-sm text-crwn-text-secondary">The deadline passed. Watch {artistName} for what&apos;s next.</p>
           </div>
         ) : (
           <div>
@@ -239,12 +239,12 @@ export function DemandPublicView({
             </button>
             {!isLoggedIn && (
               <p className="text-xs text-crwn-text-secondary text-center mt-3">
-                Free CRWN account required — takes a few seconds.
+                Free CRWN account required. Takes a few seconds.
               </p>
             )}
             {error && <p className="text-sm text-red-400 text-center mt-3">{error}</p>}
             <p className="text-[11px] text-crwn-text-secondary/70 text-center mt-4">
-              No payment, no commitment — this just tells {artistName} the demand is real.
+              No payment, no commitment. This just tells {artistName} the demand is real.
             </p>
           </div>
         )}

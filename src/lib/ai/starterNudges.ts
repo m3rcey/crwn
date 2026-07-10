@@ -86,7 +86,7 @@ export function generateStarterNudges(data: ArtistDataForAI): InsightInput[] {
       type: 'content_nudge',
       priority: 'low',
       title: 'Get started on CRWN',
-      body: 'Upload tracks, set up subscription tiers, and start earning. Your AI Manager will have more insights once you have activity.',
+      body: 'Upload tracks, set up subscription tiers, and start earning. Your manager will have more insights once you have activity.',
       action_type: 'link',
       action_url: '/profile/artist?tab=tracks',
     });

@@ -205,11 +205,11 @@ export default function EarnPage() {
         /* Empty state */
         <div className="neu-raised rounded-xl p-8 text-center">
           <Gift className="w-12 h-12 text-crwn-gold/30 mx-auto mb-3" />
-          <p className="text-crwn-text font-medium">Nothing earned yet — let&apos;s change that</p>
+          <p className="text-crwn-text font-medium">Nothing earned yet. Let&apos;s change that</p>
           <p className="text-sm text-crwn-text-secondary mt-2 max-w-sm mx-auto">
             Hit <span className="text-green-400 font-medium">Share &amp; Earn</span> on any artist&apos;s
             page to grab your link. When a friend subscribes through it, you earn a recurring
-            commission — and it all shows up here.
+            commission, and it all shows up here.
           </p>
           <button
             onClick={() => router.push('/explore')}
@@ -382,7 +382,7 @@ export default function EarnPage() {
                     </div>
                   </div>
                   <p className="text-[11px] text-crwn-text-secondary mt-3">
-                    Each artist sets their own rates — the exact cut is shown when you grab a clip link.
+                    Each artist sets their own rates. The exact cut is shown when you grab a clip link.
                   </p>
                 </div>
               );

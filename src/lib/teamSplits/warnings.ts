@@ -81,7 +81,7 @@ export function analyzeDeal(t: DealTermsForRisk): DealWarning[] {
     w.push({
       code: 'all_earnings',
       level: 'high',
-      message: 'This shares a percentage of ALL your CRWN earnings, not one source. This is advanced and high-risk — keep it small and short.',
+      message: 'This shares a percentage of ALL your CRWN earnings, not one source. This is advanced and high-risk. Keep it small and short.',
     });
   }
 

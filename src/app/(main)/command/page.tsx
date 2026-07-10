@@ -175,7 +175,7 @@ export default function CommandPage() {
         </div>
       </div>
       <p className="text-sm text-crwn-text-secondary mb-6">
-        Your next move for the artists you back — one action at a time.
+        Your next move for the artists you back. One action at a time.
       </p>
 
       <div className="space-y-6 stagger-fade-in">
@@ -192,7 +192,7 @@ export default function CommandPage() {
                 Continue: {todaysMission.title}
               </p>
               <p className="text-sm text-crwn-text-secondary mt-1">
-                {todaysMission.artistName} is counting on you —{' '}
+                {todaysMission.artistName} is counting on you.{' '}
                 {MISSION_TYPE_LABELS[todaysMission.type]},{' '}
                 {missionCurrentCount(progressFields(todaysMission), demandCounts)}/{todaysMission.goalCount} so far.
               </p>
@@ -207,7 +207,7 @@ export default function CommandPage() {
           ) : todaysOpportunity ? (
             <>
               <p className="text-lg font-bold text-crwn-text">
-                Grab your {todaysOpportunity.artistName} link — earn{' '}
+                Grab your {todaysOpportunity.artistName} link and earn{' '}
                 <span className="text-green-400">{todaysOpportunity.referralCommissionRate}%</span>
               </p>
               <p className="text-sm text-crwn-text-secondary mt-1">
@@ -250,7 +250,7 @@ export default function CommandPage() {
           /* Brand-new fan — nothing joined, nothing to share yet */
           <div className="neu-raised rounded-xl p-8 text-center">
             <Flag className="w-12 h-12 text-crwn-gold/30 mx-auto mb-3" />
-            <p className="text-crwn-text font-medium">Your command center is empty — for now</p>
+            <p className="text-crwn-text font-medium">Your command center is empty, for now</p>
             <p className="text-sm text-crwn-text-secondary mt-2 max-w-sm mx-auto">
               Subscribe to an artist or join one of their missions and this page becomes
               your daily hub: what to do, what you&apos;ve earned, and the impact you&apos;re driving.

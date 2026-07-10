@@ -44,9 +44,9 @@ interface StepDef {
 }
 
 const SIGNALS: { value: SignalType; label: string; hint: string }[] = [
-  { value: 'rsvp', label: 'RSVP', hint: 'Fans reserve a spot — best for shows, sessions, and events.' },
-  { value: 'vote', label: 'Vote — "I want this"', hint: 'Fans tap to back the idea — best for drops and merch concepts.' },
-  { value: 'waitlist', label: 'Join waitlist', hint: 'Fans line up for launch day — best for anything you\'d release later.' },
+  { value: 'rsvp', label: 'RSVP', hint: 'Fans reserve a spot. Best for shows, sessions, and events.' },
+  { value: 'vote', label: 'Vote — "I want this"', hint: 'Fans tap to back the idea. Best for drops and merch concepts.' },
+  { value: 'waitlist', label: 'Join waitlist', hint: 'Fans line up for launch day. Best for anything you\'d release later.' },
 ];
 
 const AUDIENCES: { value: Audience; label: string; hint: string }[] = [
@@ -68,10 +68,10 @@ const AUDIENCE_LABELS: Record<Audience, string> = {
 };
 
 const STEPS: StepDef[] = [
-  { key: 'title', title: 'What do you want to validate?', subtitle: 'Name the idea like fans will see it — a show, a drop, a vinyl run.', icon: Lightbulb },
-  { key: 'signal', title: 'How should fans show demand?', subtitle: 'One tap for fans either way — pick the framing that fits the idea.', icon: Vote },
+  { key: 'title', title: 'What do you want to validate?', subtitle: 'Name the idea like fans will see it: a show, a drop, a vinyl run.', icon: Lightbulb },
+  { key: 'signal', title: 'How should fans show demand?', subtitle: 'One tap for fans either way. Pick the framing that fits the idea.', icon: Vote },
   { key: 'threshold', title: 'What number proves enough demand?', subtitle: 'Set the goal that would make this worth doing, and an optional deadline.', icon: Target },
-  { key: 'price', title: 'Ask what fans would pay?', subtitle: 'Optional. A non-binding price question — fans are NEVER charged.', icon: DollarSign },
+  { key: 'price', title: 'Ask what fans would pay?', subtitle: 'Optional. A non-binding price question. Fans are NEVER charged.', icon: DollarSign },
   { key: 'promoter', title: 'Ask if fans would promote it?', subtitle: 'Optional. Adds an "I\'d help promote this" checkbox to the public page.', icon: Megaphone },
   { key: 'audience', title: 'Who is this test for?', subtitle: 'Who you\'ll aim the link at. Anyone with the link can still open it.', icon: Users },
   { key: 'copy', title: 'Write the public page', subtitle: 'What fans read before they tap. Short and concrete wins.', icon: FileText },
@@ -380,7 +380,7 @@ function DemandTestBuilder() {
                     />
                   </div>
                   <p className="text-xs text-crwn-text-secondary mt-2">
-                    Fans see &quot;would you pay ${isValidPrice(price) ? (Math.round(parseFloat(price) * 100) / 100).toFixed(2) : '—'}?&quot; — no card, no charge, ever.
+                    Fans see &quot;would you pay ${isValidPrice(price) ? (Math.round(parseFloat(price) * 100) / 100).toFixed(2) : '—'}?&quot; No card, no charge, ever.
                   </p>
                 </div>
               )}
@@ -392,7 +392,7 @@ function DemandTestBuilder() {
               on={promoterOn}
               onToggle={() => setPromoterOn((v) => !v)}
               label="Also ask if fans would promote this?"
-              hint='Adds an "I&apos;d help promote this" checkbox — a preview of your future street team.'
+              hint='Adds an "I&apos;d help promote this" checkbox, a preview of your future street team.'
             />
           )}
 
@@ -475,11 +475,11 @@ function DemandTestBuilder() {
                 <ul className="space-y-1.5 text-sm text-crwn-text-secondary">
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
-                    A public page where fans respond with one tap — you get the shareable link next.
+                    A public page where fans respond with one tap. You get the shareable link next.
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
-                    A live results page — responses against your goal, in real time.
+                    A live results page: responses against your goal, in real time.
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
@@ -588,7 +588,7 @@ function DoneScreen({
         </div>
         <h1 className="text-3xl font-bold text-crwn-text mb-2">Your demand test is live 🎉</h1>
         <p className="text-crwn-text-secondary mb-6">
-          Put this link everywhere fans already watch you — the responses tell you whether to build it.
+          Put this link everywhere fans already watch you. The responses tell you whether to build it.
         </p>
 
         <button

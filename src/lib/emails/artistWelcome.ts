@@ -11,7 +11,7 @@ export function artistWelcomeEmail(params: { name?: string | null }) {
   const first = (params.name || '').trim().split(' ')[0] || 'there';
 
   return {
-    subject: `Welcome to CRWN, ${first} — let's get you paid 👑`,
+    subject: `Welcome to CRWN, ${first}. Let's get you paid 👑`,
     html: `
       <div style="background-color: #1A1A1A; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
         <div style="max-width: 460px; margin: 0 auto;">
@@ -21,7 +21,7 @@ export function artistWelcomeEmail(params: { name?: string | null }) {
           <div style="background-color: #242424; border-radius: 12px; padding: 32px; border: 1px solid #333;">
             <p style="color: #FFFFFF; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">Hey ${first},</p>
             <p style="color: #CCCCCC; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
-              Josh here, founder of CRWN. I saw your page just went live — congrats, and welcome. I'm personally onboarding our first artists one by one, and I'd genuinely love to help you get yours making money.
+              Josh here, founder of CRWN. I saw your page just went live. Congrats, and welcome. I'm personally onboarding our first artists one by one, and I'd genuinely love to help you get yours making money.
             </p>
             <p style="color: #CCCCCC; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
               Grab a time and hop on a quick call with me. I'll walk your page with you: your tiers, your first drop, your Promise Calendar, and getting your first fans subscribing. No pitch, just setup.

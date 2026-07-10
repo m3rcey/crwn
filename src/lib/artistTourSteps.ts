@@ -265,8 +265,8 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
     {
       element: '[data-tour="tab-ai-manager"]',
       popover: {
-        title: 'AI Artist Manager',
-        description: `Your AI-powered manager analyzes your data and surfaces actionable insights: churn alerts, VIP fan highlights, revenue trends, and content suggestions.${isStarter ? ' Upgrade to Pro to unlock.' : ''}`,
+        title: 'Artist Manager',
+        description: `Your manager analyzes your data and surfaces actionable insights: churn alerts, VIP fan highlights, revenue trends, and content suggestions.${isStarter ? ' Upgrade to Pro to unlock.' : ''}`,
         side: 'bottom',
         align: 'start',
       },
@@ -277,7 +277,7 @@ export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[
       element: '[data-tour="tab-promise"]',
       popover: {
         title: 'Promise Calendar',
-        description: 'Every perk you promise a tier — monthly tracks, shout-outs, behind-the-scenes — gets tracked here with a deadline. Fans see the same promises on their own calendar, so delivering on time is what keeps them subscribed. Overdue promises are flagged before fans notice.',
+        description: 'Every perk you promise a tier (monthly tracks, shout-outs, behind-the-scenes) gets tracked here with a deadline. Fans see the same promises on their own calendar, so delivering on time is what keeps them subscribed. Overdue promises are flagged before fans notice.',
         side: 'bottom',
         align: 'start',
       },

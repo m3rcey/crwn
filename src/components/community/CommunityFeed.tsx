@@ -8,7 +8,8 @@ import { CommunityPost, TierConfig } from '@/types';
 import { PostComposer } from './PostComposer';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CommunityPostCard } from './CommunityPostCard';
-import { Loader2 } from 'lucide-react';
+import { CommunityChannels } from './CommunityChannels';
+import { Loader2, Hash, MessageSquare } from 'lucide-react';
 
 interface CommunityFeedProps {
   artistId: string;
@@ -25,6 +26,9 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Posts stay the default view: it is the existing surface, and it is the one
+  // that carries video. Chat is the new, opt-in half.
+  const [view, setView] = useState<'posts' | 'chat'>('posts');
 
   const loadPosts = useCallback(async () => {
     try {
@@ -87,50 +91,71 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
     loadPosts();
   };
 
-  const isPostAuthor = user?.id === posts[0]?.author_id;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 text-crwn-gold animate-spin" />
-      </div>
-    );
-  }
+  const tabClass = (v: 'posts' | 'chat') =>
+    `flex items-center gap-1.5 text-sm px-4 py-2 rounded-full transition-colors ${
+      view === v
+        ? 'bg-crwn-gold text-crwn-bg font-semibold'
+        : 'text-crwn-text-secondary hover:text-crwn-text'
+    }`;
 
   return (
     <div className="space-y-4">
-      {/* Post composer - only show if logged in */}
-      {user && (
-        <PostComposer
-          artistId={artistId}
-          isArtist={isArtistProfile}
-          tiers={tiers}
-          onPostCreated={handlePostCreated}
-        />
-      )}
+      <div className="flex items-center gap-2">
+        <button onClick={() => setView('posts')} className={tabClass('posts')}>
+          <MessageSquare className="w-4 h-4" /> Posts
+        </button>
+        <button onClick={() => setView('chat')} className={tabClass('chat')}>
+          <Hash className="w-4 h-4" /> Chat
+        </button>
+      </div>
 
-      {/* Posts */}
-      {posts.length > 0 ? (
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <CommunityPostCard
-              key={post.id}
-              post={post}
-              artistSlug={artistSlug}
-              artistId={artistId}
-              artistTierId={tierId || undefined}
-              isPostAuthor={user?.id === post.author_id}
-              isArtistProfile={isArtistProfile}
-              onLikeChanged={handleRefresh}
-              onPostDeleted={handleRefresh}
-            />
-          ))}
+      {view === 'chat' ? (
+        <CommunityChannels
+          artistId={artistId}
+          artistSlug={artistSlug}
+          isArtistProfile={isArtistProfile}
+          tiers={tiers}
+        />
+      ) : isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 text-crwn-gold animate-spin" />
         </div>
       ) : (
-        <div className="neu-raised p-8 text-center">
-          <EmptyState icon="💬" title="No Posts Yet" description="Be the first to start a conversation!" />
-          <p className="text-crwn-text-dim text-sm">Be the first to post!</p>
-        </div>
+        <>
+          {/* Post composer - only show if logged in */}
+          {user && (
+            <PostComposer
+              artistId={artistId}
+              isArtist={isArtistProfile}
+              tiers={tiers}
+              onPostCreated={handlePostCreated}
+            />
+          )}
+
+          {/* Posts */}
+          {posts.length > 0 ? (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <CommunityPostCard
+                  key={post.id}
+                  post={post}
+                  artistSlug={artistSlug}
+                  artistId={artistId}
+                  artistTierId={tierId || undefined}
+                  isPostAuthor={user?.id === post.author_id}
+                  isArtistProfile={isArtistProfile}
+                  onLikeChanged={handleRefresh}
+                  onPostDeleted={handleRefresh}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="neu-raised p-8 text-center">
+              <EmptyState icon="💬" title="No Posts Yet" description="Be the first to start a conversation!" />
+              <p className="text-crwn-text-dim text-sm">Be the first to post!</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

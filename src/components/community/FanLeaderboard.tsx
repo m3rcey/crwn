@@ -11,7 +11,8 @@ interface LeaderboardEntry {
   name: string;
   avatar: string | null;
   score: number;
-  spent: number;
+  // `spent` is intentionally absent: the API no longer publishes a fan's lifetime
+  // spend on a public endpoint, and this component never rendered it.
   referralCount: number;
   commentCount: number;
   likeCount: number;

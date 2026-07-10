@@ -267,7 +267,7 @@ export default function DemandTestDetailPage({ params }: { params: Promise<{ id:
                 <Check className="w-4 h-4 text-crwn-gold flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm text-crwn-text">Price shown on the page</p>
-                  <p className="text-xs text-crwn-text-secondary">Non-binding — nobody was charged</p>
+                  <p className="text-xs text-crwn-text-secondary">Non-binding. Nobody was charged</p>
                 </div>
                 <p className="text-sm font-semibold text-crwn-text">${(test.test_price / 100).toFixed(2)}</p>
               </div>
@@ -335,7 +335,7 @@ export default function DemandTestDetailPage({ params }: { params: Promise<{ id:
           </h2>
           {responses.length === 0 ? (
             <p className="text-sm text-crwn-text-secondary py-6">
-              No responses yet — share the link where fans already watch you.
+              No responses yet. Share the link where fans already watch you.
             </p>
           ) : (
             <div className="space-y-0">

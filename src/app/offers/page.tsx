@@ -158,7 +158,7 @@ export default function OffersPage() {
           </div>
         </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
-          Everything fans can buy from you — memberships and one-time offers.
+          Everything fans can buy from you: memberships and one-time offers.
         </p>
 
         <button
@@ -195,7 +195,7 @@ export default function OffersPage() {
             <Sparkles className="w-8 h-8 text-crwn-gold mx-auto mb-3" />
             <p className="text-crwn-text font-medium mb-1">No offers yet</p>
             <p className="text-sm text-crwn-text-secondary">
-              Build your first offer — a membership tier or a one-time drop — in about a minute.
+              Build your first offer, a membership tier or a one-time drop, in about a minute.
             </p>
           </div>
         ) : (

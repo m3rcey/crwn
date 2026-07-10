@@ -136,7 +136,7 @@ export default function ProofOfDemandPage() {
           <TourReplayButton onClick={replay} />
         </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
-          Prove fans want an idea before you build it — no money moves until you say so.
+          Prove fans want an idea before you build it. No money moves until you say so.
         </p>
 
         <button
@@ -154,7 +154,7 @@ export default function ProofOfDemandPage() {
             <FlaskConical className="w-8 h-8 text-crwn-gold mx-auto mb-3" />
             <p className="text-crwn-text font-medium mb-1">No demand tests yet</p>
             <p className="text-sm text-crwn-text-secondary">
-              Got an idea for a drop, a show, or merch? Test it in about a minute — fans vote before you spend anything.
+              Got an idea for a drop, a show, or merch? Test it in about a minute. Fans vote before you spend anything.
             </p>
           </div>
         ) : (

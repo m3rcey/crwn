@@ -108,7 +108,7 @@ export default function ImpactPage() {
           <div className="min-w-0">
             <p className="text-sm font-medium text-crwn-text">My Missions</p>
             <p className="text-xs text-crwn-text-secondary truncate">
-              The artist missions you&apos;ve joined — pick them up here.
+              The artist missions you&apos;ve joined. Pick them up here.
             </p>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function ImpactPage() {
           <p className="text-sm text-crwn-text-secondary mt-2 max-w-sm mx-auto">
             Grab a <span className="text-green-400 font-medium">Share &amp; Earn</span> link on
             any artist&apos;s page. Every fan you bring in puts real money in that artist&apos;s
-            pocket — and it all shows up here as proof.
+            pocket, and it all shows up here as proof.
           </p>
           <button
             onClick={() => router.push('/explore')}

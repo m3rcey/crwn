@@ -155,7 +155,7 @@ export default function ActionPlanPage() {
           <div className="border border-dashed border-crwn-elevated rounded-2xl py-14 px-6 text-center">
             <CheckCircle2 className="w-8 h-8 text-green-400 mx-auto mb-3" />
             <p className="text-crwn-text font-medium mb-1">
-              You&apos;re all caught up — nothing needs attention right now.
+              You&apos;re all caught up. Nothing needs attention right now.
             </p>
             <p className="text-sm text-crwn-text-secondary">
               Check back after your next drop, mission, or demand test.
@@ -233,7 +233,7 @@ export default function ActionPlanPage() {
 
         {/* Advisory-only footer */}
         <p className="text-xs text-crwn-text-secondary text-center mt-10" data-tour="action-plan-advisory">
-          These are suggestions — nothing happens automatically. You&apos;re always in control.
+          These are suggestions. Nothing happens automatically. You&apos;re always in control.
         </p>
       </div>
     </div>

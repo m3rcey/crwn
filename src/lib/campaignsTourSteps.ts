@@ -7,7 +7,7 @@ export const campaignsTourSteps: DriveStep[] = [
     popover: {
       title: 'Your "Road to ___"',
       description:
-        'A campaign is the big rollout goal fans rally behind — Road to First Music Video, Road to 100 Supporters. It becomes the hero card on your page.',
+        'A campaign is the big rollout goal fans rally behind: Road to First Music Video, Road to 100 Supporters. It becomes the hero card on your page.',
       side: 'bottom',
       align: 'start',
     },
@@ -17,7 +17,7 @@ export const campaignsTourSteps: DriveStep[] = [
     popover: {
       title: 'Start a campaign',
       description:
-        'Pick what the goal tracks — money raised, supporters, RSVPs, votes — set the target, and it goes live as your Current Mission. Missions, bounties, and city unlocks rally behind it.',
+        'Pick what the goal tracks (money raised, supporters, RSVPs, votes), set the target, and it goes live as your Current Mission. Missions, bounties, and city unlocks rally behind it.',
       side: 'bottom',
       align: 'end',
     },

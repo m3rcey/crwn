@@ -237,7 +237,7 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
               <Sparkles className="w-5 h-5 text-crwn-gold" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-crwn-text">AI Manager</h2>
+              <h2 className="text-xl font-bold text-crwn-text">Manager</h2>
               <p className="text-sm text-crwn-text-secondary">
                 Your 24/7 assistant analyzing your data and taking action
               </p>
@@ -267,7 +267,7 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
               <Crown className="w-5 h-5 text-crwn-gold mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-medium text-crwn-text">
-                  Upgrade to Pro for AI-powered insights and autonomous actions
+                  Upgrade to Pro for deeper insights and autonomous actions
                 </p>
                 <p className="text-xs text-crwn-text-secondary mt-1">
                   Get churn prevention, VIP fan detection, auto re-engagement emails, smart pricing suggestions, and more, all tailored to your data.
@@ -491,7 +491,7 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
           <div className="text-center py-16">
             <Sparkles className="w-10 h-10 text-crwn-text-secondary/30 mx-auto mb-4" />
             <p className="text-crwn-text-secondary text-sm">
-              No insights yet. Your AI Manager checks in daily with recommendations and actions.
+              No insights yet. Your manager checks in daily with recommendations and actions.
             </p>
             {!isStarterOnly && (
               <p className="text-crwn-text-secondary/60 text-xs mt-2">
@@ -623,7 +623,7 @@ export function AiManagerTeaser({ artistId, onNavigate }: AiManagerTeaserProps) 
           </>
         ) : (
           <>
-            You have <span className="font-semibold text-crwn-gold">{unreadCount}</span> new insight{unreadCount !== 1 ? 's' : ''} from your AI Manager
+            You have <span className="font-semibold text-crwn-gold">{unreadCount}</span> new insight{unreadCount !== 1 ? 's' : ''} from your manager
           </>
         )}
       </span>

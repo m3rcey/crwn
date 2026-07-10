@@ -103,7 +103,7 @@ const AUDIENCE_TOOLS = [
 const OBJECTIONS = [
   { q: 'My fans won’t pay.', a: 'You don’t need all of them. If even 1% of your followers pay $15/mo, that’s more than most independent artists make from streaming in a year. The number above already assumes only a small, realistic slice pays.' },
   { q: 'I’m too small for this.', a: 'Small is the whole point. 100 real fans beats 100,000 passive streams. CRWN is built for the artist streaming can’t pay yet.' },
-  { q: 'I don’t have time to run all this.', a: 'The built-in AI manager and automated sequences do the heavy lifting. Set your tiers once and it runs in the background.' },
+  { q: 'I don’t have time to run all this.', a: 'The built-in manager and automated sequences do the heavy lifting. Set your tiers once and it runs in the background.' },
   { q: 'Is it really free to start?', a: 'Yes. Free to sign up, no card required. You only ever pay a small fee on money you actually earn.' },
 ];
 
@@ -588,7 +588,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
         <section className="mb-14">
           <SectionHeading icon={Zap}>A manager built in</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
-            An AI manager watches your numbers and hands you decisions to approve, raise a price, email
+            A manager watches your numbers and hands you decisions to approve, raise a price, email
             fans, win back churn. You make music; it grows the business.
           </p>
           <AiActionsMock />

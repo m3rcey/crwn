@@ -204,7 +204,7 @@ const artistGuides = [
     guides: [
       { icon: BarChart3, title: 'Analytics & Insights', description: 'Revenue trends, subscriber growth, play counts, top fans, churn analysis, and LTV metrics. Your command center.', slug: 'analytics-insights' },
       { icon: MessageCircle, title: 'Community & Posts', description: 'Share updates, gate content by tier, engage fans with photos, videos, and behind-the-scenes drops.', slug: 'community-posts' },
-      { icon: Bot, title: 'AI Artist Manager', description: 'Your built-in AI analyzes engagement, identifies at-risk subscribers, suggests content, and writes weekly reports.', slug: 'ai-manager' },
+      { icon: Bot, title: 'Artist Manager', description: 'Your built-in manager analyzes engagement, identifies at-risk subscribers, suggests content, and writes weekly reports.', slug: 'ai-manager' },
       { icon: Radio, title: 'Sync Licensing', description: 'Browse real sync opportunities, submit your music, and understand how sync deals work on CRWN.', slug: 'sync-licensing' },
     ],
   },

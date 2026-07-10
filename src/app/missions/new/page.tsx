@@ -92,9 +92,9 @@ const REWARD_TYPES: { value: MissionRewardType; hint: string }[] = [
   { value: 'points', hint: 'Fans rack up points on the leaderboard.' },
   { value: 'badge', hint: 'A badge on their profile for completing it.' },
   { value: 'credits', hint: 'Credits toward your shop or drops.' },
-  { value: 'access', hint: 'Unlock a perk — a track, a call, a listening session.' },
+  { value: 'access', hint: 'Unlock a perk: a track, a call, a listening session.' },
   { value: 'commission', hint: 'A cut of the subs they bring in (artist-wide rate).' },
-  { value: 'custom', hint: 'Anything you want — describe it below.' },
+  { value: 'custom', hint: 'Anything you want. Describe it below.' },
 ];
 
 const AUDIENCES: { value: MissionAudience; label: string; hint: string }[] = [
@@ -419,7 +419,7 @@ function MissionBuilder() {
                 >
                   <p className="font-medium text-crwn-text">A demand test</p>
                   <p className="text-xs text-crwn-text-secondary mt-0.5">
-                    Push responses to a Proof of Demand test — progress tracks automatically.
+                    Push responses to a Proof of Demand test. Progress tracks automatically.
                   </p>
                 </button>
                 <button
@@ -439,7 +439,7 @@ function MissionBuilder() {
                   <p className="text-sm font-medium text-crwn-text mb-2">Which demand test?</p>
                   {demandTests.length === 0 ? (
                     <p className="text-sm text-crwn-text-secondary border border-dashed border-crwn-elevated rounded-xl px-4 py-5">
-                      No demand tests yet — create one from Proof of Demand first, or pick a different target.
+                      No demand tests yet. Create one from Proof of Demand first, or pick a different target.
                     </p>
                   ) : (
                     <div className="grid gap-2">
@@ -468,7 +468,7 @@ function MissionBuilder() {
                   <p className="text-sm font-medium text-crwn-text mb-2">Which tier?</p>
                   {tiers.length === 0 ? (
                     <p className="text-sm text-crwn-text-secondary border border-dashed border-crwn-elevated rounded-xl px-4 py-5">
-                      No active tiers yet — build one in the Offer Builder first, or pick a different target.
+                      No active tiers yet. Build one in the Offer Builder first, or pick a different target.
                     </p>
                   ) : (
                     <div className="grid gap-2">
@@ -555,7 +555,7 @@ function MissionBuilder() {
                   onChange={(e) => setRewardDetail(e.target.value)}
                   className={`${INPUT} text-base`}
                 />
-                <p className="text-xs text-crwn-text-secondary mt-2">Exactly what fans get — shown on the mission.</p>
+                <p className="text-xs text-crwn-text-secondary mt-2">Exactly what fans get. Shown on the mission.</p>
               </div>
             </div>
           )}
@@ -564,7 +564,7 @@ function MissionBuilder() {
             <div className="bg-crwn-gold/5 border border-crwn-gold/20 rounded-2xl p-5">
               <p className="text-sm font-semibold text-crwn-gold mb-2">This mission pays through your artist-wide Share/Clip promotion.</p>
               <p className="text-sm text-crwn-text-secondary mb-3">
-                Set the rate in the Offer Builder or the Referrals tab — this mission uses whatever your artist-wide rate is.
+                Set the rate in the Offer Builder or the Referrals tab. This mission uses whatever your artist-wide rate is.
               </p>
               <p className="text-xs text-crwn-text-secondary">Per-mission rates come later. Nothing money-related is set here.</p>
             </div>
@@ -646,7 +646,7 @@ function MissionBuilder() {
 
               {isEarning(missionType) && (
                 <p className="text-xs text-crwn-text-secondary">
-                  Pays through your artist-wide Share/Clip promotion — set the rate in the Offer Builder or the Referrals tab.
+                  Pays through your artist-wide Share/Clip promotion. Set the rate in the Offer Builder or the Referrals tab.
                 </p>
               )}
 
@@ -665,7 +665,7 @@ function MissionBuilder() {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-crwn-gold mt-0.5 flex-shrink-0" />
-                    No money moves here — fan-facing mission pages come in a later phase.
+                    No money moves here. Fan-facing mission pages come in a later phase.
                   </li>
                 </ul>
               </div>
@@ -726,7 +726,7 @@ function DoneScreen({ onMissions, onDashboard }: { onMissions: () => void; onDas
         </div>
         <h1 className="text-3xl font-bold text-crwn-text mb-2">Mission is live 🎉</h1>
         <p className="text-crwn-text-secondary mb-8">
-          Track it from your Missions list — fan-facing mission pages come in a later phase.
+          Track it from your Missions list. Fan-facing mission pages come in a later phase.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button

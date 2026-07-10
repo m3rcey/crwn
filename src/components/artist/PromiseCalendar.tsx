@@ -138,7 +138,7 @@ export function PromiseCalendar() {
       </div>
       <p className="text-sm text-crwn-text-secondary mb-5">
         What you promised supporters, and every deadline coming from your campaigns,
-        missions, drops and lives — in one place.
+        missions, drops and lives, all in one place.
       </p>
 
       {/* This week's promises — the hero summary */}
@@ -167,7 +167,7 @@ export function PromiseCalendar() {
         {overdueCount > 0 && (
           <div className="flex items-center gap-2 mb-3 text-sm text-crwn-error">
             <AlertTriangle className="w-4 h-4" />
-            {overdueCount} overdue {overdueCount === 1 ? 'promise' : 'promises'} — fulfill these first to protect retention.
+            {overdueCount} overdue {overdueCount === 1 ? 'promise' : 'promises'}. Fulfill these first to protect retention.
           </div>
         )}
         {thisWeek.length === 0 && overdueCount === 0 ? (
@@ -524,7 +524,7 @@ function NewPromiseModal({
         </button>
         {recurrence !== 'none' && (
           <p className="text-xs text-crwn-text-secondary mt-3 text-center">
-            {RECURRENCE_LABEL[recurrence]} — completing each one schedules the next automatically.
+            {RECURRENCE_LABEL[recurrence]}. Completing each one schedules the next automatically.
           </p>
         )}
       </div>

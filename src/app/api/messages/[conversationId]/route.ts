@@ -35,11 +35,16 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ conv
 
   const { data: messages } = await supabaseAdmin
     .from('dm_messages')
-    .select('id, conversation_id, sender_id, sender_is_artist, body, audio_url, audio_duration_ms, is_deleted, created_at')
+    .select('id, conversation_id, sender_id, sender_is_artist, body, audio_url, audio_duration_ms, is_broadcast, replies_disabled, is_deleted, created_at')
     .eq('conversation_id', conversationId)
     .eq('is_deleted', false)
     .order('created_at', { ascending: true })
     .limit(200);
+
+  // Replies are off while the NEWEST message is an announce-only broadcast.
+  // Derived from the rows already loaded rather than a second round trip.
+  const newest = messages && messages.length > 0 ? messages[messages.length - 1] : null;
+  const repliesDisabled = !!newest?.sender_is_artist && !!newest?.replies_disabled;
 
   // Clear this side's unread counter.
   await supabaseAdmin
@@ -65,6 +70,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ conv
     otherName,
     muted: convo.muted_by_artist,
     tierName: convo.fan_tier_name,
+    repliesDisabled,
     messages: messages || [],
   });
 }

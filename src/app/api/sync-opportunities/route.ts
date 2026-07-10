@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireArtistOwner } from '@/lib/apiAuth';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -8,11 +9,14 @@ const supabaseAdmin = createClient(
 
 export async function GET(req: NextRequest) {
   const artistId = req.nextUrl.searchParams.get('artistId');
-  const platformTier = req.nextUrl.searchParams.get('tier') || 'starter';
 
-  if (!artistId) {
-    return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
-  }
+  // The tier used to arrive as `?tier=`, so a Free artist could simply ask for the
+  // paid payload and receive the briefs, contacts and registration URLs that Pro
+  // pays for. The tier is now read from the artist_profiles row, and only the
+  // owning artist can read their own opportunity list at all.
+  const auth = await requireArtistOwner(artistId);
+  if (!auth.ok) return auth.error;
+  const platformTier = auth.platformTier;
 
   // Get artist's location and genres
   const { data: artist } = await supabaseAdmin

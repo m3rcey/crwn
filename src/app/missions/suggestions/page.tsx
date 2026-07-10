@@ -172,7 +172,7 @@ export default function MissionSuggestionsPage() {
         return;
       }
       showToast(
-        openMode === 'approve' ? 'Approved — the mission is live and the fan was notified.' : 'Rejected — the fan was notified.',
+        openMode === 'approve' ? 'Approved. The mission is live and the fan was notified.' : 'Rejected. The fan was notified.',
         'success'
       );
       setOpenId(null);
@@ -228,7 +228,7 @@ export default function MissionSuggestionsPage() {
           <TourReplayButton onClick={replay} />
         </div>
         <p className="text-crwn-text-secondary text-sm mb-8">
-          Mission ideas from your fans. Nothing goes live until you approve it — and you set the real reward.
+          Mission ideas from your fans. Nothing goes live until you approve it, and you set the real reward.
         </p>
 
         {/* Pending / Reviewed toggle */}
@@ -294,7 +294,7 @@ export default function MissionSuggestionsPage() {
                       {s.suggested_reward && (
                         <p className="text-xs text-crwn-text-secondary mt-2">
                           <span className="text-crwn-gold font-medium">Fan&apos;s idea for the reward:</span>{' '}
-                          {s.suggested_reward} <span className="text-crwn-text-secondary/70">(not binding — you decide)</span>
+                          {s.suggested_reward} <span className="text-crwn-text-secondary/70">(not binding, you decide)</span>
                         </p>
                       )}
                     </div>
@@ -432,7 +432,7 @@ export default function MissionSuggestionsPage() {
                   {s.status === 'pending' && isOpen && openMode === 'reject' && (
                     <div className="ml-14 mt-4 border border-crwn-elevated rounded-2xl p-4 space-y-3">
                       <label className="block text-xs font-medium text-crwn-text-secondary">
-                        Reason (optional — kept on the record)
+                        Reason (optional, kept on the record)
                       </label>
                       <input
                         maxLength={500}

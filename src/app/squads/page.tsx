@@ -98,7 +98,7 @@ export default function SquadsPage() {
           <span className="text-5xl mb-4 block">🤝</span>
           <h3 className="text-lg font-semibold text-crwn-text mb-2">No squads yet</h3>
           <p className="text-sm text-crwn-text-secondary max-w-sm mx-auto mb-6">
-            Turn your best fans into a team. Start with Top Clippers or a Street Team — 1 to 3 active squads is plenty.
+            Turn your best fans into a team. Start with Top Clippers or a Street Team. 1 to 3 active squads is plenty.
           </p>
           <button onClick={() => router.push('/squads/new')} className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full text-sm">Build a squad</button>
         </div>

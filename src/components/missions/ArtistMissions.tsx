@@ -117,7 +117,7 @@ export function ArtistMissions({ artistId, artistSlug, artistName }: ArtistMissi
       } else {
         setJoinedIds((prev) => new Set([...prev, missionId]));
         setParticipantCounts((prev) => ({ ...prev, [missionId]: json.participantCount ?? (prev[missionId] ?? 0) + 1 }));
-        showToast('You joined the mission — now go do it!', 'success');
+        showToast('You joined the mission. Now go do it!', 'success');
       }
     } catch {
       showToast('Could not join the mission', 'error');
@@ -134,7 +134,7 @@ export function ArtistMissions({ artistId, artistSlug, artistName }: ArtistMissi
         <h2 className="text-lg font-semibold text-crwn-text">Missions</h2>
       </div>
       <p className="text-sm text-crwn-text-secondary mb-4">
-        {artistName} needs a hand — join a mission and help hit the goal.
+        {artistName} needs a hand. Join a mission and help hit the goal.
       </p>
 
       <div className="space-y-0">

@@ -95,7 +95,7 @@ export default function PlaybookRunPage() {
       </div>
 
       <p className="text-xs text-crwn-text-secondary bg-crwn-card rounded-xl px-4 py-3 border border-crwn-elevated mb-4">
-        Approve <span className="text-crwn-text font-medium">each step</span> below — nothing is created or sent until you do. Build steps (squad, mission, bounty, city unlock) create the real thing; message and post steps are drafts you send yourself.
+        Approve <span className="text-crwn-text font-medium">each step</span> below. Nothing is created or sent until you do. Build steps (squad, mission, bounty, city unlock) create the real thing; message and post steps are drafts you send yourself.
       </p>
 
       {pendingBuilds > 0 && (

@@ -53,7 +53,7 @@ export async function maybeCreateVipWelcomeTask(
       source_type: 'tier',
       source_tier_id: tierId,
       title,
-      description: 'New VIP supporter — send a personal welcome (a quick video or message goes a long way).',
+      description: 'New VIP supporter. Send a personal welcome (a quick video or message goes a long way).',
       fulfillment_type: 'custom_thankyou',
       recurrence: 'none',
       next_due_at: null,
@@ -83,7 +83,7 @@ export async function maybeCreateVipWelcomeTask(
     user_id: artistUserId,
     type: 'new_subscriber',
     title: '👑 VIP welcome pending',
-    message: `Send ${fanName} a personal welcome — due in 48h`,
+    message: `Send ${fanName} a personal welcome, due in 48h`,
     link: '/profile/artist?tab=promise',
   });
 

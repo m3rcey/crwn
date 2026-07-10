@@ -7,7 +7,7 @@ export const squadsTourSteps: DriveStep[] = [
     popover: {
       title: 'Organize your fans into teams',
       description:
-        'A squad is a role-based group of fans — Top Clippers, Street Team, City Captains, First 100. Give them a goal, missions, and a badge.',
+        'A squad is a role-based group of fans: Top Clippers, Street Team, City Captains, First 100. Give them a goal, missions, and a badge.',
       side: 'bottom',
       align: 'start',
     },

@@ -17,7 +17,7 @@ export const cityUnlocksTourSteps: DriveStep[] = [
     popover: {
       title: 'Create a city unlock',
       description:
-        'Choose what unlocks and the goal, then share the city link. Fans rep their city and the bar fills — privacy-safe, aggregates only.',
+        'Choose what unlocks and the goal, then share the city link. Fans rep their city and the bar fills. Privacy-safe, aggregates only.',
       side: 'bottom',
       align: 'end',
     },

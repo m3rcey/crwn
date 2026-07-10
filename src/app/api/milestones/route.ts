@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireArtistOwner } from '@/lib/apiAuth';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -29,9 +30,12 @@ const ALL_MILESTONES: MilestoneDef[] = [
 
 export async function GET(req: NextRequest) {
   const artistId = req.nextUrl.searchParams.get('artistId');
-  if (!artistId) {
-    return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
-  }
+
+  // Milestone progress is computed from lifetime earnings and subscriber counts.
+  // Returning it to an unauthenticated caller hands over the artist's revenue
+  // bracket. Only the owning artist sees their own dashboard.
+  const auth = await requireArtistOwner(artistId);
+  if (!auth.ok) return auth.error;
 
   // Get unlocked milestones
   const { data: unlocked } = await supabaseAdmin

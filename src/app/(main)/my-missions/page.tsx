@@ -170,7 +170,7 @@ export default function MyMissionsPage() {
         </button>
       </div>
       <p className="text-sm text-crwn-text-secondary mb-6">
-        The missions you&apos;ve joined — every one is an artist counting on you.
+        The missions you&apos;ve joined. Every one is an artist counting on you.
       </p>
 
       {missions.length === 0 ? (
@@ -178,7 +178,7 @@ export default function MyMissionsPage() {
           <Flag className="w-12 h-12 text-crwn-gold/30 mx-auto mb-3" />
           <p className="text-crwn-text font-medium">No missions yet</p>
           <p className="text-sm text-crwn-text-secondary mt-2 max-w-sm mx-auto">
-            Artists post missions on their pages — one clear action toward a goal.
+            Artists post missions on their pages. One clear action toward a goal.
             Find an artist you back and join one.
           </p>
           <button

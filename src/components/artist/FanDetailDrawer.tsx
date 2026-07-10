@@ -215,7 +215,7 @@ export function FanDetailDrawer({ fan, isOpen, onClose }: FanDetailDrawerProps) 
             <h4 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2">Actions</h4>
             <div className="grid grid-cols-2 gap-2">
               <ActionBtn icon={<MessageSquare className="w-4 h-4" />} label="Message" busy={busyAction === 'message'}
-                onClick={() => runAction('message', {}, 'Logged — opening messages').then(() => router.push('/messages'))} />
+                onClick={() => runAction('message', {}, 'Logged. Opening messages').then(() => router.push('/messages'))} />
               <ActionBtn icon={<Heart className="w-4 h-4" />} label="Thank" busy={busyAction === 'thank'}
                 onClick={() => runAction('thank', {}, `Thanked ${fan.display_name}`)} />
               {!isLead && (
