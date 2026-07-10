@@ -23,6 +23,7 @@ import { fanHomeTourSteps } from '@/lib/fanTourSteps';
 import { artistHomeTourSteps } from '@/lib/artistHomeTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
+import { SupporterMode } from '@/components/fan/SupporterMode';
 
 interface ArtistProfile {
   id: string;
@@ -204,6 +205,11 @@ export default function HomePage() {
           Welcome to CRWN. Artists get supported. Fans get access. Everyone wins.
         </p>
       </div>
+
+      {/* Supporter Mode — fans only (users without an artist profile). Renders
+          nothing while the quest engine is dark-launched. Artists keep the
+          standard home; their guided mode is Rise Mode on the dashboard. */}
+      {!hasArtistProfile && <SupporterMode />}
 
       {/* Program Links */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl stagger-fade-in">

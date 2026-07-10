@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { LiveWatchRoom } from '@/components/live/LiveWatchRoom';
+import { LiveQuestBar } from '@/components/quests/LiveQuestBar';
 import { LiveSession } from '@/types/live';
 
 interface LivePageProps {
@@ -34,13 +35,16 @@ export default async function LiveSessionPage({ params }: LivePageProps) {
   const isOwner = !!user && user.id === artist.user_id;
 
   return (
-    <LiveWatchRoom
-      session={session as LiveSession}
-      artistId={artist.id}
-      artistSlug={artist.slug}
-      artistName={artistName}
-      currentUserId={user?.id || null}
-      isOwner={isOwner}
-    />
+    <>
+      <LiveQuestBar sessionId={sessionId} isOwner={isOwner} />
+      <LiveWatchRoom
+        session={session as LiveSession}
+        artistId={artist.id}
+        artistSlug={artist.slug}
+        artistName={artistName}
+        currentUserId={user?.id || null}
+        isOwner={isOwner}
+      />
+    </>
   );
 }

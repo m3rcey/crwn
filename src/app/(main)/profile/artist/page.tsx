@@ -19,6 +19,7 @@ import { AudienceTab } from '@/components/artist/AudienceTab';
 import { PromiseCalendar } from '@/components/artist/PromiseCalendar';
 import { TeamManager } from '@/components/artist/TeamManager';
 import { AiManagerCard, AiManagerTeaser } from '@/components/artist/AiManagerCard';
+import { RiseMode } from '@/components/artist/RiseMode';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -30,15 +31,15 @@ import { getPostSetupTourSteps } from '@/lib/artistTourSteps';
 import { usePageTour } from '@/hooks/usePageTour';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
 
-type TabId = 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'livestreams' | 'promise' | 'team';
+type TabId = 'rise' | 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'livestreams' | 'promise' | 'team';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<TabId>('ai-manager');
-  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(new Set(['ai-manager']));
+  const [activeTab, setActiveTab] = useState<TabId>('rise');
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(new Set(['rise']));
   const [artistId, setArtistId] = useState<string | null>(null);
   const [artistSlug, setArtistSlug] = useState<string>('');
   const [tiers, setTiers] = useState<TierConfig[]>([]);
@@ -74,6 +75,9 @@ function ArtistDashboardContent() {
     }
     if (tab === 'tiers' || searchParams.get('stripe') === 'success') {
       switchTab('tiers');
+    }
+    if (tab === 'rise') {
+      switchTab('rise');
     }
     if (tab === 'ai-manager') {
       switchTab('ai-manager');
@@ -144,6 +148,7 @@ function ArtistDashboardContent() {
   }
 
   const allTabs = [
+    { id: 'rise' as const, label: 'Rise Mode', tourId: 'tab-rise' },
     { id: 'ai-manager' as const, label: 'Manager', tourId: 'tab-ai-manager' },
     { id: 'promise' as const, label: 'Promise Calendar', tourId: 'tab-promise' },
     { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
@@ -227,6 +232,11 @@ function ArtistDashboardContent() {
 
         {/* Content — visited tabs stay mounted to preserve state */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
+          {visitedTabs.has('rise') && (
+            <div className={activeTab !== 'rise' ? 'hidden' : undefined}>
+              <RiseMode />
+            </div>
+          )}
           <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
             {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} onSwitchTab={(tab) => switchTab(tab as TabId)} />}
           </div>
