@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Archive, Check, Trophy } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Archive, Check, Trophy, Trash2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -134,6 +134,30 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
     } else {
       setMission({ ...mission, status });
       showToast(status === 'completed' ? 'Mission marked completed.' : 'Mission archived.', 'success');
+    }
+    setUpdating(false);
+  };
+
+  const del = async () => {
+    if (!mission || !isOwner || updating) return;
+    if (!window.confirm('Delete this mission permanently? This cannot be undone.')) return;
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/missions/${mission.id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.deleted) {
+        showToast('Mission deleted.', 'success');
+        router.push('/missions');
+        return;
+      }
+      if (json.archived) {
+        showToast('This mission has participants, so it was archived to keep their records.', 'success');
+        setMission({ ...mission, status: 'archived' });
+      } else {
+        showToast(json.error || 'Could not delete', 'error');
+      }
+    } catch {
+      showToast('Could not delete', 'error');
     }
     setUpdating(false);
   };
@@ -309,23 +333,35 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
         )}
 
         {/* Actions — owner-only */}
-        {isOwner && mission.status === 'active' && (
+        {isOwner && (
           <div className="flex flex-wrap items-center gap-3">
+            {mission.status === 'active' && (
+              <>
+                <button
+                  onClick={() => setStatus('completed')}
+                  disabled={updating}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-green-500/40 text-sm font-medium text-green-400 hover:bg-green-500/10 disabled:opacity-40 transition-colors"
+                >
+                  <Trophy className="w-4 h-4" />
+                  Mark Completed
+                </button>
+                <button
+                  onClick={() => setStatus('archived')}
+                  disabled={updating}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-crwn-elevated text-sm font-medium text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 disabled:opacity-40 transition-colors"
+                >
+                  <Archive className="w-4 h-4" />
+                  Archive
+                </button>
+              </>
+            )}
             <button
-              onClick={() => setStatus('completed')}
+              onClick={del}
               disabled={updating}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-green-500/40 text-sm font-medium text-green-400 hover:bg-green-500/10 disabled:opacity-40 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-red-500/40 text-sm font-medium text-red-400 hover:bg-red-500/10 disabled:opacity-40 transition-colors"
             >
-              <Trophy className="w-4 h-4" />
-              Mark Completed
-            </button>
-            <button
-              onClick={() => setStatus('archived')}
-              disabled={updating}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-crwn-elevated text-sm font-medium text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 disabled:opacity-40 transition-colors"
-            >
-              <Archive className="w-4 h-4" />
-              Archive
+              <Trash2 className="w-4 h-4" />
+              Delete
             </button>
           </div>
         )}

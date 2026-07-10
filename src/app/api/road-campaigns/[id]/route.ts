@@ -78,11 +78,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ campaign: data });
 }
 
-// DELETE /api/road-campaigns/[id] — archive
+// DELETE /api/road-campaigns/[id] — SAFE delete. Permanently deletes only when the
+// campaign has no real activity (no fan contributions AND no revenue). If fans have
+// backed it or money is attributed, it archives instead so attribution/payout
+// history is never orphaned. Response says which happened.
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { artistId } = await getCaller();
   if (!artistId) return NextResponse.json({ error: 'Not an artist' }, { status: 403 });
-  await supabaseAdmin.from('road_campaigns').update({ status: 'archived' }).eq('id', id).eq('artist_id', artistId);
-  return NextResponse.json({ success: true });
+
+  const { data: campaign } = await supabaseAdmin
+    .from('road_campaigns').select('*').eq('id', id).eq('artist_id', artistId).single();
+  if (!campaign) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  const { count: contribCount } = await supabaseAdmin
+    .from('road_campaign_contributions').select('id', { count: 'exact', head: true }).eq('campaign_id', id);
+  const revenue = await liveCurrent(campaign);
+  const hasActivity = (contribCount || 0) > 0 || revenue > 0;
+
+  if (hasActivity) {
+    await supabaseAdmin.from('road_campaigns').update({ status: 'archived' }).eq('id', id).eq('artist_id', artistId);
+    return NextResponse.json({ success: true, deleted: false, archived: true });
+  }
+
+  await supabaseAdmin.from('road_campaigns').delete().eq('id', id).eq('artist_id', artistId);
+  return NextResponse.json({ success: true, deleted: true });
 }

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Loader2, Users, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Loader2, Users, Copy, Check, Trash2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { CAMPAIGN_GOAL_MAP, formatCampaignValue, type CampaignGoalType } from '@/lib/roadCampaigns';
@@ -45,6 +45,25 @@ export default function CampaignDetailPage() {
     load();
   };
 
+  const del = async () => {
+    if (!window.confirm('Delete this campaign permanently? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/road-campaigns/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.deleted) {
+        showToast('Campaign deleted.', 'success');
+        router.push('/campaign-hub?tab=campaigns');
+      } else if (json.archived) {
+        showToast('This campaign has supporters, so it was archived to keep their records.', 'success');
+        load();
+      } else {
+        showToast(json.error || 'Could not delete', 'error');
+      }
+    } catch {
+      showToast('Could not delete', 'error');
+    }
+  };
+
   const copyLink = () => {
     if (!detail?.artistSlug) return;
     navigator.clipboard.writeText(`${window.location.origin}/${detail.artistSlug}`).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); });
@@ -85,6 +104,7 @@ export default function CampaignDetailPage() {
       <div className="flex gap-2">
         {campaign.status === 'active' && <button onClick={() => setStatus('reached')} className="flex-1 py-2.5 rounded-full bg-crwn-gold text-crwn-bg text-sm font-semibold">Mark reached</button>}
         {campaign.status !== 'archived' && <button onClick={() => setStatus('archived')} className="px-4 py-2.5 rounded-full bg-crwn-elevated text-crwn-text-secondary text-sm">Archive</button>}
+        <button onClick={del} className="px-4 py-2.5 rounded-full border border-red-500/40 text-red-400 text-sm hover:bg-red-500/10 inline-flex items-center gap-1.5"><Trash2 className="w-4 h-4" /> Delete</button>
       </div>
     </div>
   );

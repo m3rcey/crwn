@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   ArrowRight,
+  ChevronRight,
   Flag,
   Megaphone,
+  Plus,
   Scissors,
   Share2,
   Sparkles,
@@ -15,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { MISSION_TYPE_LABELS, type MissionType } from '@/lib/missions';
+import { CAMPAIGN_GOAL_MAP, formatCampaignValue, type CampaignGoalType } from '@/lib/roadCampaigns';
 import { usePageTour } from '@/hooks/usePageTour';
 import { getCampaignHubTourSteps } from '@/lib/campaignHubTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
@@ -53,13 +56,29 @@ interface HubData {
   missionPerformance: MissionPerf[];
 }
 
-type Tab = 'overview' | 'engine' | 'missions';
+type Tab = 'overview' | 'campaigns' | 'engine' | 'missions';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'overview', label: 'Overview' },
+  { id: 'campaigns', label: 'Campaigns' },
   { id: 'engine', label: 'Promotion Engine' },
   { id: 'missions', label: 'Missions' },
 ];
+
+interface CampaignRow {
+  id: string;
+  title: string;
+  goal_type: CampaignGoalType;
+  goal_value: number;
+  current_value: number;
+  status: string;
+}
+
+const campaignStatusColor: Record<string, string> = {
+  active: 'text-green-400 bg-green-400/10',
+  reached: 'text-crwn-gold bg-crwn-gold/10',
+  draft: 'text-crwn-text-secondary bg-crwn-elevated',
+};
 
 const MS_PER_DAY = 86_400_000;
 
@@ -80,6 +99,7 @@ export default function CampaignHubPage() {
   const [loading, setLoading] = useState(true);
   const [isArtist, setIsArtist] = useState(true);
   const [data, setData] = useState<HubData | null>(null);
+  const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [tab, setTab] = useState<Tab>('overview');
   // Captured once per mount so render stays pure (react-compiler lint).
   const [now] = useState(() => Date.now());
@@ -98,6 +118,16 @@ export default function CampaignHubPage() {
     } catch {
       // Network hiccup — show the empty state rather than crashing.
     }
+    // Road To campaigns — the Hub is their home now.
+    try {
+      const rc = await fetch('/api/road-campaigns');
+      if (rc.ok) {
+        const j = await rc.json();
+        setCampaigns(j.campaigns || []);
+      }
+    } catch {
+      /* silent */
+    }
     setLoading(false);
   }, []);
 
@@ -109,6 +139,13 @@ export default function CampaignHubPage() {
     }
     load();
   }, [authLoading, user, router, load]);
+
+  // Deep-link support: /campaign-hub?tab=campaigns. Done in an effect (not the
+  // useState initializer) to avoid an SSR/client hydration mismatch.
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('tab');
+    if (t === 'campaigns' || t === 'engine' || t === 'missions') setTab(t as Tab);
+  }, []);
 
   // First-visit tour + on-demand replay. MUST stay above the early returns
   // below (rules of hooks) — gated by `enabled` so it only fires once the
@@ -257,6 +294,74 @@ export default function CampaignHubPage() {
                 <p className="text-sm text-crwn-text-secondary">
                   When fans share or clip and their referrals pay, the money shows up here.
                 </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ---- CAMPAIGNS (Road To) ---- */}
+        {tab === 'campaigns' && (
+          <div>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <p className="text-sm text-crwn-text-secondary">Your “Road to ___” goals fans rally behind.</p>
+              <button
+                onClick={() => router.push('/campaigns/new?returnTo=%2Fcampaign-hub%3Ftab%3Dcampaigns')}
+                className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm shrink-0"
+              >
+                <Plus className="w-4 h-4" /> New
+              </button>
+            </div>
+            {campaigns.filter((c) => c.status !== 'archived').length === 0 ? (
+              <div className="border border-dashed border-crwn-elevated rounded-2xl py-10 px-6 text-center">
+                <span className="text-4xl mb-3 block">🏁</span>
+                <p className="text-crwn-text font-medium mb-1">No campaigns yet</p>
+                <p className="text-sm text-crwn-text-secondary mb-4">
+                  A campaign is your rollout goal — “Road to First Music Video”, “Road to 100 Supporters”.
+                  It becomes the hero on your page.
+                </p>
+                <button
+                  onClick={() => router.push('/campaigns/new?returnTo=%2Fcampaign-hub%3Ftab%3Dcampaigns')}
+                  className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full text-sm"
+                >
+                  Start a campaign
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {campaigns
+                  .filter((c) => c.status !== 'archived')
+                  .map((c) => {
+                    const def = CAMPAIGN_GOAL_MAP[c.goal_type];
+                    const pct = Math.min(100, Math.round((c.current_value / Math.max(1, c.goal_value)) * 100));
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => router.push(`/campaigns/${c.id}`)}
+                        className="w-full bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-2xl">{def?.icon || '🏁'}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-crwn-text truncate">{c.title}</p>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${campaignStatusColor[c.status] || ''}`}>
+                                {c.status}
+                              </span>
+                            </div>
+                            <p className="text-xs text-crwn-text-secondary">{def?.label}</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-crwn-text-secondary shrink-0" />
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-crwn-elevated overflow-hidden mb-1">
+                          <div className="h-full bg-crwn-gold rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                        <p className="text-xs text-crwn-text-secondary">
+                          {formatCampaignValue(c.goal_type, c.current_value)} / {formatCampaignValue(c.goal_type, c.goal_value)}{' '}
+                          {def?.unit}
+                        </p>
+                      </button>
+                    );
+                  })}
               </div>
             )}
           </div>
