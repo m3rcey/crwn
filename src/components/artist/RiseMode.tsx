@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { QuestInstance } from '@/lib/quests/types';
-import type { CompletionEvent } from '@/lib/quests/types';
+import { useRouter } from 'next/navigation';
+import type { QuestInstance, CompletionEvent } from '@/lib/quests/types';
 import { ArtistBuildPicker } from '@/components/quests/ArtistBuildPicker';
 import { QuestCard } from '@/components/quests/QuestCard';
 import { MovementMap } from '@/components/quests/MovementMap';
@@ -37,6 +37,7 @@ const OPEN = ['available', 'active', 'in_progress', 'ready_to_complete', 'locked
 // eligible quests + auto-completes server-side) and lays out Main Quest / Daily Move /
 // Weekly Goal / Side Quests / Movement Map. Degrades gracefully while dark-launched.
 export function RiseMode() {
+  const router = useRouter();
   const [data, setData] = useState<QuestsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -141,17 +142,41 @@ export function RiseMode() {
         )}
       </div>
 
-      {/* Main Quest */}
+      {/* Your Next Move — the one dominant, obvious action */}
       {mainQuest ? (
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">Main Quest</h3>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-bold text-crwn-gold uppercase tracking-wide">👉 Your next move</span>
+          </div>
           <QuestCard quest={mainQuest} variant="hero" />
         </div>
       ) : (
-        <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-center">
-          <Trophy className="w-6 h-6 text-crwn-gold mx-auto mb-2" />
-          <p className="text-crwn-text font-semibold">You're all caught up.</p>
-          <p className="text-crwn-text-secondary text-sm mt-1">New quests unlock as your movement grows.</p>
+        <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6">
+          <div className="text-center mb-4">
+            <Trophy className="w-6 h-6 text-crwn-gold mx-auto mb-2" />
+            <p className="text-crwn-text font-bold text-lg">You've cleared the essentials 🎉</p>
+            <p className="text-crwn-text-secondary text-sm mt-1">Here's how to keep your movement growing.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button
+              onClick={() => router.push('/campaigns/new')}
+              className="neu-button-accent py-3 rounded-full font-semibold text-sm"
+            >
+              Launch a campaign
+            </button>
+            <button
+              onClick={() => router.push('/missions/new')}
+              className="py-3 rounded-full font-semibold text-sm border border-[#2A2A2A] text-crwn-text hover:border-crwn-gold/40"
+            >
+              Create a fan mission
+            </button>
+            <button
+              onClick={() => router.push('/profile/artist?tab=livestreams')}
+              className="py-3 rounded-full font-semibold text-sm border border-[#2A2A2A] text-crwn-text hover:border-crwn-gold/40"
+            >
+              Go live
+            </button>
+          </div>
         </div>
       )}
 

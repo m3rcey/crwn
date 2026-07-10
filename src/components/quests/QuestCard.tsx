@@ -89,8 +89,10 @@ export function QuestCard({
       {!done && href && (
         <button
           onClick={() => router.push(href)}
-          className={`mt-4 rounded-full font-semibold ${
-            isHero ? 'neu-button-accent px-6 py-2.5' : 'text-sm text-crwn-gold hover:underline'
+          className={`rounded-full font-semibold ${
+            isHero
+              ? 'neu-button-accent w-full mt-5 py-3.5 text-base'
+              : 'mt-4 text-sm text-crwn-gold hover:underline'
           }`}
         >
           {cta.label} →

@@ -276,26 +276,35 @@ export async function completeQuest(admin: any, instance: QuestInstance): Promis
     return { ...noop, alreadyComplete: true };
   }
 
-  // 2. Grant XP idempotently via the ledger.
+  // 2. Grant XP via the ledger. Check-then-insert (NOT ON CONFLICT): the ledger's
+  // unique index is PARTIAL, which Postgres can't use as an upsert arbiter — that
+  // silently errored and XP never accrued. The status flip above already guarantees
+  // this block runs at most once per instance, so a plain check-then-insert is safe.
   const xp = reward.xp ?? 0;
   let xpAwarded = 0;
   let bump = { oldXp: 0, newXp: 0, leveledUp: false, newLevel: 1, levelKey: '' };
   if (xp > 0) {
-    const { data: ledgerRow } = await admin
+    const { data: existingLedger } = await admin
       .from('xp_ledger')
-      .upsert(
-        {
-          user_id: instance.user_id,
-          artist_id: instance.artist_id,
-          quest_instance_id: instance.id,
-          amount: xp,
-          reason: 'quest_complete',
-        },
-        { onConflict: 'user_id,quest_instance_id,reason', ignoreDuplicates: true },
-      )
-      .select('id');
+      .select('id')
+      .eq('user_id', instance.user_id)
+      .eq('quest_instance_id', instance.id)
+      .eq('reason', 'quest_complete')
+      .maybeSingle();
 
-    if (ledgerRow && ledgerRow.length > 0) {
+    let granted = false;
+    if (!existingLedger) {
+      const { error: insErr } = await admin.from('xp_ledger').insert({
+        user_id: instance.user_id,
+        artist_id: instance.artist_id,
+        quest_instance_id: instance.id,
+        amount: xp,
+        reason: 'quest_complete',
+      });
+      granted = !insErr;
+    }
+
+    if (granted) {
       xpAwarded = xp;
       // Artists have one world → their XP lives on the GLOBAL row (artist_id NULL),
       // which is what the board reads. Fans accrue per-artist AND mirror to global

@@ -181,6 +181,46 @@ export async function ensureRoleQuests(
   return assigned;
 }
 
+/**
+ * Flip locked quests to available once their prerequisites are completed. Needed
+ * because assignQuest only checks prereqs at assign-time (when nothing is done yet),
+ * so the whole ladder starts locked. Returns how many were unlocked this pass.
+ */
+export async function unlockEligibleQuests(
+  admin: any,
+  opts: { userId: string; artistId: string | null },
+): Promise<number> {
+  try {
+    let lq = admin.from('quest_instances').select('id, template_key').eq('user_id', opts.userId).eq('status', 'locked');
+    lq = opts.artistId ? lq.eq('artist_id', opts.artistId) : lq.is('artist_id', null);
+    const { data: locked } = await lq;
+    if (!locked?.length) return 0;
+
+    let cq = admin.from('quest_instances').select('template_key').eq('user_id', opts.userId).eq('status', 'completed');
+    cq = opts.artistId ? cq.eq('artist_id', opts.artistId) : cq.is('artist_id', null);
+    const { data: done } = await cq;
+    const completed = new Set((done ?? []).map((r: any) => r.template_key));
+
+    let count = 0;
+    for (const inst of locked) {
+      const t = inst.template_key ? getTemplate(inst.template_key) : undefined;
+      const prereqs = t?.prerequisites ?? [];
+      if (prereqs.every((p) => completed.has(p))) {
+        await admin
+          .from('quest_instances')
+          .update({ status: 'available', updated_at: new Date().toISOString() })
+          .eq('id', inst.id)
+          .eq('status', 'locked');
+        count++;
+      }
+    }
+    return count;
+  } catch (err) {
+    console.error('[quests] unlockEligibleQuests failed:', err);
+    return 0;
+  }
+}
+
 /** Fetch a user's quests (optionally filtered by role/status). */
 export async function getQuests(
   admin: any,

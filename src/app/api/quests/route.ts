@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import {
   ensureRoleQuests,
+  unlockEligibleQuests,
   refreshQuests,
   getQuests,
   isQuestEngineEnabled,
@@ -80,12 +81,18 @@ export async function GET() {
     }
   }
 
-  // Only assign/refresh when we have an artist world to anchor to.
+  // Only assign/refresh when we have an artist world to anchor to. Cascade:
+  // assign the ladder, then loop unlock→complete so one load fully settles and the
+  // TRUE next move surfaces (the ladder starts fully locked at assign-time).
   let completions: any[] = [];
   if (artistId) {
     await ensureRoleQuests(supabaseAdmin, { userId: user.id, role, artistId });
-    const res = await refreshQuests(supabaseAdmin, { userId: user.id, role });
-    completions = res.completions;
+    for (let i = 0; i < 6; i++) {
+      const unlocked = await unlockEligibleQuests(supabaseAdmin, { userId: user.id, artistId });
+      const res = await refreshQuests(supabaseAdmin, { userId: user.id, role });
+      completions = completions.concat(res.completions);
+      if (unlocked === 0 && res.completions.length === 0) break;
+    }
   }
 
   const quests = await getQuests(supabaseAdmin, { userId: user.id, role });
