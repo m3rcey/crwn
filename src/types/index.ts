@@ -260,9 +260,15 @@ export interface CommunityPost {
   id: string;
   artist_id: string;
   author_id: string;
-  content: string;
-  media_urls: string[];
-  media_types: string[];
+  /**
+   * Server-decided entitlement, from the community_posts_feed view. When it is
+   * false the payload columns below arrive as null: the database redacts them
+   * rather than trusting the client to hide them.
+   */
+  can_view?: boolean;
+  content: string | null;
+  media_urls: string[] | null;
+  media_types: string[] | null;
   thumbnail_url?: string | null;
   is_artist_post: boolean;
   is_free: boolean;
