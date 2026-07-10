@@ -23,6 +23,14 @@
 --                           reads only their OWN rows. Writes stay service-role.
 --
 -- Apply manually in the Supabase SQL Editor. Safe to re-run.
+--
+-- The mutating part is wrapped in its own BEGIN/COMMIT so it lands INDEPENDENTLY
+-- of the verification below. The Supabase editor runs a bare script as one
+-- implicit transaction, so an earlier version of this file that had no COMMIT
+-- rolled the whole fix back when its verify block hit a type error. The fix and
+-- its check must not share a fate.
+
+BEGIN;
 
 -- RLS is already enabled on both (confirmed in the full pg_class sweep), but
 -- assert it so this file is safe in isolation.
@@ -67,22 +75,26 @@ CREATE POLICY "Artists read their own agent actions"
 -- non-service roles can do nothing, and service_role bypasses RLS. That is
 -- exactly the desired state (server-only table).
 
+COMMIT;
+
 -- ============================================================
--- Self-verify: assert the WRITE hole is gone. Facts about the schema, not
--- behaviour observed from this superuser session (which bypasses RLS).
+-- Self-verify (runs AFTER the fix is committed, so a bug here cannot undo it).
+-- Assert facts about the schema, not behaviour observed from this superuser
+-- session (which bypasses RLS).
 -- ============================================================
 DO $$
 DECLARE
   n INTEGER;
 BEGIN
-  -- No permissive policy on either table may still grant write to a non-service role.
+  -- No permissive policy on either table may still grant write to a non-service
+  -- role. pg_policies.roles is name[], so the literal array is cast to name[].
   SELECT count(*) INTO n
     FROM pg_policies
    WHERE schemaname = 'public'
      AND tablename IN ('agent_coordination', 'artist_agent_actions')
      AND permissive = 'PERMISSIVE'
      AND cmd IN ('ALL', 'INSERT', 'UPDATE', 'DELETE')
-     AND roles && ARRAY['public','anon','authenticated'];
+     AND roles && ARRAY['public','anon','authenticated']::name[];
   IF n <> 0 THEN
     RAISE EXCEPTION 'MIGRATION FAILED: % world-writable polic(y/ies) still exist on the agent tables', n;
   END IF;
