@@ -159,7 +159,7 @@ export function RiseMode() {
         <div className="text-5xl mb-3">👑</div>
         <h2 className="text-2xl font-bold text-crwn-text">Rise Mode is on its way</h2>
         <p className="text-lg text-crwn-text-secondary mt-3 leading-relaxed">
-          Your guided career mode — your next move, every day — is being prepared for your CRWN.
+          Your guided career mode, your next move every day, is being prepared for your CRWN.
         </p>
       </div>
     );
@@ -237,7 +237,7 @@ export function RiseMode() {
               )}
             </div>
             <h2 className="text-3xl font-bold text-crwn-text mt-1.5">
-              Level {p.level} — {p.levelTitle}
+              Level {p.level}: {p.levelTitle}
             </h2>
           </div>
           <div className="flex items-center gap-4">
@@ -377,13 +377,13 @@ function NextGrowthMove({
   const move = hasCampaign
     ? {
         title: 'Rally your fans with a mission',
-        body: 'Your campaign is live. Give supporters one clear action — share, clip, or invite — and watch it move.',
+        body: 'Your campaign is live. Give supporters one clear action (share, clip, or invite) and watch it move.',
         cta: 'Create a fan mission →',
         href: '/missions/new',
       }
     : {
         title: 'Launch a campaign',
-        body: "You've built the foundation. Now give your supporters a goal to rally behind — a Road To campaign turns quiet fans into active backers.",
+        body: "You've built the foundation. Now give your supporters a goal to rally behind. A Road To campaign turns quiet fans into active backers.",
         cta: 'Launch a campaign →',
         href: '/campaigns/new?returnTo=%2Fprofile%2Fartist%3Ftab%3Drise',
       };

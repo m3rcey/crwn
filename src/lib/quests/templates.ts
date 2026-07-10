@@ -33,7 +33,7 @@ const ARTIST_SETUP: QuestTemplate[] = [
   {
     key: 'artist_upload_first_track',
     title: 'Upload a track fans can’t get anywhere else',
-    subtitle: 'An unreleased song, demo, or exclusive — not on Spotify',
+    subtitle: 'An unreleased song, demo, or exclusive. Not on Spotify',
     whyItMatters:
       'A fan needs a reason to follow you HERE instead of just streaming you. Something they can only get on your CRWN is that reason.',
     category: 'setup',
@@ -55,7 +55,7 @@ const ARTIST_SETUP: QuestTemplate[] = [
   {
     key: 'artist_create_free_tier',
     title: 'Create a free tier',
-    subtitle: 'Your front door — the easiest yes',
+    subtitle: 'Your front door: the easiest yes',
     whyItMatters:
       'A free tier is the top of your funnel. Casual listeners join for free, land on your list, and become the people you later convert to paid supporters. Skip it and you have nowhere for new fans to start.',
     category: 'offer',
@@ -82,7 +82,7 @@ const ARTIST_SETUP: QuestTemplate[] = [
     title: 'Create a paid supporter tier',
     subtitle: 'Load it with the exclusives only supporters get',
     whyItMatters:
-      'This is where fans become income. Put your best assets behind it — unreleased tracks, behind-the-scenes, early access — so supporting you is an obvious deal.',
+      'This is where fans become income. Put your best assets behind it (unreleased tracks, behind-the-scenes, early access) so supporting you is an obvious deal.',
     category: 'offer',
     questType: 'main_quest',
     requiredRole: 'artist',
@@ -93,7 +93,7 @@ const ARTIST_SETUP: QuestTemplate[] = [
     prerequisites: ['artist_create_free_tier'],
     steps: [
       { title: 'Set a monthly price' },
-      { title: 'Add what supporters get — exclusive tracks, perks, early access' },
+      { title: 'Add what supporters get: exclusive tracks, perks, early access' },
       { title: 'Publish' },
     ],
     completionCondition: { kind: 'domain', check: 'artist_has_paid_offer' },
@@ -129,7 +129,7 @@ const ARTIST_FIRST_SUPPORTERS: QuestTemplate[] = [
     key: 'artist_ten_supporters',
     title: 'Reach 10 supporters',
     subtitle: 'Your CRWN is officially moving',
-    whyItMatters: 'Ten paying supporters is real momentum — enough signal to justify campaigns and missions.',
+    whyItMatters: 'Ten paying supporters is real momentum. That is enough signal to justify campaigns and missions.',
     category: 'support',
     questType: 'boss_quest',
     requiredRole: 'artist',
@@ -212,7 +212,7 @@ const FAN_SUPPORT: QuestTemplate[] = [
     key: 'fan_subscribe_to_artist',
     title: 'Become a supporter',
     subtitle: 'Join a tier and unlock supporter perks',
-    whyItMatters: 'Supporting early is how you prove you were here first — and it directly funds the rise.',
+    whyItMatters: 'Supporting early is how you prove you were here first, and it directly funds the rise.',
     category: 'support',
     questType: 'daily_assignment',
     requiredRole: 'fan',
@@ -264,7 +264,7 @@ const FAN_SUPPORT: QuestTemplate[] = [
     key: 'fan_invite_friend',
     title: 'Invite one friend',
     subtitle: 'Bring someone into the movement',
-    whyItMatters: 'Referrals are the highest-impact thing a fan can do — and they can earn you commission.',
+    whyItMatters: 'Referrals are the highest-impact thing a fan can do, and they can earn you commission.',
     category: 'promotion',
     questType: 'daily_assignment',
     requiredRole: 'fan',
@@ -288,9 +288,9 @@ const FAN_SUPPORT: QuestTemplate[] = [
 const LIVE_QUESTS: QuestTemplate[] = [
   {
     key: 'live_build_offer',
-    title: 'Build an Offer — Live',
+    title: 'Build an Offer (Live)',
     subtitle: 'Create your supporter offer with fans in the room',
-    whyItMatters: 'Building live turns a solo task into a moment — fans tell you what they want and buy it on the spot.',
+    whyItMatters: 'Building live turns a solo task into a moment. Fans tell you what they want and buy it on the spot.',
     category: 'offer',
     questType: 'live_quest',
     requiredRole: 'artist',
@@ -305,7 +305,7 @@ const LIVE_QUESTS: QuestTemplate[] = [
   },
   {
     key: 'live_launch_campaign',
-    title: 'Launch a Campaign — Live',
+    title: 'Launch a Campaign (Live)',
     subtitle: 'Set a goal and rally the room to hit it',
     whyItMatters: 'A campaign launched live gets its first backers before the stream ends. Momentum is the whole game.',
     category: 'campaign',
@@ -322,7 +322,7 @@ const LIVE_QUESTS: QuestTemplate[] = [
   },
   {
     key: 'live_final_push',
-    title: 'Campaign Final Push — Live',
+    title: 'Campaign Final Push (Live)',
     subtitle: 'Countdown live while fans share, buy, and clip',
     whyItMatters: 'The last hours decide it. A live push converts the fence-sitters who were waiting for a reason.',
     category: 'campaign',

@@ -95,7 +95,7 @@ export function SupporterMode() {
         </div>
         <h2 className="text-2xl font-bold text-crwn-text">Find an artist to rise with</h2>
         <p className="text-lg text-crwn-text-secondary mt-3 max-w-lg leading-relaxed">
-          Supporter Mode gives you a role, daily assignments, and proof you were early — the moment
+          Supporter Mode gives you a role, daily assignments, and proof you were early, the moment
           you back your first artist. Pick someone below to begin.
         </p>
         <div className="flex flex-wrap gap-3 mt-5">

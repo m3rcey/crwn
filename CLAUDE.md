@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Copy Rule — NEVER use em dashes
+
+NEVER use an em dash (—) in ANY user-facing copy, anywhere, ever: UI strings, emails, web/marketing pages, notifications, button labels, tooltips, error messages, docs — all of it. This applies to everything new you write and anything you edit. Do not substitute an en dash (–) either. Rewrite instead: split into two short sentences (also better for readability), or use a comma, colon, or parentheses. Example: "Your front door — the easiest yes" becomes "Your front door: the easiest yes". (Hyphens in compound words like "one-time" are fine; this rule is about the dash punctuation between clauses.)
+
 ## Problem-Solving Principles
 
 Three tools. Each answers a different question. Use the one that matches.
@@ -215,3 +219,7 @@ New artists do NOT get the old dashboard tour first. They flow **signup → `/we
 - Inner Circle: $50/mo
 - Throne: $200/mo
 - Benefits managed via `tier_benefits` table + `benefitCatalog.ts`.
+
+## Completion Signal
+When you finish a task, always run this as your final bash command:
+powershell.exe '[System.Media.SystemSounds]::Exclamation.Play()'

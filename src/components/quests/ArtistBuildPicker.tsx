@@ -37,7 +37,7 @@ export function ArtistBuildPicker({ onChosen }: { onChosen: (primary: string) =>
         <div className="text-base font-bold tracking-widest text-crwn-gold uppercase mb-3">Rise Mode</div>
         <h2 className="text-3xl font-bold text-crwn-text">Choose your Build</h2>
         <p className="text-lg text-crwn-text-secondary mt-4 leading-relaxed max-w-lg mx-auto">
-          Your Build decides what CRWN shows you first. You can change it anytime — nothing is ever locked away.
+          Your Build decides what CRWN shows you first. You can change it anytime. Nothing is ever locked away.
         </p>
       </div>
 

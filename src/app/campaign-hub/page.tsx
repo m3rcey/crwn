@@ -255,7 +255,7 @@ export default function CampaignHubPage() {
                 <span className="text-3xl mb-2 block">🏁</span>
                 <p className="text-crwn-text font-medium mb-1 text-sm">No campaigns yet</p>
                 <p className="text-xs text-crwn-text-secondary mb-3">
-                  A rollout goal — “Road to First Music Video”. It becomes the hero on your page.
+                  A rollout goal like “Road to First Music Video”. It becomes the hero on your page.
                 </p>
                 <button
                   onClick={() => router.push('/campaigns/new?returnTo=%2Fcampaign-hub')}
