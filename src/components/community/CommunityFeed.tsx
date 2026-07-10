@@ -32,28 +32,56 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
 
   const loadPosts = useCallback(async () => {
     try {
-      // Get posts with author info
-      const { data: postsData, error } = await supabase
-        .from('community_posts')
-        .select(`
-          *,
-          author:profiles(
-            username,
-            display_name,
-            avatar_url
-          )
-        `)
+      // Read the VIEW, not the table. community_posts' RLS hides gated rows
+      // outright; the view returns every active row but NULLs content and media
+      // for readers who are not entitled, and reports `can_view`. That keeps the
+      // locked teaser card (which drives subscriptions) without shipping the
+      // paid body to the client. See schema-phase2-community-posts-rls.sql.
+      //
+      // Falls back to the base table when the view is absent, so this code can
+      // ship before the migration is applied without emptying every feed. Once
+      // the migration lands the table is locked down and this branch goes cold.
+      let postsData: CommunityPost[] = [];
+      const viewResult = await supabase
+        .from('community_posts_feed')
+        .select('*')
         .eq('artist_id', artistId)
-        .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (viewResult.error) {
+        const tableResult = await supabase
+          .from('community_posts')
+          .select('*')
+          .eq('artist_id', artistId)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (tableResult.error) throw tableResult.error;
+        postsData = (tableResult.data || []) as unknown as CommunityPost[];
+      } else {
+        postsData = (viewResult.data || []) as unknown as CommunityPost[];
+      }
+
+      // A view carries no foreign key, so PostgREST cannot embed the author.
+      // Fetch the profiles for this page of posts in one follow-up query.
+      const authorIds = [...new Set((postsData || []).map((p) => p.author_id))];
+      const authorMap: Record<string, { username: string | null; display_name: string | null; avatar_url: string | null }> = {};
+      if (authorIds.length > 0) {
+        const { data: authors } = await supabase
+          .from('profiles')
+          .select('id, username, display_name, avatar_url')
+          .in('id', authorIds);
+        (authors || []).forEach((a) => {
+          authorMap[a.id] = { username: a.username, display_name: a.display_name, avatar_url: a.avatar_url };
+        });
+      }
+      const withAuthors = (postsData || []).map((p) => ({ ...p, author: authorMap[p.author_id] || null }));
 
       // Check if current user liked each post
-      let postsWithLikes = postsData || [];
+      let postsWithLikes = withAuthors;
       if (user) {
-        const postIds = (postsData || []).map(p => p.id);
+        const postIds = withAuthors.map(p => p.id);
         if (postIds.length > 0) {
           const { data: likesData } = await supabase
             .from('community_post_likes')
@@ -62,7 +90,7 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
             .in('post_id', postIds);
 
           const likedIds = new Set((likesData || []).map(l => l.post_id));
-          postsWithLikes = (postsData || []).map(p => ({
+          postsWithLikes = withAuthors.map(p => ({
             ...p,
             has_liked: likedIds.has(p.id),
           }));

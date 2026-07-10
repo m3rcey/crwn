@@ -92,8 +92,11 @@ export function CommunityPostCard({
   const [commentsCount, setCommentsCount] = useState(post.comments_count || 0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Check if user can view gated post
-  const canView = post.is_free || (tierId && post.allowed_tier_ids?.includes(tierId));
+  // Entitlement is decided by the DATABASE now (community_posts_feed.can_view).
+  // The client check remains only as a fallback for callers that still hand us a
+  // raw row. It is no longer what protects the content: the view NULLs the body
+  // and media for anyone it marks can_view = false.
+  const canView = post.can_view ?? (post.is_free || (tierId && post.allowed_tier_ids?.includes(tierId)));
 
   const formatTimestamp = (dateStr: string) => {
     const date = new Date(dateStr);

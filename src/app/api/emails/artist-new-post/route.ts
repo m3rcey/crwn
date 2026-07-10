@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { artistNewPostEmail } from '@/lib/emails/artistNewPost';
 import { checkRateLimit } from '@/lib/rateLimit';
@@ -9,19 +10,44 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
+// The email body is assembled as raw HTML, so anything that reaches it must be
+// escaped. A post preview is plain text by the time a fan types it.
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-    const allowed = await checkRateLimit(`ip:${ip}`, 'artist-new-post-email', 60, 5);
+    // This route SENDS MAIL from the CRWN domain. Unauthenticated, it let anyone
+    // put arbitrary text into the subject line and the HTML body of an email
+    // delivered to any artist. Rate limiting slowed that down; it did not stop it.
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const allowed = await checkRateLimit(user.id, 'artist-new-post-email', 60, 5);
     if (!allowed) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    const { artistId, authorName, postPreview } = await request.json();
+    const { artistId, postPreview } = await request.json();
 
-    if (!artistId || !authorName) {
+    if (!artistId) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
+
+    // The author is whoever is signed in, never a name supplied by the caller.
+    const { data: senderProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('display_name, username')
+      .eq('id', user.id)
+      .maybeSingle();
+    const authorName = senderProfile?.display_name || senderProfile?.username || 'A fan';
 
     // Get artist user_id
     const { data: artistProfile } = await supabaseAdmin
@@ -50,11 +76,14 @@ export async function POST(request: NextRequest) {
       .single();
     const artistDisplayName = artistNameData?.display_name || 'there';
 
+    // artistNewPostEmail() interpolates straight into HTML, so escape here.
+    const safePreview = escapeHtml(String(postPreview || '').slice(0, 300));
+
     await resend.emails.send({
       from: FROM_EMAIL,
       to: artistEmail,
       subject: `New community post from ${authorName} 💬`,
-      html: artistNewPostEmail(artistDisplayName, authorName, postPreview || ''),
+      html: artistNewPostEmail(artistDisplayName, escapeHtml(authorName), safePreview),
     });
 
     return NextResponse.json({ success: true });
