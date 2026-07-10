@@ -81,9 +81,10 @@ export function VoiceRecorderButton({ onRecorded, disabled }: VoiceRecorderButto
         .from('audio')
         .upload(path, blob, { contentType: blob.type || 'audio/webm', upsert: false });
       if (upErr) { setError('Upload failed'); setUploading(false); return; }
-      const { data: pub } = supabase.storage.from('audio').getPublicUrl(path);
-      if (!pub?.publicUrl) { setError('Upload failed'); setUploading(false); return; }
-      onRecorded(pub.publicUrl, durationMs);
+      // Store the storage PATH, not a public url. The `audio` bucket is private;
+      // getPublicUrl() is a pure string builder and would happily hand back a link
+      // that no longer resolves. The thread signs this path on read.
+      onRecorded(path, durationMs);
     } catch {
       setError('Upload failed');
     } finally {

@@ -108,6 +108,34 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     return !!track.audio_url_128;
   }, []);
 
+  // Resolve the <audio> source for a track.
+  //
+  // The `audio` bucket is private, so the URL stored on the row is a LOCATOR, not
+  // a link -- it no longer resolves. /api/tracks/[id]/stream re-reads tracks_public
+  // as the caller and, if the view hands back a url, signs it for an hour. The
+  // server decides again; this hook never re-derives entitlement.
+  //
+  // Rapid skipping means several of these can be in flight at once. The monotonic
+  // token makes the newest request the only one allowed to touch `src`, so a slow
+  // response for a track the listener already skipped past cannot win the race.
+  const srcRequestRef = useRef(0);
+
+  const setAudioSource = useCallback(async (track: Track): Promise<boolean> => {
+    if (!audioRef.current) return false;
+    const token = ++srcRequestRef.current;
+    try {
+      const res = await fetch(`/api/tracks/${track.id}/stream`, { cache: 'no-store' });
+      if (!res.ok) return false;
+      const { url } = await res.json();
+      // Superseded by a later track, or the element went away while we waited.
+      if (token !== srcRequestRef.current || !audioRef.current || !url) return false;
+      audioRef.current.src = url;
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   // Log play history - declared before play
   const logPlayHistory = useCallback(async () => {
     if (!user || !currentTrack || !playStartTime) return;
@@ -158,13 +186,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setCurrentTrack(nextTrack);
         setCurrentTime(0);
         setPlayStartTime(Date.now());
-        audioRef.current.src = nextTrack.audio_url_128 as string;
-        audioRef.current.play().then(() => setIsPlaying(true));
+        void (async () => {
+          if (!(await setAudioSource(nextTrack))) {
+            setIsPlaying(false);
+            return;
+          }
+          audioRef.current?.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+        })();
       }
     } else {
       setIsPlaying(false);
     }
-  }, [queue, currentIndex, shuffle, repeat]);
+  }, [queue, currentIndex, shuffle, repeat, setAudioSource]);
 
   // Handle track end - declared after next
   const handleTrackEnd = useCallback(() => {
@@ -264,9 +297,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       setCurrentTrack(trackWithArtist);
       setCurrentTime(0);
       setPlayStartTime(Date.now());
-      
-      if (audioRef.current) {
-        audioRef.current.src = track.audio_url_128 as string;
+
+      // Only a NEW track needs a fresh signed url. Resuming the current one keeps
+      // the src it already has, so pause/resume costs no round trip.
+      if (audioRef.current && !(await setAudioSource(track))) {
+        showToast('Could not load this track', 'error');
+        setIsPlaying(false);
+        return;
       }
     }
 
@@ -278,7 +315,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         console.error('Error playing audio:', error);
       }
     }
-  }, [currentTrack, playStartTime, canPlayTrack, logPlayHistory, showToast]);
+  }, [currentTrack, playStartTime, canPlayTrack, logPlayHistory, showToast, setAudioSource]);
 
   // Play all - plays a list of tracks starting from a specific index
   const playAll = useCallback(async (tracks: Track[], startIndex = 0) => {
@@ -303,11 +340,15 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       setPlayStartTime(Date.now());
 
       if (audioRef.current) {
-        audioRef.current.src = track.audio_url_128 as string;
-        audioRef.current.play().then(() => setIsPlaying(true));
+        if (!(await setAudioSource(track))) {
+          showToast('Could not load this track', 'error');
+          setIsPlaying(false);
+          return;
+        }
+        audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
       }
     }
-  }, [canPlayTrack, showToast]);
+  }, [canPlayTrack, showToast, setAudioSource]);
 
   // Pause
   const pause = useCallback(() => {

@@ -34,6 +34,25 @@ export async function getOwnedArtistIds(supabaseAdmin: any, userId: string): Pro
   return (data || []).map((r: { id: string }) => r.id);
 }
 
+// The caller's role in a conversation, or null if they are not a participant.
+// Shared by the thread route and the voice-note signer so both answer "may this
+// user see this conversation?" from one place.
+export async function conversationRole(
+  supabaseAdmin: any,
+  userId: string,
+  conversationId: string
+): Promise<'fan' | 'artist' | null> {
+  const { data: convo } = await supabaseAdmin
+    .from('dm_conversations')
+    .select('fan_id, artist_id')
+    .eq('id', conversationId)
+    .maybeSingle();
+  if (!convo) return null;
+  if (convo.fan_id === userId) return 'fan';
+  const owned = await getOwnedArtistIds(supabaseAdmin, userId);
+  return owned.includes(convo.artist_id) ? 'artist' : null;
+}
+
 // Resolve a fan's tier rank + name for an artist (rank 0 if no active sub).
 export async function resolveFanTier(
   supabaseAdmin: any,

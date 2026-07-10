@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { notFound } from 'next/navigation';
 import { EmbedPlayer } from './EmbedPlayer';
+import { signAudioValue } from '@/lib/storage/signedAudio';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -10,6 +11,11 @@ const supabaseAdmin = createClient(
 interface Props {
   params: Promise<{ trackId: string }>;
 }
+
+// The page embeds a signed url that expires in an hour, so it must never be
+// cached for longer than the credential it carries. Render it per request.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function EmbedTrackPage({ params }: Props) {
   const { trackId } = await params;
@@ -60,12 +66,17 @@ export default async function EmbedTrackPage({ params }: Props) {
     ? `https://thecrwn.app/${artist.slug}/track/${track.id}`
     : `https://thecrwn.app`;
 
+  // The bucket is private: the stored url is a locator, not a link. Entitlement
+  // was already settled twice above (tracks_public redacts for the anonymous
+  // reader, and the is_free guard refuses paid tracks), so signing here is safe.
+  const audioUrl = await signAudioValue(track.audio_url_128);
+
   return (
     <EmbedPlayer
       title={track.title}
       artistName={artistName}
       albumArtUrl={track.album_art_url}
-      audioUrl={track.audio_url_128}
+      audioUrl={audioUrl}
       duration={track.duration}
       trackUrl={trackUrl}
     />

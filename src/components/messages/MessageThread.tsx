@@ -44,6 +44,12 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
   const [loading, setLoading] = useState(!!conversationId);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // `dm_messages.audio_url` is a path into the private `audio` bucket, never a
+  // playable link. Resolve it to a short-lived signed url here rather than in the
+  // thread route, because realtime hands us rows straight from Postgres and they
+  // never pass through an API route at all.
+  const [voiceUrls, setVoiceUrls] = useState<Record<string, string>>({});
+
   // Replies are off while the NEWEST message is an announce-only broadcast.
   // Derived from `messages` (which realtime keeps current) rather than held in
   // state, so the artist's next repliable message reopens the composer live.
@@ -67,6 +73,44 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [conversationId]);
+
+  // A different thread means different signatures; forget what we asked for.
+  // Declared BEFORE the signer so that on mount it cannot wipe the ref the
+  // signer just populated -- effects fire in declaration order.
+  const requestedVoiceIds = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    requestedVoiceIds.current = new Set();
+    setVoiceUrls({});
+  }, [conversationId]);
+
+  // Sign any voice note we have not asked about yet, however it arrived.
+  //
+  // Keyed off that "already requested" ref, not off `voiceUrls`. A message whose
+  // signing fails would otherwise stay unsigned forever while every empty
+  // response minted a fresh `voiceUrls` object, re-firing this effect in a loop.
+  // One attempt per message id; a failure leaves the player empty, not spinning.
+  useEffect(() => {
+    if (!conversationId) return;
+    const unsigned = messages
+      .filter((m) => m.audio_url && !requestedVoiceIds.current.has(m.id))
+      .map((m) => m.id);
+    if (unsigned.length === 0) return;
+    unsigned.forEach((id) => requestedVoiceIds.current.add(id));
+
+    let cancelled = false;
+    fetch(`/api/messages/${conversationId}/voice-urls`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: unsigned }),
+    })
+      .then((r) => (r.ok ? r.json() : { urls: {} }))
+      .then((data) => {
+        if (cancelled || !data.urls || Object.keys(data.urls).length === 0) return;
+        setVoiceUrls((prev) => ({ ...prev, ...data.urls }));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [messages, conversationId]);
 
   // Realtime: append new messages in this conversation.
   useEffect(() => {
@@ -213,7 +257,7 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
                 {m.audio_url ? (
                   <span className="flex flex-col gap-1">
                     {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <audio controls src={m.audio_url} className="max-w-[220px]" />
+                    <audio controls src={voiceUrls[m.id] || undefined} className="max-w-[220px]" />
                     {m.audio_duration_ms ? (
                       <span className={`text-[10px] ${mine ? 'text-black/60' : 'text-crwn-text-secondary'}`}>
                         🎤 {Math.round(m.audio_duration_ms / 1000)}s
