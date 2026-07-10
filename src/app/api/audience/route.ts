@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getOwnedArtistIds } from '@/lib/messaging';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -99,6 +101,18 @@ export async function GET(req: NextRequest) {
   const artistId = req.nextUrl.searchParams.get('artistId');
   if (!artistId) {
     return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
+  }
+
+  // This route reads with the service-role client, so RLS cannot protect it and
+  // middleware skips /api/. Without this check anyone holding an artist UUID can
+  // dump that artist's whole fan list, including email addresses. Every caller
+  // already passes an artistId derived from their OWN artist_profiles row.
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const owned = await getOwnedArtistIds(supabaseAdmin, user.id);
+  if (!owned.includes(artistId)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   // Filters
