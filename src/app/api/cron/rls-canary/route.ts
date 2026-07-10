@@ -51,6 +51,10 @@ async function restWrite(path: string, payload: unknown): Promise<number> {
   return res.status;
 }
 
+async function rpc(fn: string, payload: unknown): Promise<number> {
+  return restWrite(`rpc/${fn}`, payload);
+}
+
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -181,6 +185,24 @@ export async function GET(req: NextRequest) {
         name: 'agent_coordination_write_denied',
         ok: denied,
         detail: denied ? `denied (${status})` : `LEAK: anon write returned http ${status}`,
+      });
+    }
+
+    // ── 8. The entitlement helpers are not callable over RPC ──────────────────
+    // Default EXECUTE-to-PUBLIC made these an oracle: anon could ask "is <user>
+    // entitled to <track>?" for any user id. They exist only to be called from
+    // inside their SECURITY DEFINER views. PostgREST returns 404 when a function
+    // is not EXECUTE-able by the caller (it is absent from the exposed schema).
+    for (const fn of ['can_play_track', 'can_read_community_post']) {
+      const status = await rpc(fn, {
+        [fn === 'can_play_track' ? 'p_track' : 'p_post']: '00000000-0000-0000-0000-000000000000',
+        p_user: null,
+      });
+      const denied = status === 404 || status === 401 || status === 403;
+      checks.push({
+        name: `${fn}_rpc_denied`,
+        ok: denied,
+        detail: denied ? `not callable (${status})` : `LEAK: anon invoked ${fn} over RPC, http ${status}`,
       });
     }
   } catch (e) {
