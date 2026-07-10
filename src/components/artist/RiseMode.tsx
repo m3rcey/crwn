@@ -40,6 +40,24 @@ export function RiseMode() {
   const router = useRouter();
   const [data, setData] = useState<QuestsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [focus, setFocus] = useState(false);
+
+  useEffect(() => {
+    try {
+      setFocus(localStorage.getItem('rise_focus') === '1');
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setFocusMode = useCallback((on: boolean) => {
+    setFocus(on);
+    try {
+      localStorage.setItem('rise_focus', on ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -100,6 +118,40 @@ export function RiseMode() {
   const p = data.progression;
   const build = getArtistBuild(data.build.primary);
 
+  // Focus Mode: nothing but the next move. Guided, not caged — one tap back to full.
+  if (focus) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-5">
+        <QuestCompletionModal events={data.completions} />
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-crwn-text-secondary">
+            Level {p.level} · {p.levelTitle} · <span className="text-crwn-gold font-semibold">{p.xp} XP</span>
+          </span>
+          <button onClick={() => setFocusMode(false)} className="text-xs text-crwn-gold hover:underline">
+            Show full dashboard
+          </button>
+        </div>
+        {mainQuest ? (
+          <div>
+            <div className="text-sm font-bold text-crwn-gold uppercase tracking-wide mb-2">👉 Your next move</div>
+            <QuestCard quest={mainQuest} variant="hero" />
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6 text-center">
+            <Trophy className="w-6 h-6 text-crwn-gold mx-auto mb-2" />
+            <p className="text-crwn-text font-bold text-lg">You've cleared the essentials 🎉</p>
+            <button
+              onClick={() => setFocusMode(false)}
+              className="neu-button-accent px-6 py-2.5 rounded-full font-semibold text-sm mt-4"
+            >
+              See growth moves
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <QuestCompletionModal events={data.completions} />
@@ -130,6 +182,12 @@ export function RiseMode() {
                 <span className="text-xs text-crwn-text-secondary">day streak</span>
               </div>
             )}
+            <button
+              onClick={() => setFocusMode(true)}
+              className="text-xs text-crwn-text-secondary hover:text-crwn-gold border border-[#2A2A2A] rounded-full px-3 py-1"
+            >
+              Focus
+            </button>
           </div>
         </div>
         {!p.isMax && (

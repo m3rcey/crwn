@@ -70,7 +70,34 @@ export function QuestCard({
         <p className="text-sm text-crwn-text-secondary mt-3 leading-relaxed">{quest.why_it_matters}</p>
       )}
 
-      {isHero && nextStep && !done && (
+      {/* Inline "how" — the concrete steps, current one highlighted */}
+      {isHero && (quest.steps?.length ?? 0) > 0 && !done && (
+        <div className="mt-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">How</div>
+          <ol className="space-y-1.5">
+            {quest.steps.map((s, idx) => (
+              <li key={idx} className="flex items-center gap-2 text-sm">
+                <span
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                    idx < quest.current_step
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : idx === quest.current_step
+                      ? 'bg-crwn-gold text-black'
+                      : 'bg-[#2A2A2A] text-crwn-text-secondary'
+                  }`}
+                >
+                  {idx + 1}
+                </span>
+                <span className={idx === quest.current_step ? 'text-crwn-text font-medium' : 'text-crwn-text-secondary'}>
+                  {s.title}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {isHero && nextStep && !done && (quest.steps?.length ?? 0) === 0 && (
         <div className="mt-3 text-sm">
           <span className="text-crwn-text-secondary">Next step: </span>
           <span className="text-crwn-text font-medium">{nextStep}</span>
