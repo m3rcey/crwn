@@ -154,15 +154,15 @@ export default function HomePage() {
     {
       href: '/explore',
       label: 'Explore Artists',
-      image: '/homepage_explore.png',
+      image: '/homepage_explore.jpg',
     },
     {
       href: '/library',
       label: 'My Library',
-      image: '/homepage_library.png',
+      image: '/homepage_library.jpg',
     },
     ...(hasArtistProfile
-      ? [{ href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.png' }]
+      ? [{ href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.jpg' }]
       : [])
   ];
 
@@ -224,6 +224,7 @@ export default function HomePage() {
                     src={action.image}
                     alt={action.label}
                     fill
+                    sizes="(max-width: 768px) 50vw, 200px"
                     className="object-cover opacity-0 transition-opacity duration-500"
                     onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
                   />
@@ -264,6 +265,7 @@ export default function HomePage() {
                       src={artist.profile.avatar_url}
                       alt={artist.profile?.display_name || 'Artist'}
                       fill
+                      sizes="(max-width: 768px) 50vw, 200px"
                       className="object-cover"
                     />
                   ) : (
