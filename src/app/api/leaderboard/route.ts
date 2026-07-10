@@ -167,13 +167,19 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // This endpoint is deliberately public: the fan leaderboard renders on the
+  // public artist page. So it must ship only what that page shows.
+  //
+  // `spent` (a fan's lifetime spend on this artist, in cents) is NOT rendered
+  // anywhere and used to be returned to anyone holding an artist UUID. Fans did
+  // not agree to publish what they spend. It stays server-side, where it still
+  // feeds `score`.
   const leaderboard = top25.map((f, i) => ({
     rank: i + 1,
     fanId: f.fanId,
     name: fanProfiles[f.fanId]?.name || 'Fan',
     avatar: fanProfiles[f.fanId]?.avatar || null,
     score: f.score,
-    spent: f.spent,
     referralCount: f.referralCount,
     commentCount: f.commentCount,
     likeCount: f.likeCount,

@@ -51,7 +51,9 @@ export function SyncDashboard({ artistId, platformTier }: SyncDashboardProps) {
     const fetchOpps = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/sync-opportunities?artistId=${artistId}&tier=${platformTier}`);
+        // No `tier` param: the server reads the artist's real tier from the DB.
+        // Passing it from here would imply the client picks what it unlocks.
+        const res = await fetch(`/api/sync-opportunities?artistId=${artistId}`);
         const data = await res.json();
         setOpportunities(data.opportunities || []);
         setTotal(data.total || 0);

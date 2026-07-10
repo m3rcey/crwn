@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireArtistOwner } from '@/lib/apiAuth';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -39,9 +40,12 @@ function getPeriodsForRange(period: string, count: number): { label: string; sta
 
 export async function GET(req: NextRequest) {
   const artistId = req.nextUrl.searchParams.get('artistId');
-  if (!artistId) {
-    return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
-  }
+
+  // Revenue, earnings, churn reasons and survey responses are the artist's private
+  // books. This route reads with the service-role client and middleware skips
+  // /api/, so without this check any artist UUID buys a competitor the numbers.
+  const auth = await requireArtistOwner(artistId);
+  if (!auth.ok) return auth.error;
 
   const dailyPeriods = getPeriodsForRange('daily', 30);
   const weeklyPeriods = getPeriodsForRange('weekly', 12);
