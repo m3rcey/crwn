@@ -14,8 +14,11 @@ interface Props {
 export default async function EmbedTrackPage({ params }: Props) {
   const { trackId } = await params;
 
+  // Read through tracks_public. With no session, can_play is true only for free
+  // tracks, so a paid track yields audio_url_128 = NULL even if the is_free guard
+  // below were ever removed.
   const { data: track } = await supabaseAdmin
-    .from('tracks')
+    .from('tracks_public')
     .select('id, title, album_art_url, audio_url_128, duration, artist_id, is_free')
     .eq('id', trackId)
     .eq('is_active', true)

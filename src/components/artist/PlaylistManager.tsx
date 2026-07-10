@@ -101,7 +101,7 @@ export function PlaylistManager() {
         .maybeSingle();
 
       let tracksQuery = supabase
-        .from('tracks')
+        .from('tracks_public')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -236,7 +236,7 @@ export function PlaylistManager() {
     // Load playlist tracks
     const { data: playlistTracksData } = await supabase
       .from('playlist_tracks')
-      .select('*, track:tracks(*)')
+      .select('*, track:tracks_public(*)')
       .eq('playlist_id', playlist.id)
       .order('position');
 

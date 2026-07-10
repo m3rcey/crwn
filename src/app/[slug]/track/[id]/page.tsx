@@ -70,7 +70,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
   const artistProfile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
 
   const { data: track } = await supabase
-    .from('tracks')
+    .from('tracks_public')
     .select('*')
     .eq('id', id)
     .eq('artist_id', artist.id)

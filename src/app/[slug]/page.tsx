@@ -166,9 +166,10 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     };
   });
 
-  // Fetch artist's tracks
+  // Fetch artist's tracks. tracks_public redacts audio_url_* for readers who are
+  // not entitled, so locked-track cards still render without exposing the file.
   const { data: tracks } = await supabase
-    .from('tracks')
+    .from('tracks_public')
     .select('*')
     .eq('is_active', true)
     .eq('artist_id', artist.id);

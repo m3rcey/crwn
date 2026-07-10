@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -8,6 +9,15 @@ const supabaseAdmin = createClient(
 
 export async function GET(req: NextRequest) {
   const search = req.nextUrl.searchParams.get('q') || '';
+
+  // This route is unauthenticated and the admin client bypasses RLS, so reading
+  // tracks through it published every PAID track's audio_url to anyone who
+  // called /api/explore. Track rows are therefore read with a REQUEST-SCOPED
+  // client against tracks_public, whose CASE redaction keys off auth.uid():
+  // an anonymous browser gets metadata with NULL audio, a subscriber gets the
+  // audio for the tiers they pay for. Everything else here is public metadata
+  // and stays on the admin client.
+  const supabaseAsCaller = await createServerSupabaseClient();
 
   // Featured artists - all artists with active profiles
   const artistQuery = supabaseAdmin
@@ -83,8 +93,8 @@ export async function GET(req: NextRequest) {
 
   // New releases - latest tracks across all artists
   // Exclude tracks still in early access window (public_release_date in the future)
-  const { data: newReleases } = await supabaseAdmin
-    .from('tracks')
+  const { data: newReleases } = await supabaseAsCaller
+    .from('tracks_public')
     .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
     .eq('is_active', true)
     .or(`public_release_date.is.null,public_release_date.lte.${now}`)
@@ -92,8 +102,8 @@ export async function GET(req: NextRequest) {
     .limit(12);
 
   // Popular tracks - by play count
-  const { data: popularTracks } = await supabaseAdmin
-    .from('tracks')
+  const { data: popularTracks } = await supabaseAsCaller
+    .from('tracks_public')
     .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, is_free')
     .eq('is_active', true)
     .or(`public_release_date.is.null,public_release_date.lte.${now}`)
@@ -103,8 +113,8 @@ export async function GET(req: NextRequest) {
   // Search tracks by title if search query provided
   let searchTracks: typeof newReleases = [];
   if (search) {
-    const { data: matchedTracks } = await supabaseAdmin
-      .from('tracks')
+    const { data: matchedTracks } = await supabaseAsCaller
+      .from('tracks_public')
       .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
       .eq('is_active', true)
       .or(`public_release_date.is.null,public_release_date.lte.${now}`)

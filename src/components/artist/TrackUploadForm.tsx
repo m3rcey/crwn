@@ -164,9 +164,10 @@ export function TrackUploadForm() {
           setMaxEarlyAccessDays(maxDays);
         }
       }
-      // Fetch tracks
+      // Fetch tracks. tracks_public: the audio columns are not selectable on
+      // `tracks` any more, and the owner is entitled so the view returns them.
       const { data: tracksData } = await supabase
-        .from('tracks')
+        .from('tracks_public')
         .select('*')
         .eq('artist_id', artistProfile.id)
         .eq('is_active', true)
@@ -460,7 +461,10 @@ export function TrackUploadForm() {
           publicReleaseDate = releaseDate.toISOString();
         }
 
-        const { data: track, error } = await supabase
+        // `.select()` on the insert would RETURN *, which now requires SELECT on
+        // the audio columns nobody holds. Return the id, then read the full row
+        // back through tracks_public.
+        const { data: inserted, error } = await supabase
           .from('tracks')
           .insert({
             artist_id: artistProfile.id,
@@ -479,13 +483,19 @@ export function TrackUploadForm() {
             explicit: formData.explicit,
             ai_generated: formData.aiGenerated,
           })
-          .select()
+          .select('id')
           .single();
 
         if (error) {
           console.error('Track insert error:', error);
           throw error;
         }
+
+        const { data: track } = await supabase
+          .from('tracks_public')
+          .select('*')
+          .eq('id', inserted.id)
+          .single();
 
         // Add new track to state
         if (track) {

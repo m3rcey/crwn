@@ -34,7 +34,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
       *,
       playlist_tracks(
         position,
-        track:tracks(*)
+        track:tracks_public(*)
       )
     `)
     .eq('id', playlistId)

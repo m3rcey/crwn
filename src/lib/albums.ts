@@ -31,7 +31,7 @@ export async function getAlbumWithTracks(albumId: string): Promise<Album | null>
 
   const { data: albumTracks } = await supabase
     .from('album_tracks')
-    .select('*, track:tracks(*)')
+    .select('*, track:tracks_public(*)')
     .eq('album_id', albumId)
     .order('position');
 
@@ -202,7 +202,7 @@ export async function getPublishedAlbumWithTracks(
 
   const { data: albumTracks } = await supabase
     .from('album_tracks')
-    .select('*, track:tracks(*)')
+    .select('*, track:tracks_public(*)')
     .eq('album_id', albumId)
     .order('position');
 

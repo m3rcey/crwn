@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePlayer } from '@/hooks/usePlayer';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { fetchPlayableAudio } from '@/lib/trackAudio';
 import { Heart, Play, Loader2, Music } from 'lucide-react';
 import Image from 'next/image';
 
@@ -28,9 +29,12 @@ export function LikedSongs() {
     if (!user) return;
 
     async function fetchLiked() {
+      // The audio columns are not selectable through this embed any more; they
+      // come from tracks_public, which returns them only for tracks this user is
+      // entitled to. A liked-but-unentitled track still lists, with no audio.
       const { data: favorites } = await supabase
         .from('favorites')
-        .select('track_id, created_at, track:tracks(id, title, album_art_url, audio_url_128, duration, artist_id)')
+        .select('track_id, created_at, track:tracks(id, title, album_art_url, duration, artist_id)')
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
 
@@ -42,6 +46,11 @@ export function LikedSongs() {
             likedTracks.push(track);
           }
         }
+
+        const audio = await fetchPlayableAudio(supabase, likedTracks.map(t => t.id));
+        likedTracks.forEach(t => {
+          t.audio_url_128 = audio.get(t.id)?.audio_url_128 ?? null;
+        });
 
         // Get artist names
         const artistIds = [...new Set(likedTracks.map(t => t.artist_id))];
