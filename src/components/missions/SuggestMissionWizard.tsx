@@ -218,7 +218,7 @@ export function SuggestMissionWizard({
   const Icon = current.icon;
 
   const targetSummary =
-    targetKind === 'none' ? `${artistName}'s page` : `Demand test — ${targetLabel ?? ''}`;
+    targetKind === 'none' ? `${artistName}'s page` : `Demand test: ${targetLabel ?? ''}`;
 
   return (
     <div className="min-h-screen flex flex-col">

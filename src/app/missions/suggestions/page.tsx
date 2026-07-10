@@ -311,7 +311,7 @@ export default function MissionSuggestionsPage() {
                     <div className="ml-14 mt-3 flex items-center justify-between gap-3">
                       <p className="text-xs text-crwn-text-secondary">
                         Approved{s.reviewed_at ? ` ${new Date(s.reviewed_at).toLocaleDateString()}` : ''}
-                        {s.review_note ? ` — ${s.review_note}` : ''}
+                        {s.review_note ? `: ${s.review_note}` : ''}
                       </p>
                       {s.converted_mission_id && (
                         <button
@@ -327,7 +327,7 @@ export default function MissionSuggestionsPage() {
                   {s.status === 'rejected' && (
                     <p className="ml-14 mt-3 text-xs text-crwn-text-secondary">
                       Rejected{s.reviewed_at ? ` ${new Date(s.reviewed_at).toLocaleDateString()}` : ''}
-                      {s.review_note ? ` — ${s.review_note}` : ''}
+                      {s.review_note ? `: ${s.review_note}` : ''}
                     </p>
                   )}
 

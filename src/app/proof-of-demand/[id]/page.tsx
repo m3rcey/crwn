@@ -35,7 +35,7 @@ interface ResponseRow {
 
 const SIGNAL_LABELS: Record<TestDetail['signal_type'], string> = {
   rsvp: 'RSVP',
-  vote: 'Vote — "I want this"',
+  vote: 'Vote: "I want this"',
   waitlist: 'Waitlist',
 };
 

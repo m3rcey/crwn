@@ -204,7 +204,7 @@ export function PromiseCalendar() {
                 <div key={t.tierId}>
                   <div className="flex items-center justify-between text-sm mb-1">
                     <span className="text-crwn-text font-medium">{t.tierName}</span>
-                    <span className={`font-bold ${color}`}>{t.pct === null ? '—' : `${t.pct}%`}</span>
+                    <span className={`font-bold ${color}`}>{t.pct === null ? '-' : `${t.pct}%`}</span>
                   </div>
                   <div className="h-1.5 rounded-full bg-crwn-elevated overflow-hidden">
                     <div className={`h-full rounded-full ${bar}`} style={{ width: `${t.pct ?? 0}%` }} />

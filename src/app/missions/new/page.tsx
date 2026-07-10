@@ -332,7 +332,7 @@ function MissionBuilder() {
   const Icon = current.icon;
 
   const targetSummary =
-    targetKind === 'none' ? 'My artist page' : `${targetKind === 'demand_test' ? 'Demand test' : 'Tier'} — ${targetLabel ?? ''}`;
+    targetKind === 'none' ? 'My artist page' : `${targetKind === 'demand_test' ? 'Demand test' : 'Tier'}: ${targetLabel ?? ''}`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -637,7 +637,7 @@ function MissionBuilder() {
                 />
                 <ReviewRow
                   label="Reward"
-                  value={`${MISSION_REWARD_LABELS[rewardType]}${rewardDetail.trim() ? ` — ${rewardDetail.trim()}` : ''}`}
+                  value={`${MISSION_REWARD_LABELS[rewardType]}${rewardDetail.trim() ? `: ${rewardDetail.trim()}` : ''}`}
                 />
                 <ReviewRow label="Audience" value={MISSION_AUDIENCE_LABELS[audience]} />
                 <ReviewRow label="Title" value={title.trim()} />

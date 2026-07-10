@@ -32,7 +32,7 @@ export default function AdminTeamSplitsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h1 className="text-xl font-bold text-crwn-text mb-3 flex items-center gap-2"><ShieldAlert className="w-5 h-5 text-crwn-gold" /> Team Splits — Review</h1>
+      <h1 className="text-xl font-bold text-crwn-text mb-3 flex items-center gap-2"><ShieldAlert className="w-5 h-5 text-crwn-gold" /> Team Splits: Review</h1>
       <div className="flex gap-2 mb-4">
         {(['high_risk', 'disputed', 'all'] as const).map((f) => (
           <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 rounded-full text-xs ${filter === f ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-card text-crwn-text-secondary'}`}>{f.replace('_', ' ')}</button>
@@ -66,7 +66,7 @@ export default function AdminTeamSplitsPage() {
               <div key={d.id} className="bg-crwn-card rounded-xl p-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-sm text-crwn-text truncate">{d.title}</p>
-                  <p className="text-xs text-crwn-text-secondary">{d.collaborator_name || '—'} · {d.percentage != null ? `${d.percentage}%` : 'bonus'} · {d.revenue_source_type} · {d.status}</p>
+                  <p className="text-xs text-crwn-text-secondary">{d.collaborator_name || '-'} · {d.percentage != null ? `${d.percentage}%` : 'bonus'} · {d.revenue_source_type} · {d.status}</p>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   {d.is_high_risk && <button onClick={() => act({ action: 'clear_flag', dealId: d.id })} className="text-xs bg-crwn-elevated text-crwn-text px-3 py-1 rounded-full">Clear flag</button>}

@@ -489,7 +489,7 @@ export function SyncMock() {
       </div>
       <div className="rounded-xl bg-crwn-surface border border-crwn-elevated p-3">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[12px] font-semibold">Video Game — Ambient Brief</span>
+          <span className="text-[12px] font-semibold">Video Game: Ambient Brief</span>
           <span className="text-[9px] text-blue-300 bg-blue-500/15 rounded px-1.5 py-0.5">Brief</span>
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-crwn-text-secondary mb-2">

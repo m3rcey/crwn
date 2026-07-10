@@ -218,7 +218,7 @@ export default function MyMissionsPage() {
                     </p>
                     <p className="text-xs text-crwn-text-secondary truncate mt-0.5">
                       Reward: {MISSION_REWARD_LABELS[m.reward_type]}
-                      {m.reward_detail ? ` — ${m.reward_detail}` : ''}
+                      {m.reward_detail ? `, ${m.reward_detail}` : ''}
                     </p>
                   </div>
                 </div>

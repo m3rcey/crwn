@@ -191,7 +191,7 @@ export default function NewSquadPage() {
               <ReviewRow label="Type" value={`${def?.icon || ''} ${def?.label || ''}`} />
               <ReviewRow label="Name" value={name} />
               <ReviewRow label="Who can join" value={VISIBILITY_LABELS[visibility]} />
-              <ReviewRow label="Goal" value={goal || '—'} />
+              <ReviewRow label="Goal" value={goal || '-'} />
               {def?.badgeKey && <ReviewRow label="Members get badge" value={def.badgeKey.replace(/_/g, ' ')} />}
             </div>
             <p className="text-xs text-crwn-text-secondary mt-4">You'll add and invite members on the next screen.</p>

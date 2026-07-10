@@ -139,7 +139,7 @@ export default function PlaybookRunPage() {
                 ) : s.status === 'skipped' ? (
                   <span className="text-xs text-crwn-text-secondary inline-flex items-center gap-1"><X className="w-3.5 h-3.5" /> Skipped</span>
                 ) : s.status === 'failed' ? (
-                  <button onClick={() => act(s.id, 'approve')} className="text-xs text-red-400">Failed — retry</button>
+                  <button onClick={() => act(s.id, 'approve')} className="text-xs text-red-400">Failed. Retry</button>
                 ) : (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-crwn-gold inline-flex items-center gap-1"><Check className="w-3.5 h-3.5" /> {s.status === 'executed' ? 'Created' : 'Approved'}</span>

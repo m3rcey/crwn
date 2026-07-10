@@ -45,7 +45,7 @@ interface StepDef {
 
 const SIGNALS: { value: SignalType; label: string; hint: string }[] = [
   { value: 'rsvp', label: 'RSVP', hint: 'Fans reserve a spot. Best for shows, sessions, and events.' },
-  { value: 'vote', label: 'Vote — "I want this"', hint: 'Fans tap to back the idea. Best for drops and merch concepts.' },
+  { value: 'vote', label: 'Vote: "I want this"', hint: 'Fans tap to back the idea. Best for drops and merch concepts.' },
   { value: 'waitlist', label: 'Join waitlist', hint: 'Fans line up for launch day. Best for anything you\'d release later.' },
 ];
 
@@ -57,7 +57,7 @@ const AUDIENCES: { value: Audience; label: string; hint: string }[] = [
 
 const SIGNAL_LABELS: Record<SignalType, string> = {
   rsvp: 'RSVP',
-  vote: 'Vote — "I want this"',
+  vote: 'Vote: "I want this"',
   waitlist: 'Join waitlist',
 };
 
@@ -380,7 +380,7 @@ function DemandTestBuilder() {
                     />
                   </div>
                   <p className="text-xs text-crwn-text-secondary mt-2">
-                    Fans see &quot;would you pay ${isValidPrice(price) ? (Math.round(parseFloat(price) * 100) / 100).toFixed(2) : '—'}?&quot; No card, no charge, ever.
+                    Fans see &quot;would you pay ${isValidPrice(price) ? (Math.round(parseFloat(price) * 100) / 100).toFixed(2) : '0.00'}?&quot; No card, no charge, ever.
                   </p>
                 </div>
               )}
@@ -463,7 +463,7 @@ function DemandTestBuilder() {
                 />
                 <ReviewRow
                   label="Price question"
-                  value={priceOn ? `$${(Math.round(parseFloat(price) * 100) / 100).toFixed(2)} — non-binding, never charged` : 'Off'}
+                  value={priceOn ? `$${(Math.round(parseFloat(price) * 100) / 100).toFixed(2)} (non-binding, never charged)` : 'Off'}
                 />
                 <ReviewRow label="Promoter question" value={promoterOn ? 'On' : 'Off'} />
                 <ReviewRow label="Audience" value={AUDIENCE_LABELS[audience]} />

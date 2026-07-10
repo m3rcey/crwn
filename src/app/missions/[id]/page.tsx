@@ -213,7 +213,7 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
     mission.target_kind === 'none'
       ? 'My artist page'
       : `${mission.target_kind === 'demand_test' ? 'Demand test' : mission.target_kind === 'tier' ? 'Tier' : mission.target_kind}${
-          mission.target_label ? ` — ${mission.target_label}` : ''
+          mission.target_label ? `: ${mission.target_label}` : ''
         }`;
 
   return (
@@ -283,7 +283,7 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
           <DetailRow label="Target" value={targetValue} />
           <DetailRow
             label="Reward"
-            value={`${MISSION_REWARD_LABELS[mission.reward_type]}${mission.reward_detail ? ` — ${mission.reward_detail}` : ''}`}
+            value={`${MISSION_REWARD_LABELS[mission.reward_type]}${mission.reward_detail ? `: ${mission.reward_detail}` : ''}`}
           />
           <DetailRow label="Audience" value={MISSION_AUDIENCE_LABELS[mission.audience]} />
           {mission.cta && <DetailRow label="Button" value={mission.cta} />}

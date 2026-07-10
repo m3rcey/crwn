@@ -27,7 +27,7 @@ export function recommendNextQuest(quests: QuestInstance[]): QuestRecommendation
       questId: inProgress.id,
       templateKey: inProgress.template_key,
       title: inProgress.title,
-      reason: `You're ${inProgress.progress_percent}% of the way through this — finishing it now keeps your momentum.`,
+      reason: `You're ${inProgress.progress_percent}% of the way through this. Finishing it now keeps your momentum.`,
     };
   }
 

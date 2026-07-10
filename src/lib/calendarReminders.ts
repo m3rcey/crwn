@@ -219,7 +219,7 @@ export async function dispatchCalendarReminders(
         : (lines.length === 1 ? '📅 Coming up for you' : `📅 ${lines.length} things coming up`);
     const message =
       lines.length === 1
-        ? `${lines[0].title} — ${lines[0].whenLabel}`
+        ? `${lines[0].title}: ${lines[0].whenLabel}`
         : lines.slice(0, 3).map((l) => l.title).join(', ') + (lines.length > 3 ? '…' : '');
     await admin.from('notifications').insert({
       user_id: uid,

@@ -127,7 +127,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
         customRole: form.role === 'other' ? form.customRole : null,
         collaboratorName: form.collaboratorName.trim(),
         collaboratorEmail: form.collaboratorEmail.trim() || null,
-        title: form.title.trim() || `${form.collaboratorName || 'Collaborator'} — ${meta.label}`,
+        title: form.title.trim() || `${form.collaboratorName || 'Collaborator'}: ${meta.label}`,
         dealType: form.dealType,
         revenueSourceType: meta.requiresSource ? form.revenueSourceType : (form.revenueSourceType || 'none'),
         revenueSourceId: form.revenueSourceId || null,
@@ -405,10 +405,10 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
           {/* STEP 8 — review */}
           {step === 8 && (
             <div className="mt-4 space-y-4">
-              <input value={form.title} onChange={(e) => patch({ title: e.target.value })} placeholder={`${form.collaboratorName || 'Collaborator'} — ${meta.label}`}
+              <input value={form.title} onChange={(e) => patch({ title: e.target.value })} placeholder={`${form.collaboratorName || 'Collaborator'}: ${meta.label}`}
                 className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
               <div className="bg-crwn-card rounded-xl p-4 text-sm space-y-1.5">
-                <Row k="Collaborator" v={`${form.collaboratorName || '—'}${form.collaboratorEmail ? ` (${form.collaboratorEmail})` : ''}`} />
+                <Row k="Collaborator" v={`${form.collaboratorName || '-'}${form.collaboratorEmail ? ` (${form.collaboratorEmail})` : ''}`} />
                 <Row k="Role" v={form.role === 'other' ? form.customRole || 'Custom' : COLLABORATOR_ROLES.find((r) => r.key === form.role)?.label || form.role} />
                 <Row k="Deal" v={meta.label} />
                 {meta.requiresSource && <Row k="Source" v={form.revenueSourceLabel || SOURCE_LABELS[form.revenueSourceType]} />}

@@ -812,15 +812,15 @@ function OfferBuilder() {
                   <>
                     <ReviewRow
                       label="Share-to-Earn"
-                      value={shareOn ? `On — ${Math.round(Number(sharePercent))}% referral commission` : 'Off'}
+                      value={shareOn ? `On: ${Math.round(Number(sharePercent))}% referral commission` : 'Off'}
                     />
                     <ReviewRow
                       label="Clip-to-Earn"
                       value={
                         clipOn
                           ? clipPreset.steps.length > 0
-                            ? `On — ${clipPreset.steps.map((s) => `${s.percent}%`).join(' → ')} → ${Math.round(Number(clipStandardRate))}% standard`
-                            : `On — flat ${Math.round(Number(clipStandardRate))}%`
+                            ? `On: ${clipPreset.steps.map((s) => `${s.percent}%`).join(' → ')} → ${Math.round(Number(clipStandardRate))}% standard`
+                            : `On: flat ${Math.round(Number(clipStandardRate))}%`
                           : 'Off'
                       }
                     />

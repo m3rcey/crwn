@@ -244,7 +244,7 @@ export default function ClipControlsPage() {
         type: 'clip',
         target_kind: 'live',
         target_id: session.id,
-        target_label: `${session.title} — ${marker.label}`,
+        target_label: `${session.title}: ${marker.label}`,
         goal_count: 5,
         reward_type: 'commission',
         reward_detail: `Clip commission (${currentRate}% now)`,
@@ -400,7 +400,7 @@ export default function ClipControlsPage() {
                                   onClick={() => router.push('/missions')}
                                   className="inline-flex items-center gap-1 text-xs font-semibold text-green-400 hover:text-green-300 transition-colors"
                                 >
-                                  Mission created — view
+                                  Mission created. View
                                   <ArrowRight className="w-3 h-3" />
                                 </button>
                               ) : (

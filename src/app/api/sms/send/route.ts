@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
     .from('campaigns')
     .insert({
       artist_id: artistId,
-      name: `${mediaUrl ? 'MMS' : 'SMS'} — ${SMS_CATEGORIES.find(c => c.value === category)?.label || category} — ${new Date().toLocaleDateString('en-US')}`,
+      name: `${mediaUrl ? 'MMS' : 'SMS'}: ${SMS_CATEGORIES.find(c => c.value === category)?.label || category} (${new Date().toLocaleDateString('en-US')})`,
       body: message,
       channel: 'sms',
       status: 'sending',
