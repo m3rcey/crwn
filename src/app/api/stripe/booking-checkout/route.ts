@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
+
+// stripe_connect_id is not readable by anon/authenticated (it is withheld by
+// column grant), and it must not be — a fan's session has no business reading the
+// artist's Stripe account id. The transfer destination is looked up server-side.
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +34,7 @@ export async function POST(request: NextRequest) {
     // Get booking session
     const { data: session, error: sessionError } = await supabase
       .from('booking_sessions')
-      .select('*, artist:artist_profiles(*)')
+      .select('*, artist:artist_profiles(id, slug)')
       .eq('id', sessionId)
       .single();
 
@@ -45,9 +54,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    // Check if artist has Stripe Connect
-    const artistStripeAccountId = (session.artist as unknown as { stripe_connect_id?: string }).stripe_connect_id;
+    // Check if artist has Stripe Connect. Read the account id with the admin
+    // client: the caller is a fan, and fans hold no grant on that column.
     const artistIdFromArtist = (session.artist as unknown as { id?: string }).id || '';
+
+    const { data: connectRow } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('stripe_connect_id')
+      .eq('id', artistIdFromArtist)
+      .maybeSingle();
+    const artistStripeAccountId = connectRow?.stripe_connect_id;
 
     if (!artistStripeAccountId) {
       return NextResponse.json({ error: 'Artist not set up for payments' }, { status: 400 });

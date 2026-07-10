@@ -78,8 +78,11 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
     // Fetch both artist profile and user profile
     const [artistResult, profileResult] = await Promise.all([
       supabase
+        // Explicit columns, not `*`: stripe_connect_id and the platform_stripe_*
+        // columns are withheld from anon/authenticated by column grant, and `*`
+        // expands in the database, so it would fail with 42501.
         .from('artist_profiles')
-        .select('*')
+        .select('id, user_id, slug, tagline, banner_url, calendar_link, merch_store_url, city, state, genres')
         .eq('user_id', currentUser.id)
         .maybeSingle(),
       supabase
@@ -93,7 +96,9 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
     const profile = profileResult.data;
 
     if (data) {
-      setArtistProfile(data as ArtistProfile);
+      // A partial row: the select above no longer pulls `*`. Only `.id` is read
+      // off this state, so the narrowing is safe.
+      setArtistProfile(data as unknown as ArtistProfile);
     }
     
     // Set form data from both tables

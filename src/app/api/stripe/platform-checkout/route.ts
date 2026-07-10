@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
+
+// platform_stripe_customer_id is withheld from anon/authenticated by column grant,
+// and the RLS UPDATE policy on artist_profiles forbids the owner from writing it.
+// Both the read and the write therefore belong to the service-role client.
+const supabaseService = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,10 +57,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get the user's artist profile
+    // Get the user's artist profile. RLS still scopes this to the caller.
     const { data: artist } = await supabase
       .from('artist_profiles')
-      .select('*, profile:profiles(*)')
+      .select('id, profile:profiles(display_name)')
       .eq('user_id', user.id)
       .single();
 
@@ -59,13 +68,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Artist profile not found' }, { status: 404 });
     }
 
-    // Get or create Stripe customer
-    let customerId = artist.platform_stripe_customer_id;
+    const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
+
+    // Get or create Stripe customer. The id is read and written with the service
+    // client: the caller cannot select the column, and the artist_profiles UPDATE
+    // policy pins platform_stripe_customer_id, so an anon-key write is rejected —
+    // which meant this previously created a NEW Stripe customer on every checkout.
+    const { data: billing } = await supabaseService
+      .from('artist_profiles')
+      .select('platform_stripe_customer_id')
+      .eq('id', artist.id)
+      .maybeSingle();
+
+    let customerId = billing?.platform_stripe_customer_id;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
-        name: artist.profile?.display_name || user.email,
+        name: profile?.display_name || user.email,
         metadata: {
           artist_id: artist.id,
           user_id: user.id,
@@ -73,10 +93,13 @@ export async function POST(request: NextRequest) {
       });
       customerId = customer.id;
 
-      await supabase
+      const { error: persistErr } = await supabaseService
         .from('artist_profiles')
         .update({ platform_stripe_customer_id: customerId })
         .eq('id', artist.id);
+      if (persistErr) {
+        console.error('platform-checkout: failed to persist stripe customer id', persistErr);
+      }
     }
 
     // Get price ID based on tier and billing cycle
