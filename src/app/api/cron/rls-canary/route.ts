@@ -51,8 +51,18 @@ async function restWrite(path: string, payload: unknown): Promise<number> {
   return res.status;
 }
 
-async function rpc(fn: string, payload: unknown): Promise<number> {
-  return restWrite(`rpc/${fn}`, payload);
+async function restRpc(fn: string, payload: unknown): Promise<{ status: number; body: string }> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: {
+      apikey: ANON_KEY,
+      Authorization: `Bearer ${ANON_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+    cache: 'no-store',
+  });
+  return { status: res.status, body: await res.text() };
 }
 
 export async function GET(req: NextRequest) {
@@ -188,22 +198,31 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // ── 8. The entitlement helpers are not callable over RPC ──────────────────
-    // Default EXECUTE-to-PUBLIC made these an oracle: anon could ask "is <user>
-    // entitled to <track>?" for any user id. They exist only to be called from
-    // inside their SECURITY DEFINER views. PostgREST returns 404 when a function
-    // is not EXECUTE-able by the caller (it is absent from the exposed schema).
-    for (const fn of ['can_play_track', 'can_read_community_post']) {
-      const status = await rpc(fn, {
-        [fn === 'can_play_track' ? 'p_track' : 'p_post']: '00000000-0000-0000-0000-000000000000',
-        p_user: null,
-      });
-      const denied = status === 404 || status === 401 || status === 403;
-      checks.push({
-        name: `${fn}_rpc_denied`,
-        ok: denied,
-        detail: denied ? `not callable (${status})` : `LEAK: anon invoked ${fn} over RPC, http ${status}`,
-      });
+    // ── 8. The entitlement helpers cannot be used as an oracle ────────────────
+    // These stay EXECUTE-able (the SECURITY DEFINER views call them with the
+    // INVOKER's privilege, so revoking EXECUTE would break tracks_public /
+    // community_posts_feed). Instead the functions IGNORE their p_user argument
+    // and answer only for auth.uid(). So anon spoofing a paid track's OWNER must
+    // still come back false -- true would mean the oracle is open again.
+    // Ids are discovered live so this never rots against a deleted seed row.
+    {
+      const paid = await rest('tracks_public?select=id,artist_id&is_free=eq.false&limit=1');
+      const paidRows = paid.status === 200 ? (JSON.parse(paid.body) as { id: string; artist_id: string }[]) : [];
+      if (paidRows.length === 0) {
+        checks.push({ name: 'can_play_track_not_an_oracle', ok: true, detail: 'no paid track to probe (vacuous)' });
+      } else {
+        const owner = await rest(`artist_profiles_public?select=user_id&id=eq.${paidRows[0].artist_id}`);
+        const ownerId = owner.status === 200 ? (JSON.parse(owner.body)[0]?.user_id ?? null) : null;
+        const { status, body } = await restRpc('can_play_track', { p_track: paidRows[0].id, p_user: ownerId });
+        const leaked = status === 200 && body.trim() === 'true';
+        checks.push({
+          name: 'can_play_track_not_an_oracle',
+          ok: !leaked,
+          detail: leaked
+            ? 'LEAK: anon read true for a paid track by spoofing p_user (the owner)'
+            : `answers only for the caller (http ${status}, body ${body.slice(0, 12)})`,
+        });
+      }
     }
   } catch (e) {
     checks.push({
