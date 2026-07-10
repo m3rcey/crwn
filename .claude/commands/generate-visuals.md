@@ -11,17 +11,17 @@ When the user invokes `/nano-banana`, they will provide either:
 
 ## Setup
 
-- **API Key**: Stored in `~/.bashrc` as `GEMINI_API_KEY`
-- **Style references**: `/mnt/c/Users/Merce/Desktop/nano banana references/` (4 style refs + crwn-logo.png)
-- **Output directory**: `/mnt/c/Users/Merce/Dropbox/nano banana output/[VIDEO_TITLE]/` — each video's visuals go in a subfolder named after the video title (e.g. `WILL_AI_REPLACE_MUSICIANS/`). Create the subfolder if it doesn't exist.
+- **API Key**: `GEMINI_API_KEY` in `/home/merce/workspace-crwn/.env.local`, parsed by the script
+- **Style references**: `/mnt/c/Users/Josh/Desktop/nano banana references/` (4 style refs + crwn-logo.png)
+- **Output directory**: `/mnt/c/Users/Josh/Dropbox/nano banana output/[VIDEO_TITLE]/` — each video's visuals go in a subfolder named after the video title (e.g. `WILL_AI_REPLACE_MUSICIANS/`). Create the subfolder if it doesn't exist.
 - **Model**: `gemini-3.1-flash-image-preview`
 - **Output format**: `.jpg` (the API returns JPEG data)
 - **Delay between requests**: 8 seconds to avoid rate limits
-- **Shell**: Must use `bash -ic` to load the API key from `.bashrc`
+- **Shell**: Plain `bash -c`. The script parses the key from `.env.local`
 
 ## Generation Script
 
-Write prompts to `/home/merce/.openclaw/workspace-crwn/generate-images.mjs` and run with `bash -ic 'node generate-images.mjs'`.
+Write prompts to `/home/merce/workspace-crwn/generate-images.mjs` and run with `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-images.mjs'`.
 
 The script must:
 1. Load style reference images from the references folder (exclude `crwn-logo.png` from style refs)
@@ -44,7 +44,7 @@ The script must:
 
 1. User provides prompts (inline, as a list, or via .md file)
 2. Write the generation script with all prompts
-3. Run with `bash -ic 'node generate-images.mjs'` (timeout 600000 for batches)
+3. Run with `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-images.mjs'` (timeout 600000 for batches)
 4. Report results and retry any failures
 
 ## User argument

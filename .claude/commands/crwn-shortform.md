@@ -10,7 +10,7 @@ The user supplies one topic or several topics separated by `|`. Do NOT ask follo
 
 ## Output Location
 
-Save each script to: `/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform/[N]-[descriptive-kebab-name].md`
+Save each script to: `/home/merce/workspace-crwn/videos/scripts/shortform/[N]-[descriptive-kebab-name].md`
 
 Short-form scripts live in their own `shortform/` subfolder, separate from long-form scripts (which live one level up in `videos/scripts/`).
 
@@ -184,7 +184,7 @@ The opening line (the first sentence of HOOK) must follow one of these formats:
 
 **Lead with the MOST RECOGNIZABLE name.** When a story has two names, open on the household name (the scroll-stopper), even if the protagonist is the lesser-known one — name the big name in sentence 1 and bring the protagonist in sentence 2. The hook IMAGE portrait should be that recognizable face too (a Kanye-album story leads with Kanye's portrait, not the producer's). #25: S1 = "Why would a producer build a song on Kanye's new album..." (Kanye first), then "That producer is James Blake."
 
-**Alternate hook formats across scripts.** Do not use the same hook format two videos in a row. Before locking the hook for a new script, scan the most recent `*_SHORT_SCRIPT.md` files in `/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform/` (read the first line of the HOOK section in each) and pick a format that wasn't used in the last 1-2 short-form videos. The hook is the first thing the viewer hears every video. If every script opens "This is X. And this is Y." the channel develops a sameness and the hook stops landing. Rotate.
+**Alternate hook formats across scripts.** Do not use the same hook format two videos in a row. Before locking the hook for a new script, scan the most recent `*_SHORT_SCRIPT.md` files in `/home/merce/workspace-crwn/videos/scripts/shortform/` (read the first line of the HOOK section in each) and pick a format that wasn't used in the last 1-2 short-form videos. The hook is the first thing the viewer hears every video. If every script opens "This is X. And this is Y." the channel develops a sameness and the hook stops landing. Rotate.
 
 ## Visual Format
 

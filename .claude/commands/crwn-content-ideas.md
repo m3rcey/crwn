@@ -86,11 +86,11 @@ For reactive insertions, mark the displacement explicitly:
 
 ## Output Location
 
-Save every batch to: `/home/merce/.openclaw/workspace-crwn/videos/ideas/[YYYY-MM-DD]-schedule-patch-[descriptor].md`
+Save every batch to: `/home/merce/workspace-crwn/videos/ideas/[YYYY-MM-DD]-schedule-patch-[descriptor].md`
 
 - `YYYY-MM-DD` is today's date (the date in the system context, not training cutoff).
 - `descriptor` is short kebab-case capturing the batch (e.g. `30-shortform-aug-extension`, `drake-leaving-umg-reactive`, `r-and-b-deep-cuts`).
-- The file is a SCHEDULE PATCH the user merges into the master calendar at `/mnt/c/Users/Merce/Dropbox/CRWN/CRWN_90Day_Sequenced_Calendar.md` when they approve. The skill never edits the calendar file directly.
+- The file is a SCHEDULE PATCH the user merges into the master calendar at `/mnt/c/Users/Josh/Dropbox/CRWN/CRWN_90Day_Sequenced_Calendar.md` when they approve. The skill never edits the calendar file directly.
 
 After saving, end the response with a clickable markdown link to the saved file AND a one-line note reminding the user this is a patch ready for merge.
 
@@ -98,9 +98,9 @@ After saving, end the response with a clickable markdown link to the saved file 
 
 Before producing a single topic, read these sources to avoid duplicates and respect frequency caps. Skipping any of these is how duplicates get added.
 
-1. **READ the 90-day calendar file in full**: `/mnt/c/Users/Merce/Dropbox/CRWN/CRWN_90Day_Sequenced_Calendar.md`. This is the master plan. It enumerates all 46 long-form topics (TIER 1 through TIER 5 sections) and all 270 short-form lines (Day 1 through Day 90). Every topic on it is OFF-LIMITS for "new" idea generation unless the user explicitly asks for variants or replacements. Match on the *idea*, not the exact wording. "Drake's first deal was 18% royalties" and "How much Drake actually signed for on his first contract" are the same idea.
-2. Read filenames in `/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform/` and `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/`. Filenames carry the topic (e.g. `15-mase-bad-boy-publishing.md`). Anything here is also off-limits.
-3. Scan prior batches in `/home/merce/.openclaw/workspace-crwn/videos/ideas/` if the folder exists. Don't repeat topics already proposed in the last 30 days.
+1. **READ the 90-day calendar file in full**: `/mnt/c/Users/Josh/Dropbox/CRWN/CRWN_90Day_Sequenced_Calendar.md`. This is the master plan. It enumerates all 46 long-form topics (TIER 1 through TIER 5 sections) and all 270 short-form lines (Day 1 through Day 90). Every topic on it is OFF-LIMITS for "new" idea generation unless the user explicitly asks for variants or replacements. Match on the *idea*, not the exact wording. "Drake's first deal was 18% royalties" and "How much Drake actually signed for on his first contract" are the same idea.
+2. Read filenames in `/home/merce/workspace-crwn/videos/scripts/shortform/` and `/home/merce/workspace-crwn/videos/scripts/longform/`. Filenames carry the topic (e.g. `15-mase-bad-boy-publishing.md`). Anything here is also off-limits.
+3. Scan prior batches in `/home/merce/workspace-crwn/videos/ideas/` if the folder exists. Don't repeat topics already proposed in the last 30 days.
 4. The active calendar window is May 12 - Aug 9 2026. New batches supplement, not replace, that calendar unless the user explicitly says otherwise (e.g. "rewrite the calendar", "swap out Day 12").
 
 If a topic the user clearly wants overlaps with the calendar, flag it in the output (e.g. "[already on calendar Day 4 #10 — proposing variant]") rather than silently duplicating.

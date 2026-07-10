@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const CAROUSELS = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
-const OUT = "/home/merce/.openclaw/workspace-crwn/videos/ideas/2026-06-04-instagram-carousel-reposts.md";
+const CAROUSELS = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
+const OUT = "/home/merce/workspace-crwn/videos/ideas/2026-06-04-instagram-carousel-reposts.md";
 
 const dirs = fs.readdirSync(CAROUSELS).filter((d) => {
   try { return fs.statSync(path.join(CAROUSELS, d)).isDirectory(); } catch { return false; }

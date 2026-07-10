@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const SCRIPTS_DIR = "/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform";
-const CAROUSEL_BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
+const SCRIPTS_DIR = "/home/merce/workspace-crwn/videos/scripts/shortform";
+const CAROUSEL_BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
 const OUT = "/tmp";
 
 const DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { GoogleGenAI } from "@google/genai";
 
-export const PEOPLE_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references/people";
+export const PEOPLE_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references/people";
 export const KNOWN_PEOPLE_PATH = path.join(PEOPLE_DIR, "known-people.json");
 
 function loadDotenvFallback() {

@@ -8,9 +8,9 @@ import {
   PERSON_REF_INSTRUCTION,
 } from "./fetch-person-ref.mjs";
 
-const BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
+const BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
 const FOLDERS = ["release-waterfall", "clipper-share-ramp", "first-7-days-on-crwn"];
-const REF_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
+const REF_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references";
 const CRWN_LOGO = path.join(REF_DIR, "crwn-logo.png");
 
 const STYLE_INSTRUCTION = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and stick figures, high contrast black on white, no gray tones, no background texture, no paper edges, no shadows. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. CRITICAL: every single word on the page must be hand-drawn sharpie handwriting. Never render any text in a typeset/printed/digital font like Arial Black, Impact, or Helvetica Bold, no matter how large or bold the text is. Even the biggest headline words must look hand-written by a marker, with slightly imperfect strokes, not typed. IMPORTANT: The reference images convey drawing STYLE ONLY (line weight, lettering, hand-drawn icon look), not content. Do NOT copy any text, words, logos, crowns, brand marks, or taglines from the reference images. Never draw the word 'CRWN', a crown symbol or logo, or phrases like 'every dollar goes straight to the artist' or 'no middleman' unless the slide prompt explicitly asks for them. Draw ONLY the exact words and marks specified in the slide prompt, and nothing else. The output must be a perfect square 1:1 aspect ratio with pure white #FFFFFF filling all negative space.";

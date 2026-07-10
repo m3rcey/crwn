@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const SHORTFORM = "/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform";
-const CAROUSELS = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
-const OUT = "/home/merce/.openclaw/workspace-crwn/videos/ideas/2026-06-04-instagram-captions.md";
+const SHORTFORM = "/home/merce/workspace-crwn/videos/scripts/shortform";
+const CAROUSELS = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
+const OUT = "/home/merce/workspace-crwn/videos/ideas/2026-06-04-instagram-captions.md";
 
 const shortFiles = fs.readdirSync(SHORTFORM).filter((f) => f.endsWith(".md"));
 const carDirs = fs.readdirSync(CAROUSELS).filter((d) => fs.statSync(path.join(CAROUSELS, d)).isDirectory());
