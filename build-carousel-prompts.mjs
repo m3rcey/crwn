@@ -2,10 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { findMentionedSlugs } from "./fetch-person-ref.mjs";
 
-const SCRIPTS_DIR = "/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform";
-const OUT_BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
+const SCRIPTS_DIR = "/home/merce/workspace-crwn/videos/scripts/shortform";
+const OUT_BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
 const KNOWN = JSON.parse(
-  fs.readFileSync("/mnt/c/Users/Merce/Desktop/nano banana references/people/known-people.json", "utf8")
+  fs.readFileSync("/mnt/c/Users/Josh/Desktop/nano banana references/people/known-people.json", "utf8")
 );
 
 const POSTS = [135, 136, 137, 138];

@@ -24,8 +24,8 @@ const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) { console.error("ERROR: GEMINI_API_KEY not set."); process.exit(1); }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const OUTPUT_BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output";
-const REFS_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
+const OUTPUT_BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output";
+const REFS_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references";
 const OUT_PATH = path.join(OUTPUT_BASE, "how-crwn-works-partner-pitch.jpg");
 
 const STYLE_REFS = [

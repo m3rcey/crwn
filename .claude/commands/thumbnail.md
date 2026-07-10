@@ -19,9 +19,9 @@ If the user doesn't use the `|` separator, parse their message to figure out the
 
 ## Setup
 
-- **API Key**: `GEMINI_API_KEY` from `~/.bashrc` (must use `bash -ic`)
-- **Reference folder**: `/mnt/c/Users/Merce/Desktop/nano banana references/thumbnails/` — contains the reference thumbnails to match in style
-- **Output folder**: `/mnt/c/Users/Merce/Dropbox/nano banana output/thumbnails/`
+- **API Key**: `GEMINI_API_KEY`, parsed by the script from `/home/merce/workspace-crwn/.env.local`
+- **Reference folder**: `/mnt/c/Users/Josh/Desktop/nano banana references/thumbnails/` — contains the reference thumbnails to match in style
+- **Output folder**: `/mnt/c/Users/Josh/Dropbox/nano banana output/thumbnails/`
 - **Output filename**: `thumbnail-<slugified-video-title>.jpg` (lowercase, dashes, no punctuation). If that file already exists, append `-2`, `-3`, etc.
 - **Model**: `gemini-3.1-flash-image-preview`
 
@@ -58,7 +58,7 @@ State the chosen expression in your response before generating so the user can r
 
 ## Generation Script
 
-Write the script to `/home/merce/.openclaw/workspace-crwn/generate-thumbnail.mjs`, then run with `bash -ic 'node generate-thumbnail.mjs'` (timeout 120000).
+Write the script to `/home/merce/workspace-crwn/generate-thumbnail.mjs`, then run with `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-thumbnail.mjs'` (timeout 120000).
 
 The script must:
 1. Load **both** reference thumbnails from the thumbnails folder as image parts (they are the style anchors)
@@ -74,8 +74,8 @@ import { GoogleGenAI } from "@google/genai";
 import fs from "node:fs";
 import path from "node:path";
 
-const REF_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references/thumbnails";
-const OUTPUT_DIR = "/mnt/c/Users/Merce/Dropbox/nano banana output/thumbnails";
+const REF_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references/thumbnails";
+const OUTPUT_DIR = "/mnt/c/Users/Josh/Dropbox/nano banana output/thumbnails";
 const OUTPUT_FILE = "thumbnail-<SLUG>.jpg";
 
 const THUMBNAIL_TEXT = `<EXACT TEXT>`;
@@ -137,7 +137,7 @@ main().catch(e => { console.error("FATAL:", e.message); process.exit(1); });
 1. Parse the user's input into `<video title>` and `<thumbnail text>`. If ambiguous, ask.
 2. Pick an expression from the table above based on tone. State the chosen expression in your response.
 3. Write the generation script with the exact values substituted in (slug the title for the filename).
-4. Run `bash -ic 'node generate-thumbnail.mjs'` (timeout 120000).
+4. Run `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-thumbnail.mjs'` (timeout 120000).
 5. Report the output path and ask if the user wants a regenerate with a different expression.
 
 ## User argument

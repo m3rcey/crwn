@@ -7,8 +7,8 @@ import path from "node:path";
 // square slides. Mirrors generate-carousel.mjs (style refs only, no person
 // refs), but iterates many folders and skips slides that already exist.
 
-const BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
-const REF_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
+const BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
+const REF_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references";
 const DELAY_MS = 6000;
 
 const FOLDERS = [

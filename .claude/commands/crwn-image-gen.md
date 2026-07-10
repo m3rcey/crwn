@@ -16,23 +16,23 @@ Do NOT ask follow-up questions. Process every script in order.
 
 ## Setup
 
-- **API Keys**: `~/.bashrc` provides `GEMINI_API_KEY` and `BRAVE_API_KEY`
-- **Style references**: `/mnt/c/Users/Merce/Desktop/nano banana references/` (4 PNG style refs, exclude `crwn-logo.png` and the `people/` subfolder)
-- **People references**: `/mnt/c/Users/Merce/Desktop/nano banana references/people/` — photo refs of named artists, plus `known-people.json` listing each artist's search query, Wikipedia page, and aliases
-- **Person-ref fetcher**: `/home/merce/.openclaw/workspace-crwn/fetch-person-ref.mjs` — exports `findMentionedSlugs`, `ensurePersonRefs`, `buildPersonRefParts`, `PERSON_REF_INSTRUCTION`. Uses Brave Image Search first, Wikipedia fallback. Skips re-download if photo already exists for that slug.
-- **Output base**: `/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Posts/` (use this exact folder name with the space and capital letters — do NOT create `short form/` or any other variant)
+- **API Keys**: `GEMINI_API_KEY` and `BRAVE_API_KEY` live in `/home/merce/workspace-crwn/.env.local`. The generation script must parse them from that file; they are NOT exported into the shell.
+- **Style references**: `/mnt/c/Users/Josh/Desktop/nano banana references/` (4 PNG style refs, exclude `crwn-logo.png` and the `people/` subfolder)
+- **People references**: `/mnt/c/Users/Josh/Desktop/nano banana references/people/` — photo refs of named artists, plus `known-people.json` listing each artist's search query, Wikipedia page, and aliases
+- **Person-ref fetcher**: `/home/merce/workspace-crwn/fetch-person-ref.mjs` — exports `findMentionedSlugs`, `ensurePersonRefs`, `buildPersonRefParts`, `PERSON_REF_INSTRUCTION`. Uses Brave Image Search first, Wikipedia fallback. Skips re-download if photo already exists for that slug.
+- **Output base**: `/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts/` (use this exact folder name with the space and capital letters — do NOT create `short form/` or any other variant)
 - **No per-script subfolders for short-form** — all images land flat in `Shortform Posts/`
 - **Image filename**: `[N]-[kebab-title].jpg` where N is the post number from the 90-day calendar (or 1, 2, 3... if numbering a fresh arc)
 - **Model**: `gemini-3.1-flash-image-preview`
 - **Aspect ratio**: `3:4` vertical (short-form portrait)
 - **Output format**: `.jpg` (API returns JPEG data)
 - **Delay between requests**: 8 seconds
-- **Shell**: `bash -ic` to load API key from `.bashrc`
+- **Shell**: `bash -c`. The script reads the API key from `.env.local` itself, so no shell profile is involved.
 
 ## Folder structure
 
 ```
-/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Posts/
+/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts/
   1-video-title-1.jpg
   2-video-title-2.jpg
   3-video-title-3.jpg
@@ -145,7 +145,7 @@ If the fetch fails entirely for a person, log a warning and continue — the ima
 
 ## Generation Script
 
-Write prompts to `/home/merce/.openclaw/workspace-crwn/generate-images.mjs` and run with `bash -ic 'node generate-images.mjs'` (timeout 600000).
+Write prompts to `/home/merce/workspace-crwn/generate-images.mjs` and run with `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-images.mjs'` (timeout 600000).
 
 The script must:
 1. Load the 4 style reference PNGs from the references folder (exclude `crwn-logo.png` and the `people/` subfolder)
@@ -165,7 +165,7 @@ The script must:
    - Extract every bracketed visual element from FULL SCRIPT WITH VISUALS
    - Compose the prompt content (the bracketed middle of the template)
 3. Write the generation script with all prompts
-4. Run via `bash -ic 'node generate-images.mjs'`
+4. Run via `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-images.mjs'`
 5. Confirm each save and report any failures
 
 ## Output confirmation per script
@@ -174,7 +174,7 @@ After each successful generation:
 
 ```
 [OK] [Post title]
-  File: /mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Posts/[N]-[kebab-title].jpg
+  File: /mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Posts/[N]-[kebab-title].jpg
 ```
 
 End-of-run summary: total success / total failure / list of any failed titles with their prompts so they can be manually pasted.

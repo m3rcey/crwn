@@ -164,7 +164,7 @@ With section headers:
 
 ## Output Location
 
-Save the prompt sheet to: `/home/merce/.openclaw/workspace-crwn/videos/nano-prompts/[NAME]_NANO_BANANA_PROMPTS.md`
+Save the prompt sheet to: `/home/merce/workspace-crwn/videos/nano-prompts/[NAME]_NANO_BANANA_PROMPTS.md`
 
 ## User argument
 

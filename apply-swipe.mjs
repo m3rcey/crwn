@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 
-const BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
-const PERSIST = "/mnt/c/Users/Merce/Desktop/nano banana references/swipe-for-more.png";
+const BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
+const PERSIST = "/mnt/c/Users/Josh/Desktop/nano banana references/swipe-for-more.png";
 const SWIPE = fs.existsSync(PERSIST) ? PERSIST : "/tmp/swipe-proc.png";
 const SIZE = 1024;
 const BAND = 104;                 // bottom band reserved for the swipe cue

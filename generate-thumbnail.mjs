@@ -2,8 +2,8 @@ import { GoogleGenAI } from "@google/genai";
 import fs from "node:fs";
 import path from "node:path";
 
-const REF_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references/thumbnails";
-const OUTPUT_DIR = "/mnt/c/Users/Merce/Dropbox/nano banana output/thumbnails";
+const REF_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references/thumbnails";
+const OUTPUT_DIR = "/mnt/c/Users/Josh/Dropbox/nano banana output/thumbnails";
 const OUTPUT_FILE = "thumbnail-can-500-fans-make-you-100k.jpg";
 
 const THUMBNAIL_TEXT = `YES.`;

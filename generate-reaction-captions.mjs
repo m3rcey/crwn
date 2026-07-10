@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const SHORTFORM = "/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform";
-const OUT = "/home/merce/.openclaw/workspace-crwn/videos/ideas/2026-06-04-instagram-reaction-captions.md";
+const SHORTFORM = "/home/merce/workspace-crwn/videos/scripts/shortform";
+const OUT = "/home/merce/workspace-crwn/videos/ideas/2026-06-04-instagram-reaction-captions.md";
 
 const files = fs.readdirSync(SHORTFORM).filter((f) => f.endsWith(".md"));
 function videoFile(n) { return files.find((f) => new RegExp(`^${n}-`).test(f)); }

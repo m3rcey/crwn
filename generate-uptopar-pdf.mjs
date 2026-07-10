@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync, execFileSync } from 'node:child_process';
 
-const SRC_DIR = '/home/merce/.openclaw/workspace-crwn/videos/scripts/shortform';
-const OUT_PDF = '/mnt/c/Users/Merce/Dropbox/nano banana output/Shortform Scripts (Up To Par).pdf';
+const SRC_DIR = '/home/merce/workspace-crwn/videos/scripts/shortform';
+const OUT_PDF = '/mnt/c/Users/Josh/Dropbox/nano banana output/Shortform Scripts (Up To Par).pdf';
 const TMP_HTML = '/tmp/uptopar-scripts.html';
 const CHROME = '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe';
 

@@ -14,7 +14,7 @@ Do NOT ask follow-up questions. Take the topic and generate the full script imme
 ## Reference Prompt
 
 Read the full script generation prompt before writing:
-`/mnt/c/Users/Merce/Dropbox/nano banana output/UPDATED_4_10_CRWN_YouTube_LongForm_Script_Prompt_v3.md`
+`/mnt/c/Users/Josh/Dropbox/nano banana output/UPDATED_4_10_CRWN_YouTube_LongForm_Script_Prompt_v3.md`
 
 That file contains the complete, authoritative rules. Everything below is a summary. If there is a conflict, the reference prompt wins.
 
@@ -52,7 +52,7 @@ This protocol applies on every run, even for topics that "feel obvious."
 - Give him a specific name, age (usually 22-28), genre (rap or R&B), follower/stream count, monthly income, and a day job (FedEx, warehouse, DoorDash, Uber, coffee shop, etc.). These specifics make the math and emotion land.
 - The named proxy runs through every section — intro, Point 1, Point 2, the CTA setup, and the Point 3 reveal show his before/after.
 - Only use a female or different genre if the user explicitly requests it.
-- **No proxy reuse across the channel.** Before locking the proxy, scan the existing scripts in `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/` for the named proxies in recent videos and pick a different name, age, and day job. Don't put two proxies at FedEx. Don't put two proxies at age 26. Repeated specifics across videos make the channel feel like the same composite character on a loop and break the illusion that these are different real artists. Pick a different city, a different shift, a different gig — overnight Walmart stocker, dishwasher at a 24-hour diner, valet at the airport hotel, security guard, line cook, ride-share at airport runs, Amazon warehouse picker. Different from anything used recently.
+- **No proxy reuse across the channel.** Before locking the proxy, scan the existing scripts in `/home/merce/workspace-crwn/videos/scripts/longform/` for the named proxies in recent videos and pick a different name, age, and day job. Don't put two proxies at FedEx. Don't put two proxies at age 26. Repeated specifics across videos make the channel feel like the same composite character on a loop and break the illusion that these are different real artists. Pick a different city, a different shift, a different gig — overnight Walmart stocker, dishwasher at a 24-hour diner, valet at the airport hotel, security guard, line cook, ride-share at airport runs, Amazon warehouse picker. Different from anything used recently.
 
 ## Video Format
 
@@ -97,7 +97,7 @@ Opening line must follow one of:
 - "Which _____________________ was the most _________________? Let's ____________________."
 - "If ______________________, then ___________________."
 
-**Alternate hook formats across scripts.** Do not use the same hook format two videos in a row. Before locking the hook for a new script, scan the most recent scripts in `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/` (read sheet 1 of each) and pick a format that wasn't used in the last 1-2 videos. The hook is the first thing the viewer hears every video — if every script opens "This is X. And this is Y." the channel develops a sameness and the hook stops landing. Rotate.
+**Alternate hook formats across scripts.** Do not use the same hook format two videos in a row. Before locking the hook for a new script, scan the most recent scripts in `/home/merce/workspace-crwn/videos/scripts/longform/` (read sheet 1 of each) and pick a format that wasn't used in the last 1-2 videos. The hook is the first thing the viewer hears every video — if every script opens "This is X. And this is Y." the channel develops a sameness and the hook stops landing. Rotate.
 
 ## The Intro Structure (4 Steps, Exact Order)
 
@@ -502,7 +502,7 @@ SHEET [X] OF [X]: END SCREEN BRIDGE
 
 ## Output Location
 
-Save the script to: `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/[N]-[descriptive-kebab-name].md`
+Save the script to: `/home/merce/workspace-crwn/videos/scripts/longform/[N]-[descriptive-kebab-name].md`
 
 **Filename format:**
 - Lowercase kebab-case
@@ -518,10 +518,10 @@ If a near-identical filename already exists at the same number, append `-v2` rat
 ## Reference Scripts (ground truth for pattern)
 
 Read at least one of these before writing a new script — they embody every rule in this skill:
-- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/1-music-least-valuable-part.md` (short-form)
-- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/2-will-ai-replace-musicians.md` (long-form, ~16-17 min, ~2,600 words)
-- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/3-why-tiktok-artists-broke.md` (long-form, ~16-17 min, ~2,600 words)
-- `/home/merce/.openclaw/workspace-crwn/videos/scripts/longform/5-drake-iceman-3-deals.md` (example of sequential comparison structure)
+- `/home/merce/workspace-crwn/videos/scripts/longform/1-music-least-valuable-part.md` (short-form)
+- `/home/merce/workspace-crwn/videos/scripts/longform/2-will-ai-replace-musicians.md` (long-form, ~16-17 min, ~2,600 words)
+- `/home/merce/workspace-crwn/videos/scripts/longform/3-why-tiktok-artists-broke.md` (long-form, ~16-17 min, ~2,600 words)
+- `/home/merce/workspace-crwn/videos/scripts/longform/5-drake-iceman-3-deals.md` (example of sequential comparison structure)
 
 ## User Argument
 

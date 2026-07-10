@@ -20,10 +20,10 @@ If the user just types a topic with no `|` flags, treat it as the topic and pick
 
 ## Setup
 
-- **API Key**: `GEMINI_API_KEY` from `~/.bashrc` (must use `bash -ic`)
-- **Style references**: `/mnt/c/Users/Merce/Desktop/nano banana references/` (the 4 sharpie reference images, exclude `crwn-logo.png` from the default set)
-- **CRWN logo reference**: `/mnt/c/Users/Merce/Desktop/nano banana references/crwn-logo.png` -- include only when a slide prompt mentions CRWN
-- **Output parent folder**: `/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts/`
+- **API Key**: `GEMINI_API_KEY`, parsed by the script from `/home/merce/workspace-crwn/.env.local`
+- **Style references**: `/mnt/c/Users/Josh/Desktop/nano banana references/` (the 4 sharpie reference images, exclude `crwn-logo.png` from the default set)
+- **CRWN logo reference**: `/mnt/c/Users/Josh/Desktop/nano banana references/crwn-logo.png` -- include only when a slide prompt mentions CRWN
+- **Output parent folder**: `/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts/`
 - **Topic folder**: kebab-case slug of the topic, lowercase, no punctuation, dashes for spaces (e.g. `streaming-is-broken`, `what-fans-really-want`). Create `Carousel Posts/` parent if missing. Create the topic folder if missing. If it already contains output, ask before overwriting.
 - **Output files inside the topic folder**:
   - `prompts.md` -- the full prompt set
@@ -46,7 +46,7 @@ This applies on every run, even for topics that "feel obvious."
 
 Before generating prompts, draft the slide-by-slide arc in your head:
 
-- **Slide 1 -- HOOK.** Bold statement or number. Fewest words on the whole carousel. Biggest text. Stops the scroll. Minimal clutter, almost no decoration. **If the carousel is about a specific named person (an artist, executive, or historical figure), slide 1 must include a hand-drawn sharpie portrait of that person.** The portrait sits at the top of the slide, the hook line sits below it, the rest of the math/argument is pushed to slide 2 and beyond. Person references are pulled from `/mnt/c/Users/Merce/Desktop/nano banana references/people/known-people.json` and the image generator loads the photo automatically when the slide 1 prompt explicitly names the person and asks for a portrait. Skip the portrait only when the carousel is a generic concept (no specific person) like "content vs offers" or "fans spend $150 a month". **Slide 1 must also end with a "SWIPE for More ->" cue at the bottom. Do NOT put this in the slide-1 prompt (the model places it inconsistently and it overlaps the hook). It is stamped on after rendering as a mandatory post-step (see "Swipe Cue on Slide 1").**
+- **Slide 1 -- HOOK.** Bold statement or number. Fewest words on the whole carousel. Biggest text. Stops the scroll. Minimal clutter, almost no decoration. **If the carousel is about a specific named person (an artist, executive, or historical figure), slide 1 must include a hand-drawn sharpie portrait of that person.** The portrait sits at the top of the slide, the hook line sits below it, the rest of the math/argument is pushed to slide 2 and beyond. Person references are pulled from `/mnt/c/Users/Josh/Desktop/nano banana references/people/known-people.json` and the image generator loads the photo automatically when the slide 1 prompt explicitly names the person and asks for a portrait. Skip the portrait only when the carousel is a generic concept (no specific person) like "content vs offers" or "fans spend $150 a month". **Slide 1 must also end with a "SWIPE for More ->" cue at the bottom. Do NOT put this in the slide-1 prompt (the model places it inconsistently and it overlaps the hook). It is stamped on after rendering as a mandatory post-step (see "Swipe Cue on Slide 1").**
 - **Middle slides -- ARGUMENT.** One concept per slide. Use math, comparisons, stick-figure mini-stories, crossed-out wrong answers, check marks for right answers. Build the case. Never cram two ideas onto one slide.
 - **Final slide -- TAKEAWAY.** The most shareable, quotable line of the whole set. One bold sentence. Underlined or boxed. Screenshot-able on its own.
 
@@ -154,7 +154,7 @@ PROMPT: "[the full prompt for the final slide]"
 
 ## Image Generation
 
-Write the generation script to `/home/merce/.openclaw/workspace-crwn/generate-carousel.mjs` and run with `bash -ic 'node generate-carousel.mjs'` (timeout 600000 for batches).
+Write the generation script to `/home/merce/workspace-crwn/generate-carousel.mjs` and run with `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-carousel.mjs'` (timeout 600000 for batches).
 
 The script must:
 1. Read the just-written `prompts.md` and parse out each slide prompt in order
@@ -178,7 +178,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const PROMPTS_FILE = "<ABSOLUTE PATH TO prompts.md>";
-const REF_DIR = "/mnt/c/Users/Merce/Desktop/nano banana references";
+const REF_DIR = "/mnt/c/Users/Josh/Desktop/nano banana references";
 const CRWN_LOGO = path.join(REF_DIR, "crwn-logo.png");
 
 const STYLE_INSTRUCTION = "Use the exact same visual style as these reference images: bold black sharpie marker handwriting on pure white paper, clean hand-drawn icons and stick figures, high contrast black on white, no gray tones, no background texture, no paper edges, no shadows. Match the lettering weight, spacing, and hand-drawn aesthetic exactly. CRITICAL: every single word on the page must be hand-drawn sharpie handwriting. Never render any text in a typeset/printed/digital font like Arial Black, Impact, or Helvetica Bold, no matter how large or bold the text is. Even the biggest headline words must look hand-written by a marker, with slightly imperfect strokes, not typed. IMPORTANT: The reference images convey drawing STYLE ONLY (line weight, lettering, hand-drawn icon look), not content. Do NOT copy any text, words, logos, crowns, brand marks, or taglines from the reference images. Never draw the word 'CRWN', a crown symbol or logo, or phrases like 'every dollar goes straight to the artist' or 'no middleman' unless the slide prompt explicitly asks for them. Draw ONLY the exact words and marks specified in the slide prompt, and nothing else. The output must be a perfect square 1:1 aspect ratio (or the override ratio specified in the prompt) with pure white #FFFFFF filling all negative space.";
@@ -270,15 +270,15 @@ main().catch(e => { console.error("FATAL:", e.message); process.exit(1); });
 
 Every carousel's **slide-01** must carry a hand-drawn sharpie "SWIPE for More ->" cue at the bottom. This is added AFTER the slides render, by compositing a pre-made asset onto the image, never by asking the model to draw it (the model places it inconsistently and it collides with the hook). The slide's artwork is preserved exactly: content is shifted up into the top region and the cue drops into a clean white band below it. This applies to 1:1 carousels; if a non-square ratio is used, skip the cue (the reflow math below assumes a square).
 
-The reusable tooling already exists in `/home/merce/.openclaw/workspace-crwn/`:
+The reusable tooling already exists in `/home/merce/workspace-crwn/`:
 
-- **Asset:** `/mnt/c/Users/Merce/Desktop/nano banana references/swipe-for-more.png` — the sharpie "SWIPE for More ->" text on white. If it is missing, regenerate it once with `bash -ic 'node gen-swipe-asset.mjs'` (one Nano Banana call, trimmed + normalised).
+- **Asset:** `/mnt/c/Users/Josh/Desktop/nano banana references/swipe-for-more.png` — the sharpie "SWIPE for More ->" text on white. If it is missing, regenerate it once with `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node gen-swipe-asset.mjs'` (one Nano Banana call, trimmed + normalised).
 - **Stamper:** `apply-swipe.mjs` — for each carousel folder it backs the original up to `slide-01.orig.png` (once), then composites the cue **from that backup** (idempotent and reversible). It detects the slide's content rows, reflows them into the top `1024 - 104` px, scales only if the content is full-height, and centers the cue in the bottom band.
 
 To stamp a single new carousel (the `/carousel` case), run it scoped to that folder:
 
 ```
-bash -ic 'ONLY_FOLDER=<topic-slug> node apply-swipe.mjs'
+bash -c 'source /home/merce/workspace-crwn/load-env.sh; ONLY_FOLDER=<topic-slug> node apply-swipe.mjs'
 ```
 
 To re-stamp every carousel at once (e.g. after changing the cue), run `apply-swipe.mjs` with no `ONLY_FOLDER`. Because it always composites from `slide-01.orig.png`, re-runs never double-stamp. To revert, copy each `slide-01.orig.png` back over `slide-01.png`.
@@ -293,8 +293,8 @@ To re-stamp every carousel at once (e.g. after changing the cue), run `apply-swi
 6. Write `prompts.md` in the exact output format above.
 7. Briefly tell the user what each slide says (one line each) so they can redirect before image generation kicks off.
 8. Write `generate-carousel.mjs` with the absolute path to `prompts.md` substituted in.
-9. Run `bash -ic 'node generate-carousel.mjs'` with timeout 600000.
-10. **Stamp the swipe cue on slide 1** (1:1 only): ensure `swipe-for-more.png` exists in the references folder (run `gen-swipe-asset.mjs` once if not), then `bash -ic 'ONLY_FOLDER=<topic-slug> node apply-swipe.mjs'`. See "Swipe Cue on Slide 1". Verify the result (read `slide-01.png`) before reporting.
+9. Run `bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-carousel.mjs'` with timeout 600000.
+10. **Stamp the swipe cue on slide 1** (1:1 only): ensure `swipe-for-more.png` exists in the references folder (run `gen-swipe-asset.mjs` once if not), then `bash -c 'source /home/merce/workspace-crwn/load-env.sh; ONLY_FOLDER=<topic-slug> node apply-swipe.mjs'`. See "Swipe Cue on Slide 1". Verify the result (read `slide-01.png`) before reporting.
 11. Report:
     - Topic folder path
     - Slide count succeeded / failed

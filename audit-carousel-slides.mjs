@@ -6,8 +6,8 @@ const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) { console.error("ERROR: GEMINI_API_KEY not set."); process.exit(1); }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const CAROUSEL_BASE = "/mnt/c/Users/Merce/Dropbox/nano banana output/Carousel Posts";
-const OUT_JSON = "/home/merce/.openclaw/workspace-crwn/carousel-audit-results.json";
+const CAROUSEL_BASE = "/mnt/c/Users/Josh/Dropbox/nano banana output/Carousel Posts";
+const OUT_JSON = "/home/merce/workspace-crwn/carousel-audit-results.json";
 const MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
 
 const QUESTION = `This image is a single hand-drawn black-sharpie-on-white-paper Instagram carousel slide about the music industry. Inspect the text and drawings carefully and answer ONLY with a compact JSON object (no markdown, no prose) with these boolean/string fields:

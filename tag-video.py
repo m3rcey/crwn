@@ -2,7 +2,7 @@
 """Bake YouTube SEO metadata into the MP4 copy."""
 from mutagen.mp4 import MP4, MP4FreeForm
 
-PATH = "/mnt/c/Users/Merce/Dropbox/CRWN/Why TikTok Artists Are Broke (50M Views = $400).mp4"
+PATH = "/mnt/c/Users/Josh/Dropbox/CRWN/Why TikTok Artists Are Broke (50M Views = $400).mp4"
 
 TITLE = "Why TikTok Artists Are Broke (50M Views = $400)"
 SUBTITLE = "TikTok is an attention casino — your music is the bait, not the product"
