@@ -147,7 +147,8 @@ export default function MissionDetailPage({ params }: { params: Promise<{ id: st
       const json = await res.json();
       if (json.deleted) {
         showToast('Mission deleted.', 'success');
-        router.push('/missions');
+        // REPLACE so the deleted mission's URL leaves history (no back-arrow loop).
+        router.replace('/missions');
         return;
       }
       if (json.archived) {
