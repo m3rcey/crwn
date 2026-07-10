@@ -18,7 +18,7 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
 
   // Fetch artist profile
   const { data: artist } = await supabase
-    .from('artist_profiles')
+    .from('artist_profiles_public')
     .select('*, profile:profiles(*)')
     .eq('slug', slug)
     .single();

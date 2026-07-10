@@ -47,8 +47,11 @@ export default function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       // Fetch featured artists
+      // artist_profiles_public: same rows, minus the Stripe ids. `select('*')` on
+      // the base table now fails (42501) because the audio/Stripe columns are
+      // withheld by column grant and PostgREST expands `*` in the database.
       const { data: artistsData, error } = await supabase
-        .from('artist_profiles')
+        .from('artist_profiles_public')
         .select('*, profile:profiles(*)')
         .limit(50);
 

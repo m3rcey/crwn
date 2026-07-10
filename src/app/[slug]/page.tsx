@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
   const supabase = await createServerSupabaseClient();
 
   const { data: artist } = await supabase
-    .from('artist_profiles')
+    .from('artist_profiles_public')
     .select('*, profile:profiles(*)')
     .eq('slug', slug)
     .single();
@@ -103,9 +103,11 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     isArtistProfile = artistProfile?.id !== undefined;
   }
 
-  // Fetch artist profile
+  // Fetch artist profile. artist_profiles_public: the base table no longer allows
+  // `select('*')` (the Stripe ids are withheld by column grant, and PostgREST
+  // expands `*` in the database).
   const { data: artist, error } = await supabase
-    .from('artist_profiles')
+    .from('artist_profiles_public')
     .select('*, profile:profiles(*)')
     .eq('slug', slug)
     .single();
