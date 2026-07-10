@@ -62,6 +62,26 @@ export async function resolveFanTier(
   return { tierId: sub.tier_id, tierRank: idx + 1, tierName: tiers[idx].name };
 }
 
+/**
+ * Are fan replies currently switched off in this conversation?
+ *
+ * True when the NEWEST message is an announce-only broadcast. The lock is a
+ * property of that message, not of the conversation, so the artist's next
+ * repliable message reopens the thread and history stays readable throughout.
+ * Only the artist can lock a thread: a fan's own message is never a broadcast.
+ */
+export async function repliesAreDisabled(supabaseAdmin: any, conversationId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin
+    .from('dm_messages')
+    .select('replies_disabled, sender_is_artist')
+    .eq('conversation_id', conversationId)
+    .eq('is_deleted', false)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return !!data?.sender_is_artist && !!data?.replies_disabled;
+}
+
 // Does a given tier have the direct_messaging benefit switched on?
 export async function tierHasMessaging(supabaseAdmin: any, tierId: string): Promise<boolean> {
   const { data } = await supabaseAdmin

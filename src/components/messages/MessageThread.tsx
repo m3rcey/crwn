@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Send, Loader2, ArrowLeft, BellOff, Bell, Crown } from 'lucide-react';
+import { Send, Loader2, ArrowLeft, BellOff, Bell, Crown, Megaphone, Lock } from 'lucide-react';
 import { VoiceRecorderButton } from './VoiceRecorderButton';
 
 interface DMMessage {
@@ -13,6 +13,8 @@ interface DMMessage {
   body: string;
   audio_url?: string | null;
   audio_duration_ms?: number | null;
+  is_broadcast?: boolean;
+  replies_disabled?: boolean;
   is_deleted: boolean;
   created_at: string;
 }
@@ -38,8 +40,15 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
   const [muted, setMuted] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!!conversationId);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Replies are off while the NEWEST message is an announce-only broadcast.
+  // Derived from `messages` (which realtime keeps current) rather than held in
+  // state, so the artist's next repliable message reopens the composer live.
+  const newest = messages.length > 0 ? messages[messages.length - 1] : null;
+  const repliesLocked = !viewerIsArtist && !!newest?.sender_is_artist && !!newest?.replies_disabled;
 
   // Initial load (also clears unread server-side). Skipped for pending threads.
   useEffect(() => {
@@ -92,6 +101,7 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
   // for a voice note (no typed body needed).
   const postMessage = async (extra: Record<string, unknown>) => {
     setSending(true);
+    setSendError(null);
     try {
       const target = conversationId ? { conversationId } : { artistId: pendingArtist?.id };
       const res = await fetch('/api/messages', {
@@ -99,8 +109,8 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...target, ...extra }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        const data = await res.json().catch(() => ({}));
         setInput('');
         // Optimistically show the just-sent message for pending threads
         // (realtime is only wired once a conversationId exists).
@@ -109,9 +119,19 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
           if (data.conversationId) onCreated?.(data.conversationId);
         }
         onActivity?.();
+      } else {
+        // A rejected send used to vanish silently, leaving the fan's text sitting
+        // in the box looking sent. Say what happened.
+        setSendError(
+          data.reason === 'replies_disabled'
+            ? 'Replies are off for this announcement.'
+            : data.error === 'Slow down'
+              ? 'You are sending too fast. Wait a moment.'
+              : 'Message not sent. Try again.'
+        );
       }
     } catch {
-      /* network */
+      setSendError('Message not sent. Check your connection.');
     } finally {
       setSending(false);
     }
@@ -183,6 +203,13 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
               <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm break-words ${
                 mine ? 'bg-crwn-gold text-black rounded-br-sm' : 'bg-crwn-elevated text-crwn-text rounded-bl-sm'
               }`}>
+                {m.is_broadcast && (
+                  <span className={`flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide mb-1 ${
+                    mine ? 'text-black/60' : 'text-crwn-gold'
+                  }`}>
+                    <Megaphone className="w-3 h-3" /> Announcement
+                  </span>
+                )}
                 {m.audio_url ? (
                   <span className="flex flex-col gap-1">
                     {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
@@ -202,31 +229,43 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
         })}
       </div>
 
-      {/* Composer */}
-      <div className="p-3 border-t border-crwn-elevated flex items-center gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
-          maxLength={2000}
-          placeholder="Type a message..."
-          className="neu-inset flex-1 px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none text-sm rounded-xl"
-        />
-        {/* Voice note: shown when there's nothing typed; sending swaps to text send. */}
-        {input.trim() ? (
-          <button
-            onClick={send}
-            disabled={sending}
-            className="neu-button-accent p-2 rounded-xl disabled:opacity-50"
-            aria-label="Send"
-          >
-            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </button>
-        ) : (
-          <VoiceRecorderButton onRecorded={sendVoice} disabled={sending} />
-        )}
-      </div>
+      {/* Composer — replaced by a notice while the artist has replies switched off. */}
+      {repliesLocked ? (
+        <div className="p-3 border-t border-crwn-elevated flex items-center justify-center gap-2 text-crwn-text-dim text-xs">
+          <Lock className="w-3.5 h-3.5 flex-shrink-0" />
+          Replies are off for this announcement.
+        </div>
+      ) : (
+        <div className="border-t border-crwn-elevated">
+          {sendError && (
+            <p className="px-3 pt-2 text-xs text-crwn-error">{sendError}</p>
+          )}
+          <div className="p-3 flex items-center gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') send(); }}
+              maxLength={2000}
+              placeholder="Type a message..."
+              className="neu-inset flex-1 px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none text-sm rounded-xl"
+            />
+            {/* Voice note: shown when there's nothing typed; sending swaps to text send. */}
+            {input.trim() ? (
+              <button
+                onClick={send}
+                disabled={sending}
+                className="neu-button-accent p-2 rounded-xl disabled:opacity-50"
+                aria-label="Send"
+              >
+                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </button>
+            ) : (
+              <VoiceRecorderButton onRecorded={sendVoice} disabled={sending} />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

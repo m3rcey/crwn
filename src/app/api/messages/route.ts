@@ -9,6 +9,7 @@ import {
   resolveFanTier,
   messagingEnabledTierIds,
   artistAllowsDMs,
+  repliesAreDisabled,
 } from '@/lib/messaging';
 
 const supabaseAdmin = createClient(
@@ -200,6 +201,12 @@ export async function POST(req: NextRequest) {
   if (!senderIsArtist) {
     const gate = await fanCanMessage(supabaseAdmin, resolvedArtistId, user.id);
     if (!gate.ok) return NextResponse.json({ error: 'locked', reason: gate.reason }, { status: 403 });
+    // The artist's newest message may be an announce-only broadcast. The fan's
+    // composer is disabled for it, but the disabled composer is a courtesy —
+    // this is the gate.
+    if (convo && await repliesAreDisabled(supabaseAdmin, convo.id)) {
+      return NextResponse.json({ error: 'locked', reason: 'replies_disabled' }, { status: 403 });
+    }
     tierRank = gate.tierRank;
     tierName = gate.tierName;
   } else if (!(await artistAllowsDMs(supabaseAdmin, resolvedArtistId))) {

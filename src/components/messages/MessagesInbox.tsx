@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { MessageThread } from './MessageThread';
-import { MessageSquare, Megaphone, Crown, X, Loader2, Send } from 'lucide-react';
+import { MessageSquare, Megaphone, Crown, X, Loader2, Send, Check } from 'lucide-react';
 
 interface ConvSummary {
   id: string;
@@ -113,7 +113,7 @@ export function MessagesInbox({ currentUserId, initialArtistSlug }: MessagesInbo
             <button
               onClick={() => setShowBroadcast(true)}
               className="flex items-center gap-1 text-xs text-crwn-gold hover:underline"
-              title="Send a message to all your subscribers"
+              title="Send one message to a group of fans"
             >
               <Megaphone className="w-3.5 h-3.5" /> Broadcast
             </button>
@@ -211,6 +211,24 @@ export function MessagesInbox({ currentUserId, initialArtistSlug }: MessagesInbo
   );
 }
 
+interface SavedSegment {
+  id: string;
+  name: string;
+  fan_count: number;
+}
+
+type AudienceKind = 'subscribers' | 'segment' | 'lifecycle';
+
+// Lifecycle bands, worded as the artist thinks about them. Values must match
+// the FanLifecycle union in src/lib/audience.ts.
+const LIFECYCLE_OPTIONS: { value: string; label: string; hint: string }[] = [
+  { value: 'vip', label: 'VIPs', hint: 'Top spenders and most engaged' },
+  { value: 'active', label: 'Active', hint: 'Subscribers active recently' },
+  { value: 'at_risk', label: 'At risk', hint: 'Subscribers gone quiet 7+ days' },
+  { value: 'churned', label: 'Churned', hint: 'Canceled. Good for win-backs' },
+  { value: 'cold', label: 'Cold', hint: 'Bought before, never subscribed' },
+];
+
 function BroadcastModal({ artistId, tiers, onClose, onSent }: {
   artistId: string;
   tiers: { id: string; name: string }[];
@@ -218,27 +236,68 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
   onSent: () => void;
 }) {
   const [body, setBody] = useState('');
+  const [kind, setKind] = useState<AudienceKind>('subscribers');
   const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
+  const [segments, setSegments] = useState<SavedSegment[]>([]);
+  const [segmentId, setSegmentId] = useState<string>('');
+  const [lifecycle, setLifecycle] = useState<string>('at_risk');
+  const [allowReplies, setAllowReplies] = useState(false);
+  const [count, setCount] = useState<number | null>(null);
+  const [countLoading, setCountLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
   const toggleTier = (id: string) =>
     setSelectedTiers((prev) => prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]);
 
+  // Saved segments come from the Fan CRM, so a broadcast reaches exactly the
+  // people that segment describes.
+  useEffect(() => {
+    fetch('/api/segments')
+      .then((r) => r.json())
+      .then((d) => setSegments(d.segments || []))
+      .catch(() => {});
+  }, []);
+
+  const audience = useMemo(() => {
+    if (kind === 'segment') return segmentId ? { type: 'segment' as const, segmentId } : null;
+    if (kind === 'lifecycle') return { type: 'lifecycle' as const, value: lifecycle };
+    return { type: 'subscribers' as const, tierIds: selectedTiers };
+  }, [kind, segmentId, lifecycle, selectedTiers]);
+
+  // Recipient count preview. Sending blind is how an artist messages nobody, or everybody.
+  useEffect(() => {
+    if (!audience) { setCount(null); return; }
+    let cancelled = false;
+    setCountLoading(true);
+    const params = new URLSearchParams({ artistId, type: audience.type });
+    if (audience.type === 'segment') params.set('segmentId', audience.segmentId);
+    if (audience.type === 'lifecycle') params.set('lifecycle', audience.value);
+    if (audience.type === 'subscribers' && audience.tierIds.length > 0) {
+      params.set('tierIds', audience.tierIds.join(','));
+    }
+    fetch(`/api/messages/broadcast?${params}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setCount(typeof d.count === 'number' ? d.count : null); })
+      .catch(() => { if (!cancelled) setCount(null); })
+      .finally(() => { if (!cancelled) setCountLoading(false); });
+    return () => { cancelled = true; };
+  }, [artistId, audience]);
+
   const send = async () => {
     const text = body.trim();
-    if (!text || sending) return;
+    if (!text || sending || !audience || count === 0) return;
     setSending(true);
     setResult(null);
     try {
       const res = await fetch('/api/messages/broadcast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artistId, body: text, tierIds: selectedTiers }),
+        body: JSON.stringify({ artistId, body: text, audience, allowReplies }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setResult(`Sent to ${data.sent} subscriber${data.sent === 1 ? '' : 's'}.`);
+        setResult(`Sent to ${data.sent} fan${data.sent === 1 ? '' : 's'}.`);
         setTimeout(onSent, 1200);
       } else {
         setResult(data.error || 'Failed to send.');
@@ -250,15 +309,25 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
     }
   };
 
+  const tabClass = (k: AudienceKind) =>
+    `text-xs px-3 py-1.5 rounded-full border transition-colors ${
+      kind === k
+        ? 'bg-crwn-gold text-black border-crwn-gold font-medium'
+        : 'border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text'
+    }`;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="neu-modal bg-crwn-card border border-crwn-elevated rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="neu-modal bg-crwn-card border border-crwn-elevated rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-crwn-text flex items-center gap-2"><Megaphone className="w-4 h-4 text-crwn-gold" /> Broadcast</h3>
           <button onClick={onClose} className="text-crwn-text-secondary hover:text-crwn-text"><X className="w-5 h-5" /></button>
         </div>
         <p className="text-xs text-crwn-text-dim mb-3">
-          Sends one message to every active subscriber. It lands in each fan&apos;s DMs with you.
+          Sends one message to the fans you pick. It lands in each fan&apos;s DMs with you.
         </p>
         <textarea
           value={body}
@@ -266,11 +335,22 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
           maxLength={2000}
           rows={4}
           placeholder="Write your announcement..."
-          className="neu-inset w-full px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none text-sm rounded-xl mb-3"
+          className="neu-inset w-full px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none text-sm rounded-xl mb-4"
         />
-        {tiers.length > 0 && (
-          <div className="mb-4">
-            <p className="text-xs text-crwn-text-secondary mb-2">Send to (leave empty for all tiers):</p>
+
+        {/* Audience */}
+        <p className="text-xs text-crwn-text-secondary mb-2">Send to:</p>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <button onClick={() => setKind('subscribers')} className={tabClass('subscribers')}>Subscribers</button>
+          <button onClick={() => setKind('lifecycle')} className={tabClass('lifecycle')}>Fan segment</button>
+          {segments.length > 0 && (
+            <button onClick={() => setKind('segment')} className={tabClass('segment')}>Saved segment</button>
+          )}
+        </div>
+
+        {kind === 'subscribers' && tiers.length > 0 && (
+          <div className="mb-3">
+            <p className="text-xs text-crwn-text-dim mb-2">Pick tiers, or leave empty for all of them.</p>
             <div className="flex flex-wrap gap-2">
               {tiers.map((t) => (
                 <button
@@ -288,10 +368,75 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
             </div>
           </div>
         )}
+
+        {kind === 'lifecycle' && (
+          <div className="mb-3 space-y-1">
+            {LIFECYCLE_OPTIONS.map((o) => (
+              <button
+                key={o.value}
+                onClick={() => setLifecycle(o.value)}
+                className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                  lifecycle === o.value ? 'border-crwn-gold bg-crwn-elevated/60' : 'border-crwn-elevated hover:bg-crwn-elevated/40'
+                }`}
+              >
+                <p className="text-sm text-crwn-text">{o.label}</p>
+                <p className="text-[11px] text-crwn-text-dim">{o.hint}</p>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {kind === 'segment' && (
+          <div className="mb-3 space-y-1">
+            {segments.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setSegmentId(s.id)}
+                className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                  segmentId === s.id ? 'border-crwn-gold bg-crwn-elevated/60' : 'border-crwn-elevated hover:bg-crwn-elevated/40'
+                }`}
+              >
+                <p className="text-sm text-crwn-text">{s.name}</p>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Reply control */}
+        <button
+          onClick={() => setAllowReplies((v) => !v)}
+          className="w-full flex items-start gap-2 text-left mb-3 px-3 py-2 rounded-lg border border-crwn-elevated hover:bg-crwn-elevated/40 transition-colors"
+        >
+          <span className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 border flex items-center justify-center ${
+            allowReplies ? 'bg-crwn-gold border-crwn-gold' : 'border-crwn-text-secondary'
+          }`}>
+            {allowReplies && <Check className="w-3 h-3 text-black" />}
+          </span>
+          <span>
+            <span className="block text-sm text-crwn-text">Let fans reply</span>
+            <span className="block text-[11px] text-crwn-text-dim">
+              {allowReplies
+                ? 'Fans can write back in their thread with you.'
+                : 'Announce only. Fans read it but cannot reply until you message them again.'}
+            </span>
+          </span>
+        </button>
+
+        {/* Recipient count */}
+        <p className="text-xs text-crwn-text-dim mb-3 min-h-[1rem]">
+          {countLoading
+            ? 'Counting recipients...'
+            : count === null
+              ? 'Pick an audience to see who receives this.'
+              : count === 0
+                ? 'No fans match this audience.'
+                : `Goes to ${count} fan${count === 1 ? '' : 's'}.`}
+        </p>
+
         {result && <p className="text-sm text-crwn-gold mb-3">{result}</p>}
         <button
           onClick={send}
-          disabled={!body.trim() || sending}
+          disabled={!body.trim() || sending || !audience || count === 0}
           className="neu-button-accent w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
