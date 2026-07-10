@@ -14,24 +14,34 @@ interface StudioCard {
   image?: string;
   /** Emoji tile fallback for newer tools that don't have a product photo yet. */
   emoji?: string;
+  /**
+   * Optional hue shift (degrees) applied to the gold product photo so a tool
+   * can wear its category color without regenerating the art. Gold sits at ~46°:
+   * 90 ≈ green, 170 ≈ blue, 255 ≈ magenta, 310 ≈ red. Omit to leave it gold.
+   */
+  hueRotate?: number;
 }
 
+// Tile color encodes the tool's category so the grid is scannable by cluster:
+//   green (growth/reach) · blue (strategy/planning) · magenta (fans/community)
+//   · red (live/content) · gold/unshifted (money/value, the brand anchor).
+// hueRotate shifts the gold product photo to that family (gold ≈ 46°).
 const STUDIO_CARDS: StudioCard[] = [
-  { href: '/campaigns',            title: 'Road To',            image: '/studio_campaigns.jpg' },
-  { href: '/playbooks',            title: 'Playbooks',          image: '/studio_playbooks.jpg' },
+  { href: '/campaigns',            title: 'Road To',            image: '/studio_campaigns.jpg', hueRotate: 90 },
+  { href: '/playbooks',            title: 'Playbooks',          image: '/studio_playbooks.jpg', hueRotate: 170 },
   { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
-  { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg' },
-  { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg' },
-  { href: '/squads',               title: 'Fan Squads',         image: '/studio_squads.jpg' },
-  { href: '/bounties',             title: 'Clip Bounties',      image: '/studio_bounties.jpg' },
-  { href: '/city-unlocks',         title: 'City Unlocks',       image: '/studio_cityunlocks.jpg' },
-  { href: '/profile/artist?tab=audience', title: 'Fan CRM',     image: '/studio_crm.jpg' },
+  { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg', hueRotate: 90 },
+  { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg', hueRotate: 255 },
+  { href: '/squads',               title: 'Fan Squads',         image: '/studio_squads.jpg', hueRotate: 255 },
+  { href: '/bounties',             title: 'Clip Bounties',      image: '/studio_bounties.jpg', hueRotate: 310 },
+  { href: '/city-unlocks',         title: 'City Unlocks',       image: '/studio_cityunlocks.jpg', hueRotate: 90 },
+  { href: '/profile/artist?tab=audience', title: 'Fan CRM',     image: '/studio_crm.jpg', hueRotate: 255 },
   { href: '/profile/artist?tab=team',     title: 'Team Splits', image: '/studio_team.jpg' },
-  { href: '/profile/artist?tab=promise',  title: 'Promise Calendar', image: '/studio_promise.jpg' },
-  { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg' },
-  { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg' },
-  { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg' },
-  { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg' },
+  { href: '/profile/artist?tab=promise',  title: 'Promise Calendar', image: '/studio_promise.jpg', hueRotate: 170 },
+  { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg', hueRotate: 255 },
+  { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg', hueRotate: 310 },
+  { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg', hueRotate: 170 },
+  { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg', hueRotate: 90 },
 ];
 
 // Studio is a hub artists bounce in and out of all day. Without a cache the
@@ -138,6 +148,7 @@ export default function StudioPage() {
                   fill
                   sizes="(max-width: 768px) 50vw, 200px"
                   className="object-cover opacity-0 transition-opacity duration-500"
+                  style={card.hueRotate ? { filter: `hue-rotate(${card.hueRotate}deg)` } : undefined}
                   onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
                 />
               ) : (
