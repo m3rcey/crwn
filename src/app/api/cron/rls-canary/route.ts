@@ -29,6 +29,17 @@ type Check = { name: string; ok: boolean; detail: string };
  * Deliberately does NOT use supabase-js: the client normalises errors, and here the
  * HTTP status IS the assertion.
  */
+/**
+ * Fetch a URL as a bare, credential-less stranger would.
+ *
+ * `Range: bytes=0-0` keeps a 41MB master from being pulled into a 30s cron just
+ * to learn its status code. A denial answers with a small JSON body regardless.
+ */
+async function fetchAnonymously(url: string): Promise<{ status: number; contentType: string }> {
+  const res = await fetch(url, { headers: { Range: 'bytes=0-0' }, cache: 'no-store' });
+  return { status: res.status, contentType: res.headers.get('content-type') || '' };
+}
+
 async function rest(path: string): Promise<{ status: number; body: string }> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` },
@@ -222,6 +233,90 @@ export async function GET(req: NextRequest) {
             ? 'LEAK: anon read true for a paid track by spoofing p_user (the owner)'
             : `answers only for the caller (http ${status}, body ${body.slice(0, 12)})`,
         });
+      }
+    }
+    // ── 9. The `audio` Storage bucket must stay PRIVATE ──────────────────────
+    // Column redaction stopped enumeration but revoked nothing: while the bucket
+    // was public, any url scraped beforehand resolved forever, to anyone. Only a
+    // private bucket expires a url that already escaped.
+    //
+    // Anon cannot read a PAID track's url (that is check 1, and the point). It can
+    // read a FREE one's, and `public` is a property of the BUCKET, not the object --
+    // so a free track's raw url resolving proves the bucket is open, which means the
+    // paid masters are downloadable too. The readable row probes for the unreadable one.
+    //
+    // Plain GET on purpose. That is the attacker's request, so it is the one worth
+    // asserting. (Right after a flip, Cloudflare may still serve a copy it cached
+    // while the bucket was public -- `Cache-Control: public, max-age=3600`. The
+    // origin cannot refill it, so it drains inside the hour, long before this
+    // daily cron next runs.)
+    {
+      const { status, body } = await rest(
+        'tracks_public?select=audio_url_128&is_free=eq.true&audio_url_128=not.is.null&limit=1'
+      );
+      const raw = status === 200 ? (JSON.parse(body) as { audio_url_128: string }[])[0]?.audio_url_128 : null;
+      if (!raw || !raw.includes('/storage/v1/object/public/audio/')) {
+        checks.push({
+          name: 'audio_bucket_private',
+          ok: true,
+          detail: 'no free track with a public-format locator to probe (vacuous)',
+        });
+      } else {
+        const { status: rawStatus, contentType } = await fetchAnonymously(raw);
+        const denied = rawStatus >= 400 && rawStatus < 500;
+        checks.push({
+          name: 'audio_bucket_private',
+          ok: denied,
+          detail: denied
+            ? `raw object url refused (${rawStatus})`
+            : `LEAK: the audio bucket is PUBLIC again — raw url served http ${rawStatus} (${contentType}). Every paid master is downloadable by anyone holding its url.`,
+        });
+      }
+    }
+
+    // ── 10. The signer gates on entitlement, and still serves the entitled ────
+    // /api/tracks/[id]/stream reads tracks_public as its caller, so a NULL url is
+    // the 403. With the bucket private this route IS playback: if it stops signing,
+    // the player goes silent everywhere; if it stops refusing, the flip bought
+    // nothing. Both directions are asserted, unauthenticated, against this very
+    // deployment.
+    {
+      const paid = await rest('tracks_public?select=id&is_free=eq.false&limit=1');
+      const paidId = paid.status === 200 ? (JSON.parse(paid.body) as { id: string }[])[0]?.id : null;
+      if (!paidId) {
+        checks.push({ name: 'stream_route_denies_paid', ok: true, detail: 'no paid track to probe (vacuous)' });
+      } else {
+        const { status } = await fetchAnonymously(`${req.nextUrl.origin}/api/tracks/${paidId}/stream`);
+        const denied = status === 403;
+        checks.push({
+          name: 'stream_route_denies_paid',
+          ok: denied,
+          detail: denied ? 'paid track refused to anon (403)' : `LEAK: the stream route signed a paid track for anon, http ${status}`,
+        });
+      }
+    }
+
+    {
+      const free = await rest('tracks_public?select=id&is_free=eq.true&limit=1');
+      const freeId = free.status === 200 ? (JSON.parse(free.body) as { id: string }[])[0]?.id : null;
+      if (!freeId) {
+        checks.push({ name: 'stream_route_signs_free', ok: true, detail: 'no free track to probe (vacuous)' });
+      } else {
+        const res = await fetch(`${req.nextUrl.origin}/api/tracks/${freeId}/stream`, { cache: 'no-store' });
+        let ok = false;
+        let detail = `BROKEN: stream route returned http ${res.status}`;
+        if (res.status === 200) {
+          const { url } = (await res.json()) as { url?: string };
+          if (url?.includes('/object/sign/audio/')) {
+            // Signed, but does the signature actually open the door?
+            const { status } = await fetchAnonymously(url);
+            ok = status === 200 || status === 206;
+            detail = ok ? `free track signed and streams (${status})` : `BROKEN: signed url did not resolve, http ${status}`;
+          } else {
+            detail = 'BROKEN: stream route returned no /object/sign/ url — the player is silent';
+          }
+        }
+        checks.push({ name: 'stream_route_signs_free', ok, detail });
       }
     }
   } catch (e) {
