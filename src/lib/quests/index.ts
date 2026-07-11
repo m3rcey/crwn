@@ -230,8 +230,16 @@ export async function getQuests(
     let q = admin.from('quest_instances').select('*').eq('user_id', opts.userId);
     if (opts.role) q = q.eq('role', opts.role);
     if (opts.statuses?.length) q = q.in('status', opts.statuses);
-    q = q.order('priority_score', { ascending: false }).order('sort_order', { ascending: true });
-    const { data } = await q;
+    // NOTE: order ONLY by columns that exist on quest_instances. `sort_order` lives
+    // on quest_templates, NOT instances — ordering by it made PostgREST error and
+    // this function silently return [], so NO quest ever completed and the board
+    // was always empty. created_at is the safe secondary sort.
+    q = q.order('priority_score', { ascending: false }).order('created_at', { ascending: true });
+    const { data, error } = await q;
+    if (error) {
+      console.error('[quests] getQuests query error:', error.message);
+      return [];
+    }
     return (data ?? []) as QuestInstance[];
   } catch (err) {
     console.error('[quests] getQuests failed:', err);
