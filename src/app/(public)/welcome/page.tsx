@@ -4,6 +4,19 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
+import { isReservedSlug } from '@/lib/reservedSlugs';
+
+// The CRWN link handle: lowercase letters, numbers and hyphens only, collapsed,
+// no leading/trailing hyphen, capped at 30 chars. Used both to auto-fill the
+// handle from the artist's name and to sanitize what they type.
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 30)
+    .replace(/-+$/g, '');
+}
 
 export default function WelcomePage() {
   const { user, profile } = useAuth();
@@ -11,6 +24,10 @@ export default function WelcomePage() {
   const supabase = createBrowserSupabaseClient();
 
   const [displayName, setDisplayName] = useState('');
+  const [handle, setHandle] = useState('');
+  // Once the artist edits the handle by hand, stop auto-syncing it from the name.
+  const [handleEdited, setHandleEdited] = useState(false);
+  const [slugError, setSlugError] = useState<string | null>(null);
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<'fan' | 'artist'>('artist');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,14 +57,43 @@ export default function WelcomePage() {
       return;
     }
     setDisplayName(profile.display_name || '');
+    setHandle(slugify(profile.display_name || ''));
     setHasCheckedProfile(true);
   }, [profile, router]);
+
+  // Keep the handle in sync with the name until the artist customizes it.
+  const onNameChange = (value: string) => {
+    setDisplayName(value);
+    if (!handleEdited) setHandle(slugify(value));
+  };
+
+  const onHandleChange = (value: string) => {
+    setHandleEdited(true);
+    setSlugError(null);
+    setHandle(slugify(value));
+  };
 
   const handleSubmit = async () => {
     // Phone is optional — a name is all we need to spin up the page/slug. Requiring
     // a phone here was pure friction (and silently disabled the button when empty,
     // which read as "nothing happens"). Collect it later if we want it.
     if (!user || !displayName.trim()) return;
+
+    // For artists, the handle becomes their permanent public link, so validate it
+    // up front instead of silently deriving a bad slug from a legal name.
+    const slug = role === 'artist' ? slugify(handle || displayName) : '';
+    if (role === 'artist') {
+      if (!slug) {
+        setSlugError('Pick a link with at least one letter or number.');
+        return;
+      }
+      if (isReservedSlug(slug)) {
+        setSlugError('That link is reserved. Please choose another.');
+        return;
+      }
+    }
+
+    setSlugError(null);
     setIsSubmitting(true);
 
     try {
@@ -101,9 +147,8 @@ export default function WelcomePage() {
             acquisitionSource = recruiter?.is_partner ? 'partner' : 'recruiter';
           }
 
-          // Create artist profile with slug from display name
-          const slug = displayName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 30);
-          const { data: newArtist } = await supabase
+          // Create artist profile with the handle the artist chose above.
+          const { data: newArtist, error: insertError } = await supabase
             .from('artist_profiles')
             .insert({
               user_id: user.id,
@@ -113,6 +158,18 @@ export default function WelcomePage() {
             })
             .select('id')
             .single();
+
+          if (insertError) {
+            // 23505 = unique_violation: the handle is already taken. Let them pick
+            // another instead of dropping them into setup with no artist row.
+            setSlugError(
+              insertError.code === '23505'
+                ? 'That link is already taken. Please choose another.'
+                : 'Something went wrong creating your page. Please try again.'
+            );
+            setIsSubmitting(false);
+            return;
+          }
 
           // Seed default email sequences (fire-and-forget)
           if (newArtist) {
@@ -173,16 +230,47 @@ export default function WelcomePage() {
           {/* Display Name */}
           <div className="mb-5">
             <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-              What should we call you?
+              {role === 'artist' ? 'Your artist name' : 'What should we call you?'}
             </label>
             <input
               type="text"
               value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your name or artist name"
+              onChange={(e) => onNameChange(e.target.value)}
+              placeholder={role === 'artist' ? 'Your artist or stage name' : 'Your name'}
               className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold transition-colors"
             />
           </div>
+
+          {/* CRWN link (artists only) — this becomes their permanent public URL,
+              so let them see and edit it here instead of silently using their name. */}
+          {role === 'artist' && (
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
+                Your CRWN link
+              </label>
+              <div className="flex items-stretch rounded-xl border border-crwn-elevated bg-crwn-surface focus-within:border-crwn-gold transition-colors overflow-hidden">
+                <span className="flex items-center pl-4 pr-1 text-sm text-crwn-text-secondary/70 select-none whitespace-nowrap">
+                  thecrwn.app/
+                </span>
+                <input
+                  type="text"
+                  value={handle}
+                  onChange={(e) => onHandleChange(e.target.value)}
+                  placeholder="yourname"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  className="flex-1 min-w-0 py-3 pr-4 bg-transparent text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none"
+                />
+              </div>
+              {slugError && (
+                <p className="mt-2 text-sm text-crwn-error">{slugError}</p>
+              )}
+              <p className="mt-2 text-xs text-crwn-text-secondary/70">
+                This is the link you share. You can change it later in your profile.
+              </p>
+            </div>
+          )}
 
           {/* Phone */}
           <div className="mb-5">

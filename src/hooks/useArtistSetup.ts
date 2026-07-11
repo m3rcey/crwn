@@ -149,9 +149,17 @@ export function useArtistSetup(): ArtistSetupState {
 
   const markComplete = useCallback(async () => {
     if (!user) return;
-    await supabase.from('artist_profiles').update({ setup_completed: true }).eq('user_id', user.id);
+    // Persist via the service-role route, not a client update. This is the only
+    // artist_profiles write in the wizard and it gates the whole app; a silent
+    // client-side failure here left artists in a black-screen bounce back to
+    // /setup. Throw on failure so the caller shows a retryable error instead of
+    // navigating into that loop.
+    const res = await fetch('/api/artist/complete-setup', { method: 'POST' });
+    if (!res.ok) {
+      throw new Error('Failed to complete setup');
+    }
     setSetupCompleted(true);
-  }, [user, supabase]);
+  }, [user]);
 
   const steps: SetupStep[] = [
     { key: 'profile', label: 'Profile', required: true, done: hasAvatar },
