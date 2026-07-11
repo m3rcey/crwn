@@ -38,8 +38,17 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.searchParams.delete('code');
     if (error) {
-      // If exchange fails, redirect to login
-      return NextResponse.redirect(new URL('/login', request.url));
+      // Exchange fails whenever the link is opened in a different browser/webview
+      // than signup (e.g. Gmail's in-app browser) — there's no PKCE code-verifier
+      // cookie to exchange. The email is still verified (Supabase confirms it
+      // before redirecting here); we just can't establish a session in THIS
+      // browser. Send them to login WITH the verified banner (not a blank login
+      // page) so they know it worked and can sign in. Password-reset links land
+      // on /reset-password, so only the signup-verification path (/verify) gets
+      // the banner.
+      const isVerification = request.nextUrl.pathname.startsWith('/verify');
+      const dest = isVerification ? '/login?verified=true' : '/login';
+      return NextResponse.redirect(new URL(dest, request.url));
     }
     // supabaseResponse already has the cookies set by exchangeCodeForSession
     // Just update it to redirect instead of passing through

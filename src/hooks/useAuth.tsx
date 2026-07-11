@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/login?verified=true`,
+        emailRedirectTo: `${window.location.origin}/verify`,
         data: {
           display_name: fullName || '',
         },
