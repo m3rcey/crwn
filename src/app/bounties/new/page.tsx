@@ -64,6 +64,24 @@ export default function NewBountyPage() {
     check();
   }, [authLoading, user, router, check]);
 
+  // Prefill from a Lead Magnet result (Clip-to-Earn Campaign Planner). One-time seed;
+  // the artist reviews and clicks Launch (POST /api/bounties owns validation + payout logic).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('lm_prefill') !== '1') return;
+    const bt = q.get('lm_bounty_type');
+    const validBt = ['first_convert', 'most_subscribers', 'most_revenue', 'most_clicks', 'artist_pick', 'best_retention', 'city', 'fastest', 'top3_split', 'custom'];
+    if (bt && validBt.includes(bt)) setBountyType(bt as BountyType);
+    if (q.get('lm_title')) setTitle(q.get('lm_title')!.slice(0, 120));
+    const reward = q.get('lm_reward_type');
+    const validRewards = ['points', 'badge', 'access', 'commission_boost', 'custom'];
+    if (reward && validRewards.includes(reward)) setRewardType(reward as BountyRewardType);
+    if (q.get('lm_reward_detail')) setRewardDetail(q.get('lm_reward_detail')!.slice(0, 200));
+    const elig = q.get('lm_eligibility');
+    if (elig === 'all' || elig === 'clippers' || elig === 'subscribers') setEligibility(elig as BountyEligibility);
+    if (q.get('lm_approval') === '0') setApprovalRequired(false);
+  }, []);
+
   const applyType = (t: BountyType) => {
     setBountyType(t);
     if (!title) setTitle(BOUNTY_TYPE_MAP[t].label);

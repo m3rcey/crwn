@@ -206,6 +206,26 @@ function MissionBuilder() {
     loadArtist();
   }, [authLoading, user, router, loadArtist]);
 
+  // Prefill from a Lead Magnet result (Fan Mission Generator). One-time seed of the
+  // draft; the artist reviews and clicks Publish (builder validation is untouched).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('lm_prefill') !== '1') return;
+    const type = q.get('lm_type');
+    const validTypes = ['share', 'clip', 'referral', 'subscribe', 'rsvp', 'vote', 'live', 'city', 'comment', 'presave', 'custom'];
+    if (type && validTypes.includes(type)) setMissionType(type as MissionType);
+    if (q.get('lm_title')) setTitle(q.get('lm_title')!.slice(0, 120));
+    if (q.get('lm_description')) setDescription(q.get('lm_description')!.slice(0, 600));
+    if (q.get('lm_goal')) setGoalCount(String(Math.max(1, parseInt(q.get('lm_goal')!, 10) || 100)));
+    const reward = q.get('lm_reward_type');
+    const validRewards = ['points', 'badge', 'credits', 'access', 'commission', 'custom'];
+    if (reward && validRewards.includes(reward)) setRewardType(reward as MissionRewardType);
+    if (q.get('lm_reward_detail')) setRewardDetail(q.get('lm_reward_detail')!.slice(0, 200));
+    if (q.get('lm_cta')) setCta(q.get('lm_cta')!.slice(0, 30));
+    const aud = q.get('lm_audience');
+    if (aud === 'all' || aud === 'subscribers' || aud === 'free') setAudience(aud as MissionAudience);
+  }, []);
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

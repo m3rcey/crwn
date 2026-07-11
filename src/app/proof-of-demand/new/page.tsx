@@ -135,6 +135,24 @@ function DemandTestBuilder() {
     loadArtist();
   }, [authLoading, user, router, loadArtist]);
 
+  // Prefill from a Lead Magnet result (Proof of Demand Test Builder). One-time seed
+  // of the draft; the artist still reviews and clicks Publish (validation intact).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('lm_prefill') !== '1') return;
+    if (q.get('lm_title')) setTitle(q.get('lm_title')!.slice(0, 120));
+    if (q.get('lm_description')) setDescription(q.get('lm_description')!.slice(0, 600));
+    const sig = q.get('lm_signal');
+    if (sig === 'rsvp' || sig === 'vote' || sig === 'waitlist') setSignalType(sig);
+    if (q.get('lm_goal')) setGoalCount(String(Math.max(1, parseInt(q.get('lm_goal')!, 10) || 50)));
+    const cents = q.get('lm_price_cents');
+    if (cents && Number.isFinite(Number(cents)) && Number(cents) > 0) {
+      setPriceOn(true);
+      setPrice(String(Math.round(Number(cents) / 100)));
+    }
+    if (q.get('lm_unlock')) setUnlockMessage(q.get('lm_unlock')!.slice(0, 200));
+  }, []);
+
   if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
