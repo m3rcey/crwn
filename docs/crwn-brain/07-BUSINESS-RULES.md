@@ -75,6 +75,10 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 
 ## 12. Onboarding & role rules
 - Signup → `/welcome` (name/phone/role, creates `artist_profiles`) → `/setup` wizard (9 one-field screens; photo + one track mandatory; Monetize/Shop skippable). `Confirmed`.
+- **Editable CRWN link at `/welcome`:** artists set their public handle via an editable `thecrwn.app/[handle]` field, auto-filled from the name via `slugify` until edited, validated against reserved handles (`isReservedSlug`) and Postgres 23505 unique collisions (inline error). The slug is created from the chosen handle, not the prefilled legal display name (which previously produced `thecrwn.app/fulllegalname`). `Confirmed`.
+- **`setup_completed` is persisted via the service-role `POST /api/artist/complete-setup` route** (admin client, explicit `getUser` auth, confirms a row matched); `useArtistSetup.markComplete()` calls it and throws on failure. The prior silent client `.update()` could fail and bounce the artist from the dashboard back into `/setup` (a black-screen loop). `Confirmed`.
+- **Email verification lands on `/verify`** (signup `emailRedirectTo`), a success screen that forwards by onboarding state; middleware preserves `?verified=true` on PKCE failure for the cross-browser/webview case. `Confirmed`.
+- **Deactivation hides publicly:** `profiles.is_active=false` is read at `[slug]` (`notFound()`) and filtered from home discovery (app-layer, not RLS); reactivates on next login via `useAuth` calling `/api/account/reactivate`. `Confirmed`.
 - **Role promotion is server-side only** — publishing an artist page fires `trg_promote_to_artist` (fan→artist). A client `profiles.update({role})` is RLS-rejected silently. Never add one. `Confirmed`.
 - "Is an artist" is derived from the **`artist_profiles` row existing**, not `profile.role` (context lags a token refresh). `Confirmed`.
 - Setup completion is **DB-derived** (`hasTier`/`hasMusic`/`hasProduct` from live queries), not stored per-step; the only stored flag is `artist_profiles.setup_completed`. `Confirmed`.

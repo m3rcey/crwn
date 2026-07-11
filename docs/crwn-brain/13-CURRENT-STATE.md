@@ -1,6 +1,6 @@
 # 13 — Current State
 
-> A realistic state-of-the-product report at commit `614b958` (branch `master`). Certainty labels used. This is deliberately candid about incompleteness — do not read "a component exists" as "the feature works."
+> A realistic state-of-the-product report at commit `38186b1` (branch `master`). Certainty labels used. This is deliberately candid about incompleteness — do not read "a component exists" as "the feature works."
 
 ## Snapshot
 
@@ -8,7 +8,7 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Complete & production-ready (Confirmed)
 
-- **Auth + onboarding + setup wizard** (`/welcome` → `/setup`, DB-derived completion, hard gate, daily canary).
+- **Auth + onboarding + setup wizard** (`/welcome` → `/setup`, DB-derived completion, hard gate, daily canary). `setup_completed` now persists via the service-role `POST /api/artist/complete-setup` route (was a silent client `.update()`).
 - **Fan subscriptions** (paid + free), **track/product/booking/live-ticket purchases**, **discount codes** (end-to-end wired), **Stripe Connect payouts** (weekly cron + on-demand cashout).
 - **Content + gating** via `is_free`/`allowed_tier_ids` (redacting views enforce it).
 - **Stripe webhook** (idempotent, signed, refunds/disputes handled).
@@ -37,7 +37,7 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 - **`campaign-hub` per-campaign breakdowns** — "coming soon" placeholder (`campaign-hub/page.tsx:220`).
 - **Admin "fan referral tracking"** metric — "coming soon" tooltip (`AdminDashboard.tsx:68`).
 - **Downgrade scheduling** — `subscription-update` writes `pending_tier_id`/`pending_change_date` to the DB but no Stripe-side schedule call was found in that route; the webhook only *applies* a pending change once Stripe's price already matches. Trace before trusting downgrades apply on Stripe's side. `Strongly inferred` gap.
-- **No user-facing account hard-delete/GDPR erasure** path found (only deactivate/reactivate). `Needs founder confirmation`.
+- **No user-facing account hard-delete/GDPR erasure** path found. Deactivate/reactivate is now a working pair (deactivate genuinely hides the artist publicly at the app layer, reactivate fires on next login), just not a hard-delete. `Needs founder confirmation`.
 - **No web/push notifications** — `public/sw.js` has no push listener; notifications are foreground-only. `Confirmed`.
 
 ## Legacy / duplicated / dead (Confirmed)
