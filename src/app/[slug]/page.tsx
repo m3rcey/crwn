@@ -116,6 +116,14 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     notFound();
   }
 
+  // Deactivated accounts (profiles.is_active === false) are hidden from the public.
+  // The owner can reactivate by logging back in. null/true both mean active, so
+  // only an explicit false hides the page (safe for existing rows with no flag).
+  const artistProfile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
+  if (artistProfile?.is_active === false) {
+    notFound();
+  }
+
   // Fetch tiers from subscription_tiers table
   const { data: subscriptionTiers } = await supabase
     .from('subscription_tiers')

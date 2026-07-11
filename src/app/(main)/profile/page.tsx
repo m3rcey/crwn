@@ -27,6 +27,9 @@ export default function ProfilePage() {
   const { user, profile, signOut, isLoading } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [showDeactivate, setShowDeactivate] = useState(false);
+  const [deactivating, setDeactivating] = useState(false);
+  const [deactivateError, setDeactivateError] = useState<string | null>(null);
+  const [deactivated, setDeactivated] = useState(false);
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [subsLoading, setSubsLoading] = useState(true);
   const [portalLoading, setPortalLoading] = useState<string | null>(null);
@@ -70,6 +73,25 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     await signOut();
     window.location.href = '/login';
+  };
+
+  const handleDeactivate = async () => {
+    if (!user || deactivating) return;
+    setDeactivating(true);
+    setDeactivateError(null);
+    try {
+      const res = await fetch('/api/account/deactivate', { method: 'POST' });
+      if (!res.ok) {
+        setDeactivateError('Something went wrong. Your account was not deactivated. Please try again.');
+        setDeactivating(false);
+        return;
+      }
+      // Confirm to the user BEFORE signing out, so they know it worked.
+      setDeactivated(true);
+    } catch {
+      setDeactivateError('Something went wrong. Your account was not deactivated. Please try again.');
+      setDeactivating(false);
+    }
   };
 
   const isArtist = profile?.role === 'artist';
@@ -327,28 +349,47 @@ export default function ProfilePage() {
       {showDeactivate && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="neu-raised rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-crwn-text mb-2">Deactivate Account</h3>
-            <p className="text-crwn-text-secondary text-sm mb-4">
-              Your profile will be hidden from other users. Your subscriptions will be paused. You can reactivate anytime by logging back in.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeactivate(false)}
-                className="flex-1 py-2 rounded-lg neu-raised text-crwn-text font-semibold hover:opacity-80"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  if (!user) return;
-                  await fetch('/api/account/deactivate', { method: 'POST' });
-                  await signOut();
-                }}
-                className="flex-1 py-2 rounded-lg bg-crwn-error text-white font-semibold hover:opacity-80"
-              >
-                Deactivate
-              </button>
-            </div>
+            {deactivated ? (
+              <>
+                <h3 className="text-xl font-bold text-crwn-text mb-2">Account deactivated</h3>
+                <p className="text-crwn-text-secondary text-sm mb-4">
+                  Your profile is now hidden from other users and your subscriptions are paused. You can reactivate anytime by logging back in. We will sign you out now.
+                </p>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full py-2 rounded-lg bg-crwn-gold text-black font-semibold hover:opacity-80"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-xl font-bold text-crwn-text mb-2">Deactivate Account</h3>
+                <p className="text-crwn-text-secondary text-sm mb-4">
+                  Your profile will be hidden from other users. Your subscriptions will be paused. You can reactivate anytime by logging back in.
+                </p>
+                {deactivateError && (
+                  <p className="text-crwn-error text-sm mb-4">{deactivateError}</p>
+                )}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setShowDeactivate(false); setDeactivateError(null); }}
+                    disabled={deactivating}
+                    className="flex-1 py-2 rounded-lg neu-raised text-crwn-text font-semibold hover:opacity-80 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeactivate}
+                    disabled={deactivating}
+                    className="flex-1 py-2 rounded-lg bg-crwn-error text-white font-semibold hover:opacity-80 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {deactivating && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {deactivating ? 'Deactivating' : 'Deactivate'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -71,14 +71,17 @@ export default function HomePage() {
         }
         // A featured tile must be complete: has music AND an uploaded avatar,
         // otherwise it renders as a broken placeholder.
-        const hasAvatar = (a: ArtistProfile) => {
-          const p = (a as unknown as { profile?: { avatar_url?: string } | { avatar_url?: string }[] }).profile;
-          const prof = Array.isArray(p) ? p[0] : p;
-          return !!prof?.avatar_url;
+        const prof = (a: ArtistProfile) => {
+          const p = (a as unknown as { profile?: { avatar_url?: string; is_active?: boolean } | { avatar_url?: string; is_active?: boolean }[] }).profile;
+          return Array.isArray(p) ? p[0] : p;
         };
+        const hasAvatar = (a: ArtistProfile) => !!prof(a)?.avatar_url;
+        // Deactivated accounts (profiles.is_active === false) are hidden from
+        // discovery. null/true both mean active.
+        const isActive = (a: ArtistProfile) => prof(a)?.is_active !== false;
         setFeaturedArtists(
           (artistsData as ArtistProfile[])
-            .filter((a) => withMusic.has(a.id) && hasAvatar(a))
+            .filter((a) => withMusic.has(a.id) && hasAvatar(a) && isActive(a))
             .slice(0, 12)
         );
       }

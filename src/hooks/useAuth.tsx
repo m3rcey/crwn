@@ -74,7 +74,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
     
     if (!error && data) {
-      setProfile(data as Profile);
+      // Logging back in reactivates a deactivated account (the promise shown in
+      // the Deactivate modal). Deactivation only flips profiles.is_active to false,
+      // so the first authenticated profile load flips it back to true.
+      if ((data as Profile & { is_active?: boolean }).is_active === false) {
+        fetch('/api/account/reactivate', { method: 'POST' }).catch(() => {});
+        setProfile({ ...(data as Profile), is_active: true } as Profile);
+      } else {
+        setProfile(data as Profile);
+      }
     }
     setIsLoading(false);
   }, [supabase]);
