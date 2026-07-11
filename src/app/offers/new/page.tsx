@@ -21,6 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { withTimeout } from '@/lib/promiseTimeout';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import { createOnboardingTier, createOnboardingProduct } from '@/lib/onboardingItems';
 import { CLIPPER_RAMP_PRESETS, sanitizeClipperSchedule } from '@/lib/clipperRate';
 import type { ProductType } from '@/types';
@@ -547,8 +548,13 @@ function OfferBuilder() {
                 Step {stepIndex + 1} of {steps.length}
               </span>
               <button
-                onClick={() => router.push('/studio')}
-                aria-label="Exit to Studio"
+                onClick={() => {
+                  // Return to wherever this was launched from (Rise Mode carries ?returnTo).
+                  const rt =
+                    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('returnTo') : null;
+                  router.push(rt || '/studio');
+                }}
+                aria-label="Exit"
                 className="text-crwn-text-secondary hover:text-crwn-text transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -575,26 +581,16 @@ function OfferBuilder() {
           </div>
 
           {current.key === 'goal' && (
-            <div className="grid gap-3">
-              {GOALS.map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => applyGoal(g)}
-                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                    goalId === g.id ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium text-crwn-text">{g.label}</p>
-                    <span className="text-[10px] uppercase tracking-wide font-semibold text-crwn-gold/90 bg-crwn-gold/10 px-2 py-0.5 rounded-full flex-shrink-0">
-                      {g.offerType === 'subscription' ? 'Monthly membership' : 'One-time'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-crwn-text-secondary mt-0.5">{g.hint}</p>
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              value={goalId}
+              onChange={(v) => { const g = GOALS.find((x) => x.id === v); if (g) applyGoal(g); }}
+              placeholder="Pick what to create"
+              options={GOALS.map((g) => ({
+                value: g.id,
+                label: g.label,
+                hint: `${g.offerType === 'subscription' ? 'Monthly membership' : 'One-time'} · ${g.hint}`,
+              }))}
+            />
           )}
 
           {current.key === 'price' && (
@@ -748,25 +744,18 @@ function OfferBuilder() {
               />
               {clipOn && (
                 <>
-                  <div className="grid gap-3">
-                    {CLIPPER_RAMP_PRESETS.map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => setClipPresetId(p.id)}
-                        className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                          clipPresetId === p.id ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                        }`}
-                      >
-                        <p className="font-medium text-crwn-text">{p.label}</p>
-                        <p className="text-xs text-crwn-text-secondary mt-0.5">
-                          {p.steps.length > 0
-                            ? `${p.steps.map((s) => `${s.percent}% for ${s.days} days`).join(' → ')} → your standard rate`
-                            : p.description}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
+                  <OptionSelect
+                    value={clipPresetId}
+                    onChange={(v) => setClipPresetId(v)}
+                    options={CLIPPER_RAMP_PRESETS.map((p) => ({
+                      value: p.id,
+                      label: p.label,
+                      hint:
+                        p.steps.length > 0
+                          ? `${p.steps.map((s) => `${s.percent}% for ${s.days} days`).join(' → ')} → your standard rate`
+                          : p.description,
+                    }))}
+                  />
                   <div>
                     <label className="block text-sm font-medium text-crwn-text mb-2">Standard rate (after the ramp ends)</label>
                     <div className="flex items-center gap-2">

@@ -31,6 +31,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { withTimeout } from '@/lib/promiseTimeout';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import {
   MISSION_AUDIENCE_LABELS,
   MISSION_REWARD_LABELS,
@@ -374,65 +375,30 @@ function MissionBuilder() {
           </div>
 
           {current.key === 'type' && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {MISSION_TYPES.map((t) => {
-                const TypeIcon = t.icon;
-                return (
-                  <button
-                    key={t.value}
-                    type="button"
-                    onClick={() => applyType(t.value)}
-                    className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                      missionType === t.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <TypeIcon className="w-4 h-4 text-crwn-gold flex-shrink-0" />
-                      <p className="font-medium text-crwn-text">{t.label}</p>
-                    </div>
-                    <p className="text-xs text-crwn-text-secondary">{t.hint}</p>
-                  </button>
-                );
-              })}
-            </div>
+            <OptionSelect
+              value={missionType}
+              onChange={(v) => applyType(v as MissionType)}
+              placeholder="Choose an action"
+              options={MISSION_TYPES.map((t) => ({
+                value: t.value,
+                label: t.label,
+                hint: t.hint,
+                icon: <t.icon className="w-5 h-5 text-crwn-gold" />,
+              }))}
+            />
           )}
 
           {current.key === 'target' && (
             <div className="space-y-5">
-              <div className="grid gap-3">
-                <button
-                  type="button"
-                  onClick={() => applyTargetKind('none')}
-                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                    targetKind === 'none' ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                  }`}
-                >
-                  <p className="font-medium text-crwn-text">My artist page</p>
-                  <p className="text-xs text-crwn-text-secondary mt-0.5">The mission points fans at your page itself.</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyTargetKind('demand_test')}
-                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                    targetKind === 'demand_test' ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                  }`}
-                >
-                  <p className="font-medium text-crwn-text">A demand test</p>
-                  <p className="text-xs text-crwn-text-secondary mt-0.5">
-                    Push responses to a Proof of Demand test. Progress tracks automatically.
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => applyTargetKind('tier')}
-                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                    targetKind === 'tier' ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                  }`}
-                >
-                  <p className="font-medium text-crwn-text">An offer / tier</p>
-                  <p className="text-xs text-crwn-text-secondary mt-0.5">Push fans toward one of your membership tiers.</p>
-                </button>
-              </div>
+              <OptionSelect
+                value={targetKind}
+                onChange={(v) => applyTargetKind(v as TargetKind)}
+                options={[
+                  { value: 'none', label: 'My artist page', hint: 'The mission points fans at your page itself.' },
+                  { value: 'demand_test', label: 'A demand test', hint: 'Push responses to a Proof of Demand test. Progress tracks automatically.' },
+                  { value: 'tier', label: 'An offer / tier', hint: 'Push fans toward one of your membership tiers.' },
+                ]}
+              />
 
               {targetKind === 'demand_test' && (
                 <div>
@@ -442,23 +408,15 @@ function MissionBuilder() {
                       No demand tests yet. Create one from Proof of Demand first, or pick a different target.
                     </p>
                   ) : (
-                    <div className="grid gap-2">
-                      {demandTests.map((d) => (
-                        <button
-                          key={d.id}
-                          type="button"
-                          onClick={() => {
-                            setTargetId(d.id);
-                            setTargetLabel(d.title);
-                          }}
-                          className={`text-left px-4 py-3 rounded-xl border transition-colors ${
-                            targetId === d.id ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                          }`}
-                        >
-                          <p className="text-sm font-medium text-crwn-text truncate">{d.title}</p>
-                        </button>
-                      ))}
-                    </div>
+                    <OptionSelect
+                      value={targetId}
+                      onChange={(v) => {
+                        setTargetId(v);
+                        setTargetLabel(demandTests.find((d) => d.id === v)?.title ?? null);
+                      }}
+                      placeholder="Choose a demand test"
+                      options={demandTests.map((d) => ({ value: d.id, label: d.title }))}
+                    />
                   )}
                 </div>
               )}
@@ -471,26 +429,15 @@ function MissionBuilder() {
                       No active tiers yet. Build one in the Offer Builder first, or pick a different target.
                     </p>
                   ) : (
-                    <div className="grid gap-2">
-                      {tiers.map((t) => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => {
-                            setTargetId(t.id);
-                            setTargetLabel(t.name);
-                          }}
-                          className={`text-left px-4 py-3 rounded-xl border transition-colors ${
-                            targetId === t.id ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                          }`}
-                        >
-                          <p className="text-sm font-medium text-crwn-text truncate">
-                            {t.name}
-                            <span className="text-crwn-text-secondary font-normal"> · ${(t.price / 100).toFixed(2)}/mo</span>
-                          </p>
-                        </button>
-                      ))}
-                    </div>
+                    <OptionSelect
+                      value={targetId}
+                      onChange={(v) => {
+                        setTargetId(v);
+                        setTargetLabel(tiers.find((t) => t.id === v)?.name ?? null);
+                      }}
+                      placeholder="Choose a tier"
+                      options={tiers.map((t) => ({ value: t.id, label: t.name, hint: `$${(t.price / 100).toFixed(2)}/mo` }))}
+                    />
                   )}
                 </div>
               )}
@@ -531,21 +478,11 @@ function MissionBuilder() {
 
           {current.key === 'reward' && (
             <div className="space-y-6">
-              <div className="grid gap-3 sm:grid-cols-2">
-                {REWARD_TYPES.map((r) => (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => setRewardType(r.value)}
-                    className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                      rewardType === r.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                    }`}
-                  >
-                    <p className="font-medium text-crwn-text">{MISSION_REWARD_LABELS[r.value]}</p>
-                    <p className="text-xs text-crwn-text-secondary mt-0.5">{r.hint}</p>
-                  </button>
-                ))}
-              </div>
+              <OptionSelect
+                value={rewardType}
+                onChange={(v) => setRewardType(v as MissionRewardType)}
+                options={REWARD_TYPES.map((r) => ({ value: r.value, label: MISSION_REWARD_LABELS[r.value], hint: r.hint }))}
+              />
               <div>
                 <label className="block text-sm font-medium text-crwn-text mb-2">Reward details (optional)</label>
                 <input
@@ -571,21 +508,11 @@ function MissionBuilder() {
           )}
 
           {current.key === 'audience' && (
-            <div className="grid gap-3">
-              {AUDIENCES.map((a) => (
-                <button
-                  key={a.value}
-                  type="button"
-                  onClick={() => setAudience(a.value)}
-                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                    audience === a.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                  }`}
-                >
-                  <p className="font-medium text-crwn-text">{a.label}</p>
-                  <p className="text-xs text-crwn-text-secondary mt-0.5">{a.hint}</p>
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              value={audience}
+              onChange={(v) => setAudience(v as MissionAudience)}
+              options={AUDIENCES.map((a) => ({ value: a.value, label: a.label, hint: a.hint }))}
+            />
           )}
 
           {current.key === 'copy' && (

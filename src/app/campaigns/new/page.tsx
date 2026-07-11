@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Wizard, type WizardStep } from '@/components/ui/Wizard';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import { CAMPAIGN_GOALS, CAMPAIGN_GOAL_MAP, type CampaignGoalType } from '@/lib/roadCampaigns';
 import { smartBack } from '@/lib/navigation';
 
@@ -124,15 +125,11 @@ export default function NewCampaignPage() {
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">What does the goal track?</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">Pick what fans move toward.</p>
-            <div className="space-y-2">
-              {CAMPAIGN_GOALS.map(g => (
-                <button key={g.value} onClick={() => { setGoalType(g.value); if (g.value !== 'money') { setLinkedTierId(null); setLinkedProductId(null); } }} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${goalType === g.value ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
-                  <span className="text-xl">{g.icon}</span>
-                  <div className="min-w-0 flex-1"><p className="text-sm font-medium text-crwn-text">{g.label}</p><p className="text-xs text-crwn-text-secondary">{g.hint}</p></div>
-                  {goalType === g.value && <Check className="w-4 h-4 text-crwn-gold shrink-0" />}
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              value={goalType}
+              onChange={(v) => { setGoalType(v as CampaignGoalType); if (v !== 'money') { setLinkedTierId(null); setLinkedProductId(null); } }}
+              options={CAMPAIGN_GOALS.map(g => ({ value: g.value, label: g.label, hint: g.hint, icon: g.icon }))}
+            />
           </div>
         )}
 

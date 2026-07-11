@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Check } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Wizard, type WizardStep } from '@/components/ui/Wizard';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import { UNLOCK_TYPES, UNLOCK_TYPE_MAP, GOAL_TYPES, type UnlockType, type GoalType } from '@/lib/cityUnlocks';
 import { smartBack } from '@/lib/navigation';
 
@@ -127,15 +128,12 @@ export default function NewCityUnlockPage() {
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">What unlocks?</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">What does the city earn?</p>
-            <div className="space-y-2 mb-3">
-              {UNLOCK_TYPES.map(t => (
-                <button key={t.value} onClick={() => applyUnlock(t.value)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${unlockType === t.value ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
-                  <span className="text-xl">{t.icon}</span>
-                  <div className="min-w-0 flex-1"><p className="text-sm font-medium text-crwn-text">{t.label}</p><p className="text-xs text-crwn-text-secondary">{t.hint}</p></div>
-                  {unlockType === t.value && <Check className="w-4 h-4 text-crwn-gold shrink-0" />}
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              className="mb-3"
+              value={unlockType}
+              onChange={(v) => applyUnlock(v as UnlockType)}
+              options={UNLOCK_TYPES.map(t => ({ value: t.value, label: t.label, hint: t.hint, icon: t.icon }))}
+            />
             <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title fans see"
               className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
           </div>
@@ -144,13 +142,11 @@ export default function NewCityUnlockPage() {
         {step.id === 'goal-type' && (
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">How does the city prove demand?</h2>
-            <div className="space-y-2">
-              {GOAL_TYPES.map(g => (
-                <button key={g.value} onClick={() => setGoalType(g.value)} className={`w-full flex items-center justify-between p-3 rounded-xl border text-left ${goalType === g.value ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
-                  <span className="text-sm text-crwn-text">{g.label}</span>{goalType === g.value && <Check className="w-4 h-4 text-crwn-gold" />}
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              value={goalType}
+              onChange={(v) => setGoalType(v as GoalType)}
+              options={GOAL_TYPES.map(g => ({ value: g.value, label: g.label }))}
+            />
           </div>
         )}
 

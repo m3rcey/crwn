@@ -82,8 +82,8 @@ export async function awardFanBadge(
         supabaseAdmin,
         params.fanId,
         'badge_awarded',
-        `${icon} You earned the ${label} badge`,
-        `${who}Your status just leveled up.`,
+        `${icon} You earned the ${label} badge!`,
+        `${who}Your status just leveled up!`,
         '/impact',
       ).catch(() => {});
 
@@ -102,8 +102,8 @@ export async function awardFanBadge(
               supabaseAdmin,
               ap.user_id,
               'fan_milestone',
-              `${icon} ${fanName} earned ${label}`,
-              `${fanName} just hit ${label} status. A great moment to reach out.`,
+              `${icon} ${fanName} earned ${label}!`,
+              `${fanName} just hit ${label} status! A great moment to reach out.`,
               '/profile/artist?tab=audience',
             ).catch(() => {});
           }

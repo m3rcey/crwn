@@ -52,8 +52,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     if (artistUserId) {
       await createNotification(
         supabaseAdmin, artistUserId, 'campaign_reached',
-        `🎉 ${campaign.title} hit its goal`,
-        'Your fans got you there. Time to deliver.',
+        `🎉 ${campaign.title} hit its goal!`,
+        'Your fans got you there! Time to deliver.',
         `/campaigns/${id}`,
       ).catch(() => {});
     }

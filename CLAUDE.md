@@ -2,6 +2,23 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## UX Rule — multi-option selectors are DROPDOWNS
+
+Whenever a screen asks the user to pick ONE option from several (campaign goal type,
+mission type, offer type, product type, signal type, unlock type, etc.), render it as
+a DROPDOWN (a single collapsed control that expands a list), not a grid/stack of all
+options at once. Use the shared `OptionSelect` component in `src/components/ui/OptionSelect.tsx`.
+Exception: a genuine 2-option binary toggle can stay as two buttons (a dropdown for two
+choices is worse). This applies to new code and when editing existing selectors.
+
+## UX Rule — flows started from Rise Mode return to Rise Mode
+
+When a creation flow is launched from Rise Mode (the CTA carries `?returnTo=...`), its
+exit/X/back controls and its on-success redirect must return the user to that `returnTo`
+(Rise Mode), NOT a hardcoded route like /studio. Read returnTo from the URL and honor it;
+fall back to the old route only when returnTo is absent. Use `smartBack(router, fallback)`
+for back/X controls so they return to the actual previous page.
+
 ## Copy Rule — NEVER use em dashes
 
 NEVER use an em dash (—) in ANY user-facing copy, anywhere, ever: UI strings, emails, web/marketing pages, notifications, button labels, tooltips, error messages, docs — all of it. This applies to everything new you write and anything you edit. Do not substitute an en dash (–) either. Rewrite instead: split into two short sentences (also better for readability), or use a comma, colon, or parentheses. Example: "Your front door — the easiest yes" becomes "Your front door: the easiest yes". (Hyphens in compound words like "one-time" are fine; this rule is about the dash punctuation between clauses.)

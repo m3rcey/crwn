@@ -22,6 +22,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { withTimeout } from '@/lib/promiseTimeout';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 
 /**
  * Proof of Demand — a guided, one-decision-per-screen wizard that creates a
@@ -304,21 +305,11 @@ function DemandTestBuilder() {
           )}
 
           {current.key === 'signal' && (
-            <div className="grid gap-3">
-              {SIGNALS.map((s) => (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => setSignalType(s.value)}
-                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                    signalType === s.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                  }`}
-                >
-                  <p className="font-medium text-crwn-text">{s.label}</p>
-                  <p className="text-xs text-crwn-text-secondary mt-0.5">{s.hint}</p>
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              value={signalType}
+              onChange={(v) => setSignalType(v as SignalType)}
+              options={SIGNALS.map((s) => ({ value: s.value, label: s.label, hint: s.hint }))}
+            />
           )}
 
           {current.key === 'threshold' && (
@@ -397,21 +388,11 @@ function DemandTestBuilder() {
           )}
 
           {current.key === 'audience' && (
-            <div className="grid gap-3">
-              {AUDIENCES.map((a) => (
-                <button
-                  key={a.value}
-                  type="button"
-                  onClick={() => setAudience(a.value)}
-                  className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                    audience === a.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-                  }`}
-                >
-                  <p className="font-medium text-crwn-text">{a.label}</p>
-                  <p className="text-xs text-crwn-text-secondary mt-0.5">{a.hint}</p>
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              value={audience}
+              onChange={(v) => setAudience(v as Audience)}
+              options={AUDIENCES.map((a) => ({ value: a.value, label: a.label, hint: a.hint }))}
+            />
           )}
 
           {current.key === 'copy' && (

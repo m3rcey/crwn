@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Wizard, type WizardStep } from '@/components/ui/Wizard';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import {
   BOUNTY_TYPES, BOUNTY_TYPE_MAP, BOUNTY_REWARDS,
   type BountyType, type BountyRewardType, type BountyEligibility,
@@ -151,15 +152,12 @@ export default function NewBountyPage() {
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">What decides the winner?</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">Pick the challenge.</p>
-            <div className="space-y-2">
-              {BOUNTY_TYPES.map(t => (
-                <button key={t.value} onClick={() => applyType(t.value)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${bountyType === t.value ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
-                  <span className="text-xl">{t.icon}</span>
-                  <div className="min-w-0 flex-1"><p className="text-sm font-medium text-crwn-text">{t.label}</p><p className="text-xs text-crwn-text-secondary">{t.hint}</p></div>
-                  {bountyType === t.value && <Check className="w-4 h-4 text-crwn-gold shrink-0" />}
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              value={bountyType}
+              onChange={(v) => applyType(v as BountyType)}
+              placeholder="Pick the challenge"
+              options={BOUNTY_TYPES.map(t => ({ value: t.value, label: t.label, hint: t.hint, icon: t.icon }))}
+            />
           </div>
         )}
 
@@ -176,13 +174,12 @@ export default function NewBountyPage() {
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Reward</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">v1 is non-cash. Cash bounties come later on the payout rail.</p>
-            <div className="space-y-2 mb-3">
-              {BOUNTY_REWARDS.map(r => (
-                <button key={r.value} onClick={() => setRewardType(r.value)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${rewardType === r.value ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
-                  <span className="text-xl">{r.icon}</span><span className="text-sm text-crwn-text flex-1">{r.label}</span>{rewardType === r.value && <Check className="w-4 h-4 text-crwn-gold" />}
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              className="mb-3"
+              value={rewardType}
+              onChange={(v) => setRewardType(v as BountyRewardType)}
+              options={BOUNTY_REWARDS.map(r => ({ value: r.value, label: r.label, icon: r.icon }))}
+            />
             {rewardDef?.needsDetail && (
               <input type="text" value={rewardDetail} onChange={e => setRewardDetail(e.target.value)} placeholder="Describe the reward (e.g. Vault access for 30 days)"
                 className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
@@ -202,13 +199,16 @@ export default function NewBountyPage() {
         {step.id === 'eligibility' && (
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Who can enter?</h2>
-            <div className="space-y-2 mb-5">
-              {([['all', 'Anyone'], ['clippers', 'Clippers only'], ['subscribers', 'Subscribers only']] as [BountyEligibility, string][]).map(([v, label]) => (
-                <button key={v} onClick={() => setEligibility(v)} className={`w-full flex items-center justify-between p-3 rounded-xl border text-left ${eligibility === v ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
-                  <span className="text-sm text-crwn-text">{label}</span>{eligibility === v && <Check className="w-4 h-4 text-crwn-gold" />}
-                </button>
-              ))}
-            </div>
+            <OptionSelect
+              className="mb-5"
+              value={eligibility}
+              onChange={(v) => setEligibility(v as BountyEligibility)}
+              options={[
+                { value: 'all', label: 'Anyone' },
+                { value: 'clippers', label: 'Clippers only' },
+                { value: 'subscribers', label: 'Subscribers only' },
+              ]}
+            />
             <label className="flex items-center gap-3 p-3 rounded-xl border border-crwn-elevated bg-crwn-card cursor-pointer">
               <input type="checkbox" checked={approvalRequired} onChange={e => setApprovalRequired(e.target.checked)} className="accent-crwn-gold" />
               <span className="text-sm text-crwn-text">Require my approval before a clip qualifies <span className="text-crwn-text-secondary">(recommended)</span></span>

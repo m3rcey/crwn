@@ -413,12 +413,14 @@ async function grantRewardsAndNotify(
   const link = instance.role === 'artist' ? '/profile/artist?tab=rise' : '/home';
   const isMilestone = instance.quest_type === 'boss_quest' || instance.difficulty === 'boss';
 
+  // Celebration copy: self-contained (no denormalized subtitle, which can be stale)
+  // and always ends in "!" because it is a win.
   await createNotification(
     admin,
     instance.user_id,
     isMilestone ? 'quest_milestone' : 'quest_completed',
-    isMilestone ? `🏆 Milestone passed: ${instance.title}` : `✅ Quest complete: ${instance.title}`,
-    instance.subtitle || undefined,
+    isMilestone ? '🏆 Milestone passed!' : '✅ Quest complete!',
+    isMilestone ? `You hit a big one: ${instance.title}!` : `You finished "${instance.title}". Keep rising!`,
     link,
   ).catch(() => {});
 
@@ -427,8 +429,8 @@ async function grantRewardsAndNotify(
       admin,
       instance.user_id,
       'level_up',
-      '⬆️ You leveled up',
-      instance.role === 'artist' ? 'Your movement reached a new level.' : 'Your supporter status rose.',
+      '⬆️ You leveled up!',
+      instance.role === 'artist' ? 'Your movement reached a new level!' : 'Your supporter status just rose!',
       link,
     ).catch(() => {});
   }
