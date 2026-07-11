@@ -62,7 +62,16 @@ async function countEvents(
 async function countActive(admin: any, table: string, match: Record<string, unknown>): Promise<number> {
   try {
     let q = admin.from(table).select('id', { count: 'exact', head: true });
-    for (const [k, v] of Object.entries(match)) q = q.eq(k, v);
+    for (const [k, v] of Object.entries(match)) {
+      // is_active was added to tracks/products/tiers AFTER rows existed, and the
+      // onboarding creators don't set it, so many real rows have is_active = NULL.
+      // NULL means "active" (not soft-deleted). Match TRUE-or-NULL, exclude only FALSE.
+      if (k === 'is_active' && v === true) {
+        q = q.not('is_active', 'is', false);
+      } else {
+        q = q.eq(k, v);
+      }
+    }
     const { count } = await q;
     return count || 0;
   } catch (err) {
@@ -92,7 +101,7 @@ async function evalDomain(admin: any, instance: QuestInstance, cond: Extract<Com
           .from('subscription_tiers')
           .select('id', { count: 'exact', head: true })
           .eq('artist_id', artistId)
-          .eq('is_active', true)
+          .not('is_active', 'is', false)
           .eq('price', 0);
         const n = count || 0;
         return { done: n >= 1, progressPercent: n >= 1 ? 100 : 0, current: n, target: 1 };
@@ -107,7 +116,7 @@ async function evalDomain(admin: any, instance: QuestInstance, cond: Extract<Com
           .from('subscription_tiers')
           .select('id', { count: 'exact', head: true })
           .eq('artist_id', artistId)
-          .eq('is_active', true)
+          .not('is_active', 'is', false)
           .gt('price', 0);
         let n = tierC || 0;
         if (n === 0) {
@@ -115,7 +124,7 @@ async function evalDomain(admin: any, instance: QuestInstance, cond: Extract<Com
             .from('products')
             .select('id', { count: 'exact', head: true })
             .eq('artist_id', artistId)
-            .eq('is_active', true)
+            .not('is_active', 'is', false)
             .gt('price', 0);
           n = prodC || 0;
         }

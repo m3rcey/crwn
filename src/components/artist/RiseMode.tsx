@@ -11,37 +11,6 @@ import { Confetti } from '@/components/quests/Confetti';
 import { getArtistBuild } from '@/lib/quests/builds';
 import { Flame, Zap, Loader2, Sparkles } from 'lucide-react';
 
-// Count-up animation for XP. performance.now() is allowed (Date.now is not, but
-// only in workflow scripts — this is app code). Animates whenever the target moves.
-function useCountUp(target: number, durationMs = 900): { value: number; bumped: boolean } {
-  const [value, setValue] = useState(target);
-  const [bumped, setBumped] = useState(false);
-  const prev = useRef(target);
-
-  useEffect(() => {
-    const from = prev.current;
-    const to = target;
-    if (from === to) return;
-    setBumped(true);
-    const start = performance.now();
-    let raf = 0;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / durationMs);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setValue(Math.round(from + (to - from) * eased));
-      if (t < 1) raf = requestAnimationFrame(tick);
-      else {
-        prev.current = to;
-        setTimeout(() => setBumped(false), 400);
-      }
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, durationMs]);
-
-  return { value, bumped };
-}
-
 interface QuestsResponse {
   enabled: boolean;
   role: 'artist' | 'fan';
@@ -132,18 +101,74 @@ export function RiseMode() {
     };
   }, [load]);
 
-  // Fire confetti once per fresh completion.
+  // Celebration trigger. Fires on ANY XP increase since the artist last viewed Rise
+  // Mode (persisted in localStorage). This is robust: it does NOT depend on the
+  // completion landing in THIS response, so completing a quest on a creator page and
+  // returning always celebrates, even if the completion was recorded on a background
+  // load. Drives confetti, the XP count-up, and the congrats modal.
   const [confetti, setConfetti] = useState(0);
-  const seenCompletions = useRef<Set<string>>(new Set());
+  const [xpGain, setXpGain] = useState<{ delta: number; nonce: number } | null>(null);
+  const [displayXp, setDisplayXp] = useState(0);
+  const [xpBumped, setXpBumped] = useState(false);
+  const [barWidth, setBarWidth] = useState(0);
+  const lastXpRef = useRef<number | null>(null);
+  const initedXpRef = useRef(false);
+  const xpRafRef = useRef(0);
+
   useEffect(() => {
-    const fresh = (data?.completions ?? []).filter((c) => !seenCompletions.current.has(c.questId));
-    if (fresh.length > 0) {
-      fresh.forEach((c) => seenCompletions.current.add(c.questId));
+    const xp = data?.progression?.xp;
+    if (xp == null) return;
+
+    if (!initedXpRef.current) {
+      initedXpRef.current = true;
+      let stored: number | null = null;
+      try {
+        const raw = localStorage.getItem('rise_last_xp');
+        if (raw != null && raw !== '' && !isNaN(Number(raw))) stored = Number(raw);
+      } catch {
+        /* ignore */
+      }
+      lastXpRef.current = stored ?? xp;
+    }
+
+    const last = lastXpRef.current ?? xp;
+    if (xp > last) {
       setConfetti((n) => n + 1);
+      setXpGain((g) => ({ delta: xp - last, nonce: (g?.nonce ?? 0) + 1 }));
+      // Count XP up from the old value to the new one.
+      setXpBumped(true);
+      cancelAnimationFrame(xpRafRef.current);
+      const start = performance.now();
+      const from = last;
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / 1000);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setDisplayXp(Math.round(from + (xp - from) * eased));
+        if (t < 1) xpRafRef.current = requestAnimationFrame(tick);
+        else setTimeout(() => setXpBumped(false), 400);
+      };
+      xpRafRef.current = requestAnimationFrame(tick);
+    } else {
+      setDisplayXp(xp);
+    }
+
+    lastXpRef.current = xp;
+    try {
+      localStorage.setItem('rise_last_xp', String(xp));
+    } catch {
+      /* ignore */
     }
   }, [data]);
 
-  const xpAnim = useCountUp(data?.progression?.xp ?? 0);
+  // Animate the progress bar filling on each render of the board (a visible "boost"
+  // on return). Sets width one frame after data arrives so the CSS transition runs.
+  useEffect(() => {
+    const pct = data?.progression?.percentToNext;
+    if (pct == null) return;
+    setBarWidth(0);
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setBarWidth(pct)));
+    return () => cancelAnimationFrame(id);
+  }, [data]);
 
   if (loading) {
     return (
@@ -199,11 +224,14 @@ export function RiseMode() {
       <div className="max-w-2xl mx-auto space-y-5">
         <Confetti trigger={confetti} />
         <QuestCompletionModal events={data.completions} />
+        {xpGain && (data.completions?.length ?? 0) === 0 && (
+          <XpGainModal key={xpGain.nonce} delta={xpGain.delta} onClose={() => setXpGain(null)} />
+        )}
         <div className="flex items-center justify-between gap-3">
           <span className="text-lg text-crwn-text-secondary">
             Level {p.level} · {p.levelTitle} ·{' '}
-            <span className={`text-crwn-gold font-bold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>
-              {xpAnim.value} XP
+            <span className={`text-crwn-gold font-bold inline-block ${xpBumped ? 'crwn-xp-pop' : ''}`}>
+              {displayXp} XP
             </span>
           </span>
           <button onClick={() => setFocusMode(false)} className="text-base text-crwn-gold hover:underline shrink-0">
@@ -226,6 +254,9 @@ export function RiseMode() {
     <div className="max-w-5xl mx-auto space-y-6">
       <Confetti trigger={confetti} />
       <QuestCompletionModal events={data.completions} />
+      {xpGain && (data.completions?.length ?? 0) === 0 && (
+        <XpGainModal key={xpGain.nonce} delta={xpGain.delta} onClose={() => setXpGain(null)} />
+      )}
       {/* Progression header */}
       <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
         <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -243,7 +274,7 @@ export function RiseMode() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-crwn-text">
               <Zap className="w-5 h-5 text-crwn-gold" />
-              <span className={`text-2xl font-bold inline-block ${xpAnim.bumped ? 'crwn-xp-pop' : ''}`}>{xpAnim.value}</span>
+              <span className={`text-2xl font-bold inline-block ${xpBumped ? 'crwn-xp-pop' : ''}`}>{displayXp}</span>
               <span className="text-base text-crwn-text-secondary">XP</span>
             </div>
             {p.streak > 0 && (
@@ -264,7 +295,7 @@ export function RiseMode() {
         {!p.isMax && (
           <div className="mt-4">
             <div className="h-2 rounded-full bg-[#2A2A2A] overflow-hidden">
-              <div className="h-full bg-crwn-gold rounded-full transition-all duration-700 ease-out" style={{ width: `${p.percentToNext}%` }} />
+              <div className="h-full bg-crwn-gold rounded-full transition-all duration-700 ease-out" style={{ width: `${barWidth}%` }} />
             </div>
             <div className="text-sm text-crwn-text-secondary mt-1.5">{p.percentToNext}% to next level</div>
           </div>
@@ -359,6 +390,31 @@ export function RiseMode() {
         <div className="space-y-4">
           <MovementMap role="artist" currentLevel={p.level} />
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Simple congrats shown when XP went up but no detailed completion event was in
+// the response (e.g. the quest completed on a background load). Confetti fires
+// separately. Robust fallback so a real XP gain is never silent.
+function XpGainModal({ delta, onClose }: { delta: number; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
+      <div
+        className="relative w-full max-w-sm rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-6 text-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="text-5xl mb-2">🎉</div>
+        <div className="text-sm font-bold uppercase tracking-widest text-crwn-gold">Nice work</div>
+        <h2 className="text-2xl font-bold text-crwn-text mt-2">You made progress</h2>
+        <div className="mt-4 flex items-center justify-center gap-2 text-crwn-text">
+          <Zap className="w-5 h-5 text-crwn-gold" />
+          <span className="text-2xl font-bold">+{delta} XP</span>
+        </div>
+        <button onClick={onClose} className="neu-button-accent px-7 py-3 rounded-full font-bold text-lg mt-6">
+          Keep rising
+        </button>
       </div>
     </div>
   );
