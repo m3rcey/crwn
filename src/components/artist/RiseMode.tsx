@@ -17,6 +17,22 @@ interface QuestsResponse {
   artistId: string | null;
   quests: QuestInstance[];
   completions: CompletionEvent[];
+  recap: {
+    count: number;
+    xpAwarded: number;
+    leveledUp: boolean;
+    newLevel: number;
+    levelTitle: string;
+    titles: string[];
+  } | null;
+  victory: {
+    tracks: number;
+    supporters: number;
+    campaigns: number;
+    referrals: number;
+    xp: number;
+    level: number;
+  } | null;
   recommended: { questId: string; title: string; reason: string } | null;
   build: { primary: string | null; secondary: string | null };
   progression: {
@@ -41,6 +57,8 @@ export function RiseMode() {
   const [data, setData] = useState<QuestsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [focus, setFocus] = useState(false);
+  const [recapDismissed, setRecapDismissed] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     try {
@@ -81,6 +99,14 @@ export function RiseMode() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Re-show the catch-up recap whenever a new one arrives (an established artist's
+  // first Rise load auto-recognizes multiple quests). Server grants XP idempotently,
+  // so this banner is purely informational.
+  const recapCount = data?.recap?.count ?? 0;
+  useEffect(() => {
+    if (recapCount >= 2) setRecapDismissed(false);
+  }, [recapCount]);
 
   // Refetch whenever the artist RETURNS — from a creator page (window focus /
   // tab visibility) or by switching back to the Rise tab (the dashboard dispatches
@@ -214,6 +240,12 @@ export function RiseMode() {
   const hasCampaign = data.quests.some(
     (q) => q.template_key === 'artist_create_road_campaign' && q.status === 'completed',
   );
+  // Infrastructure-ready: the L1-L4 foundation capstone is complete. Distinct from
+  // the L10 main-game victory; this marks the handoff from setup to growth.
+  const infraReady = data.quests.some(
+    (q) => q.template_key === 'artist_infrastructure_ready' && q.status === 'completed',
+  );
+  const beatGame = data.quests.some((q) => q.template_key === 'artist_beat_rise_mode' && q.status === 'completed');
 
   const p = data.progression;
   const build = getArtistBuild(data.build.primary);
@@ -302,13 +334,91 @@ export function RiseMode() {
         )}
       </div>
 
+      {/* Adaptive recap: you already did the work, we caught you up */}
+      {data.recap && data.recap.count >= 2 && !recapDismissed && (
+        <div className="rounded-2xl border border-crwn-gold/40 bg-crwn-gold/10 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-crwn-gold" />
+                <h3 className="text-lg font-bold text-crwn-text">You are ahead of the game</h3>
+              </div>
+              <p className="text-base text-crwn-text-secondary mt-1.5">
+                We scanned your account and recognized {data.recap.count} quest
+                {data.recap.count === 1 ? '' : 's'} you already completed
+                {data.recap.xpAwarded > 0 ? `, worth ${data.recap.xpAwarded} XP` : ''}. You are starting at Level{' '}
+                {data.recap.newLevel}: {data.recap.levelTitle}.
+              </p>
+              {data.recap.titles.length > 0 && (
+                <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                  {data.recap.titles.slice(0, 8).map((t, i) => (
+                    <li key={i} className="text-sm text-crwn-text-secondary flex items-center gap-2">
+                      <span className="text-crwn-gold">✓</span> {t}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <button
+              onClick={() => setRecapDismissed(true)}
+              className="text-sm text-crwn-text-secondary hover:text-crwn-gold shrink-0"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Infrastructure-ready handoff: setup is done, growth is next (hidden once the
+          full game is beaten, so the two celebrations never stack). */}
+      {infraReady && !beatGame && (
+        <div className="rounded-2xl border border-crwn-gold/40 bg-crwn-gold/10 p-6">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🚀</span>
+            <h2 className="text-xl font-bold text-crwn-text">Your artist infrastructure is ready</h2>
+          </div>
+          <p className="text-base text-crwn-text-secondary mt-2">
+            Credible page, organized catalog, membership ladder, payments, a free path, a paid path, and a welcome are
+            all live and tested. The next Rise Mode stage is growth: recruit your founding fans, get your first paid
+            supporter, build the first ten, then community, campaigns, and repeatable growth.
+          </p>
+        </div>
+      )}
+
+      {/* Main-game victory — only real, available data */}
+      {data.victory && (
+        <div className="rounded-2xl border border-crwn-gold/50 bg-gradient-to-br from-crwn-gold/15 to-transparent p-6 text-center">
+          <div className="text-4xl mb-2">👑</div>
+          <h2 className="text-2xl font-bold text-crwn-text">You Beat Rise Mode</h2>
+          <p className="text-lg text-crwn-gold font-semibold mt-1">You built an artist-owned business.</p>
+          <div className="mt-5 grid grid-cols-3 sm:grid-cols-6 gap-3">
+            {[
+              ['Level', data.victory.level],
+              ['XP', data.victory.xp],
+              ['Tracks', data.victory.tracks],
+              ['Supporters', data.victory.supporters],
+              ['Campaigns', data.victory.campaigns],
+              ['Referrals', data.victory.referrals],
+            ].map(([label, val]) => (
+              <div key={label} className="rounded-xl border border-crwn-elevated bg-[#1A1A1A] py-3">
+                <div className="text-xl font-bold text-crwn-text">{val}</div>
+                <div className="text-xs text-crwn-text-secondary">{label}</div>
+              </div>
+            ))}
+          </div>
+          <p className="text-sm text-crwn-text-secondary mt-4">
+            Empire Mode is unlocked. Keep scaling with repeatable milestones below.
+          </p>
+        </div>
+      )}
+
       {/* Your Next Move — the one dominant, obvious action */}
       {mainQuest ? (
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-lg font-bold text-crwn-gold uppercase tracking-wide">👉 Your next move</span>
           </div>
-          <QuestCard quest={mainQuest} variant="hero" />
+          <QuestCard quest={mainQuest} variant="hero" onManualComplete={load} />
         </div>
       ) : (
         <NextGrowthMove router={router} hasCampaign={hasCampaign} />
@@ -322,7 +432,7 @@ export function RiseMode() {
           </h3>
           <div className="rounded-2xl border border-crwn-gold/30 bg-[#1A1A1A] p-4">
             <p className="text-lg text-crwn-text-secondary italic mb-3">“{data.recommended.reason}”</p>
-            <QuestCard quest={recommendedQuest} variant="compact" />
+            <QuestCard quest={recommendedQuest} variant="compact" onManualComplete={load} />
           </div>
         </div>
       )}
@@ -333,13 +443,13 @@ export function RiseMode() {
           {dailyMove && (
             <div>
               <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">Daily Move</h3>
-              <QuestCard quest={dailyMove} />
+              <QuestCard quest={dailyMove} onManualComplete={load} />
             </div>
           )}
           {weeklyGoal && (
             <div>
               <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">Weekly Goal</h3>
-              <QuestCard quest={weeklyGoal} />
+              <QuestCard quest={weeklyGoal} onManualComplete={load} />
             </div>
           )}
         </div>
@@ -353,7 +463,7 @@ export function RiseMode() {
               <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">Side Quests</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {sideQuests.slice(0, 6).map((q) => (
-                  <QuestCard key={q.id} quest={q} variant="compact" />
+                  <QuestCard key={q.id} quest={q} variant="compact" onManualComplete={load} />
                 ))}
               </div>
             </div>
@@ -384,6 +494,39 @@ export function RiseMode() {
               </div>
             </div>
           )}
+
+          {/* Broader quest map — opt-in, so the board is never the whole catalog */}
+          <div>
+            <button
+              onClick={() => setShowMap((v) => !v)}
+              className="text-base text-crwn-gold hover:underline"
+            >
+              {showMap ? 'Hide full quest map' : 'Open full quest map'}
+            </button>
+            {showMap && (
+              <div className="mt-3 space-y-2">
+                {data.quests
+                  .filter((q) => q.status !== 'completed')
+                  .map((q) => (
+                    <div
+                      key={q.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-crwn-elevated bg-[#1A1A1A] px-3 py-2.5"
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-sm text-crwn-text truncate">{q.title}</span>
+                        <span className="text-xs text-crwn-text-secondary">
+                          {q.quest_type.replace(/_/g, ' ')}
+                          {q.status === 'locked' ? ' · locked' : ''}
+                        </span>
+                      </span>
+                      {(q.reward?.xp ?? 0) > 0 && (
+                        <span className="text-xs text-crwn-gold shrink-0">+{q.reward?.xp}</span>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Movement Map */}

@@ -10,30 +10,38 @@ import type { QuestRole } from './types';
 const ARTIST_LEVEL_XP = [0, 150, 400, 800, 1400, 2200, 3200, 4500, 6200, 8500];
 const FAN_STAGE_XP = [0, 100, 300, 650, 1100, 1700, 2500, 3600];
 
+// Rise Mode zero-to-hero journey. Level is derived from cumulative XP (ARTIST_LEVEL_XP),
+// so these keys/titles are the display + grouping labels for the 10 numeric levels.
+// The Tutorial ("Enter the Kingdom") is the existing /setup wizard, NOT an XP level;
+// its quests are grouped under 'foundation' (level 1). Keys 5-10 are seeded with
+// templates in a later prompt; the labels exist now so the ladder renders complete.
 export const ARTIST_LEVEL_KEYS = [
-  'setup',
-  'first_supporters',
-  'campaign_starter',
-  'fan_activation',
-  'promotion_engine',
-  'live_movement',
-  'team_builder',
-  'city_builder',
-  'movement_os',
-  'full_movement',
+  'foundation',
+  'vault',
+  'ladder',
+  'open_gates',
+  'founding_fans',
+  'first_ten',
+  'community_os',
+  'first_movement',
+  'growth_engine',
+  'artist_ceo',
 ] as const;
 
 export const ARTIST_LEVEL_TITLES: Record<string, string> = {
-  setup: 'Setup',
-  first_supporters: 'First Supporters',
-  campaign_starter: 'Campaign Starter',
-  fan_activation: 'Fan Activation',
-  promotion_engine: 'Promotion Engine',
-  live_movement: 'Live Movement',
-  team_builder: 'Team Builder',
-  city_builder: 'City Builder',
-  movement_os: 'Movement OS',
-  full_movement: 'Full Movement',
+  foundation: 'Build Your Foundation',
+  vault: 'Build Your Vault',
+  ladder: 'Build Your Membership Ladder',
+  open_gates: 'Open the Gates',
+  founding_fans: 'Recruit Your Founding Fans',
+  first_ten: 'Build the First 10',
+  community_os: 'Turn Fans Into a Community',
+  first_movement: 'Launch Your First Movement',
+  growth_engine: 'Build the Growth Engine',
+  artist_ceo: 'Become the Artist CEO',
+  // Endgame grouping label (not an XP level — the 10-level XP curve tops out at
+  // artist_ceo; Empire quests carry levelKey 'empire' for display grouping).
+  empire: 'Empire Mode',
 };
 
 export const FAN_STAGE_KEYS = [

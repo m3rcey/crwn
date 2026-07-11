@@ -233,13 +233,28 @@ export default function WelcomePage() {
             </div>
           </div>
 
+          {/* Artist reassurance: the minimum-viable setup promise (Rise Mode does the rest) */}
+          {role === 'artist' && (
+            <div className="mb-5 rounded-xl border border-crwn-gold/20 bg-crwn-gold/5 p-4">
+              <p className="text-sm text-crwn-text">
+                Build your artist-owned fanbase, catalog, membership, and revenue system.
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-crwn-text-secondary">
+                <li>Initial setup takes only a few minutes.</li>
+                <li>You do not need your full catalog yet.</li>
+                <li>Every choice can be edited later.</li>
+                <li>Rise Mode guides the rest of your infrastructure after you are in.</li>
+              </ul>
+            </div>
+          )}
+
           {/* Submit */}
           <button
             onClick={handleSubmit}
             disabled={isSubmitting || !displayName.trim()}
             className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors disabled:opacity-50"
           >
-            {isSubmitting ? 'Setting up...' : 'Get Started'}
+            {isSubmitting ? 'Setting up...' : role === 'artist' ? 'Build My CRWN' : 'Get Started'}
           </button>
 
           <p className="mt-4 text-xs text-crwn-text-secondary text-center">

@@ -12,6 +12,7 @@ import { getPlatformFeePercent } from '@/lib/platformTier';
 import { TierBenefitsSelector } from './TierBenefitsSelector';
 import { TierBenefit } from '@/types';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { TierLadderTemplate } from './TierLadderTemplate';
 
 interface Tier {
   id: string;
@@ -57,9 +58,14 @@ export function TierManager() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingTierId, setDeletingTierId] = useState<string | null>(null);
 
-  // Platform limits
+  // Platform limits. usage.fanTiers counts PAID tiers only (Option 2): the free
+  // front-door tier is always allowed and never consumes the cap. So the limit
+  // only blocks creating a NEW PAID tier past the cap — free tiers and edits of
+  // existing tiers are never blocked.
   const { tier, limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
-  const tierLimitReached = limits.fanTiers !== -1 && usage.fanTiers >= limits.fanTiers;
+  const paidTierLimitReached = limits.fanTiers !== -1 && usage.fanTiers >= limits.fanTiers;
+  const enteringPaidTier = parseFloat(formData.price) > 0;
+  const blockNewPaidTier = !editingTier && paidTierLimitReached && enteringPaidTier;
 
   const loadTiers = useCallback(async () => {
     if (!user) return;
@@ -423,6 +429,18 @@ export function TierManager() {
         </div>
       )}
 
+      {/* Recommended four-tier ladder (Rise Mode Level 3). Reuses this component's
+          creation path; free tier always allowed, paid tiers up to the plan cap. */}
+      {artistProfileId && (
+        <TierLadderTemplate
+          artistId={artistProfileId}
+          stripeConnected={stripeConnected}
+          paidTierCap={limits.fanTiers}
+          existingTiers={tiers.map((t) => ({ name: t.name, price: t.price }))}
+          onApplied={loadTiers}
+        />
+      )}
+
       {/* Existing Tiers */}
       <div>
         <h3 className="text-lg font-semibold text-crwn-text mb-4" data-tour="tiers-list">Your Tiers</h3>
@@ -476,16 +494,16 @@ export function TierManager() {
       {/* Create New Tier */}
       {stripeConnected && (
         <>
-          {tierLimitReached && (
+          {blockNewPaidTier && (
             <UpgradePrompt
               currentTier={tier}
-              feature="Fan Tiers"
+              feature="Paid Fan Tiers"
               current={usage.fanTiers}
               limit={limits.fanTiers}
-              message={`You've created ${usage.fanTiers}/${limits.fanTiers} fan tiers. Upgrade to create more.`}
+              message={`You've created ${usage.fanTiers}/${limits.fanTiers} paid tiers. Your free tier is always included. Upgrade to add more paid tiers.`}
             />
           )}
-          <form onSubmit={handleSubmit} className="bg-crwn-surface border border-crwn-elevated rounded-xl p-6" style={{ opacity: tierLimitReached ? 0.5 : 1, pointerEvents: tierLimitReached ? 'none' : 'auto' }}>
+          <form onSubmit={handleSubmit} className="bg-crwn-surface border border-crwn-elevated rounded-xl p-6" style={{ opacity: blockNewPaidTier ? 0.5 : 1, pointerEvents: blockNewPaidTier ? 'none' : 'auto' }}>
           <div className="flex items-center justify-between mb-4">
             <h3 ref={tierFormRef} className="text-lg font-semibold text-crwn-text page-fade-in">{editingTier ? 'Edit Tier' : 'Create New Tier'}</h3>
             {editingTier && (

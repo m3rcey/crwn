@@ -88,7 +88,10 @@ export async function GET() {
   let completions: any[] = [];
   if (artistId) {
     await ensureRoleQuests(supabaseAdmin, { userId: user.id, role, artistId });
-    for (let i = 0; i < 6; i++) {
+    // Loop deep enough to settle the full 10-level ladder in one load (it starts
+    // fully locked at assign-time). Breaks early as soon as nothing changes, so a
+    // shallow account costs only a couple of passes.
+    for (let i = 0; i < 12; i++) {
       const unlocked = await unlockEligibleQuests(supabaseAdmin, { userId: user.id, artistId });
       const res = await refreshQuests(supabaseAdmin, { userId: user.id, role });
       completions = completions.concat(res.completions);
@@ -110,6 +113,55 @@ export async function GET() {
   const xp = prog?.xp ?? 0;
   const level = levelFromXp(role, xp);
 
+  // Main-game victory: the artist_beat_rise_mode boss (an authoritative composite)
+  // is completed. Build the summary ONLY from real counts, never fabricated metrics.
+  let victory: {
+    tracks: number;
+    supporters: number;
+    campaigns: number;
+    referrals: number;
+    xp: number;
+    level: number;
+  } | null = null;
+  if (role === 'artist' && artistId && quests.some((q) => q.template_key === 'artist_beat_rise_mode' && q.status === 'completed')) {
+    const q = (table: string, match: Record<string, unknown>) => {
+      let b = supabaseAdmin.from(table).select('id', { count: 'exact', head: true });
+      for (const [k, v] of Object.entries(match)) b = b.eq(k, v);
+      return b;
+    };
+    const [t, s, c, r] = await Promise.all([
+      supabaseAdmin.from('tracks').select('id', { count: 'exact', head: true }).eq('artist_id', artistId).not('is_active', 'is', false),
+      q('subscriptions', { artist_id: artistId, status: 'active' }),
+      q('road_campaigns', { artist_id: artistId }),
+      q('referrals', { artist_id: artistId, status: 'active' }),
+    ]);
+    victory = {
+      tracks: t.count || 0,
+      supporters: s.count || 0,
+      campaigns: c.count || 0,
+      referrals: r.count || 0,
+      xp,
+      level: level.level,
+    };
+  }
+
+  // Adaptive recap: when this load auto-recognized MULTIPLE already-done quests
+  // (an established artist entering Rise for the first time), surface one
+  // consolidated recap instead of a burst of individual celebrations. XP is
+  // granted idempotently by the cascade, so this is display-only and safe to
+  // recompute every load — it only appears while >1 quest completes at once.
+  const recap =
+    completions.length >= 2
+      ? {
+          count: completions.length,
+          xpAwarded: completions.reduce((sum: number, c: any) => sum + (c?.xpAwarded ?? 0), 0),
+          leveledUp: completions.some((c: any) => c?.leveledUp),
+          newLevel: level.level,
+          levelTitle: level.levelTitle,
+          titles: completions.map((c: any) => c?.title).filter(Boolean),
+        }
+      : null;
+
   return NextResponse.json({
     enabled: true,
     role,
@@ -118,7 +170,9 @@ export async function GET() {
     primaryArtist,
     quests,
     completions,
-    recommended: recommendNextQuest(quests),
+    recap,
+    victory,
+    recommended: recommendNextQuest(quests, prog?.artist_build_primary ?? null),
     build: {
       primary: prog?.artist_build_primary ?? null,
       secondary: prog?.artist_build_secondary ?? null,

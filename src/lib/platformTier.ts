@@ -195,11 +195,20 @@ export async function checkArtistLimit(
   }
 
   if (resource === 'fanTiers') {
+    // Fan-tier limit counts PAID tiers only (price > 0). The free "front door"
+    // tier is a top-of-funnel entry point, not a paid membership slot, so it
+    // never consumes a plan's fan-tier allowance. This is the founder-approved
+    // rule that lets the recommended four-tier ladder (free + 3 paid) fit Pro
+    // (fanTiers = 3 paid) without changing any cap number, price, or fee.
+    // Keep this predicate identical everywhere fan-tier usage is counted
+    // (see /api/platform/limits). is_active NULL means active (onboarding
+    // creators do not set it), so match TRUE-or-NULL, exclude only FALSE.
     const { count } = await supabaseAdmin
       .from('subscription_tiers')
       .select('id', { count: 'exact', head: true })
       .eq('artist_id', artistId)
-      .eq('is_active', true);
+      .not('is_active', 'is', false)
+      .gt('price', 0);
     current = count || 0;
   }
 

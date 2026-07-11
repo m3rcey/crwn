@@ -3,10 +3,14 @@ import { useState } from 'react';
 import { TrackUploadForm } from '@/components/artist/TrackUploadForm';
 import { AlbumManager } from '@/components/artist/AlbumManager';
 import { ArtistPlaylistManager } from '@/components/artist/ArtistPlaylistManager';
+import { VaultPlanner } from '@/components/artist/VaultPlanner';
 export function MusicManager() {
   const [activeSubTab, setActiveSubTab] = useState<'tracks' | 'albums' | 'playlists'>('tracks');
   return (
     <div>
+      {/* Level 2 (Build Your Vault): catalog-shape planner + adapted steps. */}
+      <VaultPlanner onGoTo={(sub) => setActiveSubTab(sub)} />
+
       {/* Sub-tabs */}
       <div className="flex gap-2 mb-6">
         <button

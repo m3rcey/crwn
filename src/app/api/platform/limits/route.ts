@@ -29,11 +29,16 @@ export async function GET(req: NextRequest) {
     .select('id', { count: 'exact', head: true })
     .eq('artist_id', artistId);
 
+  // Fan-tier usage counts PAID tiers only (price > 0). The free front-door tier
+  // does not consume the plan's fan-tier allowance (founder-approved rule). This
+  // predicate MUST stay identical to checkArtistLimit() in platformTier.ts.
+  // is_active NULL means active, so match TRUE-or-NULL and exclude only FALSE.
   const { count: tierCount } = await supabaseAdmin
     .from('subscription_tiers')
     .select('id', { count: 'exact', head: true })
     .eq('artist_id', artistId)
-    .eq('is_active', true);
+    .not('is_active', 'is', false)
+    .gt('price', 0);
 
   return NextResponse.json({
     tier,

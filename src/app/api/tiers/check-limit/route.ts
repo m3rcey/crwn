@@ -17,11 +17,12 @@ export async function POST(req: NextRequest) {
       current: result.current,
       limit: result.limit,
       tier: result.tier,
+      // Limit counts PAID tiers only; the free front-door tier is always allowed.
       upgradeMessage: result.tier === 'starter'
-        ? 'Upgrade to Pro to create more fan tiers (up to 5)'
+        ? 'Upgrade to Pro to add up to 3 paid tiers (your free tier stays free)'
         : result.tier === 'pro'
-          ? 'Upgrade to Label to create up to 10 fan tiers'
-          : 'You have reached the maximum fan tiers',
+          ? 'You have reached the 3 paid-tier limit on Pro'
+          : 'You have reached the maximum paid fan tiers',
     }, { status: 403 });
   }
 

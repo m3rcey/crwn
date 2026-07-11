@@ -52,9 +52,9 @@ interface ScreenDef {
 // One FIELD per screen. Groups (the four chips) span multiple screens.
 const SCREENS: ScreenDef[] = [
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
-  { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your membership tier', subtitle: 'What supporters join. e.g. “Inner Circle”.', icon: CreditCard },
-  { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the monthly price', subtitle: 'What fans pay each month. Enter 0 for a free tier.', icon: CreditCard },
-  { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do members get?', subtitle: 'Pick the perks fans unlock. These show on your page. You can edit them anytime.', icon: CreditCard, create: 'tier' },
+  { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your free entry point', subtitle: 'The free tier fans join first. e.g. “Community”. You build paid tiers later in Rise Mode.', icon: CreditCard },
+  { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the price', subtitle: 'Keep this at 0 for your free entry point. Paid tiers come later in Rise Mode.', icon: CreditCard },
+  { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do free members get?', subtitle: 'Pick the perks free fans unlock. These show on your page. You can edit them anytime.', icon: CreditCard, create: 'tier' },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -87,19 +87,22 @@ const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
   { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
 ];
 
-// Proven default tier (mirrors the landing-page "Inner Circle") so a Free artist —
-// who gets exactly ONE fan tier — lands a rich, benefit-loaded tier, not a bare one.
-const DEFAULT_TIER_NAME = 'Inner Circle';
-const DEFAULT_TIER_PRICE = '10';
+// Setup creates the FREE "Community" entry point only (the smallest credible
+// foundation). The PAID membership ladder (Backstage/Inner Circle/Executive) is
+// built later in Rise Mode Level 3, so setup and Rise never ask for the same thing.
+// The Level 3 ladder template recognizes this free "Community" tier by name and
+// shows it as already applied.
+const DEFAULT_TIER_NAME = 'Community';
+const DEFAULT_TIER_PRICE = '0';
 const TIER_BENEFIT_SUGGESTIONS = [
-  'Exclusive tracks',
-  'Early access to new releases',
-  'Members-only posts',
-  'Shout-outs from me',
+  'Community access',
+  'Artist posts',
+  'Release announcements',
+  'Selected free tracks',
+  'Public polls',
   'Behind-the-scenes content',
-  'Your name in the credits',
 ];
-const DEFAULT_TIER_BENEFITS = TIER_BENEFIT_SUGGESTIONS.slice(0, 4);
+const DEFAULT_TIER_BENEFITS = TIER_BENEFIT_SUGGESTIONS.slice(0, 5);
 
 function SetupWizard() {
   const router = useRouter();
@@ -473,7 +476,7 @@ function FieldBody({
           autoFocus
           className={INPUT}
           maxLength={40}
-          placeholder="Inner Circle"
+          placeholder="Community"
           value={tierDraft.name}
           onChange={(e) => setTierDraft((d) => ({ ...d, name: e.target.value }))}
         />
@@ -760,10 +763,10 @@ function ShareScreen({
           disabled={finishing}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-8 py-3 rounded-full hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"
         >
-          {finishing ? 'Loading…' : 'Enter CRWN'}
+          {finishing ? 'Loading…' : 'Start Rise Mode'}
           {!finishing && <ArrowRight className="w-4 h-4" />}
         </button>
-        <p className="text-xs text-crwn-text-secondary mt-4">We’ll show you around the rest of your dashboard next.</p>
+        <p className="text-xs text-crwn-text-secondary mt-4">Rise Mode will guide you through building the rest of your infrastructure.</p>
       </div>
     </div>
   );

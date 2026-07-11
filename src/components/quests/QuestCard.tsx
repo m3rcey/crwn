@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { QuestInstance } from '@/lib/quests/types';
 import { questCta } from './questRoutes';
@@ -18,10 +19,12 @@ export function QuestCard({
   quest,
   variant = 'default',
   ctaHref,
+  onManualComplete,
 }: {
   quest: QuestInstance;
   variant?: 'hero' | 'default' | 'compact';
   ctaHref?: string;
+  onManualComplete?: () => void;
 }) {
   const router = useRouter();
   const done = quest.status === 'completed';
@@ -29,6 +32,28 @@ export function QuestCard({
   const href = ctaHref || cta.href;
   const xp = quest.reward?.xp ?? 0;
   const isHero = variant === 'hero';
+  // Coaching quests (no product signal) complete via the guarded manual route, which
+  // server-side refuses anything that is not kind:'manual' (financial/supporter
+  // milestones stay authoritative). XP is granted idempotently.
+  const isManual = quest.completion_condition?.kind === 'manual';
+  const [submitting, setSubmitting] = useState(false);
+
+  const markDone = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await fetch('/api/quests/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questId: quest.id }),
+      });
+      onManualComplete?.();
+    } catch {
+      /* ignore — a failed mark can be retried */
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const nextStep = (quest.steps || [])[quest.current_step]?.title;
 
@@ -110,17 +135,38 @@ export function QuestCard({
         </div>
       )}
 
-      {!done && href && (
-        <button
-          onClick={() => router.push(href)}
-          className={`rounded-full font-bold ${
-            isHero
-              ? 'neu-button-accent w-full mt-6 py-4 text-lg'
-              : 'mt-4 text-base text-crwn-gold hover:underline'
-          }`}
-        >
-          {cta.label} →
-        </button>
+      {!done && isManual ? (
+        <div className={isHero ? 'mt-6 space-y-2' : 'mt-4 flex items-center gap-4'}>
+          <button
+            onClick={markDone}
+            disabled={submitting}
+            className={`rounded-full font-bold disabled:opacity-50 ${
+              isHero ? 'neu-button-accent w-full py-4 text-lg' : 'text-base text-crwn-gold hover:underline'
+            }`}
+          >
+            {submitting ? 'Saving...' : 'Mark as done'}
+          </button>
+          {href && href !== '/home' && (
+            <button
+              onClick={() => router.push(href)}
+              className={`text-base text-crwn-text-secondary hover:text-crwn-gold ${isHero ? 'block' : ''}`}
+            >
+              {cta.label} →
+            </button>
+          )}
+        </div>
+      ) : (
+        !done &&
+        href && (
+          <button
+            onClick={() => router.push(href)}
+            className={`rounded-full font-bold ${
+              isHero ? 'neu-button-accent w-full mt-6 py-4 text-lg' : 'mt-4 text-base text-crwn-gold hover:underline'
+            }`}
+          >
+            {cta.label} →
+          </button>
+        )
       )}
 
       {done && <div className="mt-3 text-base font-bold text-emerald-400">Completed</div>}
