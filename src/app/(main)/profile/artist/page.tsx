@@ -61,14 +61,16 @@ function ArtistDashboardContent() {
     }
   }, []);
 
-  // First-visit auto-start + replay button. This keeps the setup-wizard →
-  // dashboard handoff working: the wizard never sets completed_tours.dashboard,
-  // so the tour auto-starts the first time a new artist lands here.
+  // Replay-only. The post-setup tour is a long guided walk that auto-clicks
+  // across every tab, so auto-starting it the instant an artist finishes the
+  // wizard hijacked the dashboard (it popped up no matter which tab they clicked).
+  // enabled:false disables the auto-start; the "?" TourReplayButton below still
+  // lets an artist take it on demand (replay is returned regardless of enabled).
   const { replay: replayDashboardTour } = usePageTour({
     tourId: 'dashboard',
     steps: getPostSetupTourSteps(platformTier),
     userId: profile?.id,
-    enabled: !!artistId,
+    enabled: false,
     delayMs: 1500,
   });
   useEffect(() => {
