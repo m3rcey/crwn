@@ -87,6 +87,10 @@ export interface LeadMagnetConfig {
     headline: string;
     subheadline: string;
     primaryCta: string;
+    /** Photo shown on the public tool page. Required, so a new tool cannot ship without one. */
+    image: string;
+    /** Alt text for that photo. */
+    imageAlt: string;
   };
   inputs: LeadMagnetInputDefinition[];
   wizardSteps: LeadMagnetWizardStep[];

@@ -22,6 +22,8 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     headline: 'You already have a paid Vault. It is on your phone.',
     subheadline: 'Answer a few questions and get a real 30-day Vault plan: what to drop, how often, and what to charge.',
     primaryCta: 'Plan my Vault',
+    image: '/tool-vault.jpg',
+    imageAlt: 'An artist in a dim studio surrounded by shelves of unreleased music',
   },
   inputs: [
     { key: 'artistName', type: 'text', label: 'Your artist name', required: true, maxLength: 80, step: 'identity', placeholder: 'e.g. M3RCEY' },
@@ -94,6 +96,8 @@ const PROOF_OF_DEMAND: LeadMagnetConfig = {
     headline: 'Stop guessing. Make fans prove it.',
     subheadline: 'Build a demand test in two minutes: a clear idea, a threshold, and a deadline. If fans show up, you build it.',
     primaryCta: 'Build my demand test',
+    image: '/tool-proof-of-demand.jpg',
+    imageAlt: 'An artist in a dark studio checking his phone, weighing whether fans really want it',
   },
   inputs: [
     {
@@ -163,6 +167,8 @@ const FAN_MISSION: LeadMagnetConfig = {
     headline: 'One clear mission beats "please support me."',
     subheadline: 'Turn your goal into a single action, a target number, and a reward your fans can actually complete.',
     primaryCta: 'Generate my mission',
+    image: '/tool-fan-mission.jpg',
+    imageAlt: 'An artist on stage reaching out to clasp the hand of a fan in the crowd',
   },
   inputs: [
     {
@@ -251,6 +257,8 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
     headline: 'Your fans are already clipping you. Direct it.',
     subheadline: 'Build a clip-to-earn campaign: the best moments, the rules, and the reward that gets fans posting.',
     primaryCta: 'Plan my campaign',
+    image: '/tool-clip-to-earn.jpg',
+    imageAlt: 'A phone on a tripod filming an artist performing under a gold ring light',
   },
   inputs: [
     { key: 'sourceContent', type: 'text', label: 'What are they clipping?', required: true, maxLength: 80, step: 'source', placeholder: 'e.g. my new single "Crown"' },

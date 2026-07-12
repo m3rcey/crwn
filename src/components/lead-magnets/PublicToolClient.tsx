@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { smartBack } from '@/lib/navigation';
 import { LeadMagnetWizard } from './LeadMagnetWizard';
@@ -118,8 +119,10 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
     return <div className="min-h-[60vh] flex items-center justify-center text-crwn-text-secondary">Loading…</div>;
   }
 
+  // The hero gets a wide two-column canvas; everything after it (wizard, result) stays in
+  // the narrow single-column reading width.
   return (
-    <div className="max-w-lg mx-auto px-4 py-6">
+    <div className={`${phase === 'hero' ? 'max-w-5xl' : 'max-w-lg'} mx-auto px-4 py-6`}>
       <button onClick={() => smartBack(router, '/tools')} className="flex items-center gap-1.5 text-sm text-crwn-text-secondary mb-4">
         <ArrowLeft className="w-4 h-4" /> All tools
       </button>
@@ -173,15 +176,31 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
 
 function Hero({ config, onStart }: { config: LeadMagnetConfig; onStart: () => void }) {
   return (
-    <div className="py-6">
-      <div className="text-4xl mb-4">{config.icon}</div>
-      {config.hero.eyebrow && <div className="text-xs font-semibold uppercase tracking-wide text-crwn-gold mb-2">{config.hero.eyebrow}</div>}
-      <h1 className="text-3xl font-bold text-crwn-text leading-tight">{config.hero.headline}</h1>
-      <p className="text-base text-crwn-text-secondary mt-3 leading-relaxed">{config.hero.subheadline}</p>
-      <p className="text-xs text-crwn-text-secondary mt-4">Takes about {config.timeToComplete}. Free.</p>
-      <button onClick={onStart} className="w-full mt-6 py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold">
-        {config.hero.primaryCta}
-      </button>
+    // The photo sits BESIDE the copy on desktop, so it costs no vertical height and the
+    // CTA stays above the fold. On mobile it stacks, kept deliberately short for the same
+    // reason. Do not grow these heights without re-checking the fold on a small phone.
+    <div className="grid md:grid-cols-2 md:items-center gap-5 md:gap-10 py-2 md:py-6">
+      <div className="relative w-full h-36 sm:h-44 md:h-[420px] rounded-2xl overflow-hidden border border-crwn-elevated md:order-2">
+        <Image
+          src={config.hero.image}
+          alt={config.hero.imageAlt}
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
+      </div>
+
+      <div className="md:order-1">
+        {config.hero.eyebrow && <div className="text-xs font-semibold uppercase tracking-wide text-crwn-gold mb-2">{config.hero.eyebrow}</div>}
+        <h1 className="text-3xl md:text-4xl font-bold text-crwn-text leading-tight">{config.hero.headline}</h1>
+        <p className="text-base text-crwn-text-secondary mt-3 leading-relaxed">{config.hero.subheadline}</p>
+        <p className="text-xs text-crwn-text-secondary mt-4">Takes about {config.timeToComplete}. Free.</p>
+        <button onClick={onStart} className="w-full md:w-auto md:px-12 mt-5 py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold">
+          {config.hero.primaryCta}
+        </button>
+      </div>
     </div>
   );
 }
