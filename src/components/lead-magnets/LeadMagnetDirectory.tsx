@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { LEAD_MAGNETS } from '@/lib/leadMagnets/registry';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
@@ -36,7 +37,7 @@ export function LeadMagnetDirectory({ basePath, context }: { basePath: string; c
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-crwn-text">{context === 'artist' ? 'Artist tools' : 'CRWN artist tools'}</h1>
         <p className="text-sm text-crwn-text-secondary mt-1">
-          Free tools to plan your next move. Build a result, then bring it into CRWN.
+          Free tools that show you what you are leaving on the table. See the gap, then close it inside CRWN.
         </p>
       </div>
 
@@ -58,9 +59,17 @@ export function LeadMagnetDirectory({ basePath, context }: { basePath: string; c
               <button
                 key={m.slug}
                 onClick={() => router.push(`${basePath}/${m.slug}`)}
-                className="w-full flex items-start gap-3 rounded-2xl bg-crwn-surface border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40"
+                className="w-full flex items-center gap-4 rounded-2xl bg-crwn-surface border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40"
               >
-                <span className="text-2xl shrink-0">{m.icon}</span>
+                <span className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border border-crwn-elevated">
+                  <Image
+                    src={m.hero.image}
+                    alt={m.hero.imageAlt}
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
+                </span>
                 <span className="min-w-0">
                   <span className="block text-base font-semibold text-crwn-text">{m.name}</span>
                   <span className="block text-sm text-crwn-text-secondary mt-0.5">{m.description}</span>

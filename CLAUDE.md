@@ -19,6 +19,21 @@ exit/X/back controls and its on-success redirect must return the user to that `r
 fall back to the old route only when returnTo is absent. Use `smartBack(router, fallback)`
 for back/X controls so they return to the actual previous page.
 
+## Copy Rule — lead with the LOSS, not the gain
+
+Artist-facing marketing copy (lead magnet heroes, tool cards, landing pages) must be framed
+around **what the artist loses by not doing it**, not what they gain by doing it. Loss aversion,
+not upside. Gain-framed: "One clear mission beats 'please support me.'" Loss-framed (correct):
+"'Please support me' is why your fans do nothing." Name the cost of inaction (money not earned,
+fans not converted, reach going to someone else) first, then the fix.
+
+## Brand Photos — dark + gold, artists aged 18-32
+
+Photos must be cinematic and on-brand: near-black charcoal (#0D0D0D) with warm gold (#D4AF37)
+accent light. People are optional, but anyone shown must be a Black (African American) hip hop or
+R&B artist who reads as **age 18 to 32**. State the age explicitly in the generation prompt, or
+the model drifts middle-aged. Always look at the image before shipping it.
+
 ## Copy Rule — NEVER use em dashes
 
 NEVER use an em dash (—) in ANY user-facing copy, anywhere, ever: UI strings, emails, web/marketing pages, notifications, button labels, tooltips, error messages, docs — all of it. This applies to everything new you write and anything you edit. Do not substitute an en dash (–) either. Rewrite instead: split into two short sentences (also better for readability), or use a comma, colon, or parentheses. Example: "Your front door — the easiest yes" becomes "Your front door: the easiest yes". (Hyphens in compound words like "one-time" are fine; this rule is about the dash punctuation between clauses.)
@@ -239,4 +254,4 @@ New artists do NOT get the old dashboard tour first. They flow **signup → `/we
 
 ## Completion Signal
 When you finish a task, always run this as your final bash command:
-powershell.exe '[System.Media.SystemSounds]::Exclamation.Play()'
+powershell.exe '(New-Object Media.SoundPlayer "C:\Windows\Media\Ring05.wav").PlaySync()'
