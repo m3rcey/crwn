@@ -321,18 +321,33 @@ function ConfigStrip({ config }: { config: Config }) {
       </div>
 
       {!config.engineEnabled && (
-        <p className="text-xs text-crwn-text-secondary mt-3 leading-relaxed">
+        <div className="text-xs text-crwn-text-secondary mt-3 leading-relaxed space-y-2">
           {ready ? (
             <>
-              Everything required is configured. Flip it on:{' '}
-              <code className="text-crwn-gold">
-                UPDATE admin_settings SET value = &apos;{'{'}&quot;enabled&quot;: true{'}'}&apos;::jsonb WHERE key = &apos;acquisition_engine&apos;;
-              </code>
+              {/* Being dark is a TESTING ASSET, not just a safety net. A correctly configured
+                  ManyChat request gets back 503 engine_disabled, which proves the URL, the
+                  header, the secret and the body are all right WITHOUT writing a single row.
+                  An earlier version of this panel just said "flip it on", which threw that
+                  away and invited a first test that writes junk leads instead of reading a
+                  clean 503. */}
+              <p>
+                <span className="text-crwn-text font-medium">Everything required is configured.</span>{' '}
+                Smoke test ManyChat FIRST, while this is still dark: a correct External Request
+                should return <span className="text-crwn-gold">503 engine_disabled</span>. That
+                proves your URL, header, secret and body are right without writing any data.
+                A 401 means the secret does not match. A 400 means the body is off.
+              </p>
+              <p>
+                Once you have seen that 503, flip it on:{' '}
+                <code className="text-crwn-gold">
+                  UPDATE admin_settings SET value = &apos;{'{'}&quot;enabled&quot;: true{'}'}&apos;::jsonb WHERE key = &apos;acquisition_engine&apos;;
+                </code>
+              </p>
             </>
           ) : (
-            <>Still needed: {blockers.map((b) => b.label).join(', ')}. Hover each item for what it is.</>
+            <p>Still needed: {blockers.map((b) => b.label).join(', ')}. Hover each item for what it is.</p>
           )}
-        </p>
+        </div>
       )}
     </div>
   );
