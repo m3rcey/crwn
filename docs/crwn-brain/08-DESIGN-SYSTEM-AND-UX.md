@@ -11,18 +11,20 @@ Defined in `globals.css:1-18`, exposed as Tailwind utilities via `@theme inline`
 | Token | Value | Notes |
 |---|---|---|
 | `--crwn-bg` | `#0f0f0f` | ⚠️ but `layout.tsx` hardcodes `#0D0D0D` (and CLAUDE.md/PRD say `#0D0D0D`) — mismatch |
-| `--crwn-surface` | `rgba(26,26,26,0.4)` | cards/panels |
+| `--crwn-surface` | `rgba(26,26,26,0.4)` | cards/panels. **40% alpha** — fine over the page, WRONG on anything that floats |
+| `--crwn-surface-solid` | `#1a1a1a` | **opaque**. Use for floating overlays (dropdown menus, popovers) so page text does not show through |
 | `--crwn-elevated` | `#222222` | hover/active/dividers |
 | `--crwn-gold` | `#D4AF37` | accent (exact everywhere) |
 | `--crwn-gold-hover` | `#C9A032` | |
 | `--crwn-gold-muted` | `#8B7536` | borders/dividers |
 | `--crwn-text` | `#f0f0f0` | primary |
 | `--crwn-text-secondary` | `#8a8a9a` | |
-| `--crwn-text-dim` | `#5a5a6a` | ⚠️ declared but NOT exposed in `@theme` → no `text-crwn-text-dim` utility |
 | `--crwn-success` | `#4CAF50` | |
 | `--crwn-error` | `#E53935` | |
 
-**⚠️ `bg-crwn-card` is used in 56 files but the token `crwn-card` is never defined** (no config, no `@theme` entry) → in Tailwind v4 it likely compiles to nothing (transparent). The correct, defined token is `bg-crwn-surface`. This is a real, widespread bug. `Confirmed`.
+**✅ FIXED 2026-07-11 (was: `bg-crwn-card` used in 56 files, token never defined).** Confirmed in the browser that it compiled to nothing, so every panel using it was fully see-through. All usages were renamed to the defined `bg-crwn-surface`, and the undefined token is gone from the codebase. `--crwn-text-dim` had the same defect (declared in `:root`, never exposed in `@theme`, so `text-crwn-text-dim` was a no-op); its usages were mapped to `crwn-text-secondary` and the dead var removed.
+
+**Overlays must be opaque.** `crwn-surface` is 40% alpha, so it still bleeds when used on something that floats over content. Floating panels use `bg-crwn-surface-solid`. This bit the `OptionSelect` menu, `FanTable` segments and `TrackListItem` menu (all fixed). Modals were already safe because `.neu-modal` hardcodes `background: #1a1a1a`. `Confirmed`.
 
 ## 3. Typography
 `Inter` via `next/font/google` (`layout.tsx:2,13-16`, `--font-inter`). ⚠️ But `globals.css:70` sets `--font-sans: var(--font-geist-sans)` — a Geist starter leftover that `layout.tsx` never defines, so body text may fall back to `system-ui`. Verify in devtools. `Strongly inferred`.
