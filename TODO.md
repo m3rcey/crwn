@@ -18,25 +18,28 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Check whether `NEXT_PUBLIC_CRON_SECRET` and `CRON_SECRET` hold the same value in Vercel.**
-      This is the most urgent item on the page and it takes two minutes.
+- [ ] **Rotate `CRON_SECRET` and DELETE `NEXT_PUBLIC_CRON_SECRET` in Vercel.**
+      The most urgent item on the page. **The code side is already fixed and deployed** — do
+      this in the order below or you will break the AI Manager for every artist.
 
-      `AiManagerCard.tsx:194` is a **client component** that sends
+      **What was wrong:** `AiManagerCard.tsx` is a **client component** and was sending
       `Authorization: Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET}`. Anything prefixed
-      `NEXT_PUBLIC_` is compiled into the browser bundle, so that value is **readable in
-      plain text by every visitor to the site.**
+      `NEXT_PUBLIC_` is compiled into the browser bundle, so that value was being served in
+      plain text to every visitor. `/api/cron/weekly-payout` authenticates with
+      `Bearer ${process.env.CRON_SECRET}`. **If the two vars held the same value, your cron
+      secret was public and anyone could have triggered the payout cron.**
 
-      `/api/cron/weekly-payout` authenticates with `Bearer ${process.env.CRON_SECRET}`.
+      **What Claude changed:** `/api/ai-manager/generate` now accepts EITHER the cron secret
+      (server to server) OR the artist's own session cookie, verified with
+      `requireArtistOwner`. The client sends no secret at all. There is nothing left in the
+      bundle to leak.
 
-      **If the two vars hold the same value, your cron secret is public and anyone can
-      trigger the payout cron.** Claude cannot read Vercel env values, so only you can
-      confirm this.
-
-      - If they are the same → **rotate `CRON_SECRET` now**, and tell Claude to fix the
-        client-side call (it belongs behind an authenticated server route, not a bearer token
-        in a React component).
-      - If they differ → the AI Manager refresh button has been silently failing auth. Still
-        needs the same fix, but it is not an emergency.
+      **Your steps, in this order:**
+      1. Confirm the fix is deployed (the refresh button in the AI Manager card still works).
+      2. **Delete `NEXT_PUBLIC_CRON_SECRET`** from Vercel. Nothing reads it any more.
+      3. **Rotate `CRON_SECRET`** to a fresh value (`openssl rand -hex 32`). Redeploy.
+      4. Assume the old value was public. If anything in your Stripe history looks like an
+         off-schedule payout run, that is where to look first.
 
 - [ ] **Run the acquisition migration.** Supabase SQL editor:
       `supabase/schema-phase2-instagram-acquisition-engine.sql`
@@ -167,17 +170,20 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-- **Result page cannot recalculate.** The result page shows her numbers read-only. She cannot
-  adjust an assumption and re-run it, which the spec required and which the DB already stores
-  for (`original_input_data` is immutable and `input_data` was built to move). Claude built the
-  storage and skipped the UI. **Next up.**
 - **Admin acquisition panels.** Everything they would show is already recorded correctly. It
   is a read-only UI over existing data, so no schema risk. This is what would retire the two
-  SQL queries in your Ongoing list above.
-- **Fix the client-side cron secret** in `AiManagerCard.tsx` (see P0).
-- **CLAUDE.md is stale about `TIER_PRICING`.** It claims the old $69/$175/$350 values and a
-  dead Empire tier are still in the file. They are not — it is correct at $9.99 Pro / $99.
-  Claude will fix the doc.
+  SQL queries in your Ongoing list above. **Next up.**
+
+### Done
+
+- ~~**Fix the client-side cron secret**~~ in `AiManagerCard.tsx`. The route now takes a session
+  cookie; the client holds no secret. Your half is the P0 item above.
+- ~~**Result page cannot recalculate.**~~ The `worth` result page now renders the **real
+  `/worth` calculator** with her numbers already in it, presets and sliders live. Corrections
+  persist (`input_data` moves, `original_input_data` never does) and are re-run **server-side**
+  so a browser can never write a figure into a result. One component now serves the homepage,
+  `/worth`, and the personalized result, so the numbers cannot drift between them.
+- ~~**CLAUDE.md stale about `TIER_PRICING`.**~~ Fixed: it is correct at $9.99 Pro / $99 label.
 - **Auto-claim through signup** works via `ClaimRedeemer`, but `/signup` still ignores
   `?next`. Deliberate: `/welcome` and `useAuth` are the two files that broke onboarding
   silently for months, and a claim feature does not justify touching them.

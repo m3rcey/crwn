@@ -267,7 +267,7 @@ New artists do NOT get the old dashboard tour first. They flow **signup → `/we
 - Free (internal key `starter`): 12% fee
 - Pro: $9/mo, 8% fee
 - $99/mo tier (rolling out later; internal key `label`): 5% fee. SPEC ONLY, not billable/gated in v1.
-- Fee % is sourced from `TIER_LIMITS` in `platformTier.ts` (the single source of truth for fees). NOTE: `TIER_PRICING` display values in that file still show the old $69/$175/$350 and the dead Empire tier; they need fixing to match ($9 Pro, $99 future tier).
+- Fee % is sourced from `TIER_LIMITS` in `platformTier.ts` (the single source of truth for fees). `TIER_PRICING` in that file is CORRECT ($9.99 Pro / $99 label); an older version of this note claimed it still showed $69/$175/$350 and a dead Empire tier, and that was wrong. The only leftover is dead `empire_monthly`/`empire_annual` entries in `STRIPE_PRICE_IDS`.
 
 ### Fan Subscription Tiers (M3rcey test artist)
 

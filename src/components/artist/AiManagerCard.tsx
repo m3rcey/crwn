@@ -187,12 +187,14 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
     if (refreshing) return;
     setRefreshing(true);
     try {
+      // NO Authorization header. This is a client component, so anything it holds is public.
+      // It used to send `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET}`, which compiled the
+      // cron secret into the browser bundle for every visitor to read. The route now accepts
+      // this artist's SESSION COOKIE instead, which the browser sends automatically and which
+      // cannot be lifted out of the page source.
       await fetch('/api/ai-manager/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || ''}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artistId }),
       });
       await fetchAll();

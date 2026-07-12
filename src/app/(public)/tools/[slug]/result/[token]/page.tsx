@@ -1,14 +1,26 @@
 // The personalized result page.
 //
-// Server-rendered on purpose. The inputs and the output are read on the SERVER from the
-// token, so nothing sensitive is shipped in a client bundle and there is no API the browser
-// could be tricked into calling with someone else's token.
+// Server-rendered on purpose: the inputs and the output are read on the SERVER from the
+// token, so nothing sensitive ships in a client bundle and there is no API the browser could
+// be tricked into calling with someone else's token. The URL carries ONLY the opaque token.
 //
-// The URL contains ONLY the opaque token. No email, no handle, no numbers, no database id.
+// For `worth`, this renders the REAL /worth calculator with her numbers already in it, rather
+// than a bespoke read-only summary. Two reasons, and the second one is the important one:
+//
+//   1. One implementation. WorthExperience already IS the homepage and /worth. A second
+//      renderer would be a second copy of the front door's logic, free to drift.
+//   2. A number she cannot touch is a number she does not believe. On the real calculator she
+//      can flip the presets, open the advanced sliders, and watch her own figure move. That
+//      is the "correct the assumptions and recalculate" step, and it is worth more than any
+//      amount of copy telling her the estimate is honest.
+//
+// The other four tools render their stored result sections, because their engines produce
+// prose and checklists rather than a live model.
 
 import Link from 'next/link';
 import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { ESTIMATE_DISCLAIMER } from '@/lib/leadMagnets/disclaimers';
+import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
 
 export const dynamic = 'force-dynamic';
@@ -18,12 +30,11 @@ export default async function ResultPage({
 }: {
   params: Promise<{ slug: string; token: string }>;
 }) {
-  const { token } = await params;
+  const { slug, token } = await params;
   const lookup = await getResultByToken(token);
 
-  // Invalid, expired, and revoked all render the SAME page. A stranger poking at tokens
-  // cannot tell "this never existed" from "this expired last week", which would otherwise be
-  // a free oracle for probing.
+  // Invalid, expired, and revoked all render the SAME page. Someone poking at tokens cannot
+  // tell "never existed" from "expired last week", so there is no oracle to probe.
   if (!lookup.ok) {
     return (
       <main className="min-h-screen bg-crwn-bg text-white flex items-center justify-center px-6">
@@ -33,7 +44,7 @@ export default async function ResultPage({
             Result links expire. You can run the numbers again in about a minute.
           </p>
           <Link
-            href="/tools"
+            href="/worth"
             className="inline-block bg-[#D4AF37] text-black font-semibold px-6 py-3 rounded-full"
           >
             Run it again
@@ -46,6 +57,30 @@ export default async function ResultPage({
   const { result } = lookup;
   await recordView(result.id);
 
+  // ---- The worth tool: the real calculator, her numbers, live. ----
+  if (slug === 'worth' || result.toolSlug === 'worth') {
+    const input = result.inputData as {
+      monthly_listeners?: number;
+      social_followers?: number;
+      streaming_revenue_cents?: number;
+    };
+
+    return (
+      <WorthExperience
+        prefill={{
+          listeners: num(input.monthly_listeners),
+          followers: num(input.social_followers),
+          // The UI takes DOLLARS and converts to cents itself. We store cents. Convert back,
+          // or she sees a streaming figure 100x too big and stops trusting the whole page.
+          streaming: centsToDollars(input.streaming_revenue_cents),
+        }}
+        claimHref={result.claimedAt ? undefined : `/claim/${encodeURIComponent(token)}`}
+        resultToken={token}
+      />
+    );
+  }
+
+  // ---- Every other tool: its stored result sections. ----
   const data = result.resultData as {
     headline?: string;
     summary?: string;
@@ -56,7 +91,7 @@ export default async function ResultPage({
   return (
     <main className="min-h-screen bg-crwn-bg text-white px-6 py-14">
       <div className="max-w-2xl mx-auto">
-        <p className="text-[#D4AF37] text-xs tracking-widest uppercase mb-3">Your numbers</p>
+        <p className="text-[#D4AF37] text-xs tracking-widest uppercase mb-3">Your plan</p>
         <h1 className="text-3xl sm:text-4xl font-semibold leading-tight mb-4">
           {data.headline || 'Your result'}
         </h1>
@@ -72,9 +107,8 @@ export default async function ResultPage({
           <p className="text-xs text-white/40 mt-10 leading-relaxed">{ESTIMATE_DISCLAIMER}</p>
         )}
 
-        {/* The next step. A logged-out visitor sees the result in full: we do not hold it
-            hostage for an email (commit 9cbab45 removed that behavior from the other tools,
-            and this one is not going to reintroduce it). */}
+        {/* The result is NOT gated. She sees all of it without giving an email (commit
+            9cbab45 removed that behavior from the other tools; this does not reintroduce it). */}
         <div className="mt-12 border-t border-white/10 pt-8">
           {result.claimedAt ? (
             <Link
@@ -87,7 +121,7 @@ export default async function ResultPage({
             <>
               <h2 className="text-xl font-semibold mb-2">Want to actually build this?</h2>
               <p className="text-white/60 mb-6">
-                Save these numbers to a CRWN account and we will set the whole thing up with you.
+                Save it to a CRWN account and we will set the whole thing up with you.
               </p>
               <Link
                 href={`/claim/${encodeURIComponent(token)}`}
@@ -101,6 +135,16 @@ export default async function ResultPage({
       </div>
     </main>
   );
+}
+
+/** A missing value must render as an EMPTY input, never as "0" or "undefined". */
+function num(v: number | undefined): string | undefined {
+  return typeof v === 'number' && Number.isFinite(v) && v > 0 ? String(v) : undefined;
+}
+
+function centsToDollars(cents: number | undefined): string | undefined {
+  if (typeof cents !== 'number' || !Number.isFinite(cents) || cents <= 0) return undefined;
+  return String(Math.round(cents / 100));
 }
 
 function Section({ section }: { section: ResultSection }) {

@@ -127,10 +127,44 @@ const FAN_MATH = [
   { fans: '1,000', rev: '$15,000' },
 ];
 
-export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
-  const [listeners, setListeners] = useState('50000');
-  const [followers, setFollowers] = useState('');
-  const [streaming, setStreaming] = useState('');
+export interface WorthPrefill {
+  listeners?: string;
+  followers?: string;
+  streaming?: string;
+}
+
+/**
+ * The calculator. Three surfaces, one implementation, so the numbers can never drift:
+ *
+ *   /              homepage      (homepage: signup CTAs + nav)
+ *   /worth         cold outreach (book-a-call CTA)
+ *   /tools/worth/result/[token]  a lead's PERSONALIZED result from the Instagram funnel
+ *
+ * `prefill` seeds the inputs server-side for that third surface, so an artist who answered
+ * one question in an Instagram DM lands on her own number, in the real calculator, with the
+ * presets and sliders live. She can correct an assumption and watch it recalculate, which is
+ * the whole point: a number she cannot touch is a number she does not believe.
+ *
+ * `claimHref` swaps the CTA to "save this to an account" instead of "book a call".
+ *
+ * Both are OPTIONAL and default to the old behavior exactly, so the homepage and /worth are
+ * byte-for-byte unchanged.
+ */
+export function WorthExperience({
+  homepage = false,
+  prefill,
+  claimHref,
+  resultToken,
+}: {
+  homepage?: boolean;
+  prefill?: WorthPrefill;
+  claimHref?: string;
+  /** Set only on a personalized result page. Persists her corrections. */
+  resultToken?: string;
+}) {
+  const [listeners, setListeners] = useState(prefill?.listeners || '50000');
+  const [followers, setFollowers] = useState(prefill?.followers || '');
+  const [streaming, setStreaming] = useState(prefill?.streaming || '');
   const [preset, setPreset] = useState<AggressivenessPreset>('conservative');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -170,6 +204,35 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
     inputs.monthlyListeners, inputs.engagedFollowers, inputs.currentStreamingCents,
     assumptions.superfanRate, assumptions.alacarteArpuCents, assumptions.reachRate,
   ]);
+
+  // Persist her corrections, but ONLY on a personalized result page.
+  //
+  // She told us "40k" in an Instagram DM. Here she can say "actually it's 62k, and I do have
+  // an email list". That correction is the most valuable thing she will give us all funnel:
+  // it is a higher-trust number than anything we parsed out of a chat message, and CRWN's
+  // trust ordering treats it that way.
+  //
+  // Debounced, because this fires on every keystroke and every slider drag. Guarded on
+  // resultToken, so the homepage and /worth do exactly what they did before: nothing.
+  useEffect(() => {
+    if (!resultToken) return;
+
+    const t = setTimeout(() => {
+      fetch(`/api/lead-results/${encodeURIComponent(resultToken)}/recalculate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listeners: inputs.monthlyListeners,
+          followers: inputs.engagedFollowers,
+          streamingCents: inputs.currentStreamingCents,
+        }),
+      }).catch(() => {
+        // Never let a failed save break the page she is reading.
+      });
+    }, 1500);
+
+    return () => clearTimeout(t);
+  }, [resultToken, inputs.monthlyListeners, inputs.engagedFollowers, inputs.currentStreamingCents]);
 
   const handleCapture = async () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -469,7 +532,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </div>
         </section>
 
-        <PrimaryCTA homepage={homepage} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
+        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
           {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
         </PrimaryCTA>
 
@@ -550,7 +613,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           </div>
         </section>
 
-        <PrimaryCTA homepage={homepage} sub="Free to start. No card required.">
+        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required.">
           {homepage ? 'Start free on CRWN' : 'Book my free 15-min call'}
         </PrimaryCTA>
 
@@ -634,7 +697,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
           <LeaderboardMock payers={hasNumber ? result.payers : undefined} />
         </section>
 
-        <PrimaryCTA homepage={homepage} sub="15 minutes. We’ll build your plan live.">
+        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="15 minutes. We’ll build your plan live.">
           {homepage ? 'Start free on CRWN' : 'See it on your own catalog'}
         </PrimaryCTA>
 
@@ -701,7 +764,7 @@ export function WorthExperience({ homepage = false }: { homepage?: boolean }) {
               ? 'Set up your page free and turn on every one of these revenue streams.'
               : 'Book a free 15-minute Zoom and we’ll set up every one of these revenue streams with you, live.'}
           </p>
-          <PrimaryCTA homepage={homepage} sub="Free to start. No card required. Keep up to 92%.">
+          <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required. Keep up to 92%.">
             {homepage ? `Start free, claim your ${monthlyLabel}` : `Book a call, claim your ${monthlyLabel}`}
           </PrimaryCTA>
         </div>
@@ -731,13 +794,33 @@ function HomeNav() {
   );
 }
 
-// Primary CTA, peppered through the page. On the homepage it drives signup;
-// on /worth it books a call.
-function PrimaryCTA({ children, sub, homepage }: { children: ReactNode; sub?: string; homepage?: boolean }) {
+// Primary CTA, peppered through the page. Three destinations:
+//   homepage      -> signup
+//   claimHref set -> save the result to an account (the Instagram funnel)
+//   otherwise     -> book a call
+//
+// When claimHref is set we override the per-section copy with ONE consistent ask. A lead who
+// arrived from a DM already has her number in front of her; five differently-worded CTAs is
+// five decisions, and the whole page should be asking her exactly one thing.
+function PrimaryCTA({
+  children,
+  sub,
+  homepage,
+  claimHref,
+}: {
+  children: ReactNode;
+  sub?: string;
+  homepage?: boolean;
+  claimHref?: string;
+}) {
   const cls = 'inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full hover:bg-crwn-gold/90 transition-colors';
   return (
     <div className="text-center my-12">
-      {homepage ? (
+      {claimHref ? (
+        <a href={claimHref} className={cls}>
+          Save my numbers and build this <ArrowRight className="w-5 h-5" />
+        </a>
+      ) : homepage ? (
         <a href="/signup?ref=homepage" className={cls}>
           {children} <ArrowRight className="w-5 h-5" />
         </a>
