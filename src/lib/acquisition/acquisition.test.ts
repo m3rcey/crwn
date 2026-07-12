@@ -15,6 +15,8 @@ import {
   validateExtractedValue,
 } from './fieldRegistry';
 import { canTransition, nextState, transition } from './stateMachine';
+import { MAX_ATTEMPTS_PER_FIELD } from './orchestration';
+import { getField } from './fieldRegistry';
 import { TRUST_RANK } from './types';
 import { scoreLead, EMPTY_BEHAVIOR } from './leadScoring';
 import { getTool, missingRequiredFields, ACQUISITION_TOOL_IDS } from './toolAdapters';
@@ -371,6 +373,18 @@ describe('tool adapters (parity with the five existing lead magnets)', () => {
     expect(ACQUISITION_TOOL_IDS).toContain('clip-to-earn-campaign-planner');
   });
 
+  it('does not greet an anonymous lead by name (there is no name to greet)', () => {
+    // The worth tool never asks for a name, so artist_name is undefined for a cold IG lead.
+    // The headline used to render "You: about $3,892..." which reads like a failed mail merge.
+    const anon = getTool('worth')!.execute({ monthly_listeners: 40_000 });
+    expect(anon.headline).not.toContain('You:');
+    expect(anon.headline).toMatch(/^About \$/);
+
+    // Once we DO know the name (a returning, claimed artist), use it.
+    const named = getTool('worth')!.execute({ monthly_listeners: 40_000, artist_name: 'Naya' });
+    expect(named.headline).toMatch(/^Naya, about \$/);
+  });
+
   it('produces the SAME numbers as the existing /worth calculator', () => {
     // This is the parity guarantee, made concrete. The adapter calls leadCalculator.calculate
     // with the conservative preset, exactly as WorthExperience does. If someone ever
@@ -396,6 +410,46 @@ describe('tool adapters (parity with the five existing lead magnets)', () => {
     for (const id of ACQUISITION_TOOL_IDS) {
       expect(() => getTool(id)!.execute({})).not.toThrow();
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe('the unparseable-answer loop (regression: the bot used to ask forever)', () => {
+  it('cannot parse a vague answer, which is what triggers the escalation path', () => {
+    // These are the answers a real artist actually types, and none of them resolve. Before
+    // the loop guard, each one made CRWN re-ask the identical question forever.
+    expect(normalizeDeterministic('monthly_listeners', 'honestly not that many')).toBeNull();
+    expect(normalizeDeterministic('monthly_listeners', 'no idea lol')).toBeNull();
+    expect(normalizeDeterministic('monthly_listeners', 'a decent amount')).toBeNull();
+  });
+
+  it('gives every field an artist is likely to fumble a concrete retry hint', () => {
+    // The re-ask must not repeat the question verbatim. A hint with a real example is what
+    // converts the second attempt.
+    for (const key of ['monthly_listeners', 'social_followers', 'email_list_size', 'catalog_size']) {
+      const def = getField(key)!;
+      expect(def.retryHint, `${key} has no retryHint`).toBeTruthy();
+      expect(def.retryHint).not.toBe(def.question);
+    }
+  });
+
+  it('escalates to human review rather than looping (the state machine allows the exit)', () => {
+    // needsHumanReview overrides everything, from any collecting state. That is the exit the
+    // loop guard uses on the third failed attempt.
+    const s = nextState('collecting_required_metrics', {
+      missingRequiredFields: ['monthly_listeners'],
+      hasConsent: true,
+      hasResult: false,
+      hasVerifiedEmail: false,
+      isClaimed: false,
+      needsHumanReview: true,
+    });
+    expect(s).toBe('human_review');
+    expect(canTransition('collecting_required_metrics', 'human_review')).toBe(true);
+  });
+
+  it('caps attempts at 3', () => {
+    expect(MAX_ATTEMPTS_PER_FIELD).toBe(3);
   });
 });
 

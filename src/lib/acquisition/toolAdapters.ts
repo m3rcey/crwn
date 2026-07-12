@@ -97,11 +97,19 @@ const worth: AcquisitionTool = {
 
     const net = fmtDollars(result.netMrrCents);
     const streaming = fmtDollars(result.streamingMrrCents);
-    const artist = s(profile.artist_name, 'You');
+    const artist = s(profile.artist_name);
+
+    // A cold Instagram lead has never told us their name (the worth tool does not ask for
+    // one, on purpose: every extra question is a chance to lose them). So there is no name to
+    // greet, and "You: about $3,892 a month is sitting on the table" reads like a mail merge
+    // that failed. Drop the prefix entirely when we do not know who we are talking to.
+    const headline = artist
+      ? `${artist}, about ${net} a month is sitting on the table`
+      : `About ${net} a month is sitting on the table`;
 
     return {
       generatorVersion: 'leadCalculator@1',
-      headline: `${artist}: about ${net} a month is sitting on the table`,
+      headline,
       summary: `Based on ${Math.floor(n(profile.monthly_listeners)).toLocaleString('en-US')} monthly listeners, a direct-to-fan setup could net around ${net} per month. Streaming currently pays you about ${streaming}.`,
       sections: [
         {

@@ -171,13 +171,40 @@ export async function orchestrate(
 
   // ---- 6. The state machine decides. Claude only ever suggested. ----
   const missingNow = missingRequiredFields(tool, loaded.values);
+
+  // ---- The loop guard. ----
+  //
+  // fallbackDecision() returns missing[0]. It has no memory, so if an answer cannot be
+  // parsed it hands back the SAME field, and the orchestrator asks the SAME question. An
+  // artist who types "honestly not that many" would be asked "about how many monthly
+  // listeners?" forever. That is not a hypothetical: it is what this code did before this
+  // block existed, and it is the single worst way to lose a lead.
+  //
+  // Every attempt is already recorded in lead_answers, so the counter costs one query and
+  // no new schema.
+  //
+  //   attempt 1 fails -> re-ask WITH a concrete example (converts most of them)
+  //   attempt 2 fails -> re-ask with the example again
+  //   attempt 3 fails -> stop asking. Hand it to a human.
+  let stuckOnField: string | null = null;
+  let needsHuman = decision.requiresHumanReview;
+
+  if (payload.event_type === 'answer' && payload.question_key && missingNow.includes(payload.question_key)) {
+    const attempts = await countAttempts(session.id, payload.question_key);
+    if (attempts >= MAX_ATTEMPTS_PER_FIELD) {
+      needsHuman = true;
+    } else if (attempts >= 1) {
+      stuckOnField = payload.question_key;
+    }
+  }
+
   const facts = {
     missingRequiredFields: missingNow,
     hasConsent: identity.consentDm,
     hasResult: false,
     hasVerifiedEmail: !!identity.emailVerifiedAt,
     isClaimed: !!identity.claimedAt,
-    needsHumanReview: decision.requiresHumanReview,
+    needsHumanReview: needsHuman,
   };
 
   const target = nextState(session.state, facts);
@@ -193,27 +220,68 @@ export async function orchestrate(
     return finalize(session, identity, tool, loaded.values);
   }
 
+  // ---- Gave up on this artist's answer. Hand them to a person, do not loop. ----
+  if (committedState === 'human_review') {
+    await commitState(session, 'human_review', null);
+    await recordEvent('lead_human_review', {
+      leadIdentityId: identity.id,
+      sessionId: session.id,
+      metadata: { field: payload.question_key, reason: 'unparseable_after_retries' },
+    });
+
+    return buildResponse({
+      sessionId: session.id,
+      action: 'human_review',
+      // Never blame the artist for our parser. This reads as a handoff, not a failure.
+      message: 'Let me get a person on this with you so we get it right. Someone will follow up here shortly.',
+      leadMagnetId: tool.id,
+      state: 'human_review',
+    });
+  }
+
   // ---- Otherwise, ask the next question. ----
   const askKey = decision.nextQuestionField ?? missingNow[0] ?? null;
   const def = askKey ? getField(askKey) : null;
+
+  // If we could not read their last answer, do NOT repeat the question verbatim. Ask again
+  // with a concrete example. (Claude's own rephrase is preferred when it produced one, since
+  // it can respond to what they actually said.)
+  const isRetry = !!stuckOnField && stuckOnField === askKey;
+  const message = isRetry
+    ? decision.responseMessage && decision.responseMessage !== def?.question
+      ? decision.responseMessage
+      : `${def?.retryHint ?? def?.question ?? 'Tell me a bit more.'}`
+    : decision.responseMessage || def?.question || 'Tell me a bit more.';
 
   await commitState(session, committedState, askKey);
   await recordEvent('lead_question_asked', {
     leadIdentityId: identity.id,
     sessionId: session.id,
-    metadata: { field: askKey, state: committedState },
+    metadata: { field: askKey, state: committedState, retry: isRetry },
   });
 
   return buildResponse({
     sessionId: session.id,
     action: 'ask_question',
-    message: decision.responseMessage || def?.question || 'Tell me a bit more.',
+    message,
     questionKey: askKey,
     inputType: (def?.inputType ?? 'text') as QuestionInputType,
     choices: def?.values ?? [],
     leadMagnetId: tool.id,
     state: committedState,
   });
+}
+
+/** After this many unparseable attempts at one field, stop asking and get a human. */
+export const MAX_ATTEMPTS_PER_FIELD = 3;
+
+async function countAttempts(sessionId: string, fieldKey: string): Promise<number> {
+  const { count } = await supabaseAdmin
+    .from('lead_answers')
+    .select('id', { count: 'exact', head: true })
+    .eq('session_id', sessionId)
+    .eq('field_key', fieldKey);
+  return count ?? 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -348,29 +416,46 @@ async function commitState(session: SessionRow, state: LeadSessionState, questio
   session.revision += 1;
 }
 
-/** Append-only. A correction supersedes the old row; it never overwrites it. */
+/**
+ * Append-only. A correction supersedes the old row; it never overwrites it.
+ *
+ * INSERT FIRST, then point the old rows at the new one. The previous version of this did
+ * `.update({ superseded_by: null }).is('superseded_by', null)`, which sets null to null: a
+ * no-op. Every re-answer left another row with `superseded_by IS NULL`, so "the current
+ * answer for this field" became ambiguous and the idx_lead_answers_current partial index was
+ * indexing several rows that all claimed to be current.
+ */
 async function storeRawAnswer(
   sessionId: string,
   identityId: string,
   payload: ManyChatInboundPayload,
 ): Promise<void> {
-  await supabaseAdmin
+  const { data: inserted } = await supabaseAdmin
     .from('lead_answers')
-    .update({ superseded_by: null })
-    .eq('session_id', sessionId)
-    .eq('field_key', payload.question_key as string)
-    .is('superseded_by', null);
+    .insert({
+      session_id: sessionId,
+      lead_identity_id: identityId,
+      field_key: payload.question_key,
+      raw_value: payload.answer, // EXACTLY what they typed. Untouched.
+      source: 'instagram_dm',
+      extraction_method: 'direct',
+      external_event_id: payload.event_id,
+      answered_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
 
-  await supabaseAdmin.from('lead_answers').insert({
-    session_id: sessionId,
-    lead_identity_id: identityId,
-    field_key: payload.question_key,
-    raw_value: payload.answer, // EXACTLY what they typed. Untouched.
-    source: 'instagram_dm',
-    extraction_method: 'direct',
-    external_event_id: payload.event_id,
-    answered_at: new Date().toISOString(),
-  });
+  // Retire every earlier answer for this field by pointing it at the new one. `.neq(id)`
+  // stops the new row from superseding itself.
+  if (inserted?.id) {
+    await supabaseAdmin
+      .from('lead_answers')
+      .update({ superseded_by: inserted.id })
+      .eq('session_id', sessionId)
+      .eq('field_key', payload.question_key as string)
+      .neq('id', inserted.id)
+      .is('superseded_by', null);
+  }
 
   await supabaseAdmin.from('lead_conversation_messages').insert({
     session_id: sessionId,

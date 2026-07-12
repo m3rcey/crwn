@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Navigation } from '@/components/layout/Navigation';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
+import { ClaimRedeemer } from '@/components/lead-magnets/ClaimRedeemer';
 
 
 export default function MainLayout({
@@ -103,6 +104,11 @@ export default function MainLayout({
     <div className="relative min-h-screen bg-transparent">
       <BackgroundImage src="/backgrounds/bg-home.jpg" />
       <Navigation />
+
+      {/* Renders nothing. Redeems a lead-magnet result claim stranded by the signup funnel.
+          Only reached once both gates above have passed, which is exactly when the artist
+          has an artist_profiles row and a claim can link it. Never blocks, never redirects. */}
+      <ClaimRedeemer />
       
       {/* Main Content - with padding for mobile nav and sidebar. The mobile nav
           is 56px tall plus its own safe-area inset, so the clearance has to

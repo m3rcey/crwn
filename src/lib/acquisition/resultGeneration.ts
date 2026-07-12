@@ -35,7 +35,16 @@ export async function generateAndStore(input: GenerateInput): Promise<Acquisitio
   const tool = getTool(input.toolId);
   if (!tool) return null;
 
-  // Already generated? Return it. Do not recompute, do not re-mint a token, do not re-send.
+  // Already generated? Do NOT recompute (the result is immutable), but DO issue a fresh link.
+  //
+  // Only the token HASH is stored, so the original raw token is genuinely unrecoverable. That
+  // is the correct trade (a database read must never yield a working link), but it means
+  // "send it to me again" cannot mean "resend the old URL". It has to mean ROTATE: mint a new
+  // token, replace the hash, and the previous link stops working.
+  //
+  // The first version of this returned an empty string here, and finalize() cheerfully sent
+  // the artist a DM that said "Here is your breakdown:" with no link in it. A dead end at the
+  // exact moment of payoff. Rotation is both the fix and the right behavior.
   const { data: existing } = await supabaseAdmin
     .from('lead_magnet_results')
     .select('id, result_data, tool_slug')
@@ -44,16 +53,24 @@ export async function generateAndStore(input: GenerateInput): Promise<Acquisitio
     .maybeSingle();
 
   if (existing) {
-    // The raw token was returned exactly once, at mint time, and only the hash was stored.
-    // We genuinely cannot reconstruct the URL here, and that is the correct trade: a
-    // database read must not yield a working link. The caller re-sends the stored result via
-    // the admin "resend link" action, which mints a fresh token deliberately.
     const rd = (existing.result_data as Record<string, unknown>) ?? {};
+    const rotated = mintToken();
+
+    await supabaseAdmin
+      .from('lead_magnet_results')
+      .update({
+        public_token_hash: rotated.hash,
+        public_token_expires_at: expiresAt(RESULT_TTL_SECONDS),
+        // A rotated link is a live link again, even if the old one had been revoked.
+        revoked_at: null,
+      })
+      .eq('id', existing.id);
+
     return {
       resultId: String(existing.id),
       toolSlug: String(existing.tool_slug),
-      publicToken: '',
-      resultUrl: '',
+      publicToken: rotated.raw,
+      resultUrl: buildResultUrl(String(existing.tool_slug), rotated.raw),
       headline: String(rd.headline ?? ''),
       shareSummary: String(rd.shareSummary ?? ''),
     };
@@ -99,12 +116,23 @@ export async function generateAndStore(input: GenerateInput): Promise<Acquisitio
         .eq('tool_slug', tool.id)
         .maybeSingle();
       if (raced) {
+        // Same rule as the already-exists path above: rotate, so the caller always gets a
+        // usable link. Never return an empty URL; a linkless result DM is a dead end.
         const rd = (raced.result_data as Record<string, unknown>) ?? {};
+        const rotated = mintToken();
+        await supabaseAdmin
+          .from('lead_magnet_results')
+          .update({
+            public_token_hash: rotated.hash,
+            public_token_expires_at: expiresAt(RESULT_TTL_SECONDS),
+          })
+          .eq('id', raced.id);
+
         return {
           resultId: String(raced.id),
           toolSlug: String(raced.tool_slug),
-          publicToken: '',
-          resultUrl: '',
+          publicToken: rotated.raw,
+          resultUrl: buildResultUrl(String(raced.tool_slug), rotated.raw),
           headline: String(rd.headline ?? ''),
           shareSummary: String(rd.shareSummary ?? ''),
         };

@@ -28,6 +28,14 @@ export interface FieldDefinition {
   aiExtractable: boolean;
   /** The question we ask when this field is missing and required. */
   question?: string;
+  /**
+   * What we ask on a RE-ask, after the first answer could not be read.
+   *
+   * "About how many monthly listeners?" answered with "honestly not that many" is
+   * unparseable, and repeating the identical question at someone is how a bot loses a human.
+   * A hint with a concrete example converts most of these on the second try.
+   */
+  retryHint?: string;
   inputType?: QuestionInputType;
   /** enum only */
   values?: string[];
@@ -98,6 +106,7 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     label: 'Monthly listeners',
     aiExtractable: true,
     question: 'About how many monthly listeners do you have right now?',
+    retryHint: 'Just a rough number is fine. Something like 500, or 40k. Whatever Spotify says.',
     inputType: 'number',
     min: 0,
     max: MAX_AUDIENCE,
@@ -110,6 +119,7 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     label: 'Social followers',
     aiExtractable: true,
     question: 'Roughly how many followers do you have across your socials?',
+    retryHint: 'A ballpark number works. Something like 1200, or 15k.',
     inputType: 'number',
     min: 0,
     max: MAX_AUDIENCE,
@@ -122,6 +132,7 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     label: 'Email list size',
     aiExtractable: true,
     question: 'How many fans are on your email list? (0 is a real answer)',
+    retryHint: 'A number is all I need. If you do not have a list yet, just say 0.',
     inputType: 'number',
     min: 0,
     max: MAX_AUDIENCE,
@@ -144,6 +155,7 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     label: 'Catalog size',
     aiExtractable: true,
     question: 'How many songs have you released?',
+    retryHint: 'Just the number of songs you have out. A rough count is fine.',
     inputType: 'number',
     min: 0,
     max: 100_000,

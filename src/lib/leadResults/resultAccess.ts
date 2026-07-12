@@ -75,14 +75,23 @@ export async function getResultByToken(rawToken: string): Promise<ResultLookup> 
   };
 }
 
-/** Idempotent view tracking. First view stamps viewed_at; every view bumps the counter. */
+/**
+ * Idempotent view tracking. First view stamps viewed_at; every view bumps the counter.
+ *
+ * The FIRST view also emits a lead_result_viewed event, which is a real scoring signal (an
+ * artist who opened the link is worth more than one who did not) and the thing the
+ * "result not viewed after 24h" follow-up checks against. The idempotency key makes the
+ * event fire exactly once no matter how many times they reload.
+ */
 export async function recordView(resultId: string): Promise<void> {
   try {
     const { data } = await supabaseAdmin
       .from('lead_magnet_results')
-      .select('viewed_at, view_count')
+      .select('viewed_at, view_count, lead_identity_id, lead_session_id')
       .eq('id', resultId)
       .maybeSingle();
+
+    const firstView = !data?.viewed_at;
 
     await supabaseAdmin
       .from('lead_magnet_results')
@@ -91,6 +100,18 @@ export async function recordView(resultId: string): Promise<void> {
         view_count: (Number(data?.view_count) || 0) + 1,
       })
       .eq('id', resultId);
+
+    if (firstView) {
+      await supabaseAdmin.from('acquisition_events').insert({
+        event_name: 'lead_result_viewed',
+        result_id: resultId,
+        lead_identity_id: data?.lead_identity_id ?? null,
+        session_id: data?.lead_session_id ?? null,
+        // Fires once, ever, per result. A reload is not a second view.
+        idempotency_key: `viewed:${resultId}`,
+        status: 'recorded',
+      });
+    }
   } catch {
     // A view counter must never break a page render.
   }
@@ -116,18 +137,38 @@ export async function claimResult(rawToken: string, userId: string): Promise<Cla
   // Already claimed by SOMEONE. If it is this same user, that is a harmless double-click and
   // we let them through. If it is a different user, we refuse: one lead, one owner, and no
   // silent re-parenting of another artist's data.
-  if (result.claimedAt && result.leadIdentityId) {
-    const { data: owner } = await supabaseAdmin
-      .from('lead_identities')
+  //
+  // Check the RESULT's own owner first, not just the identity's. A result can carry a
+  // claimed_at with a null lead_identity_id (an admin action, a deleted identity), and the
+  // earlier version of this fell straight through that case and happily re-claimed a result
+  // that already belonged to someone else.
+  if (result.claimedAt) {
+    const { data: row } = await supabaseAdmin
+      .from('lead_magnet_results')
       .select('user_id')
-      .eq('id', result.leadIdentityId)
+      .eq('id', result.id)
       .maybeSingle();
 
-    if (owner?.user_id && owner.user_id !== userId) {
+    if (row?.user_id && row.user_id !== userId) {
       return { ok: false, reason: 'already_claimed' };
     }
-    if (owner?.user_id === userId) {
+    if (row?.user_id === userId) {
       return { ok: true, destinationId: await destinationFor(userId) };
+    }
+
+    if (result.leadIdentityId) {
+      const { data: owner } = await supabaseAdmin
+        .from('lead_identities')
+        .select('user_id')
+        .eq('id', result.leadIdentityId)
+        .maybeSingle();
+
+      if (owner?.user_id && owner.user_id !== userId) {
+        return { ok: false, reason: 'already_claimed' };
+      }
+      if (owner?.user_id === userId) {
+        return { ok: true, destinationId: await destinationFor(userId) };
+      }
     }
   }
 
