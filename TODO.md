@@ -18,9 +18,9 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Rotate `CRON_SECRET` and DELETE `NEXT_PUBLIC_CRON_SECRET` in Vercel.**
-      The most urgent item on the page. **The code side is already fixed and deployed** — do
-      this in the order below or you will break the AI Manager for every artist.
+- [x] ~~**Rotate `CRON_SECRET` and DELETE `NEXT_PUBLIC_CRON_SECRET` in Vercel.**~~
+      **DONE 2026-07-12.** The cron secret is no longer in the browser bundle, and the old
+      (public) value has been rotated out. Details kept below for the record.
 
       **What was wrong:** `AiManagerCard.tsx` is a **client component** and was sending
       `Authorization: Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET}`. Anything prefixed
