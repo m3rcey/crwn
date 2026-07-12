@@ -57,12 +57,28 @@ responsible for. Do not work those.
       an app review, Meta's permissions process, and hand-rolling the messaging-window logic
       ManyChat already handles. Weeks of work and far more risk, to avoid a small monthly fee.
 
-      **Cost:** ManyChat Pro is priced by contact count (it starts low and scales). Check
-      **Settings → Billing → Subscriptions** for your actual number. Claude cannot see your
-      pricing and will not guess at it.
+      **THE PLAN IS "PRO", $39/mo. Verified 2026-07-12, not guessed.** Essential ($17) does
+      NOT work: its "unlimited custom automations" means unlimited flows, not outbound HTTP.
+      ManyChat's own docs are explicit that External Request and API access are both Pro-and-
+      above. The $22 gap between Essential and Pro is exactly the feature this build needs.
 
-      This is a paid dependency Claude introduced and did not price for you up front. That was
-      a miss. Everything else below is free and works today.
+      **Take the 14-day free trial first.** Wire the whole thing, run yourself through the
+      funnel end to end, confirm it works, and spend nothing. Then decide with evidence.
+
+      **Do NOT downgrade to Essential later.** External Request would vanish and the live
+      funnel would silently stop reaching CRWN. Pro is the permanent floor.
+
+      **Is it worth it:** a 40k-listener artist nets ~$3,892/mo direct on your own calculator.
+      At the 8% Pro fee that is ~$311/mo to CRWN from ONE converted artist. ManyChat Pro pays
+      for itself about eight times over on a single conversion. One artist in a year and it
+      has paid for itself; zero artists and $39/mo was a cheap way to learn that fast.
+
+      **Watch the Active Contacts cap:** Pro is 2,500/mo, and every Instagram lead who DMs
+      burns one. Fine for launch. If a Reel genuinely pops, that is the ceiling you hit first,
+      not anything in CRWN.
+
+      This is a paid dependency Claude introduced and did not price up front. That was a miss.
+      Everything else below is free and already verified working in production.
 
 - [ ] **Run the acquisition migration.** Supabase SQL editor:
       `supabase/schema-phase2-instagram-acquisition-engine.sql`
