@@ -124,26 +124,16 @@ Things that are never finished. Cadence, then the thing.
       lead scores into `sales_priority`. It has deliberately stopped automating at that point
       because the lead is too warm for a robot. Go talk to them.
 
-- [ ] **Work the human-review queue.** When CRWN cannot understand a lead's answers, it stops
-      asking rather than looping, and hands them to a person. That person is you. There is no
-      admin UI yet, so for now:
-      ```sql
-      SELECT s.id, s.current_question_key, i.instagram_username, s.last_activity_at
-      FROM lead_sessions s
-      JOIN lead_identities i ON i.id = s.lead_identity_id
-      WHERE s.state = 'human_review'
-      ORDER BY s.last_activity_at DESC;
-      ```
-      (Claude owes you a UI for this. It is on its list.)
+- [ ] **Work the "Needs you" queue.** `/admin` → **Acquisition** → **Needs you**.
+      When CRWN cannot understand a lead's answers, it stops asking rather than looping, and
+      hands them to a person. That person is you. Reply to them on Instagram, then hit
+      **Handled** (or **Not a lead**, which stops every channel for them immediately).
 
 ### Weekly
 
-- [ ] **Check the acquisition dead-letter queue.** Should be empty.
-      ```sql
-      SELECT event_name, last_error_code, attempt_count, created_at
-      FROM acquisition_events WHERE status = 'dead_letter' ORDER BY created_at DESC;
-      ```
-      A pile of `dm_rejected` means the ManyChat token is wrong.
+- [ ] **Check the "Failed" tab.** `/admin` → **Acquisition** → **Failed**. Should be empty.
+      Each row has a **Retry** button. A pile of `dm_rejected` means the ManyChat token is
+      wrong.
 
 - [ ] **Watch for the onboarding canary email.** `/api/cron/onboarding-health` runs daily at
       07:00 and emails joshn.wms@gmail.com **the moment the artist signup path breaks.** It
@@ -170,9 +160,11 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-- **Admin acquisition panels.** Everything they would show is already recorded correctly. It
-  is a read-only UI over existing data, so no schema risk. This is what would retire the two
-  SQL queries in your Ongoing list above. **Next up.**
+**Nothing is queued.** The Instagram acquisition engine is feature-complete: ingress,
+identity, Claude extraction with a complete deterministic fallback, the calculator handoff,
+secure result links, claiming, follow-up automation, retention, and the admin panel. What
+remains is entirely on your side of the line (the list at the top of this file), plus tuning
+with real leads once they exist.
 
 ### Done
 
@@ -184,6 +176,9 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   so a browser can never write a figure into a result. One component now serves the homepage,
   `/worth`, and the personalized result, so the numbers cannot drift between them.
 - ~~**CLAUDE.md stale about `TIER_PRICING`.**~~ Fixed: it is correct at $9.99 Pro / $99 label.
+- ~~**Admin acquisition panel.**~~ `/admin` → **Acquisition**. Three tabs: **Leads** (the
+  funnel), **Needs you** (the human-review queue), **Failed** (dead-lettered jobs, with a
+  Retry button). This is what retired the two raw SQL queries from your Ongoing list.
 - **Auto-claim through signup** works via `ClaimRedeemer`, but `/signup` still ignores
   `?next`. Deliberate: `/welcome` and `useAuth` are the two files that broke onboarding
   silently for months, and a claim feature does not justify touching them.
