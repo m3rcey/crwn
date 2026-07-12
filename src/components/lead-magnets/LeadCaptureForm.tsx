@@ -48,9 +48,11 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
 
   return (
     <div className="space-y-4">
+      {/* NOT a gate. The result is already visible above. This is the optional "send me a
+          copy" ask, the same way /worth does it. */}
       <div>
-        <h2 className="text-xl font-bold text-crwn-text">Unlock your full result</h2>
-        <p className="text-sm text-crwn-text-secondary mt-1">Enter your email and we will send it to you and unlock everything below.</p>
+        <h2 className="text-xl font-bold text-crwn-text">Want a copy of this?</h2>
+        <p className="text-sm text-crwn-text-secondary mt-1">Optional. We will email you this plan so you still have it later.</p>
       </div>
 
       <input className={INPUT} type="text" placeholder="Artist name" value={v.artistName} onChange={(e) => set('artistName', e.target.value)} />

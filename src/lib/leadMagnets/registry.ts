@@ -68,7 +68,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
     { key: 'nextSteps', title: 'Build it in CRWN' },
   ],
   publicPreviewSections: ['readiness', 'inventory'],
-  leadCapture: { required: true, consentCopy: 'Email me my Vault plan and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my Vault plan and occasional CRWN tips for artists.' },
   cta: {
     publicPrimary: 'Create your CRWN account and build your Vault',
     publicSecondary: 'Email my Vault plan',
@@ -139,7 +139,7 @@ const PROOF_OF_DEMAND: LeadMagnetConfig = {
     { key: 'assumptions', title: 'Assumptions' },
   ],
   publicPreviewSections: ['structure', 'threshold'],
-  leadCapture: { required: true, consentCopy: 'Email me my demand test and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my demand test and occasional CRWN tips for artists.' },
   cta: {
     publicPrimary: 'Create your CRWN account and launch this test',
     publicSecondary: 'Email my demand test',
@@ -229,7 +229,7 @@ const FAN_MISSION: LeadMagnetConfig = {
     { key: 'nextSteps', title: 'Launch in CRWN' },
   ],
   publicPreviewSections: ['summary', 'whatFansDo'],
-  leadCapture: { required: true, consentCopy: 'Email me my mission and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my mission and occasional CRWN tips for artists.' },
   cta: {
     publicPrimary: 'Create your CRWN account and launch this mission',
     publicSecondary: 'Email my mission',
@@ -330,7 +330,7 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
     { key: 'nextSteps', title: 'Launch in CRWN' },
   ],
   publicPreviewSections: ['brief', 'rules'],
-  leadCapture: { required: true, consentCopy: 'Email me my campaign and occasional CRWN tips for artists.' },
+  leadCapture: { required: false, consentCopy: 'Email me my campaign and occasional CRWN tips for artists.' },
   cta: {
     publicPrimary: 'Create your CRWN account and launch this campaign',
     publicSecondary: 'Email my campaign',
@@ -364,3 +364,34 @@ export function getLeadMagnet(slug: string): LeadMagnetConfig | null {
 }
 
 export const LEAD_MAGNET_SLUGS: string[] = LEAD_MAGNETS.map((m) => m.slug);
+
+/**
+ * Tools that live on their OWN page rather than running the shared wizard/generator, so they
+ * cannot be a LeadMagnetConfig. They still belong in the tools directory. The directory links
+ * straight out to `href`; nothing here is rebuilt.
+ */
+export type ExternalTool = {
+  key: string;
+  name: string;
+  description: string;
+  category: string;
+  timeToComplete: string;
+  featureName: string;
+  href: string;
+  image: string;
+  imageAlt: string;
+};
+
+export const EXTERNAL_TOOLS: ExternalTool[] = [
+  {
+    key: 'worth',
+    name: 'What Your Music Is Worth',
+    description: 'See how little streaming actually pays you, and what the same fans would be worth on CRWN.',
+    category: 'Monetize',
+    timeToComplete: '1 min',
+    featureName: 'Worth Calculator',
+    href: '/worth',
+    image: '/tool-worth.jpg',
+    imageAlt: 'An artist alone in a dark studio staring at a disappointing number on his phone',
+  },
+];

@@ -14,11 +14,11 @@ import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
-// One scrollable page, no view swapping. 'hero' renders the hero AND the wizard beneath
-// it (the CTA jumps down to the wizard); 'preview' renders the result AND the capture form
-// beneath it (that CTA jumps down to the form). The page never yanks itself out from under
-// the artist, so they can always scroll back up to what they were just looking at.
-type Phase = 'loading' | 'hero' | 'preview' | 'full';
+// One scrollable page, no view swapping. 'hero' renders the hero AND the wizard beneath it
+// (the CTA jumps down to the wizard). 'full' renders the finished result, ungated, with the
+// optional email ask below it. There is no 'preview' phase any more: we do not hold the
+// result hostage for an email.
+type Phase = 'loading' | 'hero' | 'full';
 
 export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const router = useRouter();
@@ -63,8 +63,9 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       const r = generateResult(config.resultGeneratorKey, v);
       setResult(r);
       trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: config.slug, context: 'public', generatorVersion: r.generatorVersion });
-      trackLeadMagnet(LM_EVENTS.previewViewed, { toolSlug: config.slug, context: 'public' });
-      setPhase('preview');
+      trackLeadMagnet(LM_EVENTS.resultUnlocked, { toolSlug: config.slug, context: 'public' });
+      // Straight to the full result. No email wall.
+      setPhase('full');
       // The wizard was mid-page; the result replaces it, so start the artist at the top of it.
       window.scrollTo({ top: 0, behavior: 'auto' });
     } catch {
@@ -76,14 +77,6 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const scrollToWizard = () => {
     trackLeadMagnet(LM_EVENTS.started, { toolSlug: config.slug, context: 'public' });
     wizardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  // The CTA drops the artist down to the form that is already on the page, and puts the
-  // cursor in the first field, so the preview they just earned stays visible above it.
-  const scrollToCapture = () => {
-    trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: config.slug, context: 'public' });
-    captureRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    captureRef.current?.querySelector<HTMLInputElement>('input[type="email"]')?.focus({ preventScroll: true });
   };
 
   const submitCapture = async (lead: LeadCaptureValues) => {
@@ -159,32 +152,29 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
         </>
       )}
 
-      {phase === 'preview' && result && (
-        <div className="space-y-5">
-          <LeadMagnetResult config={config} result={result} mode="preview" />
-          <div className="rounded-2xl bg-crwn-elevated/60 border border-crwn-elevated p-4 text-center">
-            <p className="text-sm text-crwn-text mb-3">Enter your email to unlock the full plan, and we will send you a copy.</p>
-            <button onClick={scrollToCapture} className="w-full py-3 rounded-full bg-crwn-gold text-crwn-bg font-semibold">
-              {config.cta.publicSecondary ? 'Unlock the full result' : 'Unlock'}
-            </button>
-          </div>
-
-          <div ref={captureRef} className="scroll-mt-4">
-            <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
-          </div>
-        </div>
-      )}
-
       {phase === 'full' && result && (
+        // The result is NOT gated. They already paid with 2-3 minutes in the wizard, so
+        // walling the reward behind an email is the worst possible place to add friction.
+        // Show the plan, then ask: build it in CRWN (what we actually want), or optionally
+        // have it emailed. Same model as /worth.
         <div className="space-y-5">
           <LeadMagnetResult config={config} result={result} mode="full" />
-          <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
-          <div className="pt-2">
+
+          <div className="pt-1">
             <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
-            <button onClick={() => router.push('/tools')} className="w-full mt-3 text-sm text-crwn-text-secondary">
-              Explore another CRWN tool
-            </button>
           </div>
+
+          {resultId ? (
+            <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
+          ) : (
+            <div ref={captureRef} className="scroll-mt-4 rounded-2xl bg-crwn-surface border border-crwn-elevated p-4">
+              <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
+            </div>
+          )}
+
+          <button onClick={() => router.push('/tools')} className="w-full text-sm text-crwn-text-secondary">
+            Explore another CRWN tool
+          </button>
         </div>
       )}
     </div>

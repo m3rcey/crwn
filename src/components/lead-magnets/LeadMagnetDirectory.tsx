@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
-import { LEAD_MAGNETS } from '@/lib/leadMagnets/registry';
+import { LEAD_MAGNETS, EXTERNAL_TOOLS } from '@/lib/leadMagnets/registry';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
 
 // Shared searchable directory. `basePath` = '/tools' (public) or '/artist/tools' (artist).
@@ -16,14 +16,43 @@ export function LeadMagnetDirectory({ basePath, context }: { basePath: string; c
     trackLeadMagnet(LM_EVENTS.directoryViewed, { toolSlug: 'directory', context });
   }, [context]);
 
+  // Wizard-driven tools and standalone-page tools (e.g. /worth) render through one path.
+  const allTools = useMemo(
+    () => [
+      ...LEAD_MAGNETS.map((m) => ({
+        key: m.slug,
+        name: m.name,
+        description: m.description,
+        category: m.category,
+        featureName: m.featureName,
+        timeToComplete: m.timeToComplete,
+        image: m.hero.image,
+        imageAlt: m.hero.imageAlt,
+        href: `${basePath}/${m.slug}`,
+      })),
+      ...EXTERNAL_TOOLS.map((t) => ({
+        key: t.key,
+        name: t.name,
+        description: t.description,
+        category: t.category,
+        featureName: t.featureName,
+        timeToComplete: t.timeToComplete,
+        image: t.image,
+        imageAlt: t.imageAlt,
+        href: t.href,
+      })),
+    ],
+    [basePath],
+  );
+
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return LEAD_MAGNETS;
-    return LEAD_MAGNETS.filter((m) => `${m.name} ${m.description} ${m.featureName} ${m.category}`.toLowerCase().includes(s));
-  }, [q]);
+    if (!s) return allTools;
+    return allTools.filter((m) => `${m.name} ${m.description} ${m.featureName} ${m.category}`.toLowerCase().includes(s));
+  }, [q, allTools]);
 
   const categories = useMemo(() => {
-    const map = new Map<string, typeof LEAD_MAGNETS>();
+    const map = new Map<string, typeof filtered>();
     for (const m of filtered) {
       const arr = map.get(m.category) || [];
       arr.push(m);
@@ -57,14 +86,14 @@ export function LeadMagnetDirectory({ basePath, context }: { basePath: string; c
           <div className="space-y-2">
             {tools.map((m) => (
               <button
-                key={m.slug}
-                onClick={() => router.push(`${basePath}/${m.slug}`)}
+                key={m.key}
+                onClick={() => router.push(m.href)}
                 className="w-full flex items-center gap-4 rounded-2xl bg-crwn-surface border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40"
               >
                 <span className="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border border-crwn-elevated">
                   <Image
-                    src={m.hero.image}
-                    alt={m.hero.imageAlt}
+                    src={m.image}
+                    alt={m.imageAlt}
                     fill
                     sizes="80px"
                     className="object-cover"
