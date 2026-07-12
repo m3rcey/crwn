@@ -61,7 +61,7 @@ export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: 
           <span className="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
           <span className="text-crwn-text font-semibold">Live · {title}</span>
         </div>
-        <button onClick={onClose} className="text-crwn-text-dim hover:text-crwn-text p-2">
+        <button onClick={onClose} className="text-crwn-text-secondary hover:text-crwn-text p-2">
           <X className="w-6 h-6" />
         </button>
       </div>

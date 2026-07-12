@@ -85,7 +85,7 @@ export default function BountiesPage() {
           {live.map(b => {
             const def = BOUNTY_TYPE_MAP[b.bounty_type] || BOUNTY_TYPE_MAP.custom;
             return (
-              <button key={b.id} onClick={() => router.push(`/bounties/${b.id}`)} className="w-full flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
+              <button key={b.id} onClick={() => router.push(`/bounties/${b.id}`)} className="w-full flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
                 <span className="text-2xl">{def.icon}</span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

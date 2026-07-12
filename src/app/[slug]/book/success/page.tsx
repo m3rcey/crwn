@@ -121,7 +121,7 @@ export default function BookingSuccessPage() {
           <p className="text-crwn-text-secondary mb-4">
             Your payment for {session.title} ({session.duration_minutes} min) was successful.
           </p>
-          <p className="text-crwn-text-dim">
+          <p className="text-crwn-text-secondary">
             The artist hasn't set up scheduling yet. Please contact them directly to book your session.
           </p>
         </div>

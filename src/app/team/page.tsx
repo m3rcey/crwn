@@ -69,7 +69,7 @@ export default function CollaboratorDealsPage() {
       ) : (
         <div className="space-y-2">
           {deals.map((d) => (
-            <Link key={d.id} href={`/team/${d.id}`} className="block bg-crwn-card rounded-xl p-4 hover:bg-crwn-elevated transition-colors">
+            <Link key={d.id} href={`/team/${d.id}`} className="block bg-crwn-surface rounded-xl p-4 hover:bg-crwn-elevated transition-colors">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-crwn-text truncate">{d.title}</p>

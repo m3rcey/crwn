@@ -111,7 +111,7 @@ export default function SquadsPage() {
               <button
                 key={s.id}
                 onClick={() => router.push(`/squads/${s.id}`)}
-                className="w-full flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors"
+                className="w-full flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors"
               >
                 <span className="text-2xl">{def.icon}</span>
                 <div className="min-w-0 flex-1">

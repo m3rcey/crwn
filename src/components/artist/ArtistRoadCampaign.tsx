@@ -70,7 +70,7 @@ export function ArtistRoadCampaign({ artistId, artistSlug, artistName, onSupport
   const ctaLabel = campaign.cta_label || def.cta;
 
   return (
-    <section className="bg-crwn-card rounded-2xl border border-crwn-gold/30 p-5">
+    <section className="bg-crwn-surface rounded-2xl border border-crwn-gold/30 p-5">
       <div className="flex items-center gap-2 mb-2">
         <Target className="w-4 h-4 text-crwn-gold" />
         <span className="text-xs font-semibold text-crwn-gold uppercase tracking-wider">Current Mission</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { smartBack } from '@/lib/navigation';
@@ -13,11 +13,14 @@ import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
-type Phase = 'loading' | 'hero' | 'wizard' | 'preview' | 'capture' | 'full';
+// No 'capture' phase: the capture form sits INLINE beneath the preview, so the CTA
+// scrolls the artist down to it instead of swapping the page out from under them.
+type Phase = 'loading' | 'hero' | 'wizard' | 'preview' | 'full';
 
 export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>('loading');
+  const captureRef = useRef<HTMLDivElement>(null);
   const [values, setValues] = useState<LeadMagnetInputValues>({});
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [publicToken, setPublicToken] = useState<string | undefined>();
@@ -61,6 +64,14 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
     } catch {
       setError('Something went wrong generating your result. Please check your answers.');
     }
+  };
+
+  // The CTA drops the artist down to the form that is already on the page, and puts the
+  // cursor in the first field, so the preview they just earned stays visible above it.
+  const scrollToCapture = () => {
+    trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: config.slug, context: 'public' });
+    captureRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    captureRef.current?.querySelector<HTMLInputElement>('input[type="email"]')?.focus({ preventScroll: true });
   };
 
   const submitCapture = async (lead: LeadCaptureValues) => {
@@ -133,19 +144,14 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
           <LeadMagnetResult config={config} result={result} mode="preview" />
           <div className="rounded-2xl bg-crwn-elevated/60 border border-crwn-elevated p-4 text-center">
             <p className="text-sm text-crwn-text mb-3">Enter your email to unlock the full plan, and we will send you a copy.</p>
-            <button onClick={() => { trackLeadMagnet(LM_EVENTS.leadCaptureViewed, { toolSlug: config.slug, context: 'public' }); setPhase('capture'); }} className="w-full py-3 rounded-full bg-crwn-gold text-crwn-bg font-semibold">
+            <button onClick={scrollToCapture} className="w-full py-3 rounded-full bg-crwn-gold text-crwn-bg font-semibold">
               {config.cta.publicSecondary ? 'Unlock the full result' : 'Unlock'}
             </button>
           </div>
-        </div>
-      )}
 
-      {phase === 'capture' && (
-        <div className="space-y-4">
-          <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
-          <button onClick={() => setPhase('preview')} className="w-full text-sm text-crwn-text-secondary">
-            Back to preview
-          </button>
+          <div ref={captureRef} className="scroll-mt-4">
+            <LeadCaptureForm config={config} submitting={submitting} onSubmit={submitCapture} />
+          </div>
         </div>
       )}
 

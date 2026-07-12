@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
           <p className="text-crwn-text-secondary mb-6">
             We sent a password reset link to <span className="text-crwn-gold">{email}</span>
           </p>
-          <p className="text-sm text-crwn-text-dim mb-6">
+          <p className="text-sm text-crwn-text-secondary mb-6">
             Click the link in the email to set a new password. If you don't see it, check your spam folder.
           </p>
           <Link

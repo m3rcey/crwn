@@ -156,7 +156,7 @@ export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
       )}
 
       {sequences.length === 0 ? (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-12 text-center">
           <Zap className="w-10 h-10 text-crwn-text-secondary mx-auto mb-3" />
           <p className="text-crwn-text font-medium mb-1">No sequences yet</p>
           <p className="text-sm text-crwn-text-secondary mb-4">
@@ -174,7 +174,7 @@ export function SequenceList({ artistId, onEdit, onNew }: SequenceListProps) {
           {sequences.map(seq => (
             <div
               key={seq.id}
-              className="bg-crwn-card rounded-xl border border-crwn-elevated p-4"
+              className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">

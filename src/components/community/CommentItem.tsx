@@ -127,13 +127,13 @@ export function CommentItem({
                 {comment.tier_badge}
               </span>
             )}
-            <span className="text-crwn-text-dim text-xs">•</span>
-            <span className="text-crwn-text-dim text-xs">{formatTimestamp(comment.created_at)}</span>
+            <span className="text-crwn-text-secondary text-xs">•</span>
+            <span className="text-crwn-text-secondary text-xs">{formatTimestamp(comment.created_at)}</span>
             
             {canDelete && (
               <button
                 onClick={confirmDelete}
-                className="ml-auto text-crwn-text-dim hover:text-crwn-error"
+                className="ml-auto text-crwn-text-secondary hover:text-crwn-error"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -146,7 +146,7 @@ export function CommentItem({
           {/* Like button */}
           <button
             onClick={handleLike}
-            className={`flex items-center gap-1 mt-1 text-xs ${isLiked ? 'text-crwn-gold' : 'text-crwn-text-dim'}`}
+            className={`flex items-center gap-1 mt-1 text-xs ${isLiked ? 'text-crwn-gold' : 'text-crwn-text-secondary'}`}
           >
             <Heart className={`w-3 h-3 ${isLiked ? 'fill-current' : ''}`} />
             <span>{likesCount}</span>

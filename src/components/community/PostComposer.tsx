@@ -344,7 +344,7 @@ export function PostComposer({ artistId, isArtist, tiers, onPostCreated }: PostC
             rows={3}
             maxLength={2000}
           />
-          <p className="text-xs text-crwn-text-dim text-right mt-1">{content.length}/2000</p>
+          <p className="text-xs text-crwn-text-secondary text-right mt-1">{content.length}/2000</p>
 
           {/* Feature 1: Upload Progress Indicator */}
           {isUploading && uploadProgress.length > 0 && (

@@ -203,7 +203,7 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
   };
 
   return (
-    <div className="flex flex-col h-full bg-crwn-card">
+    <div className="flex flex-col h-full bg-crwn-surface">
       {/* Header */}
       <div className="px-4 py-3 border-b border-crwn-elevated flex items-center gap-3">
         {onBack && (
@@ -237,9 +237,9 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-2 min-h-0">
         {loading ? (
-          <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-crwn-text-dim" /></div>
+          <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-crwn-text-secondary" /></div>
         ) : messages.length === 0 ? (
-          <p className="text-crwn-text-dim text-sm text-center py-8">No messages yet. Say hey.</p>
+          <p className="text-crwn-text-secondary text-sm text-center py-8">No messages yet. Say hey.</p>
         ) : messages.map((m) => {
           const mine = m.sender_id === currentUserId;
           return (
@@ -275,7 +275,7 @@ export function MessageThread({ conversationId, currentUserId, viewerIsArtist, p
 
       {/* Composer — replaced by a notice while the artist has replies switched off. */}
       {repliesLocked ? (
-        <div className="p-3 border-t border-crwn-elevated flex items-center justify-center gap-2 text-crwn-text-dim text-xs">
+        <div className="p-3 border-t border-crwn-elevated flex items-center justify-center gap-2 text-crwn-text-secondary text-xs">
           <Lock className="w-3.5 h-3.5 flex-shrink-0" />
           Replies are off for this announcement.
         </div>

@@ -12,7 +12,7 @@ function MessagesContent() {
   const artistSlug = searchParams.get('artist') || undefined;
 
   if (isLoading) {
-    return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-crwn-text-dim" /></div>;
+    return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-crwn-text-secondary" /></div>;
   }
   if (!user) {
     return <div className="text-center py-20 text-crwn-text-secondary">Sign in to view your messages.</div>;
@@ -27,7 +27,7 @@ function MessagesContent() {
 
 export default function MessagesPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-crwn-text-dim" /></div>}>
+    <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-crwn-text-secondary" /></div>}>
       <MessagesContent />
     </Suspense>
   );

@@ -88,7 +88,7 @@ export default function PlaybooksPage() {
           <h2 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2">In progress</h2>
           <div className="space-y-2">
             {runs.map(r => (
-              <button key={r.id} onClick={() => router.push(`/playbooks/${r.id}`)} className="w-full flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-gold/30 p-4 text-left">
+              <button key={r.id} onClick={() => router.push(`/playbooks/${r.id}`)} className="w-full flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-gold/30 p-4 text-left">
                 <Play className="w-4 h-4 text-crwn-gold" />
                 <div className="flex-1 min-w-0"><p className="text-sm font-medium text-crwn-text truncate">{r.playbook_name}</p><p className="text-xs text-crwn-text-secondary capitalize">{r.status}</p></div>
                 <ChevronRight className="w-4 h-4 text-crwn-text-secondary" />
@@ -100,7 +100,7 @@ export default function PlaybooksPage() {
 
       {/* Recommended */}
       {top && (
-        <div className="mb-6 bg-crwn-card rounded-2xl border border-crwn-gold/30 p-5">
+        <div className="mb-6 bg-crwn-surface rounded-2xl border border-crwn-gold/30 p-5">
           <div className="flex items-center gap-2 mb-2"><Sparkles className="w-4 h-4 text-crwn-gold" /><span className="text-xs font-semibold text-crwn-gold uppercase tracking-wider">Recommended</span></div>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-3xl">{top.playbook.icon}</span>
@@ -117,7 +117,7 @@ export default function PlaybooksPage() {
       <h2 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2" data-tour="playbooks-catalog">All playbooks</h2>
       <div className="space-y-2">
         {playbooks.map(p => (
-          <div key={p.id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div key={p.id} className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <span className="text-2xl">{p.icon}</span>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-crwn-text">{p.name}</p>

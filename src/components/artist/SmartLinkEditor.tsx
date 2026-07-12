@@ -188,7 +188,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
 
       {/* Link Type Toggle */}
       {!linkId && (
-        <div className="flex items-center gap-2 bg-crwn-card rounded-full p-1 w-fit">
+        <div className="flex items-center gap-2 bg-crwn-surface rounded-full p-1 w-fit">
           <button
             onClick={() => setLinkType('standard')}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -226,7 +226,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                 onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                 placeholder="my-new-single"
                 maxLength={50}
-                className="flex-1 px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-r-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                className="flex-1 px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-r-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
               />
             </div>
           </div>
@@ -238,7 +238,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="e.g. Get early access to my new album"
-              className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+              className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
             />
           </div>
 
@@ -249,7 +249,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
               onChange={e => setDescription(e.target.value)}
               rows={3}
               placeholder="Optional message shown on the capture page"
-              className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-y"
+              className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-y"
             />
           </div>
 
@@ -266,7 +266,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                   value={releaseDate}
                   onChange={e => setReleaseDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+                  className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
                 />
                 <p className="text-xs text-crwn-text-secondary mt-1">
                   Fans who pre-save will be notified on release day via email.
@@ -316,7 +316,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                       value={spotifyUrl}
                       onChange={e => setSpotifyUrl(e.target.value)}
                       placeholder="https://open.spotify.com/..."
-                      className="w-full px-3 py-2 bg-crwn-card border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                      className="w-full px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
                     />
                   </div>
                   <div>
@@ -326,7 +326,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                       value={appleMusicUrl}
                       onChange={e => setAppleMusicUrl(e.target.value)}
                       placeholder="https://music.apple.com/..."
-                      className="w-full px-3 py-2 bg-crwn-card border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                      className="w-full px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
                     />
                   </div>
                   <div>
@@ -336,7 +336,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                       value={youtubeUrl}
                       onChange={e => setYoutubeUrl(e.target.value)}
                       placeholder="https://music.youtube.com/..."
-                      className="w-full px-3 py-2 bg-crwn-card border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                      className="w-full px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
                     />
                   </div>
                   <div>
@@ -346,7 +346,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                       value={soundcloudUrl}
                       onChange={e => setSoundcloudUrl(e.target.value)}
                       placeholder="https://soundcloud.com/..."
-                      className="w-full px-3 py-2 bg-crwn-card border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                      className="w-full px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
                     />
                   </div>
                   <div>
@@ -356,7 +356,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                       value={tidalUrl}
                       onChange={e => setTidalUrl(e.target.value)}
                       placeholder="https://tidal.com/..."
-                      className="w-full px-3 py-2 bg-crwn-card border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                      className="w-full px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
                     />
                   </div>
                 </div>
@@ -374,7 +374,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
                 value={destinationUrl}
                 onChange={e => setDestinationUrl(e.target.value)}
                 placeholder="https://open.spotify.com/album/..."
-                className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
               />
               <p className="text-xs text-crwn-text-secondary mt-1">
                 Where fans go after submitting. Spotify, Apple Music, merch store, etc.
@@ -384,7 +384,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
         </div>
 
         <div className="space-y-4">
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 space-y-3">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 space-y-3">
             <h3 className="text-sm font-medium text-crwn-text">Collect</h3>
 
             <label className="flex items-center gap-2 cursor-pointer">
@@ -418,7 +418,7 @@ export function SmartLinkEditor({ artistId, linkId, onBack, onSaved }: SmartLink
             </label>
           </div>
 
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <h3 className="text-sm font-medium text-crwn-text mb-2">Preview</h3>
             <div className="bg-[#0D0D0D] rounded-lg p-4 text-center">
               {linkType === 'presave' && artworkPreview ? (

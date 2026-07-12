@@ -251,10 +251,10 @@ export function CommunityChannels({ artistId, artistSlug, isArtistProfile, tiers
         {active && (
           <div className="px-4 py-2.5 border-b border-crwn-elevated">
             <p className="text-sm font-semibold text-crwn-text flex items-center gap-1.5">
-              {active.artist_only_posting ? <Megaphone className="w-3.5 h-3.5 text-crwn-gold" /> : <Hash className="w-3.5 h-3.5 text-crwn-text-dim" />}
+              {active.artist_only_posting ? <Megaphone className="w-3.5 h-3.5 text-crwn-gold" /> : <Hash className="w-3.5 h-3.5 text-crwn-text-secondary" />}
               {active.name}
             </p>
-            {active.description && <p className="text-xs text-crwn-text-dim truncate">{active.description}</p>}
+            {active.description && <p className="text-xs text-crwn-text-secondary truncate">{active.description}</p>}
           </div>
         )}
 
@@ -262,7 +262,7 @@ export function CommunityChannels({ artistId, artistSlug, isArtistProfile, tiers
           <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
             <Lock className="w-8 h-8 text-crwn-gold/40 mb-3" />
             <p className="text-crwn-text font-medium text-sm">This channel is for subscribers</p>
-            <p className="text-xs text-crwn-text-dim mt-1 max-w-xs">
+            <p className="text-xs text-crwn-text-secondary mt-1 max-w-xs">
               {user ? 'Subscribe to unlock the conversation.' : 'Log in and subscribe to unlock the conversation.'}
             </p>
             <Link
@@ -276,9 +276,9 @@ export function CommunityChannels({ artistId, artistSlug, isArtistProfile, tiers
           <>
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5 min-h-0">
               {loadingMessages ? (
-                <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-crwn-text-dim" /></div>
+                <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-crwn-text-secondary" /></div>
               ) : messages.length === 0 ? (
-                <p className="text-crwn-text-dim text-sm text-center py-8">Nothing here yet. Say something.</p>
+                <p className="text-crwn-text-secondary text-sm text-center py-8">Nothing here yet. Say something.</p>
               ) : messages.map((m) => {
                 const mine = m.author_id === user?.id;
                 const name = m.author?.display_name || m.author?.username || 'Fan';
@@ -290,7 +290,7 @@ export function CommunityChannels({ artistId, artistSlug, isArtistProfile, tiers
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-crwn-text-secondary">
                         {name}
-                        <span className="text-crwn-text-dim ml-2">
+                        <span className="text-crwn-text-secondary ml-2">
                           {new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                         </span>
                       </p>
@@ -299,7 +299,7 @@ export function CommunityChannels({ artistId, artistSlug, isArtistProfile, tiers
                     {(mine || isArtistProfile) && (
                       <button
                         onClick={() => deleteMessage(m.id)}
-                        className="opacity-0 group-hover:opacity-100 text-crwn-text-dim hover:text-crwn-error transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 text-crwn-text-secondary hover:text-crwn-error transition-opacity"
                         aria-label="Delete message"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -334,7 +334,7 @@ export function CommunityChannels({ artistId, artistSlug, isArtistProfile, tiers
                 </div>
               </div>
             ) : (
-              <div className="p-3 border-t border-crwn-elevated text-center text-xs text-crwn-text-dim">
+              <div className="p-3 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">
                 {!user
                   ? 'Log in to join the conversation.'
                   : active.artist_only_posting
@@ -405,7 +405,7 @@ function CreateChannelModal({ artistId, tiers, existingCount, onClose, onCreated
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="neu-modal bg-crwn-card border border-crwn-elevated rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+      <div className="neu-modal bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-crwn-text">New channel</h3>
           <button onClick={onClose} className="text-crwn-text-secondary hover:text-crwn-text"><X className="w-5 h-5" /></button>
@@ -419,7 +419,7 @@ function CreateChannelModal({ artistId, tiers, existingCount, onClose, onCreated
           placeholder="general"
           className="neu-inset w-full px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none text-sm rounded-xl mb-1"
         />
-        {name.trim() && <p className="text-[11px] text-crwn-text-dim mb-3">#{slugify(name) || 'channel'}</p>}
+        {name.trim() && <p className="text-[11px] text-crwn-text-secondary mb-3">#{slugify(name) || 'channel'}</p>}
 
         <div className="space-y-2 mb-4 mt-3">
           <button
@@ -427,14 +427,14 @@ function CreateChannelModal({ artistId, tiers, existingCount, onClose, onCreated
             className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${isFree ? 'border-crwn-gold bg-crwn-elevated/60' : 'border-crwn-elevated hover:bg-crwn-elevated/40'}`}
           >
             <p className="text-sm text-crwn-text">Open to everyone</p>
-            <p className="text-[11px] text-crwn-text-dim">Anyone who visits your page can read and post.</p>
+            <p className="text-[11px] text-crwn-text-secondary">Anyone who visits your page can read and post.</p>
           </button>
           <button
             onClick={() => setIsFree(false)}
             className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${!isFree ? 'border-crwn-gold bg-crwn-elevated/60' : 'border-crwn-elevated hover:bg-crwn-elevated/40'}`}
           >
             <p className="text-sm text-crwn-text">Subscribers only</p>
-            <p className="text-[11px] text-crwn-text-dim">
+            <p className="text-[11px] text-crwn-text-secondary">
               {selectedTiers.length > 0 ? 'Only the tiers you pick below.' : 'Any active subscriber. Pick tiers below to narrow it.'}
             </p>
           </button>
@@ -468,7 +468,7 @@ function CreateChannelModal({ artistId, tiers, existingCount, onClose, onCreated
           <span className={`mt-0.5 w-4 h-4 rounded flex-shrink-0 border ${artistOnly ? 'bg-crwn-gold border-crwn-gold' : 'border-crwn-text-secondary'}`} />
           <span>
             <span className="block text-sm text-crwn-text">Announcements only</span>
-            <span className="block text-[11px] text-crwn-text-dim">Only you can post. Fans read.</span>
+            <span className="block text-[11px] text-crwn-text-secondary">Only you can post. Fans read.</span>
           </span>
         </button>
 

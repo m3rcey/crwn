@@ -69,7 +69,7 @@ export default function MyBountiesPage() {
           {bounties.map(b => {
             const def = BOUNTY_TYPE_MAP[b.bounty_type] || BOUNTY_TYPE_MAP.custom;
             return (
-              <div key={b.id} className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+              <div key={b.id} className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{def.icon}</span>
                   <div className="min-w-0 flex-1">

@@ -171,15 +171,15 @@ export function FanDetailDrawer({ fan, isOpen, onClose }: FanDetailDrawerProps) 
 
           {/* Score cards */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="bg-crwn-card rounded-xl p-3 text-center">
+            <div className="bg-crwn-surface rounded-xl p-3 text-center">
               <p className="text-xs text-crwn-text-secondary mb-1">Engagement</p>
               <p className="text-lg font-bold text-crwn-gold">{fan.engagement_score}</p>
             </div>
-            <div className="bg-crwn-card rounded-xl p-3 text-center">
+            <div className="bg-crwn-surface rounded-xl p-3 text-center">
               <p className="text-xs text-crwn-text-secondary mb-1 flex items-center justify-center gap-1"><TrendingDown className="w-3 h-3" />Churn risk</p>
               <p className={`text-lg font-bold ${scoreColor(fan.churn_risk_score, true)}`}>{fan.churn_risk_score}</p>
             </div>
-            <div className="bg-crwn-card rounded-xl p-3 text-center">
+            <div className="bg-crwn-surface rounded-xl p-3 text-center">
               <p className="text-xs text-crwn-text-secondary mb-1 flex items-center justify-center gap-1"><TrendingUp className="w-3 h-3" />Upgrade</p>
               <p className={`text-lg font-bold ${scoreColor(fan.upgrade_likelihood_score)}`}>{fan.upgrade_likelihood_score}</p>
             </div>
@@ -188,7 +188,7 @@ export function FanDetailDrawer({ fan, isOpen, onClose }: FanDetailDrawerProps) 
           {/* Contribution */}
           <div>
             <h4 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2">Contribution</h4>
-            <div className="bg-crwn-card rounded-xl divide-y divide-crwn-elevated/60">
+            <div className="bg-crwn-surface rounded-xl divide-y divide-crwn-elevated/60">
               <Row label="Total spent" value={fan.total_spent > 0 ? `$${(fan.total_spent / 100).toFixed(2)}` : '–'} />
               <Row label="Subscribers referred" value={c ? String(c.referralCount) : (loading ? '…' : String(fan.referral_count))} />
               <Row label="Subscription length" value={c?.subscriptionLengthDays != null ? `${c.subscriptionLengthDays} days` : '–'} />
@@ -241,7 +241,7 @@ export function FanDetailDrawer({ fan, isOpen, onClose }: FanDetailDrawerProps) 
                 onChange={e => setNoteText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addNote()}
                 placeholder="Add a private note…"
-                className="flex-1 px-3 py-2 bg-crwn-card border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                className="flex-1 px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
               />
               <button
                 onClick={addNote}
@@ -253,7 +253,7 @@ export function FanDetailDrawer({ fan, isOpen, onClose }: FanDetailDrawerProps) 
             </div>
             <div className="space-y-2">
               {bundle?.notes.map(n => (
-                <div key={n.id} className="group flex items-start gap-2 bg-crwn-card rounded-lg px-3 py-2">
+                <div key={n.id} className="group flex items-start gap-2 bg-crwn-surface rounded-lg px-3 py-2">
                   <p className="flex-1 text-sm text-crwn-text whitespace-pre-wrap">{n.note}</p>
                   <button onClick={() => deleteNote(n.id)} className="opacity-0 group-hover:opacity-100 text-crwn-text-secondary hover:text-red-400 transition-opacity">
                     <Trash2 className="w-3.5 h-3.5" />
@@ -306,7 +306,7 @@ function ActionBtn({ icon, label, onClick, busy }: { icon: React.ReactNode; labe
     <button
       onClick={onClick}
       disabled={busy}
-      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium bg-crwn-card border border-crwn-elevated text-crwn-text hover:border-crwn-gold/50 transition-colors disabled:opacity-50"
+      className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium bg-crwn-surface border border-crwn-elevated text-crwn-text hover:border-crwn-gold/50 transition-colors disabled:opacity-50"
     >
       {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : icon}
       <span className="truncate">{label}</span>

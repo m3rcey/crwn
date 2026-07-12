@@ -114,12 +114,12 @@ export default function NewCityUnlockPage() {
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Which city?</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">Pick a city where you already have fans.</p>
             <input type="text" value={city} autoFocus onChange={e => setCity(e.target.value)} placeholder="City (e.g. St. Louis)"
-              className="w-full px-4 py-3 mb-2 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 mb-2 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
             <div className="flex gap-2">
               <input type="text" value={region} onChange={e => setRegion(e.target.value)} placeholder="State (opt)"
-                className="flex-1 px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+                className="flex-1 px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
               <input type="text" value={country} onChange={e => setCountry(e.target.value)} placeholder="Country (opt)"
-                className="flex-1 px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+                className="flex-1 px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
             </div>
           </div>
         )}
@@ -135,7 +135,7 @@ export default function NewCityUnlockPage() {
               options={UNLOCK_TYPES.map(t => ({ value: t.value, label: t.label, hint: t.hint, icon: t.icon }))}
             />
             <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Title fans see"
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
@@ -155,7 +155,7 @@ export default function NewCityUnlockPage() {
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Goal</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">How many {goalDef?.unit} to unlock?</p>
             <input type="number" min={1} value={goalValue} autoFocus onChange={e => setGoalValue(e.target.value)}
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
@@ -164,14 +164,14 @@ export default function NewCityUnlockPage() {
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Unlock message <span className="text-crwn-text-secondary text-sm font-normal">(optional)</span></h2>
             <p className="text-sm text-crwn-text-secondary mb-4">What fans see when the city unlocks. Keep it a next step (e.g. "Tickets drop here"), not a guarantee.</p>
             <textarea value={unlockMessage} onChange={e => setUnlockMessage(e.target.value)} rows={3} placeholder="You did it, St. Louis. Listening party details drop here Friday."
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
         {step.id === 'review' && (
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-4">Review</h2>
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
               <Row label="City" value={[city, region, country].filter(Boolean).join(', ')} />
               <Row label="Unlocks" value={`${unlockDef.icon} ${title}`} />
               <Row label="Goal" value={`${goalValue} ${goalDef?.unit}`} />

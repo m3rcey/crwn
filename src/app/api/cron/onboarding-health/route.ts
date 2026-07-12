@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { validateUpload } from '@/lib/uploadValidation';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321';
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build';
@@ -97,6 +98,24 @@ export async function GET(req: NextRequest) {
         checks.push({ name: 'audio_validation', ok: false, detail: `rejected valid audio: [${passFails.join(', ')}]; accepted junk: ${junkAccepted}` });
       } else {
         checks.push({ name: 'audio_validation', ok: true, detail: 'accepts mp3/m4a/wav/flac, rejects .exe' });
+      }
+    }
+    // 4. The rate limiter must ALLOW an unauthenticated (IP-keyed) request. Public
+    //    routes have no user id, so they key on a string. That once failed to cast to
+    //    the RPC's uuid, the error was swallowed, and a broken limiter was returned as
+    //    a denial: every visitor to /api/support, /api/partner/apply and the lead
+    //    magnet tools got a 429 on their FIRST request, silently, for months. A denial
+    //    on a brand-new key can only mean the limiter is broken.
+    {
+      const allowed = await checkRateLimit(`ip:canary-${stamp}`, `canary-${stamp}`, 60, 5);
+      if (!allowed) {
+        checks.push({
+          name: 'public_rate_limit',
+          ok: false,
+          detail: 'checkRateLimit DENIED a brand-new IP key. Every public form (support, partner apply, lead magnet capture) is returning 429 to every visitor.',
+        });
+      } else {
+        checks.push({ name: 'public_rate_limit', ok: true, detail: 'IP-keyed limiter allows a fresh key' });
       }
     }
   } catch (e) {

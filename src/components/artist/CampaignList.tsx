@@ -79,7 +79,7 @@ export function CampaignList({ artistId, onNewCampaign, onEditCampaign, onViewSt
 
       {/* Campaign list */}
       {campaigns.length === 0 ? (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-12 text-center">
           <Mail className="w-10 h-10 text-crwn-text-secondary mx-auto mb-3" />
           <p className="text-crwn-text font-medium mb-1">No campaigns yet</p>
           <p className="text-sm text-crwn-text-secondary mb-4">
@@ -106,7 +106,7 @@ export function CampaignList({ artistId, onNewCampaign, onEditCampaign, onViewSt
             return (
               <div
                 key={campaign.id}
-                className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 hover:border-crwn-elevated/80 transition-colors"
+                className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 hover:border-crwn-elevated/80 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">

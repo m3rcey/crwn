@@ -40,7 +40,7 @@ function WatchVideo() {
           <ParticipantTile />
         </GridLayout>
       ) : (
-        <div className="h-full flex items-center justify-center text-crwn-text-dim">
+        <div className="h-full flex items-center justify-center text-crwn-text-secondary">
           Waiting for the artist to start the video...
         </div>
       )}

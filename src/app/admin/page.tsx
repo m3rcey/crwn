@@ -61,7 +61,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-[#0D0D0D]">
       {/* Admin tab nav */}
       <div className="max-w-7xl mx-auto px-4 pt-4 overflow-x-auto">
-        <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1 w-fit mb-6">
+        <div className="flex items-center gap-1 bg-crwn-surface rounded-full p-1 w-fit mb-6">
           <button
             onClick={() => setActiveTab('dashboard')}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${

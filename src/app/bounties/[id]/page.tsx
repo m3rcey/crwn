@@ -78,7 +78,7 @@ export default function BountyDetailPage() {
         {bounty.status === 'active' && <button onClick={() => setStatus('ended')} className="text-xs bg-crwn-elevated text-crwn-text-secondary px-3 py-1.5 rounded-full">End</button>}
       </div>
 
-      <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 mb-5">
+      <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 mb-5">
         <p className="text-sm text-crwn-text mb-1">🎁 {bounty.reward_detail || bounty.reward_type}</p>
         {bounty.deadline && <p className="text-xs text-crwn-text-secondary inline-flex items-center gap-1"><Clock className="w-3 h-3" /> Closes {new Date(bounty.deadline).toLocaleString()}</p>}
         <p className="text-xs text-crwn-text-secondary mt-1 capitalize">Eligibility: {bounty.eligibility} · {bounty.approval_required ? 'Approval required' : 'Auto-approve'}</p>
@@ -89,7 +89,7 @@ export default function BountyDetailPage() {
           <h2 className="text-xs font-semibold text-crwn-gold uppercase tracking-wider mb-2">Pending review ({pending.length})</h2>
           <div className="space-y-2">
             {pending.map(s => (
-              <div key={s.id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-3">
+              <div key={s.id} className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-3">
                 <div className="w-8 h-8 rounded-full bg-crwn-elevated flex items-center justify-center text-xs text-crwn-text-secondary">{s.display_name.charAt(0).toUpperCase()}</div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-crwn-text truncate">{s.display_name}</p>
@@ -108,7 +108,7 @@ export default function BountyDetailPage() {
         {approved.length === 0 ? <p className="text-sm text-crwn-text-secondary text-center py-6">No approved clips yet.</p> : (
           <div className="space-y-2">
             {approved.map((s, i) => (
-              <div key={s.id} className={`flex items-center gap-3 rounded-xl border p-3 ${s.status === 'winner' ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
+              <div key={s.id} className={`flex items-center gap-3 rounded-xl border p-3 ${s.status === 'winner' ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'}`}>
                 <span className="text-sm font-bold text-crwn-text-secondary w-5 text-center">{i + 1}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-crwn-text truncate flex items-center gap-1.5">{s.display_name} {s.status === 'winner' && <Trophy className="w-3.5 h-3.5 text-crwn-gold" />}</p>

@@ -194,8 +194,8 @@ export default function RecruiterDashboard() {
                 <div key={stage.label}>
                   {i > 0 && (
                     <div className="flex items-center gap-2 py-0.5 pl-3">
-                      <ArrowDown className="w-3 h-3 text-crwn-text-dim" />
-                      <span className="text-xs text-crwn-text-dim">{rate}</span>
+                      <ArrowDown className="w-3 h-3 text-crwn-text-secondary" />
+                      <span className="text-xs text-crwn-text-secondary">{rate}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-3">
@@ -234,7 +234,7 @@ export default function RecruiterDashboard() {
           <div className="overflow-x-auto bg-[#1a1a1a] rounded-xl p-2">
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-crwn-text-dim border-b border-crwn-elevated/50">
+                <tr className="text-crwn-text-secondary border-b border-crwn-elevated/50">
                   <th className="text-left py-2 px-2">Artist</th>
                   <th className="text-left py-2 px-2">Status</th>
                   <th className="text-right py-2 px-2">CRWN fee</th>
@@ -263,7 +263,7 @@ export default function RecruiterDashboard() {
               </tbody>
             </table>
           </div>
-          <p className="text-crwn-text-dim text-[10px] mt-2">&ldquo;Their revenue&rdquo; is the artist&rsquo;s gross fan sales on CRWN this month; &ldquo;CRWN fee&rdquo; is the platform&rsquo;s cut of that by their tier. &ldquo;You earned&rdquo; is your flat bounty + recurring share paid out.</p>
+          <p className="text-crwn-text-secondary text-[10px] mt-2">&ldquo;Their revenue&rdquo; is the artist&rsquo;s gross fan sales on CRWN this month; &ldquo;CRWN fee&rdquo; is the platform&rsquo;s cut of that by their tier. &ldquo;You earned&rdquo; is your flat bounty + recurring share paid out.</p>
         </div>
       )}
 

@@ -554,7 +554,7 @@ export function ShopManager() {
                       />
                     </label>
                   </div>
-                  <p className="text-xs text-crwn-text-dim mt-1">Upload the file your fans will receive after purchase (ZIP, PDF, WAV, MP3, etc.)</p>
+                  <p className="text-xs text-crwn-text-secondary mt-1">Upload the file your fans will receive after purchase (ZIP, PDF, WAV, MP3, etc.)</p>
                 </div>
               )}
 

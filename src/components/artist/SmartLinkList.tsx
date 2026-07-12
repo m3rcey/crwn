@@ -82,7 +82,7 @@ export function SmartLinkList({ artistId, onNew, onEdit }: SmartLinkListProps) {
       </div>
 
       {links.length === 0 ? (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-12 text-center">
           <Link2 className="w-10 h-10 text-crwn-text-secondary mx-auto mb-3" />
           <p className="text-crwn-text font-medium mb-1">No smart links yet</p>
           <p className="text-sm text-crwn-text-secondary mb-4">
@@ -98,7 +98,7 @@ export function SmartLinkList({ artistId, onNew, onEdit }: SmartLinkListProps) {
       ) : (
         <div className="space-y-3">
           {links.map(link => (
-            <div key={link.id} className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+            <div key={link.id} className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">

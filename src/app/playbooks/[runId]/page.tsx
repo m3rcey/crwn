@@ -95,7 +95,7 @@ export default function PlaybookRunPage() {
         <div className="h-full bg-crwn-gold rounded-full transition-all" style={{ width: `${pct}%` }} />
       </div>
 
-      <p className="text-xs text-crwn-text-secondary bg-crwn-card rounded-xl px-4 py-3 border border-crwn-elevated mb-4">
+      <p className="text-xs text-crwn-text-secondary bg-crwn-surface rounded-xl px-4 py-3 border border-crwn-elevated mb-4">
         Approve <span className="text-crwn-text font-medium">each step</span> below. Nothing is created or sent until you do. Build steps (squad, mission, bounty, city unlock) create the real thing; message and post steps are drafts you send yourself.
       </p>
 
@@ -114,7 +114,7 @@ export default function PlaybookRunPage() {
           const isDraft = s.step_type === 'draft_message' || s.step_type === 'draft_post';
           const terminal = ['executed', 'approved', 'skipped', 'failed'].includes(s.status);
           return (
-            <div key={s.id} className={`bg-crwn-card rounded-xl border p-4 ${s.status === 'failed' ? 'border-red-400/40' : terminal ? 'border-crwn-elevated opacity-80' : 'border-crwn-elevated'}`}>
+            <div key={s.id} className={`bg-crwn-surface rounded-xl border p-4 ${s.status === 'failed' ? 'border-red-400/40' : terminal ? 'border-crwn-elevated opacity-80' : 'border-crwn-elevated'}`}>
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-crwn-text">{s.title}</p>

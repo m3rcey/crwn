@@ -84,7 +84,7 @@ export default function CampaignsPage() {
             const def = CAMPAIGN_GOAL_MAP[c.goal_type];
             const pct = Math.min(100, Math.round((c.current_value / c.goal_value) * 100));
             return (
-              <button key={c.id} onClick={() => router.push(`/campaigns/${c.id}`)} className="w-full bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
+              <button key={c.id} onClick={() => router.push(`/campaigns/${c.id}`)} className="w-full bg-crwn-surface rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">{def?.icon || '🏁'}</span>
                   <div className="min-w-0 flex-1">

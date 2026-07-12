@@ -187,7 +187,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
 
   if (smsLimit === 0) {
     return (
-      <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-8 text-center">
+      <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-8 text-center">
         <Phone className="w-10 h-10 text-crwn-text-secondary mx-auto mb-3" />
         <p className="text-crwn-text font-medium mb-1">SMS requires Pro or higher</p>
         <p className="text-sm text-crwn-text-secondary mb-4">
@@ -208,7 +208,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
           </p>
         </div>
 
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6 space-y-4">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6 space-y-4">
           <h3 className="text-sm font-medium text-crwn-text">Set Up Your Keyword</h3>
           <p className="text-xs text-crwn-text-secondary">
             Fans text this keyword to your number to opt in. Choose something memorable; your artist name works great.
@@ -233,7 +233,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
           <p className="text-xs text-crwn-text-secondary">3-20 characters, letters and numbers only</p>
         </div>
 
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6">
           <h3 className="text-sm font-medium text-crwn-text mb-3">How it works</h3>
           <ol className="space-y-2 text-xs text-crwn-text-secondary list-decimal list-inside">
             <li>You set a keyword (e.g. "M3RCEY")</li>
@@ -243,7 +243,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
           </ol>
         </div>
 
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6">
           <h3 className="text-sm font-medium text-crwn-text mb-3">Your Plan</h3>
           <div className="flex items-center justify-between text-sm">
             <span className="text-crwn-text-secondary">Monthly SMS limit</span>
@@ -291,21 +291,21 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
           <div className="flex items-center gap-2 mb-1">
             <Users className="w-4 h-4 text-crwn-gold" />
             <span className="text-xs text-crwn-text-secondary">Subscribers</span>
           </div>
           <p className="text-xl font-bold text-crwn-text">{subscribers.filter(s => s.status === 'active').length}</p>
         </div>
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
           <div className="flex items-center gap-2 mb-1">
             <MessageSquare className="w-4 h-4 text-blue-400" />
             <span className="text-xs text-crwn-text-secondary">Sent This Month</span>
           </div>
           <p className="text-xl font-bold text-crwn-text">{phoneSetup.monthly_send_count}</p>
         </div>
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
           <div className="flex items-center gap-2 mb-1">
             <Phone className="w-4 h-4 text-green-400" />
             <span className="text-xs text-crwn-text-secondary">Remaining</span>
@@ -316,7 +316,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
 
       {/* Compose */}
       {showCompose && (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-5 space-y-4">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-5 space-y-4">
           <h3 className="text-sm font-medium text-crwn-text">New SMS Campaign</h3>
 
           <div>
@@ -415,7 +415,7 @@ export function SmsSetup({ artistId, platformTier }: SmsSetupProps) {
 
       {/* Subscriber List */}
       {subscribers.length > 0 && (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
           <div className="px-4 py-3 border-b border-crwn-elevated">
             <h3 className="text-sm font-medium text-crwn-text">SMS Subscribers ({subscribers.length})</h3>
           </div>

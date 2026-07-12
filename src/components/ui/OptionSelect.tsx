@@ -44,7 +44,7 @@ export function OptionSelect({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between gap-3 rounded-xl border border-crwn-elevated bg-crwn-card px-4 py-4 text-left"
+        className="w-full flex items-center justify-between gap-3 rounded-xl border border-crwn-elevated bg-crwn-surface px-4 py-4 text-left"
       >
         <span className="flex items-center gap-3 min-w-0">
           {selected?.icon != null && <span className="text-2xl shrink-0">{selected.icon}</span>}
@@ -59,7 +59,7 @@ export function OptionSelect({
       </button>
 
       {open && (
-        <div className="absolute z-30 mt-2 w-full rounded-xl border border-crwn-elevated bg-crwn-card shadow-2xl overflow-hidden max-h-[55vh] overflow-y-auto">
+        <div className="absolute z-30 mt-2 w-full rounded-xl border border-crwn-elevated bg-crwn-surface-solid shadow-2xl overflow-hidden max-h-[55vh] overflow-y-auto">
           {options.map((o) => (
             <button
               key={o.value}

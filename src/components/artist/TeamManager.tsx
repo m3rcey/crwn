@@ -87,7 +87,7 @@ export function TeamManager({ artistId, platformTier }: { artistId: string; plat
             const agg = accruals[d.id] || { accrued: 0, released: 0 };
             return (
               <Link key={d.id} href={`/team/${d.id}`}
-                className="block bg-crwn-card rounded-xl p-4 hover:bg-crwn-elevated transition-colors">
+                className="block bg-crwn-surface rounded-xl p-4 hover:bg-crwn-elevated transition-colors">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-semibold text-crwn-text truncate">{d.collaborator_name || d.collaborator_email || 'Collaborator'}</p>

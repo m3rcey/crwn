@@ -21,7 +21,7 @@ function tierStyle(rank: number): { row: string; name: string; badge: string } |
   if (rank >= 99) return { row: 'bg-crwn-gold/15 border border-crwn-gold/30', name: 'text-crwn-gold font-bold', badge: 'bg-crwn-gold text-black' };
   if (rank >= 3) return { row: 'bg-crwn-gold/10', name: 'text-crwn-gold font-bold', badge: 'bg-crwn-gold/80 text-black' };
   if (rank === 2) return { row: 'bg-crwn-elevated/60', name: 'text-crwn-gold font-semibold', badge: 'bg-crwn-elevated text-crwn-gold' };
-  if (rank === 1) return { row: '', name: 'text-crwn-gold font-medium', badge: 'bg-crwn-elevated text-crwn-text-dim' };
+  if (rank === 1) return { row: '', name: 'text-crwn-gold font-medium', badge: 'bg-crwn-elevated text-crwn-text-secondary' };
   return null; // free / no sub: plain
 }
 
@@ -128,13 +128,13 @@ export function LiveChatPanel({ sessionId, currentUserId, canPost, canModerate }
   };
 
   return (
-    <div className="flex flex-col h-full bg-crwn-card border-l border-crwn-elevated">
+    <div className="flex flex-col h-full bg-crwn-surface border-l border-crwn-elevated">
       <div className="px-4 py-3 border-b border-crwn-elevated">
         <h3 className="text-crwn-text font-semibold text-sm">Live Chat</h3>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2 min-h-0">
         {messages.length === 0 ? (
-          <p className="text-crwn-text-dim text-sm text-center py-6">Be the first to say something.</p>
+          <p className="text-crwn-text-secondary text-sm text-center py-6">Be the first to say something.</p>
         ) : messages.map((m) => {
           const style = tierStyle(m.tierRank);
           return (
@@ -146,13 +146,13 @@ export function LiveChatPanel({ sessionId, currentUserId, canPost, canModerate }
                     {m.tierRank >= 99 ? 'Artist' : m.tierName}
                   </span>
                 )}
-                <span className={style?.name || 'text-crwn-text-dim font-medium'}>{m.authorName}</span>{' '}
+                <span className={style?.name || 'text-crwn-text-secondary font-medium'}>{m.authorName}</span>{' '}
                 <span className="text-crwn-text break-words">{m.body}</span>
               </div>
               {(canModerate || m.user_id === currentUserId) && (
                 <button
                   onClick={() => remove(m.id)}
-                  className="opacity-0 group-hover:opacity-100 text-crwn-text-dim hover:text-crwn-error transition-opacity flex-shrink-0"
+                  className="opacity-0 group-hover:opacity-100 text-crwn-text-secondary hover:text-crwn-error transition-opacity flex-shrink-0"
                   aria-label="Delete message"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -183,7 +183,7 @@ export function LiveChatPanel({ sessionId, currentUserId, canPost, canModerate }
           </button>
         </div>
       ) : (
-        <div className="p-3 border-t border-crwn-elevated text-center text-crwn-text-dim text-xs">
+        <div className="p-3 border-t border-crwn-elevated text-center text-crwn-text-secondary text-xs">
           Subscribe to join the chat
         </div>
       )}

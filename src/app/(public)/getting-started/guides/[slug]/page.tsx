@@ -52,7 +52,7 @@ function StepCard({ step, index, isActive, onToggle }: {
             <span className="text-sm font-bold">{index + 1}</span>
           </div>
           <h3 className="flex-1 text-crwn-text font-semibold">{step.title}</h3>
-          <ChevronDown className={`w-5 h-5 text-crwn-text-dim transition-transform duration-300 ${isActive ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-5 h-5 text-crwn-text-secondary transition-transform duration-300 ${isActive ? 'rotate-180' : ''}`} />
         </button>
 
         {/* Expandable Content */}
@@ -183,9 +183,9 @@ function GuideNavigation({ guide }: { guide: GuideData }) {
           href={`/getting-started/guides/${guide.prevGuide.slug}`}
           className="flex-1 neu-raised rounded-xl p-4 flex items-center gap-3 group hover:border-crwn-gold/20 border border-transparent transition-all"
         >
-          <ChevronLeft className="w-5 h-5 text-crwn-text-dim group-hover:text-crwn-gold group-hover:-translate-x-1 transition-all" />
+          <ChevronLeft className="w-5 h-5 text-crwn-text-secondary group-hover:text-crwn-gold group-hover:-translate-x-1 transition-all" />
           <div>
-            <div className="text-xs text-crwn-text-dim">Previous</div>
+            <div className="text-xs text-crwn-text-secondary">Previous</div>
             <div className="text-sm text-crwn-text font-medium group-hover:text-crwn-gold transition-colors">{guide.prevGuide.title}</div>
           </div>
         </Link>
@@ -198,10 +198,10 @@ function GuideNavigation({ guide }: { guide: GuideData }) {
           className="flex-1 neu-raised rounded-xl p-4 flex items-center justify-end gap-3 group hover:border-crwn-gold/20 border border-transparent transition-all text-right"
         >
           <div>
-            <div className="text-xs text-crwn-text-dim">Next</div>
+            <div className="text-xs text-crwn-text-secondary">Next</div>
             <div className="text-sm text-crwn-text font-medium group-hover:text-crwn-gold transition-colors">{guide.nextGuide.title}</div>
           </div>
-          <ChevronRight className="w-5 h-5 text-crwn-text-dim group-hover:text-crwn-gold group-hover:translate-x-1 transition-all" />
+          <ChevronRight className="w-5 h-5 text-crwn-text-secondary group-hover:text-crwn-gold group-hover:translate-x-1 transition-all" />
         </Link>
       ) : (
         <Link
@@ -209,10 +209,10 @@ function GuideNavigation({ guide }: { guide: GuideData }) {
           className="flex-1 neu-raised rounded-xl p-4 flex items-center justify-end gap-3 group hover:border-crwn-gold/20 border border-transparent transition-all text-right"
         >
           <div>
-            <div className="text-xs text-crwn-text-dim">Done!</div>
+            <div className="text-xs text-crwn-text-secondary">Done!</div>
             <div className="text-sm text-crwn-text font-medium group-hover:text-crwn-gold transition-colors">Back to All Guides</div>
           </div>
-          <ArrowRight className="w-5 h-5 text-crwn-text-dim group-hover:text-crwn-gold group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-5 h-5 text-crwn-text-secondary group-hover:text-crwn-gold group-hover:translate-x-1 transition-all" />
         </Link>
       )}
     </div>
@@ -287,7 +287,7 @@ export default function GuidePage() {
         <div className="mt-8 mb-10">
           <div className="flex items-center gap-3 mb-3">
             <span className="text-xs font-medium text-crwn-gold/80 bg-crwn-gold/10 rounded-full px-3 py-1">{guide.category}</span>
-            <span className="flex items-center gap-1 text-xs text-crwn-text-dim">
+            <span className="flex items-center gap-1 text-xs text-crwn-text-secondary">
               <Clock className="w-3.5 h-3.5" />
               {guide.estimatedTime} read
             </span>
@@ -319,7 +319,7 @@ export default function GuidePage() {
                 setOpenSteps(new Set(guide.steps.map((_, i) => i)));
               }
             }}
-            className="text-crwn-text-dim text-sm hover:text-crwn-gold transition-colors"
+            className="text-crwn-text-secondary text-sm hover:text-crwn-gold transition-colors"
           >
             {openSteps.size === guide.steps.length ? 'Collapse all steps' : 'Expand all steps'}
           </button>

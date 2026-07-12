@@ -275,7 +275,7 @@ export default function CampaignHubPage() {
                       <button
                         key={c.id}
                         onClick={() => router.push(`/campaigns/${c.id}`)}
-                        className="w-full bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors"
+                        className="w-full bg-crwn-surface rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors"
                       >
                         <div className="flex items-center gap-3 mb-3">
                           <span className="text-2xl">{def?.icon || '🏁'}</span>
@@ -304,26 +304,26 @@ export default function CampaignHubPage() {
             )}
 
             <div className="grid grid-cols-2 gap-3 mb-6" data-tour="campaign-hub-stats">
-              <div className="bg-crwn-card rounded-2xl p-4">
+              <div className="bg-crwn-surface rounded-2xl p-4">
                 <p className="text-xs text-crwn-text-secondary mb-1">Gross revenue driven</p>
                 <p className="text-xl font-bold text-green-400">{money(gross)}</p>
               </div>
-              <div className="bg-crwn-card rounded-2xl p-4">
+              <div className="bg-crwn-surface rounded-2xl p-4">
                 <p className="text-xs text-crwn-text-secondary mb-1">Commissions owed</p>
                 <p className="text-xl font-bold text-crwn-gold">{money(owed)}</p>
               </div>
-              <div className="bg-crwn-card rounded-2xl p-4">
+              <div className="bg-crwn-surface rounded-2xl p-4">
                 <p className="text-xs text-crwn-text-secondary mb-1">Your net</p>
                 <p className="text-xl font-bold text-green-400">{money(net)}</p>
               </div>
-              <div className="bg-crwn-card rounded-2xl p-4">
+              <div className="bg-crwn-surface rounded-2xl p-4">
                 <p className="text-xs text-crwn-text-secondary mb-1">Active residuals</p>
                 <p className="text-xl font-bold text-crwn-text">{residuals}</p>
               </div>
             </div>
 
             {/* Current commission card */}
-            <div className="bg-crwn-card rounded-2xl p-5">
+            <div className="bg-crwn-surface rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <TrendingUp className="w-4 h-4 text-crwn-gold" />
                 <p className="text-sm font-semibold text-crwn-text">Current commission</p>
@@ -365,7 +365,7 @@ export default function CampaignHubPage() {
         {tab === 'engine' && (
           <div>
             {/* Share vs Clip revenue split */}
-            <div className="bg-crwn-card rounded-2xl p-5 mb-6">
+            <div className="bg-crwn-surface rounded-2xl p-5 mb-6">
               <p className="text-sm font-semibold text-crwn-text mb-4">Commission split by channel</p>
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1.5">

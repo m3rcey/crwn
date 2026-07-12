@@ -50,7 +50,7 @@ export function TeamSplitImpact({ sourceId, grossCents }: { sourceType: string; 
   const artistNet = netBeforeSplits - teamSplit;
 
   return (
-    <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 mb-4">
+    <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 mb-4">
       <div className="flex items-center gap-2 mb-3">
         <Users className="w-4 h-4 text-crwn-gold" />
         <p className="text-sm font-semibold text-crwn-text">Team Splits ({totalPct}% of net)</p>

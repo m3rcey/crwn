@@ -138,7 +138,7 @@ export default function NewCampaignPage() {
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Name the campaign</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">Start with "Road to…" if it fits.</p>
             <input type="text" value={title} autoFocus onChange={e => setTitle(e.target.value)} placeholder="Road to First Music Video"
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
@@ -149,7 +149,7 @@ export default function NewCampaignPage() {
             <div className="relative">
               {isMoney && <span className="absolute left-4 top-1/2 -translate-y-1/2 text-crwn-text-secondary">$</span>}
               <input type="number" min={1} value={goalValue} autoFocus onChange={e => setGoalValue(e.target.value)} placeholder={isMoney ? '1500' : '100'}
-                className={`w-full ${isMoney ? 'pl-8' : 'pl-4'} pr-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50`} />
+                className={`w-full ${isMoney ? 'pl-8' : 'pl-4'} pr-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50`} />
             </div>
           </div>
         )}
@@ -160,12 +160,12 @@ export default function NewCampaignPage() {
             <p className="text-sm text-crwn-text-secondary mb-4">Optional. Link a tier or product. "Support" sends fans to check out. Skip to just send them to your page.</p>
             <div className="space-y-2">
               {tiers.map(t => (
-                <button key={t.id} onClick={() => { setLinkedTierId(t.id); setLinkedProductId(null); }} className={`w-full flex items-center justify-between p-3 rounded-xl border text-left ${linkedTierId === t.id ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
+                <button key={t.id} onClick={() => { setLinkedTierId(t.id); setLinkedProductId(null); }} className={`w-full flex items-center justify-between p-3 rounded-xl border text-left ${linkedTierId === t.id ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'}`}>
                   <span className="text-sm text-crwn-text">👑 {t.name} · ${(t.price / 100).toFixed(0)}/mo</span>{linkedTierId === t.id && <Check className="w-4 h-4 text-crwn-gold" />}
                 </button>
               ))}
               {products.map(p => (
-                <button key={p.id} onClick={() => { setLinkedProductId(p.id); setLinkedTierId(null); }} className={`w-full flex items-center justify-between p-3 rounded-xl border text-left ${linkedProductId === p.id ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
+                <button key={p.id} onClick={() => { setLinkedProductId(p.id); setLinkedTierId(null); }} className={`w-full flex items-center justify-between p-3 rounded-xl border text-left ${linkedProductId === p.id ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'}`}>
                   <span className="text-sm text-crwn-text">🛍️ {p.title} · ${(p.price / 100).toFixed(0)}</span>{linkedProductId === p.id && <Check className="w-4 h-4 text-crwn-gold" />}
                 </button>
               ))}
@@ -178,7 +178,7 @@ export default function NewCampaignPage() {
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">What's the story? <span className="text-crwn-text-secondary text-sm font-normal">(optional)</span></h2>
             <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} placeholder="Help me shoot my first real music video. Every supporter gets their name in the credits."
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
@@ -186,14 +186,14 @@ export default function NewCampaignPage() {
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Deadline <span className="text-crwn-text-secondary text-sm font-normal">(optional)</span></h2>
             <input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)}
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
         {step.id === 'review' && (
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-4">Review</h2>
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
               <Row label="Goal" value={`${goalDef.icon} ${goalDef.label}`} />
               <Row label="Title" value={title} />
               <Row label="Target" value={isMoney ? `$${goalValue}` : `${goalValue} ${goalDef.unit}`} />

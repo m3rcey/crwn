@@ -180,7 +180,7 @@ export function CommentSection({
         </div>
       ) : (
         <div className="neu-inset p-4 text-center">
-          <p className="text-crwn-text-dim text-sm">No comments yet. Be the first!</p>
+          <p className="text-crwn-text-secondary text-sm">No comments yet. Be the first!</p>
         </div>
       )}
 
@@ -220,7 +220,7 @@ export function CommentSection({
         </div>
       )}
       {newComment.length > 0 && (
-        <p className="text-xs text-crwn-text-dim text-right mt-1">{newComment.length}/500</p>
+        <p className="text-xs text-crwn-text-secondary text-right mt-1">{newComment.length}/500</p>
       )}
     </div>
   );

@@ -87,7 +87,7 @@ export default function CityUnlocksPage() {
             const pct = Math.min(100, Math.round((u.current_value / u.goal_value) * 100));
             const unit = GOAL_TYPE_MAP[u.goal_type]?.unit || u.goal_type;
             return (
-              <button key={u.id} onClick={() => router.push(`/city-unlocks/${u.id}`)} className="w-full bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
+              <button key={u.id} onClick={() => router.push(`/city-unlocks/${u.id}`)} className="w-full bg-crwn-surface rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">{def?.icon || '📍'}</span>
                   <div className="min-w-0 flex-1">

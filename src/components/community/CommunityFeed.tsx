@@ -180,7 +180,7 @@ export function CommunityFeed({ artistId, artistSlug, isArtistProfile, tiers }: 
           ) : (
             <div className="neu-raised p-8 text-center">
               <EmptyState icon="💬" title="No Posts Yet" description="Be the first to start a conversation!" />
-              <p className="text-crwn-text-dim text-sm">Be the first to post!</p>
+              <p className="text-crwn-text-secondary text-sm">Be the first to post!</p>
             </div>
           )}
         </>

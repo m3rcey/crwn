@@ -78,7 +78,7 @@ export default function CityPublicPage() {
         {unlock.description && <p className="text-sm text-crwn-text-secondary mt-3">{unlock.description}</p>}
       </div>
 
-      <div className="bg-crwn-card rounded-2xl border border-crwn-elevated p-5 mb-5">
+      <div className="bg-crwn-surface rounded-2xl border border-crwn-elevated p-5 mb-5">
         <div className="flex items-end justify-between mb-2">
           <p className="text-3xl font-bold text-crwn-text">{unlock.current_value}<span className="text-base text-crwn-text-secondary">/{unlock.goal_value}</span></p>
           <p className="text-sm text-crwn-text-secondary">{unit}</p>
@@ -102,7 +102,7 @@ export default function CityPublicPage() {
       ) : (
         <div>
           <input type="text" value={city} onChange={e => setCity(e.target.value)} placeholder={`Your city (default: ${unlock.target_city})`}
-            className="w-full px-4 py-3 mb-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+            className="w-full px-4 py-3 mb-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
           <button onClick={contribute} disabled={contributing} className="w-full py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold disabled:opacity-50">
             {contributing ? 'Adding you…' : `${goalDef?.verb || 'Help unlock'} ${unlock.target_city}`}
           </button>

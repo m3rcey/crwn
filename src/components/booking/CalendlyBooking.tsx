@@ -187,7 +187,7 @@ export function CalendlyBooking({
       {/* No sessions and no tier section */}
       {!isLoading && sessions.length === 0 && !showTierSection && (
         <div className="neu-raised rounded-2xl p-8 text-center">
-          <p className="text-crwn-text-dim">No booking sessions available yet.</p>
+          <p className="text-crwn-text-secondary">No booking sessions available yet.</p>
         </div>
       )}
     </div>

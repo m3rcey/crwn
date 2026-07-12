@@ -73,7 +73,7 @@ export function BookingSettings({ artistId, tiers, initialSettings }: BookingSet
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-crwn-text font-medium">Enable Booking</h3>
-          <p className="text-crwn-text-dim text-sm">Show Book tab on your profile</p>
+          <p className="text-crwn-text-secondary text-sm">Show Book tab on your profile</p>
         </div>
         <button
           onClick={() => setBookingEnabled(!bookingEnabled)}
@@ -103,7 +103,7 @@ export function BookingSettings({ artistId, tiers, initialSettings }: BookingSet
               placeholder="https://calendly.com/your-username"
               className="neu-inset w-full px-4 py-3 text-crwn-text placeholder-crwn-text-secondary focus:outline-none"
             />
-            <p className="text-crwn-text-dim text-xs mt-1">
+            <p className="text-crwn-text-secondary text-xs mt-1">
               Paste your full Calendly page or event type URL
             </p>
           </div>
@@ -127,7 +127,7 @@ export function BookingSettings({ artistId, tiers, initialSettings }: BookingSet
 
             {!bookingIsFree && tiers.length > 0 && (
               <div className="space-y-2 ml-6">
-                <p className="text-crwn-text-dim text-sm mb-2">Only subscribers can book for free:</p>
+                <p className="text-crwn-text-secondary text-sm mb-2">Only subscribers can book for free:</p>
                 {tiers.map(tier => (
                   <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
                     <input

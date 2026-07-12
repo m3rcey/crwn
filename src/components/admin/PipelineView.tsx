@@ -169,7 +169,7 @@ export default function PipelineView() {
             <button
               key={stage.id}
               onClick={() => setStageFilter(isSelected ? '' : stage.id)}
-              className={`bg-crwn-card rounded-xl p-3 text-left transition-all border ${
+              className={`bg-crwn-surface rounded-xl p-3 text-left transition-all border ${
                 isSelected ? 'border-crwn-gold' : 'border-transparent hover:border-crwn-elevated'
               }`}
             >
@@ -191,13 +191,13 @@ export default function PipelineView() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by name, email, or slug..."
-          className="w-full pl-10 pr-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-full text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-full text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
         />
       </div>
 
       {/* Table */}
       <div className="flex gap-6">
-        <div className={`${selectedArtist ? 'flex-1' : 'w-full'} bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden`}>
+        <div className={`${selectedArtist ? 'flex-1' : 'w-full'} bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden`}>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -292,7 +292,7 @@ export default function PipelineView() {
 
         {/* Artist detail drawer */}
         {selectedArtist && (
-          <div className="w-80 shrink-0 bg-crwn-card rounded-xl border border-crwn-elevated p-4 space-y-4 self-start sticky top-4">
+          <div className="w-80 shrink-0 bg-crwn-surface rounded-xl border border-crwn-elevated p-4 space-y-4 self-start sticky top-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-crwn-text">{selectedArtist.display_name}</h3>
               <button onClick={() => setSelectedArtist(null)} className="text-xs text-crwn-text-secondary hover:text-crwn-text">Close</button>

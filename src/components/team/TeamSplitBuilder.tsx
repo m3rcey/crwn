@@ -189,14 +189,14 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
               <div className="grid grid-cols-2 gap-2">
                 {COLLABORATOR_ROLES.map((r) => (
                   <button key={r.key} onClick={() => patch({ role: r.key })}
-                    className={`px-3 py-2.5 rounded-xl text-sm text-left transition-colors ${form.role === r.key ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-card text-crwn-text hover:bg-crwn-elevated'}`}>
+                    className={`px-3 py-2.5 rounded-xl text-sm text-left transition-colors ${form.role === r.key ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-surface text-crwn-text hover:bg-crwn-elevated'}`}>
                     {r.label}
                   </button>
                 ))}
               </div>
               {form.role === 'other' && (
                 <input value={form.customRole} onChange={(e) => patch({ customRole: e.target.value })} placeholder="Describe the role"
-                  className="mt-3 w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
+                  className="mt-3 w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
               )}
             </div>
           )}
@@ -206,9 +206,9 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
             <div className="mt-4 space-y-3">
               <p className="text-sm text-crwn-text-secondary mb-2">Who is this deal with?</p>
               <input value={form.collaboratorName} onChange={(e) => patch({ collaboratorName: e.target.value })} placeholder="Their name"
-                className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
+                className="w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
               <input value={form.collaboratorEmail} onChange={(e) => patch({ collaboratorEmail: e.target.value })} placeholder="Their email (to send the invite)" type="email"
-                className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
+                className="w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
               <p className="text-xs text-crwn-text-secondary">If they already have a CRWN account with this email, the deal links to them automatically. Otherwise they get an email invite to join and accept.</p>
             </div>
           )}
@@ -218,7 +218,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
             <div className="mt-4 space-y-2">
               {DEAL_TYPES.map((d) => (
                 <button key={d.key} onClick={() => patch({ dealType: d.key })}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${form.dealType === d.key ? 'bg-crwn-gold/15 border border-crwn-gold' : 'bg-crwn-card border border-transparent hover:bg-crwn-elevated'}`}>
+                  className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${form.dealType === d.key ? 'bg-crwn-gold/15 border border-crwn-gold' : 'bg-crwn-surface border border-transparent hover:bg-crwn-elevated'}`}>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-crwn-text">{d.label}</span>
                     {d.recommended && <span className="text-[10px] uppercase tracking-wide bg-crwn-gold text-crwn-bg px-1.5 py-0.5 rounded font-bold">Recommended</span>}
@@ -241,7 +241,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                     <div className="flex flex-wrap gap-2 mb-2">
                       {allowedSourceTypes.filter((t) => t !== 'none' && t !== 'custom').map((t) => (
                         <button key={t} onClick={() => patch({ revenueSourceType: t, revenueSourceId: '', revenueSourceLabel: '' })}
-                          className={`px-3 py-1.5 rounded-full text-xs ${form.revenueSourceType === t ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-card text-crwn-text-secondary'}`}>
+                          className={`px-3 py-1.5 rounded-full text-xs ${form.revenueSourceType === t ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-surface text-crwn-text-secondary'}`}>
                           {SOURCE_LABELS[t]}
                         </button>
                       ))}
@@ -257,7 +257,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                     <div className="space-y-2">
                       {sourceOptionsForType.map((s) => (
                         <button key={s.id} onClick={() => patch({ revenueSourceId: s.id, revenueSourceLabel: s.label })}
-                          className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${form.revenueSourceId === s.id ? 'bg-crwn-gold/15 border border-crwn-gold' : 'bg-crwn-card border border-transparent'}`}>
+                          className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${form.revenueSourceId === s.id ? 'bg-crwn-gold/15 border border-crwn-gold' : 'bg-crwn-surface border border-transparent'}`}>
                           <span className="text-crwn-text text-sm">{s.label}</span>
                         </button>
                       ))}
@@ -277,18 +277,18 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
               {meta.key === 'milestone_bonus' ? (
                 <>
                   <label className="block text-sm text-crwn-text-secondary">Bonus amount</label>
-                  <div className="flex items-center bg-crwn-card rounded-xl px-4">
+                  <div className="flex items-center bg-crwn-surface rounded-xl px-4">
                     <span className="text-crwn-text-secondary">$</span>
                     <input value={form.milestoneAmount} onChange={(e) => patch({ milestoneAmount: e.target.value })} placeholder="250" inputMode="decimal"
                       className="w-full bg-transparent px-2 py-3 text-crwn-text outline-none" />
                   </div>
                   <input value={form.milestoneDescription} onChange={(e) => patch({ milestoneDescription: e.target.value })} placeholder="When is it paid? (e.g. 100 supporters)"
-                    className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
+                    className="w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
                 </>
               ) : (
                 <>
                   <label className="block text-sm text-crwn-text-secondary">Their percentage</label>
-                  <div className="flex items-center bg-crwn-card rounded-xl px-4">
+                  <div className="flex items-center bg-crwn-surface rounded-xl px-4">
                     <input value={form.percentage} onChange={(e) => patch({ percentage: Number(e.target.value) })} type="number" min={0} max={100}
                       className="w-full bg-transparent px-2 py-3 text-crwn-text outline-none" />
                     <span className="text-crwn-text-secondary">%</span>
@@ -298,7 +298,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                     <div className="flex gap-2">
                       {(['net_artist_revenue', 'gross_revenue'] as PayoutBasis[]).map((b) => (
                         <button key={b} onClick={() => patch({ payoutBasis: b })}
-                          className={`flex-1 px-3 py-2.5 rounded-xl text-sm ${form.payoutBasis === b ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-card text-crwn-text'}`}>
+                          className={`flex-1 px-3 py-2.5 rounded-xl text-sm ${form.payoutBasis === b ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-surface text-crwn-text'}`}>
                           {b === 'net_artist_revenue' ? 'Net (recommended)' : 'Gross'}
                         </button>
                       ))}
@@ -307,7 +307,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                   {meta.key === 'hybrid' && (
                     <div>
                       <label className="block text-sm text-crwn-text-secondary mb-1">Upfront payment (optional, paid outside CRWN)</label>
-                      <div className="flex items-center bg-crwn-card rounded-xl px-4">
+                      <div className="flex items-center bg-crwn-surface rounded-xl px-4">
                         <span className="text-crwn-text-secondary">$</span>
                         <input value={form.upfrontAmount} onChange={(e) => patch({ upfrontAmount: e.target.value })} placeholder="100" inputMode="decimal"
                           className="w-full bg-transparent px-2 py-3 text-crwn-text outline-none" />
@@ -328,7 +328,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                 <div className="flex flex-wrap gap-2">
                   {[{ d: 90, l: '3 months' }, { d: 180, l: '6 months' }, { d: 365, l: '12 months' }].map((o) => (
                     <button key={o.d} onClick={() => patch({ durationDays: o.d })}
-                      className={`px-3 py-2 rounded-full text-sm ${form.durationDays === o.d ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-card text-crwn-text'}`}>{o.l}</button>
+                      className={`px-3 py-2 rounded-full text-sm ${form.durationDays === o.d ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-surface text-crwn-text'}`}>{o.l}</button>
                   ))}
                 </div>
               </div>
@@ -336,12 +336,12 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-sm text-crwn-text-secondary">Payout cap</label>
                   <button onClick={() => patch({ capEnabled: !form.capEnabled })}
-                    className={`text-xs px-2 py-1 rounded-full ${form.capEnabled ? 'bg-crwn-gold text-crwn-bg' : 'bg-crwn-card text-crwn-text-secondary'}`}>
+                    className={`text-xs px-2 py-1 rounded-full ${form.capEnabled ? 'bg-crwn-gold text-crwn-bg' : 'bg-crwn-surface text-crwn-text-secondary'}`}>
                     {form.capEnabled ? 'On' : 'Off'}
                   </button>
                 </div>
                 {form.capEnabled && (
-                  <div className="flex items-center bg-crwn-card rounded-xl px-4">
+                  <div className="flex items-center bg-crwn-surface rounded-xl px-4">
                     <span className="text-crwn-text-secondary">$</span>
                     <input value={form.capAmount} onChange={(e) => patch({ capAmount: e.target.value })} inputMode="decimal"
                       className="w-full bg-transparent px-2 py-3 text-crwn-text outline-none" />
@@ -358,7 +358,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
             <div className="mt-4 space-y-3">
               <p className="text-sm text-crwn-text-secondary">What does {form.collaboratorName || 'the collaborator'} have to deliver? Payouts can be held until these are approved.</p>
               {deliverables.map((d, i) => (
-                <div key={i} className="bg-crwn-card rounded-xl p-3 space-y-2">
+                <div key={i} className="bg-crwn-surface rounded-xl p-3 space-y-2">
                   <div className="flex gap-2">
                     <input value={d.title} onChange={(e) => setDeliverables((ds) => ds.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} placeholder="Deliverable (e.g. Final edited video)"
                       className="flex-1 bg-transparent text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
@@ -382,20 +382,20 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
           {/* STEP 7 — protection */}
           {step === 7 && (
             <div className="mt-4 space-y-4">
-              <label className="flex items-start gap-3 bg-crwn-card rounded-xl p-3">
+              <label className="flex items-start gap-3 bg-crwn-surface rounded-xl p-3">
                 <input type="checkbox" className="mt-1" checked={form.payoutStartsAfterDeliverableApproval} onChange={(e) => patch({ payoutStartsAfterDeliverableApproval: e.target.checked })} />
                 <span className="text-sm text-crwn-text">Only release payouts after required deliverables are approved</span>
               </label>
               <div>
                 <label className="block text-sm text-crwn-text-secondary mb-1">Refund hold (days)</label>
                 <input value={form.holdPeriodDays} type="number" min={0} onChange={(e) => patch({ holdPeriodDays: Number(e.target.value) })}
-                  className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text outline-none" />
+                  className="w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text outline-none" />
                 <p className="text-xs text-crwn-text-secondary mt-1">Earnings stay held this long so refunds/chargebacks can clear before cashout.</p>
               </div>
               <textarea value={form.rightsNotes} onChange={(e) => patch({ rightsNotes: e.target.value })} placeholder="Rights / usage notes (optional), e.g. how the footage or beats may be used"
-                className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none min-h-[70px]" />
+                className="w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none min-h-[70px]" />
               <input value={form.externalAgreementUrl} onChange={(e) => patch({ externalAgreementUrl: e.target.value })} placeholder="Link to a separate written agreement (optional)"
-                className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
+                className="w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
               {legalNote && (
                 <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 text-xs text-amber-200">{legalNote}</div>
               )}
@@ -406,8 +406,8 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
           {step === 8 && (
             <div className="mt-4 space-y-4">
               <input value={form.title} onChange={(e) => patch({ title: e.target.value })} placeholder={`${form.collaboratorName || 'Collaborator'}: ${meta.label}`}
-                className="w-full bg-crwn-card rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
-              <div className="bg-crwn-card rounded-xl p-4 text-sm space-y-1.5">
+                className="w-full bg-crwn-surface rounded-xl px-4 py-3 text-crwn-text placeholder:text-crwn-text-secondary outline-none" />
+              <div className="bg-crwn-surface rounded-xl p-4 text-sm space-y-1.5">
                 <Row k="Collaborator" v={`${form.collaboratorName || '-'}${form.collaboratorEmail ? ` (${form.collaboratorEmail})` : ''}`} />
                 <Row k="Role" v={form.role === 'other' ? form.customRole || 'Custom' : COLLABORATOR_ROLES.find((r) => r.key === form.role)?.label || form.role} />
                 <Row k="Deal" v={meta.label} />
@@ -419,7 +419,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
                 <Row k="Deliverables" v={deliverables.filter((d) => d.title).length ? `${deliverables.filter((d) => d.title).length}` : 'None'} />
               </div>
               <LiveWarnings warnings={warnings} />
-              <div className="bg-crwn-card rounded-xl p-4 text-xs text-crwn-text-secondary space-y-2 max-h-40 overflow-y-auto">
+              <div className="bg-crwn-surface rounded-xl p-4 text-xs text-crwn-text-secondary space-y-2 max-h-40 overflow-y-auto">
                 {TEAM_SPLIT_DISCLAIMER_PARAGRAPHS.map((p, i) => <p key={i}>{p}</p>)}
               </div>
               <label className="flex items-start gap-3">
@@ -439,7 +439,7 @@ export function TeamSplitBuilder({ artistId, artistFeePct = 12, onClose, onCreat
               className="flex-1 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-full disabled:opacity-40">Continue</button>
           ) : (
             <>
-              <button disabled={submitting} onClick={() => submit('draft')} className="px-4 py-3 rounded-full bg-crwn-card text-crwn-text text-sm">Save draft</button>
+              <button disabled={submitting} onClick={() => submit('draft')} className="px-4 py-3 rounded-full bg-crwn-surface text-crwn-text text-sm">Save draft</button>
               <button disabled={submitting || !form.agreementAccepted || !form.collaboratorEmail} onClick={() => submit('send')}
                 className="flex-1 bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-full disabled:opacity-40 flex items-center justify-center gap-2">
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} Send deal

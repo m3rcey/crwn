@@ -337,7 +337,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
 
   const statusBadge = (status: string) => {
     if (status === 'live') return <span className="text-red-500 font-semibold flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />Live</span>;
-    if (status === 'ended') return <span className="text-crwn-text-dim">Ended</span>;
+    if (status === 'ended') return <span className="text-crwn-text-secondary">Ended</span>;
     return <span className="text-crwn-gold">Scheduled</span>;
   };
 
@@ -369,7 +369,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         <div className="neu-inset p-4 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-crwn-text font-medium">New Session</h3>
-            <button onClick={resetForm} className="text-crwn-text-dim hover:text-crwn-text">
+            <button onClick={resetForm} className="text-crwn-text-secondary hover:text-crwn-text">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -380,14 +380,14 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
               <button
                 type="button"
                 onClick={() => setMode('live')}
-                className={`px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${mode === 'live' ? 'neu-button-accent' : 'neu-button text-crwn-text-dim'}`}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${mode === 'live' ? 'neu-button-accent' : 'neu-button text-crwn-text-secondary'}`}
               >
                 <Radio className="w-4 h-4" /> Go Live
               </button>
               <button
                 type="button"
                 onClick={() => setMode('prerecorded')}
-                className={`px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${mode === 'prerecorded' ? 'neu-button-accent' : 'neu-button text-crwn-text-dim'}`}
+                className={`px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 ${mode === 'prerecorded' ? 'neu-button-accent' : 'neu-button text-crwn-text-secondary'}`}
               >
                 <Video className="w-4 h-4" /> Upload Video
               </button>
@@ -396,17 +396,17 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
             {mode === 'prerecorded' && (
               <>
                 <div>
-                  <label className="block text-crwn-text-dim text-sm mb-1">Video file *</label>
+                  <label className="block text-crwn-text-secondary text-sm mb-1">Video file *</label>
                   <input
                     type="file"
                     accept="video/*"
                     onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
                     className="neu-inset w-full px-3 py-2 text-crwn-text text-sm focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-crwn-gold file:text-black file:font-semibold"
                   />
-                  {videoFile && <p className="text-crwn-text-dim text-xs mt-1">{videoFile.name} ({(videoFile.size / 1_000_000).toFixed(1)} MB)</p>}
+                  {videoFile && <p className="text-crwn-text-secondary text-xs mt-1">{videoFile.name} ({(videoFile.size / 1_000_000).toFixed(1)} MB)</p>}
                 </div>
                 <div>
-                  <label className="block text-crwn-text-dim text-sm mb-1">Thumbnail (optional)</label>
+                  <label className="block text-crwn-text-secondary text-sm mb-1">Thumbnail (optional)</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -420,29 +420,29 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     }}
                     className="neu-inset w-full px-3 py-2 text-crwn-text text-sm focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-crwn-gold file:text-black file:font-semibold"
                   />
-                  <p className="text-crwn-text-dim text-xs mt-1">
+                  <p className="text-crwn-text-secondary text-xs mt-1">
                     {thumbnailFile ? thumbnailFile.name : "Leave blank and we'll grab a frame from your video."}
                   </p>
                 </div>
                 <div>
-                  <label className="block text-crwn-text-dim text-sm mb-1">Visibility</label>
+                  <label className="block text-crwn-text-secondary text-sm mb-1">Visibility</label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={() => setVisibility('public')}
-                      className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'public' ? 'neu-button-accent' : 'neu-button text-crwn-text-dim'}`}
+                      className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'public' ? 'neu-button-accent' : 'neu-button text-crwn-text-secondary'}`}
                     >
                       Public
                     </button>
                     <button
                       type="button"
                       onClick={() => setVisibility('private')}
-                      className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'private' ? 'neu-button-accent' : 'neu-button text-crwn-text-dim'}`}
+                      className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'private' ? 'neu-button-accent' : 'neu-button text-crwn-text-secondary'}`}
                     >
                       Private
                     </button>
                   </div>
-                  <p className="text-crwn-text-dim text-xs mt-1">
+                  <p className="text-crwn-text-secondary text-xs mt-1">
                     {visibility === 'public' ? 'Fans can watch (subject to tier access below).' : 'Only you can see it. Use this to hand raw footage to a clipper.'}
                   </p>
                 </div>
@@ -450,7 +450,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
             )}
 
             <div>
-              <label className="block text-crwn-text-dim text-sm mb-1">Title *</label>
+              <label className="block text-crwn-text-secondary text-sm mb-1">Title *</label>
               <input
                 type="text"
                 value={title}
@@ -461,7 +461,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
             </div>
 
             <div>
-              <label className="block text-crwn-text-dim text-sm mb-1">Description</label>
+              <label className="block text-crwn-text-secondary text-sm mb-1">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -474,7 +474,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
             {mode === 'live' && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-crwn-text-dim text-sm mb-1">Max slots</label>
+                  <label className="block text-crwn-text-secondary text-sm mb-1">Max slots</label>
                   <select
                     value={maxSlots}
                     onChange={(e) => setMaxSlots(parseInt(e.target.value))}
@@ -484,7 +484,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                   </select>
                 </div>
                 <div>
-                  <label className="block text-crwn-text-dim text-sm mb-1">Scheduled for (optional)</label>
+                  <label className="block text-crwn-text-secondary text-sm mb-1">Scheduled for (optional)</label>
                   <input
                     type="datetime-local"
                     value={scheduledAt}
@@ -509,7 +509,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 </label>
                 {!isFree && tiers.length > 0 && (
                   <div className="space-y-2 ml-6">
-                    <p className="text-crwn-text-dim text-sm mb-1">Only these tiers can {mode === 'live' ? 'join' : 'watch'}:</p>
+                    <p className="text-crwn-text-secondary text-sm mb-1">Only these tiers can {mode === 'live' ? 'join' : 'watch'}:</p>
                     {tiers.map(tier => (
                       <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -527,16 +527,16 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                   </div>
                 )}
                 {!isFree && tiers.length === 0 && (
-                  <p className="text-crwn-text-dim text-sm ml-6">Create subscription tiers first to gate access.</p>
+                  <p className="text-crwn-text-secondary text-sm ml-6">Create subscription tiers first to gate access.</p>
                 )}
                 {/* Pre-sale ticket: gated lives only. Lets non-subscribers buy in. */}
                 {!isFree && mode === 'live' && (
                   <div className="mt-4 ml-6">
-                    <label className="block text-crwn-text-dim text-sm mb-1">
+                    <label className="block text-crwn-text-secondary text-sm mb-1">
                       Pre-sale ticket price (optional)
                     </label>
                     <div className="flex items-center gap-2">
-                      <span className="text-crwn-text-dim">$</span>
+                      <span className="text-crwn-text-secondary">$</span>
                       <input
                         type="number"
                         min="0"
@@ -547,7 +547,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                         className="neu-inset w-32 px-3 py-2 text-crwn-text focus:outline-none"
                       />
                     </div>
-                    <p className="text-crwn-text-dim text-xs mt-1">
+                    <p className="text-crwn-text-secondary text-xs mt-1">
                       Leave blank for tier-only access. Set a price and fans who
                       aren&apos;t subscribed can buy a ticket to get in.
                     </p>
@@ -584,7 +584,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
             <div key={session.id} className="neu-inset p-4 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <h4 className="text-crwn-text font-medium truncate">{session.title}</h4>
-                <div className="flex items-center gap-3 mt-1 text-crwn-text-dim text-sm flex-wrap">
+                <div className="flex items-center gap-3 mt-1 text-crwn-text-secondary text-sm flex-wrap">
                   {session.source_type === 'prerecorded' ? (
                     <>
                       <span className="text-crwn-gold flex items-center gap-1"><Video className="w-3.5 h-3.5" /> Video</span>
@@ -691,7 +691,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                   </>
                 )}
                 {session.status === 'ended' && (session.vod_status === 'recording' || session.vod_status === 'processing') && (
-                  <span className="text-crwn-text-dim text-sm flex items-center gap-1">
+                  <span className="text-crwn-text-secondary text-sm flex items-center gap-1">
                     <Loader2 className="w-4 h-4 animate-spin" /> Processing recording
                   </span>
                 )}
@@ -702,7 +702,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                   </span>
                 )}
                 {session.status === 'ended' && (!session.vod_status || session.vod_status === 'none') && (
-                  <span className="text-crwn-text-dim text-sm" title="No recording was captured for this session (recording was not enabled or could not start).">
+                  <span className="text-crwn-text-secondary text-sm" title="No recording was captured for this session (recording was not enabled or could not start).">
                     Not recorded
                   </span>
                 )}
@@ -719,7 +719,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           ))}
         </div>
       ) : (
-        <p className="text-crwn-text-dim text-center py-8">No live sessions yet. Create one to broadcast to your fans.</p>
+        <p className="text-crwn-text-secondary text-center py-8">No live sessions yet. Create one to broadcast to your fans.</p>
       )}
 
       {studioSession && (

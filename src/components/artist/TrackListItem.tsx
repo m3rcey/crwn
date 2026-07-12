@@ -151,7 +151,7 @@ export function AddToPlaylistMenu({ track }: AddToPlaylistMenuProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-56 bg-crwn-surface border border-crwn-elevated rounded-lg shadow-xl z-50">
+        <div className="absolute right-0 top-full mt-1 w-56 bg-crwn-surface-solid border border-crwn-elevated rounded-lg shadow-xl z-50">
           <div className="p-2 border-b border-crwn-elevated">
             <span className="text-xs font-medium text-crwn-text-secondary uppercase">Add to Playlist</span>
           </div>

@@ -195,8 +195,8 @@ export function CommunityPostCard({
               {post.is_artist_post && (
                 <span title="Artist"><Crown className="w-4 h-4 text-crwn-gold" /></span>
               )}
-              <span className="text-crwn-text-dim text-sm">•</span>
-              <span className="text-crwn-text-dim text-sm">{formatTimestamp(post.created_at)}</span>
+              <span className="text-crwn-text-secondary text-sm">•</span>
+              <span className="text-crwn-text-secondary text-sm">{formatTimestamp(post.created_at)}</span>
             </div>
             <div className="neu-inset p-6 text-center mt-2">
               <Lock className="w-8 h-8 text-crwn-gold mx-auto mb-2" />
@@ -242,8 +242,8 @@ export function CommunityPostCard({
                 <Crown className="w-4 h-4 text-crwn-gold" />
               </span>
             )}
-            <span className="text-crwn-text-dim text-sm">•</span>
-            <span className="text-crwn-text-dim text-sm">{formatTimestamp(post.created_at)}</span>
+            <span className="text-crwn-text-secondary text-sm">•</span>
+            <span className="text-crwn-text-secondary text-sm">{formatTimestamp(post.created_at)}</span>
 
             {/* Menu for post author or artist */}
             {(isPostAuthor || isArtistProfile) && (

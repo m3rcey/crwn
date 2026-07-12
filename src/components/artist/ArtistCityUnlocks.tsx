@@ -42,7 +42,7 @@ export function ArtistCityUnlocks({ artistId }: { artistId: string }) {
           const unit = GOAL_TYPE_MAP[u.goal_type]?.unit || u.goal_type;
           const unlocked = u.status === 'unlocked';
           return (
-            <button key={u.id} onClick={() => router.push(`/city/${u.id}`)} className="w-full bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
+            <button key={u.id} onClick={() => router.push(`/city/${u.id}`)} className="w-full bg-crwn-surface rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-2xl">{def?.icon || '📍'}</span>
                 <div className="min-w-0 flex-1">

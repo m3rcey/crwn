@@ -100,19 +100,19 @@ export function AbandonedCartDashboard({ artistId }: AbandonedCartDashboardProps
       {/* Stats cards */}
       {stats && stats.total > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <div className="text-xs text-crwn-text-secondary mb-1">Total Abandoned</div>
             <div className="text-2xl font-bold text-crwn-text">{stats.total}</div>
           </div>
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <div className="text-xs text-crwn-text-secondary mb-1">Recovered</div>
             <div className="text-2xl font-bold text-green-400">{stats.recovered}</div>
           </div>
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <div className="text-xs text-crwn-text-secondary mb-1">Recovery Rate</div>
             <div className="text-2xl font-bold text-crwn-gold">{stats.recoveryRate}%</div>
           </div>
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <div className="text-xs text-crwn-text-secondary mb-1">Last 30 Days</div>
             <div className="text-2xl font-bold text-crwn-text">
               {stats.recent.total > 0 ? (
@@ -133,7 +133,7 @@ export function AbandonedCartDashboard({ artistId }: AbandonedCartDashboardProps
       {stats && Object.keys(stats.byType).length > 1 && (
         <div className="flex gap-3">
           {Object.entries(stats.byType).map(([type, data]) => (
-            <div key={type} className="flex items-center gap-2 px-3 py-2 bg-crwn-card rounded-lg border border-crwn-elevated text-xs">
+            <div key={type} className="flex items-center gap-2 px-3 py-2 bg-crwn-surface rounded-lg border border-crwn-elevated text-xs">
               {typeIcons[type]}
               <span className="text-crwn-text-secondary">{typeLabels[type] || type}:</span>
               <span className="text-crwn-text font-medium">{data.total} abandoned</span>
@@ -168,7 +168,7 @@ export function AbandonedCartDashboard({ artistId }: AbandonedCartDashboardProps
 
       {/* Checkout list */}
       {checkouts.length === 0 ? (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-12 text-center">
           <ShoppingCart className="w-10 h-10 text-crwn-text-secondary mx-auto mb-3" />
           <p className="text-crwn-text font-medium mb-1">No abandoned carts yet</p>
           <p className="text-sm text-crwn-text-secondary">
@@ -180,7 +180,7 @@ export function AbandonedCartDashboard({ artistId }: AbandonedCartDashboardProps
           {filtered.map(checkout => (
             <div
               key={checkout.id}
-              className="flex items-center gap-3 px-4 py-3 bg-crwn-card rounded-xl border border-crwn-elevated"
+              className="flex items-center gap-3 px-4 py-3 bg-crwn-surface rounded-xl border border-crwn-elevated"
             >
               {/* Avatar */}
               <div className="w-9 h-9 rounded-full bg-crwn-elevated flex items-center justify-center shrink-0 overflow-hidden">

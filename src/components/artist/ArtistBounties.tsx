@@ -38,7 +38,7 @@ export function ArtistBounties({ artistId }: { artistId: string }) {
         {bounties.map(b => {
           const def = BOUNTY_TYPE_MAP[b.bounty_type] || BOUNTY_TYPE_MAP.custom;
           return (
-            <button key={b.id} onClick={() => router.push('/my-bounties')} className="w-full flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
+            <button key={b.id} onClick={() => router.push('/my-bounties')} className="w-full flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-4 text-left hover:border-crwn-gold/40 transition-colors">
               <span className="text-2xl">{def.icon}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-crwn-text truncate">{b.title}</p>

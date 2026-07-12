@@ -6,13 +6,16 @@
   /* True dark charcoal/black - no purple tint */
   --crwn-bg: #0f0f0f;
   --crwn-surface: rgba(26, 26, 26, 0.4);
+  /* Opaque surface for anything that FLOATS over page content (dropdown menus,
+     popovers). crwn-surface is 40% alpha on purpose, which reads as a bug the moment
+     it is used on an overlay: the text underneath shows straight through it. */
+  --crwn-surface-solid: #1a1a1a;
   --crwn-elevated: #222222;
   --crwn-gold: #D4AF37;
   --crwn-gold-hover: #C9A032;
   --crwn-gold-muted: #8B7536;
   --crwn-text: #f0f0f0;
   --crwn-text-secondary: #8a8a9a;
-  --crwn-text-dim: #5a5a6a;
   --crwn-success: #4CAF50;
   --crwn-error: #E53935;
 }
@@ -59,6 +62,7 @@
 @theme inline {
   --color-crwn-bg: var(--crwn-bg);
   --color-crwn-surface: var(--crwn-surface);
+  --color-crwn-surface-solid: var(--crwn-surface-solid);
   --color-crwn-elevated: var(--crwn-elevated);
   --color-crwn-gold: var(--crwn-gold);
   --color-crwn-gold-hover: var(--crwn-gold-hover);

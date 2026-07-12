@@ -35,7 +35,7 @@ export default function AdminTeamSplitsPage() {
       <h1 className="text-xl font-bold text-crwn-text mb-3 flex items-center gap-2"><ShieldAlert className="w-5 h-5 text-crwn-gold" /> Team Splits: Review</h1>
       <div className="flex gap-2 mb-4">
         {(['high_risk', 'disputed', 'all'] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 rounded-full text-xs ${filter === f ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-card text-crwn-text-secondary'}`}>{f.replace('_', ' ')}</button>
+          <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 rounded-full text-xs ${filter === f ? 'bg-crwn-gold text-crwn-bg font-semibold' : 'bg-crwn-surface text-crwn-text-secondary'}`}>{f.replace('_', ' ')}</button>
         ))}
       </div>
 
@@ -46,7 +46,7 @@ export default function AdminTeamSplitsPage() {
               <h2 className="text-sm font-semibold text-crwn-text mb-2">Open disputes</h2>
               <div className="space-y-2">
                 {disputes.map((d) => (
-                  <div key={d.id} className="bg-crwn-card rounded-xl p-3">
+                  <div key={d.id} className="bg-crwn-surface rounded-xl p-3">
                     <p className="text-sm text-crwn-text">{d.dispute_type}</p>
                     <p className="text-xs text-crwn-text-secondary mt-1">{d.description}</p>
                     <div className="flex gap-2 mt-2">
@@ -63,7 +63,7 @@ export default function AdminTeamSplitsPage() {
           <h2 className="text-sm font-semibold text-crwn-text mb-2">Deals</h2>
           <div className="space-y-2">
             {deals.map((d) => (
-              <div key={d.id} className="bg-crwn-card rounded-xl p-3 flex items-center justify-between gap-3">
+              <div key={d.id} className="bg-crwn-surface rounded-xl p-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-sm text-crwn-text truncate">{d.title}</p>
                   <p className="text-xs text-crwn-text-secondary">{d.collaborator_name || '-'} · {d.percentage != null ? `${d.percentage}%` : 'bonus'} · {d.revenue_source_type} · {d.status}</p>

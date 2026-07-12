@@ -75,7 +75,7 @@ export default function MySquadsPage() {
             {invites.map(m => {
               const def = m.artist_squads ? SQUAD_TYPE_MAP[m.artist_squads.type] : null;
               return (
-                <div key={m.id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-gold/30 p-3">
+                <div key={m.id} className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-gold/30 p-3">
                   <span className="text-xl">{def?.icon || '🤝'}</span>
                   <div className="min-w-0 flex-1"><p className="text-sm font-medium text-crwn-text truncate">{m.artist_squads?.name}</p><p className="text-xs text-crwn-text-secondary">Invited</p></div>
                   <button onClick={() => respondInvite(m, true)} className="p-2 rounded-lg bg-crwn-gold/10 text-crwn-gold"><Check className="w-4 h-4" /></button>
@@ -94,7 +94,7 @@ export default function MySquadsPage() {
             {mine.map(m => {
               const def = m.artist_squads ? SQUAD_TYPE_MAP[m.artist_squads.type] : null;
               return (
-                <div key={m.id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-3">
+                <div key={m.id} className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-3">
                   <span className="text-xl">{def?.icon || '🤝'}</span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-crwn-text truncate">{m.artist_squads?.name}</p>
@@ -114,7 +114,7 @@ export default function MySquadsPage() {
             {applied.map(m => {
               const def = m.artist_squads ? SQUAD_TYPE_MAP[m.artist_squads.type] : null;
               return (
-                <div key={m.id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-3 opacity-70">
+                <div key={m.id} className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-3 opacity-70">
                   <span className="text-xl">{def?.icon || '🤝'}</span>
                   <div className="min-w-0 flex-1"><p className="text-sm font-medium text-crwn-text truncate">{m.artist_squads?.name}</p><p className="text-xs text-crwn-text-secondary">Application pending</p></div>
                 </div>

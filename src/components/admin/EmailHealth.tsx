@@ -119,7 +119,7 @@ export default function EmailHealth({ userId }: EmailHealthProps) {
         <h2 className="text-xl font-bold text-crwn-text">Email Health</h2>
         <button
           onClick={fetchData}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-crwn-card text-crwn-text-secondary text-sm hover:text-crwn-text transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-crwn-surface text-crwn-text-secondary text-sm hover:text-crwn-text transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Refresh
@@ -162,7 +162,7 @@ export default function EmailHealth({ userId }: EmailHealthProps) {
 
       {/* Aggregate Performance: Campaigns vs Sequences side-by-side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-crwn-card rounded-2xl p-6">
+        <div className="bg-crwn-surface rounded-2xl p-6">
           <h3 className="text-sm font-semibold text-crwn-text-secondary uppercase tracking-wider mb-4">
             Campaign Performance (All Time)
           </h3>
@@ -174,7 +174,7 @@ export default function EmailHealth({ userId }: EmailHealthProps) {
           </div>
         </div>
 
-        <div className="bg-crwn-card rounded-2xl p-6">
+        <div className="bg-crwn-surface rounded-2xl p-6">
           <h3 className="text-sm font-semibold text-crwn-text-secondary uppercase tracking-wider mb-4">
             Sequence Performance (All Time)
           </h3>
@@ -193,7 +193,7 @@ export default function EmailHealth({ userId }: EmailHealthProps) {
 
       {/* Sequence Conversion Rates */}
       {Object.keys(data.conversions).length > 0 && (
-        <div className="bg-crwn-card rounded-2xl p-6">
+        <div className="bg-crwn-surface rounded-2xl p-6">
           <h3 className="text-sm font-semibold text-crwn-text-secondary uppercase tracking-wider mb-4">
             Sequence Conversion Rates
           </h3>
@@ -221,7 +221,7 @@ export default function EmailHealth({ userId }: EmailHealthProps) {
       )}
 
       {/* Suppression List */}
-      <div className="bg-crwn-card rounded-2xl p-6">
+      <div className="bg-crwn-surface rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-crwn-text-secondary uppercase tracking-wider">
             Suppression List ({data.suppressions.total})
@@ -276,7 +276,7 @@ export default function EmailHealth({ userId }: EmailHealthProps) {
       </div>
 
       {/* Recent Unsubscribes */}
-      <div className="bg-crwn-card rounded-2xl p-6">
+      <div className="bg-crwn-surface rounded-2xl p-6">
         <h3 className="text-sm font-semibold text-crwn-text-secondary uppercase tracking-wider mb-4">
           Recent Unsubscribes ({data.unsubscribes.total} total)
         </h3>
@@ -340,7 +340,7 @@ function MetricCard({ label, value, icon, color, sub, tooltip }: {
   };
 
   return (
-    <div className="bg-crwn-card rounded-2xl p-4 relative">
+    <div className="bg-crwn-surface rounded-2xl p-4 relative">
       <div className="flex items-center justify-between mb-2">
         <span className="text-crwn-text-secondary">{icon}</span>
         {tooltip && (
@@ -356,7 +356,7 @@ function MetricCard({ label, value, icon, color, sub, tooltip }: {
       <p className="text-xs text-crwn-text-secondary mt-1">{label}</p>
       {sub && <p className="text-xs text-crwn-text-secondary mt-0.5">{sub}</p>}
       {showTip && tooltip && (
-        <div className="absolute top-full left-0 right-0 mt-1 z-10 bg-crwn-elevated border border-crwn-card rounded-lg p-3 text-xs text-crwn-text-secondary shadow-lg">
+        <div className="absolute top-full left-0 right-0 mt-1 z-10 bg-crwn-elevated border border-crwn-surface rounded-lg p-3 text-xs text-crwn-text-secondary shadow-lg">
           {tooltip}
         </div>
       )}

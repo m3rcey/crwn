@@ -243,7 +243,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
             </button>
 
             {showSegments && (
-              <div className="absolute top-full left-0 mt-1 w-64 bg-crwn-card border border-crwn-elevated rounded-xl shadow-lg z-20 overflow-hidden">
+              <div className="absolute top-full left-0 mt-1 w-64 bg-crwn-surface-solid border border-crwn-elevated rounded-xl shadow-lg z-20 overflow-hidden">
                 {segments.length === 0 ? (
                   <div className="p-4 text-center text-xs text-crwn-text-secondary">
                     No saved segments yet. Apply filters and save them for quick access.
@@ -317,7 +317,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
 
       {/* Save segment dialog */}
       {showSaveDialog && (
-        <div className="flex items-center gap-2 p-3 bg-crwn-card rounded-xl border border-crwn-gold/30">
+        <div className="flex items-center gap-2 p-3 bg-crwn-surface rounded-xl border border-crwn-gold/30">
           <Bookmark className="w-4 h-4 text-crwn-gold shrink-0" />
           <input
             type="text"
@@ -355,7 +355,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
               <button
                 key={stage}
                 onClick={() => setLifecycleFilter(isSelected ? '' : stage)}
-                className={`bg-crwn-card rounded-xl p-3 text-left transition-all border ${
+                className={`bg-crwn-surface rounded-xl p-3 text-left transition-all border ${
                   isSelected ? 'border-crwn-gold' : 'border-transparent hover:border-crwn-elevated'
                 }`}
               >
@@ -380,7 +380,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
               placeholder="Search by name or email..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-full text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+              className="w-full pl-10 pr-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-full text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
             />
           </div>
           <button
@@ -396,7 +396,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
         </div>
 
         {showFilters && (
-          <div className="flex flex-wrap gap-3 p-4 bg-crwn-card rounded-xl border border-crwn-elevated">
+          <div className="flex flex-wrap gap-3 p-4 bg-crwn-surface rounded-xl border border-crwn-elevated">
             <select
               value={tierFilter}
               onChange={e => setTierFilter(e.target.value)}
@@ -454,7 +454,7 @@ export function FanTable({ artistId, tiers }: FanTableProps) {
       </div>
 
       {/* Table */}
-      <div className="bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden">
+      <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

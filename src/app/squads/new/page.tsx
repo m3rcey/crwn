@@ -125,7 +125,7 @@ export default function NewSquadPage() {
                   key={t.value}
                   onClick={() => applyType(t.value)}
                   className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-colors ${
-                    type === t.value ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card hover:border-crwn-gold/40'
+                    type === t.value ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface hover:border-crwn-gold/40'
                   }`}
                 >
                   <span className="text-xl">{t.icon}</span>
@@ -147,7 +147,7 @@ export default function NewSquadPage() {
             <input
               type="text" value={name} autoFocus onChange={e => setName(e.target.value)}
               placeholder={def?.label || 'Squad name'}
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
             />
           </div>
         )}
@@ -161,7 +161,7 @@ export default function NewSquadPage() {
                 <button
                   key={v} onClick={() => setVisibility(v)}
                   className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-colors ${
-                    visibility === v ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card hover:border-crwn-gold/40'
+                    visibility === v ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface hover:border-crwn-gold/40'
                   }`}
                 >
                   <span className="text-sm text-crwn-text">{VISIBILITY_LABELS[v]}</span>
@@ -179,7 +179,7 @@ export default function NewSquadPage() {
             <input
               type="text" value={goal} onChange={e => setGoal(e.target.value)}
               placeholder="e.g. 50 clips before the album drops"
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
             />
           </div>
         )}
@@ -187,7 +187,7 @@ export default function NewSquadPage() {
         {step.id === 'review' && (
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-4">Review</h2>
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
               <ReviewRow label="Type" value={`${def?.icon || ''} ${def?.label || ''}`} />
               <ReviewRow label="Name" value={name} />
               <ReviewRow label="Who can join" value={VISIBILITY_LABELS[visibility]} />

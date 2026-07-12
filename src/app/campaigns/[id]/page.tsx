@@ -88,7 +88,7 @@ export default function CampaignDetailPage() {
         <div className="flex-1 min-w-0"><h1 className="text-lg font-bold text-crwn-text truncate">{campaign.title}</h1><p className="text-xs text-crwn-text-secondary capitalize">{def?.label} · {campaign.status}</p></div>
       </div>
 
-      <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 mb-4">
+      <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 mb-4">
         <div className="flex items-end justify-between mb-2">
           <p className="text-2xl font-bold text-crwn-text">{formatCampaignValue(campaign.goal_type, campaign.current_value)}<span className="text-sm text-crwn-text-secondary"> / {formatCampaignValue(campaign.goal_type, campaign.goal_value)}</span></p>
           <p className="text-sm font-medium text-crwn-gold">{pct}%</p>

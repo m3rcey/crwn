@@ -171,7 +171,7 @@ export default function PartnersView() {
       {/* Summary stats */}
       {summary && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div className="bg-crwn-card rounded-xl p-4">
+          <div className="bg-crwn-surface rounded-xl p-4">
             <div className="flex items-center gap-1.5 mb-1 text-xs font-medium text-crwn-text-secondary">
               <ClipboardList className="w-3.5 h-3.5" />
               Applications
@@ -179,7 +179,7 @@ export default function PartnersView() {
             <p className="text-xl font-bold text-crwn-text">{summary.totalApplications}</p>
             <p className="text-xs text-amber-400 mt-0.5">{summary.pendingCount} pending</p>
           </div>
-          <div className="bg-crwn-card rounded-xl p-4">
+          <div className="bg-crwn-surface rounded-xl p-4">
             <div className="flex items-center gap-1.5 mb-1 text-xs font-medium text-crwn-text-secondary">
               <Users className="w-3.5 h-3.5" />
               Active Partners
@@ -187,7 +187,7 @@ export default function PartnersView() {
             <p className="text-xl font-bold text-crwn-text">{summary.activePartners}</p>
             <p className="text-xs text-green-400 mt-0.5">{summary.approvalRate}% approval rate</p>
           </div>
-          <div className="bg-crwn-card rounded-xl p-4">
+          <div className="bg-crwn-surface rounded-xl p-4">
             <div className="flex items-center gap-1.5 mb-1 text-xs font-medium text-crwn-text-secondary">
               <TrendingUp className="w-3.5 h-3.5" />
               Partner Signups
@@ -195,7 +195,7 @@ export default function PartnersView() {
             <p className="text-xl font-bold text-crwn-text">{summary.totalPartnerSignups}</p>
             <p className="text-xs text-crwn-text-secondary mt-0.5">artists referred</p>
           </div>
-          <div className="bg-crwn-card rounded-xl p-4">
+          <div className="bg-crwn-surface rounded-xl p-4">
             <div className="flex items-center gap-1.5 mb-1 text-xs font-medium text-crwn-text-secondary">
               <DollarSign className="w-3.5 h-3.5" />
               Total Paid
@@ -207,7 +207,7 @@ export default function PartnersView() {
       )}
 
       {/* Section tabs */}
-      <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1 w-fit">
+      <div className="flex items-center gap-1 bg-crwn-surface rounded-full p-1 w-fit">
         {([
           { id: 'applications' as Section, label: 'Applications', icon: <ClipboardList className="w-3.5 h-3.5" /> },
           { id: 'performance' as Section, label: 'Performance', icon: <TrendingUp className="w-3.5 h-3.5" /> },
@@ -252,13 +252,13 @@ export default function PartnersView() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search applications..."
-                className="w-full pl-9 pr-4 py-2 bg-crwn-card border border-crwn-elevated rounded-full text-xs text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                className="w-full pl-9 pr-4 py-2 bg-crwn-surface border border-crwn-elevated rounded-full text-xs text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
               />
             </div>
           </div>
 
           {/* Applications table */}
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -371,7 +371,7 @@ export default function PartnersView() {
                                   onChange={e => setReviewNotes(e.target.value)}
                                   placeholder="Add notes (optional)..."
                                   rows={2}
-                                  className="w-full px-3 py-2 bg-crwn-card border border-crwn-elevated rounded-lg text-xs text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-none"
+                                  className="w-full px-3 py-2 bg-crwn-surface border border-crwn-elevated rounded-lg text-xs text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-none"
                                 />
                                 <div className="flex items-center gap-2">
                                   <button
@@ -413,11 +413,11 @@ export default function PartnersView() {
       {section === 'performance' && (
         <div className="space-y-4">
           {partners.length === 0 ? (
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-12 text-center">
               <p className="text-sm text-crwn-text-secondary">No active partners yet.</p>
             </div>
           ) : (
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -490,11 +490,11 @@ export default function PartnersView() {
       {section === 'codes' && (
         <div className="space-y-4">
           {partnerCodes.length === 0 ? (
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-12 text-center">
               <p className="text-sm text-crwn-text-secondary">No partner codes created yet.</p>
             </div>
           ) : (
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>

@@ -168,12 +168,12 @@ export default function PlatformSequences() {
             type="text"
             value={editName}
             onChange={e => setEditName(e.target.value)}
-            className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+            className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
           />
         </div>
 
         {/* Available tokens */}
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-3">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-3">
           <p className="text-xs text-crwn-text-secondary mb-2">Available tokens:</p>
           <div className="flex flex-wrap gap-1.5">
             {TOKENS.map(t => (
@@ -195,7 +195,7 @@ export default function PlatformSequences() {
           </div>
 
           {editSteps.map((step, idx) => (
-            <div key={idx} className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 space-y-3">
+            <div key={idx} className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-medium text-crwn-gold">Step {idx + 1}</span>
                 <div className="flex items-center gap-2 flex-1">
@@ -246,7 +246,7 @@ export default function PlatformSequences() {
 
       <div className="space-y-3">
         {sequences.map(seq => (
-          <div key={seq.id} className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div key={seq.id} className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">

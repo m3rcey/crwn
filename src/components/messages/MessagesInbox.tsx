@@ -99,7 +99,7 @@ export function MessagesInbox({ currentUserId, initialArtistSlug }: MessagesInbo
   const totalUnread = conversations.reduce((n, c) => n + (c.unread || 0), 0);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] md:h-[calc(100vh-10rem)] border border-crwn-elevated rounded-xl overflow-hidden bg-crwn-card">
+    <div className="flex h-[calc(100vh-8rem)] md:h-[calc(100vh-10rem)] border border-crwn-elevated rounded-xl overflow-hidden bg-crwn-surface">
       {/* List */}
       <div className={`w-full md:w-80 md:flex-shrink-0 border-r border-crwn-elevated flex flex-col ${mobileThread ? 'hidden md:flex' : 'flex'}`}>
         <div className="px-4 py-3 border-b border-crwn-elevated flex items-center justify-between">
@@ -122,9 +122,9 @@ export function MessagesInbox({ currentUserId, initialArtistSlug }: MessagesInbo
 
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-crwn-text-dim" /></div>
+            <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin text-crwn-text-secondary" /></div>
           ) : conversations.length === 0 && !pending ? (
-            <div className="px-4 py-10 text-center text-crwn-text-dim text-sm">
+            <div className="px-4 py-10 text-center text-crwn-text-secondary text-sm">
               <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-40" />
               No conversations yet.
             </div>
@@ -136,7 +136,7 @@ export function MessagesInbox({ currentUserId, initialArtistSlug }: MessagesInbo
                   className="w-full text-left px-4 py-3 border-b border-crwn-elevated bg-crwn-elevated/40"
                 >
                   <p className="text-sm font-medium text-crwn-text">{pending.name}</p>
-                  <p className="text-xs text-crwn-text-dim">New message</p>
+                  <p className="text-xs text-crwn-text-secondary">New message</p>
                 </button>
               )}
               {conversations.map((c) => (
@@ -156,7 +156,7 @@ export function MessagesInbox({ currentUserId, initialArtistSlug }: MessagesInbo
                       <span className="text-[10px] bg-crwn-gold text-black font-bold rounded-full px-1.5 py-0.5 flex-shrink-0">{c.unread}</span>
                     )}
                   </div>
-                  <p className="text-xs text-crwn-text-dim truncate mt-0.5">
+                  <p className="text-xs text-crwn-text-secondary truncate mt-0.5">
                     {c.lastSenderIsArtist && c.role === 'artist' ? 'You: ' : ''}{c.lastPreview || 'No messages yet'}
                   </p>
                   {c.role === 'artist' && c.tierName && (
@@ -192,7 +192,7 @@ export function MessagesInbox({ currentUserId, initialArtistSlug }: MessagesInbo
             onCreated={(id) => { setPending(null); setSelectedId(id); refreshList(); }}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center text-crwn-text-dim text-sm">
+          <div className="flex-1 flex items-center justify-center text-crwn-text-secondary text-sm">
             Select a conversation
           </div>
         )}
@@ -319,14 +319,14 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
       <div
-        className="neu-modal bg-crwn-card border border-crwn-elevated rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+        className="neu-modal bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-crwn-text flex items-center gap-2"><Megaphone className="w-4 h-4 text-crwn-gold" /> Broadcast</h3>
           <button onClick={onClose} className="text-crwn-text-secondary hover:text-crwn-text"><X className="w-5 h-5" /></button>
         </div>
-        <p className="text-xs text-crwn-text-dim mb-3">
+        <p className="text-xs text-crwn-text-secondary mb-3">
           Sends one message to the fans you pick. It lands in each fan&apos;s DMs with you.
         </p>
         <textarea
@@ -350,7 +350,7 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
 
         {kind === 'subscribers' && tiers.length > 0 && (
           <div className="mb-3">
-            <p className="text-xs text-crwn-text-dim mb-2">Pick tiers, or leave empty for all of them.</p>
+            <p className="text-xs text-crwn-text-secondary mb-2">Pick tiers, or leave empty for all of them.</p>
             <div className="flex flex-wrap gap-2">
               {tiers.map((t) => (
                 <button
@@ -380,7 +380,7 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
                 }`}
               >
                 <p className="text-sm text-crwn-text">{o.label}</p>
-                <p className="text-[11px] text-crwn-text-dim">{o.hint}</p>
+                <p className="text-[11px] text-crwn-text-secondary">{o.hint}</p>
               </button>
             ))}
           </div>
@@ -414,7 +414,7 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
           </span>
           <span>
             <span className="block text-sm text-crwn-text">Let fans reply</span>
-            <span className="block text-[11px] text-crwn-text-dim">
+            <span className="block text-[11px] text-crwn-text-secondary">
               {allowReplies
                 ? 'Fans can write back in their thread with you.'
                 : 'Announce only. Fans read it but cannot reply until you message them again.'}
@@ -423,7 +423,7 @@ function BroadcastModal({ artistId, tiers, onClose, onSent }: {
         </button>
 
         {/* Recipient count */}
-        <p className="text-xs text-crwn-text-dim mb-3 min-h-[1rem]">
+        <p className="text-xs text-crwn-text-secondary mb-3 min-h-[1rem]">
           {countLoading
             ? 'Counting recipients...'
             : count === null

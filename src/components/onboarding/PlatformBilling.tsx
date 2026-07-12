@@ -100,13 +100,13 @@ export function PlatformBilling() {
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-semibold text-crwn-text">{formatTierName(tier)}</h3>
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  tier === 'starter' ? 'bg-crwn-surface text-crwn-text-dim' :
+                  tier === 'starter' ? 'bg-crwn-surface text-crwn-text-secondary' :
                   'bg-crwn-gold/20 text-crwn-gold'
                 }`}>
                   {tier === 'starter' ? 'Free' : formatTierName(tier)}
                 </span>
               </div>
-              <p className="text-sm text-crwn-text-dim">
+              <p className="text-sm text-crwn-text-secondary">
                 {tier === 'starter' ? 'Limited features' : isActive ? 'Active subscription' : 'Subscription inactive'}
               </p>
             </div>

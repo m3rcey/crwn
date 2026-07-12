@@ -22,7 +22,7 @@ export default function LiveAgreementPage() {
         </p>
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
-          <p className="text-crwn-text-dim text-sm italic">
+          <p className="text-crwn-text-secondary text-sm italic">
             This document is a plain-language summary of the incremental obligations that live
             broadcasting introduces. It is not legal advice and is subject to change. Where it is
             silent, the CRWN Terms of Service and Artist Agreement control.

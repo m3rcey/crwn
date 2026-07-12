@@ -162,7 +162,7 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={handleClose}>
-      <div className="bg-crwn-card rounded-2xl border border-crwn-elevated p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="bg-crwn-surface rounded-2xl border border-crwn-elevated p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-crwn-text">Import Fans</h2>

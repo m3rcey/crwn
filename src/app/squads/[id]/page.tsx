@@ -158,7 +158,7 @@ export default function SquadDetailPage() {
           <p className="text-xs text-crwn-text-secondary">{VISIBILITY_LABELS[squad.visibility as keyof typeof VISIBILITY_LABELS]}</p>
         </div>
         <select value={squad.status} onChange={e => setStatus(e.target.value)}
-          className="text-xs bg-crwn-card border border-crwn-elevated rounded-lg px-2 py-1.5 text-crwn-text">
+          className="text-xs bg-crwn-surface border border-crwn-elevated rounded-lg px-2 py-1.5 text-crwn-text">
           <option value="active">Active</option>
           <option value="paused">Paused</option>
           <option value="draft">Draft</option>
@@ -166,7 +166,7 @@ export default function SquadDetailPage() {
         </select>
       </div>
 
-      {squad.goal && <p className="text-sm text-crwn-text-secondary mb-4 bg-crwn-card rounded-xl px-4 py-3 border border-crwn-elevated">🎯 {squad.goal}</p>}
+      {squad.goal && <p className="text-sm text-crwn-text-secondary mb-4 bg-crwn-surface rounded-xl px-4 py-3 border border-crwn-elevated">🎯 {squad.goal}</p>}
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-2 mb-5">
@@ -194,7 +194,7 @@ export default function SquadDetailPage() {
             <UserPlus className="w-4 h-4" /> Add a fan
           </button>
           {showAdd && (
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-3">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-3">
               <div className="relative mb-2">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-crwn-text-secondary" />
                 <input value={searchQ} onChange={e => setSearchQ(e.target.value)} autoFocus placeholder="Search your fans by name or email"
@@ -218,7 +218,7 @@ export default function SquadDetailPage() {
         <div className="space-y-2">
           {pending.length === 0 ? <p className="text-sm text-crwn-text-secondary text-center py-6">No pending applications or invites.</p> :
             pending.map(m => (
-              <div key={m.id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-3">
+              <div key={m.id} className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-3">
                 <div className="w-8 h-8 rounded-full bg-crwn-elevated flex items-center justify-center text-xs text-crwn-text-secondary">{m.display_name.charAt(0).toUpperCase()}</div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-crwn-text truncate">{m.display_name}</p>
@@ -235,14 +235,14 @@ export default function SquadDetailPage() {
         <div className="space-y-3">
           {attachable.length > 0 && (
             <select onChange={e => { attachMission(e.target.value); e.target.value = ''; }} defaultValue=""
-              className="w-full bg-crwn-card border border-crwn-elevated rounded-xl px-3 py-2.5 text-sm text-crwn-text">
+              className="w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-3 py-2.5 text-sm text-crwn-text">
               <option value="" disabled>Attach a mission…</option>
               {attachable.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}
             </select>
           )}
           {missions.length === 0 ? <p className="text-sm text-crwn-text-secondary text-center py-6">No missions attached. <button onClick={() => router.push('/missions/new')} className="text-crwn-gold">Create one</button>.</p> :
             missions.map(sm => (
-              <div key={sm.mission_id} className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-3">
+              <div key={sm.mission_id} className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-3">
                 <Target className="w-4 h-4 text-crwn-gold shrink-0" />
                 <div className="min-w-0 flex-1"><p className="text-sm text-crwn-text truncate">{sm.missions?.title || 'Mission'}</p><p className="text-xs text-crwn-text-secondary capitalize">{sm.missions?.type}</p></div>
                 <button onClick={() => detachMission(sm.mission_id)} className="text-crwn-text-secondary hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
@@ -256,7 +256,7 @@ export default function SquadDetailPage() {
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="bg-crwn-card rounded-xl p-2.5 text-center border border-crwn-elevated">
+    <div className="bg-crwn-surface rounded-xl p-2.5 text-center border border-crwn-elevated">
       <div className="flex justify-center text-crwn-text-secondary mb-1">{icon}</div>
       <p className="text-base font-bold text-crwn-text">{value}</p>
       <p className="text-[10px] text-crwn-text-secondary">{label}</p>
@@ -267,7 +267,7 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
 function MemberRow({ m, onRole, onRemove }: { m: Member; onRole: (role: string) => void; onRemove: () => void }) {
   const roleIcon = m.role === 'captain' ? <Crown className="w-3 h-3" /> : m.role === 'mod' || m.role === 'manager' ? <Shield className="w-3 h-3" /> : null;
   return (
-    <div className="flex items-center gap-3 bg-crwn-card rounded-xl border border-crwn-elevated p-3">
+    <div className="flex items-center gap-3 bg-crwn-surface rounded-xl border border-crwn-elevated p-3">
       {m.avatar_url ? <img src={m.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" /> :
         <div className="w-8 h-8 rounded-full bg-crwn-elevated flex items-center justify-center text-xs text-crwn-text-secondary">{m.display_name.charAt(0).toUpperCase()}</div>}
       <div className="min-w-0 flex-1">

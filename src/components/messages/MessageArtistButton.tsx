@@ -58,7 +58,7 @@ export function MessageArtistButton({ artistId, artistSlug, isOwnProfile }: Mess
   // tier_locked / not_subscribed: nudge toward subscribing/upgrading.
   return (
     <span
-      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-crwn-elevated/60 rounded-full text-crwn-text-dim"
+      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-crwn-elevated/60 rounded-full text-crwn-text-secondary"
       title={state.reason === 'not_subscribed' ? 'Subscribe to message this artist' : 'Upgrade your tier to message this artist'}
     >
       <Lock className="w-3.5 h-3.5" />

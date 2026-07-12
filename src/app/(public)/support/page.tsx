@@ -79,7 +79,7 @@ export default function SupportPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2.5 text-crwn-text placeholder:text-crwn-text-dim focus:outline-none focus:border-crwn-gold transition-colors"
+                  className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2.5 text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold transition-colors"
                   placeholder="Your name"
                 />
               </div>
@@ -93,7 +93,7 @@ export default function SupportPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2.5 text-crwn-text placeholder:text-crwn-text-dim focus:outline-none focus:border-crwn-gold transition-colors"
+                  className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2.5 text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold transition-colors"
                   placeholder="you@email.com"
                 />
               </div>
@@ -111,7 +111,7 @@ export default function SupportPage() {
                     className={`flex flex-col items-center gap-2 p-4 rounded-lg border transition-colors ${
                       formData.category === value
                         ? 'border-crwn-gold bg-crwn-gold/10 text-crwn-gold'
-                        : 'border-crwn-elevated bg-crwn-surface text-crwn-text-secondary hover:border-crwn-text-dim'
+                        : 'border-crwn-elevated bg-crwn-surface text-crwn-text-secondary hover:border-crwn-text-secondary'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -140,7 +140,7 @@ export default function SupportPage() {
                 rows={5}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2.5 text-crwn-text placeholder:text-crwn-text-dim focus:outline-none focus:border-crwn-gold transition-colors resize-none"
+                className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2.5 text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold transition-colors resize-none"
                 placeholder="Describe your issue or question..."
               />
             </div>

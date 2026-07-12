@@ -233,7 +233,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="e.g. Welcome Series"
-            className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+            className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
           />
         </div>
         <div>
@@ -241,7 +241,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
           <select
             value={triggerType}
             onChange={e => setTriggerType(e.target.value)}
-            className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+            className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
           >
             <option value="new_subscription">New Subscription</option>
             <option value="new_purchase">New Purchase</option>
@@ -271,7 +271,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
         </div>
 
         {steps.length === 0 && (
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6 text-center space-y-3">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6 text-center space-y-3">
             <p className="text-sm text-crwn-text-secondary">No steps yet. Start from a template:</p>
             <div className="flex flex-wrap justify-center gap-2">
               {TEMPLATES.map(t => (
@@ -292,7 +292,7 @@ export function SequenceBuilder({ artistId, sequenceId, onBack, onSaved }: Seque
         )}
 
         {steps.map((step, index) => (
-          <div key={index} className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 space-y-3">
+          <div key={index} className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <button

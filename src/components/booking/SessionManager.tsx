@@ -152,14 +152,14 @@ export function SessionManager({ artistId }: SessionManagerProps) {
             <h3 className="text-crwn-text font-medium">
               {editingSession ? 'Edit Session' : 'New Session'}
             </h3>
-            <button onClick={resetForm} className="text-crwn-text-dim hover:text-crwn-text">
+            <button onClick={resetForm} className="text-crwn-text-secondary hover:text-crwn-text">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-crwn-text-dim text-sm mb-1">Title *</label>
+              <label className="block text-crwn-text-secondary text-sm mb-1">Title *</label>
               <input
                 type="text"
                 value={title}
@@ -170,7 +170,7 @@ export function SessionManager({ artistId }: SessionManagerProps) {
             </div>
 
             <div>
-              <label className="block text-crwn-text-dim text-sm mb-1">Description</label>
+              <label className="block text-crwn-text-secondary text-sm mb-1">Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -182,7 +182,7 @@ export function SessionManager({ artistId }: SessionManagerProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-crwn-text-dim text-sm mb-1">Duration (min)</label>
+                <label className="block text-crwn-text-secondary text-sm mb-1">Duration (min)</label>
                 <select
                   value={duration}
                   onChange={(e) => setDuration(parseInt(e.target.value))}
@@ -194,7 +194,7 @@ export function SessionManager({ artistId }: SessionManagerProps) {
                 </select>
               </div>
               <div>
-                <label className="block text-crwn-text-dim text-sm mb-1">Price ($)</label>
+                <label className="block text-crwn-text-secondary text-sm mb-1">Price ($)</label>
                 <input
                   type="number"
                   min="0"
@@ -207,7 +207,7 @@ export function SessionManager({ artistId }: SessionManagerProps) {
             </div>
 
             <div>
-              <label className="block text-crwn-text-dim text-sm mb-1">Calendly Event URL (optional)</label>
+              <label className="block text-crwn-text-secondary text-sm mb-1">Calendly Event URL (optional)</label>
               <input
                 type="url"
                 value={calendlyEventUrl}
@@ -239,7 +239,7 @@ export function SessionManager({ artistId }: SessionManagerProps) {
             <div key={session.id} className="neu-inset p-4 flex items-center justify-between">
               <div>
                 <h4 className="text-crwn-text font-medium">{session.title}</h4>
-                <div className="flex items-center gap-3 mt-1 text-crwn-text-dim text-sm">
+                <div className="flex items-center gap-3 mt-1 text-crwn-text-secondary text-sm">
                   <span>⏱ {session.duration_minutes} min</span>
                   <span>•</span>
                   <span className="text-crwn-gold font-semibold">${session.price / 100}</span>
@@ -263,7 +263,7 @@ export function SessionManager({ artistId }: SessionManagerProps) {
           ))}
         </div>
       ) : (
-        <p className="text-crwn-text-dim text-center py-8">No sessions yet. Add one to sell 1-on-1 sessions!</p>
+        <p className="text-crwn-text-secondary text-center py-8">No sessions yet. Add one to sell 1-on-1 sessions!</p>
       )}
 
       <ConfirmModal

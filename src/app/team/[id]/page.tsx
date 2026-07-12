@@ -101,7 +101,7 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
       <p className="text-sm text-crwn-text-secondary">{roleLabel(deal.role, deal.custom_role)} · {deal.collaborator_name || deal.collaborator_email}</p>
 
       {/* terms */}
-      <div className="bg-crwn-card rounded-xl p-4 mt-4 text-sm space-y-1.5">
+      <div className="bg-crwn-surface rounded-xl p-4 mt-4 text-sm space-y-1.5">
         {deal.percentage != null && <Row k="Split" v={`${deal.percentage}% of ${deal.payout_basis === 'gross_revenue' ? 'gross' : 'net'} revenue`} />}
         {deal.milestone_amount != null && <Row k="Bonus" v={money(deal.milestone_amount)} />}
         {deal.revenue_source_label && <Row k="Source" v={deal.revenue_source_label} />}
@@ -135,7 +135,7 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
 
       {/* collaborator response */}
       {canRespond && (
-        <div className="bg-crwn-card rounded-xl p-4 mt-4 space-y-3">
+        <div className="bg-crwn-surface rounded-xl p-4 mt-4 space-y-3">
           <div className="text-xs text-crwn-text-secondary space-y-2 max-h-32 overflow-y-auto">
             {TEAM_SPLIT_DISCLAIMER_PARAGRAPHS.map((p, i) => <p key={i}>{p}</p>)}
           </div>
@@ -160,7 +160,7 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
           <h3 className="text-sm font-semibold text-crwn-text mb-2">Deliverables</h3>
           <div className="space-y-2">
             {deliverables.map((d) => (
-              <div key={d.id} className="bg-crwn-card rounded-xl p-3">
+              <div key={d.id} className="bg-crwn-surface rounded-xl p-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-crwn-text font-medium">{d.title}</p>
                   <DeliverableBadge status={d.status} />
@@ -195,12 +195,12 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
               <button disabled={busy} onClick={() => act(`/api/team-splits/${id}/release`, {})} className="bg-crwn-gold text-crwn-bg font-semibold text-sm px-4 py-2 rounded-full">Release matured payouts</button>
             )}
             {deal.milestone_amount != null && (
-              <button disabled={busy} onClick={() => act(`/api/team-splits/${id}`, { action: 'award_milestone' }, 'PATCH')} className="bg-crwn-card text-crwn-text text-sm px-4 py-2 rounded-full">Award milestone bonus</button>
+              <button disabled={busy} onClick={() => act(`/api/team-splits/${id}`, { action: 'award_milestone' }, 'PATCH')} className="bg-crwn-surface text-crwn-text text-sm px-4 py-2 rounded-full">Award milestone bonus</button>
             )}
-            {deal.status === 'active' && <button disabled={busy} onClick={() => act(`/api/team-splits/${id}`, { action: 'pause' }, 'PATCH')} className="bg-crwn-card text-crwn-text text-sm px-4 py-2 rounded-full">Pause</button>}
-            {deal.status === 'paused' && <button disabled={busy} onClick={() => act(`/api/team-splits/${id}`, { action: 'resume' }, 'PATCH')} className="bg-crwn-card text-crwn-text text-sm px-4 py-2 rounded-full">Resume</button>}
+            {deal.status === 'active' && <button disabled={busy} onClick={() => act(`/api/team-splits/${id}`, { action: 'pause' }, 'PATCH')} className="bg-crwn-surface text-crwn-text text-sm px-4 py-2 rounded-full">Pause</button>}
+            {deal.status === 'paused' && <button disabled={busy} onClick={() => act(`/api/team-splits/${id}`, { action: 'resume' }, 'PATCH')} className="bg-crwn-surface text-crwn-text text-sm px-4 py-2 rounded-full">Resume</button>}
             {!['completed', 'terminated', 'cancelled', 'archived'].includes(deal.status) && (
-              <button disabled={busy} onClick={() => { if (confirm('Terminate this deal? Accrued earnings remain payable.')) act(`/api/team-splits/${id}`, { action: 'terminate' }, 'PATCH'); }} className="bg-crwn-card text-red-300 text-sm px-4 py-2 rounded-full">Terminate</button>
+              <button disabled={busy} onClick={() => { if (confirm('Terminate this deal? Accrued earnings remain payable.')) act(`/api/team-splits/${id}`, { action: 'terminate' }, 'PATCH'); }} className="bg-crwn-surface text-red-300 text-sm px-4 py-2 rounded-full">Terminate</button>
             )}
           </div>
         </div>
@@ -240,7 +240,7 @@ function Row({ k, v }: { k: string; v: string }) {
 }
 function Money({ label, v, highlight }: { label: string; v: number; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl p-3 text-center ${highlight ? 'bg-crwn-gold/15' : 'bg-crwn-card'}`}>
+    <div className={`rounded-xl p-3 text-center ${highlight ? 'bg-crwn-gold/15' : 'bg-crwn-surface'}`}>
       <p className="text-[10px] uppercase tracking-wide text-crwn-text-secondary">{label}</p>
       <p className={`font-bold ${highlight ? 'text-crwn-gold' : 'text-crwn-text'}`}>{money(v)}</p>
     </div>

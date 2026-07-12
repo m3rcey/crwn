@@ -115,7 +115,7 @@ export function AudienceTab() {
     <div className="space-y-6">
       {/* Sub-navigation */}
       {isTopLevel && (
-        <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1">
+        <div className="flex items-center gap-1 bg-crwn-surface rounded-full p-1">
           {[
             { id: 'fans' as SubView, label: 'Fans', icon: <Users className="w-4 h-4" /> },
             { id: 'campaigns' as SubView, label: 'Campaigns', icon: <Mail className="w-4 h-4" /> },

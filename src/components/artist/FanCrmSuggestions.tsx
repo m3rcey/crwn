@@ -71,7 +71,7 @@ export function FanCrmSuggestions({ onSegment }: Props) {
   if (!loaded || visible.length === 0) return null;
 
   return (
-    <div className="bg-crwn-card rounded-xl border border-crwn-gold/20 p-4">
+    <div className="bg-crwn-surface rounded-xl border border-crwn-gold/20 p-4">
       <div className="flex items-center gap-2 mb-3">
         <Sparkles className="w-4 h-4 text-crwn-gold" />
         <h3 className="text-sm font-semibold text-crwn-text">Suggested moves</h3>

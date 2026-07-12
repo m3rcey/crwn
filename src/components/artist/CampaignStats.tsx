@@ -107,7 +107,7 @@ export function CampaignStats({ campaignId, onBack }: CampaignStatsProps) {
           { label: 'Bounced', value: stats.bounced, icon: <AlertTriangle className="w-4 h-4" />, color: 'text-red-400' },
           { label: 'Revenue', value: null, sub: `$${(stats.attributedRevenue / 100).toFixed(0)}`, icon: <DollarSign className="w-4 h-4" />, color: 'text-crwn-gold' },
         ].map(card => (
-          <div key={card.label} className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div key={card.label} className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <div className={`flex items-center gap-1.5 mb-1 ${card.color}`}>
               {card.icon}
               <span className="text-xs text-crwn-text-secondary">{card.label}</span>
@@ -123,7 +123,7 @@ export function CampaignStats({ campaignId, onBack }: CampaignStatsProps) {
       </div>
 
       {/* Opens by Hour */}
-      <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-5">
+      <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-5">
         <div className="flex items-center gap-2 mb-4">
           <Clock className="w-4 h-4 text-crwn-text-secondary" />
           <h3 className="text-sm font-medium text-crwn-text">Opens by Hour</h3>

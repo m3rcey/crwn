@@ -165,7 +165,7 @@ export function DiscountCodeManager({ artistId, onBack }: DiscountCodeManagerPro
 
       {/* Create Form */}
       {showForm && (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-5 space-y-4">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-crwn-text-secondary mb-1.5">Code</label>
@@ -284,7 +284,7 @@ export function DiscountCodeManager({ artistId, onBack }: DiscountCodeManagerPro
 
       {/* Code List */}
       {codes.length === 0 && !showForm ? (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-12 text-center">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-12 text-center">
           <Tag className="w-10 h-10 text-crwn-text-secondary mx-auto mb-3" />
           <p className="text-crwn-text font-medium mb-1">No discount codes yet</p>
           <p className="text-sm text-crwn-text-secondary mb-4">
@@ -296,7 +296,7 @@ export function DiscountCodeManager({ artistId, onBack }: DiscountCodeManagerPro
           {codes.map(code => (
             <div
               key={code.id}
-              className={`bg-crwn-card rounded-xl border border-crwn-elevated p-4 ${!code.is_active ? 'opacity-50' : ''}`}
+              className={`bg-crwn-surface rounded-xl border border-crwn-elevated p-4 ${!code.is_active ? 'opacity-50' : ''}`}
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">

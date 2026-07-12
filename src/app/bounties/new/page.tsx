@@ -152,11 +152,11 @@ export default function NewBountyPage() {
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Which content?</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">Tie the bounty to a VOD or live, or leave it open.</p>
             <div className="space-y-2">
-              <button onClick={() => setLiveSessionId(null)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${liveSessionId === null ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
+              <button onClick={() => setLiveSessionId(null)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${liveSessionId === null ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'}`}>
                 <span className="text-xl">🌐</span><span className="text-sm text-crwn-text flex-1">No specific source (any clip)</span>{liveSessionId === null && <Check className="w-4 h-4 text-crwn-gold" />}
               </button>
               {vods.map(v => (
-                <button key={v.id} onClick={() => setLiveSessionId(v.id)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${liveSessionId === v.id ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-card'}`}>
+                <button key={v.id} onClick={() => setLiveSessionId(v.id)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${liveSessionId === v.id ? 'border-crwn-gold bg-crwn-gold/5' : 'border-crwn-elevated bg-crwn-surface'}`}>
                   <Radio className="w-4 h-4 text-crwn-gold shrink-0" />
                   <div className="min-w-0 flex-1"><p className="text-sm text-crwn-text truncate">{v.title}</p><p className="text-xs text-crwn-text-secondary">{v.vod_status === 'ready' ? 'VOD ready' : v.vod_status}</p></div>
                   {liveSessionId === v.id && <Check className="w-4 h-4 text-crwn-gold" />}
@@ -184,7 +184,7 @@ export default function NewBountyPage() {
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Name the bounty</h2>
             <p className="text-sm text-crwn-text-secondary mb-4">Clippers see this.</p>
             <input type="text" value={title} autoFocus onChange={e => setTitle(e.target.value)} placeholder={typeDef?.label || 'Bounty title'}
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
@@ -200,7 +200,7 @@ export default function NewBountyPage() {
             />
             {rewardDef?.needsDetail && (
               <input type="text" value={rewardDetail} onChange={e => setRewardDetail(e.target.value)} placeholder="Describe the reward (e.g. Vault access for 30 days)"
-                className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
+                className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50" />
             )}
           </div>
         )}
@@ -210,7 +210,7 @@ export default function NewBountyPage() {
             <h2 className="text-lg font-semibold text-crwn-text mb-1">Deadline <span className="text-crwn-text-secondary text-sm font-normal">(optional)</span></h2>
             <p className="text-sm text-crwn-text-secondary mb-4">When does the bounty close?</p>
             <input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)}
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50" />
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text focus:outline-none focus:border-crwn-gold/50" />
           </div>
         )}
 
@@ -227,7 +227,7 @@ export default function NewBountyPage() {
                 { value: 'subscribers', label: 'Subscribers only' },
               ]}
             />
-            <label className="flex items-center gap-3 p-3 rounded-xl border border-crwn-elevated bg-crwn-card cursor-pointer">
+            <label className="flex items-center gap-3 p-3 rounded-xl border border-crwn-elevated bg-crwn-surface cursor-pointer">
               <input type="checkbox" checked={approvalRequired} onChange={e => setApprovalRequired(e.target.checked)} className="accent-crwn-gold" />
               <span className="text-sm text-crwn-text">Require my approval before a clip qualifies <span className="text-crwn-text-secondary">(recommended)</span></span>
             </label>
@@ -237,7 +237,7 @@ export default function NewBountyPage() {
         {step.id === 'review' && (
           <div>
             <h2 className="text-lg font-semibold text-crwn-text mb-4">Review</h2>
-            <div className="bg-crwn-card rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
+            <div className="bg-crwn-surface rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
               <Row label="Source" value={liveSessionId ? (vods.find(v => v.id === liveSessionId)?.title || 'VOD') : 'Any clip'} />
               <Row label="Challenge" value={`${typeDef?.icon || ''} ${typeDef?.label || ''}`} />
               <Row label="Title" value={title} />

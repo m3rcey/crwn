@@ -75,7 +75,7 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
   return (
     <div className="space-y-10">
       {/* Master gate switch */}
-      <section className="bg-crwn-card rounded-xl p-4">
+      <section className="bg-crwn-surface rounded-xl p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="text-crwn-text text-lg font-semibold">
@@ -111,19 +111,19 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
             value={newCode}
             onChange={(e) => setNewCode(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''))}
             placeholder="CODE"
-            className="bg-crwn-card text-crwn-text text-sm rounded-lg px-3 py-2 w-32 outline-none"
+            className="bg-crwn-surface text-crwn-text text-sm rounded-lg px-3 py-2 w-32 outline-none"
           />
           <input
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
             placeholder="Label (who/what for)"
-            className="bg-crwn-card text-crwn-text text-sm rounded-lg px-3 py-2 flex-1 min-w-[160px] outline-none"
+            className="bg-crwn-surface text-crwn-text text-sm rounded-lg px-3 py-2 flex-1 min-w-[160px] outline-none"
           />
           <input
             value={newMax}
             onChange={(e) => setNewMax(e.target.value.replace(/[^0-9]/g, ''))}
             placeholder="Max uses (blank = ∞)"
-            className="bg-crwn-card text-crwn-text text-sm rounded-lg px-3 py-2 w-40 outline-none"
+            className="bg-crwn-surface text-crwn-text text-sm rounded-lg px-3 py-2 w-40 outline-none"
           />
           <button
             disabled={!newCode || busy === 'mint'}

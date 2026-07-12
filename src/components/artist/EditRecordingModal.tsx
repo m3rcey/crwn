@@ -167,7 +167,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
       <div className="bg-crwn-bg border border-crwn-elevated rounded-2xl w-full max-w-2xl my-8">
         <div className="flex items-center justify-between p-4 border-b border-crwn-elevated">
           <h3 className="text-crwn-text font-bold">Edit recording</h3>
-          <button onClick={onClose} className="text-crwn-text-dim hover:text-crwn-text" aria-label="Close">
+          <button onClick={onClose} className="text-crwn-text-secondary hover:text-crwn-text" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -175,7 +175,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
         <div className="p-4 space-y-5">
           {/* Thumbnail: scrub the video and grab a frame, or upload your own */}
           <div>
-            <label className="block text-crwn-text-dim text-sm mb-2">Thumbnail</label>
+            <label className="block text-crwn-text-secondary text-sm mb-2">Thumbnail</label>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="bg-black rounded-xl overflow-hidden">
                 {loadingVideo ? (
@@ -186,17 +186,17 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
                   /* eslint-disable-next-line jsx-a11y/media-has-caption */
                   <video ref={videoRef} src={videoUrl} crossOrigin="anonymous" controls playsInline className="w-full aspect-video object-contain" />
                 ) : (
-                  <div className="aspect-video flex items-center justify-center text-crwn-text-dim text-sm px-4 text-center">
+                  <div className="aspect-video flex items-center justify-center text-crwn-text-secondary text-sm px-4 text-center">
                     Video unavailable
                   </div>
                 )}
               </div>
 
               <div className="flex flex-col gap-2">
-                <p className="text-crwn-text-dim text-xs">Current cover</p>
+                <p className="text-crwn-text-secondary text-xs">Current cover</p>
                 <div className="aspect-video rounded-xl overflow-hidden bg-crwn-elevated bg-cover bg-center flex items-center justify-center"
                   style={thumbPreview ? { backgroundImage: `url(${thumbPreview})` } : undefined}>
-                  {!thumbPreview && <span className="text-crwn-text-dim text-xs">No cover yet</span>}
+                  {!thumbPreview && <span className="text-crwn-text-secondary text-xs">No cover yet</span>}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -218,7 +218,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
                     />
                   </label>
                 </div>
-                {thumbNote && <p className="text-crwn-text-dim text-xs">{thumbNote}</p>}
+                {thumbNote && <p className="text-crwn-text-secondary text-xs">{thumbNote}</p>}
                 {thumbBlob && (
                   <p className="text-crwn-success text-xs flex items-center gap-1">
                     <Check className="w-3.5 h-3.5" /> New cover ready: Save to apply
@@ -226,11 +226,11 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
                 )}
               </div>
             </div>
-            {videoUrl && <p className="text-crwn-text-dim text-xs mt-1">Pause on the frame you want, then hit “Use this frame”.</p>}
+            {videoUrl && <p className="text-crwn-text-secondary text-xs mt-1">Pause on the frame you want, then hit “Use this frame”.</p>}
           </div>
 
           <div>
-            <label className="block text-crwn-text-dim text-sm mb-1">Title *</label>
+            <label className="block text-crwn-text-secondary text-sm mb-1">Title *</label>
             <input
               type="text"
               value={title}
@@ -240,7 +240,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
           </div>
 
           <div>
-            <label className="block text-crwn-text-dim text-sm mb-1">Description</label>
+            <label className="block text-crwn-text-secondary text-sm mb-1">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -251,14 +251,14 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
 
           {isPrerecorded && (
             <div>
-              <label className="block text-crwn-text-dim text-sm mb-1">Visibility</label>
+              <label className="block text-crwn-text-secondary text-sm mb-1">Visibility</label>
               <div className="grid grid-cols-2 gap-2">
                 <button type="button" onClick={() => setVisibility('public')}
-                  className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'public' ? 'neu-button-accent' : 'neu-button text-crwn-text-dim'}`}>
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'public' ? 'neu-button-accent' : 'neu-button text-crwn-text-secondary'}`}>
                   Public
                 </button>
                 <button type="button" onClick={() => setVisibility('private')}
-                  className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'private' ? 'neu-button-accent' : 'neu-button text-crwn-text-dim'}`}>
+                  className={`px-3 py-2 rounded-xl text-sm font-semibold ${visibility === 'private' ? 'neu-button-accent' : 'neu-button text-crwn-text-secondary'}`}>
                   Private
                 </button>
               </div>
@@ -275,7 +275,7 @@ export function EditRecordingModal({ session, artistId, tiers, onClose, onSaved 
               </label>
               {!isFree && tiers.length > 0 && (
                 <div className="space-y-2 ml-6">
-                  <p className="text-crwn-text-dim text-sm mb-1">Only these tiers can watch:</p>
+                  <p className="text-crwn-text-secondary text-sm mb-1">Only these tiers can watch:</p>
                   {tiers.map((tier) => (
                     <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" checked={selectedTiers.includes(tier.id)}

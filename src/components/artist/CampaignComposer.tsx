@@ -251,7 +251,7 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. March Newsletter"
-              className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+              className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
             />
           </div>
 
@@ -262,7 +262,7 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
               value={subject}
               onChange={e => setSubject(e.target.value)}
               placeholder="e.g. New music just dropped, {{first_name}}"
-              className="w-full px-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+              className="w-full px-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
             />
           </div>
 
@@ -287,14 +287,14 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
               onChange={e => setBody(e.target.value)}
               rows={12}
               placeholder="Write your email content here. Use personalization tokens above to customize for each fan."
-              className="w-full px-4 py-3 bg-crwn-card border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-y"
+              className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50 resize-y"
             />
           </div>
         </div>
 
         {/* Sidebar — audience targeting */}
         <div className="space-y-4">
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 space-y-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 space-y-4">
             <h3 className="text-sm font-medium text-crwn-text">Audience</h3>
 
             {/* Saved segments quick-pick */}
@@ -359,7 +359,7 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
             </label>
           </div>
 
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <h3 className="text-sm font-medium text-crwn-text mb-2">Personalization Tips</h3>
             <ul className="space-y-1.5 text-xs text-crwn-text-secondary">
               <li>Use <code className="text-crwn-gold">{'{{first_name}}'}</code> in subject for higher open rates</li>
@@ -369,7 +369,7 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
             </ul>
           </div>
 
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">
             <h3 className="text-sm font-medium text-crwn-text mb-2">Limits</h3>
             <ul className="space-y-1 text-xs text-crwn-text-secondary">
               <li>Max 2 campaigns per week</li>

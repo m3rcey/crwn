@@ -266,7 +266,7 @@ export default function CrmView() {
         </div>
         <button
           onClick={() => { setShowImport(true); setImportCsv(''); setImportListName(''); setImportSelectedList(''); setImportResult(null); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-crwn-card border border-crwn-elevated text-sm text-crwn-text hover:border-crwn-gold/50 transition"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-crwn-surface border border-crwn-elevated text-sm text-crwn-text hover:border-crwn-gold/50 transition"
         >
           <Upload className="w-4 h-4" />
           Import List
@@ -289,7 +289,7 @@ export default function CrmView() {
             <button
               key={status.id}
               onClick={() => setStatusFilter(isSelected ? '' : status.id)}
-              className={`bg-crwn-card rounded-xl p-3 text-left transition-all border ${
+              className={`bg-crwn-surface rounded-xl p-3 text-left transition-all border ${
                 isSelected ? 'border-crwn-gold' : 'border-transparent hover:border-crwn-elevated'
               }`}
             >
@@ -307,7 +307,7 @@ export default function CrmView() {
           <button
             onClick={() => setListFilter('')}
             className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-              !listFilter ? 'bg-crwn-gold text-black' : 'bg-crwn-card text-crwn-text-secondary hover:text-crwn-text'
+              !listFilter ? 'bg-crwn-gold text-black' : 'bg-crwn-surface text-crwn-text-secondary hover:text-crwn-text'
             }`}
           >
             All
@@ -317,7 +317,7 @@ export default function CrmView() {
               key={list.id}
               onClick={() => setListFilter(listFilter === list.id ? '' : list.id)}
               className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                listFilter === list.id ? 'bg-crwn-gold text-black' : 'bg-crwn-card text-crwn-text-secondary hover:text-crwn-text'
+                listFilter === list.id ? 'bg-crwn-gold text-black' : 'bg-crwn-surface text-crwn-text-secondary hover:text-crwn-text'
               }`}
             >
               {list.name} ({list.contact_count})
@@ -334,13 +334,13 @@ export default function CrmView() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by name, email, Instagram, or tags..."
-          className="w-full pl-10 pr-4 py-2.5 bg-crwn-card border border-crwn-elevated rounded-full text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-crwn-surface border border-crwn-elevated rounded-full text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
         />
       </div>
 
       {/* Table + drawer */}
       <div className="flex gap-6">
-        <div className={`${selectedContact ? 'flex-1' : 'w-full'} bg-crwn-card rounded-xl border border-crwn-elevated overflow-hidden`}>
+        <div className={`${selectedContact ? 'flex-1' : 'w-full'} bg-crwn-surface rounded-xl border border-crwn-elevated overflow-hidden`}>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -418,7 +418,7 @@ export default function CrmView() {
 
         {/* Contact detail drawer */}
         {selectedContact && (
-          <div className="w-80 shrink-0 bg-crwn-card rounded-xl border border-crwn-elevated p-4 space-y-4 self-start sticky top-4">
+          <div className="w-80 shrink-0 bg-crwn-surface rounded-xl border border-crwn-elevated p-4 space-y-4 self-start sticky top-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-crwn-text">{selectedContact.name}</h3>
               <button onClick={() => setSelectedContact(null)} className="text-xs text-crwn-text-secondary hover:text-crwn-text">Close</button>
@@ -545,7 +545,7 @@ export default function CrmView() {
       {/* Import Modal */}
       {showImport && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-crwn-card border border-crwn-elevated rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4">
+          <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 w-full max-w-lg mx-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-crwn-text flex items-center gap-2">
                 <Upload className="w-5 h-5 text-crwn-gold" />

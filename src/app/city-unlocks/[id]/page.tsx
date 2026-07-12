@@ -74,7 +74,7 @@ export default function CityUnlockDetailPage() {
       </div>
 
       {/* Progress */}
-      <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-4 mb-4">
+      <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 mb-4">
         <div className="flex items-end justify-between mb-2">
           <p className="text-2xl font-bold text-crwn-text">{unlock.current_value}<span className="text-sm text-crwn-text-secondary">/{unlock.goal_value} {unit}</span></p>
           <p className="text-sm font-medium text-crwn-gold">{pct}%</p>
@@ -101,7 +101,7 @@ export default function CityUnlockDetailPage() {
       {cityBreakdown.length > 0 && (
         <div className="mb-4">
           <h2 className="text-xs font-semibold text-crwn-text-secondary uppercase tracking-wider mb-2">Where contributors are</h2>
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated divide-y divide-crwn-elevated/60">
             {cityBreakdown.slice(0, 8).map(c => (
               <div key={c.city} className="flex items-center justify-between px-4 py-2.5">
                 <span className="text-sm text-crwn-text">{c.city}</span>

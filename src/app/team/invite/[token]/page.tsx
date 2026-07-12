@@ -42,7 +42,7 @@ export default function TeamInvitePage({ params }: { params: Promise<{ token: st
         <p className="text-sm text-crwn-text-secondary mb-6">Sign in or create a free CRWN account to review the deal and get paid.</p>
         <div className="space-y-2">
           <button onClick={() => router.push(`/signup?next=${next}`)} className="w-full bg-crwn-gold text-crwn-bg font-semibold py-3 rounded-full">Create account</button>
-          <button onClick={() => router.push(`/login?next=${next}`)} className="w-full bg-crwn-card text-crwn-text py-3 rounded-full">I already have an account</button>
+          <button onClick={() => router.push(`/login?next=${next}`)} className="w-full bg-crwn-surface text-crwn-text py-3 rounded-full">I already have an account</button>
         </div>
       </div>
     );

@@ -119,7 +119,7 @@ function MiniBarChart() {
             className="w-full rounded-t-md bg-gradient-to-t from-crwn-gold/60 to-crwn-gold transition-all duration-1000 ease-out"
             style={{ height: isInView ? `${h}%` : '0%', transitionDelay: `${i * 100}ms` }}
           />
-          <span className="text-[10px] text-crwn-text-dim">{labels[i]}</span>
+          <span className="text-[10px] text-crwn-text-secondary">{labels[i]}</span>
         </div>
       ))}
     </div>
@@ -148,7 +148,7 @@ function GuideCard({ icon: Icon, title, description, href, delay = 0 }: {
             </h3>
             <p className="text-crwn-text-secondary text-sm leading-relaxed">{description}</p>
           </div>
-          <ArrowRight className="w-5 h-5 text-crwn-text-dim group-hover:text-crwn-gold group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+          <ArrowRight className="w-5 h-5 text-crwn-text-secondary group-hover:text-crwn-gold group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
         </div>
       </Link>
     </div>
@@ -353,7 +353,7 @@ function RevenuePreview() {
                   <span className="text-crwn-text font-medium text-sm">{item.label}</span>
                   <span className="text-crwn-gold font-bold">{item.value}</span>
                 </div>
-                <span className="text-crwn-text-dim text-xs">{item.desc}</span>
+                <span className="text-crwn-text-secondary text-xs">{item.desc}</span>
               </div>
             </div>
           ))}
@@ -459,7 +459,7 @@ function CTASection({ isArtist }: { isArtist: boolean }) {
             {isArtist ? 'Go to Dashboard' : 'Start Exploring'}
             <ArrowRight className="w-5 h-5" />
           </button>
-          <p className="mt-4 text-xs text-crwn-text-dim">
+          <p className="mt-4 text-xs text-crwn-text-secondary">
             You can revisit this guide anytime from the help icon on your home screen.
           </p>
         </div>

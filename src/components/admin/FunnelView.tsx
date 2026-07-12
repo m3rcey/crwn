@@ -129,7 +129,7 @@ export default function FunnelView() {
         </div>
         <div className="flex items-center gap-2">
           {/* Period selector */}
-          <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1">
+          <div className="flex items-center gap-1 bg-crwn-surface rounded-full p-1">
             {PERIODS.map(p => (
               <button
                 key={p.id}
@@ -146,7 +146,7 @@ export default function FunnelView() {
       </div>
 
       {/* Source filter pills */}
-      <div className="flex items-center gap-1 bg-crwn-card rounded-full p-1 w-fit">
+      <div className="flex items-center gap-1 bg-crwn-surface rounded-full p-1 w-fit">
         {SOURCES.map(s => (
           <button
             key={s.id}
@@ -157,7 +157,7 @@ export default function FunnelView() {
           >
             {s.label}
             {s.id !== 'all' && sourceBreakdown[s.id] ? (
-              <span className="ml-1 text-crwn-text-dim">({sourceBreakdown[s.id]})</span>
+              <span className="ml-1 text-crwn-text-secondary">({sourceBreakdown[s.id]})</span>
             ) : null}
           </button>
         ))}
@@ -165,7 +165,7 @@ export default function FunnelView() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-crwn-card rounded-xl p-4 border border-crwn-elevated">
+        <div className="bg-crwn-surface rounded-xl p-4 border border-crwn-elevated">
           <div className="flex items-center gap-2 text-crwn-text-secondary mb-1">
             <MousePointerClick className="w-4 h-4" />
             <span className="text-xs font-medium">Click → Signup</span>
@@ -174,7 +174,7 @@ export default function FunnelView() {
             {showClicks ? conversionRate(funnel.clicks, funnel.signups) : 'N/A'}
           </p>
         </div>
-        <div className="bg-crwn-card rounded-xl p-4 border border-crwn-elevated">
+        <div className="bg-crwn-surface rounded-xl p-4 border border-crwn-elevated">
           <div className="flex items-center gap-2 text-crwn-text-secondary mb-1">
             <Users className="w-4 h-4" />
             <span className="text-xs font-medium">Signup → Activated</span>
@@ -183,7 +183,7 @@ export default function FunnelView() {
             {conversionRate(funnel.signups, funnel.first_subscriber)}
           </p>
         </div>
-        <div className="bg-crwn-card rounded-xl p-4 border border-crwn-elevated">
+        <div className="bg-crwn-surface rounded-xl p-4 border border-crwn-elevated">
           <div className="flex items-center gap-2 text-crwn-text-secondary mb-1">
             <Clock className="w-4 h-4" />
             <span className="text-xs font-medium">Avg to First Track</span>
@@ -192,7 +192,7 @@ export default function FunnelView() {
             {timeToMilestone.first_track_uploaded != null ? `${timeToMilestone.first_track_uploaded}d` : '–'}
           </p>
         </div>
-        <div className="bg-crwn-card rounded-xl p-4 border border-crwn-elevated">
+        <div className="bg-crwn-surface rounded-xl p-4 border border-crwn-elevated">
           <div className="flex items-center gap-2 text-crwn-text-secondary mb-1">
             <TrendingUp className="w-4 h-4" />
             <span className="text-xs font-medium">Overall Conversion</span>
@@ -204,7 +204,7 @@ export default function FunnelView() {
       </div>
 
       {/* Funnel visualization */}
-      <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6">
+      <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6">
         <h3 className="text-sm font-semibold text-crwn-text mb-4">Stage-by-Stage Funnel</h3>
         <div className="space-y-1">
           {funnelBars.map((stage, i) => {
@@ -217,8 +217,8 @@ export default function FunnelView() {
               <div key={stage.key}>
                 {i > 0 && (
                   <div className="flex items-center gap-2 py-1 pl-4">
-                    <ArrowDown className="w-3 h-3 text-crwn-text-dim" />
-                    <span className="text-xs text-crwn-text-dim">{dropoff}</span>
+                    <ArrowDown className="w-3 h-3 text-crwn-text-secondary" />
+                    <span className="text-xs text-crwn-text-secondary">{dropoff}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-3">
@@ -245,7 +245,7 @@ export default function FunnelView() {
       {/* Bottom row: time-to-milestone + trend chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Time to milestone */}
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6">
           <h3 className="text-sm font-semibold text-crwn-text mb-4">Avg Time to Milestone</h3>
           <div className="space-y-3">
             {Object.entries(MILESTONE_LABELS).map(([key, label]) => {
@@ -264,7 +264,7 @@ export default function FunnelView() {
 
         {/* Source breakdown */}
         {source === 'all' && sourceChartData.length > 0 && (
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6">
             <h3 className="text-sm font-semibold text-crwn-text mb-4">Signups by Source</h3>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={sourceChartData} layout="vertical" margin={{ left: 0, right: 0 }}>
@@ -285,7 +285,7 @@ export default function FunnelView() {
 
         {/* Weekly trend */}
         {source !== 'all' || sourceChartData.length === 0 ? (
-          <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6">
+          <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6">
             <h3 className="text-sm font-semibold text-crwn-text mb-4">Weekly Trend (12 weeks)</h3>
             <ResponsiveContainer width="100%" height={180}>
               <AreaChart data={weeklyTrend} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>
@@ -304,7 +304,7 @@ export default function FunnelView() {
 
       {/* Weekly trend (shown when source is "all" AND source breakdown is shown above) */}
       {source === 'all' && sourceChartData.length > 0 && (
-        <div className="bg-crwn-card rounded-xl border border-crwn-elevated p-6">
+        <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-6">
           <h3 className="text-sm font-semibold text-crwn-text mb-4">Weekly Trend (12 weeks)</h3>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={weeklyTrend} margin={{ left: 0, right: 0, top: 4, bottom: 0 }}>

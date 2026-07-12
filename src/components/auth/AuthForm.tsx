@@ -212,7 +212,7 @@ export function AuthForm({ mode, onSuccess, onSignupComplete }: AuthFormProps) {
             {usernameError && (
               <p className="text-sm text-crwn-error mt-1">{usernameError}</p>
             )}
-            <p className="text-xs text-crwn-text-dim mt-1">
+            <p className="text-xs text-crwn-text-secondary mt-1">
               3-20 characters, lowercase letters, numbers, underscores
             </p>
           </div>
