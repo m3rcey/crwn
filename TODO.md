@@ -41,6 +41,29 @@ responsible for. Do not work those.
       4. Assume the old value was public. If anything in your Stripe history looks like an
          off-schedule payout run, that is where to look first.
 
+- [ ] **DECISION: upgrade ManyChat to Pro, or the Instagram engine cannot run at all.**
+      Confirmed 2026-07-12 from the ManyChat Settings screen: **API access is Pro-only**, and
+      so is the **External Request** action.
+
+      This is not "no follow-up without Pro". It is worse than that:
+      - **External Request** is how ManyChat *calls CRWN*. Without it, ManyChat can auto-DM a
+        commenter but **cannot reach CRWN at all**, so the engine never receives an event.
+      - **API Key** is how CRWN *sends the follow-up DM back*. Without it, follow-up reaches
+        nobody (a cold IG lead has no email).
+
+      Both are load-bearing. Free ManyChat cannot run this architecture.
+
+      **The alternative is worse:** integrating Meta's Instagram Messaging API directly means
+      an app review, Meta's permissions process, and hand-rolling the messaging-window logic
+      ManyChat already handles. Weeks of work and far more risk, to avoid a small monthly fee.
+
+      **Cost:** ManyChat Pro is priced by contact count (it starts low and scales). Check
+      **Settings → Billing → Subscriptions** for your actual number. Claude cannot see your
+      pricing and will not guess at it.
+
+      This is a paid dependency Claude introduced and did not price for you up front. That was
+      a miss. Everything else below is free and works today.
+
 - [ ] **Run the acquisition migration.** Supabase SQL editor:
       `supabase/schema-phase2-instagram-acquisition-engine.sql`
       It self-verifies. Expect: `OK: acquisition engine tables + RLS + indexes created. Flag is OFF (dark).`
@@ -48,7 +71,9 @@ responsible for. Do not work those.
 - [ ] **Set `MANYCHAT_WEBHOOK_SECRET` in Vercel.** `openssl rand -hex 32`. Redeploy.
       Without it the webhook rejects **every** request (fail-closed, by design).
 
-- [ ] **Set `MANYCHAT_API_TOKEN` in Vercel.** ManyChat → Settings → API.
+- [ ] **Set `MANYCHAT_API_TOKEN` in Vercel.** *(Blocked on ManyChat Pro, above.)*
+      ManyChat → Settings → API → **Generate Your API Key**. There is nothing to copy until
+      you generate it, and the button is Pro-gated.
       **Without it, follow-up reaches nobody.** A cold Instagram lead has no email, so the
       Instagram DM is the only channel that exists.
 
