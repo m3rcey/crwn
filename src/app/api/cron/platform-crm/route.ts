@@ -244,5 +244,20 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ updated, enrolled });
+  // Instagram acquisition follow-up. Piggybacks this cron (no new vercel.json entry — 25
+  // already exist and the hourly slots are full, and Hobby caps daily anyway). Same pattern
+  // as the calendar reminders on cron/sequences.
+  //
+  // FULLY WRAPPED. This is a guest in someone else's cron: if acquisition follow-up throws,
+  // the platform CRM run above it has already done its work and must still report success.
+  // runAcquisitionDispatcher() is written not to throw, and this catch is the second net.
+  let acquisition: unknown = null;
+  try {
+    const { runAcquisitionDispatcher } = await import('@/lib/acquisition/automationDispatcher');
+    acquisition = await runAcquisitionDispatcher();
+  } catch (err) {
+    console.error('Acquisition dispatcher failed:', err);
+  }
+
+  return NextResponse.json({ updated, enrolled, acquisition });
 }

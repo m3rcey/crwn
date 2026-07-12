@@ -147,17 +147,75 @@ and it would be a fresh PII egress path.
   complete from day one. The UI to read it follows.
 - **Duplicate-merge tooling.** There are zero leads to merge. Building a merge UI before the
   first lead exists is automating something that should not yet exist.
-- **SMS channel.** Consent infra exists (`sms_consent_log`, quiet hours in `twilio.ts`) but
-  wiring a new compliance surface for zero phase-1 value fails the delete test.
-- **Auto-claim through the signup funnel.** `/signup` ignores `?next` and always routes to
-  `/welcome` (via `/verify` when email confirmation is on). The claim page stashes the token
-  in `localStorage` (mirroring `crwn_recruiter` / `crwn_invite`), and the artist claims on
-  their next visit to the result link, which they still have in the DM and the email.
-  Auto-redemption means touching `/welcome` or `useAuth`, the two files that broke onboarding
-  silently for months. That is a phase-2 change with its own testing.
-- **Follow-up dispatcher.** `enqueue()` writes to the outbox today and rows accumulate
-  correctly. The daily drain (piggybacked on `/api/cron/platform-crm`, no new Vercel cron)
-  is phase 2.
+- **SMS channel.** The provider interface exists in `channels.ts` with a **disabled safe
+  adapter** (`sms_channel_disabled`). A cold Instagram lead has no phone and no SMS consent,
+  so the channel would reach nobody while adding a live compliance surface. Enabling it later
+  requires no restructuring.
+- **Duplicate-merge tooling.** Zero leads to merge.
+
+## Follow-up automation (BUILT)
+
+`automationDispatcher.ts`, **piggybacked on `/api/cron/platform-crm`** (`0 5 * * *`). No new
+`vercel.json` entry: 25 already exist and the hourly slots are full. Fully wrapped in a
+try/catch, because a guest in someone else's cron must never break its host.
+
+Four triggers, and only four, because the rest were speculative:
+
+| Trigger | When | Channel |
+|---|---|---|
+| `session_abandoned_nudge` | open session idle 48h, **and no result yet** | DM, then email |
+| `result_not_viewed_check` | 24h after the link was sent, still unopened | DM, then email |
+| `result_viewed_not_claimed` | 48h after first view, still unclaimed | DM, then email |
+| `high_intent_alert` | score band hits `sales_priority` | email to the founder |
+
+A session that already produced a result is **completed**, not abandoned. The artist got what
+they came for; nagging them about "finishing" is how you make a good outcome feel like a bug.
+
+### The channel ordering is arithmetic, not preference
+
+**Instagram DM first, email second.** A cold Instagram lead almost never gave us an email,
+because we never asked for one. The DM is the channel that exists; email is a bonus when they
+happen to have signed up. An email-only nurture would reach nearly nobody.
+
+### Meta's 24-hour window is real and we do not route around it
+
+Instagram permits a business to message a user for 24 hours after that user's last
+interaction. Outside it, Meta rejects the send. So `outside_messaging_window` is classified
+**terminal, not retryable**: the window reopens when the artist messages us, not on a timer.
+Retrying it nightly forever is not persistence, it is how an app gets flagged. If
+`MANYCHAT_API_TOKEN` is unset the DM channel is a **disabled adapter** that reports
+"not configured" honestly instead of silently dropping the send.
+
+### Retry policy
+
+- **transient** (network, 5xx): exponential backoff in days (the host runs daily, so retrying
+  sooner is pointless), capped at `max_attempts`, then `dead_letter`.
+- **terminal** (no consent, no email, capped, Meta's window shut, opted out): stop
+  immediately, `status='skipped'`. Nothing about these changes on a timer.
+
+### Guardrails
+
+One outbound message per lead per **24h**, **4 per lead ever**. Consent is checked per
+channel (consent to a DM is not consent to a mailing list). The existing global
+`email_suppressions` table is honored, so a bounce recorded anywhere in CRWN stops acquisition
+email too. Every send is claimed by a unique idempotency key before dispatch, so two
+overlapping dispatcher runs cannot double-send.
+
+### Retention (BUILT)
+
+`lead_conversation_messages` older than **90 days** have their `content` blanked and
+`redacted_at` stamped. The event skeleton survives for analytics; the literal text a stranger
+typed into Instagram three months ago does not.
+
+## Still not built
+
+- **Admin acquisition panels.** The API routes and the audit trail land now so the data is
+  complete from day one. The UI to read it follows. Dead-lettered rows are visible today with
+  `SELECT * FROM acquisition_events WHERE status = 'dead_letter'`.
+- **Auto-claim through the signup funnel is SOLVED**, but not the way the brief assumed:
+  `/signup` still ignores `?next`. Instead `ClaimRedeemer` (mounted in `(main)/layout.tsx`
+  after both gates) redeems the token from `localStorage` once the artist lands in the app.
+  `/welcome` and `useAuth` were deliberately not touched.
 
 ---
 

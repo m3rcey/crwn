@@ -518,6 +518,17 @@ async function rescore(
     band: score.band,
     source_event: 'orchestration',
   });
+
+  // A lead this warm should not be handled by a robot. Tell Josh, once, ever.
+  // The idempotency key makes it fire a single time per lead no matter how many turns of the
+  // conversation keep them in the sales_priority band.
+  if (score.band === 'sales_priority') {
+    await enqueue('high_intent_alert', {
+      leadIdentityId: identityId,
+      sessionId,
+      idempotencyKey: `high_intent:${identityId}`,
+    });
+  }
 }
 
 export { resume };

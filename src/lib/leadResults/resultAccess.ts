@@ -111,6 +111,19 @@ export async function recordView(resultId: string): Promise<void> {
         idempotency_key: `viewed:${resultId}`,
         status: 'recorded',
       });
+
+      // They looked but have not saved it. That is a warmer problem than "never opened it",
+      // and it gets its own follow-up in 48 hours. If they claim before then, the handler
+      // sees claimed_at and stays quiet.
+      await supabaseAdmin.from('acquisition_events').insert({
+        event_name: 'result_viewed_not_claimed',
+        result_id: resultId,
+        lead_identity_id: data?.lead_identity_id ?? null,
+        session_id: data?.lead_session_id ?? null,
+        idempotency_key: `viewed_unclaimed:${resultId}`,
+        status: 'pending',
+        next_attempt_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      });
     }
   } catch {
     // A view counter must never break a page render.

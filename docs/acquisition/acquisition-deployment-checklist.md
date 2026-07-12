@@ -16,6 +16,13 @@ The engine ships **dark**. Deploying it changes nothing until you flip a flag.
       Without it, the webhook rejects **every** request. That is intended.
 - [ ] *(Optional)* **Set `ANTHROPIC_API_KEY`.** Without it the engine still runs end to end,
       using deterministic question ordering. Add it when you want the DM to read like a person.
+- [ ] *(Optional but this is the one that matters for follow-up)* **Set `MANYCHAT_API_TOKEN`.**
+      This is what lets CRWN send an outbound Instagram DM. **Without it, follow-up reaches
+      almost nobody**, because a cold Instagram lead has no email and email is the only other
+      channel. Get it from ManyChat → Settings → API.
+      Optionally `MANYCHAT_MESSAGE_TAG` — leave it unset unless you have confirmed with Meta
+      which tag your use case legitimately qualifies for. Unset means in-window sends only,
+      which is the safe default.
 - [ ] **Configure ManyChat** per `manychat-setup-guide.md`.
 - [ ] **Smoke test with the flag still OFF.** Every External Request should return
       **503 / `engine_disabled`**. This proves URL + secret + mapping are correct while CRWN
@@ -34,6 +41,21 @@ The engine ships **dark**. Deploying it changes nothing until you flip a flag.
       ```
 - [ ] **Confirm the five existing tools still work.** `/worth`, `/` (the homepage renders
       `WorthExperience`), and the four `/tools/[slug]` pages. None were modified, but look anyway.
+- [ ] **Check the follow-up dispatcher ran.** It piggybacks `/api/cron/platform-crm` at
+      `0 5 * * *`, so it runs once daily. After the first run, its report is in the cron's
+      JSON response (`acquisition: { swept, drained, sent, skipped, deadLettered, redacted }`).
+      To trigger it by hand:
+      ```
+      curl -H "Authorization: Bearer $CRON_SECRET" https://thecrwn.app/api/cron/platform-crm
+      ```
+- [ ] **Watch the dead-letter queue** for the first week. It should be empty:
+      ```sql
+      SELECT event_name, last_error_code, attempt_count, created_at
+      FROM acquisition_events WHERE status = 'dead_letter' ORDER BY created_at DESC;
+      ```
+      A pile of `dm_rejected` means the ManyChat token is wrong. A pile of
+      `outside_messaging_window` should NOT appear (that reason is terminal, not retried) and
+      if it does, the classifier missed a Meta error string.
 
 ### Production reminder
 
@@ -120,12 +142,15 @@ Not written here. Flagged for counsel:
 5. The retention period for DM transcripts, and how to request deletion.
 6. That ManyChat is a processor in this flow.
 
-### Retention
+### Retention — now enforced
 
-`lead_conversation_messages.redacted_at` exists so a cleanup job can blank message content
-while preserving the event skeleton for analytics. **The job is not written yet** (phase 2).
-Until it is, transcripts persist indefinitely, which is the single most important thing on
-this page to fix before volume.
+`enforceRetention()` in `automationDispatcher.ts` runs daily on the piggybacked cron. DM
+transcripts older than **90 days** have their `content` blanked and `redacted_at` stamped. The
+event skeleton (who, when, which direction) survives for analytics; the literal text a stranger
+typed into Instagram does not.
+
+To change the window, edit `TRANSCRIPT_RETENTION_DAYS`. It is one constant, in one file, on
+purpose.
 
 ### Deletion
 

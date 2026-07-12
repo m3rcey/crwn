@@ -17,6 +17,7 @@ import {
 import { canTransition, nextState, transition } from './stateMachine';
 import { MAX_ATTEMPTS_PER_FIELD } from './orchestration';
 import { getField } from './fieldRegistry';
+import * as copy from '../emails/acquisitionFollowUp';
 import { TRUST_RANK } from './types';
 import { scoreLead, EMPTY_BEHAVIOR } from './leadScoring';
 import { getTool, missingRequiredFields, ACQUISITION_TOOL_IDS } from './toolAdapters';
@@ -502,6 +503,41 @@ describe('lead scoring (explainable, deterministic, Claude-bounded)', () => {
       behavior: { ...EMPTY_BEHAVIOR, bookedCall: true },
     });
     expect(s.band).toBe('sales_priority');
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe('follow-up copy (CLAUDE.md: loss-framed, and never an em dash)', () => {
+  const all = [
+    copy.resultNotViewed({ headline: 'About $3,892 a month', resultUrl: 'https://thecrwn.app/x' }),
+    copy.resultViewedNotClaimed({ resultUrl: 'https://thecrwn.app/x' }),
+    copy.sessionAbandoned(),
+  ];
+
+  it('never uses an em dash or an en dash, anywhere', () => {
+    // The rule is absolute: UI, email, DM, subject lines, buttons. All of it.
+    for (const c of all) {
+      expect(c.dm).not.toMatch(/[—–]/);
+      expect(c.subject).not.toMatch(/[—–]/);
+      expect(c.html).not.toMatch(/[—–]/);
+    }
+    const alert = copy.highIntentAlert({ score: 80, band: 'sales_priority', instagramUsername: 'x', reasonCodes: [] });
+    expect(alert.subject).not.toMatch(/[—–]/);
+    expect(alert.html).not.toMatch(/[—–]/);
+  });
+
+  it('leads with the loss, not the gain', () => {
+    // Gain-framed copy ("here is what you could earn!") is ignorable. Loss-framed copy names
+    // the cost of doing nothing. Every follow-up must talk about what is being lost.
+    const lossWords = /leaving|losing|lose|not earning|goes to a platform|not collecting|none of it reaches you|still have not|does not change/i;
+    for (const c of all) {
+      expect(c.dm + c.subject + c.html).toMatch(lossWords);
+    }
+  });
+
+  it('always carries a working link in the DM', () => {
+    expect(all[0].dm).toContain('https://');
+    expect(all[1].dm).toContain('https://');
   });
 });
 
