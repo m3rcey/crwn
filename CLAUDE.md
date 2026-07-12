@@ -38,6 +38,30 @@ the model drifts middle-aged. Always look at the image before shipping it.
 
 NEVER use an em dash (—) in ANY user-facing copy, anywhere, ever: UI strings, emails, web/marketing pages, notifications, button labels, tooltips, error messages, docs — all of it. This applies to everything new you write and anything you edit. Do not substitute an en dash (–) either. Rewrite instead: split into two short sentences (also better for readability), or use a comma, colon, or parentheses. Example: "Your front door — the easiest yes" becomes "Your front door: the easiest yes". (Hyphens in compound words like "one-time" are fine; this rule is about the dash punctuation between clauses.)
 
+## TODO.md — you maintain it, Josh works it
+
+`TODO.md` at the repo root is Josh's list. It has three sections: **Do Now** (one-shot,
+P0/P1/P2), **Ongoing** (recurring rituals), and **On Claude's plate** (so he knows what he is
+not carrying).
+
+**Whenever you create work only Josh can do, add it to TODO.md in the SAME commit.** That
+means: a SQL migration to apply, an env var to set in Vercel, a secret to rotate, a pricing
+or legal decision, a dark-launched flag to flip, anything needing an account you cannot log
+into. If you ship a migration and do not list it, the migration does not get run and the
+feature is silently dead.
+
+Rules:
+- **P0 means "blocks artist acquisition or breaks money flows."** Not "feels urgent." Use the
+  same definition as the triage principle below, or the priorities become meaningless.
+- Each item carries the **exact command, SQL, or file path**. The item IS the instruction. If
+  Josh has to go look something up, the item is not finished.
+- Tick items off when he confirms they are done. Delete stale ones. A list he cannot trust is
+  worse than no list.
+- Put your OWN follow-up work in "On Claude's plate", never in his sections.
+- If you discover a founder-blocking task that predates this file, add it. Verify it first:
+  do not copy claims out of the Brain or CLAUDE.md without checking the code, because both
+  have been wrong.
+
 ## Problem-Solving Principles
 
 Three tools. Each answers a different question. Use the one that matches.
