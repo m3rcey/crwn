@@ -1,5 +1,13 @@
 # CRWN Brain — Changelog
 
+## 2026-07-11 — Rate limiter fixed (every unauthenticated route was fail-closed)
+
+`check_rate_limit(p_user_id)` is typed `uuid`, but unauthenticated routes have no user id and key on a string like `ip:1.2.3.4`. Postgres could not cast it (`22P02`), the RPC errored, and `checkRateLimit` discarded the error, so `data === true` evaluated `false`. An errored limiter was indistinguishable from a denial, and **every visitor got a 429 on their first request**.
+
+- **Was broken in production:** `/api/support` (support form), `/api/partner/apply` (partner applications), `/api/lead-magnets/capture`, `/api/lead-magnets/email`. All four are unauthenticated and top-of-funnel. Authenticated routes pass a real uuid and were never affected, which is why this went unnoticed.
+- **Fix (`src/lib/rateLimit.ts`, no schema change):** hash any non-uuid key into a stable uuid so it buckets like a real one (verified against prod: allows exactly `max_requests`, then denies); log RPC errors instead of swallowing them.
+- **Note:** the limiter still fails CLOSED on an RPC error (unchanged semantics, so money routes are not weakened), but it now logs loudly. `check_rate_limit` has no checked-in migration; its signature was recovered by probing production.
+
 ## 2026-07-11 — Lead Magnet system (4 tools)
 
 Added a config-driven Lead Magnet system (branch `claude/rise-mode-full-journey`). One typed registry (`src/lib/leadMagnets/registry.ts`) drives all tools; adding a tool = one config + one deterministic generator, no new pages.
@@ -8,9 +16,10 @@ Added a config-driven Lead Magnet system (branch `claude/rise-mode-full-journey`
 - **Routes:** public `/tools` + `/tools/[slug]` (SSG shells, `(public)` group); protected `/artist/tools`, `/artist/tools/[slug]`, `/artist/tools/saved` (middleware `protectedPaths` gains `/artist/tools`; `tools` added to `knownRoutes`).
 - **Shared engine:** reuses `Wizard` + `OptionSelect`; deterministic versioned generators (`resultGenerators.ts`, `GENERATOR_VERSION`); preview-gated result renderer; consent-correct public lead capture; save/email/share; conversion adapters that PREFILL the live builders (Proof of Demand, Missions, Bounties read `lm_*` params, one-time seed, their own validation/payout logic untouched). Vault degrades to a saved plan by design.
 - **APIs (`/api/lead-magnets/*`):** `capture` (public, IP rate-limited, server-recomputes the result), `results` + `results/[id]` (owner-scoped CRUD, public read by high-entropy token), `email` (recipient-locked, suppression-checked), `analytics` (field-allowlisted sink), `admin` (aggregates only).
-- **DB:** `supabase/schema-phase2-lead-magnets.sql` (NOT yet applied) adds `lead_magnet_leads`, `lead_magnet_results`, `lead_magnet_events` with RLS (owner-manage + admin-read) and a self-verify block. Distinct from `crm_contacts`/`fan_contacts`/`fan_events`.
+- **DB:** `supabase/schema-phase2-lead-magnets.sql` (**APPLIED 2026-07-11**) adds `lead_magnet_leads`, `lead_magnet_results`, `lead_magnet_events` with RLS (owner-manage + admin-read) and a self-verify block. Distinct from `crm_contacts`/`fan_contacts`/`fan_events`.
+- **Verified in production:** end-to-end capture writes the lead + result, recomputes server-side and mints a token; token read returns 200, no token 401, wrong token 404 (no leak). Smoke-test rows were deleted afterward.
 - **Out of scope preserved:** the existing `/worth` "money left on the table" calculator is untouched.
-- **Follow-up:** apply the migration in the Supabase SQL editor; builder->result "converted" callback (marking a result `converted` after the builder creates the record) is not yet wired.
+- **Follow-up:** builder->result "converted" callback (marking a result `converted` after the builder creates the record) is not yet wired; no `/admin` Lead Magnets tab yet.
 
 ## v1.0 — 2026-07-10 (initial generation)
 

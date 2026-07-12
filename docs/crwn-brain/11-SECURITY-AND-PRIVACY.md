@@ -13,7 +13,7 @@
 - **Admin enforcement is server-side on every `/api/admin/*` route** — `requireAdmin.ts` (derives identity from session, never a client id) on 8 routes, equivalent inline checks on the rest; internal/cron admin routes gated by `CRON_SECRET` / `INTERNAL_TRACK_SECRET`.
 - **Entitlement oracle:** paid track audio and gated community posts are redacted **in Postgres** via SECURITY DEFINER functions + redacting views (`tracks_public`, `community_posts_feed`); routes prove entitlement with the RLS-scoped client, and a NULL column *is* the 403.
 - **Idempotent, signature-verified Stripe webhook**; atomic cashout RPCs (`atomic_fan_cashout`, `atomic_team_split_cashout`) with EXECUTE revoked from anon/authenticated.
-- **DB-backed rate limiting** (`checkRateLimit` / `check_rate_limit` RPC) on 26+ sensitive routes (cashout, checkout, messaging, support).
+- **DB-backed rate limiting** (`checkRateLimit` / `check_rate_limit` RPC) on 26+ sensitive routes (cashout, checkout, messaging, support). The RPC's `p_user_id` is a **uuid**; unauthenticated routes key on a string (`ip:1.2.3.4`), so `checkRateLimit` hashes any non-uuid key into a stable uuid. Passing a raw string used to error (`22P02`) and fail closed, 429ing every visitor (fixed 2026-07-11, see CHANGELOG). The limiter still fails closed on an RPC error, but now logs it.
 - **Upload validation** (`validateUpload`: MIME + extension allowlist + size caps) exercised by the daily canary.
 - **Security headers** in `next.config.ts`: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (camera/mic/geo off).
 - **Bot filtering** in middleware is analytics-only (does not gate access).
