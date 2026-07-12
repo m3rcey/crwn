@@ -42,9 +42,19 @@ const BAND_COLOR: Record<string, string> = {
   human_review: 'text-orange-400',
 };
 
+interface Config {
+  migrated: boolean;
+  engineEnabled: boolean;
+  manychatWebhookSecret: boolean;
+  manychatApiToken: boolean;
+  anthropicApiKey: boolean;
+  manychatMessageTag: boolean;
+}
+
 export default function AcquisitionView() {
   const [view, setView] = useState<View>('leads');
   const [rows, setRows] = useState<Row[]>([]);
+  const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [notReady, setNotReady] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -52,9 +62,14 @@ export default function AcquisitionView() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/acquisition?view=${view}`);
+      const [res, cfg] = await Promise.all([
+        fetch(`/api/admin/acquisition?view=${view}`),
+        fetch('/api/admin/acquisition?view=config'),
+      ]);
       const json = await res.json();
+      const cjson = await cfg.json();
       setRows(json.rows ?? []);
+      setConfig(cjson.config ?? null);
       setNotReady(!!json.notReady);
     } catch {
       setRows([]);
@@ -85,6 +100,8 @@ export default function AcquisitionView() {
 
   return (
     <div>
+      {config && <ConfigStrip config={config} />}
+
       <div className="flex items-center justify-between mb-6">
         <div className="flex gap-2">
           {TABS.map((t) => (
@@ -231,6 +248,91 @@ export default function AcquisitionView() {
             </div>
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Config health. The webhook fails CLOSED, so from outside "the secret is missing" and "the
+ * secret is wrong" look identical (both 401). That is correct: it gives an attacker no oracle.
+ * But it also means nobody could answer "did I actually set that key" without this strip.
+ *
+ * Booleans only. Never a value, never a prefix, never a masked hint.
+ */
+function ConfigStrip({ config }: { config: Config }) {
+  const items: { label: string; ok: boolean; required: boolean; note: string }[] = [
+    {
+      label: 'Migration',
+      ok: config.migrated,
+      required: true,
+      note: 'Run supabase/schema-phase2-instagram-acquisition-engine.sql',
+    },
+    {
+      label: 'Webhook secret',
+      ok: config.manychatWebhookSecret,
+      required: true,
+      note: 'MANYCHAT_WEBHOOK_SECRET. Without it the webhook rejects every request.',
+    },
+    {
+      label: 'ManyChat API token',
+      ok: config.manychatApiToken,
+      required: true,
+      note: 'MANYCHAT_API_TOKEN. Without it, follow-up reaches nobody.',
+    },
+    {
+      label: 'Claude',
+      ok: config.anthropicApiKey,
+      required: false,
+      note: 'ANTHROPIC_API_KEY. Optional: without it, vague answers land in Needs you.',
+    },
+  ];
+
+  const blockers = items.filter((i) => i.required && !i.ok);
+  const ready = blockers.length === 0;
+
+  return (
+    <div className="bg-crwn-surface-solid rounded-xl p-4 mb-6">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          {items.map((i) => (
+            <div key={i.label} className="flex items-center gap-2" title={i.note}>
+              {i.ok ? (
+                <Check className="w-4 h-4 text-green-400 shrink-0" />
+              ) : (
+                <Ban className={`w-4 h-4 shrink-0 ${i.required ? 'text-red-400' : 'text-crwn-text-secondary'}`} />
+              )}
+              <span className={`text-sm ${i.ok ? 'text-crwn-text' : 'text-crwn-text-secondary'}`}>
+                {i.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <span
+          className={`text-xs font-semibold px-3 py-1 rounded-full ${
+            config.engineEnabled
+              ? 'bg-green-400/15 text-green-400'
+              : 'bg-crwn-elevated text-crwn-text-secondary'
+          }`}
+        >
+          {config.engineEnabled ? 'LIVE' : 'DARK'}
+        </span>
+      </div>
+
+      {!config.engineEnabled && (
+        <p className="text-xs text-crwn-text-secondary mt-3 leading-relaxed">
+          {ready ? (
+            <>
+              Everything required is configured. Flip it on:{' '}
+              <code className="text-crwn-gold">
+                UPDATE admin_settings SET value = &apos;{'{'}&quot;enabled&quot;: true{'}'}&apos;::jsonb WHERE key = &apos;acquisition_engine&apos;;
+              </code>
+            </>
+          ) : (
+            <>Still needed: {blockers.map((b) => b.label).join(', ')}. Hover each item for what it is.</>
+          )}
+        </p>
       )}
     </div>
   );

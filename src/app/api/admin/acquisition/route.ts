@@ -28,6 +28,49 @@ export async function GET(req: NextRequest) {
 
   const view = req.nextUrl.searchParams.get('view') || 'leads';
 
+  // ---- Config health. BOOLEANS ONLY. ----
+  //
+  // This exists because of a real gap: the webhook fails CLOSED, so "secret missing from
+  // Vercel" and "secret is wrong" both return 401. That is correct (it gives an attacker no
+  // oracle) but it means nobody, including Claude, can tell from outside whether a key is
+  // actually configured. ANTHROPIC_API_KEY cannot be probed from outside at all.
+  //
+  // So: report PRESENCE, never VALUE. Not a prefix, not a length, not a masked hint. A
+  // boolean cannot leak a secret, and a boolean is all anyone needs to answer "did I set it".
+  if (view === 'config') {
+    let migrated = false;
+    let engineEnabled = false;
+    try {
+      const { error } = await supabaseAdmin.from('lead_identities').select('id').limit(1);
+      migrated = !error;
+      const { data: flag } = await supabaseAdmin
+        .from('admin_settings')
+        .select('value')
+        .eq('key', 'acquisition_engine')
+        .maybeSingle();
+      engineEnabled = !!(flag?.value as { enabled?: boolean } | null)?.enabled;
+    } catch {
+      migrated = false;
+    }
+
+    const isSet = (v: string | undefined) => !!v && v.length > 10;
+
+    return NextResponse.json({
+      config: {
+        migrated,
+        engineEnabled,
+        // Inbound. Without it the webhook rejects EVERY request.
+        manychatWebhookSecret: isSet(process.env.MANYCHAT_WEBHOOK_SECRET),
+        // Outbound. Without it, follow-up reaches nobody.
+        manychatApiToken: isSet(process.env.MANYCHAT_API_TOKEN),
+        // Optional. Without it the engine still runs, on deterministic question ordering.
+        anthropicApiKey: isSet(process.env.ANTHROPIC_API_KEY),
+        // A tag set without Meta's blessing is how apps get banned. Unset is the safe default.
+        manychatMessageTag: !!process.env.MANYCHAT_MESSAGE_TAG,
+      },
+    });
+  }
+
   // The engine may not be migrated yet. Every query below is wrapped so the panel renders an
   // honest empty state instead of a stack trace.
   try {
