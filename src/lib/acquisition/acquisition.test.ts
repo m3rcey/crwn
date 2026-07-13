@@ -316,6 +316,34 @@ describe('ManyChat payload validation', () => {
     expect(validateInbound({ ...good, manychat_contact_id: '1234567890' }).ok).toBe(true);
   });
 
+  it('accepts ManyChat\'s "+ Add Full Contact Data" shape, nested', () => {
+    // ManyChat's Contact Id SYSTEM field pill does not substitute inside an External Request
+    // body (it sends the literal string "Contact Id"). Its "+ Add Full Contact Data" button
+    // does work. So CRWN reads the id out of the contact object instead of demanding a shape
+    // ManyChat struggles to emit. The integration bends to the transport, not the reverse.
+    const r = validateInbound({
+      event_type: 'answer',
+      question_key: 'monthly_listeners',
+      answer: '40k',
+      contact: { id: '987654321', username: '@Naya', email: 'naya@example.com' },
+    });
+    expect(r.ok).toBe(true);
+    const v = (r as { value: { manychat_contact_id: string; instagram_username: string | null; email: string | null } }).value;
+    expect(v.manychat_contact_id).toBe('987654321');
+    expect(v.instagram_username).toBe('naya'); // normalized, @ stripped
+    expect(v.email).toBe('naya@example.com');
+  });
+
+  it('accepts the full contact data SPREAD at the top level', () => {
+    const r = validateInbound({
+      event_type: 'session_start',
+      id: '55555',
+      username: 'someartist',
+    });
+    expect(r.ok).toBe(true);
+    expect((r as { value: { manychat_contact_id: string } }).value.manychat_contact_id).toBe('55555');
+  });
+
   it('bounds a hostile 100KB answer instead of passing it to the model', () => {
     const r = validateInbound({ ...good, answer: 'x'.repeat(100_000) });
     expect(r.ok).toBe(true);

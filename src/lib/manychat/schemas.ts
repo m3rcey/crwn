@@ -110,9 +110,40 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
   // Optional. When ManyChat cannot supply one (it cannot), CRWN derives its own.
   const eventId = str(b.event_id, 128);
 
-  const contactId = str(b.manychat_contact_id, 128);
+  // ---- The contact id, from WHICHEVER shape ManyChat could actually produce. ----
+  //
+  // The original design demanded a bare `manychat_contact_id`, sourced from ManyChat's
+  // "Contact Id" SYSTEM field pill. In practice that pill does not substitute inside an
+  // External Request body: it sends the literal string "Contact Id".
+  //
+  // Meanwhile ManyChat has a first-class "+ Add Full Contact Data" button that exists
+  // precisely to send the contact object to an external service, and it works.
+  //
+  // So CRWN bends to the transport instead of demanding a shape the transport struggles to
+  // emit. We accept any of:
+  //
+  //   { "manychat_contact_id": "123" }          <- a resolved pill, if it ever works
+  //   { "contact": { "id": "123", ... } }       <- "+ Add Full Contact Data" nested
+  //   { "id": "123", ... }                      <- "+ Add Full Contact Data" spread at top
+  //
+  // Over-specifying the payload was my error. An integration should be tolerant of what the
+  // other system can actually send.
+  const contact = (b.contact && typeof b.contact === 'object' && !Array.isArray(b.contact)
+    ? (b.contact as Record<string, unknown>)
+    : null);
+
+  const contactId =
+    str(b.manychat_contact_id, 128) ??
+    (contact ? str(contact.id, 128) : null) ??
+    str(b.id, 128);
+
   if (!contactId) {
-    return { ok: false, error: 'manychat_contact_id is required', code: 'missing_contact_id' };
+    return {
+      ok: false,
+      error:
+        'No ManyChat contact id. Send `manychat_contact_id`, or use ManyChat\'s "+ Add Full Contact Data" button (CRWN reads `contact.id` or a top-level `id`).',
+      code: 'missing_contact_id',
+    };
   }
 
   // ---- The unresolved-placeholder guard. ----
@@ -152,12 +183,16 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
       event_type: eventType as ManyChatEventType,
       event_id: eventId,
       manychat_contact_id: contactId,
-      instagram_user_id: str(b.instagram_user_id, 128),
-      instagram_username: normalizeUsername(str(b.instagram_username, 64)),
-      first_name: str(b.first_name, 80),
-      last_name: str(b.last_name, 80),
-      email: normalizeEmailLoose(str(b.email, 254)),
-      phone: str(b.phone, 32),
+      // Each of these also falls back to the "+ Add Full Contact Data" object, so a single
+      // click in ManyChat populates everything without the artist configuring six pills.
+      instagram_user_id: str(b.instagram_user_id, 128) ?? (contact ? str(contact.user_id, 128) : null),
+      instagram_username: normalizeUsername(
+        str(b.instagram_username, 64) ?? (contact ? str(contact.username ?? contact.ig_username, 64) : null),
+      ),
+      first_name: str(b.first_name, 80) ?? (contact ? str(contact.first_name, 80) : null),
+      last_name: str(b.last_name, 80) ?? (contact ? str(contact.last_name, 80) : null),
+      email: normalizeEmailLoose(str(b.email, 254) ?? (contact ? str(contact.email, 254) : null)),
+      phone: str(b.phone, 32) ?? (contact ? str(contact.phone, 32) : null),
       campaign_key: str(b.campaign_key, 64),
       creator_account: str(b.creator_account, 64),
       source_post_id: str(b.source_post_id, 128),
