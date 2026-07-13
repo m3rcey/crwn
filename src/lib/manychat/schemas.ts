@@ -188,6 +188,24 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
   if (eventType === 'answer') {
     const qk = str(b.question_key, 64);
     if (!qk) return { ok: false, error: 'question_key required for answer', code: 'missing_question_key' };
+
+    // An EMPTY ManyChat custom field does not render as an empty string. It renders as its
+    // raw internal token: "{{cuf_14771760}}". So a pill that failed to populate arrives here
+    // looking like a perfectly good non-empty value.
+    //
+    // Unguarded, CRWN would store the artist's answer against a field literally named
+    // "{{cuf_14771760}}", which matches nothing in the field registry, so the answer is
+    // silently lost and she gets asked the same question again. Forever.
+    //
+    // Same class of failure as the unresolved contact id: it looks like success.
+    if (looksUnresolved(qk)) {
+      return {
+        ok: false,
+        error:
+          'question_key is an unresolved ManyChat field token (an empty custom field renders as {{cuf_...}}). The crwn_question_key field was not populated by the previous External Request response mapping.',
+        code: 'unresolved_question_key',
+      };
+    }
   }
 
   return {
