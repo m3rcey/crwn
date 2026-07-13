@@ -87,6 +87,13 @@ function bool(v: unknown): boolean {
   return v === true || v === 'true' || v === 1 || v === '1';
 }
 
+/** ManyChat sends ig_id as a NUMBER. Without coercing it, str() drops it silently. */
+function numAsStr(v: unknown): string | null {
+  if (typeof v === 'string') return v.trim() || null;
+  if (typeof v === 'number' && Number.isFinite(v)) return String(v);
+  return null;
+}
+
 /**
  * An artist's free-form DM answer. Bounded hard at 2000 chars.
  *
@@ -168,7 +175,13 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
     };
   }
 
-  const answer = str(b.answer, MAX_ANSWER_CHARS);
+  // The artist's reply.
+  //
+  // ManyChat's Full Contact Data carries `last_input_text` = the last thing she typed. That
+  // means the answer loop needs NO custom field and NO extra pill: the same one-click body
+  // that identifies her also carries what she said. Given how many ManyChat fields silently
+  // fail to resolve, every pill we can delete is a failure mode we can delete.
+  const answer = str(b.answer, MAX_ANSWER_CHARS) ?? (contact ? str(contact.last_input_text, MAX_ANSWER_CHARS) : null);
 
   // An 'answer' event with no question_key is meaningless and would silently write an
   // orphan row. Reject it loudly instead.
@@ -183,11 +196,20 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
       event_type: eventType as ManyChatEventType,
       event_id: eventId,
       manychat_contact_id: contactId,
-      // Each of these also falls back to the "+ Add Full Contact Data" object, so a single
-      // click in ManyChat populates everything without the artist configuring six pills.
-      instagram_user_id: str(b.instagram_user_id, 128) ?? (contact ? str(contact.user_id, 128) : null),
+      // Every one of these falls back to the "+ Add Full Contact Data" object, so ONE click in
+      // ManyChat populates everything. Field names below are taken from a REAL ManyChat
+      // payload, not from the docs and not from my imagination:
+      //
+      //   { key, id, page_id, status, first_name, last_name, name, gender, profile_pic,
+      //     locale, language, timezone, live_chat_url, last_input_text, optin_phone, phone,
+      //     optin_email, email, subscribed, last_interaction, ig_last_interaction, last_seen,
+      //     ig_last_seen, is_followup_enabled, ig_username, ig_id, whatsapp_phone, ... }
+      //
+      // Note ig_id arrives as a NUMBER, not a string, so it needs coercing or it gets dropped.
+      instagram_user_id:
+        str(b.instagram_user_id, 128) ?? (contact ? numAsStr(contact.ig_id) : null),
       instagram_username: normalizeUsername(
-        str(b.instagram_username, 64) ?? (contact ? str(contact.username ?? contact.ig_username, 64) : null),
+        str(b.instagram_username, 64) ?? (contact ? str(contact.ig_username ?? contact.username, 64) : null),
       ),
       first_name: str(b.first_name, 80) ?? (contact ? str(contact.first_name, 80) : null),
       last_name: str(b.last_name, 80) ?? (contact ? str(contact.last_name, 80) : null),

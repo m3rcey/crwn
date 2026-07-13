@@ -21,7 +21,7 @@ import * as copy from '../emails/acquisitionFollowUp';
 import { TRUST_RANK } from './types';
 import { scoreLead, EMPTY_BEHAVIOR } from './leadScoring';
 import { getTool, missingRequiredFields, ACQUISITION_TOOL_IDS } from './toolAdapters';
-import { validateInbound, normalizeUsername, normalizeEmailLoose } from '../manychat/schemas';
+import { validateInbound, normalizeUsername, normalizeEmailLoose, type ManyChatInboundPayload } from '../manychat/schemas';
 import { deriveIdempotencyKey } from '../manychat/idempotency';
 import { verifyManyChatRequest } from '../manychat/verifyWebhook';
 import { hashToken, mintToken, isExpired } from '../leadResults/resultToken';
@@ -332,6 +332,36 @@ describe('ManyChat payload validation', () => {
     expect(v.manychat_contact_id).toBe('987654321');
     expect(v.instagram_username).toBe('naya'); // normalized, @ stripped
     expect(v.email).toBe('naya@example.com');
+  });
+
+  it('reads a REAL ManyChat Full Contact Data payload correctly', () => {
+    // This is a genuine payload captured from ManyChat, not a guess. The field names matter:
+    // it is ig_username (not username), ig_id (a NUMBER, not a string), and last_input_text
+    // carries what the artist actually typed.
+    const r = validateInbound({
+      event_type: 'answer',
+      question_key: 'monthly_listeners',
+      contact: {
+        key: 'user:713072115',
+        id: '713072115',
+        status: 'active',
+        first_name: 'M3rcey',
+        name: 'M3rcey',
+        ig_username: 'm3rcey',
+        ig_id: 1416655297162108, // a NUMBER
+        last_input_text: '40k',
+        email: null,
+        phone: null,
+      },
+    });
+
+    expect(r.ok).toBe(true);
+    const v = (r as { value: ManyChatInboundPayload }).value;
+    expect(v.manychat_contact_id).toBe('713072115');
+    expect(v.instagram_username).toBe('m3rcey');
+    expect(v.instagram_user_id).toBe('1416655297162108'); // coerced from number
+    // The answer comes free with the contact data. No extra pill, no custom field.
+    expect(v.answer).toBe('40k');
   });
 
   it('accepts the full contact data SPREAD at the top level', () => {
