@@ -115,6 +115,28 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
     return { ok: false, error: 'manychat_contact_id is required', code: 'missing_contact_id' };
   }
 
+  // ---- The unresolved-placeholder guard. ----
+  //
+  // ManyChat field pills are OBJECTS inserted from its picker. Typing `{{contact_id}}` or
+  // `<Contact Id>` or `[Contact Id]` by hand produces a plain string that ManyChat never
+  // substitutes, and it sends that string verbatim.
+  //
+  // Without this check, such a request is perfectly VALID: a non-empty string is a non-empty
+  // string. It would sail through, and then EVERY lead on earth would arrive with the same
+  // literal contact id, resolve to the SAME lead identity, and overwrite each other's
+  // answers. One record for every artist. Silently.
+  //
+  // That is the worst failure mode in this whole system, and it looks exactly like success.
+  // So we reject it loudly. A real ManyChat contact id is a number; a real Instagram user id
+  // is a number. Neither contains braces, brackets, or the word "pill".
+  if (looksUnresolved(contactId)) {
+    return {
+      ok: false,
+      error: 'manychat_contact_id looks like an unresolved ManyChat field placeholder. Insert the Contact Id field from ManyChat\'s "{+} Add a Field" picker instead of typing it.',
+      code: 'unresolved_contact_id_placeholder',
+    };
+  }
+
   const answer = str(b.answer, MAX_ANSWER_CHARS);
 
   // An 'answer' event with no question_key is meaningless and would silently write an
@@ -161,6 +183,22 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
           : {},
     },
   };
+}
+
+/**
+ * Does this value look like a ManyChat field placeholder that never got substituted?
+ *
+ * A genuine ManyChat contact id (and a genuine Instagram user id) is a plain number. Anything
+ * carrying braces, brackets, angle brackets, or the words we use in our own docs is a human
+ * having typed the annotation instead of inserting the field. Catch it here, loudly, rather
+ * than letting every lead collapse into one identity.
+ */
+export function looksUnresolved(v: string): boolean {
+  return (
+    /[{}[\]<>]/.test(v) || // {{contact_id}}, [Contact Id], <Contact Id>
+    /\bpill\b/i.test(v) ||
+    /contact[_\s-]?id/i.test(v) // someone typed the field's NAME rather than its value
+  );
 }
 
 /** Strip a leading @ and lowercase. Recorded for display; NEVER a merge key. */

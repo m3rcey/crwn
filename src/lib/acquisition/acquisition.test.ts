@@ -294,6 +294,28 @@ describe('ManyChat payload validation', () => {
     expect(validateInbound({ ...good, event_type: 'drop_tables' }).ok).toBe(false);
   });
 
+  it('REJECTS an unresolved ManyChat field placeholder as the contact id', () => {
+    // The worst failure mode in the system, and it looks exactly like success. A pill that was
+    // typed instead of inserted sends a literal string, which is a perfectly valid non-empty
+    // string. Every lead on earth would then arrive with the SAME contact id, resolve to the
+    // SAME identity, and overwrite each other's answers. One record for every artist. Silently.
+    for (const fake of [
+      '[Contact Id pill]',
+      '{{contact_id}}',
+      '<Contact Id>',
+      'Contact Id',
+      '[Contact Id]',
+    ]) {
+      const r = validateInbound({ ...good, manychat_contact_id: fake });
+      expect(r.ok, `should have rejected: ${fake}`).toBe(false);
+      expect((r as { code: string }).code).toBe('unresolved_contact_id_placeholder');
+    }
+  });
+
+  it('still accepts a real ManyChat contact id (which is just a number)', () => {
+    expect(validateInbound({ ...good, manychat_contact_id: '1234567890' }).ok).toBe(true);
+  });
+
   it('bounds a hostile 100KB answer instead of passing it to the model', () => {
     const r = validateInbound({ ...good, answer: 'x'.repeat(100_000) });
     expect(r.ok).toBe(true);
