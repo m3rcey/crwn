@@ -23,6 +23,7 @@ import { resolveOrCreate } from '@/lib/acquisition/identityResolution';
 import { orchestrate } from '@/lib/acquisition/orchestration';
 import { cacheResponse, claimEvent, recordEvent } from '@/lib/acquisition/eventOutbox';
 import { buildError } from '@/lib/manychat/responseMapper';
+import { deriveIdempotencyKey } from '@/lib/manychat/idempotency';
 import { validateInbound } from '@/lib/manychat/schemas';
 import { MAX_BODY_BYTES, verifyManyChatRequest } from '@/lib/manychat/verifyWebhook';
 import { checkRateLimit } from '@/lib/rateLimit';
@@ -81,7 +82,12 @@ export async function POST(req: NextRequest) {
   }
 
   // ---- 5. Claim idempotency BEFORE any work. Insert-as-claim, not check-then-insert. ----
-  const claim = await claimEvent(payload.event_id, `manychat.${payload.event_type}`);
+  //
+  // ManyChat cannot supply a unique-per-delivery id (its field picker has no message id and
+  // no timestamp), so CRWN derives one. See lib/manychat/idempotency.ts for why using the
+  // Contact Id here would have frozen every conversation on question one.
+  const idempotencyKey = deriveIdempotencyKey(payload);
+  const claim = await claimEvent(idempotencyKey, `manychat.${payload.event_type}`);
 
   if (!claim.fresh) {
     // A replay. Return the ORIGINAL response so ManyChat's flow branches identically, and do

@@ -12,8 +12,23 @@ export type ManyChatEventType = 'session_start' | 'answer' | 'profile_update' | 
 
 export interface ManyChatInboundPayload {
   event_type: ManyChatEventType;
-  /** ManyChat's unique id for this delivery. The idempotency key. Required. */
-  event_id: string;
+  /**
+   * OPTIONAL, and it has to be.
+   *
+   * The original design demanded ManyChat supply a unique-per-delivery id to use as the
+   * idempotency key. IT CANNOT. ManyChat's External Request field picker offers exactly:
+   * First/Last/Full Name, Email, Phone, Last Text Input, Subscribed, Contact Id, Last Reply
+   * Type, Full Contact Data. No message id. No timestamp. Nothing unique per request.
+   *
+   * Using Contact Id as the key would have been catastrophic: every event from one artist
+   * would carry the SAME key, so message #2 would look like a replay of message #1, CRWN
+   * would return the cached response, and the conversation would freeze on question one.
+   * Silently. Forever.
+   *
+   * So CRWN derives the key itself instead (see deriveIdempotencyKey). It already has
+   * everything it needs.
+   */
+  event_id?: string | null;
 
   manychat_contact_id: string;
   instagram_user_id?: string | null;
@@ -92,11 +107,8 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
     return { ok: false, error: 'Unknown event_type', code: 'bad_event_type' };
   }
 
-  // The idempotency key. Without it we cannot make replay safe, so it is mandatory.
+  // Optional. When ManyChat cannot supply one (it cannot), CRWN derives its own.
   const eventId = str(b.event_id, 128);
-  if (!eventId) {
-    return { ok: false, error: 'event_id is required', code: 'missing_event_id' };
-  }
 
   const contactId = str(b.manychat_contact_id, 128);
   if (!contactId) {

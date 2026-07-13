@@ -439,7 +439,7 @@ async function storeRawAnswer(
       raw_value: payload.answer, // EXACTLY what they typed. Untouched.
       source: 'instagram_dm',
       extraction_method: 'direct',
-      external_event_id: payload.event_id,
+      external_event_id: payload.event_id ?? null,
       answered_at: new Date().toISOString(),
     })
     .select('id')
@@ -463,7 +463,7 @@ async function storeRawAnswer(
     role: 'lead',
     content: payload.answer,
     message_type: 'text',
-    external_message_id: payload.event_id,
+    external_message_id: payload.event_id ?? null,
     provider: 'manychat',
   });
 }

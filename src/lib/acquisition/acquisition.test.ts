@@ -22,6 +22,7 @@ import { TRUST_RANK } from './types';
 import { scoreLead, EMPTY_BEHAVIOR } from './leadScoring';
 import { getTool, missingRequiredFields, ACQUISITION_TOOL_IDS } from './toolAdapters';
 import { validateInbound, normalizeUsername, normalizeEmailLoose } from '../manychat/schemas';
+import { deriveIdempotencyKey } from '../manychat/idempotency';
 import { verifyManyChatRequest } from '../manychat/verifyWebhook';
 import { hashToken, mintToken, isExpired } from '../leadResults/resultToken';
 import { DESTINATION_IDS, resolveDestination } from '../quests/destinationRegistry';
@@ -275,10 +276,13 @@ describe('ManyChat payload validation', () => {
     expect(validateInbound(good).ok).toBe(true);
   });
 
-  it('requires an event_id, because without one replay protection is impossible', () => {
+  it('accepts a payload with NO event_id, because ManyChat cannot supply one', () => {
+    // ManyChat's External Request field picker offers: First/Last/Full Name, Email, Phone,
+    // Last Text Input, Subscribed, Contact Id, Last Reply Type, Full Contact Data.
+    // No message id. No timestamp. Nothing unique per request. Requiring one was a design
+    // bug that made the integration literally impossible to configure.
     const r = validateInbound({ ...good, event_id: undefined });
-    expect(r.ok).toBe(false);
-    expect((r as { code: string }).code).toBe('missing_event_id');
+    expect(r.ok).toBe(true);
   });
 
   it('rejects an answer with no question_key rather than writing an orphan row', () => {
@@ -303,6 +307,66 @@ describe('ManyChat payload validation', () => {
   it('rejects a malformed email rather than storing it', () => {
     expect(normalizeEmailLoose('not-an-email')).toBeNull();
     expect(normalizeEmailLoose('  A@B.co ')).toBe('a@b.co');
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe('derived idempotency key (ManyChat gives us nothing unique)', () => {
+  const base = {
+    event_type: 'answer' as const,
+    manychat_contact_id: 'c_1',
+    question_key: 'monthly_listeners',
+    answer: '40k',
+    consent_dm: true,
+    consent_email: false,
+    consent_sms: false,
+    custom_fields: {},
+  };
+
+  it('gives a RETRY of the same event the SAME key (so it dedupes)', () => {
+    const t = 1_770_000_000_000;
+    // A ManyChat retry lands within seconds. Same key, so CRWN replays its cached response
+    // and does zero work.
+    expect(deriveIdempotencyKey(base, t)).toBe(deriveIdempotencyKey(base, t + 3_000));
+  });
+
+  it('gives a DIFFERENT answer a DIFFERENT key (so it processes)', () => {
+    const t = 1_770_000_000_000;
+    const a = deriveIdempotencyKey({ ...base, answer: '40k' }, t);
+    const b = deriveIdempotencyKey({ ...base, answer: '62k' }, t);
+    expect(a).not.toBe(b);
+  });
+
+  it('gives a different QUESTION a different key', () => {
+    const t = 1_770_000_000_000;
+    const a = deriveIdempotencyKey({ ...base, question_key: 'monthly_listeners' }, t);
+    const b = deriveIdempotencyKey({ ...base, question_key: 'social_followers' }, t);
+    expect(a).not.toBe(b);
+  });
+
+  it('lets the artist RE-SEND the same text later and still be heard', () => {
+    // This is the loop guard's lifeline. She types "honestly not many", it fails to parse,
+    // we re-ask, and she types the SAME thing again. If that were deduped as a replay, the
+    // attempt counter would never increment and she would never be escalated to a human.
+    const t = 1_770_000_000_000;
+    const first = deriveIdempotencyKey(base, t);
+    const later = deriveIdempotencyKey(base, t + 90_000); // 90s later, new bucket
+    expect(first).not.toBe(later);
+  });
+
+  it('NEVER keys on contact id alone (that would freeze every conversation)', () => {
+    // The tempting shortcut. Every event from one artist would share a key, so her second
+    // message would look like a replay of her first and the bot would repeat question one
+    // forever. Silently. This test exists to make sure nobody ever "simplifies" it back.
+    const t = 1_770_000_000_000;
+    const q1 = deriveIdempotencyKey({ ...base, question_key: 'monthly_listeners', answer: '40k' }, t);
+    const q2 = deriveIdempotencyKey({ ...base, question_key: 'primary_blocker', answer: 'nobody buys' }, t);
+    expect(q1).not.toBe(q2);
+    expect(q1).not.toContain('c_1'); // and no PII in the key, it is hashed
+  });
+
+  it('prefers a real ManyChat id if it ever gains one', () => {
+    expect(deriveIdempotencyKey({ ...base, event_id: 'mc_real_id' })).toBe('mc_real_id');
   });
 });
 
