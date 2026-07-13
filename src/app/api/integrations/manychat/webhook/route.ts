@@ -58,19 +58,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(buildError('unauthorized', false, 'Not authorized.'), { status: 401 });
   }
 
-  // ---- 2. Kill switch. The engine ships DARK. ----
-  // Until Josh flips admin_settings.acquisition_engine, a misconfigured ManyChat flow cannot
-  // write a single junk row. Retryable, so ManyChat backs off rather than dropping the lead.
-  if (!(await isAcquisitionEngineEnabled())) {
-    return NextResponse.json(buildError('engine_disabled', true, 'One moment.'), { status: 503 });
-  }
-
-  // ---- 3. Validate. ----
+  // ---- 2. Validate. BEFORE the kill switch, deliberately. ----
+  //
+  // Being dark is a TESTING ASSET, not just a safety net. If the kill switch short-circuited
+  // first, a dark engine would return 503 to a correct payload AND to a malformed one, so a
+  // smoke test would prove the URL and the secret but say nothing about the body. You would
+  // discover a broken payload only after going live, which is precisely when you cannot
+  // afford to.
+  //
+  // Validating first means a dark engine still answers the question "is my body right?":
+  //    400 -> your payload is wrong, and error_code names the field
+  //    503 -> your payload is RIGHT, and only the flag is left
+  //
+  // This leaks nothing: the caller has already passed authentication to get here.
   const validation = validateInbound(body);
   if (!validation.ok) {
     return NextResponse.json(buildError(validation.code, false), { status: 400 });
   }
   const payload = validation.value;
+
+  // ---- 3. Kill switch. The engine ships DARK. ----
+  // Nothing below this line runs until admin_settings.acquisition_engine is flipped, so a
+  // misconfigured ManyChat flow cannot write a single junk row. Retryable, so ManyChat backs
+  // off rather than dropping the lead.
+  if (!(await isAcquisitionEngineEnabled())) {
+    return NextResponse.json(buildError('engine_disabled', true, 'One moment.'), { status: 503 });
+  }
 
   // ---- 4. Rate limit, keyed to the CONTACT, not the IP. ----
   // ManyChat calls from its own servers, so every request shares a handful of IPs. An
