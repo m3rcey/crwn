@@ -8,13 +8,19 @@ const ALERT_EMAIL = 'joshn.wms@gmail.com';
 /**
  * The origin a STRANGER uses, which is the only one worth asserting against.
  *
- * Never `req.nextUrl.origin`: inside a Vercel cron that resolves to the protected
- * deployment url (*.vercel.app), whose Vercel Authentication wall answers EVERY
- * path with an http 200 html page. Probing it told this canary that the stream
- * route had served a paid track (200 != 403), and the same html then broke the
- * next check's JSON.parse. Both alarms were the auth wall, not the route.
+ * Hardcoded, and deliberately not an env var. This canary's whole job is to prove
+ * what the LIVE PUBLIC surface serves, so the one thing it must never be is
+ * configurable into pointing somewhere else: Vercel env vars cannot be read back
+ * to check (`vercel env pull` returns empty strings for sensitive ones), so a
+ * wrong value here would be an alarm quietly guarding the wrong door.
+ *
+ * Never `req.nextUrl.origin`, which is what this used to be: inside a Vercel cron
+ * that resolves to the protected deployment url (*.vercel.app), whose Vercel
+ * Authentication wall answers EVERY path with an http 200 html page. Probing it
+ * told this canary the stream route had served a paid track (200 != 403), and the
+ * same html then broke the next check's JSON.parse. Both alarms were the wall.
  */
-const PUBLIC_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || 'https://thecrwn.app';
+const PUBLIC_ORIGIN = 'https://thecrwn.app';
 
 export const maxDuration = 30;
 
