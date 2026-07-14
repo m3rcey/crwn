@@ -689,12 +689,37 @@ describe('lead scoring (explainable, deterministic, Claude-bounded)', () => {
 });
 
 // ---------------------------------------------------------------------------
-describe('follow-up copy (CLAUDE.md: loss-framed, and never an em dash)', () => {
+describe('follow-up copy', () => {
   const all = [
     copy.resultNotViewed({ headline: 'About $3,892 a month', resultUrl: 'https://thecrwn.app/x' }),
     copy.resultViewedNotClaimed({ resultUrl: 'https://thecrwn.app/x' }),
     copy.sessionAbandoned(),
+    copy.personalNudge({ amount: '$3,892' }),
+    copy.offerCall({ bookingUrl: 'https://cal.com/x', resultUrl: 'https://thecrwn.app/x' }),
+    copy.callBooked(),
+    copy.callNoShow({ bookingUrl: 'https://cal.com/x' }),
   ];
+
+  it('EVERY DM ends with a question', () => {
+    // Not a style rule. INFRASTRUCTURE.
+    //
+    // Meta's messaging window reopens every time she REPLIES. A DM ending in a link she
+    // ignores lets the 24-hour window close, and once it closes CRWN can never message her
+    // again. A DM ending in a question she answers buys another 24 hours.
+    //
+    // The question is what keeps the channel alive. A follow-up without one is a dead end
+    // dressed as outreach.
+    for (const c of all) {
+      const lastLine = c.dm.trim().split('\n').filter(Boolean).pop() ?? '';
+      expect(lastLine.trim().endsWith('?'), `DM does not end with a question:\n"${lastLine}"`).toBe(true);
+    }
+  });
+
+  it('every EMAIL asks a question too', () => {
+    for (const c of all) {
+      expect(c.html, `email has no question: ${c.subject}`).toMatch(/\?/);
+    }
+  });
 
   it('never uses an em dash or an en dash, anywhere', () => {
     // The rule is absolute: UI, email, DM, subject lines, buttons. All of it.
@@ -708,18 +733,56 @@ describe('follow-up copy (CLAUDE.md: loss-framed, and never an em dash)', () => 
     expect(alert.html).not.toMatch(/[—–]/);
   });
 
-  it('leads with the loss, not the gain', () => {
-    // Gain-framed copy ("here is what you could earn!") is ignorable. Loss-framed copy names
-    // the cost of doing nothing. Every follow-up must talk about what is being lost.
-    const lossWords = /leaving|losing|lose|not earning|goes to a platform|not collecting|none of it reaches you|still have not|does not change/i;
+  it('never uses masculine-coded slang (most CRWN artists are women)', () => {
+    // The funnel this was modelled on opens with "Hey mate!" and "Yo bro". That voice is
+    // wrong for this audience and it will read as written-for-someone-else.
+    const bro = /\b(bro|bruv|mate|my guy|dude|man)\b/i;
     for (const c of all) {
-      expect(c.dm + c.subject + c.html).toMatch(lossWords);
+      expect(c.dm, `masculine slang in DM: ${c.subject}`).not.toMatch(bro);
+      expect(c.html, `masculine slang in email: ${c.subject}`).not.toMatch(bro);
     }
   });
 
-  it('always carries a working link in the DM', () => {
+  it('never claims to be hand-typed when it is automated', () => {
+    // The reference funnel says "Non automated Niall so you can reply haha" while being
+    // automated. That is a lie, and CRWN's entire pitch is that artists finally get dealt
+    // with straight. "You can reply to this, I read them" is TRUE and does the same job.
+    const lie = /non.?automated|not automated|typed this myself|hand.?written/i;
+    for (const c of all) {
+      expect(c.dm, `claims to be non-automated: ${c.subject}`).not.toMatch(lie);
+    }
+    // The personal nudge still invites a reply, honestly.
+    expect(copy.personalNudge({ amount: null }).dm).toMatch(/you can reply/i);
+  });
+
+  it('leads with the loss, not the gain (on messages that are PERSUADING)', () => {
+    // Gain-framed copy ("here is what you could earn!") is ignorable. Loss-framed copy names
+    // the cost of doing nothing.
+    //
+    // But this applies to messages trying to MOVE an inactive lead. A booking confirmation is
+    // not persuasion: she already said yes, and loss-framing someone who just converted is
+    // tone-deaf. Its job is to make the call useful, not to sell one.
+    const persuading = [
+      copy.resultNotViewed({ headline: 'About $3,892 a month', resultUrl: 'https://thecrwn.app/x' }),
+      copy.resultViewedNotClaimed({ resultUrl: 'https://thecrwn.app/x' }),
+      copy.sessionAbandoned(),
+      copy.personalNudge({ amount: '$3,892' }),
+      copy.offerCall({ bookingUrl: 'https://cal.com/x', resultUrl: 'https://thecrwn.app/x' }),
+      copy.callNoShow({ bookingUrl: 'https://cal.com/x' }),
+    ];
+
+    const lossWords = /leaving|losing|lose|not earning|goes to a platform|not collecting|none of it reaches you|still have not|does not change|does not reach you|one answer short|sits there undone|missed you|somewhere else/i;
+    for (const c of persuading) {
+      expect(c.dm + c.subject + c.html, `not loss-framed: ${c.subject}`).toMatch(lossWords);
+    }
+  });
+
+  it('carries a working link where one is needed', () => {
     expect(all[0].dm).toContain('https://');
     expect(all[1].dm).toContain('https://');
+    // offerCall must give BOTH paths and let her choose.
+    expect(all[4].dm).toContain('https://thecrwn.app/x');
+    expect(all[4].dm).toContain('https://cal.com/x');
   });
 });
 

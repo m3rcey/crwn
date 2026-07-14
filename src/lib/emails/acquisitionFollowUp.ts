@@ -1,14 +1,29 @@
 // Follow-up copy for the Instagram acquisition funnel.
 //
-// TWO RULES, both from CLAUDE.md, both non-negotiable:
+// FOUR RULES. Break any of them and the message is worse than not sending it.
 //
-//   1. LEAD WITH THE LOSS. Not "here's what you could earn" (gain-framed, ignorable) but
-//      "this is what you are not earning right now" (loss-framed, uncomfortable, effective).
-//      Name the cost of inaction first, then the fix.
-//   2. NO EM DASHES. Anywhere. Not in a subject, not in a button, not in a preheader.
+// 1. EVERY DM ENDS WITH A QUESTION.
+//    This is not a style note, it is infrastructure. Meta's messaging window reopens EVERY
+//    TIME SHE REPLIES. A message that ends in a link she ignores lets the 24-hour window
+//    close, and once it closes CRWN can never DM her again. A message that ends in a question
+//    she answers buys another 24 hours and turns a broadcast into a conversation.
+//    The question is what keeps the channel alive.
 //
-// The DM copy is deliberately shorter and blunter than the email. Someone reading an
-// Instagram DM is on their phone, mid-scroll, and has already ignored you once.
+// 2. LEAD WITH THE LOSS (CLAUDE.md). Not "here is what you could earn" (gain-framed,
+//    ignorable) but "this is what you are not earning" (loss-framed, uncomfortable, effective).
+//    Name the cost of inaction first, then the fix.
+//
+// 3. NO EM DASHES (CLAUDE.md). Anywhere. Not in a subject, not in a DM, not in a button.
+//
+// 4. HER, NOT HIM. Most CRWN artists are women. So no "bro", no "mate", no "my guy". The
+//    reference funnel this was modelled on opens with "Hey mate!" and "Yo bro" and that voice
+//    is wrong for this audience.
+//
+// ON THE "PERSONAL" DM: it is automated, and it does NOT claim otherwise. The reference funnel
+// says "Non automated Niall so you can reply haha" while being automated, which is a lie.
+// CRWN's whole pitch is that artists finally get dealt with straight, so opening the
+// relationship with a fib about who wrote the message is a bad trade. "You can reply to this,
+// I read them" is TRUE (replies land in the ManyChat inbox) and does exactly the same job.
 
 export interface FollowUpCopy {
   dm: string;
@@ -19,18 +34,23 @@ export interface FollowUpCopy {
 /** They got the link and never opened it. */
 export function resultNotViewed(params: { headline: string; resultUrl: string }): FollowUpCopy {
   const { headline, resultUrl } = params;
+  const amount = headline.replace(/^About /i, '').replace(/ a month.*$/i, '');
 
   return {
-    // Loss-framed: the number is already calculated and sitting there unread. The loss is
-    // that they still do not know it.
-    dm: `You never opened your numbers. They are still sitting here. ${headline.replace(/^About /, '')} is what you are leaving on the table every month you do not run this. Takes 20 seconds to look: ${resultUrl}`,
+    // Loss first. Then the link. Then a question, so a reply reopens the window.
+    dm: `Your numbers are still sitting here unopened. ${amount} a month is what you are leaving on the table every month you do not set this up, and it goes to a platform instead of you.
+
+${resultUrl}
+
+What is stopping you from taking a look?`,
 
     subject: 'You still have not looked at your numbers',
     html: shell({
       heading: 'You still have not looked at your numbers',
       body: `
         <p style="${P}">We ran them. You did not open them.</p>
-        <p style="${P}">Every month you do not set this up is a month that money goes to a platform instead of to you. It is not a hypothetical. The number is already calculated and it is sitting in your account right now.</p>
+        <p style="${P}">Every month you do not set this up is a month that money goes to a platform instead of to you. It is not hypothetical. The number is already calculated and it is sitting in your account right now.</p>
+        <p style="${P}"><strong style="color:#FFF;">What is stopping you from taking a look?</strong> Reply to this email, I read them.</p>
       `,
       cta: 'See what you are losing',
       ctaUrl: resultUrl,
@@ -43,7 +63,11 @@ export function resultViewedNotClaimed(params: { resultUrl: string }): FollowUpC
   const { resultUrl } = params;
 
   return {
-    dm: `You saw the number. Nothing changes until you build the thing that collects it. Your fans are paying someone every month right now, just not you. Want me to set it up with you? ${resultUrl}`,
+    dm: `You saw the number. Nothing changes until you build the thing that collects it. Your fans are already spending money every month, it just does not reach you.
+
+${resultUrl}
+
+What is actually in the way of setting it up?`,
 
     subject: 'Knowing the number does not change the number',
     html: shell({
@@ -51,7 +75,7 @@ export function resultViewedNotClaimed(params: { resultUrl: string }): FollowUpC
       body: `
         <p style="${P}">You looked. Good. But a number on a page has never paid anyone.</p>
         <p style="${P}">Your fans are already spending money every month. Right now none of it reaches you, and that stays true for exactly as long as you have nowhere for them to send it.</p>
-        <p style="${P}">Save your result and we will build the thing that collects it.</p>
+        <p style="${P}"><strong style="color:#FFF;">What is actually in the way of setting it up?</strong> Reply and tell me, I read every one.</p>
       `,
       cta: 'Set it up',
       ctaUrl: resultUrl,
@@ -59,10 +83,88 @@ export function resultViewedNotClaimed(params: { resultUrl: string }): FollowUpC
   };
 }
 
-/** They walked away mid-conversation, before we had enough to run anything. */
+/**
+ * The personal one. Day 4.
+ *
+ * Automated, and honest about being repliable. This is the highest-leverage message in the
+ * sequence because it breaks the automation spell: first person, a real name, an admission
+ * that the artist is being talked to rather than marketed at, and a question she can actually
+ * answer. Pair it with a photo in ManyChat (see the setup guide) and it stops reading like a
+ * funnel.
+ *
+ * Note what it does NOT do: claim to be hand-typed. It says "you can reply to this, I read
+ * them", which is true, and gets the same result without lying to an artist on day four of
+ * knowing her.
+ */
+export function personalNudge(params: { amount: string | null }): FollowUpCopy {
+  const { amount } = params;
+  const money = amount ? `${amount} a month` : 'that number';
+
+  return {
+    dm: `Hey, Josh here. I built CRWN. You can reply to this by the way, I read them.
+
+I saw your numbers come through. ${money} is real money, and right now none of it reaches you. Not because your fans will not pay, but because there is nowhere for them to send it.
+
+I have watched artists with a tenth of your reach out-earn people on major deals, purely because they owned the relationship.
+
+What is the actual thing keeping you from setting this up?`,
+
+    subject: 'Josh from CRWN, quick question',
+    html: shell({
+      heading: 'Quick question',
+      body: `
+        <p style="${P}">Josh here. I built CRWN. You can reply to this, I read them.</p>
+        <p style="${P}">I saw your numbers come through. ${money} is real money, and right now none of it reaches you. Not because your fans will not pay, but because there is nowhere for them to send it.</p>
+        <p style="${P}">I have watched artists with a tenth of your reach out-earn people on major deals, purely because they owned the relationship.</p>
+        <p style="${P}"><strong style="color:#FFF;">What is the actual thing keeping you from setting this up?</strong></p>
+      `,
+      cta: 'Show me my numbers again',
+      ctaUrl: 'https://thecrwn.app/worth',
+    }),
+  };
+}
+
+/**
+ * Day 7. The call offer.
+ *
+ * Offers BOTH paths and lets her choose, because at this volume nobody knows which one works
+ * and the choice she makes IS the data. 57% of artists who finish CRWN's setup never connect
+ * Stripe, which means they can never be paid: that is the single step a 15-minute call fixes
+ * and self-serve does not.
+ */
+export function offerCall(params: { bookingUrl: string; resultUrl: string }): FollowUpCopy {
+  const { bookingUrl, resultUrl } = params;
+
+  return {
+    dm: `Most artists who see their number do nothing with it, and it is almost never because they do not want the money. It is because setting up payments is the boring part and it sits there undone.
+
+So, two ways to do this:
+
+1. Start free yourself: ${resultUrl}
+2. Book 15 minutes and I will set the whole thing up with you, live: ${bookingUrl}
+
+Which one sounds more like you?`,
+
+    subject: 'Want me to just set it up with you?',
+    html: shell({
+      heading: 'Want me to just set it up with you?',
+      body: `
+        <p style="${P}">Most artists who see their number do nothing with it, and it is almost never because they do not want the money. It is because setting up payments is the boring part, so it sits there undone while the money keeps going somewhere else.</p>
+        <p style="${P}">Two ways to do this. Start free on your own, or book 15 minutes and I will build it with you live: your tiers, your pricing, your payouts.</p>
+        <p style="${P}"><strong style="color:#FFF;">Which one sounds more like you?</strong></p>
+      `,
+      cta: 'Book 15 minutes',
+      ctaUrl: bookingUrl,
+    }),
+  };
+}
+
+/** She walked away mid-conversation, before we had enough to run anything. */
 export function sessionAbandoned(): FollowUpCopy {
   return {
-    dm: `You never finished, so I never got to show you the number. One answer and I can. What is your rough monthly listener count?`,
+    dm: `You stopped one answer short, so I never got to show you the number. It does not go away because you did not look at it, it just keeps being money you are not collecting.
+
+Roughly how many monthly listeners do you have?`,
 
     subject: 'You stopped one answer short',
     html: shell({
@@ -70,9 +172,59 @@ export function sessionAbandoned(): FollowUpCopy {
       body: `
         <p style="${P}">We were one question away from showing you what your fanbase is actually worth, and then you went quiet.</p>
         <p style="${P}">That number does not go away because you did not look at it. It just keeps being money you are not collecting.</p>
+        <p style="${P}"><strong style="color:#FFF;">Roughly how many monthly listeners do you have?</strong></p>
       `,
       cta: 'Finish it',
       ctaUrl: 'https://thecrwn.app/worth',
+    }),
+  };
+}
+
+/** She booked a call. Confirm, and make sure she brings the one thing that matters. */
+export function callBooked(): FollowUpCopy {
+  return {
+    dm: `Locked in. Talk soon.
+
+One thing that will make the call actually useful: have your Spotify for Artists open, so we can look at your real numbers instead of estimates. We will set up your tiers and your payouts live, and you will leave able to take money.
+
+Anything specific you want me to cover?`,
+
+    subject: 'You are booked in',
+    html: shell({
+      heading: 'You are booked in',
+      body: `
+        <p style="${P}">Talk soon.</p>
+        <p style="${P}">One thing that will make the call actually useful: have your Spotify for Artists open so we can look at your real numbers instead of estimates. We will set up your tiers and your payouts live, and you will leave able to take money.</p>
+        <p style="${P}"><strong style="color:#FFF;">Anything specific you want me to cover?</strong></p>
+      `,
+      cta: 'See your numbers again',
+      ctaUrl: 'https://thecrwn.app/worth',
+    }),
+  };
+}
+
+/** She booked and did not turn up. One offer, no guilt. */
+export function callNoShow(params: { bookingUrl: string }): FollowUpCopy {
+  const { bookingUrl } = params;
+  return {
+    dm: `Missed you. No stress, it happens.
+
+The offer stands: 15 minutes and you leave with tiers, pricing and payouts done, able to take money from your fans that same day.
+
+${bookingUrl}
+
+Want to grab another slot, or would you rather I just left you to it?`,
+
+    subject: 'Missed you',
+    html: shell({
+      heading: 'Missed you',
+      body: `
+        <p style="${P}">No stress, it happens.</p>
+        <p style="${P}">The offer stands: 15 minutes and you leave with tiers, pricing and payouts done, able to take money from your fans that same day.</p>
+        <p style="${P}"><strong style="color:#FFF;">Want to grab another slot, or would you rather I left you to it?</strong></p>
+      `,
+      cta: 'Pick a new time',
+      ctaUrl: bookingUrl,
     }),
   };
 }
@@ -106,8 +258,6 @@ export function highIntentAlert(params: {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Shell. Matches the existing CRWN email templates (dark card, gold accent).
 // ---------------------------------------------------------------------------
 
 const P = 'color: #B0B0B0; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;';

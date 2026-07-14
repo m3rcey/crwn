@@ -30,6 +30,9 @@ import type { LeadIdentity } from './types';
 const BATCH_SIZE = 50;
 const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
 
+/** Where she books the 15 minutes. Same link /worth already uses for cold outreach. */
+const BOOKING_URL = process.env.CRWN_BOOKING_URL || 'https://cal.com/jnwcreative';
+
 /** Outcomes that are FINAL. Never retried, because nothing about them will change on a timer. */
 const TERMINAL_REASONS = new Set([
   'opted_out',
@@ -198,6 +201,17 @@ type HandleOutcome =
 async function handle(row: OutboxRow): Promise<HandleOutcome> {
   const identity = row.lead_identity_id ? await loadIdentity(row.lead_identity_id) : null;
 
+  // ---- THE CANCELLATION RULE. Check this before EVERY outbound message. ----
+  //
+  // She booked a call. She must not then receive "you never opened your numbers" while she is
+  // sitting in a Zoom with Josh. One automated message landing after a conversion undoes the
+  // entire impression the conversation just built.
+  //
+  // A converted lead exits the nurture funnel completely. Not "gets fewer messages": exits.
+  if (identity && (await hasConverted(identity.id)) && isNurtureEvent(row.event_name)) {
+    return { done: true, sent: false };
+  }
+
   switch (row.event_name) {
     case 'result_not_viewed_check':
       return handleResultNotViewed(row, identity);
@@ -205,6 +219,14 @@ async function handle(row: OutboxRow): Promise<HandleOutcome> {
       return handleViewedNotClaimed(row, identity);
     case 'session_abandoned_nudge':
       return handleAbandoned(row, identity);
+    case 'personal_nudge':
+      return handlePersonalNudge(row, identity);
+    case 'offer_call':
+      return handleOfferCall(row, identity);
+    case 'call_booked':
+      return handleCallBooked(row, identity);
+    case 'call_no_show':
+      return handleCallNoShow(row, identity);
     case 'high_intent_alert':
       return handleHighIntentAlert(row);
     default:
@@ -212,6 +234,44 @@ async function handle(row: OutboxRow): Promise<HandleOutcome> {
       // and move on, so a stray row cannot wedge the queue forever.
       return { done: true, sent: false };
   }
+}
+
+/** Nurture messages stop the moment she converts. Confirmations and reminders do not. */
+function isNurtureEvent(name: string): boolean {
+  return [
+    'result_not_viewed_check',
+    'result_viewed_not_claimed',
+    'session_abandoned_nudge',
+    'personal_nudge',
+    'offer_call',
+  ].includes(name);
+}
+
+/**
+ * Has she converted? Booked a call, or claimed an account.
+ *
+ * Either one means a human is now involved (or she is inside the product), and an automated
+ * "why haven't you looked at your numbers" message would be actively damaging.
+ */
+async function hasConverted(identityId: string): Promise<boolean> {
+  const { data: identity } = await supabaseAdmin
+    .from('lead_identities')
+    .select('claimed_at, user_id, status')
+    .eq('id', identityId)
+    .maybeSingle();
+
+  if (identity?.claimed_at || identity?.user_id) return true;
+  if (identity?.status === 'opted_out' || identity?.status === 'disqualified') return true;
+
+  const { data: booked } = await supabaseAdmin
+    .from('acquisition_events')
+    .select('id')
+    .eq('lead_identity_id', identityId)
+    .eq('event_name', 'sales_call_booked')
+    .limit(1)
+    .maybeSingle();
+
+  return !!booked;
 }
 
 async function handleResultNotViewed(row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
@@ -267,7 +327,14 @@ async function handleViewedNotClaimed(row: OutboxRow, identity: LeadIdentity | n
   if (!url) return { done: true, sent: false };
 
   const c = copy.resultViewedNotClaimed({ resultUrl: url });
-  return dispatchToBestChannel(identity, c, `viewed_unclaimed:${row.result_id}`);
+  const outcome = await dispatchToBestChannel(identity, c, `viewed_unclaimed:${row.result_id}`);
+
+  // Chain: the personal one lands 2 days after this. If she converts or opts out first, the
+  // cancellation rule at the top of handle() kills it before it sends.
+  if (outcome.done) {
+    await queueNext('personal_nudge', identity.id, row.session_id, 2);
+  }
+  return outcome;
 }
 
 async function handleAbandoned(row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
@@ -284,6 +351,105 @@ async function handleAbandoned(row: OutboxRow, identity: LeadIdentity | null): P
 
   const c = copy.sessionAbandoned();
   return dispatchToBestChannel(identity, c, `abandoned:${row.session_id}`);
+}
+
+/**
+ * Day 4. The personal one.
+ *
+ * Automated, and honest about it. This is the highest-leverage message in the sequence: it
+ * breaks the automation spell with a first name, a real question, and an invitation to reply.
+ * A reply also REOPENS Meta's 24-hour window, which is what keeps the channel alive for the
+ * call offer three days later.
+ */
+async function handlePersonalNudge(row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+  if (!identity) return { done: true, sent: false };
+
+  const { data: profile } = await supabaseAdmin
+    .from('lead_profiles')
+    .select('lead_identity_id')
+    .eq('lead_identity_id', identity.id)
+    .maybeSingle();
+  if (!profile) return { done: true, sent: false };
+
+  // Her actual number, so the message is about HER and not about CRWN.
+  const { data: result } = await supabaseAdmin
+    .from('lead_magnet_results')
+    .select('title')
+    .eq('lead_identity_id', identity.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const amount = extractAmount(String(result?.title ?? ''));
+
+  const c = copy.personalNudge({ amount });
+  const outcome = await dispatchToBestChannel(identity, c, `personal:${identity.id}`);
+
+  // Queue the call offer for 3 days later. If she replies or converts in the meantime, the
+  // cancellation rule at the top of handle() kills it.
+  if (outcome.done) {
+    await queueNext('offer_call', identity.id, row.session_id, 3);
+  }
+  return outcome;
+}
+
+/** Day 7. Offer BOTH paths and let her choose. The choice she makes is the data. */
+async function handleOfferCall(row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+  if (!identity) return { done: true, sent: false };
+
+  const { data: result } = await supabaseAdmin
+    .from('lead_magnet_results')
+    .select('tool_slug')
+    .eq('lead_identity_id', identity.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const resultUrl = result ? await rotateLink(row.result_id ?? '', String(result.tool_slug)) : null;
+
+  const c = copy.offerCall({
+    bookingUrl: BOOKING_URL,
+    resultUrl: resultUrl ?? 'https://thecrwn.app/worth',
+  });
+
+  return dispatchToBestChannel(identity, c, `offer_call:${identity.id}`);
+}
+
+/** She booked. Confirm, and tell her the one thing to bring. */
+async function handleCallBooked(_row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+  if (!identity) return { done: true, sent: false };
+  const c = copy.callBooked();
+  return dispatchToBestChannel(identity, c, `call_booked:${identity.id}`);
+}
+
+/** She booked and did not turn up. One offer, no guilt. */
+async function handleCallNoShow(_row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+  if (!identity) return { done: true, sent: false };
+  const c = copy.callNoShow({ bookingUrl: BOOKING_URL });
+  return dispatchToBestChannel(identity, c, `no_show:${identity.id}`);
+}
+
+/** Queue the next step of the sequence. Deduped, so a retry cannot double-queue it. */
+async function queueNext(
+  eventName: string,
+  identityId: string,
+  sessionId: string | null,
+  delayDays: number,
+): Promise<void> {
+  await supabaseAdmin.from('acquisition_events').insert({
+    event_name: eventName,
+    lead_identity_id: identityId,
+    session_id: sessionId,
+    idempotency_key: `${eventName}:${identityId}`,
+    status: 'pending',
+    next_attempt_at: new Date(Date.now() + delayDays * 24 * 3_600_000).toISOString(),
+  });
+}
+
+/** "About $3,892 a month is sitting on the table" -> "$3,892" */
+function extractAmount(title: string): string | null {
+  const m = title.match(/\$[\d,]+/);
+  return m ? m[0] : null;
 }
 
 /** Not to the artist. To Josh. */
