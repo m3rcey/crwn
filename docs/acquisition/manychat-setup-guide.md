@@ -1,235 +1,342 @@
 # ManyChat Setup Guide
 
-> Exact enough to configure ManyChat without recreating any CRWN logic. Follow it in order.
-> If a step feels like it is asking you to put business logic in ManyChat, you have misread
-> it: ManyChat only carries messages. CRWN does all the thinking.
+> **This guide was rewritten from a WORKING integration on 2026-07-14.** The previous version
+> was written from assumption, not from doing it, and it was wrong in five separate places.
+> Every step below has been executed against the live ManyChat UI and a live CRWN webhook.
+>
+> If a step here contradicts your instinct, trust the step. Most of these were discovered the
+> expensive way.
 
 ---
 
-## 0. Before you touch ManyChat
+## 0. Read this first: the traps
 
-Three things must be true first.
+Six things will waste hours if you do not know them. They are not obvious, they are not in
+ManyChat's docs, and none of them fail loudly.
 
-### 0.1 Run the migration
+### Trap 1 — ManyChat **Pro** is mandatory ($39/mo)
 
-In the Supabase SQL editor, run:
+Not Essential ($17). **Both** features CRWN needs are Pro-and-above:
 
-```
-supabase/schema-phase2-instagram-acquisition-engine.sql
-```
-
-It ends with a `DO $$ … RAISE EXCEPTION … $$` block, so a partial apply fails **loudly**
-rather than half-landing. If it prints `OK: acquisition engine tables + RLS + indexes
-created. Flag is OFF (dark).` you are good.
-
-### 0.2 Set the environment variables in Vercel
-
-| Variable | Required | What it is |
+| Feature | What it does | Plan |
 |---|---|---|
-| `MANYCHAT_WEBHOOK_SECRET` | **YES** | `openssl rand -hex 32`. Without it the webhook rejects **every** request (fail-closed). |
-| `ANTHROPIC_API_KEY` | No | Without it the engine still works, using deterministic question ordering instead of natural conversation. Add it when you want the DM to feel human. |
-| `ANTHROPIC_MODEL` | No | Defaults to `claude-opus-4-8`. |
-| `ANTHROPIC_DECISION_TIMEOUT_MS` | No | Defaults to 8000. |
-| `MANYCHAT_WEBHOOK_TOLERANCE_SECONDS` | No | Defaults to 600. |
-| `LEAD_RESULT_TOKEN_TTL_SECONDS` | No | Defaults to 30 days. |
-| `NEXT_PUBLIC_APP_URL` | Should | Defaults to `https://thecrwn.app`. |
+| **External Request** | ManyChat calls CRWN. Without it, the engine never receives a single event. | **Pro** |
+| **API key** | CRWN DMs the lead back. Without it, follow-up reaches nobody. | **Pro** |
 
-Redeploy after adding them.
+Essential advertises "unlimited custom automations". That means unlimited *flows*, not
+outbound HTTP. It **cannot reach CRWN at all.**
 
-### 0.3 Leave the engine OFF for now
+### Trap 2 — "Start From Scratch" is a dead end
 
-The migration inserts `admin_settings.acquisition_engine = {"enabled": false}`. While it is
-false the webhook returns **503 retry-later** and writes nothing. That is deliberate: you can
-wire up and test the ManyChat flow without it creating junk leads. You flip it on in step 6.
+It gives you the **Basic Builder** (a.k.a. Quick Automation): a fixed, link-only template with
+an opening DM, two toggles, and "a DM with a link". **There is no way to add an action, and no
+way to switch builders from inside it.** The ⋮ menu offers only "Delete".
 
----
+**External Request lives ONLY in the Flow Builder**, and the only way in is to pick a template
+that is **labelled `Flow Builder`** on its card. See step 3.
 
-## 1. Custom fields to create in ManyChat
+### Trap 3 — the `Contact Id` pill does not resolve
 
-Settings → Custom Fields. Create exactly these nine. **No more.**
+ManyChat's **Contact Id SYSTEM field**, inserted into an External Request body, sends the
+**literal string `"Contact Id"`**. It does not substitute. System-field pills are not clickable
+and have no options.
 
-| Field name | Type | Written by |
-|---|---|---|
-| `crwn_session_id` | Text | CRWN response |
-| `crwn_lead_magnet` | Text | CRWN response |
-| `crwn_question_key` | Text | CRWN response |
-| `crwn_last_answer` | Text | ManyChat (the user's reply) |
-| `crwn_action` | Text | CRWN response |
-| `crwn_message` | Text | CRWN response |
-| `crwn_result_url` | Text | CRWN response |
-| `crwn_status` | Text | CRWN response |
-| `crwn_error_code` | Text | CRWN response |
+**Use `+ Add Full Contact Data` instead.** It works, and it carries everything.
 
-### What must NEVER go in a ManyChat custom field
+### Trap 4 — pills cannot be typed
 
-ManyChat is a third-party system and its fields are visible in its UI. Do not create fields
-for, or map CRWN responses into:
+A pill is an **object inserted by the picker at your cursor**. Typing `{{contact_id}}`,
+`<Contact Id>`, or `[Contact Id]` produces a plain string that ManyChat never substitutes.
 
-- the artist's email or phone
-- monthly listeners, revenue, or any profile value
-- lead score, segment, blocker, or any AI classification
-- any CRWN database id (identity id, result id, user id)
-- the raw result token (it only ever travels inside `crwn_result_url`)
+CRWN now **rejects** unresolved placeholders with a 400 rather than accepting them, because
+accepting one would have merged every lead in the funnel into a single identity. Silently.
 
-The CRWN response payload deliberately contains none of these. If you find yourself wanting
-one, the answer is to read it in the CRWN admin, not to copy it into ManyChat.
+### Trap 5 — an EMPTY custom field renders as `{{cuf_NNNN}}`
+
+Not as an empty string. As its raw internal token. So a field that failed to populate arrives
+at CRWN looking like a perfectly good non-empty value. CRWN rejects these too.
+
+### Trap 6 — comments do not create contacts. DMs do.
+
+Meta only forwards **direct messages** to ManyChat. A comment reaches ManyChat only via a
+**live** comment-trigger automation. So you cannot create a test contact by commenting.
+
+**DM the connected account from a different Instagram account.** The contact appears instantly,
+with no automation live.
 
 ---
 
-## 2. The Instagram comment trigger
+## 1. Prerequisites
 
-Instagram → Growth Tools → **Comment Reply**.
+- [ ] **ManyChat Pro** (see Trap 1)
+- [ ] **Instagram Professional account** (Business or Creator) **linked to a Facebook Page you
+      admin**. If Instagram does not appear as a connectable channel, this is why.
+- [ ] Instagram app → **Settings → Messages and story replies → Message controls →
+      "Allow access to messages" = ON.** Without it ManyChat is connected but deaf.
+- [ ] **ManyChat → Settings → Channels → Instagram → Connect**
 
-1. **Trigger post:** pick the Reel or post.
-2. **Keyword:** e.g. `WORTH`. (Whatever you choose, put the same word in the `keyword` field
-   of the payload in step 4, so attribution is recorded.)
-3. **Private reply message:** short, and it must earn the click.
-   > "Sent it. Tap below and I will show you what your fanbase is actually worth."
-4. **Button:** "Show me" → starts the DM flow below.
+## 2. CRWN side (do this first)
 
-Meta requires the user to interact before you may DM them. The private reply plus their tap
-IS that interaction. Do not try to route around it.
+1. **Run the migration** in the Supabase SQL editor:
+   `supabase/schema-phase2-instagram-acquisition-engine.sql`
+2. **Vercel env vars**, then **redeploy** (env vars do nothing until you do):
+
+   | Var | Required | Where from |
+   |---|---|---|
+   | `MANYCHAT_WEBHOOK_SECRET` | **YES** | `openssl rand -hex 32`. **Save it** — you need it in ManyChat too, and if you mark it Sensitive, Vercel will never show it to you again. |
+   | `MANYCHAT_API_TOKEN` | **YES** for follow-up | ManyChat → Settings → API → **Generate Your API Key** |
+   | `ANTHROPIC_API_KEY` | Strongly recommended | console.anthropic.com |
+
+3. **Verify:** `/admin` → **Acquisition**. The config strip must be **all green** with a
+   **DARK** badge. It reports presence only, never values.
+
+**Leave the engine DARK.** Being dark is a *testing asset*: a correct request returns
+`503 engine_disabled`, which proves your URL, secret, and body are right **without writing a
+single row.** A wrong body returns `400` with an `error_code` that names the field.
+
+## 3. Create the automation — in the FLOW BUILDER
+
+1. **Automation → + New Automation**
+2. **DO NOT click "Start From Scratch"** (Trap 2)
+3. In the template dialog, filter **By trigger → Post or Reel comment**
+4. Pick a template whose card says **`Flow Builder`** at the bottom (not `⚡ Quick Automation`).
+   **"Sell from Reel comments"** works.
+5. You should land on a **visual canvas** with draggable nodes. If you see a
+   "When someone… / They will get…" form instead, you are in the Basic Builder. Go back.
+
+**Delete every node the template ships with.** Keep only the trigger.
+
+## 4. Configure the trigger
+
+- **When someone comments on:** `any post or reel` (works on every Reel, not just one)
+- **And this comment has:** `worth, WORTH`
+- **Reply to their comments under the post:** ON. e.g. "Check your DM!"
+
+## 5. Custom fields
+
+**Settings → Custom Fields → + New Custom Field.** All type **Text**. Exactly five:
+
+| Field | Holds |
+|---|---|
+| `crwn_action` | What ManyChat should do next |
+| `crwn_message` | The message to send her |
+| `crwn_question_key` | Which question she is answering |
+| `crwn_result_url` | Her personalized result link |
+| `crwn_session_id` | CRWN's session reference (debugging) |
+
+**Do not create a field for her answer.** ManyChat's Full Contact Data already carries
+`last_input_text` = the last thing she typed, and CRWN reads it from there. Every pill you do
+not create is a pill that cannot silently fail to resolve.
+
+**Never put in a ManyChat custom field:** her email, her phone, monthly listeners, revenue,
+lead score, segment, blocker, any CRWN database id, or the raw result token. ManyChat is a
+third party and its fields are visible in its UI. The CRWN response payload deliberately
+contains none of these.
 
 ---
 
-## 3. The opt-in step
+## 6. The flow
 
-First DM step. One question:
+Five nodes. Build them in this order.
 
-> "Cool if I ask you two quick questions to run your numbers?"
-
-Buttons: **Yes** / **Not now**.
-
-- **Not now** ends the flow. Do not nag.
-- **Yes** sets `consent_dm = true` and continues to step 4.
-
-CRWN records consent, its source, and its timestamp. If you skip this step, CRWN will ask for
-consent itself on the first call and refuse to proceed without it.
-
----
-
-## 4. The External Request (this is the whole integration)
-
-Add an **External Request** action.
-
-- **Method:** `POST`
-- **URL:** `https://thecrwn.app/api/integrations/manychat/webhook`
-- **Headers:**
-
-  | Key | Value |
-  |---|---|
-  | `Content-Type` | `application/json` |
-  | `x-webhook-secret` | the value of `MANYCHAT_WEBHOOK_SECRET` |
-
-- **Body:**
-
-```json
-{
-  "event_type": "session_start",
-  "event_id": "{{contact_id}}-{{message_id}}",
-  "manychat_contact_id": "{{contact_id}}",
-  "instagram_user_id": "{{ig_id}}",
-  "instagram_username": "{{ig_username}}",
-  "keyword": "WORTH",
-  "source_post_id": "REPLACE_WITH_POST_ID",
-  "creator_account": "thecrwn",
-  "campaign_key": "ig-worth-jan",
-  "lead_magnet_id": "worth",
-  "consent_dm": true,
-  "opt_in_source": "instagram_comment",
-  "sent_at": "{{current_time_iso}}"
-}
+```
+Trigger (comment: worth/WORTH)
+   ↓
+[1] Send Message  ── As private reply
+      "Want to see how much you're missing out on per month?"
+      [ Send me the link ]  ← button
+   ↓
+[2] Actions → External Request   (event_type: session_start)
+   ↓
+[3] Send Message  ── Within messaging window
+      Data Collection block: asks {{crwn_message}}, WAITS for her reply
+   ↓                                                        ▲
+[4] Actions → External Request   (event_type: answer)       │
+   ↓                                                        │
+[5] Condition:  crwn_action  is  send_result                │
+      NO  ──────────────────────────────────────────────────┘  (re-ask)
+      YES ↓
+    Send Message: {{crwn_message}}
+      [ See My Numbers ] → Open website → {{crwn_result_url}}
+      (no next step — this branch ends)
 ```
 
-**`event_id` must be unique per delivery.** It is the idempotency key. If ManyChat retries,
-CRWN sees the same `event_id`, does zero work, and replays its original answer. If you
-hardcode it, or reuse it, retries will silently return a stale response.
+### Node 1 — the opening DM
 
-### Response mapping
+- **Send:** `As private reply` ← **required.** This is Meta's comment→DM mechanism. Get it
+  wrong and the DM never sends.
+- **Text:** `Want to see how much you're missing out on per month?`
+- **+ Add Button** → label `Send me the link`. Click **Done without picking an action**, then
+  drag its output circle to node 2 on the canvas.
 
-Map the JSON response into your custom fields:
+Her tap is the Meta-required interaction **and** CRWN's consent gate. Everything hangs off it.
 
-| Response field | ManyChat field |
+### Node 2 — External Request (session_start)
+
+`+` → **Actions** → **+ Action** → **External Request**
+
+**Method:** `POST`
+**URL:** `https://thecrwn.app/api/integrations/manychat/webhook`
+
+**Headers tab:**
+
+| Key | Value |
 |---|---|
-| `session_id` | `crwn_session_id` |
-| `action` | `crwn_action` |
-| `message` | `crwn_message` |
-| `question_key` | `crwn_question_key` |
-| `result_url` | `crwn_result_url` |
-| `status` | `crwn_status` |
-| `error_code` | `crwn_error_code` |
-| `lead_magnet_id` | `crwn_lead_magnet` |
+| `Content-Type` | `application/json` |
+| `x-webhook-secret` | your `MANYCHAT_WEBHOOK_SECRET` (the 64-char hex) |
+
+**Body tab.** Clear it completely, then:
+
+1. **Paste** (ends with a colon, no quote):
+   ```
+   {"event_type":"session_start","lead_magnet_id":"worth","keyword":"WORTH","consent_dm":true,"contact":
+   ```
+2. **Click `+ Add Full Contact Data`** — the pill drops in at the cursor. **No quotes around
+   it**; it is an object.
+3. **Paste:** `}`
+
+If the pill lands on its own line, **that is fine** — whitespace beside an object value is
+legal JSON. (A newline *inside* a string is not, which is why the old `Contact Id` approach
+kept breaking.)
+
+**Response mapping tab** — five rows:
+
+| Response key | → | Custom field |
+|---|---|---|
+| `action` | → | `crwn_action` |
+| `message` | → | `crwn_message` |
+| `question_key` | → | `crwn_question_key` |
+| `result_url` | → | `crwn_result_url` |
+| `session_id` | → | `crwn_session_id` |
+
+**Contact for testing** (top right) — **required**, or pills cannot resolve and Preview will
+say "Invalid JSON / Variables are not defined". Pick any contact (Trap 6 explains how to make
+one).
+
+**Test Request → expect `503 engine_disabled`.** Check the Request Body: `contact.id` must be
+a **number**. If you see text, a pill was typed rather than inserted.
+
+### Node 3 — ask the question and wait
+
+`Next Step` → **Instagram → Send Message**
+
+- **Send:** `Within messaging window` (she is mid-conversation now, not commenting)
+- **Delete the empty Text block.**
+- **Add one of the content blocks → `Data Collection`**
+  - **Question:** insert the **`crwn_message` pill** via the `{}` button
+  - **Contact's reply:** `Text` ← **not Number.** She will type "40k" or "about 40,000", and
+    CRWN's parser handles those. A Number field would reject them.
+  - It says *"Automation pauses until contact replies."* That is the whole point.
+
+CRWN writes the question. ManyChat just displays it. So this node also asks the **retry hint**
+if she fumbles, without you configuring anything.
+
+### Node 4 — External Request (answer)
+
+Same URL, same headers, same response mapping as node 2. Only the body differs:
+
+1. **Paste:** `{"event_type":"answer","question_key":"`
+2. **Insert pill:** `crwn_question_key`
+3. **Paste:** `","contact":`
+4. **Click `+ Add Full Contact Data`**
+5. **Paste:** `}`
+
+Note `crwn_question_key` **is** in quotes (a string). `Full Contact Data` is **not** (an object).
+
+**Her answer needs no pill.** It arrives inside Full Contact Data as `last_input_text`.
+
+**Testing this node standalone returns `400 unresolved_question_key`** — and that is CORRECT.
+`crwn_question_key` is empty until node 2 populates it, and an empty ManyChat field renders as
+`{{cuf_NNNN}}` (Trap 5). At runtime it will hold `monthly_listeners`. Save and move on.
+
+### Node 5 — the Condition
+
+`Next Step` → **Condition**
+
+- **Field:** `crwn_action` (Custom User Fields)
+- **Operator:** `is`
+- **Value:** type `send_result` **as plain text.** It is not in any picker — ManyChat has no
+  idea what values CRWN sends.
+
+**Yes branch** → **Instagram → Send Message** (`Within messaging window`)
+- Text: **`crwn_message` pill**
+- **+ Add Button:** label `See My Numbers` → **Open website** → URL: **`crwn_result_url` pill**
+- **No next step.** This branch ends.
+
+**If-not branch** → drag back to **node 3**. That is the retry loop: it re-asks with CRWN's
+updated `{{crwn_message}}`. After three unparseable answers CRWN stops asking and escalates her
+to `/admin → Acquisition → Needs you` instead of looping forever.
 
 ---
 
-## 5. Branch on `crwn_action`
+## 7. Go live — order matters
 
-This is the only logic ManyChat needs. Everything else CRWN decided already.
+**1. Flip the CRWN flag FIRST:**
+```sql
+UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'acquisition_engine';
+```
 
-| `crwn_action` | What ManyChat does |
-|---|---|
-| `ask_question` | Send `crwn_message`. Capture the reply into `crwn_last_answer`. Loop back to step 4 with `event_type: "answer"` and `question_key: {{crwn_question_key}}`, `answer: {{crwn_last_answer}}`. |
-| `send_result` | Send `crwn_message`, then send `crwn_result_url`. End the flow. |
-| `send_message` | Send `crwn_message`. End. |
-| `request_account` | Send `crwn_message` + `crwn_result_url`. End. |
-| `offer_call` | Send `crwn_message` + your Cal.com link. |
-| `nurture` | Send `crwn_message`. End. |
-| `human_review` | Send `crwn_message`. Tag the conversation for you to read. |
-| `retry_later` | Wait 1 minute, retry the same External Request **with the same `event_id`**. Retry at most 3 times, then stop. |
-| `complete` | End. |
+**2. Then ManyChat → Set Live.**
 
-The **answer loop** is the whole conversation: ask → capture → post → CRWN decides → ask
-again, until CRWN returns `send_result`. ManyChat never decides what to ask next, never
-decides when there is enough data, and never computes a number.
+If you go live while CRWN is dark, a real commenter gets a 503, `crwn_message` stays empty, and
+she receives a **blank DM**.
 
----
+**3. Test from a different Instagram account:** comment `worth` on your Reel.
 
-## 6. Test, then go live
+**4. Watch `/admin` → Acquisition → Leads.**
 
-1. **With the flag still OFF**, run the flow on your own Instagram. Every External Request
-   should return HTTP **503** with `error_code: "engine_disabled"`. That proves your URL,
-   secret, and mapping are right and CRWN is refusing to write. If you get **401**, the
-   secret is wrong. If you get **400**, read `error_code`: it names the bad field.
-2. Flip the flag in Supabase:
-   ```sql
-   UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'acquisition_engine';
-   ```
-3. Run the flow again for real. You should get a question, then a result link.
-4. Check the data landed:
-   ```sql
-   SELECT state, status, lead_magnet_id FROM lead_sessions ORDER BY started_at DESC LIMIT 5;
-   SELECT field_key, raw_value FROM lead_answers ORDER BY answered_at DESC LIMIT 5;
-   ```
-
-### Kill switch
-
-Anything goes wrong, at any time:
-
+**Kill switch** (instant, no deploy):
 ```sql
 UPDATE admin_settings SET value = '{"enabled": false}'::jsonb WHERE key = 'acquisition_engine';
 ```
 
-Takes effect on the next request. No deploy needed. Existing leads and results are untouched.
-
 ---
 
-## 7. Troubleshooting
+## 8. What the real payload looks like
+
+Captured live. Do not guess at these field names; they are not what the docs imply.
+
+```json
+{
+  "event_type": "answer",
+  "question_key": "monthly_listeners",
+  "contact": {
+    "id": "713072115",              // the contact id. A STRING of digits.
+    "key": "user:713072115",
+    "ig_username": "m3rcey",        // NOT "username"
+    "ig_id": 1416655297162108,      // NOT "user_id". And it is a NUMBER, not a string.
+    "last_input_text": "100,000",   // WHAT SHE TYPED. This is the answer.
+    "first_name": "M3rcey",
+    "email": null,
+    "phone": null,
+    "custom_fields": []
+  }
+}
+```
+
+CRWN accepts three shapes, so any of these work:
+`{ manychat_contact_id }` · `{ contact: { id } }` · `{ id }` at top level.
+
+## 9. Troubleshooting
 
 | Symptom | Cause |
 |---|---|
-| Every request 401s | `MANYCHAT_WEBHOOK_SECRET` unset in Vercel, or the header value does not match. It fails closed on purpose. |
-| Every request 503s | The engine flag is still `false`. |
-| 400 `missing_event_id` | Your body has no `event_id`, or it rendered empty. |
-| 400 `missing_question_key` | An `answer` event without `question_key`. Map `{{crwn_question_key}}` into the loop-back body. |
-| The same question repeats forever | You are not sending the artist's reply. Check `answer: {{crwn_last_answer}}` is populated. |
-| A retry returns a stale message | Correct behavior. A duplicate `event_id` replays the original response by design. Use a fresh `event_id` per delivery. |
-| 429 | More than 20 requests per minute from one contact. Almost always a ManyChat loop misconfiguration. |
+| **401** on every request | Secret mismatch, or `MANYCHAT_WEBHOOK_SECRET` unset in Vercel, or you did not redeploy. It fails closed on purpose. |
+| **503 `engine_disabled`** | 🎉 **Success while dark.** URL, secret, and body are all correct. |
+| **400 `unresolved_contact_id_placeholder`** | A pill was typed, not inserted. Use the picker. |
+| **400 `unresolved_question_key`** | `crwn_question_key` is empty, so it rendered as `{{cuf_NNNN}}`. Expected in a standalone test; a bug at runtime. |
+| **400 `missing_contact_id`** | The body has no contact. Use `+ Add Full Contact Data`. |
+| Preview: *"Variables are not defined"* | No **Contact for testing** selected. |
+| Preview: *"Bad control character in string literal"* | A pill landed on a new line **inside quotes**. Backspace to join the lines. |
+| **429** | More than 20 requests/minute from one contact. Almost always a ManyChat loop misconfiguration. |
+| The same question repeats forever | `crwn_message` is not mapped, or node 3 is not looping back correctly. |
+| No contact exists | You commented instead of DMing. See Trap 6. |
 
 ---
 
-## What stays in CRWN, always
+## What must stay in CRWN, always
 
-Do not be tempted to move any of this into ManyChat, even when it looks easier:
+Do not move any of this into ManyChat, however convenient it looks:
 
 - deciding which question to ask next
 - deciding when there is enough data
@@ -240,5 +347,5 @@ Do not be tempted to move any of this into ManyChat, even when it looks easier:
 - consent as a source of truth
 - conversation state
 
-ManyChat holds nine thin fields and forwards messages. That is its whole job, and keeping it
-that way is what lets you change CRWN's logic without rebuilding a single ManyChat flow.
+ManyChat holds five thin fields and forwards messages. Keeping it that way is what lets you
+change CRWN's logic without rebuilding a single ManyChat flow.

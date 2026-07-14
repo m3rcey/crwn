@@ -18,6 +18,29 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **DECIDE: keep ManyChat Pro at $39/mo. Trial ends ~2026-07-27.**
+      **The funnel is LIVE and verified end to end** (2026-07-14): a real comment produced a
+      real lead, a real DM conversation, a correctly parsed answer, a real result, and a real
+      result-page view with a recalculation. Every row checked in the database, not just the
+      DMs.
+
+      So this is now an informed decision, not a bet.
+
+      **The maths, from your own calculator:** one converted 40k-listener artist nets ~$3,892/mo
+      direct, which is ~$311/mo to CRWN at the 8% Pro fee. ManyChat Pro pays for itself about
+      eight times over on a **single** conversion. One artist in a year and it has paid for
+      itself; zero artists and $39/mo was a cheap, fast way to learn the channel does not work.
+
+      **If you let the trial lapse, the funnel stops dead.** External Request disappears and
+      ManyChat can no longer reach CRWN at all. Everything CRWN-side keeps working and stays
+      dark, so nothing is lost, but no leads arrive.
+
+      **Do NOT downgrade to Essential.** It has neither External Request nor the API.
+
+      **Watch the Active Contacts cap:** Pro is 2,500/mo, and every Instagram lead who DMs
+      burns one. Fine for launch. If a Reel genuinely pops, that is the first wall you hit, and
+      it is ManyChat's, not CRWN's.
+
 - [x] ~~**Rotate `CRON_SECRET` and DELETE `NEXT_PUBLIC_CRON_SECRET` in Vercel.**~~
       **DONE 2026-07-12.** The cron secret is no longer in the browser bundle, and the old
       (public) value has been rotated out. Details kept below for the record.
@@ -158,6 +181,22 @@ Things that are never finished. Cadence, then the thing.
 - [ ] **Apply any new SQL migration.** Claude cannot. It will always hand you the exact file
       path. If it shipped code that needs a migration and did not tell you, that is a bug.
 - [ ] **Set any new env var** it names. It cannot touch Vercel.
+
+### Daily-ish, now that the Instagram engine is LIVE
+
+- [ ] **Sanity-check the lead scores as real leads arrive.** The bands in `leadScoring.ts` were
+      calibrated with zero data and have already been wrong once: the very first real lead
+      (100k monthly listeners, opened her result, edited the assumptions) scored **20** and was
+      filed **"unqualified"**, so no alert fired.
+
+      Two bugs caused it, both fixed: behavior was never counted (the orchestrator passed a
+      hardcoded blank), and `reach_without_ownership` (CRWN's entire thesis) was worth zero
+      points. That lead now scores 43.
+
+      **Keep watching.** The `worth` funnel asks ONE question, so it can never learn goal or
+      blocker, which means it must recognise a hot lead from reach plus behavior alone. If a
+      lead you would personally chase is banded `nurture` or `unqualified`, that is a scoring
+      bug, not a bad lead. Tell Claude.
 
 ### Daily-ish, once the Instagram engine is live
 
