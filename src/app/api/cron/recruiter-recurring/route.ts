@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterRecurringEmail } from '@/lib/emails/recruiterRecurring';
 import { createClient } from '@supabase/supabase-js';
-import { TIER_PRICING } from '@/lib/platformTier';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy-stripe-key-for-build');
@@ -12,19 +11,46 @@ const supabaseAdmin = createClient(
 );
 
 /**
- * What the artist actually pays CRWN, in cents, read from the ONE place that knows.
+ * What the artist actually EARNED in the period, in cents. This is the base an influencer
+ * commission is a share of.
  *
- * This used to be a second, hardcoded price map (pro: 5000, label: 17500, empire:
- * 35000) and it had drifted into fiction: Pro is $9.99 and Label is $99, so a 10%
- * recurring commission on a Pro artist wired the recruiter $5.00 a month against an
- * artist paying $9.99. That is a real Stripe transfer of real money, computed from a
- * price nobody charges. A commission is a share OF something; the moment it stops
- * reading the thing it is a share of, it is just a number that pays out.
+ * It is the artist's revenue, not what the artist pays CRWN. Those are different numbers by
+ * an order of magnitude, and this route used to pay a percentage of the latter from a
+ * hardcoded price map that had drifted into fiction (pro: 5000, when Pro is $9.99).
  *
- * An unknown or unpriced tier (starter, the dead 'empire') returns 0 and is skipped.
+ * `earnings.net_amount` is what the artist keeps, the same basis the team-splits engine
+ * uses, so an artist, a collaborator and an influencer all read one definition of revenue.
+ * Refunds are written as rows with a NEGATIVE net_amount, so summing the window nets them
+ * out on its own: a month that is refunded away pays no commission on money that came back.
  */
-function monthlyFeeCents(tier: string): number {
-  return TIER_PRICING[tier as keyof typeof TIER_PRICING]?.monthly ?? 0;
+async function artistNetRevenueCents(artistId: string, from: Date, to: Date): Promise<number> {
+  const PAGE = 1000;
+  let total = 0;
+  let offset = 0;
+
+  // Paginated deliberately. PostgREST caps a response at 1000 rows, so a busy artist's
+  // month would silently stop being counted at row 1001 and quietly underpay, which is the
+  // kind of truncation that never looks like a bug, just a smaller number.
+  for (;;) {
+    const { data, error } = await supabaseAdmin
+      .from('earnings')
+      .select('net_amount')
+      .eq('artist_id', artistId)
+      .gte('created_at', from.toISOString())
+      .lt('created_at', to.toISOString())
+      .range(offset, offset + PAGE - 1);
+
+    if (error) throw new Error(`earnings read failed for artist ${artistId}: ${error.message}`);
+    if (!data || data.length === 0) break;
+
+    total += data.reduce((sum, row) => sum + (row.net_amount || 0), 0);
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
+
+  // A month whose refunds outweigh its sales must pay nothing, not a negative transfer.
+  // CRWN does not claw back an influencer's earlier commission.
+  return Math.max(0, total);
 }
 
 export async function GET(req: NextRequest) {
@@ -34,6 +60,12 @@ export async function GET(req: NextRequest) {
   }
 
   const now = new Date();
+
+  // This runs on the 1st (cron `0 17 1 * *`), so the month being PAID FOR is the one that
+  // just closed. Paying on the current month would pay for 17 hours of it.
+  const periodStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+  const periodEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const periodLabel = periodStart.toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
   // Idempotency: prevent double-run in the same month
   const periodKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -70,32 +102,17 @@ export async function GET(req: NextRequest) {
   const paidByRecruiter = new Map<string, { amount: number; count: number }>();
 
   for (const referral of activeReferrals) {
-    // Get artist's current platform tier
-    const { data: artist } = await supabaseAdmin
-      .from('artist_profiles')
-      .select('platform_tier, platform_subscription_status')
-      .eq('id', referral.artist_id)
-      .single();
+    // No plan gate. The commission is a share of the artist's REVENUE, and it is funded by
+    // the platform fee CRWN charges on that revenue, which exists on every plan (Free is
+    // 12%, Pro is 8%). The old rules here (artist must be on an active paid plan; partners
+    // earn nothing on Pro artists) were written when the commission came out of the artist's
+    // SaaS fee, so a cheap plan really did mean nothing to share. Under a revenue share they
+    // would just mean an influencer who brought a busy Free-tier artist earns nothing while
+    // CRWN collects 12% of everything that artist makes.
+    const revenue = await artistNetRevenueCents(referral.artist_id, periodStart, periodEnd);
+    if (revenue === 0) continue;
 
-    if (!artist || artist.platform_subscription_status !== 'active' || !artist.platform_tier || artist.platform_tier === 'starter') {
-      continue;
-    }
-
-    // Skip Pro-tier artists for partner referrals — recurring only on Label+
-    const { data: refRecruiter } = await supabaseAdmin
-      .from('recruiters')
-      .select('is_partner')
-      .eq('id', referral.recruiter_id)
-      .single();
-
-    if (refRecruiter?.is_partner && artist.platform_tier === 'pro') {
-      continue;
-    }
-
-    const monthlyFee = monthlyFeeCents(artist.platform_tier);
-    if (monthlyFee === 0) continue;
-
-    const payoutAmount = Math.round(monthlyFee * (referral.recurring_rate / 100));
+    const payoutAmount = Math.round(revenue * (referral.recurring_rate / 100));
     if (payoutAmount === 0) continue;
 
     // Get recruiter Stripe info
@@ -107,8 +124,9 @@ export async function GET(req: NextRequest) {
 
     if (!recruiter) continue;
 
-    // Create payout record
-    const tierLabel = artist.platform_tier.charAt(0).toUpperCase() + artist.platform_tier.slice(1);
+    // Create payout record. The description states the base it was a share OF, so a
+    // recruiter disputing an amount can check the arithmetic without asking anyone.
+    const basis = `${referral.recurring_rate}% of $${(revenue / 100).toFixed(2)} artist revenue (${periodLabel})`;
     const { data: payout } = await supabaseAdmin
       .from('recruiter_payouts')
       .insert({
@@ -116,7 +134,7 @@ export async function GET(req: NextRequest) {
         artist_referral_id: referral.id,
         type: 'recurring',
         amount: payoutAmount,
-        description: `${referral.recurring_rate}% of ${tierLabel} ($${(monthlyFee / 100).toFixed(2)}/mo)`,
+        description: basis,
         status: 'pending',
       })
       .select('id')
@@ -129,7 +147,7 @@ export async function GET(req: NextRequest) {
           amount: payoutAmount,
           currency: 'usd',
           destination: recruiter.stripe_connect_id,
-          description: `CRWN Recruiter recurring - ${referral.recurring_rate}% of ${tierLabel}`,
+          description: `CRWN recurring commission: ${basis}`,
         });
 
         await supabaseAdmin

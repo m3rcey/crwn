@@ -10,6 +10,10 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
+/** The standard influencer deal: 1% of the referred artist's revenue. Negotiable per
+ *  influencer via `recruiters.partner_recurring_rate`. */
+const DEFAULT_RECURRING_RATE = 1;
+
 const TIER_FLAT_FEES: Record<string, (count: number) => number> = {
   starter: (count) => count === 1 ? 5000 : 2500,
   connector: () => 5000,
@@ -70,23 +74,25 @@ export async function GET(req: NextRequest) {
 
       // Calculate flat fee — partners use override or default $50
       let flatFee: number;
-      let recurringRate: number;
 
       if (recruiter.is_partner) {
         flatFee = recruiter.partner_flat_fee ?? 5000;
-        // Partners only earn recurring on Label+ artists — Pro margins are too thin
-        const artistTier = artist!.platform_tier;
-        recurringRate = (artistTier === 'label' || artistTier === 'empire')
-          ? (recruiter.partner_recurring_rate ?? 10)
-          : 0;
       } else {
         const tier = recruiter.tier || 'starter';
         const count = recruiter.total_artists_referred || 1;
         flatFee = TIER_FLAT_FEES[tier] ? TIER_FLAT_FEES[tier](count) : 2500;
-        recurringRate = 0;
-        if (tier === 'connector') recurringRate = 5;
-        else if (tier === 'ambassador') recurringRate = 10;
       }
+
+      // Every influencer earns 1% of the artist's REVENUE for 12 months, whoever they are.
+      // `partner_recurring_rate` is the negotiated per-influencer override (legacy column
+      // name: it now applies to every recruiter, not only partners). Set it to give someone
+      // a better deal; leave it null and they are on the standard 1%.
+      //
+      // The old rates (5% or 10% by recruiter tier, and 0% unless the artist was on Label+)
+      // were a share of the artist's monthly SaaS fee to CRWN, which is a much smaller
+      // number than what the artist earns. Do not read them as a precedent for what 1% is
+      // worth here: 1% of revenue on a working artist is far more than 10% of a $9.99 fee.
+      const recurringRate = recruiter.partner_recurring_rate ?? DEFAULT_RECURRING_RATE;
 
       // Update referral to qualified
       await supabaseAdmin

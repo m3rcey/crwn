@@ -45,7 +45,7 @@ function MockPayoutHistory() {
         {[
           { desc: 'Flat fee - Artist A qualified', amount: '$50.00', date: 'Mar 1' },
           { desc: 'Flat fee - Artist B qualified', amount: '$50.00', date: 'Feb 15' },
-          { desc: '5% recurring - Artist A (Pro)', amount: '$2.45', date: 'Feb 1' },
+          { desc: '1% of Artist A revenue', amount: '$12.40', date: 'Feb 1' },
           { desc: 'First referral bonus', amount: '$50.00', date: 'Jan 20' },
         ].map((p, i) => (
           <div key={i} className="flex items-center justify-between py-2 border-b border-[#1a1a1a]">
@@ -80,10 +80,10 @@ function MockReferralLink() {
 
 export default function RecruitPitchPage() {
   const tiers = [
-    { name: 'First Referral', threshold: '1st artist', flat: '$50', recurring: '--', window: '--' },
-    { name: 'Starter', threshold: '2-5 artists', flat: '$25/each', recurring: '--', window: '--' },
-    { name: 'Connector', threshold: '6-15 artists', flat: '$50/each', recurring: '5% monthly', window: '12 months' },
-    { name: 'Ambassador', threshold: '16+ artists', flat: '$75/each', recurring: '10% monthly', window: '12 months' },
+    { name: 'First Referral', threshold: '1st artist', flat: '$50', recurring: '1% of revenue', window: '12 months' },
+    { name: 'Starter', threshold: '2-5 artists', flat: '$25/each', recurring: '1% of revenue', window: '12 months' },
+    { name: 'Connector', threshold: '6-15 artists', flat: '$50/each', recurring: '1% of revenue', window: '12 months' },
+    { name: 'Ambassador', threshold: '16+ artists', flat: '$75/each', recurring: '1% of revenue', window: '12 months' },
   ];
 
   return (
@@ -134,7 +134,7 @@ export default function RecruitPitchPage() {
       </div>
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-white text-center mb-4">The More You Refer, the More You Earn</h2>
-        <p className="text-[#999] text-center mb-12 max-w-xl mx-auto">Your tier upgrades automatically as you hit milestones. Higher tiers unlock bigger flat fees and recurring monthly commissions.</p>
+        <p className="text-[#999] text-center mb-12 max-w-xl mx-auto">Your tier upgrades automatically as you hit milestones. Higher tiers pay bigger flat fees. Every tier earns the same 1% of what your artists make.</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -159,7 +159,7 @@ export default function RecruitPitchPage() {
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-[#666] mt-4 text-center">Recurring commissions are based on the artist's monthly subscription fee to CRWN (Pro $50, Label $150, Empire $350). Artists must stay 30 days to qualify.</p>
+        <p className="text-xs text-[#666] mt-4 text-center">Recurring commission is 1% of the artist&apos;s revenue on CRWN, paid monthly for 12 months. Artists must stay 30 days to qualify.</p>
       </div>
       <div className="max-w-4xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -182,12 +182,13 @@ export default function RecruitPitchPage() {
         </div>
       </div>
       <div className="max-w-4xl mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-white text-center mb-12">What Could You Earn?</h2>
+        <h2 className="text-3xl font-bold text-white text-center mb-3">What Could You Earn?</h2>
+        <p className="text-[#999] text-center text-sm mb-12 max-w-xl mx-auto">Your 1% rides on what your artists actually earn, so these assume each one is doing $1,000/month on CRWN. An artist doing double pays you double.</p>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { artists: 3, total: '$125', desc: '3 artists on Pro plans. $50 first referral + $25 x 2 = $125 in flat fees.' },
-            { artists: 10, total: '$794', desc: '10 artists on Pro. $500 in flat fees + $24.50/mo recurring for 12 months.' },
-            { artists: 20, total: '$5,070', desc: '20 artists (mixed plans). $1,500 flat fees + $297.50/mo recurring for 12 months.' },
+            { artists: 3, total: '$460', desc: '$100 in flat fees, plus 1% of what they earn: $30/mo for 12 months.' },
+            { artists: 10, total: '$1,700', desc: '$500 in flat fees, plus 1% of what they earn: $100/mo for 12 months.' },
+            { artists: 20, total: '$3,900', desc: '$1,500 in flat fees, plus 1% of what they earn: $200/mo for 12 months.' },
           ].map((ex, i) => (
             <div key={i} className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-6 text-center">
               <p className="text-white text-sm mb-2">{ex.artists} artists referred</p>

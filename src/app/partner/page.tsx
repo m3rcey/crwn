@@ -18,9 +18,9 @@ const tiers = [
     name: 'Tier 1',
     label: 'Full Deal',
     score: '24–30',
-    access: 'Free Label (12 mo)',
+    access: 'Free Pro (12 mo)',
     flat: '$50/artist',
-    recurring: '10% on Label+ (12 mo)',
+    recurring: '1% of artist revenue (12 mo)',
     contentBonus: '$250/signup post',
     highlight: true,
   },
@@ -28,9 +28,9 @@ const tiers = [
     name: 'Tier 2',
     label: 'Standard Deal',
     score: '18–23',
-    access: 'Free Label (12 mo)',
+    access: 'Free Pro (12 mo)',
     flat: '$50/artist',
-    recurring: '10% on Label+ (12 mo)',
+    recurring: '1% of artist revenue (12 mo)',
     contentBonus: '$100–250/signup post',
     highlight: false,
   },
@@ -40,7 +40,7 @@ const tiers = [
     score: '12–17',
     access: 'Free Pro (6 mo)',
     flat: '$50/artist',
-    recurring: '–',
+    recurring: '1% of artist revenue (12 mo)',
     contentBonus: '–',
     highlight: false,
   },
@@ -126,7 +126,7 @@ export default function PartnerPage() {
             {
               icon: Crown,
               title: 'Free Platform Access',
-              desc: 'Up to Label tier ($175/mo value) for up to 12 months, depending on your tier.',
+              desc: 'Free Pro (a $9.99/mo plan) for up to 12 months, depending on your tier.',
             },
             {
               icon: DollarSign,
@@ -135,8 +135,8 @@ export default function PartnerPage() {
             },
             {
               icon: Repeat,
-              title: '10% Recurring on Label+',
-              desc: 'Tier 1 & 2 partners earn 10% of every referred Label or Empire artist\'s subscription for 12 months.',
+              title: '1% of everything they earn',
+              desc: 'Earn 1% of your referred artist\'s revenue for 12 months. Not a share of their subscription fee: a share of what they actually make.',
             },
             {
               icon: Video,
@@ -216,13 +216,15 @@ export default function PartnerPage() {
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-white text-center mb-4">What Could You Earn?</h2>
         <p className="text-zinc-400 text-center mb-12 max-w-xl mx-auto">
-          Year 1 example for a Tier 1 partner making content and referring artists.
+          Year 1 for a Tier 1 partner making content and referring artists. Your 1% rides on what
+          those artists actually earn, so these assume each one is doing $1,000/month on CRWN. An
+          artist doing double pays you double.
         </p>
         <div className="grid md:grid-cols-3 gap-6">
           {[
-            { label: '10 artists (3 Label)', flat: '$500', recurring: '$540/yr', bonus: '$500 (2 signup posts)', total: '$1,540' },
-            { label: '25 artists (8 Label)', flat: '$1,250', recurring: '$1,440/yr', bonus: '$1,250 (5 signup posts)', total: '$3,940' },
-            { label: '50 artists (15 Label)', flat: '$2,500', recurring: '$2,700/yr', bonus: '$2,500 (10 signup posts)', total: '$7,700' },
+            { label: '10 artists', flat: '$500', recurring: '$1,200/yr', bonus: '$500 (2 signup posts)', total: '$2,200' },
+            { label: '25 artists', flat: '$1,250', recurring: '$3,000/yr', bonus: '$1,250 (5 signup posts)', total: '$5,500' },
+            { label: '50 artists', flat: '$2,500', recurring: '$6,000/yr', bonus: '$2,500 (10 signup posts)', total: '$11,000' },
           ].map((ex, i) => (
             <div key={i} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
               <p className="text-white text-sm font-medium mb-3">{ex.label}</p>
@@ -247,7 +249,7 @@ export default function PartnerPage() {
             </div>
           ))}
         </div>
-        <p className="text-xs text-[#666] mt-4 text-center">Recurring applies to Label ($175/mo) and Empire ($350/mo) referrals only. Content bonus paid per post that results in at least 1 artist signup.</p>
+        <p className="text-xs text-[#666] mt-4 text-center">Recurring is 1% of the referred artist&apos;s revenue for 12 months, on any plan. Rates are negotiable, so talk to us. Content bonus paid per post that results in at least 1 artist signup.</p>
       </div>
 
       {/* Who This Is For */}
