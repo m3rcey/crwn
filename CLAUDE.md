@@ -55,8 +55,11 @@ Rules:
   same definition as the triage principle below, or the priorities become meaningless.
 - Each item carries the **exact command, SQL, or file path**. The item IS the instruction. If
   Josh has to go look something up, the item is not finished.
-- Tick items off when he confirms they are done. Delete stale ones. A list he cannot trust is
-  worse than no list.
+- **DELETE items the moment they are done. Do not tick them, do not strike them through, do not
+  keep them "for the record."** Git remembers what was done and when; TODO.md is only for what
+  is still true. Every completed item left in the file is a line Josh has to read past to find
+  the ones that matter, and a list he skims is a list he stops trusting. Delete stale items too.
+- Do the same for the "Done" archives: there is no Done section, in any part of the file.
 - Put your OWN follow-up work in "On Claude's plate", never in his sections.
 - If you discover a founder-blocking task that predates this file, add it. Verify it first:
   do not copy claims out of the Brain or CLAUDE.md without checking the code, because both
