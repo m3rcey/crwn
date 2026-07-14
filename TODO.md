@@ -37,16 +37,20 @@ responsible for. Do not work those.
       one both return 401 and look identical from outside. That is exactly what silently ate
       the first test booking, and this check is what catches it next time in one glance.
 
-- [ ] **After every sales call, mark whether she showed up.**
+- [ ] **After every sales call, mark whether they showed up.**
 
-      **Easiest: tick "No-show" on the booking in Cal.com.** CRWN listens for that and starts
-      the ladder. Un-ticking it cancels the ladder, so a mis-click is recoverable as long as you
-      fix it the same day (the dispatcher only runs at 5am).
+      In **/admin → Acquisition → Calls**: **Showed up** / **No-show**. The buttons only appear
+      once the call has actually finished, so there is nothing to mis-click beforehand.
 
-      Or do it in **/admin → Acquisition → Calls**: **She showed** / **No-show**. Same effect,
-      same idempotency key, so using both places cannot double-send.
+      You can also tick **No-show** on the booking in Cal.com itself. Same effect, same
+      idempotency key, so using both places cannot double-send. Note Cal.com greys that control
+      out until the meeting time has passed, which is the same rule.
 
-      This is the one step in the funnel that stays manual, and it is deliberate.
+      Un-marking a no-show (in either place) cancels the follow-up ladder, so a mis-click is
+      recoverable as long as you fix it before 5am, when the dispatcher runs.
+
+      This is the one step in the funnel that stays manual, and it is deliberate: an unsent
+      message costs nothing, a wrong one costs the artist.
 
       A no-show ladder only fires when *you* say she did not turn up. Nothing infers it,
       because "sorry we missed you" sent to the artist who *was* on the call, and had a good

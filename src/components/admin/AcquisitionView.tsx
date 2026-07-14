@@ -12,6 +12,11 @@
 // human, because "sorry we missed you" sent to the artist who actually turned up, and had a
 // good conversation, is worse than never following up at all.
 //
+// NOTE ON PRONOUNS: the DM copy is written for an audience that skews female (hence the
+// no-masculine-slang test), but it only ever addresses the artist as "you". This admin UI is
+// different: it talks ABOUT a specific named person whose gender CRWN does not know and has
+// never asked. So it says "they", or nothing at all.
+//
 // Every mutation goes through /api/admin/acquisition, which verifies admin from the SESSION
 // and writes an audit row. Nothing here is trusted.
 
@@ -34,7 +39,7 @@ interface Row {
   last_error_code?: string;
   attempt_count?: number;
   lead_identity_id?: string;
-  metadata?: { startTime?: string; uid?: string } | null;
+  metadata?: { startTime?: string; endTime?: string; uid?: string } | null;
   outcome?: string | null;
   identity?: { instagram_username?: string; email?: string; claimed_at?: string; status?: string } | null;
   profile?: { lead_score?: number; score_band?: string; monthly_listeners?: number; primary_blocker?: string } | null;
@@ -46,6 +51,29 @@ const OUTCOME_LABEL: Record<string, string> = {
   call_no_show: 'No-show, following up',
   sales_call_cancelled: 'Cancelled',
 };
+
+/**
+ * Has the call actually finished?
+ *
+ * Until it has, there is no outcome to record, so the buttons do not render at all. Cal.com
+ * takes the same position: it greys out its own no-show control on a future booking.
+ *
+ * `endTime` is what the webhook stored. If it is somehow missing we fall back to start + 30
+ * minutes, which is longer than the 15-minute slot on purpose: erring LATE only delays the
+ * question, while erring EARLY re-opens the mis-click that this function exists to close.
+ */
+function hasEnded(r: Row): boolean {
+  const end = r.metadata?.endTime
+    ? new Date(r.metadata.endTime).getTime()
+    : r.metadata?.startTime
+    ? new Date(r.metadata.startTime).getTime() + 30 * 60_000
+    : null;
+
+  // No times at all: show the buttons rather than trap the row in "Upcoming" forever.
+  if (end == null || Number.isNaN(end)) return true;
+
+  return Date.now() > end;
+}
 
 const BAND_COLOR: Record<string, string> = {
   sales_priority: 'text-crwn-gold',
@@ -170,7 +198,7 @@ export default function AcquisitionView() {
               : view === 'human_review'
               ? 'When CRWN cannot understand a lead, it stops asking rather than looping, and hands them here.'
               : view === 'calls'
-              ? 'A booking on cal.com lands here automatically. After each one, mark whether she showed up: the no-show follow-up only fires when you say so.'
+              ? 'A booking on cal.com lands here automatically. Once a call has finished, mark whether they showed up: the no-show follow-up only fires when you say so.'
               : 'Leads appear here the moment someone comments your keyword on Instagram.'
           }
         />
@@ -205,19 +233,33 @@ export default function AcquisitionView() {
                     <span className="text-sm text-crwn-text-secondary shrink-0">
                       {OUTCOME_LABEL[r.outcome] ?? r.outcome}
                     </span>
+                  ) : !hasEnded(r) ? (
+                    // THE CALL HAS NOT HAPPENED YET. Do not ask for its outcome.
+                    //
+                    // An outcome question about a future meeting is not premature, it is
+                    // unanswerable, and leaving the buttons on screen makes a catastrophic
+                    // mis-click one pixel away: "No-show" on a call that is four days out would
+                    // DM an artist "sorry we missed you" before the meeting she is looking
+                    // forward to. Nothing to click means nothing to get wrong.
+                    <span className="text-sm text-crwn-text-secondary shrink-0">Upcoming</span>
                   ) : r.lead_identity_id ? (
+                    // Two NEUTRAL buttons, deliberately equal weight.
+                    //
+                    // A gold button in this codebase means "recommended", and CRWN has no
+                    // business recommending an answer to a question of fact. The previous
+                    // version made "showed up" gold, which read as a pre-selected default.
                     <div className="flex gap-2 shrink-0">
                       <button
                         onClick={() => act('mark_attended', r.lead_identity_id!)}
                         disabled={busy === r.lead_identity_id}
-                        className="bg-crwn-gold text-crwn-bg font-semibold text-sm px-3 py-2 rounded-full disabled:opacity-50 flex items-center gap-1"
+                        className="bg-crwn-elevated text-crwn-text hover:text-green-400 text-sm px-3 py-2 rounded-full disabled:opacity-50 flex items-center gap-1"
                       >
-                        <Check className="w-3.5 h-3.5" /> She showed
+                        <Check className="w-3.5 h-3.5" /> Showed up
                       </button>
                       <button
                         onClick={() => act('mark_no_show', r.lead_identity_id!)}
                         disabled={busy === r.lead_identity_id}
-                        className="text-crwn-text-secondary hover:text-orange-400 text-sm px-3 py-2 rounded-full flex items-center gap-1"
+                        className="bg-crwn-elevated text-crwn-text hover:text-orange-400 text-sm px-3 py-2 rounded-full disabled:opacity-50 flex items-center gap-1"
                       >
                         <UserX className="w-3.5 h-3.5" /> No-show
                       </button>
