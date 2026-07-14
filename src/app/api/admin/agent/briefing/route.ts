@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { adminDailyBriefingEmail } from '@/lib/emails/adminDailyBriefing';
+import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -147,8 +148,7 @@ Return ONLY the JSON array.`;
     // Trigger autonomous agent loop after briefing
     let autonomousResult = null;
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-      const autoRes = await fetch(`${baseUrl}/api/admin/agent/autonomous`, {
+      const autoRes = await fetch(`${PUBLIC_ORIGIN}/api/admin/agent/autonomous`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -49,11 +50,7 @@ export async function POST(req: NextRequest) {
     const scope = AUTO_SCOPES[scopeIndex];
 
     // Call the analyze endpoint internally
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : 'http://localhost:3000';
-
-    const analyzeRes = await fetch(`${baseUrl}/api/admin/agent/analyze`, {
+    const analyzeRes = await fetch(`${PUBLIC_ORIGIN}/api/admin/agent/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: adminId, scope }),
@@ -86,7 +83,7 @@ export async function POST(req: NextRequest) {
       if (action.risk === 'low' && SAFE_ACTION_TYPES.includes(action.type)) {
         // Auto-execute
         try {
-          const execRes = await fetch(`${baseUrl}/api/admin/agent/execute`, {
+          const execRes = await fetch(`${PUBLIC_ORIGIN}/api/admin/agent/execute`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: adminId, action }),

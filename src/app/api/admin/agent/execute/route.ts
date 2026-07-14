@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { buildLockKey, acquireLock, releaseLock } from '@/lib/ai/coordinationLock';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
+import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -422,11 +423,7 @@ async function executeAddCrmTags(params: Record<string, unknown>): Promise<strin
 }
 
 async function executeSendBriefing(): Promise<string> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000';
-
-  const res = await fetch(`${baseUrl}/api/admin/agent/briefing`, {
+  const res = await fetch(`${PUBLIC_ORIGIN}/api/admin/agent/briefing`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${process.env.CRON_SECRET || ''}`,

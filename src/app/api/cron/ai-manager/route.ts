@@ -9,6 +9,7 @@ import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generat
 import { getCrossArtistPatterns, formatPatternsForPrompt } from '@/lib/ai/crossArtistPatterns';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
+import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
 
 // Insight types that warrant a push notification
 const NOTIFY_TYPES = new Set(['churn', 'booking_reminder', 'sync_match', 'revenue', 'fulfillment']);
@@ -174,14 +175,11 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
     const recentTypes = new Set((recentActions || []).map(a => a.action_type));
     const dedupedActions = result.actions.filter(a => !recentTypes.has(a.type));
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-
     for (const action of dedupedActions) {
       if (action.risk === 'low' && SAFE_ACTION_TYPES.includes(action.type)) {
         // Auto-execute low-risk safe actions
         try {
-          const execRes = await fetch(`${baseUrl}/api/ai-manager/execute`, {
+          const execRes = await fetch(`${PUBLIC_ORIGIN}/api/ai-manager/execute`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
