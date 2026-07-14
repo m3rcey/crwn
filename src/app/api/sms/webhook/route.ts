@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendSms, getTimezoneFromPhone } from '@/lib/twilio';
+import { verifyTwilioSignature } from '@/lib/webhookSignatures';
+import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -10,9 +12,35 @@ const supabaseAdmin = createClient(
 /**
  * Incoming SMS webhook from Twilio.
  * Handles: keyword opt-in, YES confirmation, STOP opt-out.
+ *
+ * SIGNED, and fails closed. This route used to accept any POST from anyone, and it
+ * writes `sms_consent_log` rows: the record CRWN would produce to show a fan agreed to
+ * be texted. Anyone who could forge a request could manufacture that consent, or send
+ * STOP as someone else and unsubscribe a fan the artist paid to reach.
  */
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
+
+  // Twilio signs the sorted POST params against the url it was CONFIGURED with, so the
+  // digest is computed over the public url, never `req.url` (behind Vercel that carries
+  // an internal host and would never match).
+  const params: Record<string, string> = {};
+  formData.forEach((value, key) => {
+    if (typeof value === 'string') params[key] = value;
+  });
+
+  const signed = verifyTwilioSignature(
+    `${PUBLIC_ORIGIN}${req.nextUrl.pathname}`,
+    params,
+    req.headers.get('x-twilio-signature'),
+    process.env.TWILIO_AUTH_TOKEN
+  );
+
+  if (!signed) {
+    console.error('SMS webhook: bad or missing Twilio signature. Rejected.');
+    return NextResponse.json({ error: 'invalid_signature' }, { status: 403 });
+  }
+
   const from = formData.get('From') as string;
   const to = formData.get('To') as string;
   const body = (formData.get('Body') as string || '').trim();

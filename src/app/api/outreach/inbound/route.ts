@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifySvixSignature } from '@/lib/webhookSignatures';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -19,9 +20,34 @@ interface ResendInboundPayload {
   };
 }
 
+/**
+ * Inbound email replies from leads, via Resend.
+ *
+ * SIGNED, and fails closed. Unauthenticated, anyone could inject rows into
+ * `outreach_replies` attributed to any lead, and flip that lead's status to `replied`.
+ * The queue Josh works by hand is only worth working if every row in it is real.
+ */
 export async function POST(req: NextRequest) {
   try {
-    const payload: ResendInboundPayload = await req.json();
+    // Raw text, not req.json(): the signature is over the exact bytes Resend sent.
+    const rawBody = await req.text();
+
+    const signed = verifySvixSignature(
+      rawBody,
+      {
+        id: req.headers.get('svix-id'),
+        timestamp: req.headers.get('svix-timestamp'),
+        signature: req.headers.get('svix-signature'),
+      },
+      process.env.RESEND_INBOUND_SECRET
+    );
+
+    if (!signed) {
+      console.error('Outreach inbound: bad, missing, or unconfigured Resend signature. Rejected.');
+      return NextResponse.json({ status: 'error', reason: 'invalid_signature' }, { status: 403 });
+    }
+
+    const payload: ResendInboundPayload = JSON.parse(rawBody);
 
     if (payload.type !== 'email.received') {
       return NextResponse.json({ status: 'ignored', reason: 'not email.received' }, { status: 200 });

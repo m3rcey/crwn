@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifySvixSignature } from '@/lib/webhookSignatures';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -21,9 +22,39 @@ interface ResendWebhookPayload {
   };
 }
 
+/**
+ * Resend delivery events (bounce, complaint, delivered).
+ *
+ * SIGNED, and fails closed. Unauthenticated, this route let anyone add ANY email address
+ * to `outreach_suppression` by POSTing a fake `email.complained`, which permanently stops
+ * CRWN from mailing that artist. A stranger could have quietly switched off outreach, one
+ * address at a time, and the only symptom would have been silence.
+ */
 export async function POST(req: NextRequest) {
   try {
-    const payload: ResendWebhookPayload = await req.json();
+    // The digest is over the RAW body. Re-serialising the parsed object reorders keys and
+    // the signature stops matching, so the text is read first and parsed after.
+    const rawBody = await req.text();
+
+    const signed = verifySvixSignature(
+      rawBody,
+      {
+        id: req.headers.get('svix-id'),
+        timestamp: req.headers.get('svix-timestamp'),
+        signature: req.headers.get('svix-signature'),
+      },
+      process.env.RESEND_WEBHOOK_SECRET
+    );
+
+    if (!signed) {
+      // Rejecting is deliberate even when the secret is simply missing. Resend retries a
+      // failed webhook for hours, so a gap here delays events; accepting unsigned POSTs
+      // would instead mean anyone on the internet can suppress an artist's email forever.
+      console.error('Outreach webhook: bad, missing, or unconfigured Resend signature. Rejected.');
+      return NextResponse.json({ status: 'error', reason: 'invalid_signature' }, { status: 403 });
+    }
+
+    const payload: ResendWebhookPayload = JSON.parse(rawBody);
     const { type, data } = payload;
 
     const recipientEmail = data.to?.[0]?.toLowerCase();
