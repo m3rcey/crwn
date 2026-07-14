@@ -283,7 +283,16 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-**Nothing is queued.** The Instagram acquisition engine is feature-complete: ingress,
+**Four routes self-fetch through Vercel's auth wall.** `cron/ai-manager` (line 178),
+`admin/agent/briefing` (150), `admin/agent/autonomous` (52) and `admin/agent/execute` (425)
+build a base url from `https://${VERCEL_URL}`, the protected deployment origin, which answers
+every path with an http 200 html page instead of the API. This is the same bug that made the
+RLS canary email you a false LEAK on Jul 13. Two of them also have an operator-precedence bug
+(`A || B ? C : D` parses as `(A || B) ? C : D`), so they use `VERCEL_URL` even when
+`NEXT_PUBLIC_SITE_URL` is set. Not urgent, no data is exposed, but those self-calls are
+probably silently doing nothing. Ask and I will fix them.
+
+The Instagram acquisition engine is feature-complete: ingress,
 identity, Claude extraction with a complete deterministic fallback, the calculator handoff,
 secure result links, claiming, follow-up automation, retention, and the admin panel. What
 remains is entirely on your side of the line (the list at the top of this file), plus tuning
