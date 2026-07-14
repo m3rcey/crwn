@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Loader2, Home } from 'lucide-react';
 import Link from 'next/link';
 import { isChunkLoadError, reloadOnceForChunkError } from '@/lib/chunkReload';
+import AppUpdating from '@/components/shared/AppUpdating';
 
 export default function MainError({
   error,
@@ -12,15 +13,22 @@ export default function MainError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // Decide during render, not only in the effect. Checking this in the effect alone paints
+  // the crash screen first and reloads a tick later, which is the flash of "Something went
+  // wrong" that a routine deploy used to show.
+  const isStaleDeploy = isChunkLoadError(error);
+
   useEffect(() => {
-    // A stale-deploy chunk error can't be fixed by re-rendering (reset) — reload once
+    // A stale-deploy chunk error can't be fixed by re-rendering (reset). Reload once
     // to fetch fresh HTML + chunks instead of stranding the user on this screen.
-    if (isChunkLoadError(error)) {
+    if (isStaleDeploy) {
       reloadOnceForChunkError();
       return;
     }
     console.error('Page error:', error);
-  }, [error]);
+  }, [error, isStaleDeploy]);
+
+  if (isStaleDeploy) return <AppUpdating />;
 
   return (
     <div className="min-h-screen bg-crwn-bg flex items-center justify-center p-4">

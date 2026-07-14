@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { isChunkLoadError, reloadOnceForChunkError } from '@/lib/chunkReload';
+import AppUpdating from '@/components/shared/AppUpdating';
 
 export default function AuthError({
   error,
@@ -12,13 +13,19 @@ export default function AuthError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // See (main)/error.tsx: decided during render so a stale deploy never flashes a crash
+  // screen on its way to the reload.
+  const isStaleDeploy = isChunkLoadError(error);
+
   useEffect(() => {
-    if (isChunkLoadError(error)) {
+    if (isStaleDeploy) {
       reloadOnceForChunkError();
       return;
     }
     console.error('Auth error:', error);
-  }, [error]);
+  }, [error, isStaleDeploy]);
+
+  if (isStaleDeploy) return <AppUpdating />;
 
   return (
     <div className="min-h-screen bg-crwn-bg flex items-center justify-center p-4">
