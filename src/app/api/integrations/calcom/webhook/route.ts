@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
   // Which CRWN lead is this? The id rides through the booking URL, because an Instagram lead
   // has no email and may type a brand new one into Cal.com that CRWN has never seen.
-  const identityId = await resolveLead(booking.leadIdentityId, booking.attendeeEmail);
+  const identityId = await resolveLead(booking.leadIdentityId, booking.attendeeEmail, booking.uid);
 
   // A booking we cannot attribute is still worth recording. Josh can link it by hand in admin
   // rather than it vanishing.
@@ -83,6 +83,17 @@ export async function POST(req: NextRequest) {
     case 'BOOKING_RESCHEDULED':
       // A reschedule is still a live intent. Keep her converted, refresh the timing.
       await onBooked(identityId, booking.uid, booking.startTime, booking.endTime, booking.attendeeEmail);
+      break;
+
+    case 'BOOKING_NO_SHOW_UPDATED':
+      // Josh ticked (or un-ticked) "no-show" in Cal.com. This is a HUMAN's verdict relayed
+      // through Cal.com, which is exactly the confirmation the ladder requires. It is NOT
+      // Cal.com guessing from "guest hasn't joined the video yet".
+      //
+      // `null` means the payload carried no flag we recognise. That is not a no-show, and we
+      // do nothing: an unsent message costs nothing, a wrong one costs the artist.
+      if (booking.noShow === true) await onNoShow(identityId);
+      else if (booking.noShow === false) await onAttended(identityId);
       break;
 
     default:
@@ -208,14 +219,61 @@ async function onCancelled(identityId: string, uid: string | null): Promise<void
 }
 
 /**
+ * She did not turn up, and a human said so. Start the ladder.
+ *
+ * Identical in effect to the "No-show" button in /admin, and it writes the SAME idempotency
+ * key, so marking it in both places cannot send her the sequence twice.
+ */
+async function onNoShow(identityId: string): Promise<void> {
+  await supabaseAdmin.from('acquisition_events').insert({
+    event_name: 'call_no_show',
+    lead_identity_id: identityId,
+    idempotency_key: `no_show_start:${identityId}`,
+    status: 'pending',
+    next_attempt_at: new Date().toISOString(),
+  });
+}
+
+/**
+ * She DID turn up (or Josh un-ticked a no-show he set by mistake).
+ *
+ * This is the undo, and it has to be fast: it kills every rung of the ladder that has not been
+ * sent yet. The dispatcher only runs daily, so an accidental tick corrected the same day sends
+ * her nothing at all.
+ */
+async function onAttended(identityId: string): Promise<void> {
+  await supabaseAdmin.from('acquisition_events').insert({
+    event_name: 'sales_call_attended',
+    lead_identity_id: identityId,
+    idempotency_key: `attended:${identityId}`,
+    status: 'recorded',
+  });
+
+  await supabaseAdmin
+    .from('acquisition_events')
+    .update({ status: 'skipped', last_error_code: 'call_attended' })
+    .eq('lead_identity_id', identityId)
+    .eq('status', 'pending')
+    .in('event_name', ['call_no_show', 'call_no_show_second', 'call_no_show_final']);
+}
+
+/**
  * Which lead is this?
  *
- * The id rides through the booking URL. Email is only a FALLBACK, and only when it exactly
- * matches an email CRWN already holds. We never create or merge an identity from a Cal.com
- * booking: anyone could type anyone's address into a booking form, and merging on that is the
- * account-takeover vector we designed the whole identity system to avoid.
+ * The id rides through the booking URL. The booking UID is the second key, and it is the one
+ * that carries a no-show or a cancellation: those payloads reference an existing booking and
+ * carry none of the original URL metadata. Email is a LAST resort, and only on an exact single
+ * match.
+ *
+ * We never create or merge an identity from a Cal.com booking: anyone could type anyone's
+ * address into a booking form, and merging on that is the account-takeover vector the whole
+ * identity system exists to avoid.
  */
-async function resolveLead(leadId: string | null, email: string | null): Promise<string | null> {
+async function resolveLead(
+  leadId: string | null,
+  email: string | null,
+  uid: string | null,
+): Promise<string | null> {
   if (leadId) {
     const { data } = await supabaseAdmin
       .from('lead_identities')
@@ -223,6 +281,16 @@ async function resolveLead(leadId: string | null, email: string | null): Promise
       .eq('id', leadId)
       .maybeSingle();
     if (data) return String(data.id);
+  }
+
+  // The booking we already recorded under this UID tells us who she is.
+  if (uid) {
+    const { data } = await supabaseAdmin
+      .from('acquisition_events')
+      .select('lead_identity_id')
+      .eq('idempotency_key', `cal_booked:${uid}`)
+      .maybeSingle();
+    if (data?.lead_identity_id) return String(data.lead_identity_id);
   }
 
   if (email) {

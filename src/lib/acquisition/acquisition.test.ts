@@ -913,6 +913,45 @@ describe('Cal.com webhook (the thing that stops a booked artist being nurtured)'
     expect(parseCalBooking(null)).toBe(null);
     expect(parseCalBooking('BOOKING_CREATED')).toBe(null);
   });
+
+  it('reads a no-show that a HUMAN marked, and never infers one', () => {
+    // BOOKING_NO_SHOW_UPDATED is Josh's verdict relayed through Cal.com. It is the only thing
+    // allowed to start the ladder.
+    const marked = parseCalBooking({
+      triggerEvent: 'BOOKING_NO_SHOW_UPDATED',
+      payload: { bookingUid: 'bk_1', attendees: [{ email: 'a@b.com', noShow: true }] },
+    });
+    expect(marked?.noShow).toBe(true);
+    expect(marked?.uid).toBe('bk_1'); // no-show payloads say `bookingUid`, not `uid`
+
+    // Un-ticked: she DID attend. This is the undo, and it must be distinguishable from "no
+    // information", which is why it is a tri-state and not a boolean.
+    const unmarked = parseCalBooking({
+      triggerEvent: 'BOOKING_NO_SHOW_UPDATED',
+      payload: { bookingUid: 'bk_1', attendees: [{ email: 'a@b.com', noShow: false }] },
+    });
+    expect(unmarked?.noShow).toBe(false);
+  });
+
+  it('treats a MISSING no-show flag as null, never as a no-show', () => {
+    // The catastrophic default. If an absent flag read as `true`, every booking created would
+    // fire "sorry we missed you" at an artist who has not even had the call yet.
+    const created = parseCalBooking({
+      triggerEvent: 'BOOKING_CREATED',
+      payload: { uid: 'bk_1', attendees: [{ email: 'a@b.com' }] },
+    });
+    expect(created?.noShow).toBe(null);
+  });
+
+  it('ignores noShowHost: that flag means JOSH missed the call', () => {
+    // DMing an artist "sorry we missed you" because the founder did not turn up would be
+    // spectacular, and it is one typo away.
+    const hostMissed = parseCalBooking({
+      triggerEvent: 'BOOKING_NO_SHOW_UPDATED',
+      payload: { bookingUid: 'bk_1', attendees: [{ email: 'a@b.com', noShowHost: true }] },
+    });
+    expect(hostMissed?.noShow).toBe(null);
+  });
 });
 
 // ---------------------------------------------------------------------------

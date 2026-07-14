@@ -211,8 +211,19 @@ no id is recorded as `sales_call_unattributed` for Josh to link by hand, never g
 
 ### A no-show is CONFIRMED, never inferred
 
-The no-show ladder fires only when Josh clicks **No-show** in `/admin` → Acquisition → **Calls**.
-Nothing infers it from the calendar.
+The ladder fires on a **human's verdict**, from either of two places, which write the same
+idempotency key so using both cannot double-send:
+
+1. Josh ticks **No-show** on the booking in Cal.com (`BOOKING_NO_SHOW_UPDATED`). Un-ticking it
+   is the undo and cancels every unsent rung.
+2. Josh clicks **No-show** in `/admin` → Acquisition → **Calls**.
+
+Cal.com also offers an `After guests didn't join cal video` trigger on a 5-minute timer. **We do
+not subscribe to it.** "Has not joined yet" is not "did not show up", and an artist who joins at
+minute 7 would receive "sorry we missed you" while she is on the call. The flag is read from the
+**attendee**, never from `noShowHost`, which means the *founder* missed it. A missing flag parses
+to `null`, and null never fires the ladder: defaulting it to `true` would turn every booking into
+a no-show.
 
 Sending "sorry we missed you" to an artist who *did* turn up, and had a good conversation, is
 humiliating and unrecoverable. An unsent message costs nothing; a wrong one costs the artist. So

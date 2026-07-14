@@ -60,6 +60,15 @@ export interface CalBooking {
   attendeeName: string | null;
   /** The CRWN lead identity, carried through the booking URL. */
   leadIdentityId: string | null;
+  /**
+   * BOOKING_NO_SHOW_UPDATED only. TRUE = Josh marked her a no-show, FALSE = he un-marked her.
+   * `null` on every other trigger, and null NEVER means no-show.
+   *
+   * This is a HUMAN's verdict relayed through Cal.com, not Cal.com's own inference. That
+   * distinction is the whole reason we can act on it: the "guest didn't join cal video" trigger
+   * is a guess (she might join at minute 7), and this is a decision.
+   */
+  noShow: boolean | null;
 }
 
 const UUID = /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i;
@@ -89,13 +98,42 @@ export function parseCalBooking(body: unknown): CalBooking | null {
 
   return {
     triggerEvent: trigger,
-    uid: str(p.uid),
+    // BOOKING_NO_SHOW_UPDATED sends `bookingUid`, the others send `uid`. Same identifier,
+    // different key, and getting this wrong would silently orphan every no-show.
+    uid: str(p.uid) ?? str(p.bookingUid),
     startTime: str(p.startTime),
     endTime: str(p.endTime),
     attendeeEmail: str(first.email)?.toLowerCase() ?? null,
     attendeeName: str(first.name),
     leadIdentityId: findLeadId(p),
+    noShow: findNoShow(p),
   };
+}
+
+/**
+ * Did the human mark her a no-show?
+ *
+ * Cal.com puts the flag on the attendee, not the booking, and it has moved between
+ * `noShow` and `no_show` across versions. Undefined is NOT false and it is NOT true: on any
+ * trigger that carries no flag at all we return null, and null never fires the ladder.
+ *
+ * Defaulting a missing flag to `true` would be catastrophic here (every booking becomes a
+ * no-show); defaulting to `false` is merely useless. So: null, and the caller ignores it.
+ */
+function findNoShow(payload: Record<string, unknown>): boolean | null {
+  const attendees = Array.isArray(payload.attendees) ? (payload.attendees as Record<string, unknown>[]) : [];
+
+  // Deliberately NOT `noShowHost`. That flag means the HOST did not turn up, and DMing an
+  // artist "sorry we missed you" because Josh missed the call would be spectacular.
+  for (const a of attendees) {
+    const v = a.noShow ?? a.no_show;
+    if (typeof v === 'boolean') return v;
+  }
+
+  const top = payload.noShow ?? payload.no_show;
+  if (typeof top === 'boolean') return top;
+
+  return null;
 }
 
 /**

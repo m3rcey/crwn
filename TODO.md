@@ -39,8 +39,12 @@ responsible for. Do not work those.
 
       - **Subscriber URL:** `https://thecrwn.app/api/integrations/calcom/webhook`
       - **Secret:** the string from step 1
-      - **Event triggers:** tick `Booking created`, `Booking cancelled`, `Booking rescheduled`
-      - Leave the payload template as the default
+      - **Event triggers:** Clear all, then tick exactly four: `Booking created`,
+        `Booking canceled`, `Booking rescheduled`, `Booking no-show updated`
+      - Leave **Custom Payload Template OFF**
+      - Do NOT tick `After guests didn't join cal video`. That fires on a 5-minute timer, and
+        "has not joined yet" is not "did not show up". An artist who joins at minute 7 would
+        get a "sorry we missed you" DM mid-call.
 
       **Check it worked:** the Acquisition tab's config strip gets a green "Cal.com". Book a
       test slot on your own link and it appears under the new **Calls** tab within seconds.
@@ -50,10 +54,16 @@ responsible for. Do not work those.
       nurture sequence keeps running at people who already said yes. That is the worst
       possible message to send, which is why this is P0.
 
-- [ ] **After every sales call, mark it in /admin, Acquisition, Calls.**
+- [ ] **After every sales call, mark whether she showed up.**
 
-      Two buttons: **She showed** or **No-show**. This is the one thing in the funnel that
-      cannot be automated, and it is deliberate.
+      **Easiest: tick "No-show" on the booking in Cal.com.** CRWN listens for that and starts
+      the ladder. Un-ticking it cancels the ladder, so a mis-click is recoverable as long as you
+      fix it the same day (the dispatcher only runs at 5am).
+
+      Or do it in **/admin → Acquisition → Calls**: **She showed** / **No-show**. Same effect,
+      same idempotency key, so using both places cannot double-send.
+
+      This is the one step in the funnel that stays manual, and it is deliberate.
 
       A no-show ladder only fires when *you* say she did not turn up. Nothing infers it,
       because "sorry we missed you" sent to the artist who *was* on the call, and had a good
