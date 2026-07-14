@@ -48,6 +48,48 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Set the two Resend webhook secrets in Vercel. The webhooks reject everything until
+      you do.** I signed them (they used to accept a POST from anyone), and a signed webhook
+      with no secret configured fails **closed**, on purpose.
+
+      In Resend → **Webhooks**, open each endpoint and copy its **Signing Secret** (starts
+      `whsec_`). They are DIFFERENT per endpoint. In Vercel → Settings → Environment
+      Variables (Production), add both, then **redeploy**:
+
+      - `RESEND_WEBHOOK_SECRET` → the secret for the endpoint pointing at
+        `https://thecrwn.app/api/outreach/webhook` (bounces, spam complaints)
+      - `RESEND_INBOUND_SECRET` → the secret for the endpoint pointing at
+        `https://thecrwn.app/api/outreach/inbound` (replies from leads)
+
+      **Not urgent to the minute:** Resend retries a failing webhook for hours, so events in
+      the gap land once the secrets are in. It IS urgent within the day, because after the
+      retries expire, a bounce or a lead's reply in that window is gone. Nothing else breaks:
+      the Instagram funnel and Twilio do not touch these.
+
+- [ ] **Apply `supabase/schema-phase2-rate-limit.sql`.** Paste it into the Supabase SQL
+      editor. It is deliberately **non-destructive**: `check_rate_limit()` already exists in
+      production and is left exactly as it is. The migration only creates what is missing and
+      then asserts the limiter really limits (allows under the cap, denies over it), so
+      applying it should change nothing and simply prove the claim.
+
+      Why bother: the function had no checked-in definition anywhere, so a fresh database
+      came up without it, and then every public form (`/api/support`, `/api/partner/apply`,
+      the lead magnets) 429s the first visitor who touches it.
+
+- [ ] **DECIDE: what do partners actually earn now?** `/partner` and `/recruit` still promise
+      recurring commission on **"Label ($175/mo) and Empire ($350/mo)"** artists, and
+      `/recruit` quotes **"Pro $50, Label $150, Empire $350"**. None of those tiers or prices
+      exist. Pro is **$9.99**, Label is **$99 and not even sellable yet**, and Empire was
+      deleted.
+
+      So the pages are quoting partners a commission base that is 5x the real one. I did not
+      rewrite them, because what you promise a partner is your call, not mine: 10% of a $9.99
+      Pro artist is **$1/mo**, which may simply not be a program worth running. Tell me the
+      real offer and I will make every page say it.
+
+      (The payout **code** is already fixed and correct: it now reads the real prices. No
+      recruiter was ever overpaid, because no recurring payout has ever run.)
+
 - [ ] **Decide the DM messaging-window policy.** Meta only lets you message a lead for 24
       hours after *her* last interaction. Outside that window, sends are rejected and CRWN
       treats it as terminal (it does not retry, on purpose).
@@ -63,20 +105,6 @@ responsible for. Do not work those.
       identity, DM answers, AI-derived classifications, lead scores, and that ManyChat and
       Anthropic are processors.
 
-- [ ] **`check_rate_limit` has no checked-in migration.** The function exists only in
-      production; nothing in `supabase/*.sql` defines it. If it ever gets dropped, every
-      rate-limited route fails **closed** (safe, but the public forms all break). Worth
-      exporting the definition into a migration file so it is reproducible.
-
-### P2 — should happen, nothing breaks if it does not
-
-- [ ] **Two webhooks are unsigned.** Resend (`/api/outreach/webhook`, `/api/outreach/inbound`)
-      and Twilio inbound (`/api/sms/webhook`) accept unauthenticated POSTs. Known gap,
-      pre-dates the acquisition work. Tell Claude when you want it closed.
-
-- [ ] **Dead `empire` tier price IDs.** `STRIPE_PRICE_IDS` in `platformTier.ts` still
-      references `STRIPE_CRWN_EMPIRE_PRICE_ID` / `_ANNUAL_PRICE_ID` for a tier that no longer
-      exists. Harmless, but it is dead code pointing at dead env vars.
 
 ---
 
@@ -158,15 +186,7 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-**Four routes self-fetch through Vercel's auth wall.** `cron/ai-manager` (line 178),
-`admin/agent/briefing` (150), `admin/agent/autonomous` (52) and `admin/agent/execute` (425)
-build a base url from `https://${VERCEL_URL}`, the protected deployment origin, which answers
-every path with an http 200 html page instead of the API. Same bug that made the RLS canary
-email you a false LEAK on Jul 13. Two also have an operator-precedence bug (`A || B ? C : D`
-parses as `(A || B) ? C : D`), so they use `VERCEL_URL` even when `NEXT_PUBLIC_SITE_URL` is set.
-Nothing is exposed, but those self-calls are probably silently no-oping. Say the word.
-
-Otherwise the Instagram acquisition engine is feature-complete and verified in
+**Nothing is queued.** The Instagram acquisition engine is feature-complete and verified in
 production: ingress, identity, Claude extraction with a complete deterministic fallback, the
 calculator handoff, secure result links, claiming, follow-up automation, booking detection, the
 no-show ladder, retention, and the admin panel. What remains is entirely on your side of the
