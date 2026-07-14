@@ -18,41 +18,24 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Set up the Cal.com webhook, or a booked artist keeps getting nurture DMs.**
+- [x] ~~**Set up the Cal.com webhook.**~~ **DONE 2026-07-14, verified end to end in
+      production.** A real booking through the tracked link landed attributed to the right lead,
+      both pending nurture messages flipped to `skipped / converted_booked_call`, the
+      confirmation DM queued, and the booking pushed her score into `sales_priority`. The loop
+      is closed.
 
-      This is the last open loop in the funnel. Right now nothing tells CRWN that an artist
-      booked a call. So she books, and two days later the automation DMs her *"you still have
-      not opened your numbers"* while she is sitting in the Zoom with you. One message like
-      that undoes the whole conversation.
+- [ ] **Add `CALCOM_API_KEY` to Vercel (P1, not blocking).**
 
-      The code is live and waiting. It needs two things from you.
+      Same value as your local `.env.local`. Production ticked, then redeploy.
 
-      **1. Generate a secret and add it to Vercel** (Settings, Environment Variables):
+      Bookings already work without it. What it buys you is the **"Cal.com" tick in the config
+      strip turning green**, because that check asks Cal.com what secret it stored and compares
+      it to the one Vercel is running with. Right now it cannot reach Cal.com, so it honestly
+      reports grey ("could not check") rather than a fake green.
 
-      ```
-      openssl rand -hex 32
-      ```
-
-      Name it `CALCOM_WEBHOOK_SECRET`. Same value goes in Vercel and in Cal.com. Redeploy.
-
-      **2. Create the webhook in Cal.com** (Settings, Developer, Webhooks, New):
-
-      - **Subscriber URL:** `https://thecrwn.app/api/integrations/calcom/webhook`
-      - **Secret:** the string from step 1
-      - **Event triggers:** Clear all, then tick exactly four: `Booking created`,
-        `Booking canceled`, `Booking rescheduled`, `Booking no-show updated`
-      - Leave **Custom Payload Template OFF**
-      - Do NOT tick `After guests didn't join cal video`. That fires on a 5-minute timer, and
-        "has not joined yet" is not "did not show up". An artist who joins at minute 7 would
-        get a "sorry we missed you" DM mid-call.
-
-      **Check it worked:** the Acquisition tab's config strip gets a green "Cal.com". Book a
-      test slot on your own link and it appears under the new **Calls** tab within seconds.
-
-      **What breaks if you skip it:** nothing crashes. The webhook rejects every unsigned
-      request (it fails closed, by design), so bookings are simply never detected, and the
-      nurture sequence keeps running at people who already said yes. That is the worst
-      possible message to send, which is why this is P0.
+      This is worth having. The webhook fails closed, so a *mistyped* secret and a *missing*
+      one both return 401 and look identical from outside. That is exactly what silently ate
+      the first test booking, and this check is what catches it next time in one glance.
 
 - [ ] **After every sales call, mark whether she showed up.**
 
