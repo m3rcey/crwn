@@ -88,8 +88,8 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Understand platform fees',
-        content: 'CRWN charges a platform fee on every transaction. The fee depends on your platform tier: Starter (free) is 8%, Pro ($69/mo) is 6%, Label ($175/mo) is 5%, Empire ($350/mo) is 3%. Stripe also charges their standard processing fee (~2.9% + $0.30) on top. Choose the tier that makes sense for your revenue level.',
-        tip: 'If you earn more than $1,150/month, upgrading to Pro pays for itself in saved fees. Do the math for your situation.',
+        content: 'CRWN charges a platform fee on every transaction. The fee depends on your plan: Free is 12%, Pro ($9.99/mo) is 8%. Stripe also charges their standard processing fee (~2.9% + $0.30) on top.',
+        tip: 'Pro cuts the fee by 4 points, so it pays for itself at about $250/month in sales. Earn more than that on Free and the difference is money you are handing back every month.',
       },
       {
         title: 'Set up your payout schedule',

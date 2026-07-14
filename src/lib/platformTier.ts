@@ -6,13 +6,14 @@ export const TIER_PRICING = {
   label: { monthly: 9900, annual: 118800, monthlyDisplay: 99, annualMonthlyDisplay: 99, annualTotal: 1188, savings: 0 },
 } as const;
 
+// The only prices CRWN can actually charge. There is no 'empire' tier: it was removed, but
+// its two price ids lived on here pointing at env vars that have never existed, which reads
+// to the next person like a tier they can sell.
 export const STRIPE_PRICE_IDS = {
   pro_monthly: process.env.STRIPE_CRWN_PRO_PRICE_ID || '',
   pro_annual: process.env.STRIPE_CRWN_PRO_ANNUAL_PRICE_ID || '',
   label_monthly: process.env.STRIPE_CRWN_LABEL_PRICE_ID || '',
   label_annual: process.env.STRIPE_CRWN_LABEL_ANNUAL_PRICE_ID || '',
-  empire_monthly: process.env.STRIPE_CRWN_EMPIRE_PRICE_ID || '',
-  empire_annual: process.env.STRIPE_CRWN_EMPIRE_ANNUAL_PRICE_ID || '',
 };
 
 // Platform Tier Limits Configuration

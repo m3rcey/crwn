@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterRecurringEmail } from '@/lib/emails/recruiterRecurring';
 import { createClient } from '@supabase/supabase-js';
+import { TIER_PRICING } from '@/lib/platformTier';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy-stripe-key-for-build');
@@ -10,11 +11,21 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-const TIER_PRICES: Record<string, number> = {
-  pro: 5000,
-  label: 17500,
-  empire: 35000,
-};
+/**
+ * What the artist actually pays CRWN, in cents, read from the ONE place that knows.
+ *
+ * This used to be a second, hardcoded price map (pro: 5000, label: 17500, empire:
+ * 35000) and it had drifted into fiction: Pro is $9.99 and Label is $99, so a 10%
+ * recurring commission on a Pro artist wired the recruiter $5.00 a month against an
+ * artist paying $9.99. That is a real Stripe transfer of real money, computed from a
+ * price nobody charges. A commission is a share OF something; the moment it stops
+ * reading the thing it is a share of, it is just a number that pays out.
+ *
+ * An unknown or unpriced tier (starter, the dead 'empire') returns 0 and is skipped.
+ */
+function monthlyFeeCents(tier: string): number {
+  return TIER_PRICING[tier as keyof typeof TIER_PRICING]?.monthly ?? 0;
+}
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
@@ -51,6 +62,13 @@ export async function GET(req: NextRequest) {
   let processed = 0;
   let totalPaid = 0;
 
+  // Summary emails are built from what was ACTUALLY transferred, accumulated here as
+  // it happens. They used to be built by a second pass that re-derived every amount
+  // from scratch and re-applied none of the skips above, so a recruiter whose artist
+  // had lapsed, or who was skipped by the partner/Pro rule, still got an email saying
+  // she had earned money that was never sent.
+  const paidByRecruiter = new Map<string, { amount: number; count: number }>();
+
   for (const referral of activeReferrals) {
     // Get artist's current platform tier
     const { data: artist } = await supabaseAdmin
@@ -74,7 +92,7 @@ export async function GET(req: NextRequest) {
       continue;
     }
 
-    const monthlyFee = TIER_PRICES[artist.platform_tier] || 0;
+    const monthlyFee = monthlyFeeCents(artist.platform_tier);
     if (monthlyFee === 0) continue;
 
     const payoutAmount = Math.round(monthlyFee * (referral.recurring_rate / 100));
@@ -131,6 +149,12 @@ export async function GET(req: NextRequest) {
           .eq('id', recruiter.id);
 
         totalPaid += payoutAmount;
+
+        const running = paidByRecruiter.get(recruiter.id) || { amount: 0, count: 0 };
+        paidByRecruiter.set(recruiter.id, {
+          amount: running.amount + payoutAmount,
+          count: running.count + 1,
+        });
       } catch (err) {
         console.error('Recurring transfer failed:', err);
       }
@@ -141,26 +165,18 @@ export async function GET(req: NextRequest) {
 
   // Send monthly summary emails to recruiters who got paid
   try {
-    const paidRecruiters = new Map<string, number>();
-    const paidCounts = new Map<string, number>();
-
-    for (const referral of activeReferrals) {
-      const monthlyFee = TIER_PRICES[(await supabaseAdmin.from('artist_profiles').select('platform_tier').eq('id', referral.artist_id).single()).data?.platform_tier || ''] || 0;
-      const amount = Math.round(monthlyFee * (referral.recurring_rate / 100));
-      if (amount > 0) {
-        paidRecruiters.set(referral.recruiter_id, (paidRecruiters.get(referral.recruiter_id) || 0) + amount);
-        paidCounts.set(referral.recruiter_id, (paidCounts.get(referral.recruiter_id) || 0) + 1);
-      }
-    }
-
-    for (const [recruiterId, totalAmount] of paidRecruiters) {
+    for (const [recruiterId, paid] of paidByRecruiter) {
       const recruiterUserId = (await supabaseAdmin.from('recruiters').select('user_id').eq('id', recruiterId).single()).data?.user_id;
       if (!recruiterUserId) continue;
       const profile = (await supabaseAdmin.from('profiles').select('display_name').eq('id', recruiterUserId).single()).data;
-      const email = recruiterUserId ? (await supabaseAdmin.auth.admin.getUserById(recruiterUserId)).data?.user?.email : null;
+      const email = (await supabaseAdmin.auth.admin.getUserById(recruiterUserId)).data?.user?.email;
       if (email) {
         const firstName = (profile?.display_name || '').split(' ')[0] || 'there';
-        const emailContent = recruiterRecurringEmail({ recruiterName: firstName, totalAmount, referralCount: paidCounts.get(recruiterId) || 0 });
+        const emailContent = recruiterRecurringEmail({
+          recruiterName: firstName,
+          totalAmount: paid.amount,
+          referralCount: paid.count,
+        });
         await resend.emails.send({ from: FROM_EMAIL, to: email, subject: emailContent.subject, html: emailContent.html });
       }
     }

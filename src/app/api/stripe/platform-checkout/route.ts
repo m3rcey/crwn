@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { STRIPE_PRICE_IDS } from '@/lib/platformTier';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
 
@@ -102,16 +103,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Get price ID based on tier and billing cycle
-    const priceMap: Record<string, string | undefined> = {
-      pro_monthly: process.env.STRIPE_CRWN_PRO_PRICE_ID,
-      pro_annual: process.env.STRIPE_CRWN_PRO_ANNUAL_PRICE_ID,
-      label_monthly: process.env.STRIPE_CRWN_LABEL_PRICE_ID,
-      label_annual: process.env.STRIPE_CRWN_LABEL_ANNUAL_PRICE_ID,
-      empire_monthly: process.env.STRIPE_CRWN_EMPIRE_PRICE_ID,
-      empire_annual: process.env.STRIPE_CRWN_EMPIRE_ANNUAL_PRICE_ID,
-    };
-    const priceId = priceMap[`${tierId}_${billingCycle}`];
+    // Price id by tier and billing cycle, read from the one map that defines them. This was
+    // a third private copy of the same env vars, including two for the dead 'empire' tier.
+    const priceId = STRIPE_PRICE_IDS[`${tierId}_${billingCycle}` as keyof typeof STRIPE_PRICE_IDS];
 
     if (!priceId) {
       return NextResponse.json({ error: 'Price ID not configured' }, { status: 500 });
