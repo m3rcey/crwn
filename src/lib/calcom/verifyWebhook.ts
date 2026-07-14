@@ -28,7 +28,10 @@ export interface CalVerifyResult {
  * attack. Always hash the exact bytes that arrived.
  */
 export function verifyCalcomRequest(rawBody: string, signature: string | null): CalVerifyResult {
-  const secret = process.env.CALCOM_WEBHOOK_SECRET;
+  // TRIM. A secret pasted into a Vercel env var very often arrives with a trailing newline, and
+  // a one-character difference produces a completely different MAC. The failure is then
+  // indistinguishable from an attack, which is exactly the kind of bug that eats an afternoon.
+  const secret = process.env.CALCOM_WEBHOOK_SECRET?.trim();
 
   if (!secret) return { ok: false, reason: 'not_configured' };
   if (!signature) return { ok: false, reason: 'missing_signature' };

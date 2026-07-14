@@ -62,6 +62,8 @@ interface Config {
   manychatApiToken: boolean;
   anthropicApiKey: boolean;
   calcomWebhookSecret: boolean;
+  /** true = the secrets AGREE. false = they disagree. null = could not check. */
+  calcomSecretMatches: boolean | null;
   manychatMessageTag: boolean;
 }
 
@@ -349,10 +351,18 @@ function ConfigStrip({ config }: { config: Config }) {
       note: 'ANTHROPIC_API_KEY. Optional: without it, vague answers land in Needs you.',
     },
     {
+      // A green tick here used to mean only "a string is present", which is a question nobody
+      // was asking. It now means "the secret Vercel runs with is byte-identical to the one
+      // Cal.com signs with", which is the only thing that determines whether a booking lands.
       label: 'Cal.com',
-      ok: config.calcomWebhookSecret,
+      ok: config.calcomWebhookSecret && config.calcomSecretMatches === true,
       required: false,
-      note: 'CALCOM_WEBHOOK_SECRET. Without it no booking is detected, so an artist who books a call still gets nurtured as if she never did.',
+      note:
+        config.calcomWebhookSecret && config.calcomSecretMatches === false
+          ? 'CALCOM_WEBHOOK_SECRET does NOT match the secret stored in Cal.com. Every booking is being rejected. Copy the secret out of Cal.com and re-paste it into Vercel, then redeploy.'
+          : config.calcomWebhookSecret && config.calcomSecretMatches === null
+          ? 'CALCOM_WEBHOOK_SECRET is set, but CRWN could not reach Cal.com to confirm it matches. Check CALCOM_API_KEY and that a webhook pointing at CRWN exists.'
+          : 'CALCOM_WEBHOOK_SECRET. Without it no booking is detected, so an artist who books a call still gets nurtured as if she never did.',
     },
   ];
 

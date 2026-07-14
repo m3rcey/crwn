@@ -59,6 +59,16 @@ export async function GET(req: NextRequest) {
       config: {
         migrated,
         engineEnabled,
+        // Does the secret Vercel is RUNNING WITH actually match the one Cal.com SIGNS WITH?
+        //
+        // "Is it set" was not a useful question, and it cost an afternoon proving that. The
+        // webhook fails closed, so a missing secret and a mistyped secret both return 401 and
+        // look identical from outside, while the config strip cheerfully showed a green tick
+        // for a value that could never verify anything.
+        //
+        // CRWN already holds CALCOM_API_KEY, so it can just ASK Cal.com what it stored and
+        // compare. The answer is a BOOLEAN. No value, no prefix, no hint, no oracle.
+        calcomSecretMatches: await calcomSecretMatches(),
         // Inbound. Without it the webhook rejects EVERY request.
         manychatWebhookSecret: isSet(process.env.MANYCHAT_WEBHOOK_SECRET),
         // Outbound. Without it, follow-up reaches nobody.
@@ -156,6 +166,46 @@ export async function GET(req: NextRequest) {
     console.error('[admin/acquisition] read failed:', err instanceof Error ? err.message : 'unknown');
     // Almost always "the migration has not been run yet". Say so rather than 500ing.
     return NextResponse.json({ rows: [], notReady: true });
+  }
+}
+
+/**
+ * Ask Cal.com what webhook secret it holds, and compare it to ours.
+ *
+ * Returns a tri-state, and the distinction matters:
+ *   true   the two secrets agree, so a real booking will verify
+ *   false  they DISAGREE, so every booking is being 401'd right now
+ *   null   cannot tell (no API key, no webhook registered, Cal.com unreachable)
+ *
+ * `null` must never render as a reassuring green tick. "I could not check" and "I checked and
+ * it is fine" are different answers, and conflating them is how the original bug survived: a
+ * green tick that only meant "a string of some kind is present".
+ */
+async function calcomSecretMatches(): Promise<boolean | null> {
+  const ours = process.env.CALCOM_WEBHOOK_SECRET?.trim();
+  const apiKey = process.env.CALCOM_API_KEY?.trim();
+  if (!ours || !apiKey) return null;
+
+  try {
+    const res = await fetch('https://api.cal.com/v2/webhooks', {
+      headers: { Authorization: `Bearer ${apiKey}`, 'cal-api-version': '2024-06-14' },
+      // Never let a slow third party hang an admin page load.
+      signal: AbortSignal.timeout(5_000),
+    });
+    if (!res.ok) return null;
+
+    const json = (await res.json()) as { data?: { subscriberUrl?: string; secret?: string }[] };
+    const hooks = json.data ?? [];
+    if (!hooks.length) return null;
+
+    // Only compare against the hook that actually points at us. Josh may have other webhooks
+    // on this Cal.com account, and a match against someone else's is not a match.
+    const mine = hooks.find((h) => (h.subscriberUrl ?? '').includes('/api/integrations/calcom/webhook'));
+    if (!mine?.secret) return null;
+
+    return mine.secret.trim() === ours;
+  } catch {
+    return null;
   }
 }
 
