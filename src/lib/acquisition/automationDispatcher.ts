@@ -30,8 +30,16 @@ import type { LeadIdentity } from './types';
 const BATCH_SIZE = 50;
 const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
 
-/** Where she books the 15 minutes. Same link /worth already uses for cold outreach. */
-const BOOKING_URL = process.env.CRWN_BOOKING_URL || 'https://cal.com/jnwcreative';
+/**
+ * Where she books the 15 minutes.
+ *
+ * It MUST be the event page (/15min), not the profile page (/jnwcreative). The profile page is
+ * a LIST of event types, and clicking through to the event drops the query string. So a link to
+ * the profile would strip the `metadata[crwn]` param below, and every booking that came from a
+ * DM would arrive unattributed: no cancellation of her nurture, no confirmation, nothing.
+ * A link that looks right and silently loses its payload is the worst kind.
+ */
+const BOOKING_URL = process.env.CRWN_BOOKING_URL || 'https://cal.com/jnwcreative/15min';
 
 /**
  * The booking link MUST carry the lead id, or Cal.com's webhook cannot tell us who booked.

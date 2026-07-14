@@ -23,7 +23,9 @@ import {
 } from './mocks';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
-const BOOK_CALL_URL = 'https://cal.com/jnwcreative';
+// The event page, not the profile page. The profile page is a list of event types and costs
+// the visitor an extra click at the exact moment she is deciding whether to bother.
+const BOOK_CALL_URL = 'https://cal.com/jnwcreative/15min';
 
 // Brand gold as RGB for inline opacity steps (single-hue composition bar).
 const GOLD = '212,175,55';
