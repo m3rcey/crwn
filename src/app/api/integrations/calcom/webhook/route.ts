@@ -22,6 +22,13 @@ const supabaseAdmin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } },
 );
 
+const HANDLED_TRIGGERS = new Set([
+  'BOOKING_CREATED',
+  'BOOKING_CANCELLED',
+  'BOOKING_RESCHEDULED',
+  'BOOKING_NO_SHOW_UPDATED',
+]);
+
 export async function POST(req: NextRequest) {
   const raw = await req.text();
 
@@ -47,6 +54,16 @@ export async function POST(req: NextRequest) {
   const booking = parseCalBooking(body);
   if (!booking) {
     return NextResponse.json({ error: 'Unrecognized payload' }, { status: 400 });
+  }
+
+  // Ignore triggers we have no handler for, BEFORE writing anything.
+  //
+  // Cal.com sends PING on "test webhook", and it will happily add trigger types later. Without
+  // this, every ping and every future event type files itself as an unattributed booking, and
+  // the one queue Josh is meant to trust ("bookings I could not match to a lead") fills with
+  // noise. A queue you learn to ignore is worse than no queue.
+  if (!HANDLED_TRIGGERS.has(booking.triggerEvent)) {
+    return NextResponse.json({ ok: true, ignored: booking.triggerEvent });
   }
 
   // Which CRWN lead is this? The id rides through the booking URL, because an Instagram lead
