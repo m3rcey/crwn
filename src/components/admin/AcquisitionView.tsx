@@ -39,6 +39,8 @@ interface Row {
   last_error_code?: string;
   attempt_count?: number;
   lead_identity_id?: string;
+  // On the Calls tab, event_name is 'sales_call_booked' (linked to a lead) or
+  // 'sales_call_unattributed' (booked from the website, nobody to follow up).
   metadata?: { startTime?: string; endTime?: string; uid?: string } | null;
   outcome?: string | null;
   identity?: { instagram_username?: string; email?: string; claimed_at?: string; status?: string } | null;
@@ -214,8 +216,16 @@ export default function AcquisitionView() {
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     <CalendarClock className="w-4 h-4 text-crwn-text-secondary shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-crwn-text font-medium truncate">
-                        {r.identity?.instagram_username
+                      <p
+                        className={`font-medium truncate ${
+                          r.event_name === 'sales_call_unattributed'
+                            ? 'text-crwn-text-secondary'
+                            : 'text-crwn-text'
+                        }`}
+                      >
+                        {r.event_name === 'sales_call_unattributed'
+                          ? 'Booking not linked to a lead'
+                          : r.identity?.instagram_username
                           ? `@${r.identity.instagram_username}`
                           : r.identity?.email ?? 'Unknown lead'}
                       </p>
@@ -227,7 +237,14 @@ export default function AcquisitionView() {
                     </div>
                   </div>
 
-                  {r.outcome ? (
+                  {r.event_name === 'sales_call_unattributed' ? (
+                    // No lead means no follow-up sequence, so there is nothing to mark and no
+                    // button to offer. The row exists purely so a real booking is never
+                    // invisible here. Booked straight from the website, most likely.
+                    <span className="text-sm text-crwn-text-secondary shrink-0">
+                      Booked from the website
+                    </span>
+                  ) : r.outcome ? (
                     // Already settled. Show it, and give no button: a second click here would
                     // either re-open a closed loop or contradict what Josh already recorded.
                     <span className="text-sm text-crwn-text-secondary shrink-0">

@@ -104,10 +104,20 @@ export async function GET(req: NextRequest) {
     // wrong is brutal: "sorry we missed you" sent to the person who actually turned up and had
     // a good conversation.
     if (view === 'calls') {
+      // Unattributed bookings are included ON PURPOSE.
+      //
+      // A booking made from the plain cal.com link (the one on the website) carries no lead id,
+      // so CRWN cannot link it and correctly refuses to guess. But hiding it from this tab was
+      // worse than useless: a real booking existed while the tab showed "No calls booked yet",
+      // which reads as "the webhook is broken" and teaches Josh to distrust the one queue he is
+      // supposed to act on.
+      //
+      // It renders as a muted row with no buttons, because with no lead there is no follow-up
+      // ladder to fire. It is there to say "this happened and CRWN saw it", nothing more.
       const { data } = await supabaseAdmin
         .from('acquisition_events')
-        .select('id, lead_identity_id, metadata, occurred_at, created_at')
-        .eq('event_name', 'sales_call_booked')
+        .select('id, event_name, lead_identity_id, metadata, occurred_at, created_at')
+        .in('event_name', ['sales_call_booked', 'sales_call_unattributed'])
         .eq('status', 'recorded')
         .order('created_at', { ascending: false })
         .limit(100);
