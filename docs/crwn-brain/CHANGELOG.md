@@ -1,5 +1,29 @@
 # CRWN Brain — Changelog
 
+## 2026-07-14 — A deploy is not an outage: the error boundaries were mislabelling a routine deploy as a crash
+
+Reported as "site not loading, says something went wrong" on the homepage and the featured
+artist page, which then stopped on its own. Production was never down. It was a **stale-deploy
+chunk error**: a deploy had gone out ~1h earlier, and an open tab still held HTML pointing at
+the previous build's content-hashed JS chunks. Fetching one 404s, throwing `ChunkLoadError`,
+which trips the nearest error boundary. `chunkReload` then hard-reloads once and the next load
+is clean, which is why it "fixed itself."
+
+- **The defect was the presentation, not the recovery.** All three boundaries only tested
+  `isChunkLoadError` inside `useEffect`, so the crash screen **painted first** and the reload
+  fired a tick later. Every deploy therefore flashed "Something went wrong" at anyone mid-session.
+  It convinced the founder the site was down; a visiting artist would conclude the same and leave.
+  That puts it on the acquisition surface, not in the cosmetics pile.
+- **Fix:** the check now runs during **render**, so the first paint is a quiet "Updating to the
+  latest version" screen (`src/components/shared/AppUpdating.tsx`). The genuine crash copy is
+  reserved for genuine crashes.
+- **`global-error.tsx` was also missing `<html>`/`<body>`**, which Next requires because that
+  file *replaces* the root layout when it renders. It is now inline-styled end to end: it cannot
+  depend on `globals.css`, since the layout it replaces is what imports it.
+- **Boundary coverage:** only `(main)`, `(auth)` and the root `global-error` exist. `(public)`
+  and `[slug]` (artist profiles) have no route-level boundary and fall through to `global-error`,
+  which is the path this bug came in on.
+
 ## 2026-07-14 — Influencer commission is 1% of artist REVENUE (founder rule), and it was paying 5x
 
 Founder rule: **influencers earn 1% of the referred artist's revenue**, negotiable per influencer. The code was paying a percentage of something else entirely.
