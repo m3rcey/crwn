@@ -1,5 +1,24 @@
 # CRWN Brain — Changelog
 
+## 2026-07-14 — Influencer commission is 1% of artist REVENUE (founder rule), and it was paying 5x
+
+Founder rule: **influencers earn 1% of the referred artist's revenue**, negotiable per influencer. The code was paying a percentage of something else entirely.
+
+- **The bug:** `cron/recruiter-recurring` held a private price map (`pro: 5000, label: 17500, empire: 35000`) and fed it straight into `stripe.transfers.create()`. Pro is **$9.99**, so a 10% recurring commission on a Pro artist would have wired **$5.00/mo against an artist paying $9.99** (5x), Label 1.77x. It had been logged in TODO.md as a P2 "harmless dead code" item. **It never fired** (no recurring payout has ever run; no qualified referrals exist), so nothing needed clawing back.
+- **The rule now:** commission base is `earnings.net_amount` (what the artist keeps, the same basis Team Splits uses) summed over the **previous calendar month**. Refunds are negative rows and net out; a net-negative month pays 0, with no clawback. Rate defaults to **1%**, overridden per influencer via `recruiters.partner_recurring_rate` (legacy column name, now applies to every recruiter).
+- **Plan gates removed.** The old "artist must be on an active paid plan" and "partners earn nothing on Pro artists" rules assumed the commission came out of the artist's SaaS fee. A revenue share is funded by the platform fee (Free 12%, Pro 8%), which exists on every plan.
+- **Also fixed:** the summary emails were rebuilt by a second pass that re-derived every amount and re-applied none of the skips, so a recruiter could be emailed about money that was never sent. They now report what was actually transferred. Earnings reads are paginated (PostgREST caps at 1000 rows, so a busy artist's month would have silently underpaid).
+- **Copy:** `/partner`, `/recruit` and the getting-started guide were selling the fiction ($69 Pro, Label $175, Empire $350, "10% on Label+"). Rewritten to the real deal.
+- **Rule:** never hardcode a price or fee in a route. Derive from `TIER_PRICING` / `TIER_LIMITS`. A "harmless dead constant" that feeds arithmetic is not harmless.
+
+## 2026-07-14 — All four unsigned webhooks now verify signatures (HIGH-1 closed)
+
+`webhooks/resend`, `outreach/webhook`, `outreach/inbound`, `sms/webhook` accepted a POST from anyone and wrote via the service-role client. See `11-SECURITY-AND-PRIVACY.md` HIGH-1. Verified with hand-rolled HMAC (`src/lib/webhookSignatures.ts`) against Twilio's and Svix's official test vectors. All fail closed. Needs three Resend signing secrets in Vercel (in `TODO.md`).
+
+## 2026-07-14 — Internal self-calls hit Vercel's auth wall, silently
+
+`cron/ai-manager`, `admin/agent/{briefing,autonomous,execute}` and the RLS canary built base urls from `req.nextUrl.origin` / `VERCEL_URL`. Inside a Vercel cron both resolve to the `*.vercel.app` **deployment** origin, which sits behind Vercel Authentication (custom domains are public, deployment urls are not). That wall answers **every** path, `/api/*` included, with an **http 200 and an html login page**, so the self-calls did not fail loudly: they "succeeded" with html and the work never happened. It also made the RLS canary email a false LEAK alert about its own front door. One hardcoded `PUBLIC_ORIGIN` (`src/lib/publicOrigin.ts`) now. Two of the routes also had `(A || B) ? C : D` precedence bugs that made the `NEXT_PUBLIC_SITE_URL` fallback unreachable.
+
 ## 2026-07-11 — Rate limiter fixed (every unauthenticated route was fail-closed)
 
 `check_rate_limit(p_user_id)` is typed `uuid`, but unauthenticated routes have no user id and key on a string like `ip:1.2.3.4`. Postgres could not cast it (`22P02`), the RPC errored, and `checkRateLimit` discarded the error, so `data === true` evaluated `false`. An errored limiter was indistinguishable from a denial, and **every visitor got a 429 on their first request**.

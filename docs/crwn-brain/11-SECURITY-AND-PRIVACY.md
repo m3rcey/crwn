@@ -22,11 +22,12 @@
 
 ## Findings
 
-### 🔴 HIGH-1 — Four webhook endpoints accept unauthenticated POSTs that mutate state
-**Files:** `src/app/api/webhooks/resend/route.ts`, `src/app/api/outreach/webhook/route.ts`, `src/app/api/outreach/inbound/route.ts`, `src/app/api/sms/webhook/route.ts`. `Confirmed`.
-- **Evidence:** each parses `req.json()`/form fields and writes via the service-role client with **no signature check**. Resend signs via Svix headers (`svix-id/-signature/-timestamp`) — none checked. `sms/webhook` (inbound STOP/YES) has no `X-Twilio-Signature` check, unlike its sibling `sms/status` which correctly verifies HMAC-SHA1.
-- **Why it matters:** an attacker can forge `type:'email.complained'` to **mass-suppress arbitrary email addresses platform-wide** (killing transactional + marketing email delivery), or forge Twilio fields to opt phone numbers in/out of SMS lists, or inject fake outreach leads/replies.
-- **Remediation:** verify the Svix signature on the two Resend routes (Resend/Svix SDK provides a verifier); add the same Twilio HMAC check `sms/status` already uses to `sms/webhook`.
+### ✅ HIGH-1 — FIXED 2026-07-14. Four webhook endpoints accepted unauthenticated POSTs that mutate state
+**Files:** `src/app/api/webhooks/resend/route.ts`, `src/app/api/outreach/webhook/route.ts`, `src/app/api/outreach/inbound/route.ts`, `src/app/api/sms/webhook/route.ts`.
+- **Was:** each parsed `req.json()`/form fields and wrote via the service-role client with **no signature check**. A forged `type:'email.complained'` could mass-suppress arbitrary addresses platform-wide (and opt a fan out of email from *every* artist they subscribe to); forged Twilio fields could fabricate `sms_consent_log` rows (the record of a fan's consent to be texted) or send STOP as any fan.
+- **Now:** all four verified in `src/lib/webhookSignatures.ts` (hand-rolled HMAC via node `crypto`; no SDK added). Twilio = HMAC-SHA1 over the sorted params against the **public** url (never `req.url`: behind Vercel that carries an internal host and would never match). Resend = Svix HMAC-SHA256 over `${id}.${timestamp}.${rawBody}` with a 5 min replay window, hashing the **raw body** (re-serialising the parsed object reorders keys and breaks the digest). Verified against Twilio's and Svix's official published test vectors.
+- **All four fail CLOSED**, including when the secret is simply unset. Rejecting is deliberate: Resend retries for hours so a config gap only delays events, whereas accepting unsigned POSTs means anyone can suppress an artist's email forever.
+- **Secrets (one per Resend endpoint; Svix secrets are per-endpoint):** `RESEND_WEBHOOK_SECRET` (fan campaigns/sequences), `RESEND_OUTREACH_SECRET` (outreach bounces), `RESEND_INBOUND_SECRET` (lead replies). Twilio reuses the existing `TWILIO_AUTH_TOKEN`.
 
 ### 🔴 HIGH-2 — `NEXT_PUBLIC_CRON_SECRET` is a client-bundled variable gating a cron-secret code path
 **Files:** `src/components/artist/AiManagerCard.tsx:194`, `src/app/api/ai-manager/generate/route.ts:17`. `Confirmed` pattern; `Strongly inferred` exploitability (env values not readable).

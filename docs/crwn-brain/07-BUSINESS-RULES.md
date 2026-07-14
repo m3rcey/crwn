@@ -84,8 +84,11 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 - Setup completion is **DB-derived** (`hasTier`/`hasMusic`/`hasProduct` from live queries), not stored per-step; the only stored flag is `artist_profiles.setup_completed`. `Confirmed`.
 - Onboarding tiers insert with null Stripe ids; `backfillTierPrices()` creates prices after Stripe connects. `Confirmed`.
 
-## 13. Acquisition / recruiter / partner economics (per PRD §6 — Needs founder confirmation on live status)
-- Recruiter link `thecrwn.app/join/[code]` → `referral_clicks`; artist signup within a **30-day** window marks conversion. Flat fee on qualification (30+ days on paid plan); Tier 1/2 partners also get recurring % for 12 months on Label+ artists; content bonuses performance-based. Payouts via Stripe Connect, qualification cron daily. Code paths exist; real-world activation `Needs founder confirmation`.
+## 13. Acquisition / recruiter / partner (influencer) economics
+- Recruiter link `thecrwn.app/join/[code]` → `referral_clicks`; artist signup within a **30-day** window marks conversion. Flat fee on qualification (30+ days on a paid plan). Payouts via Stripe Connect, qualification cron daily. `Confirmed` (code paths); no payout has ever run in production.
+- **Recurring commission = 1% of the referred artist's REVENUE, for 12 months.** Founder rule, 2026-07-14. The base is `earnings.net_amount` (what the artist keeps, the same basis Team Splits uses), summed over the previous calendar month; refunds are negative rows so they net out; a net-negative month pays 0 (no clawback). Rate is **negotiable per influencer** via `recruiters.partner_recurring_rate` (legacy column name, now applies to every recruiter, not just partners); null means the standard 1%. `Confirmed` (`cron/recruiter-recurring`, `cron/recruiter-qualify`).
+- **No plan gate on the recurring payout.** The commission is funded by the platform fee CRWN charges on that revenue, which exists on every plan (Free 12%, Pro 8%), so a referred artist on Free still earns their influencer 1%.
+- ⚠️ **Superseded model (do not reintroduce):** commission used to be a % of the artist's *monthly SaaS fee to CRWN*, tiered 5%/10% by recruiter tier, and gated to "Label+" artists. It read a hardcoded price map (`pro: 5000, label: 17500, empire: 35000`) that had drifted into fiction, so it would have paid **5x** the real amount into `stripe.transfers.create()`. Fixed 2026-07-14 before any payout ran. **Never hardcode a price; derive from `TIER_PRICING`.**
 
 ## 14. UX-enforced product rules (from CLAUDE.md, verified in code)
 - Multi-option (pick-one-of-3+) selectors must use `OptionSelect` dropdown, not a grid. `Confirmed`.

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { verifySvixSignature } from '@/lib/webhookSignatures';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -22,9 +23,36 @@ interface ResendWebhookPayload {
   };
 }
 
+/**
+ * Resend delivery events for FAN email (campaigns + sequences).
+ *
+ * SIGNED, and fails closed. This is the most dangerous of the four unsigned webhooks that
+ * used to sit here: a forged `email.complained` suppresses ANY address globally in
+ * `email_suppressions` AND opts that fan out of email marketing from EVERY artist they
+ * subscribe to. One unauthenticated POST per address could have quietly unsubscribed an
+ * artist's entire audience, and the artist would only ever see their open rate go to zero.
+ */
 export async function POST(req: NextRequest) {
   try {
-    const payload: ResendWebhookPayload = await req.json();
+    // Raw text, not req.json(): the digest is over the exact bytes Resend sent.
+    const rawBody = await req.text();
+
+    const signed = verifySvixSignature(
+      rawBody,
+      {
+        id: req.headers.get('svix-id'),
+        timestamp: req.headers.get('svix-timestamp'),
+        signature: req.headers.get('svix-signature'),
+      },
+      process.env.RESEND_WEBHOOK_SECRET
+    );
+
+    if (!signed) {
+      console.error('Resend webhook: bad, missing, or unconfigured signature. Rejected.');
+      return NextResponse.json({ status: 'error', reason: 'invalid_signature' }, { status: 403 });
+    }
+
+    const payload: ResendWebhookPayload = JSON.parse(rawBody);
     const { type, data } = payload;
 
     const recipientEmail = data.to?.[0]?.toLowerCase();

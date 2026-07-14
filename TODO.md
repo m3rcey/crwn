@@ -46,25 +46,51 @@ responsible for. Do not work those.
       burns one. Fine for launch. If a Reel genuinely pops, that is the first wall you hit, and
       it is ManyChat's, not CRWN's.
 
+- [ ] **DECIDE: the artist agreement promises a fee you do not charge.** `/artist-agreement`
+      is a document artists accept. Its fee table says:
+
+      | It says | You actually charge |
+      |---|---|
+      | Starter: **8%**, free | **12%** |
+      | Pro: 8%, **$50/month** | 8%, **$9.99/month** |
+      | Label: **6%**, $150/month | 5%, $99/month (not sellable) |
+      | Founding Artist: 5%, free 1 year | no such tier exists in `TIER_LIMITS` |
+
+      **The dangerous row is the first one.** Every free-tier artist has agreed to 8% and is
+      being charged 12%. That is a term mismatch in the direction that hurts them, in a
+      contract, and it is the one thing here I will not quietly rewrite: the fix might be
+      "charge 8%" rather than "say 12%", and that is a pricing decision with real money
+      attached to artists who already signed.
+
+      Tell me which way it goes and I will make the code and the document agree. If you want
+      the doc to simply state reality (12% / 8% / $9.99), say so and it is a five minute
+      change. **File:** `src/app/(public)/artist-agreement/page.tsx:40-43`.
+
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Set the two Resend webhook secrets in Vercel. The webhooks reject everything until
-      you do.** I signed them (they used to accept a POST from anyone), and a signed webhook
-      with no secret configured fails **closed**, on purpose.
+- [ ] **Set the three Resend webhook secrets in Vercel. The webhooks reject everything until
+      you do.** I signed them (all three used to accept a POST from anyone), and a signed
+      webhook with no secret configured fails **closed**, on purpose.
 
       In Resend → **Webhooks**, open each endpoint and copy its **Signing Secret** (starts
       `whsec_`). They are DIFFERENT per endpoint. In Vercel → Settings → Environment
-      Variables (Production), add both, then **redeploy**:
+      Variables (Production), add each, then **redeploy**:
 
-      - `RESEND_WEBHOOK_SECRET` → the secret for the endpoint pointing at
-        `https://thecrwn.app/api/outreach/webhook` (bounces, spam complaints)
-      - `RESEND_INBOUND_SECRET` → the secret for the endpoint pointing at
-        `https://thecrwn.app/api/outreach/inbound` (replies from leads)
+      - `RESEND_WEBHOOK_SECRET` → endpoint pointing at `https://thecrwn.app/api/webhooks/resend`
+        (fan campaign + sequence email: bounces, spam complaints)
+      - `RESEND_OUTREACH_SECRET` → endpoint pointing at `https://thecrwn.app/api/outreach/webhook`
+        (outreach lead bounces, spam complaints)
+      - `RESEND_INBOUND_SECRET` → endpoint pointing at `https://thecrwn.app/api/outreach/inbound`
+        (replies from leads)
+
+      If an endpoint does not exist in Resend, that route was never receiving anything and you
+      can skip its secret.
 
       **Not urgent to the minute:** Resend retries a failing webhook for hours, so events in
       the gap land once the secrets are in. It IS urgent within the day, because after the
       retries expire, a bounce or a lead's reply in that window is gone. Nothing else breaks:
-      the Instagram funnel and Twilio do not touch these.
+      the Instagram funnel and Twilio do not touch these (Twilio reuses `TWILIO_AUTH_TOKEN`,
+      which is already set, so SMS is signed and working right now).
 
 - [ ] **Apply `supabase/schema-phase2-rate-limit.sql`.** Paste it into the Supabase SQL
       editor. It is deliberately **non-destructive**: `check_rate_limit()` already exists in
@@ -75,20 +101,6 @@ responsible for. Do not work those.
       Why bother: the function had no checked-in definition anywhere, so a fresh database
       came up without it, and then every public form (`/api/support`, `/api/partner/apply`,
       the lead magnets) 429s the first visitor who touches it.
-
-- [ ] **DECIDE: what do partners actually earn now?** `/partner` and `/recruit` still promise
-      recurring commission on **"Label ($175/mo) and Empire ($350/mo)"** artists, and
-      `/recruit` quotes **"Pro $50, Label $150, Empire $350"**. None of those tiers or prices
-      exist. Pro is **$9.99**, Label is **$99 and not even sellable yet**, and Empire was
-      deleted.
-
-      So the pages are quoting partners a commission base that is 5x the real one. I did not
-      rewrite them, because what you promise a partner is your call, not mine: 10% of a $9.99
-      Pro artist is **$1/mo**, which may simply not be a program worth running. Tell me the
-      real offer and I will make every page say it.
-
-      (The payout **code** is already fixed and correct: it now reads the real prices. No
-      recruiter was ever overpaid, because no recurring payout has ever run.)
 
 - [ ] **Decide the DM messaging-window policy.** Meta only lets you message a lead for 24
       hours after *her* last interaction. Outside that window, sends are rejected and CRWN

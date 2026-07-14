@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         timestamp: req.headers.get('svix-timestamp'),
         signature: req.headers.get('svix-signature'),
       },
-      process.env.RESEND_WEBHOOK_SECRET
+      process.env.RESEND_OUTREACH_SECRET
     );
 
     if (!signed) {
