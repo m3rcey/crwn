@@ -31,7 +31,7 @@ import {
   type AcquisitionTool,
   type LeadProfileValues,
 } from './toolAdapters';
-import { EMPTY_BEHAVIOR, scoreLead } from './leadScoring';
+import { recomputeScore } from './rescore';
 import { enqueue, recordEvent } from './eventOutbox';
 import { buildResponse } from '../manychat/responseMapper';
 import type { ManyChatInboundPayload } from '../manychat/schemas';
@@ -483,52 +483,28 @@ async function recentHistory(sessionId: string): Promise<{ role: 'lead' | 'crwn'
     .map((m) => ({ role: m.role === 'lead' ? ('lead' as const) : ('crwn' as const), content: String(m.content) }));
 }
 
+/**
+ * Recompute the score.
+ *
+ * This used to pass EMPTY_BEHAVIOR: a hardcoded blank. Every behavioral signal the scorer
+ * computes (result viewed, recalculated, account claimed, setup done) was thrown away, so the
+ * score froze at DM time and never moved again. The first real lead came through with 100,000
+ * monthly listeners, opened her result, edited the assumptions, and CRWN filed her as
+ * "unqualified" and alerted nobody.
+ *
+ * recomputeScore() reads what she has ACTUALLY done, from the database.
+ */
 async function rescore(
   identityId: string,
   sessionId: string,
-  profile: LeadProfileValues,
+  _profile: LeadProfileValues,
   claudeSignal: number,
 ): Promise<void> {
-  const score = scoreLead({
-    profile,
-    behavior: EMPTY_BEHAVIOR,
+  await recomputeScore(identityId, {
+    sessionId,
     claudeSignal,
+    sourceEvent: 'orchestration',
   });
-
-  await supabaseAdmin
-    .from('lead_profiles')
-    .upsert(
-      {
-        lead_identity_id: identityId,
-        lead_score: score.total,
-        lead_score_version: score.version,
-        claude_score_signal: claudeSignal,
-        score_band: score.band,
-      },
-      { onConflict: 'lead_identity_id' },
-    );
-
-  await supabaseAdmin.from('lead_score_history').insert({
-    lead_identity_id: identityId,
-    session_id: sessionId,
-    total_score: score.total,
-    score_version: score.version,
-    components: score.components,
-    reason_codes: score.reasonCodes,
-    band: score.band,
-    source_event: 'orchestration',
-  });
-
-  // A lead this warm should not be handled by a robot. Tell Josh, once, ever.
-  // The idempotency key makes it fire a single time per lead no matter how many turns of the
-  // conversation keep them in the sales_priority band.
-  if (score.band === 'sales_priority') {
-    await enqueue('high_intent_alert', {
-      leadIdentityId: identityId,
-      sessionId,
-      idempotencyKey: `high_intent:${identityId}`,
-    });
-  }
 }
 
 export { resume };

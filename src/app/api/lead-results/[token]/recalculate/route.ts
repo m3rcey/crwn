@@ -119,6 +119,12 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ token: str
       idempotency_key: `recalculated:${result.id}`,
       status: 'recorded',
     });
+
+    // And it has to MOVE THE SCORE. Correcting an assumption is the strongest engagement
+    // signal this funnel produces, and it also upgrades her numbers to direct_answer trust.
+    // Both of those should change how CRWN treats her, immediately.
+    const { recomputeScore } = await import('@/lib/acquisition/rescore');
+    await recomputeScore(result.leadIdentityId, { sourceEvent: 'result_recalculated' });
   }
 
   return NextResponse.json({ ok: true });

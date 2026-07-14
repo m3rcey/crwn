@@ -124,6 +124,17 @@ export async function recordView(resultId: string): Promise<void> {
         status: 'pending',
         next_attempt_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
       });
+
+      // Opening the result is a real signal, so the score has to move. It used to not: the
+      // orchestrator passed EMPTY_BEHAVIOR, so the score froze at DM time and nothing she did
+      // afterwards ever counted. A hot lead stayed "unqualified" and nobody was told.
+      if (data?.lead_identity_id) {
+        const { recomputeScore } = await import('../acquisition/rescore');
+        await recomputeScore(String(data.lead_identity_id), {
+          sessionId: (data.lead_session_id as string) ?? null,
+          sourceEvent: 'result_viewed',
+        });
+      }
     }
   } catch {
     // A view counter must never break a page render.

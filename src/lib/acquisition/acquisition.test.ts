@@ -613,10 +613,48 @@ describe('lead scoring (explainable, deterministic, Claude-bounded)', () => {
     expect(s.reasonCodes).toContain('reach_without_ownership');
     expect(s.reasonCodes).toContain('strong_fit');
 
-    // 39 = audience 20 + alignment 15 (goal 8 + blocker 7) + behavior 4. Pinned exactly, so
-    // that any future change to the weights is a deliberate decision rather than a surprise.
-    expect(s.total).toBe(39);
-    expect(s.components).toMatchObject({ audience: 20, alignment: 15, fanOwnership: 0 });
+    // audience 20 + reachWithoutOwnership 15 + alignment 15 + behavior 4 = 54
+    expect(s.total).toBe(54);
+    expect(s.components).toMatchObject({
+      audience: 20,
+      reachWithoutOwnership: 15,
+      alignment: 15,
+      fanOwnership: 0,
+    });
+  });
+
+  it('does NOT file a big-reach engaged lead as "unqualified" (regression)', () => {
+    // The FIRST real lead through the live funnel: 100,000 monthly listeners, no email list,
+    // opened her result, edited the assumptions. CRWN scored her 20 and filed her as
+    // "unqualified", so no alert fired and no follow-up was queued.
+    //
+    // Two bugs caused it. The orchestrator passed EMPTY_BEHAVIOR, so nothing she DID ever
+    // counted. And reach-without-ownership, which is CRWN's entire thesis, was worth zero
+    // points: the reason code fired and no score came with it.
+    //
+    // The worth funnel asks ONE question, so it can never learn goal or blocker. It must
+    // still be able to recognise a hot lead from reach + behavior alone.
+    const s = scoreLead({
+      profile: { monthly_listeners: 100_000 }, // one question. That is all this funnel asks.
+      behavior: { ...EMPTY_BEHAVIOR, resultViewed: true, resultRecalculated: true },
+    });
+
+    expect(s.reasonCodes).toContain('reach_without_ownership');
+    expect(s.reasonCodes).toContain('engaged_with_result');
+    expect(s.band).not.toBe('unqualified');
+    // audience 20 + reachWithoutOwnership 15 + behavior 8 (viewed 4 + recalculated 4) = 43
+    expect(s.total).toBe(43);
+  });
+
+  it('the CRWN thesis is worth points, not just a reason code', () => {
+    const big = scoreLead({ profile: { monthly_listeners: 100_000, email_list_size: 0 }, behavior: EMPTY_BEHAVIOR });
+    const owned = scoreLead({ profile: { monthly_listeners: 100_000, email_list_size: 5_000 }, behavior: EMPTY_BEHAVIOR });
+
+    // Big reach with NO way to reach them is exactly who CRWN is for.
+    expect(big.components.reachWithoutOwnership).toBe(15);
+    // An artist who already owns their list has a different (still good) problem.
+    expect(owned.components.reachWithoutOwnership).toBe(0);
+    expect(owned.components.fanOwnership).toBe(20);
   });
 
   it('penalizes a lead whose real problem is not one CRWN solves', () => {

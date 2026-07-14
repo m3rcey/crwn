@@ -68,7 +68,19 @@ export function scoreLead(input: ScoreInput): LeadScore {
   // CRWN solves. This is weighted equal to audience despite being a much smaller number.
   const list = num(p.email_list_size);
   components.fanOwnership = list >= 1_000 ? 20 : list >= 250 ? 14 : list >= 50 ? 8 : list > 0 ? 4 : 0;
-  if (list === 0 && listeners > 10_000) reasons.push('reach_without_ownership'); // the ideal CRWN lead
+
+  // ---- Reach without ownership (max 15). THE CRWN THESIS. ----
+  //
+  // A big audience that the artist cannot reach or monetize is EXACTLY who CRWN is for. It is
+  // the entire pitch. And until now it scored ZERO: the reason code fired, and no points came
+  // with it, so the single most CRWN-shaped lead in the funnel looked identical to a nobody.
+  //
+  // Found the day the first real lead came through: 100k monthly listeners, no email list,
+  // opened her result, edited the assumptions, and CRWN filed her as "unqualified".
+  const noOwnership = list === 0;
+  components.reachWithoutOwnership =
+    noOwnership && listeners >= 50_000 ? 15 : noOwnership && listeners >= 10_000 ? 10 : noOwnership && listeners >= 2_000 ? 5 : 0;
+  if (components.reachWithoutOwnership > 0) reasons.push('reach_without_ownership');
 
   // ---- Catalog depth (max 10) ----
   const catalog = num(p.catalog_size);
