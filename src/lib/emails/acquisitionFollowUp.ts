@@ -63,11 +63,14 @@ export function resultViewedNotClaimed(params: { resultUrl: string }): FollowUpC
   const { resultUrl } = params;
 
   return {
+    // The question NAMES the two real objections and lets her just point at one. "What is
+    // actually in the way?" was therapy-speak: open-ended, requires reflection, and reflection
+    // is friction. A question she can answer in one word gets answered.
     dm: `You saw the number. Nothing changes until you build the thing that collects it. Your fans are already spending money every month, it just does not reach you.
 
 ${resultUrl}
 
-What is actually in the way of setting it up?`,
+Be honest with me: is it that the setup looks like a hassle, or that you do not believe the number?`,
 
     subject: 'Knowing the number does not change the number',
     html: shell({
@@ -75,7 +78,7 @@ What is actually in the way of setting it up?`,
       body: `
         <p style="${P}">You looked. Good. But a number on a page has never paid anyone.</p>
         <p style="${P}">Your fans are already spending money every month. Right now none of it reaches you, and that stays true for exactly as long as you have nowhere for them to send it.</p>
-        <p style="${P}"><strong style="color:#FFF;">What is actually in the way of setting it up?</strong> Reply and tell me, I read every one.</p>
+        <p style="${P}"><strong style="color:#FFF;">Be honest with me: is it that the setup looks like a hassle, or that you do not believe the number?</strong> Reply and tell me, I read every one.</p>
       `,
       cta: 'Set it up',
       ctaUrl: resultUrl,
@@ -203,27 +206,105 @@ Anything specific you want me to cover?`,
   };
 }
 
-/** She booked and did not turn up. One offer, no guilt. */
+// ---------------------------------------------------------------------------
+// THE NO-SHOW LADDER
+//
+// She booked and did not turn up. Three messages, then stop.
+//
+// The tone MUST get lighter, not heavier. A no-show is almost never disrespect: it is a
+// forgotten calendar invite, a session that ran over, a day that got away from her. Guilt-trip
+// her and she will never reply, because replying now costs her an apology.
+//
+// The third message is a BREAKUP, and it is the highest-replying message in this entire
+// funnel. "Should I take you off the list?" reliably outperforms any nudge, because it hands
+// her back control and it costs her one word to keep the door open.
+// ---------------------------------------------------------------------------
+
+/** No-show, within the hour. Warm, zero guilt, easy to answer. */
 export function callNoShow(params: { bookingUrl: string }): FollowUpCopy {
   const { bookingUrl } = params;
   return {
     dm: `Missed you. No stress, it happens.
 
-The offer stands: 15 minutes and you leave with tiers, pricing and payouts done, able to take money from your fans that same day.
+The offer stands: 15 minutes and you walk away with your tiers, your pricing and your payouts done, able to take money from your fans the same day.
 
 ${bookingUrl}
 
-Want to grab another slot, or would you rather I just left you to it?`,
+Was it just bad timing, or do you want me to leave you to it?`,
 
     subject: 'Missed you',
     html: shell({
       heading: 'Missed you',
       body: `
         <p style="${P}">No stress, it happens.</p>
-        <p style="${P}">The offer stands: 15 minutes and you leave with tiers, pricing and payouts done, able to take money from your fans that same day.</p>
-        <p style="${P}"><strong style="color:#FFF;">Want to grab another slot, or would you rather I left you to it?</strong></p>
+        <p style="${P}">The offer stands: 15 minutes and you walk away with your tiers, your pricing and your payouts done, able to take money from your fans the same day.</p>
+        <p style="${P}"><strong style="color:#FFF;">Was it just bad timing, or do you want me to leave you to it?</strong></p>
       `,
       cta: 'Pick a new time',
+      ctaUrl: bookingUrl,
+    }),
+  };
+}
+
+/** No-show, +2 days. Name the cost of the delay, then a binary question. */
+export function callNoShowSecond(params: { bookingUrl: string; amount: string | null }): FollowUpCopy {
+  const { bookingUrl, amount } = params;
+  const money = amount ? `${amount} a month` : 'that money';
+
+  return {
+    dm: `Still thinking about your number. ${money} is not a someday thing, it is happening right now, every month, to someone who is not you.
+
+The setup genuinely takes 15 minutes with me. It is the part most artists never get round to, which is exactly why most artists never get paid directly.
+
+${bookingUrl}
+
+Is this a not-right-now thing, or a not-for-me thing?`,
+
+    subject: 'Still thinking about your number',
+    html: shell({
+      heading: 'Still thinking about your number',
+      body: `
+        <p style="${P}">${money.charAt(0).toUpperCase() + money.slice(1)} is not a someday thing. It is happening right now, every month, and it is going to someone who is not you.</p>
+        <p style="${P}">The setup genuinely takes 15 minutes with me. It is the part most artists never get round to, which is exactly why most artists never get paid directly.</p>
+        <p style="${P}"><strong style="color:#FFF;">Is this a not-right-now thing, or a not-for-me thing?</strong></p>
+      `,
+      cta: 'Grab 15 minutes',
+      ctaUrl: bookingUrl,
+    }),
+  };
+}
+
+/**
+ * No-show, +5 days. THE BREAKUP.
+ *
+ * The highest-replying message in the funnel, and it is not close. It works because it hands
+ * her back control and costs her exactly one word to keep the door open. Chasing costs her an
+ * apology; this costs her nothing.
+ *
+ * It is also the LAST message. If she does not reply, she is done, and CRWN stops. A funnel
+ * that will not take no for an answer is not persistent, it is a nuisance, and the artist you
+ * annoy today is the one who will not come back in a year when she is ready.
+ */
+export function callNoShowFinal(params: { bookingUrl: string }): FollowUpCopy {
+  const { bookingUrl } = params;
+  return {
+    dm: `I am going to stop chasing you, I promise.
+
+Your numbers do not expire and neither does the offer. If the moment comes where you are tired of watching a platform keep most of what your fans spend, the door is open.
+
+${bookingUrl}
+
+Last thing and then I will leave you alone: do you want me to keep you on the list, or take you off?`,
+
+    subject: 'Last one from me',
+    html: shell({
+      heading: 'Last one from me',
+      body: `
+        <p style="${P}">I am going to stop chasing you, I promise.</p>
+        <p style="${P}">Your numbers do not expire and neither does the offer. If the moment comes where you are tired of watching a platform keep most of what your fans spend, the door is open.</p>
+        <p style="${P}"><strong style="color:#FFF;">Last thing and then I will leave you alone: do you want me to keep you on the list, or take you off?</strong></p>
+      `,
+      cta: 'The door is open',
       ctaUrl: bookingUrl,
     }),
   };

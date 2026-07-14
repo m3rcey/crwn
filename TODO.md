@@ -18,6 +18,52 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Set up the Cal.com webhook, or a booked artist keeps getting nurture DMs.**
+
+      This is the last open loop in the funnel. Right now nothing tells CRWN that an artist
+      booked a call. So she books, and two days later the automation DMs her *"you still have
+      not opened your numbers"* while she is sitting in the Zoom with you. One message like
+      that undoes the whole conversation.
+
+      The code is live and waiting. It needs two things from you.
+
+      **1. Generate a secret and add it to Vercel** (Settings, Environment Variables):
+
+      ```
+      openssl rand -hex 32
+      ```
+
+      Name it `CALCOM_WEBHOOK_SECRET`. Same value goes in Vercel and in Cal.com. Redeploy.
+
+      **2. Create the webhook in Cal.com** (Settings, Developer, Webhooks, New):
+
+      - **Subscriber URL:** `https://thecrwn.app/api/integrations/calcom/webhook`
+      - **Secret:** the string from step 1
+      - **Event triggers:** tick `Booking created`, `Booking cancelled`, `Booking rescheduled`
+      - Leave the payload template as the default
+
+      **Check it worked:** the Acquisition tab's config strip gets a green "Cal.com". Book a
+      test slot on your own link and it appears under the new **Calls** tab within seconds.
+
+      **What breaks if you skip it:** nothing crashes. The webhook rejects every unsigned
+      request (it fails closed, by design), so bookings are simply never detected, and the
+      nurture sequence keeps running at people who already said yes. That is the worst
+      possible message to send, which is why this is P0.
+
+- [ ] **After every sales call, mark it in /admin, Acquisition, Calls.**
+
+      Two buttons: **She showed** or **No-show**. This is the one thing in the funnel that
+      cannot be automated, and it is deliberate.
+
+      A no-show ladder only fires when *you* say she did not turn up. Nothing infers it,
+      because "sorry we missed you" sent to the artist who *was* on the call, and had a good
+      conversation with you, is humiliating and unrecoverable. An unsent message costs nothing.
+      A wrong one costs the artist.
+
+      Mark it and the automation takes over: a warm no-guilt DM within the day, a second one
+      two days later naming the money, then a clean breakup on day five that offers to take her
+      off the list. After that CRWN stops for good.
+
 - [ ] **DECIDE: keep ManyChat Pro at $39/mo. Trial ends ~2026-07-27.**
       **The funnel is LIVE and verified end to end** (2026-07-14): a real comment produced a
       real lead, a real DM conversation, a correctly parsed answer, a real result, and a real

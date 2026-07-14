@@ -33,6 +33,20 @@ const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
 /** Where she books the 15 minutes. Same link /worth already uses for cold outreach. */
 const BOOKING_URL = process.env.CRWN_BOOKING_URL || 'https://cal.com/jnwcreative';
 
+/**
+ * The booking link MUST carry the lead id, or Cal.com's webhook cannot tell us who booked.
+ *
+ * Email is not a usable join key here: an Instagram lead has no email, and she may well type a
+ * brand new one into Cal.com that CRWN has never seen. Without the id in the link, a booking
+ * arrives unattributed, her nurture is never cancelled, and she gets "you never opened your
+ * numbers" while sitting in a Zoom with Josh. Which is the exact failure this whole webhook
+ * exists to prevent.
+ */
+function bookingUrlFor(identityId: string): string {
+  const sep = BOOKING_URL.includes('?') ? '&' : '?';
+  return `${BOOKING_URL}${sep}metadata[crwn]=${encodeURIComponent(identityId)}`;
+}
+
 /** Outcomes that are FINAL. Never retried, because nothing about them will change on a timer. */
 const TERMINAL_REASONS = new Set([
   'opted_out',
@@ -227,6 +241,10 @@ async function handle(row: OutboxRow): Promise<HandleOutcome> {
       return handleCallBooked(row, identity);
     case 'call_no_show':
       return handleCallNoShow(row, identity);
+    case 'call_no_show_second':
+      return handleCallNoShowSecond(row, identity);
+    case 'call_no_show_final':
+      return handleCallNoShowFinal(row, identity);
     case 'high_intent_alert':
       return handleHighIntentAlert(row);
     default:
@@ -263,11 +281,16 @@ async function hasConverted(identityId: string): Promise<boolean> {
   if (identity?.claimed_at || identity?.user_id) return true;
   if (identity?.status === 'opted_out' || identity?.status === 'disqualified') return true;
 
+  // status='recorded' is load-bearing, not decoration. When she CANCELS, the Cal.com webhook
+  // flips this row to 'skipped'. Without the filter, a cancelled booking would suppress her
+  // nurture forever: she would have told us she is not coming, and we would have responded by
+  // going silent on her permanently.
   const { data: booked } = await supabaseAdmin
     .from('acquisition_events')
     .select('id')
     .eq('lead_identity_id', identityId)
     .eq('event_name', 'sales_call_booked')
+    .eq('status', 'recorded')
     .limit(1)
     .maybeSingle();
 
@@ -408,7 +431,7 @@ async function handleOfferCall(row: OutboxRow, identity: LeadIdentity | null): P
   const resultUrl = result ? await rotateLink(row.result_id ?? '', String(result.tool_slug)) : null;
 
   const c = copy.offerCall({
-    bookingUrl: BOOKING_URL,
+    bookingUrl: bookingUrlFor(identity.id),
     resultUrl: resultUrl ?? 'https://thecrwn.app/worth',
   });
 
@@ -422,11 +445,74 @@ async function handleCallBooked(_row: OutboxRow, identity: LeadIdentity | null):
   return dispatchToBestChannel(identity, c, `call_booked:${identity.id}`);
 }
 
-/** She booked and did not turn up. One offer, no guilt. */
-async function handleCallNoShow(_row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+// ---------------------------------------------------------------------------
+// THE NO-SHOW LADDER
+//
+// A no-show is CONFIRMED, never assumed. Cal.com's no-show webhook support is inconsistent and
+// I am not guessing at it. Josh marks it in /admin -> Acquisition, and only then does this
+// fire.
+//
+// The reason is not fastidiousness. Sending "Missed you" to an artist who DID turn up, and had
+// a good call with Josh, is humiliating for both of them and it would poison a relationship
+// that had just started well. An unsent message costs nothing. A wrong one costs the artist.
+// ---------------------------------------------------------------------------
+
+/** No-show, within the hour. Warm, zero guilt. Then queues the second rung. */
+async function handleCallNoShow(row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
   if (!identity) return { done: true, sent: false };
-  const c = copy.callNoShow({ bookingUrl: BOOKING_URL });
-  return dispatchToBestChannel(identity, c, `no_show:${identity.id}`);
+
+  const c = copy.callNoShow({ bookingUrl: bookingUrlFor(identity.id) });
+  const outcome = await dispatchToBestChannel(identity, c, `no_show:${identity.id}`);
+
+  if (outcome.done) {
+    await queueNext('call_no_show_second', identity.id, row.session_id, 2);
+  }
+  return outcome;
+}
+
+/** No-show, +2 days. Names the cost, then a binary question. Queues the breakup. */
+async function handleCallNoShowSecond(row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+  if (!identity) return { done: true, sent: false };
+
+  const { data: result } = await supabaseAdmin
+    .from('lead_magnet_results')
+    .select('title')
+    .eq('lead_identity_id', identity.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const c = copy.callNoShowSecond({
+    bookingUrl: bookingUrlFor(identity.id),
+    amount: extractAmount(String(result?.title ?? '')),
+  });
+
+  const outcome = await dispatchToBestChannel(identity, c, `no_show_2:${identity.id}`);
+
+  if (outcome.done) {
+    await queueNext('call_no_show_final', identity.id, row.session_id, 3);
+  }
+  return outcome;
+}
+
+/**
+ * No-show, +5 days. THE BREAKUP. And the LAST message, whatever happens.
+ *
+ * After this the lead goes to `nurture` and CRWN stops. A funnel that will not take silence for
+ * an answer is not persistent, it is a nuisance, and the artist you annoy today is the one who
+ * will not come back in a year when she is finally ready.
+ */
+async function handleCallNoShowFinal(_row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+  if (!identity) return { done: true, sent: false };
+
+  const c = copy.callNoShowFinal({ bookingUrl: bookingUrlFor(identity.id) });
+  const outcome = await dispatchToBestChannel(identity, c, `no_show_final:${identity.id}`);
+
+  // Done chasing. She stays in the database, she keeps her result link, and she never hears
+  // from the automation again unless she comes back on her own.
+  await supabaseAdmin.from('lead_identities').update({ status: 'nurture' }).eq('id', identity.id);
+
+  return outcome;
 }
 
 /** Queue the next step of the sequence. Deduped, so a retry cannot double-queue it. */

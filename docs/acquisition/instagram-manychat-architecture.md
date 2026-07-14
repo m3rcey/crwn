@@ -159,17 +159,69 @@ and it would be a fresh PII egress path.
 `vercel.json` entry: 25 already exist and the hourly slots are full. Fully wrapped in a
 try/catch, because a guest in someone else's cron must never break its host.
 
-Four triggers, and only four, because the rest were speculative:
-
 | Trigger | When | Channel |
 |---|---|---|
 | `session_abandoned_nudge` | open session idle 48h, **and no result yet** | DM, then email |
 | `result_not_viewed_check` | 24h after the link was sent, still unopened | DM, then email |
 | `result_viewed_not_claimed` | 48h after first view, still unclaimed | DM, then email |
+| `personal_nudge` | +2d. Automated, and honest about being automated | DM, then email |
+| `offer_call` | +3d. Offers **both** paths and lets her choose | DM, then email |
+| `call_booked` | Cal.com `BOOKING_CREATED` | DM, then email |
+| `call_no_show` | **only when Josh confirms it in admin** | DM, then email |
+| `call_no_show_second` | +2d after that | DM, then email |
+| `call_no_show_final` | +5d. The breakup, then CRWN stops for good | DM, then email |
 | `high_intent_alert` | score band hits `sales_priority` | email to the founder |
 
 A session that already produced a result is **completed**, not abandoned. The artist got what
 they came for; nagging them about "finishing" is how you make a good outcome feel like a bug.
+
+### Every DM ends with a question. That is infrastructure, not style.
+
+Meta's 24-hour messaging window reopens **every time she replies**. A DM ending in a link she
+ignores lets the window close, and once it closes CRWN can never message her again. A DM ending
+in a question she answers buys another 24 hours. The question is what keeps the channel alive,
+so it is enforced by a test, not by a habit.
+
+### The cancellation rule
+
+Checked before **every** outbound message: a lead who has converted (booked a call, or claimed
+an account) **exits the nurture funnel entirely**. Not "gets fewer messages": exits.
+
+One automated "you never opened your numbers" landing while she is in a Zoom with Josh undoes
+everything the conversation just built. `hasConverted()` is the guard, and it filters on
+`status = 'recorded'` so that a **cancelled** booking correctly un-converts her (she told us she
+is not coming; responding by going permanently silent would be the wrong read).
+
+## Booking detection: `/api/integrations/calcom/webhook` (BUILT)
+
+Cal.com **can** HMAC-sign, unlike ManyChat, so this route verifies a real `x-cal-signature-256`
+against the **raw body** and fails closed. Without `CALCOM_WEBHOOK_SECRET` set, every request is
+rejected, no booking is ever detected, and the cancellation rule above never fires.
+
+**The lead id rides through the booking URL** (`?metadata[crwn]=<uuid>`, added by
+`bookingUrlFor()`). Email is not a usable join key: an Instagram lead has no email on file, and
+she may type a brand new one into Cal.com. Email is only a fallback, and only on an exact single
+match. **A booking never creates or merges an identity** — anyone can type anyone's address into
+a booking form.
+
+`parseCalBooking()` hunts for the UUID recursively rather than asserting a path, because Cal.com
+moves custom values between `metadata`, `responses` and `bookingFieldsResponses` across versions.
+That is the ManyChat lesson applied: bend to what the other system actually sends. A booking with
+no id is recorded as `sales_call_unattributed` for Josh to link by hand, never guessed at.
+
+### A no-show is CONFIRMED, never inferred
+
+The no-show ladder fires only when Josh clicks **No-show** in `/admin` → Acquisition → **Calls**.
+Nothing infers it from the calendar.
+
+Sending "sorry we missed you" to an artist who *did* turn up, and had a good conversation, is
+humiliating and unrecoverable. An unsent message costs nothing; a wrong one costs the artist. So
+the one step in this funnel that stays manual is the one where being wrong is worst.
+
+The ladder itself gets **lighter**, not heavier: a warm no-guilt DM within the day, a second at
++2d naming the money, then a clean breakup at +5d that offers to take her off the list. Then the
+lead moves to `nurture` and CRWN stops. A funnel that will not take silence for an answer is not
+persistent, it is a nuisance.
 
 ### The channel ordering is arithmetic, not preference
 

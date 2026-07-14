@@ -65,6 +65,9 @@ export async function GET(req: NextRequest) {
         manychatApiToken: isSet(process.env.MANYCHAT_API_TOKEN),
         // Optional. Without it the engine still runs, on deterministic question ordering.
         anthropicApiKey: isSet(process.env.ANTHROPIC_API_KEY),
+        // Without it, Cal.com's webhook is rejected and NO booking is ever detected: she books
+        // a call and still gets nurture DMs about not having opened her result.
+        calcomWebhookSecret: isSet(process.env.CALCOM_WEBHOOK_SECRET),
         // A tag set without Meta's blessing is how apps get banned. Unset is the safe default.
         manychatMessageTag: !!process.env.MANYCHAT_MESSAGE_TAG,
       },
@@ -82,6 +85,50 @@ export async function GET(req: NextRequest) {
         .order('created_at', { ascending: false })
         .limit(100);
       return NextResponse.json({ rows: data ?? [] });
+    }
+
+    // ---- Booked calls awaiting an outcome. ----
+    //
+    // A no-show is CONFIRMED by Josh here, never inferred. Cal.com's no-show signal is not
+    // something I am willing to bet an artist's first impression on, and the cost of guessing
+    // wrong is brutal: "sorry we missed you" sent to the person who actually turned up and had
+    // a good conversation.
+    if (view === 'calls') {
+      const { data } = await supabaseAdmin
+        .from('acquisition_events')
+        .select('id, lead_identity_id, metadata, occurred_at, created_at')
+        .eq('event_name', 'sales_call_booked')
+        .eq('status', 'recorded')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      const ids = [...new Set((data ?? []).map((r) => r.lead_identity_id).filter(Boolean))] as string[];
+
+      // Which of these already have an outcome? Those are settled; the rest need Josh.
+      const [{ data: identities }, { data: outcomes }] = await Promise.all([
+        ids.length
+          ? supabaseAdmin.from('lead_identities').select('id, instagram_username, email').in('id', ids)
+          : Promise.resolve({ data: [] as Record<string, unknown>[] }),
+        ids.length
+          ? supabaseAdmin
+              .from('acquisition_events')
+              .select('lead_identity_id, event_name')
+              .in('lead_identity_id', ids)
+              .in('event_name', ['sales_call_attended', 'call_no_show', 'sales_call_cancelled'])
+          : Promise.resolve({ data: [] as Record<string, unknown>[] }),
+      ]);
+
+      const byIdentity = new Map((identities ?? []).map((i) => [i.id, i]));
+      const settled = new Map<string, string>();
+      for (const o of outcomes ?? []) settled.set(String(o.lead_identity_id), String(o.event_name));
+
+      const rows = (data ?? []).map((r) => ({
+        ...r,
+        identity: byIdentity.get(r.lead_identity_id as string) ?? null,
+        outcome: settled.get(String(r.lead_identity_id)) ?? null,
+      }));
+
+      return NextResponse.json({ rows });
     }
 
     if (view === 'human_review') {
@@ -186,6 +233,41 @@ export async function POST(req: NextRequest) {
       // Not a CRWN lead. Stops every channel immediately (channels.ts refuses to send to a
       // disqualified identity), without deleting the record.
       await supabaseAdmin.from('lead_identities').update({ status: 'disqualified' }).eq('id', id);
+      break;
+    }
+
+    // ---- Call outcomes. `id` here is the LEAD IDENTITY id. ----
+
+    case 'mark_attended': {
+      // She turned up. Record it, and make sure nothing in the queue can ever tell her she
+      // did not. Josh takes the relationship from here; the automation is out of the way.
+      await supabaseAdmin.from('acquisition_events').insert({
+        event_name: 'sales_call_attended',
+        lead_identity_id: id,
+        idempotency_key: `attended:${id}`,
+        status: 'recorded',
+      });
+
+      await supabaseAdmin
+        .from('acquisition_events')
+        .update({ status: 'skipped', last_error_code: 'call_attended' })
+        .eq('lead_identity_id', id)
+        .eq('status', 'pending')
+        .in('event_name', ['call_no_show', 'call_no_show_second', 'call_no_show_final']);
+      break;
+    }
+
+    case 'mark_no_show': {
+      // She did not. This is the ONLY thing that starts the no-show ladder: nothing infers it,
+      // because sending "sorry we missed you" to someone who was on the call would be
+      // humiliating, and no amount of automation is worth that.
+      await supabaseAdmin.from('acquisition_events').insert({
+        event_name: 'call_no_show',
+        lead_identity_id: id,
+        idempotency_key: `no_show_start:${id}`,
+        status: 'pending',
+        next_attempt_at: new Date().toISOString(),
+      });
       break;
     }
 

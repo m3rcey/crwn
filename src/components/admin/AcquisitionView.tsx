@@ -1,19 +1,24 @@
 'use client';
 
-// The acquisition panel. Three tabs, and two of them exist to retire raw SQL from Josh's
+// The acquisition panel. Four tabs, and three of them exist to retire raw SQL from Josh's
 // morning routine:
 //
 //   Leads         the funnel: who came in, from which post, how far they got
+//   Calls         booked calls waiting on an outcome. Josh says who showed up.
 //   Needs you     leads CRWN could not understand and handed to a human. That human is Josh.
 //   Failed        dead-lettered jobs. Should always be empty.
+//
+// The Calls tab is the one that cannot be automated away. A no-show has to be CONFIRMED by a
+// human, because "sorry we missed you" sent to the artist who actually turned up, and had a
+// good conversation, is worse than never following up at all.
 //
 // Every mutation goes through /api/admin/acquisition, which verifies admin from the SESSION
 // and writes an audit row. Nothing here is trusted.
 
 import { useCallback, useEffect, useState } from 'react';
-import { Loader2, RefreshCw, Check, Ban, Instagram } from 'lucide-react';
+import { Loader2, RefreshCw, Check, Ban, Instagram, CalendarClock, UserX } from 'lucide-react';
 
-type View = 'leads' | 'human_review' | 'dead_letter';
+type View = 'leads' | 'calls' | 'human_review' | 'dead_letter';
 
 interface Row {
   id: string;
@@ -29,10 +34,18 @@ interface Row {
   last_error_code?: string;
   attempt_count?: number;
   lead_identity_id?: string;
+  metadata?: { startTime?: string; uid?: string } | null;
+  outcome?: string | null;
   identity?: { instagram_username?: string; email?: string; claimed_at?: string; status?: string } | null;
   profile?: { lead_score?: number; score_band?: string; monthly_listeners?: number; primary_blocker?: string } | null;
   result?: { viewed_at?: string; claimed_at?: string; recalculated_at?: string } | null;
 }
+
+const OUTCOME_LABEL: Record<string, string> = {
+  sales_call_attended: 'Attended',
+  call_no_show: 'No-show, following up',
+  sales_call_cancelled: 'Cancelled',
+};
 
 const BAND_COLOR: Record<string, string> = {
   sales_priority: 'text-crwn-gold',
@@ -48,6 +61,7 @@ interface Config {
   manychatWebhookSecret: boolean;
   manychatApiToken: boolean;
   anthropicApiKey: boolean;
+  calcomWebhookSecret: boolean;
   manychatMessageTag: boolean;
 }
 
@@ -94,6 +108,7 @@ export default function AcquisitionView() {
 
   const TABS: { key: View; label: string }[] = [
     { key: 'leads', label: 'Leads' },
+    { key: 'calls', label: 'Calls' },
     { key: 'human_review', label: 'Needs you' },
     { key: 'dead_letter', label: 'Failed' },
   ];
@@ -143,6 +158,8 @@ export default function AcquisitionView() {
               ? 'Nothing has failed'
               : view === 'human_review'
               ? 'Nobody is waiting on you'
+              : view === 'calls'
+              ? 'No calls booked yet'
               : 'No leads yet'
           }
           body={
@@ -150,6 +167,8 @@ export default function AcquisitionView() {
               ? 'This is the state you want. If jobs start piling up here, the ManyChat token is the first thing to check.'
               : view === 'human_review'
               ? 'When CRWN cannot understand a lead, it stops asking rather than looping, and hands them here.'
+              : view === 'calls'
+              ? 'A booking on cal.com lands here automatically. After each one, mark whether she showed up: the no-show follow-up only fires when you say so.'
               : 'Leads appear here the moment someone comments your keyword on Instagram.'
           }
         />
@@ -160,7 +179,50 @@ export default function AcquisitionView() {
               key={r.id}
               className="bg-crwn-surface-solid rounded-xl p-4 flex items-center gap-4 flex-wrap"
             >
-              {view === 'dead_letter' ? (
+              {view === 'calls' ? (
+                <>
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <CalendarClock className="w-4 h-4 text-crwn-text-secondary shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-crwn-text font-medium truncate">
+                        {r.identity?.instagram_username
+                          ? `@${r.identity.instagram_username}`
+                          : r.identity?.email ?? 'Unknown lead'}
+                      </p>
+                      <p className="text-sm text-crwn-text-secondary truncate">
+                        {r.metadata?.startTime
+                          ? new Date(r.metadata.startTime).toLocaleString()
+                          : 'Time unknown'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {r.outcome ? (
+                    // Already settled. Show it, and give no button: a second click here would
+                    // either re-open a closed loop or contradict what Josh already recorded.
+                    <span className="text-sm text-crwn-text-secondary shrink-0">
+                      {OUTCOME_LABEL[r.outcome] ?? r.outcome}
+                    </span>
+                  ) : r.lead_identity_id ? (
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => act('mark_attended', r.lead_identity_id!)}
+                        disabled={busy === r.lead_identity_id}
+                        className="bg-crwn-gold text-crwn-bg font-semibold text-sm px-3 py-2 rounded-full disabled:opacity-50 flex items-center gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5" /> She showed
+                      </button>
+                      <button
+                        onClick={() => act('mark_no_show', r.lead_identity_id!)}
+                        disabled={busy === r.lead_identity_id}
+                        className="text-crwn-text-secondary hover:text-orange-400 text-sm px-3 py-2 rounded-full flex items-center gap-1"
+                      >
+                        <UserX className="w-3.5 h-3.5" /> No-show
+                      </button>
+                    </div>
+                  ) : null}
+                </>
+              ) : view === 'dead_letter' ? (
                 <>
                   <div className="flex-1 min-w-0">
                     <p className="text-crwn-text font-medium">{r.event_name}</p>
@@ -285,6 +347,12 @@ function ConfigStrip({ config }: { config: Config }) {
       ok: config.anthropicApiKey,
       required: false,
       note: 'ANTHROPIC_API_KEY. Optional: without it, vague answers land in Needs you.',
+    },
+    {
+      label: 'Cal.com',
+      ok: config.calcomWebhookSecret,
+      required: false,
+      note: 'CALCOM_WEBHOOK_SECRET. Without it no booking is detected, so an artist who books a call still gets nurtured as if she never did.',
     },
   ];
 

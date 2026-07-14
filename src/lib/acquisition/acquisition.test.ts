@@ -5,7 +5,8 @@
 // validates when it should not. A bug in any of these produces no error and no crash, just a
 // wrong answer shown to an artist as fact. That is what earns a test.
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { createHmac } from 'crypto';
 
 import { validateDecision, MAX_CLAUDE_SCORE_SIGNAL } from './decisionSchema';
 import {
@@ -26,6 +27,7 @@ import { deriveIdempotencyKey } from '../manychat/idempotency';
 import { verifyManyChatRequest } from '../manychat/verifyWebhook';
 import { hashToken, mintToken, isExpired } from '../leadResults/resultToken';
 import { DESTINATION_IDS, resolveDestination } from '../quests/destinationRegistry';
+import { parseCalBooking, verifyCalcomRequest } from '../calcom/verifyWebhook';
 
 const ALLOW = {
   leadMagnetIds: ACQUISITION_TOOL_IDS,
@@ -698,6 +700,8 @@ describe('follow-up copy', () => {
     copy.offerCall({ bookingUrl: 'https://cal.com/x', resultUrl: 'https://thecrwn.app/x' }),
     copy.callBooked(),
     copy.callNoShow({ bookingUrl: 'https://cal.com/x' }),
+    copy.callNoShowSecond({ bookingUrl: 'https://cal.com/x', amount: '$3,892' }),
+    copy.callNoShowFinal({ bookingUrl: 'https://cal.com/x' }),
   ];
 
   it('EVERY DM ends with a question', () => {
@@ -769,12 +773,39 @@ describe('follow-up copy', () => {
       copy.personalNudge({ amount: '$3,892' }),
       copy.offerCall({ bookingUrl: 'https://cal.com/x', resultUrl: 'https://thecrwn.app/x' }),
       copy.callNoShow({ bookingUrl: 'https://cal.com/x' }),
+      copy.callNoShowSecond({ bookingUrl: 'https://cal.com/x', amount: '$3,892' }),
     ];
 
-    const lossWords = /leaving|losing|lose|not earning|goes to a platform|not collecting|none of it reaches you|still have not|does not change|does not reach you|one answer short|sits there undone|missed you|somewhere else/i;
+    // A loose net on purpose. It is a smoke alarm for gain-framed copy sneaking in ("here is
+    // what you could earn!"), not a style grader. Every phrase here names a COST of doing
+    // nothing: money going elsewhere, time passing, the thing still not done.
+    const lossWords =
+      /leaving|losing|lose|not earning|goes to a platform|not collecting|none of it reaches you|still have not|does not change|does not reach you|one answer short|sits there undone|missed you|somewhere else|sitting there|still sitting|no closer|someone who is not you|never get paid/i;
     for (const c of persuading) {
       expect(c.dm + c.subject + c.html, `not loss-framed: ${c.subject}`).toMatch(lossWords);
     }
+  });
+
+  it('the no-show ladder gets LIGHTER, never heavier', () => {
+    // The instinct is to escalate: each ignored message earns a firmer one. That is exactly
+    // backwards. She did not turn up because she is busy, embarrassed, or unsure, and guilt
+    // converts none of those. It just confirms that dealing with CRWN feels like work.
+    //
+    // So: no guilt words, ever, and the last one gives her a clean way out.
+    const guilt = /you (missed|blew|wasted|didn't bother)|waiting for you|i (waited|sat there)|no.?show|disrespect|rude|second chance|last chance|final (warning|notice)/i;
+
+    for (const c of [
+      copy.callNoShow({ bookingUrl: 'https://cal.com/x' }),
+      copy.callNoShowSecond({ bookingUrl: 'https://cal.com/x', amount: '$3,892' }),
+      copy.callNoShowFinal({ bookingUrl: 'https://cal.com/x' }),
+    ]) {
+      expect(c.dm, `guilt-trips a no-show: ${c.subject}`).not.toMatch(guilt);
+    }
+
+    // The breakup must offer a real exit, not a fake one. "Want me to stop?" with no way to
+    // stop is worse than not asking.
+    const final = copy.callNoShowFinal({ bookingUrl: 'https://cal.com/x' });
+    expect(final.dm).toMatch(/take you off|keep you on|stop|leave you/i);
   });
 
   it('carries a working link where one is needed', () => {
@@ -783,6 +814,104 @@ describe('follow-up copy', () => {
     // offerCall must give BOTH paths and let her choose.
     expect(all[4].dm).toContain('https://thecrwn.app/x');
     expect(all[4].dm).toContain('https://cal.com/x');
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe('Cal.com webhook (the thing that stops a booked artist being nurtured)', () => {
+  const SECRET = 'cal_test_secret_value';
+
+  function sign(body: string, secret = SECRET): string {
+    return createHmac('sha256', secret).update(body, 'utf8').digest('hex');
+  }
+
+  beforeEach(() => {
+    process.env.CALCOM_WEBHOOK_SECRET = SECRET;
+  });
+
+  it('FAILS CLOSED when the secret is not configured', () => {
+    delete process.env.CALCOM_WEBHOOK_SECRET;
+    const body = '{"triggerEvent":"BOOKING_CREATED"}';
+    // Even a correctly signed request is rejected. An unconfigured deployment must reject
+    // everything, never accept everything: a forged booking silently cancels a lead's entire
+    // nurture sequence.
+    expect(verifyCalcomRequest(body, sign(body)).ok).toBe(false);
+    expect(verifyCalcomRequest(body, sign(body)).reason).toBe('not_configured');
+  });
+
+  it('accepts a correct signature and rejects a forged one', () => {
+    const body = '{"triggerEvent":"BOOKING_CREATED","payload":{"uid":"abc"}}';
+    expect(verifyCalcomRequest(body, sign(body)).ok).toBe(true);
+    expect(verifyCalcomRequest(body, sign(body, 'wrong_secret')).ok).toBe(false);
+    expect(verifyCalcomRequest(body, null).reason).toBe('missing_signature');
+  });
+
+  it('rejects a replay with a TAMPERED body', () => {
+    // The whole point of HMAC over a bearer secret: capturing a real request does not let you
+    // change who it is about.
+    const real = '{"triggerEvent":"BOOKING_CREATED","payload":{"uid":"abc"}}';
+    const tampered = '{"triggerEvent":"BOOKING_CREATED","payload":{"uid":"xyz"}}';
+    expect(verifyCalcomRequest(tampered, sign(real)).ok).toBe(false);
+  });
+
+  it('does not throw on a signature of the wrong length', () => {
+    // timingSafeEqual throws on a length mismatch, and that throw is itself an oracle.
+    const body = '{"triggerEvent":"BOOKING_CREATED"}';
+    expect(() => verifyCalcomRequest(body, 'short')).not.toThrow();
+    expect(verifyCalcomRequest(body, 'short').ok).toBe(false);
+  });
+
+  it('finds the lead id in metadata, which is where the booking link puts it', () => {
+    const id = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
+    const booking = parseCalBooking({
+      triggerEvent: 'BOOKING_CREATED',
+      payload: {
+        uid: 'bk_1',
+        startTime: '2026-07-20T15:00:00Z',
+        metadata: { crwn: id },
+        attendees: [{ email: 'Her@Example.com', name: 'Her' }],
+      },
+    });
+
+    expect(booking?.leadIdentityId).toBe(id);
+    expect(booking?.attendeeEmail).toBe('her@example.com'); // lowercased, or the join misses
+    expect(booking?.triggerEvent).toBe('BOOKING_CREATED');
+  });
+
+  it('still finds the lead id when Cal.com moves it somewhere else', () => {
+    // Cal.com shuffles custom values between metadata, responses and bookingFieldsResponses
+    // across versions. The ManyChat integration taught this lesson expensively: bend to what
+    // the other system ACTUALLY sends.
+    const id = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
+    const inResponses = parseCalBooking({
+      triggerEvent: 'BOOKING_CREATED',
+      payload: { responses: { crwn: { value: id } }, attendees: [] },
+    });
+    expect(inResponses?.leadIdentityId).toBe(id);
+
+    const inDescription = parseCalBooking({
+      triggerEvent: 'BOOKING_CREATED',
+      payload: { description: `ref ${id}`, attendees: [] },
+    });
+    expect(inDescription?.leadIdentityId).toBe(id);
+  });
+
+  it('returns null rather than guessing when there is no lead id', () => {
+    // A booking with no id is not an error, it is an UNATTRIBUTED booking (someone found the
+    // cal.com link on the site). The route records it for Josh instead of attaching it to a
+    // random lead.
+    const booking = parseCalBooking({
+      triggerEvent: 'BOOKING_CREATED',
+      payload: { uid: 'bk_2', attendees: [{ email: 'a@b.com' }] },
+    });
+    expect(booking?.leadIdentityId).toBe(null);
+    expect(booking?.uid).toBe('bk_2');
+  });
+
+  it('rejects a payload that is not a Cal.com webhook at all', () => {
+    expect(parseCalBooking({ hello: 'world' })).toBe(null);
+    expect(parseCalBooking(null)).toBe(null);
+    expect(parseCalBooking('BOOKING_CREATED')).toBe(null);
   });
 });
 

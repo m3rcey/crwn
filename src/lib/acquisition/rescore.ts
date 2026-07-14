@@ -87,7 +87,7 @@ export async function recomputeScore(identityId: string, opts: RescoreOptions = 
  * the heaviest bucket in the scorer that is not about who she is.
  */
 async function loadBehavior(identityId: string): Promise<ScoreBehavior> {
-  const [{ data: results }, { data: identity }, { count: sessionCount }] = await Promise.all([
+  const [{ data: results }, { data: identity }, { count: sessionCount }, { data: booked }] = await Promise.all([
     supabaseAdmin
       .from('lead_magnet_results')
       .select('viewed_at, recalculated_at, claimed_at, tool_slug')
@@ -101,6 +101,16 @@ async function loadBehavior(identityId: string): Promise<ScoreBehavior> {
       .from('lead_sessions')
       .select('id', { count: 'exact', head: true })
       .eq('lead_identity_id', identityId),
+    // A live booking. 'recorded' excludes one she has since cancelled: putting time in the
+    // diary and then taking it back out is not the same signal as putting it in.
+    supabaseAdmin
+      .from('acquisition_events')
+      .select('id')
+      .eq('lead_identity_id', identityId)
+      .eq('event_name', 'sales_call_booked')
+      .eq('status', 'recorded')
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const rows = results ?? [];
@@ -129,6 +139,6 @@ async function loadBehavior(identityId: string): Promise<ScoreBehavior> {
     setupCompleted,
     leadMagnetsCompleted: new Set(rows.map((r) => r.tool_slug)).size,
     returnVisit: (sessionCount ?? 0) > 1,
-    bookedCall: false, // wired when the booking flow emits an event
+    bookedCall: !!booked,
   };
 }
