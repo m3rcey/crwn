@@ -36,7 +36,7 @@ export default function TermsPage() {
           <p><strong>Downgrades:</strong> If you downgrade to a lower tier, the change takes effect at the end of your current billing period.</p>
           <p><strong>Cancellations:</strong> You may cancel your subscription at any time. Your access continues until the end of the current billing period. No partial refunds are issued for unused time.</p>
           <p><strong>Shop Purchases:</strong> All shop purchases are final and non-refundable unless the product is not delivered as described. Contact us within 14 days of purchase if you believe a product was misrepresented.</p>
-          <p><strong>Platform Fees:</strong> CRWN charges a platform fee on all fan-to-artist transactions. The standard fee is 8%, reduced to 6% for Label tier artists and 5% for Founding Artists. Stripe processing fees are separate.</p>
+          <p><strong>Platform Fees:</strong> CRWN charges a platform fee on all fan-to-artist transactions. The fee is 12% on the Free plan and 8% on Pro ($9.99/month). Promotional rates may apply if you join through a partner offer. Stripe processing fees are separate.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">5. Content and Intellectual Property</h2>
           <p>You retain ownership of all content you upload to CRWN. By uploading content, you grant CRWN a non-exclusive, worldwide, royalty-free license to host, display, stream, distribute, and promote your content on the Platform.</p>

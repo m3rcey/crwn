@@ -109,7 +109,7 @@ export const guides: GuideData[] = [
       'Enable Stripe notifications so you get an alert every time you earn money, it is motivating.',
       'Save a percentage of every payout for taxes. As a creator, you are responsible for self-employment tax.',
       'If you plan to offer products in multiple currencies, Stripe handles conversion automatically.',
-      'The Founding Artist program gives you 5% fees for your first year. Claim your spot early.',
+      'Upgrading to Pro drops your platform fee from 12% to 8%. On $1,000/month of sales that is $40 back in your pocket, which is four times what Pro costs.',
     ],
     nextGuide: { slug: 'subscription-tiers', title: 'Subscription Tiers' },
     prevGuide: { slug: 'profile-setup', title: 'Profile & Branding' },

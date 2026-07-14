@@ -1,5 +1,15 @@
 # CRWN Brain — Changelog
 
+## 2026-07-14 — The legal pages now state the fees the code actually charges; founding artists retired
+
+The **artist agreement** (a document artists accept) said **Starter = 8%** while `getArtistFeePercent` charges **12%**: a contract term wrong in the direction that hurts the artist. It also said Pro was $50/month ($9.99) and Label 6% at $150 (5%, $99, not sellable). `/terms` repeated the same fiction ("standard fee is 8%, reduced to 6% for Label").
+
+- **Founder call (2026-07-14): the code is correct, the documents bend to it.** Free **12%** / Pro **8%** at **$9.99/mo**. Fixed in `(public)/artist-agreement`, `(public)/terms`, and the Stripe guide.
+- The Label row was **deleted** from the fee schedule rather than corrected: it is spec-only and not sellable, and listing it in a contract implies an artist can buy it.
+- **Founding Artist program retired** (founder call, same day). Every user-facing mention removed. Zero artists ever carried the flag in production, so nobody was affected.
+- ⚠️ **Still live in code:** the partner-code promo (**5% fees for 3 months**, `platform-checkout:132` → `webhookHandlers:1529`) deliberately *reuses* `is_founding_artist` to get the fee reduction. It is unadvertised and currently unused, and it cannot render the Founding badge (that needs a `founding_artist_number` the partner path never sets). Awaiting a keep/kill call in `TODO.md`. **Do not delete the founding fee path without deciding this**, or the influencer program silently loses its closing discount.
+- **Rule:** a legal page must state what the code does. Do not render it from a live constant either, or a code change silently rewrites the contract artists agreed to.
+
 ## 2026-07-14 — A deploy is not an outage: the error boundaries were mislabelling a routine deploy as a crash
 
 Reported as "site not loading, says something went wrong" on the homepage and the featured

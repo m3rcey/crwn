@@ -37,13 +37,11 @@ export default function ArtistAgreementPage() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Starter</td><td className="p-3">8%</td><td className="p-3">Free</td></tr>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Pro</td><td className="p-3">8%</td><td className="p-3">$50/month</td></tr>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Label</td><td className="p-3">6%</td><td className="p-3">$150/month</td></tr>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Founding Artist</td><td className="p-3">5%</td><td className="p-3">Free (1 year)</td></tr>
+              <tr className="border-t border-crwn-elevated"><td className="p-3">Free</td><td className="p-3">12%</td><td className="p-3">$0</td></tr>
+              <tr className="border-t border-crwn-elevated"><td className="p-3">Pro</td><td className="p-3">8%</td><td className="p-3">$9.99/month</td></tr>
             </tbody>
           </table>
-          <p>Stripe processing fees (~2.9% + $0.30) are separate and deducted by Stripe before funds reach your account.</p>
+          <p>The platform fee is charged on fan-to-artist transactions (subscriptions and sales). Stripe processing fees (~2.9% + $0.30) are separate and deducted by Stripe before funds reach your account.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">5. Payouts</h2>
           <p>All payouts are processed through Stripe Connect according to Stripe&apos;s standard payout schedule. You are solely responsible for tax obligations. We may issue 1099 forms as required by law.</p>
