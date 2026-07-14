@@ -48,18 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Add `CALCOM_API_KEY` to Vercel.** Same value as your local `.env.local`. Production
-      ticked, then redeploy.
-
-      Bookings already work without it. What it buys you is the **"Cal.com" tick in the config
-      strip turning green**, because that check asks Cal.com what secret it stored and compares
-      it to the one Vercel is running with. Right now it cannot reach Cal.com, so it honestly
-      reports grey ("could not check") rather than a fake green.
-
-      Worth having: the webhook fails closed, so a *mistyped* secret and a *missing* one both
-      return 401 and look identical from outside. That is exactly what silently ate the first
-      test booking, and this check is what catches it next time in one glance.
-
 - [ ] **Decide the DM messaging-window policy.** Meta only lets you message a lead for 24
       hours after *her* last interaction. Outside that window, sends are rejected and CRWN
       treats it as terminal (it does not retry, on purpose).
