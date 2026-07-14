@@ -5,6 +5,17 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:5
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-anon-key-for-build';
 const ALERT_EMAIL = 'joshn.wms@gmail.com';
 
+/**
+ * The origin a STRANGER uses, which is the only one worth asserting against.
+ *
+ * Never `req.nextUrl.origin`: inside a Vercel cron that resolves to the protected
+ * deployment url (*.vercel.app), whose Vercel Authentication wall answers EVERY
+ * path with an http 200 html page. Probing it told this canary that the stream
+ * route had served a paid track (200 != 403), and the same html then broke the
+ * next check's JSON.parse. Both alarms were the auth wall, not the route.
+ */
+const PUBLIC_ORIGIN = process.env.NEXT_PUBLIC_APP_URL || 'https://thecrwn.app';
+
 export const maxDuration = 30;
 
 type Check = { name: string; ok: boolean; detail: string };
@@ -38,6 +49,33 @@ type Check = { name: string; ok: boolean; detail: string };
 async function fetchAnonymously(url: string): Promise<{ status: number; contentType: string }> {
   const res = await fetch(url, { headers: { Range: 'bytes=0-0' }, cache: 'no-store' });
   return { status: res.status, contentType: res.headers.get('content-type') || '' };
+}
+
+/**
+ * Ask the stream route for a track's audio, exactly as a logged-out stranger does.
+ *
+ * A leak is PROVEN by a signed url coming back. It is never INFERRED from "the
+ * status was not 403", because an auth wall, an outage, a 404 and a redirect all
+ * fail to be 403 while leaking precisely nothing. Reporting those as a LEAK is how
+ * a canary teaches its reader to ignore it, and this one guards the paid
+ * catalogue: the day it cries wolf is the day the real leak gets archived.
+ *
+ * So the answer is the signed url or an honest "I could not tell".
+ */
+async function probeStream(
+  id: string
+): Promise<{ status: number; signedUrl: string | null; html: boolean }> {
+  const res = await fetch(`${PUBLIC_ORIGIN}/api/tracks/${id}/stream`, { cache: 'no-store' });
+  const isJson = (res.headers.get('content-type') || '').includes('application/json');
+  if (!isJson) return { status: res.status, signedUrl: null, html: true };
+
+  const body = (await res.json().catch(() => null)) as { url?: unknown } | null;
+  const url = typeof body?.url === 'string' ? body.url : null;
+  return {
+    status: res.status,
+    signedUrl: url?.includes('/object/sign/audio/') ? url : null,
+    html: false,
+  };
 }
 
 async function rest(path: string): Promise<{ status: number; body: string }> {
@@ -286,13 +324,28 @@ export async function GET(req: NextRequest) {
       if (!paidId) {
         checks.push({ name: 'stream_route_denies_paid', ok: true, detail: 'no paid track to probe (vacuous)' });
       } else {
-        const { status } = await fetchAnonymously(`${req.nextUrl.origin}/api/tracks/${paidId}/stream`);
-        const denied = status === 403;
-        checks.push({
-          name: 'stream_route_denies_paid',
-          ok: denied,
-          detail: denied ? 'paid track refused to anon (403)' : `LEAK: the stream route signed a paid track for anon, http ${status}`,
-        });
+        const { status, signedUrl, html } = await probeStream(paidId);
+        if (signedUrl) {
+          checks.push({
+            name: 'stream_route_denies_paid',
+            ok: false,
+            detail: `LEAK: the stream route handed anon a signed url for a paid track (http ${status})`,
+          });
+        } else if (status === 403) {
+          checks.push({
+            name: 'stream_route_denies_paid',
+            ok: true,
+            detail: 'paid track refused to anon (403)',
+          });
+        } else {
+          checks.push({
+            name: 'stream_route_denies_paid',
+            ok: false,
+            detail: html
+              ? `INCONCLUSIVE (not a leak): ${PUBLIC_ORIGIN} answered with an html page, http ${status}. No audio was served. The canary could not reach the stream route.`
+              : `INCONCLUSIVE (not a leak): no signed url came back, but the route answered http ${status} instead of 403.`,
+          });
+        }
       }
     }
 
@@ -302,19 +355,20 @@ export async function GET(req: NextRequest) {
       if (!freeId) {
         checks.push({ name: 'stream_route_signs_free', ok: true, detail: 'no free track to probe (vacuous)' });
       } else {
-        const res = await fetch(`${req.nextUrl.origin}/api/tracks/${freeId}/stream`, { cache: 'no-store' });
+        const { status, signedUrl, html } = await probeStream(freeId);
         let ok = false;
-        let detail = `BROKEN: stream route returned http ${res.status}`;
-        if (res.status === 200) {
-          const { url } = (await res.json()) as { url?: string };
-          if (url?.includes('/object/sign/audio/')) {
-            // Signed, but does the signature actually open the door?
-            const { status } = await fetchAnonymously(url);
-            ok = status === 200 || status === 206;
-            detail = ok ? `free track signed and streams (${status})` : `BROKEN: signed url did not resolve, http ${status}`;
-          } else {
-            detail = 'BROKEN: stream route returned no /object/sign/ url — the player is silent';
-          }
+        let detail: string;
+        if (html) {
+          detail = `BROKEN: ${PUBLIC_ORIGIN} answered with an html page, http ${status}. The canary could not reach the stream route.`;
+        } else if (!signedUrl) {
+          detail = `BROKEN: stream route returned no /object/sign/ url (http ${status}). The player is silent.`;
+        } else {
+          // Signed, but does the signature actually open the door?
+          const { status: signedStatus } = await fetchAnonymously(signedUrl);
+          ok = signedStatus === 200 || signedStatus === 206;
+          detail = ok
+            ? `free track signed and streams (${signedStatus})`
+            : `BROKEN: signed url did not resolve, http ${signedStatus}`;
         }
         checks.push({ name: 'stream_route_signs_free', ok, detail });
       }
