@@ -60,16 +60,18 @@ responsible for. Do not work those.
       Instagram-only leads, who are most of them and have no email, so those sends silently
       resolve `sent: false`. Remaining work:
 
-      1. **Add the in-window email capture nodes to the ManyChat flow.** The whole server side is
-         done: CRWN stores a claimed email/phone + `consent_email` and short-circuits the
-         `profile_update` event so it does not re-ask a question (`orchestration.ts`); the
-         email/SMS fallback (no 24h window) then uses it. What is left is the ManyChat build, and
-         it is now a copy-paste spec: `docs/acquisition/manychat-setup-guide.md` §6b (nodes 6-8,
-         attached to Node 5's Yes branch). Without it, the tail reaches only the rare lead who
-         already had an email on file.
-      2. **Decide whether to front-load the call CTA into the first 24h.** Product call: the money
-         ask (`offer_call`) lands day 7, guaranteed out-of-window for IG-only leads. A CTA inside
-         the in-window conversation is the compliant way to make it land.
+      1. **Set `BUSINESS_POSTAL_ADDRESS` in Vercel (Production).** A real CRWN mailing address (a
+         PO box is fine). It is LEGALLY REQUIRED in every acquisition email footer (CAN-SPAM). The
+         code injects it (`channels.ts`); until the env var is set, the footer ships the literal
+         placeholder `[SET BUSINESS_POSTAL_ADDRESS: a real CRWN mailing address]`. Do not send
+         acquisition email until this is set.
+      2. **Build the in-window email capture nodes in ManyChat.** The whole server side is done:
+         CRWN stores a claimed email/`consent_email`, short-circuits the `profile_update` event
+         (`orchestration.ts`), and every acquisition email now carries a one-click unsubscribe +
+         postal address (`channels.ts`, `/api/acquisition/unsubscribe`). Copy-paste spec:
+         `docs/acquisition/manychat-setup-guide.md` §6b (topline free, full breakdown gated behind
+         her email: nodes 5a/6/7/8). Without it, the tail reaches only the rare lead who already
+         had an email on file.
 
 - [ ] **Privacy policy: disclose the Instagram funnel.** Needs you or counsel, not Claude.
       The exact list of what is now collected and what likely needs disclosing is in

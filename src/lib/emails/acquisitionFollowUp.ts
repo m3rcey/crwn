@@ -31,6 +31,12 @@ export interface FollowUpCopy {
   html: string;
 }
 
+// Where the email CTAs send her: the CRWN signup, tagged so we can attribute signups back to the
+// Instagram funnel. By the time she is in the email nurture she has already seen her number, so
+// the job of these emails is to convert her into an artist account. The `ref` is read at signup
+// for attribution; an unrecognized value is ignored harmlessly.
+const SIGNUP_URL = 'https://thecrwn.app/signup?ref=ig-funnel';
+
 /** They got the link and never opened it. */
 export function resultNotViewed(params: { headline: string; resultUrl: string }): FollowUpCopy {
   const { headline, resultUrl } = params;
@@ -80,8 +86,8 @@ Be honest with me: is it that the setup looks like a hassle, or that you do not 
         <p style="${P}">Your fans are already spending money every month. Right now none of it reaches you, and that stays true for exactly as long as you have nowhere for them to send it.</p>
         <p style="${P}"><strong style="color:#FFF;">Be honest with me: is it that the setup looks like a hassle, or that you do not believe the number?</strong> Reply and tell me, I read every one.</p>
       `,
-      cta: 'Set it up',
-      ctaUrl: resultUrl,
+      cta: 'Start earning on CRWN',
+      ctaUrl: SIGNUP_URL,
     }),
   };
 }
@@ -121,8 +127,8 @@ What is the actual thing keeping you from setting this up?`,
         <p style="${P}">I have watched artists with a tenth of your reach out-earn people on major deals, purely because they owned the relationship.</p>
         <p style="${P}"><strong style="color:#FFF;">What is the actual thing keeping you from setting this up?</strong></p>
       `,
-      cta: 'Show me my numbers again',
-      ctaUrl: 'https://thecrwn.app/worth',
+      cta: 'Start free on CRWN',
+      ctaUrl: SIGNUP_URL,
     }),
   };
 }

@@ -269,33 +269,40 @@ to `/admin → Acquisition → Needs you` instead of looping forever.
 
 ---
 
-## 6b. Capture her email in-window — the follow-up tail depends on it
+## 6b. Topline free, full breakdown gated behind her email
 
-**WHY this is the highest-leverage node in the whole flow.** Meta's 24h window closes the
-Instagram DM. `personal_nudge` (day 4), `offer_call` (day 7) and the no-show ladder are all
-out-of-window for an Instagram-only lead, and most leads never gave an email, so those sends
-silently resolve `sent: false` and the nurture reaches nobody. If she hands over an email WHILE
-the window is open, CRWN now stores it (as an unverified send target, `orchestration.ts`) and the
-email fallback, which has no 24h window, carries the entire tail.
+**WHY.** Meta's 24h window closes the Instagram DM. `personal_nudge` (day 4), `offer_call`
+(day 7) and the no-show ladder are all out-of-window for an Instagram-only lead, and most leads
+never gave an email, so those sends silently resolve `sent: false` and the nurture reaches
+nobody. The fix is to get her email WHILE the window is open. CRWN stores it (unverified send
+target, `orchestration.ts`) and the email fallback, which has no 24h window, carries the tail.
 
-Attach these to the **END of Node 5's Yes branch**, right after the result Send Message (the one
-with the `See My Numbers` button). That branch used to end; now it continues into node 6.
+**The design decision (topline free, breakdown gated).** She sees her headline number for free,
+so no bounce and goodwill intact. The full breakdown is what she trades an email for. So Node 5's
+Yes branch is no longer one message; it becomes: topline, then the email ask, then the breakdown
+link.
+
+### Node 5 (Yes branch), rebuilt — split the topline off the link
+
+The Yes branch used to be a single Send Message with `crwn_message` **and** the `See My Numbers`
+button. Split it:
+
+- **Node 5a — topline only.** Send Message (`Within messaging window`): text is the `crwn_message`
+  pill, **and remove the button.** This is the free headline ("about $X a month is on the table").
+- Then continue into node 6. The `See My Numbers` button moves to node 8, after she gives the email.
 
 ### Node 6 — ask for her email (Data Collection, in-window)
 
 `Next Step` → **Instagram → Send Message**
 
-- **Send:** `Within messaging window` (she just tapped, so the window is open).
+- **Send:** `Within messaging window`.
 - **Delete the empty Text block.**
 - **Add a content block → `Data Collection`**
-  - **Question:** `Want me to email you a copy so it doesn't get buried in your DMs? Drop your best email and I'll send it over plus a couple of follow-ups.`
+  - **Question:** `Want the full breakdown of where that's coming from? Drop your best email and I'll send it straight over.`
   - **Contact's reply:** `Email` ← ManyChat's Email input. It validates the address and stores it
     to the **system Email field**, which is exactly what `+ Add Full Contact Data` reads. Do NOT
     use Text here.
   - Leave *"Automation pauses until contact replies"* on.
-
-The copy names the follow-ups on purpose. That is the marketing opt-in that makes
-`consent_email: true` below honest rather than a dark pattern.
 
 ### Node 7 — External Request (profile_update)
 
@@ -305,8 +312,10 @@ Same **URL** and **Headers** as nodes 2 and 4. Only the body differs:
 2. **Click `+ Add Full Contact Data`** (drops in as an object, no quotes).
 3. **Paste:** `}`
 
-`consent_email` is a literal `true` (she opted in at node 6). Her email rides inside Full Contact
-Data as `email`, so it needs no separate pill.
+`consent_email` is a literal `true`. Her email rides inside Full Contact Data as `email`, so it
+needs no separate pill. Every CRWN email that follows carries a one-click unsubscribe and a postal
+address (`channels.ts`), so this opt-out-by-default is compliant without a follow-ups disclosure
+in the DM.
 
 **Response mapping:** the same five rows as node 2 are harmless, but you do not need to render any
 of them. CRWN replies `{"action":"complete"}` and there is nothing for ManyChat to display.
@@ -315,16 +324,17 @@ of them. CRWN replies `{"action":"complete"}` and there is nothing for ManyChat 
 means the body is off: `consent_email` must be a bare JSON boolean (outside any quotes) and Full
 Contact Data must be an inserted pill, not typed text.
 
-### Node 8 — confirm (optional)
+### Node 8 — deliver the breakdown
 
 `Next Step` → **Instagram → Send Message** (`Within messaging window`)
 
-- Text: `Perfect. It's on its way to your inbox.`
+- Text: `Perfect. Here's your full breakdown.`
+- **+ Add Button:** label `See My Numbers` → **Open website** → URL: the `crwn_result_url` pill.
 - **No next step.** The flow ends here.
 
 **Phone/SMS:** the identical mechanism captures a phone (`consent_sms:true`, ManyChat `Phone`
 input), and CRWN stores it, but SMS outbound is a disabled adapter today (`channels.ts`), so a
-captured phone just sits unused. Skip node 6's phone variant unless you are also turning on SMS.
+captured phone just sits unused. Skip the phone variant unless you are also turning on SMS.
 
 ---
 

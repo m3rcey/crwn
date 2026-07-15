@@ -17,7 +17,14 @@
 import { supabaseAdmin } from './db';
 import { isManyChatOutboundConfigured, sendManyChatMessage, type SendOutcome } from '../manychat/client';
 import { resend, FROM_EMAIL } from '../resend';
+import { buildUnsubscribeUrl } from './unsubscribe';
 import type { LeadIdentity } from './types';
+
+// A real mailing address is legally required in the footer of every commercial email (CAN-SPAM).
+// A PO box is fine. Set BUSINESS_POSTAL_ADDRESS in the environment; the placeholder is obvious on
+// purpose so an un-set value cannot ship silently.
+const POSTAL_ADDRESS =
+  process.env.BUSINESS_POSTAL_ADDRESS || '[SET BUSINESS_POSTAL_ADDRESS: a real CRWN mailing address]';
 
 export type Channel = 'instagram_dm' | 'email' | 'sms';
 
@@ -123,18 +130,40 @@ async function sendEmail(identity: LeadIdentity, subject: string, html: string):
 
   if (suppressed) return { sent: false, reason: 'suppressed' };
 
+  // Every acquisition email is commercial, so it MUST carry a working opt-out and a postal
+  // address (CAN-SPAM). We inject both HERE, at the single send choke point, so the copy in
+  // acquisitionFollowUp.ts never has to know the recipient's email and every current and future
+  // template is compliant by construction. The List-Unsubscribe headers give mail clients the
+  // native one-click "Unsubscribe" button, which also lifts inbox placement.
+  const unsubscribeUrl = buildUnsubscribeUrl(identity.email);
+  const compliantHtml = `${html}${complianceFooter(unsubscribeUrl)}`;
+
   try {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: identity.email,
       subject,
-      html,
+      html: compliantHtml,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
     });
     if (error) return { sent: false, reason: 'resend_error' };
     return { sent: true, providerId: data?.id ?? null };
   } catch {
     return { sent: false, reason: 'resend_throw' };
   }
+}
+
+/** The legally required footer: a one-click unsubscribe and a physical postal address. */
+function complianceFooter(unsubscribeUrl: string): string {
+  return `
+    <div style="max-width:460px;margin:24px auto 0;text-align:center;color:#555;font-size:12px;line-height:1.6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+      <p style="margin:0 0 6px;">You are getting this because you asked CRWN for your numbers on Instagram.</p>
+      <p style="margin:0 0 6px;"><a href="${unsubscribeUrl}" style="color:#888;text-decoration:underline;">Unsubscribe</a></p>
+      <p style="margin:0;">${POSTAL_ADDRESS}</p>
+    </div>`;
 }
 
 // ---------------------------------------------------------------------------
