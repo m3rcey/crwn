@@ -60,13 +60,13 @@ responsible for. Do not work those.
       Instagram-only leads, who are most of them and have no email, so those sends silently
       resolve `sent: false`. Remaining work:
 
-      1. **Add an in-window email capture step to the ManyChat flow.** The server side is now
-         done: CRWN stores a claimed email/phone + `consent_email` from the ManyChat payload and
-         the email/SMS fallback (no 24h window) will use it (`orchestration.ts`). What is left is
-         the ManyChat config: after she gets her result, ask "want me to email you a copy?",
-         collect the email, and send it to the webhook as `email` + `consent_email: true` (use
-         the `optin_email` / `email` fields from `+ Add Full Contact Data`). Without this step
-         the tail still reaches only the rare lead who already had an email on file.
+      1. **Add the in-window email capture nodes to the ManyChat flow.** The whole server side is
+         done: CRWN stores a claimed email/phone + `consent_email` and short-circuits the
+         `profile_update` event so it does not re-ask a question (`orchestration.ts`); the
+         email/SMS fallback (no 24h window) then uses it. What is left is the ManyChat build, and
+         it is now a copy-paste spec: `docs/acquisition/manychat-setup-guide.md` §6b (nodes 6-8,
+         attached to Node 5's Yes branch). Without it, the tail reaches only the rare lead who
+         already had an email on file.
       2. **Decide whether to front-load the call CTA into the first 24h.** Product call: the money
          ask (`offer_call`) lands day 7, guaranteed out-of-window for IG-only leads. A CTA inside
          the in-window conversation is the compliant way to make it land.

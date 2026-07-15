@@ -269,6 +269,65 @@ to `/admin → Acquisition → Needs you` instead of looping forever.
 
 ---
 
+## 6b. Capture her email in-window — the follow-up tail depends on it
+
+**WHY this is the highest-leverage node in the whole flow.** Meta's 24h window closes the
+Instagram DM. `personal_nudge` (day 4), `offer_call` (day 7) and the no-show ladder are all
+out-of-window for an Instagram-only lead, and most leads never gave an email, so those sends
+silently resolve `sent: false` and the nurture reaches nobody. If she hands over an email WHILE
+the window is open, CRWN now stores it (as an unverified send target, `orchestration.ts`) and the
+email fallback, which has no 24h window, carries the entire tail.
+
+Attach these to the **END of Node 5's Yes branch**, right after the result Send Message (the one
+with the `See My Numbers` button). That branch used to end; now it continues into node 6.
+
+### Node 6 — ask for her email (Data Collection, in-window)
+
+`Next Step` → **Instagram → Send Message**
+
+- **Send:** `Within messaging window` (she just tapped, so the window is open).
+- **Delete the empty Text block.**
+- **Add a content block → `Data Collection`**
+  - **Question:** `Want me to email you a copy so it doesn't get buried in your DMs? Drop your best email and I'll send it over plus a couple of follow-ups.`
+  - **Contact's reply:** `Email` ← ManyChat's Email input. It validates the address and stores it
+    to the **system Email field**, which is exactly what `+ Add Full Contact Data` reads. Do NOT
+    use Text here.
+  - Leave *"Automation pauses until contact replies"* on.
+
+The copy names the follow-ups on purpose. That is the marketing opt-in that makes
+`consent_email: true` below honest rather than a dark pattern.
+
+### Node 7 — External Request (profile_update)
+
+Same **URL** and **Headers** as nodes 2 and 4. Only the body differs:
+
+1. **Paste:** `{"event_type":"profile_update","consent_email":true,"contact":`
+2. **Click `+ Add Full Contact Data`** (drops in as an object, no quotes).
+3. **Paste:** `}`
+
+`consent_email` is a literal `true` (she opted in at node 6). Her email rides inside Full Contact
+Data as `email`, so it needs no separate pill.
+
+**Response mapping:** the same five rows as node 2 are harmless, but you do not need to render any
+of them. CRWN replies `{"action":"complete"}` and there is nothing for ManyChat to display.
+
+**Test:** `503 engine_disabled` while dark, then `200` with `action: complete` once live. A `400`
+means the body is off: `consent_email` must be a bare JSON boolean (outside any quotes) and Full
+Contact Data must be an inserted pill, not typed text.
+
+### Node 8 — confirm (optional)
+
+`Next Step` → **Instagram → Send Message** (`Within messaging window`)
+
+- Text: `Perfect. It's on its way to your inbox.`
+- **No next step.** The flow ends here.
+
+**Phone/SMS:** the identical mechanism captures a phone (`consent_sms:true`, ManyChat `Phone`
+input), and CRWN stores it, but SMS outbound is a disabled adapter today (`channels.ts`), so a
+captured phone just sits unused. Skip node 6's phone variant unless you are also turning on SMS.
+
+---
+
 ## 7. Go live — order matters
 
 **1. Flip the CRWN flag FIRST:**

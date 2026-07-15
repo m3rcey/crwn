@@ -104,6 +104,20 @@ export async function orchestrate(
     if (contactPatch.consent_sms === true) identity.consentSms = true;
   }
 
+  // A profile_update carries new contact info only (an email she just handed over in-window),
+  // which was persisted just above. Acknowledge and STOP here: it must NOT fall through into the
+  // question/decision engine below, or handing over an email would spin up a session, re-ask a
+  // question, and reopen a conversation she already finished. 'complete' tells ManyChat there is
+  // nothing more to do; the ManyChat flow sends its own "got it" and does not render this message.
+  if (payload.event_type === 'profile_update') {
+    return buildResponse({
+      sessionId: null,
+      action: 'complete',
+      message: 'Got it. I will send your copy there too.',
+      state: null,
+    });
+  }
+
   const session = await loadOrCreateSession(payload, identity);
   const tool = getTool(session.lead_magnet_id ?? payload.lead_magnet_id ?? DEFAULT_TOOL_ID);
 
