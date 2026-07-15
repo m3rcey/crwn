@@ -129,8 +129,9 @@ export async function POST(request: NextRequest) {
       if (validPartnerCode.recruiter_id) {
         metadata.recruiter_id = validPartnerCode.recruiter_id;
       }
-      // Reuse founding artist flag so webhook applies the 5% fee reduction
-      metadata.founding_artist = 'true';
+      // A partner code is attribution + a 1-month Stripe trial only. It does NOT reduce the
+      // platform fee: the founding-artist program that granted 5% here is retired (founder
+      // call 2026-07-15), so nothing sets the founding flag anymore.
     }
 
     // Create checkout session

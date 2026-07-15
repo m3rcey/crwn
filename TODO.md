@@ -48,21 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **DECIDE: does the partner-code fee promo survive the founding-artist program?** You
-      retired founding artists, and every user-facing mention is gone. But the **code** still
-      has a live promo that *reuses the founding plumbing*: an artist who signs up through an
-      influencer's partner code gets **5% fees for 3 months**
-      (`src/app/api/stripe/platform-checkout/route.ts:132`, `src/lib/webhookHandlers.ts:1529`),
-      and incidentally gets Pro-level AI manager access (`cron/ai-manager:298`).
-
-      Nobody has it (zero artists carry the flag today), and it cannot show the "Founding
-      Artist" badge (that needs a founding number the partner path never sets), so nothing is
-      wrong right now. But it is an unadvertised discount that will fire the first time an
-      influencer converts an artist.
-
-      **Keep it** (it is a decent closing tool for your influencers, I will just rename it off
-      the founding flag), or **kill it** (artists pay their plan's normal fee from day one).
-
 - [ ] **Set the three Resend webhook secrets in Vercel. The webhooks reject everything until
       you do.** I signed them (all three used to accept a POST from anyone), and a signed
       webhook with no secret configured fails **closed**, on purpose.

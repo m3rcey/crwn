@@ -22,7 +22,7 @@ Next.js 16 (App Router, mostly client components) on Vercel · Supabase (Postgre
 
 ## Most important business rules
 - **Money is integer cents.** Input `Math.round(val*100)`, display `(price/100).toFixed(2)`.
-- **Platform tiers/fees (code SoT `TIER_LIMITS`):** Free 12% / **Pro $9.99 8%** (only billable v1) / $99 `label` 5% (spec-only) / `empire` dead. **The legal pages (`/artist-agreement`, `/terms`) now state these exact numbers** (they used to say Starter was 8%). **Founding Artist program is RETIRED** (2026-07-14); the only surviving 5% override is an unadvertised partner-code promo (5% for 3 months), pending a keep/kill call. (The PRD's $50/$175/$350 pricing is **stale**.)
+- **Platform tiers/fees (code SoT `TIER_LIMITS`):** Free 12% / **Pro $9.99 8%** (only billable v1) / $99 `label` 5% (spec-only) / `empire` dead. **The legal pages (`/artist-agreement`, `/terms`) now state these exact numbers** (they used to say Starter was 8%). **Founding Artist program is RETIRED, code removed** (2026-07-15): no per-artist fee override exists, `getArtistFeePercent` returns the tier fee. A partner code is attribution + a 1-month trial only, no fee cut. (The PRD's $50/$175/$350 pricing is **stale**.)
 - **Fan money** routes on the Stripe **platform** account with `transfer_data.destination` + `application_fee`; artist payouts go to Connect Express accounts.
 - **Content gating:** `is_free` + `allowed_tier_ids` (+ `price`). Legacy `access_level` is dead.
 - **One subscription per (fan, artist)** — resubscribe = upsert.

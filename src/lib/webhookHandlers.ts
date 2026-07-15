@@ -1501,11 +1501,12 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
     return;
   }
 
-  // Check if this is a founding artist or partner code checkout
-  const isFoundingArtist = session.metadata?.founding_artist === 'true';
-  const foundingNumber = session.metadata?.founding_number ? parseInt(session.metadata.founding_number) : null;
+  // Partner-code checkout. The founding-artist program (both the original 50-spot version
+  // and the 5%-fee partner promo that reused its flag) is retired (founder call 2026-07-15),
+  // so nothing sets founding_artist anymore and a partner code is pure attribution now: the
+  // artist pays their plan's normal platform fee from day one. The 1-month free trial is a
+  // separate Stripe-level perk, applied in platform-checkout, and is unaffected.
   const partnerCode = session.metadata?.partner_code || null;
-  const partnerCodeId = session.metadata?.partner_code_id || null;
   const recruiterId = session.metadata?.recruiter_id || null;
 
   const updateData: Record<string, unknown> = {
@@ -1514,24 +1515,7 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
     platform_subscription_status: 'active',
   };
 
-  if (isFoundingArtist && foundingNumber) {
-    // Original founding artist program (50 spots)
-    const proExpiresAt = new Date();
-    proExpiresAt.setMonth(proExpiresAt.getMonth() + 1);
-    const feeExpiresAt = new Date();
-    feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 6);
-
-    updateData.is_founding_artist = true;
-    updateData.founding_artist_number = foundingNumber;
-    updateData.founding_artist_expires_at = proExpiresAt.toISOString();
-    updateData.founding_fee_expires_at = feeExpiresAt.toISOString();
-    updateData.acquisition_source = 'founding';
-  } else if (isFoundingArtist && partnerCode) {
-    // Partner code: 1 month free trial (handled by Stripe) + 3 months of 5% fee
-    const feeExpiresAt = new Date();
-    feeExpiresAt.setMonth(feeExpiresAt.getMonth() + 3);
-    updateData.is_founding_artist = true;
-    updateData.founding_fee_expires_at = feeExpiresAt.toISOString();
+  if (partnerCode) {
     updateData.partner_code_used = partnerCode;
     updateData.acquisition_source = 'partner';
 

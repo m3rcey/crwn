@@ -77,10 +77,7 @@ export async function POST(req: NextRequest) {
 
     const existingTypes = new Set((existing || []).map(d => d.type));
 
-    // Determine effective tier
-    const effectiveTier = (data.platformTier === 'starter' && data.isFoundingArtist)
-      ? 'pro'
-      : data.platformTier;
+    const effectiveTier = data.platformTier;
 
     let insights: InsightInput[];
     if (effectiveTier === 'starter') {

@@ -1,5 +1,15 @@
 # CRWN Brain — Changelog
 
+## 2026-07-15 — Founding-artist fee/AI promo killed at the source
+
+Founder call: the partner-code 5%-fee promo (and its incidental Pro-level AI access) is dead. It reused the retired founding-artist plumbing and would have fired the first time an influencer converted an artist.
+
+- **The one writer removed:** `metadata.founding_artist = 'true'` in `platform-checkout`. That was the ONLY code path that ever set the flag (`founding_number` was never set, so the original 50-spot webhook branch was already dead). With the writer gone, `is_founding_artist` is permanently false.
+- **Dead readers deleted** rather than left as latent landmines: the 5% branch in `getArtistFeePercent` (it now returns the tier fee, unconditionally), and the "founding → Pro access" clause in all three AI-manager surfaces (`cron/ai-manager`, `ai-manager/generate`, `AiManagerCard` + the `isFoundingArtist` prop and the profile-page state that fed it).
+- **Kept, because it is the influencer program, not the promo:** the partner-code branch still records attribution (`partner_code_used`, `acquisition_source='partner'`), creates the `artist_referrals` row + `recruited_by`, and grants the 1-month Stripe trial. It just no longer touches the platform fee. Artists pay their plan's normal fee (12% Free / 8% Pro) from day one.
+- **Inert residue, left on purpose:** `FoundingBadge` renders behind `artist.founding_artist_number`, which nothing sets, so it never shows. Cosmetic, not behavioral; not worth public-profile render surgery.
+- Zero artists ever carried the flag in production, so nothing changed for anyone live.
+
 ## 2026-07-14 — The legal pages now state the fees the code actually charges; founding artists retired
 
 The **artist agreement** (a document artists accept) said **Starter = 8%** while `getArtistFeePercent` charges **12%**: a contract term wrong in the direction that hurts the artist. It also said Pro was $50/month ($9.99) and Label 6% at $150 (5%, $99, not sellable). `/terms` repeated the same fiction ("standard fee is 8%, reduced to 6% for Label").

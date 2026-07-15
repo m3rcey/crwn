@@ -247,10 +247,9 @@ export function formatTierName(tier: string | null | undefined): string {
 }
 
 /**
- * Get artist's platform fee percent, checking for founding artist status.
- * Founding artists get a flat 5% fee for their first 6 months, then revert to
- * their normal platform tier fee. The tier fee is read from TIER_LIMITS — the
- * single source of truth — so changing a fee in one place updates every revenue path.
+ * Get an artist's platform fee percent. The fee is read from TIER_LIMITS, the single source
+ * of truth, so changing a fee in one place updates every revenue path. There is no per-artist
+ * override: the founding-artist 5% discount was retired (founder call 2026-07-15).
  */
 export async function getArtistFeePercent(artistId: string): Promise<number> {
   const { createClient } = await import('@supabase/supabase-js');
@@ -261,20 +260,14 @@ export async function getArtistFeePercent(artistId: string): Promise<number> {
 
   const { data } = await supabaseAdmin
     .from('artist_profiles')
-    .select('platform_tier, is_founding_artist, founding_fee_expires_at')
+    .select('platform_tier')
     .eq('id', artistId)
     .single();
 
   if (!data) return TIER_LIMITS.starter.platformFeePercent;
 
-  // Founding artists get flat 5% for first 6 months
-  if (data.is_founding_artist) {
-    const feeExpiresAt = data.founding_fee_expires_at ? new Date(data.founding_fee_expires_at) : null;
-    if (feeExpiresAt && feeExpiresAt > new Date()) {
-      return 5;
-    }
-  }
-
-  // Normal tier fee after founding period or for non-founding artists.
+  // Every artist pays their tier's fee. The founding-artist 5% override was retired
+  // (founder call 2026-07-15); nothing sets is_founding_artist anymore, and no production
+  // row ever carried it, so there is no live discount to read here.
   return getPlatformFeePercent(data.platform_tier);
 }

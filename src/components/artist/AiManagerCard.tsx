@@ -93,11 +93,10 @@ interface AgentRun {
 interface AiManagerCardProps {
   artistId: string;
   platformTier: string;
-  isFoundingArtist?: boolean;
   onSwitchTab?: (tab: string) => void;
 }
 
-export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwitchTab }: AiManagerCardProps) {
+export function AiManagerCard({ artistId, platformTier, onSwitchTab }: AiManagerCardProps) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
   const [insights, setInsights] = useState<AiInsight[]>([]);
@@ -109,8 +108,7 @@ export function AiManagerCard({ artistId, platformTier, isFoundingArtist, onSwit
   const [processingAction, setProcessingAction] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
 
-  const effectiveTier = (platformTier === 'starter' && isFoundingArtist) ? 'pro' : platformTier;
-  const isStarterOnly = effectiveTier === 'starter';
+  const isStarterOnly = platformTier === 'starter';
 
   const fetchAll = useCallback(async () => {
     // Fetch insights

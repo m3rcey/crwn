@@ -295,10 +295,7 @@ export async function GET(req: NextRequest) {
 
           const existingTypes = await getExistingInsightTypes(artist.id);
 
-          // Determine tier: founding artists on starter get Pro-level access
-          const effectiveTier = (artist.platform_tier === 'starter' && artist.is_founding_artist)
-            ? 'pro'
-            : (artist.platform_tier || 'starter');
+          const effectiveTier = artist.platform_tier || 'starter';
 
           let insights: InsightInput[];
           if (effectiveTier === 'starter') {

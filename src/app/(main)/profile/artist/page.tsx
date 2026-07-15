@@ -46,7 +46,6 @@ function ArtistDashboardContent() {
   const [showSuccess, setShowSuccess] = useState<string | null>(null);
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
   const [platformTier, setPlatformTier] = useState<string>('starter');
-  const [isFoundingArtist, setIsFoundingArtist] = useState(false);
 
   const switchTab = useCallback((tabId: TabId) => {
     setActiveTab(tabId);
@@ -125,7 +124,7 @@ function ArtistDashboardContent() {
 
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, slug, tier_config, platform_tier, is_founding_artist')
+        .select('id, slug, tier_config, platform_tier')
         .eq('user_id', user.id)
         .single();
 
@@ -133,7 +132,6 @@ function ArtistDashboardContent() {
         setArtistId(artist.id);
         setArtistSlug(artist.slug || '');
         setPlatformTier(artist.platform_tier || 'starter');
-        setIsFoundingArtist(artist.is_founding_artist ?? false);
 
         const tierConfigTiers = (artist.tier_config || []) as TierConfig[];
         setTiers(tierConfigTiers);
@@ -245,7 +243,7 @@ function ArtistDashboardContent() {
             </div>
           )}
           <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
-            {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} isFoundingArtist={isFoundingArtist} onSwitchTab={(tab) => switchTab(tab as TabId)} />}
+            {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} onSwitchTab={(tab) => switchTab(tab as TabId)} />}
           </div>
           {visitedTabs.has('analytics') && (
             <div className={activeTab !== 'analytics' ? 'hidden' : undefined}>
