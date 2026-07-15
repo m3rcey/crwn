@@ -48,13 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Privacy policy: disclose the Instagram funnel.** Needs you or counsel, not Claude.
-      The exact list of what is now collected and what likely needs disclosing is in
-      `docs/acquisition/acquisition-deployment-checklist.md` §3. Short version: Instagram
-      identity, DM answers, AI-derived classifications, lead scores, and that ManyChat and
-      Anthropic are processors.
-
-
 ---
 
 ## Ongoing
@@ -135,11 +128,17 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-**Nothing is queued.** The Instagram acquisition engine is feature-complete and verified in
-production: ingress, identity, Claude extraction with a complete deterministic fallback, the
-calculator handoff, secure result links, claiming, follow-up automation, booking detection, the
-no-show ladder, retention, and the admin panel. What remains is entirely on your side of the
-line (the list at the top of this file), plus tuning with real leads once they exist.
+The Instagram acquisition engine is feature-complete and verified in production: ingress,
+identity, Claude extraction with a complete deterministic fallback, the calculator handoff,
+secure result links, claiming, the gated in-window email capture, follow-up automation with a
+compliant unsubscribe, the tool-education drip, booking detection, the no-show ladder, retention,
+and the admin panel. The privacy policy now discloses the funnel (live).
+
+- **Automated lead deletion (erasure requests).** Ask me to build this when you want it. Today a
+  "delete my data" request from a lead is MANUAL: `DELETE FROM lead_identities WHERE ...` in
+  Supabase (it cascades). The privacy policy honestly describes this manual path, but a proper
+  self-serve or one-command deletion is not built (it is Phase 2 in the checklist). Low volume
+  today, so not urgent, but it is the one real gap behind the privacy disclosure.
 
 One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
 signup works via `ClaimRedeemer` instead. `/welcome` and `useAuth` are the two files that broke
