@@ -32,11 +32,20 @@ export function isManyChatOutboundConfigured(): boolean {
 /**
  * Send a text message to a ManyChat contact.
  *
- * `messageTag` is how you message OUTSIDE the 24-hour window, and it is not a loophole: Meta
- * only permits specific tags for specific purposes and misusing one gets an app banned. We
- * leave it unset by default, which means in-window sends only. Set
- * MANYCHAT_MESSAGE_TAG only if you have confirmed with Meta which tag your use case
- * legitimately qualifies for.
+ * MANYCHAT_MESSAGE_TAG STAYS UNSET. This is a resolved decision, not a default waiting to be
+ * flipped for a growth boost. As of 2026 there is NO message tag that legitimately powers this
+ * automated, promotional nurture on Instagram:
+ *
+ *   - ACCOUNT_UPDATE / CONFIRMED_EVENT_UPDATE / POST_PURCHASE_UPDATE return error 100 as of
+ *     April 27, 2026 (Meta sunset them). Setting one makes every out-of-window send FAIL, not
+ *     succeed.
+ *   - HUMAN_AGENT extends the window to 7 days but is HUMAN-ONLY. An automated send carrying it
+ *     is blocked by the API and is a policy violation that can get the app banned.
+ *
+ * So this dispatcher reaches Instagram in-window only: 24 hours from her last message, and a
+ * reply resets the clock. To nurture the multi-day tail, capture an email or phone WHILE the
+ * window is open and let the email/SMS fallback carry it (those channels have no window). If you
+ * think you need to set this env var, the answer is almost certainly no. Do not set it.
  */
 export async function sendManyChatMessage(
   contactId: string,

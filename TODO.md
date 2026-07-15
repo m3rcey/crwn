@@ -48,14 +48,29 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Decide the DM messaging-window policy.** Meta only lets you message a lead for 24
-      hours after *her* last interaction. Outside that window, sends are rejected and CRWN
-      treats it as terminal (it does not retry, on purpose).
+- [ ] **Fix the funnel's 24h reach. (Decision is made: `MANYCHAT_MESSAGE_TAG` stays UNSET,
+      permanently.)** Why unset is now the only correct value, not just the safe default: as of
+      Apr 27 2026 Meta sunset the `ACCOUNT_UPDATE` / `CONFIRMED_EVENT_UPDATE` /
+      `POST_PURCHASE_UPDATE` tags (they return error 100), and `HUMAN_AGENT` is human-only (an
+      automated send carrying it is blocked and risks a ban). There is no tag that legitimately
+      powers automated promo DMs outside 24h. Encoded in `src/lib/manychat/client.ts`.
 
-      If you want to reach leads *after* 24h you need a Meta-approved message tag, set as
-      `MANYCHAT_MESSAGE_TAG`. **Do not set one without confirming with Meta which tag your
-      use case legitimately qualifies for.** Misusing a tag gets apps banned. Leaving it unset
-      is the safe default and is what ships today.
+      The real problem the tag was meant to solve, still open: the nurture sequence
+      (`personal_nudge` day 4, `offer_call` day 7, no-show ladder +2/+5) is out-of-window for
+      Instagram-only leads, who are most of them and have no email, so those sends silently
+      resolve `sent: false`. Three fixes, in order:
+
+      1. **Confirm `MANYCHAT_MESSAGE_TAG` is NOT set in Vercel** (Settings, Environment
+         Variables). If a past value holds a sunset tag, every out-of-window send is hard-failing
+         with error 100 right now. Delete the var if it exists. (I cannot read it: Vercel hides
+         env values from the CLI.)
+      2. **Add an in-window email/phone capture step to the ManyChat flow.** Ask for it while she
+         is still replying (offer to send her result there). The dispatcher already falls back to
+         email/SMS, which have no 24h window; it just usually has nothing to fall back to. This
+         makes the whole multi-day tail reachable. Lives in ManyChat, not code.
+      3. **Decide whether to front-load the call CTA into the first 24h.** Product call: the money
+         ask (`offer_call`) lands day 7, guaranteed out-of-window for IG-only leads. A CTA inside
+         the in-window conversation is the compliant way to make it land.
 
 - [ ] **Privacy policy: disclose the Instagram funnel.** Needs you or counsel, not Claude.
       The exact list of what is now collected and what likely needs disclosing is in
