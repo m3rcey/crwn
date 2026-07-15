@@ -369,9 +369,12 @@ async function finalize(
   return buildResponse({
     sessionId: session.id,
     action: 'send_result',
-    message: result.headline
-      ? `${result.headline}. Here is the full breakdown:`
-      : 'Here is your breakdown:',
+    // TOPLINE ONLY. In the gated flow this message is the free headline number, and the very
+    // next node asks for an email before the full breakdown. So it must NOT promise the
+    // breakdown inline ("Here is the full breakdown:" then an email ask reads as a broken
+    // promise). State the number and stop; the email ask ("Want the full breakdown...") flows
+    // straight out of it. resultUrl still rides along for the post-email delivery node.
+    message: result.headline ? `${result.headline}.` : 'I ran your numbers.',
     resultUrl: result.resultUrl || null,
     leadMagnetId: tool.id,
     state: 'result_sent',
