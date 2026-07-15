@@ -48,30 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Set the three Resend webhook secrets in Vercel. The webhooks reject everything until
-      you do.** I signed them (all three used to accept a POST from anyone), and a signed
-      webhook with no secret configured fails **closed**, on purpose.
-
-      In Resend → **Webhooks**, open each endpoint and copy its **Signing Secret** (starts
-      `whsec_`). They are DIFFERENT per endpoint. In Vercel → Settings → Environment
-      Variables (Production), add each, then **redeploy**:
-
-      - `RESEND_WEBHOOK_SECRET` → endpoint pointing at `https://thecrwn.app/api/webhooks/resend`
-        (fan campaign + sequence email: bounces, spam complaints)
-      - `RESEND_OUTREACH_SECRET` → endpoint pointing at `https://thecrwn.app/api/outreach/webhook`
-        (outreach lead bounces, spam complaints)
-      - `RESEND_INBOUND_SECRET` → endpoint pointing at `https://thecrwn.app/api/outreach/inbound`
-        (replies from leads)
-
-      If an endpoint does not exist in Resend, that route was never receiving anything and you
-      can skip its secret.
-
-      **Not urgent to the minute:** Resend retries a failing webhook for hours, so events in
-      the gap land once the secrets are in. It IS urgent within the day, because after the
-      retries expire, a bounce or a lead's reply in that window is gone. Nothing else breaks:
-      the Instagram funnel and Twilio do not touch these (Twilio reuses `TWILIO_AUTH_TOKEN`,
-      which is already set, so SMS is signed and working right now).
-
 - [ ] **Apply `supabase/schema-phase2-rate-limit.sql`.** Paste it into the Supabase SQL
       editor. It is deliberately **non-destructive**: `check_rate_limit()` already exists in
       production and is left exactly as it is. The migration only creates what is missing and
