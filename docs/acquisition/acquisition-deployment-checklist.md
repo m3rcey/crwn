@@ -20,9 +20,12 @@ The engine ships **dark**. Deploying it changes nothing until you flip a flag.
       This is what lets CRWN send an outbound Instagram DM. **Without it, follow-up reaches
       almost nobody**, because a cold Instagram lead has no email and email is the only other
       channel. Get it from ManyChat → Settings → API.
-      Optionally `MANYCHAT_MESSAGE_TAG` — leave it unset unless you have confirmed with Meta
-      which tag your use case legitimately qualifies for. Unset means in-window sends only,
-      which is the safe default.
+      Do NOT set `MANYCHAT_MESSAGE_TAG`. This is settled (2026-07-15). There is no compliant
+      tag for automated promo DMs outside Instagram's 24h window: the update tags return error
+      100 since Apr 27 2026, and `HUMAN_AGENT` is human-only (automation carrying it is blocked
+      and bannable). Unset means in-window sends only, which is the only correct setting. Reach
+      the multi-day tail by capturing email/phone in-window, not by a tag. See
+      `src/lib/manychat/client.ts`.
 - [ ] **Configure ManyChat** per `manychat-setup-guide.md`.
 - [ ] **Smoke test with the flag still OFF.** Every External Request should return
       **503 / `engine_disabled`**. This proves URL + secret + mapping are correct while CRWN
