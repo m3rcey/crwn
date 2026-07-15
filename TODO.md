@@ -48,31 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Fix the funnel's 24h reach. (Decision is made: `MANYCHAT_MESSAGE_TAG` stays UNSET,
-      permanently.)** Why unset is now the only correct value, not just the safe default: as of
-      Apr 27 2026 Meta sunset the `ACCOUNT_UPDATE` / `CONFIRMED_EVENT_UPDATE` /
-      `POST_PURCHASE_UPDATE` tags (they return error 100), and `HUMAN_AGENT` is human-only (an
-      automated send carrying it is blocked and risks a ban). There is no tag that legitimately
-      powers automated promo DMs outside 24h. Encoded in `src/lib/manychat/client.ts`.
-
-      The real problem the tag was meant to solve, still open: the nurture sequence
-      (`personal_nudge` day 4, `offer_call` day 7, no-show ladder +2/+5) is out-of-window for
-      Instagram-only leads, who are most of them and have no email, so those sends silently
-      resolve `sent: false`. Remaining work:
-
-      1. **Set `BUSINESS_POSTAL_ADDRESS` in Vercel (Production).** A real CRWN mailing address (a
-         PO box is fine). It is LEGALLY REQUIRED in every acquisition email footer (CAN-SPAM). The
-         code injects it (`channels.ts`); until the env var is set, the footer ships the literal
-         placeholder `[SET BUSINESS_POSTAL_ADDRESS: a real CRWN mailing address]`. Do not send
-         acquisition email until this is set.
-      2. **Build the in-window email capture nodes in ManyChat.** The whole server side is done:
-         CRWN stores a claimed email/`consent_email`, short-circuits the `profile_update` event
-         (`orchestration.ts`), and every acquisition email now carries a one-click unsubscribe +
-         postal address (`channels.ts`, `/api/acquisition/unsubscribe`). Copy-paste spec:
-         `docs/acquisition/manychat-setup-guide.md` §6b (topline free, full breakdown gated behind
-         her email: nodes 5a/6/7/8). Without it, the tail reaches only the rare lead who already
-         had an email on file.
-
 - [ ] **Privacy policy: disclose the Instagram funnel.** Needs you or counsel, not Claude.
       The exact list of what is now collected and what likely needs disclosing is in
       `docs/acquisition/acquisition-deployment-checklist.md` §3. Short version: Instagram
