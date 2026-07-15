@@ -58,17 +58,16 @@ responsible for. Do not work those.
       The real problem the tag was meant to solve, still open: the nurture sequence
       (`personal_nudge` day 4, `offer_call` day 7, no-show ladder +2/+5) is out-of-window for
       Instagram-only leads, who are most of them and have no email, so those sends silently
-      resolve `sent: false`. Three fixes, in order:
+      resolve `sent: false`. Remaining work:
 
-      1. **Confirm `MANYCHAT_MESSAGE_TAG` is NOT set in Vercel** (Settings, Environment
-         Variables). If a past value holds a sunset tag, every out-of-window send is hard-failing
-         with error 100 right now. Delete the var if it exists. (I cannot read it: Vercel hides
-         env values from the CLI.)
-      2. **Add an in-window email/phone capture step to the ManyChat flow.** Ask for it while she
-         is still replying (offer to send her result there). The dispatcher already falls back to
-         email/SMS, which have no 24h window; it just usually has nothing to fall back to. This
-         makes the whole multi-day tail reachable. Lives in ManyChat, not code.
-      3. **Decide whether to front-load the call CTA into the first 24h.** Product call: the money
+      1. **Add an in-window email capture step to the ManyChat flow.** The server side is now
+         done: CRWN stores a claimed email/phone + `consent_email` from the ManyChat payload and
+         the email/SMS fallback (no 24h window) will use it (`orchestration.ts`). What is left is
+         the ManyChat config: after she gets her result, ask "want me to email you a copy?",
+         collect the email, and send it to the webhook as `email` + `consent_email: true` (use
+         the `optin_email` / `email` fields from `+ Add Full Contact Data`). Without this step
+         the tail still reaches only the rare lead who already had an email on file.
+      2. **Decide whether to front-load the call CTA into the first 24h.** Product call: the money
          ask (`offer_call`) lands day 7, guaranteed out-of-window for IG-only leads. A CTA inside
          the in-window conversation is the compliant way to make it land.
 

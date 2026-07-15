@@ -79,6 +79,31 @@ export async function orchestrate(
     identity.consentDm = true;
   }
 
+  // ---- Persist a claimed email/phone so the follow-up TAIL is reachable. ----
+  //
+  // Meta's 24h window closes the Instagram DM. The multi-day nurture (personal_nudge day 4,
+  // offer_call day 7, the no-show ladder) can only reach an IG-only lead by email or SMS,
+  // which have no window. So when she hands over an email WHILE the window is open, we have to
+  // store it, or channels.ts has nothing to fall back to and the whole tail silently no-ops.
+  //
+  // This is a CLAIMED contact, never a verified one: we set the `email` column but NEVER
+  // `email_verified_at`. identityResolution ignores an unverified email as a merge key (see its
+  // header), so storing one here cannot become an account-takeover vector. It is a send target
+  // and nothing more. Additive: we fill a blank, we do not overwrite what she gave before.
+  const contactPatch: Record<string, unknown> = {};
+  if (payload.email && !identity.email) contactPatch.email = payload.email;
+  if (payload.phone && !identity.phone) contactPatch.phone = payload.phone;
+  if (payload.consent_email && !identity.consentEmail) contactPatch.consent_email = true;
+  if (payload.consent_sms && !identity.consentSms) contactPatch.consent_sms = true;
+
+  if (Object.keys(contactPatch).length > 0) {
+    await supabaseAdmin.from('lead_identities').update(contactPatch).eq('id', identity.id);
+    if (typeof contactPatch.email === 'string') identity.email = contactPatch.email;
+    if (typeof contactPatch.phone === 'string') identity.phone = contactPatch.phone;
+    if (contactPatch.consent_email === true) identity.consentEmail = true;
+    if (contactPatch.consent_sms === true) identity.consentSms = true;
+  }
+
   const session = await loadOrCreateSession(payload, identity);
   const tool = getTool(session.lead_magnet_id ?? payload.lead_magnet_id ?? DEFAULT_TOOL_ID);
 
