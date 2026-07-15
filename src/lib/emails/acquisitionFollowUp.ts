@@ -316,6 +316,50 @@ Last thing and then I will leave you alone: do you want me to keep you on the li
   };
 }
 
+/**
+ * THE TOOL DRIP. After the main sequence, one email per CRWN tool, several days apart.
+ *
+ * She has already seen her Worth number; this stretch keeps the relationship warm by teaching
+ * one feature at a time. Each email follows the same spine: what it is, why she needs it (loss
+ * first, per CLAUDE.md), how it works, then the tool itself. The content is driven entirely by
+ * the lead-magnet registry, so adding a tool there adds it to this drip with no copy here.
+ */
+export function toolSpotlight(tool: {
+  featureName: string;
+  headline: string;    // the loss hook, from the tool's hero
+  why: string;         // why it costs her to skip it
+  whatItIs: string;    // one-line description
+  howLong: string;     // e.g. "3 min"
+  primaryCta: string;
+  toolUrl: string;
+}): FollowUpCopy {
+  const { featureName, headline, why, whatItIs, howLong, primaryCta, toolUrl } = tool;
+
+  return {
+    // Loss hook, one line on the fix, the link, then a question so a reply reopens the window.
+    dm: `${headline}
+
+That is what ${featureName} is for. ${whatItIs} It takes about ${howLong}.
+
+${toolUrl}
+
+Want me to walk you through it for your music?`,
+
+    subject: headline,
+    html: shell({
+      heading: featureName,
+      body: `
+        <p style="${P}"><strong style="color:#FFF;">${headline}</strong></p>
+        <p style="${P}">${why}</p>
+        <p style="${P}"><strong style="color:#FFF;">What it is.</strong> ${whatItIs}</p>
+        <p style="${P}"><strong style="color:#FFF;">How it works.</strong> Answer a few quick questions and CRWN builds it for you in about ${howLong}. No blank page, no guesswork.</p>
+      `,
+      cta: primaryCta,
+      ctaUrl: toolUrl,
+    }),
+  };
+}
+
 /** To Josh, not to the artist. A lead worth a human. */
 export function highIntentAlert(params: {
   score: number;

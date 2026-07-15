@@ -44,10 +44,17 @@ export type ChannelResult =
   | { sent: true; providerId: string | null }
   | { sent: false; reason: string };
 
-/** At most one outbound acquisition message per lead per day. */
+/** At most one outbound acquisition message per lead per day. This is the real anti-annoyance
+ *  guard: whatever the sequence queues, she never hears from us more than once in 24h. */
 const MIN_HOURS_BETWEEN = 24;
-/** And at most this many, ever. Three ignored messages is an answer. */
-const MAX_LIFETIME_MESSAGES = 4;
+/**
+ * And at most this many, ever. This used to be 4 ("three ignored messages is an answer"), which
+ * was right for the short funnel but silently suppressed the tool education drip. The sequence is
+ * now the main nurture (up to 4) plus one email per CRWN tool (4 today), so the ceiling has to
+ * clear both. Every email carries a one-click unsubscribe, so a lead who is done can end it
+ * herself; the lifetime cap is the backstop, not the primary control. The per-24h cap above is.
+ */
+const MAX_LIFETIME_MESSAGES = 10;
 
 export async function send(req: SendRequest): Promise<ChannelResult> {
   const { identity, channel } = req;

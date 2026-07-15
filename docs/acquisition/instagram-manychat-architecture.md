@@ -165,7 +165,8 @@ try/catch, because a guest in someone else's cron must never break its host.
 | `result_not_viewed_check` | 24h after the link was sent, still unopened | DM, then email |
 | `result_viewed_not_claimed` | 48h after first view, still unclaimed | DM, then email |
 | `personal_nudge` | +2d. Automated, and honest about being automated | DM, then email |
-| `offer_call` | +3d. Offers **both** paths and lets her choose | DM, then email |
+| `offer_call` | +3d. Offers **both** paths and lets her choose. Hands off to the tool drip | DM, then email |
+| `tool_spotlight` | +5d each after `offer_call`. One CRWN tool per email (what/why/how/tool), in registry order, until all are introduced | DM, then email |
 | `call_booked` | Cal.com `BOOKING_CREATED` | DM, then email |
 | `call_no_show` | **only when Josh confirms it in admin** | DM, then email |
 | `call_no_show_second` | +2d after that | DM, then email |

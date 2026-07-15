@@ -25,10 +25,16 @@ import { ABANDON_AFTER_HOURS } from './stateMachine';
 import * as copy from '../emails/acquisitionFollowUp';
 import { resend, FROM_EMAIL } from '../resend';
 import { buildResultUrl, mintToken, expiresAt, RESULT_TTL_SECONDS } from '../leadResults/resultToken';
+import { LEAD_MAGNETS } from '../leadMagnets/registry';
 import type { LeadIdentity } from './types';
 
 const BATCH_SIZE = 50;
 const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://thecrwn.app';
+
+/** The tool education drip: one CRWN tool introduced per email, this many days apart, after the
+ *  main sequence. Several days so it reads as a slow nurture, not a blast. */
+const SPOTLIGHT_INTERVAL_DAYS = 5;
 
 /**
  * Where she books the 15 minutes.
@@ -253,6 +259,8 @@ async function handle(row: OutboxRow): Promise<HandleOutcome> {
       return handleCallNoShowSecond(row, identity);
     case 'call_no_show_final':
       return handleCallNoShowFinal(row, identity);
+    case 'tool_spotlight':
+      return handleToolSpotlight(row, identity);
     case 'high_intent_alert':
       return handleHighIntentAlert(row);
     default:
@@ -270,6 +278,7 @@ function isNurtureEvent(name: string): boolean {
     'session_abandoned_nudge',
     'personal_nudge',
     'offer_call',
+    'tool_spotlight',
   ].includes(name);
 }
 
@@ -443,7 +452,81 @@ async function handleOfferCall(row: OutboxRow, identity: LeadIdentity | null): P
     resultUrl: resultUrl ?? 'https://thecrwn.app/worth',
   });
 
-  return dispatchToBestChannel(identity, c, `offer_call:${identity.id}`);
+  const outcome = await dispatchToBestChannel(identity, c, `offer_call:${identity.id}`);
+
+  // The main sequence ends here. Hand off to the tool education drip: one CRWN tool per email,
+  // several days apart. If she converts or opts out first, the cancellation rule at the top of
+  // handle() kills it (tool_spotlight is a nurture event).
+  if (outcome.done) {
+    await queueToolSpotlight(identity.id, row.session_id, 0, SPOTLIGHT_INTERVAL_DAYS);
+  }
+  return outcome;
+}
+
+/**
+ * The tool education drip. One CRWN tool per email, in registry order, several days apart.
+ *
+ * She entered through the Worth calculator, so this introduces the OTHER tools she has not seen:
+ * each email says what the feature is, why skipping it costs her, how it works, then the tool.
+ * When we run past the end of the registry the drip is simply over; going quiet is the right end,
+ * not looping the same four tools forever.
+ */
+async function handleToolSpotlight(row: OutboxRow, identity: LeadIdentity | null): Promise<HandleOutcome> {
+  if (!identity) return { done: true, sent: false };
+
+  // Which tool is next: count the spotlights already finalized for this lead. That count is the
+  // index of the next tool, so a skipped or sent one both advance the drip and it never repeats.
+  const index = await countFinalizedToolSpotlights(identity.id);
+  const tool = LEAD_MAGNETS[index];
+  if (!tool) return { done: true, sent: false }; // every tool introduced, drip complete
+
+  const c = copy.toolSpotlight({
+    featureName: tool.featureName,
+    headline: tool.hero.headline,
+    why: tool.hero.subheadline,
+    whatItIs: tool.description,
+    howLong: tool.timeToComplete,
+    primaryCta: tool.hero.primaryCta,
+    toolUrl: `${APP_URL}${tool.publicRoute}?ref=ig-funnel`,
+  });
+
+  const outcome = await dispatchToBestChannel(identity, c, `spotlight:${identity.id}:${tool.slug}`);
+
+  // Queue the next tool only once this one is handled, and only if one remains.
+  if (outcome.done && index + 1 < LEAD_MAGNETS.length) {
+    await queueToolSpotlight(identity.id, row.session_id, index + 1, SPOTLIGHT_INTERVAL_DAYS);
+  }
+  return outcome;
+}
+
+/** How many tool spotlights have already reached a final state for this lead. Drives which tool
+ *  is next; the row being processed right now is still 'processing', so it is not counted. */
+async function countFinalizedToolSpotlights(identityId: string): Promise<number> {
+  const { count } = await supabaseAdmin
+    .from('acquisition_events')
+    .select('id', { count: 'exact', head: true })
+    .eq('lead_identity_id', identityId)
+    .eq('event_name', 'tool_spotlight')
+    .in('status', ['processed', 'skipped', 'dead_letter']);
+  return count ?? 0;
+}
+
+/** Queue the next tool spotlight. The index is in the idempotency key so each step queues exactly
+ *  once even if the dispatcher run overlaps or retries. */
+async function queueToolSpotlight(
+  identityId: string,
+  sessionId: string | null,
+  index: number,
+  delayDays: number,
+): Promise<void> {
+  await supabaseAdmin.from('acquisition_events').insert({
+    event_name: 'tool_spotlight',
+    lead_identity_id: identityId,
+    session_id: sessionId,
+    idempotency_key: `tool_spotlight:${identityId}:${index}`,
+    status: 'pending',
+    next_attempt_at: new Date(Date.now() + delayDays * 24 * 3_600_000).toISOString(),
+  });
 }
 
 /** She booked. Confirm, and tell her the one thing to bring. */
