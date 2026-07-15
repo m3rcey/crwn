@@ -43,13 +43,14 @@ REVOKE ALL ON public.rate_limits FROM anon, authenticated;
 -- p_user_id is a uuid. Unauthenticated callers have no user id, so src/lib/rateLimit.ts
 -- hashes their key ("ip:1.2.3.4") into a stable uuid before calling. Do not widen this to
 -- text to accommodate them: that hash is what keeps one limiter and one bucket per key.
+-- Existence is checked by TYPE signature via to_regprocedure, never by string-matching
+-- pg_get_function_identity_arguments: on this Postgres that reconstruction includes the
+-- parameter names ("p_user_id uuid, ..."), so a compare against "uuid, text, integer,
+-- integer" is a false negative and the assert screams "missing" for a function that is
+-- right there. to_regprocedure resolves by arg types only and returns NULL when absent.
 DO $$
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public' AND p.proname = 'check_rate_limit'
-  ) THEN
+  IF to_regprocedure('public.check_rate_limit(uuid, text, integer, integer)') IS NULL THEN
     EXECUTE $fn$
       CREATE FUNCTION public.check_rate_limit(
         p_user_id        uuid,
@@ -106,13 +107,7 @@ BEGIN
     RAISE EXCEPTION 'rate_limits table is missing';
   END IF;
 
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.proname = 'check_rate_limit'
-      AND pg_get_function_identity_arguments(p.oid) = 'uuid, text, integer, integer'
-  ) THEN
+  IF to_regprocedure('public.check_rate_limit(uuid, text, integer, integer)') IS NULL THEN
     RAISE EXCEPTION 'check_rate_limit(uuid, text, integer, integer) is missing. rateLimit.ts calls exactly this signature, so every rate-limited route would fail closed.';
   END IF;
 

@@ -48,16 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Apply `supabase/schema-phase2-rate-limit.sql`.** Paste it into the Supabase SQL
-      editor. It is deliberately **non-destructive**: `check_rate_limit()` already exists in
-      production and is left exactly as it is. The migration only creates what is missing and
-      then asserts the limiter really limits (allows under the cap, denies over it), so
-      applying it should change nothing and simply prove the claim.
-
-      Why bother: the function had no checked-in definition anywhere, so a fresh database
-      came up without it, and then every public form (`/api/support`, `/api/partner/apply`,
-      the lead magnets) 429s the first visitor who touches it.
-
 - [ ] **Decide the DM messaging-window policy.** Meta only lets you message a lead for 24
       hours after *her* last interaction. Outside that window, sends are rejected and CRWN
       treats it as terminal (it does not retry, on purpose).
