@@ -138,7 +138,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {MONETIZE.map((m) => (
-            <div key={m.title} className="rounded-2xl bg-crwn-surface-solid border border-crwn-elevated p-5">
+            <div key={m.title} className="rounded-2xl bg-white/[0.02] border border-white/[0.08] p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="w-9 h-9 rounded-full bg-[#D4AF37]/15 flex items-center justify-center">
                   <m.icon className="w-4 h-4" style={{ color: GOLD }} />
@@ -167,7 +167,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
       <section>
         <Heading icon={TrendingUp}>Streaming vs CRWN</Heading>
         <p className="text-white/60 mb-6">Same fans. Wildly different math. Streaming rents your audience back to you.</p>
-        <div className="rounded-2xl border border-crwn-elevated overflow-hidden divide-y divide-crwn-elevated">
+        <div className="rounded-2xl border border-white/[0.08] overflow-hidden divide-y divide-white/[0.06]">
           <div className="grid grid-cols-3 text-xs uppercase tracking-wide">
             <div className="p-3" />
             <div className="p-3 text-center text-white/45">Streaming</div>
@@ -197,7 +197,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {FAN_MATH.map((f) => (
-            <div key={f.fans} className="rounded-2xl bg-crwn-surface-solid border border-crwn-elevated p-5 text-center">
+            <div key={f.fans} className="rounded-2xl bg-white/[0.02] border border-white/[0.08] p-5 text-center">
               <p className="text-white/70 text-sm">{f.fans}</p>
               <p className="text-white/40 text-xs mb-2">{f.math}</p>
               <p className="text-2xl font-bold" style={{ color: GOLD }}>{f.total}</p>
@@ -274,7 +274,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
             { icon: Landmark, top: 'Your bank', bottom: 'up to 92%' },
           ].map((node, i, arr) => (
             <div key={node.top} className="flex items-center gap-2 flex-1">
-              <div className="rounded-xl bg-crwn-surface-solid border border-crwn-elevated p-3 text-center flex-1">
+              <div className="rounded-xl bg-white/[0.02] border border-white/[0.08] p-3 text-center flex-1">
                 <node.icon className="w-5 h-5 mx-auto mb-1.5" style={{ color: GOLD }} />
                 <p className="text-sm font-semibold leading-tight">{node.top}</p>
                 <p className="text-white/50 text-xs">{node.bottom}</p>
@@ -283,7 +283,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
             </div>
           ))}
         </div>
-        <div className="rounded-2xl bg-crwn-surface-solid border border-crwn-elevated p-5 mb-6">
+        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] p-5 mb-6">
           <div className="flex items-baseline justify-between mb-2">
             <span className="text-white/70">You keep</span>
             <span className="text-xl font-bold" style={{ color: GOLD }}>up to 92%</span>
@@ -337,7 +337,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
       {/* FAQ */}
       <section>
         <Heading icon={MessageCircle}>Questions</Heading>
-        <div className="rounded-2xl bg-crwn-surface-solid border border-crwn-elevated divide-y divide-crwn-elevated">
+        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] divide-y divide-white/[0.06]">
           {FAQS.map((f) => (
             <div key={f.q} className="p-5">
               <h3 className="font-semibold mb-1">{f.q}</h3>
