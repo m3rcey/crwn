@@ -146,5 +146,7 @@ export async function POST(req: NextRequest) {
 // GET exists solely so Josh can confirm the URL is live from a browser while wiring up
 // ManyChat. It reveals nothing: no config, no secret, no data.
 export async function GET() {
-  return NextResponse.json({ ok: true, service: 'manychat-webhook' });
+  // `rev` is a deploy marker: bump it with any orchestration change so a curl can confirm the
+  // new code is actually live before anyone tests the flow.
+  return NextResponse.json({ ok: true, service: 'manychat-webhook', rev: 'fresh-session-v1' });
 }

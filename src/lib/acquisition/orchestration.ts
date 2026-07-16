@@ -439,7 +439,16 @@ async function loadOrCreateSession(
     .eq('status', 'open')
     .maybeSingle();
 
-  if (open) return open as SessionRow;
+  if (open) {
+    // A new session_start is a FRESH conversation: close the prior open session for this tool
+    // rather than reusing it, so the lead re-answers, gets a freshly COMPUTED result (never a
+    // stale cached one), and the unique open-session-per-tool constraint stays satisfied when we
+    // insert below. Only session_start reaches here; continuing turns resolved above.
+    await supabaseAdmin
+      .from('lead_sessions')
+      .update({ status: 'completed', completed_at: new Date().toISOString() })
+      .eq('id', open.id);
+  }
 
   const { data, error } = await supabaseAdmin
     .from('lead_sessions')
