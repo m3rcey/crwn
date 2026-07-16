@@ -112,6 +112,22 @@ function MockSection({
   );
 }
 
+/** A quiet, centered CTA in the Worth style: one confident gold button and a whispered subtext. */
+function ShowcaseCta({ claimed, href, label, sub }: { claimed: boolean; href: string; label: string; sub: string }) {
+  return (
+    <div className="text-center py-2">
+      <Link
+        href={href}
+        className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-semibold px-7 py-3.5 rounded-full hover:opacity-90 transition"
+      >
+        {claimed ? 'Open your dashboard' : label}
+        <ArrowRight className="w-4 h-4" />
+      </Link>
+      <p className="text-white/40 text-xs mt-3">{sub}</p>
+    </div>
+  );
+}
+
 export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHref: string }) {
   const href = claimed ? '/profile/artist' : claimHref;
   const ctaLabel = claimed ? 'Open your dashboard' : 'Claim it on CRWN';
@@ -206,6 +222,13 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         </div>
       </section>
 
+      <ShowcaseCta
+        claimed={claimed}
+        href={href}
+        label="Start free on CRWN"
+        sub="Free to start. No card required. Set up in minutes."
+      />
+
       {/* Shop */}
       <MockSection
         icon={ShoppingBag}
@@ -232,6 +255,13 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
       >
         <ClipperMock />
       </MockSection>
+
+      <ShowcaseCta
+        claimed={claimed}
+        href={href}
+        label="Claim your page and turn it on"
+        sub="Your fans are ready. Give them somewhere to go."
+      />
 
       {/* Community */}
       <MockSection
@@ -297,6 +327,13 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         </div>
         <EarningsMock />
       </section>
+
+      <ShowcaseCta
+        claimed={claimed}
+        href={href}
+        label="Start collecting, keep up to 92%"
+        sub="Paid straight to your bank, powered by Stripe."
+      />
 
       {/* Leaderboard */}
       <MockSection
