@@ -21,6 +21,7 @@ import { Fragment } from 'react';
 import Link from 'next/link';
 import { Check, Crown, ArrowRight } from 'lucide-react';
 import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
+import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
 import { ESTIMATE_DISCLAIMER } from '@/lib/leadMagnets/disclaimers';
 import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
@@ -139,20 +140,9 @@ export default async function ResultPage({
           <p className="text-xs text-white/40 mt-8 leading-relaxed">{ESTIMATE_DISCLAIMER}</p>
         )}
 
-        {/* The closer. The result is NOT gated; all of it renders without an email. */}
-        <div className="mt-10">
-          <SignupCta
-            claimed={claimed}
-            claimHref={claimHref}
-            heading={claimed ? 'Your account is ready' : 'Claim your result and build it'}
-            sub={
-              claimed
-                ? 'Pick up right where you left off.'
-                : 'Save this to a CRWN account and we will set the whole thing up with you.'
-            }
-            big
-          />
-        </div>
+        {/* The full CRWN pitch: what it is and everything it offers, then the closing CTA. The
+            result itself is NOT gated; all of it renders without an email. */}
+        <CrwnShowcase claimed={claimed} claimHref={claimHref} />
       </div>
     </main>
   );
