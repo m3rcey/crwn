@@ -158,7 +158,7 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     column: 'catalog_size',
     label: 'Unreleased songs',
     aiExtractable: true,
-    question: 'How many unreleased songs, demos, or ideas are sitting in your vault?',
+    question: 'How many unreleased songs, demos, and ideas are sitting in your vault?',
     retryHint: 'A rough count is fine: tracks you have not put out yet, demos, voice memos, unfinished ideas.',
     inputType: 'number',
     min: 0,

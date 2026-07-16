@@ -166,8 +166,11 @@ const worth: AcquisitionTool = {
 const vault: AcquisitionTool = {
   id: 'vault-revenue-planner',
   name: 'Vault Revenue Planner',
-  requiredFields: ['catalog_size'],
-  optionalFields: ['artist_name', 'genre', 'monthly_listeners'],
+  // Two inputs: the unreleased count drives the PLAN (runway, schedule), and the audience drives
+  // the loss-framed MONEY topline. Both required, because a Vault DM that cannot show a dollar
+  // figure breaks the funnel's "here is what you are missing" hook.
+  requiredFields: ['catalog_size', 'monthly_listeners'],
+  optionalFields: ['artist_name', 'genre'],
   resultRouteBase: '/tools/vault-revenue-planner/result',
   formulaVersion: GENERATOR_VERSION,
   calculatorId: 'vaultRevenuePlan',
@@ -194,7 +197,25 @@ const vault: AcquisitionTool = {
       supporterCount: 0,
       willingPrivate: true,
     };
-    return generateResult('vaultRevenuePlan', values);
+    const generated = generateResult('vaultRevenuePlan', values);
+
+    // The web planner's headline is a readiness score ("your Vault is 100% ready"). For the DM we
+    // lead with LOSS-FRAMED MONEY instead, estimated from the audience: a small, conservative
+    // share of monthly listeners would pay for a private vault at a typical price. The full
+    // readiness plan still rides along in the result page (the "full breakdown" she unlocks with
+    // her email). Only the DM headline is overridden; the shared engine is untouched.
+    const audience = n(profile.monthly_listeners) || n(profile.social_followers);
+    const VAULT_SUPPORTER_RATE = 0.015; // ~1.5% of audience pays for a private vault. Conservative.
+    const VAULT_PRICE_CENTS = 1000; // $10/mo, the midpoint of the planner's suggested band.
+    const monthlyCents = Math.round(audience * VAULT_SUPPORTER_RATE) * VAULT_PRICE_CENTS;
+    const unreleased = n(profile.catalog_size);
+
+    const headline =
+      monthlyCents >= 5000 // below ~$50/mo the estimate is too small to lead with; frame on content
+        ? `About ${fmtDollars(monthlyCents)} a month is sitting in your vault, unheard`
+        : `${unreleased} unreleased track${unreleased === 1 ? '' : 's'} sitting in your vault, earning you nothing`;
+
+    return { ...generated, headline };
   },
 };
 
