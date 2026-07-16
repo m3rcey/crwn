@@ -97,21 +97,25 @@ export default async function ResultPage({
 
   return (
     <main className="min-h-screen bg-crwn-bg text-white">
-      <div className="max-w-2xl mx-auto px-5 py-10 sm:py-14">
+      <div className="max-w-2xl mx-auto px-6 py-12 sm:py-16">
         {/* Brand */}
-        <div className="flex items-center gap-2 mb-8">
+        <div className="flex items-center gap-2 mb-14">
           <Crown className="w-5 h-5 text-[#D4AF37]" />
-          <span className="font-semibold tracking-wide">CRWN</span>
+          <span className="font-semibold tracking-[0.08em] text-sm">CRWN</span>
         </div>
 
-        {/* Hero: the number, front and center */}
-        <div className="rounded-3xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/10 to-transparent p-7 sm:p-9 mb-6">
-          <p className="text-[#D4AF37] text-xs tracking-widest uppercase mb-4">Your result</p>
-          <h1 className="text-3xl sm:text-4xl font-bold leading-tight">{data.headline || 'Your result'}</h1>
-          {data.summary && <p className="text-white/70 text-lg mt-4 leading-relaxed">{data.summary}</p>}
+        {/* Hero: an editorial statement, the number in gold. No box, just air. */}
+        <div className="mb-16">
+          <p className="text-[#D4AF37] text-[11px] tracking-[0.28em] uppercase mb-6">Your result</p>
+          <h1 className="text-[2rem] sm:text-[2.75rem] font-semibold leading-[1.12] tracking-tight">
+            {renderHeadline(data.headline || 'Your result')}
+          </h1>
+          {data.summary && (
+            <p className="text-white/50 text-lg mt-6 leading-relaxed max-w-lg">{data.summary}</p>
+          )}
         </div>
 
-        {/* CTA on the number */}
+        {/* Primary CTA */}
         <SignupCta
           claimed={claimed}
           claimHref={claimHref}
@@ -120,7 +124,7 @@ export default async function ResultPage({
         />
 
         {/* Sections, with a CTA woven into the middle */}
-        <div className="space-y-5 mt-8">
+        <div className="space-y-8 mt-16">
           {sections.map((s, i) => (
             <Fragment key={s.key}>
               <Section section={s} />
@@ -137,7 +141,7 @@ export default async function ResultPage({
         </div>
 
         {result.disclaimerVersion && (
-          <p className="text-xs text-white/40 mt-8 leading-relaxed">{ESTIMATE_DISCLAIMER}</p>
+          <p className="text-[11px] text-white/30 mt-12 leading-relaxed">{ESTIMATE_DISCLAIMER}</p>
         )}
 
         {/* The full CRWN pitch: what it is and everything it offers, then the closing CTA. The
@@ -145,6 +149,20 @@ export default async function ResultPage({
         <CrwnShowcase claimed={claimed} claimHref={claimHref} />
       </div>
     </main>
+  );
+}
+
+/** Emphasize the first dollar amount (or bare number) in gold, an elegant focal point. */
+function renderHeadline(headline: string) {
+  const m = headline.match(/\$[\d,]+(?:\.\d+)?|\b\d[\d,]*\b/);
+  if (!m) return headline;
+  const idx = headline.indexOf(m[0]);
+  return (
+    <>
+      {headline.slice(0, idx)}
+      <span className="text-[#D4AF37]">{m[0]}</span>
+      {headline.slice(idx + m[0].length)}
+    </>
   );
 }
 
@@ -161,14 +179,14 @@ function SignupCta({
   sub: string;
   big?: boolean;
 }) {
-  const pad = big ? 'p-7 sm:p-9 text-center' : 'p-6';
+  const pad = big ? 'p-8 sm:p-10 text-center' : 'p-6 sm:p-7';
   return (
-    <div className={`rounded-2xl border border-[#D4AF37]/25 bg-gradient-to-b from-[#D4AF37]/10 to-transparent ${pad}`}>
-      <h3 className={`font-semibold mb-1 ${big ? 'text-2xl' : 'text-xl'}`}>{heading}</h3>
-      <p className="text-white/60 mb-5 leading-relaxed">{sub}</p>
+    <div className={`rounded-2xl border border-white/[0.08] bg-white/[0.02] ${pad}`}>
+      <h3 className={`font-semibold mb-1.5 tracking-tight ${big ? 'text-2xl' : 'text-lg'}`}>{heading}</h3>
+      <p className="text-white/50 mb-6 leading-relaxed text-sm max-w-md">{sub}</p>
       <Link
         href={claimed ? '/profile/artist' : claimHref}
-        className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-semibold px-6 py-3 rounded-full hover:opacity-90 transition"
+        className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 transition"
       >
         {claimed ? 'Open your dashboard' : 'Claim it on CRWN'}
         <ArrowRight className="w-4 h-4" />
@@ -189,8 +207,8 @@ function centsToDollars(cents: number | undefined): string | undefined {
 
 function Section({ section }: { section: ResultSection }) {
   return (
-    <section className="bg-crwn-surface-solid rounded-2xl p-6">
-      <h2 className="text-sm uppercase tracking-wider text-white/50 mb-4">{section.title}</h2>
+    <section className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-7">
+      <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37]/80 mb-5">{section.title}</h2>
 
       {/* projection -> metric tiles */}
       {section.kind === 'projection' && section.metrics && (
@@ -236,16 +254,22 @@ function Section({ section }: { section: ResultSection }) {
         </div>
       )}
 
-      {/* list -> bullets */}
+      {/* list: a single fact becomes a STAT (celebrate the number); several become numbered rows */}
       {section.kind === 'list' && section.items && (
-        <ul className="space-y-2">
-          {section.items.map((item, i) => (
-            <li key={i} className="text-white/80 flex gap-3">
-              <span className="text-[#D4AF37] mt-1">&bull;</span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
+        section.items.length === 1 ? (
+          <p className="text-2xl sm:text-3xl font-semibold tracking-tight">{renderHeadline(section.items[0])}</p>
+        ) : (
+          <ul className="space-y-3">
+            {section.items.map((item, i) => (
+              <li key={i} className="text-white/85 flex gap-3.5 items-start">
+                <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full border border-[#D4AF37]/30 flex items-center justify-center text-[11px] font-semibold text-[#D4AF37]">
+                  {i + 1}
+                </span>
+                <span className="leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </ul>
+        )
       )}
 
       {/* checklist / nextSteps -> checkmarks */}
