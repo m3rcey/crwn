@@ -146,7 +146,13 @@ export async function POST(req: NextRequest) {
 // GET exists solely so Josh can confirm the URL is live from a browser while wiring up
 // ManyChat. It reveals nothing: no config, no secret, no data.
 export async function GET() {
-  // `rev` is a deploy marker: bump it with any orchestration change so a curl can confirm the
-  // new code is actually live before anyone tests the flow.
-  return NextResponse.json({ ok: true, service: 'manychat-webhook', rev: 'keyword-pivot-v1' });
+  // `rev` is the deployed commit, injected by Vercel at build time. curl this endpoint and
+  // compare against `git rev-parse --short HEAD` to KNOW a deploy is live before testing a
+  // flow. Deploy-lag false negatives (testing correct code that had not propagated yet) burned
+  // hours; this makes every deploy verifiable with no manual marker to bump.
+  return NextResponse.json({
+    ok: true,
+    service: 'manychat-webhook',
+    rev: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'dev',
+  });
 }

@@ -18,6 +18,7 @@
 // second.
 
 import { supabaseAdmin } from './db';
+import { LEAD_MAGNETS } from '../leadMagnets/registry';
 import { decide } from './claudeDecisionService';
 import { getField, normalizeDeterministic } from './fieldRegistry';
 import { fallbackDecision } from './fallbackDecision';
@@ -148,6 +149,19 @@ export async function orchestrate(
       message: 'Let me get a person to pick this up with you.',
       state: session.state,
     });
+  }
+
+  // A duplicated ManyChat flow that was only HALF-edited is the classic clone mistake: the
+  // keyword was changed but lead_magnet_id was not (or vice versa), and the flow silently runs
+  // the wrong tool. Both ride in the same body, so disagreement is detectable. Log it loudly;
+  // this Vercel log line is the tell whenever "the wrong tool answered".
+  if (payload.event_type === 'session_start' && payload.keyword) {
+    const kwTool = keywordTool(payload.keyword);
+    if (kwTool && kwTool !== tool.id) {
+      console.warn(
+        `[acquisition] session_start keyword "${payload.keyword}" maps to ${kwTool} but lead_magnet_id is ${tool.id}. A duplicated ManyChat flow is likely half-edited.`,
+      );
+    }
   }
 
   // A fresh session_start is a fresh CONVERSATION: clear THIS tool's required fields from the
@@ -434,20 +448,16 @@ async function finalize(
 }
 
 /**
- * The keyword a lead types to start (or switch to) a tool, exactly one bare word. Kept in sync
- * with the ManyChat trigger keywords. A sentence never matches, so a real answer that merely
+ * The keyword a lead types to start (or switch to) a tool, exactly one bare word. Built from
+ * the lead-magnet REGISTRY (each config's dmKeywords), so adding a tool there registers its
+ * keywords here automatically; there is no second list to forget. Keep the ManyChat trigger
+ * keywords equal to dmKeywords. A sentence never matches, so a real answer that merely
  * mentions a tool cannot be hijacked.
  */
-const KEYWORD_TOOLS: Record<string, string> = {
-  worth: 'worth',
-  vault: 'vault-revenue-planner',
-  proof: 'proof-of-demand-test-builder',
-  demand: 'proof-of-demand-test-builder',
-  mission: 'fan-mission-generator',
-  missions: 'fan-mission-generator',
-  clip: 'clip-to-earn-campaign-planner',
-  clips: 'clip-to-earn-campaign-planner',
-};
+const KEYWORD_TOOLS: Record<string, string> = Object.fromEntries([
+  ...LEAD_MAGNETS.flatMap((m) => m.dmKeywords.map((k) => [k.toLowerCase(), m.slug] as [string, string])),
+  ['worth', 'worth'],
+]);
 
 function keywordTool(answer: string | null | undefined): string | null {
   if (!answer) return null;

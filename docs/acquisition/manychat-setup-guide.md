@@ -418,3 +418,59 @@ Do not move any of this into ManyChat, however convenient it looks:
 
 ManyChat holds five thin fields and forwards messages. Keeping it that way is what lets you
 change CRWN's logic without rebuilding a single ManyChat flow.
+
+---
+
+## 10. Adding a NEW lead magnet + cloning its flow: the complete checklist
+
+Every item below is a trap that cost real time during the Vault/Proof build (2026-07-16). Do
+them in order; do not publish until the smoke test passes.
+
+### Backend first (Claude's part)
+
+1. **Registry entry** in `src/lib/leadMagnets/registry.ts` with `dmKeywords` set. This is the
+   single source of truth for keywords: the orchestrator builds its keyword-pivot map from it
+   automatically (typing a keyword mid-conversation switches tools), so there is no second list
+   to forget. The ManyChat trigger keywords MUST equal `dmKeywords`.
+2. **Adapter** in `src/lib/acquisition/toolAdapters.ts`:
+   - `requiredFields` = the one or two inputs the DM collects. If the topline needs money, one
+     of them must be an audience field; a tool that cannot show a dollar figure breaks the hook.
+   - Override `headline` with a LOSS-FRAMED dollar line ("About $X ... is sitting ..."), never
+     the engine's readiness copy. Conservative rates, documented inline.
+   - Review the engine's sections for thin-DM-input artifacts. The Vault shipped "You is opening
+     a private Vault" (an empty artist-name default in a third-person template) and a one-item
+     "first five drops" (the DM collects a total, the engine builds drops from a breakdown).
+     Fix such artifacts with section overrides in the adapter.
+3. **Deploy, then VERIFY the deploy is live** before anyone tests:
+   `curl https://thecrwn.app/api/integrations/manychat/webhook` returns `rev` = the deployed
+   commit sha; compare to `git rev-parse --short HEAD`. Testing before propagation makes correct
+   code look broken, and it burned hours.
+
+### ManyChat clone (Josh's part)
+
+4. **Duplicate** the Vault automation. Three edits only; everything else carries over,
+   including the whole email gate.
+5. **Trigger. It does NOT survive duplication.** Re-create both: the comment trigger (pick the
+   post, set the keyword) AND a DM keyword trigger with the same keyword plus case variants. The
+   DM trigger is both a real entry point and your unlimited test path (comment triggers fire
+   once per person per post; you WILL run out of posts).
+6. **Opening message = YOUR loss-framed hook.** Never a question. The questions come from CRWN
+   through `crwn_message` one node later; hand-typing one produces a doubled question.
+7. **Actions #3 body:** change BOTH `lead_magnet_id` (the registry slug) and `keyword`. The
+   backend logs a loud warning when the two disagree (the half-edited-clone tell), but do not
+   rely on it. Actions #4 needs NO changes: session routing owns the tool.
+8. **Verify the response mapping rows survived the duplicate** (action / message / question_key
+   / result_url / session_id), and that Send Message #1 renders the `crwn_message` pill.
+
+### Smoke test (before publishing)
+
+9. **Test Request on Actions #3** with a test contact. It MUST return `action: ask_question`
+   with the NEW tool's question and the NEW `lead_magnet_id` echoed back. A Vault question or a
+   Vault money line means the body edit did not save. Do not publish until this passes.
+10. **Publish, then DM the keyword** and run it end to end: hook, question(s), loss-framed
+    dollar topline, email ask, breakdown link. Open the result page and READ it once (the
+    artifact check). No lead reset is ever needed: every session_start opens a fresh session,
+    re-asks that tool's questions, and computes a fresh result.
+11. **Stuck mid-flow?** A waiting question node swallows the next message. Typing any tool
+    keyword escapes it (the backend pivots to that tool). That is also how leads hop between
+    tools, so it is behavior, not a bug.

@@ -82,6 +82,13 @@ export interface LeadMagnetConfig {
   artistRoute: string;
   icon: string; // emoji for directory cards
   timeToComplete: string; // e.g. "3 min"
+  /**
+   * The bare words a lead types (Instagram comment or DM) to start THIS tool's funnel. The
+   * single source of truth: the acquisition orchestrator builds its keyword-pivot map from
+   * these (so typing one mid-conversation switches tools), and the ManyChat trigger keywords
+   * must match this list. Add a tool here and the keyword routing exists automatically.
+   */
+  dmKeywords: string[];
   hero: {
     eyebrow?: string;
     headline: string;

@@ -17,6 +17,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   artistRoute: '/artist/tools/vault-revenue-planner',
   icon: '🗝️',
   timeToComplete: '3 min',
+  dmKeywords: ['vault'],
   hero: {
     eyebrow: 'Artist Vault',
     headline: 'The music on your phone is earning you nothing.',
@@ -91,6 +92,7 @@ const PROOF_OF_DEMAND: LeadMagnetConfig = {
   artistRoute: '/artist/tools/proof-of-demand-test-builder',
   icon: '📊',
   timeToComplete: '2 min',
+  dmKeywords: ['proof', 'demand'],
   hero: {
     eyebrow: 'Proof of Demand',
     headline: 'You find out nobody wanted it after you have already paid for it.',
@@ -162,6 +164,7 @@ const FAN_MISSION: LeadMagnetConfig = {
   artistRoute: '/artist/tools/fan-mission-generator',
   icon: '🎯',
   timeToComplete: '2 min',
+  dmKeywords: ['mission', 'missions'],
   hero: {
     eyebrow: 'Fan Missions',
     headline: '"Please support me" is why your fans do nothing.',
@@ -252,6 +255,7 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
   artistRoute: '/artist/tools/clip-to-earn-campaign-planner',
   icon: '✂️',
   timeToComplete: '3 min',
+  dmKeywords: ['clip', 'clips'],
   hero: {
     eyebrow: 'Clip-to-Earn',
     headline: 'Your fans are clipping you. You are getting nothing back.',
