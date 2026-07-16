@@ -148,14 +148,18 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     max: MAX_AUDIENCE,
     minConfidence: 0.7,
   },
+  // The ONLY tool that asks catalog_size is the Vault, which runs on UNRELEASED material, so the
+  // question asks about the vault, not the released catalog. The value is stored in the
+  // catalog_size column (legacy name) and the Vault adapter maps it straight to unreleasedSongs.
+  // leadScoring reads it as a "depth of material" signal, which unreleased tracks satisfy fine.
   catalog_size: {
     key: 'catalog_size',
     type: 'integer',
     column: 'catalog_size',
-    label: 'Catalog size',
+    label: 'Unreleased songs',
     aiExtractable: true,
-    question: 'How many songs have you released?',
-    retryHint: 'Just the number of songs you have out. A rough count is fine.',
+    question: 'How many unreleased songs, demos, or ideas are sitting in your vault?',
+    retryHint: 'A rough count is fine: tracks you have not put out yet, demos, voice memos, unfinished ideas.',
     inputType: 'number',
     min: 0,
     max: 100_000,

@@ -174,11 +174,10 @@ const vault: AcquisitionTool = {
   requiresEstimateDisclaimer: true,
   destinationId: 'setup_monetize',
   execute(profile) {
-    // catalog_size is the artist's RELEASED catalog. The Vault runs on UNRELEASED material,
-    // and we have not asked about that in a DM. Rather than invent a number, we seed the
-    // planner with the released catalog as a proxy and say so plainly in the result page,
-    // where the artist can correct it and recalculate. An honest, editable estimate beats a
-    // confident, fabricated one.
+    // catalog_size holds the UNRELEASED count now: the DM asks "how many unreleased songs are
+    // sitting in your vault" (see fieldRegistry), which is exactly what the Vault runs on. The
+    // result page still lets the artist refine the breakdown (demos vs voice memos vs clips) and
+    // recalculate; the DM collects the one number that makes the estimate honest.
     const values: LeadMagnetInputValues = {
       artistName: s(profile.artist_name, 'You'),
       genre: s(profile.genre),
