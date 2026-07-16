@@ -118,6 +118,26 @@ export async function orchestrate(
     });
   }
 
+  // A lead can switch tools MID-conversation by typing another tool's keyword ("vault", "proof",
+  // "mission", "clip", "worth"). ManyChat's waiting question node swallows that word as an
+  // ANSWER, so without this check it is rejected as an unparseable number and the old question
+  // re-asks forever, trapping the lead in the previous tool. Detect an exact keyword and pivot:
+  // treat the turn as a fresh session_start for the requested tool. The flow nodes are
+  // tool-agnostic (they render crwn_message), so the conversation seamlessly becomes the new
+  // tool's flow even inside the old automation's loop.
+  if (payload.event_type === 'answer') {
+    const pivotTool = keywordTool(payload.answer);
+    if (pivotTool) {
+      payload = {
+        ...payload,
+        event_type: 'session_start',
+        lead_magnet_id: pivotTool,
+        question_key: null,
+        answer: null,
+      };
+    }
+  }
+
   const session = await loadOrCreateSession(payload, identity);
   const tool = getTool(session.lead_magnet_id ?? payload.lead_magnet_id ?? DEFAULT_TOOL_ID);
 
@@ -411,6 +431,29 @@ async function finalize(
     leadMagnetId: tool.id,
     state: 'result_sent',
   });
+}
+
+/**
+ * The keyword a lead types to start (or switch to) a tool, exactly one bare word. Kept in sync
+ * with the ManyChat trigger keywords. A sentence never matches, so a real answer that merely
+ * mentions a tool cannot be hijacked.
+ */
+const KEYWORD_TOOLS: Record<string, string> = {
+  worth: 'worth',
+  vault: 'vault-revenue-planner',
+  proof: 'proof-of-demand-test-builder',
+  demand: 'proof-of-demand-test-builder',
+  mission: 'fan-mission-generator',
+  missions: 'fan-mission-generator',
+  clip: 'clip-to-earn-campaign-planner',
+  clips: 'clip-to-earn-campaign-planner',
+};
+
+function keywordTool(answer: string | null | undefined): string | null {
+  if (!answer) return null;
+  const word = answer.trim().toLowerCase().replace(/[^a-z]/g, '');
+  if (!word || word.length > 12 || answer.trim().includes(' ')) return null;
+  return KEYWORD_TOOLS[word] ?? null;
 }
 
 async function loadOrCreateSession(
