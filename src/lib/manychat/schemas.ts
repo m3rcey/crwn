@@ -39,6 +39,14 @@ export interface ManyChatInboundPayload {
   email?: string | null;
   phone?: string | null;
 
+  /**
+   * The CRWN session this turn belongs to (the crwn_session_id pill). Present on continuing
+   * turns (answer/next/finalize) when the ManyChat flow sends it back. It pins the tool exactly,
+   * so a Vault answer cannot be misrouted into a Worth session. Optional: when absent, the
+   * orchestrator resolves the lead's most-recent open session instead.
+   */
+  session_id?: string | null;
+
   campaign_key?: string | null;
   creator_account?: string | null;
   source_post_id?: string | null;
@@ -238,6 +246,7 @@ export function validateInbound(body: unknown): Validation<ManyChatInboundPayloa
       source_post_id: str(b.source_post_id, 128),
       keyword: str(b.keyword, 64),
       lead_magnet_id: str(b.lead_magnet_id, 64),
+      session_id: str(b.session_id, 128),
       conversation_id: str(b.conversation_id, 128),
       referring_url: str(b.referring_url, 500),
       utm_source: str(b.utm_source, 64),

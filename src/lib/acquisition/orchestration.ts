@@ -385,6 +385,36 @@ async function loadOrCreateSession(
   payload: ManyChatInboundPayload,
   identity: LeadIdentity,
 ): Promise<SessionRow> {
+  // A CONTINUING turn (answer/next/finalize/event) belongs to the session the lead is already in.
+  // It must NOT fall back to DEFAULT_TOOL: the answer request carries no lead_magnet_id, so that
+  // fallback silently routed every non-Worth tool's answers into a WORTH session, and a Vault
+  // lead got the Worth number on the Worth page. Only session_start carries a lead_magnet_id and
+  // starts a new session; every other turn resolves an EXISTING one.
+  if (payload.event_type !== 'session_start') {
+    // Most precise: the explicit session id (the crwn_session_id pill), when the flow sends it.
+    if (payload.session_id) {
+      const { data: byId } = await supabaseAdmin
+        .from('lead_sessions')
+        .select('id, state, lead_magnet_id, revision')
+        .eq('id', payload.session_id)
+        .eq('lead_identity_id', identity.id)
+        .maybeSingle();
+      if (byId) return byId as SessionRow;
+    }
+    // Otherwise the lead's most-recent OPEN session. A lead is in one active conversation, and it
+    // is whichever tool they last started, so a Vault answer lands in the Vault session even when
+    // the flow does not echo the session id.
+    const { data: recent } = await supabaseAdmin
+      .from('lead_sessions')
+      .select('id, state, lead_magnet_id, revision')
+      .eq('lead_identity_id', identity.id)
+      .eq('status', 'open')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (recent) return recent as SessionRow;
+  }
+
   const toolId = payload.lead_magnet_id ?? DEFAULT_TOOL_ID;
 
   const { data: open } = await supabaseAdmin
