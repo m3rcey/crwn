@@ -254,8 +254,16 @@ export async function orchestrate(
 
   await rescore(identity.id, session.id, loaded.values, decision.leadScoreSignal);
 
+  // A fresh session_start ALWAYS opens with a question, even when every required field is already
+  // on file from a previous run. Without this, a RETURNING lead gets send_result immediately on
+  // session_start; the ManyChat flow renders that at the waiting question node and then STALLS
+  // there, before the email gate and the breakdown link ever fire. Re-asking the first field also
+  // lets a returning lead update their numbers. Only session_start is forced; answers resolve
+  // normally and still finalize as soon as the last field lands.
+  const forceOpeningQuestion = payload.event_type === 'session_start' && tool.requiredFields.length > 0;
+
   // ---- Ready to generate? Run the EXISTING calculator and send the link. ----
-  if (committedState === 'ready_for_result' || (missingNow.length === 0 && !facts.needsHumanReview)) {
+  if (!forceOpeningQuestion && (committedState === 'ready_for_result' || (missingNow.length === 0 && !facts.needsHumanReview))) {
     return finalize(session, identity, tool, loaded.values);
   }
 
@@ -279,24 +287,30 @@ export async function orchestrate(
   }
 
   // ---- Otherwise, ask the next question. ----
-  const askKey = decision.nextQuestionField ?? missingNow[0] ?? null;
+  const askKey = forceOpeningQuestion
+    ? tool.requiredFields[0]
+    : decision.nextQuestionField ?? missingNow[0] ?? null;
   const def = askKey ? getField(askKey) : null;
+  // A forced opening question means the session is collecting again, not ready_for_result.
+  const askState = forceOpeningQuestion ? 'collecting_required_metrics' : committedState;
 
   // If we could not read their last answer, do NOT repeat the question verbatim. Ask again
   // with a concrete example. (Claude's own rephrase is preferred when it produced one, since
   // it can respond to what they actually said.)
   const isRetry = !!stuckOnField && stuckOnField === askKey;
-  const message = isRetry
-    ? decision.responseMessage && decision.responseMessage !== def?.question
-      ? decision.responseMessage
-      : `${def?.retryHint ?? def?.question ?? 'Tell me a bit more.'}`
-    : decision.responseMessage || def?.question || 'Tell me a bit more.';
+  const message = forceOpeningQuestion
+    ? def?.question ?? 'Tell me a bit more.'
+    : isRetry
+      ? decision.responseMessage && decision.responseMessage !== def?.question
+        ? decision.responseMessage
+        : `${def?.retryHint ?? def?.question ?? 'Tell me a bit more.'}`
+      : decision.responseMessage || def?.question || 'Tell me a bit more.';
 
-  await commitState(session, committedState, askKey);
+  await commitState(session, askState, askKey);
   await recordEvent('lead_question_asked', {
     leadIdentityId: identity.id,
     sessionId: session.id,
-    metadata: { field: askKey, state: committedState, retry: isRetry },
+    metadata: { field: askKey, state: askState, retry: isRetry },
   });
 
   return buildResponse({
@@ -307,7 +321,7 @@ export async function orchestrate(
     inputType: (def?.inputType ?? 'text') as QuestionInputType,
     choices: def?.values ?? [],
     leadMagnetId: tool.id,
-    state: committedState,
+    state: askState,
   });
 }
 
