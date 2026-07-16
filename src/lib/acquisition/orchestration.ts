@@ -130,6 +130,24 @@ export async function orchestrate(
     });
   }
 
+  // A fresh session_start is a fresh CONVERSATION: clear THIS tool's required fields from the
+  // profile so the lead re-answers every one of them. A returning lead was skipping any question
+  // whose value was still cached in the shared profile (e.g. audience carried over from a prior
+  // Worth run), so the Vault only asked about the vault and not the audience. Clearing gives
+  // updated numbers and a consistent multi-question flow. Only THIS tool's required fields are
+  // cleared, and they are re-collected in the same conversation, so nothing is lost net.
+  if (payload.event_type === 'session_start') {
+    const cols = tool.requiredFields
+      .map((k) => getField(k)?.column)
+      .filter((c): c is string => !!c);
+    if (cols.length > 0) {
+      await supabaseAdmin
+        .from('lead_profiles')
+        .update(Object.fromEntries(cols.map((c) => [c, null])))
+        .eq('lead_identity_id', identity.id);
+    }
+  }
+
   // ---- 1. Store the raw answer, before anything can reinterpret it. ----
   if (payload.event_type === 'answer' && payload.question_key && payload.answer) {
     await storeRawAnswer(session.id, identity.id, payload);

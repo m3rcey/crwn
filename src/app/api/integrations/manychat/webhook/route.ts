@@ -148,5 +148,5 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   // `rev` is a deploy marker: bump it with any orchestration change so a curl can confirm the
   // new code is actually live before anyone tests the flow.
-  return NextResponse.json({ ok: true, service: 'manychat-webhook', rev: 'fresh-session-v1' });
+  return NextResponse.json({ ok: true, service: 'manychat-webhook', rev: 'reask-all-v1' });
 }
