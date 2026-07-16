@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { smartBack } from '@/lib/navigation';
 import { LeadMagnetWizard } from './LeadMagnetWizard';
+import { CrwnShowcase } from './CrwnShowcase';
 import { LeadMagnetResult } from './LeadMagnetResult';
 import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
 import { ResultActions } from './ResultActions';
@@ -149,6 +150,12 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
               onClose={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             />
           </div>
+
+          {/* Below the tool, the full CRWN pitch (what it is, the product mockups, the
+              comparisons, CTAs throughout), the same continuous-funnel model as /worth. */}
+          <div className="max-w-2xl mx-auto">
+            <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
+          </div>
         </>
       )}
 
@@ -175,6 +182,9 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
           <button onClick={() => router.push('/tools')} className="w-full text-sm text-crwn-text-secondary">
             Explore another CRWN tool
           </button>
+
+          {/* The full CRWN pitch under the result, same as the tokenized result page. */}
+          <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
         </div>
       )}
     </div>

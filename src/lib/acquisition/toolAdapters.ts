@@ -266,15 +266,31 @@ const proofOfDemand: AcquisitionTool = {
       price: 0,
       city: '',
     };
-    return generateResult('proofOfDemandTest', values);
+    const generated = generateResult('proofOfDemandTest', values);
+
+    // DM topline: loss-framed MONEY, not the engine's "your test is ready". Conservative model:
+    // ~1.5% of the audience buys a typical $15 one-off drop. That is the demand sitting there
+    // unproven, which is exactly the loss this tool names.
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const BUYER_RATE = 0.015;
+    const PRICE_CENTS = 1500; // $15 typical one-off
+    const demandCents = Math.round(audience * BUYER_RATE) * PRICE_CENTS;
+    const headline =
+      demandCents >= 5000
+        ? `About ${fmtDollars(demandCents)} of demand is sitting in your fanbase, untested`
+        : 'Your fans keep asking. You have never made them prove it';
+
+    return { ...generated, headline };
   },
 };
 
 const fanMission: AcquisitionTool = {
   id: 'fan-mission-generator',
   name: 'Fan Mission Generator',
-  requiredFields: ['primary_goal'],
-  optionalFields: ['social_followers', 'artist_name'],
+  // Goal shapes the mission; audience prices the loss-framed money topline. Both required, same
+  // pattern as the Vault: a DM that cannot show a dollar figure breaks the funnel's hook.
+  requiredFields: ['primary_goal', 'social_followers'],
+  optionalFields: ['artist_name'],
   resultRouteBase: '/tools/fan-mission-generator/result',
   formulaVersion: GENERATOR_VERSION,
   calculatorId: 'fanMission',
@@ -303,15 +319,30 @@ const fanMission: AcquisitionTool = {
       leaderboard: true,
       proof: 'link',
     };
-    return generateResult('fanMission', values);
+    const generated = generateResult('fanMission', values);
+
+    // DM topline: loss-framed money. Conservative: one well-run mission converts ~0.5% of the
+    // audience into paying fans at a typical $10/mo.
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const MISSION_CONVERT_RATE = 0.005;
+    const PRICE_CENTS = 1000;
+    const monthlyCents = Math.round(audience * MISSION_CONVERT_RATE) * PRICE_CENTS;
+    const headline =
+      monthlyCents >= 5000
+        ? `About ${fmtDollars(monthlyCents)} a month is one fan mission away`
+        : `Your fans do nothing because "please support me" is not a mission`;
+
+    return { ...generated, headline };
   },
 };
 
 const clipToEarn: AcquisitionTool = {
   id: 'clip-to-earn-campaign-planner',
   name: 'Clip-to-Earn Campaign Planner',
-  requiredFields: ['artist_name'],
-  optionalFields: ['genre', 'catalog_size'],
+  // Audience prices the money topline (the old required field was artist_name, which cannot
+  // produce a dollar figure and read as an odd opening question in a DM).
+  requiredFields: ['social_followers'],
+  optionalFields: ['artist_name', 'genre', 'catalog_size'],
   resultRouteBase: '/tools/clip-to-earn-campaign-planner/result',
   formulaVersion: GENERATOR_VERSION,
   calculatorId: 'clipToEarnCampaign',
@@ -330,7 +361,20 @@ const clipToEarn: AcquisitionTool = {
       requiredCaption: '',
       approvalRequired: false,
     };
-    return generateResult('clipToEarnCampaign', values);
+    const generated = generateResult('clipToEarnCampaign', values);
+
+    // DM topline: loss-framed money. Conservative: fan-made clips convert ~0.5% of the audience
+    // into paying subscribers at a typical $10/mo, promotion that costs nothing up front.
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const CLIP_CONVERT_RATE = 0.005;
+    const PRICE_CENTS = 1000;
+    const monthlyCents = Math.round(audience * CLIP_CONVERT_RATE) * PRICE_CENTS;
+    const headline =
+      monthlyCents >= 5000
+        ? `About ${fmtDollars(monthlyCents)} a month is sitting in your fans' clips`
+        : 'Your fans would clip you for free. Nobody has asked them';
+
+    return { ...generated, headline };
   },
 };
 
