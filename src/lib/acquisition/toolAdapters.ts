@@ -215,7 +215,34 @@ const vault: AcquisitionTool = {
         ? `About ${fmtDollars(monthlyCents)} a month is sitting in your vault, unheard`
         : `${unreleased} unreleased track${unreleased === 1 ? '' : 's'} sitting in your vault, earning you nothing`;
 
-    return { ...generated, headline };
+    // Two sections the shared engine writes for its OWN (richer) input shape, fixed for the DM:
+    //  - The fan pitch is third person ("<name> is opening..."), which reads "You is opening" for
+    //    a lead who never gave a name. Rewrite to first person, which is how an artist posts it.
+    //  - "First five drops" is built from the inventory BREAKDOWN, but the DM only collected a
+    //    total count, so the engine only had one category and produced a single drop. Replace it
+    //    with a full, compelling five-drop starter plan.
+    const hasName = !!s(profile.artist_name);
+    const sections = generated.sections.map((sec) => {
+      if (sec.key === 'pitch' && !hasName) {
+        const text = (sec as { text?: string }).text ?? '';
+        return { ...sec, text: text.replace(/^You is /, "I'm ") };
+      }
+      if (sec.key === 'firstFive') {
+        return {
+          ...sec,
+          items: [
+            'Your strongest unreleased track',
+            'A raw demo or voice memo fans have never heard',
+            'A behind-the-scenes studio moment',
+            'An alternate version, remix, or edit',
+            'A track you almost never put out',
+          ],
+        };
+      }
+      return sec;
+    });
+
+    return { ...generated, headline, sections };
   },
 };
 
