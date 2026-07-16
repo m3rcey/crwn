@@ -329,7 +329,7 @@ const fanMission: AcquisitionTool = {
     const monthlyCents = Math.round(audience * MISSION_CONVERT_RATE) * PRICE_CENTS;
     const headline =
       monthlyCents >= 5000
-        ? `About ${fmtDollars(monthlyCents)} a month is one fan mission away`
+        ? `About ${fmtDollars(monthlyCents)} a month is sitting in your fanbase with no mission to unlock it`
         : `Your fans do nothing because "please support me" is not a mission`;
 
     return { ...generated, headline };
