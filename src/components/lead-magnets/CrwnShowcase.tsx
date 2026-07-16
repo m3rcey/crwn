@@ -2,8 +2,9 @@
 //
 // A tool-agnostic pitch that renders BELOW every non-Worth tool result (Vault, Proof of Demand,
 // Fan Missions, Clip-to-Earn). Worth has its own bespoke, calculator-coupled showcase; this is
-// the static marketing lifted from it so every tool result page also sells the platform and drives
-// signup. No client state, no calculator numbers: it renders the same for every lead.
+// the static marketing plus the interactive phone mockups lifted from it, so every tool result
+// page sells the platform with the same visual depth and drives signup. No calculator numbers:
+// the mocks render with their built-in demo data.
 
 import Link from 'next/link';
 import {
@@ -28,6 +29,18 @@ import {
   Zap,
   Globe,
 } from 'lucide-react';
+import {
+  TiersMock,
+  ShopMock,
+  LiveMock,
+  CommunityMock,
+  ClipperMock,
+  SequencesMock,
+  AiActionsMock,
+  EarningsMock,
+  LeaderboardMock,
+  SyncMock,
+} from '@/app/(public)/worth/mocks';
 
 const GOLD = '#D4AF37';
 
@@ -54,15 +67,6 @@ const FAN_MATH = [
   { fans: '1,000 fans', math: '× $15 / mo', total: '$15,000 / mo' },
 ];
 
-const MORE = [
-  { icon: Scissors, title: 'Clip & Earn', line: 'Fans clip your streams for TikTok and Reels and earn a recurring cut on every subscriber they bring.' },
-  { icon: TrendingUp, title: 'Release waterfall', line: 'Paying fans get new music first. The DSPs get it last, on purpose.' },
-  { icon: MessageCircle, title: 'Gated community', line: 'Exclusive posts and snippets only your paying fans can see.' },
-  { icon: Mail, title: 'Own your audience', line: 'Email, SMS, sequences, smart links. Reach every fan any time, no algorithm.' },
-  { icon: Zap, title: 'A manager built in', line: 'AI watches your numbers and hands you decisions to approve. You make music.' },
-  { icon: Globe, title: 'Sync licensing', line: 'TV, film, game, and ad briefs matched to your genre. One placement can beat a year of streaming.' },
-];
-
 const STEPS = [
   { n: 1, title: 'Claim your free account', line: 'No card required. Your artist page is ready in minutes.' },
   { n: 2, title: 'Set up your tiers and products', line: 'We help you build the whole thing: memberships, pricing, payouts.' },
@@ -79,12 +83,32 @@ const FAQS = [
 
 function Heading({ icon: Icon, children }: { icon: typeof Crown; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 mb-5">
+    <div className="flex items-center gap-3 mb-4">
       <span className="w-9 h-9 rounded-full bg-[#D4AF37]/15 flex items-center justify-center shrink-0">
         <Icon className="w-4 h-4" style={{ color: GOLD }} />
       </span>
       <h2 className="text-2xl font-bold leading-tight">{children}</h2>
     </div>
+  );
+}
+
+function MockSection({
+  icon,
+  title,
+  copy,
+  children,
+}: {
+  icon: typeof Crown;
+  title: string;
+  copy: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <Heading icon={icon}>{title}</Heading>
+      <p className="text-white/60 mb-6 leading-relaxed">{copy}</p>
+      {children}
+    </section>
   );
 }
 
@@ -130,6 +154,15 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         </div>
       </section>
 
+      {/* Memberships */}
+      <MockSection
+        icon={Crown}
+        title="A membership they pay for every month"
+        copy="A free tier to capture everyone, then paid tiers built to catch the whale. Fans pick their level and pay you every month."
+      >
+        <TiersMock />
+      </MockSection>
+
       {/* Streaming vs CRWN */}
       <section>
         <Heading icon={TrendingUp}>Streaming vs CRWN</Heading>
@@ -173,7 +206,61 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
         </div>
       </section>
 
-      {/* Keep 92% */}
+      {/* Shop */}
+      <MockSection
+        icon={ShoppingBag}
+        title="Your storefront, live in minutes"
+        copy="Sell tracks, stems, sample packs, and merch as one-off products. Members get a discount."
+      >
+        <ShopMock />
+      </MockSection>
+
+      {/* Live */}
+      <MockSection
+        icon={Radio}
+        title="Go live, and get paid for it"
+        copy="Stream live right on your page. Sell tickets or gate it behind a tier. Every stream auto-saves as a recording you can sell, gate, or hand to your clippers."
+      >
+        <LiveMock />
+      </MockSection>
+
+      {/* Clip & Earn */}
+      <MockSection
+        icon={Scissors}
+        title="Your fans are your marketing team"
+        copy="Turn on Clip & Earn: fans clip your streams for TikTok and Reels, and earn a recurring cut on every subscriber they bring. You only pay them while it keeps working."
+      >
+        <ClipperMock />
+      </MockSection>
+
+      {/* Community */}
+      <MockSection
+        icon={MessageCircle}
+        title="A gated community they pay to be in"
+        copy="Post exclusive updates, unreleased snippets, and behind-the-scenes only your paying fans can see."
+      >
+        <CommunityMock />
+      </MockSection>
+
+      {/* Audience tools */}
+      <MockSection
+        icon={Mail}
+        title="Own your audience, do not rent it"
+        copy="Email, SMS, and automated sequences. CRWN hands you your fans' contact info and the tools to reach them any time, no algorithm."
+      >
+        <SequencesMock />
+      </MockSection>
+
+      {/* AI manager */}
+      <MockSection
+        icon={Zap}
+        title="A manager built in"
+        copy="A manager watches your numbers and hands you decisions to approve: raise a price, email fans, win back churn. You make music; it grows the business."
+      >
+        <AiActionsMock />
+      </MockSection>
+
+      {/* Keep 92% + money flow */}
       <section>
         <Heading icon={Wallet}>Keep up to 92%, paid to your bank</Heading>
         <p className="text-white/60 mb-6">
@@ -196,7 +283,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
             </div>
           ))}
         </div>
-        <div className="rounded-2xl bg-crwn-surface-solid border border-crwn-elevated p-5">
+        <div className="rounded-2xl bg-crwn-surface-solid border border-crwn-elevated p-5 mb-6">
           <div className="flex items-baseline justify-between mb-2">
             <span className="text-white/70">You keep</span>
             <span className="text-xl font-bold" style={{ color: GOLD }}>up to 92%</span>
@@ -208,25 +295,26 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
             Free plan keeps 88%. Pro keeps 92%. Every plan pays out straight to your bank.
           </p>
         </div>
+        <EarningsMock />
       </section>
 
-      {/* More features */}
-      <section>
-        <Heading icon={Zap}>And everything else CRWN runs for you</Heading>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {MORE.map((m) => (
-            <div key={m.title} className="rounded-2xl bg-crwn-surface-solid border border-crwn-elevated p-5 flex gap-3">
-              <span className="w-9 h-9 rounded-full bg-[#D4AF37]/15 flex items-center justify-center shrink-0">
-                <m.icon className="w-4 h-4" style={{ color: GOLD }} />
-              </span>
-              <div>
-                <h3 className="font-semibold mb-1">{m.title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{m.line}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Leaderboard */}
+      <MockSection
+        icon={Users}
+        title="See who actually supports you"
+        copy="A live leaderboard ranks your biggest supporters by name and spend, so you know exactly who to keep close. Your audience, your data."
+      >
+        <LeaderboardMock />
+      </MockSection>
+
+      {/* Sync */}
+      <MockSection
+        icon={Globe}
+        title="Bonus: get your music placed"
+        copy="CRWN surfaces sync licensing briefs, TV, film, games, ads, matched to your genre. One placement can pay more than a year of streaming."
+      >
+        <SyncMock />
+      </MockSection>
 
       {/* How it works */}
       <section>
