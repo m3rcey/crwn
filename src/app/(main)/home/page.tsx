@@ -190,13 +190,16 @@ export default function HomePage() {
       label: 'My Library',
       image: '/homepage_library.jpg',
     },
-    // Show whenever the app treats this user as an artist. isArtist() is the SAME
-    // role-based signal the bottom nav uses for the Studio slot (true for role
-    // 'artist' or 'admin'), so this tile can never disappear while Studio is in the
-    // nav. hasArtistProfile (the DB row) is kept as a belt-and-suspenders for a
-    // brand-new artist whose profile.role still lags right after publishing.
+    // Artist mode gets Studio + Artist Dashboard. Gated on isArtist() (the SAME
+    // role-based signal the bottom nav uses for the Studio slot, true for role
+    // 'artist' or 'admin'), so these can never disappear while Studio is in the
+    // nav. hasArtistProfile (the DB row) is a belt-and-suspenders for a brand-new
+    // artist whose profile.role still lags right after publishing.
     ...(isArtist() || hasArtistProfile
-      ? [{ href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.jpg' }]
+      ? [
+          { href: '/studio', label: 'Studio', image: '/homepage_studio.jpg' },
+          { href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.jpg' },
+        ]
       : [])
   ];
 

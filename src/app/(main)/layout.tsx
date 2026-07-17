@@ -118,8 +118,12 @@ export default function MainLayout({
       {/* Main Content - with padding for mobile nav and sidebar. The mobile nav
           is 56px tall plus its own safe-area inset, so the clearance has to
           track that inset too or the last row of content sits under it. */}
+      {/* Mobile top clearance so the fixed top-left hamburger never sits over a
+          page header. The hamburger bottom is ~3rem below the safe-area top, so
+          content starts at 3.5rem + inset. Desktop has no floating hamburger (it
+          lives in the sidebar), so md: reverts to the normal padding. */}
       <div className="relative z-10 md:pl-64 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
-        <main className="p-4 md:p-8">
+        <main className="p-4 md:p-8 pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-8">
           {children}
         </main>
       </div>
