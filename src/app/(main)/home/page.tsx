@@ -60,7 +60,7 @@ interface ArtistProfile {
 }
 
 export default function HomePage() {
-  const { profile } = useAuth();
+  const { profile, isArtist } = useAuth();
   const supabase = createBrowserSupabaseClient();
   const [featuredArtists, setFeaturedArtists] = useState<ArtistProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -190,10 +190,12 @@ export default function HomePage() {
       label: 'My Library',
       image: '/homepage_library.jpg',
     },
-    // Shown to artists (own an artist_profiles row) AND admins (the founder, who
-    // may be signed in without an artist row). A plain fan with no artist page
-    // does not get it, since /profile/artist is an artist-only surface.
-    ...(hasArtistProfile || profile?.role === 'admin'
+    // Show whenever the app treats this user as an artist. isArtist() is the SAME
+    // role-based signal the bottom nav uses for the Studio slot (true for role
+    // 'artist' or 'admin'), so this tile can never disappear while Studio is in the
+    // nav. hasArtistProfile (the DB row) is kept as a belt-and-suspenders for a
+    // brand-new artist whose profile.role still lags right after publishing.
+    ...(isArtist() || hasArtistProfile
       ? [{ href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.jpg' }]
       : [])
   ];
