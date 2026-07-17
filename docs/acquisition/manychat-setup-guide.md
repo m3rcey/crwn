@@ -488,9 +488,10 @@ reply satisfies Meta's interaction requirement the same way a tap does.
 
 - **Node 1** (still `As private reply`): a **Data Collection** block whose question is the bridge
   plus the first question, e.g. "One question and you'll see how much demand you're sitting on:
-  roughly how many followers do you have across your socials?" Reply type matches the field
-  (Number for counts). NOTE: this duplicates the question text in ManyChat; if the question
-  changes in `fieldRegistry.ts`, update the opener by hand.
+  roughly how many followers do you have across your socials?" Reply type **Text**, never Number
+  (Trap: "50k" and "about 50,000" fail a Number field; CRWN's parser handles them). NOTE: this
+  duplicates the question text in ManyChat; if the question changes in `fieldRegistry.ts`,
+  update the opener by hand.
 - **Actions #3 body** adds the field the opener asked:
   `{"event_type":"session_start","lead_magnet_id":"...","keyword":"...","question_key":"social_followers","consent_dm":true,"contact": <Full Contact Data> }`
   The reply itself rides in `last_input_text`; no extra pill.
