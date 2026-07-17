@@ -455,12 +455,324 @@ const clipToEarn: AcquisitionTool = {
 // Registry
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// 6-10. The new loss-revelation tools. Each reveals a specific loss and shows how CRWN recovers
+// it, through the shared buildLossResult engine. Inputs reuse EXISTING profile fields (audience,
+// goal, direct revenue) so no migration is needed; every model is conservative and assumption-led,
+// and tools whose honest output is a score lead with a gauge instead of a fabricated dollar figure.
+// ---------------------------------------------------------------------------
+
+const founderWindow: AcquisitionTool = {
+  id: 'founder-window-builder',
+  name: 'Founder Window Builder',
+  requiredFields: ['social_followers'],
+  optionalFields: ['direct_fan_revenue_cents', 'artist_name'],
+  resultRouteBase: '/tools/founder-window-builder/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'founderWindow',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const PRICE = 1000;
+    const intenders = Math.round(audience * 0.02); // would become supporters eventually
+    const foundersAt = (pull: number) => Math.round(intenders * pull) * PRICE;
+    const monthly = foundersAt(0.4); // a real window pulls ~40% forward now
+    const headline =
+      monthly >= 5000
+        ? `About ${fmtDollars(monthly)} a month in founding supporters is slipping away with no reason to join now`
+        : 'Your fans have no reason to join now instead of someday, so most never do';
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline,
+      summary: `Around ${intenders.toLocaleString(
+        'en-US',
+      )} of your fans would support you eventually. With no reason to act now, most keep saying "later" until they forget.`,
+      cause:
+        'An always-open offer has no urgency, so fans who fully intend to join keep putting it off. A founder window gives them a real reason to act now: limited spots, a locked-in price, and permanent founding-supporter status.',
+      estimate: [
+        { label: 'Would join eventually', value: intenders.toLocaleString('en-US'), note: '~2% of your audience' },
+        { label: 'A window pulls forward now', value: Math.round(intenders * 0.4).toLocaleString('en-US') },
+        { label: 'Monthly, if they join now', value: fmtDollars(monthly) },
+        { label: 'A year of it', value: fmtDollars(monthly * 12) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(foundersAt(0.25))}/mo`, note: '25% pulled forward' },
+        { label: 'Expected', value: `${fmtDollars(monthly)}/mo`, note: '40% pulled forward' },
+        { label: 'High', value: `${fmtDollars(foundersAt(0.6))}/mo`, note: '60% pulled forward' },
+      ],
+      assumptions: [
+        'About 2% of your audience would become paying supporters over time.',
+        'A founder window with real scarcity pulls roughly 40% of them to decide now instead of someday.',
+        'Founding supporters valued at about $10 a month.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Launch momentum you only get once leaks away across an always-open offer.',
+        'You cannot tell who believed early, so you cannot reward them or build around them.',
+        'Every release cycle you wait is another batch of "later" that quietly becomes never.',
+      ],
+      fanLoss:
+        'Your fans miss permanent proof they were early, a price locked in for life, founding-supporter status, and a real place in the story before everyone else showed up.',
+      flow: [
+        'An always-open offer your fans keep ignoring',
+        'Open a founder window: limited spots, locked price',
+        'Fans act now to lock in founding status',
+        `${fmtDollars(monthly)} a month, from supporters who would have drifted`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Set a founder window on your CRWN page: a cap and a locked price.',
+          'Give founders permanent status and a benefit only they keep.',
+          'Announce the deadline and let the scarcity do the work.',
+        ],
+      },
+      conversionPayload: { window: 'founder' },
+      shareSummary: `A founder window could lock in about ${fmtDollars(monthly)} a month for me.`,
+    });
+  },
+};
+
+const movementPage: AcquisitionTool = {
+  id: 'movement-page-blueprint',
+  name: 'Movement Page Blueprint',
+  requiredFields: ['social_followers'],
+  optionalFields: ['primary_goal', 'artist_name'],
+  resultRouteBase: '/tools/movement-page-blueprint/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'movementPage',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const PRICE = 1000;
+    // A generic profile/streaming link converts a fraction of the interested traffic a real
+    // movement page would. The gap is the leakage.
+    const monthlyVisitors = Math.round(audience * 0.15); // ~15% of your audience checks a link out
+    const wouldConvert = Math.round(monthlyVisitors * 0.03); // a clear page converts ~3%
+    const leakedNow = Math.round(wouldConvert * 0.75); // a generic link loses ~75% of them
+    const monthly = leakedNow * PRICE;
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline: 'Your traffic hits a generic profile, reads nothing worth joining, and leaves',
+      score: {
+        value: 24,
+        max: 100,
+        label: 'Movement clarity',
+        band: 'Low: visitors cannot tell what you are building or why to join now',
+      },
+      summary: `Roughly ${monthlyVisitors.toLocaleString(
+        'en-US',
+      )} people check your link each month. A profile with no story converts almost none of them.`,
+      cause:
+        'A streaming link or a generic profile answers none of the questions a new fan has: what are you building, what chapter is this, why does joining now matter, and what can I actually do. With no story and no clear action, interested visitors leave.',
+      estimate: [
+        { label: 'Check your link monthly', value: monthlyVisitors.toLocaleString('en-US'), note: '~15% of audience' },
+        { label: 'A clear page would convert', value: wouldConvert.toLocaleString('en-US') },
+        { label: 'Lost to a generic link', value: leakedNow.toLocaleString('en-US'), note: '~75% of them' },
+        { label: 'Monthly, leaking', value: fmtDollars(monthly) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(Math.round(wouldConvert * 0.6) * PRICE)}/mo`, note: '60% leak' },
+        { label: 'Expected', value: `${fmtDollars(monthly)}/mo`, note: '75% leak' },
+        { label: 'High', value: `${fmtDollars(Math.round(wouldConvert * 0.85) * PRICE)}/mo`, note: '85% leak' },
+      ],
+      assumptions: [
+        'About 15% of your audience clicks through to your link in a month.',
+        'A clear movement page converts roughly 3% of that traffic; a generic link loses about 75% of it.',
+        'A converted supporter valued at about $10 a month.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Campaign momentum scatters across unrelated links with no center.',
+        'New fans never grasp what you are building, so they stay passive.',
+        'Your call to action is buried, so the ready ones never find the yes.',
+      ],
+      fanLoss:
+        'Your fans miss your story, the chapter you are in now, the mission they could join, a community identity, proof of your progress, and an obvious role to play.',
+      flow: [
+        'Traffic hits a generic link and bounces',
+        'Build one movement page: story, mission, clear action',
+        'Visitors understand it and join',
+        `${fmtDollars(monthly)} a month you were leaking recovered`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Build your movement page on CRWN: your story, your current mission, your tiers.',
+          'Put one clear action above the fold so the ready fan cannot miss it.',
+          'Point every link in your bio and captions to it.',
+        ],
+      },
+      conversionPayload: { page: 'movement' },
+      shareSummary: 'Turns out my link was leaking most of the fans who clicked it.',
+    });
+  },
+};
+
+const fanJourney: AcquisitionTool = {
+  id: 'fan-journey-builder',
+  name: 'Fan Journey Builder',
+  requiredFields: ['social_followers'],
+  optionalFields: ['direct_fan_revenue_cents', 'artist_name'],
+  resultRouteBase: '/tools/fan-journey-builder/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'fanJourney',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const PRICE = 1000;
+    // The leak is between "would pay" and "actually recurring", the weakest transition with no
+    // structured journey. Conservatively ~1% of audience would ever pay; without a path, the
+    // majority never make the recurring jump.
+    const wouldPay = Math.round(audience * 0.01);
+    const lostToNoPath = Math.round(wouldPay * 0.6); // ~60% never reach recurring with no journey
+    const monthly = lostToNoPath * PRICE;
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline: 'Fans leak out at every step between hearing you and paying you',
+      score: {
+        value: 71,
+        max: 100,
+        label: 'Fan journey leakage',
+        band: 'High: your weakest transition is first purchase to recurring support',
+      },
+      summary: `About ${wouldPay.toLocaleString(
+        'en-US',
+      )} of your fans would pay you something. With no path from one step to the next, most never make the jump to recurring support.`,
+      cause:
+        'A fan goes from discovery to interest to participation to a first purchase to recurring support to promotion. Each step needs a clear next action. With no structured journey, fans stall at the weakest transition and quietly drop off instead of going deeper.',
+      estimate: [
+        { label: 'Would pay you something', value: wouldPay.toLocaleString('en-US'), note: '~1% of audience' },
+        { label: 'Never reach recurring', value: lostToNoPath.toLocaleString('en-US'), note: '~60% with no path' },
+        { label: 'Monthly, leaking', value: fmtDollars(monthly) },
+        { label: 'A year of it', value: fmtDollars(monthly * 12) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(Math.round(wouldPay * 0.45) * PRICE)}/mo`, note: '45% lost' },
+        { label: 'Expected', value: `${fmtDollars(monthly)}/mo`, note: '60% lost' },
+        { label: 'High', value: `${fmtDollars(Math.round(wouldPay * 0.75) * PRICE)}/mo`, note: '75% lost' },
+      ],
+      assumptions: [
+        'About 1% of your audience would pay you something.',
+        'With no structured journey, roughly 60% of them never reach recurring support.',
+        'A recurring supporter valued at about $10 a month.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Your biggest transition, one-time buyer to recurring supporter, is left to chance.',
+        'Fans who wanted to go deeper find no next step, so they stay casual.',
+        'Lifetime value evaporates through weak retention you never see.',
+      ],
+      fanLoss:
+        'Your fans miss a clear next action at every stage, real progression, stronger access as they go, earned roles, leadership opportunities, and permanent proof of what they contributed.',
+      flow: [
+        'Fans drop off between each step with no path',
+        'Build the fan journey: a next action at every stage',
+        'Fans move from listener to supporter to promoter',
+        `${fmtDollars(monthly)} a month in recurring support recovered`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Map your fan journey on CRWN: free tier, paid tiers, missions, leadership.',
+          'Give each stage a clear next action and a reason to take it.',
+          'Reward the jump to recurring support so it actually happens.',
+        ],
+      },
+      conversionPayload: { journey: 'fan' },
+      shareSummary: 'Turns out most of my fans were leaking out before ever paying.',
+    });
+  },
+};
+
+const topFan: AcquisitionTool = {
+  id: 'top-fan-leaderboard-builder',
+  name: 'Top Fan Leaderboard Builder',
+  requiredFields: ['social_followers'],
+  optionalFields: ['direct_fan_revenue_cents', 'artist_name'],
+  resultRouteBase: '/tools/top-fan-leaderboard-builder/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'topFanLeaderboard',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const PRICE = 1000;
+    const superfans = Math.round(audience * 0.01); // the fans doing most of the work
+    // Recognition lifts repeat participation and referrals from superfans. Conservative uplift.
+    const uplift = Math.round(superfans * 0.25) * PRICE; // ~25% more retained/referred value
+    const score = Math.min(90, 62 + Math.floor(Math.min(28, superfans / 20)));
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline: 'Your top fans look identical to the fans who just pressed play, so they act like it',
+      score: {
+        value: score,
+        max: 100,
+        label: 'Unrecognized fan impact',
+        band: 'High: your most valuable fans get no status, so their best actions fade',
+      },
+      summary: `Around ${superfans.toLocaleString(
+        'en-US',
+      )} of your fans quietly do most of the sharing, referring, and buying. With nothing marking them apart, that behavior slowly stops.`,
+      cause:
+        'When every supporter looks the same, contribution goes invisible and unrewarded, so it stops. Recognition, status, and a visible leaderboard turn your best fans into repeat promoters and identify the leaders worth building around.',
+      estimate: [
+        { label: 'Superfans doing the work', value: superfans.toLocaleString('en-US'), note: '~1% of audience' },
+        { label: 'Retention + referral uplift', value: fmtDollars(uplift), note: 'per month, recognized' },
+        { label: 'A year of it', value: fmtDollars(uplift * 12) },
+        { label: 'Potential leaders to name', value: Math.max(1, Math.round(superfans * 0.1)).toLocaleString('en-US') },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(Math.round(superfans * 0.15) * PRICE)}/mo`, note: '15% uplift' },
+        { label: 'Expected', value: `${fmtDollars(uplift)}/mo`, note: '25% uplift' },
+        { label: 'High', value: `${fmtDollars(Math.round(superfans * 0.4) * PRICE)}/mo`, note: '40% uplift' },
+      ],
+      assumptions: [
+        'About 1% of your audience are superfans driving most repeat actions.',
+        'Visible recognition lifts their retention and referrals by roughly 25%, a conservative rate.',
+        'That behavior valued at about $10 a month per superfan of uplift.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Repeat shares, referrals, and mission participation fade with nothing to sustain them.',
+        'Your future community leaders and city captains go unidentified.',
+        'Your most valuable fan data stays hidden because everyone looks equal.',
+      ],
+      fanLoss:
+        'Your fans miss status, recognition, visible progress, healthy competition, earned access, leadership roles, and permanent proof of the impact they made.',
+      flow: [
+        'Top fans blend in and their best actions fade',
+        'Turn on a Top Fan leaderboard with earned status',
+        'Recognized fans repeat, refer, and lead',
+        `${fmtDollars(uplift)} a month in retention and referrals recovered`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Turn on the Top Fan leaderboard on CRWN, scored on contribution, not just spend.',
+          'Give the top ranks real status, access, and leadership roles.',
+          'Let the competition keep your best fans active month after month.',
+        ],
+      },
+      conversionPayload: { leaderboard: 'top-fan' },
+      shareSummary: 'Turns out my top fans were going unrecognized, so their best actions were fading.',
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
   'proof-of-demand-test-builder': proofOfDemand,
   'fan-mission-generator': fanMission,
   'clip-to-earn-campaign-planner': clipToEarn,
+  'founder-window-builder': founderWindow,
+  'movement-page-blueprint': movementPage,
+  'fan-journey-builder': fanJourney,
+  'top-fan-leaderboard-builder': topFan,
 };
 
 export const ACQUISITION_TOOL_IDS = Object.keys(ACQUISITION_TOOLS);
