@@ -1,7 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Home, ArrowLeft, UserX } from 'lucide-react';
+import { smartBack } from '@/lib/navigation';
 
 export default function ArtistNotFound() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-crwn-bg flex items-center justify-center p-4">
       <div className="bg-crwn-surface rounded-xl p-8 max-w-md w-full text-center">
@@ -19,7 +24,7 @@ export default function ArtistNotFound() {
             Explore Artists
           </Link>
           <button
-            onClick={() => window.history.back()}
+            onClick={() => smartBack(router, '/explore')}
             className="px-6 py-2 bg-crwn-elevated text-crwn-text rounded-lg font-semibold hover:bg-crwn-elevated/80 transition-colors flex items-center justify-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />

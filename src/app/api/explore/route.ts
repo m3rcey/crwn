@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   // Featured artists - all artists with active profiles
   const artistQuery = supabaseAdmin
     .from('artist_profiles')
-    .select('id, slug, tagline, banner_url, profile:profiles(display_name, avatar_url)')
+    .select('id, slug, tagline, banner_url, profile:profiles(display_name, avatar_url, is_active)')
     .not('slug', 'is', null);
 
   if (search) {
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       const userIds = matchingProfiles.map(p => p.id);
       const { data: nameMatches } = await supabaseAdmin
         .from('artist_profiles')
-        .select('id, slug, tagline, banner_url, profile:profiles(display_name, avatar_url)')
+        .select('id, slug, tagline, banner_url, profile:profiles(display_name, avatar_url, is_active)')
         .in('user_id', userIds)
         .not('slug', 'is', null)
         .limit(20);
@@ -132,15 +132,23 @@ export async function GET(req: NextRequest) {
   ])];
 
   let trackArtistMap: Record<string, { name: string; slug: string }> = {};
+  // Deactivated artists must not surface anywhere on explore: not as tiles,
+  // and not via their tracks either. deactivation only flips profiles.is_active
+  // (RLS never hides the rows), so every public surface filters it in app code.
+  const deactivatedArtistIds = new Set<string>();
   if (trackArtistIds.length > 0) {
     const { data: trackArtists } = await supabaseAdmin
       .from('artist_profiles')
-      .select('id, slug, profile:profiles(display_name)')
+      .select('id, slug, profile:profiles(display_name, is_active)')
       .in('id', trackArtistIds);
 
     (trackArtists || []).forEach((a: unknown) => {
-      const artist = a as { id: string; slug: string; profile: { display_name: string }[] };
+      const artist = a as { id: string; slug: string; profile: { display_name: string; is_active?: boolean }[] };
       const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
+      if (profile?.is_active === false) {
+        deactivatedArtistIds.add(artist.id);
+        return;
+      }
       trackArtistMap[artist.id] = {
         name: profile?.display_name || 'Artist',
         slug: artist.slug,
@@ -149,8 +157,10 @@ export async function GET(req: NextRequest) {
   }
 
   const formatArtists = (artists || []).filter((a: unknown) => {
-    const artist = a as { id: string; profile: { avatar_url?: string }[] | { avatar_url?: string } };
+    const artist = a as { id: string; profile: { avatar_url?: string; is_active?: boolean }[] | { avatar_url?: string; is_active?: boolean } };
     const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
+    // Deactivated accounts never surface (only an explicit false means deactivated).
+    if (profile?.is_active === false) return false;
     // A featured tile must be complete: has music AND an uploaded avatar.
     return artistsWithMusic.has(artist.id) && !!profile?.avatar_url;
   }).map((a: unknown) => {
@@ -167,7 +177,10 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  const formatTracks = (tracks: unknown[] | null) => (tracks || []).map((t: unknown) => {
+  const formatTracks = (tracks: unknown[] | null) => (tracks || []).filter((t: unknown) => {
+    const track = t as { artist_id: string };
+    return !deactivatedArtistIds.has(track.artist_id);
+  }).map((t: unknown) => {
     const track = t as { id: string; title: string; album_art_url: string; audio_url_128: string; audio_url_320: string; duration: number; play_count: number; artist_id: string; is_free: boolean; created_at: string };
     return {
       id: track.id,

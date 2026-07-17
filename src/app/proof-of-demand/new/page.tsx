@@ -219,30 +219,44 @@ function DemandTestBuilder() {
     setPublishing(true);
     try {
       // The owning artist inserts directly — RLS "Artists manage own proof_of_demand".
-      const { data, error } = await withTimeout(
-        supabase
-          .from('proof_of_demand')
-          .insert({
-            artist_id: artistId,
-            title: title.trim(),
-            description: description.trim() || null,
-            image_url: imageUrl.trim() || null,
-            signal_type: signalType,
-            goal_count: Math.round(Number(goalCount)),
-            // End-of-day so the deadline day itself still counts.
-            deadline: deadline ? new Date(`${deadline}T23:59:59`).toISOString() : null,
-            unlock_message: unlockMessage.trim() || null,
-            test_price: priceOn ? Math.round(parseFloat(price) * 100) : null,
-            test_promoter_interest: promoterOn,
-            audience,
-            status: 'active',
-          })
-          .select('id')
-          .single()
-      );
+      const insertTest = () =>
+        withTimeout(
+          supabase
+            .from('proof_of_demand')
+            .insert({
+              artist_id: artistId,
+              title: title.trim(),
+              description: description.trim() || null,
+              image_url: imageUrl.trim() || null,
+              signal_type: signalType,
+              goal_count: Math.round(Number(goalCount)),
+              // End-of-day so the deadline day itself still counts.
+              deadline: deadline ? new Date(`${deadline}T23:59:59`).toISOString() : null,
+              unlock_message: unlockMessage.trim() || null,
+              test_price: priceOn ? Math.round(parseFloat(price) * 100) : null,
+              test_promoter_interest: promoterOn,
+              audience,
+              status: 'active',
+            })
+            .select('id')
+            .single()
+        );
+
+      // iOS Safari drops the first POST after the tab was suspended (the wizard is
+      // often open for minutes before Publish) and supabase-js surfaces it as
+      // "TypeError: Load failed". Refresh the session and retry once before giving up.
+      const isNetworkError = (msg?: string) => !!msg && /load failed|failed to fetch|networkerror/i.test(msg);
+      let { data, error } = await insertTest();
+      if (error && isNetworkError(error.message)) {
+        await supabase.auth.getSession().catch(() => {});
+        ({ data, error } = await insertTest());
+      }
 
       if (error || !data) {
-        showToast(error?.message || 'Could not publish the test. Please try again.', 'error');
+        const msg = isNetworkError(error?.message)
+          ? 'Could not reach the server. Check your connection and tap Publish again.'
+          : error?.message || 'Could not publish the test. Please try again.';
+        showToast(msg, 'error');
         return; // stay on Review so they can retry
       }
 
