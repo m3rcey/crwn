@@ -126,7 +126,11 @@ export async function orchestrate(
   // treat the turn as a fresh session_start for the requested tool. The flow nodes are
   // tool-agnostic (they render crwn_message), so the conversation seamlessly becomes the new
   // tool's flow even inside the old automation's loop.
-  if (payload.event_type === 'answer') {
+  // The pivot also applies to an ASK-IN-OPENER session_start (its body carries a question_key,
+  // meaning the reply is fresh Data-Collection input, so a bare keyword there is intent). A
+  // BUTTON session_start carries no question_key and its `answer` is just stale last_input_text
+  // (often the comment keyword itself), so it must never be pivoted on or stored.
+  if (payload.event_type === 'answer' || (payload.event_type === 'session_start' && payload.question_key)) {
     const pivotTool = keywordTool(payload.answer);
     if (pivotTool) {
       payload = {
@@ -182,8 +186,14 @@ export async function orchestrate(
     }
   }
 
+  // An ASK-IN-OPENER flow collects the first answer inside the opening private reply and sends
+  // it WITH session_start (question_key hardcoded in the body, the reply in last_input_text).
+  // That saves the lead a whole interaction: one question tool goes reply -> result directly.
+  const hasInlineAnswer =
+    payload.event_type === 'session_start' && !!payload.question_key && !!payload.answer;
+
   // ---- 1. Store the raw answer, before anything can reinterpret it. ----
-  if (payload.event_type === 'answer' && payload.question_key && payload.answer) {
+  if ((payload.event_type === 'answer' || hasInlineAnswer) && payload.question_key && payload.answer) {
     await storeRawAnswer(session.id, identity.id, payload);
   }
 
@@ -191,7 +201,7 @@ export async function orchestrate(
   const loaded = await loadProfile(identity);
   const deterministic: Record<string, AttributedValue> = {};
 
-  if (payload.event_type === 'answer' && payload.question_key && payload.answer) {
+  if ((payload.event_type === 'answer' || hasInlineAnswer) && payload.question_key && payload.answer) {
     const normalized = normalizeDeterministic(payload.question_key, payload.answer);
     if (normalized !== null) {
       // Resolved with zero ambiguity and zero model calls. This is the common case: "40k",
@@ -312,7 +322,11 @@ export async function orchestrate(
   // there, before the email gate and the breakdown link ever fire. Re-asking the first field also
   // lets a returning lead update their numbers. Only session_start is forced; answers resolve
   // normally and still finalize as soon as the last field lands.
-  const forceOpeningQuestion = payload.event_type === 'session_start' && tool.requiredFields.length > 0;
+  // Not forced when the opener already collected the first answer (ask-in-opener): if it parsed,
+  // the flow moves straight to the next question or the result; if it did not parse, the field is
+  // still missing and the normal ask path re-asks it anyway.
+  const forceOpeningQuestion =
+    payload.event_type === 'session_start' && tool.requiredFields.length > 0 && !hasInlineAnswer;
 
   // ---- Ready to generate? Run the EXISTING calculator and send the link. ----
   if (!forceOpeningQuestion && (committedState === 'ready_for_result' || (missingNow.length === 0 && !facts.needsHumanReview))) {

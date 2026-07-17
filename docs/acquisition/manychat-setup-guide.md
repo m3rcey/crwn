@@ -479,3 +479,26 @@ them in order; do not publish until the smoke test passes.
 11. **Stuck mid-flow?** A waiting question node swallows the next message. Typing any tool
     keyword escapes it (the backend pivots to that tool). That is also how leads hop between
     tools, so it is behavior, not a bug.
+
+### Ask-in-opener (optional): one less tap
+
+The opener can ASK the first question directly instead of showing a button, so the lead's very
+first reply is already data. A one-question tool then goes comment -> reply -> result. The typed
+reply satisfies Meta's interaction requirement the same way a tap does.
+
+- **Node 1** (still `As private reply`): a **Data Collection** block whose question is the bridge
+  plus the first question, e.g. "One question and you'll see how much demand you're sitting on:
+  roughly how many followers do you have across your socials?" Reply type matches the field
+  (Number for counts). NOTE: this duplicates the question text in ManyChat; if the question
+  changes in `fieldRegistry.ts`, update the opener by hand.
+- **Actions #3 body** adds the field the opener asked:
+  `{"event_type":"session_start","lead_magnet_id":"...","keyword":"...","question_key":"social_followers","consent_dm":true,"contact": <Full Contact Data> }`
+  The reply itself rides in `last_input_text`; no extra pill.
+- **Rewire Actions #3's Next Step to the CONDITION** (not to the question node), because
+  session_start can now return `send_result` directly. Two-question tools still work: the
+  response is `ask_question` for question two, the Condition's no-branch shows it, and the
+  normal loop continues.
+- Button-style flows are unaffected: without a `question_key` in the body, the backend ignores
+  `last_input_text` entirely (it is stale there, usually the comment keyword itself).
+- If ManyChat refuses a Data Collection block on the private-reply node, keep the button opener
+  for comment triggers; the pattern still works for DM-keyword automations.
