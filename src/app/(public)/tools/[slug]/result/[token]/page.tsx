@@ -312,6 +312,38 @@ function Section({ section }: { section: ResultSection }) {
           ))}
         </div>
       )}
+
+      {/* scenarios -> conservative / expected / high, the middle emphasized */}
+      {section.kind === 'scenarios' && section.metrics && (
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          {section.metrics.map((m, i) => {
+            const mid = i === 1;
+            return (
+              <div
+                key={m.label}
+                className={`rounded-xl p-3 sm:p-4 text-center ${
+                  mid ? 'bg-[#D4AF37]/10 border border-[#D4AF37]/30' : 'bg-white/[0.02] border border-white/[0.06]'
+                }`}
+              >
+                <p className="text-[10px] uppercase tracking-wider text-white/50 mb-1.5 leading-tight">{m.label}</p>
+                <p
+                  className={`font-bold leading-tight ${
+                    mid ? 'text-xl sm:text-2xl text-[#D4AF37]' : 'text-lg sm:text-xl text-white/90'
+                  }`}
+                >
+                  {m.value}
+                </p>
+                {m.note && <p className="text-[10px] text-white/40 mt-1 leading-tight">{m.note}</p>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* fanLoss -> a distinct, human callout */}
+      {section.kind === 'fanLoss' && section.text && (
+        <p className="text-white/85 text-lg leading-relaxed">{section.text}</p>
+      )}
     </section>
   );
 }

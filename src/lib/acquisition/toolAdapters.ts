@@ -23,6 +23,7 @@ import { generateResult, GENERATOR_VERSION } from '../leadMagnets/resultGenerato
 import type { GeneratedResult, LeadMagnetInputValues } from '../leadMagnets/types';
 import { calculate, getAssumptions } from '../leadCalculator';
 import { fmtDollars } from '../leadCalculator';
+import { buildLossResult } from './lossResult';
 
 export interface AcquisitionTool {
   /** Stable id. For the four registry tools this IS the registry slug. */
@@ -177,72 +178,74 @@ const vault: AcquisitionTool = {
   requiresEstimateDisclaimer: true,
   destinationId: 'setup_monetize',
   execute(profile) {
-    // catalog_size holds the UNRELEASED count now: the DM asks "how many unreleased songs are
-    // sitting in your vault" (see fieldRegistry), which is exactly what the Vault runs on. The
-    // result page still lets the artist refine the breakdown (demos vs voice memos vs clips) and
-    // recalculate; the DM collects the one number that makes the estimate honest.
-    const values: LeadMagnetInputValues = {
-      artistName: s(profile.artist_name, 'You'),
-      genre: s(profile.genre),
-      unreleasedSongs: n(profile.catalog_size),
-      demos: 0,
-      voiceMemos: 0,
-      studioClips: 0,
-      btsVideos: 0,
-      lyricSheets: 0,
-      altVersions: 0,
-      archivedPhotos: 0,
-      dropFrequency: 'monthly',
-      monthlyPrice: 0,
-      supporterCount: 0,
-      willingPrivate: true,
-    };
-    const generated = generateResult('vaultRevenuePlan', values);
-
-    // The web planner's headline is a readiness score ("your Vault is 100% ready"). For the DM we
-    // lead with LOSS-FRAMED MONEY instead, estimated from the audience: a small, conservative
-    // share of monthly listeners would pay for a private vault at a typical price. The full
-    // readiness plan still rides along in the result page (the "full breakdown" she unlocks with
-    // her email). Only the DM headline is overridden; the shared engine is untouched.
-    const audience = n(profile.monthly_listeners) || n(profile.social_followers);
-    const VAULT_SUPPORTER_RATE = 0.015; // ~1.5% of audience pays for a private vault. Conservative.
-    const VAULT_PRICE_CENTS = 1000; // $10/mo, the midpoint of the planner's suggested band.
-    const monthlyCents = Math.round(audience * VAULT_SUPPORTER_RATE) * VAULT_PRICE_CENTS;
+    // The DM result is a LOSS REVELATION, not the web planner's readiness score: it reveals the
+    // recurring revenue leaking out of an un-launched Vault, estimated conservatively from the
+    // audience. catalog_size holds the UNRELEASED count (the DM asks "how many unreleased songs
+    // are in your vault"); the audience drives the money. The web tool's generateResult is
+    // untouched; this builds the standard ten-element loss result via the shared engine.
     const unreleased = n(profile.catalog_size);
+    const audience = n(profile.monthly_listeners) || n(profile.social_followers);
+
+    const PRICE_CENTS = 1000; // $10/mo Vault, a conservative midpoint.
+    const monthlyAt = (rate: number) => Math.round(audience * rate) * PRICE_CENTS;
+    const EXPECTED = 0.015; // ~1.5% of audience becomes a paying Vault supporter. Conservative.
+    const monthlyExpected = monthlyAt(EXPECTED);
+    const annualExpected = monthlyExpected * 12;
+    const runwayMonths = Math.max(1, Math.floor(unreleased / 2)); // ~2 pieces per monthly drop.
 
     const headline =
-      monthlyCents >= 5000 // below ~$50/mo the estimate is too small to lead with; frame on content
-        ? `About ${fmtDollars(monthlyCents)} a month is sitting in your vault, unheard`
-        : `${unreleased} unreleased track${unreleased === 1 ? '' : 's'} sitting in your vault, earning you nothing`;
+      monthlyExpected >= 5000
+        ? `About ${fmtDollars(monthlyExpected)} a month is leaking out of your vault, unheard`
+        : `${unreleased} unreleased track${unreleased === 1 ? '' : 's'} sitting in your vault, earning nothing`;
 
-    // Two sections the shared engine writes for its OWN (richer) input shape, fixed for the DM:
-    //  - The fan pitch is third person ("<name> is opening..."), which reads "You is opening" for
-    //    a lead who never gave a name. Rewrite to first person, which is how an artist posts it.
-    //  - "First five drops" is built from the inventory BREAKDOWN, but the DM only collected a
-    //    total count, so the engine only had one category and produced a single drop. Replace it
-    //    with a full, compelling five-drop starter plan.
-    const hasName = !!s(profile.artist_name);
-    const sections = generated.sections.map((sec) => {
-      if (sec.key === 'pitch' && !hasName) {
-        const text = (sec as { text?: string }).text ?? '';
-        return { ...sec, text: text.replace(/^You is /, "I'm ") };
-      }
-      if (sec.key === 'firstFive') {
-        return {
-          ...sec,
-          items: [
-            'Your strongest unreleased track',
-            'A raw demo or voice memo fans have never heard',
-            'A behind-the-scenes studio moment',
-            'An alternate version, remix, or edit',
-            'A track you almost never put out',
-          ],
-        };
-      }
-      return sec;
+    return buildLossResult({
+      generatorVersion: GENERATOR_VERSION,
+      headline,
+      summary: `${unreleased.toLocaleString('en-US')} unreleased pieces, about ${runwayMonths} month${
+        runwayMonths === 1 ? '' : 's'
+      } of drops, sitting behind a door your fans cannot pay to walk through.`,
+      cause:
+        'Your unreleased songs, demos, and voice notes sit in a folder earning nothing. Your real supporters would pay every month for access to them, but right now there is nowhere for them to do it.',
+      estimate: [
+        { label: 'Unreleased assets', value: unreleased.toLocaleString('en-US') },
+        {
+          label: 'Fans likely to pay',
+          value: Math.round(audience * EXPECTED).toLocaleString('en-US'),
+          note: '~1.5% of your audience',
+        },
+        { label: 'Monthly, unclaimed', value: fmtDollars(monthlyExpected) },
+        { label: 'A year of it', value: fmtDollars(annualExpected) },
+        { label: 'Months of content ready', value: String(runwayMonths) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(monthlyAt(0.01))}/mo`, note: '~1% pay' },
+        { label: 'Expected', value: `${fmtDollars(monthlyExpected)}/mo`, note: '~1.5% pay' },
+        { label: 'High', value: `${fmtDollars(monthlyAt(0.03))}/mo`, note: '~3% pay' },
+      ],
+      assumptions: [
+        'About 1.5% of your audience becomes a paying Vault supporter, a conservative rate.',
+        'A Vault priced around $10 a month.',
+        'Two pieces of content per monthly drop, so your runway is your unreleased count spread across drops.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Every month it sits, your unreleased catalog ages and loses its first-listen value.',
+        'You keep making new free public content while the music you already own earns nothing.',
+        'Fans who would go deeper have nowhere to, so they stay casual or drift to a platform.',
+      ],
+      fanLoss:
+        'Your fans miss the unreleased music, the demos and voice notes, the early access, and the feeling of being genuinely close to you. Right now that door does not exist.',
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Open a private Vault tier on your CRWN page in minutes.',
+          'Drop your first gated release: an unreleased track or a raw demo.',
+          'Post the launch pitch to your fans and start collecting every month.',
+        ],
+      },
+      conversionPayload: { tierName: 'The Vault', priceCents: PRICE_CENTS },
+      shareSummary: `Turns out my vault could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
-
-    return { ...generated, headline, sections };
   },
 };
 

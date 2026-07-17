@@ -138,7 +138,18 @@ export type LeadMagnetInputValues = Record<string, string | number | boolean | s
 export interface ResultSection {
   key: string;
   title: string;
-  kind: 'summary' | 'score' | 'list' | 'checklist' | 'schedule' | 'copy' | 'projection' | 'assumptions' | 'nextSteps';
+  kind:
+    | 'summary'
+    | 'score'
+    | 'list'
+    | 'checklist'
+    | 'schedule'
+    | 'copy'
+    | 'projection'
+    | 'assumptions'
+    | 'nextSteps'
+    | 'scenarios' // conservative / expected / high columns (reuses `metrics`)
+    | 'fanLoss'; // "what fans miss" callout (reuses `text`)
   // score
   score?: number;
   scoreMax?: number;
