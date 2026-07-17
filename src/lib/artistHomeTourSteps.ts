@@ -26,15 +26,6 @@ export const artistHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="nav-studio"]',
-    popover: {
-      title: 'Studio',
-      description: 'Your workspace. Build offers, run fan missions, open clips, test demand, and see your next best moves, all in one place.',
-      side: 'top',
-      align: 'center',
-    },
-  },
-  {
     element: '[data-tour="home-help"]',
     popover: {
       title: 'Need help?',

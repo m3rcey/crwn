@@ -264,33 +264,6 @@ export default function HomePage() {
 
       </div>
 
-      {/* Quick Actions */}
-      <section>
-        <h2 className="text-lg font-semibold text-crwn-text mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl" data-tour="home-quick-actions">
-          {quickActions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                data-tour={action.label === 'Artist Dashboard' ? 'home-artist-dashboard' : undefined}
-                className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
-              >
-                <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
-                  <Image
-                    src={action.image}
-                    alt={action.label}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 200px"
-                    className="object-cover opacity-0 transition-opacity duration-500"
-                    onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
-                  />
-                </div>
-                <p className="font-medium text-crwn-text text-sm mt-2 text-center">{action.label}</p>
-              </Link>
-          ))}
-        </div>
-      </section>
-
       {/* Featured Artists */}
       <section data-tour="home-feed">
         <div className="flex items-center justify-between mb-4">
@@ -356,6 +329,33 @@ export default function HomePage() {
             </Link>
           </div>
         )}
+      </section>
+
+      {/* Quick Actions */}
+      <section>
+        <h2 className="text-lg font-semibold text-crwn-text mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl" data-tour="home-quick-actions">
+          {quickActions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                data-tour={action.label === 'Artist Dashboard' ? 'home-artist-dashboard' : undefined}
+                className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
+              >
+                <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated">
+                  <Image
+                    src={action.image}
+                    alt={action.label}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 200px"
+                    className="object-cover opacity-0 transition-opacity duration-500"
+                    onLoad={(e) => (e.target as HTMLImageElement).classList.remove('opacity-0')}
+                  />
+                </div>
+                <p className="font-medium text-crwn-text text-sm mt-2 text-center">{action.label}</p>
+              </Link>
+          ))}
+        </div>
       </section>
     </div>
   );

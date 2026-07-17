@@ -14,19 +14,18 @@ import {
   Compass,
   Coins,
   MessageCircle,
-  Rocket,
   TrendingUp,
   Library,
   Menu,
   LogOut
 } from 'lucide-react';
 
-// The 3rd slot is role-aware: artists get their Studio workspace, fans get the
-// Earn hub (/command). The 5th slot used to be Profile — that moved into the
-// hamburger AccountHub, freeing the slot for the highest-leverage destination:
-// Rise Mode for artists, Library for fans. `match` overrides active detection when
-// the href carries a query string (pathname.startsWith can't see ?tab=).
-const artistSlot = { href: '/studio', label: 'Studio', icon: Rocket, tourId: 'nav-studio' };
+// Artists reach Studio from the Home Quick Actions tile, so it is OFF the tab bar.
+// Fans keep the Earn hub (/command) in the 3rd slot. The 5th slot used to be
+// Profile, which moved into the hamburger AccountHub; it now holds the
+// highest-leverage destination: Rise Mode for artists, Library for fans. `match`
+// overrides active detection when the href carries a query string (pathname
+// .startsWith can't see ?tab=).
 const fanSlot = { href: '/command', label: 'Earn', icon: Coins, tourId: 'nav-earn' };
 const artistRiseSlot = { href: '/profile/artist?tab=rise', match: '/profile/artist', label: 'Rise', icon: TrendingUp, tourId: 'nav-rise' };
 const fanLibrarySlot = { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' };
@@ -34,7 +33,7 @@ const fanLibrarySlot = { href: '/library', label: 'Library', icon: Library, tour
 const buildNavItems = (isArtist: boolean) => [
   { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
   { href: '/explore', label: 'Explore', icon: Compass, tourId: 'nav-explore' },
-  isArtist ? artistSlot : fanSlot,
+  ...(isArtist ? [] : [fanSlot]),
   { href: '/messages', label: 'Messages', icon: MessageCircle, tourId: 'nav-messages' },
   isArtist ? artistRiseSlot : fanLibrarySlot,
 ];
@@ -92,7 +91,7 @@ export function Navigation() {
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
-        <div className="grid grid-cols-6">
+        <div className="grid" style={{ gridTemplateColumns: `repeat(${navItems.length + 1}, minmax(0, 1fr))` }}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href, (item as { match?: string }).match);
