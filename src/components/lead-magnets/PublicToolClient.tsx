@@ -7,6 +7,7 @@ import { ArrowLeft } from 'lucide-react';
 import { smartBack } from '@/lib/navigation';
 import { LeadMagnetWizard } from './LeadMagnetWizard';
 import { CrwnShowcase } from './CrwnShowcase';
+import { ToolShowcase } from './ToolShowcase';
 import { LeadMagnetResult } from './LeadMagnetResult';
 import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
 import { ResultActions } from './ResultActions';
@@ -151,9 +152,11 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             />
           </div>
 
-          {/* Below the tool, the full CRWN pitch (what it is, the product mockups, the
+          {/* Below the tool, this tool's own product mockups first (if it has any),
+              then the full CRWN pitch (what it is, the product mockups, the
               comparisons, CTAs throughout), the same continuous-funnel model as /worth. */}
           <div className="max-w-2xl mx-auto">
+            <ToolShowcase slug={config.slug} />
             <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
           </div>
         </>
@@ -183,7 +186,9 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             Explore another CRWN tool
           </button>
 
-          {/* The full CRWN pitch under the result, same as the tokenized result page. */}
+          {/* This tool's own mockups (the thing the result tells them to build), then
+              the full CRWN pitch under it, same as the tokenized result page. */}
+          <ToolShowcase slug={config.slug} />
           <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
         </div>
       )}

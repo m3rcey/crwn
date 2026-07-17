@@ -11,6 +11,7 @@ import {
   Home, Compass, MessageCircle, Library, User, Signal, BatteryFull,
   Check, X, Users, Trophy, Zap, Bot, Crown, Lock, Heart, Share2,
   ShoppingBag, Disc3, Globe, Power, Plus, Scissors, Play, Download,
+  Megaphone, CalendarClock, ArrowRight,
 } from 'lucide-react';
 
 // Count-up number that animates once its mock scrolls into view.
@@ -461,6 +462,159 @@ export function ClipperMock() {
         ))}
       </div>
       <p className="text-[10px] text-crwn-text-secondary mt-2">Clippers download your streams, cut them up, and post everywhere. They earn a recurring monthly cut, a % you set, for as long as the fan they brought stays subscribed.</p>
+    </PhoneFrame>
+  );
+}
+
+// The public Proof of Demand page a fan sees: one tap, no payment, votes counting
+// toward the goal. Modeled on DemandPublicView.
+export function DemandFanMock() {
+  const { ref, isInView } = useInView();
+  return (
+    <PhoneFrame>
+      <div ref={ref}>
+        <div className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} flex items-center gap-2`}>
+          <div className="w-8 h-8 rounded-full bg-crwn-gold/20 text-crwn-gold text-xs font-bold flex items-center justify-center shrink-0">M</div>
+          <div className="min-w-0">
+            <div className="text-[12px] font-semibold">Mercey</div>
+            <div className="text-[10px] text-crwn-text-secondary">is testing an idea. Help decide</div>
+          </div>
+        </div>
+
+        <div
+          style={{ animationDelay: '100ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} text-lg font-bold leading-tight mt-2.5`}
+        >
+          Limited vinyl run of the new EP
+        </div>
+
+        <div
+          style={{ animationDelay: '200ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} mt-2.5 rounded-xl bg-crwn-surface border border-crwn-elevated p-3`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xl font-bold"><AnimatedNumber end={37} active={isInView} /></span>
+              <span className="text-[11px] text-crwn-text-secondary"> of 50 fans in</span>
+            </div>
+            <span className="flex items-center gap-1 text-[10px] text-crwn-text-secondary">
+              <CalendarClock className="w-3 h-3" /> 12 days left
+            </span>
+          </div>
+          <div className="mt-2 h-1.5 rounded-full bg-crwn-elevated overflow-hidden">
+            <div
+              className="h-full bg-crwn-gold rounded-full transition-[width] duration-[1400ms] ease-out"
+              style={{ width: isInView ? '74%' : '0%' }}
+            />
+          </div>
+          <div className="text-[10px] mt-2">
+            <span className="text-crwn-gold font-semibold">If it hits the goal:</span>{' '}
+            <span className="text-crwn-text-secondary">the vinyl run happens.</span>
+          </div>
+        </div>
+
+        <p
+          style={{ animationDelay: '300ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} text-[10px] text-crwn-text-secondary mt-2.5`}
+        >
+          If this happens, it would be around <span className="text-crwn-text font-semibold">$25.00</span>. Responding costs nothing.
+        </p>
+
+        <div
+          style={{ animationDelay: '400ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} mt-2 rounded-xl border border-crwn-elevated p-2.5 flex items-center gap-2`}
+        >
+          <span className="w-4 h-4 rounded border border-crwn-gold bg-crwn-gold/20 flex items-center justify-center shrink-0">
+            <Check className="w-3 h-3 text-crwn-gold" />
+          </span>
+          <span className="text-[11px] font-medium">I&apos;d help promote this</span>
+          <Megaphone className="w-3.5 h-3.5 text-crwn-gold ml-auto shrink-0" />
+        </div>
+
+        <div
+          style={{ animationDelay: '500ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} mt-3`}
+        >
+          <div className="rounded-full bg-crwn-gold text-crwn-bg text-center text-sm font-semibold py-2.5">I want this</div>
+          <p className="text-[9px] text-crwn-text-secondary text-center mt-1.5">No payment, no commitment. This just tells Mercey the demand is real.</p>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+// The artist's live results view for the same test: responses toward the goal,
+// the future street team, and the one-tap convert. Modeled on /proof-of-demand/[id].
+export function DemandResultsMock() {
+  const { ref, isInView } = useInView();
+  const rows = [
+    { icon: Megaphone, t: 'Would promote this', d: 'Your future street team', v: '14 (38%)' },
+    { icon: Check, t: 'Price shown on the page', d: 'Non-binding. Nobody was charged', v: '$25.00' },
+  ];
+  return (
+    <PhoneFrame>
+      <div ref={ref}>
+        <div className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} flex items-center justify-between`}>
+          <div className="text-sm font-bold">Limited vinyl run of the new EP</div>
+          <span className="text-[9px] font-semibold text-crwn-gold bg-crwn-gold/10 border border-crwn-gold/40 rounded-full px-2 py-0.5 shrink-0">Active</span>
+        </div>
+        <div className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} text-[10px] text-crwn-text-secondary mt-0.5 mb-2.5`}>
+          Vote: &quot;I want this&quot; · All fans
+        </div>
+
+        <div
+          style={{ animationDelay: '120ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} rounded-xl bg-crwn-surface border border-crwn-elevated p-3`}
+        >
+          <div className="flex items-end justify-between">
+            <div>
+              <span className="text-2xl font-bold"><AnimatedNumber end={37} active={isInView} /></span>
+              <span className="text-sm text-crwn-text-secondary font-semibold"> / 50</span>
+              <div className="text-[10px] text-crwn-text-secondary">responses toward the goal</div>
+            </div>
+            <span className="text-[10px] text-crwn-text-secondary">12 days left</span>
+          </div>
+          <div className="mt-2 h-1.5 rounded-full bg-crwn-elevated overflow-hidden">
+            <div
+              className="h-full bg-crwn-gold rounded-full transition-[width] duration-[1400ms] ease-out"
+              style={{ width: isInView ? '74%' : '0%' }}
+            />
+          </div>
+        </div>
+
+        <div className="mt-2 rounded-xl bg-crwn-surface border border-crwn-elevated divide-y divide-crwn-elevated">
+          {rows.map((r, i) => (
+            <div
+              key={r.t}
+              style={{ animationDelay: `${240 + i * 110}ms` }}
+              className={`${isInView ? 'animate-[slideIn_0.4s_ease-out_both]' : 'opacity-0'} flex items-center gap-2 p-2.5`}
+            >
+              <r.icon className="w-3.5 h-3.5 text-crwn-gold shrink-0" />
+              <div className="min-w-0">
+                <div className="text-[11px] font-medium truncate">{r.t}</div>
+                <div className="text-[9px] text-crwn-text-secondary truncate">{r.d}</div>
+              </div>
+              <div className="ml-auto text-[11px] font-bold shrink-0">{r.v}</div>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{ animationDelay: '480ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} mt-3 flex items-center gap-2`}
+        >
+          <div className="flex-1 rounded-full bg-crwn-gold text-crwn-bg text-center text-[11px] font-semibold py-2 flex items-center justify-center gap-1">
+            Convert to Offer <ArrowRight className="w-3 h-3" />
+          </div>
+          <div className="rounded-full border border-green-500/50 text-green-400 text-[11px] font-semibold px-3 py-2">Mark Succeeded</div>
+        </div>
+        <p
+          style={{ animationDelay: '560ms' }}
+          className={`${isInView ? 'animate-[fadeInUp_0.5s_ease-out_both]' : 'opacity-0'} text-[9px] text-crwn-text-secondary mt-2`}
+        >
+          Demand proven. One tap turns the test into a real offer fans can buy.
+        </p>
+      </div>
     </PhoneFrame>
   );
 }

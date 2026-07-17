@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { Check, Crown, ArrowRight } from 'lucide-react';
 import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
+import { ToolShowcase } from '@/components/lead-magnets/ToolShowcase';
 import { ESTIMATE_DISCLAIMER } from '@/lib/leadMagnets/disclaimers';
 import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
@@ -144,8 +145,10 @@ export default async function ResultPage({
           <p className="text-[11px] text-white/30 mt-12 leading-relaxed">{ESTIMATE_DISCLAIMER}</p>
         )}
 
-        {/* The full CRWN pitch: what it is and everything it offers, then the closing CTA. The
-            result itself is NOT gated; all of it renders without an email. */}
+        {/* This tool's own mockups first (if it has any), then the full CRWN pitch: what it
+            is and everything it offers, then the closing CTA. The result itself is NOT
+            gated; all of it renders without an email. */}
+        <ToolShowcase slug={result.toolSlug || slug} />
         <CrwnShowcase claimed={claimed} claimHref={claimHref} />
       </div>
     </main>

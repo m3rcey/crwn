@@ -222,7 +222,9 @@ export function DemandPublicView({
                 <span className="flex-1">
                   <span className="block text-sm font-medium text-crwn-text">I&apos;d help promote this</span>
                   <span className="block text-xs text-crwn-text-secondary mt-0.5">
-                    Tell {artistName} you&apos;d spread the word.
+                    {/* Template literal, not JSX text: SWC drops the space after an
+                        {expression} when the following text runs to the line end. */}
+                    {`Tell ${artistName} you'd spread the word.`}
                   </span>
                 </span>
                 <Megaphone className="w-4 h-4 text-crwn-gold flex-shrink-0" />
