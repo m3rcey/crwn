@@ -454,8 +454,13 @@ them in order; do not publish until the smoke test passes.
    post, set the keyword) AND a DM keyword trigger with the same keyword plus case variants. The
    DM trigger is both a real entry point and your unlimited test path (comment triggers fire
    once per person per post; you WILL run out of posts).
-6. **Opening message = YOUR loss-framed hook.** Never a question. The questions come from CRWN
-   through `crwn_message` one node later; hand-typing one produces a doubled question.
+6. **Opening message = a BRIDGE, not a question and not a re-pitch.** The lead already said yes
+   by commenting (the Reel made the pitch), so never re-ask ("Want to see...?" is a double-ask).
+   The node itself cannot be deleted: Meta permits one private reply to a comment and the lead
+   must TAP it before anything else may send. So the copy assumes the yes and promises speed:
+   "30 seconds, two questions, and you'll see what's sitting in your vault." [Show me my number].
+   And never hand-type a CRWN question here; the real questions arrive via `crwn_message` one
+   node later, so a typed one shows doubled.
 7. **Actions #3 body:** change BOTH `lead_magnet_id` (the registry slug) and `keyword`. The
    backend logs a loud warning when the two disagree (the half-edited-clone tell), but do not
    rely on it. Actions #4 needs NO changes: session routing owns the tool.
