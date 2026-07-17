@@ -17,9 +17,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const allowed = await checkRateLimit(user.id, 'notify-subscribers', 60, 5);
-  if (!allowed) {
-    return NextResponse.json({ error: 'Too many notifications. Please wait.' }, { status: 429 });
+  // Burst cap (stops a rapid loop) plus a daily cap (stops slow-drip overkill).
+  // A fan who gets pinged all day mutes the bell, and a muted fan is a fan you no
+  // longer reach. The platform protects the artist's own audience from that here.
+  const underBurst = await checkRateLimit(user.id, 'notify-subscribers', 60, 5);
+  if (!underBurst) {
+    return NextResponse.json({ error: 'Too many notifications at once. Give it a minute.' }, { status: 429 });
+  }
+  const underDaily = await checkRateLimit(user.id, 'notify-subscribers-daily', 86400, 8);
+  if (!underDaily) {
+    return NextResponse.json(
+      { error: 'You have pinged your fans a lot today. Past this they start tuning the bell out, so save it for what matters. Try again tomorrow.' },
+      { status: 429 },
+    );
   }
 
   const body = await req.json();

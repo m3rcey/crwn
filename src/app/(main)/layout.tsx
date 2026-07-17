@@ -7,6 +7,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Navigation } from '@/components/layout/Navigation';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { ClaimRedeemer } from '@/components/lead-magnets/ClaimRedeemer';
+import { PopupHost } from '@/components/popups/PopupHost';
 
 
 export default function MainLayout({
@@ -109,7 +110,11 @@ export default function MainLayout({
           Only reached once both gates above have passed, which is exactly when the artist
           has an artist_profiles row and a claim can link it. Never blocks, never redirects. */}
       <ClaimRedeemer />
-      
+
+      {/* Pop-up Engine. Renders nothing until admin_settings.popup_engine is on,
+          and never more than one governed pop-up per user per day. */}
+      <PopupHost />
+
       {/* Main Content - with padding for mobile nav and sidebar. The mobile nav
           is 56px tall plus its own safe-area inset, so the clearance has to
           track that inset too or the last row of content sits under it. */}

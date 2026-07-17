@@ -22,8 +22,29 @@ import { startTour } from '@/lib/tour';
 import { fanHomeTourSteps } from '@/lib/fanTourSteps';
 import { artistHomeTourSteps } from '@/lib/artistHomeTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
-import { TourReplayButton } from '@/components/shared/TourReplayButton';
+import { useArtistSetup } from '@/hooks/useArtistSetup';
 import { SupporterMode } from '@/components/fan/SupporterMode';
+
+// Rotating daily welcome. Deterministic per calendar day (same all day, changes at
+// midnight), so it feels alive without a random flicker on every render. No em
+// dashes. Lines read for both an artist and a fan looking at Home.
+const WELCOME_LINES = [
+  'Artists get supported. Fans get access. Everyone wins.',
+  'A follow pays nothing. Backing an artist is what keeps the music coming.',
+  'The fans who show up early are the ones who get remembered.',
+  'Streams pay pennies. Direct support is what actually pays an artist.',
+  'The artist you sleep on today is the one you will claim you found first.',
+  'Access, not algorithms. Get closer to the people you actually care about.',
+  'Support goes further when it goes direct, with no middle layer taking the cut.',
+  'The best seat is on the inside. That is what being a member gets you.',
+  'Quiet fans get forgotten. Show up and you stop being a stranger.',
+  'Every great run started with one first supporter. Today that could be you.',
+];
+
+function getDailyWelcome(): string {
+  const dayIndex = Math.floor(Date.now() / 86_400_000);
+  return WELCOME_LINES[dayIndex % WELCOME_LINES.length];
+}
 
 interface ArtistProfile {
   id: string;
@@ -44,6 +65,7 @@ export default function HomePage() {
   const [featuredArtists, setFeaturedArtists] = useState<ArtistProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasArtistProfile, setHasArtistProfile] = useState(false);
+  const setup = useArtistSetup();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -131,6 +153,18 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, [shouldShowHomeTour, profile, homeStartStep, markHomeTourComplete, saveHomeStep]);
 
+  // Launch the tour when arriving from the AccountHub "Replay the app tour" action
+  // (it routes to /home?tour=1). Clean the URL so a refresh doesn't relaunch it.
+  useEffect(() => {
+    if (!profile || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tour') !== '1') return;
+    window.history.replaceState({}, '', '/home');
+    const steps = profile.role === 'artist' ? artistHomeTourSteps : fanHomeTourSteps;
+    const t = setTimeout(() => startTour(steps), 300);
+    return () => clearTimeout(t);
+  }, [profile]);
+
   const handleStartTour = () => {
     setShowTourPrompt(false);
     if (profile?.role === 'artist') {
@@ -144,18 +178,6 @@ export default function HomePage() {
     setShowTourPrompt(false);
     markHomeTourComplete();
   };
-
-  // On-demand replay (header button) — role-aware, never touches completed_tours.
-  // Artists are suppressed from the auto-start above, but their replay button
-  // still plays the artist home steps.
-  const handleReplayTour = () => {
-    if (profile?.role === 'artist') {
-      startTour(artistHomeTourSteps);
-    } else {
-      startTour(fanHomeTourSteps);
-    }
-  };
-
 
   const quickActions = [
     {
@@ -191,21 +213,35 @@ export default function HomePage() {
         onConfirm={handleStartTour}
         onCancel={handleSkipTour}
       />
-      {/* Greeting */}
+      {/* Greeting. ONE control top-right (was two identical "?" icons): a setup
+          progress pill while an artist still has steps to finish, otherwise a
+          single Getting Started link. The app tour replay moved into the hamburger
+          AccountHub. Both keep data-tour="home-help" so the home tours still land. */}
       <div className="bg-crwn-surface rounded-xl p-6 relative">
-        <Link
-          href={`/getting-started?role=${profile?.role || 'fan'}`}
-          data-tour="home-help"
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-crwn-elevated flex items-center justify-center text-crwn-text-secondary hover:text-crwn-gold transition-colors"
-        >
-          <HelpCircle className="w-5 h-5" />
-        </Link>
-        <TourReplayButton onClick={handleReplayTour} className="absolute top-4 right-14" />
+        {setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length ? (
+          <Link
+            href="/profile/artist"
+            data-tour="home-help"
+            className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-semibold text-crwn-gold hover:bg-crwn-elevated/80 transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Finish setup {setup.steps.filter((s) => s.done).length}/{setup.steps.length}
+          </Link>
+        ) : (
+          <Link
+            href={`/getting-started?role=${profile?.role || 'fan'}`}
+            data-tour="home-help"
+            className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+            Getting started
+          </Link>
+        )}
         <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
           {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!
         </h1>
         <p className="text-crwn-text-secondary mt-2">
-          Welcome to CRWN. Artists get supported. Fans get access. Everyone wins.
+          {getDailyWelcome()}
         </p>
       </div>
 

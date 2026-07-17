@@ -35,7 +35,7 @@ const STUDIO_CARDS: StudioCard[] = [
   { href: '/squads',               title: 'Fan Squads',         image: '/studio_squads.jpg', hueRotate: 255 },
   { href: '/bounties',             title: 'Clip Bounties',      image: '/studio_bounties.jpg', hueRotate: 310 },
   { href: '/city-unlocks',         title: 'City Unlocks',       image: '/studio_cityunlocks.jpg', hueRotate: 90 },
-  { href: '/profile/artist?tab=audience', title: 'Fan CRM',     image: '/studio_crm.jpg', hueRotate: 255 },
+  { href: '/studio/fans',          title: 'Fan CRM',            image: '/studio_crm.jpg', hueRotate: 255 },
   { href: '/profile/artist?tab=team',     title: 'Team Splits', image: '/studio_team.jpg' },
   { href: '/profile/artist?tab=promise',  title: 'Promise Calendar', image: '/studio_promise.jpg', hueRotate: 170 },
   { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg', hueRotate: 255 },

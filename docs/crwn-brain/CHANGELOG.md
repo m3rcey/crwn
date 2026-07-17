@@ -1,5 +1,36 @@
 # CRWN Brain — Changelog
 
+## 2026-07-17 — Pop-up Engine, account hub, and interruption governors
+
+A batch of engagement/nav work, all built around one principle: the platform must NOT overkill
+the user. Every surface that interrupts a user now passes a frequency governor.
+
+- **Pop-up Engine (dark-launched).** A governed in-app interruption layer. Catalog lives in code
+  (`src/lib/popups/registry.ts`), server logic + governor in `src/lib/popups/index.ts`, API at
+  `src/app/api/popups/route.ts`, client host `src/components/popups/PopupHost.tsx` mounted in
+  `(main)/layout.tsx`. Governor: **at most one pop-up shown per user per calendar day**, plus each
+  pop-up's own frequency cap (`once` / `max N` / `everyN days`), plus role/stage targeting.
+  Dark-launched exactly like the quest engine: reads `admin_settings.popup_engine`, the API echoes
+  `enabled`, the client renders nothing when off. Migration:
+  `supabase/schema-phase2-popup-engine.sql` (adds `popup_events`, `popup_survey_responses`, seeds
+  the flag OFF). Copy is loss-framed, no em dashes.
+- **Pop-up surveys** are a pop-up `kind` (1-5 rating + feedback). Answers → `popup_survey_responses`;
+  a score of 1-2 emails the founder the feedback (the "what to fix first" signal).
+- **Broadcast + notification governors.** `api/messages/broadcast` gained a daily cap (5/day) on top
+  of the hourly 10; `api/notifications/notify-subscribers` gained a daily cap (8/day) on top of the
+  5/min burst. Both return loss-framed 429 copy (a muted fan is a lost fan).
+- **Account hub (hamburger).** New `src/components/layout/AccountHub.tsx`: a Lyft-driver-style
+  full-screen menu (identity header + "View as fan" + plan/upgrade pill + accordion sections)
+  reached from a top-left hamburger. **Profile was removed from the bottom tab bar** and now lives
+  here; the freed 5th slot is **Rise Mode** for artists / **Library** for fans (`Navigation.tsx`).
+- **Fan CRM is now its own route** `/studio/fans` (wraps `AudienceTab` + a Back to Studio control),
+  no longer a dashboard tab deep-link. The Studio "Fan CRM" card and the hub point at it. The
+  ownership-guarded `/api/audience` is unchanged.
+- **Home cleanup.** The two identical "?" icons collapsed into ONE `home-help` control: a setup
+  progress pill while an artist has steps left, else a single Getting Started link. The tour replay
+  moved into the hub ("Replay the app tour" → `/home?tour=1`). The static welcome subtext is now a
+  **rotating daily line** (`getDailyWelcome`, deterministic per calendar day).
+
 ## 2026-07-15 — Founding-artist fee/AI promo killed at the source
 
 Founder call: the partner-code 5%-fee promo (and its incidental Pro-level AI access) is dead. It reused the retired founding-artist plumbing and would have fired the first time an influencer converted an artist.

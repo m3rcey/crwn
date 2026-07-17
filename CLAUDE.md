@@ -65,6 +65,27 @@ Rules:
   do not copy claims out of the Brain or CLAUDE.md without checking the code, because both
   have been wrong.
 
+## Interruptions are governed — one engine, one cap
+
+Every surface that interrupts a user (pop-ups, artist broadcasts, fan notifications, surveys)
+must pass a frequency governor. Do NOT add a new interruption path without one.
+- **Pop-ups** go through the Pop-up Engine, NOT ad-hoc modals: add a `PopupDef` to
+  `src/lib/popups/registry.ts` (targeting + `frequency` cap + loss-framed copy). The engine
+  enforces **max one pop-up per user per day** on top of each pop-up's own cap. Dark-launched via
+  `admin_settings.popup_engine` (off by default), same pattern as `quest_engine`. Surveys are a
+  pop-up `kind` (1-5 + feedback), stored in `popup_survey_responses`; low scores email the founder.
+- **Broadcasts / fan notifications** already carry hourly + daily rate-limit caps in their routes
+  (`api/messages/broadcast`, `api/notifications/notify-subscribers`). Keep them. A muted fan is a
+  lost fan, so the platform caps even a well-meaning artist.
+
+## Navigation — Profile lives in the hamburger AccountHub, not the tab bar
+
+The bottom tab bar is for DOING the work. "Manage my account/business" lives in
+`src/components/layout/AccountHub.tsx` (the hamburger, top-left). The 5 bottom-nav slots are
+Home, Explore, [Studio|Earn], Messages, [Rise|Library] (`Navigation.tsx`, `buildNavItems`).
+Profile is NOT a bottom-nav slot. Reach `/profile` and payouts/support/etc. through the hub.
+The Fan CRM is its own route `/studio/fans` (not `?tab=audience`).
+
 ## Problem-Solving Principles
 
 Three tools. Each answers a different question. Use the one that matches.

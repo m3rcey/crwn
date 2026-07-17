@@ -48,6 +48,20 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Apply the Pop-up Engine migration, then turn it on when ready.** The pop-up system
+      (governed in-app nudges + pop-up surveys) is shipped but DARK. It renders nothing until
+      both steps happen:
+
+      1. Run [`supabase/schema-phase2-popup-engine.sql`](supabase/schema-phase2-popup-engine.sql)
+         in the Supabase SQL editor (adds `popup_events`, `popup_survey_responses`, seeds the
+         `popup_engine` flag OFF). It self-verifies at the end.
+      2. Flip it on when you want it live: in `admin_settings`, set the `popup_engine` row's
+         `value` to `{"enabled": true}` (via `/admin` settings, or SQL:
+         `UPDATE admin_settings SET value='{"enabled":true}' WHERE key='popup_engine';`).
+
+      Until step 2 the whole surface is silent, so applying the migration alone is safe. Low
+      survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
+
 ---
 
 ## Ongoing

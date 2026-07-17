@@ -169,8 +169,30 @@ export async function POST(req: NextRequest) {
   const audience = parseAudience(raw);
   if (!audience) return NextResponse.json({ error: 'Invalid audience' }, { status: 400 });
 
-  const allowed = await checkRateLimit(user.id, 'dm-broadcast', 3600, 10);
-  if (!allowed) return NextResponse.json({ error: 'Slow down' }, { status: 429 });
+  // Two governors so a broadcast stays a signal, not noise. The hourly cap stops a
+  // burst; the daily cap stops an artist blasting the whole fanbase over and over.
+  // Fans mute and unsubscribe when every message is another ask, so the platform
+  // protects the artist's own audience here, even from a well-meaning artist.
+  const underHourly = await checkRateLimit(user.id, 'dm-broadcast', 3600, 10);
+  if (!underHourly) {
+    return NextResponse.json(
+      {
+        error: 'You have sent a lot of messages this hour. Space them out or your fans stop reading the ones that matter.',
+        reason: 'rate_hourly',
+      },
+      { status: 429 },
+    );
+  }
+  const underDaily = await checkRateLimit(user.id, 'dm-broadcast-daily', 86400, 5);
+  if (!underDaily) {
+    return NextResponse.json(
+      {
+        error: 'That is your fifth broadcast today. Past this, fans start muting you, and a muted fan is a fan you lose. Pick this back up tomorrow.',
+        reason: 'rate_daily',
+      },
+      { status: 429 },
+    );
+  }
 
   const recipients = await resolveRecipients(artistId, audience);
   if (recipients === null) return NextResponse.json({ error: 'Unknown segment' }, { status: 404 });

@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -6,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { usePlayer } from '@/hooks/usePlayer';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { AccountHub } from '@/components/layout/AccountHub';
 import { hapticLight } from '@/lib/haptics';
 import {
   Home,
@@ -13,23 +15,28 @@ import {
   Coins,
   MessageCircle,
   Rocket,
-  User,
+  TrendingUp,
+  Library,
+  Menu,
   LogOut
 } from 'lucide-react';
 
 // The 3rd slot is role-aware: artists get their Studio workspace, fans get the
-// Earn hub (/command). Everything else is shared. Role comes from the useAuth
-// profile — it can lag briefly right after signup (documented in CLAUDE.md),
-// which is fine here: the nav is a convenience surface, not a gate.
+// Earn hub (/command). The 5th slot used to be Profile — that moved into the
+// hamburger AccountHub, freeing the slot for the highest-leverage destination:
+// Rise Mode for artists, Library for fans. `match` overrides active detection when
+// the href carries a query string (pathname.startsWith can't see ?tab=).
 const artistSlot = { href: '/studio', label: 'Studio', icon: Rocket, tourId: 'nav-studio' };
 const fanSlot = { href: '/command', label: 'Earn', icon: Coins, tourId: 'nav-earn' };
+const artistRiseSlot = { href: '/profile/artist?tab=rise', match: '/profile/artist', label: 'Rise', icon: TrendingUp, tourId: 'nav-rise' };
+const fanLibrarySlot = { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' };
 
 const buildNavItems = (isArtist: boolean) => [
   { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
   { href: '/explore', label: 'Explore', icon: Compass, tourId: 'nav-explore' },
   isArtist ? artistSlot : fanSlot,
   { href: '/messages', label: 'Messages', icon: MessageCircle, tourId: 'nav-messages' },
-  { href: '/profile', label: 'Profile', icon: User, tourId: 'nav-profile' },
+  isArtist ? artistRiseSlot : fanLibrarySlot,
 ];
 
 export function Navigation() {
@@ -39,10 +46,12 @@ export function Navigation() {
   const navItems = buildNavItems(isArtist());
   const { resetPlayer } = usePlayer();
   const router = useRouter();
+  const [hubOpen, setHubOpen] = useState(false);
 
-  const isActive = (href: string) => {
-    if (href === '/home') return pathname === '/home';
-    return pathname.startsWith(href);
+  const isActive = (href: string, match?: string) => {
+    const base = match || href;
+    if (base === '/home') return pathname === '/home';
+    return pathname.startsWith(base);
   };
 
   const handleSignOut = async () => {
@@ -58,6 +67,19 @@ export function Navigation() {
 
   return (
     <>
+      {/* Hamburger → AccountHub. Top-left, mobile only. Everything "manage my
+          account" moved off the tab bar into this hub, which freed the 5th slot. */}
+      <button
+        onClick={() => setHubOpen(true)}
+        aria-label="Open menu"
+        className="md:hidden fixed left-3 z-[70] w-10 h-10 rounded-full bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center text-crwn-text shadow-lg"
+        style={{ top: 'calc(0.5rem + env(safe-area-inset-top))' }}
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      <AccountHub open={hubOpen} onClose={() => setHubOpen(false)} />
+
       {/* Mobile Bottom Navigation. Equal-width grid cells so the row can never
           overflow: five destinations plus the bell. The CRWN wordmark used to
           live here and ate ~60px on a 360px viewport for no navigational gain
@@ -73,7 +95,7 @@ export function Navigation() {
         <div className="grid grid-cols-6">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.href);
+            const active = isActive(item.href, (item as { match?: string }).match);
             return (
               <Link
                 key={item.href}
@@ -103,7 +125,16 @@ export function Navigation() {
           <Link href="/home" className="text-2xl font-bold text-crwn-gold">
             CRWN
           </Link>
-          <NotificationBell />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <button
+              onClick={() => setHubOpen(true)}
+              aria-label="Open menu"
+              className="text-crwn-text-secondary hover:text-crwn-text"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <nav className="flex-1 px-4">
@@ -111,7 +142,7 @@ export function Navigation() {
             {navItems.map((item) => {
               const Icon = item.icon;
               const href = item.href;
-              const active = isActive(item.href);
+              const active = isActive(item.href, (item as { match?: string }).match);
               return (
                 <Link
                   key={item.href}
