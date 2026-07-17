@@ -352,11 +352,67 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
   analyticsMetadata: { toolId: 'clip-to-earn-campaign-planner', category: 'Grow', promotedFeature: 'Clip-to-Earn' },
 };
 
+// Founder Window: reference for the loss-revelation tools. Its result is produced by the shared
+// loss engine (usesLossEngine), so the web page and the DM render the identical loss result. Hero
+// image is a shared placeholder for now; bespoke on-brand photos are a follow-up.
+const FOUNDER_WINDOW: LeadMagnetConfig = {
+  slug: 'founder-window-builder',
+  name: 'Founder Window Builder',
+  featureName: 'Founder Window',
+  category: 'Monetize',
+  description: 'See how many founding supporters you lose because fans have no reason to join now.',
+  videoAngle: 'An always-open offer has no urgency, so the fans who would join keep saying "later" until they forget.',
+  publicRoute: '/tools/founder-window-builder',
+  artistRoute: '/artist/tools/founder-window-builder',
+  icon: '⏳',
+  timeToComplete: '1 min',
+  dmKeywords: ['founder', 'window'],
+  hero: {
+    eyebrow: 'Founder Window',
+    headline: 'Your fans have no reason to join now, so most never do.',
+    subheadline:
+      'An always-open offer leaks the supporters who fully intend to join. See how many a founder window would pull forward now, and what they are worth every month.',
+    primaryCta: 'See what I am losing',
+    image: '/tool-worth.jpg',
+    imageAlt: 'A dim, gold-lit studio with an artist at the center',
+  },
+  inputs: [
+    {
+      key: 'social_followers',
+      type: 'number',
+      label: 'Roughly how many followers do you have across your socials?',
+      required: true,
+      min: 0,
+      max: 100000000,
+      step: 'audience',
+    },
+  ],
+  wizardSteps: [
+    { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
+    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answer, then see the loss.' },
+  ],
+  resultGeneratorKey: 'founderWindow',
+  usesLossEngine: true,
+  resultSections: [],
+  publicPreviewSections: [],
+  leadCapture: { required: false, consentCopy: 'Email me my founder window plan and occasional CRWN tips for artists.' },
+  cta: {
+    publicPrimary: 'Create your CRWN account and open your window',
+    publicSecondary: 'Email my plan',
+    artistPrimary: 'Save my plan',
+    artistSecondary: 'Open a founder window',
+  },
+  conversionTarget: { type: 'saved_plan', label: 'Save your plan', route: '/profile' },
+  requiresEstimateDisclaimer: true,
+  analyticsMetadata: { toolId: 'founder-window-builder', category: 'Monetize', promotedFeature: 'Founder Window' },
+};
+
 export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   VAULT_REVENUE_PLANNER,
   PROOF_OF_DEMAND,
   FAN_MISSION,
   CLIP_TO_EARN,
+  FOUNDER_WINDOW,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(

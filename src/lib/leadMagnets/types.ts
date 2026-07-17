@@ -102,6 +102,13 @@ export interface LeadMagnetConfig {
   inputs: LeadMagnetInputDefinition[];
   wizardSteps: LeadMagnetWizardStep[];
   resultGeneratorKey: string;
+  /**
+   * When true, the tool's result is produced by its acquisition ADAPTER (the shared
+   * loss-revelation engine, buildLossResult) rather than a resultGenerators.ts generator, so the
+   * web page and the Instagram DM render the exact same loss result from one model. The web
+   * clients route through getTool(slug).execute() for these; resultGeneratorKey is unused.
+   */
+  usesLossEngine?: boolean;
   resultSections: LeadMagnetResultSectionDefinition[];
   publicPreviewSections: string[]; // section keys shown before capture
   leadCapture: {

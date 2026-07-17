@@ -13,6 +13,7 @@ import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
 import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
+import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
@@ -62,7 +63,10 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const onComplete = (v: LeadMagnetInputValues) => {
     setValues(v);
     try {
-      const r = generateResult(config.resultGeneratorKey, v);
+      const r =
+        config.usesLossEngine && getTool(config.slug)
+          ? getTool(config.slug)!.execute(v as unknown as LeadProfileValues)
+          : generateResult(config.resultGeneratorKey, v);
       setResult(r);
       trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: config.slug, context: 'public', generatorVersion: r.generatorVersion });
       trackLeadMagnet(LM_EVENTS.resultUnlocked, { toolSlug: config.slug, context: 'public' });

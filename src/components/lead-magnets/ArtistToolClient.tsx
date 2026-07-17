@@ -12,6 +12,7 @@ import { LeadMagnetResult } from './LeadMagnetResult';
 import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
+import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
@@ -90,7 +91,10 @@ export function ArtistToolClient({ config }: { config: LeadMagnetConfig }) {
   const onComplete = (v: LeadMagnetInputValues) => {
     setValues(v);
     try {
-      const r = generateResult(config.resultGeneratorKey, v);
+      const r =
+        config.usesLossEngine && getTool(config.slug)
+          ? getTool(config.slug)!.execute(v as unknown as LeadProfileValues)
+          : generateResult(config.resultGeneratorKey, v);
       setResult(r);
       setSaved(false);
       trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: config.slug, context: 'artist', authed: true, generatorVersion: r.generatorVersion });
