@@ -19,7 +19,7 @@
 
 import { Fragment } from 'react';
 import Link from 'next/link';
-import { Check, Crown, ArrowRight } from 'lucide-react';
+import { Check, Crown, ArrowRight, ArrowDown } from 'lucide-react';
 import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
 import { ToolShowcase } from '@/components/lead-magnets/ToolShowcase';
@@ -343,6 +343,33 @@ function Section({ section }: { section: ResultSection }) {
       {/* fanLoss -> a distinct, human callout */}
       {section.kind === 'fanLoss' && section.text && (
         <p className="text-white/85 text-lg leading-relaxed">{section.text}</p>
+      )}
+
+      {/* flow -> the recovery diagram (loss -> setup -> fan action -> recovered) */}
+      {section.kind === 'flow' && section.items && (
+        <div className="space-y-1.5">
+          {section.items.map((node, i) => {
+            const last = i === section.items!.length - 1;
+            return (
+              <Fragment key={i}>
+                <div
+                  className={`rounded-xl px-4 py-3 text-center text-sm ${
+                    last
+                      ? 'bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] font-semibold'
+                      : 'bg-white/[0.03] border border-white/[0.08] text-white/85'
+                  }`}
+                >
+                  {node}
+                </div>
+                {!last && (
+                  <div className="flex justify-center py-0.5">
+                    <ArrowDown className="w-4 h-4 text-[#D4AF37]/50" />
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
+        </div>
       )}
     </section>
   );

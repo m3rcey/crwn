@@ -149,7 +149,8 @@ export interface ResultSection {
     | 'assumptions'
     | 'nextSteps'
     | 'scenarios' // conservative / expected / high columns (reuses `metrics`)
-    | 'fanLoss'; // "what fans miss" callout (reuses `text`)
+    | 'fanLoss' // "what fans miss" callout (reuses `text`)
+    | 'flow'; // "how you get it back" recovery flow diagram (reuses `items` as nodes)
   // score
   score?: number;
   scoreMax?: number;

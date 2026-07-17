@@ -243,6 +243,12 @@ const vault: AcquisitionTool = {
           'Post the launch pitch to your fans and start collecting every month.',
         ],
       },
+      flow: [
+        'Your unreleased vault, earning $0',
+        'Open a private Vault tier on CRWN',
+        'Fans pay every month to get in',
+        `That leak becomes ${fmtDollars(monthlyExpected)} a month, recurring`,
+      ],
       conversionPayload: { tierName: 'The Vault', priceCents: PRICE_CENTS },
       shareSummary: `Turns out my vault could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
@@ -300,42 +306,69 @@ const fanMission: AcquisitionTool = {
   requiresEstimateDisclaimer: false,
   destinationId: 'missions',
   execute(profile) {
-    const goal = s(profile.primary_goal, 'grow_audience');
-    // Map the acquisition goal enum onto the mission generator's fan-action vocabulary.
-    const actionByGoal: Record<string, string> = {
-      make_first_dollar: 'subscribe',
-      replace_day_job: 'subscribe',
-      grow_audience: 'share',
-      launch_release: 'presave',
-      own_my_fanbase: 'referral',
-      scale_existing_revenue: 'subscribe',
-    };
-    const followers = n(profile.social_followers);
-    const values: LeadMagnetInputValues = {
-      goal,
-      fanAction: actionByGoal[goal] ?? 'share',
-      destinationUrl: '',
-      // 5% of followers, floored at 25, is the generator's own sane starting target.
-      participantCount: followers > 0 ? Math.max(25, Math.round(followers * 0.05)) : 50,
-      rewardType: 'points',
-      rewardDetail: '',
-      leaderboard: true,
-      proof: 'link',
-    };
-    const generated = generateResult('fanMission', values);
-
-    // DM topline: loss-framed money. Conservative: one well-run mission converts ~0.5% of the
-    // audience into paying fans at a typical $10/mo.
     const audience = n(profile.social_followers) || n(profile.monthly_listeners);
-    const MISSION_CONVERT_RATE = 0.005;
     const PRICE_CENTS = 1000;
-    const monthlyCents = Math.round(audience * MISSION_CONVERT_RATE) * PRICE_CENTS;
-    const headline =
-      monthlyCents >= 5000
-        ? `About ${fmtDollars(monthlyCents)} a month is sitting in your fanbase with no mission to unlock it`
-        : `Your fans do nothing because "please support me" is not a mission`;
+    const monthlyAt = (rate: number) => Math.round(audience * rate) * PRICE_CENTS;
+    const EXPECTED = 0.005; // one clear mission converts ~0.5% of the audience to paying fans.
+    const monthlyExpected = monthlyAt(EXPECTED);
+    const annualExpected = monthlyExpected * 12;
+    const readyToAct = Math.round(audience * 0.05); // ~5% will act on a clear, rewarded ask.
+    const perMission = Math.round(readyToAct * 0.3); // ~30% of them join any given mission.
 
-    return { ...generated, headline };
+    const headline =
+      monthlyExpected >= 5000
+        ? `About ${fmtDollars(monthlyExpected)} a month is sitting in your fanbase with no mission to unlock it`
+        : 'Your fans do nothing because "please support me" is not a mission';
+
+    return buildLossResult({
+      generatorVersion: GENERATOR_VERSION,
+      headline,
+      summary: `Around ${readyToAct.toLocaleString(
+        'en-US',
+      )} of your fans would act on a clear, rewarded ask. Right now they are handed a vague one and scroll past.`,
+      cause:
+        '"Support me" is not an instruction, so your fans do nothing with it. A mission gives them one clear action, a reason it matters, and a reward for finishing. The same fans who ignore a plea will move for an assignment.',
+      estimate: [
+        { label: 'Fans ready to act', value: readyToAct.toLocaleString('en-US'), note: '~5% of your audience' },
+        { label: 'Join a given mission', value: perMission.toLocaleString('en-US') },
+        { label: 'Monthly, unclaimed', value: fmtDollars(monthlyExpected) },
+        { label: 'A year of it', value: fmtDollars(annualExpected) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(monthlyAt(0.003))}/mo`, note: '~0.3% convert' },
+        { label: 'Expected', value: `${fmtDollars(monthlyExpected)}/mo`, note: '~0.5% convert' },
+        { label: 'High', value: `${fmtDollars(monthlyAt(0.01))}/mo`, note: '~1% convert' },
+      ],
+      assumptions: [
+        'About 5% of your audience will act on a clear, rewarded mission.',
+        'A well-run mission converts roughly 0.5% of your audience into paying fans, a conservative rate.',
+        'Paying fans valued at about $10 a month.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'You burn your own time reposting broad asks that convert almost no one.',
+        'Launches and releases go out to silence because there is no action to rally around.',
+        'Your most willing fans stay on the sidelines, waiting to be told how to help.',
+      ],
+      fanLoss:
+        'Your fans miss a clear assignment, visible progress toward a goal, recognition when they finish, a reward worth earning, and proof that what they did actually mattered.',
+      flow: [
+        '"Support me" leaves your fans doing nothing',
+        'Launch one clear Fan Mission with a reward',
+        'They share, refer, presave, and subscribe',
+        `${fmtDollars(monthlyExpected)} a month, plus reach you were not getting`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Generate a Fan Mission on CRWN: one action, a target, a reward.',
+          'Drop the mission link in your bio and stories.',
+          'Watch the leaderboard fill and the actions roll in.',
+        ],
+      },
+      conversionPayload: { missionType: s(profile.primary_goal, 'grow_audience') },
+      shareSummary: `Turns out a single fan mission could be worth about ${fmtDollars(monthlyExpected)} a month.`,
+    });
   },
 };
 
@@ -352,32 +385,69 @@ const clipToEarn: AcquisitionTool = {
   requiresEstimateDisclaimer: false,
   destinationId: 'bounties',
   execute(profile) {
-    const values: LeadMagnetInputValues = {
-      sourceContent: s(profile.artist_name, 'your latest record'),
-      sourceType: 'song',
-      platforms: ['TikTok', 'Reels', 'Shorts'],
-      clipTypes: ['hook moment', 'emotional line', 'beat drop'],
-      rewardType: 'badge',
-      topClipAward: '',
-      clipLength: '15-30s',
-      requiredHashtags: [],
-      requiredCaption: '',
-      approvalRequired: false,
-    };
-    const generated = generateResult('clipToEarnCampaign', values);
-
-    // DM topline: loss-framed money. Conservative: fan-made clips convert ~0.5% of the audience
-    // into paying subscribers at a typical $10/mo, promotion that costs nothing up front.
     const audience = n(profile.social_followers) || n(profile.monthly_listeners);
-    const CLIP_CONVERT_RATE = 0.005;
     const PRICE_CENTS = 1000;
-    const monthlyCents = Math.round(audience * CLIP_CONVERT_RATE) * PRICE_CENTS;
-    const headline =
-      monthlyCents >= 5000
-        ? `About ${fmtDollars(monthlyCents)} a month is sitting in your fans' clips`
-        : 'Your fans would clip you for free. Nobody has asked them';
+    const monthlyAt = (rate: number) => Math.round(audience * rate) * PRICE_CENTS;
+    const EXPECTED = 0.005; // fan clips convert ~0.5% of the audience to paying subscribers.
+    const monthlyExpected = monthlyAt(EXPECTED);
+    const annualExpected = monthlyExpected * 12;
+    const reach = Math.round(audience * 3); // clips extend reach ~3x your own accounts, conservative.
+    const clippers = Math.round(audience * 0.02); // ~2% of fans will actually clip for you.
 
-    return { ...generated, headline };
+    const headline =
+      monthlyExpected >= 5000
+        ? `About ${fmtDollars(monthlyExpected)} a month is sitting in your fans' clips`
+        : 'Your fans would clip you for free, and nobody has asked them';
+
+    return buildLossResult({
+      generatorVersion: GENERATOR_VERSION,
+      headline,
+      summary: `Every stream and song lives once on your own account, then disappears. Your fans would cut it into clips and post it everywhere, and about ${clippers.toLocaleString(
+        'en-US',
+      )} of them would do it for a cut.`,
+      cause:
+        'Your long-form content posts once, to your own followers, and then it is gone. The reach that blows up streamers comes from clips posted everywhere by other people. You are the only one clipping you, so most of the reach and every subscriber it would bring never happens.',
+      estimate: [
+        { label: 'Clippers you could activate', value: clippers.toLocaleString('en-US'), note: '~2% of your fans' },
+        { label: 'Reach you are not getting', value: `~${reach.toLocaleString('en-US')}`, note: 'per month, conservative' },
+        { label: 'Monthly, unclaimed', value: fmtDollars(monthlyExpected) },
+        { label: 'A year of it', value: fmtDollars(annualExpected) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(monthlyAt(0.003))}/mo`, note: '~0.3% convert' },
+        { label: 'Expected', value: `${fmtDollars(monthlyExpected)}/mo`, note: '~0.5% convert' },
+        { label: 'High', value: `${fmtDollars(monthlyAt(0.01))}/mo`, note: '~1% convert' },
+      ],
+      assumptions: [
+        'Fan-made clips reach roughly 3x your own audience each month, a conservative estimate.',
+        'About 0.5% of the audience the clips reach converts to a paying subscriber.',
+        'Paying fans valued at about $10 a month.',
+        'You set the clipper commission, so most of this is net to you. A planning estimate, not a guarantee.',
+      ],
+      consequences: [
+        'You spend hours trying to make every short-form post yourself, alone.',
+        'Each livestream and release disappears after one view instead of becoming a month of clips.',
+        'All your reach stays trapped on your own accounts, capped by one algorithm.',
+      ],
+      fanLoss:
+        'Your fans miss the chance to clip you, earn a recurring commission when their clip brings a subscriber, get recognized on a leaderboard, and genuinely help shape your growth.',
+      flow: [
+        'Your streams and songs, clipped by no one',
+        'Turn on Clip & Earn and set your commission',
+        'Fans clip and post you across every platform',
+        `${fmtDollars(monthlyExpected)} a month in subscribers you did not pay to reach`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Turn on Clip & Earn on CRWN and set the recurring commission you pay.',
+          'Your streams and releases become a clip library your fans pull from.',
+          'Pay clippers only when their clip actually brings a subscriber.',
+        ],
+      },
+      conversionPayload: { campaign: 'clip-to-earn' },
+      shareSummary: `Turns out my fans' clips could be worth about ${fmtDollars(monthlyExpected)} a month.`,
+    });
   },
 };
 

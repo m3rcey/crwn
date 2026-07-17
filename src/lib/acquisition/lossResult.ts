@@ -47,6 +47,10 @@ export interface LossResultParams {
   // 9. THE CRWN FEATURE that closes the gap, as a short do-this list.
   fix: { title: string; steps: string[] };
 
+  // HOW YOU GET IT BACK: a 3-4 node recovery flow (loss -> setup -> fan action -> recovered).
+  // The last node is the recovered outcome and renders emphasized.
+  flow: string[];
+
   conversionPayload?: Record<string, unknown>;
   shareSummary: string;
 }
@@ -86,6 +90,10 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
   }
 
   sections.push({ key: 'fanLoss', title: 'What your fans are missing', kind: 'fanLoss', text: p.fanLoss });
+
+  if (p.flow.length) {
+    sections.push({ key: 'flow', title: 'How you get it back', kind: 'flow', items: p.flow });
+  }
 
   sections.push({ key: 'fix', title: p.fix.title, kind: 'nextSteps', items: p.fix.steps });
 
