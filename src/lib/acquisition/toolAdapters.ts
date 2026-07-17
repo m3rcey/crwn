@@ -763,6 +763,227 @@ const topFan: AcquisitionTool = {
   },
 };
 
+const questPath: AcquisitionTool = {
+  id: 'artist-quest-path',
+  name: 'Artist Quest Path Quiz',
+  // No audience needed: the loss here is TIME, from doing the right work in the wrong order.
+  requiredFields: ['primary_goal', 'primary_blocker'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/artist-quest-path/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'questPath',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute() {
+    // Sequencing risk is high whenever there is no ordered path; the honest output is a leakage
+    // SCORE and a delayed-progress range, not a fabricated dollar figure (no audience was asked).
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline: 'You are doing the right work in the wrong order, and it is costing you months',
+      score: {
+        value: 68,
+        max: 100,
+        label: 'Execution leakage',
+        band: 'High: effort is going into tasks that need earlier steps built first',
+      },
+      summary:
+        'Most artists build a store before they have an audience to sell to, or chase followers before there is anything to convert them into. Order is the difference between months of progress and months of spinning.',
+      cause:
+        'Every next step depends on a foundation being in place first. Build in the wrong order and the work does not compound: you launch tools with no one to use them, run campaigns with nothing to convert to, and repeat work you sequenced wrong. The cost is not money spent, it is time and momentum lost.',
+      estimate: [
+        { label: 'Weeks likely lost', value: '8 to 16', note: 'to out-of-order work' },
+        { label: 'Monetization delayed', value: '2 to 4 months' },
+        { label: 'Foundations still missing', value: '2 to 3' },
+        { label: 'The next unlock, blocked', value: 'until the prior step exists' },
+      ],
+      scenarios: [
+        { label: 'On track', value: '~4 wks', note: 'small resequence' },
+        { label: 'Typical', value: '~10 wks', note: 'lost to order' },
+        { label: 'Stuck', value: '~20 wks', note: 'rebuilding twice' },
+      ],
+      assumptions: [
+        'Sequencing cost is estimated as a range, not a precise figure, because it depends on your foundations.',
+        'Delay compounds: a missing early step blocks every later one that needs it.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Revenue stays delayed while you stay busy on work that cannot pay off yet.',
+        'Tools and campaigns get built before there is anyone ready to use them.',
+        'You redo work later because it was done out of order the first time.',
+      ],
+      fanLoss:
+        'Your fans may be interested but have no clear way to participate, support, promote, or follow your progress, because the step that would let them has not been built yet.',
+      flow: [
+        'Right work, wrong order, months spinning',
+        'Get a sequenced quest path for your goal',
+        'Build each foundation before the step that needs it',
+        'Progress that compounds instead of resetting',
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Follow your Rise Mode quest path on CRWN, ordered for your actual goal.',
+          'Complete each foundation before the step that depends on it unlocks.',
+          'Let every finished step open the next instead of blocking it.',
+        ],
+      },
+      conversionPayload: { path: 'quest' },
+      shareSummary: 'Turns out I was doing the right things in the wrong order.',
+    });
+  },
+};
+
+const supporterPromise: AcquisitionTool = {
+  id: 'supporter-promise-calendar',
+  name: 'Supporter Promise Calendar Builder',
+  requiredFields: ['direct_fan_revenue_cents'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/supporter-promise-calendar/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'supporterPromise',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'setup_monetize',
+  execute(profile) {
+    const PRICE = 1000;
+    const monthlyRev = n(profile.direct_fan_revenue_cents);
+    const supporters = Math.max(0, Math.round(monthlyRev / PRICE)); // estimate at ~$10/mo each
+    const atRisk = Math.round(supporters * 0.2); // ~20% churn when promises slip
+    const mrrAtRisk = atRisk * PRICE;
+    const score = supporters > 0 ? 74 : 62;
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline: 'The perks you promised are a monthly bill you never scheduled, and missed ones churn supporters',
+      score: {
+        value: score,
+        max: 100,
+        label: 'Fulfillment risk',
+        band: 'High: benefits with no calendar get missed, and a missed benefit is a cancelled supporter',
+      },
+      summary:
+        supporters > 0
+          ? `About ${supporters.toLocaleString(
+              'en-US',
+            )} supporters are counting on perks you have not put on a schedule. When one slips, that trust, and that revenue, is the first to go.`
+          : 'Before you promise your supporters anything, this shows whether you can actually deliver it every month without drowning.',
+      cause:
+        'Every membership perk is a recurring obligation with a due date. With no calendar, they get forgotten, delivered late, or promised faster than you can produce. Supporters notice, and a missed benefit is the most common reason a recurring supporter cancels.',
+      estimate: [
+        { label: 'Supporters counting on you', value: supporters.toLocaleString('en-US') },
+        { label: 'At risk from missed perks', value: atRisk.toLocaleString('en-US'), note: '~20%' },
+        { label: 'Monthly revenue at risk', value: fmtDollars(mrrAtRisk) },
+        { label: 'A year of it', value: fmtDollars(mrrAtRisk * 12) },
+      ],
+      scenarios: [
+        { label: 'Scheduled', value: `${fmtDollars(Math.round(supporters * 0.05) * PRICE)}/mo`, note: '~5% churn' },
+        { label: 'Unscheduled', value: `${fmtDollars(mrrAtRisk)}/mo`, note: '~20% churn' },
+        { label: 'Overwhelmed', value: `${fmtDollars(Math.round(supporters * 0.35) * PRICE)}/mo`, note: '~35% churn' },
+      ],
+      assumptions: [
+        'Supporters estimated from your direct monthly revenue at about $10 each.',
+        'Missed or late benefits churn roughly 20% of supporters over a year; a real schedule cuts that sharply.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Fulfillment work piles up unevenly and eats the time you meant to spend making music.',
+        'Perks priced too low for the work quietly cost you on every single delivery.',
+        'Disappointed supporters do not just cancel, they tell other fans not to bother.',
+      ],
+      fanLoss:
+        'Your fans miss the benefits they paid for, predictable access, honest communication about timing, recognition, and the confidence that you actually value their support.',
+      flow: [
+        'Promised perks with no schedule get missed',
+        'Put every benefit on a supporter promise calendar',
+        'Fans get what they paid for, on time',
+        `${fmtDollars(mrrAtRisk)} a month of at-risk revenue protected`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Lay every supporter benefit on a calendar with real due dates.',
+          'Price each perk for the work it actually takes, so delivery is sustainable.',
+          'Automate the reminders so nothing slips and no supporter feels forgotten.',
+        ],
+      },
+      conversionPayload: { calendar: 'supporter-promise' },
+      shareSummary: 'Turns out my membership perks were a monthly bill I never scheduled.',
+    });
+  },
+};
+
+const teamSplit: AcquisitionTool = {
+  id: 'team-split-deal-builder',
+  name: 'Team Split Deal Builder',
+  requiredFields: ['direct_fan_revenue_cents'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/team-split-deal-builder/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'teamSplit',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'setup_monetize',
+  execute(profile) {
+    const monthlyRev = n(profile.direct_fan_revenue_cents);
+    const PCT = 0.2; // a common collaborator ask
+    const CAP_MONTHS = 6;
+    // Uncapped: pays PCT of revenue forever. Capped: pays PCT until a fair cap, then stops.
+    const uncappedYear = Math.round(monthlyRev * PCT * 12);
+    const cappedTotal = Math.round(monthlyRev * PCT * CAP_MONTHS);
+    const overpayYear = Math.max(0, uncappedYear - cappedTotal);
+    const headline =
+      overpayYear >= 5000
+        ? `An uncapped 20% split quietly costs you about ${fmtDollars(overpayYear)} more a year than a capped one`
+        : 'A collaborator deal with no cap keeps paying long after the work stopped adding value';
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline,
+      summary:
+        monthlyRev > 0
+          ? `On ${fmtDollars(monthlyRev)} a month, a 20% split with no cap and no end date keeps taking from every future dollar, including the ones the collaborator had nothing to do with.`
+          : 'Before you hand a collaborator a percentage, this shows how a cap, a duration, and a gross-versus-net basis change what you actually owe.',
+      cause:
+        'The two ways a team deal goes wrong: you cannot fund a collaborator upfront so the work never happens, or you fund it with a split that is set too high, applies to too much, has no cap, no duration, and an unclear gross-versus-net basis, so it quietly bleeds revenue long after the work stopped mattering.',
+      estimate: [
+        { label: 'Split rate assumed', value: '20%' },
+        { label: 'Uncapped, per year', value: fmtDollars(uncappedYear) },
+        { label: 'Capped at 6 months', value: fmtDollars(cappedTotal) },
+        { label: 'Overpaid, year one', value: fmtDollars(overpayYear) },
+      ],
+      scenarios: [
+        { label: 'Capped', value: fmtDollars(cappedTotal), note: '6-month cap' },
+        { label: 'Uncapped 1yr', value: fmtDollars(uncappedYear), note: 'no cap' },
+        { label: 'Uncapped 3yr', value: fmtDollars(uncappedYear * 3), note: 'still paying' },
+      ],
+      assumptions: [
+        'A 20% collaborator split on your direct monthly revenue, for illustration.',
+        'A capped deal ends after about 6 months of contribution; an uncapped one never does.',
+        'Figures assume a gross basis; a net basis changes them again. A planning estimate, not a guarantee.',
+      ],
+      consequences: [
+        'Without a way to fund a team, campaigns get delayed and specialist work does not happen.',
+        'You spend your own hours on work a collaborator should do, at the cost of making music.',
+        'Stacked, uncapped splits can add up to more than you keep, and you only notice later.',
+      ],
+      fanLoss:
+        'Your fans miss the better content, faster releases, stronger campaigns, and experiences you cannot produce alone because you had no safe way to bring in help.',
+      flow: [
+        'Uncapped splits bleed revenue with no end',
+        'Structure the deal: rate, cap, duration, basis',
+        'The collaborator is paid fairly for real work',
+        `${fmtDollars(overpayYear)} a year kept instead of overpaid`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Build the split on CRWN with a rate, a cap, and a clear gross-or-net basis.',
+          'Fence it to the revenue the collaborator actually drives, not everything.',
+          'Let the cap end the obligation once the work has been paid for.',
+        ],
+      },
+      conversionPayload: { deal: 'team-split' },
+      shareSummary: 'Turns out an uncapped split was going to cost me a lot more than a capped one.',
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
@@ -773,6 +994,9 @@ export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   'movement-page-blueprint': movementPage,
   'fan-journey-builder': fanJourney,
   'top-fan-leaderboard-builder': topFan,
+  'artist-quest-path': questPath,
+  'supporter-promise-calendar': supporterPromise,
+  'team-split-deal-builder': teamSplit,
 };
 
 export const ACQUISITION_TOOL_IDS = Object.keys(ACQUISITION_TOOLS);
