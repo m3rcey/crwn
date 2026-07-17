@@ -190,7 +190,10 @@ export default function HomePage() {
       label: 'My Library',
       image: '/homepage_library.jpg',
     },
-    ...(hasArtistProfile
+    // Shown to artists (own an artist_profiles row) AND admins (the founder, who
+    // may be signed in without an artist row). A plain fan with no artist page
+    // does not get it, since /profile/artist is an artist-only surface.
+    ...(hasArtistProfile || profile?.role === 'admin'
       ? [{ href: '/profile/artist', label: 'Artist Dashboard', image: '/homepage_artistdashboard.jpg' }]
       : [])
   ];

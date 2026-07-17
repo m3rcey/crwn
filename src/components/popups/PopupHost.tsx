@@ -132,7 +132,7 @@ export function PopupHost() {
 
   // ---- Modal + Survey: centered overlay ----
   return (
-    <div className="fixed inset-0 z-[95] flex items-end md:items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/70 p-4">
       <div className="w-full max-w-md rounded-2xl bg-[#1A1A1A] border border-[#2A2A2A] shadow-2xl p-6 relative">
         <button
           onClick={close}
