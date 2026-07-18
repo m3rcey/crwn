@@ -489,7 +489,7 @@ const founderWindow: AcquisitionTool = {
         'en-US',
       )} of your fans would support you eventually. With no reason to act now, most keep saying "later" until they forget.`,
       cause:
-        'An always-open offer has no urgency, so fans who fully intend to join keep putting it off. A founder window gives them a real reason to act now: limited spots, a locked-in price, and permanent founding-supporter status.',
+        'An always-open offer has no urgency, so fans who fully intend to join keep putting it off. A founding window gives them a real reason to act now: a deadline to join, a spot in your first supporters, and permanent founding recognition.',
       estimate: [
         { label: 'Would join eventually', value: intenders.toLocaleString('en-US'), note: '~2% of your audience' },
         { label: 'A window pulls forward now', value: Math.round(intenders * 0.4).toLocaleString('en-US') },
@@ -513,19 +513,19 @@ const founderWindow: AcquisitionTool = {
         'Every release cycle you wait is another batch of "later" that quietly becomes never.',
       ],
       fanLoss:
-        'Your fans miss permanent proof they were early, a price locked in for life, founding-supporter status, and a real place in the story before everyone else showed up.',
+        'Your fans miss permanent proof they were early, founding-supporter recognition, a spot in your First 100, and a real place in the story before everyone else showed up.',
       flow: [
         'An always-open offer your fans keep ignoring',
-        'Open a founder window: limited spots, locked price',
-        'Fans act now to lock in founding status',
+        'Open a founding tier and set a deadline to join',
+        'Fans act now to earn founding status',
         `${fmtDollars(monthly)} a month, from supporters who would have drifted`,
       ],
       fix: {
         title: 'How CRWN closes this gap',
         steps: [
-          'Set a founder window on your CRWN page: a cap and a locked price.',
-          'Give founders permanent status and a benefit only they keep.',
-          'Announce the deadline and let the scarcity do the work.',
+          'Create your founding supporter tier on CRWN and set a real deadline to join.',
+          'Early joiners land in your First 100 Supporters squad with a founding badge.',
+          'Announce the window, then close signups when you hit your number.',
         ],
       },
       conversionPayload: { window: 'founder' },

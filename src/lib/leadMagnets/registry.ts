@@ -4,7 +4,7 @@
 // Adding a tool = add a config here + a generator in resultGenerators.ts. No new pages.
 
 import { CONSENT_TEXT_VERSION } from './disclaimers';
-import type { LeadMagnetConfig } from './types';
+import type { LeadMagnetConfig, LeadMagnetInputDefinition, LeadMagnetWizardStep } from './types';
 
 const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   slug: 'vault-revenue-planner',
@@ -407,12 +407,149 @@ const FOUNDER_WINDOW: LeadMagnetConfig = {
   analyticsMetadata: { toolId: 'founder-window-builder', category: 'Monetize', promotedFeature: 'Founder Window' },
 };
 
+// Shared helpers for the loss-engine tools' registry entries: they all render through the adapter
+// (usesLossEngine) and reuse a placeholder hero image until bespoke on-brand photos are made.
+const AUDIENCE_INPUT: LeadMagnetInputDefinition = {
+  key: 'social_followers',
+  type: 'number',
+  label: 'Roughly how many followers do you have across your socials?',
+  required: true,
+  min: 0,
+  max: 100000000,
+  step: 'audience',
+};
+const AUDIENCE_STEPS: LeadMagnetWizardStep[] = [
+  { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
+  { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answer, then see the loss.' },
+];
+function lossToolBase(over: Partial<LeadMagnetConfig> & Pick<LeadMagnetConfig, 'slug' | 'name' | 'featureName' | 'category' | 'description' | 'videoAngle' | 'icon' | 'dmKeywords' | 'hero' | 'resultGeneratorKey' | 'analyticsMetadata'>): LeadMagnetConfig {
+  return {
+    publicRoute: `/tools/${over.slug}`,
+    artistRoute: `/artist/tools/${over.slug}`,
+    timeToComplete: '1 min',
+    inputs: [AUDIENCE_INPUT],
+    wizardSteps: AUDIENCE_STEPS,
+    usesLossEngine: true,
+    resultSections: [],
+    publicPreviewSections: [],
+    leadCapture: { required: false, consentCopy: 'Email me my result and occasional CRWN tips for artists.' },
+    cta: {
+      publicPrimary: 'Create your CRWN account and fix this',
+      publicSecondary: 'Email my result',
+      artistPrimary: 'Save my result',
+      artistSecondary: 'Build it in CRWN',
+    },
+    conversionTarget: { type: 'saved_plan', label: 'Save your result', route: '/profile' },
+    requiresEstimateDisclaimer: true,
+    ...over,
+  };
+}
+
+const MOVEMENT_PAGE = lossToolBase({
+  slug: 'movement-page-blueprint',
+  name: 'Movement Page Blueprint',
+  featureName: 'Movement Page',
+  category: 'Grow',
+  description: 'See how much of your traffic leaks off a generic profile or streaming link.',
+  videoAngle: 'A streaming link answers none of the questions a new fan has, so most of your traffic bounces.',
+  icon: '🧭',
+  dmKeywords: ['movement'],
+  hero: {
+    eyebrow: 'Movement Page',
+    headline: 'Your link sends fans to a page that says nothing.',
+    subheadline: 'A generic profile converts almost none of the traffic a real movement page would. See how many supporters you leak, and what it costs.',
+    primaryCta: 'See what I am leaking',
+    image: '/tool-worth.jpg',
+    imageAlt: 'A dim, gold-lit studio with an artist at the center',
+  },
+  resultGeneratorKey: 'movementPage',
+  analyticsMetadata: { toolId: 'movement-page-blueprint', category: 'Grow', promotedFeature: 'Movement Page' },
+});
+
+const FAN_JOURNEY = lossToolBase({
+  slug: 'fan-journey-builder',
+  name: 'Fan Journey Builder',
+  featureName: 'Fan Journey',
+  category: 'Monetize',
+  description: 'See where fans leak out between hearing you and paying you.',
+  videoAngle: 'Fans drop off at every step with no path from one to the next, especially first purchase to recurring.',
+  icon: '🪜',
+  dmKeywords: ['journey'],
+  hero: {
+    eyebrow: 'Fan Journey',
+    headline: 'Fans leak out at every step before they pay you.',
+    subheadline: 'With no path from discovery to recurring support, most of the fans who would pay never make the jump. See where they leak, and what it costs.',
+    primaryCta: 'See where they leak',
+    image: '/tool-worth.jpg',
+    imageAlt: 'A dim, gold-lit studio with an artist at the center',
+  },
+  resultGeneratorKey: 'fanJourney',
+  analyticsMetadata: { toolId: 'fan-journey-builder', category: 'Monetize', promotedFeature: 'Fan Journey' },
+});
+
+const TOP_FAN = lossToolBase({
+  slug: 'top-fan-leaderboard-builder',
+  name: 'Top Fan Leaderboard Builder',
+  featureName: 'Top Fan Leaderboard',
+  category: 'Grow',
+  description: 'See what it costs when your top fans get no recognition and their best actions fade.',
+  videoAngle: 'When every supporter looks the same, contribution goes invisible and unrewarded, so it stops.',
+  icon: '🏆',
+  dmKeywords: ['topfan', 'leaderboard'],
+  hero: {
+    eyebrow: 'Top Fan Leaderboard',
+    headline: 'Your top fans look like everyone else, so they act like it.',
+    subheadline: 'Your most valuable fans quietly do most of the work. With no status marking them apart, that behavior fades. See what it costs.',
+    primaryCta: 'See what it costs',
+    image: '/tool-fan-mission.jpg',
+    imageAlt: 'An artist connecting with a crowd of fans',
+  },
+  resultGeneratorKey: 'topFanLeaderboard',
+  analyticsMetadata: { toolId: 'top-fan-leaderboard-builder', category: 'Grow', promotedFeature: 'Top Fan Leaderboard' },
+});
+
+const QUEST_PATH: LeadMagnetConfig = {
+  ...lossToolBase({
+    slug: 'artist-quest-path',
+    name: 'Artist Quest Path Quiz',
+    featureName: 'Rise Mode',
+    category: 'Grow',
+    description: 'See how much time you lose doing the right work in the wrong order.',
+    videoAngle: 'Most artists build a store before they have an audience, or chase followers before there is anything to convert them into.',
+    icon: '🗺️',
+    dmKeywords: ['quest', 'path'],
+    hero: {
+      eyebrow: 'Rise Mode',
+      headline: 'You are doing the right work in the wrong order.',
+      subheadline: 'Order is the difference between months of progress and months of spinning. See where your sequencing is costing you time.',
+      primaryCta: 'See my path',
+      image: '/tool-worth.jpg',
+      imageAlt: 'A dim, gold-lit studio with an artist at the center',
+    },
+    resultGeneratorKey: 'questPath',
+    analyticsMetadata: { toolId: 'artist-quest-path', category: 'Grow', promotedFeature: 'Rise Mode' },
+  }),
+  // Quest Path asks goal + blocker, not audience.
+  inputs: [
+    { key: 'primary_goal', type: 'text', label: 'What are you trying to do in the next 90 days?', required: true, maxLength: 200, step: 'goal', placeholder: 'e.g. make my first $1,000 from fans' },
+    { key: 'primary_blocker', type: 'text', label: 'What is the single biggest thing in your way?', required: true, maxLength: 200, step: 'goal', placeholder: 'e.g. I have no idea what to build first' },
+  ],
+  wizardSteps: [
+    { id: 'goal', group: 'You', title: 'Where are you headed?', subtitle: 'Your goal and your biggest blocker.' },
+    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see your path.' },
+  ],
+};
+
 export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   VAULT_REVENUE_PLANNER,
   PROOF_OF_DEMAND,
   FAN_MISSION,
   CLIP_TO_EARN,
   FOUNDER_WINDOW,
+  MOVEMENT_PAGE,
+  FAN_JOURNEY,
+  TOP_FAN,
+  QUEST_PATH,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(

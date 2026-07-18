@@ -154,6 +154,21 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   self-serve or one-command deletion is not built (it is Phase 2 in the checklist). Low volume
   today, so not urgent, but it is the one real gap behind the privacy disclosure.
 
+- **Loss-revelation lead magnets: two loose ends.** All 10 are live and honest (each fix now
+  points to a real CRWN feature; I audited them). Remaining:
+  1. **Founder Window is the one feature CRWN does not actually have.** The tool is now honest
+     (it points to the First 100 Supporters squad + a founding badge + a manual deadline you run),
+     but there is no AUTOMATED founder window: a tier spot-cap, a locked/grandfathered price, and
+     an auto-closing deadline. Building that (tier cap + price lock + deadline + auto-badge) would
+     make the tool's urgency real end to end. It needs a migration and TierManager UI, so it is a
+     proper feature, not a copy tweak. Ask me when you want it.
+  2. **Two web pages still to add: Supporter Promise + Team Split.** They key off a dollar amount
+     (`direct_fan_revenue_cents`), so their web wizard needs a dollars-to-cents mapping the audience
+     tools do not. Small; I will add it. Their DM result pages already work.
+  3. **Hero images are placeholders.** The seven new tools reuse existing tool photos. Bespoke
+     on-brand images (Black hip hop/R&B artist, 18-32, dark + gold) are a polish pass; I can
+     generate them, each needs a look before shipping per the brand rule.
+
 One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
 signup works via `ClaimRedeemer` instead. `/welcome` and `useAuth` are the two files that broke
 onboarding silently for months, and a claim feature does not justify touching them.
