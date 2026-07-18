@@ -52,6 +52,9 @@ export function TierManager() {
     benefits: [''],
     offersAnnual: true,
     annualDiscountPercent: '25',
+    founderWindowEnabled: false,
+    founderCap: '',
+    founderDeadline: '',
   });
   const [selectedBenefits, setSelectedBenefits] = useState<TierBenefit[]>([]);
   const [loadingBenefits, setLoadingBenefits] = useState(false);
@@ -201,6 +204,15 @@ export function TierManager() {
             stripe_annual_price_id: stripeAnnualPriceId,
             offers_annual: formData.offersAnnual,
             annual_discount_percent: annualDiscountPct,
+            // Founder window: written only when the window is on now, OR was on before (so it can be
+            // turned off). Never written otherwise, so a normal tier save is safe before the migration.
+            ...(formData.founderWindowEnabled || (editingTier as unknown as { founder_window_enabled?: boolean }).founder_window_enabled
+              ? {
+                  founder_window_enabled: formData.founderWindowEnabled,
+                  founder_cap: formData.founderCap ? parseInt(formData.founderCap) : null,
+                  founder_deadline: formData.founderDeadline || null,
+                }
+              : {}),
           })
           .eq('id', editingTier.id)
           .select()
@@ -225,7 +237,7 @@ export function TierManager() {
 
         setTiers(prev => prev.map(t => t.id === editingTier.id ? (updated as Tier) : t));
         setEditingTier(null);
-        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25' });
+        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '' });
         setSelectedBenefits([]);
         showToast('Tier updated successfully!', 'success');
       } else {
@@ -270,6 +282,14 @@ export function TierManager() {
             stripe_product_id: stripeProductId,
             offers_annual: formData.offersAnnual,
             annual_discount_percent: annualDiscountPct,
+            // Founder window: only written when turned on, so a normal new tier is safe pre-migration.
+            ...(formData.founderWindowEnabled
+              ? {
+                  founder_window_enabled: true,
+                  founder_cap: formData.founderCap ? parseInt(formData.founderCap) : null,
+                  founder_deadline: formData.founderDeadline || null,
+                }
+              : {}),
           })
           .select()
           .single();
@@ -289,7 +309,7 @@ export function TierManager() {
         }
 
         setTiers(prev => [...prev, tier as Tier]);
-        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25' });
+        setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '' });
         setSelectedBenefits([]);
         showToast('Tier created successfully!', 'success');
 
@@ -310,6 +330,7 @@ export function TierManager() {
 
   const handleEdit = async (tier: Tier) => {
     setEditingTier(tier);
+    const fw = tier as unknown as { founder_window_enabled?: boolean; founder_cap?: number | null; founder_deadline?: string | null };
     setFormData({
       name: tier.name,
       price: (tier.price / 100).toString(),
@@ -317,6 +338,9 @@ export function TierManager() {
       benefits: tier.access_config?.benefits || [''],
       offersAnnual: tier.offers_annual !== false,
       annualDiscountPercent: (tier.annual_discount_percent ?? 25).toString(),
+      founderWindowEnabled: fw.founder_window_enabled ?? false,
+      founderCap: fw.founder_cap != null ? String(fw.founder_cap) : '',
+      founderDeadline: fw.founder_deadline ? fw.founder_deadline.slice(0, 10) : '',
     });
     
     // Load existing benefits for this tier
@@ -342,7 +366,7 @@ export function TierManager() {
 
   const handleCancelEdit = () => {
     setEditingTier(null);
-    setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25' });
+    setFormData({ name: '', price: '', description: '', benefits: [''], offersAnnual: true, annualDiscountPercent: '25', founderWindowEnabled: false, founderCap: '', founderDeadline: '' });
     setSelectedBenefits([]);
   };
 
@@ -593,6 +617,52 @@ export function TierManager() {
                 )}
               </div>
             )}
+
+            {/* Founder window: a limited founding offer with a spot cap and/or a deadline. Early
+                joiners are permanently marked founders. Enforced at checkout. */}
+            <div className="bg-crwn-bg border border-crwn-elevated rounded-lg p-4 space-y-3">
+              <label className="flex items-center justify-between gap-3 cursor-pointer">
+                <span className="text-sm font-medium text-crwn-text">
+                  Run a founder window
+                  <span className="block text-xs text-crwn-text-secondary font-normal">
+                    A limited founding offer. Set a cap and a deadline; early joiners are marked founders for good.
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={formData.founderWindowEnabled}
+                  onChange={(e) => setFormData(prev => ({ ...prev, founderWindowEnabled: e.target.checked }))}
+                  className="w-5 h-5 accent-[#D4AF37] cursor-pointer flex-shrink-0"
+                />
+              </label>
+              {formData.founderWindowEnabled && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-medium text-crwn-text-secondary mb-1">Founding spots (optional)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={formData.founderCap}
+                      onChange={(e) => setFormData(prev => ({ ...prev, founderCap: e.target.value }))}
+                      placeholder="e.g. 100"
+                      className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-crwn-text-secondary mb-1">Closes on (optional)</label>
+                    <input
+                      type="date"
+                      value={formData.founderDeadline}
+                      onChange={(e) => setFormData(prev => ({ ...prev, founderDeadline: e.target.value }))}
+                      className="w-full bg-crwn-surface border border-crwn-elevated rounded-lg px-4 py-2 text-crwn-text"
+                    />
+                  </div>
+                  <p className="text-xs text-crwn-text-secondary sm:col-span-2">
+                    When the cap fills or the date passes, new signups to this tier are turned away. Leave both blank to just mark early joiners as founders.
+                  </p>
+                </div>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
