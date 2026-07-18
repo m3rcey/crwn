@@ -221,33 +221,35 @@ export default function HomePage() {
         onConfirm={handleStartTour}
         onCancel={handleSkipTour}
       />
-      {/* Greeting. ONE control top-right (was two identical "?" icons): a setup
-          progress pill while an artist still has steps to finish, otherwise a
-          single Getting Started link. The app tour replay moved into the hamburger
-          AccountHub. Both keep data-tour="home-help" so the home tours still land. */}
-      <div className="bg-crwn-surface rounded-xl p-6 relative">
-        {setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length ? (
-          <Link
-            href="/profile/artist"
-            data-tour="home-help"
-            className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-semibold text-crwn-gold hover:bg-crwn-elevated/80 transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Finish setup {setup.steps.filter((s) => s.done).length}/{setup.steps.length}
-          </Link>
-        ) : (
-          <Link
-            href={`/getting-started?role=${profile?.role || 'fan'}`}
-            data-tour="home-help"
-            className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
-          >
-            <HelpCircle className="w-3.5 h-3.5" />
-            Getting started
-          </Link>
-        )}
-        <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
-          {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!
-        </h1>
+      {/* Greeting. The setup / Getting Started pill sits in NORMAL FLOW (a flex row,
+          right-aligned, shrink-0) instead of absolutely positioned, so it reserves
+          its own space and can never overlap the heading or anything else, on mobile
+          or desktop. data-tour="home-help" stays so the home tours still land. */}
+      <div className="bg-crwn-surface rounded-xl p-6">
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
+            {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!
+          </h1>
+          {setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length ? (
+            <Link
+              href="/profile/artist"
+              data-tour="home-help"
+              className="flex-shrink-0 whitespace-nowrap mt-1 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-semibold text-crwn-gold hover:bg-crwn-elevated/80 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Finish setup {setup.steps.filter((s) => s.done).length}/{setup.steps.length}
+            </Link>
+          ) : (
+            <Link
+              href={`/getting-started?role=${profile?.role || 'fan'}`}
+              data-tour="home-help"
+              className="flex-shrink-0 whitespace-nowrap mt-1 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              Getting started
+            </Link>
+          )}
+        </div>
         <p className="text-crwn-text-secondary mt-2">
           {getDailyWelcome()}
         </p>
