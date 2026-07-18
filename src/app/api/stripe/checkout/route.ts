@@ -38,6 +38,33 @@ export async function POST(req: NextRequest) {
 
     const artistSlugValue = tier.artist?.slug || tier.artist_id;
 
+    // ---- Founder window: a tier can run a limited founding window (spot cap + deadline). ----
+    // Enforced BEFORE any subscription is created, on both the free and paid paths. Inert until the
+    // migration adds these columns: founder_window_enabled is undefined -> the whole block is skipped
+    // and is_founder is never written, so the pre-migration app is safe.
+    let isFounder = false;
+    if (tier.founder_window_enabled) {
+      if (tier.founder_deadline && new Date(tier.founder_deadline).getTime() < Date.now()) {
+        return NextResponse.json({ error: 'The founder window for this tier has closed.' }, { status: 409 });
+      }
+      if (tier.founder_cap != null) {
+        const svc = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+          process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+        );
+        const { count } = await svc
+          .from('subscriptions')
+          .select('id', { count: 'exact', head: true })
+          .eq('tier_id', tierId)
+          .eq('is_founder', true)
+          .in('status', ['active', 'trialing']);
+        if ((count ?? 0) >= tier.founder_cap) {
+          return NextResponse.json({ error: 'All founder spots for this tier are taken.' }, { status: 409 });
+        }
+      }
+      isFounder = true;
+    }
+
     // Free tier — create subscription directly, no Stripe needed
     if (tier.price === 0) {
       const supabaseAdmin = createClient(
@@ -51,6 +78,9 @@ export async function POST(req: NextRequest) {
         tier_id: tierId,
         status: 'active',
         started_at: new Date().toISOString(),
+        // Only written when a founder window is open (which requires the migrated column), so this
+        // is safe before the migration runs.
+        ...(isFounder ? { is_founder: true } : {}),
       }, { onConflict: 'fan_id,artist_id' });
 
       const successUrl = returnUrl
@@ -226,6 +256,7 @@ export async function POST(req: NextRequest) {
         utm_source: utmSource || '',
         utm_medium: utmMedium || '',
         utm_campaign: utmCampaign || '',
+        is_founder: isFounder ? 'true' : '',
       },
     });
 

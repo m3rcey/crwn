@@ -76,6 +76,9 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
     stripe_customer_id: session.customer as string,
     status: 'active',
     started_at: new Date().toISOString(),
+    // Founder window: the checkout route sets this only when a founding window was open, so the
+    // key is present in metadata only post-migration. Written conditionally to stay pre-migration safe.
+    ...(session.metadata?.is_founder === 'true' ? { is_founder: true } : {}),
   };
 
   console.log('Upserting subscription:', JSON.stringify(insertData));
