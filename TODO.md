@@ -48,6 +48,16 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Apply the Founder Window migration to turn the feature on.** Run
+      [`supabase/schema-phase2-founder-window.sql`](supabase/schema-phase2-founder-window.sql) in the
+      Supabase SQL editor (adds `founder_window_enabled` / `founder_cap` / `founder_deadline` to
+      `subscription_tiers` and `is_founder` to `subscriptions`; it self-verifies). The feature is
+      shipped and **inert until you run it**: the tier editor already shows "Run a founder window,"
+      and checkout already enforces a cap + deadline, but no founder column is read or written until
+      the migration lands, so leaving it un-run breaks nothing. Run it, then any artist can cap a
+      tier and set a join deadline, and early joiners are marked founders for good. This is what
+      makes the Founder Window lead magnet's promise real end to end.
+
 - [ ] **Apply the Pop-up Engine migration, then turn it on when ready.** The pop-up system
       (governed in-app nudges + pop-up surveys) is shipped but DARK. It renders nothing until
       both steps happen:
@@ -156,12 +166,11 @@ and the admin panel. The privacy policy now discloses the funnel (live).
 
 - **Loss-revelation lead magnets: two loose ends.** All 10 are live and honest (each fix now
   points to a real CRWN feature; I audited them). Remaining:
-  1. **Founder Window is the one feature CRWN does not actually have.** The tool is now honest
-     (it points to the First 100 Supporters squad + a founding badge + a manual deadline you run),
-     but there is no AUTOMATED founder window: a tier spot-cap, a locked/grandfathered price, and
-     an auto-closing deadline. Building that (tier cap + price lock + deadline + auto-badge) would
-     make the tool's urgency real end to end. It needs a migration and TierManager UI, so it is a
-     proper feature, not a copy tweak. Ask me when you want it.
+  1. **Founder Window feature: BUILT (lightweight), waiting on the migration above.** Artists can
+     cap a tier + set a join deadline in the tier editor; checkout enforces it; early joiners are
+     marked founders. The only thing left is running the migration (in P1 above). NOT built:
+     grandfathered/locked pricing (founders keep their price for life), deferred because it touches
+     Stripe subscription pricing. Ask me if you want that added.
   2. **Two web pages still to add: Supporter Promise + Team Split.** They key off a dollar amount
      (`direct_fan_revenue_cents`), so their web wizard needs a dollars-to-cents mapping the audience
      tools do not. Small; I will add it. Their DM result pages already work.
