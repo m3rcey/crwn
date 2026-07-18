@@ -555,13 +555,10 @@ const movementPage: AcquisitionTool = {
     const monthly = leakedNow * PRICE;
     return buildLossResult({
       generatorVersion: 'lossResult@1',
-      headline: 'Your traffic hits a generic profile, reads nothing worth joining, and leaves',
-      score: {
-        value: 24,
-        max: 100,
-        label: 'Movement clarity',
-        band: 'Low: visitors cannot tell what you are building or why to join now',
-      },
+      headline:
+        monthly >= 5000
+          ? `About ${fmtDollars(monthly)} a month is leaking through a link that says nothing`
+          : 'Your link sends fans to a page that says nothing, so most of them leave',
       summary: `Roughly ${monthlyVisitors.toLocaleString(
         'en-US',
       )} people check your link each month. A profile with no story converts almost none of them.`,
@@ -632,13 +629,10 @@ const fanJourney: AcquisitionTool = {
     const monthly = lostToNoPath * PRICE;
     return buildLossResult({
       generatorVersion: 'lossResult@1',
-      headline: 'Fans leak out at every step between hearing you and paying you',
-      score: {
-        value: 71,
-        max: 100,
-        label: 'Fan journey leakage',
-        band: 'High: your weakest transition is first purchase to recurring support',
-      },
+      headline:
+        monthly >= 5000
+          ? `About ${fmtDollars(monthly)} a month in recurring support leaks out before fans ever pay`
+          : 'Fans leak out at every step between hearing you and paying you',
       summary: `About ${wouldPay.toLocaleString(
         'en-US',
       )} of your fans would pay you something. With no path from one step to the next, most never make the jump to recurring support.`,
@@ -704,16 +698,12 @@ const topFan: AcquisitionTool = {
     const superfans = Math.round(audience * 0.01); // the fans doing most of the work
     // Recognition lifts repeat participation and referrals from superfans. Conservative uplift.
     const uplift = Math.round(superfans * 0.25) * PRICE; // ~25% more retained/referred value
-    const score = Math.min(90, 62 + Math.floor(Math.min(28, superfans / 20)));
     return buildLossResult({
       generatorVersion: 'lossResult@1',
-      headline: 'Your top fans look identical to the fans who just pressed play, so they act like it',
-      score: {
-        value: score,
-        max: 100,
-        label: 'Unrecognized fan impact',
-        band: 'High: your most valuable fans get no status, so their best actions fade',
-      },
+      headline:
+        uplift >= 5000
+          ? `About ${fmtDollars(uplift)} a month in repeat business fades because your top fans go unrecognized`
+          : 'Your top fans look identical to casual listeners, so their best actions fade',
       summary: `Around ${superfans.toLocaleString(
         'en-US',
       )} of your fans quietly do most of the sharing, referring, and buying. With nothing marking them apart, that behavior slowly stops.`,
@@ -836,7 +826,7 @@ const questPath: AcquisitionTool = {
 const supporterPromise: AcquisitionTool = {
   id: 'supporter-promise-calendar',
   name: 'Supporter Promise Calendar Builder',
-  requiredFields: ['direct_fan_revenue_cents'],
+  requiredFields: ['social_followers'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/supporter-promise-calendar/result',
   formulaVersion: 'lossResult@1',
@@ -844,31 +834,25 @@ const supporterPromise: AcquisitionTool = {
   requiresEstimateDisclaimer: true,
   destinationId: 'setup_monetize',
   execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
     const PRICE = 1000;
-    const monthlyRev = n(profile.direct_fan_revenue_cents);
-    const supporters = Math.max(0, Math.round(monthlyRev / PRICE)); // estimate at ~$10/mo each
-    const atRisk = Math.round(supporters * 0.2); // ~20% churn when promises slip
+    const supporters = Math.round(audience * 0.01); // ~1% of an audience ever pays
+    const atRisk = Math.round(supporters * 0.2); // ~20% churn when a promised perk slips
     const mrrAtRisk = atRisk * PRICE;
-    const score = supporters > 0 ? 74 : 62;
+    const headline =
+      mrrAtRisk >= 5000
+        ? `About ${fmtDollars(mrrAtRisk)} a month walks the first time a promised perk slips`
+        : 'A perk you promise and then miss is the fastest way to lose a paying supporter';
     return buildLossResult({
       generatorVersion: 'lossResult@1',
-      headline: 'The perks you promised are a monthly bill you never scheduled, and missed ones churn supporters',
-      score: {
-        value: score,
-        max: 100,
-        label: 'Fulfillment risk',
-        band: 'High: benefits with no calendar get missed, and a missed benefit is a cancelled supporter',
-      },
-      summary:
-        supporters > 0
-          ? `About ${supporters.toLocaleString(
-              'en-US',
-            )} supporters are counting on perks you have not put on a schedule. When one slips, that trust, and that revenue, is the first to go.`
-          : 'Before you promise your supporters anything, this shows whether you can actually deliver it every month without drowning.',
+      headline,
+      summary: `An audience your size supports roughly ${supporters.toLocaleString(
+        'en-US',
+      )} paying members. Every perk you promise them is a recurring due date, and a missed one is the most common reason they cancel.`,
       cause:
         'Every membership perk is a recurring obligation with a due date. With no calendar, they get forgotten, delivered late, or promised faster than you can produce. Supporters notice, and a missed benefit is the most common reason a recurring supporter cancels.',
       estimate: [
-        { label: 'Supporters counting on you', value: supporters.toLocaleString('en-US') },
+        { label: 'Supporters at your size', value: supporters.toLocaleString('en-US'), note: '~1% of audience' },
         { label: 'At risk from missed perks', value: atRisk.toLocaleString('en-US'), note: '~20%' },
         { label: 'Monthly revenue at risk', value: fmtDollars(mrrAtRisk) },
         { label: 'A year of it', value: fmtDollars(mrrAtRisk * 12) },
@@ -879,7 +863,7 @@ const supporterPromise: AcquisitionTool = {
         { label: 'Overwhelmed', value: `${fmtDollars(Math.round(supporters * 0.35) * PRICE)}/mo`, note: '~35% churn' },
       ],
       assumptions: [
-        'Supporters estimated from your direct monthly revenue at about $10 each.',
+        'Supporters estimated at about 1% of your audience paying roughly $10 a month, a conservative rate.',
         'Missed or late benefits churn roughly 20% of supporters over a year; a real schedule cuts that sharply.',
         'A planning estimate, not a prediction or a guarantee.',
       ],
@@ -913,7 +897,7 @@ const supporterPromise: AcquisitionTool = {
 const teamSplit: AcquisitionTool = {
   id: 'team-split-deal-builder',
   name: 'Team Split Deal Builder',
-  requiredFields: ['direct_fan_revenue_cents'],
+  requiredFields: ['social_followers'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/team-split-deal-builder/result',
   formulaVersion: 'lossResult@1',
@@ -921,29 +905,30 @@ const teamSplit: AcquisitionTool = {
   requiresEstimateDisclaimer: true,
   destinationId: 'setup_monetize',
   execute(profile) {
-    const monthlyRev = n(profile.direct_fan_revenue_cents);
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const PRICE = 1000;
+    const projectedMrr = Math.round(audience * 0.01) * PRICE; // ~1% pay ~$10/mo direct
     const PCT = 0.2; // a common collaborator ask
     const CAP_MONTHS = 6;
     // Uncapped: pays PCT of revenue forever. Capped: pays PCT until a fair cap, then stops.
-    const uncappedYear = Math.round(monthlyRev * PCT * 12);
-    const cappedTotal = Math.round(monthlyRev * PCT * CAP_MONTHS);
+    const uncappedYear = Math.round(projectedMrr * PCT * 12);
+    const cappedTotal = Math.round(projectedMrr * PCT * CAP_MONTHS);
     const overpayYear = Math.max(0, uncappedYear - cappedTotal);
     const headline =
       overpayYear >= 5000
-        ? `An uncapped 20% split quietly costs you about ${fmtDollars(overpayYear)} more a year than a capped one`
+        ? `An uncapped 20% split would quietly cost you about ${fmtDollars(overpayYear)} more a year than a capped one`
         : 'A collaborator deal with no cap keeps paying long after the work stopped adding value';
     return buildLossResult({
       generatorVersion: 'lossResult@1',
       headline,
-      summary:
-        monthlyRev > 0
-          ? `On ${fmtDollars(monthlyRev)} a month, a 20% split with no cap and no end date keeps taking from every future dollar, including the ones the collaborator had nothing to do with.`
-          : 'Before you hand a collaborator a percentage, this shows how a cap, a duration, and a gross-versus-net basis change what you actually owe.',
+      summary: `On the roughly ${fmtDollars(
+        projectedMrr,
+      )} a month an audience your size can earn direct, a 20% split with no cap and no end date keeps taking from every future dollar, including the ones the collaborator had nothing to do with.`,
       cause:
         'The two ways a team deal goes wrong: you cannot fund a collaborator upfront so the work never happens, or you fund it with a split that is set too high, applies to too much, has no cap, no duration, and an unclear gross-versus-net basis, so it quietly bleeds revenue long after the work stopped mattering.',
       estimate: [
-        { label: 'Split rate assumed', value: '20%' },
-        { label: 'Uncapped, per year', value: fmtDollars(uncappedYear) },
+        { label: 'Direct revenue at your size', value: `${fmtDollars(projectedMrr)}/mo`, note: '~1% of audience paying' },
+        { label: 'Uncapped 20%, per year', value: fmtDollars(uncappedYear) },
         { label: 'Capped at 6 months', value: fmtDollars(cappedTotal) },
         { label: 'Overpaid, year one', value: fmtDollars(overpayYear) },
       ],
@@ -953,9 +938,9 @@ const teamSplit: AcquisitionTool = {
         { label: 'Uncapped 3yr', value: fmtDollars(uncappedYear * 3), note: 'still paying' },
       ],
       assumptions: [
-        'A 20% collaborator split on your direct monthly revenue, for illustration.',
-        'A capped deal ends after about 6 months of contribution; an uncapped one never does.',
-        'Figures assume a gross basis; a net basis changes them again. A planning estimate, not a guarantee.',
+        'Direct revenue projected at about 1% of your audience paying roughly $10 a month, a conservative rate.',
+        'A 20% collaborator split on that revenue, for illustration.',
+        'A capped deal ends after about 6 months; an uncapped one never does. Figures assume a gross basis; a net basis changes them again. A planning estimate, not a guarantee.',
       ],
       consequences: [
         'Without a way to fund a team, campaigns get delayed and specialist work does not happen.',

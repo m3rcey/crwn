@@ -540,23 +540,9 @@ const QUEST_PATH: LeadMagnetConfig = {
   ],
 };
 
-// The two loss tools keyed off current direct revenue (entered in dollars, converted to cents in
-// the web clients before the loss engine runs).
-const REVENUE_INPUT: LeadMagnetInputDefinition = {
-  key: 'direct_fan_revenue_cents',
-  type: 'currency',
-  label: 'About how much do you earn per month directly from fans right now? (dollars)',
-  required: true,
-  min: 0,
-  max: 1000000,
-  step: 'revenue',
-  placeholder: '500',
-};
-const REVENUE_STEPS: LeadMagnetWizardStep[] = [
-  { id: 'revenue', group: 'Revenue', title: 'What are fans paying you now?', subtitle: 'Roughly, per month. 0 is a real answer.' },
-  { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answer, then see the result.' },
-];
-
+// Both revenue-gated loss tools now project their dollar from audience (social_followers), the
+// same honest model as the other loss tools, so a cold lead with no direct revenue still gets a
+// real number instead of $0. They inherit AUDIENCE_INPUT/AUDIENCE_STEPS from lossToolBase.
 const SUPPORTER_PROMISE: LeadMagnetConfig = {
   ...lossToolBase({
     slug: 'supporter-promise-calendar',
@@ -578,8 +564,6 @@ const SUPPORTER_PROMISE: LeadMagnetConfig = {
     resultGeneratorKey: 'supporterPromise',
     analyticsMetadata: { toolId: 'supporter-promise-calendar', category: 'Monetize', promotedFeature: 'Promise Calendar' },
   }),
-  inputs: [REVENUE_INPUT],
-  wizardSteps: REVENUE_STEPS,
 };
 
 const TEAM_SPLIT: LeadMagnetConfig = {
@@ -603,8 +587,6 @@ const TEAM_SPLIT: LeadMagnetConfig = {
     resultGeneratorKey: 'teamSplit',
     analyticsMetadata: { toolId: 'team-split-deal-builder', category: 'Monetize', promotedFeature: 'Team Splits' },
   }),
-  inputs: [REVENUE_INPUT],
-  wizardSteps: REVENUE_STEPS,
 };
 
 export const LEAD_MAGNETS: LeadMagnetConfig[] = [
