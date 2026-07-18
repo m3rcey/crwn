@@ -540,6 +540,73 @@ const QUEST_PATH: LeadMagnetConfig = {
   ],
 };
 
+// The two loss tools keyed off current direct revenue (entered in dollars, converted to cents in
+// the web clients before the loss engine runs).
+const REVENUE_INPUT: LeadMagnetInputDefinition = {
+  key: 'direct_fan_revenue_cents',
+  type: 'currency',
+  label: 'About how much do you earn per month directly from fans right now? (dollars)',
+  required: true,
+  min: 0,
+  max: 1000000,
+  step: 'revenue',
+  placeholder: '500',
+};
+const REVENUE_STEPS: LeadMagnetWizardStep[] = [
+  { id: 'revenue', group: 'Revenue', title: 'What are fans paying you now?', subtitle: 'Roughly, per month. 0 is a real answer.' },
+  { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answer, then see the result.' },
+];
+
+const SUPPORTER_PROMISE: LeadMagnetConfig = {
+  ...lossToolBase({
+    slug: 'supporter-promise-calendar',
+    name: 'Supporter Promise Calendar Builder',
+    featureName: 'Promise Calendar',
+    category: 'Monetize',
+    description: 'See the recurring revenue at risk from perks you promised but never scheduled.',
+    videoAngle: 'Every membership perk is a recurring bill with a due date. Miss one and the supporter cancels.',
+    icon: '📅',
+    dmKeywords: ['promise'],
+    hero: {
+      eyebrow: 'Promise Calendar',
+      headline: 'The perks you promised are a bill you never scheduled.',
+      subheadline: 'Benefits with no calendar get missed, and a missed benefit is the most common reason a supporter cancels. See the revenue at risk.',
+      primaryCta: 'See my risk',
+      image: '/tool-worth.jpg',
+      imageAlt: 'A dim, gold-lit studio with an artist at the center',
+    },
+    resultGeneratorKey: 'supporterPromise',
+    analyticsMetadata: { toolId: 'supporter-promise-calendar', category: 'Monetize', promotedFeature: 'Promise Calendar' },
+  }),
+  inputs: [REVENUE_INPUT],
+  wizardSteps: REVENUE_STEPS,
+};
+
+const TEAM_SPLIT: LeadMagnetConfig = {
+  ...lossToolBase({
+    slug: 'team-split-deal-builder',
+    name: 'Team Split Deal Builder',
+    featureName: 'Team Splits',
+    category: 'Monetize',
+    description: 'See how much an uncapped collaborator split costs you over a capped one.',
+    videoAngle: 'A split with no cap and no end date keeps taking from every future dollar, long after the work stopped mattering.',
+    icon: '🤝',
+    dmKeywords: ['split'],
+    hero: {
+      eyebrow: 'Team Splits',
+      headline: 'An uncapped split keeps paying after the work stops.',
+      subheadline: 'A cap, a duration, and a gross-versus-net basis change what you actually owe a collaborator. See the difference on your revenue.',
+      primaryCta: 'See the difference',
+      image: '/tool-worth.jpg',
+      imageAlt: 'A dim, gold-lit studio with an artist at the center',
+    },
+    resultGeneratorKey: 'teamSplit',
+    analyticsMetadata: { toolId: 'team-split-deal-builder', category: 'Monetize', promotedFeature: 'Team Splits' },
+  }),
+  inputs: [REVENUE_INPUT],
+  wizardSteps: REVENUE_STEPS,
+};
+
 export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   VAULT_REVENUE_PLANNER,
   PROOF_OF_DEMAND,
@@ -550,6 +617,8 @@ export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   FAN_JOURNEY,
   TOP_FAN,
   QUEST_PATH,
+  SUPPORTER_PROMISE,
+  TEAM_SPLIT,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(

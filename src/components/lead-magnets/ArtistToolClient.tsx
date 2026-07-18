@@ -91,10 +91,20 @@ export function ArtistToolClient({ config }: { config: LeadMagnetConfig }) {
   const onComplete = (v: LeadMagnetInputValues) => {
     setValues(v);
     try {
-      const r =
-        config.usesLossEngine && getTool(config.slug)
-          ? getTool(config.slug)!.execute(v as unknown as LeadProfileValues)
-          : generateResult(config.resultGeneratorKey, v);
+      const lossTool = config.usesLossEngine ? getTool(config.slug) : null;
+      let r;
+      if (lossTool) {
+        // Currency inputs are entered in DOLLARS; loss-engine fields ending in _cents want cents.
+        const profile: Record<string, unknown> = { ...v };
+        for (const inp of config.inputs) {
+          if (inp.type === 'currency' && inp.key.endsWith('_cents') && typeof profile[inp.key] === 'number') {
+            profile[inp.key] = Math.round((profile[inp.key] as number) * 100);
+          }
+        }
+        r = lossTool.execute(profile as unknown as LeadProfileValues);
+      } else {
+        r = generateResult(config.resultGeneratorKey, v);
+      }
       setResult(r);
       setSaved(false);
       trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: config.slug, context: 'artist', authed: true, generatorVersion: r.generatorVersion });
