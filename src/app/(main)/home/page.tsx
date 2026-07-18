@@ -260,12 +260,6 @@ export default function HomePage() {
           standard home; their guided mode is Rise Mode on the dashboard. */}
       {!hasArtistProfile && <SupporterMode />}
 
-      {/* Program Links */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl stagger-fade-in">
-
-
-      </div>
-
       {/* Featured Artists */}
       <section data-tour="home-feed">
         <div className="flex items-center justify-between mb-4">
