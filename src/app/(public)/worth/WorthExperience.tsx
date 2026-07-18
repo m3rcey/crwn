@@ -375,7 +375,14 @@ export function WorthExperience({
         </>
       )}
 
-      {homepage ? (
+      {claimHref ? (
+        <a
+          href={claimHref}
+          className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
+        >
+          Sign up free and keep this money <ArrowRight className="w-5 h-5" />
+        </a>
+      ) : homepage ? (
         <a
           href="/signup?ref=homepage"
           className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
@@ -393,10 +400,72 @@ export function WorthExperience({
         </a>
       )}
       <p className="text-center text-lg text-crwn-text-secondary mt-3">
-        {homepage ? 'Free to start. No card required. Set up your tiers in minutes.' : 'A quick Zoom. We’ll show you exactly how to capture this. No pitch.'}
+        {claimHref
+          ? 'Free to start. No card required. Your numbers save to your account.'
+          : homepage
+            ? 'Free to start. No card required. Set up your tiers in minutes.'
+            : 'A quick Zoom. We’ll show you exactly how to capture this. No pitch.'}
       </p>
     </div>
   );
+
+  // Arrived from an Instagram comment/DM: her number is already in, so lead with the loss.
+  const leadView = !!resultToken;
+
+  const inputsCard = (
+    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-4">
+      <div className="grid sm:grid-cols-3 gap-4">
+        <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="50,000" />
+        <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
+        <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
+      </div>
+      <p className="text-lg text-crwn-text-secondary/70 mt-3">
+        {leadView
+          ? 'These are the numbers you gave us. Change any of them and the figure above recalculates.'
+          : 'Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.'}
+      </p>
+      {assumptionsBlock}
+    </div>
+  );
+
+  const resultCard = (
+    <div id="worth-result" className="scroll-mt-20 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8 mb-6 text-center">
+      <div className="text-sm uppercase tracking-wide text-crwn-text-secondary mb-2">
+        You&apos;re leaving roughly
+      </div>
+      <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
+        {hasNumber ? fmtDollars(result.netMrrCents) : '–'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
+      </div>
+      <div className="text-crwn-text-secondary mb-6">
+        on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
+      </div>
+      {statsGrid}
+    </div>
+  );
+
+  // How the number was built, step by step, from HER inputs. A number she can trace is a
+  // number she believes.
+  const derivationCard = hasNumber ? (
+    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-6">
+      <div className="text-sm uppercase tracking-wide text-crwn-text-secondary mb-4">
+        How we got to {fmtDollars(result.netMrrCents)}/mo
+      </div>
+      <div className="space-y-2.5">
+        <DerivRow
+          n="1"
+          label="Your audience"
+          value={`${fmtCount(inputs.monthlyListeners)}${inputs.engagedFollowers ? ' + ' + fmtCount(inputs.engagedFollowers) + ' followers' : ' listeners'}`}
+        />
+        <DerivRow n="2" label={`Reachable (~${Math.round(assumptions.reachRate * 100)}%)`} value={`~${fmtCount(result.addressable)} fans`} />
+        <DerivRow n="3" label={`Ever pay (~${Math.round(assumptions.superfanRate * 1000) / 10}%)`} value={`~${fmtCount(result.payers)} superfans`} />
+        <DerivRow n="4" label="Memberships + à la carte" value={`${fmtDollars(result.subsMrrCents)} + ${fmtDollars(result.alacarteMrrCents)}/mo`} />
+        <DerivRow n="5" label="After the 8% Pro fee" value={`${fmtDollars(result.netMrrCents)}/mo net`} highlight />
+      </div>
+      <p className="text-[11px] text-crwn-text-secondary/70 mt-4">
+        Change your numbers below, or flip the presets, and every step recalculates.
+      </p>
+    </div>
+  ) : null;
 
   return (
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
@@ -415,36 +484,24 @@ export function WorthExperience({
           </p>
         </div>
 
-        {/* Inputs */}
-        <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-4">
-          <div className="grid sm:grid-cols-3 gap-4">
-            <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="50,000" />
-            <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
-            <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
-          </div>
-          <p className="text-lg text-crwn-text-secondary/70 mt-3">
-            Enter whatever you have. Just monthly listeners or just followers (Instagram, TikTok) is enough, both is sharper.
-          </p>
-          {assumptionsBlock}
-        </div>
-
-        {/* Result: the number, with the supporting stats inside (the /worth layout). */}
-        <div id="worth-result" className="scroll-mt-20 bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8 mb-6 text-center">
-          <div className="text-sm uppercase tracking-wide text-crwn-text-secondary mb-2">
-            You&apos;re leaving roughly
-          </div>
-          <div className="text-5xl sm:text-6xl font-bold text-crwn-gold mb-1">
-            {hasNumber ? fmtDollars(result.netMrrCents) : '–'}<span className="text-2xl sm:text-3xl font-bold">/mo</span>
-          </div>
-          <div className="text-crwn-text-secondary mb-6">
-            on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
-          </div>
-          {statsGrid}
-        </div>
-
-        {/* Email capture + primary CTA — right under the reveal so the number and
-            the ask share the viewport the moment the visitor jumps here. */}
-        {emailCaptureCard}
+        {/* Lead view (arrived from an Instagram comment): lead with the loss and the ask,
+            then the derivation, then the inputs to adjust. Cold view: inputs first, because
+            there is no number yet. */}
+        {leadView ? (
+          <>
+            {resultCard}
+            {emailCaptureCard}
+            {derivationCard}
+            {inputsCard}
+          </>
+        ) : (
+          <>
+            {inputsCard}
+            {resultCard}
+            {derivationCard}
+            {emailCaptureCard}
+          </>
+        )}
 
         {/* Where the number comes from */}
         <section className="mb-14">
@@ -977,6 +1034,18 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="bg-crwn-bg/40 rounded-xl p-3">
       <div className="text-lg font-bold">{value}</div>
       <div className="text-lg text-crwn-text-secondary">{label}</div>
+    </div>
+  );
+}
+
+function DerivRow({ n, label, value, highlight }: { n: string; label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="shrink-0 w-6 h-6 rounded-full border border-crwn-gold/30 flex items-center justify-center text-[11px] font-semibold text-crwn-gold">
+        {n}
+      </span>
+      <span className="text-crwn-text-secondary text-sm">{label}</span>
+      <span className={`ml-auto font-semibold ${highlight ? 'text-crwn-gold text-lg' : 'text-crwn-text'}`}>{value}</span>
     </div>
   );
 }

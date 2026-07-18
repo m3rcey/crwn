@@ -633,7 +633,7 @@ export type ExternalTool = {
 export const EXTERNAL_TOOLS: ExternalTool[] = [
   {
     key: 'worth',
-    name: 'What Your Music Is Worth',
+    name: 'Streaming Loss Calculator',
     description: 'See how little streaming actually pays you, and what the same fans would be worth on CRWN.',
     category: 'Monetize',
     timeToComplete: '1 min',

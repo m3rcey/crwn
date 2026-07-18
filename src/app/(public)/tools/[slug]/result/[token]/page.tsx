@@ -23,6 +23,7 @@ import { Check, Crown, ArrowRight, ArrowDown } from 'lucide-react';
 import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
 import { ToolShowcase } from '@/components/lead-magnets/ToolShowcase';
+import { LeadEmailCta } from '@/components/lead-magnets/LeadEmailCta';
 import { ESTIMATE_DISCLAIMER } from '@/lib/leadMagnets/disclaimers';
 import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
@@ -116,13 +117,8 @@ export default async function ResultPage({
           )}
         </div>
 
-        {/* Primary CTA */}
-        <SignupCta
-          claimed={claimed}
-          claimHref={claimHref}
-          heading="Start collecting this"
-          sub="Every month you wait, it keeps going to a platform instead of to you. Set it up on CRWN, free."
-        />
+        {/* Above the fold: collect the email, then sign up directly under it. */}
+        <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} />
 
         {/* Sections, with a CTA woven into the middle */}
         <div className="space-y-8 mt-16">

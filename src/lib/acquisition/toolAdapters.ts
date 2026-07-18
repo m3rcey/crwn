@@ -75,7 +75,7 @@ const s = (v: string | null | undefined, d = ''): string => (typeof v === 'strin
 // keeps working exactly as it does today.
 const worth: AcquisitionTool = {
   id: 'worth',
-  name: 'What your fanbase is actually worth',
+  name: 'Streaming Loss Calculator',
   requiredFields: ['monthly_listeners'],
   optionalFields: ['social_followers', 'streaming_revenue_cents'],
   resultRouteBase: '/tools/worth/result',
