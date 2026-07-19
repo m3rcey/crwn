@@ -969,6 +969,161 @@ const teamSplit: AcquisitionTool = {
   },
 };
 
+const shareToEarn: AcquisitionTool = {
+  id: 'share-to-earn-planner',
+  name: 'Share-to-Earn Revenue Calculator',
+  requiredFields: ['social_followers'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/share-to-earn-planner/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'shareToEarn',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const PRICE = 1000;
+    const referrers = Math.round(audience * 0.03); // ~3% will share for a cut
+    const monthlyAt = (rate: number) => Math.round(audience * rate) * PRICE;
+    const EXPECTED = 0.006; // fan referrals convert ~0.6% of the audience to paying subscribers
+    const monthlyExpected = monthlyAt(EXPECTED);
+    const annualExpected = monthlyExpected * 12;
+    const referredReach = Math.round(audience * 2); // warm reach from fan shares, conservative
+    const headline =
+      monthlyExpected >= 5000
+        ? `About ${fmtDollars(monthlyExpected)} a month in referred subscribers is walking past your fans' share buttons`
+        : 'Your fans would bring their friends for a cut, and you never gave them a reason to';
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline,
+      summary: `Around ${referrers.toLocaleString(
+        'en-US',
+      )} of your fans would share you if there was something in it for them. With no reward and no tracking, the friends they would have brought never arrive.`,
+      cause:
+        'Your fans already recommend you to friends for free, but nothing tracks it and nothing pays them for it, so it never scales. A share-to-earn referral turns every fan into a promoter with a personal link and a cut of what they bring in, so the word of mouth you were getting for nothing finally converts and compounds.',
+      estimate: [
+        { label: 'Fans who would share', value: referrers.toLocaleString('en-US'), note: '~3% of your audience' },
+        { label: 'Warm reach from their shares', value: `~${referredReach.toLocaleString('en-US')}`, note: 'per month, conservative' },
+        { label: 'Monthly, unclaimed', value: fmtDollars(monthlyExpected) },
+        { label: 'A year of it', value: fmtDollars(annualExpected) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(monthlyAt(0.004))}/mo`, note: '~0.4% convert' },
+        { label: 'Expected', value: `${fmtDollars(monthlyExpected)}/mo`, note: '~0.6% convert' },
+        { label: 'High', value: `${fmtDollars(monthlyAt(0.01))}/mo`, note: '~1% convert' },
+      ],
+      assumptions: [
+        'About 3% of your audience will actively share you when there is a reward for it.',
+        'Their warm referrals convert roughly 0.6% of your audience into paying subscribers, a conservative rate.',
+        'A referred subscriber valued at about $10 a month; you set the commission, so most of it is net to you.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'The word of mouth you already earn goes untracked and unrewarded, so it never scales.',
+        'You keep paying for reach with ads and your own time while your fans would bring it for a small cut.',
+        'The friends your fans would have brought never hear a reason to join now.',
+      ],
+      fanLoss:
+        'Your fans miss a personal share link, a real reward for bringing people in, recognition for the friends they convert, and a way to be part of your growth instead of just watching it.',
+      flow: [
+        'Fans recommend you for free, and it converts no one',
+        'Turn on share-to-earn referrals and set the commission',
+        'Fans share their own link for a recurring cut',
+        `${fmtDollars(monthlyExpected)} a month in referred subscribers you did not pay to reach`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Turn on fan referrals on CRWN so every fan gets a personal share link.',
+          'Set the commission a fan earns when someone they refer subscribes.',
+          'They share, and you both get paid every month the referred fan stays.',
+        ],
+      },
+      conversionPayload: { program: 'share-to-earn' },
+      shareSummary: `Turns out my fans' shares could be worth about ${fmtDollars(monthlyExpected)} a month.`,
+    });
+  },
+};
+
+const execProducer: AcquisitionTool = {
+  id: 'executive-producer-session',
+  name: 'Executive Producer Session Calculator',
+  requiredFields: ['social_followers'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/executive-producer-session/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'execProducerSession',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    // Any artist can run this at any level, regardless of catalog size. What they can CHARGE
+    // scales with their level, so the seat price is banded by audience (the level proxy the
+    // engine has) instead of a flat number.
+    const seatPrice =
+      audience >= 250000 ? 20000 : // $200
+      audience >= 50000 ? 10000 : // $100
+      audience >= 5000 ? 5000 : // $50
+      2500; // $25, a smaller artist still runs it, just priced for their level
+    const buyersAt = (rate: number) => Math.round(audience * rate) * seatPrice;
+    const EXPECTED = 0.003; // ~0.3% of the audience buys a premium session seat per month
+    const monthlyExpected = buyersAt(EXPECTED);
+    const annualExpected = monthlyExpected * 12;
+    const seatsPerMonth = Math.round(audience * EXPECTED);
+    const headline =
+      monthlyExpected >= 5000
+        ? `About ${fmtDollars(monthlyExpected)} a month in premium session seats is sitting unoffered`
+        : 'The highest-leverage thing you can sell, a seat in the room, does not exist yet';
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline,
+      summary: `Around ${seatsPerMonth.toLocaleString(
+        'en-US',
+      )} of your fans a month would pay to be in the room where the music gets made. Right now there is no room to buy their way into.`,
+      cause:
+        'The most valuable thing you own is not the finished song, it is access to the session that made it. A gated or ticketed live Executive Producer session lets fans buy a seat, pitch beats for you to record to, submit vocals, samples, and song topics, and watch you work live. It is the highest-margin, highest-leverage offer you have, and right now it does not exist.',
+      estimate: [
+        { label: 'Fans who would buy a seat', value: seatsPerMonth.toLocaleString('en-US'), note: '~0.3% of your audience, monthly' },
+        { label: 'Seat price for your level', value: fmtDollars(seatPrice), note: 'a bigger following supports more' },
+        { label: 'Monthly, unoffered', value: fmtDollars(monthlyExpected) },
+        { label: 'A year of it', value: fmtDollars(annualExpected) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(buyersAt(0.0015))}/mo`, note: '~0.15% buy in' },
+        { label: 'Expected', value: `${fmtDollars(monthlyExpected)}/mo`, note: '~0.3% buy in' },
+        { label: 'High', value: `${fmtDollars(buyersAt(0.006))}/mo`, note: '~0.6% buy in' },
+      ],
+      assumptions: [
+        'About 0.3% of your audience a month would pay for a seat in a live session, a conservative rate for a premium offer.',
+        `Any artist can run this regardless of catalog size; the seat is priced for your level, about ${fmtDollars(seatPrice)} here, and a bigger following supports a higher price or a top-tier gate.`,
+        'Run about twice a month, so this is recurring, not one-off. A planning estimate, not a guarantee.',
+      ],
+      consequences: [
+        'You give the process away free in vlogs while the thing fans crave, being in it, earns nothing.',
+        'Your most devoted fans have no way to go from listener to collaborator, so they stay at arm\'s length.',
+        'You trade studio hours for streaming pennies instead of selling the one seat no other artist can offer.',
+      ],
+      fanLoss:
+        'Your fans miss being in the room, pitching a beat you might record to, hearing their sample make the cut, shaping a song\'s topic, and the story that they helped make it.',
+      flow: [
+        'Your most valuable offer, a seat in the session, is not for sale',
+        'Schedule a paid Executive Producer live session on CRWN',
+        'Fans buy in to pitch beats, vocals, samples, and topics live',
+        `${fmtDollars(monthlyExpected)} a month from the one room only you can sell`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Create a live Experience on CRWN and schedule your Executive Producer session.',
+          'Gate it behind a top tier or sell individual seats.',
+          'In the room, fans submit beats, vocals, samples, and song topics while you record live.',
+        ],
+      },
+      conversionPayload: { offer: 'executive-producer-session' },
+      shareSummary: `Turns out selling a seat in my session could be worth about ${fmtDollars(monthlyExpected)} a month.`,
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
@@ -982,6 +1137,8 @@ export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   'artist-quest-path': questPath,
   'supporter-promise-calendar': supporterPromise,
   'team-split-deal-builder': teamSplit,
+  'share-to-earn-planner': shareToEarn,
+  'executive-producer-session': execProducer,
 };
 
 export const ACQUISITION_TOOL_IDS = Object.keys(ACQUISITION_TOOLS);

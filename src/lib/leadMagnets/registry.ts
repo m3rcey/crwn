@@ -589,6 +589,48 @@ const TEAM_SPLIT: LeadMagnetConfig = {
   }),
 };
 
+const SHARE_TO_EARN = lossToolBase({
+  slug: 'share-to-earn-planner',
+  name: 'Share-to-Earn Revenue Calculator',
+  featureName: 'Fan Referrals',
+  category: 'Grow',
+  description: 'See the referred subscribers you lose because your fans have no reason to share you.',
+  videoAngle: 'Your fans already recommend you for free. With no reward and no tracking, none of it converts or scales.',
+  icon: '🔗',
+  dmKeywords: ['share'],
+  hero: {
+    eyebrow: 'Fan Referrals',
+    headline: 'Your fans would bring their friends, for a cut.',
+    subheadline: 'Word of mouth you already earn goes untracked and unpaid, so it never scales. See the referred subscribers you are leaving on the table.',
+    primaryCta: 'See what I am leaving',
+    image: '/tool-share-to-earn.jpg',
+    imageAlt: 'A dim, gold-lit studio with an artist at the center',
+  },
+  resultGeneratorKey: 'shareToEarn',
+  analyticsMetadata: { toolId: 'share-to-earn-planner', category: 'Grow', promotedFeature: 'Fan Referrals' },
+});
+
+const EXECUTIVE_PRODUCER = lossToolBase({
+  slug: 'executive-producer-session',
+  name: 'Executive Producer Session Calculator',
+  featureName: 'Live Experiences',
+  category: 'Monetize',
+  description: 'See what you leave on the table by never selling a seat in your live session.',
+  videoAngle: 'The most valuable thing you own is not the song, it is access to the room that made it. Any artist can sell a seat.',
+  icon: '🎛️',
+  dmKeywords: ['producer'],
+  hero: {
+    eyebrow: 'Live Experiences',
+    headline: 'The highest-leverage thing you can sell is a seat in the room.',
+    subheadline: 'A gated live session where fans pitch beats, vocals, and song topics is your highest-margin offer, at any level. See what not offering it costs you.',
+    primaryCta: 'See what I am leaving',
+    image: '/tool-executive-producer.jpg',
+    imageAlt: 'A dim, gold-lit recording studio with an artist at the console',
+  },
+  resultGeneratorKey: 'execProducerSession',
+  analyticsMetadata: { toolId: 'executive-producer-session', category: 'Monetize', promotedFeature: 'Live Experiences' },
+});
+
 export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   VAULT_REVENUE_PLANNER,
   PROOF_OF_DEMAND,
@@ -601,6 +643,8 @@ export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   QUEST_PATH,
   SUPPORTER_PROMISE,
   TEAM_SPLIT,
+  SHARE_TO_EARN,
+  EXECUTIVE_PRODUCER,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(
