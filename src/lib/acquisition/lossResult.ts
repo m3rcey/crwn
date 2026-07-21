@@ -26,6 +26,11 @@ export interface LossResultParams {
   /** One line of context under the hero number. */
   summary?: string;
 
+  // 1b. HOW WE GOT TO THE NUMBER: an at-a-glance infographic chain (audience -> rate -> count ->
+  //     dollars). The last row is the total and renders emphasized. Optional; when present it
+  //     renders directly under the hero so the reader sees the math without reading prose.
+  derivation?: { label: string; value: string; note?: string }[];
+
   // 2. THE BEHAVIOR / MISSING SYSTEM causing the loss.
   cause: string;
 
@@ -73,6 +78,10 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
       scoreMax: p.score.max ?? 100,
       scoreLabel: p.score.band,
     });
+  }
+
+  if (p.derivation && p.derivation.length) {
+    sections.push({ key: 'derivation', title: 'How we get to the number', kind: 'derivation', metrics: p.derivation });
   }
 
   sections.push({ key: 'cause', title: 'Why this is leaking', kind: 'summary', text: p.cause });

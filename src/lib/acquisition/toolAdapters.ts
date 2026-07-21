@@ -988,6 +988,7 @@ const shareToEarn: AcquisitionTool = {
     const monthlyExpected = monthlyAt(EXPECTED);
     const annualExpected = monthlyExpected * 12;
     const referredReach = Math.round(audience * 2); // warm reach from fan shares, conservative
+    const referredSubs = Math.round(audience * EXPECTED); // paying subscribers referred per month
     const headline =
       monthlyExpected >= 5000
         ? `About ${fmtDollars(monthlyExpected)} a month in referred subscribers is walking past your fans' share buttons`
@@ -998,6 +999,12 @@ const shareToEarn: AcquisitionTool = {
       summary: `Around ${referrers.toLocaleString(
         'en-US',
       )} of your fans would share you if there was something in it for them. With no reward and no tracking, the friends they would have brought never arrive.`,
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Fans who would share', value: referrers.toLocaleString('en-US'), note: '~3%, spreading your links' },
+        { label: 'Referred paying subscribers', value: referredSubs.toLocaleString('en-US'), note: '~0.6% of your audience, monthly' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthlyExpected)}/mo`, note: 'you set the commission' },
+      ],
       cause:
         'Your fans already recommend you to friends for free, but nothing tracks it and nothing pays them for it, so it never scales. A share-to-earn referral turns every fan into a promoter with a personal link and a cut of what they bring in, so the word of mouth you were getting for nothing finally converts and compounds.',
       estimate: [
@@ -1079,6 +1086,12 @@ const execProducer: AcquisitionTool = {
       summary: `Around ${seatsPerMonth.toLocaleString(
         'en-US',
       )} of your fans a month would pay to be in the room where the music gets made. Right now there is no room to buy their way into.`,
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Would buy a seat', value: seatsPerMonth.toLocaleString('en-US'), note: '~0.3% of your audience, monthly' },
+        { label: 'Seat price for your level', value: fmtDollars(seatPrice), note: 'bigger following, higher price' },
+        { label: 'Monthly from seats', value: `${fmtDollars(monthlyExpected)}/mo`, note: 'run about twice a month' },
+      ],
       cause:
         'The most valuable thing you own is not the finished song, it is access to the session that made it. A gated or ticketed live Executive Producer session lets fans buy a seat, pitch beats for you to record to, submit vocals, samples, and song topics, and watch you work live. It is the highest-margin, highest-leverage offer you have, and right now it does not exist.',
       estimate: [

@@ -341,6 +341,38 @@ function Section({ section }: { section: ResultSection }) {
         <p className="text-white/85 text-lg leading-relaxed">{section.text}</p>
       )}
 
+      {/* derivation -> the "how we got to the number" chain, read in one glance: each row is a
+          step (label + big value), arrows down, the last row is the total in gold. */}
+      {section.kind === 'derivation' && section.metrics && (
+        <div className="space-y-1.5">
+          {section.metrics.map((m, i) => {
+            const last = i === section.metrics!.length - 1;
+            return (
+              <Fragment key={m.label}>
+                <div
+                  className={`rounded-xl px-4 py-3 flex items-center justify-between gap-4 ${
+                    last ? 'bg-[#D4AF37]/10 border border-[#D4AF37]/30' : 'bg-white/[0.03] border border-white/[0.08]'
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <p className={`text-sm leading-tight ${last ? 'text-[#D4AF37] font-medium' : 'text-white/70'}`}>{m.label}</p>
+                    {m.note && <p className="text-xs text-white/40 mt-0.5 leading-tight">{m.note}</p>}
+                  </div>
+                  <p className={`font-bold whitespace-nowrap ${last ? 'text-2xl sm:text-3xl text-[#D4AF37]' : 'text-xl text-white/90'}`}>
+                    {m.value}
+                  </p>
+                </div>
+                {!last && (
+                  <div className="flex justify-center py-0.5">
+                    <ArrowDown className="w-4 h-4 text-[#D4AF37]/50" />
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
+        </div>
+      )}
+
       {/* flow -> the recovery diagram (loss -> setup -> fan action -> recovered) */}
       {section.kind === 'flow' && section.items && (
         <div className="space-y-1.5">

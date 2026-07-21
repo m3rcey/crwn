@@ -157,7 +157,8 @@ export interface ResultSection {
     | 'nextSteps'
     | 'scenarios' // conservative / expected / high columns (reuses `metrics`)
     | 'fanLoss' // "what fans miss" callout (reuses `text`)
-    | 'flow'; // "how you get it back" recovery flow diagram (reuses `items` as nodes)
+    | 'flow' // "how you get it back" recovery flow diagram (reuses `items` as nodes)
+    | 'derivation'; // "how we got to the number" infographic chain (reuses `metrics`, last row is the total)
   // score
   score?: number;
   scoreMax?: number;
