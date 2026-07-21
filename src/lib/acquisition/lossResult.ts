@@ -110,6 +110,29 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
     sections.push({ key: 'assumptions', title: 'Assumptions', kind: 'assumptions', items: p.assumptions });
   }
 
+  // Hero: the big number the reader sees first, worth-style. Pull the primary monthly (or yearly)
+  // dollar out of the estimate tiles so both renderers can lead with a bold figure, not a sentence.
+  const monthlyTile = p.estimate.find((m) => /^monthly/i.test(m.label));
+  const yearlyTile = p.estimate.find((m) => /(per year|a year|overpaid)/i.test(m.label));
+  let heroValue: string | undefined;
+  let heroSuffix = '';
+  let heroEyebrow = '';
+  if (monthlyTile) {
+    heroValue = monthlyTile.value;
+    heroSuffix = '/mo';
+    heroEyebrow = "You're leaving roughly";
+  } else if (yearlyTile) {
+    heroValue = yearlyTile.value;
+    heroSuffix = '/yr';
+    heroEyebrow = 'This is costing you';
+  } else {
+    const m = p.headline.match(/\$[\d,]+(?:\.\d+)?/);
+    if (m) {
+      heroValue = m[0];
+      heroEyebrow = "Here's your number";
+    }
+  }
+
   return {
     generatorVersion: p.generatorVersion,
     headline: p.headline,
@@ -117,6 +140,9 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
     sections,
     conversionPayload: p.conversionPayload ?? {},
     shareSummary: p.shareSummary,
+    heroValue,
+    heroSuffix,
+    heroEyebrow,
   };
 }
 

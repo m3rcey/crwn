@@ -182,6 +182,11 @@ export interface GeneratedResult {
   conversionPayload: Record<string, unknown>;
   // A short, share-safe teaser that never contains private inputs.
   shareSummary: string;
+  // Loss-engine HERO: the big number the reader sees first (worth-style card). Optional; set by
+  // buildLossResult from the primary monthly/yearly estimate tile. Absent for score-only tools.
+  heroValue?: string;
+  heroSuffix?: string;
+  heroEyebrow?: string;
 }
 
 export type LeadCapturePayload = {

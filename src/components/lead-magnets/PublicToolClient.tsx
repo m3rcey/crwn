@@ -9,6 +9,7 @@ import { LeadMagnetWizard } from './LeadMagnetWizard';
 import { CrwnShowcase } from './CrwnShowcase';
 import { ToolShowcase } from './ToolShowcase';
 import { LeadMagnetResult } from './LeadMagnetResult';
+import { LeadEmailCta } from './LeadEmailCta';
 import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
 import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
@@ -182,7 +183,14 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
         // Show the plan, then ask: build it in CRWN (what we actually want), or optionally
         // have it emailed. Same model as /worth.
         <div className="space-y-5">
-          <LeadMagnetResult config={config} result={result} mode="full" />
+          <LeadMagnetResult
+            config={config}
+            result={result}
+            mode="full"
+            afterHero={
+              <LeadEmailCta claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} toolSlug={config.slug} />
+            }
+          />
 
           <div className="pt-1">
             <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />

@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { Lock, Check, ArrowDown } from 'lucide-react';
 import type { GeneratedResult, LeadMagnetConfig, ResultSection } from '@/lib/leadMagnets/types';
 import { EstimateDisclaimer } from './EstimateDisclaimer';
@@ -11,10 +12,13 @@ export function LeadMagnetResult({
   config,
   result,
   mode,
+  afterHero,
 }: {
   config: LeadMagnetConfig;
   result: GeneratedResult;
   mode: 'preview' | 'full';
+  /** Rendered directly under the hero, above the fold (e.g. email + signup CTAs). */
+  afterHero?: ReactNode;
 }) {
   const previewKeys = new Set(config.publicPreviewSections);
   // Loss-engine tools carry their sections on the RESULT itself (config.resultSections is empty)
@@ -27,10 +31,25 @@ export function LeadMagnetResult({
         .filter((s): s is ResultSection => !!s);
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-bold text-crwn-text">{result.headline}</h2>
-        <p className="text-sm text-crwn-text-secondary mt-1">{result.summary}</p>
-      </div>
+      {result.heroValue ? (
+        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8 text-center">
+          {result.heroEyebrow && (
+            <div className="text-xs uppercase tracking-wide text-crwn-text-secondary mb-2">{result.heroEyebrow}</div>
+          )}
+          <div className="text-5xl sm:text-6xl font-bold text-crwn-gold leading-none">
+            {result.heroValue}
+            <span className="text-2xl sm:text-3xl font-bold">{result.heroSuffix}</span>
+          </div>
+          {result.summary && <p className="text-sm text-crwn-text-secondary mt-3 leading-relaxed">{result.summary}</p>}
+        </div>
+      ) : (
+        <div>
+          <h2 className="text-2xl font-bold text-crwn-text">{result.headline}</h2>
+          <p className="text-sm text-crwn-text-secondary mt-1">{result.summary}</p>
+        </div>
+      )}
+
+      {afterHero}
 
       {orderedSections.map((section) => {
         const locked = mode === 'preview' && !config.usesLossEngine && !previewKeys.has(section.key);
@@ -117,14 +136,12 @@ function SectionBody({ section }: { section: ResultSection }) {
 
     case 'projection':
       return (
-        <div className="space-y-2.5">
+        <div className="grid grid-cols-2 gap-2">
           {(section.metrics || []).map((m, i) => (
-            <div key={i}>
-              <div className="flex justify-between text-sm">
-                <span className="text-crwn-text-secondary">{m.label}</span>
-                <span className="text-crwn-text font-semibold">{m.value}</span>
-              </div>
-              {m.note && <p className="text-xs text-crwn-text-secondary">{m.note}</p>}
+            <div key={i} className="rounded-xl bg-crwn-elevated/40 border border-crwn-elevated p-3">
+              <p className="text-xl font-bold text-crwn-gold leading-tight">{m.value}</p>
+              <p className="text-xs text-crwn-text-secondary mt-0.5 leading-tight">{m.label}</p>
+              {m.note && <p className="text-[10px] text-crwn-text-secondary/70 mt-0.5 leading-tight">{m.note}</p>}
             </div>
           ))}
         </div>

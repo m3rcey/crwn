@@ -90,6 +90,9 @@ export default async function ResultPage({
     headline?: string;
     summary?: string;
     sections?: ResultSection[];
+    heroValue?: string;
+    heroSuffix?: string;
+    heroEyebrow?: string;
   };
   const sections = Array.isArray(data.sections) ? data.sections : [];
 
@@ -106,16 +109,26 @@ export default async function ResultPage({
           <span className="font-semibold tracking-[0.08em] text-sm">CRWN</span>
         </div>
 
-        {/* Hero: an editorial statement, the number in gold. No box, just air. */}
-        <div className="mb-16">
-          <p className="text-[#D4AF37] text-[11px] tracking-[0.28em] uppercase mb-6">Your result</p>
-          <h1 className="text-[2rem] sm:text-[2.75rem] font-semibold leading-[1.12] tracking-tight">
-            {renderHeadline(data.headline || 'Your result')}
-          </h1>
-          {data.summary && (
-            <p className="text-white/50 text-lg mt-6 leading-relaxed max-w-lg">{data.summary}</p>
-          )}
-        </div>
+        {/* Hero: a bold gold number card when we have one (worth-style), else the editorial
+            statement. The number is the first thing the reader sees. */}
+        {data.heroValue ? (
+          <div className="mb-10 rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-b from-[#D4AF37]/10 to-white/[0.02] p-8 sm:p-10 text-center">
+            <p className="text-[11px] uppercase tracking-[0.28em] text-white/50 mb-3">{data.heroEyebrow || 'Your result'}</p>
+            <div className="text-6xl sm:text-7xl font-bold text-[#D4AF37] leading-none">
+              {data.heroValue}
+              <span className="text-3xl sm:text-4xl font-bold">{data.heroSuffix}</span>
+            </div>
+            {data.summary && <p className="text-white/50 text-base mt-4 leading-relaxed max-w-lg mx-auto">{data.summary}</p>}
+          </div>
+        ) : (
+          <div className="mb-16">
+            <p className="text-[#D4AF37] text-[11px] tracking-[0.28em] uppercase mb-6">Your result</p>
+            <h1 className="text-[2rem] sm:text-[2.75rem] font-semibold leading-[1.12] tracking-tight">
+              {renderHeadline(data.headline || 'Your result')}
+            </h1>
+            {data.summary && <p className="text-white/50 text-lg mt-6 leading-relaxed max-w-lg">{data.summary}</p>}
+          </div>
+        )}
 
         {/* Above the fold: collect the email, then sign up directly under it. */}
         <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} />
