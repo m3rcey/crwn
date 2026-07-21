@@ -1040,17 +1040,17 @@ const shareToEarn: AcquisitionTool = {
       fanLoss:
         'Your fans miss a personal share link, a real reward for bringing people in, recognition for the friends they convert, and a way to be part of your growth instead of just watching it.',
       flow: [
-        'Fans recommend you for free, and it reaches no new subscribers',
-        'Turn on share-to-earn referrals and set the commission',
-        'Fans share their link, exposing you to new people for a cut',
-        `${fmtDollars(monthly)} a month in referred subscribers you did not pay to reach`,
+        'Free word of mouth, zero new subscribers',
+        'Turn on referrals, set a commission',
+        'Fans share for a cut, new people arrive',
+        `${fmtDollars(monthly)}/mo in referred subscribers`,
       ],
       fix: {
         title: 'How CRWN closes this gap',
         steps: [
-          'Turn on fan referrals on CRWN so every fan gets a personal share link.',
-          'Set the commission a fan earns when someone they refer subscribes.',
-          'They share, and you both get paid every month the referred fan stays.',
+          'Turn on fan referrals: every fan gets a share link.',
+          'Set the commission fans earn per referral.',
+          'They share, you both get paid.',
         ],
       },
       conversionPayload: { program: 'share-to-earn' },
@@ -1126,17 +1126,17 @@ const execProducer: AcquisitionTool = {
       fanLoss:
         'Your fans miss being in the room, pitching a beat you might record to, hearing their sample make the cut, shaping a song\'s topic, and the story that they helped make it.',
       flow: [
-        'Your most valuable offer, a seat in the session, is not for sale',
-        'Schedule a paid Executive Producer live session on CRWN',
-        'Fans buy in to pitch beats, vocals, samples, and topics live',
-        `${fmtDollars(monthlyExpected)} a month from the one room only you can sell`,
+        'Your best offer, a seat in the room, is not for sale',
+        'Schedule a paid live session on CRWN',
+        'Fans buy in to pitch beats and topics live',
+        `${fmtDollars(monthlyExpected)}/mo from seats`,
       ],
       fix: {
         title: 'How CRWN closes this gap',
         steps: [
-          'Create a live Experience on CRWN and schedule your Executive Producer session.',
-          'Gate it behind a top tier or sell individual seats.',
-          'In the room, fans submit beats, vocals, samples, and song topics while you record live.',
+          'Schedule a live Experience on CRWN.',
+          'Gate it behind a tier or sell seats.',
+          'Fans pitch beats, vocals, and topics live.',
         ],
       },
       conversionPayload: { offer: 'executive-producer-session' },

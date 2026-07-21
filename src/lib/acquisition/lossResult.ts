@@ -80,11 +80,12 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
     });
   }
 
+  // Visual-first: lead with the math chain, then the tiles, then the range. The `cause` and
+  // `consequences` prose are intentionally NOT rendered (they repeat the hero + derivation and
+  // are a wall of text). They stay on the params for storage/other surfaces.
   if (p.derivation && p.derivation.length) {
     sections.push({ key: 'derivation', title: 'How we get to the number', kind: 'derivation', metrics: p.derivation });
   }
-
-  sections.push({ key: 'cause', title: 'Why this is leaking', kind: 'summary', text: p.cause });
 
   if (p.estimate.length) {
     sections.push({ key: 'estimate', title: 'What it adds up to', kind: 'projection', metrics: p.estimate });
@@ -94,11 +95,7 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
     sections.push({ key: 'scenarios', title: 'Conservative to high', kind: 'scenarios', metrics: p.scenarios });
   }
 
-  if (p.consequences.length) {
-    sections.push({ key: 'consequences', title: 'Beyond the money', kind: 'list', items: p.consequences });
-  }
-
-  sections.push({ key: 'fanLoss', title: 'What your fans are missing', kind: 'fanLoss', text: p.fanLoss });
+  sections.push({ key: 'fanLoss', title: 'What your fans miss', kind: 'fanLoss', text: p.fanLoss });
 
   if (p.flow.length) {
     sections.push({ key: 'flow', title: 'How you get it back', kind: 'flow', items: p.flow });

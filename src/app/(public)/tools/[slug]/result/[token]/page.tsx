@@ -95,10 +95,13 @@ export default async function ResultPage({
     heroEyebrow?: string;
   };
   const sections = Array.isArray(data.sections) ? data.sections : [];
+  // Worth-style hero: pull the estimate tiles into the big-number card.
+  const heroTiles = data.heroValue ? sections.find((s) => s.kind === 'projection') : undefined;
+  const bodySections = heroTiles ? sections.filter((s) => s !== heroTiles) : sections;
 
   const claimed = !!result.claimedAt;
   const claimHref = `/claim/${encodeURIComponent(token)}`;
-  const midIndex = Math.floor(sections.length / 2);
+  const midIndex = Math.floor(bodySections.length / 2);
 
   return (
     <main className="min-h-screen bg-crwn-bg text-white">
@@ -112,13 +115,25 @@ export default async function ResultPage({
         {/* Hero: a bold gold number card when we have one (worth-style), else the editorial
             statement. The number is the first thing the reader sees. */}
         {data.heroValue ? (
-          <div className="mb-10 rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-b from-[#D4AF37]/10 to-white/[0.02] p-8 sm:p-10 text-center">
-            <p className="text-[11px] uppercase tracking-[0.28em] text-white/50 mb-3">{data.heroEyebrow || 'Your result'}</p>
-            <div className="text-6xl sm:text-7xl font-bold text-[#D4AF37] leading-none">
-              {data.heroValue}
-              <span className="text-3xl sm:text-4xl font-bold">{data.heroSuffix}</span>
+          <div className="mb-10 rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-b from-[#D4AF37]/10 to-white/[0.02] p-8 sm:p-10">
+            <div className="text-center">
+              <p className="text-[11px] uppercase tracking-[0.28em] text-white/50 mb-3">{data.heroEyebrow || 'Your result'}</p>
+              <div className="text-6xl sm:text-7xl font-bold text-[#D4AF37] leading-none">
+                {data.heroValue}
+                <span className="text-3xl sm:text-4xl font-bold">{data.heroSuffix}</span>
+              </div>
+              {data.summary && <p className="text-white/50 text-base mt-4 leading-relaxed max-w-lg mx-auto">{data.summary}</p>}
             </div>
-            {data.summary && <p className="text-white/50 text-base mt-4 leading-relaxed max-w-lg mx-auto">{data.summary}</p>}
+            {heroTiles?.metrics && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mt-7">
+                {heroTiles.metrics.map((m, i) => (
+                  <div key={i} className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4">
+                    <p className="text-xl font-bold text-[#D4AF37] leading-tight">{m.value}</p>
+                    <p className="text-sm text-white/55 mt-1 leading-tight">{m.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className="mb-16">
@@ -135,10 +150,10 @@ export default async function ResultPage({
 
         {/* Sections, with a CTA woven into the middle */}
         <div className="space-y-8 mt-16">
-          {sections.map((s, i) => (
+          {bodySections.map((s, i) => (
             <Fragment key={s.key}>
               <Section section={s} />
-              {i === midIndex && sections.length > 2 && (
+              {i === midIndex && bodySections.length > 2 && (
                 <SignupCta
                   claimed={claimed}
                   claimHref={claimHref}
@@ -218,6 +233,23 @@ function centsToDollars(cents: number | undefined): string | undefined {
 }
 
 function Section({ section }: { section: ResultSection }) {
+  // Assumptions collapse behind a click so they never wall the page.
+  if (section.kind === 'assumptions') {
+    return (
+      <details className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-7">
+        <summary className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37]/80 cursor-pointer select-none">
+          {section.title}
+        </summary>
+        <ul className="space-y-1.5 mt-4">
+          {(section.items || []).map((item, i) => (
+            <li key={i} className="text-white/45 text-sm leading-relaxed">
+              {item}
+            </li>
+          ))}
+        </ul>
+      </details>
+    );
+  }
   return (
     <section className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-7">
       <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37]/80 mb-5">{section.title}</h2>
@@ -298,17 +330,6 @@ function Section({ section }: { section: ResultSection }) {
         </ul>
       )}
 
-      {/* assumptions -> dimmed footnotes */}
-      {section.kind === 'assumptions' && section.items && (
-        <ul className="space-y-1.5">
-          {section.items.map((item, i) => (
-            <li key={i} className="text-white/45 text-sm leading-relaxed">
-              {item}
-            </li>
-          ))}
-        </ul>
-      )}
-
       {/* schedule -> vertical timeline */}
       {section.kind === 'schedule' && section.rows && (
         <div className="relative pl-6 space-y-5 border-l border-white/10">
@@ -349,9 +370,21 @@ function Section({ section }: { section: ResultSection }) {
         </div>
       )}
 
-      {/* fanLoss -> a distinct, human callout */}
+      {/* fanLoss -> scannable tags, not a paragraph */}
       {section.kind === 'fanLoss' && section.text && (
-        <p className="text-white/85 text-lg leading-relaxed">{section.text}</p>
+        <div className="flex flex-wrap gap-2">
+          {section.text
+            .replace(/^your fans miss\s*/i, '')
+            .replace(/\.$/, '')
+            .split(/,\s*(?:and\s+)?/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .map((c, i) => (
+              <span key={i} className="text-sm text-white/85 bg-white/[0.04] border border-white/[0.08] rounded-full px-3 py-1.5">
+                {c}
+              </span>
+            ))}
+        </div>
       )}
 
       {/* derivation -> the "how we got to the number" chain, read in one glance: each row is a

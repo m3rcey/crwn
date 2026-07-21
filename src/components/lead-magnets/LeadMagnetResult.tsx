@@ -29,18 +29,36 @@ export function LeadMagnetResult({
     : config.resultSections
         .map((d) => result.sections.find((s) => s.key === d.key))
         .filter((s): s is ResultSection => !!s);
+  // Worth-style hero: pull the estimate tiles INTO the big-number card so the number and its
+  // breakdown read as one unit at the very top.
+  const heroTiles = result.heroValue ? orderedSections.find((s) => s.kind === 'projection') : undefined;
+  const bodySections = heroTiles ? orderedSections.filter((s) => s !== heroTiles) : orderedSections;
   return (
     <div className="space-y-4">
       {result.heroValue ? (
-        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8 text-center">
-          {result.heroEyebrow && (
-            <div className="text-xs uppercase tracking-wide text-crwn-text-secondary mb-2">{result.heroEyebrow}</div>
-          )}
-          <div className="text-5xl sm:text-6xl font-bold text-crwn-gold leading-none">
-            {result.heroValue}
-            <span className="text-2xl sm:text-3xl font-bold">{result.heroSuffix}</span>
+        <div className="bg-gradient-to-b from-crwn-gold/10 to-crwn-surface border border-crwn-gold/30 rounded-2xl p-6 sm:p-8">
+          <div className="text-center">
+            {result.heroEyebrow && (
+              <div className="text-xs uppercase tracking-wide text-crwn-text-secondary mb-2">{result.heroEyebrow}</div>
+            )}
+            <div className="text-5xl sm:text-6xl font-bold text-crwn-gold leading-none">
+              {result.heroValue}
+              <span className="text-2xl sm:text-3xl font-bold">{result.heroSuffix}</span>
+            </div>
+            {result.summary && (
+              <p className="text-sm text-crwn-text-secondary mt-3 leading-relaxed max-w-md mx-auto">{result.summary}</p>
+            )}
           </div>
-          {result.summary && <p className="text-sm text-crwn-text-secondary mt-3 leading-relaxed">{result.summary}</p>}
+          {heroTiles?.metrics && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-6">
+              {heroTiles.metrics.map((m, i) => (
+                <div key={i} className="rounded-xl bg-crwn-bg/40 border border-crwn-elevated p-3">
+                  <p className="text-lg font-bold text-crwn-gold leading-tight">{m.value}</p>
+                  <p className="text-xs text-crwn-text-secondary mt-0.5 leading-tight">{m.label}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div>
@@ -51,7 +69,18 @@ export function LeadMagnetResult({
 
       {afterHero}
 
-      {orderedSections.map((section) => {
+      {bodySections.map((section) => {
+        // Assumptions collapse behind a click so they never wall the page.
+        if (section.kind === 'assumptions') {
+          return (
+            <details key={section.key} className="rounded-2xl bg-crwn-surface border border-crwn-elevated p-4">
+              <summary className="text-sm font-semibold text-crwn-text cursor-pointer select-none">{section.title}</summary>
+              <div className="mt-3">
+                <SectionBody section={section} />
+              </div>
+            </details>
+          );
+        }
         const locked = mode === 'preview' && !config.usesLossEngine && !previewKeys.has(section.key);
         return (
           <div key={section.key} className="rounded-2xl bg-crwn-surface border border-crwn-elevated p-4">
@@ -210,8 +239,23 @@ function SectionBody({ section }: { section: ResultSection }) {
         </div>
       );
 
-    case 'fanLoss':
-      return <p className="text-sm text-crwn-text leading-relaxed">{section.text}</p>;
+    case 'fanLoss': {
+      const chips = (section.text || '')
+        .replace(/^your fans miss\s*/i, '')
+        .replace(/\.$/, '')
+        .split(/,\s*(?:and\s+)?/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      return (
+        <div className="flex flex-wrap gap-2">
+          {chips.map((c, i) => (
+            <span key={i} className="text-xs text-crwn-text bg-crwn-elevated/60 border border-crwn-elevated rounded-full px-3 py-1.5">
+              {c}
+            </span>
+          ))}
+        </div>
+      );
+    }
 
     case 'flow':
       return (
