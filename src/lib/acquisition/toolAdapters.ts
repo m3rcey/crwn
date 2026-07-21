@@ -249,6 +249,11 @@ const vault: AcquisitionTool = {
         'Fans pay every month to get in',
         `That leak becomes ${fmtDollars(monthlyExpected)} a month, recurring`,
       ],
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Fans likely to pay', value: Math.round(audience * EXPECTED).toLocaleString('en-US'), note: '~1.5% of your audience' },
+        { label: 'At $10 a month Vault', value: `${fmtDollars(monthlyExpected)}/mo` },
+      ],
       conversionPayload: { tierName: 'The Vault', priceCents: PRICE_CENTS },
       shareSummary: `Turns out my vault could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
@@ -366,6 +371,11 @@ const fanMission: AcquisitionTool = {
           'Watch the leaderboard fill and the actions roll in.',
         ],
       },
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Convert on a clear mission', value: Math.round(audience * EXPECTED).toLocaleString('en-US'), note: '~0.5% of your audience' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthlyExpected)}/mo` },
+      ],
       conversionPayload: { missionType: s(profile.primary_goal, 'grow_audience') },
       shareSummary: `Turns out a single fan mission could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
@@ -445,6 +455,12 @@ const clipToEarn: AcquisitionTool = {
           'Pay clippers only when their clip actually brings a subscriber.',
         ],
       },
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Clippers you activate', value: clippers.toLocaleString('en-US'), note: '~2% of your fans' },
+        { label: 'Subscribe from the clips', value: Math.round(audience * EXPECTED).toLocaleString('en-US'), note: '~0.5% of your audience' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthlyExpected)}/mo` },
+      ],
       conversionPayload: { campaign: 'clip-to-earn' },
       shareSummary: `Turns out my fans' clips could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
@@ -528,6 +544,12 @@ const founderWindow: AcquisitionTool = {
           'Announce the window, then close signups when you hit your number.',
         ],
       },
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Would join eventually', value: intenders.toLocaleString('en-US'), note: '~2% of your audience' },
+        { label: 'A window pulls forward now', value: Math.round(intenders * 0.4).toLocaleString('en-US'), note: '~40% of them' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
+      ],
       conversionPayload: { window: 'founder' },
       shareSummary: `A founder window could lock in about ${fmtDollars(monthly)} a month for me.`,
     });
@@ -602,6 +624,13 @@ const movementPage: AcquisitionTool = {
           'Point every link in your bio and captions to it.',
         ],
       },
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Click your link', value: monthlyVisitors.toLocaleString('en-US'), note: '~15% a month' },
+        { label: 'A clear page converts', value: wouldConvert.toLocaleString('en-US'), note: '~3% of them' },
+        { label: 'Lost to a generic link', value: leakedNow.toLocaleString('en-US'), note: '~75%' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
+      ],
       conversionPayload: { page: 'movement' },
       shareSummary: 'Turns out my link was leaking most of the fans who clicked it.',
     });
@@ -676,6 +705,12 @@ const fanJourney: AcquisitionTool = {
           'Reward the jump to recurring support so it actually happens.',
         ],
       },
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Would pay you something', value: wouldPay.toLocaleString('en-US'), note: '~1% of your audience' },
+        { label: 'Never reach recurring', value: lostToNoPath.toLocaleString('en-US'), note: '~60% with no path' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
+      ],
       conversionPayload: { journey: 'fan' },
       shareSummary: 'Turns out most of my fans were leaking out before ever paying.',
     });
@@ -747,6 +782,12 @@ const topFan: AcquisitionTool = {
           'Let the competition keep your best fans active month after month.',
         ],
       },
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Superfans doing the work', value: superfans.toLocaleString('en-US'), note: '~1% of your audience' },
+        { label: 'Recognition uplift', value: Math.round(superfans * 0.25).toLocaleString('en-US'), note: '~25% more value' },
+        { label: 'At $10 a month each', value: `${fmtDollars(uplift)}/mo` },
+      ],
       conversionPayload: { leaderboard: 'top-fan' },
       shareSummary: 'Turns out my top fans were going unrecognized, so their best actions were fading.',
     });
@@ -888,6 +929,12 @@ const supporterPromise: AcquisitionTool = {
           'Automate the reminders so nothing slips and no supporter feels forgotten.',
         ],
       },
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Paying supporters', value: supporters.toLocaleString('en-US'), note: '~1% of your audience' },
+        { label: 'Churn if a perk slips', value: atRisk.toLocaleString('en-US'), note: '~20%' },
+        { label: 'At $10 a month each', value: `${fmtDollars(mrrAtRisk)}/mo` },
+      ],
       conversionPayload: { calendar: 'supporter-promise' },
       shareSummary: 'Turns out my membership perks were a monthly bill I never scheduled.',
     });
@@ -963,6 +1010,12 @@ const teamSplit: AcquisitionTool = {
           'Let the cap end the obligation once the work has been paid for.',
         ],
       },
+      derivation: [
+        { label: 'Direct revenue at your size', value: `${fmtDollars(projectedMrr)}/mo` },
+        { label: 'Uncapped 20%, per year', value: fmtDollars(uncappedYear) },
+        { label: 'Capped at 6 months', value: fmtDollars(cappedTotal) },
+        { label: 'Overpaid, year one', value: fmtDollars(overpayYear) },
+      ],
       conversionPayload: { deal: 'team-split' },
       shareSummary: 'Turns out an uncapped split was going to cost me a lot more than a capped one.',
     });
