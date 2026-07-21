@@ -982,45 +982,53 @@ const shareToEarn: AcquisitionTool = {
   execute(profile) {
     const audience = n(profile.social_followers) || n(profile.monthly_listeners);
     const PRICE = 1000;
-    const referrers = Math.round(audience * 0.03); // ~3% will share for a cut
-    const monthlyAt = (rate: number) => Math.round(audience * rate) * PRICE;
-    const EXPECTED = 0.006; // fan referrals convert ~0.6% of the audience to paying subscribers
-    const monthlyExpected = monthlyAt(EXPECTED);
-    const annualExpected = monthlyExpected * 12;
-    const referredReach = Math.round(audience * 2); // warm reach from fan shares, conservative
-    const referredSubs = Math.round(audience * EXPECTED); // paying subscribers referred per month
+    // Referral revenue does NOT come from a slice of the artist's own followers. It comes from the
+    // NEW people the sharing fans expose them to, converted at a standard rate on that warm reach.
+    // Funnel: fans who share -> new people they reach -> a % of that new reach subscribes.
+    const SHARE_RATE = 0.03; // ~3% of fans actively share when there is a reward
+    const REACH_PER_SHARER = 20; // new people a sharer puts you in front of per month, conservative
+    const CONV = 0.02; // ~2% of that warm, referred reach subscribes
+    const sharers = Math.round(audience * SHARE_RATE);
+    const newReach = sharers * REACH_PER_SHARER;
+    const subsAt = (conv: number) => Math.round(newReach * conv) * PRICE;
+    const newSubs = Math.round(newReach * CONV);
+    const monthly = subsAt(CONV);
+    const annual = monthly * 12;
     const headline =
-      monthlyExpected >= 5000
-        ? `About ${fmtDollars(monthlyExpected)} a month in referred subscribers is walking past your fans' share buttons`
+      monthly >= 5000
+        ? `About ${fmtDollars(monthly)} a month in referred subscribers is walking past your fans' share buttons`
         : 'Your fans would bring their friends for a cut, and you never gave them a reason to';
     return buildLossResult({
       generatorVersion: 'lossResult@1',
       headline,
-      summary: `Around ${referrers.toLocaleString(
+      summary: `Around ${sharers.toLocaleString(
         'en-US',
-      )} of your fans would share you if there was something in it for them. With no reward and no tracking, the friends they would have brought never arrive.`,
+      )} of your fans would share you if there was something in it for them, putting you in front of about ${newReach.toLocaleString(
+        'en-US',
+      )} new people a month. With no reward and no tracking, that exposure never happens.`,
       derivation: [
-        { label: 'Your audience', value: audience.toLocaleString('en-US') },
-        { label: 'Fans who would share', value: referrers.toLocaleString('en-US'), note: '~3%, spreading your links' },
-        { label: 'Referred paying subscribers', value: referredSubs.toLocaleString('en-US'), note: '~0.6% of your audience, monthly' },
-        { label: 'At $10 a month each', value: `${fmtDollars(monthlyExpected)}/mo`, note: 'you set the commission' },
+        { label: 'Fans who would share', value: sharers.toLocaleString('en-US'), note: '~3% of your audience' },
+        { label: 'New people they reach', value: newReach.toLocaleString('en-US'), note: `~${REACH_PER_SHARER} each, a month` },
+        { label: 'Who subscribe', value: newSubs.toLocaleString('en-US'), note: '~2% of that warm reach' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo`, note: 'you set the commission' },
       ],
       cause:
         'Your fans already recommend you to friends for free, but nothing tracks it and nothing pays them for it, so it never scales. A share-to-earn referral turns every fan into a promoter with a personal link and a cut of what they bring in, so the word of mouth you were getting for nothing finally converts and compounds.',
       estimate: [
-        { label: 'Fans who would share', value: referrers.toLocaleString('en-US'), note: '~3% of your audience' },
-        { label: 'Warm reach from their shares', value: `~${referredReach.toLocaleString('en-US')}`, note: 'per month, conservative' },
-        { label: 'Monthly, unclaimed', value: fmtDollars(monthlyExpected) },
-        { label: 'A year of it', value: fmtDollars(annualExpected) },
+        { label: 'New people reached', value: `~${newReach.toLocaleString('en-US')}`, note: 'per month, from fan shares' },
+        { label: 'Referred subscribers', value: newSubs.toLocaleString('en-US'), note: '~2% of that reach, monthly' },
+        { label: 'Monthly, unclaimed', value: fmtDollars(monthly) },
+        { label: 'A year of it', value: fmtDollars(annual) },
       ],
       scenarios: [
-        { label: 'Conservative', value: `${fmtDollars(monthlyAt(0.004))}/mo`, note: '~0.4% convert' },
-        { label: 'Expected', value: `${fmtDollars(monthlyExpected)}/mo`, note: '~0.6% convert' },
-        { label: 'High', value: `${fmtDollars(monthlyAt(0.01))}/mo`, note: '~1% convert' },
+        { label: 'Conservative', value: `${fmtDollars(subsAt(0.015))}/mo`, note: '~1.5% convert' },
+        { label: 'Expected', value: `${fmtDollars(monthly)}/mo`, note: '~2% convert' },
+        { label: 'High', value: `${fmtDollars(subsAt(0.03))}/mo`, note: '~3% convert' },
       ],
       assumptions: [
-        'About 3% of your audience will actively share you when there is a reward for it.',
-        'Their warm referrals convert roughly 0.6% of your audience into paying subscribers, a conservative rate.',
+        'About 3% of your audience actively shares you when there is a reward for it.',
+        'Each sharer puts you in front of about 20 new people a month, a conservative estimate.',
+        'About 2% of that warm, referred reach subscribes.',
         'A referred subscriber valued at about $10 a month; you set the commission, so most of it is net to you.',
         'A planning estimate, not a prediction or a guarantee.',
       ],
@@ -1032,10 +1040,10 @@ const shareToEarn: AcquisitionTool = {
       fanLoss:
         'Your fans miss a personal share link, a real reward for bringing people in, recognition for the friends they convert, and a way to be part of your growth instead of just watching it.',
       flow: [
-        'Fans recommend you for free, and it converts no one',
+        'Fans recommend you for free, and it reaches no new subscribers',
         'Turn on share-to-earn referrals and set the commission',
-        'Fans share their own link for a recurring cut',
-        `${fmtDollars(monthlyExpected)} a month in referred subscribers you did not pay to reach`,
+        'Fans share their link, exposing you to new people for a cut',
+        `${fmtDollars(monthly)} a month in referred subscribers you did not pay to reach`,
       ],
       fix: {
         title: 'How CRWN closes this gap',
@@ -1046,7 +1054,7 @@ const shareToEarn: AcquisitionTool = {
         ],
       },
       conversionPayload: { program: 'share-to-earn' },
-      shareSummary: `Turns out my fans' shares could be worth about ${fmtDollars(monthlyExpected)} a month.`,
+      shareSummary: `Turns out my fans' shares could be worth about ${fmtDollars(monthly)} a month.`,
     });
   },
 };
