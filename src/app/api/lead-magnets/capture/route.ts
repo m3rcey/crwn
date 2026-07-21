@@ -4,6 +4,7 @@ import { resend, FROM_EMAIL } from '@/lib/resend';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { getLeadMagnet } from '@/lib/leadMagnets/registry';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
+import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { generatePublicToken, isValidEmail, normalizeEmail, isEmailSuppressed, recordLmEvent } from '@/lib/leadMagnets/server';
 import { leadMagnetResultEmail } from '@/lib/emails/leadMagnetResult';
 import { CONSENT_TEXT_VERSION } from '@/lib/leadMagnets/disclaimers';
@@ -64,10 +65,24 @@ export async function POST(req: NextRequest) {
     string | number | boolean | string[] | null
   >;
 
-  // SERVER-SIDE recompute. This is the source of truth we persist and email.
+  // SERVER-SIDE recompute. This is the source of truth we persist and email. Loss-engine tools
+  // run their adapter (config.resultGeneratorKey is not a generateResult key for them); the four
+  // legacy tools run their generator.
   let result;
   try {
-    result = generateResult(config.resultGeneratorKey, inputs);
+    if (config.usesLossEngine) {
+      const tool = getTool(config.slug);
+      if (!tool) throw new Error('Unknown loss tool');
+      const profile: Record<string, unknown> = { ...inputs };
+      for (const inp of config.inputs) {
+        if (inp.type === 'currency' && inp.key.endsWith('_cents') && typeof profile[inp.key] === 'number') {
+          profile[inp.key] = Math.round((profile[inp.key] as number) * 100);
+        }
+      }
+      result = tool.execute(profile as unknown as LeadProfileValues);
+    } else {
+      result = generateResult(config.resultGeneratorKey, inputs);
+    }
   } catch {
     return NextResponse.json({ error: 'Could not generate result' }, { status: 400 });
   }
@@ -138,6 +153,7 @@ export async function POST(req: NextRequest) {
           headline: result.headline,
           summary: result.summary,
           topRecommendations: recs.length ? recs : ['Open your full result to see your plan'],
+          insights: result.emailInsights,
           resultUrl: `${APP_URL}${config.publicRoute}?result=${publicToken}`,
           ctaUrl: `${APP_URL}/signup?tool=${config.slug}&result=${publicToken}&ref=lead-magnet`,
           ctaLabel: 'Build this inside CRWN',

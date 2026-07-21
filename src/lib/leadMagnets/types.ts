@@ -187,6 +187,9 @@ export interface GeneratedResult {
   heroValue?: string;
   heroSuffix?: string;
   heroEyebrow?: string;
+  // Bonus analysis shown ONLY in the emailed version, never on the free page. The reward for
+  // handing over an email.
+  emailInsights?: { title: string; body: string }[];
 }
 
 export type LeadCapturePayload = {

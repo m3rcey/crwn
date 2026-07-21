@@ -56,6 +56,12 @@ export interface LossResultParams {
   // The last node is the recovered outcome and renders emphasized.
   flow: string[];
 
+  // EMAIL-ONLY bonus. `monthlyLossCents`, when given, auto-prepends a computed "cost of waiting"
+  // insight. `emailInsights` are tool-specific bonuses appended after it. Neither renders on the
+  // free page; both go only into the emailed result.
+  monthlyLossCents?: number;
+  emailInsights?: { title: string; body: string }[];
+
   conversionPayload?: Record<string, unknown>;
   shareSummary: string;
 }
@@ -130,6 +136,19 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
     }
   }
 
+  // Email-only bonus: a computed "cost of waiting" (when a monthly loss exists) followed by the
+  // tool's own tailored insights. Empty stays undefined so the email section simply does not render.
+  const emailInsights = [...(p.emailInsights ?? [])];
+  if (typeof p.monthlyLossCents === 'number' && p.monthlyLossCents > 0) {
+    const m = p.monthlyLossCents;
+    emailInsights.unshift({
+      title: 'The cost of waiting',
+      body: `Every month you sit on this is about ${usd(m)} gone. Six months is ${usd(
+        m * 6,
+      )} you cannot get back, and a full year is ${usd(m * 12)}.`,
+    });
+  }
+
   return {
     generatorVersion: p.generatorVersion,
     headline: p.headline,
@@ -140,6 +159,7 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
     heroValue,
     heroSuffix,
     heroEyebrow,
+    emailInsights: emailInsights.length ? emailInsights : undefined,
   };
 }
 

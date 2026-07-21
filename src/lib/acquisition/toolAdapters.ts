@@ -254,6 +254,13 @@ const vault: AcquisitionTool = {
         { label: 'Fans likely to pay', value: Math.round(audience * EXPECTED).toLocaleString('en-US'), note: '~1.5% of your audience' },
         { label: 'At $10 a month Vault', value: `${fmtDollars(monthlyExpected)}/mo` },
       ],
+      monthlyLossCents: monthlyExpected,
+      emailInsights: [
+        {
+          title: 'Your first drop plan',
+          body: 'Open the Vault with a welcome voice note, drop one unreleased track in week one, and a demo or alternate version in week two. About two pieces a month keeps it sustainable.',
+        },
+      ],
       conversionPayload: { tierName: 'The Vault', priceCents: PRICE_CENTS },
       shareSummary: `Turns out my vault could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
@@ -376,6 +383,13 @@ const fanMission: AcquisitionTool = {
         { label: 'Convert on a clear mission', value: Math.round(audience * EXPECTED).toLocaleString('en-US'), note: '~0.5% of your audience' },
         { label: 'At $10 a month each', value: `${fmtDollars(monthlyExpected)}/mo` },
       ],
+      monthlyLossCents: monthlyExpected,
+      emailInsights: [
+        {
+          title: 'The first mission to run',
+          body: `Pick one action tied to your goal, set the target near ${perMission.toLocaleString('en-US')} fans, and attach a reward they actually want. One clear ask beats five vague ones.`,
+        },
+      ],
       conversionPayload: { missionType: s(profile.primary_goal, 'grow_audience') },
       shareSummary: `Turns out a single fan mission could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
@@ -460,6 +474,13 @@ const clipToEarn: AcquisitionTool = {
         { label: 'Clippers you activate', value: clippers.toLocaleString('en-US'), note: '~2% of your fans' },
         { label: 'Subscribe from the clips', value: Math.round(audience * EXPECTED).toLocaleString('en-US'), note: '~0.5% of your audience' },
         { label: 'At $10 a month each', value: `${fmtDollars(monthlyExpected)}/mo` },
+      ],
+      monthlyLossCents: monthlyExpected,
+      emailInsights: [
+        {
+          title: 'Where to start',
+          body: `Turn on Clip and Earn, set a commission you are comfortable paying per referred subscriber, and hand your ${clippers.toLocaleString('en-US')} likely clippers three moments to cut: your hook, your hardest line, and your beat drop.`,
+        },
       ],
       conversionPayload: { campaign: 'clip-to-earn' },
       shareSummary: `Turns out my fans' clips could be worth about ${fmtDollars(monthlyExpected)} a month.`,
@@ -550,6 +571,13 @@ const founderWindow: AcquisitionTool = {
         { label: 'A window pulls forward now', value: Math.round(intenders * 0.4).toLocaleString('en-US'), note: '~40% of them' },
         { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
       ],
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'How to run the window',
+          body: 'Set a real deadline and a cap on founding spots, announce it once with the number, and close signups the moment you hit it. The scarcity is the whole mechanism.',
+        },
+      ],
       conversionPayload: { window: 'founder' },
       shareSummary: `A founder window could lock in about ${fmtDollars(monthly)} a month for me.`,
     });
@@ -631,6 +659,13 @@ const movementPage: AcquisitionTool = {
         { label: 'Lost to a generic link', value: leakedNow.toLocaleString('en-US'), note: '~75%' },
         { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
       ],
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'What your movement page needs',
+          body: 'Four blocks, in order: what you are building, the chapter you are in now, one clear action above the fold, and your tiers. Point every bio and caption link at it.',
+        },
+      ],
       conversionPayload: { page: 'movement' },
       shareSummary: 'Turns out my link was leaking most of the fans who clicked it.',
     });
@@ -711,6 +746,13 @@ const fanJourney: AcquisitionTool = {
         { label: 'Never reach recurring', value: lostToNoPath.toLocaleString('en-US'), note: '~60% with no path' },
         { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
       ],
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'Fix the weakest step first',
+          body: 'Your biggest leak is first purchase to recurring support. Add one reason to go from a one-off buy to a membership, and reward the jump, before you touch anything else.',
+        },
+      ],
       conversionPayload: { journey: 'fan' },
       shareSummary: 'Turns out most of my fans were leaking out before ever paying.',
     });
@@ -788,6 +830,13 @@ const topFan: AcquisitionTool = {
         { label: 'Recognition uplift', value: Math.round(superfans * 0.25).toLocaleString('en-US'), note: '~25% more value' },
         { label: 'At $10 a month each', value: `${fmtDollars(uplift)}/mo` },
       ],
+      monthlyLossCents: uplift,
+      emailInsights: [
+        {
+          title: 'Seed the leaderboard',
+          body: 'Turn it on, score it on contribution not just spend, and give the top ranks real status. Name your first few leaders publicly so the rest have something to chase.',
+        },
+      ],
       conversionPayload: { leaderboard: 'top-fan' },
       shareSummary: 'Turns out my top fans were going unrecognized, so their best actions were fading.',
     });
@@ -858,6 +907,12 @@ const questPath: AcquisitionTool = {
           'Let every finished step open the next instead of blocking it.',
         ],
       },
+      emailInsights: [
+        {
+          title: 'Your order of operations',
+          body: 'Build in this order: an audience you can reach, one thing worth paying for, then the tools to sell it. Doing them out of order is what costs the months.',
+        },
+      ],
       conversionPayload: { path: 'quest' },
       shareSummary: 'Turns out I was doing the right things in the wrong order.',
     });
@@ -934,6 +989,13 @@ const supporterPromise: AcquisitionTool = {
         { label: 'Paying supporters', value: supporters.toLocaleString('en-US'), note: '~1% of your audience' },
         { label: 'Churn if a perk slips', value: atRisk.toLocaleString('en-US'), note: '~20%' },
         { label: 'At $10 a month each', value: `${fmtDollars(mrrAtRisk)}/mo` },
+      ],
+      monthlyLossCents: mrrAtRisk,
+      emailInsights: [
+        {
+          title: 'Build the calendar this week',
+          body: 'List every perk you have promised, put a real due date on each, and price each one for the work it takes. A missed benefit is the most common reason a supporter cancels.',
+        },
       ],
       conversionPayload: { calendar: 'supporter-promise' },
       shareSummary: 'Turns out my membership perks were a monthly bill I never scheduled.',
@@ -1015,6 +1077,12 @@ const teamSplit: AcquisitionTool = {
         { label: 'Uncapped 20%, per year', value: fmtDollars(uncappedYear) },
         { label: 'Capped at 6 months', value: fmtDollars(cappedTotal) },
         { label: 'Overpaid, year one', value: fmtDollars(overpayYear) },
+      ],
+      emailInsights: [
+        {
+          title: 'A fair starter structure',
+          body: 'Fence the split to the revenue the collaborator actually drives, cap it at about six months, and write down whether it is on gross or net. The cap is what keeps a deal from bleeding you later.',
+        },
       ],
       conversionPayload: { deal: 'team-split' },
       shareSummary: 'Turns out an uncapped split was going to cost me a lot more than a capped one.',
@@ -1106,6 +1174,13 @@ const shareToEarn: AcquisitionTool = {
           'They share, you both get paid.',
         ],
       },
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'The share-link caption to hand your fans',
+          body: 'Give them a ready line: "I finally get paid when you put people onto me. Use my link, and if they subscribe we both eat." Then set a commission generous enough to be worth sharing.',
+        },
+      ],
       conversionPayload: { program: 'share-to-earn' },
       shareSummary: `Turns out my fans' shares could be worth about ${fmtDollars(monthly)} a month.`,
     });
@@ -1192,6 +1267,13 @@ const execProducer: AcquisitionTool = {
           'Fans pitch beats, vocals, and topics live.',
         ],
       },
+      monthlyLossCents: monthlyExpected,
+      emailInsights: [
+        {
+          title: 'Your session run-of-show',
+          body: 'Announce it as a limited-seat live session. Open with what fans can submit (beats, vocals, samples, topics), take pitches live, and record the best in the room. Price the seat for your level.',
+        },
+      ],
       conversionPayload: { offer: 'executive-producer-session' },
       shareSummary: `Turns out selling a seat in my session could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });

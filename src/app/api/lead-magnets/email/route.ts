@@ -112,6 +112,7 @@ async function sendAndRespond(
         headline: result.headline,
         summary: result.summary,
         topRecommendations: topRecs(result),
+        insights: result.emailInsights,
         resultUrl: publicToken ? `${APP_URL}${config.publicRoute}?result=${publicToken}` : `${APP_URL}${config.artistRoute}`,
         ctaUrl: publicToken ? `${APP_URL}/signup?tool=${config.slug}&result=${publicToken}&ref=lead-magnet` : `${APP_URL}${config.artistRoute}`,
         ctaLabel: publicToken ? 'Build this inside CRWN' : 'Open in CRWN',

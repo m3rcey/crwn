@@ -6,6 +6,7 @@ interface LeadMagnetResultEmailArgs {
   headline: string;
   summary: string;
   topRecommendations: string[];
+  insights?: { title: string; body: string }[]; // email-only bonus analysis
   resultUrl?: string; // secure resume link (optional)
   ctaUrl: string; // signup or feature CTA
   ctaLabel: string;
@@ -16,6 +17,7 @@ export function leadMagnetResultEmail({
   headline,
   summary,
   topRecommendations,
+  insights,
   resultUrl,
   ctaUrl,
   ctaLabel,
@@ -29,6 +31,24 @@ export function leadMagnetResultEmail({
         )}</td></tr>`,
     )
     .join('');
+
+  const insightsBlock =
+    insights && insights.length
+      ? `<tr><td style="padding:8px 28px 8px;">
+          <div style="border:1px solid #D4AF37;border-radius:12px;padding:16px 18px;background:#20200f;">
+            <div style="color:#D4AF37;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px;">Only in this email</div>
+            ${insights
+              .slice(0, 4)
+              .map(
+                (i) =>
+                  `<div style="margin-bottom:12px;"><div style="color:#f0f0f0;font-size:14px;font-weight:600;margin-bottom:3px;">${escapeHtml(
+                    i.title,
+                  )}</div><div style="color:#b8b8c2;font-size:14px;line-height:1.55;">${escapeHtml(i.body)}</div></div>`,
+              )
+              .join('')}
+          </div>
+        </td></tr>`
+      : '';
 
   return `<!doctype html>
 <html>
@@ -45,6 +65,7 @@ export function leadMagnetResultEmail({
           <div style="color:#f0f0f0;font-size:14px;font-weight:600;margin-bottom:6px;">Your top moves</div>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${recs}</table>
         </td></tr>
+        ${insightsBlock}
         <tr><td style="padding:20px 28px 28px;" align="center">
           <a href="${escapeAttr(ctaUrl)}" style="display:inline-block;background:#D4AF37;color:#0f0f0f;font-weight:700;font-size:15px;text-decoration:none;padding:14px 28px;border-radius:999px;">${escapeHtml(
             ctaLabel,
