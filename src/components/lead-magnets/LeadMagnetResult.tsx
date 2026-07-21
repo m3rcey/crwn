@@ -1,6 +1,6 @@
 'use client';
 
-import { Lock, Check } from 'lucide-react';
+import { Lock, Check, ArrowDown } from 'lucide-react';
 import type { GeneratedResult, LeadMagnetConfig, ResultSection } from '@/lib/leadMagnets/types';
 import { EstimateDisclaimer } from './EstimateDisclaimer';
 
@@ -17,6 +17,14 @@ export function LeadMagnetResult({
   mode: 'preview' | 'full';
 }) {
   const previewKeys = new Set(config.publicPreviewSections);
+  // Loss-engine tools carry their sections on the RESULT itself (config.resultSections is empty)
+  // and are never gated. The four legacy tools drive their section list and preview gating from
+  // the config. Render whichever list applies, in order.
+  const orderedSections: ResultSection[] = config.usesLossEngine
+    ? result.sections
+    : config.resultSections
+        .map((d) => result.sections.find((s) => s.key === d.key))
+        .filter((s): s is ResultSection => !!s);
   return (
     <div className="space-y-4">
       <div>
@@ -24,10 +32,8 @@ export function LeadMagnetResult({
         <p className="text-sm text-crwn-text-secondary mt-1">{result.summary}</p>
       </div>
 
-      {config.resultSections.map((sectionDef) => {
-        const section = result.sections.find((s) => s.key === sectionDef.key);
-        if (!section) return null;
-        const locked = mode === 'preview' && !previewKeys.has(section.key);
+      {orderedSections.map((section) => {
+        const locked = mode === 'preview' && !config.usesLossEngine && !previewKeys.has(section.key);
         return (
           <div key={section.key} className="rounded-2xl bg-crwn-surface border border-crwn-elevated p-4">
             <div className="flex items-center justify-between mb-3">
@@ -134,6 +140,87 @@ function SectionBody({ section }: { section: ResultSection }) {
             </li>
           ))}
         </ul>
+      );
+
+    // "How we get to the number": read the math in one glance, arrows down, total in gold.
+    case 'derivation':
+      return (
+        <div className="space-y-1.5">
+          {(section.metrics || []).map((m, i, arr) => {
+            const last = i === arr.length - 1;
+            return (
+              <div key={i}>
+                <div
+                  className={`rounded-xl px-3 py-2.5 flex items-center justify-between gap-3 ${
+                    last ? 'bg-crwn-gold/10 border border-crwn-gold/30' : 'bg-crwn-elevated/40 border border-crwn-elevated'
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <p className={`text-sm leading-tight ${last ? 'text-crwn-gold font-medium' : 'text-crwn-text-secondary'}`}>{m.label}</p>
+                    {m.note && <p className="text-[11px] text-crwn-text-secondary/70 mt-0.5 leading-tight">{m.note}</p>}
+                  </div>
+                  <p className={`font-bold whitespace-nowrap ${last ? 'text-xl text-crwn-gold' : 'text-lg text-crwn-text'}`}>{m.value}</p>
+                </div>
+                {!last && (
+                  <div className="flex justify-center py-0.5">
+                    <ArrowDown className="w-4 h-4 text-crwn-gold/50" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+
+    case 'scenarios':
+      return (
+        <div className="grid grid-cols-3 gap-2">
+          {(section.metrics || []).map((m, i) => {
+            const mid = i === 1;
+            return (
+              <div
+                key={i}
+                className={`rounded-xl p-3 text-center ${
+                  mid ? 'bg-crwn-gold/10 border border-crwn-gold/30' : 'bg-crwn-elevated/40 border border-crwn-elevated'
+                }`}
+              >
+                <p className="text-[10px] uppercase tracking-wide text-crwn-text-secondary mb-1 leading-tight">{m.label}</p>
+                <p className={`font-bold leading-tight ${mid ? 'text-lg text-crwn-gold' : 'text-base text-crwn-text'}`}>{m.value}</p>
+                {m.note && <p className="text-[10px] text-crwn-text-secondary mt-1 leading-tight">{m.note}</p>}
+              </div>
+            );
+          })}
+        </div>
+      );
+
+    case 'fanLoss':
+      return <p className="text-sm text-crwn-text leading-relaxed">{section.text}</p>;
+
+    case 'flow':
+      return (
+        <div className="space-y-1.5">
+          {(section.items || []).map((node, i, arr) => {
+            const last = i === arr.length - 1;
+            return (
+              <div key={i}>
+                <div
+                  className={`rounded-xl px-3 py-2.5 text-center text-sm ${
+                    last
+                      ? 'bg-crwn-gold/10 border border-crwn-gold/30 text-crwn-gold font-semibold'
+                      : 'bg-crwn-elevated/40 border border-crwn-elevated text-crwn-text'
+                  }`}
+                >
+                  {node}
+                </div>
+                {!last && (
+                  <div className="flex justify-center py-0.5">
+                    <ArrowDown className="w-4 h-4 text-crwn-gold/50" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       );
 
     default:
