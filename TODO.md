@@ -48,6 +48,17 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run [`supabase/schema-phase2-fix-artist-profiles-update-permission.sql`](supabase/schema-phase2-fix-artist-profiles-update-permission.sql)**
+      in the Supabase SQL editor. **Until you do, NO artist can save edits to their
+      profile** (Profile tab → Save Profile shows "permission denied for table
+      artist_profiles"). Root cause: the `artist_profiles` UPDATE RLS policy's
+      `WITH CHECK` runs subqueries that SELECT the three Stripe-id columns, whose
+      SELECT was revoked from `authenticated` by the leak-fix migration, so every
+      update 42501s. The fix moves the column-freeze into a BEFORE UPDATE trigger
+      and simplifies the policy to an ownership check. Self-verifies at the end.
+      New-artist onboarding (/welcome, /setup) is NOT affected: it INSERTs, not
+      UPDATEs. Only the Profile-tab edit path is broken.
+
 - [ ] **Run [`supabase/schema-phase2-display-name-no-email-default.sql`](supabase/schema-phase2-display-name-no-email-default.sql)**
       in the Supabase SQL editor. It stops `handle_new_user()` from seeding a new user's
       public `display_name` with their signup email (the reason a Featured Artist tile showed
