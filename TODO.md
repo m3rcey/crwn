@@ -48,6 +48,29 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run [`supabase/schema-phase2-display-name-no-email-default.sql`](supabase/schema-phase2-display-name-no-email-default.sql)**
+      in the Supabase SQL editor. It stops `handle_new_user()` from seeding a new user's
+      public `display_name` with their signup email (the reason a Featured Artist tile showed
+      `aribahmad21@gmail.com`). Self-verifies at the end. Safe: display_name is nullable and
+      the app falls back everywhere. It does NOT fix rows that are already an email.
+
+      **Then fix the two existing bad names** (a code change cannot; I can't touch the DB). In
+      the SQL editor, find them and set a real artist name:
+
+      ```sql
+      -- see which artists have an email or blank as their public name
+      SELECT ap.slug, p.display_name
+      FROM artist_profiles ap JOIN profiles p ON p.id = ap.user_id
+      WHERE p.display_name LIKE '%@%' OR p.display_name IS NULL;
+
+      -- then, per artist:
+      UPDATE profiles SET display_name = 'Their Artist Name' WHERE id = '<user_id>';
+      ```
+
+      The `aribahmad21@gmail.com` tile is already hidden from Featured Artists in code, but it
+      still shows on their `/[slug]` page until the name is fixed. "Josh Williams" is a legal
+      name, not an email, so code can't detect it: rename it here too if it should be a stage name.
+
 - [ ] **Apply the Pop-up Engine migration, then turn it on when ready.** The pop-up system
       (governed in-app nudges + pop-up surveys) is shipped but DARK. It renders nothing until
       both steps happen:

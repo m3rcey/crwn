@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { isReservedSlug } from '@/lib/reservedSlugs';
+import { isEmailLike } from '@/lib/publicName';
 
 // The CRWN link handle: lowercase letters, numbers and hyphens only, collapsed,
 // no leading/trailing hyphen, capped at 30 chars. Used both to auto-fill the
@@ -28,6 +29,7 @@ export default function WelcomePage() {
   // Once the artist edits the handle by hand, stop auto-syncing it from the name.
   const [handleEdited, setHandleEdited] = useState(false);
   const [slugError, setSlugError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState<'fan' | 'artist'>('artist');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,13 +58,20 @@ export default function WelcomePage() {
       router.replace('/home');
       return;
     }
-    setDisplayName(profile.display_name || '');
-    setHandle(slugify(profile.display_name || ''));
+    // Do NOT pre-fill the name field. We only ever reach /welcome before
+    // onboarding completes, so profile.display_name here is always the un-chosen
+    // seed (the signup email via the DB default, or an OAuth account's full name),
+    // never a deliberately chosen artist name. Pre-filling it is exactly how
+    // emails and legal names leak out as public artist names: the artist clicks
+    // through without editing. Start blank so they must type a real name.
+    setDisplayName('');
+    setHandle('');
     setHasCheckedProfile(true);
   }, [profile, router]);
 
   // Keep the handle in sync with the name until the artist customizes it.
   const onNameChange = (value: string) => {
+    setNameError(null);
     setDisplayName(value);
     if (!handleEdited) setHandle(slugify(value));
   };
@@ -78,6 +87,17 @@ export default function WelcomePage() {
     // a phone here was pure friction (and silently disabled the button when empty,
     // which read as "nothing happens"). Collect it later if we want it.
     if (!user || !displayName.trim()) return;
+
+    // The name is public everywhere, so never let an email through as the artist
+    // (or fan) name. Emails leak in via the DB default for display_name.
+    if (isEmailLike(displayName)) {
+      setNameError(
+        role === 'artist'
+          ? 'Use your artist or stage name here, not your email.'
+          : 'Please enter a name, not your email.'
+      );
+      return;
+    }
 
     // For artists, the handle becomes their permanent public link, so validate it
     // up front instead of silently deriving a bad slug from a legal name.
@@ -239,6 +259,9 @@ export default function WelcomePage() {
               placeholder={role === 'artist' ? 'Your artist or stage name' : 'Your name'}
               className="w-full px-4 py-3 bg-crwn-surface border border-crwn-elevated rounded-xl text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold transition-colors"
             />
+            {nameError && (
+              <p className="mt-2 text-sm text-crwn-error">{nameError}</p>
+            )}
           </div>
 
           {/* CRWN link (artists only) — this becomes their permanent public URL,
