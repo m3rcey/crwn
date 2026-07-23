@@ -24,7 +24,7 @@ and the keyword.
 Save each script to:
 `/home/merce/workspace-crwn/videos/scripts/lead-magnets/[keyword]-[artist-slug].md`
 
-- `[keyword]` is `share`, `producer`, `vault`, or `worth` (groups the folder by magnet).
+- `[keyword]` is `share`, `producer`, `vault`, `worth`, `own`, or `live` (groups the folder by magnet).
 - `[artist-slug]` is lowercase kebab of the artist name (`nicki-minaj`, `the-weeknd`,
   `t-pain`, `kanye-west`).
 - Examples: `share-nicki-minaj.md`, `producer-drake.md`, `vault-eminem.md`.
@@ -155,6 +155,34 @@ with what the artist LOSES by not doing it, never what they gain.
   is renting to you." Close the personal turn on "how much of YOUR career is sitting on apps that
   could change owners tomorrow?"
 - **CTA:** free **Own Your Fans Calculator**, comment **OWN**.
+
+### 6. Live Experience Calculator — keyword `LIVE`
+
+- **Loss:** the artist only goes live to promote a release. They pull up for a few minutes,
+  thank everybody, and disappear for weeks. Every stream is free, unticketed, and gone the
+  second it ends, so there is nothing to buy, nothing to unlock, and no reason for a fan to
+  clear their night for the next one.
+- **CRWN capability shown (all LIVE today):** scheduled live sessions with a **ticket price**,
+  **tip goals** the room funds together during the stream ("$500 unlocks the unreleased song"),
+  and the stream **recording itself** so the replay is there for the members who paid.
+- **DO NOT promise, in the script or the math: standalone post-show replay sales, or brand
+  sponsorship of a live.** Neither is built. The replay exists, but it comes WITH the ticket
+  or the membership; there is no separate "buy the replay for $10" checkout. Naming either one
+  sends the artist looking for a button that is not there.
+- **Math (use COMBINED followers across all socials, like Vault and OWN):**
+  1. Combined followers across IG/X/TikTok/YouTube (C).
+  2. Only **15%** are actually reachable → `C × 0.15` reachable fans.
+  3. Only **1%** of reachable fans buy a **$15** ticket to one exclusive live a month.
+  4. About **1 in 4** people in the room tips, averaging **$5**.
+  - **Monthly = (C × 0.15 × 0.01 × 15) + (C × 0.15 × 0.01 × 0.25 × 5) = C × 0.0225 + C × 0.001875**
+    ≈ **C × 0.0244** (about **2.4 cents per follower/month**). Yearly = `× 12`.
+    This mirrors the code adapter (`liveExperience`) exactly.
+  - Worked check: SZA 25M combined → 3.75M reachable → 37,500 tickets = **$562,500**, plus
+    9,375 tippers × $5 = **$46,875** → **about $609K/mo, $7.3M/yr.**
+- **Signature beat (LIVE only):** the live Tiny Desk turn. Describe the event they are NOT
+  putting on: a stripped-down set, the story behind each song, questions answered live,
+  unreleased music, and the room tipping to unlock what happens next.
+- **CTA:** free **Live Experience Calculator**, comment **LIVE**.
 
 ## Script Skeleton (shared; the magnet fills the slots)
 
@@ -291,6 +319,15 @@ Per-magnet hero scene + column + takeaway:
   column = "[C] FOLLOWERS / YOU OWN 0 / 20% OWNABLE / 3% PAY / $10 A MONTH".
   supporting facts = "YOUR AUDIENCE LIVES ON RENTED LAND", "ONE OWNER CHANGE CAN ERASE IT",
   "OWN THE FANS, NOT JUST THE FOLLOWERS".
+- **Live Experience** / LIVE (loss: only goes live to promote, so every stream is free,
+  unticketed, and gone when it ends): header = "WHAT'S [SHORT] LOSING GOING LIVE FOR FREE?".
+  hero = the artist drawn very large, full-length in heavy solid black, mid-performance on a
+  stool with a mic, singing to ONE small camera on a tripod; behind the camera a big dense black
+  crowd of fans is held back behind a rope line, the nearest few holding up bills marked "$15";
+  a fat cash bag sits on the crowd's side marked only "$?". Label the rope once, small: "NO TICKET".
+  column = "[C] FOLLOWERS / 15% REACHABLE / 1% BUY A TICKET / $15 A TICKET / 1 IN 4 TIPS $5".
+  supporting facts = "A FREE STREAM SELLS NOTHING", "ONE NIGHT, ONE TICKET, ONE ROOM",
+  "THE ROOM TIPS TO UNLOCK THE SONG".
 - **Streaming Loss** / WORTH (loss: leans on streaming pennies instead of direct paying
   fans): header = "WHAT'S [SHORT] LOSING RELYING ON STREAMS?". hero = the artist drawn very large,
   full-length in heavy solid black, stepping AWAY from a lone small coin on the ground marked

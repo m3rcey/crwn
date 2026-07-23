@@ -1374,6 +1374,122 @@ const ownYourFans: AcquisitionTool = {
   },
 };
 
+// Every number below maps to a feature that is SHIPPED: ticketed live sessions
+// (live_ticket_purchases), tips + tip goals during the stream (live_tips /
+// live_goals), and the recording that becomes the replay ticket holders keep
+// (LiveKit egress -> R2 VOD).
+//
+// DELIBERATELY ABSENT: standalone post-show replay sales and brand sponsorship.
+// Both appear in the marketing script this tool came from, and neither exists in
+// CRWN, so neither is in the math or the fix. A loss tool that promises a feature
+// the artist cannot find after signing up is worse than a smaller number.
+const liveExperience: AcquisitionTool = {
+  id: 'live-experience-calculator',
+  name: 'Live Experience Calculator',
+  requiredFields: ['social_followers'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/live-experience-calculator/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'liveExperience',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const TICKET = 1500; // $15, the price of a one-off exclusive live
+    const TIP = 500; // $5 average tip from the fans who tip at all
+    const REACHABLE = 0.15; // only ~15% of a following ever actually sees a post
+    const TIP_RATE = 0.25; // ~1 in 4 attendees tips when there is a goal on screen
+
+    const reachable = Math.round(audience * REACHABLE);
+    const ticketsAt = (rate: number) => Math.round(reachable * rate);
+    const attendees = ticketsAt(0.01); // ~1% of reachable fans buy a ticket
+    const ticketRevenue = attendees * TICKET;
+    const tippers = Math.round(attendees * TIP_RATE);
+    const tipRevenue = tippers * TIP;
+    const monthly = ticketRevenue + tipRevenue; // one real live event a month
+    const annual = monthly * 12;
+    const totalAt = (rate: number) => {
+      const a = ticketsAt(rate);
+      return a * TICKET + Math.round(a * TIP_RATE) * TIP;
+    };
+
+    const headline =
+      monthly >= 5000
+        ? `About ${fmtDollars(monthly)} a month is walking out the door every time you go live for free`
+        : 'Every live you do is free, unticketed, and gone the second it ends';
+
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline,
+      summary: `About ${reachable.toLocaleString(
+        'en-US',
+      )} of your fans can actually be reached. Right now none of them are being asked to pay for a night with you, because you are not putting one on.`,
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Fans you can actually reach', value: reachable.toLocaleString('en-US'), note: '~15% of them' },
+        { label: 'Would buy a $15 ticket', value: attendees.toLocaleString('en-US'), note: '~1% of reachable fans' },
+        { label: 'Ticket sales', value: fmtDollars(ticketRevenue) },
+        { label: 'Tips from the room', value: fmtDollars(tipRevenue), note: `~${tippers.toLocaleString('en-US')} tippers at $5` },
+        { label: 'One live event a month', value: `${fmtDollars(monthly)}/mo` },
+      ],
+      cause:
+        'Most artists only go live to promote something. They pull up for a few minutes, thank everybody, and disappear for weeks. Nothing was sold, nothing was unlocked, and there is no reason for a fan to clear their night for the next one. A real event is scheduled, ticketed, and built like a show: a stripped-down set, the stories behind the songs, questions answered live, unreleased music, and goals the room funds together.',
+      estimate: [
+        { label: 'Fans you can reach', value: reachable.toLocaleString('en-US'), note: '~15% of your audience' },
+        { label: 'Ticket buyers', value: attendees.toLocaleString('en-US'), note: '~1% of them at $15' },
+        { label: 'Monthly, from one live event', value: fmtDollars(monthly) },
+        { label: 'A year of it', value: fmtDollars(annual) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(totalAt(0.005))}/mo`, note: '0.5% buy a ticket' },
+        { label: 'Expected', value: `${fmtDollars(monthly)}/mo`, note: '1% buy a ticket' },
+        { label: 'High', value: `${fmtDollars(totalAt(0.02))}/mo`, note: '2% buy a ticket' },
+      ],
+      assumptions: [
+        'About 15% of your audience actually sees you announce something.',
+        'About 1% of those fans buy a $15 ticket to one exclusive live a month.',
+        'About 1 in 4 people in the room tips, averaging $5, when there is a goal on screen.',
+        'One real live event a month, not one every week.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Weeks go by with no reason for a fan to support you, so the ones who would have drift off.',
+        'Your best moments happen once and are never recorded, so there is nothing to sell or clip afterward.',
+        'You find out what your fans want by guessing, instead of watching what they pay for in real time.',
+      ],
+      fanLoss:
+        'Your fans miss the front row: a stripped-down set, the story behind the song, requesting what you play next, hearing unreleased music first, being answered by name, and the replay they get to keep.',
+      flow: [
+        'You go live for free, for a few minutes, to promote something',
+        'Schedule one real live event and put a ticket on it',
+        'Fans buy in, show up, and tip toward what they want to unlock',
+        `${fmtDollars(monthly)} a month from a night you were already able to do`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Schedule a live session on CRWN and put a ticket price on it, so the night is an event fans buy into.',
+          'Set tip goals for the show, so the room funds the unreleased song or the story they want.',
+          'The stream records itself, so the replay is there for the members who paid.',
+        ],
+      },
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'What to actually do for 90 minutes',
+          body: 'Do not wing it. Plan the night in segments: open with two songs, tell the story behind one of them, take questions, play something unreleased, then close on whatever your tip goal unlocked. A run of show is the difference between a hangout and a ticket people buy again.',
+        },
+        {
+          title: 'Price the first one low',
+          body: 'Your first ticketed live is proof, not profit. Price it where your real fans do not have to think about it, sell it to the people already on your list, and let the tips carry the upside.',
+        },
+      ],
+      conversionPayload: { live: 'ticketed-event' },
+      shareSummary: `One ticketed live a month could be worth about ${fmtDollars(monthly)} to me.`,
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
@@ -1390,6 +1506,7 @@ export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   'share-to-earn-planner': shareToEarn,
   'executive-producer-session': execProducer,
   'own-your-fans-calculator': ownYourFans,
+  'live-experience-calculator': liveExperience,
 };
 
 export const ACQUISITION_TOOL_IDS = Object.keys(ACQUISITION_TOOLS);

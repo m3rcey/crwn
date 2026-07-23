@@ -631,6 +631,30 @@ const OWN_YOUR_FANS = lossToolBase({
   analyticsMetadata: { toolId: 'own-your-fans-calculator', category: 'Grow', promotedFeature: 'Own Your Fans' },
 });
 
+// Sibling of EXECUTIVE_PRODUCER, deliberately NOT the same offer. Executive Producer sells one
+// seat in the room where the song is made (few fans, high price). This one sells the show itself
+// (many fans, low ticket, plus tips during the stream), so the two never read the same in a DM.
+const LIVE_EXPERIENCE = lossToolBase({
+  slug: 'live-experience-calculator',
+  name: 'Live Experience Calculator',
+  featureName: 'Live Experiences',
+  category: 'Monetize',
+  description: 'See what one ticketed live event a month is worth, and what going live only to promote is costing you.',
+  videoAngle: 'Most artists only go live to promote a release, so every stream is free, unticketed, and gone the second it ends.',
+  icon: '📡',
+  dmKeywords: ['live'],
+  hero: {
+    eyebrow: 'Live Experiences',
+    headline: 'Going live only to promote is why nobody pays to watch.',
+    subheadline: 'A few minutes of "thanks for pulling up" is not an event, so no one buys a ticket, no one tips, and there is nothing left to sell when it ends. See what one real ticketed live a month is worth.',
+    primaryCta: 'See what I am losing',
+    image: '/tool-live-experience.jpg',
+    imageAlt: 'An artist performing a stripped-down set under warm gold light',
+  },
+  resultGeneratorKey: 'liveExperience',
+  analyticsMetadata: { toolId: 'live-experience-calculator', category: 'Monetize', promotedFeature: 'Live Experiences' },
+});
+
 const EXECUTIVE_PRODUCER = lossToolBase({
   slug: 'executive-producer-session',
   name: 'Executive Producer Session Calculator',
@@ -667,6 +691,7 @@ export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   SHARE_TO_EARN,
   EXECUTIVE_PRODUCER,
   OWN_YOUR_FANS,
+  LIVE_EXPERIENCE,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(

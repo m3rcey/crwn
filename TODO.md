@@ -67,6 +67,17 @@ responsible for. Do not work those.
       **Goals** button on the live session row, then tip from a second (fan) account. The bar
       should move and a "GOAL REACHED" line should post itself into the live chat.
 
+      **Do this BEFORE promoting the `LIVE` lead magnet below.** That tool's fix tells artists to
+      "set tip goals for the show". With the flag off they will not find the button.
+
+- [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
+      keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the
+      registry), so nothing is needed on our end. In ManyChat, clone an existing tool keyword flow
+      (e.g. `SHARE`) and set its trigger keyword to `LIVE`, pointing at the same External Request.
+      **Until this is added, any Instagram comment of "LIVE" goes nowhere.** Verify the deploy's
+      webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
+      [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
+
 - [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
       `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
       nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)

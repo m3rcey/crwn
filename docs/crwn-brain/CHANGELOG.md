@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-07-23 — Live Tips + Tip Goals, and the LIVE lead magnet
+
+CRWN had **no tipping primitive of any kind**. The only money paths into a live were the
+subscription tier gate and the pre-sale ticket, which blocked six requested live features at once
+(tip goals, biggest-tipper badges, tip-leader queue sorting, revenue-by-minute, live challenges,
+tip-goal sponsors). Tipping was therefore built first, ahead of the flashier backstage/FaceTime work.
+
+- **Live Tips (dark-launched).** `live_tips` + `live_goals`
+  (`supabase/schema-phase2-live-tips.sql`), checkout at `/api/stripe/live-tip-checkout`, board at
+  `/api/live/tips`, `handleLiveTip` + `settleLiveGoals` in `webhookHandlers.ts`, UI in
+  `LiveTipBar` (viewer + broadcaster) and `LiveGoalsEditor` (artist), shared helpers in
+  `src/lib/live/tips.ts`. Reads `admin_settings.live_tips`, off by default, same pattern as the
+  quest and pop-up engines. A tip is a one-time Connect charge in the same shape as a ticket:
+  pending row at checkout, flipped to `paid` by the webhook, and only paid tips move the bar.
+- **Three traps worth remembering.** (1) A tip carries `live_session_id` just like a ticket, so the
+  webhook must match `metadata.type === 'live_tip'` BEFORE the ticket branch or the ticket handler
+  swallows it. (2) `earnings_type_check` did not list `live_tip`; the earnings handlers return early
+  on a failed insert, so without widening it every tip would be charged and never reach payouts.
+  (3) Money columns and `reached_at` are frozen in BEFORE UPDATE triggers, not an RLS `WITH CHECK`,
+  so the artist's tip-moderation policy cannot self-approve a payment.
+- **Goal unlocks announce themselves in the live chat**, posted as the artist at tier rank 99, so
+  the payoff happens on stream rather than in a dashboard.
+- **Live Experience Calculator** (`live-experience-calculator`, DM keyword `LIVE`): the 15th
+  acquisition tool, ticketed-live angle, registered in `leadMagnets/registry.ts` +
+  `acquisition/toolAdapters.ts` with a bespoke charcoal-and-gold hero. Its math and its fix use
+  ONLY shipped features (ticket, tips, recording-as-replay). **Standalone post-show replay sales
+  and brand sponsorship are deliberately excluded from both** because neither exists in CRWN.
+  Sibling of `executive-producer-session`, which sells one seat in the room at a high price; this
+  one sells the show itself at volume.
+
 ## 2026-07-17 — Pop-up Engine, account hub, and interruption governors
 
 A batch of engagement/nav work, all built around one principle: the platform must NOT overkill
