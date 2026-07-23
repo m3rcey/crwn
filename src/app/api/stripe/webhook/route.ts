@@ -14,6 +14,7 @@ import {
   handleTrackPurchase,
   handleBookingPurchase,
   handleLiveTicketPurchase,
+  handleLiveTip,
   handlePlatformCheckoutCompleted,
   handlePlatformSubscriptionUpdated,
   handlePlatformSubscriptionDeleted,
@@ -99,6 +100,12 @@ export async function POST(req: NextRequest) {
         // Check if this is a booking purchase
         else if (session.metadata?.booking_session_id) {
           await handleBookingPurchase(supabaseAdmin, session);
+        }
+        // Live tip. MUST be checked before the ticket branch below: a tip also
+        // carries live_session_id, so the ticket handler would swallow it and
+        // mark the fan as holding a ticket they never bought.
+        else if (session.metadata?.type === 'live_tip') {
+          await handleLiveTip(supabaseAdmin, session);
         }
         // Check if this is a live-session pre-sale ticket
         else if (session.metadata?.live_session_id) {

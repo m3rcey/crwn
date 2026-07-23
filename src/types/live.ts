@@ -54,6 +54,43 @@ export interface LiveSessionParticipant {
   created_at: string;
 }
 
+// Tips + Tip Goals — see schema-phase2-live-tips.sql
+export type LiveTipStatus = 'pending' | 'paid' | 'refunded';
+// Only 'tips' is computed today. 'viewers'/'shares' are reserved so Live
+// Challenges is a row on this table, not a second system.
+export type LiveGoalMetric = 'tips' | 'viewers' | 'shares';
+
+export interface LiveTip {
+  id: string;
+  session_id: string;
+  artist_id: string;
+  fan_id: string;
+  amount: number; // cents
+  platform_fee: number; // cents
+  message: string | null;
+  is_hidden: boolean;
+  status: LiveTipStatus;
+  stripe_checkout_session_id: string | null;
+  stripe_payment_intent_id: string | null;
+  paid_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LiveGoal {
+  id: string;
+  session_id: string;
+  artist_id: string;
+  title: string;
+  metric: LiveGoalMetric;
+  target_amount: number; // cents when metric = 'tips'
+  sort_order: number;
+  reached_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface LiveSessionMessage {
   id: string;
   session_id: string;

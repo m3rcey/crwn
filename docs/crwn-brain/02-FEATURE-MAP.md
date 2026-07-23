@@ -59,6 +59,8 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Live streaming | `/[slug]/live/[sessionId]`, `/api/live/{token,session,chat,...}`, `LiveWatchRoom`/`BroadcasterStudio`/`LivestreamManager`, `livekit.ts`; Pro + agreement gated | **Production-ready** |
 | VOD | `/api/live/{vod,watch,egress-webhook}`; egress→R2, signed URL | **Production-ready** |
 | Live agreement | `(public)/live-agreement`, `live_agreement_acceptances` | **Production-ready** |
+| Live pre-sale tickets | `/api/stripe/live-checkout`, `live_ticket_purchases`; ticket = access at the token mint | **Production-ready** |
+| Live tips + tip goals | `/api/stripe/live-tip-checkout`, `/api/live/tips`, `live_tips`/`live_goals`, `LiveTipBar`/`LiveGoalsEditor`, `lib/live/tips.ts` | **Dark-launched** (`admin_settings.live_tips`, off) |
 | Booking tokens (live flow) | `/api/booking-tokens`, `BookingTokenButton` in `PurchasesSection` | **Production-ready** |
 | Calendly booking (old flow) | `CalendlyBooking`/`SessionManager`/`BookingSettings` | **Legacy/unused** (not imported anywhere) |
 | My Calendar (fan) | `(main)/my-calendar`, `CalendarMonthGrid` (read-only aggregation) | **Production-ready** |

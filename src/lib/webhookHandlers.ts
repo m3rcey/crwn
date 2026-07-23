@@ -1492,6 +1492,190 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
   console.log('Live ticket recorded:', { live_session_id, buyer_id, artist_id, netAmount });
 }
 
+// ─── Live tip + tip-goal unlock ──────────────────────────────────────────────
+
+export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {
+  const metadata = session.metadata;
+  if (!metadata?.live_session_id || !metadata?.buyer_id || !metadata?.artist_id) {
+    console.log('No live tip metadata found');
+    return;
+  }
+
+  const { live_session_id, buyer_id, artist_id } = metadata;
+  const { fanCity, fanState, fanCountry, fanCountryCode } = extractGeo(session);
+
+  // Flip the pending tip to paid. Scoped by the checkout session id so a fan who
+  // tips twice in a row does not have their first tip flipped by the second
+  // webhook (the ticket flow can key on the pair; tips are not unique per fan).
+  const { data: tip } = await supabaseAdmin
+    .from('live_tips')
+    .update({
+      status: 'paid',
+      stripe_payment_intent_id: session.payment_intent as string,
+      paid_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('stripe_checkout_session_id', session.id)
+    .eq('status', 'pending')
+    .select('id, amount, message')
+    .maybeSingle();
+
+  if (!tip) {
+    // Already processed (Stripe retries) or the pending row never landed.
+    console.log('Live tip: no pending row for checkout session', session.id);
+    return;
+  }
+
+  const { data: liveSession } = await supabaseAdmin
+    .from('live_sessions')
+    .select('title')
+    .eq('id', live_session_id)
+    .single();
+
+  const { data: fanProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('display_name')
+    .eq('id', buyer_id)
+    .single();
+
+  const { data: artistProfile } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('user_id')
+    .eq('id', artist_id)
+    .single();
+
+  const fanName = fanProfile?.display_name || 'A fan';
+  const liveTitle = liveSession?.title || 'Live session';
+  // Charge what Stripe actually took, not what the row claimed.
+  const grossAmount = session.amount_total ?? tip.amount;
+
+  const feePercent = await getArtistFeePercent(artist_id);
+  const platformFee = Math.round(grossAmount * (feePercent / 100));
+  const netAmount = grossAmount - platformFee;
+
+  const { data: earning } = await supabaseAdmin
+    .from('earnings')
+    .insert({
+      artist_id,
+      fan_id: buyer_id,
+      type: 'live_tip',
+      description: `${fanName} tipped during ${liveTitle}`,
+      gross_amount: grossAmount,
+      platform_fee: platformFee,
+      net_amount: netAmount,
+      stripe_payment_id: session.payment_intent || session.id,
+      metadata: {
+        liveTitle,
+        fanDisplayName: fanName,
+        liveSessionId: live_session_id,
+        ...(tip.message && { tipMessage: tip.message }),
+      },
+      fan_city: fanCity,
+      fan_state: fanState,
+      fan_country: fanCountry,
+      fan_country_code: fanCountryCode,
+    })
+    .select('id')
+    .single();
+
+  if (artistProfile) {
+    await supabaseAdmin.from('notifications').insert({
+      user_id: artistProfile.user_id,
+      type: 'live_tip',
+      title: `💸 ${fanName} tipped $${(grossAmount / 100).toFixed(2)}!`,
+      message: tip.message ? `"${tip.message}"` : `During ${liveTitle}`,
+      link: `/profile/artist?tab=live`,
+    });
+
+    if (earning) {
+      await supabaseAdmin.from('notifications').insert({
+        user_id: artistProfile.user_id,
+        type: 'earning',
+        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
+        message: `${fanName} tipped during ${liveTitle}`,
+        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+      });
+    }
+  }
+
+  // ── Tip goals: did this tip cross a target? ────────────────────────────────
+  // Recomputed from the paid total rather than incremented, so a replayed
+  // webhook or an out-of-order flip can never double-count toward an unlock.
+  try {
+    await settleLiveGoals(supabaseAdmin, live_session_id, artist_id, artistProfile?.user_id ?? null);
+  } catch (err) {
+    console.error('Live goal settle failed:', err);
+  }
+
+  console.log('Live tip recorded:', { live_session_id, buyer_id, artist_id, netAmount });
+}
+
+/**
+ * Stamp every tip goal the session's paid total has now reached, and announce
+ * each unlock in the live chat so the payoff happens on stream. Idempotent: a
+ * goal with reached_at already set is skipped, so Stripe retries are harmless.
+ */
+async function settleLiveGoals(
+  supabaseAdmin: AdminClient,
+  sessionId: string,
+  artistId: string,
+  artistUserId: string | null
+) {
+  const { data: paidTips } = await supabaseAdmin
+    .from('live_tips')
+    .select('amount')
+    .eq('session_id', sessionId)
+    .eq('status', 'paid');
+
+  const total = (paidTips || []).reduce((sum: number, t: { amount: number }) => sum + (t.amount || 0), 0);
+
+  const { data: goals } = await supabaseAdmin
+    .from('live_goals')
+    .select('id, title, target_amount')
+    .eq('session_id', sessionId)
+    .eq('metric', 'tips')
+    .eq('is_active', true)
+    .is('reached_at', null)
+    .lte('target_amount', total);
+
+  if (!goals?.length) return;
+
+  for (const goal of goals as { id: string; title: string; target_amount: number }[]) {
+    // Guarded by `reached_at IS NULL` so two concurrent webhooks announce once.
+    const { data: stamped } = await supabaseAdmin
+      .from('live_goals')
+      .update({ reached_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq('id', goal.id)
+      .is('reached_at', null)
+      .select('id')
+      .maybeSingle();
+
+    if (!stamped) continue;
+
+    // The unlock lands in the chat everyone is already watching. Posted as the
+    // artist with the artist badge rank so it reads as an announcement.
+    if (artistUserId) {
+      await supabaseAdmin.from('live_session_messages').insert({
+        session_id: sessionId,
+        user_id: artistUserId,
+        body: `🏆 GOAL REACHED at $${(goal.target_amount / 100).toFixed(0)}: ${goal.title}!`,
+        sender_tier_rank: 99,
+        sender_tier_name: 'Artist',
+      });
+
+      await supabaseAdmin.from('notifications').insert({
+        user_id: artistUserId,
+        type: 'live_tip',
+        title: '🏆 Tip goal reached!',
+        message: `Your fans unlocked: ${goal.title}`,
+        link: `/profile/artist?tab=live`,
+      });
+    }
+  }
+
+  console.log('Live goals settled:', { sessionId, artistId, total, unlocked: goals.length });
+}
+
 // ─── Platform (CRWN) tier checkout ───────────────────────────────────────────
 
 export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {

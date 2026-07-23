@@ -13,6 +13,7 @@ import { Track } from 'livekit-client';
 import { useSubscription } from '@/hooks/useSubscription';
 import { SubscribeCTA } from '@/components/gating';
 import { LiveChatPanel } from './LiveChatPanel';
+import { LiveTipBar } from './LiveTipBar';
 import { LiveSession } from '@/types/live';
 import { Loader2, Radio } from 'lucide-react';
 
@@ -220,8 +221,12 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
           <WatchVideo />
         </LiveKitRoom>
       </div>
-      <div className="w-full md:w-80 h-64 md:h-auto">
-        <LiveChatPanel sessionId={session.id} currentUserId={currentUserId} canPost={canAccess} canModerate={isOwner} />
+      <div className="w-full md:w-80 h-64 md:h-auto flex flex-col min-h-0">
+        {/* Renders nothing while the live_tips flag is off. */}
+        <LiveTipBar sessionId={session.id} canTip={!isOwner} />
+        <div className="flex-1 min-h-0">
+          <LiveChatPanel sessionId={session.id} currentUserId={currentUserId} canPost={canAccess} canModerate={isOwner} />
+        </div>
       </div>
     </div>
   );

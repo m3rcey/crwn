@@ -48,6 +48,25 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run [`supabase/schema-phase2-live-tips.sql`](supabase/schema-phase2-live-tips.sql)**
+      in the Supabase SQL editor, then flip the flag to launch Live Tips + Tip Goals.
+
+      CRWN had no tipping primitive at all before this. The migration adds `live_tips` and
+      `live_goals`, widens `earnings_type_check` to accept `live_tip` (without that, every tip
+      is charged and never lands in payouts), and puts both tables on Realtime so the goal bar
+      moves without polling. Self-verifies at the end.
+
+      The code is already live and **inert until you do this**: the flag defaults off, so the
+      tip bar renders nothing, the checkout route 403s, and nothing queries the missing tables.
+
+      Then turn it on:
+      ```sql
+      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'live_tips';
+      ```
+      To verify before announcing: go live on the `m3rcey` test artist, add a goal via the new
+      **Goals** button on the live session row, then tip from a second (fan) account. The bar
+      should move and a "GOAL REACHED" line should post itself into the live chat.
+
 - [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
       `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
       nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)

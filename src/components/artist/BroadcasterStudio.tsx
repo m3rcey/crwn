@@ -6,6 +6,7 @@ import { LiveKitRoom, VideoConference } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { Loader2, X } from 'lucide-react';
 import { LiveChatPanel } from '@/components/live/LiveChatPanel';
+import { LiveTipBar } from '@/components/live/LiveTipBar';
 
 interface BroadcasterStudioProps {
   sessionId: string;
@@ -90,8 +91,12 @@ export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: 
                 <VideoConference />
               </LiveKitRoom>
             </div>
-            <div className="w-full md:w-80 h-64 md:h-auto">
-              <LiveChatPanel sessionId={sessionId} currentUserId={currentUserId} canPost canModerate />
+            <div className="w-full md:w-80 h-64 md:h-auto flex flex-col min-h-0">
+              {/* The artist watches the goal fill; they cannot tip their own live. */}
+              <LiveTipBar sessionId={sessionId} canTip={false} />
+              <div className="flex-1 min-h-0">
+                <LiveChatPanel sessionId={sessionId} currentUserId={currentUserId} canPost canModerate />
+              </div>
             </div>
           </div>
         )}

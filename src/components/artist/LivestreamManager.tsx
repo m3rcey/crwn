@@ -6,9 +6,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { LiveSession } from '@/types/live';
-import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil } from 'lucide-react';
+import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil, Trophy } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { BroadcasterStudio } from './BroadcasterStudio';
+import { LiveGoalsEditor } from './LiveGoalsEditor';
 import { EditRecordingModal } from './EditRecordingModal';
 import { GoLiveAgreementModal } from '@/components/live/GoLiveAgreementModal';
 import { validateUpload } from '@/lib/uploadValidation';
@@ -34,6 +35,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   const [busyId, setBusyId] = useState<string | null>(null);
   const [studioSession, setStudioSession] = useState<LiveSession | null>(null);
   const [editingSession, setEditingSession] = useState<LiveSession | null>(null);
+  // Tip goals (dark-launched behind admin_settings.live_tips).
+  const [goalsSession, setGoalsSession] = useState<LiveSession | null>(null);
+  const [tipsEnabled, setTipsEnabled] = useState(false);
   // Session awaiting Live-Streaming Agreement acceptance before it can go live.
   const [pendingLiveSession, setPendingLiveSession] = useState<LiveSession | null>(null);
 
@@ -76,6 +80,20 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   useEffect(() => {
     loadSessions();
   }, [loadSessions]);
+
+  // Dark-launch flag for tip goals. The route answers `enabled` regardless of
+  // whether the session id resolves, so any owned session works as the probe.
+  const flagProbeId = sessions[0]?.id;
+  useEffect(() => {
+    const probeId = flagProbeId;
+    if (!probeId) return;
+    let cancelled = false;
+    fetch(`/api/live/tips?sessionId=${probeId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setTipsEnabled(!!d.enabled); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [flagProbeId]);
 
   // A recording finalizes on the server (LiveKit egress -> R2 -> webhook), not in
   // this browser. While anything is still processing, quietly re-poll so the row
@@ -706,6 +724,17 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     Not recorded
                   </span>
                 )}
+                {/* Tip goals: only for real live sessions, and only once the
+                    live_tips flag is on (otherwise fans see no bar to fill). */}
+                {tipsEnabled && session.source_type !== 'prerecorded' && session.status !== 'ended' && (
+                  <button
+                    onClick={() => setGoalsSession(session)}
+                    className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+                    title="Tip goals"
+                  >
+                    <Trophy className="w-4 h-4" /> Goals
+                  </button>
+                )}
                 {session.status !== 'live' && (
                   <button
                     onClick={() => { setDeletingId(session.id); setShowDeleteModal(true); }}
@@ -728,6 +757,15 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           title={studioSession.title}
           currentUserId={user?.id || ''}
           onClose={() => setStudioSession(null)}
+        />
+      )}
+
+      {goalsSession && (
+        <LiveGoalsEditor
+          sessionId={goalsSession.id}
+          artistId={artistId}
+          sessionTitle={goalsSession.title}
+          onClose={() => setGoalsSession(null)}
         />
       )}
 
