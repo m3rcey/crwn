@@ -204,9 +204,6 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   **grandfathered/locked pricing** for founders, left out because it touches Stripe subscription
   pricing. Ask if you want it. Also still yours: the **ManyChat flows** for the new tool keywords.
 
-- **Bespoke hero photo for Own Your Fans.** `/tool-own-your-fans.jpg` is currently a copy of the
-  movement-page placeholder so the page ships clean. Ask me to generate the real on-brand photo
-  (dark + gold, a fan crowd behind glass the artist can't reach) via the image pipeline.
 
 One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
 signup works via `ClaimRedeemer` instead. `/welcome` and `useAuth` are the two files that broke
