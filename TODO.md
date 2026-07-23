@@ -48,36 +48,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run [`supabase/schema-phase2-live-tips.sql`](supabase/schema-phase2-live-tips.sql)**
-      in the Supabase SQL editor, then flip the flag to launch Live Tips + Tip Goals.
-
-      CRWN had no tipping primitive at all before this. The migration adds `live_tips` and
-      `live_goals`, widens `earnings_type_check` to accept `live_tip` (without that, every tip
-      is charged and never lands in payouts), and puts both tables on Realtime so the goal bar
-      moves without polling. Self-verifies at the end.
-
-      The code is already live and **inert until you do this**: the flag defaults off, so the
-      tip bar renders nothing, the checkout route 403s, and nothing queries the missing tables.
-
-      Then turn it on:
-      ```sql
-      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'live_tips';
-      ```
-      To verify before announcing: go live on the `m3rcey` test artist, add a goal via the new
-      **Goals** button on the live session row, then tip from a second (fan) account. The bar
-      should move and a "GOAL REACHED" line should post itself into the live chat.
-
-      **Do this BEFORE promoting the `LIVE` lead magnet below.** That tool's fix tells artists to
-      "set tip goals for the show". With the flag off they will not find the button.
-
-- [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
-      keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the
-      registry), so nothing is needed on our end. In ManyChat, clone an existing tool keyword flow
-      (e.g. `SHARE`) and set its trigger keyword to `LIVE`, pointing at the same External Request.
-      **Until this is added, any Instagram comment of "LIVE" goes nowhere.** Verify the deploy's
-      webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
-      [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
-
 - [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
       `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
       nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)
@@ -119,6 +89,36 @@ responsible for. Do not work those.
       The `aribahmad21@gmail.com` tile is already hidden from Featured Artists in code, but it
       still shows on their `/[slug]` page until the name is fixed. "Josh Williams" is a legal
       name, not an email, so code can't detect it: rename it here too if it should be a stage name.
+
+- [ ] **Run [`supabase/schema-phase2-live-tips.sql`](supabase/schema-phase2-live-tips.sql)**
+      in the Supabase SQL editor, then flip the flag to launch Live Tips + Tip Goals.
+
+      CRWN had no tipping primitive at all before this. The migration adds `live_tips` and
+      `live_goals`, widens `earnings_type_check` to accept `live_tip` (without that, every tip
+      is charged and never lands in payouts), and puts both tables on Realtime so the goal bar
+      moves without polling. Self-verifies at the end.
+
+      The code is already live and **inert until you do this**: the flag defaults off, so the
+      tip bar renders nothing, the checkout route 403s, and nothing queries the missing tables.
+
+      Then turn it on:
+      ```sql
+      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'live_tips';
+      ```
+      To verify before announcing: go live on the `m3rcey` test artist, add a goal via the new
+      **Goals** button on the live session row, then tip from a second (fan) account. The bar
+      should move and a "GOAL REACHED" line should post itself into the live chat.
+
+      **Do this BEFORE the ManyChat `LIVE` keyword below.** That tool's fix tells artists to
+      "set tip goals for the show". With the flag off they will not find the button.
+
+- [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
+      keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the
+      registry), so nothing is needed on our end. In ManyChat, clone an existing tool keyword flow
+      (e.g. `SHARE`) and set its trigger keyword to `LIVE`, pointing at the same External Request.
+      **Until this is added, any Instagram comment of "LIVE" goes nowhere.** Verify the deploy's
+      webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
+      [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
 
 - [ ] **Apply the Pop-up Engine migration, then turn it on when ready.** The pop-up system
       (governed in-app nudges + pop-up surveys) is shipped but DARK. It renders nothing until
