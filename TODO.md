@@ -220,6 +220,15 @@ secure result links, claiming, the gated in-window email capture, follow-up auto
 compliant unsubscribe, the tool-education drip, booking detection, the no-show ladder, retention,
 and the admin panel. The privacy policy now discloses the funnel (live).
 
+- **Announcement pop-up for Live Tips, owed the moment you flip the flag.** Standing rule now:
+  every major feature that goes live ships with a targeted announcement pop-up so existing
+  artists meet it on next login, instead of never finding it. Live Tips is the first one due.
+  I cannot add it usefully yet for two reasons, both yours to unblock: the Pop-up Engine
+  migration is unrun and its flag is off (so any pop-up renders nothing), and `live_tips` is
+  itself still off. Flip both and I will add the `PopupDef`. Related gap I can fix any time:
+  `PopupContext` carries no account-creation date, so "existing users only" is approximated
+  with a once-ever cap; say the word and I will add `accountAgeDays` for precise targeting.
+
 - **Automated lead deletion (erasure requests).** Ask me to build this when you want it. Today a
   "delete my data" request from a lead is MANUAL: `DELETE FROM lead_identities WHERE ...` in
   Supabase (it cascades). The privacy policy honestly describes this manual path, but a proper
