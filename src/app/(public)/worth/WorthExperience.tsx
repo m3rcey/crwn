@@ -21,6 +21,7 @@ import {
   TiersMock, EarningsMock, LeaderboardMock, AiActionsMock,
   CommunityMock, ShopMock, SyncMock, SequencesMock, LiveMock, ClipperMock,
 } from './mocks';
+import { IndependenceSection } from '@/components/lead-magnets/IndependenceSection';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
 // The event page, not the profile page. The profile page is a list of event types and costs
@@ -704,6 +705,11 @@ export function WorthExperience({
           </div>
           <p className="text-crwn-text-secondary text-xl mt-6 mb-4">Set your automations once, they run forever:</p>
           <SequencesMock />
+        </section>
+
+        {/* Independence: the apps you built on can change owners overnight */}
+        <section className="mb-14">
+          <IndependenceSection href="/signup" ctaLabel="Claim your fans on CRWN" />
         </section>
 
         {/* AI manager + mock */}

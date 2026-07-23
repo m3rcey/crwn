@@ -48,6 +48,14 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
+      `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
+      nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)
+      and set its trigger keyword to `OWN`, pointing at the same External Request. **Until this is
+      added, any Instagram comment of "OWN" from the new Own Your Fans scripts goes nowhere.**
+      Verify the deploy's webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is
+      live at [thecrwn.app/tools/own-your-fans-calculator](https://thecrwn.app/tools/own-your-fans-calculator).
+
 - [ ] **Run [`supabase/schema-phase2-fix-artist-profiles-update-permission.sql`](supabase/schema-phase2-fix-artist-profiles-update-permission.sql)**
       in the Supabase SQL editor. **Until you do, NO artist can save edits to their
       profile** (Profile tab → Save Profile shows "permission denied for table
@@ -188,12 +196,17 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   self-serve or one-command deletion is not built (it is Phase 2 in the checklist). Low volume
   today, so not urgent, but it is the one real gap behind the privacy disclosure.
 
-- **Loss-revelation lead magnets: DONE.** All 10 are live and honest (each fix points to a real
-  CRWN feature), each with a DM flow, a web page, bespoke on-brand hero photos, a recovery-flow
-  diagram, and the CRWN showcase. Founder Window is a real feature now (cap + deadline + founder
-  marking; migration run). The only deferred piece is **grandfathered/locked pricing** for founders
-  (keep their price for life), left out because it touches Stripe subscription pricing. Ask if you
-  want it. Also still yours: the **ManyChat flows** for the new tool keywords (table's in chat).
+- **Loss-revelation lead magnets: DONE.** All 11 are live and honest (each fix points to a real
+  CRWN feature), each with a DM flow, a web page, a recovery-flow diagram, and the CRWN showcase.
+  The 11th, **Own Your Fans** (keyword `OWN`, the DistroKid/independence angle), ships on today's
+  owned-CRM features and reuses existing profile fields (no migration). Founder Window is a real
+  feature now (cap + deadline + founder marking; migration run). The only deferred piece is
+  **grandfathered/locked pricing** for founders, left out because it touches Stripe subscription
+  pricing. Ask if you want it. Also still yours: the **ManyChat flows** for the new tool keywords.
+
+- **Bespoke hero photo for Own Your Fans.** `/tool-own-your-fans.jpg` is currently a copy of the
+  movement-page placeholder so the page ships clean. Ask me to generate the real on-brand photo
+  (dark + gold, a fan crowd behind glass the artist can't reach) via the image pipeline.
 
 One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
 signup works via `ClaimRedeemer` instead. `/welcome` and `useAuth` are the two files that broke

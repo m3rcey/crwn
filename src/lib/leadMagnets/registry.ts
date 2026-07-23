@@ -610,6 +610,27 @@ const SHARE_TO_EARN = lossToolBase({
   analyticsMetadata: { toolId: 'share-to-earn-planner', category: 'Grow', promotedFeature: 'Fan Referrals' },
 });
 
+const OWN_YOUR_FANS = lossToolBase({
+  slug: 'own-your-fans-calculator',
+  name: 'Own Your Fans Calculator',
+  featureName: 'Own Your Fans',
+  category: 'Grow',
+  description: 'See how much of your fanbase lives on apps you do not control, and could lose overnight.',
+  videoAngle: 'Your whole audience lives on platforms that can change owners or rules overnight. You own almost none of them.',
+  icon: '🏠',
+  dmKeywords: ['own'],
+  hero: {
+    eyebrow: 'Own Your Fans',
+    headline: 'Your whole audience lives on apps you do not own.',
+    subheadline: 'Your distributor, your streaming, your socials all sit between you and your fans, and any of them can change the rules overnight. See how much of your fanbase you could lose, and what it is worth to own it instead.',
+    primaryCta: 'See what I do not own',
+    image: '/tool-own-your-fans.jpg',
+    imageAlt: 'An artist alone in a dark studio, his fans behind a glass wall he cannot reach',
+  },
+  resultGeneratorKey: 'ownYourFans',
+  analyticsMetadata: { toolId: 'own-your-fans-calculator', category: 'Grow', promotedFeature: 'Own Your Fans' },
+});
+
 const EXECUTIVE_PRODUCER = lossToolBase({
   slug: 'executive-producer-session',
   name: 'Executive Producer Session Calculator',
@@ -645,6 +666,7 @@ export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   TEAM_SPLIT,
   SHARE_TO_EARN,
   EXECUTIVE_PRODUCER,
+  OWN_YOUR_FANS,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(

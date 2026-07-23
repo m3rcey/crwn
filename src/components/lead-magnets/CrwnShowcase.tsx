@@ -41,6 +41,7 @@ import {
   LeaderboardMock,
   SyncMock,
 } from '@/app/(public)/worth/mocks';
+import { IndependenceSection } from './IndependenceSection';
 
 const GOLD = '#D4AF37';
 
@@ -280,6 +281,9 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
       >
         <SequencesMock />
       </MockSection>
+
+      {/* Independence: the apps you built on can change owners overnight */}
+      <IndependenceSection href={href} ctaLabel={ctaLabel} />
 
       {/* AI manager */}
       <MockSection

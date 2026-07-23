@@ -1280,6 +1280,100 @@ const execProducer: AcquisitionTool = {
   },
 };
 
+const ownYourFans: AcquisitionTool = {
+  id: 'own-your-fans-calculator',
+  name: 'Own Your Fans Calculator',
+  requiredFields: ['social_followers'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/own-your-fans-calculator/result',
+  formulaVersion: 'lossResult@1',
+  calculatorId: 'ownYourFans',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const audience = n(profile.social_followers) || n(profile.monthly_listeners);
+    const PRICE = 1000; // $10/mo, the same conservative midpoint every loss tool uses.
+    // Your audience lives on platforms you do not control. The recoverable business is the slice
+    // you could turn into contacts you OWN, and the direct revenue those owned fans would pay.
+    // A platform change (new owner, new payouts, new reach rules) puts that whole slice at risk.
+    const OWNABLE = 0.2; // only ~20% of a following can realistically become owned contacts
+    const PAY = 0.03; // ~3% of owned fans pay directly, conservative
+    const ownableAt = (rate: number) => Math.round(Math.round(audience * rate) * PAY) * PRICE;
+    const ownable = Math.round(audience * OWNABLE);
+    const payers = Math.round(ownable * PAY);
+    const monthly = payers * PRICE;
+    const annual = monthly * 12;
+    const headline =
+      monthly >= 5000
+        ? `About ${fmtDollars(monthly)} a month in fan revenue is trapped on apps you do not own`
+        : 'Your whole audience lives on apps you do not control, and you own none of them';
+    return buildLossResult({
+      generatorVersion: 'lossResult@1',
+      headline,
+      summary: `You have about ${audience.toLocaleString(
+        'en-US',
+      )} followers, and right now you can directly contact almost none of them. Around ${ownable.toLocaleString(
+        'en-US',
+      )} of them could become fans you actually own.`,
+      derivation: [
+        { label: 'Your audience', value: audience.toLocaleString('en-US') },
+        { label: 'Fans you could own', value: ownable.toLocaleString('en-US'), note: '~20% turned into direct contacts' },
+        { label: 'Who would pay directly', value: payers.toLocaleString('en-US'), note: '~3% of them' },
+        { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
+      ],
+      cause:
+        'Your distributor, your streaming app, and your social apps all sit between you and your fans. Any of them can change owners, change payouts, or change what your fans even see, and you own none of the people who made your career. You rent them. A distributor changing hands should not be able to touch your fan list, but today it can.',
+      estimate: [
+        { label: 'Fans you could own', value: ownable.toLocaleString('en-US'), note: '~20% of your audience' },
+        { label: 'Who would pay directly', value: payers.toLocaleString('en-US'), note: '~3% of them' },
+        { label: 'Monthly, on rented apps', value: fmtDollars(monthly) },
+        { label: 'A year of it', value: fmtDollars(annual) },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(ownableAt(0.1))}/mo`, note: '~10% ownable' },
+        { label: 'Expected', value: `${fmtDollars(monthly)}/mo`, note: '~20% ownable' },
+        { label: 'High', value: `${fmtDollars(ownableAt(0.35))}/mo`, note: '~35% ownable' },
+      ],
+      assumptions: [
+        'About 20% of your audience could realistically become contacts you own, a conservative rate.',
+        'About 3% of those owned fans pay you directly.',
+        'A paying fan valued at about $10 a month.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'One platform change, in ownership, payouts, or reach, can erase a chunk of your business overnight.',
+        'You cannot reach the fans who made you without paying an algorithm to deliver you to them.',
+        'If you ever leave a platform, you start over from zero instead of taking your audience with you.',
+      ],
+      fanLoss:
+        'Your fans miss a direct line to you that no app can cut off, a place that is actually yours, and the feeling of being part of something you own together instead of renting from a platform.',
+      flow: [
+        'Your audience lives on apps you do not control',
+        'Move your fans into your own CRWN space',
+        'They join as members you can contact directly',
+        `${fmtDollars(monthly)} a month you own, not rent`,
+      ],
+      fix: {
+        title: 'How CRWN closes this gap',
+        steps: [
+          'Move your fans into your own CRWN space, with real contacts you keep.',
+          'Turn followers into members with a free tier and paid memberships.',
+          'Message and sell to them directly, with no algorithm in the way.',
+        ],
+      },
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'The first 100 you should own',
+          body: 'Start by moving your most active fans into your own space: a free tier they join with an email, then one paid membership. Owning 100 real contacts beats renting a million followers.',
+        },
+      ],
+      conversionPayload: { own: 'fan-ownership' },
+      shareSummary: `Turns out about ${fmtDollars(monthly)} a month of my fanbase lives on apps I do not own.`,
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
@@ -1295,6 +1389,7 @@ export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   'team-split-deal-builder': teamSplit,
   'share-to-earn-planner': shareToEarn,
   'executive-producer-session': execProducer,
+  'own-your-fans-calculator': ownYourFans,
 };
 
 export const ACQUISITION_TOOL_IDS = Object.keys(ACQUISITION_TOOLS);
