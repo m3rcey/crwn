@@ -6,12 +6,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { LiveSession } from '@/types/live';
-import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil, Trophy } from 'lucide-react';
+import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil, Trophy, Inbox } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { BroadcasterStudio } from './BroadcasterStudio';
 import { LiveGoalsEditor } from './LiveGoalsEditor';
 import { EditRecordingModal } from './EditRecordingModal';
 import { GoLiveAgreementModal } from '@/components/live/GoLiveAgreementModal';
+import { SubmissionReviewPanel } from '@/components/producer/SubmissionReviewPanel';
 import { validateUpload } from '@/lib/uploadValidation';
 
 interface LivestreamManagerProps {
@@ -38,11 +39,18 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   // Tip goals (dark-launched behind admin_settings.live_tips).
   const [goalsSession, setGoalsSession] = useState<LiveSession | null>(null);
   const [tipsEnabled, setTipsEnabled] = useState(false);
+  // Executive Producer Sessions (fan submissions + polls), dark-launched.
+  const [producerEnabled, setProducerEnabled] = useState(false);
+  const [reviewSession, setReviewSession] = useState<LiveSession | null>(null);
   // Session awaiting Live-Streaming Agreement acceptance before it can go live.
   const [pendingLiveSession, setPendingLiveSession] = useState<LiveSession | null>(null);
 
   // Form state
   const [mode, setMode] = useState<'live' | 'prerecorded'>('live');
+  // Executive Producer Session fields (only offered while the flag is on + mode=live).
+  const [acceptsSubmissions, setAcceptsSubmissions] = useState(false);
+  const [submissionPrompt, setSubmissionPrompt] = useState('');
+  const [submissionDeadline, setSubmissionDeadline] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
@@ -95,6 +103,16 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     return () => { cancelled = true; };
   }, [flagProbeId]);
 
+  // Producer Sessions dark-launch probe (independent of any session existing).
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/producer/flag')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setProducerEnabled(!!d.enabled); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   // A recording finalizes on the server (LiveKit egress -> R2 -> webhook), not in
   // this browser. While anything is still processing, quietly re-poll so the row
   // flips to "Download" on its own — the artist can leave this screen entirely.
@@ -119,6 +137,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setSelectedTiers([]);
     setScheduledAt('');
     setTicketPrice('');
+    setAcceptsSubmissions(false);
+    setSubmissionPrompt('');
+    setSubmissionDeadline('');
     setShowForm(false);
   };
 
@@ -256,6 +277,13 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         // for fans who don't hold an allowed tier.
         price: !isFree && ticketPrice && parseFloat(ticketPrice) > 0
           ? Math.round(parseFloat(ticketPrice) * 100)
+          : null,
+        // Executive Producer Session: fans submit beats/vocals/ideas beforehand.
+        // Guarded by the dark-launch flag, so this is only ever true when enabled.
+        accepts_submissions: producerEnabled && acceptsSubmissions,
+        submission_prompt: producerEnabled && acceptsSubmissions ? (submissionPrompt.trim() || null) : null,
+        submission_deadline: producerEnabled && acceptsSubmissions && submissionDeadline
+          ? new Date(submissionDeadline).toISOString()
           : null,
       });
       if (error) throw error;
@@ -574,6 +602,46 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
               </div>
             )}
 
+            {/* Executive Producer Session: fan submissions. Live sessions only, and
+                only while the dark-launch flag is on. */}
+            {producerEnabled && mode === 'live' && (
+              <div className="border-t border-crwn-elevated pt-4">
+                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptsSubmissions}
+                    onChange={(e) => setAcceptsSubmissions(e.target.checked)}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-crwn-text">Let fans submit beats, vocals, and ideas</span>
+                </label>
+                {acceptsSubmissions && (
+                  <div className="ml-6 space-y-3">
+                    <div>
+                      <label className="block text-crwn-text-secondary text-sm mb-1">What can they send?</label>
+                      <textarea
+                        value={submissionPrompt}
+                        onChange={(e) => setSubmissionPrompt(e.target.value)}
+                        rows={2}
+                        placeholder="e.g. Dark trap beats around 140 BPM, or a hook idea for the intro."
+                        className="neu-inset w-full px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-crwn-text-secondary text-sm mb-1">Submissions close (optional)</label>
+                      <input
+                        type="datetime-local"
+                        value={submissionDeadline}
+                        onChange={(e) => setSubmissionDeadline(e.target.value)}
+                        className="neu-inset w-full px-3 py-2 text-crwn-text focus:outline-none"
+                      />
+                      <p className="text-crwn-text-secondary text-xs mt-1">Leave blank to keep them open until you go live.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <button
               onClick={handleCreate}
               disabled={
@@ -735,6 +803,16 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     <Trophy className="w-4 h-4" /> Goals
                   </button>
                 )}
+                {/* Review the fan submission queue (Executive Producer Sessions). */}
+                {producerEnabled && session.accepts_submissions && (
+                  <button
+                    onClick={() => setReviewSession(session)}
+                    className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+                    title="Review submissions"
+                  >
+                    <Inbox className="w-4 h-4" /> Submissions
+                  </button>
+                )}
                 {session.status !== 'live' && (
                   <button
                     onClick={() => { setDeletingId(session.id); setShowDeleteModal(true); }}
@@ -756,6 +834,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           sessionId={studioSession.id}
           title={studioSession.title}
           currentUserId={user?.id || ''}
+          producerControls={producerEnabled && !!studioSession.accepts_submissions}
           onClose={() => setStudioSession(null)}
         />
       )}
@@ -766,6 +845,14 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           artistId={artistId}
           sessionTitle={goalsSession.title}
           onClose={() => setGoalsSession(null)}
+        />
+      )}
+
+      {reviewSession && (
+        <SubmissionReviewPanel
+          sessionId={reviewSession.id}
+          sessionTitle={reviewSession.title}
+          onClose={() => setReviewSession(null)}
         />
       )}
 

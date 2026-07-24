@@ -7,17 +7,20 @@ import '@livekit/components-styles';
 import { Loader2, X } from 'lucide-react';
 import { LiveChatPanel } from '@/components/live/LiveChatPanel';
 import { LiveTipBar } from '@/components/live/LiveTipBar';
+import { ProducerPolls } from '@/components/producer/ProducerPolls';
 
 interface BroadcasterStudioProps {
   sessionId: string;
   title: string;
   currentUserId: string;
   onClose: () => void;
+  // Executive Producer Session: show the artist's poll controls in-stream.
+  producerControls?: boolean;
 }
 
 // Artist's live broadcast view. Mints a broadcaster token (publish + roomAdmin)
 // from /api/live/token and connects to the LiveKit room.
-export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: BroadcasterStudioProps) {
+export function BroadcasterStudio({ sessionId, title, currentUserId, onClose, producerControls }: BroadcasterStudioProps) {
   const [token, setToken] = useState<string | null>(null);
   const [url, setUrl] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +97,11 @@ export function BroadcasterStudio({ sessionId, title, currentUserId, onClose }: 
             <div className="w-full md:w-80 h-64 md:h-auto flex flex-col min-h-0">
               {/* The artist watches the goal fill; they cannot tip their own live. */}
               <LiveTipBar sessionId={sessionId} canTip={false} />
+              {producerControls && (
+                <div className="max-h-72 overflow-y-auto p-3 border-b border-crwn-elevated">
+                  <ProducerPolls sessionId={sessionId} canManage />
+                </div>
+              )}
               <div className="flex-1 min-h-0">
                 <LiveChatPanel sessionId={sessionId} currentUserId={currentUserId} canPost canModerate />
               </div>

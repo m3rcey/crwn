@@ -25,6 +25,10 @@ export interface LiveSession {
   room_name: string;
   price: number | null; // cents, reserved for paid tickets (v1: null)
   is_active: boolean;
+  // Executive Producer Session — fan submissions. See schema-phase2-producer-sessions.sql.
+  accepts_submissions?: boolean;
+  submission_prompt?: string | null;
+  submission_deadline?: string | null;
   // live vs uploaded video — see schema-phase3-vod.sql
   source_type: LiveSourceType;
   visibility: LiveVisibility;

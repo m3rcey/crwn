@@ -15,6 +15,8 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { SubscribeCTA } from '@/components/gating';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveTipBar } from './LiveTipBar';
+import { ProducerSubmitPanel } from '@/components/producer/ProducerSubmitPanel';
+import { ProducerPolls } from '@/components/producer/ProducerPolls';
 import { LiveSession } from '@/types/live';
 import { Loader2, Radio } from 'lucide-react';
 
@@ -62,7 +64,17 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
   // null = still checking. A ticket buyer with no tier is otherwise shown the
   // Subscribe wall and never reaches /api/live/token, which would have let them in.
   const [hasTicket, setHasTicket] = useState<boolean | null>(null);
+  const [producerEnabled, setProducerEnabled] = useState(false);
   const joinedRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/producer/flag')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d) setProducerEnabled(!!d.enabled); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const isPrerecorded = session.source_type === 'prerecorded';
   const isPrivate = session.visibility === 'private';
@@ -203,6 +215,25 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
   }
   if (session.status === 'scheduled') {
     const when = session.scheduled_at ? new Date(session.scheduled_at).toLocaleString() : null;
+    // Executive Producer Session: before it starts, fans who hold a seat can submit
+    // beats/vocals/ideas. Only shown while the flag is on, the session accepts
+    // submissions, and this viewer has access.
+    const showSubmit = producerEnabled && session.accepts_submissions && !gateLoading && canAccess && !!currentUserId;
+    if (showSubmit) {
+      return (
+        <div className="max-w-lg mx-auto px-4 py-10 space-y-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-crwn-text mb-1">{session.title}</h1>
+            <p className="text-crwn-text-secondary">{when ? `Live ${when}` : `${artistName} hasn't started yet.`}</p>
+          </div>
+          <ProducerSubmitPanel
+            sessionId={session.id}
+            prompt={session.submission_prompt ?? null}
+            deadline={session.submission_deadline ?? null}
+          />
+        </div>
+      );
+    }
     return <Centered title="Not live yet" subtitle={when ? `Scheduled for ${when}` : `${artistName} hasn't started yet.`} />;
   }
 
@@ -251,6 +282,12 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
       <div className="w-full md:w-80 h-64 md:h-auto flex flex-col min-h-0">
         {/* Renders nothing while the live_tips flag is off. */}
         <LiveTipBar sessionId={session.id} canTip={!isOwner} />
+        {/* Advisory polls: fans vote, the artist decides. Only while the flag is on. */}
+        {producerEnabled && session.accepts_submissions && (
+          <div className="max-h-64 overflow-y-auto p-3 border-b border-crwn-elevated/50">
+            <ProducerPolls sessionId={session.id} canManage={false} />
+          </div>
+        )}
         <div className="flex-1 min-h-0">
           <LiveChatPanel sessionId={session.id} currentUserId={currentUserId} canPost={canAccess} canModerate={isOwner} />
         </div>

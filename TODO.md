@@ -226,6 +226,22 @@ responsible for. Do not work those.
       webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
       [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
 
+- [ ] **Run [`supabase/schema-phase2-producer-sessions.sql`](supabase/schema-phase2-producer-sessions.sql)**
+      to create the Executive Producer Session tables. Adds submission columns to `live_sessions`,
+      the `session_submissions` queue, `session_polls`/`session_poll_votes`, and seeds the
+      `producer_sessions` flag **OFF**. Self-verifies. Safe to re-run.
+
+      The whole feature is shipped and inert: the artist create form, the review queue, the fan
+      submit panel and the in-session polls all check the flag and render nothing until it is on.
+      **Running this migration does NOT turn anything on.** The flag stays off, and the submit
+      route refuses to run while it is off, so nothing is exposed. Flipping it on is blocked on the
+      rights-terms item below, so leave it off for now:
+
+      ```sql
+      -- DO NOT run this until the fan submission agreement exists (see rights-terms item).
+      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'producer_sessions';
+      ```
+
 - [ ] **Turn the Pop-up Engine on.** Its migration is applied (both tables confirmed present in
       production on 2026-07-23), so only the flag is left:
 
@@ -241,16 +257,20 @@ responsible for. Do not work those.
 
       Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
 
-- [ ] **DECIDE the rights terms before I build fan submissions.** I audited what an
-      Executive Producer Session needs on 2026-07-24. Everything technical is buildable and
-      most of it extends what already exists. **The blocker is not code, it is that no
-      instrument exists under which a fan gives an artist anything.** The Terms grant a
-      content licence to CRWN ([`/terms` §5](src/app/\(public\)/terms/page.tsx)), never to the
-      artist, and the [Live-Streaming Agreement](src/app/\(public\)/live-agreement/page.tsx)
-      is signed by the broadcaster only. A fan buying a ticket accepts nothing session-specific.
+- [ ] **DECIDE the rights terms. This is the ONLY thing standing between the Executive Producer
+      Session and going live.** I built the whole Phase 1 feature dark on 2026-07-24 (submissions,
+      artist review queue, in-session polls). It ships behind `admin_settings.producer_sessions`,
+      which is OFF, and the submit route additionally refuses to run while the flag is off, so no
+      fan can reach it early. **Do not flip the flag until there is a fan submission agreement**,
+      because a submission carries a fan's third-party IP and right now they accept nothing
+      session-specific. The Terms grant a content licence to CRWN
+      ([`/terms` §5](src/app/\(public\)/terms/page.tsx)), never to the artist, and the
+      [Live-Streaming Agreement](src/app/\(public\)/live-agreement/page.tsx) is signed by the
+      broadcaster only.
 
-      Accepting a beat with no terms is the risk, not storing the file. So these need an
-      answer (attorney on 1 to 6) before I write the table:
+      What I need from you and an attorney (1 to 6 are attorney), then I write the agreement page,
+      stamp its version into [`src/lib/producer/consent.ts`](src/lib/producer/consent.ts) (today a
+      `DRAFT-unpublished` placeholder), wire the acceptance gate, and only then is it safe to flip:
 
       1. Does a submitting fan grant the artist a licence, an assignment, or nothing until
          separately agreed?
@@ -422,18 +442,20 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   anything split-sheet shaped. CRWN should not become a publisher or administrator, and none of
   the above moves it toward being one.
 
-- **Executive Producer Sessions: audited, not built, and blocked on you.** Full gap analysis done
-  2026-07-24. CRWN today sells a ticketed, tier-gated, recorded, chat-enabled one-to-many
-  livestream, which is roughly a third of what the videos describe. What is missing, in the order
-  I would build it once the rights terms and seat model land (both in **Do Now** above): a fan
-  submission system (table, server-validated upload, deadline) and an artist review queue; a
-  public per-session sales page; per-session revenue and attendance reporting; then stage
-  promotion so a fan can actually be given a microphone, plus kick/mute/ban; then seat types and
-  recurrence. Two things worth knowing: the `stage` participant role is already written into the
-  types, the LiveKit grants and the database constraint but **nothing mints it**, so putting a fan
-  on the mic is a smaller job than it looks; and recurrence should reuse
-  `fulfillment_obligations`, which already models a monthly livestream promise, rather than a new
-  table. Nothing here needs a migration until the submission system starts.
+- **Executive Producer Sessions: Phase 1 BUILT and dark (2026-07-24), waiting on the rights terms
+  to go live.** Fan submissions (beats/vocals/ideas/references, private upload, deadline), the
+  artist review queue (feature/shortlist/pass, play, download), and advisory in-session polls are
+  all shipped behind `admin_settings.producer_sessions` (off). To launch: run the migration (P1
+  above), settle the rights terms (Do Now above), then flip the flag. Once live, every sentence in
+  the producer scripts is true except "fans get on the mic," which is Phase 2.
+
+  What is deliberately NOT in Phase 1, in the order I would build it: **stage promotion** so a fan
+  can actually be given a microphone (the `stage` role is already in the types, the LiveKit grants
+  and the DB CHECK, and nothing mints it, so this is smaller than it looks) plus kick/mute/ban; a
+  **public per-session sales page**; **per-session revenue and attendance reporting**; then **seat
+  types** and **recurrence** (recurrence should reuse `fulfillment_obligations`, which already
+  models a monthly livestream promise, not a new table). Ask when you want Phase 2. Stage needs a
+  likeness-release decision from you before it can ship.
 
 - **Automated lead deletion (erasure requests).** Ask me to build this when you want it. Today a
   "delete my data" request from a lead is MANUAL: `DELETE FROM lead_identities WHERE ...` in
