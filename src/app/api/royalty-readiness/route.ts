@@ -112,6 +112,29 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ enabled: true, answers, result });
 }
 
+/**
+ * DELETE /api/royalty-readiness — wipe the caller's saved check so they can start
+ * clean. Scoped to their own row, always.
+ *
+ * Exists because re-running the check from scratch was otherwise a database job
+ * (someone with service-role access deleting a row), which is not a thing a user
+ * or a founder testing the flow should have to ask for.
+ */
+export async function DELETE() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { error } = await supabaseAdmin.from('royalty_readiness').delete().eq('user_id', user.id);
+  if (error) {
+    console.error('[royalty-readiness] reset failed:', error.message);
+    return NextResponse.json({ error: 'Could not reset your check' }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
+}
+
 /** Every question that applies to this artist has an answer. */
 function isComplete(answers: Record<string, string>): boolean {
   const writes = answers.writes_music === 'yes' || answers.writes_music === 'unsure';

@@ -114,21 +114,20 @@ export default function RoyaltyReadinessPage() {
     [],
   );
 
-  // Tapping an answer IS the Continue. One tap per question, no confirm step, which
-  // is the whole point of one-per-screen. The footer Continue stays for anyone who
-  // taps the already-selected answer and wants to move on.
-  const answerAndAdvance = useCallback(
+  // Tapping an answer SELECTS it and nothing else. Advancing is always an explicit
+  // Continue, matching /setup.
+  //
+  // This started out auto-advancing on tap and that was wrong: with three options
+  // where "Not sure" is a legitimate answer, the screen changing underneath the
+  // finger removes the beat where someone reconsiders, and a mis-tap is committed
+  // and gone before they can look at it. Selecting and advancing are two different
+  // intents; do not merge them again.
+  const selectAnswer = useCallback(
     (value: ReadinessAnswer) => {
       if (!current) return;
-      const next = { ...answers, [current.key]: value };
-      setAnswers(next);
-      if (isLast) {
-        save(next);
-      } else {
-        setIndex((i) => i + 1);
-      }
+      setAnswers((a) => ({ ...a, [current.key]: value }));
     },
-    [answers, current, isLast, save],
+    [current],
   );
 
   if (loading) {
@@ -164,6 +163,16 @@ export default function RoyaltyReadinessPage() {
       <ResultView
         result={result}
         onRedo={() => {
+          setIndex(0);
+          setPhase('questions');
+          window.scrollTo({ top: 0 });
+        }}
+        onReset={async () => {
+          // Blank slate: drop the saved row AND the local answers, so the check
+          // reopens on question 1 with nothing selected.
+          await fetch('/api/royalty-readiness', { method: 'DELETE' }).catch(() => {});
+          setAnswers({});
+          setResult(null);
           setIndex(0);
           setPhase('questions');
           window.scrollTo({ top: 0 });
@@ -247,7 +256,7 @@ export default function RoyaltyReadinessPage() {
               return (
                 <button
                   key={o.value}
-                  onClick={() => answerAndAdvance(o.value)}
+                  onClick={() => selectAnswer(o.value)}
                   disabled={saving}
                   className={`w-full text-left rounded-2xl border px-5 py-5 transition-colors disabled:opacity-50 ${
                     isSelected
@@ -301,10 +310,12 @@ export default function RoyaltyReadinessPage() {
 function ResultView({
   result,
   onRedo,
+  onReset,
   onDone,
 }: {
   result: ReadinessResult;
   onRedo: () => void;
+  onReset: () => void;
   onDone: () => void;
 }) {
   const covered = result.actions.length === 0;
@@ -394,6 +405,16 @@ function ResultView({
           Change my answers
         </button>
       </div>
+
+      {/* Start over wipes the saved check; "Change my answers" keeps it and edits.
+          Two different intents, so they are two different controls, and the
+          destructive one is the smaller, quieter of the two. */}
+      <button
+        onClick={onReset}
+        className="w-full text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors"
+      >
+        Start over from scratch
+      </button>
 
       <p className="text-xs text-crwn-text-secondary/70 leading-relaxed">{READINESS_DISCLAIMER}</p>
     </div>
