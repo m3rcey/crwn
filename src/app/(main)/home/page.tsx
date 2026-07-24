@@ -88,13 +88,18 @@ export default function HomePage() {
         // (no tracks, no avatar) don't show up as broken placeholder tiles.
         const ids = (artistsData as unknown as ArtistProfile[]).map((a) => a.id);
         let withMusic = new Set<string>();
+        let hidden = new Set<string>();
         if (ids.length > 0) {
-          const { data: musicRows } = await supabase
-            .from('tracks')
-            .select('artist_id')
-            .eq('is_active', true)
-            .in('artist_id', ids);
-          withMusic = new Set((musicRows || []).map((t) => t.artist_id as string));
+          // `featured_hidden` is queried SEPARATELY and tolerantly, not added to the
+          // select above, because schema-phase2-featured-hidden.sql may not be applied
+          // yet. Naming an absent column in the main select would 42703 and blank the
+          // whole Featured row; a failed side query just returns null and hides nobody.
+          const [musicRes, hiddenRes] = await Promise.all([
+            supabase.from('tracks').select('artist_id').eq('is_active', true).in('artist_id', ids),
+            supabase.from('artist_profiles_public').select('id').eq('featured_hidden', true).in('id', ids),
+          ]);
+          withMusic = new Set((musicRes.data || []).map((t) => t.artist_id as string));
+          hidden = new Set((hiddenRes.data || []).map((r) => r.id as string));
         }
         // A featured tile must be complete: has music AND an uploaded avatar,
         // otherwise it renders as a broken placeholder.
@@ -114,7 +119,7 @@ export default function HomePage() {
         const hasName = (a: ArtistProfile) => isPresentableArtistName(prof(a)?.display_name);
         setFeaturedArtists(
           (artistsData as unknown as ArtistProfile[])
-            .filter((a) => withMusic.has(a.id) && hasAvatar(a) && isActive(a) && hasName(a))
+            .filter((a) => withMusic.has(a.id) && hasAvatar(a) && isActive(a) && hasName(a) && !hidden.has(a.id))
             .slice(0, 12)
         );
       }

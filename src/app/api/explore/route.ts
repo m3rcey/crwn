@@ -53,10 +53,24 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Founder-hidden artists (schema-phase2-featured-hidden.sql) drop out of the
+  // BROWSE list but stay findable by SEARCH: hiding a tile should not make a real
+  // artist unreachable. Queried tolerantly and separately so this route still works
+  // before that migration is applied (absent column -> null data -> nobody hidden).
+  let hiddenIds = new Set<string>();
+  if (!search) {
+    const { data: hiddenRows } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('id')
+      .eq('featured_hidden', true);
+    hiddenIds = new Set((hiddenRows || []).map((r) => r.id as string));
+  }
+
   // Merge and deduplicate
   const seenIds = new Set<string>();
   const artists = [...(slugArtists || []), ...(nameArtists || [])].filter(a => {
     if (seenIds.has(a.id)) return false;
+    if (hiddenIds.has(a.id)) return false;
     seenIds.add(a.id);
     return true;
   });

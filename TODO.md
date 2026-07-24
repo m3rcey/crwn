@@ -80,6 +80,41 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run [`supabase/schema-phase2-featured-hidden.sql`](supabase/schema-phase2-featured-hidden.sql)**
+      to take the `aribahmad21@gmail.com` artist off the Featured Artists row.
+
+      There was no way to remove ONE artist from discovery. The only existing lever was
+      `profiles.is_active = false`, which deactivates their entire account: the wrong-sized
+      tool for "this tile reads badly". The migration adds `artist_profiles.featured_hidden`,
+      rebuilds `artist_profiles_public` (that view enumerates its columns at creation time,
+      so a new column stays invisible to it until rebuilt, and the app reads the view), and
+      sets the flag on that one artist. Their account, public page, music and payouts are all
+      untouched, and they stay findable by search. Self-verifies, including that the rebuilt
+      view still does not leak the Stripe id columns.
+
+      The code shipped ahead of it and is safe either way: `featured_hidden` is queried
+      separately and tolerantly, so until you run this, nobody is hidden and nothing errors.
+
+      To undo, or to hide someone else later:
+      ```sql
+      UPDATE artist_profiles SET featured_hidden = false WHERE slug = '<slug>';
+      SELECT ap.slug, p.display_name FROM artist_profiles ap
+        JOIN profiles p ON p.id = ap.user_id WHERE ap.featured_hidden;
+      ```
+
+- [ ] **Delete your two leftover onboarding test artists.** Both are live on Featured
+      Artists right now as duplicate "Merce" tiles:
+
+      | slug | public name | email |
+      |---|---|---|
+      | `joshwilliams` | Merce | joshn.wms+onboardi@gmail.com |
+      | `joshnwmsonboardhgmailcom` | Merce | joshn.wms+onboardh@gmail.com |
+
+      Both are your own plus-addressed signups from testing the setup wizard. Deleting the
+      auth user cascades everything. Supabase dashboard → Authentication → Users → search
+      `+onboard` → delete both. **Do NOT delete `joshn.wms@gmail.com`**, that is your real
+      admin account (slug `m3rcey`, display name "Mercey").
+
 - [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
       `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
       nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)
