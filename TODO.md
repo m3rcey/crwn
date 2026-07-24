@@ -226,22 +226,6 @@ responsible for. Do not work those.
       webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
       [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
 
-- [ ] **Run [`supabase/schema-phase2-producer-sessions.sql`](supabase/schema-phase2-producer-sessions.sql)**
-      to create the Executive Producer Session tables. Adds submission columns to `live_sessions`,
-      the `session_submissions` queue, `session_polls`/`session_poll_votes`, and seeds the
-      `producer_sessions` flag **OFF**. Self-verifies. Safe to re-run.
-
-      The whole feature is shipped and inert: the artist create form, the review queue, the fan
-      submit panel and the in-session polls all check the flag and render nothing until it is on.
-      **Running this migration does NOT turn anything on.** The flag stays off, and the submit
-      route refuses to run while it is off, so nothing is exposed. Flipping it on is blocked on the
-      rights-terms item below, so leave it off for now:
-
-      ```sql
-      -- DO NOT run this until the fan submission agreement exists (see rights-terms item).
-      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'producer_sessions';
-      ```
-
 - [ ] **Turn the Pop-up Engine on.** Its migration is applied (both tables confirmed present in
       production on 2026-07-23), so only the flag is left:
 
@@ -257,37 +241,39 @@ responsible for. Do not work those.
 
       Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
 
-- [ ] **DECIDE the rights terms. This is the ONLY thing standing between the Executive Producer
-      Session and going live.** I built the whole Phase 1 feature dark on 2026-07-24 (submissions,
-      artist review queue, in-session polls). It ships behind `admin_settings.producer_sessions`,
-      which is OFF, and the submit route additionally refuses to run while the flag is off, so no
-      fan can reach it early. **Do not flip the flag until there is a fan submission agreement**,
-      because a submission carries a fan's third-party IP and right now they accept nothing
-      session-specific. The Terms grant a content licence to CRWN
-      ([`/terms` §5](src/app/\(public\)/terms/page.tsx)), never to the artist, and the
-      [Live-Streaming Agreement](src/app/\(public\)/live-agreement/page.tsx) is signed by the
-      broadcaster only.
+- [ ] **Get an attorney to review the drafted Session Submission Agreement, then flip the flag.
+      This is the ONLY thing standing between the Executive Producer Session and going live.** The
+      whole Phase 1 feature is built dark (submissions, review queue, polls), and I drafted the fan
+      agreement on 2026-07-24 so your lawyer has a redline starting point, not a blank page. Read it
+      at [thecrwn.app/submission-agreement](https://thecrwn.app/submission-agreement) (source
+      [`src/app/(public)/submission-agreement/page.tsx`](src/app/\(public\)/submission-agreement/page.tsx)).
+      It is already enforced: the submit route rejects a submission unless the fan's client echoes
+      the current agreement version, and the submit form makes them tick a box linking to it.
 
-      What I need from you and an attorney (1 to 6 are attorney), then I write the agreement page,
-      stamp its version into [`src/lib/producer/consent.ts`](src/lib/producer/consent.ts) (today a
-      `DRAFT-unpublished` placeholder), wire the acceptance gate, and only then is it safe to flip:
+      **The draft uses the safest possible model on purpose: a submission transfers NOTHING.** The
+      fan keeps their rights, the artist gets no license, and any real use is a separate agreement
+      later. That matches what the code does and what `EXECUTIVE_RECOGNITION_DISCLAIMER`
+      ([`src/lib/tierTemplate.ts`](src/lib/tierTemplate.ts#L55)) already promises fans (no credit,
+      no royalties, no creative control). It also covers: the fan warrants originality and clears
+      samples, no guarantee of use/credit/pay, the submission may be played and discussed on the
+      recorded stream, and unreleased material heard in-session stays confidential.
 
-      1. Does a submitting fan grant the artist a licence, an assignment, or nothing until
-         separately agreed?
-      2. Beat originality attestation, and who carries sample-clearance responsibility.
-      3. Vocal and likeness release for any fan heard or seen in the recording.
-      4. Explicit acknowledgment that ideas carry no claim.
-      5. Explicit "no guarantee of use, placement, credit, or compensation."
-      6. Confidentiality of unreleased music heard in-session, and whether it is enforceable
-         against a paying consumer.
-      7. Refund and cancellation policy for a live ticket. [`/terms` §4](src/app/\(public\)/terms/page.tsx)
-         covers "shop purchases" and a ticket is arguably not one.
-      8. Retention and deletion window for submitted files, and whether CRWN staff may open them.
+      **Your job:** have an attorney read it and decide whether the no-transfer model is what you
+      want. If instead you want a submission to grant the artist a usage license, tell me and I
+      rewrite it (that model also needs credit/pay machinery, so it is more work). When approved:
 
-      **Watch for a contradiction with what you already ship:** `EXECUTIVE_RECOGNITION_DISCLAIMER`
-      in [`src/lib/tierTemplate.ts`](src/lib/tierTemplate.ts#L55) already tells Executive tier
-      supporters they get no producer credit, no royalties and no creative control. If a session
-      ever grants credit, those two statements collide.
+      1. Tell me, and I bump the version in
+         [`src/lib/producer/consent.ts`](src/lib/producer/consent.ts) off the `.draft1` stamp to a
+         clean one and drop the draft banner (the `.draft` suffix is a deliberate tripwire: every
+         stored submission carries it, so unreviewed terms would be obvious in the data).
+      2. Then, and only then, flip the flag:
+         ```sql
+         UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'producer_sessions';
+         ```
+
+      **Separate legal call, not a launch blocker:** the refund/cancellation policy for a live
+      ticket. [`/terms` §4](src/app/\(public\)/terms/page.tsx) covers "shop purchases" and a ticket
+      is arguably not one. Settle it with the same attorney while you are there.
 
 - [ ] **DECIDE the seat model for Executive Producer Sessions.** This one determines the schema,
       so I am not picking it. `live_sessions` has a single `price` column today, which means one

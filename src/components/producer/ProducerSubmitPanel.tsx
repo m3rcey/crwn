@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Loader2, Upload, Check, Music2 } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
+import { PRODUCER_SUBMISSION_AGREEMENT_VERSION } from '@/lib/producer/consent';
 import type { SessionSubmission, SubmissionKind } from '@/types/producer';
 
 interface Props {
@@ -79,6 +80,7 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
           sessionId, kind, title: title.trim() || null, note: note.trim() || null,
           linkUrl: linkUrl.trim() || null, fileKey,
           fileName: file?.name || null, fileSize: file?.size || null, contentType: file?.type || null,
+          consentVersion: PRODUCER_SUBMISSION_AGREEMENT_VERSION,
         }),
       });
       const data = await res.json();
@@ -155,8 +157,12 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
       <label className="flex items-start gap-2 text-xs text-crwn-text-secondary cursor-pointer">
         <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5" />
         <span>
-          This is my own work or I have the rights to it, and I understand there is no guarantee it will be
-          used, credited, or paid for. The artist keeps full creative control.
+          This is my own work or I have the rights to it, and I agree to the{' '}
+          <a href="/submission-agreement" target="_blank" rel="noopener noreferrer" className="text-crwn-gold hover:underline">
+            Session Submission Agreement
+          </a>
+          . I understand there is no guarantee it will be used, credited, or paid for, and the artist
+          keeps full creative control.
         </span>
       </label>
 

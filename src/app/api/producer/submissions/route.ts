@@ -69,6 +69,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: gate.reason }, { status });
   }
 
+  // Consent gate: the client must echo the CURRENT agreement version, proving it
+  // rendered the terms the fan is agreeing to. A stale or absent version is refused.
+  if (body.consentVersion !== PRODUCER_SUBMISSION_AGREEMENT_VERSION) {
+    return NextResponse.json({ error: 'agreement_required', version: PRODUCER_SUBMISSION_AGREEMENT_VERSION }, { status: 400 });
+  }
+
   const note = typeof body.note === 'string' ? body.note.trim().slice(0, MAX_SUBMISSION_NOTE_LEN) : null;
   const title = typeof body.title === 'string' ? body.title.trim().slice(0, 200) : null;
   const linkUrl = typeof body.linkUrl === 'string' ? body.linkUrl.trim().slice(0, 500) : null;
