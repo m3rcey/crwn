@@ -65,44 +65,6 @@ responsible for. Do not work those.
       [`/account/payouts`](https://thecrwn.app/account/payouts) to confirm the balance renders.
       If either still fails, tell me the exact error text.
 
-- [ ] **Run [`supabase/schema-phase2-profiles-column-privileges.sql`](supabase/schema-phase2-profiles-column-privileges.sql).
-      Every user's email address is currently readable by anyone on the internet.**
-
-      Verified against production on 2026-07-23 with the PUBLIC anon key, from outside the app:
-      `GET /rest/v1/profiles?select=*` returns **all 68 profiles including `email`**, plus **5 real
-      phone numbers**. The anon key ships inside every browser bundle, so this needs no login and
-      no exploit, just devtools.
-
-      Cause: `schema.sql` made profiles `FOR SELECT USING (true)`, which is right for the public
-      columns (an artist's name and avatar must render). But profiles later grew private columns by
-      ALTER TABLE (email, phone, full_name, stripe_connect_id, is_approved, last_active_at), and
-      each one silently inherited "viewable by everyone". RLS filters ROWS, never COLUMNS, so the
-      fix is a column privilege. `artist_profiles.stripe_connect_id` already returns 42501 to anon,
-      so this exact hardening was done once and simply never applied to `profiles`.
-
-      The migration revokes the table grant (a column grant is a no-op while it stands) and
-      re-grants only the public columns. Self-verifies with `has_column_privilege`, so it fails
-      loudly rather than half-landing.
-
-      **The code change is already deployed and is safe either way**: `useAuth` no longer does
-      `select('*')`. Run the migration whenever you like; nothing breaks before or after.
-
-      **The blocker is cleared: safe to run now.** The team page used to read
-      `profiles.stripe_connect_id` from the browser (it would have 42501'd after this migration).
-      Fixed 2026-07-24: that read moved server-side (the `/api/team-splits/[id]` route now returns
-      `hasPayout`). I also swept every browser-side `profiles` read: no `select('*')`, and no other
-      private-column read from a browser client, so nothing else breaks.
-
-- [ ] **Blank the 11 fan accounts still publishing an email as their public name.** I was blocked
-      from running this myself (the permission classifier refused a bulk write to production user
-      data), so it needs you. One statement, no judgment calls: fans have no public page, every
-      render path already falls back to "A fan", and the address stays in `auth.users`.
-
-      ```sql
-      UPDATE profiles SET display_name = NULL
-      WHERE display_name LIKE '%@%' AND role = 'fan';
-      ```
-
 - [ ] **The 7 Executive Producer scripts are now TRUE (the feature shipped), except one price
       mismatch. Fix that, then they are safe to record.** When I first audited these on 2026-07-24
       they promised a feature that did not exist. It exists now: fan submissions (beats/vocals/
