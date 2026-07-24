@@ -88,6 +88,66 @@ responsible for. Do not work those.
       sessions, and the NOTES block says so. It only misreads if the narration implies each session
       sells that many, so keep the reveal worded as a monthly figure.)
 
+### P1 — real risk or real friction, but nothing is on fire
+
+- [ ] **Delete your two leftover onboarding test artists.** Both are live on Featured
+      Artists right now as duplicate "Merce" tiles:
+
+      | slug | public name | email |
+      |---|---|---|
+      | `joshwilliams` | Merce | joshn.wms+onboardi@gmail.com |
+      | `joshnwmsonboardhgmailcom` | Merce | joshn.wms+onboardh@gmail.com |
+
+      Both are your own plus-addressed signups from testing the setup wizard. Deleting the
+      auth user cascades everything. Supabase dashboard → Authentication → Users → search
+      `+onboard` → delete both. **Do NOT delete `joshn.wms@gmail.com`**, that is your real
+      admin account (slug `m3rcey`, display name "Mercey").
+
+- [ ] **Add the `ROYALTY` keyword flow in ManyChat** (new "Royalty Readiness Check" lead magnet,
+      keywords `royalty` / `royalties` / `publishing`). CRWN-side routing already exists (it derives
+      from `dmKeywords` in the registry), so nothing is needed on our end. Clone an existing tool
+      keyword flow (e.g. `SHARE`) and point it at the same External Request. Verify the deploy's
+      webhook rev sha BEFORE testing (ManyChat guide §10). Live at
+      [thecrwn.app/tools/royalty-readiness-check](https://thecrwn.app/tools/royalty-readiness-check).
+
+      **This one is different from the other 16 and the difference is deliberate:** it returns a
+      SCORE, not a dollar figure. Every other tool estimates revenue the artist could create, which
+      is a plan. This one is about money that may already be owed, and stating a dollar amount for
+      that from six self-reported answers would be inventing a fact about the world. So its hook
+      teases a score, and the hero delivers a score. **If you write video scripts for it, do not
+      promise a dollar** or the hero will not match the hook.
+
+- [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
+      `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
+      nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)
+      and set its trigger keyword to `OWN`, pointing at the same External Request. **Until this is
+      added, any Instagram comment of "OWN" from the new Own Your Fans scripts goes nowhere.**
+      Verify the deploy's webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is
+      live at [thecrwn.app/tools/own-your-fans-calculator](https://thecrwn.app/tools/own-your-fans-calculator).
+
+- [ ] **Add the `PRODUCER` keyword flow in ManyChat** (Executive Producer Session Calculator).
+      Same clone-an-existing-flow steps as `SHARE`, trigger keyword `PRODUCER`, same External
+      Request. Verify the deploy's webhook rev sha BEFORE testing (ManyChat guide §10). The
+      tool is live at
+      [thecrwn.app/tools/executive-producer-session](https://thecrwn.app/tools/executive-producer-session).
+      **Do this only after you have settled the script decisions in the P0 item above**, or the
+      comments arrive pointing at copy you are about to change.
+
+- [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
+      keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the
+      registry), so nothing is needed on our end. In ManyChat, clone an existing tool keyword flow
+      (e.g. `SHARE`) and set its trigger keyword to `LIVE`, pointing at the same External Request.
+      **Until this is added, any Instagram comment of "LIVE" goes nowhere.** Verify the deploy's
+      webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
+      [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
+
+- [ ] **The Terms changed (effective July 24, 2026): a live-ticket refund clause was added.**
+      Nothing to do unless you want to announce it. [`/terms` §4](src/app/\(public\)/terms/page.tsx)
+      now says a live-session/Executive Producer seat is final once the session happens, and
+      refundable if the artist cancels or reschedules to a time the buyer can't make. It is
+      buyer-favorable and matches the code (a full refund already revokes the seat), so a
+      notification is optional, but §1 of the Terms says material changes get one. Your call.
+
 ---
 
 ## Ongoing
