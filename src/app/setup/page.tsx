@@ -109,7 +109,9 @@ function SetupWizard() {
   const { user, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
-  const setup = useArtistSetup();
+  // The wizard is the only place that reads `stripeConnected`, so it is the only
+  // place that pays for the Stripe round trip.
+  const setup = useArtistSetup({ withStripe: true });
   const { loading, isArtist, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, refresh, markComplete } =
     setup;
 

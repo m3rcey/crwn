@@ -3,9 +3,9 @@
 // admin client and are best-effort (log-and-degrade, never throw on the hot path).
 
 import { QUEST_TEMPLATES, getTemplate, templatesForRole, fanQuestsForArtistTemplate } from './templates';
-import { syncQuest } from './evaluator';
+import { syncQuest, evaluateCondition, completeQuest } from './evaluator';
 import { levelFromXp } from './progression';
-import type { QuestInstance, QuestRole, QuestTemplate, CompletionEvent } from './types';
+import type { QuestInstance, QuestRole, QuestTemplate, CompletionEvent, EvalResult } from './types';
 
 export * from './types';
 export { QUEST_TEMPLATES, getTemplate, templatesForRole, liveQuestTemplates } from './templates';
@@ -168,8 +168,44 @@ export async function ensureRoleQuests(
   opts: { userId: string; role: QuestRole; artistId: string | null },
 ): Promise<number> {
   const templates = templatesForRole(opts.role);
+
+  // Read what the user ALREADY holds in ONE query, then only call assignQuest for
+  // templates that are genuinely missing.
+  //
+  // This used to call assignQuest for all ~72 templates on every single load, and
+  // each call costs 3+ round trips (open-instance check, completed check, prereq
+  // check) before deciding it has nothing to do. That was ~200 sequential queries
+  // per Rise Mode load on an account where the answer was always "already assigned".
+  // assignQuest keeps its own guards, so this prefilter is an optimization, not the
+  // correctness boundary: a race still lands on the unique index.
+  const TERMINAL = ['completed', 'skipped', 'expired', 'failed', 'archived'];
+  const openKeys = new Set<string>();
+  const completedKeys = new Set<string>();
+  try {
+    let q = admin
+      .from('quest_instances')
+      .select('template_key, status')
+      .eq('user_id', opts.userId);
+    q = opts.artistId ? q.eq('artist_id', opts.artistId) : q.is('artist_id', null);
+    const { data: rows } = await q;
+    for (const r of rows ?? []) {
+      if (r.status === 'completed') completedKeys.add(r.template_key);
+      else if (!TERMINAL.includes(r.status)) openKeys.add(r.template_key);
+    }
+  } catch (err) {
+    // Fall through with empty sets: every template gets the old per-template path,
+    // which is slow but correct. Never let this optimization break assignment.
+    console.error('[quests] ensureRoleQuests prefetch failed:', err);
+  }
+
+  // Mirrors assignQuest's own early-returns: an open instance always wins, and a
+  // completed instance only blocks a NON-repeatable template.
+  const missing = templates.filter(
+    (t) => !openKeys.has(t.key) && !(!t.repeatable && completedKeys.has(t.key)),
+  );
+
   let assigned = 0;
-  for (const t of templates) {
+  for (const t of missing) {
     const id = await assignQuest(admin, {
       userId: opts.userId,
       role: opts.role,
@@ -248,6 +284,22 @@ export async function getQuests(
 }
 
 /**
+ * Evaluate one instance without letting a single bad quest kill the whole pass.
+ * Previously a throw inside syncQuest would reject the sequential loop and blank
+ * the board; now one broken condition costs one quest, not the page. Terminal
+ * statuses evaluate to null, matching the old syncQuest early-return.
+ */
+async function safeEvaluate(admin: any, inst: QuestInstance): Promise<EvalResult | null> {
+  if (['completed', 'skipped', 'expired', 'failed', 'archived'].includes(inst.status)) return null;
+  try {
+    return await evaluateCondition(admin, inst);
+  } catch (err) {
+    console.error('[quests] evaluate failed for', inst.template_key, err);
+    return null;
+  }
+}
+
+/**
  * Re-evaluate every open quest for a user and auto-complete any now satisfied.
  * Returns the templates that completed on THIS pass (for popups / notifications).
  */
@@ -261,26 +313,59 @@ export async function refreshQuests(
     statuses: ['available', 'active', 'in_progress', 'ready_to_complete'],
   });
   const completions: CompletionEvent[] = [];
-  for (const inst of open) {
-    const result = await syncQuest(admin, inst);
-    if (result?.completed) {
-      completions.push({
-        questId: inst.id,
-        templateKey: inst.template_key,
-        title: inst.title,
-        questType: inst.quest_type,
-        difficulty: inst.difficulty,
-        role: inst.role,
-        xpAwarded: result.xpAwarded,
-        newXp: result.newXp,
-        newLevel: result.newLevel,
-        leveledUp: result.leveledUp,
-        levelTitle: levelFromXp(inst.role, result.newXp).levelTitle,
-        unlocked: result.unlocked,
-        badges: result.reward?.badges ?? [],
-        proofCard: !!result.reward?.proofCard,
-      });
-    }
+
+  // TWO PHASES, on purpose.
+  //
+  // Phase 1 (READ) evaluates every open quest CONCURRENTLY. `evaluateCondition` is
+  // read-only (count queries), and an artist holds dozens of open quests, so doing
+  // this one-at-a-time meant dozens of sequential round trips per pass. The route
+  // runs up to 12 passes, so this was the single biggest cost in loading Rise Mode.
+  //
+  // Phase 2 (WRITE) stays SEQUENTIAL and must stay that way: completeQuest bumps XP
+  // on the shared user_progression row with a read-modify-write, so completing two
+  // quests concurrently would lose one of the grants.
+  const evaluated = await Promise.all(
+    open.map(async (inst) => ({ inst, result: await safeEvaluate(admin, inst) })),
+  );
+
+  // Progress-percent writes target distinct rows and touch no shared state, so
+  // they are safe to run together. Only quests whose progress actually moved.
+  await Promise.all(
+    evaluated
+      .filter(({ inst, result }) => result && !result.done && result.progressPercent !== inst.progress_percent)
+      .map(({ inst, result }) =>
+        admin
+          .from('quest_instances')
+          .update({
+            progress_percent: result!.progressPercent,
+            status: result!.progressPercent > 0 ? 'in_progress' : inst.status,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', inst.id)
+          .neq('status', 'completed'),
+      ),
+  );
+
+  for (const { inst, result } of evaluated) {
+    if (!result?.done) continue;
+    const done = await completeQuest(admin, inst);
+    if (!done?.completed) continue;
+    completions.push({
+      questId: inst.id,
+      templateKey: inst.template_key,
+      title: inst.title,
+      questType: inst.quest_type,
+      difficulty: inst.difficulty,
+      role: inst.role,
+      xpAwarded: done.xpAwarded,
+      newXp: done.newXp,
+      newLevel: done.newLevel,
+      leveledUp: done.leveledUp,
+      levelTitle: levelFromXp(inst.role, done.newXp).levelTitle,
+      unlocked: done.unlocked,
+      badges: done.reward?.badges ?? [],
+      proofCard: !!done.reward?.proofCard,
+    });
   }
   return { completions };
 }
@@ -322,18 +407,28 @@ export async function reconcileXp(
 ): Promise<number> {
   try {
     const completed = await getQuests(admin, { userId: opts.userId, role: opts.role, statuses: ['completed'] });
+    const earning = completed.filter((inst) => ((inst.reward as any)?.xp ?? 0) > 0);
+    if (earning.length === 0) return 0;
+
+    // Fetch the whole ledger for these quests in ONE query. This is a self-heal for
+    // a historical bug, so on any healthy account EVERY quest already has its row
+    // and the per-quest lookup found nothing to do. Doing that lookup one at a time
+    // meant a round trip per completed quest on every single Rise Mode load.
+    const alreadyGranted = new Set<string>();
+    const { data: ledger } = await admin
+      .from('xp_ledger')
+      .select('quest_instance_id')
+      .eq('user_id', opts.userId)
+      .eq('reason', 'quest_complete')
+      .in('quest_instance_id', earning.map((i) => i.id));
+    for (const row of ledger ?? []) alreadyGranted.add(row.quest_instance_id);
+
     let added = 0;
-    for (const inst of completed) {
+    // The writes stay SEQUENTIAL: bumpProgressionXp is a read-modify-write on one
+    // shared progression row, so concurrent grants would lose XP.
+    for (const inst of earning) {
       const xp = (inst.reward as any)?.xp ?? 0;
-      if (xp <= 0) continue;
-      const { data: existing } = await admin
-        .from('xp_ledger')
-        .select('id')
-        .eq('user_id', opts.userId)
-        .eq('quest_instance_id', inst.id)
-        .eq('reason', 'quest_complete')
-        .maybeSingle();
-      if (existing) continue;
+      if (alreadyGranted.has(inst.id)) continue;
       const { error } = await admin.from('xp_ledger').insert({
         user_id: opts.userId,
         artist_id: inst.artist_id,

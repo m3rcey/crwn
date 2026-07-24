@@ -8,6 +8,7 @@ import { QuestCard } from '@/components/quests/QuestCard';
 import { MovementMap } from '@/components/quests/MovementMap';
 import { QuestCompletionModal } from '@/components/quests/QuestCompletionModal';
 import { Confetti } from '@/components/quests/Confetti';
+import { RoyaltyReadinessCard } from '@/components/artist/RoyaltyReadinessCard';
 import { getArtistBuild } from '@/lib/quests/builds';
 import { Flame, Zap, Loader2, Sparkles } from 'lucide-react';
 
@@ -494,6 +495,9 @@ export function RiseMode() {
               </div>
             </div>
           )}
+
+          {/* Royalty Readiness — hidden entirely until its own flag is on */}
+          <RoyaltyReadinessCard />
 
           {/* Broader quest map — opt-in, so the board is never the whole catalog */}
           <div>

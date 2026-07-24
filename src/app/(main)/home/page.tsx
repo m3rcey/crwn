@@ -74,15 +74,19 @@ export default function HomePage() {
       // artist_profiles_public: same rows, minus the Stripe ids. `select('*')` on
       // the base table now fails (42501) because the audio/Stripe columns are
       // withheld by column grant and PostgREST expands `*` in the database.
+      // Explicit columns, NOT `*, profile:profiles(*)`. The tile renders five
+      // fields; `*` pulled every artist_profiles column (bio, socials, cal.com,
+      // payout config) plus every profiles column for 50 artists, to display 12.
+      // That payload was one of the two reasons Home felt slow.
       const { data: artistsData, error } = await supabase
         .from('artist_profiles_public')
-        .select('*, profile:profiles(*)')
+        .select('id, user_id, slug, banner_url, tagline, profile:profiles(id, display_name, avatar_url, is_active)')
         .limit(50);
 
       if (!error && artistsData) {
         // Only feature artists with published music, so empty/incomplete signups
         // (no tracks, no avatar) don't show up as broken placeholder tiles.
-        const ids = (artistsData as ArtistProfile[]).map((a) => a.id);
+        const ids = (artistsData as unknown as ArtistProfile[]).map((a) => a.id);
         let withMusic = new Set<string>();
         if (ids.length > 0) {
           const { data: musicRows } = await supabase
@@ -109,27 +113,32 @@ export default function HomePage() {
         // it, the same way we require an avatar + music.
         const hasName = (a: ArtistProfile) => isPresentableArtistName(prof(a)?.display_name);
         setFeaturedArtists(
-          (artistsData as ArtistProfile[])
+          (artistsData as unknown as ArtistProfile[])
             .filter((a) => withMusic.has(a.id) && hasAvatar(a) && isActive(a) && hasName(a))
             .slice(0, 12)
         );
       }
 
-      // Check if current user has an artist profile
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: artistData } = await supabase
-          .from('artist_profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        setHasArtistProfile(!!artistData);
-      }
-
       setIsLoading(false);
     };
 
+    // "Does this user have an artist_profiles row" is independent of the featured
+    // grid, so it runs CONCURRENTLY rather than waiting behind it. It used to be
+    // the tail of the same sequential chain, which meant the tiles, the tracks
+    // lookup, an auth round trip and this query all queued one after another.
+    const fetchIsArtist = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: artistData } = await supabase
+        .from('artist_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      setHasArtistProfile(!!artistData);
+    };
+
     fetchData();
+    fetchIsArtist();
   }, [supabase]);
 
   // Trigger tour on first visit (split by role)

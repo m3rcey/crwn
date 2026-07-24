@@ -1,27 +1,56 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArtistProfileForm } from '@/components/artist/ArtistProfileForm';
-import { MusicManager } from '@/components/artist/MusicManager';
-import { AlbumManager } from '@/components/artist/AlbumManager';
-import { TierManager } from '@/components/artist/TierManager';
-import { ShopManager } from '@/components/artist/ShopManager';
-import { LivestreamManager } from '@/components/artist/LivestreamManager';
-import { AnalyticsDashboard } from '@/components/artist/AnalyticsDashboard';
-import { PayoutDashboard } from '@/components/artist/PayoutDashboard';
-import { ArtistReferralStats } from '@/components/artist/ArtistReferralStats';
-import { ClipperSettings } from '@/components/artist/ClipperSettings';
-import { SyncDashboard } from '@/components/artist/SyncDashboard';
-import { AudienceTab } from '@/components/artist/AudienceTab';
-import { PromiseCalendar } from '@/components/artist/PromiseCalendar';
-import { TeamManager } from '@/components/artist/TeamManager';
-import { AiManagerCard, AiManagerTeaser } from '@/components/artist/AiManagerCard';
 import { RiseMode } from '@/components/artist/RiseMode';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
-import { PlatformBilling } from '@/components/onboarding/PlatformBilling';
+
+// EVERY OTHER TAB IS LAZY, ON PURPOSE.
+//
+// The dashboard opens on Rise Mode, but these 16 managers were all statically
+// imported, so the browser had to download and parse the entire dashboard (charts,
+// upload widgets, calendars, the whole shop editor) before Rise Mode could paint.
+// An artist who only ever opens Rise paid for all of it, every visit.
+//
+// Tabs are already render-gated by `visitedTabs`, so a dynamic import changes
+// nothing about behavior: the chunk is fetched the first time its tab is opened.
+// Rise Mode itself stays STATIC because it is the default tab, and lazy-loading
+// the thing that renders immediately would just add a spinner.
+// ssr:false is correct here: this whole page is a client component behind an auth
+// gate, so none of these ever render on the server anyway.
+// Generic on P so each tab keeps its real prop types through the dynamic import.
+function lazyTab<P extends object>(load: () => Promise<React.ComponentType<P>>) {
+  return dynamic(load, { ssr: false, loading: () => <TabSpinner /> });
+}
+
+const ArtistProfileForm = lazyTab(() => import('@/components/artist/ArtistProfileForm').then((m) => m.ArtistProfileForm));
+const MusicManager = lazyTab(() => import('@/components/artist/MusicManager').then((m) => m.MusicManager));
+const AlbumManager = lazyTab(() => import('@/components/artist/AlbumManager').then((m) => m.AlbumManager));
+const TierManager = lazyTab(() => import('@/components/artist/TierManager').then((m) => m.TierManager));
+const ShopManager = lazyTab(() => import('@/components/artist/ShopManager').then((m) => m.ShopManager));
+const LivestreamManager = lazyTab(() => import('@/components/artist/LivestreamManager').then((m) => m.LivestreamManager));
+const AnalyticsDashboard = lazyTab(() => import('@/components/artist/AnalyticsDashboard').then((m) => m.AnalyticsDashboard));
+const PayoutDashboard = lazyTab(() => import('@/components/artist/PayoutDashboard').then((m) => m.PayoutDashboard));
+const ArtistReferralStats = lazyTab(() => import('@/components/artist/ArtistReferralStats').then((m) => m.ArtistReferralStats));
+const ClipperSettings = lazyTab(() => import('@/components/artist/ClipperSettings').then((m) => m.ClipperSettings));
+const SyncDashboard = lazyTab(() => import('@/components/artist/SyncDashboard').then((m) => m.SyncDashboard));
+const AudienceTab = lazyTab(() => import('@/components/artist/AudienceTab').then((m) => m.AudienceTab));
+const PromiseCalendar = lazyTab(() => import('@/components/artist/PromiseCalendar').then((m) => m.PromiseCalendar));
+const TeamManager = lazyTab(() => import('@/components/artist/TeamManager').then((m) => m.TeamManager));
+const AiManagerCard = lazyTab(() => import('@/components/artist/AiManagerCard').then((m) => m.AiManagerCard));
+const AiManagerTeaser = lazyTab(() => import('@/components/artist/AiManagerCard').then((m) => m.AiManagerTeaser));
+const PlatformBilling = lazyTab(() => import('@/components/onboarding/PlatformBilling').then((m) => m.PlatformBilling));
+
+function TabSpinner() {
+  return (
+    <div className="flex items-center justify-center py-16">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crwn-gold" />
+    </div>
+  );
+}
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';

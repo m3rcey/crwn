@@ -48,7 +48,19 @@ export interface ArtistSetupState {
  * `setup_completed` (artist_profiles) only records that the artist reached the
  * end of the wizard once, so the hard gate can release them.
  */
-export function useArtistSetup(): ArtistSetupState {
+export interface UseArtistSetupOptions {
+  /**
+   * Fetch Stripe Connect status. OFF by default, and it must stay off outside the
+   * wizard: `/api/stripe/connect/status` does a live `stripe.accounts.retrieve()`
+   * plus a tier-price backfill, so calling it puts an external API round trip in
+   * the critical path of whatever page mounts this hook. Home did exactly that on
+   * every load, for a "Finish setup 2/4" pill that never reads the value.
+   */
+  withStripe?: boolean;
+}
+
+export function useArtistSetup(options: UseArtistSetupOptions = {}): ArtistSetupState {
+  const { withStripe = false } = options;
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
 
@@ -130,7 +142,7 @@ export function useArtistSetup(): ArtistSetupState {
   // only (not isArtist, which is set asynchronously by load()); the endpoint is a
   // no-op for non-artists.
   const loadStripe = useCallback(async () => {
-    if (!user) return;
+    if (!user || !withStripe) return;
     try {
       const res = await fetch('/api/stripe/connect/status');
       if (res.ok) {
@@ -140,7 +152,7 @@ export function useArtistSetup(): ArtistSetupState {
     } catch {
       /* ignore — Stripe is skippable in the wizard */
     }
-  }, [user]);
+  }, [user, withStripe]);
 
   useEffect(() => {
     load();
