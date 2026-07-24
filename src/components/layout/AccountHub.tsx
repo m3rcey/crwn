@@ -75,11 +75,17 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
   const [slug, setSlug] = useState<string | null>(null);
   const [platformTier, setPlatformTier] = useState<string | null>(null);
   const [stripeConnected, setStripeConnected] = useState(true);
+  const [hasArtistRow, setHasArtistRow] = useState<boolean | null>(null);
 
-  const artist = isArtist();
+  // Artist-ness comes from the artist_profiles ROW, not profile.role. The useAuth
+  // context role lags a token refresh (see CLAUDE.md), and this used to gate the
+  // whole fetch on it: if the context still said 'fan', the slug was never loaded,
+  // so "View as fan" and the whole business section stayed hidden for an artist
+  // who plainly is one. Fall back to the context only while the row is in flight.
+  const artist = hasArtistRow ?? isArtist();
 
   useEffect(() => {
-    if (!open || !artist || !user) return;
+    if (!open || !user) return;
     let active = true;
     (async () => {
       const supabase = createBrowserSupabaseClient();
@@ -88,7 +94,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         .select('slug, platform_tier, stripe_connect_id')
         .eq('user_id', user.id)
         .maybeSingle();
-      if (!active || !data) return;
+      if (!active) return;
+      setHasArtistRow(!!data);
+      if (!data) return;
       setSlug(data.slug ?? null);
       setPlatformTier(data.platform_tier ?? 'starter');
       setStripeConnected(!!data.stripe_connect_id);
@@ -96,7 +104,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
     return () => {
       active = false;
     };
-  }, [open, artist, user]);
+    // `artist` is derived FROM this effect's result, so it must not be a dep:
+    // including it would re-run the fetch once more for no new information.
+  }, [open, user]);
 
   if (!open) return null;
 

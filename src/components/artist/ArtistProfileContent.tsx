@@ -76,10 +76,10 @@ export function ArtistProfileContent({
   const router = useRouter();
   const searchParams = useSearchParams();
   const returningFromCheckout = searchParams.get('subscription') === 'success' || searchParams.get('subscription') === 'canceled';
-  // Movement is the default landing tab for everyone; returning from checkout
-  // still lands on Tiers. (The old subscribed-check effect existed only to pick
-  // the default tab, so it's gone — Movement is the default regardless.)
-  const [activeTab, setActiveTab] = useState<'movement' | 'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'movement');
+  // Music is the default landing tab. A fan who lands on an artist page came for
+  // the songs, and Movement asked them to care about the artist's campaign before
+  // they had heard anything. Returning from checkout still lands on Tiers.
+  const [activeTab, setActiveTab] = useState<'movement' | 'music' | 'live' | 'tiers' | 'shop' | 'community' | 'leaderboard'>(returningFromCheckout ? 'tiers' : 'music');
 
   // Trigger artist page tour on first visit (only when viewing own page)
   const isOwnPage = isArtistProfile;

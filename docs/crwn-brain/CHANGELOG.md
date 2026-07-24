@@ -1,5 +1,17 @@
 # CRWN Brain — Changelog
 
+## 2026-07-24 — Public artist page opens on Music, and the hub stopped trusting profile.role
+
+- **Default tab on `/[slug]` is now Music, not Movement** (`ArtistProfileContent`). A fan who
+  lands on an artist page came for the songs. Movement asked them to care about the artist's
+  campaign before they had heard anything. Returning from checkout still lands on Tiers.
+- **`AccountHub` derives artist-ness from the `artist_profiles` row, not `isArtist()`.** The
+  whole slug/plan/Stripe fetch was gated on `profile.role`, which lags a token refresh. When the
+  context still said `fan`, the slug never loaded, so the identity header fell back to the email
+  line and **"View as fan" never rendered** for someone who plainly is an artist. Same class of
+  bug the `(main)` gate and `useArtistSetup` already guard against. The context is now only a
+  placeholder while the row is in flight.
+
 ## 2026-07-24 — The artist dashboard's 16-tab strip became 15 real screens
 
 Josh compared CRWN to the Lyft driver app: an identity header, collapsed accordion groups, and
