@@ -66,7 +66,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ['/home', '/explore', '/community', '/library', '/profile', '/setup', '/offers', '/proof-of-demand', '/missions', '/my-missions', '/earn', '/impact', '/command', '/clip-controls', '/action-plan', '/campaign-hub', '/studio', '/recruit/dashboard', '/admin', '/squads', '/my-squads', '/bounties', '/my-bounties', '/city-unlocks', '/playbooks', '/campaigns', '/artist/tools'];
+  // '/account' covers the management screens the artist dashboard's tabs became
+  // (profile, tiers, payouts, billing, referrals). They are as private as /profile.
+  const protectedPaths = ['/home', '/explore', '/community', '/library', '/profile', '/account', '/setup', '/offers', '/proof-of-demand', '/missions', '/my-missions', '/earn', '/impact', '/command', '/clip-controls', '/action-plan', '/campaign-hub', '/studio', '/recruit/dashboard', '/admin', '/squads', '/my-squads', '/bounties', '/my-bounties', '/city-unlocks', '/playbooks', '/campaigns', '/artist/tools'];
   const isProtectedPath = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   );
@@ -107,7 +109,7 @@ export async function middleware(request: NextRequest) {
     const userId = getUserIdFromCookie(request);
 
     // Detect artist page visits: /{slug} pattern (single segment, not a known route)
-    const knownRoutes = ['home', 'explore', 'community', 'library', 'profile', 'login', 'signup',
+    const knownRoutes = ['home', 'explore', 'community', 'library', 'profile', 'account', 'login', 'signup',
       'admin', 'recruit', 'onboarding', 'support', 'terms', 'privacy', 'dmca', 'about',
       'welcome', 'setup', 'offers', 'proof-of-demand', 'missions', 'my-missions', 'earn', 'impact', 'command', 'clip-controls', 'action-plan', 'campaign-hub', 'studio', 'verify', 'reset-password', 'forgot-password', 'partner', 'join',
       'squads', 'my-squads', 'bounties', 'my-bounties', 'city-unlocks', 'city', 'playbooks', 'campaigns',
