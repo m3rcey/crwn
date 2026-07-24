@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ExternalLink, Loader2, ShieldCheck } from 'lucide-react';
-import { OptionSelect } from '@/components/ui/OptionSelect';
+import { ArrowLeft, ArrowRight, Check, ExternalLink, Loader2, ShieldCheck } from 'lucide-react';
 import { smartBack } from '@/lib/navigation';
 import {
   READINESS_DISCLAIMER,
@@ -13,18 +12,26 @@ import {
   type ReadinessResult,
 } from '@/lib/royalty/readiness';
 
-// Royalty Readiness Check.
+// Royalty Readiness Check — ONE QUESTION PER SCREEN, same shell as the artist setup
+// wizard (/setup): sticky progress header, one large ask, sticky footer nav.
+//
+// Why this shape: twelve questions about registrations an artist has mostly never
+// heard of is intimidating as a wall. One at a time, in large type, it is twelve
+// easy taps. This is the same reasoning that drove the setup wizard to one field
+// per screen, and the same rule applies: NEVER stack two asks on one screen.
 //
 // CRWN's job here is to NOTICE, not to collect. Every action points at the
-// organization that actually does the collecting. Nothing on this screen states
+// organization that actually does the collecting, and nothing on this screen states
 // or implies an amount of money owed, because every answer is self-reported and
-// unverifiable. See src/lib/royalty/readiness.ts for the reasoning.
+// unverifiable. See src/lib/royalty/readiness.ts.
 
 const ANSWER_OPTIONS: { value: ReadinessAnswer; label: string; hint?: string }[] = [
   { value: 'yes', label: 'Yes' },
   { value: 'no', label: 'No' },
   { value: 'unsure', label: 'Not sure', hint: 'Counts as a gap until you confirm it' },
 ];
+
+const GROUPS = ['Your songs', 'Registration', 'Collection'] as const;
 
 const URGENCY_STYLE: Record<string, { label: string; className: string }> = {
   now: { label: 'Do this first', className: 'bg-crwn-gold/15 text-crwn-gold' },
@@ -39,9 +46,10 @@ export default function RoyaltyReadinessPage() {
   const [questions, setQuestions] = useState<ReadinessQuestion[]>([]);
   const [answers, setAnswers] = useState<ReadinessAnswers>({});
   const [result, setResult] = useState<ReadinessResult | null>(null);
+  const [index, setIndex] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showResult, setShowResult] = useState(false);
+  const [phase, setPhase] = useState<'questions' | 'result'>('questions');
 
   useEffect(() => {
     let active = true;
@@ -52,8 +60,10 @@ export default function RoyaltyReadinessPage() {
         setEnabled(!!data.enabled);
         setQuestions(data.questions || []);
         setAnswers(data.answers || {});
-        setResult(data.result || null);
-        setShowResult(!!data.result);
+        if (data.result) {
+          setResult(data.result);
+          setPhase('result');
+        }
       })
       .finally(() => active && setLoading(false));
     return () => {
@@ -61,48 +71,65 @@ export default function RoyaltyReadinessPage() {
     };
   }, []);
 
-  // Publishing questions only apply to writers, so an artist who does not write
-  // never sees a list of gaps that are not theirs to close.
+  // Publishing questions only apply to writers, so an artist who does not write is
+  // never asked about gaps that are not theirs to close. `writes_music` is the first
+  // screen, so answering it reshapes the rest of the flow live.
   const writes = answers.writes_music === 'yes' || answers.writes_music === 'unsure';
-  const visible = useMemo(
+  const screens = useMemo(
     () => questions.filter((q) => !(q.publishingOnly && !writes)),
     [questions, writes],
   );
-  const answeredAll = visible.length > 0 && visible.every((q) => !!answers[q.key]);
 
-  const groups = useMemo(() => {
-    const out: { group: string; items: ReadinessQuestion[] }[] = [];
-    for (const q of visible) {
-      const existing = out.find((g) => g.group === q.group);
-      if (existing) existing.items.push(q);
-      else out.push({ group: q.group, items: [q] });
-    }
-    return out;
-  }, [visible]);
+  // The list can shrink under us (answering "no" to writes_music removes screens),
+  // so the cursor is clamped rather than trusted.
+  const safeIndex = Math.min(index, Math.max(0, screens.length - 1));
+  const current = screens[safeIndex];
+  const isLast = safeIndex === screens.length - 1;
+  const progressPct = screens.length ? Math.round((safeIndex / screens.length) * 100) : 0;
 
-  const save = useCallback(async () => {
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/royalty-readiness', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data?.error || 'Could not save your answers');
-        return;
+  const save = useCallback(
+    async (finalAnswers: ReadinessAnswers) => {
+      setSaving(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/royalty-readiness', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers: finalAnswers }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data?.error || 'Could not save your answers');
+          return;
+        }
+        setResult(data.result);
+        setPhase('result');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch {
+        setError('Could not save your answers');
+      } finally {
+        setSaving(false);
       }
-      setResult(data.result);
-      setShowResult(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch {
-      setError('Could not save your answers');
-    } finally {
-      setSaving(false);
-    }
-  }, [answers]);
+    },
+    [],
+  );
+
+  // Tapping an answer IS the Continue. One tap per question, no confirm step, which
+  // is the whole point of one-per-screen. The footer Continue stays for anyone who
+  // taps the already-selected answer and wants to move on.
+  const answerAndAdvance = useCallback(
+    (value: ReadinessAnswer) => {
+      if (!current) return;
+      const next = { ...answers, [current.key]: value };
+      setAnswers(next);
+      if (isLast) {
+        save(next);
+      } else {
+        setIndex((i) => i + 1);
+      }
+    },
+    [answers, current, isLast, save],
+  );
 
   if (loading) {
     return (
@@ -132,89 +159,169 @@ export default function RoyaltyReadinessPage() {
     );
   }
 
+  if (phase === 'result' && result) {
+    return (
+      <ResultView
+        result={result}
+        onRedo={() => {
+          setIndex(0);
+          setPhase('questions');
+          window.scrollTo({ top: 0 });
+        }}
+        onDone={() => smartBack(router, '/studio')}
+      />
+    );
+  }
+
+  if (!current) return null;
+
+  const selected = answers[current.key] ?? null;
+
   return (
-    <div className="max-w-2xl mx-auto page-fade-in pb-8">
-      <button
-        onClick={() => smartBack(router, '/studio')}
-        className="flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text mb-4"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back
-      </button>
-
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-crwn-text mb-2">Royalty Readiness Check</h1>
-        <p className="text-sm text-crwn-text-secondary">
-          Your music can earn in places your distributor never touches. If nobody is registered to collect
-          those streams, that money is not waiting for you, it goes somewhere else. Twelve questions to find
-          out which ones have nobody assigned to them.
-        </p>
-      </div>
-
-      {showResult && result && (
-        <ResultPanel result={result} onEdit={() => setShowResult(false)} />
-      )}
-
-      {!showResult && (
-        <>
-          <div className="space-y-6 stagger-fade-in">
-            {groups.map((g) => (
-              <div key={g.group}>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-crwn-text-secondary mb-3">
-                  {g.group}
-                </h2>
-                <div className="space-y-4">
-                  {g.items.map((q) => (
-                    <div key={q.key} className="neu-raised rounded-xl p-4">
-                      <p className="text-crwn-text font-medium mb-1">{q.label}</p>
-                      {q.help && <p className="text-sm text-crwn-text-secondary mb-3">{q.help}</p>}
-                      <OptionSelect
-                        options={ANSWER_OPTIONS}
-                        value={answers[q.key] ?? null}
-                        onChange={(v) => setAnswers((a) => ({ ...a, [q.key]: v as ReadinessAnswer }))}
-                        placeholder="Choose one"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+    // Deliberately NOT sticky. /setup can pin its header and footer because it is a
+    // full-screen route outside the app shell; this page lives inside (main), where a
+    // sticky footer sits under the fixed mobile nav (z-50) and a sticky header sits
+    // under the floating hamburger (z-[70]). One question plus three answers fits a
+    // phone screen without scrolling, so pinning them would only buy z-index fights.
+    <div className="max-w-2xl mx-auto page-fade-in flex flex-col min-h-[70vh]">
+      {/* Progress header */}
+      <header className="border-b border-crwn-elevated pb-4 mb-2">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-crwn-gold font-bold tracking-tight">Royalty check</span>
+            <span className="text-xs text-crwn-text-secondary">
+              {safeIndex + 1} of {screens.length}
+            </span>
           </div>
 
-          {error && <p className="text-sm text-red-400 mt-4">{error}</p>}
+          <div className="h-1.5 rounded-full bg-crwn-elevated overflow-hidden mb-4">
+            <div
+              className="h-full bg-crwn-gold rounded-full transition-all duration-500"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
 
+          <div className="flex items-center gap-2">
+            {GROUPS.map((g, i) => {
+              const groupScreens = screens.filter((q) => q.group === g);
+              const done = groupScreens.length > 0 && groupScreens.every((q) => !!answers[q.key]);
+              const isActive = current.group === g;
+              return (
+                <div key={g} className="flex items-center gap-1.5 flex-1 min-w-0">
+                  <span
+                    className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border ${
+                      done
+                        ? 'bg-crwn-gold text-crwn-bg border-crwn-gold'
+                        : isActive
+                        ? 'border-crwn-gold text-crwn-gold'
+                        : 'border-crwn-elevated text-crwn-text-secondary/60'
+                    }`}
+                  >
+                    {done ? <Check className="w-3 h-3" /> : i + 1}
+                  </span>
+                  <span
+                    className={`text-xs font-medium truncate ${
+                      isActive ? 'text-crwn-gold' : done ? 'text-crwn-text' : 'text-crwn-text-secondary/60'
+                    }`}
+                  >
+                    {g}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* One question */}
+      <main className="flex-1">
+        <div className="py-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-crwn-text leading-snug">{current.label}</h1>
+          {current.help && (
+            <p className="text-crwn-text-secondary text-base sm:text-lg mt-3 leading-relaxed">{current.help}</p>
+          )}
+
+          <div className="mt-8 space-y-3">
+            {ANSWER_OPTIONS.map((o) => {
+              const isSelected = selected === o.value;
+              return (
+                <button
+                  key={o.value}
+                  onClick={() => answerAndAdvance(o.value)}
+                  disabled={saving}
+                  className={`w-full text-left rounded-2xl border px-5 py-5 transition-colors disabled:opacity-50 ${
+                    isSelected
+                      ? 'border-crwn-gold bg-crwn-gold/10'
+                      : 'border-crwn-elevated bg-crwn-surface hover:bg-crwn-elevated/40'
+                  }`}
+                >
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="min-w-0">
+                      <span className="block text-xl font-semibold text-crwn-text">{o.label}</span>
+                      {o.hint && <span className="block text-sm text-crwn-text-secondary mt-0.5">{o.hint}</span>}
+                    </span>
+                    {isSelected && <Check className="w-6 h-6 text-crwn-gold shrink-0" />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {error && <p className="text-sm text-red-400 mt-5">{error}</p>}
+        </div>
+      </main>
+
+      {/* Footer nav */}
+      <footer className="border-t border-crwn-elevated">
+        <div className="py-4 flex items-center justify-between gap-3">
           <button
-            onClick={save}
-            disabled={saving || Object.keys(answers).length === 0}
-            className="w-full mt-6 px-5 py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg hover:bg-crwn-gold/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            onClick={() => (safeIndex === 0 ? smartBack(router, '/studio') : setIndex((i) => Math.max(0, i - 1)))}
+            disabled={saving}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30 transition-colors"
           >
-            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {answeredAll ? 'See what is not covered' : 'Save what I have so far'}
+            <ArrowLeft className="w-4 h-4" />
+            {safeIndex === 0 ? 'Exit' : 'Back'}
           </button>
 
-          <p className="text-xs text-crwn-text-secondary/70 mt-4 leading-relaxed">{READINESS_DISCLAIMER}</p>
-        </>
-      )}
+          <button
+            onClick={() => (isLast ? save(answers) : setIndex((i) => i + 1))}
+            disabled={!selected || saving}
+            className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {saving ? 'Checking…' : isLast ? 'See what is not covered' : 'Continue'}
+            {!saving && <ArrowRight className="w-4 h-4" />}
+          </button>
+        </div>
+      </footer>
     </div>
   );
 }
 
-function ResultPanel({ result, onEdit }: { result: ReadinessResult; onEdit: () => void }) {
+function ResultView({
+  result,
+  onRedo,
+  onDone,
+}: {
+  result: ReadinessResult;
+  onRedo: () => void;
+  onDone: () => void;
+}) {
   const covered = result.actions.length === 0;
   return (
-    <div className="space-y-5">
+    <div className="max-w-2xl mx-auto page-fade-in pb-8 space-y-5">
       <div className="neu-raised rounded-xl p-6 text-center">
         <p className="text-xs font-semibold uppercase tracking-wider text-crwn-text-secondary mb-2">
           Royalty readiness
         </p>
-        <p className="text-5xl font-bold text-crwn-gold">{result.score}</p>
+        <p className="text-6xl font-bold text-crwn-gold">{result.score}</p>
         <p className="text-sm text-crwn-text-secondary mt-1">out of 100</p>
-        <p className="text-lg font-semibold text-crwn-text mt-4">{result.band}</p>
-        <p className="text-sm text-crwn-text-secondary mt-2 max-w-md mx-auto">{result.bandNote}</p>
+        <p className="text-xl font-semibold text-crwn-text mt-4">{result.band}</p>
+        <p className="text-base text-crwn-text-secondary mt-2 max-w-md mx-auto leading-relaxed">{result.bandNote}</p>
         {result.unsureCount > 0 && (
           <p className="text-sm text-crwn-text-secondary mt-3 max-w-md mx-auto">
-            You were not sure on {result.unsureCount} of them. Not knowing whether a stream is being collected
-            is the same as it not being collected, so those are on the list too.
+            You were not sure on {result.unsureCount} of them. Not knowing whether a stream is being collected is the
+            same as it not being collected, so those are on the list too.
           </p>
         )}
       </div>
@@ -224,8 +331,7 @@ function ResultPanel({ result, onEdit }: { result: ReadinessResult; onEdit: () =
           <ShieldCheck className="w-10 h-10 text-crwn-gold mx-auto mb-3" />
           <p className="text-crwn-text font-medium">Every stream that applies to you has somebody on it.</p>
           <p className="text-sm text-crwn-text-secondary mt-2">
-            Come back after your next release. A new song is a new registration, and that is where the gaps
-            reopen.
+            Come back after your next release. A new song is a new registration, and that is where the gaps reopen.
           </p>
         </div>
       ) : (
@@ -239,7 +345,7 @@ function ResultPanel({ result, onEdit }: { result: ReadinessResult; onEdit: () =
               return (
                 <div key={a.key} className="neu-raised rounded-xl p-4">
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <p className="text-crwn-text font-medium">{a.title}</p>
+                    <p className="text-crwn-text font-semibold text-lg">{a.title}</p>
                     <span className={`shrink-0 text-[11px] font-semibold px-2 py-1 rounded-full ${urgency.className}`}>
                       {urgency.label}
                     </span>
@@ -249,7 +355,7 @@ function ResultPanel({ result, onEdit }: { result: ReadinessResult; onEdit: () =
                       You were not sure about this one. Confirm it before you set anything up again.
                     </p>
                   )}
-                  <p className="text-sm text-crwn-text-secondary">{a.why}</p>
+                  <p className="text-sm text-crwn-text-secondary leading-relaxed">{a.why}</p>
                   <p className="text-sm text-crwn-text-secondary/80 mt-2">{a.where}</p>
                   {a.links.length > 0 && (
                     <div className="flex flex-wrap gap-3 mt-3">
@@ -274,12 +380,20 @@ function ResultPanel({ result, onEdit }: { result: ReadinessResult; onEdit: () =
         </div>
       )}
 
-      <button
-        onClick={onEdit}
-        className="w-full px-5 py-3 rounded-full font-semibold border border-crwn-elevated text-crwn-text hover:bg-crwn-elevated/40 transition-colors"
-      >
-        Change my answers
-      </button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={onDone}
+          className="flex-1 px-5 py-3 rounded-full font-semibold bg-crwn-gold text-crwn-bg hover:bg-crwn-gold/90 transition-colors"
+        >
+          Done
+        </button>
+        <button
+          onClick={onRedo}
+          className="flex-1 px-5 py-3 rounded-full font-semibold border border-crwn-elevated text-crwn-text hover:bg-crwn-elevated/40 transition-colors"
+        >
+          Change my answers
+        </button>
+      </div>
 
       <p className="text-xs text-crwn-text-secondary/70 leading-relaxed">{READINESS_DISCLAIMER}</p>
     </div>
