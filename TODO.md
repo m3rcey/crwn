@@ -22,6 +22,19 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Buy one live ticket on production as a fan with NO subscription, and confirm you get in.**
+      Until 2026-07-24 you could not. Six gates decided "may this fan watch" and only three
+      honored a paid ticket, so a buyer without a tier was shown the Subscribe wall on the watch
+      page and never reached the route that would have let them in. They also could not chat,
+      could not open the replay, and got no reminder. Fixed and live (`sw.js` v240), one resolver
+      now answers for all six.
+
+      I cannot run a card, so only you can confirm it. On [thecrwn.app/m3rcey](https://thecrwn.app/m3rcey)
+      with an account holding no subscription to that artist: create a gated live with a ticket
+      price, buy the ticket in Stripe test mode, then open the session and check you see **Join
+      Live** and not a Subscribe wall. Then send a chat message, then open the recording after it
+      ends. If any of the three still blocks you, tell me which.
+
 - [ ] **Test one real purchase and one Stripe Connect click on production.** Every Stripe flow on
       the platform was failing with `42501` and I shipped the fix on 2026-07-24 (deployed, live at
       `sw.js` v239). Cause: `schema-phase2-stripe-id-column-privs.sql` revoked SELECT on
@@ -99,6 +112,45 @@ responsible for. Do not work those.
       burns one. Fine for launch. If a Reel genuinely pops, that is the first wall you hit, and
       it is ManyChat's, not CRWN's.
 
+- [ ] **DO NOT record the 7 Executive Producer video scripts as written.** Two separate
+      problems, and the second one is yours to decide.
+
+      Files: [`videos/scripts/lead-magnets/`](videos/scripts/lead-magnets/) `producer-drake.md`,
+      `producer-kanye-west.md`, `producer-kendrick-lamar.md`, `producer-quavo.md`,
+      `producer-russ.md`, `producer-t-pain.md`, `producer-travis-scott.md`.
+
+      **1. They promise a feature CRWN does not have.** Every script says fans "cannot pitch
+      beats, cannot submit vocals, cannot suggest song ideas" and then, in the sidenote, that
+      letting them do exactly that "is exactly what an artist can build on the CRWN app."
+      **It is not.** There is no submission table, no fan-to-artist file upload, and no artist
+      review queue anywhere in the codebase. I audited this on 2026-07-24 and fixed the same
+      false claim in the shipped calculator copy (live now, `sw.js` v240), but the scripts and
+      the generator that writes them still carry it.
+
+      What an artist CAN build today, and what the scripts can truthfully say: a private,
+      ticketed, limited-seat live session, sold by ticket or gated to a tier, where the artist
+      shares their screen and works while fans watch and talk in the live chat, with a replay
+      afterward. Everything else in the scripts (any size audience, no catalog needed, artist
+      keeps full creative control, roughly two a month) is already true.
+
+      **2. The $300 seat price is above what your own calculator returns.** `producer-kendrick-lamar.md`
+      and `producer-travis-scott.md` both price a seat at $300. The calculator's top band is
+      **$200** for any audience over 250k
+      ([`toolAdapters.ts` seatPrice](src/lib/acquisition/toolAdapters.ts)). So a viewer who
+      watches the Kendrick video ($17.1M/mo), comments PRODUCER, and runs the tool gets
+      **$11.4M/mo** instead. The video and the tool must not disagree, and which one moves is
+      your call: either drop the scripts to $200, or raise the top band. Tell me which and I
+      will make the change.
+
+      (The "two sessions a month" line is fine. The seats are a monthly total split across the
+      two sessions, and the NOTES block in each script already says so. It only reads as a
+      multiplier if the narration implies each session sells that many, so keep the reveal
+      worded as a monthly figure.)
+
+      Also fix the generator, or it writes the same claim again:
+      [`.claude/commands/crwn-lead-magnet.md`](.claude/commands/crwn-lead-magnet.md) lines 63
+      and 206.
+
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Run [`supabase/schema-phase2-featured-hidden.sql`](supabase/schema-phase2-featured-hidden.sql)**
@@ -158,6 +210,14 @@ responsible for. Do not work those.
       Verify the deploy's webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is
       live at [thecrwn.app/tools/own-your-fans-calculator](https://thecrwn.app/tools/own-your-fans-calculator).
 
+- [ ] **Add the `PRODUCER` keyword flow in ManyChat** (Executive Producer Session Calculator).
+      Same clone-an-existing-flow steps as `SHARE`, trigger keyword `PRODUCER`, same External
+      Request. Verify the deploy's webhook rev sha BEFORE testing (ManyChat guide §10). The
+      tool is live at
+      [thecrwn.app/tools/executive-producer-session](https://thecrwn.app/tools/executive-producer-session).
+      **Do this only after you have settled the script decisions in the P0 item above**, or the
+      comments arrive pointing at copy you are about to change.
+
 - [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
       keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the
       registry), so nothing is needed on our end. In ManyChat, clone an existing tool keyword flow
@@ -180,6 +240,48 @@ responsible for. Do not work those.
       and only while `live_tips` is on. Until the engine flag flips, nobody is told.
 
       Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
+
+- [ ] **DECIDE the rights terms before I build fan submissions.** I audited what an
+      Executive Producer Session needs on 2026-07-24. Everything technical is buildable and
+      most of it extends what already exists. **The blocker is not code, it is that no
+      instrument exists under which a fan gives an artist anything.** The Terms grant a
+      content licence to CRWN ([`/terms` §5](src/app/\(public\)/terms/page.tsx)), never to the
+      artist, and the [Live-Streaming Agreement](src/app/\(public\)/live-agreement/page.tsx)
+      is signed by the broadcaster only. A fan buying a ticket accepts nothing session-specific.
+
+      Accepting a beat with no terms is the risk, not storing the file. So these need an
+      answer (attorney on 1 to 6) before I write the table:
+
+      1. Does a submitting fan grant the artist a licence, an assignment, or nothing until
+         separately agreed?
+      2. Beat originality attestation, and who carries sample-clearance responsibility.
+      3. Vocal and likeness release for any fan heard or seen in the recording.
+      4. Explicit acknowledgment that ideas carry no claim.
+      5. Explicit "no guarantee of use, placement, credit, or compensation."
+      6. Confidentiality of unreleased music heard in-session, and whether it is enforceable
+         against a paying consumer.
+      7. Refund and cancellation policy for a live ticket. [`/terms` §4](src/app/\(public\)/terms/page.tsx)
+         covers "shop purchases" and a ticket is arguably not one.
+      8. Retention and deletion window for submitted files, and whether CRWN staff may open them.
+
+      **Watch for a contradiction with what you already ship:** `EXECUTIVE_RECOGNITION_DISCLAIMER`
+      in [`src/lib/tierTemplate.ts`](src/lib/tierTemplate.ts#L55) already tells Executive tier
+      supporters they get no producer credit, no royalties and no creative control. If a session
+      ever grants credit, those two statements collide.
+
+- [ ] **DECIDE the seat model for Executive Producer Sessions.** This one determines the schema,
+      so I am not picking it. `live_sessions` has a single `price` column today, which means one
+      price for everyone and no seat types. The options and what each costs to build:
+
+      - **One price, capped seats.** Ships on what exists (cap is 10 to 500 today). Cheapest.
+      - **Viewer tickets plus a few premium producer seats.** Needs a ticket-types table, and
+        for large viewer counts a different video transport than the current LiveKit room.
+      - **Lottery or application.** Needs the submission system first, plus refund-or-decline.
+      - **Several smaller sessions.** Ships on what exists, and is the closest fit to the "two a
+        month" story the scripts already tell.
+
+      Related: the current capacity picker offers 10 to 500. If you want a number above 500,
+      say so, because it changes how the room is built, not just the dropdown.
 
 - [ ] **Run [`supabase/schema-phase2-royalty-readiness.sql`](supabase/schema-phase2-royalty-readiness.sql)**
       in the Supabase SQL editor, then flip the flag to launch the Royalty Readiness Check.
@@ -320,14 +422,33 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   anything split-sheet shaped. CRWN should not become a publisher or administrator, and none of
   the above moves it toward being one.
 
+- **Executive Producer Sessions: audited, not built, and blocked on you.** Full gap analysis done
+  2026-07-24. CRWN today sells a ticketed, tier-gated, recorded, chat-enabled one-to-many
+  livestream, which is roughly a third of what the videos describe. What is missing, in the order
+  I would build it once the rights terms and seat model land (both in **Do Now** above): a fan
+  submission system (table, server-validated upload, deadline) and an artist review queue; a
+  public per-session sales page; per-session revenue and attendance reporting; then stage
+  promotion so a fan can actually be given a microphone, plus kick/mute/ban; then seat types and
+  recurrence. Two things worth knowing: the `stage` participant role is already written into the
+  types, the LiveKit grants and the database constraint but **nothing mints it**, so putting a fan
+  on the mic is a smaller job than it looks; and recurrence should reuse
+  `fulfillment_obligations`, which already models a monthly livestream promise, rather than a new
+  table. Nothing here needs a migration until the submission system starts.
+
 - **Automated lead deletion (erasure requests).** Ask me to build this when you want it. Today a
   "delete my data" request from a lead is MANUAL: `DELETE FROM lead_identities WHERE ...` in
   Supabase (it cascades). The privacy policy honestly describes this manual path, but a proper
   self-serve or one-command deletion is not built (it is Phase 2 in the checklist). Low volume
   today, so not urgent, but it is the one real gap behind the privacy disclosure.
 
-- **Loss-revelation lead magnets: DONE.** All 11 are live and honest (each fix points to a real
-  CRWN feature), each with a DM flow, a web page, a recovery-flow diagram, and the CRWN showcase.
+- **Loss-revelation lead magnets: live, and one of them was NOT honest.** The house rule is that
+  every tool's `fix` must point to a CRWN feature that actually exists. It is enforced by
+  convention, not by code, and the **Executive Producer Session Calculator broke it**: its fix
+  ended with "Fans pitch beats, vocals, and topics live", which nothing in the codebase does.
+  Corrected and live on 2026-07-24, along with the hero, the cause paragraph and the email
+  run-of-show, which all made the same promise. **I want to add a real check rather than trusting
+  the convention a second time**, and I will unless you would rather I spent that time elsewhere.
+  Every tool otherwise has a DM flow, a web page, a recovery-flow diagram, and the CRWN showcase.
   The 11th, **Own Your Fans** (keyword `OWN`, the DistroKid/independence angle), ships on today's
   owned-CRM features and reuses existing profile fields (no migration). Founder Window is a real
   feature now (cap + deadline + founder marking; migration run). The only deferred piece is

@@ -40,6 +40,41 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 - **No user-facing account hard-delete/GDPR erasure** path found. Deactivate/reactivate is now a working pair (deactivate genuinely hides the artist publicly at the app layer, reactivate fires on next login), just not a hard-delete. `Needs founder confirmation`.
 - **No web/push notifications** — `public/sw.js` has no push listener; notifications are foreground-only. `Confirmed`.
 
+## Executive Producer Sessions — audited 2026-07-24, NOT built (Confirmed)
+
+The `executive-producer-session` lead magnet and seven recorded-video scripts sell a paid private
+session where fans pitch beats, submit vocals and suggest song ideas. **None of that exists.**
+What exists is a ticketed, tier-gated, recorded, chat-enabled one-to-many livestream, roughly a
+third of the pitch. The gaps, all `Confirmed` by reading code:
+
+- **No submission anything.** No table, no fan-to-artist file upload, no artist review queue. The
+  only fan-uploaded media path in the whole app is a DM voice note (`MediaRecorder`, no file
+  picker, Pro-artist-gated, requires an active sub on a DM-enabled tier). Nearest structural
+  analogues to copy: `mission_suggestions` (text, pending/approved/rejected, `review_note`) and
+  `clip_bounty_submissions` (URL, adds winner + rank).
+- **`stage` is scaffolded but dead.** `'stage'` appears in the type union (`types/live.ts`), the
+  LiveKit grant switch (`lib/livekit/livekit.ts`, `canPublish: true`) and the DB CHECK
+  (`schema-phase2-livestreams.sql`). **No route mints it and no UI requests it** — `/api/live/token`
+  returns only `broadcaster` or `viewer`. So a fan can never be given a microphone, but the
+  groundwork is laid.
+- **No participant moderation.** `LiveProvider` has no `removeParticipant`/`mutePublishedTrack`;
+  the broadcaster token carries `roomAdmin: true` and nothing calls the admin API. Chat moderation
+  soft-deletes a *message*, never a person. (Viewers do get `canPublish: false`, so unauthorized
+  broadcasting is already impossible.)
+- **One price, no seat types.** `live_sessions.price` is a single integer. No quantity, waitlist,
+  per-user limit, or tier-member inclusion. Capacity picker offers 10 to 500.
+- **No recurrence** on `live_sessions`. `fulfillment_obligations` already models a monthly
+  livestream promise and is the right place to wire it, not a new table.
+- **No public per-session sales page.** `/[slug]/live/[sessionId]` shows a login wall and "Not live
+  yet" for a scheduled session; buying happens only from the list on the artist page.
+- **No session-specific fan consent.** `live_agreement_acceptances` is written by the *broadcaster*
+  only. Terms §5 licenses content to CRWN, never to the artist. A ticket buyer accepts nothing.
+- **Screen share DOES work** (LiveKit's stock `<VideoConference />` control bar, and `LiveWatchRoom`
+  subscribes to `Track.Source.ScreenShare`), so "watch me work" is real today.
+
+Blocked on founder + attorney decisions (rights terms, seat model, script price banding) recorded
+in `TODO.md`, not on engineering.
+
 ## Legacy / duplicated / dead (Confirmed)
 
 - **`src/app/artist/[slug]/*` vs `src/app/[slug]/*`** — the top-level `artist/[slug]/page.tsx` is a redirect shim, but the subroutes (`track/album/post/playlist/[id]`, `book/success`) are **full near-byte-identical duplicates** that have already **drifted one field** (album `description`). `[slug]/*` is canonical. Stray link `TrackUploadForm.tsx:525` still builds `/artist/${slug}`. Recommend deleting or shimming the duplicates.
