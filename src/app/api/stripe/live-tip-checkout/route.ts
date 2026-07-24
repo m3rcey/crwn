@@ -51,7 +51,9 @@ export async function POST(request: NextRequest) {
 
     const { data: session, error: sessionError } = await supabase
       .from('live_sessions')
-      .select('id, artist_id, title, status, is_active, artist:artist_profiles(id, slug, user_id, stripe_connect_id)')
+      // No stripe_connect_id here: SELECT on it is revoked from anon/authenticated
+      // and one revoked name 42501s the whole statement, embedded joins included.
+      .select('id, artist_id, title, status, is_active, artist:artist_profiles(id, slug, user_id)')
       .eq('id', sessionId)
       .single();
 
@@ -63,9 +65,18 @@ export async function POST(request: NextRequest) {
     }
 
     const artist = session.artist as unknown as {
-      id?: string; slug?: string; user_id?: string; stripe_connect_id?: string;
+      id?: string; slug?: string; user_id?: string;
     };
-    if (!artist?.stripe_connect_id) {
+
+    // Transfer destination, service-role only: the caller is a fan.
+    const { data: connectRow } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('stripe_connect_id')
+      .eq('id', artist?.id || session.artist_id)
+      .maybeSingle();
+    const artistStripeAccountId = connectRow?.stripe_connect_id as string | undefined;
+
+    if (!artistStripeAccountId) {
       return NextResponse.json({ error: 'Artist not set up for payments' }, { status: 400 });
     }
     // An artist tipping their own stream would round-trip money through Stripe
@@ -103,7 +114,7 @@ export async function POST(request: NextRequest) {
       ],
       payment_intent_data: {
         application_fee_amount: platformFee,
-        transfer_data: { destination: artist.stripe_connect_id },
+        transfer_data: { destination: artistStripeAccountId },
         metadata,
       },
       mode: 'payment',

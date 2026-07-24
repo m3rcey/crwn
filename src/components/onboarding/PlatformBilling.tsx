@@ -14,7 +14,6 @@ interface ArtistProfile {
   id: string;
   platform_tier: string | null;
   platform_subscription_status: string | null;
-  platform_stripe_subscription_id: string | null;
 }
 
 export function PlatformBilling() {
@@ -31,9 +30,15 @@ export function PlatformBilling() {
     async function loadArtist() {
       if (!user) return;
 
+      // Must NOT name platform_stripe_subscription_id: SELECT on it is revoked
+      // from `authenticated`, and one revoked name 42501s the whole query, so this
+      // returned null and the billing screen rendered empty for every artist.
+      // "Do they have a subscription" is answered by platform_subscription_status,
+      // which is readable; the id itself is only needed server-side, and
+      // /api/stripe/platform-portal looks it up there.
       const { data } = await supabase
         .from('artist_profiles')
-        .select('id, platform_tier, platform_subscription_status, platform_stripe_subscription_id')
+        .select('id, platform_tier, platform_subscription_status')
         .eq('user_id', user.id)
         .single();
 
@@ -45,7 +50,9 @@ export function PlatformBilling() {
   }, [user]);
 
   const handleManageSubscription = async () => {
-    if (!artist?.platform_stripe_subscription_id) return;
+    // The subscription id lives server-side now (revoked column). Status is the
+    // readable proxy for "there is something to manage".
+    if (!artist?.platform_subscription_status) return;
 
     setIsPortalLoading(true);
     try {

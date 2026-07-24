@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
@@ -39,7 +40,9 @@ export async function POST(request: NextRequest) {
     // Load the live session + its artist.
     const { data: session, error: sessionError } = await supabase
       .from('live_sessions')
-      .select('id, artist_id, title, price, status, is_active, artist:artist_profiles(id, slug, stripe_connect_id)')
+      // No stripe_connect_id here: SELECT on it is revoked from anon/authenticated
+      // and one revoked name 42501s the whole statement, embedded joins included.
+      .select('id, artist_id, title, price, status, is_active, artist:artist_profiles(id, slug)')
       .eq('id', sessionId)
       .single();
 
@@ -56,8 +59,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'This live is not sold as a ticket' }, { status: 400 });
     }
 
-    const artist = session.artist as unknown as { id?: string; slug?: string; stripe_connect_id?: string };
-    if (!artist?.stripe_connect_id) {
+    const artist = session.artist as unknown as { id?: string; slug?: string };
+
+    // Transfer destination, service-role only: the caller is a fan.
+    const svcConnect = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+    );
+    const { data: connectRow } = await svcConnect
+      .from('artist_profiles')
+      .select('stripe_connect_id')
+      .eq('id', artist?.id || session.artist_id)
+      .maybeSingle();
+    const artistStripeAccountId = connectRow?.stripe_connect_id as string | undefined;
+
+    if (!artistStripeAccountId) {
       return NextResponse.json({ error: 'Artist not set up for payments' }, { status: 400 });
     }
 
@@ -96,7 +112,7 @@ export async function POST(request: NextRequest) {
       payment_intent_data: {
         application_fee_amount: platformFee,
         transfer_data: {
-          destination: artist.stripe_connect_id,
+          destination: artistStripeAccountId,
         },
         metadata: {
           live_session_id: session.id,

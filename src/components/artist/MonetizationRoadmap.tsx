@@ -71,9 +71,12 @@ export function MonetizationRoadmap({ artistId, onSwitchTab }: MonetizationRoadm
 
   const fetchProgress = useCallback(async () => {
     // Fetch artist profile + profile data
+    // Must NOT name stripe_connect_id: SELECT on it is revoked from
+    // `authenticated` and one revoked name 42501s the whole query, which made this
+    // roadmap render nothing at all.
     const { data: artist } = await supabase
       .from('artist_profiles')
-      .select('id, user_id, slug, banner_url, stripe_connect_id, genres')
+      .select('id, user_id, slug, banner_url, genres')
       .eq('id', artistId)
       .single();
 
@@ -81,6 +84,11 @@ export function MonetizationRoadmap({ artistId, onSwitchTab }: MonetizationRoadm
       setLoading(false);
       return;
     }
+
+    const stripeConnected = await fetch('/api/stripe/connect/status')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => !!d?.connected)
+      .catch(() => false);
 
     const { data: profile } = await supabase
       .from('profiles')
@@ -140,7 +148,7 @@ export function MonetizationRoadmap({ artistId, onSwitchTab }: MonetizationRoadm
       hasGenres: Array.isArray(artist.genres) && artist.genres.length > 0,
       hasSocialLinks,
       hasSlug: !!artist.slug,
-      hasStripeConnect: !!artist.stripe_connect_id,
+      hasStripeConnect: stripeConnected,
       trackCount: trackList.length,
       freeTrackCount,
       gatedTrackCount,

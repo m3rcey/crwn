@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getConnectAccountByUserId, getProfileConnectAccount } from '@/lib/stripe/connectAccount';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -11,24 +12,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check artist profile first, then fan profile for Connect account
-    const { data: artist } = await supabase
-      .from('artist_profiles')
-      .select('stripe_connect_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    let accountId = artist?.stripe_connect_id;
-
-    if (!accountId) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('stripe_connect_id')
-        .eq('id', user.id)
-        .single();
-
-      accountId = profile?.stripe_connect_id;
-    }
+    // Check artist profile first, then fan profile for Connect account. Both reads
+    // are service-role: SELECT on stripe_connect_id is revoked from
+    // `authenticated`, and the session above is what proves the caller owns it.
+    const accountId =
+      (await getConnectAccountByUserId(user.id)) || (await getProfileConnectAccount(user.id));
 
     if (!accountId) {
       return NextResponse.json({ error: 'No Stripe account found' }, { status: 400 });

@@ -25,9 +25,15 @@ export async function POST(req: NextRequest) {
     const fanId = user.id;
 
     // Get tier details — only active tiers
+    // NOTE: this embedded join must NOT name stripe_connect_id. SELECT on that
+    // column is revoked from anon/authenticated, and PostgREST applies column
+    // privileges to embedded joins too, so naming it makes the WHOLE statement
+    // fail with 42501. This route then returned "Tier not found" and no fan could
+    // subscribe. The account id is read below with the service-role client, which
+    // is where it belongs: a fan's session has no business reading it.
     const { data: tier, error: tierError } = await supabase
       .from('subscription_tiers')
-      .select('*, artist:artist_profiles(stripe_connect_id, user_id, slug, platform_tier), stripe_annual_price_id')
+      .select('*, artist:artist_profiles(user_id, slug, platform_tier), stripe_annual_price_id')
       .eq('id', tierId)
       .eq('is_active', true)
       .single();
@@ -90,7 +96,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: successUrl });
     }
 
-    if (!tier.artist?.stripe_connect_id) {
+    // Transfer destination, read server-side only (see the note on the tier query).
+    const svcConnect = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+    );
+    const { data: connectRow } = await svcConnect
+      .from('artist_profiles')
+      .select('stripe_connect_id')
+      .eq('id', tier.artist_id)
+      .maybeSingle();
+    const artistStripeAccountId = connectRow?.stripe_connect_id as string | undefined;
+
+    if (!artistStripeAccountId) {
       return NextResponse.json(
         { error: 'Artist has not connected payments yet. Try again later.' },
         { status: 400 }
@@ -235,7 +253,7 @@ export async function POST(req: NextRequest) {
       subscription_data: {
         application_fee_percent: effectiveFeePercent,
         transfer_data: {
-          destination: tier.artist.stripe_connect_id,
+          destination: artistStripeAccountId,
         },
       },
       success_url: returnUrl

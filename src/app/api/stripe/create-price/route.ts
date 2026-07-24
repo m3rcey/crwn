@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getConnectAccountByArtistId } from '@/lib/stripe/connectAccount';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
@@ -22,15 +23,20 @@ export async function POST(req: NextRequest) {
     // Clamp discount to the allowed 0–50% range (protects artist margins)
     const discountPct = Math.min(50, Math.max(0, Math.round(Number(annualDiscountPercent) || 0)));
 
-    // Verify the caller owns this artist profile
+    // Verify the caller owns this artist profile. The ownership check stays on the
+    // USER session (that is the security boundary); only the account id itself is
+    // read service-side, because SELECT on it is revoked from `authenticated` and
+    // naming it here failed the whole query with 42501.
     const { data: artist } = await supabase
       .from('artist_profiles')
-      .select('stripe_connect_id')
+      .select('id')
       .eq('id', artistId)
       .eq('user_id', user.id)
       .single();
 
-    if (!artist?.stripe_connect_id) {
+    const connectAccountId = artist ? await getConnectAccountByArtistId(artistId) : null;
+
+    if (!connectAccountId) {
       return NextResponse.json(
         { error: 'Artist Stripe account not connected' },
         { status: 400 }

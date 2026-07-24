@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getPlatformCustomerId } from '@/lib/stripe/connectAccount';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import Stripe from 'stripe';
 
@@ -13,14 +14,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Must be logged in' }, { status: 401 });
     }
 
-    // Get artist's profile
-    const { data: artist } = await supabase
-      .from('artist_profiles')
-      .select('platform_stripe_customer_id')
-      .eq('user_id', user.id)
-      .single();
+    // Service-role read: SELECT on platform_stripe_customer_id is revoked from
+    // `authenticated`, so naming it in a session query 42501s and this route
+    // answered "No billing account found" to every paying artist. The session
+    // above is what proves the caller owns this customer.
+    const customerId = await getPlatformCustomerId(user.id);
 
-    if (!artist?.platform_stripe_customer_id) {
+    if (!customerId) {
       return NextResponse.json({ error: 'No billing account found' }, { status: 400 });
     }
 
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app';
     
     const portalSession = await stripe.billingPortal.sessions.create({
-      customer: artist.platform_stripe_customer_id,
+      customer: customerId,
       return_url: `${baseUrl}/profile/artist`,
     });
 

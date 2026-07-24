@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getConnectAccountByUserId } from '@/lib/stripe/connectAccount';
 import Stripe from 'stripe';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
@@ -13,19 +14,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Look up the user's Connect account from their artist profile
-    const { data: artist } = await supabase
-      .from('artist_profiles')
-      .select('stripe_connect_id')
-      .eq('user_id', user.id)
-      .single();
+    // Look up the caller's own Connect account. Service-role, because SELECT on
+    // stripe_connect_id is revoked from `authenticated`; the ownership check is
+    // the user id, which the session above already proved.
+    const connectAccountId = await getConnectAccountByUserId(user.id);
 
-    if (!artist?.stripe_connect_id) {
+    if (!connectAccountId) {
       return NextResponse.json({ error: 'No Stripe account connected' }, { status: 400 });
     }
 
     const balance = await stripe.balance.retrieve({
-      stripeAccount: artist.stripe_connect_id,
+      stripeAccount: connectAccountId,
     });
 
     const available = balance.available.reduce((sum, b) => sum + b.amount, 0);

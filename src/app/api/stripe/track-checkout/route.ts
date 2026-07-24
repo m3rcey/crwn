@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
@@ -36,7 +37,11 @@ export async function POST(request: NextRequest) {
     // Get track + artist
     const { data: track, error: trackError } = await supabase
       .from('tracks')
-      .select('id, title, price, is_free, album_art_url, artist_id, artist:artist_profiles(id, user_id, slug, stripe_connect_id, profile:profiles(display_name))')
+      // Must NOT name stripe_connect_id: SELECT on it is revoked from
+      // anon/authenticated, PostgREST applies column privileges to embedded joins,
+      // and one revoked name fails the WHOLE statement with 42501. That turned
+      // every track purchase into "Track not found". Read it with admin below.
+      .select('id, title, price, is_free, album_art_url, artist_id, artist:artist_profiles(id, user_id, slug, profile:profiles(display_name))')
       .eq('id', trackId)
       .single();
 
@@ -62,7 +67,21 @@ export async function POST(request: NextRequest) {
     }
 
     const artist = track.artist as any;
-    if (!artist?.stripe_connect_id) {
+
+    // Transfer destination, service-role only: the caller is a fan and holds no
+    // grant on this column.
+    const svcConnect = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
+    );
+    const { data: connectRow } = await svcConnect
+      .from('artist_profiles')
+      .select('stripe_connect_id')
+      .eq('id', artist?.id || track.artist_id)
+      .maybeSingle();
+    const artistStripeAccountId = connectRow?.stripe_connect_id as string | undefined;
+
+    if (!artistStripeAccountId) {
       return NextResponse.json({ error: 'Artist has not connected Stripe' }, { status: 400 });
     }
 
@@ -98,7 +117,7 @@ export async function POST(request: NextRequest) {
       payment_intent_data: {
         application_fee_amount: platformFee,
         transfer_data: {
-          destination: artist.stripe_connect_id,
+          destination: artistStripeAccountId,
         },
         ...(statementSuffix ? { statement_descriptor_suffix: statementSuffix } : {}),
         metadata: {

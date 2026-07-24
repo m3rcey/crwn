@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getConnectAccountByUserId } from '@/lib/stripe/connectAccount';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
@@ -69,21 +70,26 @@ export async function GET() {
 
     const { data: artist } = await supabase
       .from('artist_profiles')
-      .select('id, stripe_connect_id')
+      .select('id')
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (!artist?.stripe_connect_id) {
+    // The account id is read service-side: SELECT on stripe_connect_id is revoked
+    // from `authenticated`, so naming it here 42501s the query above and this
+    // route answered "not connected" for every artist who is.
+    const connectAccountId = artist ? await getConnectAccountByUserId(user.id) : null;
+
+    if (!connectAccountId) {
       return NextResponse.json({ connected: false, chargesEnabled: false, detailsSubmitted: false });
     }
 
     // Platform retrieves the Express account it owns by id (no stripeAccount param).
-    const account = await stripe.accounts.retrieve(artist.stripe_connect_id);
+    const account = await stripe.accounts.retrieve(connectAccountId);
     const chargesEnabled = !!account.charges_enabled;
     const detailsSubmitted = !!account.details_submitted;
 
     // Only a charges-enabled account is a real, monetizable connection.
-    if (chargesEnabled) {
+    if (chargesEnabled && artist) {
       recordActivationMilestone(artist.id, 'stripe_connected').catch(() => {});
       // Activate any onboarding-created paid tiers that are still missing Stripe prices.
       await backfillTierPrices(supabase, artist.id);

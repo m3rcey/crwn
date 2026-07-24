@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getConnectAccountByUserId } from '@/lib/stripe/connectAccount';
 import Stripe from 'stripe';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
@@ -27,16 +28,20 @@ export async function POST(req: NextRequest) {
 
     const { data: artist } = await supabase
       .from('artist_profiles')
-      .select('id, stripe_connect_id')
+      .select('id')
       .eq('user_id', user.id)
       .single();
 
-    if (!artist?.stripe_connect_id) {
+    // Service-role read: SELECT on stripe_connect_id is revoked from
+    // `authenticated`, and naming it above 42501s the whole query.
+    const connectAccountId = artist ? await getConnectAccountByUserId(user.id) : null;
+
+    if (!connectAccountId) {
       return NextResponse.json({ error: 'No Stripe account connected' }, { status: 400 });
     }
 
     const balance = await stripe.balance.retrieve({
-      stripeAccount: artist.stripe_connect_id,
+      stripeAccount: connectAccountId,
     });
 
     const availableBalance = balance.available.reduce((sum, b) => sum + b.amount, 0);
@@ -55,7 +60,7 @@ export async function POST(req: NextRequest) {
         currency: 'usd',
       },
       {
-        stripeAccount: artist.stripe_connect_id,
+        stripeAccount: connectAccountId,
       }
     );
 

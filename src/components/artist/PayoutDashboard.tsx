@@ -60,9 +60,13 @@ export function PayoutDashboard() {
         return;
       }
 
+      // Must NOT name stripe_connect_id: SELECT on it is revoked from
+      // `authenticated`, and one revoked name 42501s the whole query, so this
+      // returned null and the entire payouts screen rendered empty. Whether the
+      // artist is connected comes from /api/stripe/connect/status below.
       const { data: artistProfile } = await supabase
         .from('artist_profiles')
-        .select('id, stripe_connect_id')
+        .select('id')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -117,7 +121,10 @@ export function PayoutDashboard() {
 
       // Get Stripe login link if connected
       setArtistId(artistProfile.id);
-      if (artistProfile.stripe_connect_id) {
+      const connectStatus = await fetch('/api/stripe/connect/status')
+        .then((r) => (r.ok ? r.json() : null))
+        .catch(() => null);
+      if (connectStatus?.connected) {
         try {
           const response = await fetch('/api/stripe/login-link', {
             method: 'POST',

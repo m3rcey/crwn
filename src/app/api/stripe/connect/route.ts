@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getConnectAccountByArtistId } from '@/lib/stripe/connectAccount';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
@@ -18,10 +19,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get artist profile owned by this user
+    // Get artist profile owned by this user. Must NOT name stripe_connect_id:
+    // SELECT on it is revoked from `authenticated`, so including it made this
+    // query 42501 and every artist saw "Artist not found" when trying to connect
+    // Stripe, which blocked them from ever getting paid.
     const { data: artist, error } = await supabase
       .from('artist_profiles')
-      .select('id, slug, stripe_connect_id')
+      .select('id, slug')
       .eq('user_id', user.id)
       .single();
 
@@ -30,7 +34,7 @@ export async function GET(req: NextRequest) {
     }
 
     // If already has a Connect account, just create a new onboarding link
-    let accountId = artist.stripe_connect_id;
+    let accountId = await getConnectAccountByArtistId(artist.id);
 
     if (!accountId) {
       // Create Stripe Connect account
