@@ -21,6 +21,12 @@ export interface PopupContext {
   supportCount: number;
   /** Artists only: have they ever sent a broadcast/DM to a fan? */
   hasSentBroadcast: boolean;
+  /**
+   * Dark-launch flags from admin_settings, keyed by flag name. An ANNOUNCEMENT
+   * pop-up for a feature that ships dark MUST gate on its flag here, or flipping
+   * popup_engine alone announces a feature the user cannot reach.
+   */
+  featureFlags: Record<string, boolean>;
 }
 
 export interface PopupCta {
@@ -141,6 +147,40 @@ export const POPUPS: PopupDef[] = [
       feedbackPrompt: 'What is the one thing we should fix first?',
     },
     dismissLabel: 'Not now',
+  },
+
+  // ---- Announcement: Live Tips + Tip Goals (artists only) ----
+  // Gated on featureFlags.live_tips: before that flag is on there is no tip bar
+  // and no Goals button, so announcing it would send artists looking for nothing.
+  {
+    key: 'announce_live_tips',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist && c.featureFlags.live_tips === true,
+    frequency: { type: 'once' },
+    priority: 55,
+    goal: 'Artist sets a tip goal on their next live session so the show earns instead of just entertaining.',
+    title: 'Your last live show earned you nothing.',
+    body: 'Fans who show up live are the ones most willing to pay, and until now there was no way for them to. Tips and tip goals are on: set a goal, and the room can see it fill in real time.',
+    cta: { label: 'Set up my next live', href: '/profile/artist?tab=livestreams' },
+    dismissLabel: 'Later',
+  },
+
+  // ---- Announcement: Royalty Readiness Check (new surface, artists only) ----
+  // Gated on featureFlags.royalty_readiness so this cannot fire while the feature
+  // is still dark. Announce-once: a feature launch is news exactly one time.
+  {
+    key: 'announce_royalty_readiness',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist && c.featureFlags.royalty_readiness === true,
+    frequency: { type: 'once' },
+    priority: 55,
+    goal: 'Artist runs the Royalty Readiness Check and finds the streams nobody is collecting.',
+    title: 'Your distributor is not collecting most of what your songs earn.',
+    body: 'Performance royalties, mechanicals, digital radio, and everything outside the US are all paid by different organizations, and none of them pay you unless you are registered. Twelve questions will show you which ones currently have nobody assigned to them.',
+    cta: { label: 'Check what I am missing', href: '/royalty-readiness' },
+    dismissLabel: 'Later',
   },
 ];
 

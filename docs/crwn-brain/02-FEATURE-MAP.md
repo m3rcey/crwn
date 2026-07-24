@@ -42,6 +42,7 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Stripe webhook | `/api/stripe/webhook`, `webhookHandlers.ts` | **Production-ready** |
 | Team Splits | `TeamSplitBuilder`, `src/lib/teamSplits/*`, `/api/team-splits/*`, `/team/*`, accrual cron | **Production-ready** |
 | Subscription mgmt (pause/cancel/update) | `/api/subscriptions/{pause,cancel}`, `/api/stripe/subscription-update` | **Production-ready** (downgrade Stripe-schedule step unverified) |
+| Royalty Readiness Check | `/royalty-readiness`, `/api/royalty-readiness`, scorer `src/lib/royalty/readiness.ts`, `royalty_readiness` table, flag `admin_settings.royalty_readiness`, Studio tile hidden until the flag is on | **Shipped, DARK** (migration `schema-phase2-royalty-readiness.sql` unrun). DIAGNOSTIC ONLY: self-reported answers, a 0-100 coverage score, and actions pointing OUT to PRO / MLC / SoundExchange / administrators. Deliberately shows **no dollar figure** and holds no rights data. CRWN is not a publisher or administrator |
 | Founder Window | `founder_window_enabled`/`founder_cap`/`founder_deadline` on `subscription_tiers`, `is_founder` on `subscriptions`; config UI in `TierManager`, cap + deadline enforced in `/api/stripe/checkout` (free and paid paths), persisted by `handleCheckoutCompleted` | **Production-ready** (migration run). Grandfathered/locked founder PRICING is NOT built (touches Stripe subscription pricing) |
 
 ## Messaging, notifications, community

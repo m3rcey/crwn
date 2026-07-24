@@ -44,6 +44,17 @@ const STUDIO_CARDS: StudioCard[] = [
   { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg', hueRotate: 90 },
 ];
 
+// Dark-launched tiles. Each stays hidden until its admin_settings flag is on, so
+// flipping the flag alone launches the feature with no code change. The answer is
+// cached for the session: Studio is a hub artists bounce in and out of all day
+// and must not pay a round trip on every mount.
+const ROYALTY_READINESS_CARD: StudioCard = {
+  href: '/royalty-readiness',
+  title: 'Royalty Readiness',
+  emoji: '🧾',
+};
+let royaltyReadinessEnabled: boolean | null = null;
+
 // Studio is a hub artists bounce in and out of all day. Without a cache the
 // page blocks on a Supabase round trip behind a full-page spinner on EVERY
 // mount, which is what makes backing out of a sub-page feel slow.
@@ -68,6 +79,27 @@ export default function StudioPage() {
   const [isArtist, setIsArtist] = useState<boolean | null>(
     () => (user && knownArtists.has(user.id) ? true : null)
   );
+  const [showRoyalty, setShowRoyalty] = useState<boolean>(() => royaltyReadinessEnabled === true);
+
+  // Dark-launch flag for the Royalty Readiness tile. Fetched once per session and
+  // never blocks the grid: if it fails, the tile stays hidden, which is the safe
+  // direction for a feature that is not launched yet.
+  useEffect(() => {
+    if (!user || royaltyReadinessEnabled !== null) return;
+    let active = true;
+    fetch('/api/royalty-readiness')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        royaltyReadinessEnabled = !!data?.enabled;
+        if (active) setShowRoyalty(royaltyReadinessEnabled);
+      })
+      .catch(() => {
+        royaltyReadinessEnabled = false;
+      });
+    return () => {
+      active = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -134,7 +166,7 @@ export default function StudioPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 stagger-fade-in">
-        {STUDIO_CARDS.map((card) => (
+        {(showRoyalty ? [...STUDIO_CARDS, ROYALTY_READINESS_CARD] : STUDIO_CARDS).map((card) => (
           <button
             key={card.href}
             onClick={() => router.push(card.href)}

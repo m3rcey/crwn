@@ -134,6 +134,37 @@ responsible for. Do not work those.
       Until step 2 the whole surface is silent, so applying the migration alone is safe. Low
       survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
 
+      Two **announcement** pop-ups are already written and waiting in the registry
+      (`announce_live_tips`, `announce_royalty_readiness`). Each is gated on its OWN feature flag
+      as well as the engine, so neither can fire while the feature it announces is still dark.
+      Nothing to do here beyond flipping the flags below.
+
+- [ ] **Run [`supabase/schema-phase2-royalty-readiness.sql`](supabase/schema-phase2-royalty-readiness.sql)**
+      in the Supabase SQL editor, then flip the flag to launch the Royalty Readiness Check.
+
+      This is the first piece of the "money you already earned but never collected" side of CRWN.
+      It is a DIAGNOSTIC, not a collection service: twelve self-reported questions, a coverage
+      score, and a ranked list of actions pointing at the organizations that actually collect
+      (PRO, the MLC, SoundExchange, an administrator). It deliberately shows **no dollar figure**,
+      because every answer is unverifiable and an invented "you are owed $X" would be a fake
+      royalty statement. The migration adds one table (`royalty_readiness`, owner-only RLS) and
+      seeds the flag OFF. Self-verifies at the end.
+
+      The code is already live and **inert until you do this**: the Studio tile hides itself, the
+      page says "not available yet", and the API returns `{ enabled: false }`.
+
+      Then turn it on:
+      ```sql
+      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'royalty_readiness';
+      ```
+      Verify on the `m3rcey` test artist: a **Royalty Readiness** tile appears in Studio, and
+      answering "no" to the PRO question puts "Sign up with a PRO" at the top of the list.
+
+      **Decision that is yours, not mine:** whether CRWN should eventually earn referral revenue
+      from the administrators this screen names. Today it names Songtrust, ASCAP, BMI, the MLC and
+      SoundExchange with **no affiliate relationship and no preference**, which is the honest
+      default. Taking a referral fee changes what that list means, so it is a founder call.
+
 ---
 
 ## Ongoing
@@ -220,14 +251,23 @@ secure result links, claiming, the gated in-window email capture, follow-up auto
 compliant unsubscribe, the tool-education drip, booking detection, the no-show ladder, retention,
 and the admin panel. The privacy policy now discloses the funnel (live).
 
-- **Announcement pop-up for Live Tips, owed the moment you flip the flag.** Standing rule now:
-  every major feature that goes live ships with a targeted announcement pop-up so existing
-  artists meet it on next login, instead of never finding it. Live Tips is the first one due.
-  I cannot add it usefully yet for two reasons, both yours to unblock: the Pop-up Engine
-  migration is unrun and its flag is off (so any pop-up renders nothing), and `live_tips` is
-  itself still off. Flip both and I will add the `PopupDef`. Related gap I can fix any time:
-  `PopupContext` carries no account-creation date, so "existing users only" is approximated
-  with a once-ever cap; say the word and I will add `accountAgeDays` for precise targeting.
+- **Announcement pop-ups: DONE, and they can no longer fire early.** `PopupContext` now carries
+  `featureFlags` (read from `admin_settings`), so an announcement gates on the flag of the feature
+  it announces as well as on the engine. That removed the reason these were blocked, so both owed
+  announcements are written and waiting: `announce_live_tips` and `announce_royalty_readiness`.
+  When you add a new dark-launched feature's announcement, add its flag to `ANNOUNCEABLE_FLAGS`
+  in `src/app/api/popups/route.ts` or the gate reads as `false` forever. Remaining gap I can fix
+  any time: `PopupContext` carries no account-creation date, so "existing users only" is
+  approximated with a once-ever cap; say the word and I will add `accountAgeDays`.
+
+- **Royalty / publishing intelligence, phase 1 shipped (the diagnostic).** The Royalty Readiness
+  Check is built and dark. What is deliberately NOT built, in the order I would build it: the
+  **Unclaimed Royalty lead magnet** (same scorer, score-only, no dollar figure, keyword `ROYALTY`),
+  which should only ship once the in-app check is live so the tool points at something real; a
+  **per-song registration tracker** (the check is artist-level today, tracks already carry an
+  ISRC); a **composition record** separate from the recording, which is the real prerequisite for
+  anything split-sheet shaped. CRWN should not become a publisher or administrator, and none of
+  the above moves it toward being one.
 
 - **Automated lead deletion (erasure requests).** Ask me to build this when you want it. Today a
   "delete my data" request from a lead is MANUAL: `DELETE FROM lead_identities WHERE ...` in

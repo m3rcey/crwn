@@ -1,5 +1,43 @@
 # CRWN Brain — Changelog
 
+## 2026-07-23 — Royalty Readiness Check: CRWN starts noticing money the artist already earned
+
+Everything CRWN did before this answered one question: **how much NEW revenue can an artist create
+from their audience?** This is the first piece of the second question: **how much revenue have they
+already earned and never collected?** Streaming pays badly, but an artist who is not registered
+with a PRO, has never registered their songs, and has never heard of SoundExchange is also failing
+to collect money that already exists. Nobody in the artist's stack tells them: the distributor
+reports masters, the PRO reports only what the PRO collected, and no one reports the gaps.
+
+- **Royalty Readiness Check (dark-launched).** Page `(main)/royalty-readiness`, route
+  `/api/royalty-readiness`, scorer `src/lib/royalty/readiness.ts`, table `royalty_readiness`
+  (`supabase/schema-phase2-royalty-readiness.sql`), flag `admin_settings.royalty_readiness`, off by
+  default, same pattern as the quest, pop-up and live-tips engines. Twelve questions across
+  ownership / registration / collection, a 0-100 coverage score, and a ranked action list.
+- **The hard constraint, and the reason it is a score and not a dollar figure.** CRWN cannot verify
+  a single answer. A precise "you are owed $14,200" from unverifiable self-reported inputs is a fake
+  royalty statement, so the output is coverage plus a checklist and the copy says "not confirmed" /
+  "nobody is set up to collect this", never "you are owed". `buildLossResult` already had a `score`
+  mode for exactly this class of tool; the same reasoning applies in-app.
+- **Scoring rules that matter.** Publishing questions are SKIPPED for an artist who does not write,
+  rather than scored as failures, so a performer is not shown gaps that are not theirs. `unsure`
+  scores as uncovered but yields a "find out" action rather than a "set this up" action. An
+  unregistered backlog is an INVERTED question (yes is the risky answer) and is the only item with
+  a real clock on it, because back claims are not open forever.
+- **CRWN diagnoses, it does not collect.** Every action points outward (ASCAP/BMI, the MLC,
+  SoundExchange, an administrator) with no affiliate relationship and no preference. Whether that
+  becomes referral revenue is a founder decision, and it changes what the list means.
+- **`PopupContext` now carries `featureFlags`.** An announcement pop-up for a dark-launched feature
+  must gate on that feature's own flag, not just `popup_engine`, or flipping the engine announces
+  something the user cannot reach. Both owed announcements are now written and safe:
+  `announce_live_tips` and `announce_royalty_readiness`. New announcements must add their flag to
+  `ANNOUNCEABLE_FLAGS` in `src/app/api/popups/route.ts` or the gate is `false` forever.
+- **Deliberately NOT built:** the Unclaimed Royalty lead magnet (ships only after the in-app check
+  is live, so the tool points at something real), per-song registration tracking, and a composition
+  record separate from the recording. The last one is the real prerequisite for anything split-sheet
+  shaped, and it must never be collapsed into Team Splits: a CRWN revenue share is a payout
+  arrangement, not copyright ownership.
+
 ## 2026-07-23 — Live Tips + Tip Goals, and the LIVE lead magnet
 
 CRWN had **no tipping primitive of any kind**. The only money paths into a live were the
