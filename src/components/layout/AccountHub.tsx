@@ -77,21 +77,26 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
   const [stripeConnected, setStripeConnected] = useState(true);
   const [hasArtistRow, setHasArtistRow] = useState<boolean | null>(null);
 
-  // Artist-ness comes from the artist_profiles ROW, not profile.role. The useAuth
-  // context role lags a token refresh (see CLAUDE.md), and this used to gate the
-  // whole fetch on it: if the context still said 'fan', the slug was never loaded,
-  // so "View as fan" and the whole business section stayed hidden for an artist
-  // who plainly is one. Fall back to the context only while the row is in flight.
-  const artist = hasArtistRow ?? isArtist();
+  // Artist-ness is the OR of two signals, never the row alone. The useAuth context
+  // role lags a token refresh (see CLAUDE.md), so it cannot be the only signal; but
+  // the row read below can fail for reasons that have nothing to do with being an
+  // artist, so a failed read must never DOWNGRADE a known artist to the fan menu.
+  // Only ever upgrade.
+  const artist = isArtist() || hasArtistRow === true;
 
   useEffect(() => {
     if (!open || !user) return;
     let active = true;
     (async () => {
       const supabase = createBrowserSupabaseClient();
+      // Do NOT add stripe_connect_id (or platform_stripe_*) to this select.
+      // schema-phase2-stripe-id-column-privs.sql revoked SELECT on those columns
+      // from `authenticated`, so naming one 42501s the WHOLE query and returns
+      // null for every other column too. That is what silently hid "View as fan"
+      // here for months: the slug was never actually fetched.
       const { data } = await supabase
         .from('artist_profiles')
-        .select('slug, platform_tier, stripe_connect_id')
+        .select('slug, platform_tier')
         .eq('user_id', user.id)
         .maybeSingle();
       if (!active) return;
@@ -99,7 +104,6 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
       if (!data) return;
       setSlug(data.slug ?? null);
       setPlatformTier(data.platform_tier ?? 'starter');
-      setStripeConnected(!!data.stripe_connect_id);
     })();
     return () => {
       active = false;
@@ -107,6 +111,24 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
     // `artist` is derived FROM this effect's result, so it must not be a dep:
     // including it would re-run the fetch once more for no new information.
   }, [open, user]);
+
+  // Stripe connection drives the "Payouts and tax" badge. It has to come from the
+  // server route because the column it is derived from is unreadable from the
+  // browser by design. Non-blocking and defaults to "connected", so a failed
+  // check never nags an artist who is already set up.
+  useEffect(() => {
+    if (!open || !artist || !user) return;
+    let active = true;
+    fetch('/api/stripe/connect/status')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (active && d) setStripeConnected(!!d.connected);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [open, artist, user]);
 
   if (!open) return null;
 
