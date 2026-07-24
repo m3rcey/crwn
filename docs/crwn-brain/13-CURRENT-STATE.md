@@ -74,12 +74,14 @@ and polls bolted on, so the build extends `live_sessions` rather than forking it
   fan still cannot be on the mic. Needs a likeness release.
 - **Moderation** (`LiveProvider` has no `removeParticipant`/`mutePublishedTrack`; chat moderation
   soft-deletes a message, not a person; viewers already get `canPublish:false`).
-- **Seat types**, **recurrence** (wire to `fulfillment_obligations`, which already models a monthly
-  livestream promise). *(Built already: the public per-session sales page — the scheduled state of a
-  producer session is `ProducerSessionOffer`, selling the seat via live-checkout, plus OG tags on
-  the session page. And per-session analytics — owner-only `GET /api/producer/analytics` +
-  `SessionStatsPanel`, all derived from existing rows.)* The fan submission agreement is FINAL
-  (founder-approved 2026-07-24), version `2026-07-24.v1` at `/submission-agreement`.
+- **Seat types** (viewer vs producer seats) is the last open build; it needs a business-model
+  decision. **Stage/mic + moderation** need a likeness-release decision. *(Everything else is built:
+  the public per-session sales page `ProducerSessionOffer`; per-session analytics `GET
+  /api/producer/analytics` + `SessionStatsPanel`; and recurrence as one-tap "Run it again" on an
+  ended session — assisted repetition, NOT auto-scheduling/cron, because a live event needs the
+  artist present. Deliberately did not use `fulfillment_obligations`/a cron.)* The fan submission
+  agreement is FINAL (founder-approved 2026-07-24), version `2026-07-24.v1` at
+  `/submission-agreement`; the Terms carry a live-ticket refund clause (effective 2026-07-24).
 - **Screen share already works** (stock `<VideoConference />`; `LiveWatchRoom` subscribes to
   `Track.Source.ScreenShare`), so "watch me work" is real today.
 
