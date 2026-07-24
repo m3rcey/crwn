@@ -95,9 +95,13 @@ export function ArtistProfileContent({
     return () => clearTimeout(timer);
   }, [isOwnPage, shouldShowArtistPageTour, markArtistPageTourComplete]);
 
+  // Music leads. It is the default tab, and a default that is not the leftmost
+  // item reads as "you are somewhere odd" the moment the page paints. Movement
+  // sits second: it asks a fan to care about the campaign, which is a question
+  // worth asking only after they have heard something.
   const tabs = [
-    { id: 'movement' as const, label: 'Movement', tourId: 'fan-tab-movement' },
     { id: 'music' as const, label: 'Music', tourId: 'fan-tab-music' },
+    { id: 'movement' as const, label: 'Movement', tourId: 'fan-tab-movement' },
     ...(liveSessions.length > 0 ? [{ id: 'live' as const, label: 'Live', tourId: 'fan-tab-live' }] : []),
     { id: 'tiers' as const, label: 'Tiers', tourId: 'fan-tab-tiers' },
     { id: 'shop' as const, label: 'Shop', tourId: 'fan-tab-shop' },
