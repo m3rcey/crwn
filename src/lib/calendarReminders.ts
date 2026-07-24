@@ -16,6 +16,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { calendarReminderEmail, type ReminderLine } from '@/lib/emails/calendarReminder';
 import { relativeDueLabel } from '@/lib/calendar';
+import { paidTicketBuyersBySession } from '@/lib/live/access';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = SupabaseClient<any, any, any>;
@@ -97,12 +98,20 @@ export async function dispatchCalendarReminders(
       arr.push({ fan_id: s.fan_id, tier_id: s.tier_id ?? null });
       subsByArtist.set(s.artist_id, arr);
     }
+    // Ticket holders are NOT necessarily subscribers, so they never appear in
+    // subsByArtist. Without this they pay for a session and get no reminder.
+    const ticketBuyers = await paidTicketBuyersBySession(admin, lives!.map((l) => l.id));
     for (const l of lives!) {
       const audienceSubs = subsByArtist.get(l.artist_id) || [];
+      const reminded = new Set<string>();
       for (const s of audienceSubs) {
         if (!fanCanSeeLive(l, s.tier_id)) continue;
+        reminded.add(s.fan_id);
+      }
+      for (const buyerId of ticketBuyers.get(l.id) || []) reminded.add(buyerId);
+      for (const fanId of reminded) {
         candidates.push({
-          userId: s.fan_id,
+          userId: fanId,
           subjectType: 'live_session',
           subjectId: l.id,
           audience: 'fan',

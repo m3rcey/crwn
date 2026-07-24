@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getSignedDownloadUrl } from '@/lib/r2/client';
+import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
 
 // Mints a short-lived signed download URL for a session's recorded VOD.
 // Owner-only: the artist who owns the session can retrieve the file. This is the
@@ -39,10 +40,8 @@ export async function GET(req: NextRequest) {
   // Authorize the caller. Allowed in any of these cases:
   //   1. the artist who owns the session,
   //   2. a clipper who has driven a clipper-attributed subscription for this
-  //      artist (the VOD handoff — a clipper downloads raw footage to chop;
-  //      works even for private footage),
-  //   3. on a PUBLIC session, any fan with access (free, or a tier in
-  //      allowed_tier_ids) — they can download the recording too.
+  //      artist (the VOD handoff — a clipper downloads raw footage to chop),
+  //   3. any fan with access: free, a tier in allowed_tier_ids, or a paid ticket.
   const { data: ownedArtist } = await supabase
     .from('artist_profiles')
     .select('id')
@@ -51,6 +50,15 @@ export async function GET(req: NextRequest) {
     .maybeSingle();
 
   let authorized = !!ownedArtist;
+
+  // PRIVATE is owner-only, and this check runs FIRST so nothing below can widen it.
+  // It previously sat after the clipper branch, which meant any fan holding a single
+  // clipper-attributed referral could download an artist's unreleased private footage.
+  // "Clipper" is self-service (drive one attributed sub and you are one), so that set
+  // is not artist-vetted. An artist who wants a recording clipped makes it public.
+  if (!authorized && session.visibility === 'private') {
+    return NextResponse.json({ error: 'Not your session' }, { status: 403 });
+  }
 
   if (!authorized) {
     const { data: clipperRow } = await supabaseAdmin
@@ -64,8 +72,8 @@ export async function GET(req: NextRequest) {
     if (clipperRow) authorized = true;
   }
 
-  // Public-session fans: free, or holding a tier in allowed_tier_ids.
-  if (!authorized && session.visibility !== 'private') {
+  // Fans: free, holding a tier in allowed_tier_ids, or holding a paid ticket.
+  if (!authorized) {
     if (session.is_free) {
       authorized = true;
     } else {
@@ -76,8 +84,9 @@ export async function GET(req: NextRequest) {
         .eq('artist_id', session.artist_id)
         .eq('status', 'active')
         .maybeSingle();
-      const allowed: string[] = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
-      if (sub?.tier_id && allowed.includes(sub.tier_id)) authorized = true;
+      authorized =
+        hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null) ||
+        (await hasPaidLiveTicket(supabaseAdmin, session.id, user.id));
     }
   }
 

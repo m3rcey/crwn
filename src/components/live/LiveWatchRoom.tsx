@@ -11,6 +11,7 @@ import {
 import '@livekit/components-styles';
 import { Track } from 'livekit-client';
 import { useSubscription } from '@/hooks/useSubscription';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { SubscribeCTA } from '@/components/gating';
 import { LiveChatPanel } from './LiveChatPanel';
 import { LiveTipBar } from './LiveTipBar';
@@ -58,18 +59,44 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
   const [joining, setJoining] = useState(false);
   const [vodUrl, setVodUrl] = useState<string | null>(null);
   const [vodError, setVodError] = useState<string | null>(null);
+  // null = still checking. A ticket buyer with no tier is otherwise shown the
+  // Subscribe wall and never reaches /api/live/token, which would have let them in.
+  const [hasTicket, setHasTicket] = useState<boolean | null>(null);
   const joinedRef = useRef(false);
 
   const isPrerecorded = session.source_type === 'prerecorded';
   const isPrivate = session.visibility === 'private';
   const allowedTiers = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
-  // Private prerecorded is owner-only; everything else uses the tier gate.
+  // Private prerecorded is owner-only; everything else honors tier OR paid ticket.
   const canAccess =
-    isOwner || (!isPrivate && (session.is_free || (!!tierId && allowedTiers.includes(tierId))));
+    isOwner ||
+    (!isPrivate &&
+      (session.is_free || (!!tierId && allowedTiers.includes(tierId)) || hasTicket === true));
+  // Hold the gate until BOTH the tier and the ticket are known, or a ticket holder
+  // flashes the Subscribe wall on the way in.
+  const gateLoading = subLoading || hasTicket === null;
+
+  // RLS ("buyer_reads_own_tickets") scopes this to the caller's own rows.
+  useEffect(() => {
+    if (!currentUserId) { setHasTicket(false); return; }
+    let cancelled = false;
+    (async () => {
+      const supabase = createBrowserSupabaseClient();
+      const { data } = await supabase
+        .from('live_ticket_purchases')
+        .select('id')
+        .eq('session_id', session.id)
+        .eq('buyer_id', currentUserId)
+        .eq('status', 'paid')
+        .maybeSingle();
+      if (!cancelled) setHasTicket(!!data);
+    })();
+    return () => { cancelled = true; };
+  }, [currentUserId, session.id]);
 
   // Prerecorded: fetch a signed playback URL once the viewer is allowed.
   useEffect(() => {
-    if (!isPrerecorded || !currentUserId || subLoading || !canAccess) return;
+    if (!isPrerecorded || !currentUserId || gateLoading || !canAccess) return;
     let cancelled = false;
     (async () => {
       try {
@@ -87,7 +114,7 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
       }
     })();
     return () => { cancelled = true; };
-  }, [isPrerecorded, currentUserId, subLoading, canAccess, session.id]);
+  }, [isPrerecorded, currentUserId, gateLoading, canAccess, session.id]);
 
   // Free the slot on unmount / page hide.
   useEffect(() => {
@@ -141,7 +168,7 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
         </Centered>
       );
     }
-    if (subLoading) {
+    if (gateLoading) {
       return <div className="h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 text-crwn-gold animate-spin" /></div>;
     }
     if (!canAccess) {
@@ -188,7 +215,7 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
     );
   }
 
-  if (subLoading) {
+  if (gateLoading) {
     return <div className="h-full flex items-center justify-center"><Loader2 className="w-8 h-8 text-crwn-gold animate-spin" /></div>;
   }
 

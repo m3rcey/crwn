@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -56,9 +57,15 @@ async function canParticipate(userId: string, sessionId: string) {
     }
   }
 
-  const allowed: string[] = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
   if (session.is_free) return { ok: true as const, tierRank, tierName };
-  if (sub?.tier_id && allowed.includes(sub.tier_id)) return { ok: true as const, tierRank, tierName };
+  if (hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null)) {
+    return { ok: true as const, tierRank, tierName };
+  }
+  // A paid ticket buys the room, and the room includes the chat. Ticket holders
+  // keep tierRank 0 (no tier), so they render without a tier badge.
+  if (await hasPaidLiveTicket(supabaseAdmin, sessionId, userId)) {
+    return { ok: true as const, tierRank, tierName };
+  }
   return deny;
 }
 

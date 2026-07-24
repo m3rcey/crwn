@@ -2039,6 +2039,21 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
   const refundedNet = Math.round(originalEarning.net_amount * refundRatio);
   const refundedFee = Math.round(originalEarning.platform_fee * refundRatio);
 
+  // Revoke the ENTITLEMENT, not just the money. A live ticket is what admits a
+  // fan at the LiveKit token mint (and to the chat + replay), so leaving the row
+  // at 'paid' after a refund hands back the cash and keeps the access. Only a
+  // FULL refund revokes: a partial refund is not a cancelled seat.
+  if (originalEarning.type === 'live_ticket' && amountRefunded >= originalEarning.gross_amount) {
+    const { error: revokeError } = await supabaseAdmin
+      .from('live_ticket_purchases')
+      .update({ status: 'refunded', updated_at: new Date().toISOString() })
+      .eq('stripe_payment_intent_id', paymentIntentId)
+      .eq('status', 'paid');
+    if (revokeError) {
+      console.error('Live ticket revoke failed after refund:', paymentIntentId, revokeError);
+    }
+  }
+
   // Write negative earnings record
   const { data: refundEarning, error: refundEarningError } = await supabaseAdmin
     .from('earnings')

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { liveProvider } from '@/lib/livekit';
+import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -82,24 +83,12 @@ export async function POST(req: NextRequest) {
       .eq('status', 'active')
       .maybeSingle();
 
-    const allowed: string[] = Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : [];
-    const tierId = sub?.tier_id || null;
-    const hasTierAccess = !!tierId && allowed.includes(tierId);
+    const tierAccess = hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null);
 
     // "Ticket = access": a paid ticket lets a fan in even without the tier.
-    let hasTicket = false;
-    if (!hasTierAccess && session.price && session.price > 0) {
-      const { data: ticket } = await supabaseAdmin
-        .from('live_ticket_purchases')
-        .select('id')
-        .eq('session_id', session.id)
-        .eq('buyer_id', user.id)
-        .eq('status', 'paid')
-        .maybeSingle();
-      hasTicket = !!ticket;
-    }
+    const hasTicket = tierAccess ? false : await hasPaidLiveTicket(supabaseAdmin, session.id, user.id);
 
-    if (!hasTierAccess && !hasTicket) {
+    if (!tierAccess && !hasTicket) {
       return NextResponse.json(
         { error: 'locked', reason: 'Your tier does not have access to this session' },
         { status: 403 }
