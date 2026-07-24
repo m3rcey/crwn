@@ -24,6 +24,7 @@ import type { GeneratedResult, LeadMagnetInputValues } from '../leadMagnets/type
 import { calculate, getAssumptions } from '../leadCalculator';
 import { fmtDollars } from '../leadCalculator';
 import { buildLossResult } from './lossResult';
+import { scoreReadiness, sanitizeAnswers } from '../royalty/readiness';
 
 export interface AcquisitionTool {
   /** Stable id. For the four registry tools this IS the registry slug. */
@@ -62,6 +63,15 @@ export interface LeadProfileValues {
   streaming_revenue_cents?: number | null;
   primary_goal?: string | null;
   primary_blocker?: string | null;
+  // Royalty Readiness answers. Each is 'yes' | 'no' | 'unsure', validated by
+  // sanitizeAnswers before scoring, so an unexpected value is dropped rather than
+  // scored. Typed loosely here because they arrive from a DM as free text.
+  writes_music?: string | null;
+  pro_registered?: string | null;
+  songs_registered?: string | null;
+  mechanical_collection?: string | null;
+  soundexchange?: string | null;
+  unregistered_backlog?: string | null;
 }
 
 const n = (v: number | null | undefined, d = 0): number => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -1490,6 +1500,108 @@ const liveExperience: AcquisitionTool = {
   },
 };
 
+// The 17th tool, and the ONLY one on the "money you already earned" side of CRWN.
+// Every other tool estimates revenue the artist COULD create. This one is about
+// revenue that already exists and may have nobody assigned to collect it.
+//
+// THIS TOOL SHOWS NO DOLLAR FIGURE, and that is not timidity. The other tools model
+// what CRWN could generate, which is a plan. A dollar figure here would be a claim
+// that a specific amount is ALREADY OWED to this artist, which is a factual claim
+// about the world that CRWN cannot verify from six self-reported answers. That is a
+// different order of fabrication, and it is the line drawn in src/lib/royalty/readiness.ts.
+// So the hero is a SCORE gauge, exactly the case `buildLossResult` reserves `score` for.
+//
+// Because of that, the DM hook must tease a SCORE, never a dollar. The house rule that
+// "the hero must deliver the dollar its hook teased" is satisfied by not teasing one.
+//
+// It shares its scorer with the in-app Royalty Readiness Check (scoreReadiness), so the
+// number a lead sees BEFORE signing up is the same number they see after. The scorer
+// only counts questions that were answered, which is what lets this ask six of the
+// twelve and still score honestly.
+const royaltyReadiness: AcquisitionTool = {
+  id: 'royalty-readiness-check',
+  name: 'Royalty Readiness Check',
+  requiredFields: ['writes_music', 'pro_registered', 'songs_registered'],
+  optionalFields: ['mechanical_collection', 'soundexchange', 'unregistered_backlog', 'artist_name'],
+  resultRouteBase: '/tools/royalty-readiness-check/result',
+  formulaVersion: 'readiness@1',
+  calculatorId: 'royaltyReadiness',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    const answers = sanitizeAnswers({
+      writes_music: profile.writes_music,
+      pro_registered: profile.pro_registered,
+      songs_registered: profile.songs_registered,
+      mechanical_collection: profile.mechanical_collection,
+      soundexchange: profile.soundexchange,
+      unregistered_backlog: profile.unregistered_backlog,
+    });
+    const r = scoreReadiness(answers);
+    const gaps = r.actions.length;
+    const top = r.actions.slice(0, 3);
+
+    return buildLossResult({
+      generatorVersion: 'readiness@1',
+      headline:
+        gaps === 0
+          ? 'Every royalty stream that applies to you has somebody collecting it'
+          : `${gaps} of your royalty streams have nobody set up to collect them`,
+      score: {
+        value: r.score,
+        max: 100,
+        label: 'Royalty readiness',
+        band: r.band,
+      },
+      summary: r.bandNote,
+      cause:
+        'Your distributor pays you for the recording and nothing else. The song itself earns separately: performance royalties through a PRO, mechanicals through the MLC or an administrator, digital radio through SoundExchange, and more again outside the US. Every one of those is paid by a different organization, and not one of them pays you unless you are registered with them. Nobody in your stack tells you which ones you are missing, because none of them can see the others.',
+      estimate: [
+        { label: 'Streams with nobody on them', value: String(gaps) },
+        { label: 'Readiness score', value: `${r.score}/100` },
+        { label: 'You were not sure about', value: String(r.unsureCount), note: 'counts as uncovered' },
+        { label: 'Registration deadline', value: gaps > 0 ? 'Back claims expire' : 'Stay current' },
+      ],
+      assumptions: [
+        'Built entirely from your own answers. CRWN cannot see your registrations, so it cannot confirm what is or is not being collected.',
+        'Deliberately shows no dollar figure. Any amount would be invented, because what you are owed depends on your splits, your territories and your play counts.',
+        '"Not sure" is scored as uncovered, because a stream nobody can confirm is being collected is not being managed.',
+        'A checklist, not a royalty statement, and not legal or financial advice.',
+      ],
+      consequences: [
+        'Royalties that go unclaimed long enough stop being claimable at all, and back claims do not stay open forever.',
+        'Unregistered songs cannot be matched to you even when an organization is trying to pay.',
+        'The longer a song circulates unregistered, the more it earns for somebody who is not you.',
+      ],
+      fanLoss:
+        'Your fans lose nothing here, and that is exactly why this goes unnoticed for years. No fan complains, no dashboard turns red, and the money simply never arrives.',
+      flow: [
+        gaps === 0 ? 'Everything that applies to you is covered' : `${gaps} streams with nobody collecting`,
+        'Find out which organizations you are missing',
+        'Register with each one, worst first',
+        'The money that was already earned reaches you',
+      ],
+      fix: {
+        title: 'What to do about it',
+        steps: top.length
+          ? top.map((a) => `${a.title}: ${a.where}`)
+          : ['Come back after your next release. A new song is a new registration, and that is where gaps reopen.'],
+      },
+      emailInsights: [
+        {
+          title: 'Start with the one that has a clock on it',
+          body: 'Registrations you can do any time. An unregistered back catalogue is the part that expires, so work it oldest release first, and do that before anything else on your list.',
+        },
+      ],
+      conversionPayload: { royalty: 'readiness' },
+      shareSummary:
+        gaps === 0
+          ? 'Ran a royalty readiness check and everything that applies to me is actually covered.'
+          : `Turns out ${gaps} of my royalty streams have nobody collecting them.`,
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
@@ -1507,7 +1619,10 @@ export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   'executive-producer-session': execProducer,
   'own-your-fans-calculator': ownYourFans,
   'live-experience-calculator': liveExperience,
+  'royalty-readiness-check': royaltyReadiness,
 };
+
+export { royaltyReadiness };
 
 export const ACQUISITION_TOOL_IDS = Object.keys(ACQUISITION_TOOLS);
 export const ACQUISITION_CALCULATOR_IDS = Object.values(ACQUISITION_TOOLS).map((t) => t.calculatorId);

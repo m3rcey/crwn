@@ -115,6 +115,20 @@ responsible for. Do not work those.
       `+onboard` → delete both. **Do NOT delete `joshn.wms@gmail.com`**, that is your real
       admin account (slug `m3rcey`, display name "Mercey").
 
+- [ ] **Add the `ROYALTY` keyword flow in ManyChat** (new "Royalty Readiness Check" lead magnet,
+      keywords `royalty` / `royalties` / `publishing`). CRWN-side routing already exists (it derives
+      from `dmKeywords` in the registry), so nothing is needed on our end. Clone an existing tool
+      keyword flow (e.g. `SHARE`) and point it at the same External Request. Verify the deploy's
+      webhook rev sha BEFORE testing (ManyChat guide §10). Live at
+      [thecrwn.app/tools/royalty-readiness-check](https://thecrwn.app/tools/royalty-readiness-check).
+
+      **This one is different from the other 16 and the difference is deliberate:** it returns a
+      SCORE, not a dollar figure. Every other tool estimates revenue the artist could create, which
+      is a plan. This one is about money that may already be owed, and stating a dollar amount for
+      that from six self-reported answers would be inventing a fact about the world. So its hook
+      teases a score, and the hero delivers a score. **If you write video scripts for it, do not
+      promise a dollar** or the hero will not match the hook.
+
 - [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
       `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
       nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)

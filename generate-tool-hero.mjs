@@ -12,15 +12,19 @@ const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) { console.error("ERROR: GEMINI_API_KEY not set."); process.exit(1); }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const OUT_PATH = "public/tool-live-experience.jpg";
+const OUT_PATH = "public/tool-royalty-readiness.jpg";
 
-const PROMPT = `A cinematic, photorealistic editorial photograph. Near-black charcoal room, background color #0D0D0D, with a single warm gold key light, color #D4AF37, raking across the subject from one side. Deep shadows, rich blacks, film grain, shallow depth of field, shot on a 50mm lens at wide aperture.
+// Royalty Readiness is about the UNGLAMOROUS side: paperwork, registrations, the
+// admin nobody does. So the frame is a desk at 2am, not a stage. The mic is present
+// but pushed aside and unlit, because this is the part of the career that has nothing
+// to do with making the music and everything to do with getting paid for it.
+const PROMPT = `A cinematic, photorealistic editorial photograph. Near-black charcoal room, background color #0D0D0D, with a single warm gold light, color #D4AF37, as the only light source. Deep shadows, rich blacks, film grain, shallow depth of field, shot on a 35mm lens at wide aperture.
 
-A young Black (African American) hip hop and R&B artist, clearly aged between 18 and 32 years old, youthful face, performing a stripped-down intimate set. He sits on a stool with a microphone on a stand in front of him, mid-performance, eyes closed, caught in a real moment of singing. He is lit only by the warm gold light.
+A young Black (African American) hip hop and R&B artist, clearly aged between 18 and 32 years old, youthful face, sitting alone at a desk very late at night in a dim home studio. He is leaning over a spread of printed paperwork and documents on the desk, one hand flat on the pages, studying them with a serious, focused, slightly weary expression. He is lit only by a single warm gold desk lamp that pools light across the papers and rim-lights one side of his face and shoulder.
 
-In the near foreground, slightly out of focus, the back of a single camera on a tripod points at him, its small screen glowing faintly. The rest of the room is empty darkness: no audience, no crowd, just the artist and the one camera watching him.
+A studio microphone on a boom arm sits pushed aside at the edge of the frame, unlit and out of focus. The rest of the room falls away into near-black darkness, studio gear barely suggested in the shadows.
 
-The mood is intimate, expensive, and a little lonely: a show worth paying for that almost nobody is in the room to see. No text, no words, no letters, no logos, no watermarks anywhere in the image. Photographic only, not an illustration.`;
+The mood is quiet, expensive and unglamorous: the paperwork side of a music career, the part nobody posts about, done alone at 2am. No text, no words, no letters, no readable writing on the documents, no logos, no watermarks anywhere in the image. Photographic only, not an illustration.`;
 
 console.log(`Generating ${OUT_PATH}...`);
 

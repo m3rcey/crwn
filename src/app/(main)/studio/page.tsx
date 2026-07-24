@@ -51,7 +51,11 @@ const STUDIO_CARDS: StudioCard[] = [
 const ROYALTY_READINESS_CARD: StudioCard = {
   href: '/royalty-readiness',
   title: 'Royalty Readiness',
-  emoji: '🧾',
+  image: '/studio_royalty.jpg',
+  // Blue = the strategy/planning cluster (Playbooks, Action Plan, Promise Calendar),
+  // which is where a diagnostic belongs. Verified by applying the same feColorMatrix
+  // the browser will: 170 lands on a clean blue, 200 drifts periwinkle.
+  hueRotate: 170,
 };
 let royaltyReadinessEnabled: boolean | null = null;
 

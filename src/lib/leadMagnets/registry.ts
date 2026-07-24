@@ -676,6 +676,87 @@ const EXECUTIVE_PRODUCER = lossToolBase({
   analyticsMetadata: { toolId: 'executive-producer-session', category: 'Monetize', promotedFeature: 'Live Experiences' },
 });
 
+// The 17th tool, and the first on the "money you already earned" side of CRWN. It does
+// NOT use lossToolBase: every other loss tool asks one audience number and derives a
+// dollar. This one asks six yes/no/unsure questions and returns a SCORE, because a
+// dollar figure for money already owed cannot be honestly derived from self-reported
+// answers (the reasoning lives on the adapter in acquisition/toolAdapters.ts).
+//
+// Its hook therefore teases a SCORE, never a dollar. The house rule that a tool's hero
+// must deliver the dollar its hook promised is satisfied by never promising one.
+const READINESS_OPTIONS = [
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
+  { value: 'unsure', label: 'Not sure', hint: 'Counts as a gap until you confirm it' },
+];
+const readinessInput = (
+  key: string,
+  label: string,
+  help: string,
+  step: string,
+  required = false,
+): LeadMagnetInputDefinition => ({
+  key,
+  type: 'option',
+  label,
+  help,
+  required,
+  options: READINESS_OPTIONS,
+  step,
+});
+
+const ROYALTY_READINESS: LeadMagnetConfig = {
+  slug: 'royalty-readiness-check',
+  name: 'Royalty Readiness Check',
+  featureName: 'Royalty Readiness',
+  category: 'Monetize',
+  description: 'See which royalty streams you have earned from but nobody is collecting.',
+  videoAngle:
+    'Your distributor pays you for the recording only. The song earns separately through organizations that pay nobody who is not registered with them.',
+  icon: '🔎',
+  dmKeywords: ['royalty', 'royalties', 'publishing'],
+  timeToComplete: '1 min',
+  publicRoute: '/tools/royalty-readiness-check',
+  artistRoute: '/artist/tools/royalty-readiness-check',
+  hero: {
+    eyebrow: 'Royalty Readiness',
+    headline: 'Your distributor is not collecting most of what your songs earn.',
+    subheadline:
+      'Performance royalties, mechanicals, digital radio and everything outside the US are paid by different organizations, and none of them pay you unless you are registered. Six questions to find the ones with nobody assigned to them.',
+    primaryCta: 'See what nobody is collecting',
+    image: '/tool-royalty-readiness.jpg',
+    imageAlt: 'A dim, gold-lit studio with an artist at the center',
+  },
+  inputs: [
+    readinessInput('writes_music', 'Do you write or co-write the songs you release?', 'Writing the song and owning the recording are two separate things, collected by different people.', 'songs', true),
+    readinessInput('pro_registered', 'Are you signed up with a PRO (ASCAP, BMI, SESAC)?', 'The PRO collects performance royalties: radio, TV, venues, and streaming performance.', 'registration', true),
+    readinessInput('songs_registered', 'Have you registered each individual song with that PRO?', 'Signing up as a writer collects nothing. The songs have to be registered one by one.', 'registration', true),
+    readinessInput('mechanical_collection', 'Is anybody collecting your US mechanical royalties?', 'US streaming mechanicals are a separate pot from your distributor payout, handled by the MLC or an administrator.', 'collection'),
+    readinessInput('soundexchange', 'Are you registered with SoundExchange?', 'US digital radio pays the performer and the recording owner, not the writer. It never touches your distributor.', 'collection'),
+    readinessInput('unregistered_backlog', 'Have you released music in the last two years you are not sure was ever registered?', 'Back claims are not open forever, so an old backlog is the part that expires.', 'collection'),
+  ],
+  wizardSteps: [
+    { id: 'songs', group: 'Your songs', title: 'Your songs', subtitle: 'One question, so we only ask what applies to you.' },
+    { id: 'registration', group: 'Registration', title: 'Registration', subtitle: 'Who is signed up to collect on your behalf.' },
+    { id: 'collection', group: 'Collection', title: 'Collection', subtitle: 'The streams artists most often never claim.' },
+    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see the gaps.' },
+  ],
+  usesLossEngine: true,
+  resultSections: [],
+  publicPreviewSections: [],
+  leadCapture: { required: false, consentCopy: 'Email me my result and occasional CRWN tips for artists.' },
+  cta: {
+    publicPrimary: 'Create your CRWN account and close these gaps',
+    publicSecondary: 'Email my result',
+    artistPrimary: 'Save my result',
+    artistSecondary: 'Open the full check in CRWN',
+  },
+  conversionTarget: { type: 'saved_plan', label: 'Save your result', route: '/royalty-readiness' },
+  requiresEstimateDisclaimer: true,
+  resultGeneratorKey: 'royaltyReadiness',
+  analyticsMetadata: { toolId: 'royalty-readiness-check', category: 'Monetize', promotedFeature: 'Royalty Readiness' },
+};
+
 export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   VAULT_REVENUE_PLANNER,
   PROOF_OF_DEMAND,
@@ -692,6 +773,7 @@ export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   EXECUTIVE_PRODUCER,
   OWN_YOUR_FANS,
   LIVE_EXPERIENCE,
+  ROYALTY_READINESS,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(
