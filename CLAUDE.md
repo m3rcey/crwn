@@ -86,12 +86,15 @@ Every one of its old 16 tabs is a real route. Three surfaces, and each one has a
 - **Bottom tab bar** (`Navigation.tsx`, `buildNavItems`) — DOING the work. 5 slots:
   Home, Explore, [Studio|Earn], Messages, [Rise|Library]. Visible on mobile AND desktop
   (sidebar). Profile is NOT a slot. Do not add management destinations here.
-- **Hamburger AccountHub** (`src/components/layout/AccountHub.tsx`, top-left) — MANAGE the
-  business: `/account/profile`, `/account/tiers`, `/account/payouts`, `/account/billing`,
-  `/account/referrals`, plus Your info and notification prefs.
-- **Studio** (`/studio`) — the toolbox: `/studio/music`, `/studio/albums`, `/studio/shop`,
-  `/studio/live`, `/studio/analytics`, `/studio/manager`, `/studio/sync`, `/studio/team`,
-  `/studio/promise`, `/studio/fans`, plus the connector tools.
+- **Hamburger AccountHub** (`src/components/layout/AccountHub.tsx`, top-left) — the COMPLETE
+  index. Every one of the old 16 tabs is listed here, in four groups (Grow / Music and shop /
+  Your business / Account). This is not the "management only" half: an artist who learned the
+  tab strip must find all sixteen without learning a second place to look. **If you add a
+  destination to Studio, add it here too.** First group renders expanded.
+- **Studio** (`/studio`) — the same work destinations as a visual grid, plus the connector tools:
+  `/studio/music`, `/studio/albums`, `/studio/shop`, `/studio/live`, `/studio/analytics`,
+  `/studio/manager`, `/studio/sync`, `/studio/team`, `/studio/promise`, `/studio/fans`.
+  Neither surface is exclusive, so there is no wrong place to look for a screen.
 
 Rules when you touch any of this:
 - **Every ex-tab screen wears `HubPage`** (`src/components/layout/HubPage.tsx`): X in the TOP
