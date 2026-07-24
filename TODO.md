@@ -281,6 +281,15 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   any time: `PopupContext` carries no account-creation date, so "existing users only" is
   approximated with a once-ever cap; say the word and I will add `accountAgeDays`.
 
+- **Artist dashboard is now 15 real screens, not a 16-tab strip.** `/profile/artist` is Rise Mode
+  only; management lives in the hamburger (`/account/*`), tools live in Studio (`/studio/*`), and
+  every screen wears `HubPage` (X in the top left, returns to the menu when it carries
+  `?from=hub`). Nothing for you to run: no migration, no env var, no flag. Two cosmetic follow-ups
+  I will do unasked unless you want them sooner: the seven new Studio tiles (Music, Albums, Shop,
+  Live, Analytics, Manager, Sync) are emoji placeholders and want real gold product photos like
+  the other tiles, and the `announce_hub_navigation` pop-up is written but only shows once the
+  Pop-up Engine flag `admin_settings.popup_engine` is on, which is still off.
+
 - **Royalty / publishing intelligence, phase 1 shipped (the diagnostic).** The Royalty Readiness
   Check is built and dark. What is deliberately NOT built, in the order I would build it: the
   **Unclaimed Royalty lead magnet** (same scorer, score-only, no dollar figure, keyword `ROYALTY`),

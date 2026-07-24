@@ -78,13 +78,34 @@ must pass a frequency governor. Do NOT add a new interruption path without one.
   (`api/messages/broadcast`, `api/notifications/notify-subscribers`). Keep them. A muted fan is a
   lost fan, so the platform caps even a well-meaning artist.
 
-## Navigation — Profile lives in the hamburger AccountHub, not the tab bar
+## Navigation — three surfaces, one rule each
 
-The bottom tab bar is for DOING the work. "Manage my account/business" lives in
-`src/components/layout/AccountHub.tsx` (the hamburger, top-left). The 5 bottom-nav slots are
-Home, Explore, [Studio|Earn], Messages, [Rise|Library] (`Navigation.tsx`, `buildNavItems`).
-Profile is NOT a bottom-nav slot. Reach `/profile` and payouts/support/etc. through the hub.
-The Fan CRM is its own route `/studio/fans` (not `?tab=audience`).
+The artist dashboard is NO LONGER a tab strip. `/profile/artist` is Rise Mode and nothing else.
+Every one of its old 16 tabs is a real route. Three surfaces, and each one has a single job:
+
+- **Bottom tab bar** (`Navigation.tsx`, `buildNavItems`) — DOING the work. 5 slots:
+  Home, Explore, [Studio|Earn], Messages, [Rise|Library]. Visible on mobile AND desktop
+  (sidebar). Profile is NOT a slot. Do not add management destinations here.
+- **Hamburger AccountHub** (`src/components/layout/AccountHub.tsx`, top-left) — MANAGE the
+  business: `/account/profile`, `/account/tiers`, `/account/payouts`, `/account/billing`,
+  `/account/referrals`, plus Your info and notification prefs.
+- **Studio** (`/studio`) — the toolbox: `/studio/music`, `/studio/albums`, `/studio/shop`,
+  `/studio/live`, `/studio/analytics`, `/studio/manager`, `/studio/sync`, `/studio/team`,
+  `/studio/promise`, `/studio/fans`, plus the connector tools.
+
+Rules when you touch any of this:
+- **Every ex-tab screen wears `HubPage`** (`src/components/layout/HubPage.tsx`): X in the TOP
+  LEFT, artist gate, and artist context via `useArtistContext()` (module-cached, so navigating
+  between these screens costs no round trip). Do not hand-roll the gate or the back control.
+- **`?from=hub` means "the X returns to the hamburger."** AccountHub appends it; HubPage reads
+  it and sets a one-shot sessionStorage flag (`requestHubReopen`) that `Navigation` consumes on
+  the next pathname change to reopen the menu. Without `from=hub` the X is a normal `smartBack`,
+  which is what makes Rise Mode CTAs return to Rise Mode.
+- **Link to these routes with `<Link prefetch>`, never `<button onClick={router.push}>`.** The
+  prefetch is the entire reason they open instantly; a button cannot be prefetched.
+- **Never add a new `?tab=` link.** `src/lib/dashboardRoutes.ts` (`TAB_ROUTES`) is the legacy
+  map, and `/profile/artist` redirects through it so links already sitting in emails and
+  `notifications.link` rows keep working. It exists for history, not for new code.
 
 ## Problem-Solving Principles
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Sparkles } from 'lucide-react';
@@ -27,6 +28,18 @@ interface StudioCard {
 //   · red (live/content) · gold/unshifted (money/value, the brand anchor).
 // hueRotate shifts the gold product photo to that family (gold ≈ 46°).
 const STUDIO_CARDS: StudioCard[] = [
+  // The daily work, lifted out of the artist dashboard's 16-tab scroll strip.
+  // These used to be /profile/artist?tab=<id>, where anything past the 7th tab
+  // was off-screen on a phone. They lead the grid because they are what an
+  // artist opens most: the catalog, the shop, the live room, the numbers.
+  { href: '/studio/music',     title: 'Music',     emoji: '🎵' },
+  { href: '/studio/albums',    title: 'Albums',    emoji: '💿' },
+  { href: '/studio/shop',      title: 'Shop',      emoji: '🛍️' },
+  { href: '/studio/live',      title: 'Live',      emoji: '🔴' },
+  { href: '/studio/analytics', title: 'Analytics', emoji: '📈' },
+  { href: '/studio/manager',   title: 'Manager',   emoji: '🧠' },
+  { href: '/studio/sync',      title: 'Sync',      emoji: '🎬' },
+
   { href: '/campaigns',            title: 'Road To',            image: '/studio_campaigns.jpg', hueRotate: 90 },
   { href: '/playbooks',            title: 'Playbooks',          image: '/studio_playbooks.jpg', hueRotate: 170 },
   { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
@@ -36,8 +49,8 @@ const STUDIO_CARDS: StudioCard[] = [
   { href: '/bounties',             title: 'Clip Bounties',      image: '/studio_bounties.jpg', hueRotate: 310 },
   { href: '/city-unlocks',         title: 'City Unlocks',       image: '/studio_cityunlocks.jpg', hueRotate: 90 },
   { href: '/studio/fans',          title: 'Fan CRM',            image: '/studio_crm.jpg', hueRotate: 255 },
-  { href: '/profile/artist?tab=team',     title: 'Team Splits', image: '/studio_team.jpg' },
-  { href: '/profile/artist?tab=promise',  title: 'Promise Calendar', image: '/studio_promise.jpg', hueRotate: 170 },
+  { href: '/studio/team',          title: 'Team Splits',      image: '/studio_team.jpg' },
+  { href: '/studio/promise',       title: 'Promise Calendar', image: '/studio_promise.jpg', hueRotate: 170 },
   { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg', hueRotate: 255 },
   { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg', hueRotate: 310 },
   { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg', hueRotate: 170 },
@@ -170,11 +183,16 @@ export default function StudioPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 stagger-fade-in">
+        {/* <Link prefetch>, not a button calling router.push: Next fetches each
+            tile's route chunk while the grid is on screen, so tapping a tool
+            paints immediately instead of spinning while its code downloads.
+            That download-on-tap was what made the old dashboard tabs feel slow. */}
         {(showRoyalty ? [...STUDIO_CARDS, ROYALTY_READINESS_CARD] : STUDIO_CARDS).map((card) => (
-          <button
+          <Link
             key={card.href}
-            onClick={() => router.push(card.href)}
-            className="rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
+            href={card.href}
+            prefetch
+            className="block rounded-xl overflow-hidden press-scale hover:scale-[1.03] transition-transform"
           >
             <div className="aspect-square relative max-w-[200px] mx-auto w-full rounded-xl overflow-hidden bg-crwn-elevated flex items-center justify-center">
               {card.image ? (
@@ -192,7 +210,7 @@ export default function StudioPage() {
               )}
             </div>
             <p className="font-medium text-crwn-text text-sm mt-2 text-center">{card.title}</p>
-          </button>
+          </Link>
         ))}
       </div>
     </div>

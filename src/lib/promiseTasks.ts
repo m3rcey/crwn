@@ -84,7 +84,7 @@ export async function maybeCreateVipWelcomeTask(
     type: 'new_subscriber',
     title: '👑 VIP welcome pending',
     message: `Send ${fanName} a personal welcome, due in 48h`,
-    link: '/profile/artist?tab=promise',
+    link: '/studio/promise',
   });
 
   return true;

@@ -34,7 +34,7 @@ export function generateSyncInsights(data: ArtistDataForAI): InsightInput[] {
       body: `This ${opp.type} matches your genre and closes soon${priceRange}. These fill up fast, so submit now before it's gone.`,
       data: { syncId: opp.id, deadline: opp.deadline },
       action_type: 'link',
-      action_url: '/profile/artist?tab=sync',
+      action_url: '/studio/sync',
     });
   }
 
@@ -59,7 +59,7 @@ export function generateSyncInsights(data: ArtistDataForAI): InsightInput[] {
         body: `"${opp.title}" matches your genre${priceRange}. Don't miss out.`,
         data: { syncId: opp.id, deadline: opp.deadline },
         action_type: 'link',
-        action_url: '/profile/artist?tab=sync',
+        action_url: '/studio/sync',
       });
     }
   }
@@ -79,7 +79,7 @@ export function generateSyncInsights(data: ArtistDataForAI): InsightInput[] {
       body: `"${topOpp.title}" and ${count > 1 ? `${count - 1} more` : 'others'} are looking for your sound.${priceRange} Check them out before they fill up.`,
       data: { count, topSyncId: topOpp.id },
       action_type: 'link',
-      action_url: '/profile/artist?tab=sync',
+      action_url: '/studio/sync',
     });
   }
 

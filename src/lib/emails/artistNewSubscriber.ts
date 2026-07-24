@@ -33,7 +33,7 @@ export function artistNewSubscriberEmail(artistName: string, fanName: string, ti
         </table>
       </div>
       <div style="text-align:center;margin:32px 0 0;">
-        <a href="https://thecrwn.app/profile/artist?tab=analytics" style="display:inline-block;background:linear-gradient(135deg,#9a7b2a,#D4AF37);color:#1A1A1A;font-weight:700;font-size:16px;padding:14px 32px;border-radius:12px;text-decoration:none;">
+        <a href="https://thecrwn.app/studio/analytics" style="display:inline-block;background:linear-gradient(135deg,#9a7b2a,#D4AF37);color:#1A1A1A;font-weight:700;font-size:16px;padding:14px 32px;border-radius:12px;text-decoration:none;">
           View Dashboard
         </a>
       </div>

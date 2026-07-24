@@ -65,7 +65,7 @@ export async function notifyCashout(
     'cashout',
     `Cashout sent: ${formatted}`,
     'On its way to your linked bank or debit card. Bank transfers arrive in 1 to 2 business days.',
-    '/profile/artist?tab=payouts'
+    '/account/payouts'
   );
 }
 

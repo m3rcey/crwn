@@ -76,7 +76,7 @@ export async function getArtistCalendar(
     title: r.title,
     dueAt: r.deadline,
     cta: r.cta_label || 'Open campaign',
-    href: '/profile/artist?tab=ai-manager',
+    href: '/studio/manager',
   }));
   pushDeadlineItems(items, missions.data, 'mission', 'mission', (r) => ({
     title: r.title,
@@ -115,7 +115,7 @@ export async function getArtistCalendar(
       dueAt: l.scheduled_at,
       status: statusForDue(l.scheduled_at),
       cta: 'Go live',
-      href: '/profile/artist?tab=livestreams',
+      href: '/studio/live',
     });
   }
 

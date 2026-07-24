@@ -17,3 +17,40 @@ export function smartBack(router: MinimalRouter, fallback: string): void {
     router.push(fallback);
   }
 }
+
+// --- Returning to the account hub -------------------------------------------
+//
+// Screens opened from the hamburger (HubPage, carrying ?from=hub) put an X in the
+// top left that goes back INTO the menu, the way the Lyft driver menu does. The
+// navigation away is ordinary history, so the only thing to carry across it is
+// the single bit "reopen the menu when you land".
+//
+// A sessionStorage flag rather than a ?hub=1 URL param on purpose: reading query
+// params in Navigation would pull useSearchParams into the layout, which forces
+// every statically rendered page under it into a Suspense boundary. The flag is
+// written only by the X and consumed by the very next pathname change, so it can
+// never leak into an unrelated navigation.
+
+const HUB_RETURN_KEY = 'crwn:hub-return';
+
+export function requestHubReopen(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(HUB_RETURN_KEY, '1');
+  } catch {
+    // Private-mode Safari can throw on sessionStorage. Losing the reopen is fine:
+    // the artist lands on the previous page instead, which is where back goes.
+  }
+}
+
+/** Reads and clears the flag. Returns true exactly once per requestHubReopen(). */
+export function consumeHubReopen(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    if (sessionStorage.getItem(HUB_RETURN_KEY) !== '1') return false;
+    sessionStorage.removeItem(HUB_RETURN_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}

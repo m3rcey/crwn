@@ -77,7 +77,7 @@ function LockedCard({ title, description }: { title: string; description: string
         <Lock className="w-5 h-5 text-crwn-text-secondary mb-1.5" />
         <p className="text-xs text-crwn-text-secondary font-medium">Label+ Feature</p>
         <a
-          href="/profile/artist?tab=billing"
+          href="/account/billing"
           className="text-[10px] text-crwn-gold hover:underline mt-0.5"
         >
           Upgrade to unlock
@@ -572,7 +572,7 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
             <div className="absolute inset-0 bg-crwn-bg/60 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
               <Lock className="w-5 h-5 text-crwn-text-secondary mb-1.5" />
               <p className="text-xs text-crwn-text-secondary font-medium">Label+ Feature</p>
-              <a href="/profile/artist?tab=billing" className="text-[10px] text-crwn-gold hover:underline mt-0.5">Upgrade to unlock</a>
+              <a href="/account/billing" className="text-[10px] text-crwn-gold hover:underline mt-0.5">Upgrade to unlock</a>
             </div>
             <p className="text-sm font-medium text-crwn-text-secondary/30 mb-3">Gross Margin</p>
             <div className="space-y-2 opacity-30">
@@ -638,7 +638,7 @@ export default function UnitEconomics({ artistId, platformTier, analytics }: Uni
             <div className="absolute inset-0 bg-crwn-bg/60 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
               <Lock className="w-5 h-5 text-crwn-text-secondary mb-1.5" />
               <p className="text-xs text-crwn-text-secondary font-medium">Label+ Feature</p>
-              <a href="/profile/artist?tab=billing" className="text-[10px] text-crwn-gold hover:underline mt-0.5">Upgrade to unlock</a>
+              <a href="/account/billing" className="text-[10px] text-crwn-gold hover:underline mt-0.5">Upgrade to unlock</a>
             </div>
             <p className="text-sm font-medium text-crwn-text-secondary/30 mb-3">Pricing Health Check</p>
             <div className="space-y-2.5 opacity-30">

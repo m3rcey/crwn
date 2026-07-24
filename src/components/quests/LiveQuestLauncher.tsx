@@ -42,7 +42,7 @@ export function LiveQuestLauncher() {
             <span className="text-sm text-crwn-text truncate">{t.title}</span>
             {started === t.key ? (
               <button
-                onClick={() => router.push('/profile/artist?tab=livestreams')}
+                onClick={() => router.push('/studio/live')}
                 className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-emerald-400"
               >
                 <Check className="w-3.5 h-3.5" /> Go live

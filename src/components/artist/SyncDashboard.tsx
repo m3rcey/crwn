@@ -146,7 +146,7 @@ export function SyncDashboard({ artistId, platformTier }: SyncDashboardProps) {
       {nearYou === 0 && total > 0 && (
         <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-xl p-4">
           <p className="text-sm text-crwn-gold">
-            Add your city and state in your <a href="/profile/artist?tab=profile" className="underline font-semibold">Profile Settings</a> to see events near you.
+            Add your city and state in your <a href="/account/profile" className="underline font-semibold">Profile Settings</a> to see events near you.
           </p>
         </div>
       )}
@@ -286,7 +286,7 @@ export function SyncDashboard({ artistId, platformTier }: SyncDashboardProps) {
             Upgrade to Pro to see full details, registration links, and get matched with opportunities that fit your genre and location.
           </p>
           <a
-            href="/profile/artist?tab=billing"
+            href="/account/billing"
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-crwn-gold text-black font-semibold rounded-full hover:brightness-110 transition-all press-scale"
           >
             Upgrade to Pro

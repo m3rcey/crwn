@@ -19,7 +19,7 @@ export function UpgradePrompt({ title, description, feature }: UpgradePromptProp
       <h3 className="text-lg font-semibold text-crwn-text mb-2">{title}</h3>
       <p className="text-crwn-text-secondary text-sm mb-4">{description}</p>
       <Link
-        href="/profile/artist?tab=upgrade"
+        href="/account/billing"
         className="neu-button-accent inline-flex items-center gap-2 px-4 py-2 rounded-lg text-crwn-bg font-semibold"
       >
         Upgrade Plan <ArrowRight className="w-4 h-4" />

@@ -104,7 +104,7 @@ export async function awardFanBadge(
               'fan_milestone',
               `${icon} ${fanName} earned ${label}!`,
               `${fanName} just hit ${label} status! A great moment to reach out.`,
-              '/profile/artist?tab=audience',
+              '/studio/fans',
             ).catch(() => {});
           }
         } catch {

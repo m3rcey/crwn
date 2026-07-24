@@ -1,15 +1,28 @@
 'use client';
 
-// AccountHub — the hamburger-reached account hub. Everything "manage my account /
-// my business" lives here so the bottom tab bar is free for DOING the work (create,
-// grow, engage). Modeled on the Lyft driver menu: an identity header on top, then
-// collapsed accordion groups (one open at a time), badges for what needs attention.
+// AccountHub — the hamburger-reached hub. Everything "manage my account / my
+// business" lives here so the bottom tab bar is free for DOING the work.
+// Modeled on the Lyft driver menu: an identity header on top, then collapsed
+// accordion groups (one open at a time), badges for what needs attention.
 //
-// Rendered as a full-screen overlay. Content is role-aware: artists get the growth
-// + payouts world, fans get a lighter version. No em dashes in any copy.
+// Every link out of here goes to a REAL ROUTE that wears the HubPage shell, with
+// ?from=hub so its X in the top-left returns straight to this menu. They used to
+// point at /profile/artist?tab=<id>, a dashboard that only honored seven of its
+// sixteen tab ids, so "Payouts and tax" and "Referrals" both landed the artist on
+// Rise Mode instead of the screen they asked for.
+//
+// Links are <Link prefetch>, not buttons calling router.push. That is the whole
+// reason these screens now open instantly: Next downloads each route's chunk
+// while the menu is on screen, so by the time a thumb lands the code is already
+// in the browser. A button cannot be prefetched.
+//
+// The overlay deliberately sits UNDER the navigation (z-45 vs the nav's z-50) so
+// the bottom tab bar on mobile and the sidebar on desktop stay visible and
+// tappable. Nobody gets trapped in the menu.
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { usePlayer } from '@/hooks/usePlayer';
@@ -33,6 +46,10 @@ import {
   Bell,
   LogOut,
   ExternalLink,
+  Crown,
+  BarChart3,
+  CreditCard,
+  Music,
 } from 'lucide-react';
 
 interface HubLink {
@@ -41,6 +58,8 @@ interface HubLink {
   onClick?: () => void;
   icon: React.ComponentType<{ className?: string }>;
   badge?: boolean;
+  /** Destination wears the HubPage shell, so its X should return to this menu. */
+  hub?: boolean;
 }
 
 interface HubSection {
@@ -106,19 +125,29 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
     {
       title: 'Grow',
       links: [
-        { label: 'Rise Mode', href: '/profile/artist?tab=rise', icon: TrendingUp },
-        { label: 'Fan CRM', href: '/studio/fans', icon: Users },
+        { label: 'Rise Mode', href: '/profile/artist', icon: TrendingUp },
+        { label: 'Studio', href: '/studio', icon: LayoutDashboard },
+        { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },
         { label: 'Message your fans', href: '/messages', icon: MessageCircle },
-        { label: 'Referrals', href: '/profile/artist?tab=referrals', icon: Gift },
+        { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
+      ],
+    },
+    {
+      title: 'Your business',
+      links: [
+        { label: 'Your artist page', href: '/account/profile', icon: Crown, hub: true },
+        { label: 'Music', href: '/studio/music', icon: Music, hub: true },
+        { label: 'Fan tiers and pricing', href: '/account/tiers', icon: Coins, hub: true },
+        { label: 'Payouts and tax', href: '/account/payouts', icon: Wallet, badge: !stripeConnected, hub: true },
+        { label: 'Plan and billing', href: '/account/billing', icon: CreditCard, hub: true },
+        { label: 'Referrals and clippers', href: '/account/referrals', icon: Gift, hub: true },
       ],
     },
     {
       title: 'Account',
       links: [
         { label: 'Your info', href: '/profile', icon: UserCircle },
-        { label: 'Payouts and tax', href: '/profile/artist?tab=payouts', icon: Wallet, badge: !stripeConnected },
         { label: 'Notification preferences', href: '/profile/notifications', icon: Bell },
-        { label: 'Studio', href: '/studio', icon: LayoutDashboard },
       ],
     },
     {
@@ -160,8 +189,11 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
   const sections = artist ? artistSections : fanSections;
 
   return (
-    <div className="fixed inset-0 z-[80] bg-[#0D0D0D] overflow-y-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="max-w-lg mx-auto px-5 pt-[calc(1rem+env(safe-area-inset-top))] pb-10">
+    <div
+      className="fixed inset-0 z-[45] bg-[#0D0D0D] overflow-y-auto md:pl-64"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <div className="max-w-lg mx-auto px-5 pt-[calc(1rem+env(safe-area-inset-top))] pb-28">
         {/* Close */}
         <div className="flex justify-start mb-4">
           <button onClick={onClose} aria-label="Close menu" className="text-gray-400 hover:text-white p-1">
@@ -169,27 +201,42 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
           </button>
         </div>
 
-        {/* Identity header */}
+        {/* Identity header. The whole block is the tap target for artists: name,
+            photo, and the explicit "View as fan" label all open the public page. */}
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-[#2A2A2A] flex items-center justify-center flex-shrink-0 ring-2 ring-[#D4AF37]">
+          <button
+            onClick={() => artist && slug && go(`/${slug}`)}
+            disabled={!artist || !slug}
+            aria-label={artist && slug ? 'View your page as a fan' : undefined}
+            className="w-16 h-16 rounded-full overflow-hidden bg-[#2A2A2A] flex items-center justify-center flex-shrink-0 ring-2 ring-[#D4AF37] disabled:cursor-default"
+          >
             {profile?.avatar_url ? (
               <Image src={profile.avatar_url} alt="" width={64} height={64} className="w-full h-full object-cover" />
             ) : (
               <span className="text-xl font-bold text-white">{firstName.charAt(0).toUpperCase()}</span>
             )}
-          </div>
+          </button>
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-white truncate">{profile?.display_name || firstName}</h1>
             {artist && slug ? (
-              <button
-                onClick={() => go(`/${slug}`)}
-                className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-[#D4AF37] hover:underline"
-              >
-                View as fan
-                <ExternalLink className="w-3.5 h-3.5" />
-              </button>
+              <>
+                <button onClick={() => go(`/${slug}`)} className="block text-left">
+                  <h1 className="text-2xl font-bold text-white truncate hover:text-[#D4AF37] transition-colors">
+                    {profile?.display_name || firstName}
+                  </h1>
+                </button>
+                <button
+                  onClick={() => go(`/${slug}`)}
+                  className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-[#D4AF37] hover:underline"
+                >
+                  View as fan
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </>
             ) : (
-              <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+              <>
+                <h1 className="text-2xl font-bold text-white truncate">{profile?.display_name || firstName}</h1>
+                <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+              </>
             )}
           </div>
         </div>
@@ -227,16 +274,30 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
                   <div className="pb-2">
                     {section.links.map((link) => {
                       const Icon = link.icon;
-                      return (
-                        <button
-                          key={link.label}
-                          onClick={() => (link.onClick ? link.onClick() : link.href && go(link.href))}
-                          className="w-full flex items-center gap-3 py-3 text-left"
-                        >
+                      const row = (
+                        <>
                           <Icon className="w-5 h-5 text-gray-400 flex-shrink-0" />
                           <span className="text-base text-gray-200 flex-1">{link.label}</span>
                           {link.badge && <span className="w-2 h-2 rounded-full bg-[#D4AF37]" />}
-                        </button>
+                        </>
+                      );
+                      const rowClass = 'w-full flex items-center gap-3 py-3 text-left';
+                      if (!link.href) {
+                        return (
+                          <button key={link.label} onClick={link.onClick} className={rowClass}>
+                            {row}
+                          </button>
+                        );
+                      }
+                      // prefetch is what makes these open with no spinner: the
+                      // route's chunk is fetched while the menu is still open.
+                      const href = link.hub
+                        ? `${link.href}${link.href.includes('?') ? '&' : '?'}from=hub`
+                        : link.href;
+                      return (
+                        <Link key={link.label} href={href} prefetch onClick={onClose} className={rowClass}>
+                          {row}
+                        </Link>
                       );
                     })}
                   </div>

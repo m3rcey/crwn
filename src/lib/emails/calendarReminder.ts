@@ -26,7 +26,7 @@ export function calendarReminderEmail(args: {
       : `Your CRWN calendar: ${items.length} coming up`;
   const cta = audience === 'artist' ? 'Open Promise Calendar' : 'Open my calendar';
   const ctaHref = audience === 'artist'
-    ? 'https://thecrwn.app/profile/artist?tab=promise'
+    ? 'https://thecrwn.app/studio/promise'
     : 'https://thecrwn.app/my-calendar';
 
   const rows = items

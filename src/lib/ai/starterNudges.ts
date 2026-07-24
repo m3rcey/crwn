@@ -26,7 +26,7 @@ export function generateStarterNudges(data: ArtistDataForAI): InsightInput[] {
       title: 'Upload your first track',
       body: 'Your fans are waiting. Upload a track to start building your audience and earning revenue.',
       action_type: 'link',
-      action_url: '/profile/artist?tab=tracks',
+      action_url: '/studio/music',
     });
   }
 
@@ -75,7 +75,7 @@ export function generateStarterNudges(data: ArtistDataForAI): InsightInput[] {
       title: `"${product.title}" expires soon`,
       body: `Your product expires on ${new Date(product.expiresAt).toLocaleDateString()}. Consider promoting it to fill remaining spots.`,
       action_type: 'link',
-      action_url: '/profile/artist?tab=shop',
+      action_url: '/studio/shop',
       data: { expiresAt: product.expiresAt },
     });
   });
@@ -88,7 +88,7 @@ export function generateStarterNudges(data: ArtistDataForAI): InsightInput[] {
       title: 'Get started on CRWN',
       body: 'Upload tracks, set up subscription tiers, and start earning. Your manager will have more insights once you have activity.',
       action_type: 'link',
-      action_url: '/profile/artist?tab=tracks',
+      action_url: '/studio/music',
     });
   }
 

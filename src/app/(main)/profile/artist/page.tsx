@@ -1,243 +1,120 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
-import dynamic from 'next/dynamic';
-import { useAuth } from '@/hooks/useAuth';
+// /profile/artist — Rise Mode, and nothing else.
+//
+// This route used to be the whole artist dashboard: 16 lazy tabs behind a
+// horizontal scroll strip, every visited tab kept mounted so its state survived
+// a tab switch. Three things were wrong with that:
+//   1. On a phone, tabs 8 through 16 (Sync, Profile, Albums, Shop, Billing,
+//      Tiers, Payouts, Referrals) were off-screen and effectively unreachable.
+//   2. Only SEVEN of the sixteen ?tab= values were honored from the URL, so 40+
+//      internal deep links, including the account menu's own "Payouts and tax",
+//      silently dumped the artist on Rise Mode.
+//   3. Switching to a tab downloaded its chunk right then, at tap time, behind a
+//      spinner. Nothing could be prefetched, because nothing was a route.
+//
+// Every tab is now a real route (see src/lib/dashboardRoutes.ts). Management
+// screens live under /account and are reached from the hamburger; work screens
+// live under /studio. Both are prefetched by <Link>, so the chunk is already in
+// the browser before the tap. This page keeps the /profile/artist URL because
+// the bottom tab bar points at it, and it redirects every legacy ?tab= link to
+// wherever that tab went.
+
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Eye, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { RiseMode } from '@/components/artist/RiseMode';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
-
-// EVERY OTHER TAB IS LAZY, ON PURPOSE.
-//
-// The dashboard opens on Rise Mode, but these 16 managers were all statically
-// imported, so the browser had to download and parse the entire dashboard (charts,
-// upload widgets, calendars, the whole shop editor) before Rise Mode could paint.
-// An artist who only ever opens Rise paid for all of it, every visit.
-//
-// Tabs are already render-gated by `visitedTabs`, so a dynamic import changes
-// nothing about behavior: the chunk is fetched the first time its tab is opened.
-// Rise Mode itself stays STATIC because it is the default tab, and lazy-loading
-// the thing that renders immediately would just add a spinner.
-// ssr:false is correct here: this whole page is a client component behind an auth
-// gate, so none of these ever render on the server anyway.
-// Generic on P so each tab keeps its real prop types through the dynamic import.
-function lazyTab<P extends object>(load: () => Promise<React.ComponentType<P>>) {
-  return dynamic(load, { ssr: false, loading: () => <TabSpinner /> });
-}
-
-const ArtistProfileForm = lazyTab(() => import('@/components/artist/ArtistProfileForm').then((m) => m.ArtistProfileForm));
-const MusicManager = lazyTab(() => import('@/components/artist/MusicManager').then((m) => m.MusicManager));
-const AlbumManager = lazyTab(() => import('@/components/artist/AlbumManager').then((m) => m.AlbumManager));
-const TierManager = lazyTab(() => import('@/components/artist/TierManager').then((m) => m.TierManager));
-const ShopManager = lazyTab(() => import('@/components/artist/ShopManager').then((m) => m.ShopManager));
-const LivestreamManager = lazyTab(() => import('@/components/artist/LivestreamManager').then((m) => m.LivestreamManager));
-const AnalyticsDashboard = lazyTab(() => import('@/components/artist/AnalyticsDashboard').then((m) => m.AnalyticsDashboard));
-const PayoutDashboard = lazyTab(() => import('@/components/artist/PayoutDashboard').then((m) => m.PayoutDashboard));
-const ArtistReferralStats = lazyTab(() => import('@/components/artist/ArtistReferralStats').then((m) => m.ArtistReferralStats));
-const ClipperSettings = lazyTab(() => import('@/components/artist/ClipperSettings').then((m) => m.ClipperSettings));
-const SyncDashboard = lazyTab(() => import('@/components/artist/SyncDashboard').then((m) => m.SyncDashboard));
-const AudienceTab = lazyTab(() => import('@/components/artist/AudienceTab').then((m) => m.AudienceTab));
-const PromiseCalendar = lazyTab(() => import('@/components/artist/PromiseCalendar').then((m) => m.PromiseCalendar));
-const TeamManager = lazyTab(() => import('@/components/artist/TeamManager').then((m) => m.TeamManager));
-const AiManagerCard = lazyTab(() => import('@/components/artist/AiManagerCard').then((m) => m.AiManagerCard));
-const AiManagerTeaser = lazyTab(() => import('@/components/artist/AiManagerCard').then((m) => m.AiManagerTeaser));
-const PlatformBilling = lazyTab(() => import('@/components/onboarding/PlatformBilling').then((m) => m.PlatformBilling));
-
-function TabSpinner() {
-  return (
-    <div className="flex items-center justify-center py-16">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-crwn-gold" />
-    </div>
-  );
-}
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { TierConfig } from '@/types';
-import { Eye } from 'lucide-react';
-import { FadeIn } from '@/components/ui/FadeIn';
+import { TourReplayButton } from '@/components/shared/TourReplayButton';
 import { getPostSetupTourSteps } from '@/lib/artistTourSteps';
 import { usePageTour } from '@/hooks/usePageTour';
-import { TourReplayButton } from '@/components/shared/TourReplayButton';
-
-type TabId = 'rise' | 'profile' | 'tracks' | 'albums' | 'shop' | 'billing' | 'analytics' | 'audience' | 'tiers' | 'payouts' | 'referrals' | 'sync' | 'ai-manager' | 'livestreams' | 'promise' | 'team';
+import { useArtistContext } from '@/hooks/useArtistContext';
+import { resolveTabRoute } from '@/lib/dashboardRoutes';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 function ArtistDashboardContent() {
   const { profile } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const supabase = createBrowserSupabaseClient();
-  const [activeTab, setActiveTab] = useState<TabId>('rise');
-  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(new Set(['rise']));
-  const [artistId, setArtistId] = useState<string | null>(null);
-  const [artistSlug, setArtistSlug] = useState<string>('');
-  const [tiers, setTiers] = useState<TierConfig[]>([]);
-  const [showSuccess, setShowSuccess] = useState<string | null>(null);
+  const { status, context } = useArtistContext();
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
-  const [platformTier, setPlatformTier] = useState<string>('starter');
 
-  const switchTab = useCallback((tabId: TabId) => {
-    setActiveTab(tabId);
-    setVisitedTabs(prev => {
-      if (prev.has(tabId)) return prev;
-      return new Set(prev).add(tabId);
-    });
-    // Tell Rise Mode to refetch when the artist returns to it (updated XP/progress
-    // + completion celebration for anything they just did on another tab).
-    if (tabId === 'rise' && typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('rise:activate'));
-    }
-  }, []);
+  // Legacy ?tab= forwarding, computed during render rather than in an effect:
+  // Rise Mode is expensive to mount and must not paint for a frame just to
+  // navigate away. Every param except `tab` is carried across, because links
+  // already sitting in artists' notification rows and inboxes look like
+  // ?tab=payouts&earning=<id>, and dropping `earning` would land them on the
+  // payouts screen with nothing highlighted. Stripe's Connect return carries no
+  // tab at all (?stripe=success) and used to mean "open the Tiers tab".
+  const extra = new URLSearchParams(searchParams.toString());
+  extra.delete('tab');
+  const query = extra.toString();
+  const redirectTo =
+    resolveTabRoute(searchParams.get('tab'), query) ??
+    (searchParams.get('stripe') === 'success' ? `/account/tiers?${query}` : null);
 
-  // Replay-only. The post-setup tour is a long guided walk that auto-clicks
-  // across every tab, so auto-starting it the instant an artist finishes the
-  // wizard hijacked the dashboard (it popped up no matter which tab they clicked).
-  // enabled:false disables the auto-start; the "?" TourReplayButton below still
-  // lets an artist take it on demand (replay is returned regardless of enabled).
+  useEffect(() => {
+    if (redirectTo) router.replace(redirectTo);
+  }, [redirectTo, router]);
+
+  // Artists who never picked a platform tier still get the picker here, because
+  // Rise Mode is the screen they land on.
+  useEffect(() => {
+    if (status !== 'artist') return;
+    let active = true;
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from('artist_profiles')
+      .select('platform_tier')
+      .eq('id', context!.artistId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (active && data && !data.platform_tier) setShowPlatformTierModal(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [status, context]);
+
   const { replay: replayDashboardTour } = usePageTour({
     tourId: 'dashboard',
-    steps: getPostSetupTourSteps(platformTier),
+    steps: getPostSetupTourSteps(context?.platformTier ?? 'starter'),
     userId: profile?.id,
     enabled: false,
     delayMs: 1500,
   });
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    const upgrade = searchParams.get('upgrade');
-    
-    if (tab === 'billing') {
-      switchTab('billing');
-    }
-    if (tab === 'tiers' || searchParams.get('stripe') === 'success') {
-      switchTab('tiers');
-    }
-    if (tab === 'rise') {
-      switchTab('rise');
-    }
-    if (tab === 'ai-manager') {
-      switchTab('ai-manager');
-    }
-    if (tab === 'audience') {
-      switchTab('audience');
-    }
-    if (tab === 'promise') {
-      switchTab('promise');
-    }
-    if (tab === 'team') {
-      switchTab('team');
-    }
 
-    if (upgrade === 'success') {
-      setShowSuccess('Your plan is now active. Time to build your empire.');
-      // Clean URL
-      router.replace('/profile/artist?tab=billing', undefined);
-    }
-  }, [searchParams, router]);
-
-  useEffect(() => {
-    async function loadArtistData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Check platform_tier first
-      const { data: userProfile } = await supabase
-        .from('artist_profiles')
-        .select('platform_tier')
-        .eq('user_id', user.id)
-        .single();
-
-      // Show modal if no platform tier selected
-      if (!userProfile?.platform_tier) {
-        setShowPlatformTierModal(true);
-      }
-
-      const { data: artist } = await supabase
-        .from('artist_profiles')
-        .select('id, slug, tier_config, platform_tier')
-        .eq('user_id', user.id)
-        .single();
-
-      if (artist) {
-        setArtistId(artist.id);
-        setArtistSlug(artist.slug || '');
-        setPlatformTier(artist.platform_tier || 'starter');
-
-        const tierConfigTiers = (artist.tier_config || []) as TierConfig[];
-        setTiers(tierConfigTiers);
-      }
-    }
-    loadArtistData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (!profile) {
+  if (!profile || status === 'loading' || redirectTo) {
     return (
       <div className="relative min-h-screen">
         <BackgroundImage src="/backgrounds/bg-dashboard.jpg" />
         <div className="relative z-10 min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" />
+          <Loader2 className="w-12 h-12 text-crwn-gold animate-spin" />
         </div>
       </div>
     );
   }
 
-  const allTabs = [
-    { id: 'rise' as const, label: 'Rise Mode', tourId: 'tab-rise' },
-    { id: 'ai-manager' as const, label: 'Manager', tourId: 'tab-ai-manager' },
-    { id: 'promise' as const, label: 'Promise Calendar', tourId: 'tab-promise' },
-    { id: 'analytics' as const, label: 'Analytics', tourId: 'tab-analytics' },
-    { id: 'audience' as const, label: 'Audience', tourId: 'tab-audience' },
-    { id: 'team' as const, label: 'Team', tourId: 'tab-team' },
-    { id: 'tracks' as const, label: 'Music', tourId: 'tab-tracks' },
-    { id: 'livestreams' as const, label: 'Live', tourId: 'tab-livestreams' },
-    { id: 'sync' as const, label: 'Sync', tourId: 'tab-sync' },
-    { id: 'profile' as const, label: 'Profile', tourId: 'tab-profile' },
-    { id: 'albums' as const, label: 'Albums', tourId: 'tab-albums' },
-    { id: 'shop' as const, label: 'Shop', tourId: 'tab-shop' },
-    { id: 'billing' as const, label: 'Billing', tourId: 'tab-billing' },
-    { id: 'tiers' as const, label: 'Tiers', tourId: 'tab-tiers' },
-    { id: 'payouts' as const, label: 'Payouts', tourId: 'tab-payouts' },
-    { id: 'referrals' as const, label: 'Referrals', tourId: 'tab-referrals' },
-  ];
-  const tabs = allTabs.filter(t => t.id !== 'referrals' || platformTier !== 'starter');
-
   return (
     <div className="relative min-h-screen">
-      {/* Success Toast */}
-      {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowSuccess(null)}>
-          <div className="neu-modal p-8 text-center max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="text-5xl mb-4">👑</div>
-            <h2 className="text-xl font-bold text-crwn-gold mb-2">Welcome to CRWN!</h2>
-            <p className="text-crwn-text-secondary text-sm mb-6">{showSuccess}</p>
-            <button
-              onClick={() => setShowSuccess(null)}
-              className="neu-button-accent px-8 py-3 rounded-xl font-semibold"
-            >
-              Let's Go
-            </button>
-          </div>
-        </div>
-      )}
       <BackgroundImage src="/backgrounds/bg-dashboard.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
-        {/* Header */}
         <div className="border-b border-crwn-elevated">
           <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-2 flex items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-crwn-text">Artist Dashboard</h1>
-              <p className="text-crwn-text-secondary mt-1">
-                Manage your profile, music, and monetization
-              </p>
+              <h1 className="text-2xl font-bold text-crwn-text">Rise Mode</h1>
+              <p className="text-crwn-text-secondary mt-1">Your next move, and what skipping it costs.</p>
             </div>
             <TourReplayButton onClick={replayDashboardTour} className="shrink-0 mt-1" />
           </div>
 
-          {/* Preview + Tabs */}
-          {artistSlug && (
-            <div className="px-4 sm:px-6 lg:px-8 mb-2">
+          {context?.slug && (
+            <div className="px-4 sm:px-6 lg:px-8 pb-3">
               <Link
-                href={`/${artistSlug}`}
+                href={`/${context.slug}`}
                 data-tour="view-as-fan"
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold border border-crwn-elevated rounded-full transition-colors"
               >
@@ -246,112 +123,13 @@ function ArtistDashboardContent() {
               </Link>
             </div>
           )}
-          <div className="px-4 sm:px-6 lg:px-8 flex gap-6 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                data-tour={tab.tourId}
-                onClick={() => switchTab(tab.id)}
-                className={`pb-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'text-crwn-gold border-crwn-gold'
-                    : 'text-crwn-text-secondary border-transparent hover:text-crwn-text'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Content — visited tabs stay mounted to preserve state */}
         <div className="px-4 sm:px-6 lg:px-8 py-8">
-          {visitedTabs.has('rise') && (
-            <div className={activeTab !== 'rise' ? 'hidden' : undefined}>
-              <RiseMode />
-            </div>
-          )}
-          <div className={activeTab !== 'ai-manager' ? 'hidden' : undefined}>
-            {artistId && <AiManagerCard artistId={artistId} platformTier={platformTier} onSwitchTab={(tab) => switchTab(tab as TabId)} />}
-          </div>
-          {visitedTabs.has('analytics') && (
-            <div className={activeTab !== 'analytics' ? 'hidden' : undefined}>
-              {artistId && (
-                <AiManagerTeaser artistId={artistId} onNavigate={() => switchTab('ai-manager')} />
-              )}
-              <AnalyticsDashboard platformTier={platformTier} />
-            </div>
-          )}
-          {visitedTabs.has('audience') && (
-            <div className={activeTab !== 'audience' ? 'hidden' : undefined}>
-              <AudienceTab />
-            </div>
-          )}
-          {visitedTabs.has('team') && (
-            <div className={activeTab !== 'team' ? 'hidden' : undefined}>
-              {artistId && <TeamManager artistId={artistId} platformTier={platformTier} />}
-            </div>
-          )}
-          {visitedTabs.has('promise') && (
-            <div className={activeTab !== 'promise' ? 'hidden' : undefined}>
-              <PromiseCalendar />
-            </div>
-          )}
-          {visitedTabs.has('sync') && (
-            <div className={activeTab !== 'sync' ? 'hidden' : undefined}>
-              {artistId && <SyncDashboard artistId={artistId} platformTier={platformTier} />}
-            </div>
-          )}
-          {visitedTabs.has('profile') && (
-            <div className={activeTab !== 'profile' ? 'hidden' : undefined}>
-              <ArtistProfileForm />
-            </div>
-          )}
-          {visitedTabs.has('tracks') && (
-            <div className={activeTab !== 'tracks' ? 'hidden' : undefined}>
-              <MusicManager />
-            </div>
-          )}
-          {visitedTabs.has('albums') && (
-            <div className={activeTab !== 'albums' ? 'hidden' : undefined}>
-              <AlbumManager />
-            </div>
-          )}
-          {visitedTabs.has('shop') && (
-            <div className={activeTab !== 'shop' ? 'hidden' : undefined}>
-              <ShopManager />
-            </div>
-          )}
-          {visitedTabs.has('livestreams') && (
-            <div className={activeTab !== 'livestreams' ? 'hidden' : undefined}>
-              {artistId && <LivestreamManager artistId={artistId} artistSlug={artistSlug} artistName={profile?.display_name || 'An artist'} tiers={tiers} />}
-            </div>
-          )}
-          {visitedTabs.has('billing') && (
-            <div className={activeTab !== 'billing' ? 'hidden' : undefined}>
-              <PlatformBilling />
-            </div>
-          )}
-          {visitedTabs.has('tiers') && (
-            <div className={activeTab !== 'tiers' ? 'hidden' : undefined}>
-              <TierManager />
-            </div>
-          )}
-          {visitedTabs.has('payouts') && (
-            <div className={activeTab !== 'payouts' ? 'hidden' : undefined}>
-              <PayoutDashboard />
-            </div>
-          )}
-          {visitedTabs.has('referrals') && (
-            <div className={activeTab !== 'referrals' ? 'hidden' : undefined}>
-              <ArtistReferralStats />
-              <ClipperSettings />
-            </div>
-          )}
+          <RiseMode />
         </div>
       </div>
 
-      {/* Platform Tier Modal */}
       <PlatformTierModal
         isOpen={showPlatformTierModal}
         onComplete={() => setShowPlatformTierModal(false)}
@@ -362,7 +140,13 @@ function ArtistDashboardContent() {
 
 export default function ArtistDashboardPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-crwn-bg flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-crwn-gold" /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-crwn-bg flex items-center justify-center">
+          <Loader2 className="w-12 h-12 text-crwn-gold animate-spin" />
+        </div>
+      }
+    >
       <ArtistDashboardContent />
     </Suspense>
   );

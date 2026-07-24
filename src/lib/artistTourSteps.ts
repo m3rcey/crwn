@@ -1,401 +1,87 @@
 import { DriveStep } from 'driver.js';
 
-export function getArtistTourSteps(platformTier: string = 'starter'): DriveStep[] {
+// The dashboard tour.
+//
+// This file used to hold a 27-step walk that clicked its way across the artist
+// dashboard's tab strip: [data-tour="tab-profile"], "tab-tiers", "tab-payouts"
+// and so on. Those tabs are gone. Each one is a route now, reached from the
+// hamburger (manage the business) or Studio (do the work), so a tour built on
+// tab selectors would point driver.js at elements that no longer exist.
+//
+// What replaced it is deliberately short. An artist reaching this point has just
+// finished the setup wizard, which already walked them through profile, tiers,
+// music and shop. What they do NOT know is the new shape of the app: that the
+// hamburger holds their money and their account, that Studio holds the tools, and
+// that Rise Mode tells them what to do next. Four landmarks, not twenty-seven.
+//
+// Every selector below is rendered by Navigation or the Rise Mode page, both of
+// which are on screen when this tour runs. Keep it that way: a step whose element
+// is missing leaves driver.js showing an unanchored popover.
+
+/**
+ * The tour an artist gets AFTER finishing the setup wizard. Orientation only:
+ * where things live now, and which screen answers "what do I do next".
+ */
+export function getPostSetupTourSteps(platformTier: string = 'starter'): DriveStep[] {
   const isStarter = platformTier === 'starter';
 
   return [
-    // 1. Welcome
     {
       popover: {
-        title: 'Your artist dashboard',
-        description: 'This is where you manage everything. Let us walk through each step to get your page live and ready for fans.',
+        title: 'Welcome to your dashboard',
+        description:
+          'Your page is set up and live. Here is where everything lives, in about thirty seconds.',
       },
     },
-
-    // --- PROFILE TAB ---
-    // 2. Switch to Profile tab
     {
-      element: '[data-tour="tab-profile"]',
+      element: '[data-tour="nav-rise"]',
       popover: {
-        title: 'Profile setup',
-        description: 'Let us start with your profile. This is the foundation of your artist page.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 3. Profile: Name/Bio
-    {
-      element: '[data-tour="profile-basics"]',
-      popover: {
-        title: 'Set your name and bio',
-        description: 'First, set your artist name and write a short bio. This is the first thing fans read when they find you.',
+        title: 'Rise Mode is your next move',
+        description:
+          'Open this when you do not know what to work on. It reads your numbers and names the one thing costing you the most right now.',
         side: 'top',
-        align: 'start',
+        align: 'center',
       },
     },
-
-    // 4. Profile: Avatar/Banner
     {
-      element: '[data-tour="profile-media"]',
+      element: '[data-tour="nav-studio"]',
       popover: {
-        title: 'Upload your photos',
-        description: 'Upload a profile photo and banner image. High quality visuals make a big difference in first impressions.',
+        title: 'Studio is your toolbox',
+        description:
+          'Music, shop, live sessions, analytics, fan missions, splits. Every tool you use to make and sell something is behind this tab.',
         side: 'top',
-        align: 'start',
+        align: 'center',
       },
     },
-
-    // 5. Profile: Location/Genres
     {
-      element: '[data-tour="profile-location"]',
+      element: '[data-tour="account-hub"]',
       popover: {
-        title: 'Location and genres',
-        description: 'Add your city, state, and genres. Once you have done that, we can match you with sync licensing opportunities near you.',
-        side: 'top',
-        align: 'start',
-      },
-    },
-
-    // --- TIERS TAB ---
-    // 6. Switch to Tiers tab
-    {
-      element: '[data-tour="tab-tiers"]',
-      popover: {
-        title: 'Subscription tiers',
-        description: 'Next, set up how fans can support you. This is where you connect payments and create your subscription options.',
+        title: 'Your money and your account',
+        description: isStarter
+          ? 'Payouts, tiers and pricing, your plan, and your artist page settings are all in this menu. Your plan is the free one, so CRWN takes 12%. Pro drops that to 8%.'
+          : 'Payouts, tiers and pricing, your plan, and your artist page settings are all in this menu.',
         side: 'bottom',
         align: 'start',
       },
     },
-
-    // 7. Tiers: Connect Stripe
-    {
-      element: '[data-tour="tiers-stripe"]',
-      popover: {
-        title: 'Connect Stripe',
-        description: 'Connect your Stripe account here. This takes about 2 minutes and is required before fans can pay you.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 8. Tiers: Create Tiers
-    {
-      element: '[data-tour="tiers-list"]',
-      popover: {
-        title: 'Create your tiers',
-        description: 'With Stripe connected, create 2 to 3 subscription tiers. Start with a free tier, then $15 and $30 per month. Fans also get an annual option at 25% off automatically.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- SYNC TAB ---
-    // 9. Switch to Sync tab
-    {
-      element: '[data-tour="tab-sync"]',
-      popover: {
-        title: 'Sync licensing',
-        description: 'CRWN connects you with real sync licensing opportunities. Let us take a look.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 10. Sync: Opportunities
-    {
-      element: '[data-tour="sync-opportunities"]',
-      popover: {
-        title: 'Sync opportunities',
-        description: `These are real sync licensing events and briefs updated regularly.${isStarter ? ' Upgrade to Pro to unlock all opportunities.' : ' Your Pro access gives you the full list with personalized recommendations.'}`,
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- PAYOUTS TAB ---
-    // 11. Switch to Payouts tab
-    {
-      element: '[data-tour="tab-payouts"]',
-      popover: {
-        title: 'Payouts',
-        description: 'Here is where you track your earnings and get paid.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 12. Payouts: Balance
-    {
-      element: '[data-tour="payout-balance"]',
-      popover: {
-        title: 'Your earnings',
-        description: 'Once fans start subscribing and purchasing, your earnings show up here.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 13. Payouts: Cashout
-    {
-      element: '[data-tour="payout-cashout"]',
-      popover: {
-        title: 'Get paid',
-        description: 'You get free automatic payouts every Monday. If you need cash sooner, instant cashout is available for a flat $2 fee.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- REFERRALS TAB ---
-    // The Referrals tab is hidden on the Free (starter) plan, so only include
-    // these steps when the tab actually renders — otherwise driver.js shows a
-    // floating popover with nothing highlighted.
-    ...(isStarter ? [] : [
-      // 14. Switch to Referrals tab
-      {
-        element: '[data-tour="tab-referrals"]',
-        popover: {
-          title: 'Fan referrals',
-          description: 'Your fans can earn money by referring new subscribers to you. Here is where you manage that.',
-          side: 'bottom' as const,
-          align: 'start' as const,
-        },
-      },
-
-      // 15. Referrals: Commission Rate
-      {
-        element: '[data-tour="referral-commission"]',
-        popover: {
-          title: 'Commission rate',
-          description: 'Set the commission rate your fans earn when they refer new subscribers to you. Higher rates motivate more sharing.',
-          side: 'bottom' as const,
-          align: 'start' as const,
-        },
-      },
-
-      // 16. Referrals: Referral List
-      {
-        element: '[data-tour="referral-list"]',
-        popover: {
-          title: 'Referral tracking',
-          description: 'As fans share your page and bring in new subscribers, their referrals and earnings show up here.',
-          side: 'bottom' as const,
-          align: 'start' as const,
-        },
-      },
-    ]),
-
-    // --- ANALYTICS TAB ---
-    // 17. Switch to Analytics tab
-    {
-      element: '[data-tour="tab-analytics"]',
-      popover: {
-        title: 'Analytics',
-        description: 'Your command center. Revenue, subscribers, plays, and fan data all in one place.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 18. Analytics: Revenue
-    {
-      element: '[data-tour="analytics-revenue"]',
-      popover: {
-        title: 'Revenue overview',
-        description: 'Your MRR, monthly revenue, all-time earnings, and revenue split between subscriptions and purchases. All updated in real time.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 19. Analytics: Subscribers (Pro only — the Subscribers section is
-    // display:none on the Free plan, so skip the step or it points at an
-    // invisible element with no highlight and no scroll).
-    ...(isStarter ? [] : [
-      {
-        element: '[data-tour="analytics-subscribers"]',
-        popover: {
-          title: 'Subscriber metrics',
-          description: 'Active subscriber count, average revenue per fan, churn rate, and lifetime value. These numbers tell you how healthy your fan base is.',
-          side: 'bottom' as const,
-          align: 'start' as const,
-        },
-      },
-    ]),
-
-    // 20. Analytics: Plays
-    {
-      element: '[data-tour="analytics-plays"]',
-      popover: {
-        title: 'Play stats',
-        description: 'Total plays with daily, weekly, and monthly trends. See which tracks are getting the most attention.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 21. Analytics: Top Fans (Pro only — the Top Fans section is
-    // display:none on the Free plan, same as Subscribers above).
-    ...(isStarter ? [] : [
-      {
-        element: '[data-tour="analytics-top-fans"]',
-        popover: {
-          title: 'Top fans',
-          description: 'Your biggest supporters ranked by spending and engagement. These are the fans to pay attention to.',
-          side: 'bottom' as const,
-          align: 'start' as const,
-        },
-      },
-    ]),
-
-    // --- AUDIENCE TAB ---
-    {
-      element: '[data-tour="tab-audience"]',
-      popover: {
-        title: 'Audience & marketing',
-        description: 'Your CRM. See every fan in one place, send email campaigns, set up automated welcome sequences, SMS notifications, and create smart links to capture new fans.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- AI MANAGER TAB ---
-    {
-      element: '[data-tour="tab-ai-manager"]',
-      popover: {
-        title: 'Artist Manager',
-        description: `Your manager analyzes your data and surfaces actionable insights: churn alerts, VIP fan highlights, revenue trends, and content suggestions.${isStarter ? ' Upgrade to Pro to unlock.' : ''}`,
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- PROMISE CALENDAR TAB ---
-    {
-      element: '[data-tour="tab-promise"]',
-      popover: {
-        title: 'Promise Calendar',
-        description: 'Every perk you promise a tier (monthly tracks, shout-outs, behind-the-scenes) gets tracked here with a deadline. Fans see the same promises on their own calendar, so delivering on time is what keeps them subscribed. Overdue promises are flagged before fans notice.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- MUSIC TAB ---
-    // 22. Switch to Music tab
-    {
-      element: '[data-tour="tab-tracks"]',
-      popover: {
-        title: 'Your music',
-        description: 'Time to add your music. This is what fans come to hear.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 23. Music: Upload
-    {
-      element: '[data-tour="music-upload"]',
-      popover: {
-        title: 'Upload your music',
-        description: 'Upload tracks here. Each track starts as free. Uncheck the free toggle to select which subscription tiers can access it. Keep at least 2 to 3 tracks free so new fans can discover your sound.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- LIVE TAB ---
-    {
-      element: '[data-tour="tab-livestreams"]',
-      popover: {
-        title: 'Go live & sell tickets',
-        description: 'Host listening sessions and live streams for your fans. You can also sell pre-sale tickets to a live event ahead of time, so fans lock in and you get paid before you ever go on.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- SHOP TAB ---
-    // 24. Switch to Shop tab
-    {
-      element: '[data-tour="tab-shop"]',
-      popover: {
-        title: 'Your shop',
-        description: 'Sell digital products and experiences directly to your fans.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // 25. Shop: Create Product
-    {
-      element: '[data-tour="shop-create"]',
-      popover: {
-        title: 'Create products',
-        description: isStarter ? 'Sell digital and physical products to your fans. Upgrade to Pro for bundles, experiences, and 1-on-1 bookings.' : 'Sell digital products, physical merch, experiences, and 1-on-1 bookings. Set quantity limits and expiration dates to create urgency.',
-        side: 'bottom',
-        align: 'start',
-      },
-    },
-
-    // --- VIEW AS FAN ---
-    // 26. View as Fan
     {
       element: '[data-tour="view-as-fan"]',
       popover: {
-        title: 'Preview your page',
-        description: 'Tap here anytime to see exactly what fans see when they visit your page.',
+        title: 'Check your own front door',
+        description:
+          'Tap here anytime to see exactly what a fan sees when they land on your page. Most artists never look, and never find out what is broken.',
         side: 'bottom',
         align: 'start',
       },
     },
-
-    // 27. Closing — self-contained: ends on the replay button in the dashboard
-    // header instead of promising more steps on another page.
     {
       element: '[data-tour="tour-replay"]',
       popover: {
-        title: 'That is your dashboard',
-        description: 'You are all set. Replay this tour anytime by tapping this button.',
+        title: 'That is the whole map',
+        description: 'Replay this anytime by tapping here.',
         side: 'bottom',
         align: 'end',
       },
     },
   ];
-}
-
-// Surfaces the focused setup wizard (/setup) already walked the artist through.
-// The post-setup dashboard tour skips these so it only covers "everything else".
-const WIZARD_COVERED = new Set<string>([
-  '[data-tour="tab-profile"]',
-  '[data-tour="profile-basics"]',
-  '[data-tour="profile-media"]',
-  '[data-tour="profile-location"]',
-  '[data-tour="tab-tiers"]',
-  '[data-tour="tiers-stripe"]',
-  '[data-tour="tiers-list"]',
-  '[data-tour="tab-tracks"]',
-  '[data-tour="music-upload"]',
-  '[data-tour="tab-shop"]',
-  '[data-tour="shop-create"]',
-]);
-
-/**
- * The tour an artist gets AFTER finishing the setup wizard. Profile, tiers,
- * music and shop are already done, so drop those steps and reframe the opener —
- * this tour is the rest of the dashboard (analytics, audience, sync, payouts,
- * referrals, AI manager, preview).
- */
-export function getPostSetupTourSteps(platformTier: string = 'starter'): DriveStep[] {
-  const steps = getArtistTourSteps(platformTier).filter(
-    (s) => !s.element || !WIZARD_COVERED.has(s.element as string)
-  );
-  if (steps[0]?.popover) {
-    steps[0].popover.title = 'Welcome to your dashboard';
-    steps[0].popover.description =
-      'Your page is set up and live. Here’s a quick tour of everything else your dashboard can do.';
-  }
-  return steps;
 }

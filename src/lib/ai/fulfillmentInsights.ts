@@ -10,7 +10,7 @@ import type { InsightInput } from '@/lib/ai/starterNudges';
 type Admin = SupabaseClient<any, any, any>;
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-const PROMISE_LINK = '/profile/artist?tab=promise';
+const PROMISE_LINK = '/studio/promise';
 
 export async function generateFulfillmentInsights(
   admin: Admin,

@@ -154,7 +154,7 @@ export async function checkAndAwardMilestones(
         type: 'milestone',
         title: `${milestone.emoji} ${milestone.name}!`,
         message: `Congratulations! You just unlocked the "${milestone.name}" milestone on CRWN.`,
-        link: '/profile/artist?tab=analytics',
+        link: '/studio/analytics',
       });
     }
   }

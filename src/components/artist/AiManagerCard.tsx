@@ -273,7 +273,7 @@ export function AiManagerCard({ artistId, platformTier, onSwitchTab }: AiManager
                   Get churn prevention, VIP fan detection, auto re-engagement emails, smart pricing suggestions, and more, all tailored to your data.
                 </p>
                 <button
-                  onClick={() => router.push('/profile/artist?tab=billing')}
+                  onClick={() => router.push('/account/billing')}
                   className="mt-3 inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold bg-crwn-gold text-black rounded-full hover:bg-crwn-gold/90 transition-colors"
                 >
                   Upgrade to Pro

@@ -1,5 +1,47 @@
 # CRWN Brain — Changelog
 
+## 2026-07-24 — The artist dashboard's 16-tab strip became 15 real screens
+
+Josh compared CRWN to the Lyft driver app: an identity header, collapsed accordion groups, and
+sub-screens that open with an X in the top left that puts you back in the menu. He was right, and
+the reason it mattered is that CRWN had **three competing artist hubs** (AccountHub, `/studio`,
+and the `/profile/artist` tab strip), one of which was quietly broken.
+
+- **`/profile/artist` is now Rise Mode and nothing else.** It was 16 lazy tabs behind a horizontal
+  scroll strip. On a phone, tabs 8 through 16 (Sync, Profile, Albums, Shop, Billing, Tiers,
+  Payouts, Referrals) sat past the edge of the screen.
+- **Bug this inherited and fixed:** the page only honored **7 of its 16** `?tab=` values from the
+  URL and silently fell through to `activeTab = 'rise'` for the rest. 102 internal links pointed
+  at `?tab=`, and the biggest groups were dead: `?tab=payouts` (15 links, including the account
+  menu's own "Payouts and tax"), `?tab=profile` (6), `?tab=tracks` (5), `?tab=analytics` (5),
+  `?tab=livestreams` (5), `?tab=referrals` (4). All landed on Rise Mode. `?tab=live`,
+  `?tab=community`, `?tab=bookings` and `?tab=upgrade` were linked but were never tabs at all.
+- **Three surfaces, one job each.** Bottom nav = do the work (Studio is back in the artist's 3rd
+  slot). Hamburger `AccountHub` = manage the business (`/account/*`). `/studio` = the toolbox
+  (`/studio/*`). Explore, Messages and Library deliberately stayed on the tab bar: Lyft can hide
+  everything because the driver's actual job is the map underneath, and CRWN's equivalent of the
+  map is discovery and the fan inbox.
+- **`HubPage`** (`src/components/layout/HubPage.tsx`) is the shared shell: X in the top left,
+  artist gate, artist context. `?from=hub` on a link means the X returns to the hamburger, via a
+  one-shot sessionStorage flag (`requestHubReopen`) that `Navigation` consumes on the next
+  pathname change. A query param would have been simpler but pulls `useSearchParams` into the
+  layout, forcing every static page under it into a Suspense boundary. Without `from=hub` the X
+  is a plain `smartBack`, which is what keeps Rise Mode CTAs returning to Rise Mode.
+- **Why it is now instant.** The tabs were already lazy, so the cost was never parsing: it was
+  that a tab's chunk downloaded **at tap time**, behind a spinner, because nothing was a route
+  and nothing could be prefetched. AccountHub and the Studio grid now use `<Link prefetch>`, so
+  chunks arrive while the menu is on screen. `useArtistContext()` caches the `artist_profiles`
+  row at module scope, so splitting one page into 15 did not turn one query into 15.
+- **Legacy links.** `src/lib/dashboardRoutes.ts` holds `TAB_ROUTES`; `/profile/artist` redirects
+  through it carrying every param except `tab` (notification rows hold
+  `?tab=payouts&earning=<id>`). All 98 in-repo `?tab=` links were rewritten to point directly at
+  the new routes, so only history pays the redirect hop.
+- **The old 27-step dashboard tour was deleted.** Every step targeted a `[data-tour="tab-*"]`
+  element that no longer exists. Replaced with a 6-step orientation tour: Rise, Studio, the
+  hamburger, view-as-fan.
+- The overlay sits at `z-45`, under the nav's `z-50`, so the bottom tab bar and desktop sidebar
+  stay visible and tappable while the menu is open.
+
 ## 2026-07-24 — The app was slow because three surfaces did work that never needed doing
 
 Josh reported the site loading slowly, worst on Home and worst of all on Rise Mode. Diagnosed

@@ -564,20 +564,20 @@ export function ShopManager() {
                 {!platformLimits.limits.scheduling && (
                   <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3 mb-3">
                     <p className="text-sm text-crwn-gold">
-                      1-on-1 scheduling requires a Pro plan or higher. <a href="/profile/artist?tab=billing" className="underline font-semibold">Upgrade now</a>
+                      1-on-1 scheduling requires a Pro plan or higher. <a href="/account/billing" className="underline font-semibold">Upgrade now</a>
                     </p>
                   </div>
                 )}
                 {!platformLimits.limits.scheduling && (
                   <div className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3 mb-3">
                     <p className="text-sm text-crwn-gold">
-                      1-on-1 scheduling requires a Pro plan or higher. <a href="/profile/artist?tab=billing" className="underline font-semibold">Upgrade now</a>
+                      1-on-1 scheduling requires a Pro plan or higher. <a href="/account/billing" className="underline font-semibold">Upgrade now</a>
                     </p>
                   </div>
                 )}
                 <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 mb-3">
                   <p className="text-sm text-purple-300">
-                    Fans who purchase this will receive a booking token and access to your Cal.com scheduling link. Make sure you{"'"}ve set your Cal.com link in your <a href="/profile/artist?tab=profile" className="text-crwn-gold underline">Profile Settings</a>.
+                    Fans who purchase this will receive a booking token and access to your Cal.com scheduling link. Make sure you{"'"}ve set your Cal.com link in your <a href="/account/profile" className="text-crwn-gold underline">Profile Settings</a>.
                   </p>
                 </div>
                 <div>

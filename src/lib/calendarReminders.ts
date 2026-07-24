@@ -226,7 +226,7 @@ export async function dispatchCalendarReminders(
       type: 'calendar_reminder',
       title,
       message,
-      link: audience === 'artist' ? '/profile/artist?tab=promise' : '/my-calendar',
+      link: audience === 'artist' ? '/studio/promise' : '/my-calendar',
     });
     sent += 1;
 

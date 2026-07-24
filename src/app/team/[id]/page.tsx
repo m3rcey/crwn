@@ -87,7 +87,7 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
   // Deterministic back: return to where the user came from (the artist's Team
   // tab, or the collaborator dashboard) — never the bare dashboard. router.back()
   // is unreliable here because the dashboard tab switch doesn't change the URL.
-  const backHref = isArtist ? '/profile/artist?tab=team' : '/team';
+  const backHref = isArtist ? '/studio/team' : '/team';
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 page-fade-in">

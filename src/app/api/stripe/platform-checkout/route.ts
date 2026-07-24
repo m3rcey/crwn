@@ -147,8 +147,8 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${baseUrl}/profile/artist?tab=billing&upgrade=success`,
-      cancel_url: `${baseUrl}/profile/artist?tab=billing&upgrade=cancelled`,
+      success_url: `${baseUrl}/account/billing?upgrade=success`,
+      cancel_url: `${baseUrl}/account/billing?upgrade=cancelled`,
       metadata,
     };
 

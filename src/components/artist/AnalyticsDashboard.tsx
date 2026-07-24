@@ -569,7 +569,7 @@ export function AnalyticsDashboard({ platformTier = 'starter' }: { platformTier?
         <section className="bg-crwn-gold/10 border border-crwn-gold/20 rounded-xl p-6 text-center">
           <p className="text-lg font-bold text-crwn-text mb-1">Upgrade for Advanced Analytics</p>
           <p className="text-sm text-crwn-text-secondary mb-4">Get ARPU, churn rate, LTV, top fans, geography, and subscriber trends with Pro.</p>
-          <a href="/profile/artist?tab=billing" className="inline-flex items-center gap-2 px-6 py-2.5 bg-crwn-gold text-black font-semibold rounded-full hover:brightness-110 transition-all press-scale">Upgrade to Pro</a>
+          <a href="/account/billing" className="inline-flex items-center gap-2 px-6 py-2.5 bg-crwn-gold text-black font-semibold rounded-full hover:brightness-110 transition-all press-scale">Upgrade to Pro</a>
         </section>
       )}
 

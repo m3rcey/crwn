@@ -24,7 +24,7 @@ export function artistNewPostEmail(artistName: string, fanName: string, postPrev
         </p>
       </div>
       <div style="text-align:center;margin:32px 0 0;">
-        <a href="https://thecrwn.app/profile/artist?tab=community" style="display:inline-block;background:linear-gradient(135deg,#9a7b2a,#D4AF37);color:#1A1A1A;font-weight:700;font-size:16px;padding:14px 32px;border-radius:12px;text-decoration:none;">
+        <a href="https://thecrwn.app/studio/fans" style="display:inline-block;background:linear-gradient(135deg,#9a7b2a,#D4AF37);color:#1A1A1A;font-weight:700;font-size:16px;padding:14px 32px;border-radius:12px;text-decoration:none;">
           View Community
         </a>
       </div>

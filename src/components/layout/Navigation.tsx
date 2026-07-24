@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -9,6 +9,7 @@ import { usePlayer } from '@/hooks/usePlayer';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { AccountHub } from '@/components/layout/AccountHub';
 import { hapticLight } from '@/lib/haptics';
+import { consumeHubReopen } from '@/lib/navigation';
 import {
   Home,
   Compass,
@@ -16,24 +17,28 @@ import {
   MessageCircle,
   TrendingUp,
   Library,
+  LayoutDashboard,
   Menu,
   LogOut
 } from 'lucide-react';
 
-// Artists reach Studio from the Home Quick Actions tile, so it is OFF the tab bar.
-// Fans keep the Earn hub (/command) in the 3rd slot. The 5th slot used to be
-// Profile, which moved into the hamburger AccountHub; it now holds the
-// highest-leverage destination: Rise Mode for artists, Library for fans. `match`
-// overrides active detection when the href carries a query string (pathname
-// .startsWith can't see ?tab=).
+// The 5 slots are Home, Explore, [Studio|Earn], Messages, [Rise|Library]. Studio
+// is back in the artist's 3rd slot: with the dashboard's 16-tab strip broken up
+// into real routes, Studio is now the front door to all the work screens (music,
+// shop, live, analytics, team), and burying the front door behind a Home tile
+// made every one of them three taps deep. Fans keep the Earn hub there.
+//
+// Management screens are NOT here. They live in the hamburger AccountHub, which
+// is also where Profile went when it gave up the 5th slot to Rise Mode.
 const fanSlot = { href: '/command', label: 'Earn', icon: Coins, tourId: 'nav-earn' };
-const artistRiseSlot = { href: '/profile/artist?tab=rise', match: '/profile/artist', label: 'Rise', icon: TrendingUp, tourId: 'nav-rise' };
+const artistStudioSlot = { href: '/studio', label: 'Studio', icon: LayoutDashboard, tourId: 'nav-studio' };
+const artistRiseSlot = { href: '/profile/artist', label: 'Rise', icon: TrendingUp, tourId: 'nav-rise' };
 const fanLibrarySlot = { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' };
 
 const buildNavItems = (isArtist: boolean) => [
   { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
   { href: '/explore', label: 'Explore', icon: Compass, tourId: 'nav-explore' },
-  ...(isArtist ? [] : [fanSlot]),
+  isArtist ? artistStudioSlot : fanSlot,
   { href: '/messages', label: 'Messages', icon: MessageCircle, tourId: 'nav-messages' },
   isArtist ? artistRiseSlot : fanLibrarySlot,
 ];
@@ -46,6 +51,14 @@ export function Navigation() {
   const { resetPlayer } = usePlayer();
   const router = useRouter();
   const [hubOpen, setHubOpen] = useState(false);
+
+  // Closing a hub screen with its X sets a one-shot flag and navigates back. Land
+  // here, reopen the menu, so the artist is exactly where they left off. The flag
+  // is consumed on read, so it can never reopen the menu twice or on an unrelated
+  // navigation.
+  useEffect(() => {
+    if (consumeHubReopen()) setHubOpen(true);
+  }, [pathname]);
 
   const isActive = (href: string, match?: string) => {
     const base = match || href;
@@ -67,15 +80,20 @@ export function Navigation() {
   return (
     <>
       {/* Hamburger → AccountHub. Top-left, mobile only. Everything "manage my
-          account" moved off the tab bar into this hub, which freed the 5th slot. */}
-      <button
-        onClick={() => setHubOpen(true)}
-        aria-label="Open menu"
-        className="md:hidden fixed left-3 z-[70] w-10 h-10 rounded-full bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center text-crwn-text shadow-lg"
-        style={{ top: 'calc(0.5rem + env(safe-area-inset-top))' }}
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+          account" moved off the tab bar into this hub, which freed the 5th slot.
+          Hidden while the hub is open: it floats above the overlay and would sit
+          on top of the hub's own X. */}
+      {!hubOpen && (
+        <button
+          onClick={() => setHubOpen(true)}
+          aria-label="Open menu"
+          data-tour="account-hub"
+          className="md:hidden fixed left-3 z-[70] w-10 h-10 rounded-full bg-[#1a1a1a]/90 backdrop-blur flex items-center justify-center text-crwn-text shadow-lg"
+          style={{ top: 'calc(0.5rem + env(safe-area-inset-top))' }}
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
 
       <AccountHub open={hubOpen} onClose={() => setHubOpen(false)} />
 
@@ -129,6 +147,7 @@ export function Navigation() {
             <button
               onClick={() => setHubOpen(true)}
               aria-label="Open menu"
+              data-tour="account-hub"
               className="text-crwn-text-secondary hover:text-crwn-text"
             >
               <Menu className="w-5 h-5" />

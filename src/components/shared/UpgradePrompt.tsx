@@ -39,7 +39,7 @@ export default function UpgradePrompt({ currentTier, feature, current, limit, me
         </div>
       )}
       <button
-        onClick={() => router.push('/profile/artist?tab=billing')}
+        onClick={() => router.push('/account/billing')}
         className="neu-button-accent w-full py-2 rounded-lg text-sm font-semibold"
       >
         Upgrade Plan

@@ -100,7 +100,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
         // Modal lives inside /profile/artist, so a same-route push does nothing
         // visible. Close the picker and refresh so the dashboard reflects the tier.
         onComplete?.();
-        router.push('/profile/artist?tab=billing');
+        router.push('/account/billing');
         router.refresh();
       } catch (error) {
         console.error('Error setting platform tier:', error);

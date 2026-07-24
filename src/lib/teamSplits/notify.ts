@@ -84,13 +84,13 @@ export async function notifyArtistResponse(
     'team_split_response',
     `${opts.collaboratorName} ${opts.action} your Team Split`,
     opts.dealTitle,
-    `/profile/artist?tab=team`,
+    `/studio/team`,
   );
   await emailUser(
     admin,
     opts.artistUserId,
     `${opts.collaboratorName} ${opts.action} your Team Split`,
-    teamSplitResponseEmail(opts.collaboratorName, opts.dealTitle, opts.action, `${APP_URL}/profile/artist?tab=team`),
+    teamSplitResponseEmail(opts.collaboratorName, opts.dealTitle, opts.action, `${APP_URL}/studio/team`),
   );
 }
 
@@ -101,7 +101,7 @@ export async function notifyDealViewed(admin: SupabaseClient, artistUserId: stri
     'team_split_viewed',
     `${collaboratorName} viewed your Team Split`,
     dealTitle,
-    `/profile/artist?tab=team`,
+    `/studio/team`,
   );
 }
 
@@ -113,7 +113,7 @@ export async function notifyDeliverableSubmitted(admin: SupabaseClient, artistUs
     'team_split_deliverable',
     `Deliverable submitted: ${deliverableTitle}`,
     `${dealTitle}: review before payouts begin`,
-    `/profile/artist?tab=team`,
+    `/studio/team`,
   );
 }
 

@@ -25,7 +25,7 @@ export interface Destination {
   returnTo?: string;
 }
 
-const RISE_MODE_ROUTE = '/profile/artist?tab=rise';
+const RISE_MODE_ROUTE = '/profile/artist';
 
 export const DESTINATIONS: Record<string, Destination> = {
   // The default landing spot for a claimed artist. Rise Mode is DARK-LAUNCHED, so this

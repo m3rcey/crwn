@@ -80,7 +80,7 @@ export const POPUPS: PopupDef[] = [
     goal: 'Artist connects Stripe so fans can actually pay them.',
     title: 'Fans want to pay you. Right now they cannot.',
     body: 'Until your payouts are connected, every subscribe and every sale hits a dead end. The fan gives up, and that money never reaches you. Connecting takes about two minutes.',
-    cta: { label: 'Connect payouts', href: '/profile/artist?tab=payouts' },
+    cta: { label: 'Connect payouts', href: '/account/payouts' },
     dismissLabel: 'Later',
   },
 
@@ -162,7 +162,7 @@ export const POPUPS: PopupDef[] = [
     goal: 'Artist sets a tip goal on their next live session so the show earns instead of just entertaining.',
     title: 'Your last live show earned you nothing.',
     body: 'Fans who show up live are the ones most willing to pay, and until now there was no way for them to. Tips and tip goals are on: set a goal, and the room can see it fill in real time.',
-    cta: { label: 'Set up my next live', href: '/profile/artist?tab=livestreams' },
+    cta: { label: 'Set up my next live', href: '/studio/live' },
     dismissLabel: 'Later',
   },
 
@@ -181,6 +181,25 @@ export const POPUPS: PopupDef[] = [
     body: 'Performance royalties, mechanicals, digital radio, and everything outside the US are all paid by different organizations, and none of them pay you unless you are registered. Twelve questions will show you which ones currently have nobody assigned to them.',
     cta: { label: 'Check what I am missing', href: '/royalty-readiness' },
     dismissLabel: 'Later',
+  },
+
+  // ---- Announcement: the dashboard tabs became real screens (artists only) ----
+  // Not feature-flagged: this shipped to everyone at once, and an artist who
+  // opens the app to a rearranged menu without being told has to go hunting for
+  // their own payouts. No audience gate beyond isArtist, because every existing
+  // artist learned the old 16-tab strip and every one of them is affected.
+  {
+    key: 'announce_hub_navigation',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist,
+    frequency: { type: 'once' },
+    priority: 60,
+    goal: 'Artist opens the menu once and finds payouts, tiers, and billing where they now live.',
+    title: 'Half your dashboard was hiding off the side of the screen.',
+    body: 'Sixteen tabs in one scrolling row meant payouts, tiers, billing and referrals sat past the edge of your phone, and several links to them were landing on the wrong screen entirely. They are all full screens now: tap the menu (top left) for your money and your account, tap Studio for your tools.',
+    cta: { label: 'Show me the menu', href: '/account/payouts?from=hub' },
+    dismissLabel: 'Got it',
   },
 ];
 

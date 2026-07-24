@@ -84,7 +84,7 @@ async function insertInsights(artistId: string, artistUserId: string, insights: 
         'ai_insight',
         insight.title,
         insight.body,
-        '/profile/artist?tab=ai-manager'
+        '/studio/manager'
       );
     }
 
@@ -210,7 +210,7 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
           'ai_insight',
           `Your manager wants to: ${action.label}`,
           action.description,
-          '/profile/artist?tab=ai-manager'
+          '/studio/manager'
         );
       }
     }

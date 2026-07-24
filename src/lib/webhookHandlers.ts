@@ -176,7 +176,7 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
           type: 'earning',
           title: `💰 +$${(netAmount / 100).toFixed(2)}`,
           message: `${fanName} subscribed to ${tierName}`,
-          link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+          link: `/account/payouts?earning=${earning.id}`,
         });
       }
 
@@ -501,7 +501,7 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
       type: 'earning',
       title: `💰 +$${(netAmount / 100).toFixed(2)}`,
       message: `${fanName} renewed subscription to ${tierName}`,
-      link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+      link: `/account/payouts?earning=${earning.id}`,
     });
 
     // Check for milestone unlocks
@@ -672,7 +672,7 @@ export async function handleSubscriptionDeleted(supabaseAdmin: AdminClient, subs
       body: 'Consider reaching out with a personal message or exclusive content to win them back.',
       data: { fan_id: subData.fan_id, fan_name: fanProfile?.display_name || null },
       action_type: 'link',
-      action_url: '/profile/artist?tab=ai-manager',
+      action_url: '/studio/manager',
       expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
@@ -857,7 +857,7 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
         type: 'earning',
         title: `💰 +$${(netAmount / 100).toFixed(2)}`,
         message: `${fanName} purchased ${productTitle}`,
-        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+        link: `/account/payouts?earning=${earning.id}`,
       });
     }
 
@@ -1152,7 +1152,7 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
         type: 'earning',
         title: `💰 +$${(netAmount / 100).toFixed(2)}`,
         message: `${fanName} purchased ${trackTitle}`,
-        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+        link: `/account/payouts?earning=${earning.id}`,
       });
     }
 
@@ -1330,7 +1330,7 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
       type: 'new_booking',
       title: '📅 New Booking',
       message: `${fanName} booked: ${bookingTitle}`,
-      link: `/profile/artist?tab=bookings`,
+      link: `/studio`,
     });
 
     // Send earning notification
@@ -1340,7 +1340,7 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
         type: 'earning',
         title: `💰 +$${(netAmount / 100).toFixed(2)}`,
         message: `${fanName} booked: ${bookingTitle}`,
-        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+        link: `/account/payouts?earning=${earning.id}`,
       });
     }
 
@@ -1439,7 +1439,7 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
       type: 'live_ticket',
       title: '🎟️ Ticket sold',
       message: `${fanName} bought a ticket to ${liveTitle}`,
-      link: `/profile/artist?tab=live`,
+      link: `/studio/live`,
     });
 
     if (earning) {
@@ -1448,7 +1448,7 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
         type: 'earning',
         title: `💰 +$${(netAmount / 100).toFixed(2)}`,
         message: `${fanName} bought a ticket to ${liveTitle}`,
-        link: `/profile/artist?tab=payouts&earning=${earning?.id}`,
+        link: `/account/payouts?earning=${earning?.id}`,
       });
     }
 
@@ -1584,7 +1584,7 @@ export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.
       type: 'live_tip',
       title: `💸 ${fanName} tipped $${(grossAmount / 100).toFixed(2)}!`,
       message: tip.message ? `"${tip.message}"` : `During ${liveTitle}`,
-      link: `/profile/artist?tab=live`,
+      link: `/studio/live`,
     });
 
     if (earning) {
@@ -1593,7 +1593,7 @@ export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.
         type: 'earning',
         title: `💰 +$${(netAmount / 100).toFixed(2)}`,
         message: `${fanName} tipped during ${liveTitle}`,
-        link: `/profile/artist?tab=payouts&earning=${earning.id}`,
+        link: `/account/payouts?earning=${earning.id}`,
       });
     }
   }
@@ -1668,7 +1668,7 @@ async function settleLiveGoals(
         type: 'live_tip',
         title: '🏆 Tip goal reached!',
         message: `Your fans unlocked: ${goal.title}`,
-        link: `/profile/artist?tab=live`,
+        link: `/studio/live`,
       });
     }
   }
@@ -2125,7 +2125,7 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
       type: 'refund',
       title: '⚠️ Refund processed',
       message: `$${(amountRefunded / 100).toFixed(2)} refunded: ${originalEarning.description}`,
-      link: '/profile/artist?tab=payouts',
+      link: '/account/payouts',
     });
   }
 
@@ -2255,7 +2255,7 @@ export async function handleDisputeCreated(supabaseAdmin: AdminClient, dispute: 
       type: 'dispute',
       title: '🚨 Payment dispute opened',
       message: `$${(disputeAmount / 100).toFixed(2)} disputed - ${originalEarning.description}. Evidence has been auto-submitted.`,
-      link: '/profile/artist?tab=payouts',
+      link: '/account/payouts',
     });
   }
 

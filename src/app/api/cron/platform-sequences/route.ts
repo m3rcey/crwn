@@ -98,8 +98,8 @@ export async function GET(req: NextRequest) {
         artist_slug: artistProfile?.slug || null,
         platform_tier: artistProfile?.platform_tier || 'starter',
         dashboard_url: 'https://thecrwn.app/profile/artist',
-        connect_stripe_url: 'https://thecrwn.app/profile/artist?tab=payouts',
-        upgrade_url: 'https://thecrwn.app/profile/artist?tab=billing',
+        connect_stripe_url: 'https://thecrwn.app/account/payouts',
+        upgrade_url: 'https://thecrwn.app/account/billing',
       };
 
       const personalizedSubject = resolveTokens(step.subject, tokens);

@@ -4,7 +4,12 @@
 
 ## 1. Route groups
 - **`(auth)/`** — `login`, `signup`, `onboarding`(dead). Redirect to `/home` if authed.
-- **`(main)/`** — protected app shell (sidebar): `home`, `explore`, `library`, `messages`, `profile` (+ `profile/artist` dashboard, `profile/notifications`), `earn`, `impact`, `command`, `my-missions`, `my-calendar`, `recruit`(+`/dashboard`), `studio`.
+- **`(main)/`** — protected app shell (sidebar): `home`, `explore`, `library`, `messages`, `profile` (+ `profile/artist`, `profile/notifications`), `earn`, `impact`, `command`, `my-missions`, `my-calendar`, `recruit`(+`/dashboard`), `studio`.
+- **Artist information architecture (three surfaces).** `profile/artist` is **Rise Mode only**; the 16-tab dashboard strip it used to be is gone, and every tab is now its own route.
+  - Bottom tab bar / desktop sidebar (`buildNavItems`): Home, Explore, [Studio|Earn], Messages, [Rise|Library]. This is for doing the work.
+  - Hamburger `AccountHub` (top-left): manage the business. `account/profile`, `account/tiers`, `account/payouts`, `account/billing`, `account/referrals`.
+  - `studio`: the toolbox. `studio/music`, `studio/albums`, `studio/shop`, `studio/live`, `studio/analytics`, `studio/manager`, `studio/sync`, `studio/team`, `studio/promise`, `studio/fans`, plus the connector tools.
+  - All of the above wear `HubPage` (X in the top left). `?from=hub` makes that X return to the hamburger; without it the X is a `smartBack`. `src/lib/dashboardRoutes.ts` maps every legacy `?tab=` id to its new route and `profile/artist` redirects through it, so links in old emails and `notifications.link` rows still resolve.
 - **`(public)/`** — `welcome`, `worth`, `survey/[token]`, `link/[slug]`, `getting-started`(+guides), legal (`terms`, `privacy`, `dmca`, `artist-agreement`, `live-agreement`), `forgot-password`, `reset-password`, `support`.
 - **`[slug]/`** — canonical public artist pages + `track/[id]`, `album/[id]`, `post/[id]`, `playlist/[id]`, `live/[sessionId]`, `book(/success)`, `demand/[testId]`, `r/[code]`, `suggest-mission`.
 - **`artist/[slug]/`** — LEGACY redirect + dead duplicate subroutes.

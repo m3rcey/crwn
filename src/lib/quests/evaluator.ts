@@ -1020,7 +1020,7 @@ async function grantRewardsAndNotify(
     }
   }
 
-  const link = instance.role === 'artist' ? '/profile/artist?tab=rise' : '/home';
+  const link = instance.role === 'artist' ? '/profile/artist' : '/home';
   const isMilestone = instance.quest_type === 'boss_quest' || instance.difficulty === 'boss';
 
   // Celebration copy: self-contained (no denormalized subtitle, which can be stale)

@@ -7,7 +7,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { TeamSplitDeal } from './types';
 
-const ACTION_URL = '/profile/artist?tab=team';
+const ACTION_URL = '/studio/team';
 
 async function upsertInsight(
   admin: SupabaseClient,

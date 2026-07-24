@@ -324,7 +324,7 @@ export default function ClipControlsPage() {
             </div>
           </div>
           <button
-            onClick={() => router.push('/profile/artist?tab=referrals')}
+            onClick={() => router.push('/account/referrals')}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold transition-colors"
           >
             Manage clip rates
