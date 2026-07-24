@@ -242,12 +242,12 @@ responsible for. Do not work those.
 
       Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
 
-- [ ] **Decide the refund/cancellation policy for a live ticket, and put it in the Terms.**
-      [`/terms` §4](src/app/\(public\)/terms/page.tsx) covers "shop purchases" and a live-session
-      ticket (including an Executive Producer Session seat) is arguably not one. A buyer whose
-      session is cancelled or rescheduled has no written policy today. Decide the rule (refund on
-      cancel? on reschedule? no-show?), then tell me and I will add it to the Terms page. Low
-      urgency until real tickets sell, but it is a gap now that the feature is live.
+- [ ] **The Terms changed (effective July 24, 2026): a live-ticket refund clause was added.**
+      Nothing to do unless you want to announce it. [`/terms` §4](src/app/\(public\)/terms/page.tsx)
+      now says a live-session/Executive Producer seat is final once the session happens, and
+      refundable if the artist cancels or reschedules to a time the buyer can't make. It is
+      buyer-favorable and matches the code (a full refund already revokes the seat), so a
+      notification is optional, but §1 of the Terms says material changes get one. Your call.
 
 - [ ] **DECIDE the seat model for Executive Producer Sessions.** This one determines the schema,
       so I am not picking it. `live_sessions` has a single `price` column today, which means one

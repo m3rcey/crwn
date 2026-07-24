@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { LiveSession } from '@/types/live';
-import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil, Trophy, Inbox, BarChart3 } from 'lucide-react';
+import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil, Trophy, Inbox, BarChart3, Repeat } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { BroadcasterStudio } from './BroadcasterStudio';
 import { LiveGoalsEditor } from './LiveGoalsEditor';
@@ -143,6 +143,29 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     setSubmissionPrompt('');
     setSubmissionDeadline('');
     setShowForm(false);
+  };
+
+  // "Run it again": open the create form pre-filled from a past session so an
+  // artist can schedule the next one in one tap. This is the recurrence primitive
+  // for producer sessions: a live event needs the artist present, so it is
+  // assisted repetition, not silent auto-creation. Everything copies EXCEPT the
+  // dates (a new session needs a new time) and any uploaded video.
+  const runItAgain = (session: LiveSession) => {
+    setMode('live');
+    setVisibility('public');
+    setVideoFile(null);
+    setThumbnailFile(null);
+    setTitle(session.title);
+    setDescription(session.description || '');
+    setMaxSlots(session.max_slots || 50);
+    setIsFree(session.is_free);
+    setSelectedTiers(Array.isArray(session.allowed_tier_ids) ? session.allowed_tier_ids : []);
+    setScheduledAt('');
+    setTicketPrice(session.price && session.price > 0 ? (session.price / 100).toFixed(2) : '');
+    setAcceptsSubmissions(!!session.accepts_submissions);
+    setSubmissionPrompt(session.submission_prompt || '');
+    setSubmissionDeadline('');
+    setShowForm(true);
   };
 
   // Grab a real still frame from an uploaded video, client-side (no server
@@ -823,6 +846,16 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     >
                       <BarChart3 className="w-4 h-4" /> Stats
                     </button>
+                    {/* Schedule the next one, pre-filled from this session. */}
+                    {session.status === 'ended' && (
+                      <button
+                        onClick={() => runItAgain(session)}
+                        className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+                        title="Schedule the next one with these settings"
+                      >
+                        <Repeat className="w-4 h-4" /> Run it again
+                      </button>
+                    )}
                   </>
                 )}
                 {session.status !== 'live' && (

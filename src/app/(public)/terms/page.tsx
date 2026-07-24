@@ -13,7 +13,7 @@ export default function TermsPage() {
           ← Back to CRWN
         </Link>
         <h1 className="text-3xl font-bold text-crwn-gold mb-2">Terms of Service</h1>
-        <p className="text-crwn-text-secondary mb-8">Effective Date: March 10, 2026</p>
+        <p className="text-crwn-text-secondary mb-8">Effective Date: July 24, 2026</p>
 
         <div className="prose prose-invert max-w-none space-y-6 text-crwn-text-secondary">
           <h2 className="text-xl font-semibold text-crwn-text">1. Acceptance of Terms</h2>
@@ -36,6 +36,7 @@ export default function TermsPage() {
           <p><strong>Downgrades:</strong> If you downgrade to a lower tier, the change takes effect at the end of your current billing period.</p>
           <p><strong>Cancellations:</strong> You may cancel your subscription at any time. Your access continues until the end of the current billing period. No partial refunds are issued for unused time.</p>
           <p><strong>Shop Purchases:</strong> All shop purchases are final and non-refundable unless the product is not delivered as described. Contact us within 14 days of purchase if you believe a product was misrepresented.</p>
+          <p><strong>Live Session Tickets:</strong> A ticket to a live session, including a seat in an Executive Producer Session, gives you access to that session at its scheduled time and to any replay the artist chooses to include. Once the session takes place, the ticket is final and non-refundable, including if you do not attend. If the artist cancels the session, or reschedules it to a time you cannot attend, you are entitled to a refund of the ticket price. Request a refund at support@thecrwn.app within 14 days of the affected session.</p>
           <p><strong>Platform Fees:</strong> CRWN charges a platform fee on all fan-to-artist transactions. The fee is 12% on the Free plan and 8% on Pro ($9.99/month). Promotional rates may apply if you join through a partner offer. Stripe processing fees are separate.</p>
 
           <h2 className="text-xl font-semibold text-crwn-text">5. Content and Intellectual Property</h2>
