@@ -233,11 +233,12 @@ responsible for. Do not work those.
       UPDATE admin_settings SET value = '{"enabled":true}'::jsonb WHERE key = 'popup_engine';
       ```
 
-      **This is now the thing standing between your artists and Live Tips.** `live_tips` is ON in
-      production, so the feature is live, but every existing artist formed their mental map of the
-      app before it existed and none of them will discover it on their own. The
-      `announce_live_tips` pop-up is written and waiting; it fires only for artists, only once,
-      and only while `live_tips` is on. Until the engine flag flips, nobody is told.
+      **This is now the thing standing between your artists and two live features they will not
+      find on their own: Live Tips and Executive Producer Sessions.** Both flags are ON in
+      production, but every existing artist formed their mental map of the app before either
+      existed. Two announcements are written and waiting (`announce_live_tips`,
+      `announce_producer_sessions`); each fires only for artists, only once, and only while its own
+      feature flag is on. Until the engine flag flips, nobody is told about either.
 
       Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
 
