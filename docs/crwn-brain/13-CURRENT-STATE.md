@@ -40,40 +40,40 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 - **No user-facing account hard-delete/GDPR erasure** path found. Deactivate/reactivate is now a working pair (deactivate genuinely hides the artist publicly at the app layer, reactivate fires on next login), just not a hard-delete. `Needs founder confirmation`.
 - **No web/push notifications** — `public/sw.js` has no push listener; notifications are foreground-only. `Confirmed`.
 
-## Executive Producer Sessions — audited 2026-07-24, NOT built (Confirmed)
+## Executive Producer Sessions — Phase 1 shipped DARK 2026-07-24 (Confirmed)
 
-The `executive-producer-session` lead magnet and seven recorded-video scripts sell a paid private
-session where fans pitch beats, submit vocals and suggest song ideas. **None of that exists.**
-What exists is a ticketed, tier-gated, recorded, chat-enabled one-to-many livestream, roughly a
-third of the pitch. The gaps, all `Confirmed` by reading code:
+The `executive-producer-session` lead magnet and seven scripts sell a paid private session where
+fans submit beats/vocals/ideas and watch the artist work. Audited then built the same day. An
+Executive Producer Session is **not a new stream type** — it is a `live_session` with submissions
+and polls bolted on, so the build extends `live_sessions` rather than forking it. Flag
+`admin_settings.producer_sessions` (off), migration `schema-phase2-producer-sessions.sql` (unrun).
 
-- **No submission anything.** No table, no fan-to-artist file upload, no artist review queue. The
-  only fan-uploaded media path in the whole app is a DM voice note (`MediaRecorder`, no file
-  picker, Pro-artist-gated, requires an active sub on a DM-enabled tier). Nearest structural
-  analogues to copy: `mission_suggestions` (text, pending/approved/rejected, `review_note`) and
-  `clip_bounty_submissions` (URL, adds winner + rank).
-- **`stage` is scaffolded but dead.** `'stage'` appears in the type union (`types/live.ts`), the
-  LiveKit grant switch (`lib/livekit/livekit.ts`, `canPublish: true`) and the DB CHECK
-  (`schema-phase2-livestreams.sql`). **No route mints it and no UI requests it** — `/api/live/token`
-  returns only `broadcaster` or `viewer`. So a fan can never be given a microphone, but the
-  groundwork is laid.
-- **No participant moderation.** `LiveProvider` has no `removeParticipant`/`mutePublishedTrack`;
-  the broadcaster token carries `roomAdmin: true` and nothing calls the admin API. Chat moderation
-  soft-deletes a *message*, never a person. (Viewers do get `canPublish: false`, so unauthorized
-  broadcasting is already impossible.)
-- **One price, no seat types.** `live_sessions.price` is a single integer. No quantity, waitlist,
-  per-user limit, or tier-member inclusion. Capacity picker offers 10 to 500.
-- **No recurrence** on `live_sessions`. `fulfillment_obligations` already models a monthly
-  livestream promise and is the right place to wire it, not a new table.
-- **No public per-session sales page.** `/[slug]/live/[sessionId]` shows a login wall and "Not live
-  yet" for a scheduled session; buying happens only from the list on the artist page.
-- **No session-specific fan consent.** `live_agreement_acceptances` is written by the *broadcaster*
-  only. Terms §5 licenses content to CRWN, never to the artist. A ticket buyer accepts nothing.
-- **Screen share DOES work** (LiveKit's stock `<VideoConference />` control bar, and `LiveWatchRoom`
-  subscribes to `Track.Source.ScreenShare`), so "watch me work" is real today.
+**Built (Phase 1):**
+- **Fan submissions.** `session_submissions`: a beat/vocal (private R2 upload via signed PUT under
+  a fan-scoped key), a written idea, or a reference link. `/api/producer/submissions{,/upload-url,/file}`.
+  Every write gates through `canSubmitToSession` (`src/lib/producer/access.ts`), which reuses the
+  live-ticket resolver `src/lib/live/access.ts`, so submit-access can't drift from watch-access.
+- **Artist review queue.** `SubmissionReviewPanel` — feature/shortlist/pass, play, download, order.
+- **Advisory in-session polls.** `session_polls`/`session_poll_votes`, `/api/producer/polls{,/vote}`,
+  `ProducerPolls`. A poll never binds the artist, by construction, which keeps "full creative
+  control" honest.
+- Dark-launch discipline: a `/api/producer/flag` probe hides every surface while off, AND the
+  submit route refuses to run while off, so a fan cannot reach it early even by hand.
 
-Blocked on founder + attorney decisions (rights terms, seat model, script price banding) recorded
-in `TODO.md`, not on engineering.
+**Deliberately NOT built (Phase 2):**
+- **Fan submission AGREEMENT.** `src/lib/producer/consent.ts` is a `DRAFT-unpublished` placeholder.
+  A submission carries a fan's third-party IP; they accept nothing session-specific today (Terms §5
+  licenses to CRWN, not the artist). **This is the one blocker to flipping the flag.** Founder +
+  attorney; in `TODO.md`.
+- **Stage / mic.** `'stage'` is in the type union, the LiveKit grants (`canPublish:true`) and the
+  DB CHECK, but **nothing mints it** — `/api/live/token` returns only `broadcaster`/`viewer`. So a
+  fan still cannot be on the mic. Needs a likeness release.
+- **Moderation** (`LiveProvider` has no `removeParticipant`/`mutePublishedTrack`; chat moderation
+  soft-deletes a message, not a person; viewers already get `canPublish:false`).
+- **Public per-session sales page**, **per-session analytics**, **seat types**, **recurrence**
+  (wire to `fulfillment_obligations`, which already models a monthly livestream promise).
+- **Screen share already works** (stock `<VideoConference />`; `LiveWatchRoom` subscribes to
+  `Track.Source.ScreenShare`), so "watch me work" is real today.
 
 ## Legacy / duplicated / dead (Confirmed)
 
