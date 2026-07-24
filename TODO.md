@@ -35,6 +35,21 @@ responsible for. Do not work those.
       Live** and not a Subscribe wall. Then send a chat message, then open the recording after it
       ends. If any of the three still blocks you, tell me which.
 
+- [ ] **Run one real Executive Producer Session end to end on `m3rcey`. Nobody has yet.** The whole
+      feature is live (submissions, review queue, polls, sales page, per-session stats, recurrence)
+      but no real session has gone through it, so this is the one thing that proves the offer the
+      producer scripts sell actually works. I cannot log in or run a card, so only you can. Steps:
+      1. Studio → Live → New Session. Tick **Let fans submit beats, vocals, and ideas**, set a
+         **Seats** count and a ticket price, pick a tier, add a **What can they send?** prompt.
+      2. From a second account with NO subscription to m3rcey: open the session link, **Grab a
+         seat** (Stripe test mode), then send a beat or an idea.
+      3. Back as the artist: Studio → Live → **Submissions** on that session, confirm the beat is
+         there and reviewable (feature / shortlist / pass, play, download).
+      4. **Go Live**, launch a poll, End.
+      5. **Stats** on the session: confirm the money, viewers, submissions, and poll votes read
+         right.
+      Tell me anything that breaks or reads wrong.
+
 - [ ] **Test one real purchase and one Stripe Connect click on production.** Every Stripe flow on
       the platform was failing with `42501` and I shipped the fix on 2026-07-24 (deployed, live at
       `sw.js` v239). Cause: `schema-phase2-stripe-id-column-privs.sql` revoked SELECT on
@@ -112,44 +127,28 @@ responsible for. Do not work those.
       burns one. Fine for launch. If a Reel genuinely pops, that is the first wall you hit, and
       it is ManyChat's, not CRWN's.
 
-- [ ] **DO NOT record the 7 Executive Producer video scripts as written.** Two separate
-      problems, and the second one is yours to decide.
+- [ ] **The 7 Executive Producer scripts are now TRUE (the feature shipped), except one price
+      mismatch. Fix that, then they are safe to record.** When I first audited these on 2026-07-24
+      they promised a feature that did not exist. It exists now: fan submissions (beats/vocals/
+      ideas), an artist review queue, and live sessions are all live in production. So the sidenote
+      claim ("pitch beats, submit vocals, suggest song ideas, watch the music get made live is
+      exactly what an artist can build on the CRWN app") is accurate.
 
       Files: [`videos/scripts/lead-magnets/`](videos/scripts/lead-magnets/) `producer-drake.md`,
       `producer-kanye-west.md`, `producer-kendrick-lamar.md`, `producer-quavo.md`,
       `producer-russ.md`, `producer-t-pain.md`, `producer-travis-scott.md`.
 
-      **1. They promise a feature CRWN does not have.** Every script says fans "cannot pitch
-      beats, cannot submit vocals, cannot suggest song ideas" and then, in the sidenote, that
-      letting them do exactly that "is exactly what an artist can build on the CRWN app."
-      **It is not.** There is no submission table, no fan-to-artist file upload, and no artist
-      review queue anywhere in the codebase. I audited this on 2026-07-24 and fixed the same
-      false claim in the shipped calculator copy (live now, `sw.js` v240), but the scripts and
-      the generator that writes them still carry it.
+      **The one thing left: the $300 seat price contradicts your own calculator.**
+      `producer-kendrick-lamar.md` and `producer-travis-scott.md` price a seat at $300, but the
+      calculator's top band is **$200** for any audience over 250k
+      ([`toolAdapters.ts` seatPrice](src/lib/acquisition/toolAdapters.ts)). A viewer who watches
+      the Kendrick video ($17.1M/mo), comments PRODUCER, and runs the tool gets **$11.4M/mo**
+      instead. Video and tool must not disagree. Your call: drop those two scripts to $200, or
+      raise the calculator's top band. Tell me which and I make the change.
 
-      What an artist CAN build today, and what the scripts can truthfully say: a private,
-      ticketed, limited-seat live session, sold by ticket or gated to a tier, where the artist
-      shares their screen and works while fans watch and talk in the live chat, with a replay
-      afterward. Everything else in the scripts (any size audience, no catalog needed, artist
-      keeps full creative control, roughly two a month) is already true.
-
-      **2. The $300 seat price is above what your own calculator returns.** `producer-kendrick-lamar.md`
-      and `producer-travis-scott.md` both price a seat at $300. The calculator's top band is
-      **$200** for any audience over 250k
-      ([`toolAdapters.ts` seatPrice](src/lib/acquisition/toolAdapters.ts)). So a viewer who
-      watches the Kendrick video ($17.1M/mo), comments PRODUCER, and runs the tool gets
-      **$11.4M/mo** instead. The video and the tool must not disagree, and which one moves is
-      your call: either drop the scripts to $200, or raise the top band. Tell me which and I
-      will make the change.
-
-      (The "two sessions a month" line is fine. The seats are a monthly total split across the
-      two sessions, and the NOTES block in each script already says so. It only reads as a
-      multiplier if the narration implies each session sells that many, so keep the reveal
-      worded as a monthly figure.)
-
-      Also fix the generator, or it writes the same claim again:
-      [`.claude/commands/crwn-lead-magnet.md`](.claude/commands/crwn-lead-magnet.md) lines 63
-      and 206.
+      (The "two sessions a month" line is fine: the seats are a monthly total split across the two
+      sessions, and the NOTES block says so. It only misreads if the narration implies each session
+      sells that many, so keep the reveal worded as a monthly figure.)
 
 ### P1 — real risk or real friction, but nothing is on fire
 
@@ -226,42 +225,12 @@ responsible for. Do not work those.
       webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
       [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
 
-- [ ] **Turn the Pop-up Engine on.** Its migration is applied (both tables confirmed present in
-      production on 2026-07-23), so only the flag is left:
-
-      ```sql
-      UPDATE admin_settings SET value = '{"enabled":true}'::jsonb WHERE key = 'popup_engine';
-      ```
-
-      **This is now the thing standing between your artists and two live features they will not
-      find on their own: Live Tips and Executive Producer Sessions.** Both flags are ON in
-      production, but every existing artist formed their mental map of the app before either
-      existed. Two announcements are written and waiting (`announce_live_tips`,
-      `announce_producer_sessions`); each fires only for artists, only once, and only while its own
-      feature flag is on. Until the engine flag flips, nobody is told about either.
-
-      Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
-
 - [ ] **The Terms changed (effective July 24, 2026): a live-ticket refund clause was added.**
       Nothing to do unless you want to announce it. [`/terms` §4](src/app/\(public\)/terms/page.tsx)
       now says a live-session/Executive Producer seat is final once the session happens, and
       refundable if the artist cancels or reschedules to a time the buyer can't make. It is
       buyer-favorable and matches the code (a full refund already revokes the seat), so a
       notification is optional, but §1 of the Terms says material changes get one. Your call.
-
-- [ ] **DECIDE the seat model for Executive Producer Sessions.** This one determines the schema,
-      so I am not picking it. `live_sessions` has a single `price` column today, which means one
-      price for everyone and no seat types. The options and what each costs to build:
-
-      - **One price, capped seats.** Ships on what exists (cap is 10 to 500 today). Cheapest.
-      - **Viewer tickets plus a few premium producer seats.** Needs a ticket-types table, and
-        for large viewer counts a different video transport than the current LiveKit room.
-      - **Lottery or application.** Needs the submission system first, plus refund-or-decline.
-      - **Several smaller sessions.** Ships on what exists, and is the closest fit to the "two a
-        month" story the scripts already tell.
-
-      Related: the current capacity picker offers 10 to 500. If you want a number above 500,
-      say so, because it changes how the room is built, not just the dropdown.
 
 - [ ] **Run [`supabase/schema-phase2-royalty-readiness.sql`](supabase/schema-phase2-royalty-readiness.sql)**
       in the Supabase SQL editor, then flip the flag to launch the Royalty Readiness Check.
@@ -375,14 +344,14 @@ secure result links, claiming, the gated in-window email capture, follow-up auto
 compliant unsubscribe, the tool-education drip, booking detection, the no-show ladder, retention,
 and the admin panel. The privacy policy now discloses the funnel (live).
 
-- **Announcement pop-ups: DONE, and they can no longer fire early.** `PopupContext` now carries
-  `featureFlags` (read from `admin_settings`), so an announcement gates on the flag of the feature
-  it announces as well as on the engine. That removed the reason these were blocked, so both owed
-  announcements are written and waiting: `announce_live_tips` and `announce_royalty_readiness`.
-  When you add a new dark-launched feature's announcement, add its flag to `ANNOUNCEABLE_FLAGS`
-  in `src/app/api/popups/route.ts` or the gate reads as `false` forever. Remaining gap I can fix
-  any time: `PopupContext` carries no account-creation date, so "existing users only" is
-  approximated with a once-ever cap; say the word and I will add `accountAgeDays`.
+- **Announcement pop-ups: the Pop-up Engine is ON (you flipped it 2026-07-24).** Announcements now
+  fire, each gated on its own feature flag: `announce_live_tips` and `announce_producer_sessions`
+  are live (both features are on); `announce_royalty_readiness` waits on the royalty flag (still
+  off, see the royalty migration item); `announce_hub_navigation` is live. When you add a new
+  dark-launched feature's announcement, add its flag to `ANNOUNCEABLE_FLAGS` in
+  `src/app/api/popups/route.ts` or the gate reads `false` forever. Remaining gap I can fix any
+  time: `PopupContext` carries no account-creation date, so "existing users only" is approximated
+  with a once-ever cap; say the word and I add `accountAgeDays`.
 
 - **Artist dashboard is now 15 real screens, not a 16-tab strip.** `/profile/artist` is Rise Mode
   only; management lives in the hamburger (`/account/*`), tools live in Studio (`/studio/*`), and
@@ -390,8 +359,7 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   `?from=hub`). Nothing for you to run: no migration, no env var, no flag. Two cosmetic follow-ups
   I will do unasked unless you want them sooner: the seven new Studio tiles (Music, Albums, Shop,
   Live, Analytics, Manager, Sync) are emoji placeholders and want real gold product photos like
-  the other tiles, and the `announce_hub_navigation` pop-up is written but only shows once the
-  Pop-up Engine flag `admin_settings.popup_engine` is on, which is still off.
+  the other tiles. (The `announce_hub_navigation` pop-up is now live: the Pop-up Engine flag is on.)
 
 - **Royalty / publishing intelligence, phase 1 shipped (the diagnostic).** The Royalty Readiness
   Check is built and dark. What is deliberately NOT built, in the order I would build it: the
@@ -402,20 +370,25 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   anything split-sheet shaped. CRWN should not become a publisher or administrator, and none of
   the above moves it toward being one.
 
-- **Executive Producer Sessions: Phase 1 BUILT and dark (2026-07-24), waiting on the rights terms
-  to go live.** Fan submissions (beats/vocals/ideas/references, private upload, deadline), the
-  artist review queue (feature/shortlist/pass, play, download), and advisory in-session polls are
-  all shipped behind `admin_settings.producer_sessions` (off). To launch: run the migration (P1
-  above), settle the rights terms (Do Now above), then flip the flag. Once live, every sentence in
-  the producer scripts is true except "fans get on the mic," which is Phase 2.
+- **Executive Producer Sessions: LIVE (2026-07-24).** The migration ran, the flag is on, and the
+  fan submission agreement is final (`/submission-agreement`). Shipped and live: fan submissions
+  (beats/vocals/ideas/references, private upload, deadline), the artist review queue, advisory
+  polls, a public per-session sales page (`ProducerSessionOffer`), per-session stats
+  (`/api/producer/analytics`), one-tap **Run it again** recurrence, free-entry seat count, a
+  loss-framed announcement (`announce_producer_sessions`), and a live-ticket refund clause in the
+  Terms.
 
-  What is deliberately NOT in Phase 1, in the order I would build it: **stage promotion** so a fan
-  can actually be given a microphone (the `stage` role is already in the types, the LiveKit grants
-  and the DB CHECK, and nothing mints it, so this is smaller than it looks) plus kick/mute/ban; a
-  **public per-session sales page**; **per-session revenue and attendance reporting**; then **seat
-  types** and **recurrence** (recurrence should reuse `fulfillment_obligations`, which already
-  models a monthly livestream promise, not a new table). Ask when you want Phase 2. Stage needs a
-  likeness-release decision from you before it can ship.
+  **Only two things are left, and I recommend NOT building either until you have run a real session
+  (see the P0 test item).** Both are your decision, not more spec:
+  - **Premium seat types** (a cheap viewer ticket + a few high-price producer seats sold
+    separately). Lower risk, no legal, no moderation. My advice: build it the day a single-price
+    session sells out, not before. Then: viewer ticket at the calculator's band price + 3 to 5
+    premium seats at ~4x.
+  - **Fans on mic/stage.** The bigger differentiator but the heaviest: needs a fan likeness release
+    AND real-time moderation. The `stage` LiveKit role is scaffolded (types + grants + DB CHECK,
+    nothing mints it). My advice: build it **invite-only, one fan at a time** (you pull up a
+    specific fan), which sidesteps almost all the moderation surface. Blocked on your
+    likeness-release call, and I would only start it after a session or two have run.
 
 - **Automated lead deletion (erasure requests).** Ask me to build this when you want it. Today a
   "delete my data" request from a lead is MANUAL: `DELETE FROM lead_identities WHERE ...` in
