@@ -61,10 +61,14 @@ and polls bolted on, so the build extends `live_sessions` rather than forking it
   submit route refuses to run while off, so a fan cannot reach it early even by hand.
 
 **Deliberately NOT built (Phase 2):**
-- **Fan submission AGREEMENT.** `src/lib/producer/consent.ts` is a `DRAFT-unpublished` placeholder.
-  A submission carries a fan's third-party IP; they accept nothing session-specific today (Terms §5
-  licenses to CRWN, not the artist). **This is the one blocker to flipping the flag.** Founder +
-  attorney; in `TODO.md`.
+- **Fan submission AGREEMENT — DRAFTED + wired, pending attorney review.** `/submission-agreement`
+  (`src/app/(public)/submission-agreement/page.tsx`) is a conservative draft (a submission transfers
+  NOTHING: no license, no guarantee, fan warrants originality + clears samples, unreleased material
+  confidential), in the hand-written Live-Agreement style. The submit route rejects a submission
+  unless the client echoes `PRODUCER_SUBMISSION_AGREEMENT_VERSION` (`src/lib/producer/consent.ts`,
+  stamped `2026-07-24.draft1` as a tripwire), and the submit panel makes the fan tick a linked box.
+  **The flag stays off until an attorney clears the draft; then bump the version off `.draft1` and
+  flip.** This is the one launch blocker. In `TODO.md`.
 - **Stage / mic.** `'stage'` is in the type union, the LiveKit grants (`canPublish:true`) and the
   DB CHECK, but **nothing mints it** — `/api/live/token` returns only `broadcaster`/`viewer`. So a
   fan still cannot be on the mic. Needs a likeness release.
