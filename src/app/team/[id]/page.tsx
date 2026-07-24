@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState, use as usePromise } from 'react';
+import { useEffect, useState, use as usePromise } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { roleLabel } from '@/lib/teamSplits/constants';
 import { TEAM_SPLIT_DISCLAIMER_PARAGRAPHS } from '@/lib/teamSplits/disclaimer';
 import type { TeamSplitDeal, TeamSplitDeliverable, TeamSplitEarning, CollaboratorBalance } from '@/lib/teamSplits/types';
@@ -15,7 +14,6 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
   const { id } = usePromise(params);
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
   const [loading, setLoading] = useState(true);
   const [deal, setDeal] = useState<TeamSplitDeal | null>(null);
@@ -36,6 +34,9 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
     const d = await res.json();
     setDeal(d.deal); setDeliverables(d.deliverables); setEarnings(d.earnings);
     setBalance(d.balance); setIsArtist(d.isArtist); setIsCollaborator(d.isCollaborator);
+    // hasPayout comes from the server now (profiles.stripe_connect_id is not
+    // browser-readable once its column privilege is locked down).
+    setHasPayout(d.hasPayout ?? true);
     setLoading(false);
   }
 
@@ -43,8 +44,6 @@ export default function TeamDealPage({ params }: { params: Promise<{ id: string 
     if (authLoading) return;
     if (!user) { router.push('/login'); return; }
     load();
-    supabase.from('profiles').select('stripe_connect_id').eq('id', user.id).maybeSingle()
-      .then(({ data }) => setHasPayout(!!data?.stripe_connect_id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading]);
 

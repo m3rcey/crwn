@@ -41,9 +41,19 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     ? await collaboratorBalance(supabaseAdmin, deal.collaborator_user_id, id)
     : { estimatedHeld: 0, available: 0, paid: 0, reversed: 0 };
 
+  // Does the caller have a payout (fan-connect) account? Read server-side with the
+  // service role: profiles.stripe_connect_id has SELECT revoked from the browser
+  // client, so reading it here (not from the client) survives that column lockdown.
+  const { data: me } = await supabaseAdmin
+    .from('profiles')
+    .select('stripe_connect_id')
+    .eq('id', user.id)
+    .maybeSingle();
+  const hasPayout = !!me?.stripe_connect_id;
+
   return NextResponse.json({
     deal, deliverables: deliverables || [], versions: versions || [],
-    disputes: disputes || [], earnings: earnings || [], balance, isArtist, isCollaborator,
+    disputes: disputes || [], earnings: earnings || [], balance, isArtist, isCollaborator, hasPayout,
   });
 }
 

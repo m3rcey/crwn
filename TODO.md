@@ -87,11 +87,11 @@ responsible for. Do not work those.
       **The code change is already deployed and is safe either way**: `useAuth` no longer does
       `select('*')`. Run the migration whenever you like; nothing breaks before or after.
 
-      **One exception, tell me before you run it and I will clear it first:**
-      [`src/app/team/[id]/page.tsx:46`](src/app/team/[id]/page.tsx#L46) still reads
-      `profiles.stripe_connect_id` from the browser. That works today only because this migration
-      has not landed. Once it does, that query starts returning 42501 and the team page's payout
-      banner breaks, the same failure that just took down every Stripe flow.
+      **The blocker is cleared: safe to run now.** The team page used to read
+      `profiles.stripe_connect_id` from the browser (it would have 42501'd after this migration).
+      Fixed 2026-07-24: that read moved server-side (the `/api/team-splits/[id]` route now returns
+      `hasPayout`). I also swept every browser-side `profiles` read: no `select('*')`, and no other
+      private-column read from a browser client, so nothing else breaks.
 
 - [ ] **Blank the 11 fan accounts still publishing an email as their public name.** I was blocked
       from running this myself (the permission classifier refused a bulk write to production user
@@ -102,30 +102,6 @@ responsible for. Do not work those.
       UPDATE profiles SET display_name = NULL
       WHERE display_name LIKE '%@%' AND role = 'fan';
       ```
-
-- [ ] **DECIDE: keep ManyChat Pro at $39/mo. Trial ends ~2026-07-27.**
-
-      **The funnel is LIVE and verified end to end** (2026-07-14): a real comment produced a
-      real lead, a real DM conversation, a correctly parsed answer, a real result, a real
-      result-page view with a recalculation, and a real Cal.com booking that cancelled her
-      nurture sequence. Every row checked in the database, not just the DMs.
-
-      So this is an informed decision now, not a bet.
-
-      **The maths, from your own calculator:** one converted 40k-listener artist nets ~$3,892/mo
-      direct, which is ~$311/mo to CRWN at the 8% Pro fee. ManyChat Pro pays for itself about
-      eight times over on a **single** conversion. One artist in a year and it has paid for
-      itself; zero artists and $39/mo was a cheap, fast way to learn the channel does not work.
-
-      **If you let the trial lapse, the funnel stops dead.** External Request disappears and
-      ManyChat can no longer reach CRWN at all. Everything CRWN-side keeps working and stays
-      dark, so nothing is lost, but no leads arrive.
-
-      **Do NOT downgrade to Essential.** It has neither External Request nor the API.
-
-      **Watch the Active Contacts cap:** Pro is 2,500/mo, and every Instagram lead who DMs
-      burns one. Fine for launch. If a Reel genuinely pops, that is the first wall you hit, and
-      it is ManyChat's, not CRWN's.
 
 - [ ] **The 7 Executive Producer scripts are now TRUE (the feature shipped), except one price
       mismatch. Fix that, then they are safe to record.** When I first audited these on 2026-07-24
