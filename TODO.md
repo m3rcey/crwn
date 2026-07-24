@@ -56,61 +56,37 @@ responsible for. Do not work those.
       Verify the deploy's webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is
       live at [thecrwn.app/tools/own-your-fans-calculator](https://thecrwn.app/tools/own-your-fans-calculator).
 
-- [ ] **Run [`supabase/schema-phase2-fix-artist-profiles-update-permission.sql`](supabase/schema-phase2-fix-artist-profiles-update-permission.sql)**
-      in the Supabase SQL editor. **Until you do, NO artist can save edits to their
-      profile** (Profile tab → Save Profile shows "permission denied for table
-      artist_profiles"). Root cause: the `artist_profiles` UPDATE RLS policy's
-      `WITH CHECK` runs subqueries that SELECT the three Stripe-id columns, whose
-      SELECT was revoked from `authenticated` by the leak-fix migration, so every
-      update 42501s. The fix moves the column-freeze into a BEFORE UPDATE trigger
-      and simplifies the policy to an ownership check. Self-verifies at the end.
-      New-artist onboarding (/welcome, /setup) is NOT affected: it INSERTs, not
-      UPDATEs. Only the Profile-tab edit path is broken.
+- [ ] **12 accounts still publish an email address as their public name. The migration stopped
+      NEW ones; it does not fix the rows that already exist.** Verified against production on
+      2026-07-23 with the anon key, so this is what an outsider can read today, not a guess.
 
-- [ ] **Run [`supabase/schema-phase2-display-name-no-email-default.sql`](supabase/schema-phase2-display-name-no-email-default.sql)**
-      in the Supabase SQL editor. It stops `handle_new_user()` from seeding a new user's
-      public `display_name` with their signup email (the reason a Featured Artist tile showed
-      `aribahmad21@gmail.com`). Self-verifies at the end. Safe: display_name is nullable and
-      the app falls back everywhere. It does NOT fix rows that are already an email.
+      The app-layer guard (`isPresentableArtistName`) stops these rendering as artist names, but
+      **it does not stop a direct read**: `profiles` is anon-readable and the anon key ships in
+      every browser bundle, so all 12 addresses are fetchable by anyone. 4 are your own
+      `joshn.wms+testN@gmail.com` accounts; the other 8 are real people.
 
-      **Then fix the two existing bad names** (a code change cannot; I can't touch the DB). In
-      the SQL editor, find them and set a real artist name:
+      **One is worse than the rest.** The artist `aribahmad21@gmail.com` has a public page AND
+      their **slug encodes the email**: `thecrwn.app/aribahmad21-gmail-com`. Fixing the name
+      alone leaves the address sitting in the URL.
 
       ```sql
-      -- see which artists have an email or blank as their public name
-      SELECT ap.slug, p.display_name
-      FROM artist_profiles ap JOIN profiles p ON p.id = ap.user_id
-      WHERE p.display_name LIKE '%@%' OR p.display_name IS NULL;
+      -- who they are (run this first, it is the whole list)
+      SELECT p.id, p.display_name, ap.slug
+      FROM profiles p LEFT JOIN artist_profiles ap ON ap.user_id = p.id
+      WHERE p.display_name LIKE '%@%';
 
-      -- then, per artist:
+      -- your own test accounts: safe to blank, the app falls back everywhere
+      UPDATE profiles SET display_name = NULL WHERE display_name LIKE 'joshn.wms+test%';
+
+      -- real users: set a real name per person, do not guess a stage name
       UPDATE profiles SET display_name = 'Their Artist Name' WHERE id = '<user_id>';
+
+      -- and the slug that leaks the address
+      UPDATE artist_profiles SET slug = '<their-real-slug>' WHERE slug = 'aribahmad21-gmail-com';
       ```
 
-      The `aribahmad21@gmail.com` tile is already hidden from Featured Artists in code, but it
-      still shows on their `/[slug]` page until the name is fixed. "Josh Williams" is a legal
-      name, not an email, so code can't detect it: rename it here too if it should be a stage name.
-
-- [ ] **Run [`supabase/schema-phase2-live-tips.sql`](supabase/schema-phase2-live-tips.sql)**
-      in the Supabase SQL editor, then flip the flag to launch Live Tips + Tip Goals.
-
-      CRWN had no tipping primitive at all before this. The migration adds `live_tips` and
-      `live_goals`, widens `earnings_type_check` to accept `live_tip` (without that, every tip
-      is charged and never lands in payouts), and puts both tables on Realtime so the goal bar
-      moves without polling. Self-verifies at the end.
-
-      The code is already live and **inert until you do this**: the flag defaults off, so the
-      tip bar renders nothing, the checkout route 403s, and nothing queries the missing tables.
-
-      Then turn it on:
-      ```sql
-      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'live_tips';
-      ```
-      To verify before announcing: go live on the `m3rcey` test artist, add a goal via the new
-      **Goals** button on the live session row, then tip from a second (fan) account. The bar
-      should move and a "GOAL REACHED" line should post itself into the live chat.
-
-      **Do this BEFORE the ManyChat `LIVE` keyword below.** That tool's fix tells artists to
-      "set tip goals for the show". With the flag off they will not find the button.
+      Changing a slug breaks any existing link to that page. Low risk here (a brand-new artist
+      with no audience), but it is a real trade-off, so it is your call, not mine.
 
 - [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
       keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the
@@ -120,24 +96,20 @@ responsible for. Do not work those.
       webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
       [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
 
-- [ ] **Apply the Pop-up Engine migration, then turn it on when ready.** The pop-up system
-      (governed in-app nudges + pop-up surveys) is shipped but DARK. It renders nothing until
-      both steps happen:
+- [ ] **Turn the Pop-up Engine on.** Its migration is applied (both tables confirmed present in
+      production on 2026-07-23), so only the flag is left:
 
-      1. Run [`supabase/schema-phase2-popup-engine.sql`](supabase/schema-phase2-popup-engine.sql)
-         in the Supabase SQL editor (adds `popup_events`, `popup_survey_responses`, seeds the
-         `popup_engine` flag OFF). It self-verifies at the end.
-      2. Flip it on when you want it live: in `admin_settings`, set the `popup_engine` row's
-         `value` to `{"enabled": true}` (via `/admin` settings, or SQL:
-         `UPDATE admin_settings SET value='{"enabled":true}' WHERE key='popup_engine';`).
+      ```sql
+      UPDATE admin_settings SET value = '{"enabled":true}'::jsonb WHERE key = 'popup_engine';
+      ```
 
-      Until step 2 the whole surface is silent, so applying the migration alone is safe. Low
-      survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
+      **This is now the thing standing between your artists and Live Tips.** `live_tips` is ON in
+      production, so the feature is live, but every existing artist formed their mental map of the
+      app before it existed and none of them will discover it on their own. The
+      `announce_live_tips` pop-up is written and waiting; it fires only for artists, only once,
+      and only while `live_tips` is on. Until the engine flag flips, nobody is told.
 
-      Two **announcement** pop-ups are already written and waiting in the registry
-      (`announce_live_tips`, `announce_royalty_readiness`). Each is gated on its OWN feature flag
-      as well as the engine, so neither can fire while the feature it announces is still dark.
-      Nothing to do here beyond flipping the flags below.
+      Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
 
 - [ ] **Run [`supabase/schema-phase2-royalty-readiness.sql`](supabase/schema-phase2-royalty-readiness.sql)**
       in the Supabase SQL editor, then flip the flag to launch the Royalty Readiness Check.
