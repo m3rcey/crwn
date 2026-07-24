@@ -242,39 +242,12 @@ responsible for. Do not work those.
 
       Low survey scores (1-2 of 5) email joshn.wms@gmail.com with the fan's feedback.
 
-- [ ] **Get an attorney to review the drafted Session Submission Agreement, then flip the flag.
-      This is the ONLY thing standing between the Executive Producer Session and going live.** The
-      whole Phase 1 feature is built dark (submissions, review queue, polls), and I drafted the fan
-      agreement on 2026-07-24 so your lawyer has a redline starting point, not a blank page. Read it
-      at [thecrwn.app/submission-agreement](https://thecrwn.app/submission-agreement) (source
-      [`src/app/(public)/submission-agreement/page.tsx`](src/app/\(public\)/submission-agreement/page.tsx)).
-      It is already enforced: the submit route rejects a submission unless the fan's client echoes
-      the current agreement version, and the submit form makes them tick a box linking to it.
-
-      **The draft uses the safest possible model on purpose: a submission transfers NOTHING.** The
-      fan keeps their rights, the artist gets no license, and any real use is a separate agreement
-      later. That matches what the code does and what `EXECUTIVE_RECOGNITION_DISCLAIMER`
-      ([`src/lib/tierTemplate.ts`](src/lib/tierTemplate.ts#L55)) already promises fans (no credit,
-      no royalties, no creative control). It also covers: the fan warrants originality and clears
-      samples, no guarantee of use/credit/pay, the submission may be played and discussed on the
-      recorded stream, and unreleased material heard in-session stays confidential.
-
-      **Your job:** have an attorney read it and decide whether the no-transfer model is what you
-      want. If instead you want a submission to grant the artist a usage license, tell me and I
-      rewrite it (that model also needs credit/pay machinery, so it is more work). When approved:
-
-      1. Tell me, and I bump the version in
-         [`src/lib/producer/consent.ts`](src/lib/producer/consent.ts) off the `.draft1` stamp to a
-         clean one and drop the draft banner (the `.draft` suffix is a deliberate tripwire: every
-         stored submission carries it, so unreviewed terms would be obvious in the data).
-      2. Then, and only then, flip the flag:
-         ```sql
-         UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'producer_sessions';
-         ```
-
-      **Separate legal call, not a launch blocker:** the refund/cancellation policy for a live
-      ticket. [`/terms` §4](src/app/\(public\)/terms/page.tsx) covers "shop purchases" and a ticket
-      is arguably not one. Settle it with the same attorney while you are there.
+- [ ] **Decide the refund/cancellation policy for a live ticket, and put it in the Terms.**
+      [`/terms` §4](src/app/\(public\)/terms/page.tsx) covers "shop purchases" and a live-session
+      ticket (including an Executive Producer Session seat) is arguably not one. A buyer whose
+      session is cancelled or rescheduled has no written policy today. Decide the rule (refund on
+      cancel? on reschedule? no-show?), then tell me and I will add it to the Terms page. Low
+      urgency until real tickets sell, but it is a gap now that the feature is live.
 
 - [ ] **DECIDE the seat model for Executive Producer Sessions.** This one determines the schema,
       so I am not picking it. `live_sessions` has a single `price` column today, which means one

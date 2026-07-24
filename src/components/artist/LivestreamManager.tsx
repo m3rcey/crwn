@@ -6,13 +6,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { LiveSession } from '@/types/live';
-import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil, Trophy, Inbox } from 'lucide-react';
+import { Loader2, Plus, Trash2, X, Radio, Video, Download, Pencil, Trophy, Inbox, BarChart3 } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { BroadcasterStudio } from './BroadcasterStudio';
 import { LiveGoalsEditor } from './LiveGoalsEditor';
 import { EditRecordingModal } from './EditRecordingModal';
 import { GoLiveAgreementModal } from '@/components/live/GoLiveAgreementModal';
 import { SubmissionReviewPanel } from '@/components/producer/SubmissionReviewPanel';
+import { SessionStatsPanel } from '@/components/producer/SessionStatsPanel';
 import { validateUpload } from '@/lib/uploadValidation';
 
 interface LivestreamManagerProps {
@@ -42,6 +43,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   // Executive Producer Sessions (fan submissions + polls), dark-launched.
   const [producerEnabled, setProducerEnabled] = useState(false);
   const [reviewSession, setReviewSession] = useState<LiveSession | null>(null);
+  const [statsSession, setStatsSession] = useState<LiveSession | null>(null);
   // Session awaiting Live-Streaming Agreement acceptance before it can go live.
   const [pendingLiveSession, setPendingLiveSession] = useState<LiveSession | null>(null);
 
@@ -803,15 +805,25 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     <Trophy className="w-4 h-4" /> Goals
                   </button>
                 )}
-                {/* Review the fan submission queue (Executive Producer Sessions). */}
+                {/* Review the fan submission queue + per-session stats (Executive
+                    Producer Sessions). */}
                 {producerEnabled && session.accepts_submissions && (
-                  <button
-                    onClick={() => setReviewSession(session)}
-                    className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
-                    title="Review submissions"
-                  >
-                    <Inbox className="w-4 h-4" /> Submissions
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setReviewSession(session)}
+                      className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+                      title="Review submissions"
+                    >
+                      <Inbox className="w-4 h-4" /> Submissions
+                    </button>
+                    <button
+                      onClick={() => setStatsSession(session)}
+                      className="neu-button px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1"
+                      title="Session stats"
+                    >
+                      <BarChart3 className="w-4 h-4" /> Stats
+                    </button>
+                  </>
                 )}
                 {session.status !== 'live' && (
                   <button
@@ -853,6 +865,14 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           sessionId={reviewSession.id}
           sessionTitle={reviewSession.title}
           onClose={() => setReviewSession(null)}
+        />
+      )}
+
+      {statsSession && (
+        <SessionStatsPanel
+          sessionId={statsSession.id}
+          sessionTitle={statsSession.title}
+          onClose={() => setStatsSession(null)}
         />
       )}
 

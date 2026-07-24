@@ -6,11 +6,9 @@ export const metadata = {
   description: 'CRWN Session Submission Agreement',
 };
 
-// DRAFT. This page exists so an attorney has a conservative starting point to
-// redline, not a finished contract. It uses the SAFEST model: a submission
-// transfers nothing. See TODO.md. Do not flip admin_settings.producer_sessions
-// on until this text is reviewed and the version in src/lib/producer/consent.ts
-// is updated to a non-draft stamp.
+// The operative Session Submission Agreement (founder-approved 2026-07-24).
+// Conservative model: a submission transfers nothing. Version stamp lives in
+// src/lib/producer/consent.ts; bump it there when this text materially changes.
 export default function SubmissionAgreementPage() {
   return (
     <div className="min-h-screen bg-crwn-bg">
