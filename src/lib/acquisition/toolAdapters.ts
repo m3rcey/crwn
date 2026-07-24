@@ -1239,7 +1239,7 @@ const execProducer: AcquisitionTool = {
         { label: 'Monthly from seats', value: `${fmtDollars(monthlyExpected)}/mo`, note: 'run about twice a month' },
       ],
       cause:
-        'The most valuable thing you own is not the finished song, it is access to the session that made it. A gated or ticketed live Executive Producer session lets fans buy a seat, pitch beats for you to record to, submit vocals, samples, and song topics, and watch you work live. It is the highest-margin, highest-leverage offer you have, and right now it does not exist.',
+        'The most valuable thing you own is not the finished song, it is access to the session that made it. A ticketed, limited-seat live session lets fans buy their way into the room, watch you build the record, bring you ideas in the chat, and keep the replay. It is the highest-margin, highest-leverage offer you have, and right now it does not exist.',
       estimate: [
         { label: 'Fans who would buy a seat', value: seatsPerMonth.toLocaleString('en-US'), note: '~0.3% of your audience, monthly' },
         { label: 'Seat price for your level', value: fmtDollars(seatPrice), note: 'a bigger following supports more' },
@@ -1258,30 +1258,30 @@ const execProducer: AcquisitionTool = {
       ],
       consequences: [
         'You give the process away free in vlogs while the thing fans crave, being in it, earns nothing.',
-        'Your most devoted fans have no way to go from listener to collaborator, so they stay at arm\'s length.',
+        'Your most devoted fans have no way to get closer than a finished upload, so they stay at arm\'s length.',
         'You trade studio hours for streaming pennies instead of selling the one seat no other artist can offer.',
       ],
       fanLoss:
-        'Your fans miss being in the room, pitching a beat you might record to, hearing their sample make the cut, shaping a song\'s topic, and the story that they helped make it.',
+        'Your fans miss being in the room while it happens, hearing the take that did not make it, putting an idea in front of you live, and the story that they were there for it.',
       flow: [
         'Your best offer, a seat in the room, is not for sale',
         'Schedule a paid live session on CRWN',
-        'Fans buy in to pitch beats and topics live',
+        'Fans buy a seat and are in the room while you work',
         `${fmtDollars(monthlyExpected)}/mo from seats`,
       ],
       fix: {
         title: 'How CRWN closes this gap',
         steps: [
-          'Schedule a live Experience on CRWN.',
-          'Gate it behind a tier or sell seats.',
-          'Fans pitch beats, vocals, and topics live.',
+          'Schedule a private live session on CRWN.',
+          'Sell seats with a ticket, or gate it to a tier.',
+          'Go live, share your screen, and take ideas in the chat.',
         ],
       },
       monthlyLossCents: monthlyExpected,
       emailInsights: [
         {
           title: 'Your session run-of-show',
-          body: 'Announce it as a limited-seat live session. Open with what fans can submit (beats, vocals, samples, topics), take pitches live, and record the best in the room. Price the seat for your level.',
+          body: 'Announce it as a limited-seat live session. Tell fans exactly what they are buying into (a beat built from scratch, a hook written live, a verse recorded in front of them), take their ideas in the chat as you go, and share your screen so they can see the work. Price the seat for your level.',
         },
       ],
       conversionPayload: { offer: 'executive-producer-session' },

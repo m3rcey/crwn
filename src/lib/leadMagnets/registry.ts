@@ -667,7 +667,7 @@ const EXECUTIVE_PRODUCER = lossToolBase({
   hero: {
     eyebrow: 'Live Experiences',
     headline: 'The highest-leverage thing you can sell is a seat in the room.',
-    subheadline: 'A gated live session where fans pitch beats, vocals, and song topics is your highest-margin offer, at any level. See what not offering it costs you.',
+    subheadline: 'A ticketed, limited-seat live session where fans watch you build the record is your highest-margin offer, at any level. See what not offering it costs you.',
     primaryCta: 'See what I am leaving',
     image: '/tool-executive-producer.jpg',
     imageAlt: 'A dim, gold-lit recording studio with an artist at the console',
