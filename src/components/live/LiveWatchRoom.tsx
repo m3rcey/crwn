@@ -17,6 +17,7 @@ import { LiveChatPanel } from './LiveChatPanel';
 import { LiveTipBar } from './LiveTipBar';
 import { ProducerSubmitPanel } from '@/components/producer/ProducerSubmitPanel';
 import { ProducerPolls } from '@/components/producer/ProducerPolls';
+import { ProducerSessionOffer } from '@/components/producer/ProducerSessionOffer';
 import { LiveSession } from '@/types/live';
 import { Loader2, Radio } from 'lucide-react';
 
@@ -215,23 +216,25 @@ export function LiveWatchRoom({ session, artistId, artistSlug, artistName, curre
   }
   if (session.status === 'scheduled') {
     const when = session.scheduled_at ? new Date(session.scheduled_at).toLocaleString() : null;
-    // Executive Producer Session: before it starts, fans who hold a seat can submit
-    // beats/vocals/ideas. Only shown while the flag is on, the session accepts
-    // submissions, and this viewer has access.
-    const showSubmit = producerEnabled && session.accepts_submissions && !gateLoading && canAccess && !!currentUserId;
-    if (showSubmit) {
+    // Executive Producer Session: the scheduled page is the public SALES page. It
+    // sells the seat to a fan who doesn't have one, and shows the submit panel to a
+    // fan who does. Only while the flag is on and the session accepts submissions.
+    if (producerEnabled && session.accepts_submissions) {
       return (
-        <div className="max-w-lg mx-auto px-4 py-10 space-y-4">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-crwn-text mb-1">{session.title}</h1>
-            <p className="text-crwn-text-secondary">{when ? `Live ${when}` : `${artistName} hasn't started yet.`}</p>
-          </div>
+        <ProducerSessionOffer
+          session={session}
+          artistName={artistName}
+          artistSlug={artistSlug}
+          currentUserId={currentUserId}
+          canAccess={canAccess}
+          gateLoading={gateLoading}
+        >
           <ProducerSubmitPanel
             sessionId={session.id}
             prompt={session.submission_prompt ?? null}
             deadline={session.submission_deadline ?? null}
           />
-        </div>
+        </ProducerSessionOffer>
       );
     }
     return <Centered title="Not live yet" subtitle={when ? `Scheduled for ${when}` : `${artistName} hasn't started yet.`} />;
