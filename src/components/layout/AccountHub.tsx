@@ -50,6 +50,13 @@ import {
   BarChart3,
   CreditCard,
   Music,
+  Disc3,
+  ShoppingBag,
+  Radio,
+  Film,
+  Sparkles,
+  CalendarCheck,
+  Split,
 } from 'lucide-react';
 
 interface HubLink {
@@ -153,25 +160,43 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
   const planLabel =
     platformTier === 'pro' ? 'Pro plan' : platformTier === 'label' ? 'Label plan' : 'Free plan';
 
+  // EVERY screen the old 16-tab dashboard had is listed here. That is the point of
+  // this menu: an artist who knew the tab strip must be able to find all sixteen
+  // without learning a second place to look. Live, Sync, Albums, Shop, Manager,
+  // Team and Promise Calendar were briefly Studio-grid-only and read as deleted.
+  // Studio still shows the same destinations as a visual grid; neither surface is
+  // exclusive, so there is no wrong place to look.
   const artistSections: HubSection[] = [
     {
       title: 'Grow',
       links: [
         { label: 'Rise Mode', href: '/profile/artist', icon: TrendingUp },
-        { label: 'Studio', href: '/studio', icon: LayoutDashboard },
+        { label: 'Studio (all tools)', href: '/studio', icon: LayoutDashboard },
+        { label: 'Manager', href: '/studio/manager', icon: Sparkles, hub: true },
+        { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
         { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },
         { label: 'Message your fans', href: '/messages', icon: MessageCircle },
-        { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
+        { label: 'Promise Calendar', href: '/studio/promise', icon: CalendarCheck, hub: true },
+      ],
+    },
+    {
+      title: 'Music and shop',
+      links: [
+        { label: 'Music', href: '/studio/music', icon: Music, hub: true },
+        { label: 'Albums', href: '/studio/albums', icon: Disc3, hub: true },
+        { label: 'Shop', href: '/studio/shop', icon: ShoppingBag, hub: true },
+        { label: 'Live', href: '/studio/live', icon: Radio, hub: true },
+        { label: 'Sync', href: '/studio/sync', icon: Film, hub: true },
       ],
     },
     {
       title: 'Your business',
       links: [
         { label: 'Your artist page', href: '/account/profile', icon: Crown, hub: true },
-        { label: 'Music', href: '/studio/music', icon: Music, hub: true },
         { label: 'Fan tiers and pricing', href: '/account/tiers', icon: Coins, hub: true },
         { label: 'Payouts and tax', href: '/account/payouts', icon: Wallet, badge: !stripeConnected, hub: true },
         { label: 'Plan and billing', href: '/account/billing', icon: CreditCard, hub: true },
+        { label: 'Team Splits', href: '/studio/team', icon: Split, hub: true },
         { label: 'Referrals and clippers', href: '/account/referrals', icon: Gift, hub: true },
       ],
     },
@@ -219,6 +244,11 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
   ];
 
   const sections = artist ? artistSections : fanSections;
+
+  // First group starts EXPANDED. Four collapsed headers and nothing else is what
+  // made a menu that holds sixteen screens read as a menu that holds none (same
+  // as the Lyft driver menu, where the first group is already open).
+  const activeSection = openSection ?? sections[0]?.title ?? null;
 
   return (
     <div
@@ -292,11 +322,11 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         {/* Accordion sections */}
         <div className="space-y-2">
           {sections.map((section) => {
-            const isOpen = openSection === section.title;
+            const isOpen = activeSection === section.title;
             return (
               <div key={section.title} className="border-b border-[#1F1F1F]">
                 <button
-                  onClick={() => setOpenSection(isOpen ? null : section.title)}
+                  onClick={() => setOpenSection(isOpen ? '' : section.title)}
                   className="w-full flex items-center justify-between py-4"
                 >
                   <span className="text-lg font-bold text-white">{section.title}</span>
