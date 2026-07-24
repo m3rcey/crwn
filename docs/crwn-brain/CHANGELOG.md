@@ -1,5 +1,50 @@
 # CRWN Brain — Changelog
 
+## 2026-07-24 — The app was slow because three surfaces did work that never needed doing
+
+Josh reported the site loading slowly, worst on Home and worst of all on Rise Mode. Diagnosed
+against the code, then measured in production. Nothing here was an N+1 or a missing index. Every
+cause was **redundant or serialized work**, which is why it never showed up as one slow query.
+
+- **Rise Mode / `/api/quests`** (runs on every load AND every tab switch, and the route loops its
+  cascade up to 12 times per load):
+  - `ensureRoleQuests` called `assignQuest` for all ~72 templates every time. Each call costs 3+
+    round trips (open check, completed check, prereq check) before concluding it has nothing to
+    do. Now it reads what the user already holds in ONE query and only assigns what is missing:
+    ~200 queries down to 1 on a settled account. `assignQuest` keeps its own guards, so the
+    prefilter is an optimization, not the correctness boundary.
+  - `refreshQuests` evaluated every open quest sequentially. `evaluateCondition` is read-only, so
+    the read phase is now concurrent. **Writes stay sequential on purpose**: `completeQuest` does a
+    read-modify-write on the shared `user_progression` row, so parallel completions would lose XP
+    grants. Progress-percent writes hit distinct rows and share nothing, so those batch.
+  - `reconcileXp` did a select-then-insert per completed quest. It is a self-heal for a historical
+    bug, so on a healthy account every lookup found nothing. One ledger query now.
+  - `safeEvaluate` isolates a throwing quest condition. Previously one bad quest rejected the whole
+    sequential pass and blanked the board.
+- **Home:** every load called `/api/stripe/connect/status` through `useArtistSetup`, which does a
+  live `stripe.accounts.retrieve()` plus `backfillTierPrices`. An external API round trip in Home's
+  critical path, for a "Finish setup 2/4" pill that never reads the value. The hook now takes
+  `withStripe` (default OFF) and only the setup wizard pays for it. The featured grid also selected
+  `*, profile:profiles(*)` for 50 artists to render 12 tiles; narrowed to the five fields shown.
+- **Artist dashboard bundle:** the page opens on Rise Mode but statically imported all 16 tab
+  managers, so the browser downloaded and parsed the charts, upload widgets, calendars and the whole
+  shop editor before Rise could paint. Every tab except Rise is now `next/dynamic`. Tabs were
+  already render-gated by `visitedTabs`, so behavior is unchanged.
+- **Explore** (measured after the above shipped: 2.7s cold, ~0.95s warm): eight sequential round
+  trips, most of them independent of each other. Now three waves.
+- **`artist_profiles.featured_hidden`** (`supabase/schema-phase2-featured-hidden.sql`): removes ONE
+  artist from Featured + the Explore browse list without deactivating them. Previously the only
+  lever was `profiles.is_active = false`, which kills the whole account. They stay findable by
+  SEARCH. **The migration REBUILDS `artist_profiles_public`** because that view enumerates its
+  columns at creation time, so a new base-table column stays invisible to it until rebuilt, and the
+  app reads the view. The self-verify asserts the column reaches the view AND that the rebuild did
+  not re-expose the three Stripe id columns. App code queries the flag separately and tolerantly so
+  it survives the pre-migration schema; verified in production (200, full list) before the column
+  existed.
+- **Royalty Readiness is now reachable from Rise Mode**, not only the Studio tile. Josh looked in
+  Rise, which is correct: Rise is the guided path, Studio is the tool hub. Deliberately NOT a quest
+  template, because coupling two separately dark-launched features makes each harder to launch alone.
+
 ## 2026-07-23 — profiles was leaking every user's email to the public internet
 
 Found while chasing a much smaller problem (12 accounts whose public `display_name` was their
