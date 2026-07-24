@@ -242,6 +242,25 @@ Check `package.json` before importing. Key packages: @supabase/supabase-js, @sup
 - **Env vars at build time:** Always use fallback values when creating Supabase admin clients in API routes: `process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321'` and `process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'`. NEVER use `!` non-null assertion on env vars — it crashes the Vercel build during static page collection.
 - **Vercel CLI is linked to project `crwn`** (not `workspace-crwn`). If `.vercel` folder is deleted, relink with `npx vercel link --project crwn --yes`.
 
+### NEVER name a revoked column from a browser or user-session client
+
+`artist_profiles.stripe_connect_id`, `.platform_stripe_customer_id` and
+`.platform_stripe_subscription_id` have SELECT **revoked** from `anon` and `authenticated`
+(`schema-phase2-stripe-id-column-privs.sql`). This is correct and stays.
+
+The trap is how Postgres refuses. Naming ONE revoked column fails the **entire statement** with
+`42501 permission denied for table artist_profiles`, and PostgREST applies the same rule to
+**embedded joins**. The query does not return a row with that field missing, it returns **no row
+at all**, so every caller reads it as "not found" and fails closed while the code looks fine.
+This silently killed every checkout, payout, and Stripe-connect flow on the platform.
+
+- Read these ids ONLY through `src/lib/stripe/connectAccount.ts` (service role).
+- Keep the ownership check on the user session. Only the secret moves server-side.
+- `select('*')` on `artist_profiles` from a browser client is the same bug waiting to happen.
+- The same applies to `tracks.audio_url_*` and (once its migration lands) `profiles.email`/`.phone`.
+- To verify, probe production with the ANON key, never a superuser session:
+  `curl "$URL/rest/v1/artist_profiles?select=slug,stripe_connect_id" -H "apikey: $ANON"`
+
 ### Stripe Platform vs Connect — THIS CAUSES THE MOST BUGS
 
 - **Subscriptions live on the PLATFORM account, NOT Connect** — NEVER pass `stripeAccount` to subscription retrieve/update/cancel calls.

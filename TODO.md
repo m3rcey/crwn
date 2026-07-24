@@ -22,6 +22,21 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Test one real purchase and one Stripe Connect click on production.** Every Stripe flow on
+      the platform was failing with `42501` and I shipped the fix on 2026-07-24 (deployed, live at
+      `sw.js` v239). Cause: `schema-phase2-stripe-id-column-privs.sql` revoked SELECT on
+      `stripe_connect_id` and the `platform_stripe_*` columns from `authenticated`, and naming one
+      revoked column fails the WHOLE query, embedded joins included, so ~12 queries silently
+      returned no row and every caller answered "not found". Subscriptions, track/product/ticket/
+      tip checkout, Stripe Connect onboarding, balance, cashout, login-link, create-price and the
+      billing portal were all dead, along with the payouts and billing screens.
+
+      I verified the fix compiles and deployed it, but I cannot log in as an artist or run a card,
+      so **only you can confirm money actually moves.** Two checks: subscribe to a tier on
+      [thecrwn.app/m3rcey](https://thecrwn.app/m3rcey) in Stripe test mode, and open
+      [`/account/payouts`](https://thecrwn.app/account/payouts) to confirm the balance renders.
+      If either still fails, tell me the exact error text.
+
 - [ ] **Run [`supabase/schema-phase2-profiles-column-privileges.sql`](supabase/schema-phase2-profiles-column-privileges.sql).
       Every user's email address is currently readable by anyone on the internet.**
 
@@ -43,6 +58,12 @@ responsible for. Do not work those.
 
       **The code change is already deployed and is safe either way**: `useAuth` no longer does
       `select('*')`. Run the migration whenever you like; nothing breaks before or after.
+
+      **One exception, tell me before you run it and I will clear it first:**
+      [`src/app/team/[id]/page.tsx:46`](src/app/team/[id]/page.tsx#L46) still reads
+      `profiles.stripe_connect_id` from the browser. That works today only because this migration
+      has not landed. Once it does, that query starts returning 42501 and the team page's payout
+      banner breaks, the same failure that just took down every Stripe flow.
 
 - [ ] **Blank the 11 fan accounts still publishing an email as their public name.** I was blocked
       from running this myself (the permission classifier refused a bulk write to production user

@@ -1,5 +1,41 @@
 # CRWN Brain — Changelog
 
+## 2026-07-24 — P0: a revoked column had silently killed every Stripe flow
+
+Found while chasing why the hamburger showed artists the fan menu. That was one symptom.
+
+`schema-phase2-stripe-id-column-privs.sql` revoked SELECT on `stripe_connect_id`,
+`platform_stripe_customer_id` and `platform_stripe_subscription_id` from `anon` and
+`authenticated`. Correct, and it stays. What nobody accounted for is **how Postgres refuses**:
+naming one revoked column fails the ENTIRE statement with `42501`, and PostgREST applies the
+same rule to **embedded joins**. A query does not come back missing a field, it comes back as
+**no row at all**, so every caller reads "not found" and fails closed while looking healthy.
+
+Verified against production with the anon key before changing anything (a control query proves
+the probe works, per the RLS-canary discipline):
+
+| Query | Result |
+|---|---|
+| `artist_profiles?select=slug` | 200, row |
+| `artist_profiles?select=slug,stripe_connect_id` | **42501** |
+| `subscription_tiers?select=id,artist:artist_profiles(slug,platform_tier)` | 200, row |
+| `subscription_tiers?select=id,artist:artist_profiles(stripe_connect_id)` | **42501** |
+
+**Money in, all of it, dead:** `/api/stripe/checkout` ("Tier not found", no subscriptions),
+`track-checkout`, `product-checkout`, `live-checkout`, `live-tip-checkout`.
+**Money out and setup, all of it, dead:** `/api/stripe/connect` ("Artist not found", so no artist
+could connect Stripe at all), `connect/status` (reported not-connected for connected artists),
+`balance`, `cashout`, `login-link`, `create-price`, `platform-portal`.
+**Three screens rendered empty:** `PayoutDashboard`, `PlatformBilling`, `MonetizationRoadmap`.
+
+Fix: `src/lib/stripe/connectAccount.ts`, a service-role helper that is now the ONLY way these
+ids are read. The ownership check stays where it was, on the user session; only the secret moves
+server-side. This generalizes the pattern `booking-checkout` had already worked out alone.
+
+Still exposed on purpose: `src/app/team/[id]/page.tsx` reads `profiles.stripe_connect_id` from
+the browser. It works only because `schema-phase2-profiles-column-privileges.sql` is unapplied.
+Flagged in TODO.md against that migration.
+
 ## 2026-07-24 — Public artist page opens on Music, and the hub stopped trusting profile.role
 
 - **Default tab on `/[slug]` is now Music, not Movement** (`ArtistProfileContent`). A fan who
