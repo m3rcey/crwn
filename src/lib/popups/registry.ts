@@ -183,6 +183,24 @@ export const POPUPS: PopupDef[] = [
     dismissLabel: 'Later',
   },
 
+  // ---- Announcement: Executive Producer Sessions (artists only) ----
+  // Gated on featureFlags.producer_sessions: before that flag is on there is no
+  // "let fans submit" toggle on the live form, so announcing it would send artists
+  // looking for a control that isn't there. Loss-framed per the copy rule.
+  {
+    key: 'announce_producer_sessions',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist && c.featureFlags.producer_sessions === true,
+    frequency: { type: 'once' },
+    priority: 55,
+    goal: 'Artist opens their next live session for fan submissions so the room pays to be in the process, not just to watch it.',
+    title: 'You give your process away for free in vlogs.',
+    body: 'The thing your fans crave most, being in the room while the music gets made, earns you nothing right now. Open your next live session for submissions: fans send beats, vocals, and ideas beforehand, you review and play the best on stream, and you keep full creative control.',
+    cta: { label: 'Open my next session', href: '/studio/live' },
+    dismissLabel: 'Later',
+  },
+
   // ---- Announcement: the dashboard tabs became real screens (artists only) ----
   // Not feature-flagged: this shipped to everyone at once, and an artist who
   // opens the app to a rearranged menu without being told has to go hunting for

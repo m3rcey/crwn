@@ -22,7 +22,7 @@ const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
 // admin_settings flags any announcement pop-up may gate on. Add a feature's flag
 // here when you add its announcement, or the announcement fires while the feature
 // is still dark and sends the user to a tile that is not there.
-const ANNOUNCEABLE_FLAGS = ['royalty_readiness', 'live_tips', 'quest_engine'];
+const ANNOUNCEABLE_FLAGS = ['royalty_readiness', 'live_tips', 'quest_engine', 'producer_sessions'];
 
 /**
  * GET /api/popups?page=/home — the ONE pop-up (if any) this user should see now.
