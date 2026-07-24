@@ -30,6 +30,44 @@ tip-goal sponsors). Tipping was therefore built first, ahead of the flashier bac
   Sibling of `executive-producer-session`, which sells one seat in the room at a high price; this
   one sells the show itself at volume.
 
+## 2026-07-18 to 2026-07-22 — Backfill: the loss-revelation lead magnet build-out, Founder Window, and two production fixes
+
+**Written 2026-07-23 as a catch-up.** These 20 commits shipped without a brain update, which is a
+process failure, not a code one: the `doc-sync-reminder.sh` Stop hook only *reminds*, it does not
+gate, so a long run of feature commits drifted. Recorded here so the brain is not silently wrong.
+
+- **The lead magnet system became the acquisition front door.** It grew from 4 tools to 16, all
+  running through ONE engine (`src/lib/acquisition/lossResult.ts` `buildLossResult`). Each tool is
+  an adapter in `toolAdapters.ts`; a registry entry with `usesLossEngine: true` makes the web
+  clients render from that same adapter, so the web page and the DM show an identical result from
+  one model. New tools across the window: Founder Window, Movement Page, Fan Journey, Top Fan
+  Leaderboard, Quest Path, Supporter Promise, Team Split, Share-to-Earn, Executive Producer
+  Session, Own Your Fans, Live Experience.
+- **Two integrity rules were learned the hard way and now govern every tool.** (1) Every `fix` must
+  point to a CRWN feature that ACTUALLY exists; the audit found one gap (Founder Window), which was
+  then built rather than removed from the copy. (2) The result must deliver the dollar the DM hook
+  teased. Tools that required `direct_fan_revenue_cents` returned $0 for a cold lead, so
+  Supporter Promise and Team Split were switched to project from `social_followers` like the rest.
+- **Result presentation was rebuilt twice.** Loss pages now lead with a bold gold dollar hero plus
+  stat tiles, carry a `derivation` infographic showing how the number is built, and put the email
+  and signup CTAs above the fold. `cause`/`consequences` prose is intentionally NOT rendered (it
+  repeated the hero) but stays on the params for storage. Two renderers exist and BOTH need any new
+  section kind: the tokenized result page and the web tool client.
+- **Share-to-Earn model correction (Josh caught it).** Referral conversions come from the NEW reach
+  the sharers create, not a flat percentage of the artist's own followers. Funnel is now
+  sharers x reach-per-sharer x conversion x $10.
+- **Email capture was broken for every loss tool** and is fixed: the capture route called
+  `generateResult`, which throws for `usesLossEngine` tools, so the emailed result never sent.
+  Tools also gained email-only `emailInsights` (a computed cost-of-waiting plus a tailored move).
+- **Founder Window shipped as a real feature** (see the feature map row): cap, deadline, and
+  `is_founder` marking, enforced in checkout on both free and paid paths.
+- **Two production fixes on 2026-07-22.** Artists could not save their profile at all (42501: the
+  `artist_profiles` UPDATE policy's `WITH CHECK` subqueried Stripe-id columns whose SELECT had been
+  revoked from `authenticated`; the freeze moved into a BEFORE UPDATE trigger). And `handle_new_user()`
+  was seeding a new user's PUBLIC `display_name` with their signup email. **Both fixes are
+  migrations that were still unrun as of 2026-07-23**, so the underlying breakage is live until
+  Josh applies them.
+
 ## 2026-07-17 — Pop-up Engine, account hub, and interruption governors
 
 A batch of engagement/nav work, all built around one principle: the platform must NOT overkill

@@ -42,6 +42,7 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Stripe webhook | `/api/stripe/webhook`, `webhookHandlers.ts` | **Production-ready** |
 | Team Splits | `TeamSplitBuilder`, `src/lib/teamSplits/*`, `/api/team-splits/*`, `/team/*`, accrual cron | **Production-ready** |
 | Subscription mgmt (pause/cancel/update) | `/api/subscriptions/{pause,cancel}`, `/api/stripe/subscription-update` | **Production-ready** (downgrade Stripe-schedule step unverified) |
+| Founder Window | `founder_window_enabled`/`founder_cap`/`founder_deadline` on `subscription_tiers`, `is_founder` on `subscriptions`; config UI in `TierManager`, cap + deadline enforced in `/api/stripe/checkout` (free and paid paths), persisted by `handleCheckoutCompleted` | **Production-ready** (migration run). Grandfathered/locked founder PRICING is NOT built (touches Stripe subscription pricing) |
 
 ## Messaging, notifications, community
 | Feature | Routes / files | Status |
@@ -96,6 +97,10 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Referrals (fan→artist) | `/[slug]/r/[code]`, `ReferralDashboard`, `/api/referrals/*` | **Production-ready** |
 | Recruiter/partner (artist→platform) | `/join/[code]`, `(main)/recruit`, `/recruit/dashboard`, `/partner`, `/api/recruit/*`, recruiter crons | **Production-ready** (pitch page uses intentional mocks + stale pricing copy) |
 | Playbooks | `/playbooks(/[runId])`, `/api/playbooks/*`, `ai-playbooks.sql` | **Partial** (run engine thin) |
+| Lead magnets (loss-revelation tools) | 16 tools. Catalog `src/lib/leadMagnets/registry.ts`, adapters `src/lib/acquisition/toolAdapters.ts` (`ACQUISITION_TOOLS`), shared engine `src/lib/acquisition/lossResult.ts` (`buildLossResult`). Public `(public)/tools/[slug]` + tokenized `/tools/[slug]/result/[token]`, artist `/artist/tools/[slug]`. Hero photos `public/tool-*.jpg` | **Production-ready** |
+| Loss-result engine | ONE structure for every tool: `headline` (or a `score` gauge when a dollar figure is not defensible), `derivation` infographic, estimate tiles, `scenarios`, `fanLoss`, `flow`, `fix`, assumptions, email-only `emailInsights`. `usesLossEngine: true` in the registry makes the WEB clients render from the adapter, so web and DM show one identical result | **Production-ready** |
+| Lead-magnet integrity rules | Every tool's `fix` must point to a CRWN feature that ACTUALLY exists. Every tool's hero must deliver the dollar its DM hook teased (no `$0`, no score gauge where money was promised), so audience-derived tools require only `social_followers` | **Enforced by convention, not by code** |
+| DM funnel handoff | ManyChat keyword (`dmKeywords` per tool) resolves a tool by `lead_magnet_id` via `getTool()`, runs the same adapter, returns a tokenized result link | **Production-ready** (see `docs/acquisition/manychat-setup-guide.md`) |
 
 ## Admin & AI
 | Feature | Routes / files | Status |
@@ -108,7 +113,7 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Sync opportunities | `sync-opportunities` cron (OpenAI-generated listings), `SyncDashboard` | **Production-ready** (synthetic data) |
 
 ## Cross-cutting
-- **PWA** (`sw.js`, manifest) — Production-ready, no push. **Visitor analytics** (hashed fingerprint, bot-filtered) — Production-ready. **Legal pages** (`(public)/{terms,privacy,dmca,artist-agreement,live-agreement}`) — Production-ready. **Marketing pages** (`/about` stale, `(public)/worth` mock UI, `getting-started` guides) — mixed.
+- **PWA** (`sw.js`, manifest) — Production-ready, no push. **Visitor analytics** (hashed fingerprint, bot-filtered) — Production-ready. **Legal pages** (`(public)/{terms,privacy,dmca,artist-agreement,live-agreement}`) — Production-ready. **Marketing pages** (`/about` stale, `getting-started` guides) — mixed. `(public)/worth` is NO LONGER mock UI: it is the Streaming Loss Calculator (renamed 2026-07-18), a real loss-engine experience that also hosts the reusable `IndependenceSection`.
 
 ## Duplication watch (for future agents)
 - `[slug]/*` (canonical) vs `artist/[slug]/*` (dead dupes).
