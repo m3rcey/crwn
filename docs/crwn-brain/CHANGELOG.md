@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-07-23 — profiles was leaking every user's email to the public internet
+
+Found while chasing a much smaller problem (12 accounts whose public `display_name` was their
+signup email). Probing production from OUTSIDE with the public anon key showed the real issue:
+`GET /rest/v1/profiles?select=*` returned **all 68 profiles including `email`**, plus 5 real
+`phone` numbers. The anon key ships in every browser bundle, so this required no login.
+
+- **Cause.** `schema.sql` created `"Profiles are viewable by everyone" ON profiles FOR SELECT
+  USING (true)`. That is correct for the PUBLIC columns, since an artist's `display_name` and
+  `avatar_url` have to render on their page. But `profiles` later grew private columns by
+  ALTER TABLE (`email`, `phone`, `full_name`, `stripe_connect_id`, `is_approved`,
+  `last_active_at`, `onboarding_nudge_sent_at`) and every one inherited "viewable by everyone".
+- **Why RLS was never going to fix it.** RLS filters ROWS, not COLUMNS, and the rows really are
+  public. This is a column-privilege problem. The identical fix already exists one table over:
+  `artist_profiles.stripe_connect_id` returns 42501 to anon. That hardening was done once and
+  never applied to `profiles`.
+- **Fix.** `supabase/schema-phase2-profiles-column-privileges.sql` revokes the table-level SELECT
+  from `anon` and `authenticated` FIRST (a column grant is a no-op while a table grant stands),
+  then re-grants only the public columns. `authenticated` additionally keeps the tour/onboarding
+  booleans the client UI needs. Self-verifies with `has_column_privilege` for both roles.
+- **The one code change that mattered:** `useAuth.fetchProfile` did `select('*')`, which would
+  have started returning 42501 for every logged-in user the moment the grant was narrowed. It now
+  selects an explicit column list. A user's own email comes from the Supabase session
+  (`user.email`), which is where it should have been read from all along. Nothing else in the
+  browser reads `email`/`phone`/`full_name` (every such read is a server route on the
+  service-role client, which is not subject to grants).
+- **Still open, deliberately:** a fan's chosen `display_name` remains anon-readable. That is a
+  design question (community bylines, chat authors, and leaderboards render it) rather than a
+  leak, so it was not bundled into this fix.
+
 ## 2026-07-23 — Royalty Readiness Check: CRWN starts noticing money the artist already earned
 
 Everything CRWN did before this answered one question: **how much NEW revenue can an artist create

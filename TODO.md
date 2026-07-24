@@ -22,6 +22,38 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Run [`supabase/schema-phase2-profiles-column-privileges.sql`](supabase/schema-phase2-profiles-column-privileges.sql).
+      Every user's email address is currently readable by anyone on the internet.**
+
+      Verified against production on 2026-07-23 with the PUBLIC anon key, from outside the app:
+      `GET /rest/v1/profiles?select=*` returns **all 68 profiles including `email`**, plus **5 real
+      phone numbers**. The anon key ships inside every browser bundle, so this needs no login and
+      no exploit, just devtools.
+
+      Cause: `schema.sql` made profiles `FOR SELECT USING (true)`, which is right for the public
+      columns (an artist's name and avatar must render). But profiles later grew private columns by
+      ALTER TABLE (email, phone, full_name, stripe_connect_id, is_approved, last_active_at), and
+      each one silently inherited "viewable by everyone". RLS filters ROWS, never COLUMNS, so the
+      fix is a column privilege. `artist_profiles.stripe_connect_id` already returns 42501 to anon,
+      so this exact hardening was done once and simply never applied to `profiles`.
+
+      The migration revokes the table grant (a column grant is a no-op while it stands) and
+      re-grants only the public columns. Self-verifies with `has_column_privilege`, so it fails
+      loudly rather than half-landing.
+
+      **The code change is already deployed and is safe either way**: `useAuth` no longer does
+      `select('*')`. Run the migration whenever you like; nothing breaks before or after.
+
+- [ ] **Blank the 11 fan accounts still publishing an email as their public name.** I was blocked
+      from running this myself (the permission classifier refused a bulk write to production user
+      data), so it needs you. One statement, no judgment calls: fans have no public page, every
+      render path already falls back to "A fan", and the address stays in `auth.users`.
+
+      ```sql
+      UPDATE profiles SET display_name = NULL
+      WHERE display_name LIKE '%@%' AND role = 'fan';
+      ```
+
 - [ ] **DECIDE: keep ManyChat Pro at $39/mo. Trial ends ~2026-07-27.**
 
       **The funnel is LIVE and verified end to end** (2026-07-14): a real comment produced a
@@ -55,38 +87,6 @@ responsible for. Do not work those.
       added, any Instagram comment of "OWN" from the new Own Your Fans scripts goes nowhere.**
       Verify the deploy's webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is
       live at [thecrwn.app/tools/own-your-fans-calculator](https://thecrwn.app/tools/own-your-fans-calculator).
-
-- [ ] **12 accounts still publish an email address as their public name. The migration stopped
-      NEW ones; it does not fix the rows that already exist.** Verified against production on
-      2026-07-23 with the anon key, so this is what an outsider can read today, not a guess.
-
-      The app-layer guard (`isPresentableArtistName`) stops these rendering as artist names, but
-      **it does not stop a direct read**: `profiles` is anon-readable and the anon key ships in
-      every browser bundle, so all 12 addresses are fetchable by anyone. 4 are your own
-      `joshn.wms+testN@gmail.com` accounts; the other 8 are real people.
-
-      **One is worse than the rest.** The artist `aribahmad21@gmail.com` has a public page AND
-      their **slug encodes the email**: `thecrwn.app/aribahmad21-gmail-com`. Fixing the name
-      alone leaves the address sitting in the URL.
-
-      ```sql
-      -- who they are (run this first, it is the whole list)
-      SELECT p.id, p.display_name, ap.slug
-      FROM profiles p LEFT JOIN artist_profiles ap ON ap.user_id = p.id
-      WHERE p.display_name LIKE '%@%';
-
-      -- your own test accounts: safe to blank, the app falls back everywhere
-      UPDATE profiles SET display_name = NULL WHERE display_name LIKE 'joshn.wms+test%';
-
-      -- real users: set a real name per person, do not guess a stage name
-      UPDATE profiles SET display_name = 'Their Artist Name' WHERE id = '<user_id>';
-
-      -- and the slug that leaks the address
-      UPDATE artist_profiles SET slug = '<their-real-slug>' WHERE slug = 'aribahmad21-gmail-com';
-      ```
-
-      Changing a slug breaks any existing link to that page. Low risk here (a brand-new artist
-      with no audience), but it is a real trade-off, so it is your call, not mine.
 
 - [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
       keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the

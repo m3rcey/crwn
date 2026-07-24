@@ -66,10 +66,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const supabase = createBrowserSupabaseClient();
 
+  // Explicit column list, NOT select('*'). `profiles` carries private columns
+  // (email, phone, full_name, ...) whose SELECT is revoked from the browser roles
+  // by schema-phase2-profiles-column-privileges.sql, and a `*` would ask for them
+  // and 42501 for every logged-in user. Add a column here only if the browser
+  // genuinely needs it AND it is granted in that migration. A user's own email
+  // comes from the Supabase session (`user.email`), never from this row.
   const fetchProfile = useCallback(async (userId: string) => {
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select(
+        'id, role, display_name, username, avatar_url, bio, social_links, is_active, created_at, updated_at, has_completed_tour, completed_tours, onboarding_completed'
+      )
       .eq('id', userId)
       .single();
     
