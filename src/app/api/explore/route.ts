@@ -30,7 +30,20 @@ export async function GET(req: NextRequest) {
     artistQuery.ilike('slug', `%${search}%`);
   }
 
-  const { data: slugArtists } = await artistQuery.limit(20);
+  // The artist list and the founder-hidden list are independent, so they go out
+  // together. Founder-hidden artists (schema-phase2-featured-hidden.sql) drop out
+  // of the BROWSE list but stay findable by SEARCH: hiding a tile should not make
+  // a real artist unreachable. The hidden query is tolerant on purpose, so this
+  // route still works before that migration lands (absent column -> null -> nobody
+  // hidden) rather than 42703-ing the whole page.
+  const [slugRes, hiddenRes] = await Promise.all([
+    artistQuery.limit(20),
+    search
+      ? Promise.resolve({ data: [] as { id: string }[] })
+      : supabaseAdmin.from('artist_profiles').select('id').eq('featured_hidden', true),
+  ]);
+  const slugArtists = slugRes.data;
+  const hiddenIds = new Set((hiddenRes.data || []).map((r) => r.id as string));
 
   // Also search by display_name in profiles table
   let nameArtists: typeof slugArtists = [];
@@ -53,19 +66,6 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Founder-hidden artists (schema-phase2-featured-hidden.sql) drop out of the
-  // BROWSE list but stay findable by SEARCH: hiding a tile should not make a real
-  // artist unreachable. Queried tolerantly and separately so this route still works
-  // before that migration is applied (absent column -> null data -> nobody hidden).
-  let hiddenIds = new Set<string>();
-  if (!search) {
-    const { data: hiddenRows } = await supabaseAdmin
-      .from('artist_profiles')
-      .select('id')
-      .eq('featured_hidden', true);
-    hiddenIds = new Set((hiddenRows || []).map((r) => r.id as string));
-  }
-
   // Merge and deduplicate
   const seenIds = new Set<string>();
   const artists = [...(slugArtists || []), ...(nameArtists || [])].filter(a => {
@@ -75,54 +75,50 @@ export async function GET(req: NextRequest) {
     return true;
   });
 
-  // Get subscriber counts per artist (single batched query, not N+1)
   const artistIds = (artists || []).map(a => a.id);
+  const now = new Date().toISOString();
+
+  // ONE WAVE, not four. Subscriber counts and the has-music check both depend on
+  // artistIds, but the two track lists do not depend on the artists at all. These
+  // used to run as four sequential round trips; Explore is a top-nav page, so that
+  // latency was paid on every visit for no reason.
+  const [subsRes, musicRes, newReleasesRes, popularTracksRes] = await Promise.all([
+    artistIds.length
+      ? supabaseAdmin.from('subscriptions').select('artist_id').in('artist_id', artistIds).eq('status', 'active')
+      : Promise.resolve({ data: [] as { artist_id: string }[] }),
+    artistIds.length
+      ? supabaseAdmin.from('tracks').select('artist_id').eq('is_active', true).in('artist_id', artistIds)
+      : Promise.resolve({ data: [] as { artist_id: string }[] }),
+    // New releases: latest tracks, excluding anything still inside its early-access
+    // window (public_release_date in the future).
+    supabaseAsCaller
+      .from('tracks_public')
+      .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
+      .eq('is_active', true)
+      .or(`public_release_date.is.null,public_release_date.lte.${now}`)
+      .order('created_at', { ascending: false })
+      .limit(12),
+    supabaseAsCaller
+      .from('tracks_public')
+      .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, is_free')
+      .eq('is_active', true)
+      .or(`public_release_date.is.null,public_release_date.lte.${now}`)
+      .order('play_count', { ascending: false })
+      .limit(12),
+  ]);
+
   const artistSubCounts: Record<string, number> = {};
-
-  if (artistIds.length > 0) {
-    const { data: subs } = await supabaseAdmin
-      .from('subscriptions')
-      .select('artist_id')
-      .in('artist_id', artistIds)
-      .eq('status', 'active');
-
-    for (const sub of subs || []) {
-      artistSubCounts[sub.artist_id] = (artistSubCounts[sub.artist_id] || 0) + 1;
-    }
+  for (const sub of subsRes.data || []) {
+    artistSubCounts[sub.artist_id] = (artistSubCounts[sub.artist_id] || 0) + 1;
   }
 
   // Only surface artists with published music, so empty/incomplete signups
   // (no tracks, no avatar) don't appear as broken placeholder tiles.
   const artistsWithMusic = new Set<string>();
-  if (artistIds.length > 0) {
-    const { data: musicRows } = await supabaseAdmin
-      .from('tracks')
-      .select('artist_id')
-      .eq('is_active', true)
-      .in('artist_id', artistIds);
-    for (const r of musicRows || []) artistsWithMusic.add(r.artist_id);
-  }
+  for (const r of musicRes.data || []) artistsWithMusic.add(r.artist_id);
 
-  const now = new Date().toISOString();
-
-  // New releases - latest tracks across all artists
-  // Exclude tracks still in early access window (public_release_date in the future)
-  const { data: newReleases } = await supabaseAsCaller
-    .from('tracks_public')
-    .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, created_at, is_free')
-    .eq('is_active', true)
-    .or(`public_release_date.is.null,public_release_date.lte.${now}`)
-    .order('created_at', { ascending: false })
-    .limit(12);
-
-  // Popular tracks - by play count
-  const { data: popularTracks } = await supabaseAsCaller
-    .from('tracks_public')
-    .select('id, title, album_art_url, audio_url_128, audio_url_320, duration, play_count, artist_id, is_free')
-    .eq('is_active', true)
-    .or(`public_release_date.is.null,public_release_date.lte.${now}`)
-    .order('play_count', { ascending: false })
-    .limit(12);
+  const newReleases = newReleasesRes.data;
+  const popularTracks = popularTracksRes.data;
 
   // Search tracks by title if search query provided
   let searchTracks: typeof newReleases = [];
