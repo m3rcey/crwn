@@ -23,8 +23,6 @@ interface LivestreamManagerProps {
   tiers: TierConfig[];
 }
 
-const SLOT_OPTIONS = [10, 25, 50, 100, 250, 500];
-
 export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: LivestreamManagerProps) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
@@ -545,14 +543,21 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
             {mode === 'live' && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-crwn-text-secondary text-sm mb-1">Max slots</label>
-                  <select
+                  <label className="block text-crwn-text-secondary text-sm mb-1">Seats</label>
+                  <input
+                    type="number"
+                    min={1}
+                    step={1}
                     value={maxSlots}
-                    onChange={(e) => setMaxSlots(parseInt(e.target.value))}
-                    className="neu-inset w-full px-3 py-2 text-crwn-text focus:outline-none"
-                  >
-                    {SLOT_OPTIONS.map(s => <option key={s} value={s}>{s} viewers</option>)}
-                  </select>
+                    onChange={(e) => {
+                      // Free entry: any number of seats. Empty string stays editable;
+                      // clamp to >= 1 only once a real value is typed.
+                      const n = parseInt(e.target.value, 10);
+                      setMaxSlots(Number.isNaN(n) ? 0 : Math.max(1, n));
+                    }}
+                    placeholder="How many seats?"
+                    className="neu-inset w-full px-3 py-2 text-crwn-text placeholder-crwn-text-secondary focus:outline-none"
+                  />
                 </div>
                 <div>
                   <label className="block text-crwn-text-secondary text-sm mb-1">Scheduled for (optional)</label>
@@ -673,6 +678,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 !title.trim() ||
                 isSaving ||
                 (mode === 'prerecorded' && !videoFile) ||
+                (mode === 'live' && (!maxSlots || maxSlots < 1)) ||
                 ((mode === 'live' || visibility === 'public') && !isFree && selectedTiers.length === 0)
               }
               className="neu-button-accent w-full py-2 rounded-xl font-semibold disabled:opacity-50"
