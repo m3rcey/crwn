@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
+import LeadMagnetsView from '@/components/admin/LeadMagnetsView';
 import PipelineView from '@/components/admin/PipelineView';
 import FunnelView from '@/components/admin/FunnelView';
 import PlatformSequences from '@/components/admin/PlatformSequences';
@@ -16,7 +17,7 @@ import AgentInsights from '@/components/admin/AgentInsights';
 import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition';
+type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets';
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -136,6 +137,15 @@ export default function AdminPage() {
             Acquisition
           </button>
           <button
+            onClick={() => setActiveTab('leadmagnets')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'leadmagnets' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Megaphone className="w-4 h-4" />
+            Lead Magnets
+          </button>
+          <button
             onClick={() => setActiveTab('access')}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeTab === 'access' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
@@ -187,6 +197,12 @@ export default function AdminPage() {
       {activeTab === 'acquisition' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <AcquisitionView />
+        </div>
+      )}
+
+      {activeTab === 'leadmagnets' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <LeadMagnetsView />
         </div>
       )}
 

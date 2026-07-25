@@ -1,5 +1,27 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Lead Magnet Performance dashboard (admin)
+
+The admin-facing surface over the funnel + opportunity analytics. New tab `leadmagnets` in
+`src/app/admin/page.tsx` -> `src/components/admin/LeadMagnetsView.tsx` (admin-gated by the page's
+role check; its data route re-checks admin server-side, so nothing is exposed publicly).
+
+- **Data:** `GET /api/admin/lead-magnet-dashboard` reads funnel_events + opportunity_ledger and
+  returns every tile: Views / Completions / Emails / Accounts, Activation Rate (accounts /
+  completions), Builder Completion (published / opened), Revenue Opportunity Revealed + Captured
+  (current month, so reveals are not summed across months), Top Calculator, and Highest Converting
+  Source / Video / Campaign. Filters: date, campaign, calculator, artist (fetched once per window,
+  filtered in memory so the filter-option dropdowns never collapse).
+- **Pure aggregation** `src/lib/analytics/leadMagnetDashboard.ts` (tested): stage counts, the two
+  rates, `conversionByDimension` (completion rate per source/video/campaign with a min-views floor
+  so a 1-view/1-completion row can't top the chart), `calculatorPerformance`.
+- **Video dimension added:** funnel_events gained a `video` column (utm_content), wired through the
+  recorder and the analytics mirror, so "Highest Converting Video" is real. (Amended the still-
+  unapplied funnel migration; no second migration.)
+- **UI:** responsive (cards reflow 2->6 cols, recharts in ResponsiveContainer, the per-calculator
+  table scrolls on mobile), reuses the FunnelView card/pill/chart patterns. Tests in
+  `src/lib/analytics/leadMagnetDashboard.test.ts`.
+
 ## 2026-07-25 — Opportunity tracking (revealed / activated / captured / remaining)
 
 Tracks the DOLLAR opportunity a calculator revealed through its lifecycle, per artist per FEATURE

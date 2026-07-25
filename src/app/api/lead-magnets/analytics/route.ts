@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
         (typeof meta.source === 'string' && meta.source) ||
         (typeof meta.utmSource === 'string' && meta.utmSource) ||
         null,
+      video: typeof meta.utmContent === 'string' ? meta.utmContent : null,
       resultId: typeof meta.resultId === 'string' ? meta.resultId : null,
       anonId: eventId ?? null,
       dedupeKey: eventId ?? null,

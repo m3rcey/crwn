@@ -58,6 +58,8 @@ export interface FunnelDimensions {
   calculator?: string | null;
   campaign?: string | null;
   referrer?: string | null;
+  /** utm_content: the specific video/creative that drove the visit. */
+  video?: string | null;
   artistId?: string | null;
   userId?: string | null;
   resultId?: string | null;
@@ -91,6 +93,7 @@ export function buildFunnelRow(input: RecordFunnelInput): Record<string, unknown
     calculator: clip(input.calculator),
     campaign: clip(input.campaign),
     referrer: clip(input.referrer),
+    video: clip(input.video),
     artist_id: input.artistId || null,
     user_id: input.userId || null,
     result_id: input.resultId || null,

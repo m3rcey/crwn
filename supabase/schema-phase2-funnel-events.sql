@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS funnel_events (
   -- of a user/artist/result, and analytics writes must never fail on a dangling reference.
   calculator text,   -- tool_slug, e.g. 'worth'
   campaign   text,   -- utm_campaign
-  referrer   text,   -- utm_source || ref || document.referrer || 'direct'
+  referrer   text,   -- utm_source || ref || document.referrer || 'direct'  (the source/platform)
+  video      text,   -- utm_content: the specific video/creative that drove the visit
   artist_id  uuid,   -- artist_profiles.id, once known
   user_id    uuid,   -- auth.users.id, once known
 
@@ -68,6 +69,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_funnel_events_dedupe ON funnel_events (dedu
 CREATE INDEX IF NOT EXISTS idx_funnel_events_stage ON funnel_events (stage, occurred_at DESC);
 CREATE INDEX IF NOT EXISTS idx_funnel_events_calc ON funnel_events (calculator, occurred_at DESC);
 CREATE INDEX IF NOT EXISTS idx_funnel_events_campaign ON funnel_events (campaign) WHERE campaign IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_funnel_events_video ON funnel_events (video) WHERE video IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_funnel_events_artist ON funnel_events (artist_id, occurred_at DESC) WHERE artist_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_funnel_events_date ON funnel_events (occurred_at DESC);
 
