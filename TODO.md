@@ -51,26 +51,6 @@ responsible for. Do not work those.
          right.
       Tell me anything that breaks or reads wrong.
 
-- [ ] **Test one real purchase and one Stripe Connect click on production.** Every Stripe flow on
-      the platform was failing with `42501` and I shipped the fix on 2026-07-24 (deployed, live at
-      `sw.js` v239). Cause: `schema-phase2-stripe-id-column-privs.sql` revoked SELECT on
-      `stripe_connect_id` and the `platform_stripe_*` columns from `authenticated`, and naming one
-      revoked column fails the WHOLE query, embedded joins included, so ~12 queries silently
-      returned no row and every caller answered "not found". Subscriptions, track/product/ticket/
-      tip checkout, Stripe Connect onboarding, balance, cashout, login-link, create-price and the
-      billing portal were all dead, along with the payouts and billing screens.
-
-      I verified the fix compiles and deployed it, but I cannot log in as an artist or run a card,
-      so **only you can confirm money actually moves.** NOTE: production Stripe is in LIVE mode, so
-      the `4242` test card is declined. You do NOT need to pay to test the fix: the `42501` bug broke
-      the step that runs when you click Subscribe (building the checkout session), which is BEFORE
-      the card form. So click **Subscribe** on a tier at
-      [thecrwn.app/m3rcey](https://thecrwn.app/m3rcey) as a no-subscription fan: if you REACH the
-      Stripe card page, the broken path works (close the tab, no charge). If it errors before Stripe
-      ("Tier not found"), paste me the error. Separately, open
-      [`/account/payouts`](https://thecrwn.app/account/payouts) and confirm the balance renders and
-      the Connect link opens. (End-to-end webhook proof needs a real card + refund; optional.)
-
 - [ ] **The 7 Executive Producer scripts are now TRUE (the feature shipped), except one price
       mismatch. Fix that, then they are safe to record.** When I first audited these on 2026-07-24
       they promised a feature that did not exist. It exists now: fan submissions (beats/vocals/
