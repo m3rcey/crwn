@@ -31,8 +31,9 @@ responsible for. Do not work those.
 
       I cannot run a card, so only you can confirm it. On [thecrwn.app/m3rcey](https://thecrwn.app/m3rcey)
       with an account holding no subscription to that artist: create a gated live with a ticket
-      price, buy the ticket in Stripe test mode, then open the session and check you see **Join
-      Live** and not a Subscribe wall. Then send a chat message, then open the recording after it
+      price, buy the ticket (prod Stripe is LIVE, so use a real card and refund it after in the
+      Stripe dashboard; a completed purchase is required because entitlement is granted by the
+      webhook), then open the session and check you see **Join Live** and not a Subscribe wall. Then send a chat message, then open the recording after it
       ends. If any of the three still blocks you, tell me which.
 
 - [ ] **Run one real Executive Producer Session end to end on `m3rcey`. Nobody has yet.** The whole
@@ -42,7 +43,7 @@ responsible for. Do not work those.
       1. Studio → Live → New Session. Tick **Let fans submit beats, vocals, and ideas**, set a
          **Seats** count and a ticket price, pick a tier, add a **What can they send?** prompt.
       2. From a second account with NO subscription to m3rcey: open the session link, **Grab a
-         seat** (Stripe test mode), then send a beat or an idea.
+         seat** (prod Stripe is LIVE: real card, refund after), then send a beat or an idea.
       3. Back as the artist: Studio → Live → **Submissions** on that session, confirm the beat is
          there and reviewable (feature / shortlist / pass, play, download).
       4. **Go Live**, launch a poll, End.
@@ -60,10 +61,15 @@ responsible for. Do not work those.
       billing portal were all dead, along with the payouts and billing screens.
 
       I verified the fix compiles and deployed it, but I cannot log in as an artist or run a card,
-      so **only you can confirm money actually moves.** Two checks: subscribe to a tier on
-      [thecrwn.app/m3rcey](https://thecrwn.app/m3rcey) in Stripe test mode, and open
-      [`/account/payouts`](https://thecrwn.app/account/payouts) to confirm the balance renders.
-      If either still fails, tell me the exact error text.
+      so **only you can confirm money actually moves.** NOTE: production Stripe is in LIVE mode, so
+      the `4242` test card is declined. You do NOT need to pay to test the fix: the `42501` bug broke
+      the step that runs when you click Subscribe (building the checkout session), which is BEFORE
+      the card form. So click **Subscribe** on a tier at
+      [thecrwn.app/m3rcey](https://thecrwn.app/m3rcey) as a no-subscription fan: if you REACH the
+      Stripe card page, the broken path works (close the tab, no charge). If it errors before Stripe
+      ("Tier not found"), paste me the error. Separately, open
+      [`/account/payouts`](https://thecrwn.app/account/payouts) and confirm the balance renders and
+      the Connect link opens. (End-to-end webhook proof needs a real card + refund; optional.)
 
 - [ ] **The 7 Executive Producer scripts are now TRUE (the feature shipped), except one price
       mismatch. Fix that, then they are safe to record.** When I first audited these on 2026-07-24
