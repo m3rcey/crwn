@@ -1,5 +1,28 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Feature-specific continuation CTAs on every calculator
+
+Replaced the generic post-result CTA ("Create your CRWN account and fix this", "Claim it on CRWN",
+"Build this inside CRWN") with copy that names the exact feature: worth -> "Build My Membership",
+share-to-earn -> "Turn On Share-to-Earn", executive-producer -> "Build My Executive Producer
+Session", live-experience -> "Create My First Ticketed Live Event", vault -> "Build My Vault". Every
+other calculator derives "Build My {featureName}" (with natural overrides for a few plurals/labels),
+so a new calculator gets a feature-specific CTA for free.
+
+- **Single source of truth:** `src/lib/leadMagnets/continuationCta.ts` — `continueCtaFor(slug)`
+  (bespoke overrides + featureName-derived default) and `buildContinueUrl(slug, token)` (the EXISTING
+  signup flow, `/signup?tool=&result=`). No new signup flow; the token handoff is unchanged.
+- **Render sites rewired to the helper:** `ConvertToFeatureButton` (the one registry-driven CTA, so
+  all 16 tools change at once), `LeadEmailCta` (new `ctaLabel` prop; web + tokenized result page,
+  web claimHref now token-aware via buildContinueUrl), the tokenized result page `SignupCta`, the
+  capture email `ctaLabel`, and both `/worth` continuation buttons.
+- **Deliberately left alone:** `CrwnShowcase` / `IndependenceSection` — platform-wide showcases that
+  list ALL revenue streams, not a single feature; and the `hero.primaryCta` "run the calculator"
+  buttons. Only the true post-result continuation CTA changed.
+
+Tests in `src/lib/leadMagnets/continuationCta.test.ts` (the five exact strings + every registered
+calculator gets non-generic copy + the URL preserves context).
+
 ## 2026-07-25 — Lead Magnet Performance dashboard (admin)
 
 The admin-facing surface over the funnel + opportunity analytics. New tab `leadmagnets` in

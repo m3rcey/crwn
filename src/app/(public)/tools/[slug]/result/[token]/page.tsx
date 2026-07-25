@@ -24,6 +24,7 @@ import { getResultByToken, recordView } from '@/lib/leadResults/resultAccess';
 import { CrwnShowcase } from '@/components/lead-magnets/CrwnShowcase';
 import { ToolShowcase } from '@/components/lead-magnets/ToolShowcase';
 import { LeadEmailCta } from '@/components/lead-magnets/LeadEmailCta';
+import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { ESTIMATE_DISCLAIMER } from '@/lib/leadMagnets/disclaimers';
 import { WorthExperience } from '@/app/(public)/worth/WorthExperience';
 import type { ResultSection } from '@/lib/leadMagnets/types';
@@ -101,6 +102,7 @@ export default async function ResultPage({
 
   const claimed = !!result.claimedAt;
   const claimHref = `/claim/${encodeURIComponent(token)}`;
+  const continueLabel = continueCtaFor(result.toolSlug || slug);
   const midIndex = Math.floor(bodySections.length / 2);
 
   return (
@@ -146,7 +148,7 @@ export default async function ResultPage({
         )}
 
         {/* Above the fold: collect the email, then sign up directly under it. */}
-        <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} />
+        <LeadEmailCta claimed={claimed} claimHref={claimHref} toolSlug={result.toolSlug || slug} ctaLabel={continueLabel} />
 
         {/* Sections, with a CTA woven into the middle */}
         <div className="space-y-8 mt-16">
@@ -157,6 +159,7 @@ export default async function ResultPage({
                 <SignupCta
                   claimed={claimed}
                   claimHref={claimHref}
+                  ctaLabel={continueLabel}
                   heading="This does not build itself"
                   sub="CRWN gives you the tiers, the page, and the payouts to actually run it."
                 />
@@ -199,12 +202,14 @@ function SignupCta({
   heading,
   sub,
   big,
+  ctaLabel,
 }: {
   claimed: boolean;
   claimHref: string;
   heading: string;
   sub: string;
   big?: boolean;
+  ctaLabel?: string;
 }) {
   const pad = big ? 'p-8 sm:p-10 text-center' : 'p-6 sm:p-7';
   return (
@@ -215,7 +220,7 @@ function SignupCta({
         href={claimed ? '/profile/artist' : claimHref}
         className="inline-flex items-center gap-2 bg-[#D4AF37] text-black font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 transition"
       >
-        {claimed ? 'Open your dashboard' : 'Claim it on CRWN'}
+        {claimed ? 'Open your dashboard' : ctaLabel || 'Claim it on CRWN'}
         <ArrowRight className="w-4 h-4" />
       </Link>
     </div>

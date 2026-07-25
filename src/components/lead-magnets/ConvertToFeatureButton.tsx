@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { buildConversionUrl } from '@/lib/leadMagnets/conversionAdapters';
+import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
 import type { GeneratedResult, LeadMagnetConfig } from '@/lib/leadMagnets/types';
 
@@ -49,7 +50,9 @@ export function ConvertToFeatureButton({
     if (config.conversionTarget.route) router.push(config.conversionTarget.route);
   };
 
-  const label = context === 'public' ? config.cta.publicPrimary : config.conversionTarget.label;
+  // Public: the feature-specific continuation ("Build My Membership", "Turn On Share-to-Earn").
+  // Artist: keep the builder's own label (a different context, already specific).
+  const label = context === 'public' ? continueCtaFor(config.slug) : config.conversionTarget.label;
 
   return (
     <div className="space-y-2">

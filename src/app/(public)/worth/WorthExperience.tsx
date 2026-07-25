@@ -22,11 +22,15 @@ import {
   CommunityMock, ShopMock, SyncMock, SequencesMock, LiveMock, ClipperMock,
 } from './mocks';
 import { IndependenceSection } from '@/components/lead-magnets/IndependenceSection';
+import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 
 // Primary CTA target: the scheduling page where the artist books a Zoom call.
 // The event page, not the profile page. The profile page is a list of event types and costs
 // the visitor an extra click at the exact moment she is deciding whether to bother.
 const BOOK_CALL_URL = 'https://cal.com/jnwcreative/15min';
+
+// The Streaming Loss calculator's feature-specific continuation CTA (single source of truth).
+const MEMBERSHIP_CTA = continueCtaFor('worth'); // "Build My Membership"
 
 // Brand gold as RGB for inline opacity steps (single-hue composition bar).
 const GOLD = '212,175,55';
@@ -381,7 +385,7 @@ export function WorthExperience({
           href={claimHref}
           className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
         >
-          Sign up free and keep this money <ArrowRight className="w-5 h-5" />
+          {MEMBERSHIP_CTA} <ArrowRight className="w-5 h-5" />
         </a>
       ) : homepage ? (
         <a
@@ -883,7 +887,7 @@ function PrimaryCTA({
     <div className="text-center my-12">
       {claimHref ? (
         <a href={claimHref} className={cls}>
-          Save my numbers and build this <ArrowRight className="w-5 h-5" />
+          {MEMBERSHIP_CTA} <ArrowRight className="w-5 h-5" />
         </a>
       ) : homepage ? (
         <a href="/signup?ref=homepage" className={cls}>

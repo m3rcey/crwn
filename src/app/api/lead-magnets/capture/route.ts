@@ -9,6 +9,7 @@ import { generatePublicToken, isValidEmail, normalizeEmail, isEmailSuppressed, r
 import { leadMagnetResultEmail } from '@/lib/emails/leadMagnetResult';
 import { CONSENT_TEXT_VERSION } from '@/lib/leadMagnets/disclaimers';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 
 // PUBLIC endpoint. No auth (middleware excludes /api). It authorizes/rate-limits itself.
 // Recomputes the result SERVER-SIDE from the inputs (never trusts a client-sent result),
@@ -157,7 +158,7 @@ export async function POST(req: NextRequest) {
           insights: result.emailInsights,
           resultUrl: `${APP_URL}${config.publicRoute}?result=${publicToken}`,
           ctaUrl: `${APP_URL}/signup?tool=${config.slug}&result=${publicToken}&ref=lead-magnet`,
-          ctaLabel: 'Build this inside CRWN',
+          ctaLabel: continueCtaFor(config.slug),
         }),
       });
       await supabaseAdmin.from('lead_magnet_results').update({ last_emailed_at: new Date().toISOString() }).eq('id', saved.id);

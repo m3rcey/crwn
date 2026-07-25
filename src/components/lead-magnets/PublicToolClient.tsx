@@ -10,6 +10,7 @@ import { CrwnShowcase } from './CrwnShowcase';
 import { ToolShowcase } from './ToolShowcase';
 import { LeadMagnetResult } from './LeadMagnetResult';
 import { LeadEmailCta } from './LeadEmailCta';
+import { continueCtaFor, buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
 import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
@@ -188,7 +189,12 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             result={result}
             mode="full"
             afterHero={
-              <LeadEmailCta claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} toolSlug={config.slug} />
+              <LeadEmailCta
+                claimed={false}
+                claimHref={buildContinueUrl(config.slug, publicToken)}
+                toolSlug={config.slug}
+                ctaLabel={continueCtaFor(config.slug)}
+              />
             }
           />
 

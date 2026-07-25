@@ -15,10 +15,13 @@ export function LeadEmailCta({
   claimed,
   claimHref,
   toolSlug,
+  ctaLabel,
 }: {
   claimed: boolean;
   claimHref: string;
   toolSlug: string;
+  /** Feature-specific continuation label, e.g. "Build My Membership". */
+  ctaLabel?: string;
 }) {
   const [email, setEmail] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
@@ -80,7 +83,7 @@ export function LeadEmailCta({
         href={claimed ? '/profile/artist' : claimHref}
         className="mt-4 w-full flex items-center justify-center gap-2 bg-[#D4AF37] text-black font-semibold py-3.5 px-6 rounded-full hover:opacity-90 transition"
       >
-        {claimed ? 'Open your dashboard' : 'Sign up free and build this'}
+        {claimed ? 'Open your dashboard' : ctaLabel || 'Sign up free and build this'}
         <ArrowRight className="w-4 h-4" />
       </Link>
     </div>
