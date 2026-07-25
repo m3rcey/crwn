@@ -90,21 +90,12 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Apply the funnel analytics migration.** The new lead-magnet funnel tracking (all 15 stages,
-      page view through mission completed, deduped and dimensioned by calculator / campaign /
-      referrer / artist / date) writes to a new `funnel_events` table. Until it is applied, every
-      funnel event silently no-ops (fail-safe by design, so nothing breaks) and no data is captured;
-      the admin rollup at `/api/admin/funnel-events` returns an empty funnel. Apply
-      [`supabase/schema-phase2-funnel-events.sql`](supabase/schema-phase2-funnel-events.sql) in the
-      Supabase SQL editor. It is idempotent and self-verifying.
-
-- [ ] **Apply the opportunity ledger migration.** Opportunity tracking (revealed / activated /
-      captured / remaining money per artist per feature per month, from the calculators + your real
-      `earnings`) writes to a new `opportunity_ledger` table. Until it is applied, recompute
-      silently no-ops (fail-safe) and the admin rollup at `/api/admin/opportunity` returns empty.
-      Apply [`supabase/schema-phase2-opportunity-ledger.sql`](supabase/schema-phase2-opportunity-ledger.sql)
-      in the Supabase SQL editor. Idempotent and self-verifying. (Captured reads the `earnings` and
-      `referral_earnings` tables, which already exist in prod, so no other setup is needed.)
+- [ ] **Send `source_post_id` from ManyChat to the CRWN webhook** so "Highest Converting Video" has
+      data. Real leads arrive IG comment → ManyChat → CRWN (server-side), so their video signal is the
+      IG post id, not a web `utm_content`. CRWN already accepts the field and now records it as the
+      funnel's video dimension; it just needs ManyChat to send it. In each keyword flow's External
+      Request body, add a field `source_post_id` mapped to the Instagram triggering post/media id.
+      Until then the funnel still works but video groups under `unknown`.
 
 - [ ] **Delete your two leftover onboarding test artists.** Both are live on Featured
       Artists right now as duplicate "Merce" tiles:
