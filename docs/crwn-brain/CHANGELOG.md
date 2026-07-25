@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Opportunity tracking (revealed / activated / captured / remaining)
+
+Tracks the DOLLAR opportunity a calculator revealed through its lifecycle, per artist per FEATURE
+per month. Distinct from the funnel event counts below: this is a money ledger.
+
+- **Table:** `opportunity_ledger` (`supabase/schema-phase2-opportunity-ledger.sql`, UNRUN, TODO.md).
+  Grain (artist_id, feature, period_year, period_month) UNIQUE = the dedup guarantee. Columns:
+  revealed_cents / captured_cents / remaining_cents / activated + calculator + dimensions. Artist
+  reads own, admin reads all.
+- **Pure core** `src/lib/analytics/opportunity.ts` (fully tested): `FEATURE_BY_CALCULATOR` maps the
+  five calculators onto THREE disjoint features (worth+vault -> membership, live+exec -> live,
+  share -> referral); `revealedByFeature` dedups per feature with MAX (two calculators describing
+  the same money are never summed); `computeRemaining` = max(0, revealed - captured);
+  `capturedFromEarnings` sums net revenue per feature and nets refunds back onto the ORIGINAL
+  payment's feature (grouping by type alone would strand refunds and overstate captured).
+- **Captured is real money, from disjoint ledgers so it never double-counts:** membership = artist
+  net `earnings` type='subscription' (already referral- and fee-netted), live = earnings
+  live_ticket + live_tip, referral = `referral_earnings.commission_amount` (the referrer's cut that
+  was netted OUT of subscription earnings). Monthly, refund-adjusted.
+- **Recompute** `src/lib/analytics/opportunityLedger.ts` `recomputeArtistOpportunity(db, artistId)`:
+  reveals (from claimed results) + captured (this month) + activated (real state: a live tier / a
+  live session / referral rate > 0) -> upsert the current-month rows. Idempotent.
+  `refreshAllOpportunities` does it for all artists with a claimed result.
+- **Triggers:** on `builder_published` (the funnel beacon recomputes that artist); read-time for a
+  single ?artistId in the rollup; and a daily refresh piggybacked on the `outcome-measure` cron (no
+  new cron, per the Hobby cap).
+- **Reporting:** `GET /api/admin/opportunity` rolls up revealed/activated/captured/remaining by
+  feature, calculator, artist, month, and year.
+
+Tests in `src/lib/analytics/opportunity.test.ts` (feature map, max-dedup, remaining floor, refund
+netting, totals).
+
 ## 2026-07-25 — Complete lead-magnet funnel analytics
 
 One canonical funnel store for the whole acquisition funnel (page view -> mission completed),

@@ -39,8 +39,9 @@ export interface LeadMagnetMission {
 }
 
 /** The monthly opportunity a calculator modeled, in cents. worth carries it as netMrr; loss tools
- *  as estimatedMonthlyCents. Null when the tool produced no dollar (e.g. a score-only tool). */
-function monthlyCentsOf(seed: LeadMagnetSeed): number | null {
+ *  as estimatedMonthlyCents. Null when the tool produced no dollar (e.g. a score-only tool). This
+ *  is the single "revealed monthly" source, reused by opportunity tracking. */
+export function monthlyCentsOf(seed: LeadMagnetSeed): number | null {
   if (typeof seed.estimatedMonthlyCents === 'number' && seed.estimatedMonthlyCents > 0) {
     return seed.estimatedMonthlyCents;
   }

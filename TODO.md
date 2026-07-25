@@ -98,6 +98,14 @@ responsible for. Do not work those.
       [`supabase/schema-phase2-funnel-events.sql`](supabase/schema-phase2-funnel-events.sql) in the
       Supabase SQL editor. It is idempotent and self-verifying.
 
+- [ ] **Apply the opportunity ledger migration.** Opportunity tracking (revealed / activated /
+      captured / remaining money per artist per feature per month, from the calculators + your real
+      `earnings`) writes to a new `opportunity_ledger` table. Until it is applied, recompute
+      silently no-ops (fail-safe) and the admin rollup at `/api/admin/opportunity` returns empty.
+      Apply [`supabase/schema-phase2-opportunity-ledger.sql`](supabase/schema-phase2-opportunity-ledger.sql)
+      in the Supabase SQL editor. Idempotent and self-verifying. (Captured reads the `earnings` and
+      `referral_earnings` tables, which already exist in prod, so no other setup is needed.)
+
 - [ ] **Delete your two leftover onboarding test artists.** Both are live on Featured
       Artists right now as duplicate "Merce" tiles:
 

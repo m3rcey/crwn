@@ -97,11 +97,22 @@ export async function GET(req: NextRequest) {
       console.error('Lock cleanup failed (non-fatal):', err);
     }
 
+    // Piggyback: refresh the opportunity ledger so captured/remaining stay current for artists who
+    // accrue revenue between build events (Vercel Hobby caps crons, so we ride this daily one).
+    let opportunityArtists = 0;
+    try {
+      const { refreshAllOpportunities } = await import('@/lib/analytics/opportunityLedger');
+      opportunityArtists = (await refreshAllOpportunities(supabaseAdmin)).artists;
+    } catch (err) {
+      console.error('Opportunity refresh failed (non-fatal):', err);
+    }
+
     return NextResponse.json({
       measured,
       failed,
       artists: Object.keys(artistActions).length,
       expiredLocks,
+      opportunityArtists,
     });
   } catch (error) {
     console.error('Outcome measurement cron error:', error);

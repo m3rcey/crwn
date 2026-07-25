@@ -112,15 +112,16 @@ export async function getLeadMagnetSeed(
  */
 export async function getClaimedResults(
   db: Db,
-  opts: { userId: string; artistId?: string | null },
+  opts: { userId?: string | null; artistId?: string | null },
 ): Promise<LeadMagnetSeed[]> {
   try {
+    if (!opts.artistId && !opts.userId) return [];
     let query = db
       .from('lead_magnet_results')
       .select('id, tool_slug, title, result_data, created_at')
       .order('created_at', { ascending: false })
       .limit(50);
-    query = opts.artistId ? query.eq('artist_id', opts.artistId) : query.eq('user_id', opts.userId);
+    query = opts.artistId ? query.eq('artist_id', opts.artistId) : query.eq('user_id', opts.userId as string);
 
     const { data, error } = await query;
     if (error || !Array.isArray(data)) return [];

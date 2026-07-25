@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { recordFunnelEvent, isFunnelStage } from '@/lib/analytics/funnelEvents';
+import { recomputeArtistOpportunity } from '@/lib/analytics/opportunityLedger';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 const supabaseAdmin = createClient(
@@ -70,6 +71,12 @@ export async function POST(req: NextRequest) {
     dedupeKey: body.dedupeKey ?? user.id,
     metadata: body.metadata,
   });
+
+  // Building a feature is exactly when an opportunity moves from revealed to activated/captured, so
+  // refresh this artist's ledger now. Fail-safe inside recompute; never blocks the beacon response.
+  if (body.stage === 'builder_published' && artist?.id) {
+    await recomputeArtistOpportunity(supabaseAdmin, String(artist.id));
+  }
 
   return NextResponse.json({ ok: true });
 }
