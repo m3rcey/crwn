@@ -64,10 +64,10 @@ export function PostCard({ post, onUpdate, isArtistView = false }: PostCardProps
         .from('comments')
         .select(`
           *,
-          author:profiles(*),
+          author:profiles(id, display_name, username, avatar_url, role),
           replies:comments(
             *,
-            author:profiles(*)
+            author:profiles(id, display_name, username, avatar_url, role)
           )
         `)
         .eq('post_id', post.id)

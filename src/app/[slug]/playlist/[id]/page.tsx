@@ -19,7 +19,8 @@ export default async function PlaylistPage({ params }: PlaylistPageProps) {
   // Fetch artist profile
   const { data: artist } = await supabase
     .from('artist_profiles_public')
-    .select('*, profile:profiles(*)')
+    // NEVER profiles(*): revoked profiles.email/phone 42501 the whole embed -> "not found".
+    .select('*, profile:profiles(id, display_name, username, avatar_url)')
     .eq('slug', slug)
     .single();
 

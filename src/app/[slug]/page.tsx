@@ -25,7 +25,10 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
 
   const { data: artist } = await supabase
     .from('artist_profiles_public')
-    .select('*, profile:profiles(*)')
+    // NEVER profiles(*): profiles.email/phone have SELECT revoked from anon/authenticated, and
+    // naming a revoked column 42501s the WHOLE embedded query, so the page reads "no row" and 404s.
+    // Select only PUBLIC profile columns explicitly.
+    .select('*, profile:profiles(id, display_name, username, avatar_url, bio, social_links, is_active)')
     .eq('slug', slug)
     .single();
 
@@ -108,7 +111,10 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   // expands `*` in the database).
   const { data: artist, error } = await supabase
     .from('artist_profiles_public')
-    .select('*, profile:profiles(*)')
+    // NEVER profiles(*): profiles.email/phone have SELECT revoked from anon/authenticated, and
+    // naming a revoked column 42501s the WHOLE embedded query, so the page reads "no row" and 404s.
+    // Select only PUBLIC profile columns explicitly.
+    .select('*, profile:profiles(id, display_name, username, avatar_url, bio, social_links, is_active)')
     .eq('slug', slug)
     .single();
 
