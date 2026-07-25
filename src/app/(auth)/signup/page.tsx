@@ -11,6 +11,10 @@ export default function SignupPage() {
   const searchParams = useSearchParams();
   const recruiterCode = searchParams.get('recruiter');
   const inviteCode = searchParams.get('invite');
+  // A lead-magnet result token from the emailed CTA (?result=) or a /claim redirect (?token=).
+  // Carried into the new user record via signUp options.data, NOT localStorage, so it survives
+  // email verification server-side and auto-claim can attach the result on first login.
+  const pendingResultToken = searchParams.get('result') || searchParams.get('token') || undefined;
 
   useEffect(() => {
     if (recruiterCode) {
@@ -53,7 +57,7 @@ export default function SignupPage() {
 
           <div className="neu-raised p-8">
             <h2 className="text-xl font-semibold text-crwn-text mb-6 text-center">Sign Up</h2>
-            <AuthForm mode="signup" onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
+            <AuthForm mode="signup" pendingResultToken={pendingResultToken} onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
               // New signups go into onboarding, not the feed. (Only reached when email
               // confirmation is off and signUp returns an immediate session.)
               setTimeout(() => router.replace('/welcome'), 100);

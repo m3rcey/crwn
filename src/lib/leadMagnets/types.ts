@@ -190,6 +190,11 @@ export interface GeneratedResult {
   // Bonus analysis shown ONLY in the emailed version, never on the free page. The reward for
   // handing over an email.
   emailInsights?: { title: string; body: string }[];
+  // NUMERIC opportunity, persisted inside result_data so the handoff surfaces (Action Plan,
+  // Rise Mode) can lead with a real figure without re-parsing the display tiles. Cents.
+  // Set by buildLossResult when a monetary loss is known; absent for score-only tools.
+  estimatedMonthlyCents?: number;
+  estimatedAnnualCents?: number;
 }
 
 export type LeadCapturePayload = {

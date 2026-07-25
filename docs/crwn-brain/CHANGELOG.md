@@ -1,5 +1,38 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Lead-magnet handoff: the storage-free bridge into the app
+
+The persistence already existed. `lead_magnet_results` has stored every field the calculators
+produce (inputs, outputs, generator/formula version, tokens) since the lead-magnet + acquisition
+schemas landed, and `claimResult` already bound an anonymous result to a verified account without
+ever duplicating an artist. The gap was SURVIVAL: the only thing carrying a result through
+signup was `localStorage['crwn_claim']`, redeemed by `ClaimRedeemer` only after setup finished.
+That loses the result on a different device, in incognito, or with a cleared cache, and the WEB
+calculator path (raw `public_token`) had no claim at all, so a web signup never attached anything.
+
+The bridge, all server-side, no browser storage as a dependency:
+
+- **`autoClaimForUser(userId, {email, token})`** in `src/lib/leadResults/resultAccess.ts` sits
+  next to `claimResult` and reuses its safety rules. Two durable keys: (1) a token carried
+  through signup in Supabase `user_metadata` (resolves BOTH the hashed acquisition token and the
+  raw web `public_token`), and (2) a **verified-email match** across `lead_magnet_leads` and
+  `lead_identities`. Only ever anchored on the auth side's VERIFIED email, so binding a
+  self-entered lead email to it is safe. Every write touches only unclaimed rows and is
+  idempotent; it re-runs to backfill `artist_id` after `/welcome`.
+- **`POST /api/lead-results/auto-claim`** derives user + verified email + metadata token from the
+  SESSION (never the body), rate-limited, burns the one-shot token.
+- Triggered fire-and-forget from `useAuth` (both session-establish paths) and from
+  `ClaimRedeemer`. `/signup?result=|token=` carries the token into `user_metadata` via `signUp`,
+  which also finally makes the long-dead capture-email CTA work.
+- **Feels started:** `getLeadMagnetSeed` (`src/lib/leadResults/handoffSeed.ts`) reads the claimed
+  result back into a display shape. The always-on **Action Plan** leads with it (loss-framed) and
+  the dark-launched **Rise Mode** shows a banner above "Your next move".
+- The numeric opportunity is now persisted INTO `result_data` (`estimatedMonthlyCents` /
+  `estimatedAnnualCents`, set by `buildLossResult`) so the handoff leads with a real figure.
+
+No migration, no env var, no flag: it runs on columns/tables the live acquisition engine already
+uses, and every path fails safe. Tests in `src/lib/leadResults/handoff.test.ts`.
+
 ## 2026-07-24 — P0: a revoked column had silently killed every Stripe flow
 
 Found while chasing why the hamburger showed artists the fan menu. That was one symptom.

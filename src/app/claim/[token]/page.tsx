@@ -34,17 +34,13 @@ export default function ClaimPage({ params }: { params: Promise<{ token: string 
         // Send them through the EXISTING auth flow. We do not invent a second way to make an
         // account, and we do not bypass Supabase email verification.
         //
-        // KNOWN LIMITATION, deliberately not patched here: /signup ignores ?next and always
-        // routes to /welcome (and with email confirmation on, via /verify first). So the
-        // token does not survive the funnel automatically. We stash it the same way the repo
-        // already stashes crwn_recruiter and crwn_invite, and the artist claims on their next
-        // visit to the result link (which they still have, in the DM and the email).
-        //
-        // Auto-redemption after signup means touching /welcome or useAuth, which are the two
-        // files that broke onboarding silently for months. That is a phase-2 change with its
-        // own testing, not a footnote to this one.
+        // The token now survives the funnel SERVER-SIDE: /signup?token= carries it into the new
+        // user record (Supabase user_metadata), and auto-claim reads + burns it on first login.
+        // We still stash it in localStorage as a belt-and-suspenders fallback for the specific
+        // case where they finish signup on this same device; the durable path is the query param
+        // plus the verified-email match, neither of which depends on this browser.
         localStorage.setItem('crwn_claim', token);
-        router.push(`/signup?next=${encodeURIComponent(`/claim/${token}`)}`);
+        router.push(`/signup?token=${encodeURIComponent(token)}&next=${encodeURIComponent(`/claim/${token}`)}`);
         return;
       }
 

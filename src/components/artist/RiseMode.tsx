@@ -35,6 +35,14 @@ interface QuestsResponse {
     level: number;
   } | null;
   recommended: { questId: string; title: string; reason: string } | null;
+  leadMagnet: {
+    resultId: string;
+    toolSlug: string;
+    toolName: string;
+    heroValue: string | null;
+    heroSuffix: string | null;
+    convertHref: string;
+  } | null;
   build: { primary: string | null; secondary: string | null };
   progression: {
     xp: number;
@@ -411,6 +419,35 @@ export function RiseMode() {
             Empire Mode is unlocked. Keep scaling with repeatable milestones below.
           </p>
         </div>
+      )}
+
+      {/* Handoff seed: the calculator result they came in with. Opens Rise Mode on THEIR number
+          and the one button that turns it into a live feature. Loss-framed, degrades to null. */}
+      {data.leadMagnet && (
+        <button
+          onClick={() => router.push(data.leadMagnet!.convertHref)}
+          className="w-full text-left rounded-2xl border border-crwn-gold/40 bg-crwn-gold/10 p-5 hover:bg-crwn-gold/15 transition-colors"
+        >
+          <div className="text-xs font-bold text-crwn-gold uppercase tracking-wide mb-1">
+            From your {data.leadMagnet.toolName}
+          </div>
+          {data.leadMagnet.heroValue ? (
+            <div className="text-crwn-text">
+              <span className="text-2xl font-bold">
+                {data.leadMagnet.heroValue}
+                {data.leadMagnet.heroSuffix ?? ''}
+              </span>{' '}
+              <span className="text-base text-crwn-text-secondary">
+                is still just a screenshot. Build it and it starts paying.
+              </span>
+            </div>
+          ) : (
+            <div className="text-base text-crwn-text">
+              Your plan is mapped. Leaving it unbuilt is the only thing between it and the payout.
+            </div>
+          )}
+          <div className="mt-2 text-sm font-semibold text-crwn-gold">Finish what you started</div>
+        </button>
       )}
 
       {/* Your Next Move — the one dominant, obvious action */}

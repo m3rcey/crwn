@@ -160,6 +160,13 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
     heroSuffix,
     heroEyebrow,
     emailInsights: emailInsights.length ? emailInsights : undefined,
+    // Persist the numeric opportunity (cents) so the post-signup handoff can lead with a real
+    // figure. monthlyLossCents is the canonical monthly opportunity; annual is 12x it. Score-only
+    // tools pass no monthlyLossCents, so these stay undefined and the handoff falls back to copy.
+    estimatedMonthlyCents:
+      typeof p.monthlyLossCents === 'number' && p.monthlyLossCents > 0 ? p.monthlyLossCents : undefined,
+    estimatedAnnualCents:
+      typeof p.monthlyLossCents === 'number' && p.monthlyLossCents > 0 ? p.monthlyLossCents * 12 : undefined,
   };
 }
 

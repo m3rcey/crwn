@@ -264,3 +264,212 @@ async function destinationFor(userId: string): Promise<string> {
   if (artist.setup_completed === false) return 'setup';
   return 'rise_mode';
 }
+
+// ===========================================================================
+// The handoff bridge: make a calculator result survive anonymous -> signup ->
+// verification -> setup -> Rise Mode WITHOUT depending on browser storage.
+//
+// `claimResult` (above) handles the precise, one-time DM/claim token. This adds
+// the two DURABLE, server-side paths that carry data the rest of the way:
+//
+//   1. A token carried through signup in Supabase user_metadata (NOT localStorage).
+//      Resolves both token schemes: hashed (acquisition) and raw public_token (web).
+//   2. VERIFIED-email match. The single robust key that survives a different device,
+//      a cleared cache, or incognito. Only ever anchored on the AUTH side's verified
+//      email (the caller MUST pass a verified address), which is why binding a
+//      self-entered lead email to it is safe: an attacker cannot verify a victim's
+//      inbox, and inheriting a result someone else typed your address into is inert.
+//
+// Every write is guarded to touch ONLY unclaimed rows and is fully idempotent, so
+// this can fire on every auth event and re-run to backfill artist_id after /welcome.
+// ===========================================================================
+
+/** Bind ONE result row to a user (and artist, if known). Only claims an UNCLAIMED row. */
+async function bindResultRow(
+  resultId: string,
+  userId: string,
+  artistId: string | null,
+): Promise<void> {
+  await supabaseAdmin
+    .from('lead_magnet_results')
+    .update({
+      user_id: userId,
+      artist_id: artistId,
+      claimed_at: new Date().toISOString(),
+    })
+    .eq('id', resultId)
+    // Never stomp a row a concurrent request already claimed.
+    .is('user_id', null);
+}
+
+/** Claim a WEB result addressed by its plaintext `public_token`. Returns true if bound. */
+async function claimByRawToken(
+  rawToken: string,
+  userId: string,
+  artistId: string | null,
+): Promise<boolean> {
+  const { data: row } = await supabaseAdmin
+    .from('lead_magnet_results')
+    .select('id, user_id, lead_id, public_token_expires_at')
+    .eq('public_token', rawToken)
+    .maybeSingle();
+
+  if (!row) return false;
+  if (row.user_id) return row.user_id === userId; // already ours = success; another's = refuse
+  if (isExpired(row.public_token_expires_at as string)) return false;
+
+  await bindResultRow(String(row.id), userId, artistId);
+  if (row.lead_id) {
+    await supabaseAdmin
+      .from('lead_magnet_leads')
+      .update({ converted_user_id: userId, converted_artist_id: artistId })
+      .eq('id', row.lead_id)
+      .is('converted_user_id', null);
+  }
+  return true;
+}
+
+/** Claim every UNCLAIMED result tied to a VERIFIED email, via leads and lead_identities. */
+async function claimByEmail(
+  userId: string,
+  email: string,
+  artistId: string | null,
+): Promise<number> {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized || !normalized.includes('@')) return 0;
+  let claimed = 0;
+
+  // A) Web capture path: lead_magnet_leads holds the self-entered email.
+  const { data: leads } = await supabaseAdmin
+    .from('lead_magnet_leads')
+    .select('id')
+    .ilike('email', normalized);
+  const leadIds = (leads ?? []).map((l: { id: string }) => l.id);
+  if (leadIds.length) {
+    const { data: rows } = await supabaseAdmin
+      .from('lead_magnet_results')
+      .select('id')
+      .in('lead_id', leadIds)
+      .is('user_id', null);
+    for (const r of rows ?? []) {
+      await bindResultRow(String((r as { id: string }).id), userId, artistId);
+      claimed++;
+    }
+    await supabaseAdmin
+      .from('lead_magnet_leads')
+      .update({ converted_user_id: userId, converted_artist_id: artistId })
+      .in('id', leadIds)
+      .is('converted_user_id', null);
+  }
+
+  // B) Acquisition path: lead_identities holds a VERIFIED email (set only after verification).
+  const { data: identities } = await supabaseAdmin
+    .from('lead_identities')
+    .select('id, user_id')
+    .ilike('email', normalized);
+  const freeIdentityIds = (identities ?? [])
+    .filter((i: { user_id: string | null }) => !i.user_id)
+    .map((i: { id: string }) => i.id);
+  if (freeIdentityIds.length) {
+    await supabaseAdmin
+      .from('lead_identities')
+      .update({
+        user_id: userId,
+        artist_id: artistId,
+        claimed_at: new Date().toISOString(),
+        status: 'claimed',
+      })
+      .in('id', freeIdentityIds)
+      .is('user_id', null);
+
+    const { data: rows } = await supabaseAdmin
+      .from('lead_magnet_results')
+      .select('id')
+      .in('lead_identity_id', freeIdentityIds)
+      .is('user_id', null);
+    for (const r of rows ?? []) {
+      await bindResultRow(String((r as { id: string }).id), userId, artistId);
+      claimed++;
+    }
+  }
+
+  return claimed;
+}
+
+export interface AutoClaimInput {
+  /** The user's VERIFIED email, or null when the session's email is not yet confirmed. */
+  email?: string | null;
+  /** A token carried through signup (Supabase user_metadata). Hashed OR raw public_token. */
+  token?: string | null;
+}
+
+/**
+ * Attach any lead-magnet result that belongs to this user but was created before they had an
+ * account. Idempotent and safe to call on every authenticated load. Never throws for a caller:
+ * a failed claim must never break auth or a page render, so all faults are swallowed here.
+ */
+export async function autoClaimForUser(
+  userId: string,
+  input: AutoClaimInput,
+): Promise<{ claimed: number }> {
+  let claimed = 0;
+
+  const { data: artist } = await supabaseAdmin
+    .from('artist_profiles')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const artistId = (artist?.id as string) ?? null;
+
+  // 1. Precise token from signup. Try the hashed (claim) scheme first, then the raw web token.
+  if (input.token) {
+    try {
+      const byClaim = await claimResult(input.token, userId);
+      if (byClaim.ok) claimed++;
+      else if (await claimByRawToken(input.token, userId, artistId)) claimed++;
+    } catch {
+      /* a bad token must never break the session */
+    }
+  }
+
+  // 2. Durable verified-email match.
+  if (input.email) {
+    try {
+      claimed += await claimByEmail(userId, input.email, artistId);
+    } catch {
+      /* email match is best-effort */
+    }
+  }
+
+  // 3. Backfill artist_id onto anything this user already owns (e.g. claimed pre-/welcome).
+  if (artistId) {
+    try {
+      await supabaseAdmin
+        .from('lead_magnet_results')
+        .update({ artist_id: artistId })
+        .eq('user_id', userId)
+        .is('artist_id', null);
+      await supabaseAdmin
+        .from('lead_identities')
+        .update({ artist_id: artistId })
+        .eq('user_id', userId)
+        .is('artist_id', null);
+    } catch {
+      /* backfill is best-effort */
+    }
+  }
+
+  if (claimed > 0) {
+    try {
+      await supabaseAdmin.from('acquisition_events').insert({
+        event_name: 'account_auto_claim_completed',
+        metadata: { userId, claimed, hasArtist: !!artistId, via: input.token ? 'token+email' : 'email' },
+        status: 'recorded',
+      });
+    } catch {
+      /* the event log is not load-bearing */
+    }
+  }
+
+  return { claimed };
+}

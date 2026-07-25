@@ -34,26 +34,29 @@ export function ClaimRedeemer() {
 
   useEffect(() => {
     if (isLoading || !user || attempted.current) return;
-
-    const token = localStorage.getItem(STORAGE_KEY);
-    if (!token) return;
-
     attempted.current = true;
 
-    // Clear FIRST. If the request fails we do not want to retry it on every single page
-    // navigation for the rest of this artist's life. One shot, then the link takes over.
-    localStorage.removeItem(STORAGE_KEY);
-
-    fetch(`/api/lead-results/${encodeURIComponent(token)}/claim`, { method: 'POST' })
+    // Durable path: match any pre-signup result to this VERIFIED account server-side (by email
+    // and by the signup-carried token) and backfill artist_id now that the artist row exists.
+    // No browser storage is required for this to work.
+    fetch('/api/lead-results/auto-claim', { method: 'POST' })
       .then((res) => res.json())
       .then((json) => {
-        if (json?.ok) {
+        if (json?.claimed > 0) {
           showToast('Your result is saved to your account!', 'success');
         }
       })
       .catch(() => {
         // Silent. The result page still works and they can claim from there.
       });
+
+    // Belt-and-suspenders: the specific "clicked a /claim link on this device" case.
+    const token = localStorage.getItem(STORAGE_KEY);
+    if (token) {
+      // Clear FIRST so a failure does not retry on every navigation for the rest of their life.
+      localStorage.removeItem(STORAGE_KEY);
+      fetch(`/api/lead-results/${encodeURIComponent(token)}/claim`, { method: 'POST' }).catch(() => {});
+    }
   }, [user, isLoading, showToast]);
 
   return null;

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { capTimeline, resolveClipperRateTimeline } from '@/lib/clipperRate';
+import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -60,6 +61,31 @@ export async function GET() {
   const high: ActionPlanRecommendation[] = [];
   const medium: ActionPlanRecommendation[] = [];
   const low: ActionPlanRecommendation[] = [];
+
+  // ---- Rule 0: LEAD MAGNET SEED (high, first) ----------------------------
+  // They already ran a calculator and saw a number. Until they build it here, that number is a
+  // screenshot, not income. This is the bridge from the lead magnet into the product, so it leads.
+  try {
+    const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId });
+    if (seed) {
+      const figure = seed.heroValue ? `${seed.heroValue}${seed.heroSuffix ?? ''}` : null;
+      high.push({
+        id: 'lead-magnet-seed',
+        priority: 'high',
+        title: figure
+          ? `${figure} you already mapped is going uncollected`
+          : `Your ${seed.toolName} plan is still sitting unbuilt`,
+        why: figure
+          ? `You ran the ${seed.toolName} and saw the number. Leaving it as a result you looked at once is the exact money it told you about, unearned.`
+          : `You did the work in the ${seed.toolName}. The one step between that plan and the payout is building it here.`,
+        ctaLabel: 'Finish what you started',
+        href: seed.convertHref,
+        icon: 'sparkles',
+      });
+    }
+  } catch {
+    // Fail open — skip this rule.
+  }
 
   // ---- Rule 1: CLIP WINDOW CLOSING (high) --------------------------------
   // A clipper rate step-down lands within 3 days — the high-cut window is the

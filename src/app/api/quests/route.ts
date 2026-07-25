@@ -12,6 +12,7 @@ import {
   recommendNextQuest,
 } from '@/lib/quests';
 import type { QuestRole } from '@/lib/quests';
+import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -103,6 +104,30 @@ export async function GET() {
 
   const quests = await getQuests(supabaseAdmin, { userId: user.id, role });
 
+  // Handoff seed: the calculator result they claimed at signup, so Rise Mode can open on the
+  // number THEY calculated instead of a cold board. Display-only; degrades to null if absent.
+  let leadMagnet: {
+    resultId: string;
+    toolSlug: string;
+    toolName: string;
+    heroValue: string | null;
+    heroSuffix: string | null;
+    convertHref: string;
+  } | null = null;
+  if (artistId) {
+    const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId });
+    if (seed) {
+      leadMagnet = {
+        resultId: seed.resultId,
+        toolSlug: seed.toolSlug,
+        toolName: seed.toolName,
+        heroValue: seed.heroValue,
+        heroSuffix: seed.heroSuffix,
+        convertHref: seed.convertHref,
+      };
+    }
+  }
+
   const { data: prog } = await supabaseAdmin
     .from('user_progression')
     .select('*')
@@ -172,6 +197,7 @@ export async function GET() {
     completions,
     recap,
     victory,
+    leadMagnet,
     recommended: recommendNextQuest(quests, prog?.artist_build_primary ?? null),
     build: {
       primary: prog?.artist_build_primary ?? null,

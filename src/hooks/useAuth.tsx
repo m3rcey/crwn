@@ -42,11 +42,22 @@ async function redeemPendingInvite(): Promise<void> {
   }
 }
 
+// Attach any lead-magnet calculator result this person completed BEFORE signing up, the moment
+// their session is known. Server-side only: the route matches on their VERIFIED email and a
+// token carried through signup in user_metadata — no browser storage is involved or required.
+// Fire-and-forget and fully idempotent: it must never delay profile load or block auth.
+function redeemPendingClaims(): void {
+  if (typeof window === 'undefined') return;
+  fetch('/api/lead-results/auto-claim', { method: 'POST' }).catch(() => {
+    // A failed claim is inert — the email match re-runs on the next load.
+  });
+}
+
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   isLoading: boolean;
-  signUp: (email: string, password: string, username?: string, fullName?: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string, username?: string, fullName?: string, pendingResultToken?: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signInWithMagicLink: (email: string) => Promise<{ error: AuthError | null }>;
   signInWithGoogle: () => Promise<{ error: AuthError | null }>;
@@ -101,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         await redeemPendingInvite();
+        redeemPendingClaims();
         fetchProfile(session.user.id);
       } else {
         setIsLoading(false);
@@ -112,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         await redeemPendingInvite();
+        redeemPendingClaims();
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
@@ -122,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [fetchProfile, supabase]);
 
-  const signUp = async (email: string, password: string, username?: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, username?: string, fullName?: string, pendingResultToken?: string) => {
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
@@ -130,6 +143,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: `${window.location.origin}/verify`,
         data: {
           display_name: fullName || '',
+          // A calculator result token, carried into the user record so it survives email
+          // verification server-side. Auto-claim reads and burns it. NOT browser storage.
+          ...(pendingResultToken ? { pending_result_token: pendingResultToken } : {}),
         },
       },
     });
