@@ -12,7 +12,7 @@ import {
   recommendNextQuest,
 } from '@/lib/quests';
 import type { QuestRole } from '@/lib/quests';
-import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { buildLeadMagnetMissions } from '@/lib/leadResults/leadMagnetMissions';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -104,26 +104,27 @@ export async function GET() {
 
   const quests = await getQuests(supabaseAdmin, { userId: user.id, role });
 
-  // Handoff seed: the calculator result they claimed at signup, so Rise Mode can open on the
-  // number THEY calculated instead of a cold board. Display-only; degrades to null if absent.
+  // Personalized first mission: the top mission from the calculators this artist completed, so
+  // Rise Mode opens on "Build Membership ($X/mo)" instead of a cold, generic board. Same shared
+  // generator the Action Plan uses, so the two never become separate mission systems. Null when
+  // no calculator was completed, in which case the normal board leads unchanged.
   let leadMagnet: {
-    resultId: string;
     toolSlug: string;
     toolName: string;
-    heroValue: string | null;
-    heroSuffix: string | null;
-    convertHref: string;
+    title: string;
+    monthlyValue: string | null;
+    href: string;
   } | null = null;
   if (artistId) {
-    const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId });
-    if (seed) {
+    const missions = await buildLeadMagnetMissions(supabaseAdmin, { userId: user.id, artistId });
+    const top = missions[0];
+    if (top) {
       leadMagnet = {
-        resultId: seed.resultId,
-        toolSlug: seed.toolSlug,
-        toolName: seed.toolName,
-        heroValue: seed.heroValue,
-        heroSuffix: seed.heroSuffix,
-        convertHref: seed.convertHref,
+        toolSlug: top.toolSlug,
+        toolName: top.toolName,
+        title: top.title,
+        monthlyValue: top.monthlyValue,
+        href: top.href,
       };
     }
   }

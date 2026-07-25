@@ -36,12 +36,11 @@ interface QuestsResponse {
   } | null;
   recommended: { questId: string; title: string; reason: string } | null;
   leadMagnet: {
-    resultId: string;
     toolSlug: string;
     toolName: string;
-    heroValue: string | null;
-    heroSuffix: string | null;
-    convertHref: string;
+    title: string;
+    monthlyValue: string | null;
+    href: string;
   } | null;
   build: { primary: string | null; secondary: string | null };
   progression: {
@@ -421,32 +420,28 @@ export function RiseMode() {
         </div>
       )}
 
-      {/* Handoff seed: the calculator result they came in with. Opens Rise Mode on THEIR number
-          and the one button that turns it into a live feature. Loss-framed, degrades to null. */}
+      {/* Personalized first mission: generated from the calculator this artist completed. It leads
+          the board, above the generic next move. Opens the prefilled builder. Degrades to null. */}
       {data.leadMagnet && (
         <button
-          onClick={() => router.push(data.leadMagnet!.convertHref)}
+          onClick={() => router.push(data.leadMagnet!.href)}
           className="w-full text-left rounded-2xl border border-crwn-gold/40 bg-crwn-gold/10 p-5 hover:bg-crwn-gold/15 transition-colors"
         >
           <div className="text-xs font-bold text-crwn-gold uppercase tracking-wide mb-1">
-            From your {data.leadMagnet.toolName}
+            Your first mission, from the {data.leadMagnet.toolName}
           </div>
-          {data.leadMagnet.heroValue ? (
-            <div className="text-crwn-text">
-              <span className="text-2xl font-bold">
-                {data.leadMagnet.heroValue}
-                {data.leadMagnet.heroSuffix ?? ''}
-              </span>{' '}
-              <span className="text-base text-crwn-text-secondary">
-                is still just a screenshot. Build it and it starts paying.
-              </span>
-            </div>
-          ) : (
-            <div className="text-base text-crwn-text">
-              Your plan is mapped. Leaving it unbuilt is the only thing between it and the payout.
-            </div>
-          )}
-          <div className="mt-2 text-sm font-semibold text-crwn-gold">Finish what you started</div>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-2xl font-bold text-crwn-text">{data.leadMagnet.title}</span>
+            {data.leadMagnet.monthlyValue && (
+              <span className="text-base text-crwn-gold font-semibold">{data.leadMagnet.monthlyValue}</span>
+            )}
+          </div>
+          <div className="mt-1 text-sm text-crwn-text-secondary">
+            {data.leadMagnet.monthlyValue
+              ? `You already saw the number. Until you build this, ${data.leadMagnet.monthlyValue} stays a screenshot, not income.`
+              : 'You already did the work in the calculator. This is the one step between the plan and the payout.'}
+          </div>
+          <div className="mt-2 text-sm font-semibold text-crwn-gold">Start this mission</div>
         </button>
       )}
 

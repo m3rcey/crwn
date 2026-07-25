@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { capTimeline, resolveClipperRateTimeline } from '@/lib/clipperRate';
-import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { buildLeadMagnetMissions } from '@/lib/leadResults/leadMagnetMissions';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -62,27 +62,30 @@ export async function GET() {
   const medium: ActionPlanRecommendation[] = [];
   const low: ActionPlanRecommendation[] = [];
 
-  // ---- Rule 0: LEAD MAGNET SEED (high, first) ----------------------------
-  // They already ran a calculator and saw a number. Until they build it here, that number is a
-  // screenshot, not income. This is the bridge from the lead magnet into the product, so it leads.
+  // ---- Rule 0: PERSONALIZED CALCULATOR MISSIONS (high, first) -------------
+  // A calculator the artist completed becomes their first, personalized mission ("Build
+  // Membership", not "launch a mission"), carrying the dollar they saw. One mission per completed
+  // calculator, ranked by opportunity, so the biggest one leads Rise Mode. These come from the
+  // shared mission generator, so the Action Plan and Rise Mode never drift into two systems.
   try {
-    const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId });
-    if (seed) {
-      const figure = seed.heroValue ? `${seed.heroValue}${seed.heroSuffix ?? ''}` : null;
-      high.push({
-        id: 'lead-magnet-seed',
-        priority: 'high',
-        title: figure
-          ? `${figure} you already mapped is going uncollected`
-          : `Your ${seed.toolName} plan is still sitting unbuilt`,
-        why: figure
-          ? `You ran the ${seed.toolName} and saw the number. Leaving it as a result you looked at once is the exact money it told you about, unearned.`
-          : `You did the work in the ${seed.toolName}. The one step between that plan and the payout is building it here.`,
-        ctaLabel: 'Finish what you started',
-        href: seed.convertHref,
-        icon: 'sparkles',
-      });
-    }
+    const missions = await buildLeadMagnetMissions(supabaseAdmin, { userId: user.id, artistId });
+    missions.forEach((m, i) => {
+      const value = m.monthlyValue ? ` (${m.monthlyValue})` : '';
+      const rec: ActionPlanRecommendation = {
+        id: `lead-magnet-mission-${m.toolSlug}`,
+        // The top mission leads the whole plan; the rest are still surfaced, one step down.
+        priority: i === 0 ? 'high' : 'medium',
+        title: `${m.title}${value}`,
+        why: m.monthlyValue
+          ? `You ran the ${m.toolName} and saw ${m.monthlyValue}. Until you build it here, that stays a screenshot, not income.`
+          : `You did the work in the ${m.toolName}. Building it here is the one step between the plan and the payout.`,
+        ctaLabel: 'Start this mission',
+        href: m.href,
+        icon: m.icon,
+      };
+      if (i === 0) high.push(rec);
+      else medium.push(rec);
+    });
   } catch {
     // Fail open — skip this rule.
   }

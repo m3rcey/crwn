@@ -1,5 +1,30 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Lead magnets ARE the first Rise Mode mission
+
+A calculator an artist completed now becomes their personalized first mission, generated through the
+existing Action Plan architecture (no new quest/mission system). `src/lib/leadResults/leadMagnetMissions.ts`
+is the single shared generator both surfaces read from:
+- `LEAD_MAGNET_MISSIONS` maps the five builder-mapped calculators to concrete titles: worth -> "Build
+  Membership", executive-producer-session -> "Create Your First Executive Producer Session",
+  share-to-earn-planner -> "Turn On Share-to-Earn", live-experience-calculator -> "Schedule Your First
+  Ticketed Live", vault-revenue-planner -> "Launch Your Vault".
+- `buildLeadMagnetMissions(db, {userId, artistId})` reads EVERY claimed result (via new
+  `getClaimedResults` / `rowToSeed` in handoffSeed), keeps one mission per completed calculator
+  (newest), ranks by monthly opportunity (worth's dollar is `conversionPayload.netMrrCents`; loss tools
+  use `estimatedMonthlyCents`), and each mission's CTA is the prefilled builder URL from
+  `postSetupDestination`.
+
+Wiring:
+- `/api/action-plan` Rule 0 now emits one recommendation per completed calculator: the top is `high`
+  (the personalized FIRST mission), the rest `medium`. Title carries the dollar, e.g. "Build Membership
+  ($1,200/mo)".
+- `/api/quests` returns the top mission as `leadMagnet`, and RiseMode's banner (above "Your next move")
+  renders it as the starting mission with its value. Existing quests/board untouched; degrades to null
+  when no calculator was completed.
+
+No migration, env var, or flag. Tests in `src/lib/leadResults/leadMagnetMissions.test.ts`.
+
 ## 2026-07-25 — Pre-built draft configs from calculator results (honest scope)
 
 Extends the routing below from a thin prefill to a fuller, auto-generated DRAFT the artist edits and
