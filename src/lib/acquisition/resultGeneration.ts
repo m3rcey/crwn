@@ -14,6 +14,7 @@ import { getTool, type LeadProfileValues } from './toolAdapters';
 import { buildResultUrl, expiresAt, mintToken, RESULT_TTL_SECONDS } from '../leadResults/resultToken';
 import { ESTIMATE_DISCLAIMER } from '../leadMagnets/disclaimers';
 import { recordEvent } from './eventOutbox';
+import { mirrorFunnelForSession } from '../analytics/acquisitionFunnelMirror';
 import type { AcquisitionResult } from './types';
 
 const DISCLAIMER_VERSION = '2026-07-11.v1';
@@ -147,6 +148,11 @@ export async function generateAndStore(input: GenerateInput): Promise<Acquisitio
     sessionId: input.sessionId,
     resultId: String(data.id),
     metadata: { tool: tool.id, calculatorId: tool.calculatorId, formulaVersion: tool.formulaVersion },
+  });
+
+  // Mirror into the funnel (ManyChat path) -> calculator_completed, with the IG post as the video.
+  await mirrorFunnelForSession(supabaseAdmin, input.sessionId, 'calculator_completed', String(data.id), {
+    resultId: String(data.id),
   });
 
   return {

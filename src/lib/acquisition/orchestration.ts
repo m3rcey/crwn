@@ -18,6 +18,7 @@
 // second.
 
 import { supabaseAdmin } from './db';
+import { mirrorFunnelDirect } from '../analytics/acquisitionFunnelMirror';
 import { LEAD_MAGNETS } from '../leadMagnets/registry';
 import { decide } from './claudeDecisionService';
 import { getField, normalizeDeterministic } from './fieldRegistry';
@@ -576,6 +577,16 @@ async function loadOrCreateSession(
     leadIdentityId: identity.id,
     sessionId: String(data.id),
     metadata: { tool: toolId, keyword: payload.keyword, sourcePost: payload.source_post_id },
+  });
+
+  // Mirror into the funnel with the IG post as the video dimension (attribution is right here on
+  // the payload, so no extra query). One per session -> page_viewed for the ManyChat funnel.
+  await mirrorFunnelDirect(supabaseAdmin, 'page_viewed', `ig_view:${data.id}`, {
+    calculator: toolId,
+    video: payload.source_post_id,
+    creatorAccount: payload.creator_account,
+    keyword: payload.keyword,
+    campaign: payload.utm_campaign,
   });
 
   return data as SessionRow;

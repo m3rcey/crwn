@@ -1,5 +1,23 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Bridge the ManyChat funnel into funnel_events (video = the IG post)
+
+The dashboard's funnel + "Highest Converting Video" only saw WEB traffic: the client beacon maps
+utm_content -> funnel_events.video, but real leads come via IG comment -> ManyChat -> CRWN, handled
+server-side and never loading that beacon. Their "which video" signal is `lead_sessions.source_post_id`
+(the IG post/Reel), captured server-side but living in acquisition_events/lead_sessions, not funnel_events.
+
+`src/lib/analytics/acquisitionFunnelMirror.ts` records the ManyChat funnel into funnel_events using the
+post as the video dimension (creator -> referrer `ig:<acct>`, keyword -> campaign fallback). Wired at the
+existing acquisition choke points: `lead_session_started` -> page_viewed (orchestration.ts, attribution
+straight off the payload), `lead_result_generated` -> calculator_completed (resultGeneration.ts),
+`lead_result_viewed` -> result_revealed (resultAccess.ts). Deduped by session/result id; fail-safe. Web
+and ManyChat are disjoint (web has no lead_session), so no double counting. account_created stays covered
+by the useAuth auto-claim path.
+
+REQUIRES the ManyChat External Request to send `source_post_id` (IG post id) to the CRWN webhook, or the
+video dimension stays null for those leads. `igFunnelDims` is the tested pure mapping.
+
 ## 2026-07-25 — Feature-specific continuation CTAs on every calculator
 
 Replaced the generic post-result CTA ("Create your CRWN account and fix this", "Claim it on CRWN",

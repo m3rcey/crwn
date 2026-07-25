@@ -112,6 +112,12 @@ export async function recordView(resultId: string): Promise<void> {
         status: 'recorded',
       });
 
+      // Mirror into the funnel (ManyChat path) -> result_revealed, with the IG post as the video.
+      const { mirrorFunnelForSession } = await import('../analytics/acquisitionFunnelMirror');
+      await mirrorFunnelForSession(supabaseAdmin, data?.lead_session_id ?? null, 'result_revealed', `ig_reveal:${resultId}`, {
+        resultId,
+      });
+
       // They looked but have not saved it. That is a warmer problem than "never opened it",
       // and it gets its own follow-up in 48 hours. If they claim before then, the handler
       // sees claimed_at and stays quiet.
