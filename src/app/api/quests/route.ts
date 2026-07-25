@@ -13,6 +13,7 @@ import {
 } from '@/lib/quests';
 import type { QuestRole } from '@/lib/quests';
 import { buildLeadMagnetMissions } from '@/lib/leadResults/leadMagnetMissions';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -126,6 +127,31 @@ export async function GET() {
         monthlyValue: top.monthlyValue,
         href: top.href,
       };
+    }
+  }
+
+  // Funnel: Rise Mode Started (once per artist per day) and Mission Completed (once per quest).
+  // Reuses the quest system's own completion signal, so there is no second mission system.
+  if (artistId) {
+    const today = new Date().toISOString().slice(0, 10);
+    await recordFunnelEvent(supabaseAdmin, {
+      stage: 'rise_mode_started',
+      artistId,
+      userId: user.id,
+      calculator: leadMagnet?.toolSlug ?? null,
+      dedupeKey: `${artistId}:${today}`,
+    });
+    for (const c of completions) {
+      const qid = (c as { questId?: string; id?: string })?.questId || (c as { id?: string })?.id;
+      if (!qid) continue;
+      await recordFunnelEvent(supabaseAdmin, {
+        stage: 'mission_completed',
+        artistId,
+        userId: user.id,
+        calculator: leadMagnet?.toolSlug ?? null,
+        dedupeKey: String(qid),
+        metadata: { title: (c as { title?: string })?.title ?? null },
+      });
     }
   }
 

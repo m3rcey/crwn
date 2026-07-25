@@ -20,6 +20,7 @@ import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtis
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { withTimeout } from '@/lib/promiseTimeout';
+import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
 import {
   createOnboardingTrack,
@@ -158,10 +159,12 @@ function SetupWizard() {
   useEffect(() => {
     if (loading || initRef.current) return;
     initRef.current = true;
+    // Funnel: Setup Started. Server dedups once per user, so a resume/reload is not a new start.
+    if (isArtist && !setupCompleted) trackFunnel('setup_started');
     const firstIncomplete = SCREENS.findIndex((sc) => !screenDone(sc, setup));
     if (firstIncomplete === -1) setPhase('share');
     else setStepIndex(firstIncomplete);
-  }, [loading, setup]);
+  }, [loading, setup, isArtist, setupCompleted]);
 
   const current = SCREENS[stepIndex];
   const currentDone = current ? screenDone(current, setup) : false;

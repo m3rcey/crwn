@@ -26,6 +26,7 @@ import { createOnboardingTier, createOnboardingProduct } from '@/lib/onboardingI
 import { CLIPPER_RAMP_PRESETS, sanitizeClipperSchedule } from '@/lib/clipperRate';
 import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
 import { CalculatorSuggestions } from '@/components/lead-magnets/CalculatorSuggestions';
+import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 import type { ProductType } from '@/types';
 
 /**
@@ -547,6 +548,11 @@ function OfferBuilder() {
       if (promoWarned) {
         showToast('Offer created, but promotion settings didn’t save. Set them from your dashboard.', 'error');
       }
+      // Funnel: Builder Published. A per-publish key, so each published offer is its own event.
+      trackFunnel('builder_published', {
+        dedupeKey: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+        metadata: { builder: 'offer', offerType },
+      });
       setPhase('done');
       scrollTop();
     } catch (e) {

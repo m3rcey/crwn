@@ -45,13 +45,24 @@ export interface LmEventMeta {
   conversionTarget?: string;
   generatorVersion?: string;
   reasonCode?: string;
+  /** Per-occurrence id, set automatically by trackLeadMagnet. Dedups a retried/double-fired beacon
+   *  of the SAME occurrence in the funnel table; two genuine events get two ids. */
+  eventId?: string;
+  /** document.referrer, captured automatically. The funnel's referrer dimension. */
+  referrer?: string;
 }
 
 // Fire-and-forget. Uses sendBeacon when available so it survives navigation.
 export function trackLeadMagnet(event: LmEvent, meta: LmEventMeta): void {
   if (typeof window === 'undefined') return;
   try {
-    const body = JSON.stringify({ event, meta });
+    // Stamp a per-occurrence id (for funnel dedup) and the referrer, unless already provided.
+    const enriched: LmEventMeta = {
+      ...meta,
+      eventId: meta.eventId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
+      referrer: meta.referrer || (typeof document !== 'undefined' && document.referrer ? document.referrer : undefined),
+    };
+    const body = JSON.stringify({ event, meta: enriched });
     if (navigator.sendBeacon) {
       navigator.sendBeacon('/api/lead-magnets/analytics', new Blob([body], { type: 'application/json' }));
     } else {

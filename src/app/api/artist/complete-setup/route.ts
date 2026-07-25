@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 // Marks the artist's setup wizard as finished (artist_profiles.setup_completed).
 // This is the ONE write the wizard makes to artist_profiles, and it gates the
@@ -39,6 +41,18 @@ export async function POST(request: NextRequest) {
   if (!data || data.length === 0) {
     return NextResponse.json({ error: 'No artist profile found' }, { status: 404 });
   }
+
+  // Funnel: Setup Completed. Once per artist (dedup on artist id), tagged with the calculator they
+  // came in on so activation can be measured per acquisition source.
+  const artistId = String(data[0].id);
+  const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId });
+  await recordFunnelEvent(supabaseAdmin, {
+    stage: 'setup_completed',
+    artistId,
+    userId: user.id,
+    calculator: seed?.toolSlug ?? null,
+    dedupeKey: artistId,
+  });
 
   return NextResponse.json({ success: true });
 }

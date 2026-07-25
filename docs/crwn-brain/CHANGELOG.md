@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Complete lead-magnet funnel analytics
+
+One canonical funnel store for the whole acquisition funnel (page view -> mission completed),
+deduped and dimensioned for dashboards. It does NOT replace the two existing event tables
+(`lead_magnet_events` append-only log, `acquisition_events` IG outbox); it unifies the funnel.
+
+- **Table:** `funnel_events` (`supabase/schema-phase2-funnel-events.sql`, UNRUN, in TODO.md). Columns:
+  `stage` (CHECK of the 15 canonical stages), the five dimensions `calculator`/`campaign`/`referrer`/
+  `artist_id`/`occurred_at`, plus `user_id`/`result_id`/`anon_id`/`metadata`, and `dedupe_key`
+  (UNIQUE) for "no duplicate events". Admin-read RLS, service-role write.
+- **Recorder:** `src/lib/analytics/funnelEvents.ts` — `FUNNEL_STAGES`, `recordFunnelEvent(db, input)`
+  (upsert ON CONFLICT (dedupe_key) DO NOTHING; fail-safe, never throws; no-ops pre-migration),
+  `buildFunnelRow` (pure, tested). The dedupe_key is namespaced by stage and defaults to a random
+  uuid so inherently-repeatable stages never collapse while a retried beacon of one occurrence does.
+- **Instrumentation (server-side, each stage once):**
+  - Stages 1-7 (page/started/completed/revealed/signup) are MIRRORED from the EXISTING client beacon:
+    `/api/lead-magnets/analytics` maps the lm event -> stage via `LM_EVENT_TO_STAGE`; `trackLeadMagnet`
+    now stamps a per-occurrence `eventId` (dedup key) and `document.referrer`.
+  - Email Submitted: capture route. Assumptions Changed: recalculate route (dedup on result+values).
+  - Account Created + Email Verified: auto-claim route (dedup per user). Setup Completed:
+    complete-setup route (dedup per artist). Builder Opened: post-setup-destination route.
+    Rise Mode Started + Mission Completed: quests route (reuses quest completions).
+  - Setup Started + Builder Published: a new authenticated beacon `POST /api/funnel/track`
+    (identity from session, never body) called from the setup page and the two builders.
+    Client helper `src/lib/analytics/trackFunnelClient.ts` (separate file so node:crypto never
+    bundles into a client component).
+- **Reporting:** `GET /api/admin/funnel-events` (admin-only) rolls up per-stage counts + breakdowns
+  by calculator/campaign/referrer over a date range. Distinct from `/api/admin/funnel` (the existing
+  artist activation-milestone funnel), which is untouched.
+
+Tests in `src/lib/analytics/funnelEvents.test.ts` (stage guard, dedup key, fail-safe).
+
 ## 2026-07-25 — Lead magnets ARE the first Rise Mode mission
 
 A calculator an artist completed now becomes their personalized first mission, generated through the

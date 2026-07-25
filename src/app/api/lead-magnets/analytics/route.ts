@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { recordLmEvent } from '@/lib/leadMagnets/server';
+import { recordFunnelEvent, LM_EVENT_TO_STAGE } from '@/lib/analytics/funnelEvents';
 
 // PUBLIC analytics sink. Append-only. The server allowlists fields (recordLmEvent),
 // so no raw email/phone/answers/payloads can land here even if a client sends them.
@@ -43,6 +44,30 @@ export async function POST(req: NextRequest) {
   const event = String(body.event || '');
   if (!ALLOWED_EVENTS.has(event)) return NextResponse.json({ ok: false }, { status: 400 });
 
-  await recordLmEvent(supabaseAdmin, event, body.meta || {});
+  const meta = (body.meta || {}) as Record<string, unknown>;
+  await recordLmEvent(supabaseAdmin, event, meta);
+
+  // Mirror the top-of-funnel beacons into the canonical funnel table, so the whole funnel lives
+  // in one deduped, dimensioned place. Only the events that ARE funnel stages are mirrored; the
+  // per-occurrence eventId is the dedup key so a retried/double-fired beacon collapses.
+  const stage = LM_EVENT_TO_STAGE[event];
+  if (stage) {
+    const eventId = typeof meta.eventId === 'string' ? meta.eventId : undefined;
+    await recordFunnelEvent(supabaseAdmin, {
+      stage,
+      calculator: typeof meta.toolSlug === 'string' ? meta.toolSlug : null,
+      campaign: typeof meta.utmCampaign === 'string' ? meta.utmCampaign : null,
+      referrer:
+        (typeof meta.referrer === 'string' && meta.referrer) ||
+        (typeof meta.source === 'string' && meta.source) ||
+        (typeof meta.utmSource === 'string' && meta.utmSource) ||
+        null,
+      resultId: typeof meta.resultId === 'string' ? meta.resultId : null,
+      anonId: eventId ?? null,
+      dedupeKey: eventId ?? null,
+      metadata: { context: meta.context, authed: meta.authed },
+    });
+  }
+
   return NextResponse.json({ ok: true });
 }

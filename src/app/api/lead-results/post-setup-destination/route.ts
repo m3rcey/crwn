@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { postSetupDestination, destinationToUrl } from '@/lib/leadResults/postSetupDestination';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -36,5 +37,20 @@ export async function GET() {
   if (!seed) return NextResponse.json({ redirect: null });
 
   const dest = postSetupDestination(seed);
+
+  // Funnel: Builder Opened. Fires when the artist is routed from setup into the prefilled builder.
+  // Deduped per (user, result) so a reload of the transition does not double-count.
+  if (dest) {
+    await recordFunnelEvent(supabaseAdmin, {
+      stage: 'builder_opened',
+      artistId,
+      userId: user.id,
+      calculator: seed.toolSlug,
+      resultId: seed.resultId,
+      dedupeKey: `${user.id}:${seed.resultId}`,
+      metadata: { builder: dest.path },
+    });
+  }
+
   return NextResponse.json({ redirect: dest ? destinationToUrl(dest) : null });
 }

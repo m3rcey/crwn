@@ -17,6 +17,7 @@ import { SessionStatsPanel } from '@/components/producer/SessionStatsPanel';
 import { validateUpload } from '@/lib/uploadValidation';
 import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
 import { CalculatorSuggestions } from '@/components/lead-magnets/CalculatorSuggestions';
+import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 
 interface LivestreamManagerProps {
   artistId: string;
@@ -339,6 +340,11 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
           : null,
       });
       if (error) throw error;
+      // Funnel: Builder Published. A per-publish key, so each created session is its own event.
+      trackFunnel('builder_published', {
+        dedupeKey: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
+        metadata: { builder: 'live', ticketed: !isFree && !!ticketPrice },
+      });
       resetForm();
       loadSessions();
     } catch (err) {

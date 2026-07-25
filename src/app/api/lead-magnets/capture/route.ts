@@ -8,6 +8,7 @@ import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters'
 import { generatePublicToken, isValidEmail, normalizeEmail, isEmailSuppressed, recordLmEvent } from '@/lib/leadMagnets/server';
 import { leadMagnetResultEmail } from '@/lib/emails/leadMagnetResult';
 import { CONSENT_TEXT_VERSION } from '@/lib/leadMagnets/disclaimers';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 // PUBLIC endpoint. No auth (middleware excludes /api). It authorizes/rate-limits itself.
 // Recomputes the result SERVER-SIDE from the inputs (never trusts a client-sent result),
@@ -166,6 +167,17 @@ export async function POST(req: NextRequest) {
   }
 
   await recordLmEvent(supabaseAdmin, 'lead_magnet_lead_submitted', { toolSlug: config.slug, context: 'public', resultId: saved.id, source: body.utm?.source || 'direct' });
+
+  // Funnel: Email Submitted. Server-side and deduped per result (one email per stored result).
+  await recordFunnelEvent(supabaseAdmin, {
+    stage: 'email_submitted',
+    calculator: config.slug,
+    campaign: body.utm?.campaign || null,
+    referrer: body.utm?.source || null,
+    resultId: saved.id,
+    dedupeKey: saved.id,
+    metadata: { hasPhone: !!phone },
+  });
 
   return NextResponse.json({ success: true, resultId: saved.id, publicToken, result });
 }

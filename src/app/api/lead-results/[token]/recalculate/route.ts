@@ -18,6 +18,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getResultByToken } from '@/lib/leadResults/resultAccess';
 import { getTool } from '@/lib/acquisition/toolAdapters';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -95,6 +96,15 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ token: str
     console.error('[acquisition] recalculate failed:', error.code);
     return NextResponse.json({ error: 'Could not save' }, { status: 500 });
   }
+
+  // Funnel: Assumptions Changed. Deduped by result + the corrected values, so a retried request
+  // with identical numbers is not counted as a second change, but a real re-edit is.
+  await recordFunnelEvent(supabaseAdmin, {
+    stage: 'assumptions_changed',
+    calculator: result.toolSlug,
+    resultId: result.id,
+    dedupeKey: `${result.id}:${listeners}:${followers ?? 0}:${streamingCents ?? 0}`,
+  });
 
   // Propagate the correction to her lead profile with DIRECT_ANSWER trust. She typed this
   // into a form, deliberately, while looking at the consequence. That outranks anything we

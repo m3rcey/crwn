@@ -10,9 +10,18 @@
 // Middleware excludes /api/, so this route authenticates itself, first thing.
 
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { autoClaimForUser } from '@/lib/leadResults/resultAccess';
 import { checkRateLimit } from '@/lib/rateLimit';
+import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build',
+  { auth: { autoRefreshToken: false, persistSession: false } },
+);
 
 export async function POST() {
   const supabase = await createServerSupabaseClient();
@@ -37,6 +46,17 @@ export async function POST() {
   const token = typeof meta?.pending_result_token === 'string' ? meta.pending_result_token : null;
 
   const { claimed } = await autoClaimForUser(user.id, { email, token });
+
+  // Funnel: Account Created and Email Verified. This route is the first server touchpoint after
+  // signup, so it is the reliable server-side proxy. Both dedup on the user id, so they fire once
+  // ever no matter how often the client re-hits auto-claim. The originating calculator is attached
+  // so the whole funnel stays sliceable by calculator.
+  const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id });
+  const dims = { calculator: seed?.toolSlug ?? null, userId: user.id, resultId: seed?.resultId ?? null };
+  await recordFunnelEvent(supabaseAdmin, { stage: 'account_created', dedupeKey: user.id, ...dims });
+  if (user.email_confirmed_at) {
+    await recordFunnelEvent(supabaseAdmin, { stage: 'email_verified', dedupeKey: user.id, ...dims });
+  }
 
   // Burn the one-shot token so it does not re-run forever. Best-effort: the email match still
   // covers the same result on a later load if this write fails.

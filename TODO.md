@@ -90,6 +90,14 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Apply the funnel analytics migration.** The new lead-magnet funnel tracking (all 15 stages,
+      page view through mission completed, deduped and dimensioned by calculator / campaign /
+      referrer / artist / date) writes to a new `funnel_events` table. Until it is applied, every
+      funnel event silently no-ops (fail-safe by design, so nothing breaks) and no data is captured;
+      the admin rollup at `/api/admin/funnel-events` returns an empty funnel. Apply
+      [`supabase/schema-phase2-funnel-events.sql`](supabase/schema-phase2-funnel-events.sql) in the
+      Supabase SQL editor. It is idempotent and self-verifying.
+
 - [ ] **Delete your two leftover onboarding test artists.** Both are live on Featured
       Artists right now as duplicate "Merce" tiles:
 
