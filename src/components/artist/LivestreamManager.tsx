@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -15,6 +15,7 @@ import { GoLiveAgreementModal } from '@/components/live/GoLiveAgreementModal';
 import { SubmissionReviewPanel } from '@/components/producer/SubmissionReviewPanel';
 import { SessionStatsPanel } from '@/components/producer/SessionStatsPanel';
 import { validateUpload } from '@/lib/uploadValidation';
+import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
 
 interface LivestreamManagerProps {
   artistId: string;
@@ -124,6 +125,31 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
     const id = setInterval(() => loadSessions({ silent: true }), 8000);
     return () => clearInterval(id);
   }, [hasProcessing, loadSessions]);
+
+  // One-shot prefill when routed here straight from the Live Experience / Executive Producer
+  // calculator (post-onboarding). Opens the create form pre-filled with the calculator's own
+  // numbers, the same way runItAgain does from a past session. lm_prefill=1 also shows the banner.
+  const prefilledRef = useRef(false);
+  useEffect(() => {
+    if (prefilledRef.current || typeof window === 'undefined') return;
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('lm_prefill') !== '1') return;
+    prefilledRef.current = true;
+
+    setMode('live');
+    const t = q.get('lm_title');
+    if (t) setTitle(t);
+    const tp = q.get('lm_ticket_price');
+    if (tp && parseFloat(tp) > 0) {
+      // A ticket price only applies to a gated session, so turn gating on.
+      setIsFree(false);
+      setTicketPrice(tp);
+    }
+    // Submissions are the Executive Producer angle. Write-time still gates this on the producer
+    // flag, so setting it optimistically is safe even if the flag is off.
+    if (q.get('lm_submissions') === '1') setAcceptsSubmissions(true);
+    setShowForm(true);
+  }, []);
 
   const resetForm = () => {
     setMode('live');
@@ -436,6 +462,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
 
       {showForm && (
         <div className="neu-inset p-4 mb-6">
+          <CalculatorPrefillBanner />
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-crwn-text font-medium">New Session</h3>
             <button onClick={resetForm} className="text-crwn-text-secondary hover:text-crwn-text">

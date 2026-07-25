@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, Suspense } from 'react';
+import { useCallback, useEffect, useRef, useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -24,6 +24,7 @@ import { withTimeout } from '@/lib/promiseTimeout';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { createOnboardingTier, createOnboardingProduct } from '@/lib/onboardingItems';
 import { CLIPPER_RAMP_PRESETS, sanitizeClipperSchedule } from '@/lib/clipperRate';
+import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
 import type { ProductType } from '@/types';
 
 /**
@@ -292,6 +293,40 @@ function OfferBuilder() {
       typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('returnTo') : null;
     if (returnTo) router.replace(returnTo);
   }, [phase, router]);
+
+  // One-shot prefill when routed here straight from a calculator (post-onboarding). Presets the
+  // matching goal, then overrides with the calculator's own numbers, and jumps past the goal
+  // picker so the artist lands on already-filled fields. lm_prefill=1 also shows the banner.
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (prefilled.current || typeof window === 'undefined') return;
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('lm_prefill') !== '1') return;
+    prefilled.current = true;
+
+    const g = GOALS.find((x) => x.id === q.get('lm_goal'));
+    if (g) {
+      setGoalId(g.id);
+      setOfferType(g.offerType);
+      setPrice(g.price);
+      if (g.offerType === 'subscription') {
+        setTierName(g.tierName);
+        setBenefits(g.benefits);
+      } else {
+        setProductTitle(g.productTitle);
+        setProductType(g.productType);
+      }
+      setStepIndex(1); // skip the "what do you want to create?" screen; it is already chosen
+    }
+
+    const name = q.get('lm_tier_name');
+    if (name) setTierName(name);
+    const p = q.get('lm_price');
+    if (p) setPrice(p);
+    if (q.get('lm_share_on') === '1') setShareOn(true);
+    const sp = q.get('lm_share_percent');
+    if (sp) setSharePercent(sp);
+  }, []);
 
   if (loading || authLoading) {
     return (
@@ -570,6 +605,7 @@ function OfferBuilder() {
       {/* One decision */}
       <main className="flex-1">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+          <CalculatorPrefillBanner />
           <div className="flex items-start gap-3 mb-8">
             <div className="w-11 h-11 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
               <Icon className="w-5 h-5 text-crwn-gold" />

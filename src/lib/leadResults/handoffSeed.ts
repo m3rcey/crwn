@@ -27,6 +27,8 @@ export interface LeadMagnetSeed {
   heroSuffix: string | null;
   estimatedMonthlyCents: number | null;
   estimatedAnnualCents: number | null;
+  /** The tool's suggested config (tier name, price, seats, ...) used to prefill the builder. */
+  conversionPayload: Record<string, unknown>;
   /** Deep link to the matching builder (prefilled) or the tool's own route. */
   convertHref: string;
   createdAt: string;
@@ -84,6 +86,7 @@ export async function getLeadMagnetSeed(
         typeof rd.estimatedMonthlyCents === 'number' ? rd.estimatedMonthlyCents : null,
       estimatedAnnualCents:
         typeof rd.estimatedAnnualCents === 'number' ? rd.estimatedAnnualCents : null,
+      conversionPayload: (rd.conversionPayload as Record<string, unknown>) ?? {},
       convertHref,
       createdAt: String(data.created_at),
     };

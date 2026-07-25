@@ -1,5 +1,34 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Post-onboarding routing: land in the builder, not the dashboard
+
+Extends the handoff below. When setup finishes, the wizard no longer hardcodes `/profile/artist`.
+It asks `GET /api/lead-results/post-setup-destination`, which reads the artist's most recent
+claimed calculator result and maps it to the matching builder, PREFILLED. Null (no calculator, or
+an unmapped one) falls back to the dashboard, so nothing regresses.
+
+The five calculators collapse onto two real builders (there is no dedicated Referral/Vault/Live
+route; they are steps/modes inside these two):
+- **`/offers/new`** (Offer Builder): Streaming Loss -> Membership (`grow-supporters` goal, price =
+  the calc's implied ARPU netMrr/payers), Vault -> the `vault-access` goal (The Vault tier + price),
+  Share-to-Earn -> subscription + the share step turned on.
+- **`/studio/live`** (LivestreamManager): Live Experience -> ticketed live ($15), Executive
+  Producer -> ticketed live + submissions on, seat price banded to audience.
+
+Mechanics, reusing the existing `lm_*` prefill convention (Missions/PoD/Bounties already do this):
+- `src/lib/leadResults/postSetupDestination.ts` is the pure map (tool_slug -> path + `lm_*` params).
+  It invents nothing: prices come from each result's `conversionPayload`. Two adapters were enriched
+  to carry their real number: live-experience (`ticketPriceCents: TICKET`) and executive-producer
+  (`ticketPriceCents: seatPrice`, `acceptsSubmissions`).
+- Both builders gained a one-shot prefill `useEffect` reading `window.location.search` (Offer
+  Builder presets the goal + jumps past the picker; LivestreamManager opens the form like
+  `runItAgain`), and both mount `CalculatorPrefillBanner` ("We already filled this out using your
+  calculator.").
+
+Public result-page CTAs (`conversionTarget`) were deliberately left untouched: the routing lives
+only in the post-setup path, so blast radius is onboarding, not the marketing pages. No migration,
+env var, or flag. Tests in `src/lib/leadResults/postSetupDestination.test.ts`.
+
 ## 2026-07-25 — Lead-magnet handoff: the storage-free bridge into the app
 
 The persistence already existed. `lead_magnet_results` has stored every field the calculators

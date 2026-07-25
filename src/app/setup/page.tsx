@@ -289,7 +289,17 @@ function SetupWizard() {
     setFinishing(true);
     try {
       await withTimeout(markComplete());
-      router.replace('/profile/artist');
+      // Land inside the builder that matches the calculator they came in on, preloaded. Falls
+      // back to Rise Mode when there is no calculator to route from (or the lookup fails).
+      let dest = '/profile/artist';
+      try {
+        const res = await fetch('/api/lead-results/post-setup-destination');
+        const json = await res.json();
+        if (res.ok && typeof json?.redirect === 'string' && json.redirect) dest = json.redirect;
+      } catch {
+        // Non-fatal: the dashboard is always a safe landing.
+      }
+      router.replace(dest);
     } catch {
       setFinishing(false);
       showToast('Something went wrong. Please try again.', 'error');

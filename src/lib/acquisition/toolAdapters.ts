@@ -1284,7 +1284,7 @@ const execProducer: AcquisitionTool = {
           body: 'Announce it as a limited-seat live session. Tell fans exactly what they are buying into (a beat built from scratch, a hook written live, a verse recorded in front of them), take their ideas in the chat as you go, and share your screen so they can see the work. Price the seat for your level.',
         },
       ],
-      conversionPayload: { offer: 'executive-producer-session' },
+      conversionPayload: { offer: 'executive-producer-session', ticketPriceCents: seatPrice, acceptsSubmissions: true },
       shareSummary: `Turns out selling a seat in my session could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
   },
@@ -1494,7 +1494,7 @@ const liveExperience: AcquisitionTool = {
           body: 'Your first ticketed live is proof, not profit. Price it where your real fans do not have to think about it, sell it to the people already on your list, and let the tips carry the upside.',
         },
       ],
-      conversionPayload: { live: 'ticketed-event' },
+      conversionPayload: { live: 'ticketed-event', ticketPriceCents: TICKET },
       shareSummary: `One ticketed live a month could be worth about ${fmtDollars(monthly)} to me.`,
     });
   },
