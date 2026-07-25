@@ -1,5 +1,30 @@
 # CRWN Brain — Changelog
 
+## 2026-07-25 — Pre-built draft configs from calculator results (honest scope)
+
+Extends the routing below from a thin prefill to a fuller, auto-generated DRAFT the artist edits and
+publishes. Nothing persists until they publish; the two draft-until-publish builders (Offer Builder,
+LivestreamManager) are the only homes. A builder audit drew the line between what is a real draftable
+field and what is not, and the code respects it rather than faking features:
+
+- **Real drafts (pre-filled, editable):** Membership entry tier (name/price/benefits), the Vault tier,
+  the referral share step (on, 20%), a ticketed live/producer session (title, ticket price,
+  submissions), and the producer session's `max_slots` (limited room = 20).
+- **Suggestions, NOT drafts (because the field does not exist):** the full 3-tier membership ladder
+  (Free caps live paid tiers at 1, so only the entry tier is drafted; the rest, with the calculator's
+  real projected supporter counts, links to the Pro Tier Ladder builder), the live tip goal (needs a
+  live session, commits immediately, dark-launched), replay (records automatically, gated post-hoc),
+  and Vault release cadence (no scheduler exists; timing is per-track in Music).
+
+Mechanics: `src/lib/leadResults/postSetupDestination.ts` now centers on a tested pure
+`buildDraftConfig(seed) -> { path, prefill, suggest }`. `prefill.*` -> editable `lm_*` fields the
+builders hydrate; `suggest.*` -> `lm_suggest_*` guidance the new `CalculatorSuggestions` card renders
+(mounted under the prefill banner in both builders). Payloads enriched to carry the real numbers:
+worth adapter now emits the `ladder` (price + projected subs per tier, 70/22/8), live adapter emits
+`suggestedTipGoalCents`. Tests in `postSetupDestination.test.ts` lock the draft/suggestion boundary.
+
+No migration, env var, or flag. Public result-page CTAs untouched.
+
 ## 2026-07-25 — Post-onboarding routing: land in the builder, not the dashboard
 
 Extends the handoff below. When setup finishes, the wizard no longer hardcodes `/profile/artist`.

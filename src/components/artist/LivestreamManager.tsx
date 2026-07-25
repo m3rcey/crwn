@@ -16,6 +16,7 @@ import { SubmissionReviewPanel } from '@/components/producer/SubmissionReviewPan
 import { SessionStatsPanel } from '@/components/producer/SessionStatsPanel';
 import { validateUpload } from '@/lib/uploadValidation';
 import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
+import { CalculatorSuggestions } from '@/components/lead-magnets/CalculatorSuggestions';
 
 interface LivestreamManagerProps {
   artistId: string;
@@ -145,6 +146,8 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
       setIsFree(false);
       setTicketPrice(tp);
     }
+    const slots = parseInt(q.get('lm_max_slots') || '', 10);
+    if (Number.isFinite(slots) && slots > 0) setMaxSlots(slots);
     // Submissions are the Executive Producer angle. Write-time still gates this on the producer
     // flag, so setting it optimistically is safe even if the flag is off.
     if (q.get('lm_submissions') === '1') setAcceptsSubmissions(true);
@@ -463,6 +466,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
       {showForm && (
         <div className="neu-inset p-4 mb-6">
           <CalculatorPrefillBanner />
+          <CalculatorSuggestions />
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-crwn-text font-medium">New Session</h3>
             <button onClick={resetForm} className="text-crwn-text-secondary hover:text-crwn-text">

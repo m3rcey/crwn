@@ -160,6 +160,14 @@ const worth: AcquisitionTool = {
       conversionPayload: {
         netMrrCents: result.netMrrCents,
         payers: Math.floor(result.payers),
+        // The full suggested membership ladder the calculator modeled: price + projected
+        // supporters per tier (70/22/8 whale curve). The Membership builder pre-fills the entry
+        // tier from this and surfaces the rest as the suggested ladder to grow into (Pro).
+        ladder: [
+          { name: 'Inner Circle', priceCents: assumptions.tier1PriceCents, projectedSubs: Math.floor(result.tier1Subs) },
+          { name: 'The Vault', priceCents: assumptions.tier2PriceCents, projectedSubs: Math.floor(result.tier2Subs) },
+          { name: 'Throne', priceCents: assumptions.tier3PriceCents, projectedSubs: Math.floor(result.tier3Subs) },
+        ],
       },
       shareSummary: `Turns out my fanbase could be worth about ${net} a month direct.`,
     };
@@ -1494,7 +1502,7 @@ const liveExperience: AcquisitionTool = {
           body: 'Your first ticketed live is proof, not profit. Price it where your real fans do not have to think about it, sell it to the people already on your list, and let the tips carry the upside.',
         },
       ],
-      conversionPayload: { live: 'ticketed-event', ticketPriceCents: TICKET },
+      conversionPayload: { live: 'ticketed-event', ticketPriceCents: TICKET, suggestedTipGoalCents: tipRevenue },
       shareSummary: `One ticketed live a month could be worth about ${fmtDollars(monthly)} to me.`,
     });
   },

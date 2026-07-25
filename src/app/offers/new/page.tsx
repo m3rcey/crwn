@@ -25,6 +25,7 @@ import { OptionSelect } from '@/components/ui/OptionSelect';
 import { createOnboardingTier, createOnboardingProduct } from '@/lib/onboardingItems';
 import { CLIPPER_RAMP_PRESETS, sanitizeClipperSchedule } from '@/lib/clipperRate';
 import { CalculatorPrefillBanner } from '@/components/lead-magnets/CalculatorPrefillBanner';
+import { CalculatorSuggestions } from '@/components/lead-magnets/CalculatorSuggestions';
 import type { ProductType } from '@/types';
 
 /**
@@ -606,6 +607,7 @@ function OfferBuilder() {
       <main className="flex-1">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
           <CalculatorPrefillBanner />
+          <CalculatorSuggestions />
           <div className="flex items-start gap-3 mb-8">
             <div className="w-11 h-11 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
               <Icon className="w-5 h-5 text-crwn-gold" />
