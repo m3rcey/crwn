@@ -1,5 +1,18 @@
 # CRWN Brain — Changelog
 
+## 2026-07-26 — P0: every artist page 404d (`profiles(*)` embed named a revoked column)
+
+`/[slug]` (the public artist page, both its queries), `/[slug]/playlist/[id]`,
+`/artist/[slug]/playlist/[id]`, and community `PostCard` all selected `profile:profiles(*)` /
+`author:profiles(*)`. `profiles.email` and `.phone` have SELECT revoked from anon/authenticated, and
+naming a revoked column 42501s the WHOLE embedded query, so PostgREST returned NO row and the page
+called `notFound()` -> "Artist Not Found" for EVERY artist. No fan could view, subscribe, or buy.
+Same class as the Stripe-id revoked-column outage; the fix there used a view for the base table but
+left the `profiles(*)` EMBED unfixed. Proven from production with the anon key (view returns the row;
+`profiles(*)` 42501s; explicit public columns return the row). Replaced every embed with an explicit
+PUBLIC column list (`id, display_name, username, avatar_url, bio, social_links, is_active`; PostCard
+adds `role`). Live `sw.js` v256.
+
 ## 2026-07-25 — Bridge the ManyChat funnel into funnel_events (video = the IG post)
 
 The dashboard's funnel + "Highest Converting Video" only saw WEB traffic: the client beacon maps
