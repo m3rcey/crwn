@@ -67,6 +67,27 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   // live sessions — a ticket lets non-subscribers buy their way in.
   const [ticketPrice, setTicketPrice] = useState('');
 
+  // The tier gate reads the artist's REAL subscription_tiers, not the (often empty/stale)
+  // tier_config the shared artist context carries. allowed_tier_ids references subscription_tiers.id,
+  // so this is the correct source. Falls back to the passed-in tiers if the fetch returns nothing.
+  const [tierList, setTierList] = useState<TierConfig[]>(tiers);
+  useEffect(() => {
+    if (!artistId) return;
+    let active = true;
+    supabase
+      .from('subscription_tiers')
+      .select('id, name, price')
+      .eq('artist_id', artistId)
+      .eq('is_active', true)
+      .order('price', { ascending: true })
+      .then(({ data }) => {
+        if (active && Array.isArray(data) && data.length) setTierList(data as unknown as TierConfig[]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [artistId, supabase]);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -620,10 +641,10 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                   />
                   <span className="text-crwn-text">{mode === 'live' ? 'All fans can join free' : 'All fans can watch free'}</span>
                 </label>
-                {!isFree && tiers.length > 0 && (
+                {!isFree && tierList.length > 0 && (
                   <div className="space-y-2 ml-6">
                     <p className="text-crwn-text-secondary text-sm mb-1">Only these tiers can {mode === 'live' ? 'join' : 'watch'}:</p>
-                    {tiers.map(tier => (
+                    {tierList.map(tier => (
                       <label key={tier.id} className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
@@ -639,7 +660,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     ))}
                   </div>
                 )}
-                {!isFree && tiers.length === 0 && (
+                {!isFree && tierList.length === 0 && (
                   <p className="text-crwn-text-secondary text-sm ml-6">Create subscription tiers first to gate access.</p>
                 )}
                 {/* Pre-sale ticket: gated lives only. Lets non-subscribers buy in. */}
