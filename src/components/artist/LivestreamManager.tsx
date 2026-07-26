@@ -319,7 +319,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
         artist_id: artistId,
         title: title.trim(),
         description: description.trim() || null,
-        max_slots: maxSlots,
+        max_slots: maxSlots > 0 ? maxSlots : 50, // a left-blank seats field defaults to 50, never 0
         is_free: isFree,
         allowed_tier_ids: isFree ? [] : selectedTiers,
         scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
@@ -585,10 +585,10 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                     type="number"
                     min={1}
                     step={1}
-                    value={maxSlots}
+                    // 0 shows as EMPTY so a cleared field does not trap a sticky "0" you cannot type past.
+                    value={maxSlots || ''}
                     onChange={(e) => {
-                      // Free entry: any number of seats. Empty string stays editable;
-                      // clamp to >= 1 only once a real value is typed.
+                      // Empty stays empty (0 internally, blank on screen); clamp to >= 1 only on a real value.
                       const n = parseInt(e.target.value, 10);
                       setMaxSlots(Number.isNaN(n) ? 0 : Math.max(1, n));
                     }}
