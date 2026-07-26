@@ -11,9 +11,14 @@ import { Loader2, Sparkles } from 'lucide-react';
 interface StudioCard {
   href: string;
   title: string;
-  /** Gold-toned product photo in /public, matching the Home Quick Actions tiles. */
+  /**
+   * REQUIRED for every real tile: a gold-toned charcoal+gold product photo in /public. A new tile
+   * must ship with on-brand art (a charcoal object + gold accents on a gold gradient, like
+   * studio_offers.jpg) AND a category `hueRotate` for color psychology — never an emoji. Generate
+   * matching art with generate-studio-icons.mjs (passes existing tiles as style refs). Josh's rule.
+   */
   image?: string;
-  /** Emoji tile fallback for newer tools that don't have a product photo yet. */
+  /** Deprecated last-resort fallback only. Do NOT ship a tile with an emoji instead of `image`. */
   emoji?: string;
   /**
    * Optional hue shift (degrees) applied to the gold product photo so a tool
@@ -23,38 +28,47 @@ interface StudioCard {
   hueRotate?: number;
 }
 
-// Tile color encodes the tool's category so the grid is scannable by cluster:
-//   green (growth/reach) · blue (strategy/planning) · magenta (fans/community)
-//   · red (live/content) · gold/unshifted (money/value, the brand anchor).
-// hueRotate shifts the gold product photo to that family (gold ≈ 46°).
+// EVERY tile is a gold product photo + a category hueRotate (gold ≈ 46°). NO emoji placeholders:
+// a tile without on-brand art reads as unfinished next to the rendered ones. Color encodes the
+// tool's category so the grid is scannable by cluster (hueRotate shifts the gold base to that hue):
+//   red 310 (make / go live / content) · gold (money / selling) · green 90 (growth / reach)
+//   · magenta 255 (fans / community) · blue 170 (run the business / strategy).
+// Order follows how an artist naturally works: make it → sell it → perform it → grow → engage fans
+// → run the business. Position = workflow; color = category.
 const STUDIO_CARDS: StudioCard[] = [
-  // The daily work, lifted out of the artist dashboard's 16-tab scroll strip.
-  // These used to be /profile/artist?tab=<id>, where anything past the 7th tab
-  // was off-screen on a phone. They lead the grid because they are what an
-  // artist opens most: the catalog, the shop, the live room, the numbers.
-  { href: '/studio/music',     title: 'Music',     emoji: '🎵' },
-  { href: '/studio/albums',    title: 'Albums',    emoji: '💿' },
-  { href: '/studio/shop',      title: 'Shop',      emoji: '🛍️' },
-  { href: '/studio/live',      title: 'Live',      emoji: '🔴' },
-  { href: '/studio/analytics', title: 'Analytics', emoji: '📈' },
-  { href: '/studio/manager',   title: 'Manager',   emoji: '🧠' },
-  { href: '/studio/sync',      title: 'Sync',      emoji: '🎬' },
+  // 1. MAKE — your catalog
+  { href: '/studio/music',  title: 'Music',  image: '/studio_music.jpg',  hueRotate: 310 },
+  { href: '/studio/albums', title: 'Albums', image: '/studio_albums.jpg', hueRotate: 310 },
 
-  { href: '/campaigns',            title: 'Road To',            image: '/studio_campaigns.jpg', hueRotate: 90 },
-  { href: '/playbooks',            title: 'Playbooks',          image: '/studio_playbooks.jpg', hueRotate: 170 },
-  { href: '/offers',               title: 'Offer Builder',      image: '/studio_offers.jpg' },
-  { href: '/campaign-hub',         title: 'Campaign Hub',       image: '/studio_campaign.jpg', hueRotate: 90 },
-  { href: '/missions',             title: 'Fan Missions',       image: '/studio_missions.jpg', hueRotate: 255 },
-  { href: '/squads',               title: 'Fan Squads',         image: '/studio_squads.jpg', hueRotate: 255 },
-  { href: '/bounties',             title: 'Clip Bounties',      image: '/studio_bounties.jpg', hueRotate: 310 },
-  { href: '/city-unlocks',         title: 'City Unlocks',       image: '/studio_cityunlocks.jpg', hueRotate: 90 },
-  { href: '/studio/fans',          title: 'Fan CRM',            image: '/studio_crm.jpg', hueRotate: 255 },
-  { href: '/studio/team',          title: 'Team Splits',      image: '/studio_team.jpg' },
-  { href: '/studio/promise',       title: 'Promise Calendar', image: '/studio_promise.jpg', hueRotate: 170 },
-  { href: '/missions/suggestions', title: 'Fan Suggestions',    image: '/studio_suggestions.jpg', hueRotate: 255 },
-  { href: '/clip-controls',        title: 'Live Clip Controls', image: '/studio_clips.jpg', hueRotate: 310 },
-  { href: '/action-plan',          title: 'Action Plan',        image: '/studio_actionplan.jpg', hueRotate: 170 },
-  { href: '/proof-of-demand',      title: 'Proof of Demand',    image: '/studio_demand.jpg', hueRotate: 90 },
+  // 2. SELL — turn it into money
+  { href: '/studio/shop', title: 'Shop',          image: '/studio_shop.jpg' },
+  { href: '/offers',      title: 'Offer Builder', image: '/studio_offers.jpg' },
+
+  // 3. GO LIVE — perform for the room
+  { href: '/studio/live',   title: 'Live',               image: '/studio_live.jpg',  hueRotate: 310 },
+  { href: '/clip-controls', title: 'Live Clip Controls', image: '/studio_clips.jpg', hueRotate: 310 },
+
+  // 4. GROW — get discovered and pull demand
+  { href: '/campaign-hub',    title: 'Campaign Hub',    image: '/studio_campaign.jpg',    hueRotate: 90 },
+  { href: '/campaigns',       title: 'Road To',         image: '/studio_campaigns.jpg',   hueRotate: 90 },
+  { href: '/proof-of-demand', title: 'Proof of Demand', image: '/studio_demand.jpg',      hueRotate: 90 },
+  { href: '/city-unlocks',    title: 'City Unlocks',    image: '/studio_cityunlocks.jpg', hueRotate: 90 },
+  { href: '/studio/sync',     title: 'Sync',            image: '/studio_sync.jpg',        hueRotate: 90 },
+
+  // 5. ACTIVATE FANS — turn listeners into a movement
+  { href: '/missions',             title: 'Fan Missions',    image: '/studio_missions.jpg',    hueRotate: 255 },
+  { href: '/bounties',             title: 'Clip Bounties',   image: '/studio_bounties.jpg',    hueRotate: 310 },
+  { href: '/squads',               title: 'Fan Squads',      image: '/studio_squads.jpg',      hueRotate: 255 },
+  { href: '/studio/fans',          title: 'Fan CRM',         image: '/studio_crm.jpg',         hueRotate: 255 },
+  { href: '/missions/suggestions', title: 'Fan Suggestions', image: '/studio_suggestions.jpg', hueRotate: 255 },
+
+  // 6. RUN THE BUSINESS — the brain and the money
+  { href: '/studio/analytics', title: 'Analytics',        image: '/studio_analytics.jpg',  hueRotate: 170 },
+  { href: '/action-plan',      title: 'Action Plan',      image: '/studio_actionplan.jpg', hueRotate: 170 },
+  { href: '/studio/manager',   title: 'Manager',          image: '/studio_manager.jpg',    hueRotate: 170 },
+  { href: '/playbooks',        title: 'Playbooks',        image: '/studio_playbooks.jpg',  hueRotate: 170 },
+  { href: '/studio/team',      title: 'Team Splits',      image: '/studio_team.jpg' },
+  { href: '/studio/promise',   title: 'Promise Calendar', image: '/studio_promise.jpg',    hueRotate: 170 },
 ];
 
 // Dark-launched tiles. Each stays hidden until its admin_settings flag is on, so
