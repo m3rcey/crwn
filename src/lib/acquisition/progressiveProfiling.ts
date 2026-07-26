@@ -51,6 +51,21 @@ export async function loadProfile(identity: LeadIdentity): Promise<LoadedProfile
         };
       }
     }
+
+    // Fields registered with `column: null` (the Royalty Readiness yes/no answers) live in the
+    // `extra` jsonb, not a dedicated column. Read them back the same way so the state machine
+    // counts them as answered; without this they never load and the flow re-asks in a loop.
+    const extra = (lp.extra as Record<string, unknown>) ?? {};
+    for (const [key, v] of Object.entries(extra)) {
+      if (v === null || v === undefined) continue;
+      if (!getField(key)) continue; // only registered fields are trusted back in
+      (values as Record<string, unknown>)[key] = v;
+      provenance[key] = stored[key] ?? {
+        source: 'direct_answer',
+        confidence: 1,
+        verifiedAt: String(lp.updated_at ?? new Date().toISOString()),
+      };
+    }
   }
 
   // Layer 2: the REAL CRWN account, if this lead has been claimed. Highest trust, so it goes
@@ -102,12 +117,22 @@ export async function applyValues(
   const applied: string[] = [];
   const rejected: string[] = [];
   const patch: Record<string, unknown> = {};
+  const extraPatch: Record<string, unknown> = {};
   const nextProvenance: Record<string, FieldProvenance> = { ...current.provenance };
 
   for (const [key, incomingValue] of Object.entries(incoming)) {
     const def = getField(key);
+    if (!def) {
+      rejected.push(key);
+      continue;
+    }
     const column = FIELD_TO_COLUMN[key];
-    if (!def || !column) {
+    // A field is EITHER a real lead_profiles column, OR (registry column: null, e.g. the
+    // Royalty Readiness yes/no answers) it lives in the `extra` jsonb. A field with neither is
+    // unknown and never written. Without the extra path, column: null fields were silently
+    // rejected here and never persisted, so the DM flow re-asked them forever.
+    const toExtra = !column && def.column === null;
+    if (!column && !toExtra) {
       rejected.push(key);
       continue;
     }
@@ -131,7 +156,11 @@ export async function applyValues(
       continue;
     }
 
-    patch[column] = incomingValue.value;
+    if (toExtra) {
+      extraPatch[key] = incomingValue.value;
+    } else {
+      patch[column] = incomingValue.value;
+    }
     nextProvenance[key] = {
       source: incomingValue.source,
       confidence: incomingValue.confidence,
@@ -142,10 +171,24 @@ export async function applyValues(
   }
 
   if (applied.length > 0) {
+    // `extra` is one jsonb column, written whole (upsert replaces it). Merge the new keys onto
+    // the column: null fields we already loaded, or answering question two would wipe the answer
+    // to question one, which is exactly the loop this fix removes.
+    let extra: Record<string, unknown> | undefined;
+    if (Object.keys(extraPatch).length > 0) {
+      extra = {};
+      for (const [k, v] of Object.entries(current.values)) {
+        if (getField(k)?.column === null && v !== null && v !== undefined) {
+          extra[k] = v;
+        }
+      }
+      Object.assign(extra, extraPatch);
+    }
     await supabaseAdmin.from('lead_profiles').upsert(
       {
         lead_identity_id: identityId,
         ...patch,
+        ...(extra ? { extra } : {}),
         field_provenance: nextProvenance,
       },
       { onConflict: 'lead_identity_id' },

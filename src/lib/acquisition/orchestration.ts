@@ -176,13 +176,31 @@ export async function orchestrate(
   // updated numbers and a consistent multi-question flow. Only THIS tool's required fields are
   // cleared, and they are re-collected in the same conversation, so nothing is lost net.
   if (payload.event_type === 'session_start') {
-    const cols = tool.requiredFields
-      .map((k) => getField(k)?.column)
-      .filter((c): c is string => !!c);
-    if (cols.length > 0) {
+    const cols: string[] = [];
+    const extraKeys: string[] = [];
+    for (const k of tool.requiredFields) {
+      const def = getField(k);
+      if (!def) continue;
+      if (def.column) cols.push(def.column);
+      else extraKeys.push(k); // column: null fields live in the `extra` jsonb
+    }
+    if (cols.length > 0 || extraKeys.length > 0) {
+      const update: Record<string, unknown> = Object.fromEntries(cols.map((c) => [c, null]));
+      if (extraKeys.length > 0) {
+        // `extra` is one jsonb column, so read-modify-write to drop just THIS tool's keys and
+        // leave any other tool's extra answers intact.
+        const { data: cur } = await supabaseAdmin
+          .from('lead_profiles')
+          .select('extra')
+          .eq('lead_identity_id', identity.id)
+          .maybeSingle();
+        const extra = { ...((cur?.extra as Record<string, unknown>) ?? {}) };
+        for (const k of extraKeys) delete extra[k];
+        update.extra = extra;
+      }
       await supabaseAdmin
         .from('lead_profiles')
-        .update(Object.fromEntries(cols.map((c) => [c, null])))
+        .update(update)
         .eq('lead_identity_id', identity.id);
     }
   }
