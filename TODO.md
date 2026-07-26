@@ -22,19 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Buy one live ticket on production as a fan with NO subscription, and confirm you get in.**
-      Until 2026-07-24 you could not. Six gates decided "may this fan watch" and only three
-      honored a paid ticket, so a buyer without a tier was shown the Subscribe wall on the watch
-      page and never reached the route that would have let them in. They also could not chat,
-      could not open the replay, and got no reminder. Fixed and live (`sw.js` v240), one resolver
-      now answers for all six.
-
-      I cannot run a card, so only you can confirm it. On [thecrwn.app/m3rcey](https://thecrwn.app/m3rcey)
-      with an account holding no subscription to that artist: create a gated live with a ticket
-      price, buy the ticket (prod Stripe is LIVE, so use a real card and refund it after in the
-      Stripe dashboard; a completed purchase is required because entitlement is granted by the
-      webhook), then open the session and check you see **Join Live** and not a Subscribe wall. Then send a chat message, then open the recording after it
-      ends. If any of the three still blocks you, tell me which.
 
 - [ ] **Run one real Executive Producer Session end to end on `m3rcey`. Nobody has yet.** The whole
       feature is live (submissions, review queue, polls, sales page, per-session stats, recurrence)
@@ -220,6 +207,12 @@ Things that are never finished. Cadence, then the thing.
 ## On Claude's plate (not yours)
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
+
+- **`useArtistContext` serves an empty/stale `tiers` (from `artist_profiles.tier_config`), not the
+  real `subscription_tiers` table.** This made the live-session tier gate show no tiers (2026-07-26,
+  fixed IN the live form by fetching `subscription_tiers` directly). Any OTHER hub page that reads
+  `ctx.tiers` has the same empty list. I will audit consumers and fix the context at the source
+  (point it at `subscription_tiers`) so no surface depends on the dead `tier_config`.
 
 The Instagram acquisition engine is feature-complete and verified in production: ingress,
 identity, Claude extraction with a complete deterministic fallback, the calculator handoff,
