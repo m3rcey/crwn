@@ -31,18 +31,21 @@ responsible for. Do not work those.
       Request body, add a field `source_post_id` mapped to the Instagram triggering post/media id.
       Until then the funnel still works but video groups under `unknown`.
 
-- [ ] **Delete your two leftover onboarding test artists.** Both are live on Featured
-      Artists right now as duplicate "Merce" tiles:
+- [ ] **(Optional) Permanently delete the two onboarding test artists.** They are ALREADY hidden
+      from the homepage/Explore/public: I set `profiles.is_active = false` on both (2026-07-26), so
+      the duplicate "Merce" tiles are gone. The dashboard delete failed with an empty `{}` error and
+      the auth admin API returns `"Database error finding users"`, so a hard delete needs the SQL
+      editor (which shows the real error). To fully remove them, run in Supabase → SQL Editor:
 
-      | slug | public name | email |
-      |---|---|---|
-      | `joshwilliams` | Merce | joshn.wms+onboardi@gmail.com |
-      | `joshnwmsonboardhgmailcom` | Merce | joshn.wms+onboardh@gmail.com |
-
-      Both are your own plus-addressed signups from testing the setup wizard. Deleting the
-      auth user cascades everything. Supabase dashboard → Authentication → Users → search
-      `+onboard` → delete both. **Do NOT delete `joshn.wms@gmail.com`**, that is your real
-      admin account (slug `m3rcey`, display name "Mercey").
+      ```sql
+      delete from auth.users where id in (
+        '2c8f96c0-63f8-4ceb-b848-87275f991c3d',  -- joshwilliams (Merce)
+        'b0857804-c4ad-4946-b30a-1d7a65edb7fb'   -- joshnwmsonboardhgmailcom (Merce)
+      );
+      ```
+      If it errors with a `foreign key constraint … on table …`, paste that line to Claude for the
+      one-line cleanup. **Never** add `612fa313-8d4f-4748-8148-7804fada0d0c` (that is your real
+      `m3rcey` / "Mercey" account).
 
 - [ ] **Add the `ROYALTY` keyword flow in ManyChat** (new "Royalty Readiness Check" lead magnet,
       keywords `royalty` / `royalties` / `publishing`). CRWN-side routing already exists (it derives
