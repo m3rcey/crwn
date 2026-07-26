@@ -66,6 +66,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
   // Optional pre-sale ticket price (dollars, as typed). Only meaningful on gated
   // live sessions — a ticket lets non-subscribers buy their way in.
   const [ticketPrice, setTicketPrice] = useState('');
+  // True when the price was PREFILLED from a calculator (a level-based suggestion), so the field
+  // can say so. The artist always sets the final number; the suggestion just removes "what do I charge?".
+  const [ticketSuggested, setTicketSuggested] = useState(false);
 
   // The tier gate reads the artist's REAL subscription_tiers, not the (often empty/stale)
   // tier_config the shared artist context carries. allowed_tier_ids references subscription_tiers.id,
@@ -167,6 +170,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
       // A ticket price only applies to a gated session, so turn gating on.
       setIsFree(false);
       setTicketPrice(tp);
+      setTicketSuggested(true); // it came from the calculator's level-based suggestion
     }
     const slots = parseInt(q.get('lm_max_slots') || '', 10);
     if (Number.isFinite(slots) && slots > 0) setMaxSlots(slots);
@@ -667,7 +671,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 {!isFree && mode === 'live' && (
                   <div className="mt-4 ml-6">
                     <label className="block text-crwn-text-secondary text-sm mb-1">
-                      Pre-sale ticket price (optional)
+                      {ticketSuggested ? 'Seat price — suggested for your level' : 'Pre-sale ticket price (optional)'}
                     </label>
                     <div className="flex items-center gap-2">
                       <span className="text-crwn-text-secondary">$</span>
@@ -682,8 +686,9 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                       />
                     </div>
                     <p className="text-crwn-text-secondary text-xs mt-1">
-                      Leave blank for tier-only access. Set a price and fans who
-                      aren&apos;t subscribed can buy a ticket to get in.
+                      {ticketSuggested
+                        ? 'A starting point based on your audience. You set the final price. Fans who aren’t subscribed buy a seat to get in.'
+                        : 'Leave blank for tier-only access. Set a price and fans who aren’t subscribed can buy a ticket to get in.'}
                     </p>
                   </div>
                 )}

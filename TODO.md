@@ -22,29 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **The 7 Executive Producer scripts are now TRUE (the feature shipped), except one price
-      mismatch. Fix that, then they are safe to record.** When I first audited these on 2026-07-24
-      they promised a feature that did not exist. It exists now: fan submissions (beats/vocals/
-      ideas), an artist review queue, and live sessions are all live in production. So the sidenote
-      claim ("pitch beats, submit vocals, suggest song ideas, watch the music get made live is
-      exactly what an artist can build on the CRWN app") is accurate.
-
-      Files: [`videos/scripts/lead-magnets/`](videos/scripts/lead-magnets/) `producer-drake.md`,
-      `producer-kanye-west.md`, `producer-kendrick-lamar.md`, `producer-quavo.md`,
-      `producer-russ.md`, `producer-t-pain.md`, `producer-travis-scott.md`.
-
-      **The one thing left: the $300 seat price contradicts your own calculator.**
-      `producer-kendrick-lamar.md` and `producer-travis-scott.md` price a seat at $300, but the
-      calculator's top band is **$200** for any audience over 250k
-      ([`toolAdapters.ts` seatPrice](src/lib/acquisition/toolAdapters.ts)). A viewer who watches
-      the Kendrick video ($17.1M/mo), comments PRODUCER, and runs the tool gets **$11.4M/mo**
-      instead. Video and tool must not disagree. Your call: drop those two scripts to $200, or
-      raise the calculator's top band. Tell me which and I make the change.
-
-      (The "two sessions a month" line is fine: the seats are a monthly total split across the two
-      sessions, and the NOTES block says so. It only misreads if the narration implies each session
-      sells that many, so keep the reveal worded as a monthly figure.)
-
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Send `source_post_id` from ManyChat to the CRWN webhook** so "Highest Converting Video" has

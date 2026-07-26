@@ -1,5 +1,16 @@
 # CRWN Brain — Changelog
 
+## 2026-07-26 — Executive Producer seat price: $300 top band + "suggested" framing
+
+Resolved the tool-vs-script price conflict by RAISING the calculator, not lowering the scripts (the
+producer-kendrick/travis scripts price a seat at $300; a mega-artist charging $300 is more credible
+than $200). Added an `audience >= 1M -> $300` band to `seatPrice` in `toolAdapters.ts` (the exec
+adapter); all its copy reads `seatPrice` dynamically, so nothing else needed touching. The seat/ticket
+price stays artist-set: the LivestreamManager price field now labels itself "Seat price — suggested for
+your level / a starting point based on your audience, you set the final price" when it was prefilled
+from the calculator (`ticketSuggested`), generic otherwise. Suggestions stay because the calculator
+CANNOT project a dollar without a price assumption, and a blank price box is decision friction. Live sw.js v261.
+
 ## 2026-07-26 — P0: every artist page 404d (`profiles(*)` embed named a revoked column)
 
 `/[slug]` (the public artist page, both its queries), `/[slug]/playlist/[id]`,

@@ -1221,6 +1221,7 @@ const execProducer: AcquisitionTool = {
     // scales with their level, so the seat price is banded by audience (the level proxy the
     // engine has) instead of a flat number.
     const seatPrice =
+      audience >= 1000000 ? 30000 : // $300 — arena-level artists (matches the Kendrick/Travis scripts)
       audience >= 250000 ? 20000 : // $200
       audience >= 50000 ? 10000 : // $100
       audience >= 5000 ? 5000 : // $50
