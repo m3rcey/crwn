@@ -269,36 +269,39 @@ to `/admin → Acquisition → Needs you` instead of looping forever.
 
 ---
 
-## 6b. Topline free, full breakdown gated behind her email
+## 6b. Deliver the full breakdown immediately, then optionally ask for email AFTER (never gate delivery)
 
-**WHY.** Meta's 24h window closes the Instagram DM. `personal_nudge` (day 4), `offer_call`
-(day 7) and the no-show ladder are all out-of-window for an Instagram-only lead, and most leads
-never gave an email, so those sends silently resolve `sent: false` and the nurture reaches
-nobody. The fix is to get her email WHILE the window is open. CRWN stores it (unverified send
-target, `orchestration.ts`) and the email fallback, which has no 24h window, carries the tail.
+**POLICY (2026-07-26, Josh): never ask for an email BEFORE delivering the thing the lead came for.**
+The `send_result` response already carries the full `crwn_result_url`, so show it the moment the
+number lands. An email ask, if you keep it, moves to AFTER the result and must be skippable. Gating
+the breakdown behind an email is the OLD design and is retired. The previous "topline free,
+breakdown gated" pattern below has been rewritten to match.
 
-**The design decision (topline free, breakdown gated).** She sees her headline number for free,
-so no bounce and goodwill intact. The full breakdown is what she trades an email for. So Node 5's
-Yes branch is no longer one message; it becomes: topline, then the email ask, then the breakdown
-link.
+**WHY still capture email at all.** Meta's 24h window closes the Instagram DM. `personal_nudge`
+(day 4), `offer_call` (day 7) and the no-show ladder are all out-of-window for an Instagram-only
+lead, and most leads never gave an email, so those sends silently resolve `sent: false` and the
+nurture reaches nobody. Capturing an email keeps the email fallback (no 24h window) alive. So we
+still ask, just never as a toll gate before the deliverable, and the lead can skip it.
 
-### Node 5 (Yes branch), rebuilt — split the topline off the link
+### Node 5 (Yes branch) — deliver the topline AND the breakdown button together
 
-The Yes branch used to be a single Send Message with `crwn_message` **and** the `See My Numbers`
-button. Split it:
+Node 5's Yes branch is a SINGLE Send Message (`Within messaging window`): the `crwn_message` pill
+(the headline, "about $X a month is on the table") **and** the `See My Numbers` button that opens
+`crwn_result_url`. The lead gets the number and the full breakdown in one step, no email required.
+Then optionally continue into node 6 (the post-delivery email ask). If you are not capturing email,
+node 5 is the end of the flow.
 
-- **Node 5a — topline only.** Send Message (`Within messaging window`): text is the `crwn_message`
-  pill, **and remove the button.** This is the free headline ("about $X a month is on the table").
-- Then continue into node 6. The `See My Numbers` button moves to node 8, after she gives the email.
+### Node 6 (OPTIONAL, AFTER delivery) — ask for her email (Data Collection, in-window)
 
-### Node 6 — ask for her email (Data Collection, in-window)
+This node is optional and runs AFTER node 5 has already delivered the breakdown. It never gates
+anything: the result is already in her hands, so this is a soft "keep a copy" ask she can skip.
 
 `Next Step` → **Instagram → Send Message**
 
 - **Send:** `Within messaging window`.
 - **Delete the empty Text block.**
 - **Add a content block → `Data Collection`**
-  - **Question:** `Want the full breakdown of where that's coming from? Drop your best email and I'll send it straight over.`
+  - **Question:** `Want me to email you a copy so it doesn't get buried in your DMs? Drop your best email, or just skip this.`
   - **Contact's reply:** `Email` ← ManyChat's Email input. It validates the address and stores it
     to the **system Email field**, which is exactly what `+ Add Full Contact Data` reads. Do NOT
     use Text here.
