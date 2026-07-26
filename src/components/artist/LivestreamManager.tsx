@@ -716,7 +716,12 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 isSaving ||
                 (mode === 'prerecorded' && !videoFile) ||
                 (mode === 'live' && (!maxSlots || maxSlots < 1)) ||
-                ((mode === 'live' || visibility === 'public') && !isFree && selectedTiers.length === 0)
+                // A gated live needs SOME way in: a tier OR a pre-sale ticket. A ticket-only live
+                // (no tier selected) is valid, so only block when neither is set.
+                ((mode === 'live' || visibility === 'public') &&
+                  !isFree &&
+                  selectedTiers.length === 0 &&
+                  !(parseFloat(ticketPrice) > 0))
               }
               className="neu-button-accent w-full py-2 rounded-xl font-semibold disabled:opacity-50"
             >
