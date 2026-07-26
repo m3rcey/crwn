@@ -298,6 +298,86 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     values: [...FAN_OWNERSHIP_MATURITY],
     minConfidence: 0.6,
   },
+
+  // ---- Royalty Readiness Check ----
+  // The one structured multi-question DM tool. Without these, the engine has no
+  // question text for the Royalty fields and every DM prompt falls back to the
+  // generic "Tell me a bit more." Yes/no/unsure diagnostics (not money, so
+  // aiExtractable). Stored in `extra` jsonb (column: null); scored by readiness.ts
+  // via toolAdapters. Question copy mirrors READINESS_QUESTIONS. Some fields are
+  // inverted or publishing-only in SCORING, but the field just holds the raw answer.
+  writes_music: {
+    key: 'writes_music',
+    type: 'enum',
+    column: null,
+    label: 'Writes own music',
+    aiExtractable: true,
+    question: 'Do you write or co-write the songs you release?',
+    retryHint: 'A yes or no works. If you are not certain, say "unsure".',
+    inputType: 'text',
+    values: ['yes', 'no', 'unsure'],
+    minConfidence: 0.6,
+  },
+  pro_registered: {
+    key: 'pro_registered',
+    type: 'enum',
+    column: null,
+    label: 'PRO registered',
+    aiExtractable: true,
+    question: 'Are you signed up with a PRO like ASCAP, BMI, or SESAC?',
+    retryHint: 'Yes, no, or unsure. A PRO is the society that collects your performance royalties.',
+    inputType: 'text',
+    values: ['yes', 'no', 'unsure'],
+    minConfidence: 0.6,
+  },
+  songs_registered: {
+    key: 'songs_registered',
+    type: 'enum',
+    column: null,
+    label: 'Songs registered with PRO',
+    aiExtractable: true,
+    question: 'Have you registered each of your songs with that PRO, one by one?',
+    retryHint: 'Yes, no, or unsure. Signing up as a writer is not the same as registering each song.',
+    inputType: 'text',
+    values: ['yes', 'no', 'unsure'],
+    minConfidence: 0.6,
+  },
+  mechanical_collection: {
+    key: 'mechanical_collection',
+    type: 'enum',
+    column: null,
+    label: 'Mechanical royalties collected',
+    aiExtractable: true,
+    question: 'Is anyone collecting your US mechanical royalties, like the MLC or an administrator?',
+    retryHint: 'Yes, no, or unsure. This is a separate pot from your distributor payout.',
+    inputType: 'text',
+    values: ['yes', 'no', 'unsure'],
+    minConfidence: 0.6,
+  },
+  soundexchange: {
+    key: 'soundexchange',
+    type: 'enum',
+    column: null,
+    label: 'SoundExchange registered',
+    aiExtractable: true,
+    question: 'Are you registered with SoundExchange?',
+    retryHint: 'Yes, no, or unsure. SoundExchange pays for US digital radio like Pandora and SiriusXM.',
+    inputType: 'text',
+    values: ['yes', 'no', 'unsure'],
+    minConfidence: 0.6,
+  },
+  unregistered_backlog: {
+    key: 'unregistered_backlog',
+    type: 'enum',
+    column: null,
+    label: 'Possible unregistered backlog',
+    aiExtractable: true,
+    question: 'Have you put out music in the last two years you are not sure was ever registered?',
+    retryHint: 'Yes, no, or unsure. Back claims are not open forever, so an old backlog is what expires.',
+    inputType: 'text',
+    values: ['yes', 'no', 'unsure'],
+    minConfidence: 0.6,
+  },
 };
 
 export const FIELD_KEYS = Object.keys(FIELD_REGISTRY);

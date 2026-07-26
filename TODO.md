@@ -24,12 +24,15 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Send `source_post_id` from ManyChat to the CRWN webhook** so "Highest Converting Video" has
-      data. Real leads arrive IG comment → ManyChat → CRWN (server-side), so their video signal is the
-      IG post id, not a web `utm_content`. CRWN already accepts the field and now records it as the
-      funnel's video dimension; it just needs ManyChat to send it. In each keyword flow's External
-      Request body, add a field `source_post_id` mapped to the Instagram triggering post/media id.
-      Until then the funnel still works but video groups under `unknown`.
+- [ ] **(Optional, low priority) Per-video attribution for "Highest Converting Video."** CONFIRMED
+      2026-07-26: ManyChat's "any post or reel" comment trigger does NOT expose the triggering post id
+      (the External Request field picker has no post/media field), so the catch-all flows CANNOT carry
+      the video. CRWN accepts `source_post_id` (any string) and records it as the funnel's video
+      dimension; without it, video just groups under "unknown" and the funnel still works by source /
+      campaign / calculator. The ONLY way to get per-video data is a **per-post** automation (trigger on
+      one specific post), where you hardcode a readable label in the External Request body, e.g.
+      `,"source_post_id":"kendrick-producer-reel"` right before `,"contact":`. Not worth doing broadly
+      (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
 - [ ] **(Optional) Permanently delete the two onboarding test artists.** They are ALREADY hidden
       from the homepage/Explore/public: I set `profiles.is_active = false` on both (2026-07-26), so
