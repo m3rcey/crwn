@@ -22,22 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-
-- [ ] **Run one real Executive Producer Session end to end on `m3rcey`. Nobody has yet.** The whole
-      feature is live (submissions, review queue, polls, sales page, per-session stats, recurrence)
-      but no real session has gone through it, so this is the one thing that proves the offer the
-      producer scripts sell actually works. I cannot log in or run a card, so only you can. Steps:
-      1. Studio → Live → New Session. Tick **Let fans submit beats, vocals, and ideas**, set a
-         **Seats** count and a ticket price, pick a tier, add a **What can they send?** prompt.
-      2. From a second account with NO subscription to m3rcey: open the session link, **Grab a
-         seat** (prod Stripe is LIVE: real card, refund after), then send a beat or an idea.
-      3. Back as the artist: Studio → Live → **Submissions** on that session, confirm the beat is
-         there and reviewable (feature / shortlist / pass, play, download).
-      4. **Go Live**, launch a poll, End.
-      5. **Stats** on the session: confirm the money, viewers, submissions, and poll votes read
-         right.
-      Tell me anything that breaks or reads wrong.
-
 - [ ] **The 7 Executive Producer scripts are now TRUE (the feature shipped), except one price
       mismatch. Fix that, then they are safe to record.** When I first audited these on 2026-07-24
       they promised a feature that did not exist. It exists now: fan submissions (beats/vocals/
