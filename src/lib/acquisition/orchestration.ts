@@ -19,12 +19,13 @@
 
 import { supabaseAdmin } from './db';
 import { mirrorFunnelDirect } from '../analytics/acquisitionFunnelMirror';
-import { LEAD_MAGNETS } from '../leadMagnets/registry';
+import { LEAD_MAGNETS, getLeadMagnet } from '../leadMagnets/registry';
 import { decide } from './claudeDecisionService';
 import { getField, normalizeDeterministic } from './fieldRegistry';
 import { fallbackDecision } from './fallbackDecision';
 import { loadProfile, applyValues } from './progressiveProfiling';
-import { generateAndStore } from './resultGeneration';
+import { generateAndStore, reissueLatestResultLink } from './resultGeneration';
+import { send } from './channels';
 import { nextState, resume, statusFor, transition } from './stateMachine';
 import {
   getTool,
@@ -112,10 +113,37 @@ export async function orchestrate(
   // question, and reopen a conversation she already finished. 'complete' tells ManyChat there is
   // nothing more to do; the ManyChat flow sends its own "got it" and does not render this message.
   if (payload.event_type === 'profile_update') {
+    // She handed over an email EXPECTING her result in her inbox, not only in the DM. Honor the
+    // promise: rotate a fresh link to her latest result and email it through the compliant send
+    // path (suppression + one-click unsubscribe + postal footer are injected there). Fire-safe:
+    // the DM already delivered the result via the button, so a failed email must NEVER fail this
+    // ack or re-open the finished conversation.
+    let emailed = false;
+    if (identity.email && identity.consentEmail) {
+      try {
+        const link = await reissueLatestResultLink(identity.id);
+        if (link) {
+          const { subject, html } = buildResultCopyEmail(link.headline, link.url, link.toolSlug);
+          const outcome = await send({
+            identity,
+            channel: 'email',
+            text: '',
+            subject,
+            html,
+            idempotencyKey: `result_copy:${link.resultId}`,
+          });
+          emailed = outcome.sent;
+        }
+      } catch {
+        // Swallow: the result is already in her DM. The email is a bonus, never a blocker.
+      }
+    }
     return buildResponse({
       sessionId: null,
       action: 'complete',
-      message: 'Got it. I will send your copy there too.',
+      message: emailed
+        ? 'Sent. Check your inbox for your copy.'
+        : 'Got it, saved. Your breakdown is in the button above.',
       state: null,
     });
   }
@@ -478,6 +506,36 @@ async function finalize(
     leadMagnetId: tool.id,
     state: 'result_sent',
   });
+}
+
+/** The transactional "here is your copy" email sent when a lead hands over an email in-DM. The
+ *  one-click unsubscribe + postal footer are injected downstream at the channels.ts send choke
+ *  point, so this body must not add its own. No em dash in any user-facing copy (CLAUDE.md). */
+function buildResultCopyEmail(
+  headline: string,
+  url: string,
+  toolSlug: string,
+): { subject: string; html: string } {
+  const cfg = getLeadMagnet(toolSlug);
+  const toolName = cfg?.name || 'CRWN';
+  const topline = headline.trim() ? `${headline.trim().replace(/\.+$/, '')}.` : 'Your numbers are ready.';
+  const subject = `Your ${toolName} breakdown`;
+  const html = `
+    <div style="max-width:460px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0D0D0D;">
+      <p style="font-size:18px;font-weight:600;line-height:1.4;margin:0 0 12px;">${escapeEmailHtml(topline)}</p>
+      <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:#333;">Here is your full breakdown, saved so it does not get buried in your DMs. It shows where the money is and what to do next.</p>
+      <a href="${escapeEmailHtml(url)}" style="display:inline-block;background:#D4AF37;color:#0D0D0D;font-weight:600;text-decoration:none;padding:12px 26px;border-radius:9999px;font-size:15px;">See my breakdown</a>
+    </div>`;
+  return { subject, html };
+}
+
+function escapeEmailHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**

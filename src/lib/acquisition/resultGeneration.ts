@@ -27,6 +27,43 @@ export interface GenerateInput {
 }
 
 /**
+ * Rotate a fresh public link to a lead's MOST RECENT result, so it can be re-delivered on a
+ * later turn, e.g. emailed to a lead who just handed over her address expecting the result there.
+ * Only the token HASH is stored, so we cannot resend the old URL; we mint a new token, replace
+ * the hash, and hand back a live link. Returns null when the lead has no result yet.
+ */
+export async function reissueLatestResultLink(
+  leadIdentityId: string,
+): Promise<{ resultId: string; toolSlug: string; url: string; headline: string } | null> {
+  const { data: row } = await supabaseAdmin
+    .from('lead_magnet_results')
+    .select('id, tool_slug, result_data')
+    .eq('lead_identity_id', leadIdentityId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!row) return null;
+
+  const rd = (row.result_data as Record<string, unknown>) ?? {};
+  const rotated = mintToken();
+  await supabaseAdmin
+    .from('lead_magnet_results')
+    .update({
+      public_token_hash: rotated.hash,
+      public_token_expires_at: expiresAt(RESULT_TTL_SECONDS),
+      revoked_at: null,
+    })
+    .eq('id', row.id);
+
+  return {
+    resultId: String(row.id),
+    toolSlug: String(row.tool_slug),
+    url: buildResultUrl(String(row.tool_slug), rotated.raw),
+    headline: String(rd.headline ?? ''),
+  };
+}
+
+/**
  * Run the tool and persist an immutable snapshot.
  *
  * Returns the EXISTING result if one is already on file for this session and tool. That is
