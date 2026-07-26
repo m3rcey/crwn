@@ -36,7 +36,7 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
+  const [thanks, setThanks] = useState(false); // show a real success state after a send
 
   const wantsFile = kind === 'beat' || kind === 'vocal' || kind === 'other';
 
@@ -86,10 +86,9 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
       const data = await res.json();
       if (!res.ok) { setError(data.error === 'no_access' ? 'You need a seat to submit.' : data.error === 'closed' ? 'Submissions have closed.' : 'Could not submit.'); setSubmitting(false); return; }
 
-      setDone(true);
       setNote(''); setTitle(''); setLinkUrl(''); setFile(null); setAgreed(false);
       setMine((prev) => [data.submission, ...prev]);
-      setTimeout(() => setDone(false), 2500);
+      setThanks(true); // a proper confirmation state, not a tiny counter line
     } finally {
       setSubmitting(false);
     }
@@ -100,6 +99,27 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
       <div className="rounded-2xl border border-crwn-elevated/60 p-4">
         <p className="text-crwn-text-secondary text-sm">Submissions for this session have closed.</p>
         {mine.length > 0 && <p className="text-crwn-text-secondary text-xs mt-1">You sent {mine.length}. The artist has it.</p>}
+      </div>
+    );
+  }
+
+  // A real success state after a send, instead of a tiny counter line under the button.
+  if (thanks) {
+    return (
+      <div className="rounded-2xl border border-crwn-gold/40 bg-crwn-gold/10 p-6 text-center space-y-2">
+        <div className="w-12 h-12 rounded-full bg-crwn-gold/20 flex items-center justify-center mx-auto">
+          <Check className="w-6 h-6 text-crwn-gold" />
+        </div>
+        <h3 className="text-crwn-text font-bold text-lg">Sent to the session</h3>
+        <p className="text-crwn-text-secondary text-sm">
+          The artist will review it before the session starts. You&apos;ve sent {mine.length} so far.
+        </p>
+        <button
+          onClick={() => setThanks(false)}
+          className="mt-2 text-sm font-semibold text-crwn-gold hover:underline"
+        >
+          Send another
+        </button>
       </div>
     );
   }
@@ -173,8 +193,8 @@ export function ProducerSubmitPanel({ sessionId, prompt, deadline }: Props) {
         disabled={submitting}
         className="neu-button-accent w-full py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
       >
-        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : done ? <Check className="w-5 h-5" /> : null}
-        {submitting ? 'Sending…' : done ? 'Sent' : 'Send it'}
+        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+        {submitting ? 'Sending…' : 'Send it'}
       </button>
 
       {mine.length > 0 && (
