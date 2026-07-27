@@ -913,14 +913,14 @@ const questPath: AcquisitionTool = {
         'Your fans may be interested but have no clear way to participate, support, promote, or follow your progress, because the step that would let them has not been built yet.',
       flow: [
         'Right work, wrong order, months spinning',
-        'Get a sequenced quest path for your goal',
+        'Get the proven order to build in',
         'Build each foundation before the step that needs it',
         'Progress that compounds instead of resetting',
       ],
       fix: {
         title: 'How CRWN closes this gap',
         steps: [
-          'Follow your Rise Mode quest path on CRWN, ordered for your actual goal.',
+          'Follow your Rise Mode quest path on CRWN, ordered the way careers actually compound.',
           'Complete each foundation before the step that depends on it unlocks.',
           'Let every finished step open the next instead of blocking it.',
         ],
@@ -1341,7 +1341,7 @@ const ownYourFans: AcquisitionTool = {
         { label: 'At $10 a month each', value: `${fmtDollars(monthly)}/mo` },
       ],
       cause:
-        'Your distributor, your streaming app, and your social apps all sit between you and your fans. Any of them can change owners, change payouts, or change what your fans even see, and you own none of the people who made your career. You rent them. A distributor changing hands should not be able to touch your fan list, but today it can.',
+        'Your distributor, your streaming app, and your social apps all sit between you and your fans. Any of them can change owners, change payouts, or change what your fans even see, and you own none of your relationships with the people who made your career. You rent access to them. A distributor changing hands should not be able to touch your fan list, but today it can.',
       estimate: [
         { label: 'Fans you could own', value: ownable.toLocaleString('en-US'), note: '~20% of your audience' },
         { label: 'Who would pay directly', value: payers.toLocaleString('en-US'), note: '~3% of them' },

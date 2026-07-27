@@ -1,5 +1,52 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Opportunity Funnel launch-readiness audit (small corrections only)
+
+Final integration/security/attribution/experiment audit of the whole Opportunity Funnel system
+(4 parallel audits + full test suite). Security came back with NO critical/high issues; analytics,
+experiments, and product-language passed all critical checks (several exemplary). Corrections were
+small and clearly justified; material/structural items were documented, not changed.
+
+**Corrections made:**
+- **Quest Path honesty (copy-only, HIGH):** `execute()` returns a FIXED result (score 68, fixed
+  ranges) and never reads the two inputs, but copy implied a personalized path. Reframed to the fixed
+  reality: `primaryCta` "See the right order", review subtitle "see the order most artists get wrong",
+  flow "Get the proven order to build in", fix "ordered the way careers actually compound"
+  (`leadMagnets/registry.ts`, `acquisition/toolAdapters.ts`). No formula, no output logic, no Rise
+  Mode change.
+- **Own Your Fans ownership language (copy-only, LOW):** the OYF result `cause` said "you own none of
+  the people... you rent them"; changed to "you own none of your relationships with the people... you
+  rent access to them" (owning the relationship/first-party data, not people; CLAUDE.md rule).
+- **Royalty result version mislabel (MEDIUM):** the funnel layer emitted `lossResult@1` for
+  `royalty-readiness-check`, but its adapter stamps `readiness@1`, so every royalty analytics event
+  was mislabeled. Added `resultVersion: 'readiness@1'` to the overlay (`opportunityFunnels/registry.ts`)
+  + a regression test.
+- **Two stale test counts:** `ACQUISITION_TOOL_IDS` 5 -> 17 (all tools onboarded); `ALL_OPPORTUNITY_EVENT_NAMES`
+  23 -> 32 (7 + 16 + 9 events). Both reflect legitimate growth; the `toContain` checks still hold.
+
+**Confirmed safe (no change):** no ungated admin route (`requireAdmin` on every method); no
+open-redirect bypass (`safeInternalPath`); cannot read/claim another user's draft (unclaimed-only +
+verified-email-only + atomic `user_id IS NULL`); no PII/token leak; sanitizer allowlist; deterministic
+whole-experience assignment (no mid-journey switch); exposure≠eligibility; projection (`revealed`)
+shown separately from actual (`captured`, refund-netted), never combined; experiments cannot override
+pricing/fees/ownership/RLS (prebuilt code, no dynamic JSON).
+
+**Documented known gaps (no code change; several are honestly disclosed via `dataQuality`):** two
+destination resolvers (`journey/resolveJourneyDestination` for post-setup, `quests/destinationRegistry`
+for claim-time) share gate logic by copy, not extraction (drift risk); `funnel_events` rows are not
+per-visitor stitchable (`anon_id` is a per-event id, no `user_id`) so only `experiment_events` links
+anon->auth; `sourceVideoId` dimension relies on `utm_content` (no independent video id); subscription
+cancellations/churn are not modeled in the opportunity ledger (refunds ARE netted); rate-limit keys on
+the left-most `x-forwarded-for` hop (spoofable, all public routes); unclaimed anonymous drafts persist
+to their 30-day TTL (cleanup query in the value-before-signup entry); the `/results/resume` fetch works
+only by matching the `[id]` route's token branch (fragile); `funnel.resultRoute` is dead + inaccurate;
+promotion is code-only (no `admin_settings` override wired yet).
+
+**Deferred to founder (unchanged):** apply the three unrun migrations (`funnel_events`,
+`opportunity_ledger`, `experiments`) and verify production state; flip `admin_settings.experiments`
+to run an experiment; keep the sensitive tools deferred (Team Splits, Royalty economics, Clip/Share
+economics, Live pricing, Quest/Rise Mode). Full suite 225 pass, build clean, `sw.js` v267.
+
 ## 2026-07-27 — Onboard Fan Mission + Proof of Demand onto the journey resolver (batch of 2)
 
 Incrementally onboarded the next smallest coherent batch onto the shared Opportunity Funnel

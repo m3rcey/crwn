@@ -522,7 +522,7 @@ const QUEST_PATH: LeadMagnetConfig = {
       eyebrow: 'Rise Mode',
       headline: 'You are doing the right work in the wrong order.',
       subheadline: 'Order is the difference between months of progress and months of spinning. See where your sequencing is costing you time.',
-      primaryCta: 'See my path',
+      primaryCta: 'See the right order',
       image: '/tool-quest-path.jpg',
       imageAlt: 'A dim, gold-lit studio with an artist at the center',
     },
@@ -536,7 +536,7 @@ const QUEST_PATH: LeadMagnetConfig = {
   ],
   wizardSteps: [
     { id: 'goal', group: 'You', title: 'Where are you headed?', subtitle: 'Your goal and your biggest blocker.' },
-    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see your path.' },
+    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see the order most artists get wrong.' },
   ],
 };
 

@@ -74,7 +74,9 @@ const OVERLAYS: Record<string, FunnelOverlay> = {
   // Dark-launched underlying features: recorded here as metadata only (enforcement stays in each
   // feature's own admin_settings gate). Lifecycle stays 'active' so today's directory is unchanged.
   'artist-quest-path': { featureFlag: 'quest_engine' },
-  'royalty-readiness-check': { featureFlag: 'royalty_readiness' },
+  // Royalty is score-only via its own adapter (readiness@1), not the loss engine's lossResult@1, so
+  // its resultVersion is set explicitly here or every royalty analytics event would be mislabeled.
+  'royalty-readiness-check': { featureFlag: 'royalty_readiness', resultVersion: 'readiness@1' },
   'executive-producer-session': { featureFlag: 'producer_sessions' },
 };
 

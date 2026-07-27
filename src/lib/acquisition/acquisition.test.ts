@@ -511,8 +511,9 @@ describe('result tokens', () => {
 
 // ---------------------------------------------------------------------------
 describe('tool adapters (parity with the five existing lead magnets)', () => {
-  it('registers all five', () => {
-    expect(ACQUISITION_TOOL_IDS).toHaveLength(5);
+  it('registers every tool (the original five plus the later batches)', () => {
+    // Grew from the original 5 to the full inventory (16 LeadMagnetConfig tools + worth).
+    expect(ACQUISITION_TOOL_IDS).toHaveLength(17);
     expect(ACQUISITION_TOOL_IDS).toContain('worth');
     expect(ACQUISITION_TOOL_IDS).toContain('vault-revenue-planner');
     expect(ACQUISITION_TOOL_IDS).toContain('proof-of-demand-test-builder');

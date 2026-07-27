@@ -159,6 +159,8 @@ describe('live registry integrity', () => {
   it('preserves published result versions on migration', () => {
     expect(getFunnelByToolKey('own-your-fans-calculator')!.resultVersion).toBe('lossResult@1');
     expect(getFunnelByToolKey('worth')!.resultVersion).toBe('leadCalculator@1');
+    // Royalty is score-only (its own adapter), NOT the loss engine, so it must carry readiness@1.
+    expect(getFunnelByToolKey('royalty-readiness-check')!.resultVersion).toBe('readiness@1');
   });
 });
 
