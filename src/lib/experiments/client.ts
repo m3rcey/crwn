@@ -51,3 +51,28 @@ export async function recordExperimentEntry(
   }
   return null;
 }
+
+/**
+ * Record a post-signup OUTCOME for the visitor's experience, tagged with their variant. The same
+ * durable `aid` (cookie) that was exposed pre-signup is sent again; the server RE-DERIVES the variant
+ * (never trusted) and, because the caller is now authenticated, stamps `user_id` from the session.
+ * This is what closes the loop so a variant's exposure can be compared to its outcome. `eventName`
+ * must be a taxonomy event (e.g. 'signup_completed'). Deduped once per browser per event, and again
+ * server-side by `aid:experiment:event`. Inert when no experiment is running.
+ */
+export async function recordExperimentOutcome(
+  experienceKey: string,
+  eventName: string,
+  dims?: Record<string, string | undefined>,
+): Promise<void> {
+  if (typeof window === 'undefined') return;
+  const aid = getAnonId();
+  if (!aid) return;
+  try {
+    if (localStorage.getItem(firedKey(experienceKey, eventName))) return;
+    await post(aid, experienceKey, eventName, dims);
+    localStorage.setItem(firedKey(experienceKey, eventName), '1');
+  } catch {
+    /* never break the flow */
+  }
+}

@@ -1,5 +1,21 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Close the experiment loop: variant-attributed OYF outcome
+
+Live smoke test confirmed assignment/exposure record correctly, but the experiment was not yet
+READABLE: exposure rows are anonymous (aid + variant, no user_id) and nothing re-fired post-signup,
+so a variant could not be tied to its outcome. Fixed minimally.
+
+- New `recordExperimentOutcome(experienceKey, eventName)` in `src/lib/experiments/client.ts`: re-sends
+  the persisted `crwn_aid` from an AUTHENTICATED surface; the track route re-derives the variant
+  (never trusted) and stamps `user_id` from the session, deduped per browser + server-side.
+- Wired into `src/app/(main)/own-your-fans/plan/page.tsx` (the post-signup OYF landing): fires
+  `signup_completed` once on resume. This is a consistent point for both arms (signup + onboarding +
+  reached the builder), so save-vs-preview conversion is now comparable per variant.
+- Inert when no experiment runs. No migration. Full suite 229 pass, build clean, `sw.js` v269.
+  Readout is a SQL query over experiment_events (exposed vs signup_completed per variant); a variant
+  breakdown in the admin Experiments tab is a recommended follow-up.
+
 ## 2026-07-27 — Make oyf-signup-timing-v1 runnable (variant moves the signup boundary)
 
 Closed the one gap that kept the first split test from being runnable: the OYF pre-signup builder now

@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { smartBack } from '@/lib/navigation';
 import { FanCaptureBuilder } from '@/components/opportunity/FanCaptureBuilder';
 import { JOURNEY_EVENTS, PERSONALIZED_JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
+import { recordExperimentOutcome } from '@/lib/experiments/client';
 import { OYF_TOOL_KEY, sanitizeOwnYourFansDraft, type OwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
 
 // Authenticated resume of the Own Your Fans fan-capture page the artist started before signup.
@@ -53,6 +54,10 @@ export default function OwnYourFansPlanPage() {
           trackOpportunity(JOURNEY_EVENTS.authenticatedBuilderResumed, ctx);
           trackOpportunity(PERSONALIZED_JOURNEY_EVENTS.onboardingContextViewed, ctx);
           trackOpportunity(PERSONALIZED_JOURNEY_EVENTS.recommendedActionViewed, ctx);
+          // Close the experiment loop: the artist completed signup + onboarding and reached the
+          // builder. Server re-derives the variant from the persisted aid and stamps user_id, so
+          // this outcome is attributable to save vs preview. Inert if no experiment is running.
+          void recordExperimentOutcome('own-your-fans', 'signup_completed');
         }
         return;
       }
