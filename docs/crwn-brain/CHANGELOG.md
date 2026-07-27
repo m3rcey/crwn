@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Holistic experience experimentation foundation + experience analytics (dark)
+
+A feature-flagged foundation to compare COMPLETE Opportunity Funnel journeys (Own Your Fans vs
+Streaming Loss), plus a new admin Experiments tab. Ships dark: nothing assigns or exposes a variant
+until the migration is applied AND `admin_settings.experiments` is on AND an experiment is set to
+running. No experiment can ever change pricing/fees/Stripe/ownership/permissions/RLS/roles/revenue,
+because experiment BEHAVIOR is prebuilt code, never remote JSON.
+
+- **Code registry** `src/lib/experiments/registry.ts` (experiences, variants, prebuilt experiment
+  configs; `toPublicExperiment` strips hypothesis/metrics before the browser). `assignment.ts`
+  (deterministic FNV-1a assignment: pure, stable, holdout-aware, no mid-journey switching, re-derived
+  server-side so a client cannot pick its arm). `anonId.ts` (durable non-PII `crwn_aid` cookie +
+  localStorage; bot exclusion). `taxonomy.ts` (versioned event map; `opportunity_captured` = ACTUAL,
+  `opportunity_revealed` = PROJECTION, `thirty_day_retention` marked unavailable, never invented).
+  `metrics.ts` (every metric has a definition). `insights.ts` (directional, sample-sized, no causal
+  claims, no fake confidence, no winner below MIN_SAMPLE=30).
+- **Migration (UNRUN):** [supabase/schema-phase2-experiments.sql](../../supabase/schema-phase2-experiments.sql)
+  creates `experiments` (operational state) + `experiment_events` (measurement sink; service-role
+  write, admin-only read RLS, dedupe_key, indexes, self-verify). Listed in TODO.md.
+- **Routes:** `POST /api/experiments/track` (public, flag-gated, rate-limited, server-derives the
+  variant, links to the authed user only from the session cookie, no PII/tokens, fail-safe).
+  `GET|POST /api/admin/experiments` and `GET /api/admin/experiment-analytics` (requireAdmin; aggregate
+  server-side from existing funnel_events/lead_magnet_events/opportunity_ledger + experiment_events,
+  fail-safe on missing tables).
+- **Admin UI:** new feature-flagged `experiments` tab -> `src/components/admin/ExperimentsView.tsx`
+  (Experience / Funnel / Tool / Video-Campaign / Opportunity performance; insight cards; metric
+  definitions; data-quality notes; projected shown SEPARATELY from actual captured; tool promotion
+  status visible; pause/resume/complete controls). Reuses admin layout + Recharts.
+- **Client:** `recordExperimentEntry` fires 'assigned' + 'exposed' for the OYF experience (inert
+  unless an experiment runs). welcome/setup/auth/role-promotion untouched.
+- Tests: `src/lib/experiments/experiments.test.ts` (19). Build + lint pass. Live `sw.js` v265.
+
 ## 2026-07-27 — Own Your Fans value-before-signup journey (build a fan page, then sign up)
 
 An anonymous artist can now BUILD a fan-capture page after the Own Your Fans result and only sign up

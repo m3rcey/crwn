@@ -21,6 +21,7 @@ import { OPPORTUNITY_EVENTS, JOURNEY_EVENTS, trackOpportunity, type OpportunityE
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 import { FanCaptureBuilder } from '@/components/opportunity/FanCaptureBuilder';
 import { OYF_TOOL_KEY, type OwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
+import { recordExperimentEntry } from '@/lib/experiments/client';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
 // One scrollable page, no view swapping. 'hero' renders the hero AND the wizard beneath it
@@ -111,6 +112,11 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       trackOpportunity(OPPORTUNITY_EVENTS.funnelCompleted, opportunityMeta({ resultVersion: r.generatorVersion }));
       trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
       trackOpportunity(OPPORTUNITY_EVENTS.recommendationViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
+      // Experiment entry (inert unless an experiment is running for this experience).
+      if (config.slug === OYF_TOOL_KEY) {
+        const utm = readUtm();
+        void recordExperimentEntry('own-your-fans', { toolKey: config.slug, sourceVideo: utm.utmContent, campaign: utm.utmCampaign });
+      }
       // Straight to the full result. No email wall.
       setPhase('full');
       // The wizard was mid-page; the result replaces it, so start the artist at the top of it.

@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import LeadMagnetsView from '@/components/admin/LeadMagnetsView';
+import ExperimentsView from '@/components/admin/ExperimentsView';
 import PipelineView from '@/components/admin/PipelineView';
 import FunnelView from '@/components/admin/FunnelView';
 import PlatformSequences from '@/components/admin/PlatformSequences';
@@ -17,7 +18,7 @@ import AgentInsights from '@/components/admin/AgentInsights';
 import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets';
+type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'experiments';
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -146,6 +147,15 @@ export default function AdminPage() {
             Lead Magnets
           </button>
           <button
+            onClick={() => setActiveTab('experiments')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'experiments' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <FlaskConical className="w-4 h-4" />
+            Experiments
+          </button>
+          <button
             onClick={() => setActiveTab('access')}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeTab === 'access' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
@@ -203,6 +213,12 @@ export default function AdminPage() {
       {activeTab === 'leadmagnets' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <LeadMagnetsView />
+        </div>
+      )}
+
+      {activeTab === 'experiments' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <ExperimentsView />
         </div>
       )}
 

@@ -24,6 +24,17 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Apply the experiments migration, then (optionally) turn the engine on.** The holistic
+      experience experimentation foundation shipped dark. It is inert until you do two things, both
+      yours: (1) run [supabase/schema-phase2-experiments.sql](supabase/schema-phase2-experiments.sql)
+      in the Supabase SQL editor (creates `experiments` + `experiment_events`, admin-only RLS, self-
+      verifying). Until then the Experiments admin tab reads existing funnel data only (experience
+      comparison still works; eligible/exposed stay 0). (2) To actually run an experiment, flip the
+      flag: upsert `admin_settings` key `experiments` to `{ "enabled": true }` (or `PUT /api/admin/settings`
+      with `{ "key": "experiments", "value": { "enabled": true } }`), then in the Experiments tab set an
+      experiment to **running**. Nothing assigns or exposes a variant until both are done. No pricing,
+      fees, ownership, or permissions can ever change through an experiment (behavior is prebuilt code).
+
 - [ ] **Rewire the remaining ManyChat flows to deliver-first (Royalty is done).** The funnel no
       longer gates the breakdown behind an email; CRWN delivers the result link immediately and now
       actually EMAILS a copy when a lead gives their address (all code shipped + verified: revs
