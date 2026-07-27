@@ -5,6 +5,8 @@ import { ArrowRight } from 'lucide-react';
 import { buildConversionUrl } from '@/lib/leadMagnets/conversionAdapters';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
+import { OPPORTUNITY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
+import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 import type { GeneratedResult, LeadMagnetConfig } from '@/lib/leadMagnets/types';
 
 // Primary conversion CTA.
@@ -28,9 +30,13 @@ export function ConvertToFeatureButton({
   const router = useRouter();
   const { type, requiresProCapability } = config.conversionTarget;
 
+  const funnel = getFunnelByToolKey(config.slug);
+  const oppBase = { opportunityKey: funnel?.opportunityKey ?? config.slug, toolKey: config.slug, toolVersion: funnel?.toolVersion, resultVersion: funnel?.resultVersion, context };
+
   const go = () => {
     if (context === 'public') {
       trackLeadMagnet(LM_EVENTS.signupClicked, { toolSlug: config.slug, context, resultId });
+      trackOpportunity(OPPORTUNITY_EVENTS.ctaClicked, oppBase);
       const q = new URLSearchParams({ tool: config.slug, ref: 'lead-magnet' });
       if (publicToken) q.set('result', publicToken);
       router.push(`/signup?${q.toString()}`);
@@ -38,6 +44,7 @@ export function ConvertToFeatureButton({
     }
 
     trackLeadMagnet(LM_EVENTS.conversionStarted, { toolSlug: config.slug, context, resultId, conversionTarget: type });
+    trackOpportunity(OPPORTUNITY_EVENTS.builderStarted, oppBase);
 
     if (type === 'live_feature' || type === 'prefilled_existing_flow') {
       const url = buildConversionUrl(config, result.conversionPayload, { returnTo: config.artistRoute, resultId });

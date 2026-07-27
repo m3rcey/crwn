@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { LEAD_MAGNETS, EXTERNAL_TOOLS } from '@/lib/leadMagnets/registry';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
+import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 
 // Shared searchable directory. `basePath` = '/tools' (public) or '/artist/tools' (artist).
 export function LeadMagnetDirectory({ basePath, context }: { basePath: string; context: 'public' | 'artist' }) {
@@ -16,33 +17,48 @@ export function LeadMagnetDirectory({ basePath, context }: { basePath: string; c
     trackLeadMagnet(LM_EVENTS.directoryViewed, { toolSlug: 'directory', context });
   }, [context]);
 
-  // Wizard-driven tools and standalone-page tools (e.g. /worth) render through one path.
+  // Wizard-driven tools and standalone-page tools (e.g. /worth) render through one path. Each is
+  // enriched from the Opportunity Funnel layer with its lifecycle + promotion, so the directory
+  // hides unpublished funnels and leads with the promoted ones. Defaults keep today's set intact:
+  // every current tool is active + public, so nothing is hidden and only the ORDER changes.
   const allTools = useMemo(
-    () => [
-      ...LEAD_MAGNETS.map((m) => ({
-        key: m.slug,
-        name: m.name,
-        description: m.description,
-        category: m.category,
-        featureName: m.featureName,
-        timeToComplete: m.timeToComplete,
-        image: m.hero.image,
-        imageAlt: m.hero.imageAlt,
-        href: `${basePath}/${m.slug}`,
-      })),
-      ...EXTERNAL_TOOLS.map((t) => ({
-        key: t.key,
-        name: t.name,
-        description: t.description,
-        category: t.category,
-        featureName: t.featureName,
-        timeToComplete: t.timeToComplete,
-        image: t.image,
-        imageAlt: t.imageAlt,
-        href: t.href,
-      })),
-    ],
-    [basePath],
+    () =>
+      [
+        ...LEAD_MAGNETS.map((m) => ({
+          key: m.slug,
+          name: m.name,
+          description: m.description,
+          category: m.category,
+          featureName: m.featureName,
+          timeToComplete: m.timeToComplete,
+          image: m.hero.image,
+          imageAlt: m.hero.imageAlt,
+          href: `${basePath}/${m.slug}`,
+        })),
+        ...EXTERNAL_TOOLS.map((t) => ({
+          key: t.key,
+          name: t.name,
+          description: t.description,
+          category: t.category,
+          featureName: t.featureName,
+          timeToComplete: t.timeToComplete,
+          image: t.image,
+          imageAlt: t.imageAlt,
+          href: t.href,
+        })),
+      ]
+        .map((m) => {
+          const f = getFunnelByToolKey(m.key);
+          return { ...m, promotionRank: f?.promotionRank ?? 100, funnel: f };
+        })
+        // Never surface a draft/internal/paused/archived or unsupported funnel; on the public
+        // directory also require anonymous availability. Unknown keys default visible (fail open).
+        .filter((m) => {
+          if (!m.funnel) return true;
+          const visible = m.funnel.lifecycle === 'active' && m.funnel.supported;
+          return context === 'public' ? visible && m.funnel.anonymousAvailable : visible;
+        }),
+    [basePath, context],
   );
 
   const filtered = useMemo(() => {
@@ -58,7 +74,16 @@ export function LeadMagnetDirectory({ basePath, context }: { basePath: string; c
       arr.push(m);
       map.set(m.category, arr);
     }
-    return Array.from(map.entries());
+    // Within a category, promoted funnels (lower rank) lead. Categories are ordered by their most
+    // promoted tool, so the primary funnel's category sits first without hardcoding any tier.
+    const entries = Array.from(map.entries());
+    for (const [, tools] of entries) {
+      tools.sort((a, b) => a.promotionRank - b.promotionRank || a.name.localeCompare(b.name));
+    }
+    entries.sort(
+      ([, a], [, b]) => Math.min(...a.map((t) => t.promotionRank)) - Math.min(...b.map((t) => t.promotionRank)),
+    );
+    return entries;
   }, [filtered]);
 
   return (

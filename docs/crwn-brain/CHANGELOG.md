@@ -1,5 +1,36 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Shared Opportunity Funnel layer (phase 1); Own Your Fans migrated, Worth connected
+
+Turned the public tools into a measurable, configurable funnel layer WITHOUT a new subsystem or a
+migration. New `src/lib/opportunityFunnels/` assembles a typed `OpportunityFunnel` VIEW over the
+existing registries (`LEAD_MAGNETS` + `EXTERNAL_TOOLS`) and layers only the dimensions they lacked:
+lifecycle (`draft|internal|active|paused|archived`), promotion (`primary|secondary|none` + a
+`promotionRank`, so priority is configurable and NOT permanently hardcoded), tool type, stable
+`opportunityKey`, `toolVersion`/`resultVersion`, availability + auth boundary, feature flag (metadata
+only), attribution channels, and internal-only fields stripped by `toPublicFunnel`. Resolution +
+pure selection/order helpers (`getFunnelByToolKey`, `resolveFunnelByKeyword` with orchestrator-matching
+`normalizeKeyword`, `selectActive`/`selectPublic`/`sortByPromotion`).
+
+- **Own Your Fans** is marked **primary** (rank 0) via overlay; `opportunityKey: own-your-fans`;
+  `recommendedNextRoute: /studio/fans` (the owned-CRM `AudienceTab`, the most repository-supported
+  next surface; no dedicated builder exists so `builderRoute` stays null). Its formula and published
+  result are UNCHANGED (still the loss-engine `lossResult@1`).
+- **Streaming Loss / Worth** joins the metadata layer only (`opportunityKey: streaming-loss`,
+  `secondary`, rank 1). Its `/worth` page, formulas, inputs, disclaimers, and CTA are untouched.
+- **Analytics:** seven shared events (`opportunity_funnel_viewed|started|completed`,
+  `opportunity_result_viewed`, `opportunity_recommendation_viewed`, `opportunity_cta_clicked`,
+  `opportunity_builder_started`) on the EXISTING sink (`/api/lead-magnets/analytics` ->
+  `lead_magnet_events`), added to its allowlist. They are NOT mirrored into `funnel_events`, so the
+  existing 15-stage counts never double-count. `sanitizeOpportunityMeta` is an allowlist that strips
+  email/phone/tokens/raw answers/financials (defense in depth on top of the server's column allowlist).
+- **Wired (additive, defaults reproduce today's behavior):** `PublicToolClient` emits the funnel
+  events alongside the existing beacons; `ConvertToFeatureButton` emits cta/builder; the tools
+  directory now hides non-active/unsupported funnels and leads with promoted ones (all current tools
+  default active + public, so only the ORDER changes and Own Your Fans surfaces first).
+- Tests: `src/lib/opportunityFunnels/{registry,analytics}.test.ts` (20). No migration, no env var, no
+  flag. Live `sw.js` v263.
+
 ## 2026-07-26 — Executive Producer seat price: $300 top band + "suggested" framing
 
 Resolved the tool-vs-script price conflict by RAISING the calculator, not lowering the scripts (the

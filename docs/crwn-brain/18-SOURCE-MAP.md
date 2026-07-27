@@ -53,6 +53,8 @@
 - Marketing/CRM: `src/lib/emails/*`, `src/app/api/{campaigns,sequences,segments,crm,fan-contacts,smart-links,sms}/*`, `src/lib/twilio.ts`
 - Referrals/recruiters: `src/lib/referrals.ts`, `src/lib/attribution.ts`, `src/app/api/{referrals,recruit}/*`, `src/app/{join/[code],partner}/`
 - Admin/AI: `src/app/admin/`, `src/app/api/admin/*`, `src/lib/ai/*`, `src/app/api/ai-manager/*`, `src/components/admin/*`
+- Lead magnets / public tools: registry `src/lib/leadMagnets/*` (16 `LeadMagnetConfig` + `EXTERNAL_TOOLS` worth); DM/execution adapters `src/lib/acquisition/{toolAdapters,orchestration,lossResult}.ts`; result/claim `src/lib/leadResults/*`; pages `src/app/(public)/{tools,worth}/*`; DM ingress `src/app/api/integrations/manychat/webhook/route.ts`
+- Opportunity Funnels (shared config/lifecycle/promotion + funnel analytics over the tools): `src/lib/opportunityFunnels/{types,registry,analytics}.ts` (typed view over the registries; `promotion`/`lifecycle`; 7 `opportunity_*` events sanitized onto the existing `lead_magnet_events` sink). Own Your Fans = primary. Funnel event spine `src/lib/analytics/funnelEvents.ts`; money ledger `src/lib/analytics/opportunityLedger.ts`
 
 ## Design / conventions
 - `src/app/globals.css`, `src/app/styles/neumorphic.css`, `src/app/layout.tsx`

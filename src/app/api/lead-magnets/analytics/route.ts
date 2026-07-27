@@ -32,6 +32,15 @@ const ALLOWED_EVENTS = new Set([
   'lead_magnet_conversion_completed',
   'lead_magnet_conversion_failed',
   'lead_magnet_result_archived',
+  // Shared Opportunity Funnel events (parallel normalized layer; NOT mirrored into funnel_events,
+  // so they never double-count the lead-magnet stages that already are).
+  'opportunity_funnel_viewed',
+  'opportunity_funnel_started',
+  'opportunity_funnel_completed',
+  'opportunity_result_viewed',
+  'opportunity_recommendation_viewed',
+  'opportunity_cta_clicked',
+  'opportunity_builder_started',
 ]);
 
 export async function POST(req: NextRequest) {

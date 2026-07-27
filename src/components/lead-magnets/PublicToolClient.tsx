@@ -17,6 +17,8 @@ import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
+import { OPPORTUNITY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
+import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
 // One scrollable page, no view swapping. 'hero' renders the hero AND the wizard beneath it
@@ -37,10 +39,31 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  // Base attribution for the shared Opportunity Funnel events. Non-sensitive dimensions only; the
+  // tracker sanitizes again before anything leaves the browser.
+  const opportunityMeta = (extra?: Partial<OpportunityEventMeta>): OpportunityEventMeta => {
+    const funnel = getFunnelByToolKey(config.slug);
+    const utm = readUtm();
+    return {
+      opportunityKey: funnel?.opportunityKey ?? config.slug,
+      toolKey: config.slug,
+      toolVersion: funnel?.toolVersion,
+      resultVersion: funnel?.resultVersion,
+      utmSource: utm.utmSource,
+      utmMedium: utm.utmMedium,
+      utmCampaign: utm.utmCampaign,
+      utmContent: utm.utmContent,
+      referralSource: utm.source,
+      context: 'public',
+      ...extra,
+    };
+  };
+
   // Resume from an emailed link (?result=token) or start fresh at the hero.
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get('result');
     trackLeadMagnet(LM_EVENTS.viewed, { toolSlug: config.slug, context: 'public', ...readUtm() });
+    trackOpportunity(OPPORTUNITY_EVENTS.funnelViewed, opportunityMeta());
     if (!token) {
       setPhase('hero');
       return;
@@ -53,6 +76,7 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
           setResult(data.result);
           setPublicToken(token);
           setPhase('full');
+          trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: data.result?.generatorVersion }));
           return;
         }
       } catch {
@@ -82,6 +106,9 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       setResult(r);
       trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: config.slug, context: 'public', generatorVersion: r.generatorVersion });
       trackLeadMagnet(LM_EVENTS.resultUnlocked, { toolSlug: config.slug, context: 'public' });
+      trackOpportunity(OPPORTUNITY_EVENTS.funnelCompleted, opportunityMeta({ resultVersion: r.generatorVersion }));
+      trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
+      trackOpportunity(OPPORTUNITY_EVENTS.recommendationViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
       // Straight to the full result. No email wall.
       setPhase('full');
       // The wizard was mid-page; the result replaces it, so start the artist at the top of it.
@@ -94,6 +121,7 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   // The hero CTA jumps down to the wizard, which is already on the page below it.
   const scrollToWizard = () => {
     trackLeadMagnet(LM_EVENTS.started, { toolSlug: config.slug, context: 'public' });
+    trackOpportunity(OPPORTUNITY_EVENTS.funnelStarted, opportunityMeta());
     wizardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
