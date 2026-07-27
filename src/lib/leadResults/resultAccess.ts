@@ -15,6 +15,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { hashToken, isExpired } from './resultToken';
+import { exitProspectNurtureForUser } from '@/lib/prospectNurture/enroll';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -475,6 +476,14 @@ export async function autoClaimForUser(
     } catch {
       /* the event log is not load-bearing */
     }
+  }
+
+  // They now have an account. Stop prospect (pre-signup) nurture immediately, so a signed-up user
+  // is never asked to sign up again. Idempotent and self-swallowing; safe on every auth event.
+  try {
+    await exitProspectNurtureForUser(supabaseAdmin, { userId, email: input.email ?? null });
+  } catch {
+    /* nurture exit must never break auth or a page render */
   }
 
   return { claimed };

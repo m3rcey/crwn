@@ -24,6 +24,21 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Apply the prospect-nurture migration (turns on long-term email nurture for email-only
+      calculator leads).** Until this runs, leads still get their one result email and enrollment
+      silently no-ops (the code fails closed). In Supabase → SQL Editor, run:
+      [`supabase/schema-phase2-prospect-nurture.sql`](supabase/schema-phase2-prospect-nurture.sql).
+      It self-verifies and raises loudly if any piece half-applies. Then the daily cron
+      `/api/cron/prospect-nurture` (already in `vercel.json`, 30 10 UTC) starts sending. Optional but
+      recommended: in the Resend dashboard, enable the **email.opened** and **email.clicked** events so
+      the admin panel shows open/click rates. Full spec: [`docs/PROSPECT_NURTURE.md`](docs/PROSPECT_NURTURE.md).
+
+- [ ] **Apply the platform-sequence copy fix (corrects live stale pricing + a fabricated stat).** The
+      live "Starter to Pro Upgrade" emails said Pro is **$50/mo** (real: $9.99) and claimed "Pro artists
+      earn 3x more," which is fabricated proof and against our own rules. In Supabase → SQL Editor, run:
+      [`supabase/schema-phase2-fix-platform-sequence-copy.sql`](supabase/schema-phase2-fix-platform-sequence-copy.sql).
+      It UPDATEs the two live rows and self-verifies the stale copy is gone.
+
 - [ ] **(Optional, low priority) Per-video attribution for "Highest Converting Video."** CONFIRMED
       2026-07-26: ManyChat's "any post or reel" comment trigger does NOT expose the triggering post id
       (the External Request field picker has no post/media field), so the catch-all flows CANNOT carry
@@ -213,6 +228,16 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   **grandfathered/locked pricing** for founders, left out because it touches Stripe subscription
   pricing. Ask if you want it. (The ManyChat flows for the new tool keywords are now built and live.)
 
+
+- **Prospect nurture (email-only calculator leads): built, dark until the migration runs.** A lead
+  who runs a calculator, asks for the result by email, but does not sign up now enters a versioned,
+  calculator-aware, consent-gated 12-touch sequence over 6 weeks (Phases 1-3), and exits the instant
+  they create an account. It reuses the existing Resend sender, the global suppression gate, the daily
+  cron scheduler, and the lead tables (no parallel system). Two migrations are in your Do Now list.
+  Deliberately NOT built yet, in the order I would build them: **Phases 4-9** (objections → mechanism →
+  proof → re-engagement → authority → evergreen), which slot into the same code array with no schema
+  change; and wiring the external **`/worth`** (Streaming Loss) tool to enroll (only registry wizard
+  tools enroll today). Full spec + admin controls: [`docs/PROSPECT_NURTURE.md`](docs/PROSPECT_NURTURE.md).
 
 One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
 signup works via `ClaimRedeemer` instead. `/welcome` and `useAuth` are the two files that broke

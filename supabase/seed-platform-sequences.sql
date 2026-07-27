@@ -107,39 +107,37 @@ VALUES ('a1000000-0000-0000-0000-000000000003', 'Starter to Pro Upgrade', 'start
 
 INSERT INTO platform_sequence_steps (sequence_id, step_number, delay_days, subject, body) VALUES
 ('a1000000-0000-0000-0000-000000000003', 1, 0,
-  '{{first_name}}, you''re ready for Pro',
+  '{{first_name}}, you are ready for Pro',
   'Hey {{first_name}},
 
-You''ve been putting in work on CRWN — uploading tracks, building your audience, making sales. That''s exactly what Pro artists do.
+You have been putting in work on CRWN: uploading tracks, building your audience, making sales. That is exactly what Pro artists do.
 
-On the Starter plan, CRWN takes an 8% platform fee. With Pro ($50/mo), you get:
-- Email campaigns to your fans (2/week)
+On the Free plan, the CRWN app takes a 12% platform fee. On Pro ($9.99/mo) that drops to 8%, and you unlock the tools that turn casual fans into paying ones:
+- Email campaigns to your fans
 - SMS marketing
 - Discount codes for promotions
-- Same 8% fee — but way more tools to grow
 
-Most artists make back the $50 in the first week from one extra subscriber.
+A lower fee plus the growth tools is why most artists move up once they are selling.
 
-→ {{upgrade_url}}
+Upgrade: {{upgrade_url}}
 
-— The CRWN Team'),
+The CRWN Team'),
 
 ('a1000000-0000-0000-0000-000000000003', 2, 7,
-  'Pro artists earn 3x more — here''s why',
+  'The tools you are missing on Free, {{first_name}}',
   'Hey {{first_name}},
 
-We looked at the data: Pro artists on CRWN earn 3x more than Starter artists on average.
+On the Free plan these stay locked:
+- Email campaigns that bring fans back
+- SMS blasts for new drops
+- Discount codes that drive purchases
+- Automated email sequences (welcome, win-back, upsell)
 
-Why? Because they can:
-- Send email campaigns that bring fans back
-- Run SMS blasts for new drops
-- Create discount codes that drive purchases
-- Set up automated sequences (welcome, win-back, upsell)
+Those are how artists on CRWN turn attention into recurring revenue, and Pro drops your platform fee from 12% to 8% at the same time.
 
-All of this is locked on Starter. Upgrade takes 30 seconds:
-→ {{upgrade_url}}
+Upgrade takes about a minute: {{upgrade_url}}
 
-— The CRWN Team');
+The CRWN Team');
 
 -- ─── 4. Paid At Risk (inactive 14+ days) ────────────────────────────────────
 

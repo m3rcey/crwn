@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
     const campaignSendId = sendIdHeader?.value;
     const seqSendIdHeader = data.headers?.find(h => h.name === 'X-Sequence-Send-Id');
     const sequenceSendId = seqSendIdHeader?.value;
+    // Prospect (pre-signup) nurture send id, so opens/clicks/bounces attribute back to the ledger.
+    const prospectSendIdHeader = data.headers?.find(h => h.name === 'X-Prospect-Send-Id');
+    const prospectSendId = prospectSendIdHeader?.value;
 
     if (type === 'email.bounced') {
       const isHard = data.bounce?.type === 'hard';
@@ -100,6 +103,15 @@ export async function POST(req: NextRequest) {
           .eq('id', sequenceSendId);
       }
 
+      // Update prospect nurture send if applicable (the enrollment is stopped by the daily runner
+      // the next time it checks suppression, which a hard bounce below adds the address to).
+      if (prospectSendId) {
+        await supabaseAdmin
+          .from('prospect_nurture_sends')
+          .update({ status: 'bounced' })
+          .eq('id', prospectSendId);
+      }
+
       // Hard bounce → global suppression
       if (isHard) {
         await supabaseAdmin
@@ -108,7 +120,7 @@ export async function POST(req: NextRequest) {
             email: recipientEmail,
             reason: 'hard_bounce',
             bounce_message: bounceMessage,
-            source: campaignSendId ? 'campaign' : 'sequence',
+            source: prospectSendId ? 'prospect_nurture' : campaignSendId ? 'campaign' : 'sequence',
           }, { onConflict: 'email' });
 
         console.log(`Hard bounce — suppressed ${recipientEmail}: ${bounceMessage}`);
@@ -124,7 +136,7 @@ export async function POST(req: NextRequest) {
         .upsert({
           email: recipientEmail,
           reason: 'spam_complaint',
-          source: campaignSendId ? 'campaign' : 'sequence',
+          source: prospectSendId ? 'prospect_nurture' : campaignSendId ? 'campaign' : 'sequence',
         }, { onConflict: 'email' });
 
       // Also update campaign_sends if we can match
@@ -179,6 +191,31 @@ export async function POST(req: NextRequest) {
           .update({ status: 'sent' })
           .eq('id', sequenceSendId);
       }
+      if (prospectSendId) {
+        await supabaseAdmin
+          .from('prospect_nurture_sends')
+          .update({ status: 'delivered' })
+          .eq('id', prospectSendId)
+          .eq('status', 'sent');
+      }
+    }
+
+    // Behavioral signals for prospect nurture: opens and clicks. Idempotent (first-wins on the
+    // timestamp). These are the branches the funnel reads for "result email opened / clicked".
+    if (type === 'email.opened' && prospectSendId) {
+      await supabaseAdmin
+        .from('prospect_nurture_sends')
+        .update({ status: 'opened', opened_at: new Date().toISOString() })
+        .eq('id', prospectSendId)
+        .is('opened_at', null);
+    }
+
+    if (type === 'email.clicked' && prospectSendId) {
+      await supabaseAdmin
+        .from('prospect_nurture_sends')
+        .update({ status: 'clicked', clicked_at: new Date().toISOString() })
+        .eq('id', prospectSendId)
+        .is('clicked_at', null);
     }
 
     return NextResponse.json({ status: 'ok' });

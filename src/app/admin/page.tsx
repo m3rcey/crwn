@@ -11,6 +11,7 @@ import ExperimentsView from '@/components/admin/ExperimentsView';
 import PipelineView from '@/components/admin/PipelineView';
 import FunnelView from '@/components/admin/FunnelView';
 import PlatformSequences from '@/components/admin/PlatformSequences';
+import ProspectNurtureView from '@/components/admin/ProspectNurtureView';
 import EmailHealth from '@/components/admin/EmailHealth';
 import PartnersView from '@/components/admin/PartnersView';
 import CrmView from '@/components/admin/CrmView';
@@ -190,6 +191,7 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <AgentInsights userId={user.id} scope="sequences" />
           <PlatformSequences />
+          <ProspectNurtureView />
         </div>
       )}
       {activeTab === 'crm' && (

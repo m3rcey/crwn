@@ -10,6 +10,7 @@ import { leadMagnetResultEmail } from '@/lib/emails/leadMagnetResult';
 import { CONSENT_TEXT_VERSION } from '@/lib/leadMagnets/disclaimers';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
+import { enrollProspect } from '@/lib/prospectNurture/enroll';
 
 // PUBLIC endpoint. No auth (middleware excludes /api). It authorizes/rate-limits itself.
 // Recomputes the result SERVER-SIDE from the inputs (never trusts a client-sent result),
@@ -178,6 +179,17 @@ export async function POST(req: NextRequest) {
     resultId: saved.id,
     dedupeKey: saved.id,
     metadata: { hasPhone: !!phone },
+  });
+
+  // 4. Enroll into long-term prospect nurture. MARKETING, so it runs only with explicit email
+  //    consent; the transactional result email above is separate and always sent. Best-effort:
+  //    enrollment never fails the capture, and enrollProspect swallows its own errors.
+  await enrollProspect(supabaseAdmin, {
+    leadId: lead.id,
+    email,
+    toolSlug: config.slug,
+    resultId: saved.id,
+    emailConsent: body.lead?.emailConsent === true,
   });
 
   return NextResponse.json({ success: true, resultId: saved.id, publicToken, result });
