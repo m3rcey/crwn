@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Loader2, FlaskConical, Info } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 
 // Admin Experiments + experience analytics. Extends the existing admin analytics (reads the same
 // funnel_events / opportunity_ledger data) and adds experience comparison + experiment management.
@@ -66,13 +67,15 @@ export default function ExperimentsView() {
   const [period, setPeriod] = useState('30');
   const [showDefs, setShowDefs] = useState(false);
   const [saving, setSaving] = useState('');
+  const [videoTool, setVideoTool] = useState(''); // scopes the Video/Campaign section to one tool
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
+      const qs = `since=${sinceFromPeriod(period)}${videoTool ? `&tool=${encodeURIComponent(videoTool)}` : ''}`;
       const [ex, an] = await Promise.all([
         fetch('/api/admin/experiments').then((r) => r.json()),
-        fetch(`/api/admin/experiment-analytics?since=${sinceFromPeriod(period)}`).then((r) => r.json()),
+        fetch(`/api/admin/experiment-analytics?${qs}`).then((r) => r.json()),
       ]);
       if (ex?.experiments) { setExperiments(ex.experiments); setDefs(ex.metricDefinitions || []); setEnabled(!!ex.enabled); }
       if (an?.experiences) setAnalytics(an);
@@ -81,7 +84,7 @@ export default function ExperimentsView() {
     } finally {
       setLoading(false);
     }
-  }, [period]);
+  }, [period, videoTool]);
   useEffect(() => { load(); }, [load]);
 
   const setStatus = async (key: string, status: string) => {
@@ -260,7 +263,15 @@ export default function ExperimentsView() {
 
       {/* 4. Video / Campaign */}
       <Section title="Video and campaign performance">
-        <DimTable title="By video (utm_content)" rows={analytics?.videoCampaign?.byVideo || []} />
+        <div className="mb-3 max-w-xs">
+          <OptionSelect
+            options={[{ value: '', label: 'All tools' }, ...(analytics?.tools || []).map((t) => ({ value: t.toolKey, label: t.title }))]}
+            value={videoTool}
+            onChange={setVideoTool}
+            placeholder="Filter videos by tool"
+          />
+        </div>
+        <DimTable title={`By video (utm_content)${videoTool ? ' (this tool only)' : ''}`} rows={analytics?.videoCampaign?.byVideo || []} />
         <DimTable title="By campaign" rows={analytics?.videoCampaign?.byCampaign || []} />
       </Section>
 

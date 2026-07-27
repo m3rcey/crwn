@@ -1,5 +1,15 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Admin: filter Video/Campaign performance by tool
+
+Small launch-support add: the admin Experiments tab's "Video and campaign performance" section now
+has an `OptionSelect` to scope it to a single tool (e.g. show only the Worth videos vs the Share-to-
+Earn videos). `experiment-analytics` accepts `?tool=<slug>`, applied ONLY to the video/campaign
+aggregation (every other section stays global so its numbers are not distorted). Reads
+`funnel_events.calculator`; no new data. Motivated by a launch driving ~26 videos across Worth,
+Share-to-Earn, and Executive Producer, where per-tool video attribution matters more than A/B power.
+230 tests pass, build clean, `sw.js` v271.
+
 ## 2026-07-27 — Admin variant-results readout (save vs preview, honest)
 
 Added a "Variant results" section to the admin Experiments tab so the save-vs-preview outcome is

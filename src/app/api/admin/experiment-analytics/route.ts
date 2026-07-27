@@ -27,6 +27,9 @@ export async function GET(req: NextRequest) {
   const since = p.get('since') || new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10);
   const experienceFilter = p.get('experience');
   const campaignFilter = p.get('campaign');
+  // Scopes the Video/Campaign section ONLY (e.g. show just the Worth videos). Leaves every other
+  // section global so its numbers are not distorted.
+  const toolFilter = p.get('tool');
 
   const quality = { funnelEvents: false, leadMagnetEvents: false, opportunityLedger: false, experimentEvents: false };
 
@@ -140,10 +143,11 @@ export async function GET(req: NextRequest) {
     activations: fCount(f.toolKey, 'builder_published'),
   }));
 
-  // ---- 4. Video / Campaign Performance ----
+  // ---- 4. Video / Campaign Performance (optionally scoped to one tool) ----
+  const videoRows = toolFilter ? fRows.filter((r) => r.calculator === toolFilter) : fRows;
   const byDim = (key: 'video' | 'campaign' | 'referrer') => {
     const map = new Map<string, { visits: number; completions: number; signups: number; published: number }>();
-    for (const r of fRows) {
+    for (const r of videoRows) {
       const k = (r[key] || 'unknown') as string;
       const b = map.get(k) || { visits: 0, completions: 0, signups: 0, published: 0 };
       if (r.stage === 'page_viewed') b.visits++;
