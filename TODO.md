@@ -24,19 +24,6 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Rewire the remaining ManyChat flows to deliver-first (Royalty is done).** The funnel no
-      longer gates the breakdown behind an email; CRWN delivers the result link immediately and now
-      actually EMAILS a copy when a lead gives their address (all code shipped + verified: revs
-      250b2af/3267b75/ef79bad). Each remaining flow needs the SAME 3 node edits in ManyChat (no code):
-      (1) on the send_result node (Send Message showing `crwn_message`), add a button -> Open URL ->
-      insert the `crwn_result_url` pill -> label "See The Breakdown"; (2) reword the email-ask node to
-      "Want me to email you a copy so it doesn't get buried in your DMs? Drop your best email, or skip
-      this and tap 'See The Breakdown' above."; (3) turn the end node (after the profile_update External
-      Request) into "Sent. I just emailed a copy to your inbox so it doesn't get buried." and DELETE its
-      button. Then Update/publish and DM-test. Flows to do: **OWN, LIVE, PRODUCER, WORTH, VAULT** (and
-      any others live). Delivery-first policy is documented in `docs/acquisition/manychat-setup-guide.md`
-      section 6b.
-
 - [ ] **(Optional, low priority) Per-video attribution for "Highest Converting Video."** CONFIRMED
       2026-07-26: ManyChat's "any post or reel" comment trigger does NOT expose the triggering post id
       (the External Request field picker has no post/media field), so the catch-all flows CANNOT carry
@@ -62,44 +49,6 @@ responsible for. Do not work those.
       If it errors with a `foreign key constraint … on table …`, paste that line to Claude for the
       one-line cleanup. **Never** add `612fa313-8d4f-4748-8148-7804fada0d0c` (that is your real
       `m3rcey` / "Mercey" account).
-
-- [ ] **Add the `ROYALTY` keyword flow in ManyChat** (new "Royalty Readiness Check" lead magnet,
-      keywords `royalty` / `royalties` / `publishing`). CRWN-side routing already exists (it derives
-      from `dmKeywords` in the registry), so nothing is needed on our end. Clone an existing tool
-      keyword flow (e.g. `SHARE`) and point it at the same External Request. Verify the deploy's
-      webhook rev sha BEFORE testing (ManyChat guide §10). Live at
-      [thecrwn.app/tools/royalty-readiness-check](https://thecrwn.app/tools/royalty-readiness-check).
-
-      **This one is different from the other 16 and the difference is deliberate:** it returns a
-      SCORE, not a dollar figure. Every other tool estimates revenue the artist could create, which
-      is a plan. This one is about money that may already be owed, and stating a dollar amount for
-      that from six self-reported answers would be inventing a fact about the world. So its hook
-      teases a score, and the hero delivers a score. **If you write video scripts for it, do not
-      promise a dollar** or the hero will not match the hook.
-
-- [ ] **Add the `OWN` keyword flow in ManyChat** (new "Own Your Fans" lead magnet, keyword
-      `own`). CRWN-side routing already exists (it derives from `dmKeywords` in the registry), so
-      nothing is needed on our end. In ManyChat, clone an existing tool keyword flow (e.g. `SHARE`)
-      and set its trigger keyword to `OWN`, pointing at the same External Request. **Until this is
-      added, any Instagram comment of "OWN" from the new Own Your Fans scripts goes nowhere.**
-      Verify the deploy's webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is
-      live at [thecrwn.app/tools/own-your-fans-calculator](https://thecrwn.app/tools/own-your-fans-calculator).
-
-- [ ] **Add the `PRODUCER` keyword flow in ManyChat** (Executive Producer Session Calculator).
-      Same clone-an-existing-flow steps as `SHARE`, trigger keyword `PRODUCER`, same External
-      Request. Verify the deploy's webhook rev sha BEFORE testing (ManyChat guide §10). The
-      tool is live at
-      [thecrwn.app/tools/executive-producer-session](https://thecrwn.app/tools/executive-producer-session).
-      **Do this only after you have settled the script decisions in the P0 item above**, or the
-      comments arrive pointing at copy you are about to change.
-
-- [ ] **Add the `LIVE` keyword flow in ManyChat** (new "Live Experience Calculator" lead magnet,
-      keyword `live`). CRWN-side routing already exists (it derives from `dmKeywords` in the
-      registry), so nothing is needed on our end. In ManyChat, clone an existing tool keyword flow
-      (e.g. `SHARE`) and set its trigger keyword to `LIVE`, pointing at the same External Request.
-      **Until this is added, any Instagram comment of "LIVE" goes nowhere.** Verify the deploy's
-      webhook rev sha BEFORE testing (see the ManyChat guide §10). The tool is live at
-      [thecrwn.app/tools/live-experience-calculator](https://thecrwn.app/tools/live-experience-calculator).
 
 - [ ] **The Terms changed (effective July 24, 2026): a live-ticket refund clause was added.**
       Nothing to do unless you want to announce it. [`/terms` §4](src/app/\(public\)/terms/page.tsx)
@@ -212,19 +161,17 @@ and the admin panel. The privacy policy now discloses the funnel (live).
 - **Artist dashboard is now 15 real screens, not a 16-tab strip.** `/profile/artist` is Rise Mode
   only; management lives in the hamburger (`/account/*`), tools live in Studio (`/studio/*`), and
   every screen wears `HubPage` (X in the top left, returns to the menu when it carries
-  `?from=hub`). Nothing for you to run: no migration, no env var, no flag. Two cosmetic follow-ups
-  I will do unasked unless you want them sooner: the seven new Studio tiles (Music, Albums, Shop,
-  Live, Analytics, Manager, Sync) are emoji placeholders and want real gold product photos like
-  the other tiles. (The `announce_hub_navigation` pop-up is now live: the Pop-up Engine flag is on.)
+  `?from=hub`). Nothing for you to run: no migration, no env var, no flag. (The
+  `announce_hub_navigation` pop-up is now live: the Pop-up Engine flag is on. The seven Studio
+  tiles that were emoji placeholders now carry real gold product photos, done 2026-07-26.)
 
 - **Royalty / publishing intelligence, phase 1 shipped (the diagnostic).** The Royalty Readiness
-  Check is built and dark. What is deliberately NOT built, in the order I would build it: the
-  **Unclaimed Royalty lead magnet** (same scorer, score-only, no dollar figure, keyword `ROYALTY`),
-  which should only ship once the in-app check is live so the tool points at something real; a
-  **per-song registration tracker** (the check is artist-level today, tracks already carry an
-  ISRC); a **composition record** separate from the recording, which is the real prerequisite for
-  anything split-sheet shaped. CRWN should not become a publisher or administrator, and none of
-  the above moves it toward being one.
+  Check is built. The score-only **Royalty lead magnet** (keyword `ROYALTY`) is now LIVE (web tool
+  + ManyChat DM flow, verified end to end 2026-07-27). What is deliberately NOT built, in the order
+  I would build it: a **per-song registration tracker** (the check is artist-level today, tracks
+  already carry an ISRC); a **composition record** separate from the recording, which is the real
+  prerequisite for anything split-sheet shaped. CRWN should not become a publisher or administrator,
+  and none of the above moves it toward being one.
 
 - **Executive Producer Sessions: LIVE (2026-07-24).** The migration ran, the flag is on, and the
   fan submission agreement is final (`/submission-agreement`). Shipped and live: fan submissions
@@ -234,8 +181,8 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   loss-framed announcement (`announce_producer_sessions`), and a live-ticket refund clause in the
   Terms.
 
-  **Only two things are left, and I recommend NOT building either until you have run a real session
-  (see the P0 test item).** Both are your decision, not more spec:
+  **Only two things are left, and I recommend NOT building either until you have run a real paid
+  session.** Both are your decision, not more spec:
   - **Premium seat types** (a cheap viewer ticket + a few high-price producer seats sold
     separately). Lower risk, no legal, no moderation. My advice: build it the day a single-price
     session sells out, not before. Then: viewer ticket at the calculator's band price + 3 to 5
@@ -264,7 +211,7 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   owned-CRM features and reuses existing profile fields (no migration). Founder Window is a real
   feature now (cap + deadline + founder marking; migration run). The only deferred piece is
   **grandfathered/locked pricing** for founders, left out because it touches Stripe subscription
-  pricing. Ask if you want it. Also still yours: the **ManyChat flows** for the new tool keywords.
+  pricing. Ask if you want it. (The ManyChat flows for the new tool keywords are now built and live.)
 
 
 One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
