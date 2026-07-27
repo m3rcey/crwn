@@ -131,6 +131,8 @@ export async function orchestrate(
             subject,
             html,
             idempotencyKey: `result_copy:${link.resultId}`,
+            // She asked for this copy right now; do not let the 24h nurture cap swallow it.
+            transactional: true,
           });
           emailed = outcome.sent;
         }

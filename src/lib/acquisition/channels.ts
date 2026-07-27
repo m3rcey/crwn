@@ -38,6 +38,13 @@ export interface SendRequest {
   html?: string;
   /** Dedupe key. The same key never sends twice. */
   idempotencyKey: string;
+  /**
+   * TRANSACTIONAL: a send the lead explicitly requested this moment (e.g. "email me a copy of my
+   * result"), not proactive nurture. Skips the frequency/lifetime caps, which exist to throttle
+   * marketing, never a self-addressed thing she just asked for. Consent, the global suppression
+   * list, and dedupe STILL apply, so an unsubscribe or a duplicate is still honored.
+   */
+  transactional?: boolean;
 }
 
 export type ChannelResult =
@@ -69,9 +76,13 @@ export async function send(req: SendRequest): Promise<ChannelResult> {
   if (channel === 'email' && !identity.consentEmail) return { sent: false, reason: 'no_email_consent' };
   if (channel === 'sms' && !identity.consentSms) return { sent: false, reason: 'no_sms_consent' };
 
-  // ---- Frequency caps. ----
-  const cap = await checkCaps(identity.id);
-  if (!cap.ok) return { sent: false, reason: cap.reason };
+  // ---- Frequency caps. Skipped for a TRANSACTIONAL send: a result the lead just asked us to
+  //      email is requested and self-addressed, so the anti-nurture-spam caps must not throttle
+  //      it. Consent above and suppression/dedupe below still apply. ----
+  if (!req.transactional) {
+    const cap = await checkCaps(identity.id);
+    if (!cap.ok) return { sent: false, reason: cap.reason };
+  }
 
   // ---- Dedupe. The same message never sends twice, however many times we are asked. ----
   const claimed = await claimSend(identity.id, req.idempotencyKey, channel);
