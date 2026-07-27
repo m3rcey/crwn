@@ -24,6 +24,19 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Rewire the remaining ManyChat flows to deliver-first (Royalty is done).** The funnel no
+      longer gates the breakdown behind an email; CRWN delivers the result link immediately and now
+      actually EMAILS a copy when a lead gives their address (all code shipped + verified: revs
+      250b2af/3267b75/ef79bad). Each remaining flow needs the SAME 3 node edits in ManyChat (no code):
+      (1) on the send_result node (Send Message showing `crwn_message`), add a button -> Open URL ->
+      insert the `crwn_result_url` pill -> label "See The Breakdown"; (2) reword the email-ask node to
+      "Want me to email you a copy so it doesn't get buried in your DMs? Drop your best email, or skip
+      this and tap 'See The Breakdown' above."; (3) turn the end node (after the profile_update External
+      Request) into "Sent. I just emailed a copy to your inbox so it doesn't get buried." and DELETE its
+      button. Then Update/publish and DM-test. Flows to do: **OWN, LIVE, PRODUCER, WORTH, VAULT** (and
+      any others live). Delivery-first policy is documented in `docs/acquisition/manychat-setup-guide.md`
+      section 6b.
+
 - [ ] **(Optional, low priority) Per-video attribution for "Highest Converting Video."** CONFIRMED
       2026-07-26: ManyChat's "any post or reel" comment trigger does NOT expose the triggering post id
       (the External Request field picker has no post/media field), so the catch-all flows CANNOT carry
