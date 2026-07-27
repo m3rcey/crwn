@@ -9,7 +9,7 @@ import {
 } from './registry';
 import { TAXONOMY, getTaxonomyEvent, isActualBasis, TAXONOMY_VERSION } from './taxonomy';
 import { METRIC_DEFINITIONS, metricIsAvailable } from './metrics';
-import { buildInsights, compareRate, dedupeBy, MIN_SAMPLE, type ExperienceStats } from './insights';
+import { buildInsights, compareRate, dedupeBy, distinctAidByVariant, MIN_SAMPLE, type ExperienceStats } from './insights';
 
 describe('deterministic assignment', () => {
   const alloc = [
@@ -197,5 +197,21 @@ describe('insights (deterministic, honest)', () => {
   it('dedupeBy removes duplicate exposures', () => {
     const rows = [{ aid: 'a' }, { aid: 'a' }, { aid: 'b' }];
     expect(dedupeBy(rows, (r) => r.aid)).toHaveLength(2);
+  });
+
+  it('distinctAidByVariant counts distinct aids per variant for an event (dedup + null=holdout)', () => {
+    const rows = [
+      { variant_key: 'save', event_name: 'exposed', aid: 'a' },
+      { variant_key: 'save', event_name: 'exposed', aid: 'a' }, // duplicate collapses
+      { variant_key: 'save', event_name: 'exposed', aid: 'b' },
+      { variant_key: 'preview', event_name: 'exposed', aid: 'c' },
+      { variant_key: 'save', event_name: 'signup_completed', aid: 'a' }, // different event, ignored
+      { variant_key: null, event_name: 'exposed', aid: 'd' },
+    ];
+    const exposed = distinctAidByVariant(rows, 'exposed');
+    expect(exposed.save).toBe(2);
+    expect(exposed.preview).toBe(1);
+    expect(exposed.holdout).toBe(1);
+    expect(distinctAidByVariant(rows, 'signup_completed').save).toBe(1);
   });
 });

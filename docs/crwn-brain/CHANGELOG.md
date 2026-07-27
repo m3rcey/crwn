@@ -1,5 +1,14 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Admin variant-results readout (save vs preview, honest)
+
+Added a "Variant results" section to the admin Experiments tab so the save-vs-preview outcome is
+readable in the UI, not just via SQL. `experiment-analytics` now returns `experimentBreakdowns`: per
+variant, distinct-aid `exposed` vs the `signup_completed` outcome + conversion rate, plus the shared
+`compareRate` insight (sample sizes shown, no winner below MIN_SAMPLE=30, directional language, no
+fake confidence). New tested pure helper `distinctAidByVariant`. Reached-builder is labeled honestly
+(signup + onboarding complete, a consistent point for both arms). Build clean, 230 tests, `sw.js` v270.
+
 ## 2026-07-27 — Close the experiment loop: variant-attributed OYF outcome
 
 Live smoke test confirmed assignment/exposure record correctly, but the experiment was not yet

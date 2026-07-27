@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
-import { EXPERIENCES } from '@/lib/experiments/registry';
+import { EXPERIENCES, getExperimentConfig } from '@/lib/experiments/registry';
 import { METRIC_DEFINITIONS } from '@/lib/experiments/metrics';
-import { buildInsights, type ExperienceStats } from '@/lib/experiments/insights';
+import { buildInsights, compareRate, distinctAidByVariant, type ExperienceStats } from '@/lib/experiments/insights';
 import { getFunnels } from '@/lib/opportunityFunnels/registry';
 
 // Admin-only. Aggregates the five experience/funnel/tool/video-campaign/opportunity views from the
@@ -69,9 +69,9 @@ export async function GET(req: NextRequest) {
   }
 
   // ---- experiment_events (variant-level; the only reliable per-experience artist link) ----
-  const eeRows: { experience_key: string; variant_key: string | null; event_name: string; aid: string; value_cents: number | null }[] = [];
+  const eeRows: { experiment_key: string; experience_key: string; variant_key: string | null; event_name: string; aid: string; value_cents: number | null }[] = [];
   try {
-    const { data, error } = await supabaseAdmin.from('experiment_events').select('experience_key, variant_key, event_name, aid, value_cents').gte('occurred_at', since).limit(CAP);
+    const { data, error } = await supabaseAdmin.from('experiment_events').select('experiment_key, experience_key, variant_key, event_name, aid, value_cents').gte('occurred_at', since).limit(CAP);
     if (!error && Array.isArray(data)) {
       eeRows.push(...(data as typeof eeRows));
       quality.experimentEvents = true;
@@ -166,10 +166,39 @@ export async function GET(req: NextRequest) {
     { revealedCents: 0, capturedCents: 0, activatedCount: 0 },
   );
 
+  // ---- Per-variant breakdown for each experiment that has recorded events. Exposure vs the
+  // signup_completed outcome, per arm, with the honest compareRate insight (sample sizes,
+  // no winner below MIN_SAMPLE, no fake confidence). This is the save-vs-preview readout. ----
+  const experimentKeys = Array.from(new Set(eeRows.map((r) => r.experiment_key).filter(Boolean)));
+  const experimentBreakdowns = experimentKeys.map((key) => {
+    const rows = eeRows.filter((r) => r.experiment_key === key);
+    const exposed = distinctAidByVariant(rows, 'exposed');
+    const converted = distinctAidByVariant(rows, 'signup_completed');
+    const cfg = getExperimentConfig(key);
+    const variantKeys = cfg ? cfg.variants.map((v) => v.key) : Array.from(new Set(rows.map((r) => r.variant_key ?? 'holdout')));
+    const variants = variantKeys.map((vk) => ({
+      variantKey: vk,
+      exposed: exposed[vk] || 0,
+      converted: converted[vk] || 0,
+      rate: exposed[vk] ? (converted[vk] || 0) / exposed[vk] : null,
+    }));
+    const insight =
+      variants.length === 2
+        ? compareRate(
+            { title: variants[0].variantKey, num: variants[0].converted, den: variants[0].exposed },
+            { title: variants[1].variantKey, num: variants[1].converted, den: variants[1].exposed },
+            'signup + onboarding conversion',
+            `since ${since}`,
+          )
+        : null;
+    return { experimentKey: key, title: cfg?.title ?? key, primaryMetric: cfg?.primaryMetric ?? null, variants, insight };
+  });
+
   return NextResponse.json({
     period: { since },
     experiences,
     insights,
+    experimentBreakdowns,
     funnel: { stages: stageCounts, conversions },
     tools,
     videoCampaign: { byVideo: byDim('video'), byCampaign: byDim('campaign'), byReferrer: byDim('referrer') },

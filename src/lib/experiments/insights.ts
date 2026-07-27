@@ -99,6 +99,23 @@ export function buildInsights(a: ExperienceStats, b: ExperienceStats, period: st
   ];
 }
 
+/** Count distinct `aid` per variant for a given event name (e.g. 'exposed', 'signup_completed').
+ *  Null variant (holdout) is bucketed under 'holdout'. Pure + tested. */
+export function distinctAidByVariant(
+  rows: { variant_key: string | null; event_name: string; aid: string }[],
+  eventName: string,
+): Record<string, number> {
+  const sets: Record<string, Set<string>> = {};
+  for (const r of rows) {
+    if (r.event_name !== eventName) continue;
+    const v = r.variant_key ?? 'holdout';
+    (sets[v] ||= new Set()).add(r.aid);
+  }
+  const out: Record<string, number> = {};
+  for (const [k, s] of Object.entries(sets)) out[k] = s.size;
+  return out;
+}
+
 /** Dedup event rows by a key (exposure dedup). Keeps first occurrence, stable order. */
 export function dedupeBy<T>(rows: T[], keyOf: (r: T) => string): T[] {
   const seen = new Set<string>();

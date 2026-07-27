@@ -30,10 +30,19 @@ interface ExperienceStat {
   onboardingCompletions: number; featurePublications: number; firstDollars: number; firstDollarsAvailable: boolean;
 }
 interface Insight { metricLabel: string; text: string; sufficient: boolean }
+interface VariantStat { variantKey: string; exposed: number; converted: number; rate: number | null }
+interface ExperimentBreakdown {
+  experimentKey: string;
+  title: string;
+  primaryMetric: string | null;
+  variants: VariantStat[];
+  insight: Insight | null;
+}
 interface Analytics {
   period: { since: string };
   experiences: ExperienceStat[];
   insights: Insight[];
+  experimentBreakdowns: ExperimentBreakdown[];
   funnel: { stages: { stage: string; count: number }[]; conversions: { from: string; to: string; rate: number | null }[] };
   tools: { toolKey: string; title: string; lifecycle: string; promotion: string; completions: number; activations: number }[];
   videoCampaign: { byVideo: Dim[]; byCampaign: Dim[]; byReferrer: Dim[] };
@@ -171,6 +180,47 @@ export default function ExperimentsView() {
           </table>
         </div>
       </Section>
+
+      {/* Variant results (save vs preview): exposure vs the signup_completed outcome, per arm. */}
+      {(analytics?.experimentBreakdowns || []).some((b) => b.variants.some((v) => v.exposed > 0)) && (
+        <Section title="Variant results">
+          {(analytics?.experimentBreakdowns || [])
+            .filter((b) => b.variants.some((v) => v.exposed > 0))
+            .map((b) => (
+              <div key={b.experimentKey} className="mb-5 last:mb-0">
+                <div className="text-sm font-semibold text-crwn-text">{b.title}</div>
+                {b.primaryMetric && <div className="text-xs text-crwn-text-secondary mb-2">Primary metric: <span className="text-crwn-gold">{b.primaryMetric}</span></div>}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-crwn-text-secondary text-xs text-left">
+                        <th className="py-1 pr-4">Variant</th><th className="pr-4">Exposed</th><th className="pr-4">Reached builder</th><th className="pr-4">Conversion</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {b.variants.map((v) => (
+                        <tr key={v.variantKey} className="border-t border-crwn-elevated text-crwn-text">
+                          <td className="py-1 pr-4 font-medium">{v.variantKey}</td>
+                          <td className="pr-4">{v.exposed}</td>
+                          <td className="pr-4">{v.converted}</td>
+                          <td className="pr-4">{pct(v.rate)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {b.insight && (
+                  <div className={`mt-2 rounded-xl border p-3 text-xs ${b.insight.sufficient ? 'bg-crwn-surface-solid border-crwn-elevated text-crwn-text' : 'bg-crwn-surface border-crwn-elevated text-crwn-text-secondary'}`}>
+                    {b.insight.text}
+                  </div>
+                )}
+              </div>
+            ))}
+          <p className="text-[11px] text-crwn-text-secondary mt-1">
+            Reached builder = completed signup and onboarding and landed in the fan-page builder (the signup_completed outcome), a consistent point for both arms. No winner is shown until each arm clears the sample floor.
+          </p>
+        </Section>
+      )}
 
       {/* 2. Funnel Performance */}
       <Section title="Funnel performance">
