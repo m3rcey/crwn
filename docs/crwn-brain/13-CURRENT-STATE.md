@@ -4,7 +4,7 @@
 
 ## Snapshot
 
-CRWN is **live in production** (`thecrwn.app`) and the core money loop is real and hardened. The codebase is **large and layered** — it has grown many parallel feature surfaces (60+ API domains, 25 crons, 117 migrations, ~89 pages) faster than it has been consolidated. Recent work (git log) shows two threads: (1) a **security-hardening sprint** (entitlement oracle, signed audio, RLS canary) and (2) building/stabilizing the **Quest Engine / Rise Mode** gamification layer, which is the current frontier and **dark-launched (flag off)**. `Confirmed`.
+CRWN is **live in production** (`thecrwn.app`) and the core money loop is real and hardened. The codebase is **large and layered** — it has grown many parallel feature surfaces (60+ API domains, 25 crons, 117 migrations, ~89 pages) faster than it has been consolidated. Recent work (git log) shows two threads: (1) a **security-hardening sprint** (entitlement oracle, signed audio, RLS canary) and (2) building/stabilizing the **Quest Engine / Rise Mode** gamification layer, which remains **dark-launched (flag off)**. The **newest and current frontier** (2026-07-27) is the **Opportunity Funnel system** (public tools → value-before-signup → journey resolver → holistic experiments), which is **live**, with its experiments engine **on**. `Confirmed`.
 
 ## Complete & production-ready (Confirmed)
 
@@ -20,6 +20,7 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 - **Notifications** (in-app bell + realtime), **community** feed + channels (RLS-gated).
 - **Gamified growth toolkit** (missions, squads, clip bounties, city-unlocks, road-campaigns, proof-of-demand, smart-links/pre-save, earn/impact/command) — all DB-backed, live independent of the Quest flag.
 - **Recruiter/partner** program (dashboard, Stripe payouts, qualification crons).
+- **Opportunity Funnel system** (live 2026-07-27) — the 17 public tools unified under one config/lifecycle/promotion layer (`src/lib/opportunityFunnels/*`); the **Own Your Fans value-before-signup** builder (anonymous fan-page draft reusing `lead_magnet_results`, claimed at signup via the existing `user_metadata` token); ONE post-signup **journey resolver** (`src/lib/journey/resolveJourneyDestination.ts`: account gate → setup gate → prefilled builder → safe dashboard, validated returnTo); and a holistic-experience **experiments engine** (`src/lib/experiments/*`, `experiments` + `experiment_events` tables, admin Experiments tab). Experiment behavior is **prebuilt code**, so an experiment can never change pricing/fees/ownership/RLS. **The engine is ON** (`admin_settings.experiments`) and `oyf-signup-timing-v1` is **running** (save vs preview signup boundary, 50/50), assigning + recording variant-attributed outcomes. Full detail in `CHANGELOG.md` (2026-07-27 entries) + `18-SOURCE-MAP.md`. `Confirmed`.
 
 ## Experimental / dark-launched
 
