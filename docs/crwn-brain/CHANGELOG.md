@@ -1,5 +1,32 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — One post-signup journey resolver (opportunity context survives signup)
+
+An artist who enters through a specific problem now keeps that context after signup. ONE reusable
+server-side resolver decides where they land, composing the pieces that already existed instead of
+scattering routing conditionals or building a parallel onboarding system.
+
+- **Resolver:** `src/lib/journey/resolveJourneyDestination.ts` (pure, tested). Ordering: no artist row
+  -> `/welcome`; setup incomplete -> `/setup` (setup wins, never bypassed); a claimed calculator ->
+  its real prefilled builder via the existing `buildDraftConfig` (Own Your Fans -> `/own-your-fans/plan`,
+  Streaming Loss -> `/offers/new`); otherwise the dashboard (safe, never a dead end or a broken quest
+  route). `safeInternalPath` validates `returnTo` (rejects `//`, schemes, backslashes, control chars,
+  overlong) to prevent open redirects.
+- **Rise Mode:** stays behind `admin_settings.quest_engine`. When ON it only APPENDS
+  `returnTo=/profile/artist` (Rise Mode surface); when OFF, no returnTo and the destination is the
+  normal builder. The global flag is never modified and no hidden setting is exposed.
+- **Wiring:** `GET /api/lead-results/post-setup-destination` now builds the context server-side (own
+  artist row + `setup_completed`, most-recent claimed seed, quest flag) and runs the resolver. The
+  experiment variant is re-derived server-side from an optional `aid` (never trusted from the client),
+  so experiment assignment is preserved into the restored builder (`lm_variant`). `/setup` passes the
+  durable `crwn_aid`. The OYF plan page emits the personalized-journey events and routes the next best
+  action to the ownership-gated `/studio/fans`.
+- **Analytics:** 9 events (`personalized_journey_assigned`, `context_restored_after_signup`,
+  `onboarding_context_viewed`, `recommended_action_viewed/started/completed`, `feature_activated`,
+  `feature_published`, `next_action_viewed`) on the existing sink, sanitized, no PII/tokens.
+- No `/welcome`/`/setup`/role-promotion/publishing/payment changes. No migration. Tests:
+  `resolveJourneyDestination.test.ts` (13). Build + lint pass. Live `sw.js` v266.
+
 ## 2026-07-27 — Holistic experience experimentation foundation + experience analytics (dark)
 
 A feature-flagged foundation to compare COMPLETE Opportunity Funnel journeys (Own Your Fans vs

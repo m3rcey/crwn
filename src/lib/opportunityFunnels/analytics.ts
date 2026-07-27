@@ -50,11 +50,34 @@ export const JOURNEY_EVENTS = {
 
 export type JourneyEvent = (typeof JOURNEY_EVENTS)[keyof typeof JOURNEY_EVENTS];
 
+/**
+ * The PERSONALIZED post-signup journey events: opportunity context surviving signup, restoration,
+ * and the recommended-action -> next-action loop. Same sink, same sanitizer, never a token/PII.
+ */
+export const PERSONALIZED_JOURNEY_EVENTS = {
+  personalizedJourneyAssigned: 'personalized_journey_assigned',
+  contextRestoredAfterSignup: 'context_restored_after_signup',
+  onboardingContextViewed: 'onboarding_context_viewed',
+  recommendedActionViewed: 'recommended_action_viewed',
+  recommendedActionStarted: 'recommended_action_started',
+  recommendedActionCompleted: 'recommended_action_completed',
+  featureActivated: 'feature_activated',
+  featurePublished: 'feature_published',
+  nextActionViewed: 'next_action_viewed',
+} as const;
+
+export type PersonalizedJourneyEvent = (typeof PERSONALIZED_JOURNEY_EVENTS)[keyof typeof PERSONALIZED_JOURNEY_EVENTS];
+
 /** Every event name, for the server allowlist and tests. */
 export const OPPORTUNITY_EVENT_NAMES: string[] = Object.values(OPPORTUNITY_EVENTS);
 export const JOURNEY_EVENT_NAMES: string[] = Object.values(JOURNEY_EVENTS);
+export const PERSONALIZED_JOURNEY_EVENT_NAMES: string[] = Object.values(PERSONALIZED_JOURNEY_EVENTS);
 /** The full set of names the analytics sink must allowlist for this layer. */
-export const ALL_OPPORTUNITY_EVENT_NAMES: string[] = [...OPPORTUNITY_EVENT_NAMES, ...JOURNEY_EVENT_NAMES];
+export const ALL_OPPORTUNITY_EVENT_NAMES: string[] = [
+  ...OPPORTUNITY_EVENT_NAMES,
+  ...JOURNEY_EVENT_NAMES,
+  ...PERSONALIZED_JOURNEY_EVENT_NAMES,
+];
 
 /**
  * The dimensions a shared funnel event may carry. All optional and all NON-sensitive: ids, keys,
@@ -156,7 +179,7 @@ export function sanitizeOpportunityMeta(meta: Record<string, unknown> | Opportun
  * maps the surviving dimensions onto the existing beacon fields the sink understands (so the tool
  * shows up in lead_magnet_events with no new columns), and posts to the existing analytics route.
  */
-export function trackOpportunity(event: OpportunityEvent | JourneyEvent, meta: OpportunityEventMeta): void {
+export function trackOpportunity(event: OpportunityEvent | JourneyEvent | PersonalizedJourneyEvent, meta: OpportunityEventMeta): void {
   if (typeof window === 'undefined') return;
   try {
     const safe = sanitizeOpportunityMeta(meta);

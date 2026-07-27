@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { smartBack } from '@/lib/navigation';
 import { FanCaptureBuilder } from '@/components/opportunity/FanCaptureBuilder';
-import { JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
+import { JOURNEY_EVENTS, PERSONALIZED_JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
 import { OYF_TOOL_KEY, sanitizeOwnYourFansDraft, type OwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
 
 // Authenticated resume of the Own Your Fans fan-capture page the artist started before signup.
@@ -48,8 +48,11 @@ export default function OwnYourFansPlanPage() {
         setState('ready');
         if (!resumedRef.current) {
           resumedRef.current = true;
-          trackOpportunity(JOURNEY_EVENTS.draftRestored, { opportunityKey: 'own-your-fans', toolKey: OYF_TOOL_KEY });
-          trackOpportunity(JOURNEY_EVENTS.authenticatedBuilderResumed, { opportunityKey: 'own-your-fans', toolKey: OYF_TOOL_KEY });
+          const ctx = { opportunityKey: 'own-your-fans', toolKey: OYF_TOOL_KEY };
+          trackOpportunity(JOURNEY_EVENTS.draftRestored, ctx);
+          trackOpportunity(JOURNEY_EVENTS.authenticatedBuilderResumed, ctx);
+          trackOpportunity(PERSONALIZED_JOURNEY_EVENTS.onboardingContextViewed, ctx);
+          trackOpportunity(PERSONALIZED_JOURNEY_EVENTS.recommendedActionViewed, ctx);
         }
         return;
       }
@@ -67,7 +70,10 @@ export default function OwnYourFansPlanPage() {
   }, [user, isLoading, router]);
 
   const onPublish = () => {
-    // Real publishing lives in the ownership-gated fan surface. This never publishes on its own.
+    // The next best supported action: the real, ownership-gated fan surface. This never publishes
+    // on its own; publishing keeps its own requirements there.
+    trackOpportunity(PERSONALIZED_JOURNEY_EVENTS.recommendedActionStarted, { opportunityKey: 'own-your-fans', toolKey: OYF_TOOL_KEY });
+    trackOpportunity(PERSONALIZED_JOURNEY_EVENTS.nextActionViewed, { opportunityKey: 'own-your-fans', toolKey: OYF_TOOL_KEY });
     router.push('/studio/fans');
   };
 

@@ -27,6 +27,7 @@ import {
   createOnboardingTier,
   createOnboardingProduct,
 } from '@/lib/onboardingItems';
+import { getAnonId } from '@/lib/experiments/anonId';
 import type { ProductType } from '@/types';
 
 type ScreenKey =
@@ -296,7 +297,10 @@ function SetupWizard() {
       // back to Rise Mode when there is no calculator to route from (or the lookup fails).
       let dest = '/profile/artist';
       try {
-        const res = await fetch('/api/lead-results/post-setup-destination');
+        // Carry the durable anon id so the resolver can re-derive (never trust) the experiment
+        // variant and preserve it into the restored builder.
+        const aid = getAnonId();
+        const res = await fetch(`/api/lead-results/post-setup-destination${aid ? `?aid=${encodeURIComponent(aid)}` : ''}`);
         const json = await res.json();
         if (res.ok && typeof json?.redirect === 'string' && json.redirect) dest = json.redirect;
       } catch {

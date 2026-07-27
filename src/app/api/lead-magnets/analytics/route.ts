@@ -59,6 +59,15 @@ const ALLOWED_EVENTS = new Set([
   'draft_restored',
   'authenticated_builder_resumed',
   'feature_published',
+  // Personalized post-signup journey (opportunity context surviving signup -> restore -> action).
+  'personalized_journey_assigned',
+  'context_restored_after_signup',
+  'onboarding_context_viewed',
+  'recommended_action_viewed',
+  'recommended_action_started',
+  'recommended_action_completed',
+  'feature_activated',
+  'next_action_viewed',
 ]);
 
 export async function POST(req: NextRequest) {
