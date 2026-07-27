@@ -51,6 +51,16 @@ const ADAPTERS: Record<string, (p: Record<string, unknown>) => Params> = {
 };
 
 /**
+ * The honest prefill params for a conversion adapter, reused by the post-signup journey resolver so
+ * a resumed builder hydrates exactly the same fields as a same-session conversion (no duplicated
+ * mapping). Returns {} for an unknown adapter.
+ */
+export function adapterPrefill(adapterKey: string, conversionPayload: Record<string, unknown>): Params {
+  const adapter = ADAPTERS[adapterKey];
+  return adapter ? adapter(conversionPayload) : {};
+}
+
+/**
  * Build the prefilled builder URL for a tool's conversion, or null if the tool
  * degrades to a saved plan (no live-feature route/adapter).
  */

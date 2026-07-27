@@ -20,6 +20,8 @@
 // suggest_*  -> display-only guidance the CalculatorSuggestions card renders. Never a hidden write.
 
 import type { LeadMagnetSeed } from './handoffSeed';
+import { getLeadMagnet } from '@/lib/leadMagnets/registry';
+import { adapterPrefill } from '@/lib/leadMagnets/conversionAdapters';
 
 export interface DraftConfig {
   /** The builder route, e.g. '/offers/new'. */
@@ -153,9 +155,37 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
       return { path: '/own-your-fans/plan', prefill: {}, suggest: {} };
     }
 
+    // Fan Mission -> the real Fan Missions builder (/missions/new), prefilled from the SAME conversion
+    // adapter the same-session flow uses. Non-financial, non-ownership; the builder owns its own
+    // validation and submit. Formula/output untouched; this only routes + prefills.
+    case 'fan-mission-generator': {
+      return liveFeatureDraft(seed.toolSlug, cp);
+    }
+
+    // Proof of Demand -> the real, money-free demand-test builder (/proof-of-demand/new). It never
+    // charges a fan; same adapter-driven prefill, same honest scope.
+    case 'proof-of-demand-test-builder': {
+      return liveFeatureDraft(seed.toolSlug, cp);
+    }
+
     default:
       return null;
   }
+}
+
+/**
+ * Draft config for a `live_feature` tool: route to the tool's existing builder and prefill via its
+ * registered conversion adapter (the identical mapping a same-session conversion uses). Returns null
+ * if the tool is not a live-feature tool (so it safely falls back to the dashboard). Deliberately
+ * per-tool (called from explicit cases), so economics-sensitive live-feature tools like Clip-to-Earn
+ * are NOT auto-onboarded.
+ */
+function liveFeatureDraft(slug: string, cp: Record<string, unknown>): DraftConfig | null {
+  const cfg = getLeadMagnet(slug);
+  const route = cfg?.conversionTarget.route;
+  const adapterKey = cfg?.conversionTarget.adapterKey;
+  if (!route || !adapterKey) return null;
+  return { path: route, prefill: adapterPrefill(adapterKey, cp), suggest: {} };
 }
 
 export interface PostSetupDestination {

@@ -1,5 +1,28 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Onboard Fan Mission + Proof of Demand onto the journey resolver (batch of 2)
+
+Incrementally onboarded the next smallest coherent batch onto the shared Opportunity Funnel
+architecture: **Fan Mission Generator** and **Proof of Demand Test Builder**. Both are
+production-ready, non-financial, non-ownership tools that already have a real builder and a
+`live_feature` conversion adapter; they were the only unmapped tools that fit every selection gate.
+
+- **What changed:** two explicit cases in `buildDraftConfig` (`src/lib/leadResults/postSetupDestination.ts`)
+  via a new `liveFeatureDraft` helper that routes to the tool's existing builder (`/missions/new`,
+  `/proof-of-demand/new`) and prefills from the SAME conversion adapter the same-session flow uses
+  (new `adapterPrefill` export in `conversionAdapters.ts`). So a claimed Fan Mission / Proof of Demand
+  result now resumes into the right builder after signup instead of the dashboard fallback.
+- **No formula, output, route, or economics change.** Result versions unchanged (1.0.0). The tools
+  were already in the registry + funnel layer + shared analytics + admin reporting from prior phases;
+  this only adds the post-signup resume path. Explicit per-tool cases (not a generalized live_feature
+  branch) so economics-sensitive `bounty`/Clip-to-Earn is NOT auto-onboarded.
+- **Deferred (documented, still a safe dashboard fallback, not a dead end):** Team Splits (ownership +
+  legal), Royalty Readiness (dark, sensitive), Clip-to-Earn + Share-to-Earn economics, Live/Exec
+  pricing, Quest Path (dark + fixed output), Founder Window (financial urgency), Fan Journey / Movement
+  / Top Fan (no meaningful builder or partial feature).
+- Tests: `src/lib/leadResults/toolOnboarding.test.ts` (17) + OYF/Worth no-regression. Build + lint pass.
+  No migration, no frontend asset change (no sw bump).
+
 ## 2026-07-27 — One post-signup journey resolver (opportunity context survives signup)
 
 An artist who enters through a specific problem now keeps that context after signup. ONE reusable
