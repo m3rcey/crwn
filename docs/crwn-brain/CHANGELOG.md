@@ -1,5 +1,21 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Make oyf-signup-timing-v1 runnable (variant moves the signup boundary)
+
+Closed the one gap that kept the first split test from being runnable: the OYF pre-signup builder now
+HONORS its assigned variant. `recordExperimentEntry` already returned the server-derived variant;
+`PublicToolClient` now reads it and passes `signupBoundary` to `FanCaptureBuilder`.
+
+- New pure module `src/components/opportunity/fanCaptureSteps.ts` (`visibleSteps(boundary)`, node-tested):
+  control `save` = full flow (goal -> copy -> capture -> preview, then sign up: max value before signup);
+  `preview` = the save boundary moves one step earlier (sign up to see/keep the finished page; the
+  in-wizard preview is deferred to the post-signup plan page, so nothing built is lost).
+- Default is `save` (control), so with no experiment running NOTHING changes. Authenticated resume
+  (plan page) always uses the full flow. Variant is derived server-side; the client only reads it.
+- The experiment stays dark until the migration is applied, `admin_settings.experiments` is on, and
+  `oyf-signup-timing-v1` is set to running. Tests: `fanCaptureSteps.test.ts` (4). Full suite 229 pass,
+  build clean, `sw.js` v268.
+
 ## 2026-07-27 — Opportunity Funnel launch-readiness audit (small corrections only)
 
 Final integration/security/attribution/experiment audit of the whole Opportunity Funnel system

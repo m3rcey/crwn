@@ -33,6 +33,8 @@ type Phase = 'loading' | 'hero' | 'full';
 export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>('loading');
+  // Signup-timing experiment variant for the Own Your Fans builder. 'save' = control (current).
+  const [signupBoundary, setSignupBoundary] = useState<'save' | 'preview'>('save');
   const wizardRef = useRef<HTMLDivElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
   const [values, setValues] = useState<LeadMagnetInputValues>({});
@@ -112,10 +114,16 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       trackOpportunity(OPPORTUNITY_EVENTS.funnelCompleted, opportunityMeta({ resultVersion: r.generatorVersion }));
       trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
       trackOpportunity(OPPORTUNITY_EVENTS.recommendationViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
-      // Experiment entry (inert unless an experiment is running for this experience).
+      // Experiment entry (inert unless an experiment is running for this experience). The server
+      // derives the variant deterministically; if it assigns the 'preview' arm of the signup-timing
+      // experiment, the builder moves its save boundary one step earlier. Default stays 'save'.
       if (config.slug === OYF_TOOL_KEY) {
         const utm = readUtm();
-        void recordExperimentEntry('own-your-fans', { toolKey: config.slug, sourceVideo: utm.utmContent, campaign: utm.utmCampaign });
+        void recordExperimentEntry('own-your-fans', { toolKey: config.slug, sourceVideo: utm.utmContent, campaign: utm.utmCampaign }).then(
+          (variant) => {
+            if (variant === 'preview') setSignupBoundary('preview');
+          },
+        );
       }
       // Straight to the full result. No email wall.
       setPhase('full');
@@ -253,6 +261,7 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
               <FanCaptureBuilder
                 mode="anonymous"
                 inputs={{ social_followers: Number(values.social_followers) || 0 }}
+                signupBoundary={signupBoundary}
                 onFinish={onFinishFanPage}
                 finishLabel="Save my fan page"
               />

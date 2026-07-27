@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Mail, MessageSquare, Heart, Check, Lock } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { Wizard } from '@/components/ui/Wizard';
+import { visibleSteps, type SignupBoundary } from './fanCaptureSteps';
 import { JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
 import {
   OYF_GOALS,
@@ -40,13 +41,6 @@ const DEFAULT_DRAFT: OwnYourFansDraft = {
   step: 0,
 };
 
-const STEPS = [
-  { id: 'goal', group: 'Plan', label: 'Goal' },
-  { id: 'copy', group: 'Plan', label: 'Your words' },
-  { id: 'capture', group: 'Plan', label: 'What you collect' },
-  { id: 'preview', group: 'Preview', label: 'Preview' },
-];
-
 const LS_KEY = 'crwn_oyf_draft';
 
 export interface FanCaptureBuilderProps {
@@ -55,6 +49,12 @@ export interface FanCaptureBuilderProps {
   artistName?: string;
   initialToken?: string | null;
   initialDraft?: OwnYourFansDraft | null;
+  /**
+   * The signup-boundary experiment variant (oyf-signup-timing-v1). Defaults to 'save' (control =
+   * current behavior), so with no experiment running nothing changes. 'preview' moves the boundary
+   * one step earlier. Resolved server-side; the component only reads it.
+   */
+  signupBoundary?: SignupBoundary;
   /** Terminal action at the save/publish boundary. Receives the durable draft token (if any). */
   onFinish: (token: string | null, draft: OwnYourFansDraft) => void;
   finishLabel: string;
@@ -66,11 +66,17 @@ export function FanCaptureBuilder({
   artistName,
   initialToken = null,
   initialDraft = null,
+  signupBoundary = 'save',
   onFinish,
   finishLabel,
 }: FanCaptureBuilderProps) {
+  // The pre-signup steps for this variant. 'preview' drops the in-wizard preview (deferred to the
+  // post-signup plan page). Authenticated mode always uses the full flow (default 'save').
+  const STEPS = useMemo(() => visibleSteps(mode === 'authenticated' ? 'save' : signupBoundary), [mode, signupBoundary]);
   const [draft, setDraft] = useState<OwnYourFansDraft>(() => initialDraft || DEFAULT_DRAFT);
-  const [index, setIndex] = useState<number>(() => Math.min(initialDraft?.step ?? 0, STEPS.length - 1));
+  const [index, setIndex] = useState<number>(() =>
+    Math.min(initialDraft?.step ?? 0, visibleSteps(mode === 'authenticated' ? 'save' : signupBoundary).length - 1),
+  );
   const tokenRef = useRef<string | null>(initialToken);
   const startedRef = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
