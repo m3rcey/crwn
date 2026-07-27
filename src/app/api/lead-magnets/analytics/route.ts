@@ -41,6 +41,24 @@ const ALLOWED_EVENTS = new Set([
   'opportunity_recommendation_viewed',
   'opportunity_cta_clicked',
   'opportunity_builder_started',
+  // Value-before-signup journey events (anonymous -> build -> save -> signup -> claim -> resume).
+  // Same append-only sink; never mirrored into funnel_events, never carry a claim token or PII.
+  'anonymous_value_started',
+  'anonymous_value_completed',
+  'recommended_solution_viewed',
+  'pre_signup_builder_started',
+  'pre_signup_builder_step_completed',
+  'pre_signup_preview_viewed',
+  'signup_boundary_reached',
+  'signup_prompt_viewed',
+  'signup_started_from_opportunity',
+  'signup_completed_from_opportunity',
+  'draft_claim_started',
+  'draft_claim_completed',
+  'draft_claim_failed',
+  'draft_restored',
+  'authenticated_builder_resumed',
+  'feature_published',
 ]);
 
 export async function POST(req: NextRequest) {

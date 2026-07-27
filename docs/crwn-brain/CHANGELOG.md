@@ -1,5 +1,38 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Own Your Fans value-before-signup journey (build a fan page, then sign up)
+
+An anonymous artist can now BUILD a fan-capture page after the Own Your Fans result and only sign up
+at the save boundary ("Save my fan page"), so they arrive at signup with something they do not want
+to lose. No new table, no migration: the anonymous draft reuses `lead_magnet_results` (status
+`draft`, `lead_id`/`user_id`/`artist_id` NULL) and the EXISTING claim path.
+
+- **Builder:** `src/components/opportunity/FanCaptureBuilder.tsx` (shared anon + authed). Wizard +
+  OptionSelect + a live preview card mirroring the smart-link editor, plus an honest
+  planning-vs-publishing checklist. Collects ONLY non-sensitive planning copy (goal, headline,
+  subheadline, CTA label, capture type, optional http(s) link). Rendered after the OYF result in
+  `PublicToolClient` (OYF only), replacing the bare post-calculator signup button.
+- **Draft store + capability routes:** `src/lib/opportunityDrafts/ownYourFansDraft.ts` (bounded
+  sanitizers + `isDraftToken`). `POST /api/opportunity-drafts` (public, rate-limited, no PII,
+  server-recomputes the result) and `GET|PUT /api/opportunity-drafts/[token]` (public capability
+  token; act ONLY on UNCLAIMED, unexpired rows; the UPDATE re-asserts `user_id IS NULL` to lose a
+  claim race safely). localStorage (`crwn_oyf_draft`) mirrors for instant refresh; the server row is
+  the durable truth.
+- **Handoff:** "Save my fan page" -> existing `/signup?result=<token>` -> `user_metadata` token ->
+  existing `autoClaimForUser`/`claimByRawToken` binds the row (idempotent, atomic on `user_id` null).
+  `postSetupDestination` now routes OYF to `/own-your-fans/plan`.
+- **Resume:** `src/app/(main)/own-your-fans/plan/page.tsx` reads the claimed draft under RLS
+  (`owner_manage_lm_results`, owner-only, no token, no cross-user lookup), resumes at the exact step,
+  and routes real publishing into the ownership-gated `/studio/fans`. `/welcome`, `/setup`, auth, and
+  server-side role promotion are untouched.
+- **Analytics:** 16 journey events (`anonymous_value_*` -> `feature_published`) on the existing
+  `lead_magnet_events` sink, sanitized, never mirrored into `funnel_events`, never carrying a claim
+  token or PII.
+- **Retention:** abandoned anonymous drafts expire via `public_token_expires_at` (30 days) and are
+  inert once expired (deny-public RLS, token unusable). Optional periodic cleanup:
+  `DELETE FROM lead_magnet_results WHERE status='draft' AND user_id IS NULL AND public_token_expires_at < now() - interval '7 days';`
+- Tests: `src/lib/opportunityDrafts/ownYourFansDraft.test.ts` (9). Build + lint pass. Live `sw.js` v264.
+
 ## 2026-07-27 — Shared Opportunity Funnel layer (phase 1); Own Your Fans migrated, Worth connected
 
 Turned the public tools into a measurable, configurable funnel layer WITHOUT a new subsystem or a

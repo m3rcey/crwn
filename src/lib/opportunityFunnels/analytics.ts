@@ -24,8 +24,37 @@ export const OPPORTUNITY_EVENTS = {
 
 export type OpportunityEvent = (typeof OPPORTUNITY_EVENTS)[keyof typeof OPPORTUNITY_EVENTS];
 
+/**
+ * The value-before-signup JOURNEY events: the full anonymous -> build -> save -> signup -> claim ->
+ * restore -> resume transition. Same sink, same sanitizer, NOT mirrored into funnel_events (so the
+ * 15-stage counts never double-count). A claim token is NEVER an argument to any of these.
+ */
+export const JOURNEY_EVENTS = {
+  anonymousValueStarted: 'anonymous_value_started',
+  anonymousValueCompleted: 'anonymous_value_completed',
+  recommendedSolutionViewed: 'recommended_solution_viewed',
+  preSignupBuilderStarted: 'pre_signup_builder_started',
+  preSignupBuilderStepCompleted: 'pre_signup_builder_step_completed',
+  preSignupPreviewViewed: 'pre_signup_preview_viewed',
+  signupBoundaryReached: 'signup_boundary_reached',
+  signupPromptViewed: 'signup_prompt_viewed',
+  signupStartedFromOpportunity: 'signup_started_from_opportunity',
+  signupCompletedFromOpportunity: 'signup_completed_from_opportunity',
+  draftClaimStarted: 'draft_claim_started',
+  draftClaimCompleted: 'draft_claim_completed',
+  draftClaimFailed: 'draft_claim_failed',
+  draftRestored: 'draft_restored',
+  authenticatedBuilderResumed: 'authenticated_builder_resumed',
+  featurePublished: 'feature_published',
+} as const;
+
+export type JourneyEvent = (typeof JOURNEY_EVENTS)[keyof typeof JOURNEY_EVENTS];
+
 /** Every event name, for the server allowlist and tests. */
 export const OPPORTUNITY_EVENT_NAMES: string[] = Object.values(OPPORTUNITY_EVENTS);
+export const JOURNEY_EVENT_NAMES: string[] = Object.values(JOURNEY_EVENTS);
+/** The full set of names the analytics sink must allowlist for this layer. */
+export const ALL_OPPORTUNITY_EVENT_NAMES: string[] = [...OPPORTUNITY_EVENT_NAMES, ...JOURNEY_EVENT_NAMES];
 
 /**
  * The dimensions a shared funnel event may carry. All optional and all NON-sensitive: ids, keys,
@@ -127,7 +156,7 @@ export function sanitizeOpportunityMeta(meta: Record<string, unknown> | Opportun
  * maps the surviving dimensions onto the existing beacon fields the sink understands (so the tool
  * shows up in lead_magnet_events with no new columns), and posts to the existing analytics route.
  */
-export function trackOpportunity(event: OpportunityEvent, meta: OpportunityEventMeta): void {
+export function trackOpportunity(event: OpportunityEvent | JourneyEvent, meta: OpportunityEventMeta): void {
   if (typeof window === 'undefined') return;
   try {
     const safe = sanitizeOpportunityMeta(meta);

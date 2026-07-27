@@ -17,8 +17,10 @@ import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
-import { OPPORTUNITY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
+import { OPPORTUNITY_EVENTS, JOURNEY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
+import { FanCaptureBuilder } from '@/components/opportunity/FanCaptureBuilder';
+import { OYF_TOOL_KEY, type OwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
 // One scrollable page, no view swapping. 'hero' renders the hero AND the wizard beneath it
@@ -116,6 +118,17 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
     } catch {
       setError('Something went wrong generating your result. Please check your answers.');
     }
+  };
+
+  // Own Your Fans save boundary: the artist has built a fan-capture page and now needs an account to
+  // keep it. Route through the EXISTING signup with the durable draft token so auto-claim binds it.
+  const onFinishFanPage = (token: string | null, _draft: OwnYourFansDraft) => {
+    trackOpportunity(JOURNEY_EVENTS.signupStartedFromOpportunity, {
+      opportunityKey: 'own-your-fans',
+      toolKey: OYF_TOOL_KEY,
+      resultVersion: 'lossResult@1',
+    });
+    router.push(buildContinueUrl(OYF_TOOL_KEY, token || publicToken));
   };
 
   // The hero CTA jumps down to the wizard, which is already on the page below it.
@@ -226,9 +239,23 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             }
           />
 
-          <div className="pt-1">
-            <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
-          </div>
+          {config.slug === OYF_TOOL_KEY ? (
+            // Own Your Fans: instead of a bare "create account" button right after the calculator,
+            // let the artist BUILD their fan-capture page first. Signup is deferred to the save
+            // boundary inside the builder ("Save my fan page").
+            <div className="pt-1">
+              <FanCaptureBuilder
+                mode="anonymous"
+                inputs={{ social_followers: Number(values.social_followers) || 0 }}
+                onFinish={onFinishFanPage}
+                finishLabel="Save my fan page"
+              />
+            </div>
+          ) : (
+            <div className="pt-1">
+              <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
+            </div>
+          )}
 
           {resultId ? (
             <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />

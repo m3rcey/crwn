@@ -146,6 +146,13 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
       };
     }
 
+    // Own Your Fans -> the authenticated fan-page plan. There is no dedicated builder to prefill;
+    // the plan page loads the claimed draft from the DB (under RLS) and resumes the artist at the
+    // exact step, then routes real publishing into the ownership-gated fan surface.
+    case 'own-your-fans-calculator': {
+      return { path: '/own-your-fans/plan', prefill: {}, suggest: {} };
+    }
+
     default:
       return null;
   }
