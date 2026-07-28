@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState, type ReactNode, type ComponentType } from 'react';
+import { useRouter } from 'next/navigation';
+import { DeliverableBuilder } from '@/components/opportunity/DeliverableBuilder';
+import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import {
   Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight,
   Music, DollarSign, Users, Mail, Zap, Wallet, BarChart3, HelpCircle,
@@ -169,6 +172,7 @@ export function WorthExperience({
   /** Set only on a personalized result page. Persists her corrections. */
   resultToken?: string;
 }) {
+  const router = useRouter();
   const [listeners, setListeners] = useState(prefill?.listeners || '50000');
   const [followers, setFollowers] = useState(prefill?.followers || '');
   const [streaming, setStreaming] = useState(prefill?.streaming || '');
@@ -595,6 +599,30 @@ export function WorthExperience({
             ))}
           </div>
         </section>
+
+        {/* The pre-signup deliverable. On /worth (and a personalized result link) the artist builds
+            and previews the actual membership offer their number implies, BEFORE being asked for an
+            account. Signup is requested only at the save boundary inside the builder. The homepage
+            keeps its original marketing CTA. */}
+        {!homepage && (
+          <section className="mb-14">
+            <SectionHeading icon={Sparkles}>Build the offer that captures it</SectionHeading>
+            <p className="text-crwn-text-secondary text-xl mb-5">
+              This is the offer those fans would pay for. Edit anything. Nothing is live until you publish it.
+            </p>
+            <div className="max-w-lg">
+              <DeliverableBuilder
+                toolSlug="worth"
+                conversionPayload={{
+                  ladder: [
+                    { name: 'Inner Circle', priceCents: RECOMMENDED_TIER_PRICES.tier1PriceCents },
+                  ],
+                }}
+                onSave={(token) => router.push(buildContinueUrl('worth', token || resultToken))}
+              />
+            </div>
+          </section>
+        )}
 
         <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
           {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}

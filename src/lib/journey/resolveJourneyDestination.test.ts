@@ -76,7 +76,7 @@ describe('resolveJourneyDestination', () => {
 
   it('unsupported tool (no builder mapping) -> fallback dashboard, not a broken route', () => {
     // A tool with no buildDraftConfig mapping (movement page is deliberately deferred).
-    const d = resolveJourneyDestination({ ...baseCtx, seed: seed({ toolSlug: 'movement-page-blueprint' }) });
+    const d = resolveJourneyDestination({ ...baseCtx, seed: seed({ toolSlug: 'not-a-real-tool' }) });
     expect(d.reason).toBe('fallback_dashboard');
     expect(d.path).toBe('/profile/artist');
   });

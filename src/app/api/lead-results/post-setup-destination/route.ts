@@ -43,6 +43,24 @@ export async function GET(req: NextRequest) {
   const setupComplete = artist ? (artist.setup_completed as boolean | null) !== false : false;
 
   const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId });
+
+  // Did this artist actually BUILD a deliverable before signing up? If so their own edits are the
+  // work to restore, not a prefill re-derived from the calculator. Scoped to the caller's own rows.
+  let savedDeliverableTool: string | null = null;
+  try {
+    const { data: drafts } = await supabaseAdmin
+      .from('lead_magnet_results')
+      .select('tool_slug, input_data')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(10);
+    const row = (drafts || []).find(
+      (r) => (r.input_data as { deliverableValues?: unknown } | null)?.deliverableValues,
+    );
+    if (row) savedDeliverableTool = row.tool_slug as string;
+  } catch {
+    savedDeliverableTool = null; // never block the handoff
+  }
   const questEngineEnabled = await isQuestEngineEnabled(supabaseAdmin);
 
   // Experiment variant: re-derived server-side from the anon id (tamper-proof), never trusted from
@@ -62,6 +80,7 @@ export async function GET(req: NextRequest) {
     questEngineEnabled,
     experimentVariant,
     returnTo: req.nextUrl.searchParams.get('returnTo'),
+    savedDeliverableTool,
   });
 
   // Funnel: Builder Opened, plus the personalized-journey markers. All deduped per (user, result).

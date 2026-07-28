@@ -20,6 +20,8 @@ import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics
 import { OPPORTUNITY_EVENTS, JOURNEY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 import { FanCaptureBuilder } from '@/components/opportunity/FanCaptureBuilder';
+import { DeliverableBuilder } from '@/components/opportunity/DeliverableBuilder';
+import { hasDeliverable } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { OYF_TOOL_KEY, type OwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
 import { recordExperimentEntry } from '@/lib/experiments/client';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
@@ -145,6 +147,17 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
     router.push(buildContinueUrl(OYF_TOOL_KEY, token || publicToken));
   };
 
+  // The universal save boundary: the artist built and previewed a real deliverable, and now needs an
+  // account to keep it. Route through the EXISTING signup with the durable draft token so auto-claim
+  // binds it and the resolver restores them exactly here.
+  const onSaveDeliverable = (token: string | null) => {
+    trackOpportunity(JOURNEY_EVENTS.signupStartedFromOpportunity, {
+      opportunityKey: config.slug,
+      toolKey: config.slug,
+    });
+    router.push(buildContinueUrl(config.slug, token || publicToken));
+  };
+
   // The hero CTA jumps down to the wizard, which is already on the page below it.
   const scrollToWizard = () => {
     trackLeadMagnet(LM_EVENTS.started, { toolSlug: config.slug, context: 'public' });
@@ -264,6 +277,17 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
                 signupBoundary={signupBoundary}
                 onFinish={onFinishFanPage}
                 finishLabel="Save my fan page"
+              />
+            </div>
+          ) : hasDeliverable(config.slug) ? (
+            // Every other tool: build and preview the recommended deliverable BEFORE signup. The
+            // result CTA never routes straight to /signup; identity is asked for only at the save
+            // boundary inside the builder ("Save my offer", "Save my plan", ...).
+            <div className="pt-1">
+              <DeliverableBuilder
+                toolSlug={config.slug}
+                conversionPayload={(result.conversionPayload || {}) as Record<string, unknown>}
+                onSave={onSaveDeliverable}
               />
             </div>
           ) : (

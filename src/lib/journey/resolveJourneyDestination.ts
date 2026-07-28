@@ -11,6 +11,7 @@
 
 import { buildDraftConfig } from '@/lib/leadResults/postSetupDestination';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
+import { hasDeliverable } from '@/lib/opportunityDrafts/deliverableSpecs';
 import type { LeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 
 const RISE_MODE_ROUTE = '/profile/artist';
@@ -45,6 +46,12 @@ export interface JourneyContext {
   experimentVariant?: string | null;
   /** A requested return destination (validated here). */
   returnTo?: string | null;
+  /**
+   * The tool slug of a deliverable the artist actually BUILT and saved before signing up, if any.
+   * When present it wins over a calculator-derived prefill: their own edits are the work, and
+   * re-deriving from the calculator would silently discard them.
+   */
+  savedDeliverableTool?: string | null;
 }
 
 export type JourneyReason =
@@ -82,7 +89,24 @@ export function resolveJourneyDestination(ctx: JourneyContext): JourneyDestinati
     return { path: '/setup', params: {}, reason: 'setup_incomplete', ...base };
   }
 
-  // 3. A claimed calculator -> restore its real prefilled builder (the recommended action).
+  // 3. A deliverable the artist BUILT before signing up wins: restore their own saved work.
+  if (ctx.savedDeliverableTool && hasDeliverable(ctx.savedDeliverableTool)) {
+    const funnel = getFunnelByToolKey(ctx.savedDeliverableTool);
+    const params: Record<string, string> = {};
+    if (ctx.experimentVariant) params.lm_variant = ctx.experimentVariant;
+    const safeReturn = safeInternalPath(ctx.returnTo);
+    if (safeReturn) params.returnTo = safeReturn;
+    else if (ctx.questEngineEnabled) params.returnTo = RISE_MODE_ROUTE;
+    return {
+      path: `/plan/${ctx.savedDeliverableTool}`,
+      params,
+      reason: 'builder_restored',
+      opportunityKey: funnel?.opportunityKey ?? null,
+      toolSlug: ctx.savedDeliverableTool,
+    };
+  }
+
+  // 4. Otherwise a claimed calculator -> its real prefilled builder (the recommended action).
   const draft = ctx.seed ? buildDraftConfig(ctx.seed) : null;
   if (ctx.seed && draft) {
     const funnel = getFunnelByToolKey(ctx.seed.toolSlug);

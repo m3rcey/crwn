@@ -3,6 +3,7 @@ import { buildDraftConfig } from './postSetupDestination';
 import { resolveJourneyDestination } from '@/lib/journey/resolveJourneyDestination';
 import { getLeadMagnet } from '@/lib/leadMagnets/registry';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
+import { getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import type { LeadMagnetSeed } from './handoffSeed';
 
@@ -61,6 +62,12 @@ describe.each(BATCH)('onboarded tool: $slug', (t) => {
     expect(d.path).toBe(t.route);
     expect(d.reason).toBe('builder_restored');
   });
+
+  it('a SAVED deliverable draft restores the artist own work instead', () => {
+    const d = resolveJourneyDestination({ ...artistCtx, seed: seed({ toolSlug: t.slug }), savedDeliverableTool: t.slug });
+    expect(d.path).toBe(`/plan/${t.slug}`);
+    expect(getDeliverableSpec(t.slug)!.continueRoute).toBe(t.route);
+  });
 });
 
 describe('CTA preservation', () => {
@@ -69,16 +76,23 @@ describe('CTA preservation', () => {
   });
 });
 
-describe('deferred tools stay a safe fallback (not onboarded, not a dead end)', () => {
+describe('tools without a builder mapping still restore their SAVED plan', () => {
   it.each(['movement-page-blueprint', 'clip-to-earn-campaign-planner', 'team-split-deal-builder', 'royalty-readiness-check'])(
-    'deferred %s falls back to the dashboard',
+    '%s restores to its plan page when a draft was saved',
     (slug) => {
+      // No legacy builder mapping...
       expect(buildDraftConfig(seed({ toolSlug: slug }))).toBeNull();
-      const d = resolveJourneyDestination({ ...artistCtx, seed: seed({ toolSlug: slug }) });
-      expect(d.reason).toBe('fallback_dashboard');
-      expect(d.path).toBe('/profile/artist');
+      // ...but the saved deliverable is what the artist actually built.
+      const d = resolveJourneyDestination({ ...artistCtx, seed: seed({ toolSlug: slug }), savedDeliverableTool: slug });
+      expect(d.reason).toBe('builder_restored');
+      expect(d.path).toBe(`/plan/${slug}`);
     },
   );
+
+  it('a tool with NO deliverable and no mapping still falls back safely', () => {
+    const d = resolveJourneyDestination({ ...artistCtx, seed: seed({ toolSlug: 'not-a-real-tool' }) });
+    expect(d.reason).toBe('fallback_dashboard');
+  });
 });
 
 describe('no regression: Own Your Fans + Streaming Loss', () => {

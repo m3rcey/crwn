@@ -1,5 +1,36 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Universal pre-signup deliverable: every public tool now builds something before signup
+
+**Defect corrected.** The previous Opportunity Funnel phases delivered architecture plus ONE exemplar
+(Own Your Fans). Verified in code: `ConvertToFeatureButton.tsx:42` pushed `/signup` for every public
+tool, `PublicToolClient.tsx:256` branched to a builder only for OYF, and `/worth` linked to `/signup`.
+So **16 of 17 tools ended in Result → generic CTA → immediate signup.** The founder's report was
+accurate; prior reports described infrastructure, not the product outcome.
+
+- **New `src/lib/opportunityDrafts/deliverableSpecs.ts`** — a data registry of the pre-signup
+  deliverable for all 16 non-OYF tools (fields, steps, preview shape, save label, continue route).
+  One registry, not 16 bespoke builders.
+- **New `src/components/opportunity/DeliverableBuilder.tsx`** — the universal builder: Wizard steps,
+  editable prefilled fields, a LIVE preview (offer card / page / plan list), and a
+  planning-vs-publishing checklist. Renders for every tool with a spec.
+- **CTA behavior changed**: `PublicToolClient` now renders the builder instead of the signup button,
+  and `/worth` gained the membership-offer builder above its CTA. Signup is requested only at the save
+  boundary, with expectation-matching labels ("Save my offer", "Save my plan", "Save my campaign plan").
+- **Drafts generalized**: `POST /api/opportunity-drafts` + `GET|PUT /[token]` now serve any tool with a
+  spec (spec-driven allowlist sanitizer, unclaimed-only, 30-day expiry). No migration: still
+  `lead_magnet_results`.
+- **Restoration**: new `/plan/[tool]` authenticated page restores the artist's OWN saved draft under
+  RLS and continues into the real gated builder carrying their edits via existing `lm_*` params. The
+  journey resolver gained `savedDeliverableTool`, which wins over a calculator-derived prefill.
+- **Honesty rules enforced by tests**: prices are pre-filled only where the tool actually modeled one
+  (Founder Window and Clip-to-Earn start empty); Team Splits is an explicitly NON-BINDING scenario;
+  Royalty stays a checklist with no currency field and no collection claim; Quest Path is labeled a
+  general order, not a personalized diagnosis; every preview carries a "not published yet" note.
+- Tests: `deliverableSpecs.test.ts` + updated journey/onboarding tests. **265 pass** (was 230). Build
+  clean. `sw.js` v280. **Known gaps are listed in the implementation report** (per-tool formula audit
+  and browser screenshots were not completed in this pass).
+
 ## 2026-07-27 — Admin: filter Video/Campaign performance by tool
 
 Small launch-support add: the admin Experiments tab's "Video and campaign performance" section now
