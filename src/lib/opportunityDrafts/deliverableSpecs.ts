@@ -39,7 +39,7 @@ export interface DeliverableStep {
 }
 
 export interface DeliverablePreview {
-  kind: 'offer' | 'page' | 'list' | 'ladder';
+  kind: 'offer' | 'page' | 'list' | 'ladder' | 'campaigns';
   titleKey?: string;
   subtitleKey?: string;
   priceKey?: string;
@@ -644,50 +644,91 @@ const SPECS: DeliverableSpec[] = [
     }),
   },
 
-  // 14. Share-to-Earn -> a referral launch plan. Existing economics, unchanged.
+  // 14. Share-to-Earn -> FOUR campaigns, one per tier of the canonical ladder, all written for the
+  // artist. Tier names/prices/benefits come from RECOMMENDED_LADDER (never a second tier source), and
+  // each step shows what that tier actually includes so an artist who did not just run Streaming Loss
+  // still knows what they are asking fans to share.
+  //
+  // HONESTY: a personal share LINK cannot exist before signup. Referral links are /[slug]/r/[code]
+  // and need an artist slug plus a referral code, neither of which an anonymous visitor has. So the
+  // campaigns ship with copyable MESSAGES (real, usable now) and the link slot is labeled as
+  // generated after signup. We do not fabricate a link. Referral economics are untouched.
   {
     toolSlug: 'share-to-earn-planner',
-    deliverableType: 'referral_plan',
-    title: 'Plan your share-to-earn launch',
-    subtitle: 'Decide what fans share and what you say when you turn it on. Your referral rate is set in CRWN, not here.',
-    saveLabel: 'Save my campaign',
-    signupContext: 'Create your account to save your referral campaign and start earning from fan referrals.',
+    deliverableType: 'referral_campaigns',
+    title: 'Build your share-to-earn campaigns',
+    subtitle: 'One campaign per tier, already written. Edit the words, then copy them when you launch.',
+    saveLabel: 'Save my campaigns',
     transition: 'Turn this estimate into a campaign your fans can share.',
     buildCta: 'Build my campaign',
+    signupContext: 'Create your account to save your referral campaigns, get your share links, and start earning from fan referrals.',
     continueRoute: '/offers/new',
+    continueParams: () => ({ lm_prefill: '1', lm_goal: 'grow-supporters', lm_share_on: '1' }),
     steps: [
       {
-        id: 'offer', group: 'Offer', label: 'What they share', fields: [
-          { key: 'targetOffer', type: 'option', label: 'Which offer are fans sharing?', help: 'Your membership tiers, straight from the recommended ladder. Pick the one worth sharing.', options: [
-            { value: 'The Wave', label: 'The Wave (free)' },
-            { value: 'Inner Circle', label: 'Inner Circle' },
-            { value: 'The Vault', label: 'The Vault' },
-            { value: 'Throne', label: 'Throne' },
-            { value: 'Another offer', label: 'Another offer' },
-          ] },
+        id: 'how', group: 'How it works', label: 'The deal', fields: [
+          { key: 'incentive', type: 'text', label: 'What the sharer gets', max: 160, help: 'Your referral rate is configured in the CRWN app after signup. Say it in your own words here.' },
+          { key: 'explanation', type: 'textarea', label: 'How you explain it to fans', max: 300, help: 'Plain words. If a fan cannot repeat it, they will not share it.' },
           { key: 'instructions', type: 'lines', label: 'Exactly how to share it', max: 600, help: 'One per line. Vague asks get nothing.' },
         ],
       },
       {
-        id: 'launch', group: 'Launch', label: 'The ask', fields: [
-          { key: 'incentive', type: 'text', label: 'What the sharer gets', max: 160, help: 'Your referral share is configured in the CRWN app. Describe it in your own words here.' },
-          { key: 'explanation', type: 'textarea', label: 'How you explain it to fans', max: 300, help: 'Plain words. If a fan cannot repeat it, they will not share it.' },
-          { key: 'launchMessage', type: 'textarea', label: 'Your launch message', max: 500 },
+        id: 'c0', group: 'Campaigns', label: 'The Wave', fields: [
+          { key: 'c0Name', type: 'text', label: 'Offer name', max: 40 },
+          { key: 'c0Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'The Wave is your free front door: free tracks and posts, community access, public livestreams.' },
+        ],
+      },
+      {
+        id: 'c1', group: 'Campaigns', label: 'Inner Circle', fields: [
+          { key: 'c1Name', type: 'text', label: 'Offer name', max: 40 },
+          { key: 'c1Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'Inner Circle: exclusive tracks and demos, 7-day early access, private posts, a vote on drops.' },
+        ],
+      },
+      {
+        id: 'c2', group: 'Campaigns', label: 'The Vault', fields: [
+          { key: 'c2Name', type: 'text', label: 'Offer name', max: 40 },
+          { key: 'c2Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'The Vault: unreleased songs, the full private archive, and a monthly unlock from your backlog.' },
+        ],
+      },
+      {
+        id: 'c3', group: 'Campaigns', label: 'Throne', fields: [
+          { key: 'c3Name', type: 'text', label: 'Offer name', max: 40 },
+          { key: 'c3Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'Throne: limited memberships, first listen, supporter credits, and private group listening events.' },
         ],
       },
     ],
-    preview: { kind: 'list', titleKey: 'targetOffer', itemKeys: ['instructions', 'incentive', 'explanation', 'launchMessage'], note: 'A plan. Referral rates and payouts are set inside CRWN and are not changed here.' },
-    prefill: () => ({
-      targetOffer: 'Inner Circle',
-      instructions: [
-        'Send your link to three people who already play the music',
-        'Post the link with a clip, not on its own',
-        'Tell them exactly what they get for joining',
+    preview: {
+      kind: 'campaigns',
+      tiers: [
+        { nameKey: 'c0Name', benefitsKey: 'c0Message' },
+        { nameKey: 'c1Name', benefitsKey: 'c1Message' },
+        { nameKey: 'c2Name', benefitsKey: 'c2Message' },
+        { nameKey: 'c3Name', benefitsKey: 'c3Message' },
       ],
-      incentive: 'A cut of what the fans they bring pay, for as long as those fans stay',
-      explanation: 'You get your own link. Anyone who joins through it counts as yours, and you earn a share of what they pay for as long as they stay.',
-      launchMessage: 'I am opening this up: if you bring people in, you earn from it. Grab your link, send it to the people who already play the music, and you get a share of what they pay for as long as they stay.',
-    }),
+      note: 'A plan. Your personal share links are generated inside the CRWN app after you create your account, and referral rates and payouts are set there, not here.',
+    },
+    prefill: () => {
+      const [wave, inner, vault, throne] = RECOMMENDED_LADDER;
+      const msg = (name: string, hook: string) =>
+        `I moved everything to my own place. ${hook} Join ${name} through my link and I get to keep more of it, which means more music, faster.`;
+      return {
+        incentive: 'A cut of what the fans they bring pay, for as long as those fans stay',
+        explanation: 'You get your own link. Anyone who joins through it counts as yours, and you earn a share of what they pay for as long as they stay.',
+        instructions: [
+          'Send your link to three people who already play the music',
+          'Post the link with a clip, not on its own',
+          'Tell them exactly what they get for joining',
+        ],
+        c0Name: wave.name,
+        c0Message: msg(wave.name, 'It is free: the music, the posts, the community, all of it.'),
+        c1Name: inner.name,
+        c1Message: msg(inner.name, 'Exclusive tracks, demos, and everything a week before anyone else.'),
+        c2Name: vault.name,
+        c2Message: msg(vault.name, 'The unreleased stuff, the full archive, and something new unlocked every month.'),
+        c3Name: throne.name,
+        c3Message: msg(throne.name, 'Limited spots, first listen, your name in the credits.'),
+      };
+    },
   },
 
   // 15. Fan Mission -> one measurable mission.

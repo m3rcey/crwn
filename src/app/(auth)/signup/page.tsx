@@ -6,6 +6,7 @@ import { AuthForm } from '@/components/auth/AuthForm';
 import { useAuth } from '@/hooks/useAuth';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
+import { DraftContinuation } from '@/components/opportunity/DraftContinuation';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -59,11 +60,15 @@ export default function SignupPage() {
             <p className="text-crwn-text-secondary">{signupContext ? 'Save what you built' : 'Create your account'}</p>
           </div>
 
-          {signupContext && (
-            <div className="mb-6 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 text-center">
-              <p className="text-sm text-crwn-text">{signupContext}</p>
-              <p className="text-xs text-crwn-text-secondary mt-1">Your draft is already saved and waiting.</p>
-            </div>
+          {pendingResultToken ? (
+            <DraftContinuation token={pendingResultToken} />
+          ) : (
+            signupContext && (
+              <div className="mb-6 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 text-center">
+                <p className="text-sm text-crwn-text">{signupContext}</p>
+                <p className="text-xs text-crwn-text-secondary mt-1">Your draft is already saved and waiting.</p>
+              </div>
+            )
           )}
 
           <div className="neu-raised p-8">

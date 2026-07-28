@@ -93,7 +93,7 @@ describe('sensitive tools stay honest', () => {
 
 describe('sanitizeDeliverableValues (public trust boundary)', () => {
   const spec = getDeliverableSpec('worth')!; // four-tier ladder fields
-  const share = getDeliverableSpec('share-to-earn-planner')!;
+  const vault = getDeliverableSpec('vault-revenue-planner')!; // has a real option field (cadence)
 
   it('keeps allowlisted fields and clamps them', () => {
     const v = sanitizeDeliverableValues(spec, { t1Name: 'x'.repeat(200), t1Price: 999999, t1Benefits: ['a', 'b'] });
@@ -116,8 +116,8 @@ describe('sanitizeDeliverableValues (public trust boundary)', () => {
   });
 
   it('rejects an option value outside the spec', () => {
-    expect(sanitizeDeliverableValues(share, { targetOffer: 'hacked' }).targetOffer).toBeUndefined();
-    expect(sanitizeDeliverableValues(share, { targetOffer: 'The Vault' }).targetOffer).toBe('The Vault');
+    expect(sanitizeDeliverableValues(vault, { cadence: 'hacked' }).cadence).toBeUndefined();
+    expect(sanitizeDeliverableValues(vault, { cadence: 'monthly' }).cadence).toBe('monthly');
   });
 
   it('coerces malformed numbers safely', () => {

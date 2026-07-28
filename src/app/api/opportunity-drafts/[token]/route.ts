@@ -65,6 +65,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ toke
     toolSlug: row.tool_slug,
     deliverableType: spec.deliverableType,
     values: sanitizeDeliverableValues(spec, row.input_data?.deliverableValues),
+    opportunitySummary: (row.input_data?.opportunitySummary as string) ?? null,
   });
 }
 
@@ -76,7 +77,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ toke
   const { token } = await params;
   if (!isDraftToken(token)) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  let body: { draft?: unknown; values?: unknown };
+  let body: { draft?: unknown; values?: unknown; opportunitySummary?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -97,6 +98,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ toke
     nextInput = {
       deliverableType: spec.deliverableType,
       deliverableValues: sanitizeDeliverableValues(spec, body.values),
+      opportunitySummary:
+        typeof body.opportunitySummary === 'string'
+          ? body.opportunitySummary.replace(/[<>]/g, '').slice(0, 160)
+          : ((row.input_data?.opportunitySummary as string) ?? null),
     };
   }
 

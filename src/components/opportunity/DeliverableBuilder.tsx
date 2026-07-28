@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, Lock } from 'lucide-react';
+import { Check, Lock, Copy } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { Wizard } from '@/components/ui/Wizard';
 import { JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
@@ -34,6 +34,11 @@ export interface DeliverableBuilderProps {
   onSave: (token: string | null, values: DraftValues) => void;
   /** Overrides the spec's save label (e.g. "Publish" once authenticated). */
   saveLabel?: string;
+  /**
+   * The headline number the tool just revealed (e.g. "$4,865/mo on the table"). Stored on the draft
+   * so the signup boundary can restate the opportunity and the work in one fetch. Display text only.
+   */
+  opportunitySummary?: string;
 }
 
 export function DeliverableBuilder({
@@ -44,6 +49,7 @@ export function DeliverableBuilder({
   initialToken = null,
   onSave,
   saveLabel,
+  opportunitySummary,
 }: DeliverableBuilderProps) {
   const spec = getDeliverableSpec(toolSlug);
   const [values, setValues] = useState<DraftValues>(() =>
@@ -99,7 +105,7 @@ export function DeliverableBuilder({
         const res = await fetch('/api/opportunity-drafts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ toolSlug, values: next }),
+          body: JSON.stringify({ toolSlug, values: next, opportunitySummary }),
         });
         const data = await res.json();
         if (res.ok && data.token) {
@@ -114,7 +120,7 @@ export function DeliverableBuilder({
         await fetch(`/api/opportunity-drafts/${encodeURIComponent(tokenRef.current)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ toolSlug, values: next }),
+          body: JSON.stringify({ toolSlug, values: next, opportunitySummary }),
         });
       }
     } catch {
@@ -317,6 +323,18 @@ function Preview({ spec, values }: { spec: DeliverableSpec; values: DraftValues 
           </div>
         )}
 
+        {p.kind === 'campaigns' && (
+          <div className="space-y-3">
+            {(p.tiers || []).map((t) => (
+              <CampaignCard
+                key={t.nameKey}
+                name={asText(values[t.nameKey]) || 'Offer'}
+                message={asText(values[t.benefitsKey])}
+              />
+            ))}
+          </div>
+        )}
+
         {p.kind === 'page' && (
           <div className="mx-auto max-w-xs rounded-xl border border-crwn-elevated bg-crwn-bg p-4 text-center">
             <h3 className="text-lg font-bold text-crwn-text">{asText(values[p.titleKey || '']) || 'Your headline'}</h3>
@@ -385,6 +403,37 @@ function Rows({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function CampaignCard({ name, message }: { name: string; message: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard may be blocked; the text is selectable either way */
+    }
+  };
+  return (
+    <div className="rounded-xl border border-crwn-elevated bg-crwn-surface p-4">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-semibold text-crwn-text">{name}</span>
+        <button
+          onClick={copy}
+          className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-crwn-elevated text-crwn-text"
+        >
+          <Copy className="w-3.5 h-3.5" />
+          {copied ? 'Copied' : 'Copy'}
+        </button>
+      </div>
+      {message && <p className="text-sm text-crwn-text-secondary mt-2 whitespace-pre-wrap">{message}</p>}
+      <p className="text-[11px] text-crwn-text-secondary mt-2">
+        Your personal share link is generated with your account, then it goes at the end of this message.
+      </p>
     </div>
   );
 }

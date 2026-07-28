@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Flagship calculator polish: wizard entry, above-fold CTA, signup continuation, four campaigns
+
+Final UX pass on the three flagship funnels so they feel like one product.
+
+- **Streaming Loss now opens as a wizard** (Issue 1): cold `/worth` asks listeners, then followers,
+  then streaming revenue, one screen at a time via the shared `Wizard` with a sticky CTA. Scoped to
+  the calculator view: the homepage keeps its instant-number marketing behavior and a personalized
+  lead link still arrives with the numbers filled in. After the reveal the full inputs card returns
+  below, so live re-calculation and the presets are preserved.
+- **CTA immediately under the result** (Issue 2): `/worth` renders the shared `ResultToBuilder` card
+  right below the result, above the derivation, scrolling and focusing the builder. The tool pages
+  already had this in the result hero.
+- **Signup is a continuation, not a restart** (Issue 3): new `DraftContinuation` reads the anonymous
+  draft through the EXISTING public capability route and renders, above the form: the opportunity
+  they uncovered (stored as `opportunitySummary` on the draft) and a list of what they already built
+  (four tiers, four campaigns, or the deliverable's own items), then the builder-specific reason.
+- **Four Share-to-Earn campaigns** (Issues 6 and 7): one per canonical tier, each with a pre-written
+  message, a copy button, and inline help describing what that tier actually includes, so an artist
+  who skipped Streaming Loss still knows what they are sharing. `saveLabel` is now "Save my campaigns".
+  **Share links are NOT fabricated**: referral links are `/[slug]/r/[code]` and need an artist slug
+  plus a referral code, so the card states the link is generated with the account. Referral economics
+  untouched.
+- **Marketing tour removed from the calculator funnel** (Issue 8): 12 sections (storefront, go live,
+  clip army, community, own your audience, independence, AI manager, payouts, analytics, sync, and
+  the rest) are now gated to `homepage`. `/worth` keeps only calculator support: where the number
+  comes from, the setup that captures it, what the CRWN app is, streaming vs direct, the fan math,
+  FAQ, how it works, and the disclaimers.
+- Issues 4 and 5 were already shipped in v282 (four prefilled canonical tiers; generated launch copy)
+  and were verified rather than redone.
+- Tests: 285 pass. Build clean.
+
+
 ## 2026-07-27 — Builders that feel already built: four-tier ladder, sticky CTA, signup context
 
 The builders existed but still asked artists to do the work. Now the artist arrives at something

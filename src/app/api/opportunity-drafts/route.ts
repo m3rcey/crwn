@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const allowed = await checkRateLimit(`ip:${ip}`, 'oppdraft-create', 3600, 60);
   if (!allowed) return NextResponse.json({ error: 'Too many requests. Try again shortly.' }, { status: 429 });
 
-  let body: { toolSlug?: string; inputs?: unknown; draft?: unknown; values?: unknown };
+  let body: { toolSlug?: string; inputs?: unknown; draft?: unknown; values?: unknown; opportunitySummary?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -83,7 +83,15 @@ export async function POST(req: NextRequest) {
     source: 'public',
     title: spec.title.slice(0, 200),
     // Non-sensitive planning copy only, bounded by the spec's own field allowlist.
-    input_data: { deliverableType: spec.deliverableType, deliverableValues: values },
+    input_data: {
+      deliverableType: spec.deliverableType,
+      deliverableValues: values,
+      // Display-only restatement of the number the tool revealed. No PII, no financial authority.
+      opportunitySummary:
+        typeof body.opportunitySummary === 'string'
+          ? body.opportunitySummary.replace(/[<>]/g, '').slice(0, 160)
+          : null,
+    },
     result_data: {},
     generator_version: spec.deliverableType,
     public_token: publicToken,

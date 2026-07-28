@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState, type ReactNode, type ComponentType } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type ComponentType } from 'react';
 import { useRouter } from 'next/navigation';
 import { DeliverableBuilder } from '@/components/opportunity/DeliverableBuilder';
+import { ResultToBuilder } from '@/components/opportunity/ResultToBuilder';
+import { Wizard } from '@/components/ui/Wizard';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import {
   Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight,
@@ -173,6 +175,11 @@ export function WorthExperience({
   resultToken?: string;
 }) {
   const router = useRouter();
+  const worthBuilderRef = useRef<HTMLDivElement>(null);
+  // Cold /worth starts as a one-question-per-screen wizard (matching every other calculator);
+  // the homepage and a personalized lead link keep their original immediate-number experience.
+  const [entryStep, setEntryStep] = useState(0);
+  const [entryDone, setEntryDone] = useState(false);
   const [listeners, setListeners] = useState(prefill?.listeners || '50000');
   const [followers, setFollowers] = useState(prefill?.followers || '');
   const [streaming, setStreaming] = useState(prefill?.streaming || '');
@@ -409,11 +416,24 @@ export function WorthExperience({
     </div>
   );
 
+  // ISSUE 2: the primary builder CTA, immediately under the "holy grail" result card, so the next
+  // action is visible without scrolling past the derivation.
+  const resultCta = !homepage ? (
+    <div className="mb-6">
+      <ResultToBuilder
+        toolSlug="worth"
+        transition="Turn this estimate into an offer your fans can join."
+        buildCta="Build my membership"
+        builderRef={worthBuilderRef}
+      />
+    </div>
+  ) : null;
+
   // THE BUILDER: the immediate continuation of the result. Result -> concise derivation ->
   // this. No signup, email gate, or booking block may appear above it (homepage keeps its
   // original marketing flow, which has no builder).
   const builderSection = !homepage ? (
-    <section className="mb-14">
+    <section ref={worthBuilderRef} className="mb-14 scroll-mt-4">
       <SectionHeading icon={Sparkles}>Turn this estimate into an offer your fans can join</SectionHeading>
       <p className="text-crwn-text-secondary text-xl mb-5">
         We prefilled it from your numbers. Edit anything. Nothing is live until you publish it.
@@ -426,6 +446,7 @@ export function WorthExperience({
               { name: 'Inner Circle', priceCents: RECOMMENDED_TIER_PRICES.tier1PriceCents },
             ],
           }}
+          opportunitySummary={hasNumber ? `${fmtDollars(result.netMrrCents)}/mo on the table` : undefined}
           onSave={(token) => router.push(buildContinueUrl('worth', token || resultToken))}
         />
       </div>
@@ -434,6 +455,44 @@ export function WorthExperience({
 
   // Arrived from an Instagram comment/DM: her number is already in, so lead with the loss.
   const leadView = !!resultToken;
+
+  // ISSUE 1: one question per screen, the same interaction model as every other CRWN calculator.
+  // Scoped to the cold /worth view: the homepage keeps its instant-number marketing behavior and a
+  // personalized lead link already arrives with the numbers filled in.
+  const ENTRY_STEPS = [
+    { id: 'listeners', group: 'Your audience', label: 'Listeners' },
+    { id: 'followers', group: 'Your audience', label: 'Followers' },
+    { id: 'streaming', group: 'Your audience', label: 'Streaming' },
+  ];
+  const useEntryWizard = !homepage && !leadView && !entryDone;
+  const entryWizard = (
+    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-6">
+      <Wizard
+        steps={ENTRY_STEPS}
+        currentIndex={entryStep}
+        title="What are you actually worth?"
+        subtitle="Three quick questions. Nothing is saved until you choose to."
+        onBack={entryStep > 0 ? () => setEntryStep((i) => Math.max(0, i - 1)) : undefined}
+        onContinue={() => {
+          if (entryStep >= ENTRY_STEPS.length - 1) setEntryDone(true);
+          else setEntryStep((i) => i + 1);
+        }}
+        continueLabel={entryStep >= ENTRY_STEPS.length - 1 ? 'See what I am worth' : 'Continue'}
+        stickyFooter
+      >
+        {entryStep === 0 && (
+          <Field label="Monthly listeners" hint="Spotify, Apple, anywhere" value={listeners} onChange={setListeners} placeholder="50,000" />
+        )}
+        {entryStep === 1 && (
+          <Field label="Followers" hint="Instagram, TikTok, all of it" value={followers} onChange={setFollowers} placeholder="20,000" />
+        )}
+        {entryStep === 2 && (
+          <Field label="Streaming $ / mo" hint="Optional. We estimate it if you skip." value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
+        )}
+      </Wizard>
+    </div>
+  );
+
 
   const inputsCard = (
     <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-4">
@@ -510,20 +569,15 @@ export function WorthExperience({
         {/* Lead view (arrived from an Instagram comment): lead with the loss and the ask,
             then the derivation, then the inputs to adjust. Cold view: inputs first, because
             there is no number yet. */}
-        {leadView ? (
-          <>
-            {resultCard}
-            {derivationCard}
-            {builderSection}
-            {inputsCard}
-            {emailCaptureCard}
-          </>
+        {useEntryWizard ? (
+          entryWizard
         ) : (
           <>
-            {inputsCard}
             {resultCard}
+            {resultCta}
             {derivationCard}
             {builderSection}
+            {inputsCard}
             {emailCaptureCard}
           </>
         )}
@@ -600,6 +654,7 @@ export function WorthExperience({
         </section>
 
         {/* Fan math */}
+        {homepage && (
         <section className="mb-6">
           <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
@@ -615,6 +670,7 @@ export function WorthExperience({
             ))}
           </div>
         </section>
+        )}
 
         {homepage && (
           <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
@@ -647,6 +703,7 @@ export function WorthExperience({
         </section>
 
         {/* Go live */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={Radio}>Go live, and get paid for it</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -656,8 +713,10 @@ export function WorthExperience({
           </p>
           <LiveMock />
         </section>
+        )}
 
         {/* Clip & Earn — fans as a paid marketing army */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={Scissors}>Your fans are your marketing team</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -669,8 +728,10 @@ export function WorthExperience({
           </p>
           <ClipperMock />
         </section>
+        )}
 
         {/* Release waterfall (visual timeline) */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={TrendingUp}>Release like the majors don&apos;t</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -698,6 +759,7 @@ export function WorthExperience({
             ))}
           </div>
         </section>
+        )}
 
         {homepage && (
         <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required.">
@@ -706,6 +768,7 @@ export function WorthExperience({
         )}
 
         {/* Community */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={MessageCircle}>A gated community they pay to be in</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -714,8 +777,10 @@ export function WorthExperience({
           </p>
           <CommunityMock fans={hasNumber ? result.payers : undefined} />
         </section>
+        )}
 
         {/* Own your audience */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={Mail}>Own your audience, don&apos;t rent it</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
@@ -734,13 +799,17 @@ export function WorthExperience({
           <p className="text-crwn-text-secondary text-xl mt-6 mb-4">Set your automations once, they run forever:</p>
           <SequencesMock />
         </section>
+        )}
 
         {/* Independence: the apps you built on can change owners overnight */}
+        {homepage && (
         <section className="mb-14">
           <IndependenceSection href="/signup" ctaLabel="Claim your fans on CRWN" />
         </section>
+        )}
 
         {/* AI manager + mock */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={Zap}>A manager built in</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -749,8 +818,10 @@ export function WorthExperience({
           </p>
           <AiActionsMock />
         </section>
+        )}
 
         {/* Money flow + fees */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={Wallet}>Keep up to 92%, paid to your bank</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -769,8 +840,10 @@ export function WorthExperience({
             <div className="text-lg text-crwn-text-secondary mt-2">Free plan keeps 88%. Pro keeps 92%. Every plan pays out straight to your bank.</div>
           </div>
         </section>
+        )}
 
         {/* Payouts mock */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={CreditCard}>Watch it hit your account</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -779,8 +852,10 @@ export function WorthExperience({
           </p>
           <EarningsMock balanceCents={hasNumber ? result.netMrrCents : undefined} />
         </section>
+        )}
 
         {/* Analytics mock */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={Users}>See who actually supports you</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -789,12 +864,14 @@ export function WorthExperience({
           </p>
           <LeaderboardMock payers={hasNumber ? result.payers : undefined} />
         </section>
+        )}
 
         <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Need help setting this up? A 15-minute call, no pitch.">
           {homepage ? 'Start free on CRWN' : 'See it on your own catalog'}
         </PrimaryCTA>
 
         {/* Sync licensing (bonus) */}
+        {homepage && (
         <section className="mb-14">
           <SectionHeading icon={Globe}>Bonus: get your music placed</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
@@ -803,6 +880,7 @@ export function WorthExperience({
           </p>
           <SyncMock />
         </section>
+        )}
 
         {/* Objections */}
         <section className="mb-14">

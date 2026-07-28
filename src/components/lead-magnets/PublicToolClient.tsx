@@ -282,6 +282,7 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
               <DeliverableBuilder
                 toolSlug={config.slug}
                 conversionPayload={(result.conversionPayload || {}) as Record<string, unknown>}
+                opportunitySummary={result.heroValue ? `${result.heroValue}${result.heroSuffix || ''}` : result.headline}
                 onSave={onSaveDeliverable}
               />
             ) : (

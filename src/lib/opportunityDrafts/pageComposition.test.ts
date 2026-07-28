@@ -71,21 +71,28 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
 });
 
 describe('Worth page order', () => {
-  it('the builder follows the result and derivation, before the email card, in BOTH views', () => {
-    // Lead view order.
-    const lead = worth.slice(worth.indexOf('{leadView ? ('));
-    const order = ['{resultCard}', '{derivationCard}', '{builderSection}', '{inputsCard}', '{emailCaptureCard}'];
+  it('the builder follows the result, CTA and derivation, before the inputs and email card', () => {
+    const flow = worth.slice(worth.indexOf('{useEntryWizard ? ('));
+    const order = ['{resultCard}', '{resultCta}', '{derivationCard}', '{builderSection}', '{inputsCard}', '{emailCaptureCard}'];
     let last = -1;
     for (const marker of order) {
-      const i = lead.indexOf(marker);
+      const i = flow.indexOf(marker);
       expect(i, marker).toBeGreaterThan(last);
       last = i;
     }
-    // Cold view: inputs -> result -> derivation -> builder -> email.
-    const cold = lead.slice(lead.indexOf(') : ('));
-    expect(cold.indexOf('{resultCard}')).toBeLessThan(cold.indexOf('{derivationCard}'));
-    expect(cold.indexOf('{derivationCard}')).toBeLessThan(cold.indexOf('{builderSection}'));
-    expect(cold.indexOf('{builderSection}')).toBeLessThan(cold.indexOf('{emailCaptureCard}'));
+  });
+
+  it('cold /worth opens as a one-question-per-screen wizard, homepage keeps its own flow', () => {
+    expect(worth).toContain('const useEntryWizard = !homepage && !leadView && !entryDone;');
+    expect(worth).toContain('<Wizard');
+  });
+
+  it('the long marketing tour is gated to the homepage, not the calculator', () => {
+    for (const heading of ['Go live, and get paid for it', 'A gated community they pay to be in', 'Keep up to 92%']) {
+      const i = worth.indexOf(heading);
+      expect(i, heading).toBeGreaterThan(-1);
+      expect(worth.lastIndexOf('{homepage && (', i), heading).toBeGreaterThan(-1);
+    }
   });
 
   it('the misleading book-a-call CTA is gone and upper marketing CTAs are homepage-only', () => {
@@ -150,7 +157,7 @@ describe('Streaming Loss builds the FULL four-tier ladder', () => {
 describe('benefit-driven save CTAs and builder-specific signup context', () => {
   it('uses the founder-approved save labels', () => {
     expect(getDeliverableSpec('worth')!.saveLabel).toBe('Save my membership');
-    expect(getDeliverableSpec('share-to-earn-planner')!.saveLabel).toBe('Save my campaign');
+    expect(getDeliverableSpec('share-to-earn-planner')!.saveLabel).toBe('Save my campaigns');
     expect(getDeliverableSpec('executive-producer-session')!.saveLabel).toBe('Save my session');
     expect(getDeliverableSpec('vault-revenue-planner')!.saveLabel).toBe('Save my Vault');
     expect(getDeliverableSpec('proof-of-demand-test-builder')!.saveLabel).toBe('Save my test');
@@ -170,18 +177,30 @@ describe('benefit-driven save CTAs and builder-specific signup context', () => {
 });
 
 describe('artists are not shown blank boxes', () => {
-  it('Share-to-Earn arrives with a usable launch plan and a tier to share', () => {
+  it('Share-to-Earn generates FOUR campaigns, one per canonical tier, all pre-written', () => {
     const spec = getDeliverableSpec('share-to-earn-planner')!;
     const v = spec.prefill({});
-    expect(String(v.launchMessage).length).toBeGreaterThan(40);
-    expect(String(v.explanation).length).toBeGreaterThan(20);
-    expect(v.targetOffer).toBe('Inner Circle');
-    const offer = fieldsOf(spec).find((f) => f.key === 'targetOffer')!;
-    expect(offer.type).toBe('option');
-    // The choices ARE the canonical ladder, not a second source of tier names.
-    for (const t of RECOMMENDED_LADDER) {
-      expect(offer.options!.some((o) => o.value === t.name), t.name).toBe(true);
+    expect(spec.preview.kind).toBe('campaigns');
+    expect(spec.preview.tiers).toHaveLength(4);
+    // Names come from the canonical ladder, not a second tier source.
+    expect([v.c0Name, v.c1Name, v.c2Name, v.c3Name]).toEqual(RECOMMENDED_LADDER.map((t) => t.name));
+    // Every campaign message is written for the artist.
+    for (const k of ['c0Message', 'c1Message', 'c2Message', 'c3Message']) {
+      expect(String(v[k]).length, k).toBeGreaterThan(40);
     }
+    expect(String(v.explanation).length).toBeGreaterThan(20);
+    // Each tier step explains what that tier includes (context for artists who skipped Worth).
+    for (const step of spec.steps.filter((st) => st.id.startsWith('c'))) {
+      expect(step.fields.some((f) => (f.help || '').length > 20), step.id).toBe(true);
+    }
+  });
+
+  it('does not fabricate a share link before signup', () => {
+    const spec = getDeliverableSpec('share-to-earn-planner')!;
+    expect(spec.preview.note?.toLowerCase()).toContain('generated inside the crwn app');
+    const v = spec.prefill({});
+    expect(JSON.stringify(v)).not.toContain('thecrwn.app/');
+    expect(JSON.stringify(v)).not.toMatch(/\/r\//);
   });
 
   it('no spec leaves a required-feeling text field empty without a reason', () => {
