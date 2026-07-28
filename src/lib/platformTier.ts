@@ -36,7 +36,13 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
   starter: {
     maxTracks: 20,
     maxMembers: 100,
-    maxFanTiers: 1,
+    // Free gets the FULL recommended ladder (3 paid tiers: Inner Circle / The
+    // Vault / Throne) so the Streaming Loss calculator's promise is buildable on
+    // every plan. Pro still wins on the lower fee (12% -> 8%) plus live, DMs,
+    // scheduling, clipper, and unlimited tracks/members. Tier COUNT is no longer
+    // a paywall: a Free artist earning across 3 tiers pays the higher 12% fee, so
+    // more tiers means more platform revenue, not less.
+    maxFanTiers: 3,
     allowsBundles: false,
     allowsScheduling: false,
     allowsLive: false,
@@ -86,7 +92,8 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
 export const TIER_LIMITS_V2 = {
   starter: {
     tracks: 20,
-    fanTiers: 1,
+    // Free gets all 3 paid tiers (the full recommended ladder). See TIER_LIMITS above.
+    fanTiers: 3,
     members: 100,
     bundles: false,
     scheduling: false,
@@ -198,9 +205,10 @@ export async function checkArtistLimit(
   if (resource === 'fanTiers') {
     // Fan-tier limit counts PAID tiers only (price > 0). The free "front door"
     // tier is a top-of-funnel entry point, not a paid membership slot, so it
-    // never consumes a plan's fan-tier allowance. This is the founder-approved
-    // rule that lets the recommended four-tier ladder (free + 3 paid) fit Pro
-    // (fanTiers = 3 paid) without changing any cap number, price, or fee.
+    // never consumes a plan's fan-tier allowance. Every plan now allows the full
+    // recommended ladder (free + 3 paid), so the Streaming Loss calculator's
+    // promise is buildable regardless of plan; Pro differentiates on fee + features,
+    // not tier count.
     // Keep this predicate identical everywhere fan-tier usage is counted
     // (see /api/platform/limits). is_active NULL means active (onboarding
     // creators do not set it), so match TRUE-or-NULL, exclude only FALSE.

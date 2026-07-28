@@ -32,7 +32,7 @@ const PLATFORM_TIERS: PlatformTier[] = [
     description: 'Get started for free',
     features: [
       '20 track uploads',
-      '1 subscription tier',
+      'Up to 3 subscription tiers',
       '1 email blast / month',
       'Community posts',
       'Basic analytics',

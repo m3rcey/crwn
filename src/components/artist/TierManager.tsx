@@ -6,7 +6,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Edit2, Trash2, X } from 'lucide-react';
-import UpgradePrompt from '@/components/shared/UpgradePrompt';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { getPlatformFeePercent } from '@/lib/platformTier';
 import { TierBenefitsSelector } from './TierBenefitsSelector';
@@ -519,13 +518,20 @@ export function TierManager() {
       {stripeConnected && (
         <>
           {blockNewPaidTier && (
-            <UpgradePrompt
-              currentTier={tier}
-              feature="Paid Fan Tiers"
-              current={usage.fanTiers}
-              limit={limits.fanTiers}
-              message={`You've created ${usage.fanTiers}/${limits.fanTiers} paid tiers. Your free tier is always included. Upgrade to add more paid tiers.`}
-            />
+            // The paid-tier cap (3) is the same on every plan, so there is no
+            // "upgrade for more tiers" here: 3 paid IS the full recommended
+            // ladder. Reframe hitting it as an accomplishment, not a paywall.
+            <div className="neu-raised rounded-xl p-4 border border-crwn-gold/30 mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-crwn-gold text-lg">👑</span>
+                <span className="text-crwn-text font-semibold">You&apos;ve built the full membership ladder</span>
+              </div>
+              <p className="text-sm text-crwn-text-secondary">
+                All {limits.fanTiers} paid tiers are live, plus your free tier. That is the recommended
+                ladder and the sweet spot: more tiers usually just makes fans freeze on which to pick.
+                To change your lineup, edit or remove a tier above.
+              </p>
+            </div>
           )}
           <form onSubmit={handleSubmit} className="bg-crwn-surface border border-crwn-elevated rounded-xl p-6" style={{ opacity: blockNewPaidTier ? 0.5 : 1, pointerEvents: blockNewPaidTier ? 'none' : 'auto' }}>
           <div className="flex items-center justify-between mb-4">
