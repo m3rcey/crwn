@@ -98,7 +98,10 @@ export async function POST(request: NextRequest) {
       await syncTierObligations(supabase, {
         tierId: tier_id,
         artistId: tier.artist_id,
-        benefitTypes: benefits.map((b: { benefit_type: string }) => b.benefit_type),
+        benefits: benefits.map((b: { benefit_type: string; config?: Record<string, unknown> }) => ({
+          benefit_type: b.benefit_type,
+          config: b.config ?? null,
+        })),
       });
     } catch (err) {
       console.error('Tier obligation sync failed:', err);
@@ -112,7 +115,7 @@ export async function POST(request: NextRequest) {
     await syncTierObligations(supabase, {
       tierId: tier_id,
       artistId: tier.artist_id,
-      benefitTypes: [],
+      benefits: [],
     });
   } catch (err) {
     console.error('Tier obligation sync (empty) failed:', err);

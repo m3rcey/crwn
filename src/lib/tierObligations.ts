@@ -13,6 +13,12 @@ import { computeNextDue, type Recurrence } from '@/lib/fulfillment';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Client = SupabaseClient<any, any, any>;
 
+/** A benefit as stored in tier_benefits: its type plus its config blob. */
+export interface BenefitInput {
+  benefit_type: string;
+  config?: Record<string, unknown> | null;
+}
+
 // Only benefits that imply a RECURRING ARTIST ACTION become promises. Access /
 // passive perks (early_access, direct_messaging, shop_discount, badges, …) are
 // not scheduled fulfillment and are intentionally absent.
@@ -26,6 +32,22 @@ const PROMISE_BENEFITS: Record<
   exclusive_posts: { fulfillmentType: 'content_drop', recurrence: 'monthly', title: 'Supporter-only post' },
 };
 
+const ALLOWED_RECURRENCES: Recurrence[] = ['weekly', 'biweekly', 'monthly', 'quarterly'];
+
+/** A benefit's config can override the default cadence (e.g. Throne's quarterly). */
+function recurrenceFromConfig(config: BenefitInput['config'], fallback: Recurrence): Recurrence {
+  const freq = config?.frequency;
+  return typeof freq === 'string' && (ALLOWED_RECURRENCES as string[]).includes(freq)
+    ? (freq as Recurrence)
+    : fallback;
+}
+
+/** A benefit's config can give the obligation a specific, artist-facing title. */
+function titleFromConfig(config: BenefitInput['config'], fallback: string): string {
+  const t = config?.obligation_title;
+  return typeof t === 'string' && t.trim() ? t.trim() : fallback;
+}
+
 /**
  * Reconcile a tier's promise obligations against its current benefit list:
  *   • create an obligation (+ first event) for each new promise-worthy benefit,
@@ -35,10 +57,17 @@ const PROMISE_BENEFITS: Record<
  */
 export async function syncTierObligations(
   supabase: Client,
-  args: { tierId: string; artistId: string; benefitTypes: string[] },
+  args: { tierId: string; artistId: string; benefits: BenefitInput[] },
 ): Promise<{ created: number; archived: number }> {
-  const { tierId, artistId, benefitTypes } = args;
-  const wanted = benefitTypes.filter((t) => t in PROMISE_BENEFITS);
+  const { tierId, artistId, benefits } = args;
+  // Keep the first occurrence of each promise-worthy benefit type (config and all).
+  const wantedByType = new Map<string, BenefitInput>();
+  for (const b of benefits) {
+    if (b.benefit_type in PROMISE_BENEFITS && !wantedByType.has(b.benefit_type)) {
+      wantedByType.set(b.benefit_type, b);
+    }
+  }
+  const wanted = [...wantedByType.keys()];
   const wantedSet = new Set(wanted);
 
   let created = 0;
@@ -70,9 +99,12 @@ export async function syncTierObligations(
       continue;
     }
     const def = PROMISE_BENEFITS[benefitType];
+    const config = wantedByType.get(benefitType)?.config ?? null;
+    const recurrence = recurrenceFromConfig(config, def.recurrence);
+    const title = titleFromConfig(config, def.title);
     const firstDue = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // a week of runway
     firstDue.setHours(12, 0, 0, 0);
-    const following = computeNextDue(def.recurrence, firstDue);
+    const following = computeNextDue(recurrence, firstDue);
 
     const { data: obligation } = await supabase
       .from('fulfillment_obligations')
@@ -81,10 +113,10 @@ export async function syncTierObligations(
         source_type: 'tier',
         source_tier_id: tierId,
         benefit_type: benefitType,
-        title: def.title,
+        title,
         description: 'Auto-created from a tier benefit. Edit or pause anytime.',
         fulfillment_type: def.fulfillmentType,
-        recurrence: def.recurrence,
+        recurrence,
         next_due_at: following ? following.toISOString() : null,
         audience_kind: 'tier',
         audience_id: tierId,
@@ -100,7 +132,7 @@ export async function syncTierObligations(
       await supabase.from('fulfillment_events').insert({
         obligation_id: obligation.id,
         artist_id: artistId,
-        title: def.title,
+        title,
         due_at: firstDue.toISOString(),
         status: 'pending',
       });

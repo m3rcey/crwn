@@ -6,7 +6,7 @@
 //
 // Reuses the EXISTING tier-creation path (subscription_tiers insert + tier_benefits
 // + /api/stripe/create-price when connected, else null price ids that the Stripe
-// connect backfill fills later). Never bypasses plan limits: the free Community
+// connect backfill fills later). Never bypasses plan limits: the free The Wave
 // tier is always allowed (Option 2), paid tiers only up to the artist's paid cap.
 
 import { useState, useEffect, useMemo } from 'react';
@@ -156,15 +156,27 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
 
       const structured = structuredBenefits(tile.def);
       if (created && structured.length > 0) {
-        await supabase.from('tier_benefits').insert(
-          structured.map((b, i) => ({
-            tier_id: created.id,
-            benefit_type: b.benefit_type,
-            config: b.config || {},
-            is_active: true,
-            sort_order: i,
-          })),
-        );
+        // Route through /api/tier-benefits (not a direct insert) so the Promise
+        // Calendar auto-populates: that route inserts the benefits AND runs
+        // syncTierObligations, which creates the recurring fulfillment
+        // obligations (the Vault's monthly unlock, Throne's quarterly listening
+        // event). Best-effort: a benefits/calendar hiccup must not undo the tier.
+        try {
+          await fetch('/api/tier-benefits', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              tier_id: created.id,
+              benefits: structured.map((b, i) => ({
+                benefit_type: b.benefit_type,
+                config: b.config || {},
+                sort_order: i,
+              })),
+            }),
+          });
+        } catch (benefitErr) {
+          console.error('Tier benefits/calendar sync failed (tier still created):', benefitErr);
+        }
       }
 
       updateTile(tile.def.key, { status: 'applied' });
@@ -224,7 +236,7 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
         <div className="px-5 pb-5 space-y-3">
           {paidCapReached && (
             <p className="text-xs text-crwn-gold bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3">
-              You have used your {paidTierCap} paid tier{paidTierCap === 1 ? '' : 's'} on this plan. Your free Community
+              You have used your {paidTierCap} paid tier{paidTierCap === 1 ? '' : 's'} on this plan. Your free The Wave
               tier is always included. Upgrade to add more paid tiers.
             </p>
           )}

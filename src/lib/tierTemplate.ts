@@ -1,9 +1,20 @@
 // Recommended four-tier membership ladder (Rise Mode Level 3).
 //
+// The Wave / Inner Circle / The Vault / Throne, the SAME four tiers the Streaming
+// Loss calculator ("/worth") shows, so the money the calculator promises is the
+// money the ladder actually builds. Prices match: Free / $10 / $25 / $100.
+//
 // This is DATA the Tier Manager consumes to offer a one-tap recommended ladder.
-// It never bypasses plan limits: the free "Community" tier does not count against
+// It never bypasses plan limits: the free "The Wave" tier does not count against
 // the paid-tier cap (see platformTier.ts Option-2 counting), and the paid tiers
 // are applied only up to the artist's plan allowance.
+//
+// The recurring commitments are deliberately light: the paid tiers are built from
+// content the artist already has. The Vault sells a MONTHLY VAULT UNLOCK from the
+// existing backlog (schedule old demos, snippets, notes; not "make something new"),
+// and Throne sells a QUARTERLY private group listening event that serves every
+// member at once (no one-on-one calls). Those two are the only scheduled promises,
+// and each auto-populates the Promise Calendar on apply (see tierObligations.ts).
 //
 // Benefit copy is fan-facing. Rules honored:
 //  - No em dashes anywhere.
@@ -38,7 +49,7 @@ export interface TemplateBenefit {
 }
 
 export interface TierTemplateDef {
-  key: 'community' | 'backstage' | 'inner_circle' | 'executive';
+  key: 'wave' | 'inner_circle' | 'vault' | 'throne';
   name: string;
   /** Monthly price in integer cents (0 for the free front door). */
   priceCents: number;
@@ -57,88 +68,72 @@ export const EXECUTIVE_RECOGNITION_DISCLAIMER =
 
 export const RECOMMENDED_LADDER: TierTemplateDef[] = [
   {
-    key: 'community',
-    name: 'Community',
+    key: 'wave',
+    name: 'The Wave',
     priceCents: 0,
     description: 'Your free front door. The easiest way for new fans to join and stay close.',
     benefits: [
-      { label: 'Selected free tracks', workload: 'low' },
-      { label: 'Community access', workload: 'low' },
-      { label: 'Community posts', workload: 'low' },
-      { label: 'Release announcements', workload: 'low' },
-      { label: 'New music after paid early-access windows', workload: 'low' },
-      { label: 'Public polls', workload: 'low' },
-      { label: 'Selected behind-the-scenes content', workload: 'low' },
-    ],
-  },
-  {
-    key: 'backstage',
-    name: 'Backstage',
-    priceCents: 1000,
-    description: 'For fans who want in. Exclusives, early access, and a real line to you.',
-    benefits: [
-      { label: 'Everything in Community', workload: 'low' },
-      { label: 'Exclusive tracks, demos, and alternate versions', workload: 'moderate' },
-      {
-        label: '7-day early access to new music',
-        workload: 'low',
-        structured: { benefit_type: 'early_access', config: { days_early: 7 } },
-      },
-      { label: 'Members-only community posts', workload: 'low' },
-      { label: 'Members-only polls', workload: 'low' },
-      {
-        label: 'Monthly studio update or behind-the-scenes post',
-        workload: 'moderate',
-        fulfillment: { frequency: 'monthly', note: 'You commit to one behind-the-scenes post each month.' },
-      },
-      {
-        label: '10% shop discount',
-        workload: 'low',
-        structured: { benefit_type: 'shop_discount', config: { discount_percent: 10 } },
-      },
-      {
-        label: 'Artist messaging access, replies at your discretion',
-        workload: 'moderate',
-        structured: { benefit_type: 'direct_messaging' },
-        fulfillment: {
-          frequency: 'ongoing',
-          note: 'Supporters can message you. You reply when you can. Replies are not guaranteed.',
-        },
-      },
+      { label: 'Free tracks and public posts', workload: 'low' },
+      { label: 'Join the community', workload: 'low' },
+      { label: 'New music after the paid early-access windows', workload: 'low' },
+      { label: 'Public livestream access', workload: 'low' },
+      { label: 'Join public fan missions', workload: 'low' },
     ],
   },
   {
     key: 'inner_circle',
     name: 'Inner Circle',
-    priceCents: 2500,
-    description: 'For your closest supporters. Deeper access, live moments, and a real say.',
+    priceCents: 1000,
+    description: 'For fans who want in. Exclusives, early access, and a real say.',
     benefits: [
-      { label: 'Everything in Backstage', workload: 'low' },
+      { label: 'Everything in The Wave', workload: 'low' },
+      { label: 'Exclusive tracks and demos', workload: 'moderate' },
+      {
+        label: '7-day early access to new music',
+        workload: 'low',
+        structured: { benefit_type: 'early_access', config: { days_early: 7 } },
+      },
+      { label: 'Private community posts', workload: 'low' },
+      { label: 'Member-only livestream replays', workload: 'low' },
+      { label: 'Vote on cover art, snippets, and future drops', workload: 'low' },
+      {
+        label: '10% shop discount',
+        workload: 'low',
+        structured: { benefit_type: 'shop_discount', config: { discount_percent: 10 } },
+      },
+    ],
+  },
+  {
+    key: 'vault',
+    name: 'The Vault',
+    priceCents: 2500,
+    description: 'For your closest supporters. Your private archive, unlocked a little at a time.',
+    benefits: [
+      { label: 'Everything in Inner Circle', workload: 'low' },
+      { label: 'Unreleased songs and alternate versions', workload: 'moderate' },
       {
         label: '14-day early access to new music',
         workload: 'low',
         structured: { benefit_type: 'early_access', config: { days_early: 14 } },
       },
-      { label: 'Selected stems, instrumentals, or multitracks', workload: 'moderate' },
+      { label: 'Full archive of private music and content', workload: 'low' },
       {
-        label: 'Monthly group livestream, listening party, or Q&A',
-        workload: 'high_touch',
-        structured: { benefit_type: 'group_live_qa', config: { frequency: 'monthly' } },
+        // The defining scheduled promise. Maps to a monthly Promise Calendar
+        // obligation titled "Monthly Vault unlock" via the config below.
+        label: 'Monthly Vault unlock from your backlog',
+        workload: 'moderate',
+        structured: {
+          benefit_type: 'exclusive_posts',
+          config: { frequency: 'monthly', obligation_title: 'Monthly Vault unlock' },
+        },
         fulfillment: {
           frequency: 'monthly',
-          note: 'You commit to hosting one group live session each month. Plan for the time.',
-          capacityRecommended: false,
+          note: 'You schedule one unlock a month from your existing backlog: an old demo, a snippet, a photo, a note. Not something new every month.',
         },
       },
-      { label: 'Replay archive', workload: 'low' },
-      {
-        label: 'Monthly unreleased demo, acoustic version, remix, or alternate version',
-        workload: 'moderate',
-        fulfillment: { frequency: 'monthly', note: 'You commit to one exclusive audio drop each month.' },
-      },
-      { label: 'Digital liner notes or song breakdowns', workload: 'moderate' },
-      { label: 'Priority voting', workload: 'low' },
-      { label: 'Priority consideration for artist replies', workload: 'low' },
+      { label: 'Private listening-party replays', workload: 'low' },
+      { label: 'Priority voting on releases, artwork, and merch', workload: 'low' },
+      { label: 'Early access to tickets, merch, and limited drops', workload: 'moderate' },
       {
         label: '15% shop discount',
         workload: 'low',
@@ -147,52 +142,44 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
     ],
   },
   {
-    key: 'executive',
-    name: 'Executive Circle',
+    key: 'throne',
+    name: 'Throne',
     priceCents: 10000,
-    description: 'Your top supporters. The deepest access, live face time, and recognition.',
+    description: 'Your top supporters. Status, scarcity, and a seat at the table.',
     capacityLimited: true,
     benefits: [
-      { label: 'Everything in Inner Circle', workload: 'low' },
-      { label: 'Day-zero access to selected unreleased music', workload: 'moderate' },
-      { label: 'Work-in-progress access', workload: 'moderate' },
+      { label: 'Everything in The Vault', workload: 'low' },
+      { label: 'Day-0 or private first listen', workload: 'moderate' },
+      { label: 'Limited number of memberships', workload: 'low' },
       {
-        label: 'Quarterly small-group video call',
-        workload: 'high_touch',
-        structured: { benefit_type: 'group_live_qa', config: { frequency: 'quarterly' } },
-        fulfillment: {
-          frequency: 'quarterly',
-          note: 'You commit to one small-group video call per quarter. Cap membership so the group stays small.',
-          capacityRecommended: true,
-        },
-      },
-      {
-        label: 'Quarterly executive listening session',
-        workload: 'high_touch',
-        fulfillment: {
-          frequency: 'quarterly',
-          note: 'You commit to one executive listening session per quarter.',
-          capacityRecommended: true,
-        },
-      },
-      {
-        label: 'Executive Supporter recognition on eligible releases',
+        label: 'Name in supporter or executive producer credits',
         workload: 'low',
         structured: { benefit_type: 'credits_on_releases', config: { role_label: 'Executive Supporter' } },
       },
+      { label: 'Permanent Throne badge in your community', workload: 'low' },
+      { label: 'Highest priority for ticket and merch drops', workload: 'moderate' },
       {
-        label: 'Quarterly exclusive digital bundle',
-        workload: 'moderate',
-        fulfillment: { frequency: 'quarterly', note: 'You commit to one exclusive digital bundle per quarter.' },
+        // The one Throne-specific scheduled promise. A quarterly group event
+        // serves every Throne member at once, so it replaces one-on-one calls.
+        label: 'Private group listening events',
+        workload: 'high_touch',
+        structured: {
+          benefit_type: 'group_live_qa',
+          config: { frequency: 'quarterly', obligation_title: 'Private group listening event' },
+        },
+        fulfillment: {
+          frequency: 'quarterly',
+          note: 'You host one private group listening event each quarter. You serve every Throne member at once, so it replaces one-on-one calls. Cap membership so the room stays small.',
+          capacityRecommended: true,
+        },
       },
-      { label: 'Priority access to limited merch, tickets, drops, and experiences', workload: 'moderate' },
-      { label: 'Private creative polls', workload: 'low' },
+      { label: 'Vote on which songs, videos, or products get released', workload: 'low' },
+      { label: 'Private artist roadmap and progress updates', workload: 'low' },
       {
         label: '20% shop discount',
         workload: 'low',
         structured: { benefit_type: 'shop_discount', config: { discount_percent: 20 } },
       },
-      { label: 'Limited membership capacity', workload: 'low' },
     ],
   },
 ];
@@ -231,7 +218,13 @@ export function disclaimersFor(tier: TierTemplateDef): string[] {
   if (tier.benefits.some((b) => b.structured?.benefit_type === 'direct_messaging' || /messaging/i.test(b.label))) {
     out.push(MESSAGING_DISCLAIMER);
   }
-  if (tier.benefits.some((b) => /executive supporter recognition/i.test(b.label))) {
+  if (
+    tier.benefits.some(
+      (b) =>
+        b.structured?.benefit_type === 'credits_on_releases' ||
+        /executive supporter recognition|supporter or executive producer credits/i.test(b.label),
+    )
+  ) {
     out.push(EXECUTIVE_RECOGNITION_DISCLAIMER);
   }
   return out;

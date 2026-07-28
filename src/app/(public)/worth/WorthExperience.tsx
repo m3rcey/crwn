@@ -46,19 +46,19 @@ const PRESETS: { key: AggressivenessPreset; label: string }[] = [
 const TIERS: { name: string; price: string; accent: boolean; subs?: 'tier1' | 'tier2' | 'tier3'; perks: string[] }[] = [
   {
     name: 'The Wave', price: 'Free', accent: false,
-    perks: ['Free tracks & community posts', 'Join the community', 'New music after the paid windows'],
+    perks: ['Free tracks and public posts', 'Join the community', 'Public livestream access', 'New music after the paid windows'],
   },
   {
     name: 'Inner Circle', price: '$10/mo', accent: false, subs: 'tier1',
-    perks: ['Exclusive tracks', '7-day early access', 'DMs with you', '10% shop discount'],
+    perks: ['Exclusive tracks and demos', '7-day early access', 'Private community posts', 'Vote on cover art and drops', '10% shop discount'],
   },
   {
     name: 'The Vault', price: '$25/mo', accent: true, subs: 'tier2',
-    perks: ['Stems & multitracks', '14-day early access', 'Monthly group live Q&A', 'Voice-note replies'],
+    perks: ['Unreleased songs and alternate versions', '14-day early access', 'A monthly Vault unlock from your archive', 'Private listening-party replays', 'Early ticket and merch access', '15% shop discount'],
   },
   {
     name: 'Throne', price: '$100/mo', accent: false, subs: 'tier3',
-    perks: ['Day-0 first listen', 'Monthly 1-on-1 video call', '1 custom song / quarter', 'Credits on releases'],
+    perks: ['Everything in The Vault', 'Day-0 private first listen', 'Limited membership', 'Supporter credits on releases', 'Private group listening events', '20% shop discount'],
   },
 ];
 

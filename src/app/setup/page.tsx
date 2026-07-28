@@ -54,7 +54,7 @@ interface ScreenDef {
 // One FIELD per screen. Groups (the four chips) span multiple screens.
 const SCREENS: ScreenDef[] = [
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
-  { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your free entry point', subtitle: 'The free tier fans join first. e.g. “Community”. You build paid tiers later in Rise Mode.', icon: CreditCard },
+  { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your free entry point', subtitle: 'The free tier fans join first. e.g. “The Wave”. You build paid tiers later in Rise Mode.', icon: CreditCard },
   { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the price', subtitle: 'Keep this at 0 for your free entry point. Paid tiers come later in Rise Mode.', icon: CreditCard },
   { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do free members get?', subtitle: 'Pick the perks free fans unlock. These show on your page. You can edit them anytime.', icon: CreditCard, create: 'tier' },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
@@ -89,20 +89,21 @@ const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
   { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
 ];
 
-// Setup creates the FREE "Community" entry point only (the smallest credible
-// foundation). The PAID membership ladder (Backstage/Inner Circle/Executive) is
+// Setup creates the FREE "The Wave" entry point only (the smallest credible
+// foundation). The PAID membership ladder (Inner Circle/The Vault/Throne) is
 // built later in Rise Mode Level 3, so setup and Rise never ask for the same thing.
-// The Level 3 ladder template recognizes this free "Community" tier by name and
-// shows it as already applied.
-const DEFAULT_TIER_NAME = 'Community';
+// The Level 3 ladder template recognizes this free "The Wave" tier by name and
+// shows it as already applied. This is the SAME free tier the Streaming Loss
+// calculator ("/worth") promises, so the money it shows is the money onboarding builds.
+const DEFAULT_TIER_NAME = 'The Wave';
 const DEFAULT_TIER_PRICE = '0';
 const TIER_BENEFIT_SUGGESTIONS = [
-  'Community access',
-  'Artist posts',
+  'Free tracks and public posts',
+  'Join the community',
+  'Public livestream access',
+  'Join public fan missions',
+  'New music after the paid windows',
   'Release announcements',
-  'Selected free tracks',
-  'Public polls',
-  'Behind-the-scenes content',
 ];
 const DEFAULT_TIER_BENEFITS = TIER_BENEFIT_SUGGESTIONS.slice(0, 5);
 
@@ -495,7 +496,7 @@ function FieldBody({
           autoFocus
           className={INPUT}
           maxLength={40}
-          placeholder="Community"
+          placeholder="The Wave"
           value={tierDraft.name}
           onChange={(e) => setTierDraft((d) => ({ ...d, name: e.target.value }))}
         />

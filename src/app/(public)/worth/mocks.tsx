@@ -102,10 +102,10 @@ export function PhoneFrame({ children }: { children: ReactNode }) {
 export function TiersMock({ subs }: { subs?: { t1: number; t2: number; t3: number } }) {
   const { ref, isInView } = useInView();
   const tiers = [
-    { name: 'The Wave', price: '$0', members: null as number | null, perks: ['🎵 Exclusive tracks', '💬 Community posts'], subscribed: false, accent: false },
-    { name: 'The Inner Circle', price: '$10', members: subs ? Math.floor(subs.t1) : null, perks: ['🎵 Exclusive tracks', '⏰ 7-day early access', '🏷️ 10% shop discount'], subscribed: true, accent: true },
-    { name: 'The Vault', price: '$25', members: subs ? Math.floor(subs.t2) : null, perks: ['🎚️ Stems & multitracks', '🎤 Monthly live Q&A'], subscribed: false, accent: false },
-    { name: 'The Throne', price: '$100', members: subs ? Math.floor(subs.t3) : null, perks: ['📞 Monthly 1-on-1', '🎶 Custom song / qtr'], subscribed: false, accent: false },
+    { name: 'The Wave', price: '$0', members: null as number | null, perks: ['🎵 Free tracks & posts', '💬 Community access'], subscribed: false, accent: false },
+    { name: 'Inner Circle', price: '$10', members: subs ? Math.floor(subs.t1) : null, perks: ['🎵 Exclusive tracks & demos', '⏰ 7-day early access', '🏷️ 10% shop discount'], subscribed: true, accent: true },
+    { name: 'The Vault', price: '$25', members: subs ? Math.floor(subs.t2) : null, perks: ['🔓 Monthly Vault unlock', '🎧 Listening-party replays'], subscribed: false, accent: false },
+    { name: 'Throne', price: '$100', members: subs ? Math.floor(subs.t3) : null, perks: ['👑 Day-0 first listen', '🎤 Private group listening'], subscribed: false, accent: false },
   ];
   return (
     <PhoneFrame>

@@ -39,15 +39,15 @@ export function calculatorResultEmail(params: {
       <div style="margin:0 0 24px;">
         <div style="padding:12px 0;border-bottom:1px solid #333;">
           <span style="color:#D4AF37;font-weight:600;">Inner Circle: $10/mo</span>
-          <span style="color:#A0A0A0;"> Exclusive tracks, 7-day early access, DMs, shop discount</span>
+          <span style="color:#A0A0A0;"> Exclusive tracks and demos, 7-day early access, private posts, 10% shop discount</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
           <span style="color:#D4AF37;font-weight:600;">The Vault: $25/mo</span>
-          <span style="color:#A0A0A0;"> Stems &amp; multitracks, 14-day early access, monthly live Q&amp;A</span>
+          <span style="color:#A0A0A0;"> Unreleased songs, 14-day early access, a monthly Vault unlock, 15% shop discount</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
           <span style="color:#D4AF37;font-weight:600;">Throne: $100/mo</span>
-          <span style="color:#A0A0A0;"> Day-0 first listen, monthly 1-on-1 call, a custom song each quarter</span>
+          <span style="color:#A0A0A0;"> Day-0 first listen, private group listening events, supporter credits, 20% shop discount</span>
         </div>
         <div style="padding:12px 0;">
           <span style="color:#D4AF37;font-weight:600;">Sold à la carte</span>
