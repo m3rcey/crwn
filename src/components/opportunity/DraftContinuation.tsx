@@ -86,9 +86,10 @@ export function DraftContinuation({ token }: { token: string }) {
   return (
     <div className="mb-6 space-y-3">
       {draft.opportunitySummary && (
-        <div className="rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.08] p-4 text-center">
-          <div className="text-xs uppercase tracking-wide text-crwn-text-secondary">What you uncovered</div>
-          <div className="text-xl font-bold text-crwn-gold mt-1">{draft.opportunitySummary}</div>
+        <div className="rounded-2xl border border-crwn-gold/30 bg-gradient-to-b from-crwn-gold/15 to-crwn-gold/[0.04] p-5 text-center">
+          <div className="text-xs uppercase tracking-wide text-crwn-text-secondary">You&apos;re leaving roughly</div>
+          <div className="text-4xl sm:text-5xl font-bold text-crwn-gold leading-none mt-2">{draft.opportunitySummary}</div>
+          <div className="text-xs text-crwn-text-secondary mt-2">A planning estimate, not a guarantee.</div>
         </div>
       )}
 

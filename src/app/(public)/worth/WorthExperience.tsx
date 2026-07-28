@@ -528,6 +528,10 @@ export function WorthExperience({
           if (num(v.followers)) setFollowers(num(v.followers));
           if (num(v.streaming_revenue)) setStreaming(num(v.streaming_revenue));
           setEntryDone(true);
+          // The wizard sat below a full-height hero, so unmounting it leaves the browser at that
+          // scroll offset, landing mid-page instead of on the result. Same reset PublicToolClient
+          // does when its result replaces the wizard.
+          window.scrollTo({ top: 0, behavior: 'auto' });
         }}
       />
     </div>
