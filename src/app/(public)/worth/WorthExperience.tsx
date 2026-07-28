@@ -933,11 +933,23 @@ export function WorthExperience({
           <p className="text-crwn-text-secondary">
             {homepage
               ? 'Set up your page free and turn on every one of these revenue streams.'
-              : 'Book a free 15-minute Zoom and we’ll set up every one of these revenue streams with you, live.'}
+              : 'Your offer is already built above. Save it whenever you are ready.'}
           </p>
-          <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required. Keep up to 92%.">
-            {homepage ? `Start free, claim your ${monthlyLabel}` : `Book a call, claim your ${monthlyLabel}`}
-          </PrimaryCTA>
+          {/* Booking never claims the money, and never competes with the builder. On the calculator
+              the closing action points back to the offer the artist already built; the single
+              optional help CTA lives higher up, framed as help. */}
+          {homepage ? (
+            <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required. Keep up to 92%.">
+              {`Start free, claim your ${monthlyLabel}`}
+            </PrimaryCTA>
+          ) : (
+            <button
+              onClick={() => worthBuilderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="mt-6 inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-8 rounded-full"
+            >
+              Back to my offer
+            </button>
+          )}
         </div>
       </div>
     </div>

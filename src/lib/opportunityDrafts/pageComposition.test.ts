@@ -106,6 +106,17 @@ describe('Worth page order', () => {
   it('exactly one optional help CTA remains on the tool view, framed as help', () => {
     expect(worth).toContain('Need help setting this up?');
   });
+
+  it('no CTA implies booking a call captures the money', () => {
+    // "Book a call, claim your $X/mo" reads as if the CALL is how the money arrives. Banned.
+    // (The homepage's own "Set up my page free, keep this money" is general marketing copy on a
+    // marketing page and is deliberately out of scope for the calculator funnel.)
+    expect(worth).not.toContain('Book a call, claim your');
+    expect(worth).not.toContain('call, keep this money');
+    expect(worth).not.toContain('Book a free 15-min call, keep this money');
+    // The calculator's closing action returns to the offer the artist already built.
+    expect(worth).toContain('Back to my offer');
+  });
 });
 
 // ---- UX redesign: four-tier ladder, benefit CTAs, signup context, no blank boxes ----
