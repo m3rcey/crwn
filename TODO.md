@@ -24,20 +24,10 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Apply the prospect-nurture migration (turns on long-term email nurture for email-only
-      calculator leads).** Until this runs, leads still get their one result email and enrollment
-      silently no-ops (the code fails closed). In Supabase → SQL Editor, run:
-      [`supabase/schema-phase2-prospect-nurture.sql`](supabase/schema-phase2-prospect-nurture.sql).
-      It self-verifies and raises loudly if any piece half-applies. Then the daily cron
-      `/api/cron/prospect-nurture` (already in `vercel.json`, 30 10 UTC) starts sending. Optional but
-      recommended: in the Resend dashboard, enable the **email.opened** and **email.clicked** events so
-      the admin panel shows open/click rates. Full spec: [`docs/PROSPECT_NURTURE.md`](docs/PROSPECT_NURTURE.md).
-
-- [ ] **Apply the platform-sequence copy fix (corrects live stale pricing + a fabricated stat).** The
-      live "Starter to Pro Upgrade" emails said Pro is **$50/mo** (real: $9.99) and claimed "Pro artists
-      earn 3x more," which is fabricated proof and against our own rules. In Supabase → SQL Editor, run:
-      [`supabase/schema-phase2-fix-platform-sequence-copy.sql`](supabase/schema-phase2-fix-platform-sequence-copy.sql).
-      It UPDATEs the two live rows and self-verifies the stale copy is gone.
+- [ ] **(Recommended, when data exists) Turn on Resend open/click events for prospect nurture.** In
+      the Resend dashboard, enable the **email.opened** and **email.clicked** events. The signed
+      webhook already handles them; without them the admin panel's open/click rates stay at zero.
+      Not blocking: sends and conversions still track. Full spec: [`docs/PROSPECT_NURTURE.md`](docs/PROSPECT_NURTURE.md).
 
 - [ ] **(Optional, low priority) Per-video attribution for "Highest Converting Video."** CONFIRMED
       2026-07-26: ManyChat's "any post or reel" comment trigger does NOT expose the triggering post id
