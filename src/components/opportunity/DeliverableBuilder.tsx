@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, Lock, Copy } from 'lucide-react';
+import { Check, Lock, Copy, Plus, X } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { Wizard } from '@/components/ui/Wizard';
 import { JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
@@ -22,6 +22,28 @@ import {
 // save boundary, and the draft is persisted server-side first so the work survives authentication.
 
 const lsKey = (slug: string) => `crwn_deliverable_${slug}`;
+
+/**
+ * Merge a stored draft over this spec's generated defaults.
+ *
+ * Only fields the artist actually filled in survive; anything missing, empty, or belonging to an
+ * older version of the spec falls back to the prefill. This is what keeps a builder from EVER
+ * rendering blank after the deliverable's fields change.
+ */
+function mergeOverPrefill(
+  spec: DeliverableSpec,
+  cp: Record<string, unknown>,
+  stored: unknown,
+): DraftValues {
+  const base = spec.prefill(cp);
+  const saved = sanitizeDeliverableValues(spec, stored);
+  const out: DraftValues = { ...base };
+  for (const [k, v] of Object.entries(saved)) {
+    const empty = v == null || v === '' || (Array.isArray(v) && v.length === 0);
+    if (!empty) out[k] = v;
+  }
+  return out;
+}
 
 export interface DeliverableBuilderProps {
   toolSlug: string;
@@ -52,9 +74,11 @@ export function DeliverableBuilder({
   opportunitySummary,
 }: DeliverableBuilderProps) {
   const spec = getDeliverableSpec(toolSlug);
-  const [values, setValues] = useState<DraftValues>(() =>
-    initialValues || (spec ? spec.prefill(conversionPayload) : {}),
-  );
+  const [values, setValues] = useState<DraftValues>(() => {
+    if (!spec) return {};
+    // Same merge rule for a claimed draft restored after signup.
+    return initialValues ? mergeOverPrefill(spec, conversionPayload, initialValues) : spec.prefill(conversionPayload);
+  });
   const [index, setIndex] = useState(0);
   const [saving, setSaving] = useState(false);
   const tokenRef = useRef<string | null>(initialToken);
@@ -64,6 +88,12 @@ export function DeliverableBuilder({
   const analyticsBase = useMemo(() => ({ toolKey: toolSlug, opportunityKey: toolSlug }), [toolSlug]);
 
   // Instant restore from localStorage on refresh (server row remains the durable truth).
+  //
+  // BACKWARD COMPATIBILITY: a draft saved before this tool's fields changed only carries the OLD
+  // keys, and sanitize drops anything outside the CURRENT spec. Replacing state with that result
+  // emptied the builder (a pre-rewrite Streaming Loss draft wiped all four tiers). So a restored
+  // draft is MERGED OVER the prefill: unknown/missing fields fall back to the generated defaults,
+  // and the artist's own edits still win. Never replace, always merge.
   useEffect(() => {
     if (mode !== 'anonymous' || initialValues || !spec) return;
     try {
@@ -71,7 +101,7 @@ export function DeliverableBuilder({
       if (raw) {
         const parsed = JSON.parse(raw) as { token?: string; values?: unknown };
         if (parsed.token) tokenRef.current = parsed.token;
-        if (parsed.values) setValues(sanitizeDeliverableValues(spec, parsed.values));
+        if (parsed.values) setValues(mergeOverPrefill(spec, conversionPayload, parsed.values));
       }
     } catch {
       /* ignore malformed local draft */
@@ -202,7 +232,9 @@ function Field({
       <label className="block text-sm font-semibold text-crwn-text mb-1">{field.label}</label>
       {field.help && <p className="text-xs text-crwn-text-secondary mb-2">{field.help}</p>}
 
-      {field.type === 'option' ? (
+      {field.type === 'checklist' ? (
+        <BenefitChecklist field={field} value={Array.isArray(value) ? value : []} onChange={onChange} />
+      ) : field.type === 'option' ? (
         <OptionSelect
           options={field.options || []}
           value={typeof value === 'string' ? value : null}
@@ -248,6 +280,86 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
         />
       )}
+    </div>
+  );
+}
+
+function BenefitChecklist({
+  field,
+  value,
+  onChange,
+}: {
+  field: DeliverableField;
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [custom, setCustom] = useState('');
+  // Everything the template offers, plus anything the artist typed in themselves.
+  const options = (field.options || []).map((o) => o.value);
+  const extras = value.filter((v) => !options.includes(v));
+  const all = [...options, ...extras];
+
+  const toggle = (label: string) => {
+    onChange(value.includes(label) ? value.filter((v) => v !== label) : [...value, label]);
+  };
+  const add = () => {
+    const t = custom.trim().slice(0, 200);
+    if (!t || value.includes(t)) return;
+    onChange([...value, t]);
+    setCustom('');
+  };
+
+  return (
+    <div className="space-y-2">
+      {all.map((label) => {
+        const on = value.includes(label);
+        return (
+          <button
+            key={label}
+            type="button"
+            onClick={() => toggle(label)}
+            aria-pressed={on}
+            className={`w-full flex items-start gap-3 rounded-xl border p-3 text-left transition-colors ${
+              on ? 'border-crwn-gold/40 bg-crwn-gold/[0.06]' : 'border-crwn-elevated bg-crwn-surface opacity-60'
+            }`}
+          >
+            <span
+              className={`mt-0.5 w-5 h-5 rounded-md shrink-0 flex items-center justify-center border ${
+                on ? 'bg-crwn-gold border-crwn-gold text-crwn-bg' : 'border-crwn-elevated text-transparent'
+              }`}
+            >
+              <Check className="w-3.5 h-3.5" />
+            </span>
+            <span className={`text-sm ${on ? 'text-crwn-text' : 'text-crwn-text-secondary line-through'}`}>{label}</span>
+          </button>
+        );
+      })}
+
+      <div className="flex gap-2 pt-1">
+        <input
+          value={custom}
+          onChange={(e) => setCustom(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              add();
+            }
+          }}
+          placeholder="Add your own"
+          maxLength={200}
+          className="flex-1 bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-2.5 text-sm text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
+        />
+        <button
+          type="button"
+          onClick={add}
+          className="shrink-0 inline-flex items-center gap-1 px-4 rounded-xl bg-crwn-elevated text-crwn-text text-sm font-medium"
+        >
+          <Plus className="w-4 h-4" /> Add
+        </button>
+      </div>
+      <p className="text-xs text-crwn-text-secondary">
+        {value.length} of {all.length} included. Tap any line to remove it.
+      </p>
     </div>
   );
 }

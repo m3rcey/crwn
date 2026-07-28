@@ -460,18 +460,27 @@ export function WorthExperience({
   // Scoped to the cold /worth view: the homepage keeps its instant-number marketing behavior and a
   // personalized lead link already arrives with the numbers filled in.
   const ENTRY_STEPS = [
-    { id: 'listeners', group: 'Your audience', label: 'Listeners' },
-    { id: 'followers', group: 'Your audience', label: 'Followers' },
-    { id: 'streaming', group: 'Your audience', label: 'Streaming' },
+    { id: 'listeners', group: 'Audience', label: 'Listeners' },
+    { id: 'followers', group: 'Audience', label: 'Followers' },
+    { id: 'streaming', group: 'Audience', label: 'Streaming' },
+    { id: 'review', group: 'Review', label: 'Review' },
+  ];
+  const ENTRY_COPY = [
+    { title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
+    { title: 'And your socials?', subtitle: 'Instagram, TikTok, all of it. Skip if you are not sure.' },
+    { title: 'What does streaming pay you?', subtitle: 'Optional. We estimate it if you leave it blank.' },
+    { title: 'Review', subtitle: 'Check your answers, then see what you are worth.' },
   ];
   const useEntryWizard = !homepage && !leadView && !entryDone;
+  // Same structure as every other CRWN calculator: per-step title, Audience / Review group chips,
+  // one question per screen, rendered plain on the page (no card wrapper).
   const entryWizard = (
-    <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-6">
+    <div className="max-w-lg mx-auto mb-10">
       <Wizard
         steps={ENTRY_STEPS}
         currentIndex={entryStep}
-        title="What are you actually worth?"
-        subtitle="Three quick questions. Nothing is saved until you choose to."
+        title={ENTRY_COPY[entryStep]?.title}
+        subtitle={ENTRY_COPY[entryStep]?.subtitle}
         onBack={entryStep > 0 ? () => setEntryStep((i) => Math.max(0, i - 1)) : undefined}
         onContinue={() => {
           if (entryStep >= ENTRY_STEPS.length - 1) setEntryDone(true);
@@ -484,10 +493,24 @@ export function WorthExperience({
           <Field label="Monthly listeners" hint="Spotify, Apple, anywhere" value={listeners} onChange={setListeners} placeholder="50,000" />
         )}
         {entryStep === 1 && (
-          <Field label="Followers" hint="Instagram, TikTok, all of it" value={followers} onChange={setFollowers} placeholder="20,000" />
+          <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
         )}
         {entryStep === 2 && (
-          <Field label="Streaming $ / mo" hint="Optional. We estimate it if you skip." value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
+          <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
+        )}
+        {entryStep === 3 && (
+          <div className="space-y-2">
+            {[
+              ['Monthly listeners', listeners || 'not set'],
+              ['Followers', followers || 'not set'],
+              ['Streaming per month', streaming ? `$${streaming}` : 'estimated for you'],
+            ].map(([k, v]) => (
+              <div key={k} className="flex items-center justify-between rounded-xl bg-crwn-surface border border-crwn-elevated px-4 py-3">
+                <span className="text-sm text-crwn-text-secondary">{k}</span>
+                <span className="text-sm font-semibold text-crwn-text">{v}</span>
+              </div>
+            ))}
+          </div>
         )}
       </Wizard>
     </div>
@@ -521,6 +544,9 @@ export function WorthExperience({
       <div className="text-crwn-text-secondary mb-6">
         on the table every month{hasNumber ? `. That's ${fmtDollars(result.netAnnualCents)} a year` : ''}
       </div>
+      {/* PRIMARY CTA sits directly under the number, above the supporting stats, so it is in the
+          first viewport on a phone. The derivation and everything else stay below. */}
+      {resultCta}
       {statsGrid}
     </div>
   );
@@ -574,7 +600,6 @@ export function WorthExperience({
         ) : (
           <>
             {resultCard}
-            {resultCta}
             {derivationCard}
             {builderSection}
             {inputsCard}

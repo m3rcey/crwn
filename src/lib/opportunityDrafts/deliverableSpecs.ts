@@ -18,7 +18,15 @@
 
 import { RECOMMENDED_LADDER, benefitLabels } from '@/lib/tierTemplate';
 
-export type DeliverableFieldType = 'text' | 'textarea' | 'currency' | 'number' | 'option' | 'lines';
+export type DeliverableFieldType =
+  | 'text'
+  | 'textarea'
+  | 'currency'
+  | 'number'
+  | 'option'
+  | 'lines'
+  /** A list of pre-checked benefit lines the artist unchecks to remove, plus add-your-own. */
+  | 'checklist';
 
 export interface DeliverableField {
   key: string;
@@ -132,28 +140,28 @@ const SPECS: DeliverableSpec[] = [
       {
         id: 'wave', group: 'Free', label: 'The Wave', fields: [
           { key: 't0Name', type: 'text', label: 'Free tier name', max: 40, help: 'Your front door. Free, so every new fan can join and stay close.' },
-          { key: 't0Benefits', type: 'lines', label: 'What free members get', max: 800, help: 'One per line. Already written for you. Cut anything you will not do.' },
+          { key: 't0Benefits', type: 'checklist', label: 'What free members get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[0]).map((b) => ({ value: b, label: b })), help: 'Everything is on by default. Uncheck anything you will not actually do.' },
         ],
       },
       {
         id: 'inner', group: 'Paid', label: 'Inner Circle', fields: [
           { key: 't1Name', type: 'text', label: 'Tier name', max: 40 },
           { key: 't1Price', type: 'currency', label: 'Monthly price', max: 500, help: 'The price the calculator modeled. You set the real number.' },
-          { key: 't1Benefits', type: 'lines', label: 'What they get', max: 800, help: 'One per line. Only promise what you can deliver every month.' },
+          { key: 't1Benefits', type: 'checklist', label: 'What they get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[1]).map((b) => ({ value: b, label: b })), help: 'Everything is on by default. Uncheck anything you will not actually do.' },
         ],
       },
       {
         id: 'vault', group: 'Paid', label: 'The Vault', fields: [
           { key: 't2Name', type: 'text', label: 'Tier name', max: 40 },
           { key: 't2Price', type: 'currency', label: 'Monthly price', max: 500 },
-          { key: 't2Benefits', type: 'lines', label: 'What they get', max: 800, help: 'The monthly unlock comes from your existing backlog, not something new each month.' },
+          { key: 't2Benefits', type: 'checklist', label: 'What they get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[2]).map((b) => ({ value: b, label: b })), help: 'The monthly unlock comes from your existing backlog, not something new each month.' },
         ],
       },
       {
         id: 'throne', group: 'Paid', label: 'Throne', fields: [
           { key: 't3Name', type: 'text', label: 'Tier name', max: 40 },
           { key: 't3Price', type: 'currency', label: 'Monthly price', max: 1000 },
-          { key: 't3Benefits', type: 'lines', label: 'What they get', max: 800, help: 'Your top supporters. Keep this small enough to actually serve.' },
+          { key: 't3Benefits', type: 'checklist', label: 'What they get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[3]).map((b) => ({ value: b, label: b })), help: 'Your top supporters. Uncheck anything you cannot serve at this level.' },
         ],
       },
     ],
@@ -855,7 +863,7 @@ export function sanitizeDeliverableValues(spec: DeliverableSpec, input: unknown)
       const n = Number(v);
       if (!Number.isFinite(n)) continue;
       out[f.key] = Math.min(Math.max(0, Math.round(n)), f.max ?? 1_000_000);
-    } else if (f.type === 'lines') {
+    } else if (f.type === 'lines' || f.type === 'checklist') {
       const arr = Array.isArray(v) ? v : String(v).split('\n');
       out[f.key] = arr
         .map((x) => clean(String(x), 200))

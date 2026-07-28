@@ -73,13 +73,21 @@ describe('PublicToolClient page order (shared template for 16 tools + OYF)', () 
 describe('Worth page order', () => {
   it('the builder follows the result, CTA and derivation, before the inputs and email card', () => {
     const flow = worth.slice(worth.indexOf('{useEntryWizard ? ('));
-    const order = ['{resultCard}', '{resultCta}', '{derivationCard}', '{builderSection}', '{inputsCard}', '{emailCaptureCard}'];
+    // resultCta now lives INSIDE resultCard (directly under the number, above the stats grid),
+    // which is what puts it in the first viewport.
+    const order = ['{resultCard}', '{derivationCard}', '{builderSection}', '{inputsCard}', '{emailCaptureCard}'];
     let last = -1;
     for (const marker of order) {
       const i = flow.indexOf(marker);
       expect(i, marker).toBeGreaterThan(last);
       last = i;
     }
+  });
+
+  it('the CTA renders inside the result card, above the supporting stats', () => {
+    const card = worth.slice(worth.indexOf('const resultCard ='), worth.indexOf('const derivationCard ='));
+    expect(card).toContain('{resultCta}');
+    expect(card.indexOf('{resultCta}')).toBeLessThan(card.indexOf('{statsGrid}'));
   });
 
   it('cold /worth opens as a one-question-per-screen wizard, homepage keeps its own flow', () => {

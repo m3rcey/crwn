@@ -49,6 +49,11 @@ export function LeadMagnetResult({
               <p className="text-sm text-crwn-text-secondary mt-3 leading-relaxed max-w-md mx-auto">{result.summary}</p>
             )}
           </div>
+
+          {/* PRIMARY CTA, inside the hero: holy-grail number, one sentence, then the action. The
+              supporting metric tiles come AFTER it so the CTA stays in the first viewport. */}
+          {afterHero && <div className="mt-5">{afterHero}</div>}
+
           {heroTiles?.metrics && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-6">
               {heroTiles.metrics.map((m, i) => (
@@ -64,10 +69,9 @@ export function LeadMagnetResult({
         <div>
           <h2 className="text-2xl font-bold text-crwn-text">{result.headline}</h2>
           <p className="text-sm text-crwn-text-secondary mt-1">{result.summary}</p>
+          {afterHero && <div className="mt-5">{afterHero}</div>}
         </div>
       )}
-
-      {afterHero}
 
       {bodySections.map((section) => {
         // Assumptions collapse behind a click so they never wall the page.
