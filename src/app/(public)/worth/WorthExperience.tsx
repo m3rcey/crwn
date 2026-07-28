@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { DeliverableBuilder } from '@/components/opportunity/DeliverableBuilder';
 import { ResultToBuilder } from '@/components/opportunity/ResultToBuilder';
 import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
+import { ToolHero } from '@/components/lead-magnets/ToolHero';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import {
@@ -177,6 +178,7 @@ export function WorthExperience({
 }) {
   const router = useRouter();
   const worthBuilderRef = useRef<HTMLDivElement>(null);
+  const worthWizardRef = useRef<HTMLDivElement>(null);
   // Cold /worth starts as a one-question-per-screen wizard (matching every other calculator);
   // the homepage and a personalized lead link keep their original immediate-number experience.
   const [entryStep, setEntryStep] = useState(0);
@@ -509,7 +511,7 @@ export function WorthExperience({
 
   const useEntryWizard = !homepage && !leadView && !entryDone;
   const entryWizard = (
-    <div className="max-w-lg mx-auto mb-10">
+    <div ref={worthWizardRef} className="max-w-lg mx-auto mb-10 scroll-mt-4 pt-10 md:pt-14">
       <LeadMagnetWizard
         config={ENTRY_CONFIG}
         context="public"
@@ -594,18 +596,35 @@ export function WorthExperience({
     <div className="min-h-screen bg-crwn-bg text-crwn-text">
       {homepage && <HomeNav />}
       <div className="max-w-3xl mx-auto px-4 page-fade-in py-12 sm:py-16">
-        {/* Hero */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-crwn-gold/20 flex items-center justify-center">
-            <Crown className="w-8 h-8 text-crwn-gold" />
+        {/* The marketing homepage keeps its centered hero. The CALCULATOR renders the same
+            tool hero as every other funnel on the cold view, and no hero at all once the
+            result is on screen (the number is the headline at that point). */}
+        {homepage && (
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-crwn-gold/20 flex items-center justify-center">
+              <Crown className="w-8 h-8 text-crwn-gold" />
+            </div>
+            <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
+              How much money are you leaving on the table?
+            </h1>
+            <p className="text-crwn-text-secondary max-w-xl mx-auto text-xl sm:text-2xl">
+              {"Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you're walking away from every month."}
+            </p>
           </div>
-          <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
-            How much money are you leaving on the table?
-          </h1>
-          <p className="text-crwn-text-secondary max-w-xl mx-auto text-xl sm:text-2xl">
-            {"Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you're walking away from every month."}
-          </p>
-        </div>
+        )}
+
+        {useEntryWizard && (
+          <ToolHero
+            eyebrow="Streaming Loss"
+            headline="How much money are you leaving on the table?"
+            subheadline="Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you are walking away from every month."
+            timeToComplete="1 min"
+            image="/tool-worth.jpg"
+            imageAlt="An artist alone in a dark studio staring at a disappointing number on his phone"
+            ctaLabel="See what I am worth"
+            onStart={() => worthWizardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          />
+        )}
 
         {/* Lead view (arrived from an Instagram comment): lead with the loss and the ask,
             then the derivation, then the inputs to adjust. Cold view: inputs first, because

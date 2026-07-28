@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { smartBack } from '@/lib/navigation';
 import { LeadMagnetWizard } from './LeadMagnetWizard';
 import { CrwnShowcase } from './CrwnShowcase';
 import { ToolShowcase } from './ToolShowcase';
 import { LeadMagnetResult } from './LeadMagnetResult';
+import { ToolHero } from './ToolHero';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import { ResultToBuilder } from '@/components/opportunity/ResultToBuilder';
 import { transitionFor, buildCtaFor } from '@/lib/opportunityDrafts/deliverableSpecs';
@@ -224,7 +224,16 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
 
       {phase === 'hero' && (
         <>
-          <Hero config={config} onStart={scrollToWizard} />
+          <ToolHero
+            eyebrow={config.hero.eyebrow}
+            headline={config.hero.headline}
+            subheadline={config.hero.subheadline}
+            timeToComplete={config.timeToComplete}
+            image={config.hero.image}
+            imageAlt={config.hero.imageAlt}
+            ctaLabel={config.hero.primaryCta}
+            onStart={scrollToWizard}
+          />
 
           {/* The wizard lives on the SAME page, directly below the hero. The CTA scrolls
               here rather than swapping the view, so the pitch stays one continuous page. */}
@@ -313,45 +322,3 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   );
 }
 
-function Hero({ config, onStart }: { config: LeadMagnetConfig; onStart: () => void }) {
-  return (
-    // MOBILE: the hero claims the screen (min-h in svh, so Safari's toolbars are counted)
-    // and the CTA is pushed to the bottom with mt-auto, so there is no dead space under it.
-    // The photo keeps its own 4:3 ratio so it is NOT cropped, capped at 40vh so a short
-    // phone (iPhone SE) still fits the CTA above the fold.
-    // DESKTOP: the photo sits beside the copy, costing no vertical height.
-    // Re-measure the fold on a 375x667 phone before growing any of these heights.
-    <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-5 md:gap-10 min-h-[calc(100svh-9rem)] md:min-h-0 md:py-6">
-      {/* The photo keeps its native 4:3 so it is not cropped. The cap is height-aware: a
-          short phone (iPhone SE, 667px) crops it to 30vh so the CTA still clears the fold,
-          while any phone taller than 700px shows the FULL uncropped frame. Caps are scoped
-          to max-md so they never clamp the desktop image. */}
-      <div className="relative w-full aspect-[4/3] max-md:max-h-[30vh] max-md:[@media(min-height:700px)]:max-h-[45vh] md:aspect-auto md:h-[420px] shrink-0 rounded-2xl overflow-hidden border border-crwn-elevated md:order-2">
-        <Image
-          src={config.hero.image}
-          alt={config.hero.imageAlt}
-          fill
-          priority
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
-      </div>
-
-      <div className="flex flex-1 flex-col md:block md:order-1">
-        {config.hero.eyebrow && <div className="text-xs font-semibold uppercase tracking-wide text-crwn-gold mb-2">{config.hero.eyebrow}</div>}
-        <h1 className="text-3xl md:text-4xl font-bold text-crwn-text leading-tight">{config.hero.headline}</h1>
-        <p className="text-base text-crwn-text-secondary mt-3 leading-relaxed">{config.hero.subheadline}</p>
-        <p className="text-xs text-crwn-text-secondary mt-4">Takes about {config.timeToComplete}. Free.</p>
-        <div className="mt-auto pt-5 md:mt-5 md:pt-0">
-          <button
-            onClick={onStart}
-            className="w-full md:w-auto md:px-12 py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold"
-          >
-            {config.hero.primaryCta}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
