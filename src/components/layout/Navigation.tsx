@@ -52,12 +52,15 @@ export function Navigation() {
   const router = useRouter();
   const [hubOpen, setHubOpen] = useState(false);
 
-  // Closing a hub screen with its X sets a one-shot flag and navigates back. Land
-  // here, reopen the menu, so the artist is exactly where they left off. The flag
-  // is consumed on read, so it can never reopen the menu twice or on an unrelated
-  // navigation.
+  // On every navigation the hub's open state is re-derived from the reopen flag:
+  // open iff an X-returns-to-hub was requested, closed otherwise. That single rule
+  // does two jobs. It reopens the menu after a hub screen's X (the flag is set by
+  // requestHubReopen, consumed once here so it can never fire twice or on an
+  // unrelated navigation). And it CLOSES the menu when the artist taps a tab-bar
+  // link while it is open: those links only change the pathname, so without this
+  // the z-45 overlay stayed mounted on top of the new page.
   useEffect(() => {
-    if (consumeHubReopen()) setHubOpen(true);
+    setHubOpen(consumeHubReopen());
   }, [pathname]);
 
   const isActive = (href: string, match?: string) => {
