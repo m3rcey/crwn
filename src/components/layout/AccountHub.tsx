@@ -185,8 +185,8 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Rise Mode', href: '/profile/artist', icon: TrendingUp },
         { label: 'Studio (all tools)', href: '/studio', icon: LayoutDashboard },
         { label: 'Manager', href: '/studio/manager', icon: Sparkles, hub: true },
-        { label: 'Action Plan', href: '/action-plan', icon: ClipboardList },
-        { label: 'Playbooks', href: '/playbooks', icon: BookOpen },
+        { label: 'Action Plan', href: '/action-plan', icon: ClipboardList, hub: true },
+        { label: 'Playbooks', href: '/playbooks', icon: BookOpen, hub: true },
         { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
         { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },
         { label: 'Message your fans', href: '/messages', icon: MessageCircle },
@@ -196,18 +196,18 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
     {
       // The connector tools that were Studio-grid-only. This menu is meant to be
       // the COMPLETE index, so demand/reach and fan-activation flows belong here
-      // too. They are Rise Mode flows (they honor ?returnTo), not HubPage ex-tabs,
-      // so they are plain links with no `hub` flag, same as Rise Mode itself.
+      // too. They carry ?from=hub (hub: true) and render a HubBackControl, so
+      // their X returns to this menu just like every HubPage screen does.
       title: 'Reach and fans',
       links: [
-        { label: 'Campaign Hub', href: '/campaign-hub', icon: Megaphone },
-        { label: 'Road To', href: '/campaigns', icon: Milestone },
-        { label: 'Proof of Demand', href: '/proof-of-demand', icon: Flame },
-        { label: 'City Unlocks', href: '/city-unlocks', icon: MapPin },
-        { label: 'Fan Missions', href: '/missions', icon: Target },
-        { label: 'Clip Bounties', href: '/bounties', icon: Scissors },
-        { label: 'Fan Squads', href: '/squads', icon: Shield },
-        { label: 'Fan Suggestions', href: '/missions/suggestions', icon: Lightbulb },
+        { label: 'Campaign Hub', href: '/campaign-hub', icon: Megaphone, hub: true },
+        { label: 'Road To', href: '/campaigns', icon: Milestone, hub: true },
+        { label: 'Proof of Demand', href: '/proof-of-demand', icon: Flame, hub: true },
+        { label: 'City Unlocks', href: '/city-unlocks', icon: MapPin, hub: true },
+        { label: 'Fan Missions', href: '/missions', icon: Target, hub: true },
+        { label: 'Clip Bounties', href: '/bounties', icon: Scissors, hub: true },
+        { label: 'Fan Squads', href: '/squads', icon: Shield, hub: true },
+        { label: 'Fan Suggestions', href: '/missions/suggestions', icon: Lightbulb, hub: true },
       ],
     },
     {
@@ -216,9 +216,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Music', href: '/studio/music', icon: Music, hub: true },
         { label: 'Albums', href: '/studio/albums', icon: Disc3, hub: true },
         { label: 'Shop', href: '/studio/shop', icon: ShoppingBag, hub: true },
-        { label: 'Offer Builder', href: '/offers', icon: Tag },
+        { label: 'Offer Builder', href: '/offers', icon: Tag, hub: true },
         { label: 'Live', href: '/studio/live', icon: Radio, hub: true },
-        { label: 'Live Clip Controls', href: '/clip-controls', icon: Clapperboard },
+        { label: 'Live Clip Controls', href: '/clip-controls', icon: Clapperboard, hub: true },
         { label: 'Sync', href: '/studio/sync', icon: Film, hub: true },
       ],
     },

@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, FlaskConical, Plus } from 'lucide-react';
+import { FlaskConical, Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { usePageTour } from '@/hooks/usePageTour';
 import { proofOfDemandTourSteps } from '@/lib/proofOfDemandTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
-import { smartBack } from '@/lib/navigation';
+import { HubBackControl } from '@/components/shared/HubBackControl';
 
 interface TestRow {
   id: string;
@@ -124,13 +124,7 @@ export default function ProofOfDemandPage() {
     <div className="min-h-screen">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
-        <button
-          onClick={() => smartBack(router, '/studio')}
-          className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Studio
-        </button>
+        <HubBackControl />
 
         <div className="flex items-center justify-between gap-3 mb-2" data-tour="proof-of-demand-header">
           <h1 className="text-3xl font-bold text-crwn-text">Demand Tests</h1>

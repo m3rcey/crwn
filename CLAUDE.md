@@ -109,6 +109,13 @@ Rules when you touch any of this:
   it and sets a one-shot sessionStorage flag (`requestHubReopen`) that `Navigation` consumes on
   the next pathname change to reopen the menu. Without `from=hub` the X is a normal `smartBack`,
   which is what makes Rise Mode CTAs return to Rise Mode.
+- **Connector pages that are NOT HubPage but ARE reachable from the hamburger** (offers,
+  campaigns, missions, bounties, squads, city-unlocks, proof-of-demand, campaign-hub, action-plan,
+  playbooks, clip-controls) use `HubBackControl` (`src/components/shared/HubBackControl.tsx`) for
+  their back control, NOT a hand-rolled `smartBack` button. It reads `?from=hub` and renders the
+  same top-left X + reopen-menu behavior as HubPage when opened from the hamburger, and the page's
+  normal back arrow otherwise. If you add a connector page to AccountHub, give the link `hub: true`
+  AND swap its back button to `HubBackControl`, or its X will wrongly say "Back to Studio".
 - **Link to these routes with `<Link prefetch>`, never `<button onClick={router.push}>`.** The
   prefetch is the entire reason they open instantly; a button cannot be prefetched.
 - **Never add a new `?tab=` link.** `src/lib/dashboardRoutes.ts` (`TAB_ROUTES`) is the legacy

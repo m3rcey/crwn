@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Users, ChevronRight, Loader2 } from 'lucide-react';
+import { Plus, Users, ChevronRight, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { SQUAD_TYPE_MAP, type SquadType } from '@/lib/squads';
 import { usePageTour } from '@/hooks/usePageTour';
 import { squadsTourSteps } from '@/lib/squadsTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
-import { smartBack } from '@/lib/navigation';
+import { HubBackControl } from '@/components/shared/HubBackControl';
 
 interface SquadRow {
   id: string;
@@ -81,9 +81,7 @@ export default function SquadsPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6" data-tour="squads-header">
-        <button onClick={() => smartBack(router, '/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text">
-          <ArrowLeft className="w-5 h-5" />
-        </button>
+        <HubBackControl variant="icon" />
         <div className="flex-1">
           <h1 className="text-xl font-bold text-crwn-text">Fan Squads</h1>
           <p className="text-xs text-crwn-text-secondary">Organize your fans into role-based teams.</p>

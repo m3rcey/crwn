@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, ChevronRight, Loader2, MapPin } from 'lucide-react';
+import { Plus, ChevronRight, Loader2, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { UNLOCK_TYPE_MAP, GOAL_TYPE_MAP, type UnlockType } from '@/lib/cityUnlocks';
 import { usePageTour } from '@/hooks/usePageTour';
 import { cityUnlocksTourSteps } from '@/lib/cityUnlocksTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
-import { smartBack } from '@/lib/navigation';
+import { HubBackControl } from '@/components/shared/HubBackControl';
 
 interface UnlockRow {
   id: string; title: string; target_city: string; unlock_type: UnlockType; goal_type: string;
@@ -67,7 +67,7 @@ export default function CityUnlocksPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6" data-tour="city-header">
-        <button onClick={() => smartBack(router, '/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <HubBackControl variant="icon" />
         <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">City Unlocks</h1><p className="text-xs text-crwn-text-secondary">Unlock local experiences with proven demand.</p></div>
         <TourReplayButton onClick={replay} />
         <button data-tour="city-new" onClick={() => router.push('/city-unlocks/new')} className="flex items-center gap-1.5 bg-crwn-gold text-crwn-bg font-semibold px-4 py-2 rounded-full text-sm"><Plus className="w-4 h-4" /> New</button>

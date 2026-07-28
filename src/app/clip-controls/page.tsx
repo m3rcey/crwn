@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
   ArrowRight,
   Clapperboard,
   ExternalLink,
@@ -20,7 +19,7 @@ import { capClipperRate, resolveClipperRate, type ClipperRateStep } from '@/lib/
 import { usePageTour } from '@/hooks/usePageTour';
 import { clipControlsTourSteps } from '@/lib/clipControlsTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
-import { smartBack } from '@/lib/navigation';
+import { HubBackControl } from '@/components/shared/HubBackControl';
 
 /**
  * Live Clip Controls (markers-only). The artist marks noteworthy MOMENTS on a
@@ -292,13 +291,7 @@ export default function ClipControlsPage() {
     <div className="min-h-screen">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
-        <button
-          onClick={() => smartBack(router, '/studio')}
-          className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Studio
-        </button>
+        <HubBackControl />
 
         <div className="flex items-center justify-between gap-3 mb-2" data-tour="clip-controls-header">
           <h1 className="text-3xl font-bold text-crwn-text">Live Clip Controls</h1>

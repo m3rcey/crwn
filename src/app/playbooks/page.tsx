@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Sparkles, ChevronRight, Play } from 'lucide-react';
+import { Loader2, Sparkles, ChevronRight, Play } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
@@ -10,7 +10,7 @@ import type { PlaybookDef } from '@/lib/playbooks';
 import { usePageTour } from '@/hooks/usePageTour';
 import { playbooksTourSteps } from '@/lib/playbooksTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
-import { smartBack } from '@/lib/navigation';
+import { HubBackControl } from '@/components/shared/HubBackControl';
 
 interface Rec { id: string; reason: string; playbook: PlaybookDef; }
 interface Run { id: string; playbook_id: string; playbook_name: string; status: string; }
@@ -77,7 +77,7 @@ export default function PlaybooksPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6" data-tour="playbooks-header">
-        <button onClick={() => smartBack(router, '/studio')} className="p-2 -ml-2 text-crwn-text-secondary hover:text-crwn-text"><ArrowLeft className="w-5 h-5" /></button>
+        <HubBackControl variant="icon" />
         <div className="flex-1"><h1 className="text-xl font-bold text-crwn-text">Playbooks</h1><p className="text-xs text-crwn-text-secondary">Proven campaigns, generated for you. You approve every step.</p></div>
         <TourReplayButton onClick={replay} />
       </div>

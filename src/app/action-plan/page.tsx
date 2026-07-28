@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   FlaskConical,
@@ -19,7 +18,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePageTour } from '@/hooks/usePageTour';
 import { getActionPlanTourSteps } from '@/lib/actionPlanTourSteps';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
-import { smartBack } from '@/lib/navigation';
+import { HubBackControl } from '@/components/shared/HubBackControl';
 
 type Priority = 'high' | 'medium' | 'low';
 
@@ -135,13 +134,7 @@ export default function ActionPlanPage() {
     <div className="min-h-screen">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
-        <button
-          onClick={() => smartBack(router, '/studio')}
-          className="inline-flex items-center gap-2 text-sm text-crwn-text-secondary hover:text-crwn-text transition-colors mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Studio
-        </button>
+        <HubBackControl />
 
         <div className="flex items-center justify-between gap-3 mb-2" data-tour="action-plan-header">
           <div className="flex items-center gap-2">
