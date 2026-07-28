@@ -398,25 +398,39 @@ export function WorthExperience({
         >
           Set up my page free, keep this money <ArrowRight className="w-5 h-5" />
         </a>
-      ) : (
-        <a
-          href={BOOK_CALL_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 w-full flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold py-4 px-6 rounded-full hover:bg-crwn-gold/90 transition-colors"
-        >
-          Book a free 15-min call, keep this money <ArrowRight className="w-5 h-5" />
-        </a>
-      )}
+      ) : null}
       <p className="text-center text-lg text-crwn-text-secondary mt-3">
         {claimHref
           ? 'Free to start. No card required. Your numbers save to your account.'
           : homepage
             ? 'Free to start. No card required. Set up your tiers in minutes.'
-            : 'A quick Zoom. We’ll show you exactly how to capture this. No pitch.'}
+            : 'Optional. Your offer above is the real next step.'}
       </p>
     </div>
   );
+
+  // THE BUILDER: the immediate continuation of the result. Result -> concise derivation ->
+  // this. No signup, email gate, or booking block may appear above it (homepage keeps its
+  // original marketing flow, which has no builder).
+  const builderSection = !homepage ? (
+    <section className="mb-14">
+      <SectionHeading icon={Sparkles}>Turn this estimate into an offer your fans can join</SectionHeading>
+      <p className="text-crwn-text-secondary text-xl mb-5">
+        We prefilled it from your numbers. Edit anything. Nothing is live until you publish it.
+      </p>
+      <div className="max-w-lg">
+        <DeliverableBuilder
+          toolSlug="worth"
+          conversionPayload={{
+            ladder: [
+              { name: 'Inner Circle', priceCents: RECOMMENDED_TIER_PRICES.tier1PriceCents },
+            ],
+          }}
+          onSave={(token) => router.push(buildContinueUrl('worth', token || resultToken))}
+        />
+      </div>
+    </section>
+  ) : null;
 
   // Arrived from an Instagram comment/DM: her number is already in, so lead with the loss.
   const leadView = !!resultToken;
@@ -499,15 +513,17 @@ export function WorthExperience({
         {leadView ? (
           <>
             {resultCard}
-            {emailCaptureCard}
             {derivationCard}
+            {builderSection}
             {inputsCard}
+            {emailCaptureCard}
           </>
         ) : (
           <>
             {inputsCard}
             {resultCard}
             {derivationCard}
+            {builderSection}
             {emailCaptureCard}
           </>
         )}
@@ -600,33 +616,11 @@ export function WorthExperience({
           </div>
         </section>
 
-        {/* The pre-signup deliverable. On /worth (and a personalized result link) the artist builds
-            and previews the actual membership offer their number implies, BEFORE being asked for an
-            account. Signup is requested only at the save boundary inside the builder. The homepage
-            keeps its original marketing CTA. */}
-        {!homepage && (
-          <section className="mb-14">
-            <SectionHeading icon={Sparkles}>Build the offer that captures it</SectionHeading>
-            <p className="text-crwn-text-secondary text-xl mb-5">
-              This is the offer those fans would pay for. Edit anything. Nothing is live until you publish it.
-            </p>
-            <div className="max-w-lg">
-              <DeliverableBuilder
-                toolSlug="worth"
-                conversionPayload={{
-                  ladder: [
-                    { name: 'Inner Circle', priceCents: RECOMMENDED_TIER_PRICES.tier1PriceCents },
-                  ],
-                }}
-                onSave={(token) => router.push(buildContinueUrl('worth', token || resultToken))}
-              />
-            </div>
-          </section>
+        {homepage && (
+          <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
+            {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
+          </PrimaryCTA>
         )}
-
-        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
-          {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
-        </PrimaryCTA>
 
         {/* Everything you can charge for */}
         <section className="mb-14">
@@ -705,9 +699,11 @@ export function WorthExperience({
           </div>
         </section>
 
+        {homepage && (
         <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Free to start. No card required.">
           {homepage ? 'Start free on CRWN' : 'Book my free 15-min call'}
         </PrimaryCTA>
+        )}
 
         {/* Community */}
         <section className="mb-14">
@@ -794,7 +790,7 @@ export function WorthExperience({
           <LeaderboardMock payers={hasNumber ? result.payers : undefined} />
         </section>
 
-        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="15 minutes. We’ll build your plan live.">
+        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Need help setting this up? A 15-minute call, no pitch.">
           {homepage ? 'Start free on CRWN' : 'See it on your own catalog'}
         </PrimaryCTA>
 

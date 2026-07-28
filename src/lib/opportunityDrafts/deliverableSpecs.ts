@@ -60,6 +60,14 @@ export interface DeliverableSpec {
   subtitle: string;
   /** The save-boundary CTA. Must name the artifact, never "create account". */
   saveLabel: string;
+  /**
+   * Result-to-builder transition: one line that names what was discovered and what the tool
+   * prepared. Shown immediately after the result, before the builder. Optional; a sane default is
+   * derived from the deliverable.
+   */
+  transition?: string;
+  /** The primary "advance the builder" CTA label, e.g. "Build my offer". Never routes to signup. */
+  buildCta?: string;
   steps: DeliverableStep[];
   preview: DeliverablePreview;
   /** Where the authenticated artist continues after claiming (a REAL, existing surface). */
@@ -95,6 +103,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your membership offer',
     subtitle: 'This is the offer your fans would pay for. Edit anything. Nothing is live until you publish it.',
     saveLabel: 'Save my offer',
+    transition: 'Turn this estimate into an offer your fans can join.',
+    buildCta: 'Build my offer',
     continueRoute: '/offers/new',
     continueParams: (v) => ({ lm_prefill: '1', lm_goal: 'grow-supporters', lm_tier_name: String(v.tierName || ''), ...(v.price ? { lm_price: String(v.price) } : {}) }),
     steps: [
@@ -140,6 +150,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your Vault',
     subtitle: 'Turn the unreleased material you already own into a paid tier. Edit anything before you save it.',
     saveLabel: 'Save my Vault plan',
+    transition: 'Turn your unreleased catalog into a Vault plan.',
+    buildCta: 'Build my Vault',
     continueRoute: '/offers/new',
     continueParams: (v) => ({ lm_prefill: '1', lm_goal: 'vault-access', lm_tier_name: String(v.tierName || ''), ...(v.price ? { lm_price: String(v.price) } : {}) }),
     steps: [
@@ -178,6 +190,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your founding window',
     subtitle: 'A real limited window for your first supporters. You set the cap and the dates, and they are real.',
     saveLabel: 'Save my founding offer',
+    transition: 'Turn your first supporters into founders with a real window.',
+    buildCta: 'Build my founding offer',
     continueRoute: '/offers/new',
     continueParams: (v) => ({ lm_prefill: '1', lm_goal: 'grow-supporters', lm_tier_name: String(v.tierName || ''), ...(v.price ? { lm_price: String(v.price) } : {}) }),
     steps: [
@@ -218,6 +232,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Map your fan journey',
     subtitle: 'Name what happens at each step, and where fans currently fall out. Edit every line.',
     saveLabel: 'Save my journey plan',
+    transition: 'Turn the leaks into a journey with a fix at every step.',
+    buildCta: 'Build my journey',
     continueRoute: '/offers/new',
     steps: [
       {
@@ -253,6 +269,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Schedule what you promised',
     subtitle: 'Membership benefits only work if they are on a calendar. Edit the schedule you can actually keep.',
     saveLabel: 'Save my calendar',
+    transition: 'Turn your promises into a schedule you can keep.',
+    buildCta: 'Build my calendar',
     continueRoute: '/studio/promise',
     steps: [
       {
@@ -284,6 +302,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Sketch a split scenario',
     subtitle: 'A planning sketch only. This is not an agreement, it creates no deal, and it changes nothing about money.',
     saveLabel: 'Save my scenario',
+    transition: 'Sketch the split before anyone signs anything.',
+    buildCta: 'Sketch my scenario',
     continueRoute: '/studio/team',
     steps: [
       {
@@ -310,6 +330,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Plan your ticketed live',
     subtitle: 'A real event concept you can run. Edit anything before you save it.',
     saveLabel: 'Save my event plan',
+    transition: 'Turn this estimate into a ticketed event you can run.',
+    buildCta: 'Build my event',
     continueRoute: '/studio/live',
     continueParams: (v) => ({ lm_prefill: '1', lm_title: String(v.title || ''), ...(v.price ? { lm_ticket_price: String(v.price) } : {}), ...(v.capacity ? { lm_max_slots: String(v.capacity) } : {}) }),
     steps: [
@@ -353,6 +375,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Plan your producer session',
     subtitle: 'Sell a seat in the room where the record gets made. Edit anything before you save it.',
     saveLabel: 'Save my session plan',
+    transition: 'Turn this opportunity into a session offer.',
+    buildCta: 'Build my session',
     continueRoute: '/studio/live',
     continueParams: (v) => ({ lm_prefill: '1', lm_title: String(v.title || ''), lm_submissions: '1', ...(v.price ? { lm_ticket_price: String(v.price) } : {}), ...(v.capacity ? { lm_max_slots: String(v.capacity) } : {}) }),
     steps: [
@@ -393,6 +417,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Your royalty action plan',
     subtitle: 'A checklist of the gaps your answers surfaced. This is a diagnostic, not a royalty statement and not legal or financial advice.',
     saveLabel: 'Save my action plan',
+    transition: 'Turn these gaps into an action plan with an owner and a date.',
+    buildCta: 'Review my action plan',
     continueRoute: '/royalty-readiness',
     steps: [
       {
@@ -424,6 +450,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Plan your clip campaign',
     subtitle: 'Decide what gets clipped and what the rules are. No reward is activated here.',
     saveLabel: 'Save my campaign plan',
+    transition: 'Turn your best moments into a campaign clippers can run.',
+    buildCta: 'Build my campaign plan',
     continueRoute: '/bounties/new',
     steps: [
       {
@@ -463,6 +491,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Draft your movement page',
     subtitle: 'The page a new fan lands on. Edit it and see exactly what they would see.',
     saveLabel: 'Save my page draft',
+    transition: 'Turn this into the page a new fan actually lands on.',
+    buildCta: 'Build my page',
     continueRoute: '/studio/fans',
     steps: [
       {
@@ -498,6 +528,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Design your top fan recognition',
     subtitle: 'Decide what counts and what the top fans get. No real fan data is shown here.',
     saveLabel: 'Save my leaderboard plan',
+    transition: 'Turn recognition into a reason your top fans keep showing up.',
+    buildCta: 'Build my leaderboard',
     continueRoute: '/studio/fans',
     steps: [
       {
@@ -531,6 +563,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Your build order',
     subtitle: 'This is the general order that works for most artists, not a result computed from your answers. Edit it to fit you.',
     saveLabel: 'Save my plan',
+    transition: 'Turn the right order into a plan you can actually follow.',
+    buildCta: 'Build my plan',
     continueRoute: '/profile/artist',
     steps: [
       {
@@ -560,6 +594,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Plan your share-to-earn launch',
     subtitle: 'Decide what fans share and what you say when you turn it on. Your referral rate is set in CRWN, not here.',
     saveLabel: 'Save my launch plan',
+    transition: 'Turn this estimate into a campaign your fans can share.',
+    buildCta: 'Build my campaign',
     continueRoute: '/offers/new',
     steps: [
       {
@@ -591,6 +627,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your fan mission',
     subtitle: 'One clear action, one number, one deadline. Edit it and see what fans would see.',
     saveLabel: 'Save my mission',
+    transition: 'Turn this into one clear mission your fans can complete.',
+    buildCta: 'Build my mission',
     continueRoute: '/missions/new',
     continueParams: (v) => ({ lm_prefill: '1', lm_title: String(v.title || ''), lm_description: String(v.description || ''), ...(v.goalCount ? { lm_goal: String(v.goalCount) } : {}) }),
     steps: [
@@ -631,6 +669,8 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your demand test',
     subtitle: 'Prove fans want it before you spend anything. No fan is charged by a demand test.',
     saveLabel: 'Save my test',
+    transition: 'Turn this idea into a demand test.',
+    buildCta: 'Build my test',
     continueRoute: '/proof-of-demand/new',
     continueParams: (v) => ({ lm_prefill: '1', lm_title: String(v.title || ''), lm_description: String(v.description || ''), lm_signal: String(v.signalType || 'rsvp'), ...(v.threshold ? { lm_goal: String(v.threshold) } : {}) }),
     steps: [
@@ -724,4 +764,18 @@ function clean(v: string, max: number): string {
     .replace(/[ \t]+/g, ' ')
     .trim()
     .slice(0, max);
+}
+
+/** The transition line shown between the result and the builder. */
+export function transitionFor(toolSlug: string): string {
+  const spec = getDeliverableSpec(toolSlug);
+  if (!spec) return 'Turn this result into something you can actually launch.';
+  return spec.transition || `Turn this result into ${spec.title.toLowerCase().replace(/^build |^plan |^design |^draft |^sketch |^map |^schedule |^your /,'your ')}.`;
+}
+
+/** The primary advance-the-builder CTA. Derived from the save label when not set. NEVER signup. */
+export function buildCtaFor(toolSlug: string): string {
+  const spec = getDeliverableSpec(toolSlug);
+  if (!spec) return 'Build it below';
+  return spec.buildCta || spec.saveLabel.replace(/^Save/, 'Build');
 }

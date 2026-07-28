@@ -9,8 +9,9 @@ import { LeadMagnetWizard } from './LeadMagnetWizard';
 import { CrwnShowcase } from './CrwnShowcase';
 import { ToolShowcase } from './ToolShowcase';
 import { LeadMagnetResult } from './LeadMagnetResult';
-import { LeadEmailCta } from './LeadEmailCta';
-import { continueCtaFor, buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
+import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
+import { ResultToBuilder } from '@/components/opportunity/ResultToBuilder';
+import { transitionFor, buildCtaFor } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
 import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
@@ -37,6 +38,8 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const [phase, setPhase] = useState<Phase>('loading');
   // Signup-timing experiment variant for the Own Your Fans builder. 'save' = control (current).
   const [signupBoundary, setSignupBoundary] = useState<'save' | 'preview'>('save');
+  // Anchor for the result-to-builder transition ("the builder is the CTA").
+  const builderRef = useRef<HTMLDivElement>(null);
   const wizardRef = useRef<HTMLDivElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
   const [values, setValues] = useState<LeadMagnetInputValues>({});
@@ -247,30 +250,27 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       )}
 
       {phase === 'full' && result && (
-        // The result is NOT gated. They already paid with 2-3 minutes in the wizard, so
-        // walling the reward behind an email is the worst possible place to add friction.
-        // Show the plan, then ask: build it in CRWN (what we actually want), or optionally
-        // have it emailed. Same model as /worth.
+        // Universal Opportunity Funnel page order: result -> transition -> BUILDER -> save boundary,
+        // then (and only then) secondary actions and supporting content. The builder IS the CTA.
+        // No signup link, email gate, or booking block may appear before the builder.
         <div className="space-y-5">
           <LeadMagnetResult
             config={config}
             result={result}
             mode="full"
             afterHero={
-              <LeadEmailCta
-                claimed={false}
-                claimHref={buildContinueUrl(config.slug, publicToken)}
+              <ResultToBuilder
                 toolSlug={config.slug}
-                ctaLabel={continueCtaFor(config.slug)}
+                transition={config.slug === OYF_TOOL_KEY ? 'Turn this into a fan page you actually own.' : transitionFor(config.slug)}
+                buildCta={config.slug === OYF_TOOL_KEY ? 'Build my fan page' : buildCtaFor(config.slug)}
+                builderRef={builderRef}
               />
             }
           />
 
-          {config.slug === OYF_TOOL_KEY ? (
-            // Own Your Fans: instead of a bare "create account" button right after the calculator,
-            // let the artist BUILD their fan-capture page first. Signup is deferred to the save
-            // boundary inside the builder ("Save my fan page").
-            <div className="pt-1">
+          {/* THE BUILDER: the immediate continuation of the result. */}
+          <div ref={builderRef} className="scroll-mt-4 pt-1">
+            {config.slug === OYF_TOOL_KEY ? (
               <FanCaptureBuilder
                 mode="anonymous"
                 inputs={{ social_followers: Number(values.social_followers) || 0 }}
@@ -278,24 +278,19 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
                 onFinish={onFinishFanPage}
                 finishLabel="Save my fan page"
               />
-            </div>
-          ) : hasDeliverable(config.slug) ? (
-            // Every other tool: build and preview the recommended deliverable BEFORE signup. The
-            // result CTA never routes straight to /signup; identity is asked for only at the save
-            // boundary inside the builder ("Save my offer", "Save my plan", ...).
-            <div className="pt-1">
+            ) : hasDeliverable(config.slug) ? (
               <DeliverableBuilder
                 toolSlug={config.slug}
                 conversionPayload={(result.conversionPayload || {}) as Record<string, unknown>}
                 onSave={onSaveDeliverable}
               />
-            </div>
-          ) : (
-            <div className="pt-1">
+            ) : (
               <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
-            </div>
-          )}
+            )}
+          </div>
 
+          {/* Secondary action, BELOW the builder: optional "email my results" with real consent
+              (persists the result + nurture attribution). Clearly subordinate to the save boundary. */}
           {resultId ? (
             <ResultActions config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
           ) : (
@@ -308,8 +303,7 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             Explore another CRWN tool
           </button>
 
-          {/* This tool's own mockups (the thing the result tells them to build), then
-              the full CRWN pitch under it, same as the tokenized result page. */}
+          {/* Supporting content, last: this tool's own mockups, then the CRWN app explanation. */}
           <ToolShowcase slug={config.slug} />
           <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
         </div>

@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — The builder is the CTA: universal page-composition correction
+
+Founder-verified defect corrected: the builders existed but the pages kept their old conversion
+architecture (a signup CTA embedded in the result hero on all 16 shared-template tools; on /worth
+the builder sat below five marketing sections and multiple book-a-call CTAs).
+
+**Root cause was ONE shared slot:** `PublicToolClient` rendered `LeadEmailCta` (email gate + gold
+signup link) in the result's `afterHero`, before the builder, on every tool. Fixed at the shared
+layer, not per page.
+
+- **New page order (all 16 tools + OYF):** result -> `ResultToBuilder` transition (tool-specific
+  "Build my X", scrolls to and focuses the builder, never navigates) -> BUILDER -> email-my-results
+  (consent-carrying `LeadCaptureForm`, demoted below) -> explore link -> ToolShowcase -> CrwnShowcase.
+  Nothing routes to signup before the builder; the save boundary inside the builder is the only
+  identity ask.
+- **Spec-driven transitions:** `transition` + `buildCta` added to every deliverable spec
+  (`transitionFor`/`buildCtaFor` derive defaults). Founder-approved copy on the priority tools:
+  Worth "Turn this estimate into an offer your fans can join." / Share-to-Earn "...a campaign your
+  fans can share." / Executive Producer "Turn this opportunity into a session offer."
+- **/worth reorder:** result -> derivation ("How we got to $X/mo") -> builder -> inputs -> email
+  card. The misleading "Book a free 15-min call, keep this money" CTA is REMOVED; the two upper
+  marketing PrimaryCTA blocks are homepage-only; exactly one optional help CTA remains, reframed
+  "Need help setting this up? A 15-minute call, no pitch." Formulas and values untouched. The
+  homepage (`homepage=true`) keeps its original marketing flow (it has no builder).
+- **`LeadEmailCta`** gained a `secondary` mode (email only, no signup link) for remaining call sites.
+- **Structural tests** (`pageComposition.test.ts`): source-order assertions for the shared template
+  and /worth, CTA-copy contract (no signup/account/booking words, no em dashes), priority-tool
+  transitions. 274 tests pass. Build clean. `sw.js` v281.
+- **Known limitations:** the tokenized share page (`/tools/[slug]/result/[token]`) still uses
+  `LeadEmailCta` in default mode (it has no builder; flagged for a follow-up); no real-browser
+  visual verification (bundle + structural tests only); OYF experiment variants untouched.
+
 ## 2026-07-27 — Universal pre-signup deliverable: every public tool now builds something before signup
 
 **Defect corrected.** The previous Opportunity Funnel phases delivered architecture plus ONE exemplar
