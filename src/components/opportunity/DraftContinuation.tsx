@@ -73,43 +73,33 @@ export function DraftContinuation({ token }: { token: string }) {
   }
 
   const nothingToShow = !draft.opportunitySummary && items.length === 0;
+  const claim = spec.claimLine || spec.signupContext;
+
   if (nothingToShow) {
-    // Still explain why the account is being created. Never an empty block.
     return (
-      <div className="mb-6 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 text-center">
-        <p className="text-sm text-crwn-text">{spec.signupContext}</p>
-        <p className="text-xs text-crwn-text-secondary mt-1">Your draft is already saved and waiting.</p>
+      <div className="mb-5 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 text-center">
+        <p className="text-sm text-crwn-text">{claim}</p>
       </div>
     );
   }
 
+  // Deliberately compact: the founder needs the signup FORM above the fold, so this is one card,
+  // not three. The number, how to claim it, and a one-line proof of what is already built.
   return (
-    <div className="mb-6 space-y-3">
+    <div className="mb-5 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.08] px-4 py-4 text-center">
       {draft.opportunitySummary && (
-        <div className="rounded-2xl border border-crwn-gold/30 bg-gradient-to-b from-crwn-gold/15 to-crwn-gold/[0.04] p-5 text-center">
-          <div className="text-xs uppercase tracking-wide text-crwn-text-secondary">You&apos;re leaving roughly</div>
-          <div className="text-4xl sm:text-5xl font-bold text-crwn-gold leading-none mt-2">{draft.opportunitySummary}</div>
-          <div className="text-xs text-crwn-text-secondary mt-2">A planning estimate, not a guarantee.</div>
+        <div className="text-2xl sm:text-3xl font-bold text-crwn-gold leading-tight">
+          {draft.opportunitySummary}
         </div>
       )}
-
+      <p className="text-sm text-crwn-text mt-2 leading-snug">{claim}</p>
       {items.length > 0 && (
-        <div className="rounded-2xl border border-crwn-elevated bg-crwn-surface p-4">
-          <div className="text-sm font-semibold text-crwn-text mb-2">What you already built</div>
-          <ul className="space-y-1.5">
-            {items.map((it, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-crwn-text">
-                <Check className="w-4 h-4 text-crwn-gold shrink-0 mt-0.5" />
-                <span>
-                  {it.title}
-                  {it.detail && <span className="text-crwn-text-secondary"> · {it.detail}</span>}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="text-xs text-crwn-text-secondary mt-3">{spec.signupContext}</p>
-        </div>
+        <p className="text-xs text-crwn-text-secondary mt-2">
+          {items.length} {items.length === 1 ? 'item' : 'items'} already built and waiting:{' '}
+          {items.map((i) => i.title).filter(Boolean).slice(0, 4).join(', ')}
+        </p>
       )}
+      <p className="text-[11px] text-crwn-text-secondary mt-1">A planning estimate, not a guarantee.</p>
     </div>
   );
 }

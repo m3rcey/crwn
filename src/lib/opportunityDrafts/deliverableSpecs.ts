@@ -85,6 +85,11 @@ export interface DeliverableSpec {
    * already built" rather than "create an account". Never generic.
    */
   signupContext?: string;
+  /**
+   * The compact action line on the signup screen, directly under the number. Says how the artist
+   * actually claims it. Kept short so the signup form stays above the fold.
+   */
+  claimLine?: string;
   steps: DeliverableStep[];
   preview: DeliverablePreview;
   /** Where the authenticated artist continues after claiming (a REAL, existing surface). */
@@ -127,6 +132,7 @@ const SPECS: DeliverableSpec[] = [
     transition: 'Turn this estimate into an offer your fans can join.',
     buildCta: 'Build my offer',
     signupContext: 'Create your account to save your membership system and publish it inside the CRWN app.',
+    claimLine: 'Claim it by signing up, making your memberships live with your catalog, and sharing your link.',
     continueRoute: '/offers/new',
     // The entry PAID tier is what the offer builder drafts (plan-legal); the rest ride along as the
     // saved ladder the artist already reviewed.
@@ -204,6 +210,7 @@ const SPECS: DeliverableSpec[] = [
     subtitle: 'Turn the unreleased material you already own into a paid tier. Edit anything before you save it.',
     saveLabel: 'Save my Vault',
     signupContext: 'Create your account to save your Vault and start releasing exclusive content.',
+    claimLine: 'Claim it by signing up, filling your Vault from your catalog, and sharing your link.',
     transition: 'Turn your unreleased catalog into a Vault plan.',
     buildCta: 'Build my Vault',
     continueRoute: '/offers/new',
@@ -435,6 +442,7 @@ const SPECS: DeliverableSpec[] = [
     subtitle: 'Sell a seat in the room where the record gets made. Edit anything before you save it.',
     saveLabel: 'Save my session',
     signupContext: 'Create your account to save your session offer and invite fans.',
+    claimLine: 'Claim it by signing up, scheduling your session, and selling the seats.',
     transition: 'Turn this opportunity into a session offer.',
     buildCta: 'Build my session',
     continueRoute: '/studio/live',
@@ -670,6 +678,7 @@ const SPECS: DeliverableSpec[] = [
     transition: 'Turn this estimate into a campaign your fans can share.',
     buildCta: 'Build my campaign',
     signupContext: 'Create your account to save your referral campaigns, get your share links, and start earning from fan referrals.',
+    claimLine: 'Claim it by signing up, turning on share-to-earn, and giving your fans their links.',
     continueRoute: '/offers/new',
     continueParams: () => ({ lm_prefill: '1', lm_goal: 'grow-supporters', lm_share_on: '1' }),
     steps: [

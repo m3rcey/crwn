@@ -53,11 +53,11 @@ export default function SignupPage() {
   return (
     <div className="relative min-h-screen">
       <BackgroundImage src="/backgrounds/bg-auth.jpg" />
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
+      <div className={`relative z-10 min-h-screen flex flex-col items-center p-4 ${signupContext ? "justify-start pt-6" : "justify-center"}`}>
         <div className="w-full max-w-md page-fade-in">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-crwn-gold mb-2">CRWN</h1>
-            <p className="text-crwn-text-secondary">{signupContext ? 'Save what you built' : 'Create your account'}</p>
+          <div className={`text-center ${signupContext ? 'mb-4' : 'mb-8'}`}>
+            <h1 className={`font-bold text-crwn-gold ${signupContext ? 'text-2xl mb-0.5' : 'text-4xl mb-2'}`}>CRWN</h1>
+            {!signupContext && <p className="text-crwn-text-secondary">Create your account</p>}
           </div>
 
           {pendingResultToken ? (
@@ -71,8 +71,8 @@ export default function SignupPage() {
             )
           )}
 
-          <div className="neu-raised p-8">
-            <h2 className="text-xl font-semibold text-crwn-text mb-6 text-center">Sign Up</h2>
+          <div className={`neu-raised ${signupContext ? 'p-5' : 'p-8'}`}>
+            <h2 className={`text-xl font-semibold text-crwn-text text-center ${signupContext ? 'mb-4' : 'mb-6'}`}>Sign Up</h2>
             <AuthForm mode="signup" pendingResultToken={pendingResultToken} onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
               // New signups go into onboarding, not the feed. (Only reached when email
               // confirmation is off and signUp returns an immediate session.)
