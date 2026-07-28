@@ -42,10 +42,14 @@ export function ConfirmModal({
       <div className="relative neu-modal p-6 max-w-sm w-full" style={{ animation: 'fadeInUp 0.3s ease-out' }}>
         <h3 className="text-lg font-semibold text-crwn-text mb-2">{title}</h3>
         <p className="text-sm text-crwn-text-secondary mb-6">{message}</p>
-        <div className="flex gap-3">
+        {/* Buttons are rounded RECTANGLES, not full pills: a 9999px radius turns a
+            two-line label into an oval blob. !rounded-2xl reliably beats the
+            border-radius baked into the neu-* classes; min-h + leading-tight keep
+            a one-line and a wrapped label the same clean height. */}
+        <div className="flex items-stretch gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 neu-button py-2.5 text-crwn-text-secondary text-sm font-medium press-scale"
+            className="flex-1 min-h-[46px] px-3 neu-button !rounded-2xl py-2.5 text-crwn-text-secondary text-sm font-medium leading-tight press-scale"
           >
             {cancelText}
           </button>
@@ -54,7 +58,7 @@ export function ConfirmModal({
               hapticMedium();
               onConfirm();
             }}
-            className={`flex-1 py-2.5 rounded-full text-sm font-semibold press-scale ${
+            className={`flex-1 min-h-[46px] px-3 py-2.5 !rounded-2xl text-sm font-semibold leading-tight press-scale ${
               variant === 'danger'
                 ? 'bg-crwn-error text-white'
                 : 'neu-button-accent text-crwn-bg'

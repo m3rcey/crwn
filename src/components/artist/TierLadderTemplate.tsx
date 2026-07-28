@@ -421,7 +421,7 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
               .map((b) => b.label.toLowerCase())
               .join(', ')}). Only publish what you can realistically keep up with. You can edit or remove benefits anytime.`
           }
-          confirmText="I can deliver this, publish it"
+          confirmText="I can deliver this"
           onConfirm={() => {
             const tile = tiles.find((t) => t.def.key === confirmDef.key);
             setConfirmDef(null);
