@@ -41,7 +41,12 @@ export function DraftContinuation({ token }: { token: string }) {
   const spec = getDeliverableSpec(draft.toolSlug);
   if (!spec) return null;
 
-  const v = draft.values || {};
+  // A draft saved before this tool's fields changed carries stale keys, so the server's sanitize
+  // returns little or nothing. Fall back to the spec's generated defaults so the artist still sees
+  // WHAT they built rather than an empty header. Their own values always win.
+  const stored = draft.values || {};
+  const hasStored = Object.values(stored).some((x) => (Array.isArray(x) ? x.length : String(x ?? '').length));
+  const v: DraftValues = hasStored ? { ...spec.prefill({}), ...stored } : spec.prefill({});
   const asText = (x: unknown) => (typeof x === 'string' ? x : x == null ? '' : String(x));
   const asList = (x: unknown) => (Array.isArray(x) ? x.filter((i) => typeof i === 'string' && i.trim()) : []);
 
@@ -65,6 +70,17 @@ export function DraftContinuation({ token }: { token: string }) {
     if (title) items.push({ title });
     const bene = spec.preview.benefitsKey ? asList(v[spec.preview.benefitsKey]) : [];
     for (const b of bene.slice(0, 4)) items.push({ title: b });
+  }
+
+  const nothingToShow = !draft.opportunitySummary && items.length === 0;
+  if (nothingToShow) {
+    // Still explain why the account is being created. Never an empty block.
+    return (
+      <div className="mb-6 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 text-center">
+        <p className="text-sm text-crwn-text">{spec.signupContext}</p>
+        <p className="text-xs text-crwn-text-secondary mt-1">Your draft is already saved and waiting.</p>
+      </div>
+    );
   }
 
   return (

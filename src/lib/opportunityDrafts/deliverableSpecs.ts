@@ -683,25 +683,25 @@ const SPECS: DeliverableSpec[] = [
       {
         id: 'c0', group: 'Campaigns', label: 'The Wave', fields: [
           { key: 'c0Name', type: 'text', label: 'Offer name', max: 40 },
-          { key: 'c0Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'The Wave is your free front door: free tracks and posts, community access, public livestreams.' },
+          { key: 'c0Message', type: 'textarea', label: 'The message your fans send to their friends', max: 400, help: 'The Wave is your free front door: free tracks and posts, community access, public livestreams.' },
         ],
       },
       {
         id: 'c1', group: 'Campaigns', label: 'Inner Circle', fields: [
           { key: 'c1Name', type: 'text', label: 'Offer name', max: 40 },
-          { key: 'c1Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'Inner Circle: exclusive tracks and demos, 7-day early access, private posts, a vote on drops.' },
+          { key: 'c1Message', type: 'textarea', label: 'The message your fans send to their friends', max: 400, help: 'Inner Circle: exclusive tracks and demos, 7-day early access, private posts, a vote on drops.' },
         ],
       },
       {
         id: 'c2', group: 'Campaigns', label: 'The Vault', fields: [
           { key: 'c2Name', type: 'text', label: 'Offer name', max: 40 },
-          { key: 'c2Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'The Vault: unreleased songs, the full private archive, and a monthly unlock from your backlog.' },
+          { key: 'c2Message', type: 'textarea', label: 'The message your fans send to their friends', max: 400, help: 'The Vault: unreleased songs, the full private archive, and a monthly unlock from your backlog.' },
         ],
       },
       {
         id: 'c3', group: 'Campaigns', label: 'Throne', fields: [
           { key: 'c3Name', type: 'text', label: 'Offer name', max: 40 },
-          { key: 'c3Message', type: 'textarea', label: 'The message fans send', max: 400, help: 'Throne: limited memberships, first listen, supporter credits, and private group listening events.' },
+          { key: 'c3Message', type: 'textarea', label: 'The message your fans send to their friends', max: 400, help: 'Throne: limited memberships, first listen, supporter credits, and private group listening events.' },
         ],
       },
     ],
@@ -717,8 +717,10 @@ const SPECS: DeliverableSpec[] = [
     },
     prefill: () => {
       const [wave, inner, vault, throne] = RECOMMENDED_LADDER;
+      // Written in the FAN's voice, because a fan is the one sending it to their friends. It says
+      // what the friend gets, and is honest that the sharer earns something for the referral.
       const msg = (name: string, hook: string) =>
-        `I moved everything to my own place. ${hook} Join ${name} through my link and I get to keep more of it, which means more music, faster.`;
+        `You need to hear this. Everything they make lives in one place now, and ${name} gets you ${hook} I get a small cut when you join through my link, which is the only reason I can keep putting people on.`;
       return {
         incentive: 'A cut of what the fans they bring pay, for as long as those fans stay',
         explanation: 'You get your own link. Anyone who joins through it counts as yours, and you earn a share of what they pay for as long as they stay.',
@@ -728,13 +730,13 @@ const SPECS: DeliverableSpec[] = [
           'Tell them exactly what they get for joining',
         ],
         c0Name: wave.name,
-        c0Message: msg(wave.name, 'It is free: the music, the posts, the community, all of it.'),
+        c0Message: msg(wave.name, 'the music, the posts, and the community for free.'),
         c1Name: inner.name,
-        c1Message: msg(inner.name, 'Exclusive tracks, demos, and everything a week before anyone else.'),
+        c1Message: msg(inner.name, 'exclusive tracks, demos, and everything a week before anyone else.'),
         c2Name: vault.name,
-        c2Message: msg(vault.name, 'The unreleased stuff, the full archive, and something new unlocked every month.'),
+        c2Message: msg(vault.name, 'the unreleased stuff, the full archive, and something new unlocked every month.'),
         c3Name: throne.name,
-        c3Message: msg(throne.name, 'Limited spots, first listen, your name in the credits.'),
+        c3Message: msg(throne.name, 'limited spots, first listen, and your name in the credits.'),
       };
     },
   },

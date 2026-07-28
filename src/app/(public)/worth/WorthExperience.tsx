@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type ComponentTyp
 import { useRouter } from 'next/navigation';
 import { DeliverableBuilder } from '@/components/opportunity/DeliverableBuilder';
 import { ResultToBuilder } from '@/components/opportunity/ResultToBuilder';
-import { Wizard } from '@/components/ui/Wizard';
+import { LeadMagnetWizard } from '@/components/lead-magnets/LeadMagnetWizard';
+import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
 import { buildContinueUrl } from '@/lib/leadMagnets/continuationCta';
 import {
   Crown, TrendingUp, Lock, Sparkles, Check, ChevronDown, ArrowRight,
@@ -459,60 +460,74 @@ export function WorthExperience({
   // ISSUE 1: one question per screen, the same interaction model as every other CRWN calculator.
   // Scoped to the cold /worth view: the homepage keeps its instant-number marketing behavior and a
   // personalized lead link already arrives with the numbers filled in.
-  const ENTRY_STEPS = [
-    { id: 'listeners', group: 'Audience', label: 'Listeners' },
-    { id: 'followers', group: 'Audience', label: 'Followers' },
-    { id: 'streaming', group: 'Audience', label: 'Streaming' },
-    { id: 'review', group: 'Review', label: 'Review' },
-  ];
-  const ENTRY_COPY = [
-    { title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
-    { title: 'And your socials?', subtitle: 'Instagram, TikTok, all of it. Skip if you are not sure.' },
-    { title: 'What does streaming pay you?', subtitle: 'Optional. We estimate it if you leave it blank.' },
-    { title: 'Review', subtitle: 'Check your answers, then see what you are worth.' },
-  ];
+  // The SAME wizard component every other CRWN calculator uses (LeadMagnetWizard -> LeadMagnetField),
+  // driven by a synthetic config, so /worth is pixel-consistent with the tool pages: Audience /
+  // Review chips, per-step title, one question per screen, identical field and button rendering.
+  const ENTRY_CONFIG = useMemo(
+    () =>
+      ({
+        slug: 'worth',
+        name: 'Streaming Loss Calculator',
+        wizardSteps: [
+          { id: 'listeners', group: 'Audience', title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
+          { id: 'followers', group: 'Audience', title: 'And your socials?', subtitle: 'Instagram, TikTok, all of it.' },
+          { id: 'streaming', group: 'Audience', title: 'What does streaming pay you?', subtitle: 'Optional. We estimate it if you skip.' },
+          { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see what you are worth.' },
+        ],
+        inputs: [
+          {
+            key: 'monthly_listeners',
+            type: 'number',
+            label: 'Roughly how many monthly listeners do you have?',
+            required: true,
+            min: 0,
+            max: 100000000,
+            step: 'listeners',
+          },
+          {
+            key: 'followers',
+            type: 'number',
+            label: 'Roughly how many followers do you have across your socials?',
+            help: 'Leave blank if you are not sure.',
+            min: 0,
+            max: 100000000,
+            step: 'followers',
+          },
+          {
+            key: 'streaming_revenue',
+            type: 'currency',
+            label: 'What do you make from streaming each month?',
+            help: 'Optional. We estimate it from your listeners if you leave it blank.',
+            min: 0,
+            max: 1000000,
+            step: 'streaming',
+          },
+        ],
+      }) as unknown as LeadMagnetConfig,
+    [],
+  );
+
   const useEntryWizard = !homepage && !leadView && !entryDone;
-  // Same structure as every other CRWN calculator: per-step title, Audience / Review group chips,
-  // one question per screen, rendered plain on the page (no card wrapper).
   const entryWizard = (
     <div className="max-w-lg mx-auto mb-10">
-      <Wizard
-        steps={ENTRY_STEPS}
-        currentIndex={entryStep}
-        title={ENTRY_COPY[entryStep]?.title}
-        subtitle={ENTRY_COPY[entryStep]?.subtitle}
-        onBack={entryStep > 0 ? () => setEntryStep((i) => Math.max(0, i - 1)) : undefined}
-        onContinue={() => {
-          if (entryStep >= ENTRY_STEPS.length - 1) setEntryDone(true);
-          else setEntryStep((i) => i + 1);
+      <LeadMagnetWizard
+        config={ENTRY_CONFIG}
+        context="public"
+        storageKey="lm:worth:public"
+        initialValues={{
+          monthly_listeners: Number(listeners) || undefined,
+          followers: Number(followers) || undefined,
+          streaming_revenue: Number(streaming) || undefined,
+        } as unknown as Record<string, never>}
+        submitLabel="See what I am worth"
+        onComplete={(v) => {
+          const num = (x: unknown) => (Number.isFinite(Number(x)) && Number(x) > 0 ? String(Math.round(Number(x))) : '');
+          if (num(v.monthly_listeners)) setListeners(num(v.monthly_listeners));
+          if (num(v.followers)) setFollowers(num(v.followers));
+          if (num(v.streaming_revenue)) setStreaming(num(v.streaming_revenue));
+          setEntryDone(true);
         }}
-        continueLabel={entryStep >= ENTRY_STEPS.length - 1 ? 'See what I am worth' : 'Continue'}
-        stickyFooter
-      >
-        {entryStep === 0 && (
-          <Field label="Monthly listeners" hint="Spotify, Apple, anywhere" value={listeners} onChange={setListeners} placeholder="50,000" />
-        )}
-        {entryStep === 1 && (
-          <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
-        )}
-        {entryStep === 2 && (
-          <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
-        )}
-        {entryStep === 3 && (
-          <div className="space-y-2">
-            {[
-              ['Monthly listeners', listeners || 'not set'],
-              ['Followers', followers || 'not set'],
-              ['Streaming per month', streaming ? `$${streaming}` : 'estimated for you'],
-            ].map(([k, v]) => (
-              <div key={k} className="flex items-center justify-between rounded-xl bg-crwn-surface border border-crwn-elevated px-4 py-3">
-                <span className="text-sm text-crwn-text-secondary">{k}</span>
-                <span className="text-sm font-semibold text-crwn-text">{v}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </Wizard>
+      />
     </div>
   );
 

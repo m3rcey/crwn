@@ -92,7 +92,10 @@ describe('Worth page order', () => {
 
   it('cold /worth opens as a one-question-per-screen wizard, homepage keeps its own flow', () => {
     expect(worth).toContain('const useEntryWizard = !homepage && !leadView && !entryDone;');
-    expect(worth).toContain('<Wizard');
+    // Uses the SAME wizard component as every other calculator, so the UI matches exactly.
+    expect(worth).toContain('<LeadMagnetWizard');
+    expect(worth).toContain("group: 'Audience'");
+    expect(worth).toContain("group: 'Review'");
   });
 
   it('the long marketing tour is gated to the homepage, not the calculator', () => {
