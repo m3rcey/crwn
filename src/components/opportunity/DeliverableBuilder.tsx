@@ -172,8 +172,10 @@ export function DeliverableBuilder({
     trackOpportunity(JOURNEY_EVENTS.preSignupBuilderStepCompleted, { ...analyticsBase, variant: spec.steps[index].id });
     if (last) {
       trackOpportunity(JOURNEY_EVENTS.signupBoundaryReached, analyticsBase);
-      // Guarantee the work is durably saved BEFORE we ask for identity.
-      if (mode === 'anonymous' && !tokenRef.current) {
+      // ALWAYS flush at the save boundary, even when a token already exists. Previously this only
+      // ran when there was no token, so an artist resuming an older draft never wrote the latest
+      // values or the opportunity summary, and the signup screen had no number to show.
+      if (mode === 'anonymous') {
         setSaving(true);
         if (timer.current) clearTimeout(timer.current);
         await sync(values);
