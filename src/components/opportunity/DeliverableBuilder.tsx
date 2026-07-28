@@ -163,6 +163,7 @@ export function DeliverableBuilder({
         onContinue={() => void next()}
         continueLabel={last ? saveLabel || spec.saveLabel : 'Continue'}
         continueLoading={saving}
+        stickyFooter
       >
         <div className="space-y-4">
           {step.fields.map((f) => (
@@ -284,6 +285,35 @@ function Preview({ spec, values }: { spec: DeliverableSpec; values: DraftValues 
               </ul>
             )}
             <Rows spec={spec} values={values} keys={p.itemKeys} labelFor={labelFor} />
+          </div>
+        )}
+
+        {p.kind === 'ladder' && (
+          <div className="space-y-3">
+            {(p.tiers || []).map((t) => {
+              const price = t.priceKey ? values[t.priceKey] : undefined;
+              const isFree = !t.priceKey || price === '' || price == null || Number(price) === 0;
+              return (
+                <div key={t.nameKey} className="rounded-xl border border-crwn-elevated bg-crwn-surface p-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="font-semibold text-crwn-text">{asText(values[t.nameKey]) || 'Tier'}</span>
+                    <span className={`text-sm font-bold ${isFree ? 'text-crwn-text-secondary' : 'text-crwn-gold'}`}>
+                      {isFree ? 'Free' : `$${String(price)}/mo`}
+                    </span>
+                  </div>
+                  {asList(values[t.benefitsKey]).length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {asList(values[t.benefitsKey]).map((b, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-crwn-text-secondary">
+                          <Check className="w-3.5 h-3.5 text-crwn-gold shrink-0 mt-0.5" />
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 

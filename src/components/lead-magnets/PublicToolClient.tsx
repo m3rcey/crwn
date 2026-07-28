@@ -276,7 +276,7 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
                 inputs={{ social_followers: Number(values.social_followers) || 0 }}
                 signupBoundary={signupBoundary}
                 onFinish={onFinishFanPage}
-                finishLabel="Save my fan page"
+                finishLabel="Save my fan system"
               />
             ) : hasDeliverable(config.slug) ? (
               <DeliverableBuilder

@@ -16,6 +16,8 @@
 //
 // Client-safe DATA + pure functions only. No secrets, no React.
 
+import { RECOMMENDED_LADDER, benefitLabels } from '@/lib/tierTemplate';
+
 export type DeliverableFieldType = 'text' | 'textarea' | 'currency' | 'number' | 'option' | 'lines';
 
 export interface DeliverableField {
@@ -37,7 +39,7 @@ export interface DeliverableStep {
 }
 
 export interface DeliverablePreview {
-  kind: 'offer' | 'page' | 'list';
+  kind: 'offer' | 'page' | 'list' | 'ladder';
   titleKey?: string;
   subtitleKey?: string;
   priceKey?: string;
@@ -46,6 +48,8 @@ export interface DeliverablePreview {
   secondaryCtaKey?: string;
   /** For 'list': the field keys rendered as the plan/schedule/checklist body, in order. */
   itemKeys?: string[];
+  /** For 'ladder': the tiers to render as a membership ladder, in order. */
+  tiers?: { nameKey: string; priceKey?: string; benefitsKey: string }[];
   /** Small print under the preview. Used to keep planning honest (non-binding, not published). */
   note?: string;
 }
@@ -68,6 +72,11 @@ export interface DeliverableSpec {
   transition?: string;
   /** The primary "advance the builder" CTA label, e.g. "Build my offer". Never routes to signup. */
   buildCta?: string;
+  /**
+   * Builder-specific reason shown at the signup boundary, so the account ask reads as "save what you
+   * already built" rather than "create an account". Never generic.
+   */
+  signupContext?: string;
   steps: DeliverableStep[];
   preview: DeliverablePreview;
   /** Where the authenticated artist continues after claiming (a REAL, existing surface). */
@@ -96,49 +105,85 @@ const CADENCE = [
 
 // ---- the specs -----------------------------------------------------------
 const SPECS: DeliverableSpec[] = [
-  // 1. Streaming Loss / Worth -> a direct-to-fan membership offer draft.
+  // 1. Streaming Loss / Worth -> the FULL four-tier membership ladder the calculator revealed.
+  // The calculator shows The Wave / Inner Circle / The Vault / Throne, so the builder builds all
+  // four. Names, prices and benefits come from RECOMMENDED_LADDER (src/lib/tierTemplate.ts), the
+  // same canonical ladder Rise Mode Level 3 and the Tier Manager apply, so nothing is invented and
+  // the money the calculator promises is the ladder the artist actually keeps. One tier per step.
   {
     toolSlug: 'worth',
-    deliverableType: 'membership_offer',
-    title: 'Build your membership offer',
-    subtitle: 'This is the offer your fans would pay for. Edit anything. Nothing is live until you publish it.',
-    saveLabel: 'Save my offer',
+    deliverableType: 'membership_ladder',
+    title: 'Build your membership',
+    subtitle: 'All four tiers are already written from your numbers. Review each one and change anything.',
+    saveLabel: 'Save my membership',
     transition: 'Turn this estimate into an offer your fans can join.',
     buildCta: 'Build my offer',
+    signupContext: 'Create your account to save your membership system and publish it inside the CRWN app.',
     continueRoute: '/offers/new',
-    continueParams: (v) => ({ lm_prefill: '1', lm_goal: 'grow-supporters', lm_tier_name: String(v.tierName || ''), ...(v.price ? { lm_price: String(v.price) } : {}) }),
+    // The entry PAID tier is what the offer builder drafts (plan-legal); the rest ride along as the
+    // saved ladder the artist already reviewed.
+    continueParams: (v) => ({
+      lm_prefill: '1',
+      lm_goal: 'grow-supporters',
+      lm_tier_name: String(v.t1Name || ''),
+      ...(v.t1Price ? { lm_price: String(v.t1Price) } : {}),
+    }),
     steps: [
       {
-        id: 'tier', group: 'Offer', label: 'Your tier', fields: [
-          { key: 'tierName', type: 'text', label: 'Tier name', max: 40, help: 'What fans see. The calculator suggested a starting point.' },
-          { key: 'price', type: 'currency', label: 'Monthly price', max: 500, help: 'Modeled from your audience. You set the real number.' },
+        id: 'wave', group: 'Free', label: 'The Wave', fields: [
+          { key: 't0Name', type: 'text', label: 'Free tier name', max: 40, help: 'Your front door. Free, so every new fan can join and stay close.' },
+          { key: 't0Benefits', type: 'lines', label: 'What free members get', max: 800, help: 'One per line. Already written for you. Cut anything you will not do.' },
         ],
       },
       {
-        id: 'benefits', group: 'Offer', label: 'What they get', fields: [
-          { key: 'benefits', type: 'lines', label: 'Benefits', max: 600, help: 'One per line. Only promise what you can actually deliver every month.' },
+        id: 'inner', group: 'Paid', label: 'Inner Circle', fields: [
+          { key: 't1Name', type: 'text', label: 'Tier name', max: 40 },
+          { key: 't1Price', type: 'currency', label: 'Monthly price', max: 500, help: 'The price the calculator modeled. You set the real number.' },
+          { key: 't1Benefits', type: 'lines', label: 'What they get', max: 800, help: 'One per line. Only promise what you can deliver every month.' },
         ],
       },
       {
-        id: 'focus', group: 'Launch', label: 'Launch focus', fields: [
-          { key: 'focus', type: 'option', label: 'What is this membership mostly about?', options: [
-            { value: 'unreleased', label: 'Unreleased music first' },
-            { value: 'access', label: 'Access to me' },
-            { value: 'community', label: 'A community of real fans' },
-            { value: 'process', label: 'Watching the process' },
-          ] },
+        id: 'vault', group: 'Paid', label: 'The Vault', fields: [
+          { key: 't2Name', type: 'text', label: 'Tier name', max: 40 },
+          { key: 't2Price', type: 'currency', label: 'Monthly price', max: 500 },
+          { key: 't2Benefits', type: 'lines', label: 'What they get', max: 800, help: 'The monthly unlock comes from your existing backlog, not something new each month.' },
+        ],
+      },
+      {
+        id: 'throne', group: 'Paid', label: 'Throne', fields: [
+          { key: 't3Name', type: 'text', label: 'Tier name', max: 40 },
+          { key: 't3Price', type: 'currency', label: 'Monthly price', max: 1000 },
+          { key: 't3Benefits', type: 'lines', label: 'What they get', max: 800, help: 'Your top supporters. Keep this small enough to actually serve.' },
         ],
       },
     ],
-    preview: { kind: 'offer', titleKey: 'tierName', priceKey: 'price', benefitsKey: 'benefits', note: 'Preview only. Fans cannot join until you publish this offer.' },
+    preview: {
+      kind: 'ladder',
+      tiers: [
+        { nameKey: 't0Name', benefitsKey: 't0Benefits' },
+        { nameKey: 't1Name', priceKey: 't1Price', benefitsKey: 't1Benefits' },
+        { nameKey: 't2Name', priceKey: 't2Price', benefitsKey: 't2Benefits' },
+        { nameKey: 't3Name', priceKey: 't3Price', benefitsKey: 't3Benefits' },
+      ],
+      note: 'Preview only. Fans cannot join until you publish these tiers. Recognition perks are recognition only: no ownership, royalties, or revenue participation.',
+    },
     prefill: (cp) => {
-      const ladder = Array.isArray(cp.ladder) ? (cp.ladder as { name?: string; priceCents?: number }[]) : [];
-      const entry = ladder[0];
+      // Prices: prefer the calculator's own modeled ladder, else the canonical template price.
+      const modeled = Array.isArray(cp.ladder) ? (cp.ladder as { name?: string; priceCents?: number }[]) : [];
+      const paidPrice = (i: number, fallbackCents: number) => dollars(modeled[i]?.priceCents ?? fallbackCents);
+      const [wave, inner, vault, throne] = RECOMMENDED_LADDER;
       return {
-        tierName: str(entry?.name, 'Inner Circle'),
-        price: dollars(entry?.priceCents),
-        benefits: ['Unreleased music before anyone else', 'A direct line to me', 'Behind the process'],
-        focus: 'unreleased',
+        t0Name: wave.name,
+        t0Benefits: benefitLabels(wave),
+        t1Name: inner.name,
+        t1Price: paidPrice(0, inner.priceCents),
+        t1Benefits: benefitLabels(inner),
+        t2Name: vault.name,
+        t2Price: paidPrice(1, vault.priceCents),
+        t2Benefits: benefitLabels(vault),
+        t3Name: throne.name,
+        t3Price: paidPrice(2, throne.priceCents),
+        t3Benefits: benefitLabels(throne),
       };
     },
   },
@@ -149,7 +194,8 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'vault_offer',
     title: 'Build your Vault',
     subtitle: 'Turn the unreleased material you already own into a paid tier. Edit anything before you save it.',
-    saveLabel: 'Save my Vault plan',
+    saveLabel: 'Save my Vault',
+    signupContext: 'Create your account to save your Vault and start releasing exclusive content.',
     transition: 'Turn your unreleased catalog into a Vault plan.',
     buildCta: 'Build my Vault',
     continueRoute: '/offers/new',
@@ -190,6 +236,7 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your founding window',
     subtitle: 'A real limited window for your first supporters. You set the cap and the dates, and they are real.',
     saveLabel: 'Save my founding offer',
+    signupContext: 'Create your account to save your founding window and open it to your first supporters.',
     transition: 'Turn your first supporters into founders with a real window.',
     buildCta: 'Build my founding offer',
     continueRoute: '/offers/new',
@@ -231,7 +278,8 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'fan_journey',
     title: 'Map your fan journey',
     subtitle: 'Name what happens at each step, and where fans currently fall out. Edit every line.',
-    saveLabel: 'Save my journey plan',
+    saveLabel: 'Save my journey',
+    signupContext: 'Create your account to save your fan journey and start closing the leaks.',
     transition: 'Turn the leaks into a journey with a fix at every step.',
     buildCta: 'Build my journey',
     continueRoute: '/offers/new',
@@ -269,6 +317,7 @@ const SPECS: DeliverableSpec[] = [
     title: 'Schedule what you promised',
     subtitle: 'Membership benefits only work if they are on a calendar. Edit the schedule you can actually keep.',
     saveLabel: 'Save my calendar',
+    signupContext: 'Create your account to save your supporter calendar and keep every promise on schedule.',
     transition: 'Turn your promises into a schedule you can keep.',
     buildCta: 'Build my calendar',
     continueRoute: '/studio/promise',
@@ -302,6 +351,7 @@ const SPECS: DeliverableSpec[] = [
     title: 'Sketch a split scenario',
     subtitle: 'A planning sketch only. This is not an agreement, it creates no deal, and it changes nothing about money.',
     saveLabel: 'Save my scenario',
+    signupContext: 'Create your account to save this planning scenario. It stays a draft and creates no agreement.',
     transition: 'Sketch the split before anyone signs anything.',
     buildCta: 'Sketch my scenario',
     continueRoute: '/studio/team',
@@ -329,7 +379,8 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'live_event',
     title: 'Plan your ticketed live',
     subtitle: 'A real event concept you can run. Edit anything before you save it.',
-    saveLabel: 'Save my event plan',
+    saveLabel: 'Save my experience',
+    signupContext: 'Create your account to save your live experience and sell tickets to it.',
     transition: 'Turn this estimate into a ticketed event you can run.',
     buildCta: 'Build my event',
     continueRoute: '/studio/live',
@@ -374,7 +425,8 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'producer_session',
     title: 'Plan your producer session',
     subtitle: 'Sell a seat in the room where the record gets made. Edit anything before you save it.',
-    saveLabel: 'Save my session plan',
+    saveLabel: 'Save my session',
+    signupContext: 'Create your account to save your session offer and invite fans.',
     transition: 'Turn this opportunity into a session offer.',
     buildCta: 'Build my session',
     continueRoute: '/studio/live',
@@ -417,6 +469,7 @@ const SPECS: DeliverableSpec[] = [
     title: 'Your royalty action plan',
     subtitle: 'A checklist of the gaps your answers surfaced. This is a diagnostic, not a royalty statement and not legal or financial advice.',
     saveLabel: 'Save my action plan',
+    signupContext: 'Create your account to save your royalty action plan and work through it.',
     transition: 'Turn these gaps into an action plan with an owner and a date.',
     buildCta: 'Review my action plan',
     continueRoute: '/royalty-readiness',
@@ -449,7 +502,8 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'clip_campaign',
     title: 'Plan your clip campaign',
     subtitle: 'Decide what gets clipped and what the rules are. No reward is activated here.',
-    saveLabel: 'Save my campaign plan',
+    saveLabel: 'Save my campaign',
+    signupContext: 'Create your account to save your clip campaign and set it up inside the CRWN app.',
     transition: 'Turn your best moments into a campaign clippers can run.',
     buildCta: 'Build my campaign plan',
     continueRoute: '/bounties/new',
@@ -490,7 +544,8 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'movement_page',
     title: 'Draft your movement page',
     subtitle: 'The page a new fan lands on. Edit it and see exactly what they would see.',
-    saveLabel: 'Save my page draft',
+    saveLabel: 'Save my page',
+    signupContext: 'Create your account to save your movement page and publish it.',
     transition: 'Turn this into the page a new fan actually lands on.',
     buildCta: 'Build my page',
     continueRoute: '/studio/fans',
@@ -527,7 +582,8 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'leaderboard_config',
     title: 'Design your top fan recognition',
     subtitle: 'Decide what counts and what the top fans get. No real fan data is shown here.',
-    saveLabel: 'Save my leaderboard plan',
+    saveLabel: 'Save my leaderboard',
+    signupContext: 'Create your account to save your top fan leaderboard and turn it on.',
     transition: 'Turn recognition into a reason your top fans keep showing up.',
     buildCta: 'Build my leaderboard',
     continueRoute: '/studio/fans',
@@ -564,6 +620,7 @@ const SPECS: DeliverableSpec[] = [
     subtitle: 'This is the general order that works for most artists, not a result computed from your answers. Edit it to fit you.',
     saveLabel: 'Save my plan',
     transition: 'Turn the right order into a plan you can actually follow.',
+    signupContext: 'Create your account to save your build order and start working through it.',
     buildCta: 'Build my plan',
     continueRoute: '/profile/artist',
     steps: [
@@ -593,30 +650,43 @@ const SPECS: DeliverableSpec[] = [
     deliverableType: 'referral_plan',
     title: 'Plan your share-to-earn launch',
     subtitle: 'Decide what fans share and what you say when you turn it on. Your referral rate is set in CRWN, not here.',
-    saveLabel: 'Save my launch plan',
+    saveLabel: 'Save my campaign',
+    signupContext: 'Create your account to save your referral campaign and start earning from fan referrals.',
     transition: 'Turn this estimate into a campaign your fans can share.',
     buildCta: 'Build my campaign',
     continueRoute: '/offers/new',
     steps: [
       {
         id: 'offer', group: 'Offer', label: 'What they share', fields: [
-          { key: 'targetOffer', type: 'text', label: 'The offer fans will share', max: 80 },
+          { key: 'targetOffer', type: 'option', label: 'Which offer are fans sharing?', help: 'Your membership tiers, straight from the recommended ladder. Pick the one worth sharing.', options: [
+            { value: 'The Wave', label: 'The Wave (free)' },
+            { value: 'Inner Circle', label: 'Inner Circle' },
+            { value: 'The Vault', label: 'The Vault' },
+            { value: 'Throne', label: 'Throne' },
+            { value: 'Another offer', label: 'Another offer' },
+          ] },
           { key: 'instructions', type: 'lines', label: 'Exactly how to share it', max: 600, help: 'One per line. Vague asks get nothing.' },
         ],
       },
       {
         id: 'launch', group: 'Launch', label: 'The ask', fields: [
-          { key: 'incentive', type: 'text', label: 'What the sharer gets', max: 160, help: 'Your referral share is configured in CRWN. Describe it in your own words here.' },
+          { key: 'incentive', type: 'text', label: 'What the sharer gets', max: 160, help: 'Your referral share is configured in the CRWN app. Describe it in your own words here.' },
+          { key: 'explanation', type: 'textarea', label: 'How you explain it to fans', max: 300, help: 'Plain words. If a fan cannot repeat it, they will not share it.' },
           { key: 'launchMessage', type: 'textarea', label: 'Your launch message', max: 500 },
         ],
       },
     ],
-    preview: { kind: 'list', titleKey: 'targetOffer', itemKeys: ['instructions', 'incentive', 'launchMessage'], note: 'A plan. Referral rates and payouts are set inside CRWN and are not changed here.' },
+    preview: { kind: 'list', titleKey: 'targetOffer', itemKeys: ['instructions', 'incentive', 'explanation', 'launchMessage'], note: 'A plan. Referral rates and payouts are set inside CRWN and are not changed here.' },
     prefill: () => ({
-      targetOffer: '',
-      instructions: ['Send your link to three people who already play the music', 'Post the link with the clip, not on its own', 'Tell them what they actually get'],
-      incentive: 'A cut of what the fans they bring pay, for as long as they stay',
-      launchMessage: '',
+      targetOffer: 'Inner Circle',
+      instructions: [
+        'Send your link to three people who already play the music',
+        'Post the link with a clip, not on its own',
+        'Tell them exactly what they get for joining',
+      ],
+      incentive: 'A cut of what the fans they bring pay, for as long as those fans stay',
+      explanation: 'You get your own link. Anyone who joins through it counts as yours, and you earn a share of what they pay for as long as they stay.',
+      launchMessage: 'I am opening this up: if you bring people in, you earn from it. Grab your link, send it to the people who already play the music, and you get a share of what they pay for as long as they stay.',
     }),
   },
 
@@ -627,6 +697,7 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your fan mission',
     subtitle: 'One clear action, one number, one deadline. Edit it and see what fans would see.',
     saveLabel: 'Save my mission',
+    signupContext: 'Create your account to save your mission and launch it to your fans.',
     transition: 'Turn this into one clear mission your fans can complete.',
     buildCta: 'Build my mission',
     continueRoute: '/missions/new',
@@ -669,6 +740,7 @@ const SPECS: DeliverableSpec[] = [
     title: 'Build your demand test',
     subtitle: 'Prove fans want it before you spend anything. No fan is charged by a demand test.',
     saveLabel: 'Save my test',
+    signupContext: 'Create your account to save your demand test and put it in front of your fans.',
     transition: 'Turn this idea into a demand test.',
     buildCta: 'Build my test',
     continueRoute: '/proof-of-demand/new',

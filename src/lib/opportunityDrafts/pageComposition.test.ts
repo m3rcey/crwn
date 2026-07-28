@@ -100,3 +100,97 @@ describe('Worth page order', () => {
     expect(worth).toContain('Need help setting this up?');
   });
 });
+
+// ---- UX redesign: four-tier ladder, benefit CTAs, signup context, no blank boxes ----
+import { getDeliverableSpec, specFields as fieldsOf } from './deliverableSpecs';
+import { RECOMMENDED_LADDER, benefitLabels } from '@/lib/tierTemplate';
+
+describe('Streaming Loss builds the FULL four-tier ladder', () => {
+  const spec = getDeliverableSpec('worth')!;
+
+  it('has one step per tier, in ladder order', () => {
+    expect(spec.steps.map((s) => s.id)).toEqual(['wave', 'inner', 'vault', 'throne']);
+    expect(spec.deliverableType).toBe('membership_ladder');
+  });
+
+  it('prefills all four tiers from the CANONICAL template, not invented copy', () => {
+    const v = spec.prefill({});
+    const [wave, inner, vault, throne] = RECOMMENDED_LADDER;
+    expect(v.t0Name).toBe(wave.name);
+    expect(v.t1Name).toBe(inner.name);
+    expect(v.t2Name).toBe(vault.name);
+    expect(v.t3Name).toBe(throne.name);
+    expect(v.t0Benefits).toEqual(benefitLabels(wave));
+    expect(v.t3Benefits).toEqual(benefitLabels(throne));
+    // Free front door stays free; paid tiers carry the template prices.
+    expect(v.t1Price).toBe(inner.priceCents / 100);
+    expect(v.t2Price).toBe(vault.priceCents / 100);
+    expect(v.t3Price).toBe(throne.priceCents / 100);
+  });
+
+  it("prefers the calculator's own modeled prices when present", () => {
+    const v = spec.prefill({ ladder: [{ priceCents: 1200 }, { priceCents: 3000 }, { priceCents: 9000 }] });
+    expect(v.t1Price).toBe(12);
+    expect(v.t2Price).toBe(30);
+    expect(v.t3Price).toBe(90);
+  });
+
+  it('previews the ladder, and every tier maps to real fields', () => {
+    expect(spec.preview.kind).toBe('ladder');
+    const keys = new Set(fieldsOf(spec).map((f) => f.key));
+    for (const t of spec.preview.tiers || []) {
+      expect(keys.has(t.nameKey)).toBe(true);
+      expect(keys.has(t.benefitsKey)).toBe(true);
+      if (t.priceKey) expect(keys.has(t.priceKey)).toBe(true);
+    }
+    expect(spec.preview.tiers).toHaveLength(4);
+  });
+});
+
+describe('benefit-driven save CTAs and builder-specific signup context', () => {
+  it('uses the founder-approved save labels', () => {
+    expect(getDeliverableSpec('worth')!.saveLabel).toBe('Save my membership');
+    expect(getDeliverableSpec('share-to-earn-planner')!.saveLabel).toBe('Save my campaign');
+    expect(getDeliverableSpec('executive-producer-session')!.saveLabel).toBe('Save my session');
+    expect(getDeliverableSpec('vault-revenue-planner')!.saveLabel).toBe('Save my Vault');
+    expect(getDeliverableSpec('proof-of-demand-test-builder')!.saveLabel).toBe('Save my test');
+    expect(getDeliverableSpec('live-experience-calculator')!.saveLabel).toBe('Save my experience');
+  });
+
+  it('every tool explains WHY the account is needed, in its own words', () => {
+    for (const spec of DELIVERABLE_SPECS) {
+      expect(spec.signupContext, spec.toolSlug).toBeTruthy();
+      expect(spec.signupContext!.toLowerCase(), spec.toolSlug).toContain('save');
+      expect(spec.signupContext!, spec.toolSlug).not.toMatch(/[–—]/);
+    }
+    // Not generic: no two tools share the same reason.
+    const all = DELIVERABLE_SPECS.map((s) => s.signupContext);
+    expect(new Set(all).size).toBe(all.length);
+  });
+});
+
+describe('artists are not shown blank boxes', () => {
+  it('Share-to-Earn arrives with a usable launch plan and a tier to share', () => {
+    const spec = getDeliverableSpec('share-to-earn-planner')!;
+    const v = spec.prefill({});
+    expect(String(v.launchMessage).length).toBeGreaterThan(40);
+    expect(String(v.explanation).length).toBeGreaterThan(20);
+    expect(v.targetOffer).toBe('Inner Circle');
+    const offer = fieldsOf(spec).find((f) => f.key === 'targetOffer')!;
+    expect(offer.type).toBe('option');
+    // The choices ARE the canonical ladder, not a second source of tier names.
+    for (const t of RECOMMENDED_LADDER) {
+      expect(offer.options!.some((o) => o.value === t.name), t.name).toBe(true);
+    }
+  });
+
+  it('no spec leaves a required-feeling text field empty without a reason', () => {
+    // Financial fields may be blank on purpose (never invent a price), and Team Splits is
+    // deliberately blank end to end: pre-filling someone's split percentage would be dishonest.
+    for (const spec of DELIVERABLE_SPECS.filter((s) => s.toolSlug !== 'team-split-deal-builder')) {
+      const v = spec.prefill({});
+      const filled = Object.values(v).filter((x) => (Array.isArray(x) ? x.length : String(x ?? '').length)).length;
+      expect(filled, `${spec.toolSlug} prefilled fields`).toBeGreaterThan(1);
+    }
+  });
+});

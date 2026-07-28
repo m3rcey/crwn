@@ -205,6 +205,7 @@ export function FanCaptureBuilder({
         onContinue={() => void goNext()}
         continueLabel={index >= STEPS.length - 1 ? finishLabel : 'Continue'}
         continueLoading={finishing}
+        stickyFooter
       >
         {step.id === 'goal' && (
           <Field

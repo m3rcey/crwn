@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { useAuth } from '@/hooks/useAuth';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
+import { getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -15,6 +16,9 @@ export default function SignupPage() {
   // Carried into the new user record via signUp options.data, NOT localStorage, so it survives
   // email verification server-side and auto-claim can attach the result on first login.
   const pendingResultToken = searchParams.get('result') || searchParams.get('token') || undefined;
+  // Arrived from a tool's save boundary: say WHAT they are saving, in that builder's own words, so
+  // the account ask reads as "save what you already built". Read-only; changes no auth behavior.
+  const signupContext = getDeliverableSpec(searchParams.get('tool') || '')?.signupContext;
 
   useEffect(() => {
     if (recruiterCode) {
@@ -52,8 +56,15 @@ export default function SignupPage() {
         <div className="w-full max-w-md page-fade-in">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-crwn-gold mb-2">CRWN</h1>
-            <p className="text-crwn-text-secondary">Create your account</p>
+            <p className="text-crwn-text-secondary">{signupContext ? 'Save what you built' : 'Create your account'}</p>
           </div>
+
+          {signupContext && (
+            <div className="mb-6 rounded-2xl border border-crwn-gold/30 bg-crwn-gold/[0.06] p-4 text-center">
+              <p className="text-sm text-crwn-text">{signupContext}</p>
+              <p className="text-xs text-crwn-text-secondary mt-1">Your draft is already saved and waiting.</p>
+            </div>
+          )}
 
           <div className="neu-raised p-8">
             <h2 className="text-xl font-semibold text-crwn-text mb-6 text-center">Sign Up</h2>

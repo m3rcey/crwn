@@ -32,6 +32,12 @@ interface WizardProps {
   onSkip?: () => void;
   skipLabel?: string;
   onClose?: () => void;
+  /**
+   * Keep the Back/Continue footer pinned to the bottom of the viewport so the primary action is
+   * always reachable without scrolling past a long step. OPT-IN: defaults to false, so the artist
+   * setup wizard and every other existing caller render exactly as before.
+   */
+  stickyFooter?: boolean;
 }
 
 export function Wizard({
@@ -48,6 +54,7 @@ export function Wizard({
   onSkip,
   skipLabel = 'Skip for now',
   onClose,
+  stickyFooter = false,
 }: WizardProps) {
   const total = steps.length;
   const clamped = Math.min(Math.max(currentIndex, 0), Math.max(total - 1, 0));
@@ -115,8 +122,12 @@ export function Wizard({
       {/* Current screen */}
       <div className="flex-1">{children}</div>
 
-      {/* Footer */}
-      <div className="mt-6 pt-4 flex items-center gap-3">
+      {/* Footer. When sticky, the primary action stays reachable without scrolling a long step. */}
+      <div
+        className={`mt-6 pt-4 flex items-center gap-3${
+          stickyFooter ? ' sticky bottom-0 z-20 -mx-4 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-crwn-bg/95 backdrop-blur border-t border-crwn-elevated' : ''
+        }`}
+      >
         {onBack && clamped > 0 && (
           <button
             onClick={() => {

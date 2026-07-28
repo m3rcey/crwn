@@ -1,5 +1,36 @@
 # CRWN Brain — Changelog
 
+## 2026-07-27 — Builders that feel already built: four-tier ladder, sticky CTA, signup context
+
+The builders existed but still asked artists to do the work. Now the artist arrives at something
+already built, and signup reads as "save what you built".
+
+- **Streaming Loss now builds the FULL four-tier ladder** (was one tier, which broke continuity with
+  the result that shows four). Names, prices and benefits come from `RECOMMENDED_LADDER`
+  (`src/lib/tierTemplate.ts`) — the SAME canonical ladder Rise Mode Level 3 and the Tier Manager
+  apply — so nothing is invented: The Wave (free) / Inner Circle / The Vault / Throne. One tier per
+  Wizard step, then a ladder preview. Prices prefer the calculator's own modeled ladder, falling back
+  to the template. `deliverableType` is now `membership_ladder`.
+- **New `ladder` preview kind** renders all four tiers with prices and benefit lists.
+- **Above-the-fold CTA:** `Wizard` gained an OPT-IN `stickyFooter` prop (default off, so `/setup` and
+  every other caller are untouched). Both pre-signup builders enable it, so the primary action is
+  always reachable without scrolling a long step.
+- **Benefit-driven save CTAs:** Save my membership / campaign / session / Vault / test / experience /
+  mission / page / calendar / journey / leaderboard / action plan / founding offer / scenario / plan,
+  and Own Your Fans is now "Save my fan system". Configurable per spec, never hardcoded in components.
+- **Builder-specific signup context:** new `signupContext` per spec, rendered on `/signup` from the
+  existing `?tool=` param ("Create your account to save your membership system and publish it inside
+  the CRWN app"). Read-only banner; no auth behavior changed. Every tool's reason is unique.
+- **Share-to-Earn no longer starts blank:** the offer is an `OptionSelect` of the canonical ladder
+  tiers (reusing `tierTemplate`, not a second tier source), plus prefilled sharing instructions, a
+  plain-words referral explanation, and a launch message. Referral economics untouched.
+- **Section audit (second pass):** the result-to-builder path was already minimal after the previous
+  correction (result -> transition -> builder on the shared template; result -> derivation -> builder
+  on /worth). No further sections needed removing; supporting content stays below the builder.
+- Tests: 282 pass (was 274), including canonical-ladder prefill, ladder preview integrity, save-label
+  and signup-context contracts, and Share-to-Earn defaults. Build clean.
+
+
 ## 2026-07-27 — The builder is the CTA: universal page-composition correction
 
 Founder-verified defect corrected: the builders existed but the pages kept their old conversion

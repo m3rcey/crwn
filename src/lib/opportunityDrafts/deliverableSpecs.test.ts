@@ -59,7 +59,8 @@ describe('honest prefill: no invented financial figures', () => {
   it('uses the tool modeled price when one exists', () => {
     expect(getDeliverableSpec('vault-revenue-planner')!.prefill({ priceCents: 2500 }).price).toBe(25);
     expect(getDeliverableSpec('live-experience-calculator')!.prefill({ ticketPriceCents: 1500 }).price).toBe(15);
-    expect(getDeliverableSpec('worth')!.prefill({ ladder: [{ name: 'Inner Circle', priceCents: 1000 }] }).price).toBe(10);
+    // Worth is now the four-tier ladder: the entry PAID tier carries the modeled price.
+    expect(getDeliverableSpec('worth')!.prefill({ ladder: [{ name: 'Inner Circle', priceCents: 1000 }] }).t1Price).toBe(10);
   });
 });
 
@@ -91,35 +92,36 @@ describe('sensitive tools stay honest', () => {
 });
 
 describe('sanitizeDeliverableValues (public trust boundary)', () => {
-  const spec = getDeliverableSpec('worth')!;
+  const spec = getDeliverableSpec('worth')!; // four-tier ladder fields
+  const share = getDeliverableSpec('share-to-earn-planner')!;
 
   it('keeps allowlisted fields and clamps them', () => {
-    const v = sanitizeDeliverableValues(spec, { tierName: 'x'.repeat(200), price: 999999, benefits: ['a', 'b'] });
-    expect(String(v.tierName)).toHaveLength(40);
-    expect(v.price).toBe(500); // clamped to field max
-    expect(v.benefits).toEqual(['a', 'b']);
+    const v = sanitizeDeliverableValues(spec, { t1Name: 'x'.repeat(200), t1Price: 999999, t1Benefits: ['a', 'b'] });
+    expect(String(v.t1Name)).toHaveLength(40);
+    expect(v.t1Price).toBe(500); // clamped to field max
+    expect(v.t1Benefits).toEqual(['a', 'b']);
   });
 
   it('drops unknown keys entirely (no PII, no injected fields)', () => {
-    const v = sanitizeDeliverableValues(spec, { email: 'fan@example.com', artistId: 'abc', tierName: 'Inner Circle' });
+    const v = sanitizeDeliverableValues(spec, { email: 'fan@example.com', artistId: 'abc', t1Name: 'Inner Circle' });
     expect(JSON.stringify(v)).not.toContain('@');
     expect(JSON.stringify(v)).not.toContain('artistId');
-    expect(v.tierName).toBe('Inner Circle');
+    expect(v.t1Name).toBe('Inner Circle');
   });
 
   it('strips markup from copy and caps list length', () => {
-    const v = sanitizeDeliverableValues(spec, { tierName: '<script>alert(1)</script>', benefits: Array(50).fill('x') });
-    expect(String(v.tierName)).not.toContain('<');
-    expect((v.benefits as string[]).length).toBeLessThanOrEqual(20);
+    const v = sanitizeDeliverableValues(spec, { t1Name: '<script>alert(1)</script>', t1Benefits: Array(50).fill('x') });
+    expect(String(v.t1Name)).not.toContain('<');
+    expect((v.t1Benefits as string[]).length).toBeLessThanOrEqual(20);
   });
 
   it('rejects an option value outside the spec', () => {
-    expect(sanitizeDeliverableValues(spec, { focus: 'hacked' }).focus).toBeUndefined();
-    expect(sanitizeDeliverableValues(spec, { focus: 'access' }).focus).toBe('access');
+    expect(sanitizeDeliverableValues(share, { targetOffer: 'hacked' }).targetOffer).toBeUndefined();
+    expect(sanitizeDeliverableValues(share, { targetOffer: 'The Vault' }).targetOffer).toBe('The Vault');
   });
 
   it('coerces malformed numbers safely', () => {
-    expect(sanitizeDeliverableValues(spec, { price: 'abc' }).price).toBeUndefined();
-    expect(sanitizeDeliverableValues(spec, { price: -20 }).price).toBe(0);
+    expect(sanitizeDeliverableValues(spec, { t1Price: 'abc' }).t1Price).toBeUndefined();
+    expect(sanitizeDeliverableValues(spec, { t1Price: -20 }).t1Price).toBe(0);
   });
 });
