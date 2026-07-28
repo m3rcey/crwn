@@ -57,6 +57,18 @@ import {
   Sparkles,
   CalendarCheck,
   Split,
+  Megaphone,
+  Milestone,
+  Flame,
+  MapPin,
+  Target,
+  Scissors,
+  Shield,
+  Lightbulb,
+  Tag,
+  Clapperboard,
+  ClipboardList,
+  BookOpen,
 } from 'lucide-react';
 
 interface HubLink {
@@ -173,10 +185,29 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Rise Mode', href: '/profile/artist', icon: TrendingUp },
         { label: 'Studio (all tools)', href: '/studio', icon: LayoutDashboard },
         { label: 'Manager', href: '/studio/manager', icon: Sparkles, hub: true },
+        { label: 'Action Plan', href: '/action-plan', icon: ClipboardList },
+        { label: 'Playbooks', href: '/playbooks', icon: BookOpen },
         { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
         { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },
         { label: 'Message your fans', href: '/messages', icon: MessageCircle },
         { label: 'Promise Calendar', href: '/studio/promise', icon: CalendarCheck, hub: true },
+      ],
+    },
+    {
+      // The connector tools that were Studio-grid-only. This menu is meant to be
+      // the COMPLETE index, so demand/reach and fan-activation flows belong here
+      // too. They are Rise Mode flows (they honor ?returnTo), not HubPage ex-tabs,
+      // so they are plain links with no `hub` flag, same as Rise Mode itself.
+      title: 'Reach and fans',
+      links: [
+        { label: 'Campaign Hub', href: '/campaign-hub', icon: Megaphone },
+        { label: 'Road To', href: '/campaigns', icon: Milestone },
+        { label: 'Proof of Demand', href: '/proof-of-demand', icon: Flame },
+        { label: 'City Unlocks', href: '/city-unlocks', icon: MapPin },
+        { label: 'Fan Missions', href: '/missions', icon: Target },
+        { label: 'Clip Bounties', href: '/bounties', icon: Scissors },
+        { label: 'Fan Squads', href: '/squads', icon: Shield },
+        { label: 'Fan Suggestions', href: '/missions/suggestions', icon: Lightbulb },
       ],
     },
     {
@@ -185,7 +216,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Music', href: '/studio/music', icon: Music, hub: true },
         { label: 'Albums', href: '/studio/albums', icon: Disc3, hub: true },
         { label: 'Shop', href: '/studio/shop', icon: ShoppingBag, hub: true },
+        { label: 'Offer Builder', href: '/offers', icon: Tag },
         { label: 'Live', href: '/studio/live', icon: Radio, hub: true },
+        { label: 'Live Clip Controls', href: '/clip-controls', icon: Clapperboard },
         { label: 'Sync', href: '/studio/sync', icon: Film, hub: true },
       ],
     },

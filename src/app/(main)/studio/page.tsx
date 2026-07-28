@@ -59,16 +59,15 @@ const STUDIO_CARDS: StudioCard[] = [
   { href: '/missions',             title: 'Fan Missions',    image: '/studio_missions.jpg',    hueRotate: 255 },
   { href: '/bounties',             title: 'Clip Bounties',   image: '/studio_bounties.jpg',    hueRotate: 310 },
   { href: '/squads',               title: 'Fan Squads',      image: '/studio_squads.jpg',      hueRotate: 255 },
-  { href: '/studio/fans',          title: 'Fan CRM',         image: '/studio_crm.jpg',         hueRotate: 255 },
   { href: '/missions/suggestions', title: 'Fan Suggestions', image: '/studio_suggestions.jpg', hueRotate: 255 },
 
-  // 6. RUN THE BUSINESS — the brain and the money
-  { href: '/studio/analytics', title: 'Analytics',        image: '/studio_analytics.jpg',  hueRotate: 170 },
-  { href: '/action-plan',      title: 'Action Plan',      image: '/studio_actionplan.jpg', hueRotate: 170 },
-  { href: '/studio/manager',   title: 'Manager',          image: '/studio_manager.jpg',    hueRotate: 170 },
-  { href: '/playbooks',        title: 'Playbooks',        image: '/studio_playbooks.jpg',  hueRotate: 170 },
-  { href: '/studio/team',      title: 'Team Splits',      image: '/studio_team.jpg' },
-  { href: '/studio/promise',   title: 'Promise Calendar', image: '/studio_promise.jpg',    hueRotate: 170 },
+  // 6. RUN THE BUSINESS — the brain and the strategy tools you ACT in.
+  // Reference views (Analytics, Fan CRM) and set-once config (Team Splits, Promise
+  // Calendar) deliberately live in the hamburger AccountHub only, not this grid:
+  // Studio is for doing the work, the hamburger is the complete manage-it index.
+  { href: '/action-plan',    title: 'Action Plan', image: '/studio_actionplan.jpg', hueRotate: 170 },
+  { href: '/studio/manager', title: 'Manager',     image: '/studio_manager.jpg',    hueRotate: 170 },
+  { href: '/playbooks',      title: 'Playbooks',   image: '/studio_playbooks.jpg',  hueRotate: 170 },
 ];
 
 // Dark-launched tiles. Each stays hidden until its admin_settings flag is on, so
