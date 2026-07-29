@@ -49,6 +49,27 @@ interface RampSummary {
   currentPhaseKey: string | null;
 }
 
+// Where the artist actually is. Drives the one-milestone-at-a-time view: a plan that shows all
+// twelve months at once is the thing artists quit in front of.
+interface RampProgressSummary {
+  currentPhaseKey: string | null;
+  nextStep: { key: string; title: string; detail: string; href: string; dueAt: string; accelerator?: boolean; entryPriority?: boolean } | null;
+  stepsDone: number;
+  stepsTotal: number;
+  phaseStepsDone: number;
+  phaseStepsTotal: number;
+  phaseProgressPct: number;
+  overallProgressPct: number;
+  currentMrrCents: number | null;
+  nextMilestoneName: string | null;
+  nextMilestoneTargetCents: number | null;
+  centsToNextMilestone: number | null;
+  supportersToNextMilestone: number | null;
+  behindDays: number;
+  aheadDays: number;
+  projectedTotalDays: number;
+}
+
 const money = (cents: number) => `$${Math.round(cents / 100).toLocaleString()}`;
 
 interface TierHealth {
@@ -80,6 +101,7 @@ export function PromiseCalendar() {
   const [tierHealth, setTierHealth] = useState<TierHealth[]>([]);
   const [ramp, setRamp] = useState<RampSummary | null>(null);
   const [seedingRamp, setSeedingRamp] = useState(false);
+  const [progress, setProgress] = useState<RampProgressSummary | null>(null);
 
   useEffect(() => {
     fetch('/api/promise-calendar/health')
@@ -94,6 +116,7 @@ export function PromiseCalendar() {
       .then((d) => {
         if (Array.isArray(d.items)) setItems(d.items);
         setRamp(d.ramp && typeof d.ramp === 'object' ? (d.ramp as RampSummary) : null);
+        setProgress(d.progress && typeof d.progress === 'object' ? (d.progress as RampProgressSummary) : null);
         setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
@@ -238,56 +261,105 @@ export function PromiseCalendar() {
         </div>
       )}
 
-      {/* Road to the calculator number. Only renders once a ramp has been laid down. */}
-      {ramp && ramp.phases.length > 0 && (
+      {/* ONE milestone at a time.
+          The destination never moves and stays visible as a thin line at the top, but the card
+          is about the next rung only. Showing an artist the whole twelve months is showing them
+          how far away the end is, which is the thing they quit in front of. */}
+      {ramp && progress && (
         <div className="neu-raised rounded-xl p-5 mb-6">
+          {/* Destination: small, permanent, not the headline. */}
+          {ramp.targetMonthlyCents !== null && (
+            <div className="flex items-center justify-between text-[11px] text-crwn-text-secondary mb-3 pb-3 border-b border-crwn-elevated">
+              <span>
+                Destination {money(ramp.targetMonthlyCents)}/mo
+                {progress.currentMrrCents !== null && ` · you are at ${money(progress.currentMrrCents)}/mo`}
+              </span>
+              <span>{progress.overallProgressPct}%</span>
+            </div>
+          )}
+
+          {/* The milestone in play. */}
           <p className="text-xs font-semibold text-crwn-gold uppercase tracking-wide mb-1">
-            {ramp.targetMonthlyCents ? `Road to ${money(ramp.targetMonthlyCents)}/mo` : 'Your first year'}
+            {progress.nextMilestoneName ? `Milestone: ${progress.nextMilestoneName}` : 'Your first year'}
           </p>
-          <p className="text-sm text-crwn-text-secondary mb-4">
-            {ramp.targetMonthlyCents
-              ? `The number your calculator showed is a full-year number, not a launch-week one. Here is the arc, and every step below is dated on this calendar. Run the steps marked "moves it faster" on time and it lands nearer month ${Math.round(ramp.acceleratedDays / 30)} instead of month ${Math.round(ramp.totalDays / 30)}.`
-              : 'Your first year, phase by phase. Every step is dated on this calendar.'}
-          </p>
-          <div className="space-y-3">
-            {ramp.phases.map((p) => {
-              const isNow = p.key === ramp.currentPhaseKey;
-              const done = new Date(p.endsAt).getTime() < Date.now();
-              return (
-                <div
-                  key={p.key}
-                  className={`rounded-lg p-3 border ${
-                    isNow
-                      ? 'border-crwn-gold/50 bg-crwn-gold/5'
-                      : done
-                        ? 'border-crwn-elevated opacity-60'
-                        : 'border-crwn-elevated'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-3 mb-1">
-                    <span className="text-sm font-semibold text-crwn-text">
-                      {p.name}
-                      {isNow && <span className="ml-2 text-[11px] font-bold text-crwn-gold">YOU ARE HERE</span>}
-                    </span>
-                    <span className="text-sm font-bold text-crwn-gold whitespace-nowrap">
-                      {p.targetMonthlyCents !== null
-                        ? `${money(p.targetMonthlyCents)}/mo`
-                        : `Days ${p.startDay} to ${p.endDay}`}
-                    </span>
-                  </div>
-                  <p className="text-xs text-crwn-text-secondary">{p.focus}</p>
-                  <p className="text-[11px] text-crwn-text-secondary/80 mt-1">
-                    Days {p.startDay} to {p.endDay}
-                    {p.targetPayers !== null ? ` · about ${p.targetPayers.toLocaleString()} paying supporters` : ''}
-                  </p>
-                  {isNow && <p className="text-xs text-crwn-text-secondary mt-2 italic">{p.expect}</p>}
-                </div>
-              );
-            })}
+          {progress.nextMilestoneTargetCents !== null && progress.nextMilestoneTargetCents > 0 && (
+            <p className="text-2xl font-bold text-crwn-text mb-1">
+              {money(progress.nextMilestoneTargetCents)}<span className="text-base font-semibold">/mo</span>
+            </p>
+          )}
+          {progress.supportersToNextMilestone !== null && progress.supportersToNextMilestone > 0 && (
+            <p className="text-sm text-crwn-gold font-semibold mb-2">
+              {progress.supportersToNextMilestone.toLocaleString()} more paying{' '}
+              {progress.supportersToNextMilestone === 1 ? 'supporter' : 'supporters'} to get there
+            </p>
+          )}
+
+          <div className="h-2 rounded-full bg-crwn-elevated overflow-hidden mb-1">
+            <div
+              className="h-full rounded-full bg-crwn-gold transition-all duration-500"
+              style={{ width: `${progress.phaseProgressPct}%` }}
+            />
           </div>
-          <p className="text-[11px] text-crwn-text-secondary/70 mt-3">
-            Targets are projections built on your own numbers, not guarantees. They assume the
-            four-tier ladder and that you keep the promises on this calendar.
+          <p className="text-[11px] text-crwn-text-secondary mb-4">
+            {progress.phaseStepsDone} of {progress.phaseStepsTotal} steps done in this milestone
+            {progress.behindDays > 0
+              ? ` · ${progress.behindDays} ${progress.behindDays === 1 ? 'day' : 'days'} behind plan`
+              : progress.aheadDays > 0
+                ? ` · ${progress.aheadDays} ${progress.aheadDays === 1 ? 'day' : 'days'} of runway ahead`
+                : ' · on plan'}
+          </p>
+
+          {/* The single next action. */}
+          {progress.nextStep ? (
+            <div className="rounded-lg p-3 border border-crwn-gold/40 bg-crwn-gold/5">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-crwn-gold">
+                  Do this next
+                </span>
+                {progress.nextStep.accelerator && (
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-400">
+                    Moves it faster
+                  </span>
+                )}
+                {progress.nextStep.entryPriority && (
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-crwn-text-secondary">
+                    What you came for
+                  </span>
+                )}
+              </div>
+              <p className="text-sm font-semibold text-crwn-text">{progress.nextStep.title}</p>
+              <p className="text-xs text-crwn-text-secondary mt-1">{progress.nextStep.detail}</p>
+              <button
+                onClick={() => router.push(progress.nextStep!.href)}
+                className="mt-3 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-crwn-gold text-crwn-bg hover:opacity-90 transition-opacity"
+              >
+                Start this step
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-crwn-text-secondary">
+              Every step on your roadmap is done. What holds the number now is keeping the
+              promises on this calendar.
+            </p>
+          )}
+
+          {/* What is coming, named but not detailed. The rest stays locked. */}
+          {(() => {
+            const idx = ramp.phases.findIndex((p) => p.key === progress.currentPhaseKey);
+            const upcoming = idx >= 0 ? ramp.phases.slice(idx + 1, idx + 3) : [];
+            if (!upcoming.length) return null;
+            return (
+              <p className="text-[11px] text-crwn-text-secondary/70 mt-3">
+                Locked next: {upcoming.map((p) => p.name).join(', ')}. Each one opens when this
+                milestone is done.
+              </p>
+            );
+          })()}
+          <p className="text-[11px] text-crwn-text-secondary/70 mt-2">
+            Targets are projections built on your own numbers, not guarantees.
+            {progress.projectedTotalDays !== ramp.totalDays &&
+              ` At your current pace the full number lands around month ${Math.round(progress.projectedTotalDays / 30)}.`}
           </p>
         </div>
       )}

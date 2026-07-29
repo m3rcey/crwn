@@ -42,11 +42,18 @@ export interface SeedResult {
  */
 export async function seedRevenueRamp(
   db: Db,
-  args: { artistId: string; targetMonthlyCents?: number | null; startedAt?: Date },
+  args: {
+    artistId: string;
+    targetMonthlyCents?: number | null;
+    startedAt?: Date;
+    /** Calculator slug they came in through. Promotes that tool's step to the front. */
+    entryTool?: string | null;
+  },
 ): Promise<SeedResult> {
   const ramp: Ramp = buildRamp({
     targetMonthlyCents: args.targetMonthlyCents ?? null,
     startedAt: args.startedAt ?? new Date(),
+    entryTool: args.entryTool ?? null,
   });
 
   try {
@@ -81,6 +88,8 @@ export async function seedRevenueRamp(
         ramp_href: step.href,
         ramp_accelerator: step.accelerator === true,
         ramp_target_monthly_cents: ramp.targetMonthlyCents,
+        ramp_entry_tool: args.entryTool ?? null,
+        ramp_entry_priority: step.entryPriority === true,
         ramp_phase_target_monthly_cents: phase?.targetMonthlyCents ?? null,
         ramp_phase_target_payers: phase?.targetPayers ?? null,
       };
@@ -146,8 +155,38 @@ export async function loadRevenueRamp(db: Db, artistId: string): Promise<Ramp | 
     const meta = (row.metadata ?? {}) as Record<string, unknown>;
     const target =
       typeof meta.ramp_target_monthly_cents === 'number' ? meta.ramp_target_monthly_cents : null;
+    // Rebuild with the SAME entry tool, or the reloaded ramp would put the promoted step back
+    // where the catalog has it and disagree with the dates actually on their calendar.
+    const entryTool = typeof meta.ramp_entry_tool === 'string' ? meta.ramp_entry_tool : null;
 
-    return buildRamp({ targetMonthlyCents: target, startedAt: new Date(String(row.created_at)) });
+    return buildRamp({
+      targetMonthlyCents: target,
+      startedAt: new Date(String(row.created_at)),
+      entryTool,
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The artist's live MRR in cents: active subscriptions priced at their tier.
+ *
+ * Same arithmetic as `snapshotArtistMetrics`, kept to two queries here because the progress bar
+ * needs only this one number and that helper computes eight. Returns null (not zero) on failure,
+ * so the bar falls back to counting steps instead of claiming the artist earns nothing.
+ */
+export async function currentMrrCents(db: Db, artistId: string): Promise<number | null> {
+  try {
+    const [{ data: subs, error: subErr }, { data: tiers, error: tierErr }] = await Promise.all([
+      db.from('subscriptions').select('tier_id, status').eq('artist_id', artistId).eq('status', 'active'),
+      db.from('subscription_tiers').select('id, price').eq('artist_id', artistId).eq('is_active', true),
+    ]);
+    if (subErr || tierErr) return null;
+
+    const price = new Map<string, number>();
+    for (const t of tiers ?? []) price.set(String(t.id), Number(t.price) || 0);
+    return (subs ?? []).reduce((sum: number, s: { tier_id: string }) => sum + (price.get(String(s.tier_id)) ?? 0), 0);
   } catch {
     return null;
   }

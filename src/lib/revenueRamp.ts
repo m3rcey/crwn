@@ -444,6 +444,27 @@ export const RAMP_STEPS: RampStepDef[] = [
 
 // ---------------------------------------------------------------------------
 
+// Which single step gets pulled to the front for an artist who arrived through a given
+// calculator. They came in for one specific thing and saw a number attached to it; making them
+// wait three months to build that thing is how the number stops feeling like theirs. Keys are
+// the calculator slugs used everywhere else in the funnel (see leadMagnetMissions.ts). Only
+// tools that map to a LIVE feature appear here.
+export const ENTRY_TOOL_FIRST_MOVE: Record<string, string> = {
+  worth: 'build_ladder',
+  'vault-revenue-planner': 'stock_vault',
+  'share-to-earn-planner': 'turn_on_referrals',
+  'live-experience-calculator': 'first_live',
+  'own-your-fans-calculator': 'point_links',
+  'movement-page-blueprint': 'point_links',
+  'fan-mission-generator': 'first_mission',
+  'proof-of-demand-test-builder': 'demand_test',
+  'clip-to-earn-campaign-planner': 'clip_bounty',
+  'founder-window-builder': 'open_founder_window',
+};
+
+/** Day the promoted entry step is scheduled: straight after the founding window opens. */
+const ENTRY_PROMOTION_DAY = 18;
+
 export interface RampMilestone extends RampPhaseDef {
   startsAt: string; // ISO
   endsAt: string; // ISO
@@ -454,6 +475,8 @@ export interface RampMilestone extends RampPhaseDef {
 export interface RampStep extends RampStepDef {
   dueAt: string; // ISO
   phaseName: string;
+  /** Pulled forward because this is the thing their calculator was about. */
+  entryPriority?: boolean;
 }
 
 export interface Ramp {
@@ -488,7 +511,12 @@ export function netCentsPerPayer(): number {
 const DAY_MS = 86_400_000;
 
 /** The ramp for one artist: dated phases with dollar milestones, and dated steps. */
-export function buildRamp(opts: { targetMonthlyCents?: number | null; startedAt: Date }): Ramp {
+export function buildRamp(opts: {
+  targetMonthlyCents?: number | null;
+  startedAt: Date;
+  /** Calculator slug they signed up through. Promotes that tool's step to the front. */
+  entryTool?: string | null;
+}): Ramp {
   const target =
     typeof opts.targetMonthlyCents === 'number' && opts.targetMonthlyCents > 0
       ? Math.round(opts.targetMonthlyCents)
@@ -506,11 +534,23 @@ export function buildRamp(opts: { targetMonthlyCents?: number | null; startedAt:
   }));
 
   const phaseName = new Map(RAMP_PHASES.map((p) => [p.key, p.name]));
-  const steps: RampStep[] = RAMP_STEPS.map((s) => ({
-    ...s,
-    dueAt: new Date(start + s.dueDay * DAY_MS).toISOString(),
-    phaseName: phaseName.get(s.phase) ?? '',
-  }));
+  const promotedKey = opts.entryTool ? ENTRY_TOOL_FIRST_MOVE[opts.entryTool] : undefined;
+
+  const steps: RampStep[] = RAMP_STEPS.map((s) => {
+    // Promotion never moves a step LATER, and never disturbs Foundation: an artist still cannot
+    // sell before Stripe and a ladder exist, whatever they came in for.
+    const promote = s.key === promotedKey && s.dueDay > ENTRY_PROMOTION_DAY;
+    const dueDay = promote ? ENTRY_PROMOTION_DAY : s.dueDay;
+    const phase = promote ? 'founding_window' : s.phase;
+    return {
+      ...s,
+      phase,
+      dueDay,
+      dueAt: new Date(start + dueDay * DAY_MS).toISOString(),
+      phaseName: phaseName.get(phase) ?? '',
+      ...(promote ? { entryPriority: true } : {}),
+    };
+  }).sort((a, b) => a.dueDay - b.dueDay);
 
   return {
     targetMonthlyCents: target,
@@ -523,6 +563,149 @@ export function buildRamp(opts: { targetMonthlyCents?: number | null; startedAt:
     steps,
   };
 }
+
+// ---------------------------------------------------------------------------
+// PROGRESS: the next win, not the whole journey.
+//
+// Artists do not quit because the goal is hard. They quit because the next win feels too far
+// away. A game never opens with "you will beat this in 200 hours", it says punch a tree, then
+// craft a pickaxe. The destination never moves; only the next rung is ever in focus.
+//
+// So the ramp ships the arc, and THIS decides what the artist is actually shown: one milestone,
+// one next action, and a bar that moves. Everything else stays locked and quiet.
+//
+// Note what is deliberately NOT here: XP, badges and levels. The Quest Engine already owns
+// progression (`src/lib/quests`), it is built and dark. A second levelling system would be two
+// sources of truth for the same feeling. The ramp should feed it, never duplicate it.
+
+export interface RampStepState {
+  key: string;
+  /** As stored on the fulfillment event. */
+  status: 'pending' | 'completed' | 'missed' | 'overdue' | 'today' | 'upcoming';
+  dueAt: string;
+}
+
+export interface RampProgress {
+  currentPhaseKey: RampPhaseKey | null;
+  /** The single thing to do next. Null once every step is done. */
+  nextStep: RampStep | null;
+  /** The next step that compresses the timeline, when it is not already `nextStep`. */
+  nextAccelerator: RampStep | null;
+  stepsDone: number;
+  stepsTotal: number;
+  phaseStepsDone: number;
+  phaseStepsTotal: number;
+  /** 0-100. Money-based when we know their MRR, step-based otherwise. */
+  phaseProgressPct: number;
+  /** 0-100 across the whole year, same rule. */
+  overallProgressPct: number;
+  currentMrrCents: number | null;
+  /** The milestone being worked toward right now. */
+  nextMilestoneName: string | null;
+  nextMilestoneTargetCents: number | null;
+  /** How much further to the next milestone, and in supporters, which is the motivating unit. */
+  centsToNextMilestone: number | null;
+  supportersToNextMilestone: number | null;
+  /** Days late the oldest unfinished step is. 0 when on or ahead of plan. */
+  behindDays: number;
+  /** Days of runway bought by finishing early. 0 when not ahead. */
+  aheadDays: number;
+  /** Projected days to the full number given actual pace. */
+  projectedTotalDays: number;
+  projectedFinishAt: string;
+}
+
+/**
+ * Where this artist actually is, from what they have completed and what they are earning.
+ *
+ * Deliberately deterministic. "Adaptive" does not have to mean a model: re-planning from real
+ * completion dates and real MRR is adaptive, explainable, and cannot hallucinate a milestone.
+ */
+export function computeRampProgress(
+  ramp: Ramp,
+  input: { steps: RampStepState[]; currentMrrCents?: number | null },
+  now: Date = new Date(),
+): RampProgress {
+  const t = now.getTime();
+  const byKey = new Map(input.steps.map((s) => [s.key, s]));
+  const isDone = (key: string) => byKey.get(key)?.status === 'completed';
+
+  const stepsDone = ramp.steps.filter((s) => isDone(s.key)).length;
+  const incomplete = ramp.steps.filter((s) => !isDone(s.key));
+  const nextStep = incomplete[0] ?? null;
+  const nextAccelerator = incomplete.find((s) => s.accelerator && s.key !== nextStep?.key) ?? null;
+
+  // The phase in play is the one holding the next unfinished step, NOT the one the calendar
+  // date says. An artist three weeks behind is still in Founding window, and telling them they
+  // are in "Rhythm" while they have not launched is how a plan stops being believed.
+  const currentPhaseKey = nextStep?.phase ?? (phaseAt(ramp, now)?.key ?? null);
+  const phaseSteps = ramp.steps.filter((s) => s.phase === currentPhaseKey);
+  const phaseStepsDone = phaseSteps.filter((s) => isDone(s.key)).length;
+
+  // Pace. Behind = how late the oldest unfinished step is. Ahead = how far into the future the
+  // next unfinished step sits, i.e. runway bought by working early.
+  const overdue = incomplete.filter((s) => new Date(s.dueAt).getTime() < t);
+  const behindDays = overdue.length
+    ? Math.floor((t - Math.min(...overdue.map((s) => new Date(s.dueAt).getTime()))) / DAY_MS)
+    : 0;
+  const aheadDays =
+    !behindDays && nextStep ? Math.max(0, Math.floor((new Date(nextStep.dueAt).getTime() - t) / DAY_MS)) : 0;
+
+  // Re-plan. Slipping pushes the number out; working early pulls it in, floored at the
+  // accelerated bound so the projection never promises the impossible.
+  const projectedTotalDays = Math.max(
+    ramp.acceleratedDays,
+    ramp.totalDays + behindDays - Math.min(aheadDays, ramp.totalDays - ramp.acceleratedDays),
+  );
+
+  const mrr = typeof input.currentMrrCents === 'number' ? input.currentMrrCents : null;
+  const phases = ramp.phases;
+  const idx = phases.findIndex((p) => p.key === currentPhaseKey);
+  const currentPhase = idx >= 0 ? phases[idx] : null;
+  const prevTarget = idx > 0 ? (phases[idx - 1].targetMonthlyCents ?? 0) : 0;
+  const phaseTarget = currentPhase?.targetMonthlyCents ?? null;
+
+  // Money moves the bar when we know it and the band is non-zero (Foundation earns nothing by
+  // design, so there it stays a step count).
+  const moneyBand = phaseTarget !== null && phaseTarget > prevTarget;
+  const phaseProgressPct =
+    mrr !== null && moneyBand
+      ? clampPct(((mrr - prevTarget) / (phaseTarget! - prevTarget)) * 100)
+      : phaseSteps.length
+        ? clampPct((phaseStepsDone / phaseSteps.length) * 100)
+        : 0;
+
+  const overallProgressPct =
+    mrr !== null && ramp.targetMonthlyCents
+      ? clampPct((mrr / ramp.targetMonthlyCents) * 100)
+      : clampPct((stepsDone / ramp.steps.length) * 100);
+
+  const centsToNext = phaseTarget !== null && mrr !== null ? Math.max(0, phaseTarget - mrr) : null;
+  const perPayer = netCentsPerPayer();
+
+  return {
+    currentPhaseKey: (currentPhaseKey as RampPhaseKey) ?? null,
+    nextStep,
+    nextAccelerator,
+    stepsDone,
+    stepsTotal: ramp.steps.length,
+    phaseStepsDone,
+    phaseStepsTotal: phaseSteps.length,
+    phaseProgressPct,
+    overallProgressPct,
+    currentMrrCents: mrr,
+    nextMilestoneName: currentPhase?.name ?? null,
+    nextMilestoneTargetCents: phaseTarget,
+    centsToNextMilestone: centsToNext,
+    supportersToNextMilestone: centsToNext === null ? null : Math.ceil(centsToNext / perPayer),
+    behindDays,
+    aheadDays,
+    projectedTotalDays,
+    projectedFinishAt: new Date(new Date(ramp.startedAt).getTime() + projectedTotalDays * DAY_MS).toISOString(),
+  };
+}
+
+const clampPct = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
 
 /** Which phase a given date falls in. Null before the start or after day 365. */
 export function phaseAt(ramp: Ramp, at: Date = new Date()): RampMilestone | null {

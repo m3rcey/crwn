@@ -169,6 +169,15 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Make the roadmap fully adaptive, and wire it to the Quest Engine.** The ramp already re-plans
+  from real pace and real MRR, shows one milestone at a time, and promotes the step the artist's
+  entry calculator was about ([`docs/REVENUE_RAMP.md`](docs/REVENUE_RAMP.md)). What is still
+  static: the milestone percentages are assumed rather than measured, and nothing weights release
+  cadence, content output or hours available per week, because CRWN does not collect those yet.
+  Mine to build, in that order. The levelling itself belongs to the Quest Engine, which is built
+  and dark: a ramp step completing should award XP there rather than the ramp growing its own
+  badges, or there will be two progression systems telling an artist different things.
+
 - **Retarget the rest of the funnel to the customer avatar.** The scoring model, the homepage
   calculator, the loss tools' qualifying question, the nurture sequence and the brain doc are done
   (2026-07-28, [`docs/ICP.md`](docs/ICP.md)). Still mine to finish: the setup wizard assumes an

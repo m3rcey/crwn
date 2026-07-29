@@ -78,9 +78,73 @@ promise is owed to a supporter and a roadmap step is owed to yourself.
   duplicate on every existing artist's calendar.
 - **Targets are projections, not promises**, and the calendar says so under the panel.
 
+## One milestone at a time
+
+Artists do not quit because the goal is hard. They quit because **the next win feels too far
+away**. A game never opens with "you will beat this in 200 hours", it says punch a tree, then
+craft a pickaxe. The destination never moves; only the next rung is ever in focus.
+
+So the ramp holds the whole arc, and `computeRampProgress()` decides what the artist is actually
+shown on the Promise Calendar:
+
+- **Destination**: one thin line at the top. Their number, their current MRR, one percentage.
+- **The milestone in play**: its dollar target, a bar that moves, and the single most motivating
+  unit there is, **"7 more paying supporters to get there"**.
+- **One next action**: the earliest unfinished step, with its own CTA. Nothing else competes.
+- **Locked next**: the following two milestones by NAME only. The rest stays quiet.
+
+The bar is **money-based** whenever MRR is known (`currentMrrCents`, active subs priced at their
+tier), and falls back to steps-done otherwise, so Foundation still moves even though it earns
+nothing by design.
+
+**No XP, badges or levels here on purpose.** The Quest Engine (`src/lib/quests`) already owns
+progression, is fully built, and is dark-launched. A second levelling system would be two sources
+of truth for the same feeling. The ramp should feed the Quest Engine, never duplicate it.
+
+## Adaptive, without a model
+
+The phase an artist is in is **the phase holding their next unfinished step**, not the one the
+calendar date says. Someone three weeks behind is still in Founding window, and telling them they
+are in "Rhythm" while they have not launched is how a plan stops being believed.
+
+From that, the ramp re-plans itself on every load:
+
+- `behindDays` = how late the oldest unfinished step is.
+- `aheadDays` = runway bought by working early (how far out the next unfinished step sits).
+- `projectedTotalDays` = 365 + behind - ahead, floored at the accelerated bound (240) so the
+  projection never promises the impossible. Surfaced as "at your current pace the full number
+  lands around month 10."
+
+This is deterministic and explainable, and it cannot hallucinate a milestone. **Adaptive does not
+have to mean a model.** A true personalized path (weighting release cadence, hours available per
+week, content output, and measured per-cohort conversion instead of the static curve) is the next
+layer, and it should be built on top of this function rather than replacing it: the coach's answer
+to "what is the next highest-leverage action" is already computed here as `nextStep` and
+`nextAccelerator`.
+
+## What the entry calculator determines
+
+| Determined by the calculator they signed up through | Where |
+|---|---|
+| Where they land after setup, with the builder prefilled | `postSetupDestination()` |
+| Their first Rise Mode mission and Action Plan ranking | `leadMagnetMissions.ts` (5 tools) |
+| The ramp's **target number** | `estimatedMonthlyCents` on their claimed result |
+| Which ramp step is **pulled to the front** | `ENTRY_TOOL_FIRST_MOVE` (10 tools) |
+
+The 30 steps themselves are the same for everyone. Only the order changes, and Foundation never
+moves: Stripe and a ladder still have to exist before anyone can pay, whatever they came in for.
+
+One sharp edge: the seed reads the artist's **most recent** claimed result, not their biggest. An
+artist who ran three calculators is aimed at whichever they finished last.
+
 ## Still open
 
 - Milestones are static percentages. Once real cohorts exist, replace the curve with measured
-  conversion so the projection is calibrated instead of assumed.
-- Nothing yet compares actual MRR against the phase target, so an artist who is behind is not
-  told. That is the natural next step and it needs no new data: `earnings` already knows.
+  conversion so the projection is calibrated instead of assumed. Everything needed to do that is
+  already recorded (`funnel_events`, `opportunity_ledger`, subscriptions per artist per month).
+- The personalized path does not yet weight **release cadence, content output, or hours available
+  per week**. None of those are collected today. `engagement_level` and `years_releasing` now
+  exist on the lead profile (see `docs/ICP.md`) but are pre-signup only and are not read here.
+- The ramp does not yet feed the **Quest Engine**. When that flag flips, a completed ramp step
+  should award XP through the existing engine rather than the ramp growing its own levels.
+- The seed reads the most recent claimed calculator result rather than the largest opportunity.

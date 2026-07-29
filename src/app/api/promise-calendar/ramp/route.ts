@@ -36,6 +36,7 @@ export async function POST() {
   const result = await seedRevenueRamp(supabaseAdmin, {
     artistId,
     targetMonthlyCents: seed?.estimatedMonthlyCents ?? null,
+    entryTool: seed?.toolSlug ?? null,
   });
 
   if (!result.ok) {

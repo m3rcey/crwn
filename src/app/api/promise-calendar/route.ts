@@ -3,8 +3,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { getArtistCalendar } from '@/lib/calendarProjection';
 import { sortCalendarItems } from '@/lib/calendar';
-import { loadRevenueRamp } from '@/lib/revenueRampSeed';
-import { phaseAt } from '@/lib/revenueRamp';
+import { loadRevenueRamp, currentMrrCents } from '@/lib/revenueRampSeed';
+import { phaseAt, computeRampProgress } from '@/lib/revenueRamp';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -27,12 +27,26 @@ export async function GET() {
 
   // The ramp rides along so the calendar can show WHAT the dated steps are adding up to.
   // A task list without the number it is building is just chores.
-  const [items, ramp] = await Promise.all([
+  const [items, ramp, mrr] = await Promise.all([
     getArtistCalendar(supabaseAdmin, artist.id).then(sortCalendarItems),
     loadRevenueRamp(supabaseAdmin, artist.id),
+    currentMrrCents(supabaseAdmin, artist.id),
   ]);
 
-  const currentPhase = ramp ? phaseAt(ramp) : null;
+  // Progress reads the roadmap items already projected above: no second trip for state we hold.
+  const progress = ramp
+    ? computeRampProgress(ramp, {
+        currentMrrCents: mrr,
+        steps: items
+          .filter((i) => i.type === 'roadmap' && typeof i.meta?.rampStepKey === 'string')
+          .map((i) => ({
+            key: String(i.meta!.rampStepKey),
+            status: i.status as 'completed' | 'missed' | 'overdue' | 'today' | 'upcoming',
+            dueAt: i.dueAt,
+          })),
+      })
+    : null;
+
   return NextResponse.json({
     items,
     ramp: ramp
@@ -42,8 +56,9 @@ export async function GET() {
           acceleratedDays: ramp.acceleratedDays,
           totalDays: ramp.totalDays,
           phases: ramp.phases,
-          currentPhaseKey: currentPhase?.key ?? null,
+          currentPhaseKey: progress?.currentPhaseKey ?? phaseAt(ramp)?.key ?? null,
         }
       : null,
+    progress,
   });
 }

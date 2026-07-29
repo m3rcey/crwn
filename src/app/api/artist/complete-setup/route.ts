@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
   const ramp = await seedRevenueRamp(supabaseAdmin, {
     artistId,
     targetMonthlyCents: seed?.estimatedMonthlyCents ?? null,
+    entryTool: seed?.toolSlug ?? null,
   });
   if (!ramp.ok) console.error('[ramp] seed failed for artist', artistId);
 
