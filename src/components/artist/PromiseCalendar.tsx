@@ -26,6 +26,31 @@ import {
 
 type ViewTab = 'week' | 'overdue' | 'completed';
 
+// The revenue ramp, as the API sends it. The dated steps themselves arrive as normal
+// calendar items (type 'roadmap'); this is the arc they add up to.
+interface RampPhaseSummary {
+  key: string;
+  name: string;
+  startDay: number;
+  endDay: number;
+  focus: string;
+  expect: string;
+  startsAt: string;
+  endsAt: string;
+  targetMonthlyCents: number | null;
+  targetPayers: number | null;
+}
+interface RampSummary {
+  targetMonthlyCents: number | null;
+  startedAt: string;
+  acceleratedDays: number;
+  totalDays: number;
+  phases: RampPhaseSummary[];
+  currentPhaseKey: string | null;
+}
+
+const money = (cents: number) => `$${Math.round(cents / 100).toLocaleString()}`;
+
 interface TierHealth {
   tierId: string;
   tierName: string;
@@ -53,6 +78,8 @@ export function PromiseCalendar() {
   const [showForm, setShowForm] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [tierHealth, setTierHealth] = useState<TierHealth[]>([]);
+  const [ramp, setRamp] = useState<RampSummary | null>(null);
+  const [seedingRamp, setSeedingRamp] = useState(false);
 
   useEffect(() => {
     fetch('/api/promise-calendar/health')
@@ -66,6 +93,7 @@ export function PromiseCalendar() {
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d.items)) setItems(d.items);
+        setRamp(d.ramp && typeof d.ramp === 'object' ? (d.ramp as RampSummary) : null);
         setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
@@ -181,6 +209,88 @@ export function PromiseCalendar() {
           </p>
         )}
       </div>
+
+      {/* Artists who signed up before the roadmap existed have no ramp. One button lays it
+          down, dated from today. */}
+      {!isLoading && !ramp && (
+        <div className="neu-raised rounded-xl p-5 mb-6">
+          <p className="text-xs font-semibold text-crwn-gold uppercase tracking-wide mb-1">
+            Your first year is not laid out yet
+          </p>
+          <p className="text-sm text-crwn-text-secondary mb-3">
+            The number your calculator showed is a full-year number. Without the dated steps that
+            build it, most of it is still sitting with your fans a year from now. Lay out the plan
+            and every step lands on this calendar.
+          </p>
+          <button
+            onClick={() => {
+              setSeedingRamp(true);
+              fetch('/api/promise-calendar/ramp', { method: 'POST' })
+                .then(() => refetch())
+                .finally(() => setSeedingRamp(false));
+            }}
+            disabled={seedingRamp}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-crwn-gold text-crwn-bg hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {seedingRamp ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarClock className="w-4 h-4" />}
+            Lay out my first year
+          </button>
+        </div>
+      )}
+
+      {/* Road to the calculator number. Only renders once a ramp has been laid down. */}
+      {ramp && ramp.phases.length > 0 && (
+        <div className="neu-raised rounded-xl p-5 mb-6">
+          <p className="text-xs font-semibold text-crwn-gold uppercase tracking-wide mb-1">
+            {ramp.targetMonthlyCents ? `Road to ${money(ramp.targetMonthlyCents)}/mo` : 'Your first year'}
+          </p>
+          <p className="text-sm text-crwn-text-secondary mb-4">
+            {ramp.targetMonthlyCents
+              ? `The number your calculator showed is a full-year number, not a launch-week one. Here is the arc, and every step below is dated on this calendar. Run the steps marked "moves it faster" on time and it lands nearer month ${Math.round(ramp.acceleratedDays / 30)} instead of month ${Math.round(ramp.totalDays / 30)}.`
+              : 'Your first year, phase by phase. Every step is dated on this calendar.'}
+          </p>
+          <div className="space-y-3">
+            {ramp.phases.map((p) => {
+              const isNow = p.key === ramp.currentPhaseKey;
+              const done = new Date(p.endsAt).getTime() < Date.now();
+              return (
+                <div
+                  key={p.key}
+                  className={`rounded-lg p-3 border ${
+                    isNow
+                      ? 'border-crwn-gold/50 bg-crwn-gold/5'
+                      : done
+                        ? 'border-crwn-elevated opacity-60'
+                        : 'border-crwn-elevated'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3 mb-1">
+                    <span className="text-sm font-semibold text-crwn-text">
+                      {p.name}
+                      {isNow && <span className="ml-2 text-[11px] font-bold text-crwn-gold">YOU ARE HERE</span>}
+                    </span>
+                    <span className="text-sm font-bold text-crwn-gold whitespace-nowrap">
+                      {p.targetMonthlyCents !== null
+                        ? `${money(p.targetMonthlyCents)}/mo`
+                        : `Days ${p.startDay} to ${p.endDay}`}
+                    </span>
+                  </div>
+                  <p className="text-xs text-crwn-text-secondary">{p.focus}</p>
+                  <p className="text-[11px] text-crwn-text-secondary/80 mt-1">
+                    Days {p.startDay} to {p.endDay}
+                    {p.targetPayers !== null ? ` · about ${p.targetPayers.toLocaleString()} paying supporters` : ''}
+                  </p>
+                  {isNow && <p className="text-xs text-crwn-text-secondary mt-2 italic">{p.expect}</p>}
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-crwn-text-secondary/70 mt-3">
+            Targets are projections built on your own numbers, not guarantees. They assume the
+            four-tier ladder and that you keep the promises on this calendar.
+          </p>
+        </div>
+      )}
 
       {/* Per-tier fulfillment health */}
       {tierHealth.length > 0 && (
@@ -322,6 +432,11 @@ function ItemList({
                     <span className="text-[10px] font-semibold uppercase tracking-wide text-crwn-gold/80">
                       {ITEM_TYPE_LABEL[it.type]}
                     </span>
+                    {it.meta?.rampAccelerator === true && (
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-orange-400">
+                        Moves it faster
+                      </span>
+                    )}
                     <span
                       className={`text-[11px] font-medium ${
                         overdue ? 'text-crwn-error' : done ? 'text-green-400' : 'text-crwn-text-secondary'
@@ -340,6 +455,18 @@ function ItemList({
                 <div className="flex items-center gap-1.5 shrink-0">
                   {!done && isPromise ? (
                     <>
+                      {/* Roadmap steps carry a deep link to the screen where the work happens.
+                          A promise owed to a supporter does not: it is discharged by the artist
+                          doing the thing, wherever that is. */}
+                      {it.href && (
+                        <button
+                          onClick={() => onOpen(it.href!)}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-crwn-elevated text-crwn-text-secondary hover:text-crwn-text transition-colors"
+                        >
+                          {it.cta || 'Open'}
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      )}
                       <button
                         onClick={() => onComplete(it)}
                         disabled={busy}

@@ -5,6 +5,7 @@
 
 export type CalendarItemType =
   | 'promise' // artist fulfillment task (artist side only)
+  | 'roadmap' // revenue-ramp step (artist side only, never fan-visible)
   | 'campaign' // road_campaign deadline
   | 'mission' // mission deadline
   | 'city_unlock' // city_unlock deadline
@@ -45,6 +46,7 @@ export interface CalendarItem {
 
 export const ITEM_TYPE_LABEL: Record<CalendarItemType, string> = {
   promise: 'Promise',
+  roadmap: 'Roadmap',
   campaign: 'Campaign',
   mission: 'Mission',
   city_unlock: 'City unlock',

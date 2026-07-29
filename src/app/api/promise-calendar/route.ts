@@ -3,6 +3,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { getArtistCalendar } from '@/lib/calendarProjection';
 import { sortCalendarItems } from '@/lib/calendar';
+import { loadRevenueRamp } from '@/lib/revenueRampSeed';
+import { phaseAt } from '@/lib/revenueRamp';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -23,6 +25,25 @@ export async function GET() {
     .single();
   if (!artist?.id) return NextResponse.json({ error: 'Not an artist' }, { status: 403 });
 
-  const items = sortCalendarItems(await getArtistCalendar(supabaseAdmin, artist.id));
-  return NextResponse.json({ items });
+  // The ramp rides along so the calendar can show WHAT the dated steps are adding up to.
+  // A task list without the number it is building is just chores.
+  const [items, ramp] = await Promise.all([
+    getArtistCalendar(supabaseAdmin, artist.id).then(sortCalendarItems),
+    loadRevenueRamp(supabaseAdmin, artist.id),
+  ]);
+
+  const currentPhase = ramp ? phaseAt(ramp) : null;
+  return NextResponse.json({
+    items,
+    ramp: ramp
+      ? {
+          targetMonthlyCents: ramp.targetMonthlyCents,
+          startedAt: ramp.startedAt,
+          acceleratedDays: ramp.acceleratedDays,
+          totalDays: ramp.totalDays,
+          phases: ramp.phases,
+          currentPhaseKey: currentPhase?.key ?? null,
+        }
+      : null,
+  });
 }

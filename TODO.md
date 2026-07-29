@@ -37,6 +37,17 @@ responsible for. Do not work those.
       Say (a), (b) or (c) and I will build it. This is a scope and priority call, not a technical
       one, which is why it is yours.
 
+- [ ] **Confirm the revenue ramp actually seeded (5 minutes, needs a real artist account).**
+      New artists now get a dated 12-month roadmap laid into their Promise Calendar when they
+      finish setup, aimed at the number their calculator showed
+      ([`docs/REVENUE_RAMP.md`](docs/REVENUE_RAMP.md)). It reuses the promise-calendar tables, so
+      it only works if `schema-phase2-promise-calendar.sql` is applied in production (it should
+      be, since tier benefits already seed promises). Seeding **fails silently by design** so it
+      can never block an artist from entering CRWN, which also means a missing table looks like
+      "no roadmap". Check: open [`/studio/promise`](src/app/\(main\)/studio/promise/page.tsx) on
+      your `m3rcey` account and press **"Lay out my first year"**. If roadmap steps appear, it
+      works. If nothing appears, run that migration and tell me.
+
 - [ ] **(Recommended, when data exists) Turn on Resend open/click events for prospect nurture.** In
       the Resend dashboard, enable the **email.opened** and **email.clicked** events. The signed
       webhook already handles them; without them the admin panel's open/click rates stay at zero.
@@ -119,10 +130,13 @@ Things that are never finished. Cadence, then the thing.
   monthly listeners, opened her result, edited the assumptions) scored **20** and was filed
   **"unqualified"**, so no alert fired.
 
-  Two bugs caused it, both fixed. **Keep watching.** The `worth` funnel asks ONE question, so
-  it can never learn goal or blocker, which means it must recognise a hot lead from reach plus
-  behavior alone. If a lead you would personally chase is banded `nurture` or `unqualified`,
-  that is a scoring bug, not a bad lead. Tell Claude.
+  Two bugs caused it, both fixed, and the model was rewritten to your customer avatar on
+  2026-07-28 ([`docs/ICP.md`](docs/ICP.md)): proven direct sales is now 40% of the score and big
+  reach with no sales history is a penalty rather than a bonus. **Keep watching.** The loss
+  tools now ask whether they have ever sold to fans, but the `worth` funnel still cannot learn
+  goal or blocker, so it must recognise a hot lead from reach, sales history and behavior alone.
+  If a lead you would personally chase is banded `nurture` or `unqualified`, that is a scoring
+  bug, not a bad lead. Tell Claude.
 
 ### Weekly
 

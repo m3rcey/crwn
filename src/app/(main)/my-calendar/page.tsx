@@ -31,6 +31,9 @@ const TABS: { id: FanTab; label: string; match: (t: CalendarItemType) => boolean
 
 const TYPE_ICON: Record<CalendarItemType, typeof Radio> = {
   promise: Sparkles,
+  // Artist-side only: a fan can never receive a roadmap item (the projection filters them
+  // twice). Present so the map stays exhaustive.
+  roadmap: Sparkles,
   campaign: Flag,
   mission: Flag,
   city_unlock: Flag,

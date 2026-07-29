@@ -30,7 +30,7 @@ export async function getArtistCalendar(
     await Promise.all([
       supabase
         .from('fulfillment_events')
-        .select('id, title, due_at, status, eligible_fan_count, obligation_id')
+        .select('id, title, due_at, status, eligible_fan_count, obligation_id, metadata')
         .eq('artist_id', artistId)
         .in('status', ['pending', 'missed', 'completed'])
         .order('due_at', { ascending: true })
@@ -57,18 +57,31 @@ export async function getArtistCalendar(
         : e.status === 'missed'
           ? 'missed'
           : statusForDue(e.due_at);
+    // Revenue-ramp steps ride the same table as promises but are a different thing: work the
+    // artist owes THEMSELVES on the way to their calculator number, not a benefit a supporter
+    // paid for. Typed apart so the calendar can say which is which and deep-link the step to
+    // the screen where it gets done. Marker is written by revenueRampSeed.
+    const meta = (e.metadata ?? {}) as Record<string, unknown>;
+    const rampStepKey = typeof meta.ramp_step_key === 'string' ? meta.ramp_step_key : null;
     items.push({
       id: `fulfillment_event:${e.id}`,
       sourceType: 'fulfillment_event',
       sourceId: e.id,
-      type: 'promise',
+      type: rampStepKey ? 'roadmap' : 'promise',
       title: e.title,
-      subtitle:
-        e.eligible_fan_count > 0 ? `${e.eligible_fan_count} supporters eligible` : undefined,
+      subtitle: rampStepKey
+        ? (typeof meta.ramp_phase_name === 'string' ? meta.ramp_phase_name : 'Roadmap')
+        : e.eligible_fan_count > 0
+          ? `${e.eligible_fan_count} supporters eligible`
+          : undefined,
       dueAt: e.due_at,
       status: st,
-      cta: st === 'completed' ? undefined : 'Mark complete',
-      meta: { obligationId: e.obligation_id },
+      cta: st === 'completed' ? undefined : rampStepKey ? 'Do this step' : 'Mark complete',
+      href: rampStepKey && typeof meta.ramp_href === 'string' ? meta.ramp_href : undefined,
+      meta: {
+        obligationId: e.obligation_id,
+        ...(rampStepKey ? { rampStepKey, rampAccelerator: meta.ramp_accelerator === true } : {}),
+      },
     });
   }
 
@@ -236,7 +249,7 @@ export async function getFanCalendar(
   // artist's overdue/missed promise.
   const { data: fEvents } = await supabase
     .from('fulfillment_events')
-    .select('id, title, due_at, obligation_id, artist_id')
+    .select('id, title, due_at, obligation_id, artist_id, metadata')
     .in('artist_id', artistIds)
     .eq('status', 'pending')
     .gte('due_at', nowIso)
@@ -253,6 +266,11 @@ export async function getFanCalendar(
   for (const e of fEvents || []) {
     const ob = obById.get(e.obligation_id);
     if (!ob || ob.status !== 'active' || !ob.auto_create_fan_items) continue;
+    // A revenue-ramp step is the artist's private growth plan ("message your 50 most engaged
+    // fans"), never a promise a supporter bought. Seeding sets auto_create_fan_items false, so
+    // the line above already excludes them; this is the second lock, because the column
+    // DEFAULTS to true and one row created another way would leak the artist's roadmap.
+    if (typeof (e.metadata as Record<string, unknown> | null)?.ramp_step_key === 'string') continue;
     if (!fanEligibleForObligation(ob, tierByArtist.get(e.artist_id) ?? null, fanSquadIds)) continue;
     items.push({
       id: `fulfillment_event:${e.id}`,

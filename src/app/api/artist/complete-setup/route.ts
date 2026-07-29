@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { seedRevenueRamp } from '@/lib/revenueRampSeed';
 
 // Marks the artist's setup wizard as finished (artist_profiles.setup_completed).
 // This is the ONE write the wizard makes to artist_profiles, and it gates the
@@ -53,6 +54,17 @@ export async function POST(request: NextRequest) {
     calculator: seed?.toolSlug ?? null,
     dedupeKey: artistId,
   });
+
+  // Lay the 12-month revenue ramp into their Promise Calendar, aimed at the number THEY
+  // calculated. The calculator hands an artist a steady-state figure and says nothing about
+  // when, so without this the plan for reaching it lives only in their head. Idempotent and
+  // best-effort by design: this route gates the whole app, so a seeding failure must never
+  // stop an artist from getting in.
+  const ramp = await seedRevenueRamp(supabaseAdmin, {
+    artistId,
+    targetMonthlyCents: seed?.estimatedMonthlyCents ?? null,
+  });
+  if (!ramp.ok) console.error('[ramp] seed failed for artist', artistId);
 
   return NextResponse.json({ success: true });
 }
