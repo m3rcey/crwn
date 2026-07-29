@@ -60,8 +60,36 @@ Two fixes fell out of the work and apply beyond this tool:
   hand-copied in `/api/lead-magnets/analytics`. The two lists had drifted apart by hand, so adding a
   client event left the server silently dropping it: a 200 response with the row never written.
 
-Also corrected in this package: `13-CURRENT-STATE.md` claimed **zero automated tests**
-codebase-wide. That is stale. Vitest is configured and `npm test` runs 392 tests across 23 files.
+### Brain package audit, same day
+
+Answering "is the brain up to date" honestly meant auditing all 20 docs against the code rather than
+just the three the feature touched. It was not up to date, and two findings predate this work:
+
+- 🔴 **The fee docs contradicted each other, in the direction that misquotes an artist.**
+  `01-PRODUCT-VISION.md` stated the founding-artist flat **5%** override as live and `Confirmed`,
+  and `16-GLOSSARY.md` + `CRWN-BRAIN-QUICK-CONTEXT.md` repeated it, while `07-BUSINESS-RULES.md`
+  correctly said it was retired. Read the code: `getArtistFeePercent()` returns the tier fee, full
+  stop, nothing writes `is_founding_artist`, and no production row ever carried it. An agent loading
+  the vision doc or either context pack would have quoted a discount that does not exist. All three
+  corrected against the code.
+- **"Zero automated tests" was repeated in six places** (`00-START-HERE`, `04-ARCHITECTURE`,
+  `09-CODING-CONVENTIONS`, `12-ENVIRONMENT-AND-SETUP`, `15-AI-AGENT-INSTRUCTIONS`,
+  `CRWN-BRAIN-COMBINED`) plus `13-CURRENT-STATE`. Vitest is configured and `npm test` runs 392 tests
+  across 23 files. Corrected everywhere, **with the limit stated**: coverage is the pure business
+  layers only, there is no component/integration/e2e test, so `npm run build` is still the gate for
+  everything the suite does not reach. Also recorded that `npm run lint` is NOT a gate (~635
+  pre-existing errors), which no doc had said.
+- **Counts were stale by a third or more.** Actual: 241 API routes (docs said ~190), 134 migrations
+  (117), 115 pages (~89). Fixed in every doc that quoted them.
+- **The 18th tool and the `/tools` routes were missing** from `06-ROUTES` (which did not mention
+  `/tools` at all), `16-GLOSSARY`, `18-SOURCE-MAP`, and both single-file context packs. Added, along
+  with a new **§14 Opportunity modelling rules** in `07-BUSINESS-RULES` so the overlap rules sit
+  where an agent actually looks before touching money copy.
+- Commit refs on the three docs that carry one now point at `86e3e8c` instead of `614b958`/`38186b1`.
+
+Lesson worth keeping: the same fact was duplicated by hand across up to seven docs, so one code
+change left six of them lying. That is the documentation version of the analytics allowlist bug
+fixed in this same commit. Prefer one doc owning a fact and the rest linking to it.
 
 ## 2026-07-27 — Flagship calculator polish: wizard entry, above-fold CTA, signup continuation, four campaigns
 

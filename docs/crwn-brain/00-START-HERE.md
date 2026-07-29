@@ -15,7 +15,7 @@ Streaming pays fractions of a cent and hides the fan. CRWN gives artists a **dir
 Own your revenue, your subscribers, and your data — with the marketing/analytics/acquisition/AI tooling to grow them — instead of renting an audience from streaming/social. `Strongly inferred`.
 
 ## Product maturity
-**Live in production.** Core money loop is real and hardened. Codebase is **large and layered** (60+ API domains, 25 crons, 117 migrations, ~89 pages) and has grown faster than it's been consolidated — real dead/duplicate code and design-token drift exist. Current frontier: the **dark-launched Quest Engine / Rise Mode**. **Zero automated tests.** → `13-CURRENT-STATE.md`
+**Live in production.** Core money loop is real and hardened. Codebase is **large and layered** (241 API routes, 25 crons, 134 migrations, 115 pages) and has grown faster than it's been consolidated — real dead/duplicate code and design-token drift exist. Current frontier: the **Opportunity Funnel** (public tools → value-before-signup → journey resolver → experiments, live), with the Quest Engine / Rise Mode still dark. **`npm test` runs 392 vitest tests across 23 files**, all in the pure business layers; there is still no component/integration/e2e test, so `npm run build` remains the gate for everything the suite does not reach. → `13-CURRENT-STATE.md`
 
 ## High-level architecture
 Next.js 16 (App Router, mostly client components) on Vercel · Supabase (Postgres + Auth + Storage + Realtime, RLS) · Stripe Connect · Cloudflare R2 (audio/VOD) · LiveKit (live) · Resend (email) · Twilio (SMS) · DeepSeek + OpenAI (AI). Business logic lives in `/api/` route handlers (service-role) and `src/lib/*`. → `04-ARCHITECTURE.md`

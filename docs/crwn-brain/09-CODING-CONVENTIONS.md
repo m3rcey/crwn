@@ -15,7 +15,7 @@
 
 ## 3. Server vs client components
 - Root `layout.tsx` is a **server component** wrapping client context providers (`AuthProvider > ToastProvider > PlayerProvider`).
-- **228 files carry `'use client'`**; 63 of 89 `page.tsx` are client components — this is a heavily interactive, context-driven dashboard app, not RSC-data-fetch-first. `Confirmed`.
+- **Most files carry `'use client'`**; the large majority of the 115 `page.tsx` files are client components — this is a heavily interactive, context-driven dashboard app, not RSC-data-fetch-first. `Confirmed`.
 
 ## 4. State management
 - **No Redux/Zustand/React Query/SWR.** Context providers only: `AuthProvider` (`useAuth.tsx`), `PlayerProvider` (`usePlayer.tsx`), `ToastProvider` (`shared/Toast.tsx`). `Confirmed`.
@@ -66,7 +66,8 @@ When resetting form state with `setFormData({...})`, include **every** field fro
 High density on *why* for non-obvious business/security code (fee calc, `apiAuth` header, `smartBack`, entitlement); light on straightforward CRUD/UI. Match this: explain decisions, not mechanics. `Confirmed`.
 
 ## 15. Testing & git
-- **No test framework** — verification is `npm run build` + the `onboarding-health`/`rls-canary` crons. `Confirmed`.
+- **Vitest is configured: `npm test` runs 392 tests across 23 files.** Coverage is the pure business layers only (acquisition adapters, the unified opportunity model + funnel, drafts, journey resolution, experiments, prospect nurture, revenue ramp, analytics). No component, integration or e2e test exists. So `npm run build` is still the gate for everything the suite does not reach, alongside the `onboarding-health`/`rls-canary` crons. **New pure business logic should ship with a `.test.ts` beside it**; that is now the house pattern, not an aspiration. `Confirmed`.
+- **`npm run lint` is NOT a gate.** It reports ~635 pre-existing errors (mostly `no-explicit-any`) across the codebase. Check that YOUR files are clean; do not try to get the run to zero. `Confirmed`.
 - Workflow: `npm run build && git add -A && git commit -m "..." && git push`. Build must pass before pushing. Surgical, one-file-at-a-time changes. SQL migrations go in `supabase/schema-phase2-[name].sql`, applied manually by the founder, and **must end with a `DO $$ … RAISE EXCEPTION …$$` self-verify block**. `Confirmed` (`CLAUDE.md`).
 - ⚠️ **In this WSL environment, run `npm run build` and `git` inside WSL** (memory: Windows-side git fabricates deletions from colon-named files; Bash-tool build fake-passes). `Confirmed` (user memory).
 

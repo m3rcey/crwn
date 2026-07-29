@@ -81,7 +81,7 @@ CRWN makes money two ways:
 | **$99 tier** (`label`) | $99/mo | 5% | 10 | **SPEC ONLY — not billable/gated in v1** (removed from checkout whitelist) |
 | `empire` | — | 3% | ∞ | **Dead/legacy** — removed from pricing + checkout, lingers in some config maps |
 
-- **Founding-artist override:** `is_founding_artist` gets a flat **5%** fee until `founding_fee_expires_at` (6 months), regardless of tier. `Confirmed` (`getArtistFeePercent()`).
+- **There is NO founding-artist fee override.** `getArtistFeePercent()` reads `platform_tier` and returns that tier's fee, full stop. The 5% override was retired by founder call on 2026-07-15 and the code removed; nothing writes `is_founding_artist`, and no production row ever carried it. This doc previously claimed the override was live and `Confirmed`, which contradicted `07-BUSINESS-RULES.md` and would have had an agent quoting the wrong fee. `Confirmed` (`src/lib/platformTier.ts`, read 2026-07-29).
 - Platform checkout **hard-whitelists `pro` only** in v1 (`src/app/api/stripe/platform-checkout/route.ts`). `Confirmed`.
 
 ## 9. How the docs disagree (reconciliation — read before trusting any repo `.md`)

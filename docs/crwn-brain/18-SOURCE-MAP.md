@@ -71,8 +71,11 @@
 ## Health / canaries
 `src/app/api/cron/onboarding-health/route.ts`, `src/app/api/cron/rls-canary/route.ts`, `schema-phase2-cron-heartbeat.sql`
 
+## Unified Opportunity Calculator (the all-in-one, overlap-safe)
+`src/lib/opportunity/unifiedModel.ts` (the layered model, `unifiedOpportunity@1`) · `unifiedAdapter.ts` (presentation + conversion payload) · `recalcUnified.ts` (re-derive on edit) · `unifiedModel.test.ts` + `unifiedFunnel.test.ts` (82 invariants). Registered as the 18th `LeadMagnetConfig` in `src/lib/leadMagnets/registry.ts` (`opportunity-calculator`) and the 18th `AcquisitionTool` in `src/lib/acquisition/toolAdapters.ts`. Branching support: `src/lib/leadMagnets/validation.ts` (`isStepVisible`, `all`/`oneOf`/`notOneOf` rules) + `src/lib/leadMagnets/entryContext.ts` (`?from=` reordering). Coordinated builder: the `opportunity-calculator` spec in `src/lib/opportunityDrafts/deliverableSpecs.ts` (`preview.kind: 'system'`, `recalc`). Spec: `docs/UNIFIED_OPPORTUNITY.md`.
+
 ## Tests
-None (no `.test`/`.spec`, no runner). Verification via `npm run build` + canaries.
+`npm test` (vitest): 392 tests, 23 files. Concentrated in the pure business layers: `src/lib/acquisition/acquisition.test.ts`, `src/lib/opportunity/*.test.ts`, `src/lib/opportunityDrafts/*.test.ts`, `src/lib/opportunityFunnels/*.test.ts`, `src/lib/leadResults/*.test.ts`, `src/lib/journey/`, `src/lib/experiments/`, `src/lib/prospectNurture/`, `src/lib/analytics/`, `src/lib/revenueRamp.test.ts`, `src/components/opportunity/fanCaptureSteps.test.ts`. **No component/integration/e2e test**, so `npm run build` + the canaries remain the gate for everything else. Several suites are coverage GUARDS (e.g. every public tool must have a deliverable, the event allowlist must match), so they fail when a new tool is added incompletely.
 
 ## NOT app code (verify before assuming relevance)
 Root `*.mjs` (content generation), `carousel-*.json`, `videos/`, `.claude/` (harness config, incl. `.claude/agents/*.md` which are Claude Code subagents, not product roles).

@@ -13,7 +13,7 @@ npm install          # add any missing package before importing it
 npm run dev          # dev server, port 3000
 npm run build        # production build — MUST pass before pushing
 npm run lint         # eslint
-# no `npm test` — no test framework configured
+npm test             # vitest, 392 tests across 23 files (pure business logic only)
 ```
 
 ## 3. Database setup / migrations

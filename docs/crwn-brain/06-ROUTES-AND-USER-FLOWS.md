@@ -10,11 +10,11 @@
   - Hamburger `AccountHub` (top-left): manage the business. `account/profile`, `account/tiers`, `account/payouts`, `account/billing`, `account/referrals`.
   - `studio`: the toolbox. `studio/music`, `studio/albums`, `studio/shop`, `studio/live`, `studio/analytics`, `studio/manager`, `studio/sync`, `studio/team`, `studio/promise`, `studio/fans`, plus the connector tools.
   - All of the above wear `HubPage` (X in the top left). `?from=hub` makes that X return to the hamburger; without it the X is a `smartBack`. `src/lib/dashboardRoutes.ts` maps every legacy `?tab=` id to its new route and `profile/artist` redirects through it, so links in old emails and `notifications.link` rows still resolve.
-- **`(public)/`** — `welcome`, `worth`, `survey/[token]`, `link/[slug]`, `getting-started`(+guides), legal (`terms`, `privacy`, `dmca`, `artist-agreement`, `live-agreement`), `forgot-password`, `reset-password`, `support`.
+- **`(public)/`** — `welcome`, `worth`, `tools`(directory), `tools/[slug]` (18 lead-magnet tools, SSG), `tools/[slug]/result/[token]` (tokenized result), `survey/[token]`, `link/[slug]`, `getting-started`(+guides), legal (`terms`, `privacy`, `dmca`, `artist-agreement`, `live-agreement`, `submission-agreement`), `forgot-password`, `reset-password`, `support`. Artist-side mirror: `artist/tools`, `artist/tools/[slug]`, `artist/tools/saved`.
 - **`[slug]/`** — canonical public artist pages + `track/[id]`, `album/[id]`, `post/[id]`, `playlist/[id]`, `live/[sessionId]`, `book(/success)`, `demand/[testId]`, `r/[code]`, `suggest-mission`.
 - **`artist/[slug]/`** — LEGACY redirect + dead duplicate subroutes.
 - **Top-level** — `setup`, `admin`(+`/team-splits`), `offers(/new)`, `missions(/new,/suggestions)`, `squads(/new)`, `my-squads`, `bounties(/new,/[id])`, `my-bounties`, `campaigns(/new,/[id])`, `campaign-hub`, `city-unlocks(/new,/[id])`, `city/[id]`, `playbooks/[runId]`, `proof-of-demand(/new,/[id])`, `clip-controls`, `action-plan`, `team(/[id],/invite/[token])`, `embed/[trackId]`, `join/[code]`, `verify`, `about`, `partner`.
-- **`api/`** — ~190 handlers. Notable groups: `stripe/*` (~20), `cron/*` (25), `admin/*` (23), `live/*` (12), `messages/*`, `team-splits/*`, `sequences/*`, `campaigns/*`, `quests/*`, `missions/*`, `squads/*`, `bounties/*`, `sms/*`, `notifications/*`.
+- **`api/`** — 241 handlers. Notable groups: `stripe/*` (~20), `cron/*` (25), `admin/*` (23), `live/*` (12), `messages/*`, `team-splits/*`, `sequences/*`, `campaigns/*`, `quests/*`, `missions/*`, `squads/*`, `bounties/*`, `sms/*`, `notifications/*`.
 
 ## 2. Route protection
 `middleware.ts` guards the `protectedPaths` page list (redirect `/login` if no auth cookie), redirects authed users away from `/login`,`/signup`, returns early on PKCE `code` param, and **excludes `/api/`** (routes self-authenticate). Bot-filtered visitor hashing is analytics-only. `Confirmed`.
@@ -91,6 +91,9 @@ Artist accepts agreement → `/api/live/session` (Pro-gated) starts room + best-
 
 ### Acquisition (recruiter/partner)
 `/partner` apply (or `/recruit` pitch) → unique `join/[code]` link → `referral_clicks` on visit → artist signup within 30d marks conversion → qualification crons pay flat + recurring commission via Stripe Connect; funnel visible at `/recruit/dashboard`. `Confirmed` (live activation `Needs founder confirmation`).
+
+### Lead magnet / opportunity funnel (the acquisition path)
+`(public)/tools/[slug]` renders `PublicToolClient`: hero → the SAME-page wizard → result → **builder** → save boundary → optional email capture. The builder IS the CTA; no signup link, email gate or booking block may appear before it. Save writes an anonymous draft (`/api/opportunity-drafts`, unclaimed-only) and routes to `/signup?tool=<slug>&result=<token>`, where `DraftContinuation` restates the number and what was already built. After auth, the existing auto-claim binds the draft by verified-email match plus the signup `user_metadata` token, and `resolveJourneyDestination` sends the artist through the account gate → setup gate → the prefilled builder from `buildDraftConfig`. **The all-in-one calculator** (`tools/opportunity-calculator`) additionally accepts `?from=<tool-slug>`, which reorders its wizard so a single-opportunity video leads with its own questions. `Confirmed`.
 
 ### Lead-gen (smart links / pre-save)
 `(public)/link/[slug]` → `SmartLinkCapture`/`PreSaveCapture` collects email/phone → `/api/smart-links/capture` → `smart_link_captures`; pre-save release-day email via `scheduled-releases` cron. `Confirmed`.

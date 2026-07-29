@@ -13,7 +13,7 @@
 ## Product concepts
 - **Tier (fan tier / subscription tier)** — an artist's paid membership level (`subscription_tiers`), e.g. The Wave $10 / Inner Circle $50 / Throne $200 (test artist). NOT the platform tier.
 - **Platform tier** — the artist's CRWN SaaS plan: Free (`starter`) / Pro / `label`($99, spec) / `empire`(dead). Sets fee % and limits.
-- **Founding artist** — early artist with a flat 5% fee for 6 months (`is_founding_artist`).
+- **Founding artist** — **RETIRED (2026-07-15), and it never paid out.** Was meant to be a flat 5% fee for 6 months via `is_founding_artist`. The override is gone from `getArtistFeePercent()`, nothing writes the flag, and no production row ever carried it. The column and a `FoundingBadge` component still exist as inert residue. Do not quote a founding-artist fee.
 - **Benefit** — a perk attached to a tier (`tier_benefits` + `benefitCatalog.ts`); some are "coming soon".
 - **Product** — a shop item: `digital` / `physical` / `experience` / `bundle`.
 - **Experience** — a bookable/scheduled product (1-on-1, group session); Pro-gated.
@@ -25,7 +25,11 @@
 - **Clip Bounty** — a bonus challenge for clippers, non-cash rewards in v1 (`clip_bounties`).
 - **City Unlock** — fans push a city past a demand threshold to unlock a local show/drop (`city_unlocks`).
 - **Road Campaign** — a "Road to X" fan-funding/goal campaign (`road_campaigns`); shown under `/campaigns` and `campaign-hub`.
-- **Proof of Demand** — money-free RSVP/vote/waitlist test to validate an idea before it becomes a paid offer (`proof_of_demand`).
+- **Proof of Demand** — money-free RSVP/vote/waitlist test to validate an idea before it becomes a paid offer (`proof_of_demand`). Deliberately excluded from the unified calculator's dollar total: it takes no money by design.
+- **Unified Opportunity Calculator** — the 18th public tool (`/tools/opportunity-calculator`), the only ALL-IN-ONE one. Models every opportunity in ONE layered model instead of summing the other calculators, which would count the same fans and the same dollars several times. `src/lib/opportunity/unifiedModel.ts`. See `docs/UNIFIED_OPPORTUNITY.md`.
+- **Overlap-safe** — the property that no fan, subscriber, offer or revenue event is counted more than once across opportunities. Enforced by a disjoint-population rule (every dollar is paid by a member or a non-member, never both) and asserted by 82 tests, not by convention.
+- **Acquisition vs offer** — Share-to-Earn and Clip-to-Earn are ACQUISITION systems: they change how many supporters arrive and where they came from. They produce **no revenue line of their own**; their money is already inside the membership number. Treating either as a separate income stream is the classic double-count.
+- **Entry context** — `?from=<tool-slug>` on the unified calculator. Reorders the wizard so a single-opportunity video leads with its own questions. Reordering ONLY: it never adds or removes a question, because different entries must not produce different models.
 - **Offer** — NOT a table; a read-only aggregator view over tiers + products (`/offers`).
 - **Smart Link / Pre-Save** — trackable external link (`smart_links`) that can capture email/phone; pre-save is a mode of the same table.
 - **Team Split** — a capped-hybrid revenue-share deal with a collaborator (percentage sets rate, cap sets max amount; net-basis).

@@ -43,7 +43,9 @@
 - Read `07-BUSINESS-RULES.md`. Especially: unique `(fan_id, artist_id)` subscription (resubscribe = upsert); founding-artist 5% override; Team Split net-basis + cap + fenced-source-only; free-tier bypasses Stripe; deferred downgrade.
 
 ## How to test your change
-- **There is no test framework.** Run `npm run build` (inside WSL in this environment) — it must pass clean; a green build is the primary gate.
+- **Run `npm test` first** (vitest, 392 tests across 23 files). It covers the pure business layers, so if you touched pricing, the opportunity model, adapters, drafts, journey resolution, experiments or analytics, a failure here is your bug. **Add a `.test.ts` beside any new pure business logic.** Several of these suites are deliberate guards that fail when a new tool is added without its deliverable or its analytics entry, so a red test may be telling you work is missing rather than broken.
+- **Then run `npm run build`** (inside WSL in this environment) — it must pass clean. No component/integration/e2e test exists, so the build remains the gate for everything the suite does not reach.
+- **`npm run lint` is not a gate** (~635 pre-existing errors). Check your own files only.
 - Manually exercise the affected flow (the `verify`/`run` skills can drive the app). For entitlement/money changes, reason through the `rls-canary`/`onboarding-health` assertions.
 - Never push a build that doesn't compile. Workflow: `npm run build && git add -A && git commit -m "..." && git push` (branch first if on `master`; in WSL, use WSL-side git).
 - **Deployment reality: production (thecrwn.app) deploys from `master`.** Pushing your working branch does NOT reach production until `master` fast-forwards (a gated production deploy). To verify what is actually live, check `https://thecrwn.app/sw.js` `CACHE_NAME` and probe a new endpoint (a `404` means it is not deployed yet). Don't assume a code bug on prod until you confirm the code is even live.

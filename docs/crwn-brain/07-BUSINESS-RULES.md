@@ -91,7 +91,56 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 - **No plan gate on the recurring payout.** The commission is funded by the platform fee CRWN charges on that revenue, which exists on every plan (Free 12%, Pro 8%), so a referred artist on Free still earns their influencer 1%.
 - ⚠️ **Superseded model (do not reintroduce):** commission used to be a % of the artist's *monthly SaaS fee to CRWN*, tiered 5%/10% by recruiter tier, and gated to "Label+" artists. It read a hardcoded price map (`pro: 5000, label: 17500, empire: 35000`) that had drifted into fiction, so it would have paid **5x** the real amount into `stripe.transfers.create()`. Fixed 2026-07-14 before any payout ran. **Never hardcode a price; derive from `TIER_PRICING`.**
 
-## 14. UX-enforced product rules (from CLAUDE.md, verified in code)
+## 14. Opportunity modelling rules (the public calculators)
+
+These govern every number CRWN shows an artist about money they do **not** yet have. Source of truth
+for the combined model: `src/lib/opportunity/unifiedModel.ts` (`unifiedOpportunity@1`); for the
+single-opportunity tools: `src/lib/acquisition/toolAdapters.ts` and `src/lib/leadCalculator.ts`.
+Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
+
+- **NEVER add tool headlines together.** The 17 single-opportunity calculators are each honest alone
+  and dishonest in company: they are all modeled off the same audience and most resolve to the same
+  dollar. At 500k followers their own formulas sum to ~$550,835/mo and 23,500 paying people, against
+  a repo audience model that says 2,250 of them ever pay for anything. Any surface that needs a
+  combined figure must call the unified model, not sum the adapters.
+- **One audience.** `max(followers, listeners, owned)`, never a sum: nothing in this repo can say how
+  much two platforms overlap, and adding them invents an audience the artist does not have. Owned
+  contacts are a **subset** folded in by inclusion-exclusion (owned are fully reachable, the rest at
+  `reachRate`), so addressable can never exceed the audience. Where overlap is unknown, say so.
+- **One unique paying-supporter count**, and every recurring dollar is the ladder applied **once** to
+  it. Conversion is capped at `maxConversion` (10% of addressable) no matter how many growth systems
+  are switched on.
+- **The Vault is a membership TIER** ($25, the middle rung of `RECOMMENDED_LADDER`), not a second
+  membership. Standalone only when explicitly configured, and then it **replaces** a rung. Not
+  recommended below five unreleased pieces.
+- **Share-to-Earn and Clip-to-Earn are ACQUISITION, not revenue.** Clips are a capped lift on the
+  conversion of the audience already reached. Sharing is the only mechanism reaching outside it, so
+  it adds heads, but those heads join the **same** ladder at the same prices. Both appear only as a
+  supporter and attribution split: `organic + clip + share == payingSupporters`. Attribution
+  explains where a supporter came from; it never multiplies the revenue.
+- **Members and non-members are disjoint populations.** Member spend = the ladder plus one member
+  ARPU line. Tickets, tips and session seats sell **only** out of the non-member pool, so a member
+  is never also counted as a buyer. A session included in a tier earns **zero** on its own (it is
+  what makes that tier worth its price, and that price is already counted); a hybrid counts only the
+  extra seats. This is the rule that makes a combined total provable.
+- **A fan may hold several roles; a person is counted once.**
+  `uniquePromoters = sharers + clippers - both`.
+- **Financial presentation:** recurring and one-time are tracked separately and only added at the
+  gross line; gross is never mixed with net; the platform fee is applied once at the Pro rate;
+  contributor commission is artist-funded on the **attributed slice only** and capped at
+  `gross - platformFee` (matching how `checkout/route.ts` charges an `attributedCut`); revenue the
+  artist already earns is **subtracted**, never added; annualization is x12 and nothing longer.
+- **Language:** a planning estimate of what the artist *could build*. Never owed, never guaranteed,
+  never described as current revenue. Ranges where precision is unsupported.
+- **Opportunities that cannot be honestly monetized stay OUT of the dollar total** and are named
+  with a reason: Proof of Demand (free by design), retention/churn (no input for it), fan missions
+  (their effect is already inside acquisition), royalties (money earned elsewhere, a different
+  tool), sponsorship and replay sales (**not built in CRWN**, so absent from the math and the copy).
+- **If the artist edits the plan, re-derive the number.** `recalcUnified.ts` re-runs the model on the
+  edited structure. Keeping a headline the artist's own edits invalidated is the same dishonesty as
+  double-counting, pointed at a stale number instead of an inflated one.
+
+## 15. UX-enforced product rules (from CLAUDE.md, verified in code)
 - Multi-option (pick-one-of-3+) selectors must use `OptionSelect` dropdown, not a grid. `Confirmed`.
 - Flows launched from Rise Mode honor `?returnTo=` on exit/success; back arrows use `smartBack(router, fallback)`. `Confirmed`.
 - **No em dashes** in any user-facing copy. `Confirmed` (recent commits removed them app-wide).

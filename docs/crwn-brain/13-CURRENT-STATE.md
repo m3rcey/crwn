@@ -1,10 +1,10 @@
 # 13 — Current State
 
-> A realistic state-of-the-product report at commit `38186b1` (branch `master`). Certainty labels used. This is deliberately candid about incompleteness — do not read "a component exists" as "the feature works."
+> A realistic state-of-the-product report at commit `86e3e8c` (branch `master`, 2026-07-29). Certainty labels used. This is deliberately candid about incompleteness — do not read "a component exists" as "the feature works."
 
 ## Snapshot
 
-CRWN is **live in production** (`thecrwn.app`) and the core money loop is real and hardened. The codebase is **large and layered** — it has grown many parallel feature surfaces (60+ API domains, 25 crons, 117 migrations, ~89 pages) faster than it has been consolidated. Recent work (git log) shows two threads: (1) a **security-hardening sprint** (entitlement oracle, signed audio, RLS canary) and (2) building/stabilizing the **Quest Engine / Rise Mode** gamification layer, which remains **dark-launched (flag off)**. The **newest and current frontier** (2026-07-27) is the **Opportunity Funnel system** (public tools → value-before-signup → journey resolver → holistic experiments), which is **live**, with its experiments engine **on**. `Confirmed`.
+CRWN is **live in production** (`thecrwn.app`) and the core money loop is real and hardened. The codebase is **large and layered** — it has grown many parallel feature surfaces (241 API routes, 25 crons, 134 migrations, 115 pages) faster than it has been consolidated. Earlier threads: a **security-hardening sprint** (entitlement oracle, signed audio, RLS canary), and the **Quest Engine / Rise Mode** gamification layer, which is built but remains **dark-launched (flag off)**. The **current frontier** is the **Opportunity Funnel system** (public calculator tools → value-before-signup builders → one journey resolver → holistic experiments), which is **live** with its experiments engine **on**; its latest addition (2026-07-29) is the **unified Opportunity Calculator**, the first surface that models every opportunity together without double-counting. `Confirmed`.
 
 ## Complete & production-ready (Confirmed)
 
