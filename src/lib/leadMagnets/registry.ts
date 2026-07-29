@@ -352,6 +352,45 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
   analyticsMetadata: { toolId: 'clip-to-earn-campaign-planner', category: 'Grow', promotedFeature: 'Clip-to-Earn' },
 };
 
+// Shared helpers for the loss-engine tools' registry entries: they all render through the adapter
+// (usesLossEngine) and reuse a placeholder hero image until bespoke on-brand photos are made.
+// Declared above the first loss tool because the configs below evaluate at module load.
+const AUDIENCE_INPUT: LeadMagnetInputDefinition = {
+  key: 'social_followers',
+  type: 'number',
+  label: 'Roughly how many followers do you have across your socials?',
+  required: true,
+  min: 0,
+  max: 100000000,
+  step: 'audience',
+};
+// The 40% factor, bought with one tap.
+//
+// CRWN's customer avatar (docs/ICP.md) weights "has already sold something directly to fans" at
+// 40%, ahead of audience size at 25%. The loss tools asked for follower count and nothing else,
+// so the highest-predictive fact about a lead never entered the funnel at all. Values match the
+// `monetization_status` enum in acquisition/fieldRegistry.ts so the two halves of the funnel
+// speak the same language. Multi-option, so it is an OptionSelect dropdown per the UX rule.
+const DIRECT_SALES_INPUT: LeadMagnetInputDefinition = {
+  key: 'monetization_status',
+  type: 'option',
+  label: 'Have you ever sold anything directly to your fans?',
+  help: 'This shapes what we recommend. It does not change the number.',
+  required: true,
+  step: 'proof',
+  options: [
+    { value: 'direct_established', label: 'Yes, regularly (memberships, drops, VIP)', icon: '👑' },
+    { value: 'direct_some', label: 'Yes, a few times', icon: '💸' },
+    { value: 'merch_only', label: 'Merch or tickets only', icon: '👕' },
+    { value: 'streaming_only', label: 'No, streaming and socials only', icon: '🎧' },
+  ],
+};
+const AUDIENCE_STEPS: LeadMagnetWizardStep[] = [
+  { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
+  { id: 'proof', group: 'Proof', title: 'Have your fans ever paid you directly?', subtitle: 'Streaming is exposure. A sale is proof.' },
+  { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see the loss.' },
+];
+
 // Founder Window: reference for the loss-revelation tools. Its result is produced by the shared
 // loss engine (usesLossEngine), so the web page and the DM render the identical loss result. Hero
 // image is a shared placeholder for now; bespoke on-brand photos are a follow-up.
@@ -376,21 +415,8 @@ const FOUNDER_WINDOW: LeadMagnetConfig = {
     image: '/tool-founder-window.jpg',
     imageAlt: 'A dim, gold-lit studio with an artist at the center',
   },
-  inputs: [
-    {
-      key: 'social_followers',
-      type: 'number',
-      label: 'Roughly how many followers do you have across your socials?',
-      required: true,
-      min: 0,
-      max: 100000000,
-      step: 'audience',
-    },
-  ],
-  wizardSteps: [
-    { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
-    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answer, then see the loss.' },
-  ],
+  inputs: [AUDIENCE_INPUT, DIRECT_SALES_INPUT],
+  wizardSteps: AUDIENCE_STEPS,
   resultGeneratorKey: 'founderWindow',
   usesLossEngine: true,
   resultSections: [],
@@ -407,27 +433,12 @@ const FOUNDER_WINDOW: LeadMagnetConfig = {
   analyticsMetadata: { toolId: 'founder-window-builder', category: 'Monetize', promotedFeature: 'Founder Window' },
 };
 
-// Shared helpers for the loss-engine tools' registry entries: they all render through the adapter
-// (usesLossEngine) and reuse a placeholder hero image until bespoke on-brand photos are made.
-const AUDIENCE_INPUT: LeadMagnetInputDefinition = {
-  key: 'social_followers',
-  type: 'number',
-  label: 'Roughly how many followers do you have across your socials?',
-  required: true,
-  min: 0,
-  max: 100000000,
-  step: 'audience',
-};
-const AUDIENCE_STEPS: LeadMagnetWizardStep[] = [
-  { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'A rough number is fine.' },
-  { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answer, then see the loss.' },
-];
 function lossToolBase(over: Partial<LeadMagnetConfig> & Pick<LeadMagnetConfig, 'slug' | 'name' | 'featureName' | 'category' | 'description' | 'videoAngle' | 'icon' | 'dmKeywords' | 'hero' | 'resultGeneratorKey' | 'analyticsMetadata'>): LeadMagnetConfig {
   return {
     publicRoute: `/tools/${over.slug}`,
     artistRoute: `/artist/tools/${over.slug}`,
     timeToComplete: '1 min',
-    inputs: [AUDIENCE_INPUT],
+    inputs: [AUDIENCE_INPUT, DIRECT_SALES_INPUT],
     wizardSteps: AUDIENCE_STEPS,
     usesLossEngine: true,
     resultSections: [],

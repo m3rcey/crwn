@@ -114,11 +114,14 @@ const AUDIENCE_TOOLS = [
   { icon: '🛒', name: 'Cart recovery', desc: 'Win back near-checkouts.' },
 ];
 
+// Objections written for the artist CRWN is actually for (docs/ICP.md): someone who already
+// sells to their fans and is doing it across five tools that do not talk to each other. They do
+// not need convincing that fans will pay. They already know. The loss is the stack.
 const OBJECTIONS = [
-  { q: 'My fans won’t pay.', a: 'You don’t need all of them. If even 1% of your followers pay $15/mo, that’s more than most independent artists make from streaming in a year. The number above already assumes only a small, realistic slice pays.' },
-  { q: 'I’m too small for this.', a: 'Small is the whole point. 100 real fans beats 100,000 passive streams. CRWN is built for the artist streaming can’t pay yet.' },
-  { q: 'I don’t have time to run all this.', a: 'The built-in manager and automated sequences do the heavy lifting. Set your tiers once and it runs in the background.' },
-  { q: 'Is it really free to start?', a: 'Yes. Free to sign up, no card required. You only ever pay a small fee on money you actually earn.' },
+  { q: 'My fans won’t pay.', a: 'If you have ever sold a ticket, a shirt, or a beat pack, they already did. The number above assumes only a small, realistic slice of your audience ever pays.' },
+  { q: 'I already have a Patreon.', a: 'Then you proved the model works and you are running it on someone else’s terms. Patreon does not sell your stems, ticket your live sessions, or hand you the fan’s email. Everything you sell in five places, you can sell in one, to the same fans, with the data staying yours.' },
+  { q: 'I don’t have time to run all this.', a: 'You are already running it, split across Shopify, Discord, Linktree, Eventbrite and an email tool. The built-in manager and automated sequences take it down to one place. Set your tiers once and it runs in the background.' },
+  { q: 'Is it really free to start?', a: 'Yes. Free to sign up, no card required. You only ever pay a fee on money you actually earn, and nothing on the tools you cancel to move here.' },
 ];
 
 const STEPS = [
@@ -128,7 +131,7 @@ const STEPS = [
 ];
 
 const FAQS = [
-  { q: 'What does it cost?', a: 'Free to start. You keep 88–92% of what you earn depending on your plan; CRWN only takes a small fee on actual sales.' },
+  { q: 'What does it cost?', a: 'Free to start. You keep 88% to 92% of what you earn depending on your plan, and CRWN only takes a fee on actual sales. Most artists moving here are already paying monthly for a store, a community, an email tool and a ticketing platform before they earn a cent.' },
   { q: 'How do fans pay me?', a: 'By card through Stripe. Every subscription, sale, and tip is paid straight to your bank account.' },
   { q: 'Do I keep my masters and rights?', a: 'Yes, 100%. It’s your catalog, your audience, and your data. CRWN is a tool, not a label.' },
   { q: 'Can I still release on Spotify and Apple?', a: 'Absolutely. CRWN is additive. Use the release waterfall so paying fans get new music first and the DSPs get it last.' },
@@ -183,7 +186,11 @@ export function WorthExperience({
   // the homepage and a personalized lead link keep their original immediate-number experience.
   const [entryStep, setEntryStep] = useState(0);
   const [entryDone, setEntryDone] = useState(false);
-  const [listeners, setListeners] = useState(prefill?.listeners || '50000');
+  // The default IS the implied avatar: whatever number is sitting in the box tells a visitor
+  // whether this tool was built for someone their size. CRWN's ICP floor is 100k monthly
+  // listeners / 250k followers (docs/ICP.md), so the placeholder starts inside that band
+  // instead of the old 50k, which quietly said "this is for smaller artists than you".
+  const [listeners, setListeners] = useState(prefill?.listeners || '150000');
   const [followers, setFollowers] = useState(prefill?.followers || '');
   const [streaming, setStreaming] = useState(prefill?.streaming || '');
   const [preset, setPreset] = useState<AggressivenessPreset>('conservative');
@@ -541,8 +548,8 @@ export function WorthExperience({
   const inputsCard = (
     <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mb-4">
       <div className="grid sm:grid-cols-3 gap-4">
-        <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="50,000" />
-        <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="20,000" />
+        <Field label="Monthly listeners" hint="if you have it" value={listeners} onChange={setListeners} placeholder="150,000" />
+        <Field label="Followers" hint="if you have it" value={followers} onChange={setFollowers} placeholder="250,000" />
         <Field label="Streaming $ / mo" hint="optional" value={streaming} onChange={setStreaming} placeholder="auto" prefix="$" />
       </div>
       <p className="text-lg text-crwn-text-secondary/70 mt-3">
@@ -612,7 +619,7 @@ export function WorthExperience({
               How much money are you leaving on the table?
             </h1>
             <p className="text-crwn-text-secondary max-w-xl mx-auto text-xl sm:text-2xl">
-              {"Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you're walking away from every month."}
+              {"Streaming pays pennies, and the fans who would pay you properly are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers and see what you're walking away from every month."}
             </p>
           </div>
         )}
@@ -621,7 +628,7 @@ export function WorthExperience({
           <ToolHero
             eyebrow="Streaming Loss"
             headline="How much money are you leaving on the table?"
-            subheadline="Streaming pays pennies. Your real superfans would pay you directly, if you gave them somewhere to. Punch in your numbers and see what you are walking away from every month."
+            subheadline="Streaming pays pennies, and the fans who would pay you properly are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers and see what you are walking away from every month."
             timeToComplete="1 min"
             image="/tool-worth.jpg"
             imageAlt="An artist alone in a dark studio staring at a disappointing number on his phone"

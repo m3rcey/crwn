@@ -24,6 +24,19 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Decision: do we build the stack-migration on-ramp, and how far?** Your customer avatar
+      ([`docs/ICP.md`](docs/ICP.md)) says the ideal customer already sells to fans across Patreon,
+      Shopify, Discord, Gumroad and Eventbrite, and that **consolidation is the pitch**. CRWN has
+      no import of any kind today: no email-list CSV, no Patreon member import, no product import.
+      An artist with 400 paying Patreon members would have to rebuild that list by hand, so the
+      wedge has no on-ramp. Three options, cheapest first:
+      **(a)** email-list CSV import into the Fan CRM (small, unlocks outreach immediately);
+      **(b)** (a) plus a Patreon member CSV import that pre-creates matching tiers and invites
+      each member to claim their membership on CRWN;
+      **(c)** (b) plus product/catalog import from Shopify/Gumroad.
+      Say (a), (b) or (c) and I will build it. This is a scope and priority call, not a technical
+      one, which is why it is yours.
+
 - [ ] **(Recommended, when data exists) Turn on Resend open/click events for prospect nurture.** In
       the Resend dashboard, enable the **email.opened** and **email.clicked** events. The signed
       webhook already handles them; without them the admin panel's open/click rates stay at zero.
@@ -141,6 +154,14 @@ Things that are never finished. Cadence, then the thing.
 ## On Claude's plate (not yours)
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
+
+- **Retarget the rest of the funnel to the customer avatar.** The scoring model, the homepage
+  calculator, the loss tools' qualifying question, the nurture sequence and the brain doc are done
+  (2026-07-28, [`docs/ICP.md`](docs/ICP.md)). Still mine to finish: the setup wizard assumes an
+  artist with nothing (one free tier, first track free, no bulk catalog import) which is the wrong
+  first run for someone with 40 to 300 released songs, and the loss engine still applies a flat
+  1% to 3% conversion regardless of whether the artist has ever sold anything, which under-sells a
+  proven seller. Neither blocks anything today.
 
 - **`useArtistContext` serves an empty/stale `tiers` (from `artist_profiles.tier_config`), not the
   real `subscription_tiers` table.** This made the live-session tier gate show no tiers (2026-07-26,

@@ -85,14 +85,17 @@ export const PROSPECT_NURTURE_SEQUENCE: NurtureSequence = {
       id: 'core.p2.small-or-large',
       phase: 'belief',
       dayOffset: 8,
-      objective: 'Show it works at both small and large audience size; raise perceived likelihood of success.',
-      subject: 'This works whether you have 200 fans or 200,000',
-      preview: 'Small audiences convert. Big audiences leak. The fix is the same.',
+      // Leads with the LEAK, not with reassurance about being small. The subject line is read by
+      // artists at every size, and "this works even if you are tiny" tells the artist CRWN is
+      // actually built for (docs/ICP.md) that they are in the wrong room. The small-audience
+      // reassurance stays, one paragraph lower, because it is still true.
+      objective: 'Reframe audience size as leakage, not a prerequisite; raise perceived likelihood of success.',
+      subject: 'The bigger your audience, the more of it leaks',
+      preview: 'Big audiences leak. Small ones convert. The fix is the same one.',
       body: [
         { kind: 'p', text: 'Hey {{first_name}},' },
-        { kind: 'p', text: 'A quick worry to put down, because it stops more artists than anything else: "my audience is too small for this."' },
-        { kind: 'p', text: 'A small, real audience usually converts better than a big, passive one. Two hundred people who actually care will out-earn twenty thousand who scrolled past you once. The whole point is that a handful of true supporters is enough to matter.' },
-        { kind: 'p', text: 'And if your audience is large, the number in your result is mostly leakage: reach you already have that turns into nothing because there is no way for it to pay you. Same fix, bigger gap.' },
+        { kind: 'p', text: 'The number in your result is mostly leakage: reach you already have that turns into nothing, because there is no way for it to pay you. The bigger the audience, the bigger the gap.' },
+        { kind: 'p', text: 'And if your audience is on the smaller side, it works there too. A small, real audience usually converts better than a big, passive one. Two hundred people who actually care will out-earn twenty thousand who scrolled past you once.' },
         { kind: 'moduleUseCase' },
         { kind: 'p', text: 'Either way, the size of your audience is not the thing standing between you and the number. The missing structure is.' },
       ],

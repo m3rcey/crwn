@@ -603,61 +603,83 @@ describe('the unparseable-answer loop (regression: the bot used to ask forever)'
 
 // ---------------------------------------------------------------------------
 describe('lead scoring (explainable, deterministic, Claude-bounded)', () => {
-  it('scores the ideal CRWN lead highly: real reach, zero fan ownership', () => {
+  it('scores the avatar Tier 1 lead as a sales priority: real reach AND proof they sell', () => {
+    // docs/ICP.md, verbatim: "These are the artists I'd build the company around." Real audience,
+    // and they have already convinced fans to pay them outside of streaming.
     const s = scoreLead({
       profile: {
-        monthly_listeners: 120_000,
-        email_list_size: 0,
-        primary_goal: 'own_my_fanbase',
-        primary_blocker: 'audience_wont_pay',
+        monthly_listeners: 300_000,
+        social_followers: 1_200_000,
+        monetization_status: 'direct_established',
+        song_count: 60,
+        team_status: 'management',
+        primary_goal: 'scale_existing_revenue',
+        primary_blocker: 'platform_dependency',
       },
       behavior: { ...EMPTY_BEHAVIOR, resultViewed: true },
     });
-    expect(s.reasonCodes).toContain('reach_without_ownership');
-    expect(s.reasonCodes).toContain('strong_fit');
+    expect(s.reasonCodes).toContain('direct_monetization_proven');
+    expect(s.reasonCodes).toContain('tier1_audience');
+    expect(s.reasonCodes).toContain('deep_catalog');
+    expect(s.band).toBe('sales_priority');
+    expect(s.components).toMatchObject({ monetization: 40, audience: 25, catalog: 15 });
+  });
 
-    // audience 20 + reachWithoutOwnership 15 + alignment 15 + behavior 4 = 54
-    expect(s.total).toBe(54);
-    expect(s.components).toMatchObject({
-      audience: 20,
-      reachWithoutOwnership: 15,
-      alignment: 15,
-      fanOwnership: 0,
+  it('reach with NO evidence of a single direct sale is a red flag, not the thesis', () => {
+    // v1.0.0 paid 15 points for exactly this profile. The avatar calls it a red flag: "huge
+    // streaming numbers but almost no social engagement", "no evidence they've ever tried to
+    // sell anything". Same inputs, opposite sign.
+    const unproven = scoreLead({
+      profile: { monthly_listeners: 120_000, monetization_status: 'streaming_only' },
+      behavior: EMPTY_BEHAVIOR,
     });
+    const proven = scoreLead({
+      profile: { monthly_listeners: 120_000, monetization_status: 'direct_some' },
+      behavior: EMPTY_BEHAVIOR,
+    });
+
+    expect(unproven.reasonCodes).toContain('reach_without_proof');
+    expect(unproven.components.reachPenalty).toBe(-12);
+    expect(proven.components.reachPenalty).toBe(0);
+    // Proof is worth more than reach. That is the whole avatar in one assertion.
+    expect(proven.total).toBeGreaterThan(unproven.total);
   });
 
   it('does NOT file a big-reach engaged lead as "unqualified" (regression)', () => {
-    // The FIRST real lead through the live funnel: 100,000 monthly listeners, no email list,
-    // opened her result, edited the assumptions. CRWN scored her 20 and filed her as
-    // "unqualified", so no alert fired and no follow-up was queued.
+    // The first real lead through the live funnel: 100,000 monthly listeners, opened her result,
+    // edited the assumptions, and CRWN filed her as "unqualified" so no alert ever fired.
     //
-    // Two bugs caused it. The orchestrator passed EMPTY_BEHAVIOR, so nothing she DID ever
-    // counted. And reach-without-ownership, which is CRWN's entire thesis, was worth zero
-    // points: the reason code fired and no score came with it.
-    //
-    // The worth funnel asks ONE question, so it can never learn goal or blocker. It must
-    // still be able to recognise a hot lead from reach + behavior alone.
+    // The worth funnel asks ONE question, so it can never learn goal, blocker, or sales history.
+    // It must still recognise a warm lead from reach + behavior alone, WITHOUT promoting her to
+    // sales priority on a single data point.
     const s = scoreLead({
       profile: { monthly_listeners: 100_000 }, // one question. That is all this funnel asks.
       behavior: { ...EMPTY_BEHAVIOR, resultViewed: true, resultRecalculated: true },
     });
 
-    expect(s.reasonCodes).toContain('reach_without_ownership');
     expect(s.reasonCodes).toContain('engaged_with_result');
+    expect(s.reasonCodes).toContain('monetization_unknown');
     expect(s.band).not.toBe('unqualified');
-    // audience 20 + reachWithoutOwnership 15 + behavior 8 (viewed 4 + recalculated 4) = 43
-    expect(s.total).toBe(43);
+    expect(s.band).not.toBe('sales_priority');
   });
 
-  it('the CRWN thesis is worth points, not just a reason code', () => {
-    const big = scoreLead({ profile: { monthly_listeners: 100_000, email_list_size: 0 }, behavior: EMPTY_BEHAVIOR });
-    const owned = scoreLead({ profile: { monthly_listeners: 100_000, email_list_size: 5_000 }, behavior: EMPTY_BEHAVIOR });
+  it('caps the fit of a lead we never asked the monetization question', () => {
+    // One known dimension used to mean a perfect fit, because the prorated denominator only
+    // counted what we knew. Unknown is not the same as good.
+    const s = scoreLead({ profile: { monthly_listeners: 500_000 }, behavior: EMPTY_BEHAVIOR });
+    expect(s.components.fit).toBe(60);
+    expect(s.reasonCodes).toContain('monetization_unknown');
+  });
 
-    // Big reach with NO way to reach them is exactly who CRWN is for.
-    expect(big.components.reachWithoutOwnership).toBe(15);
-    // An artist who already owns their list has a different (still good) problem.
-    expect(owned.components.reachWithoutOwnership).toBe(0);
-    expect(owned.components.fanOwnership).toBe(20);
+  it('never spends sales time below the ICP floor', () => {
+    // Under 50k followers and under 20k listeners. They can succeed on CRWN; the problem is
+    // acquisition economics, so they nurture and never reach a human.
+    const s = scoreLead({
+      profile: { monthly_listeners: 4_000, monetization_status: 'direct_established', song_count: 60 },
+      behavior: { ...EMPTY_BEHAVIOR, resultViewed: true, resultRecalculated: true, accountClaimed: true },
+    });
+    expect(s.reasonCodes).toContain('below_icp_floor');
+    expect(s.band).toBe('nurture');
   });
 
   it('penalizes a lead whose real problem is not one CRWN solves', () => {
@@ -677,9 +699,20 @@ describe('lead scoring (explainable, deterministic, Claude-bounded)', () => {
   });
 
   it('is explainable: every point is attributable to a named component', () => {
-    const s = scoreLead({ profile: { monthly_listeners: 50_000 }, behavior: EMPTY_BEHAVIOR });
-    const sum = Object.values(s.components).reduce((a, b) => a + b, 0);
-    expect(Math.min(sum, 100)).toBe(s.total);
+    const s = scoreLead({
+      profile: { monthly_listeners: 50_000, monetization_status: 'direct_some', song_count: 30 },
+      behavior: { ...EMPTY_BEHAVIOR, resultViewed: true },
+      claudeSignal: 10,
+    });
+    // The four avatar dimensions roll up into `fit`, which carries 70 of the 100 points; the
+    // rest is what she did, how well her goal matches, and Claude's bounded vote. Every one of
+    // those is a named component, so the total is reproducible from the stored row.
+    const c = s.components;
+    const rebuilt = Math.round(c.fit * 0.7) + c.behavior + c.alignment + c.aiSignal + c.reachPenalty;
+    expect(Math.min(Math.max(rebuilt, 0), 100)).toBe(s.total);
+    for (const key of ['monetization', 'audience', 'engagement', 'catalog', 'fit', 'behavior', 'alignment', 'aiSignal', 'reachPenalty']) {
+      expect(typeof c[key], `${key} missing from components`).toBe('number');
+    }
   });
 
   it('treats a booked call as a hard sales signal regardless of arithmetic', () => {

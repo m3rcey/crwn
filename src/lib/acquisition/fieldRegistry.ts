@@ -74,6 +74,9 @@ export const MONETIZATION_STATUS = ['none', 'streaming_only', 'merch_only', 'dir
 export const TEAM_STATUS = ['solo', 'small_team', 'management', 'label'] as const;
 export const PURCHASE_INTENT = ['unknown', 'low', 'medium', 'high'] as const;
 export const FAN_OWNERSHIP_MATURITY = ['none', 'social_only', 'partial_list', 'owned_list'] as const;
+// Engagement is 20% of the customer avatar and outranks raw follower count: a dead 2M is worth
+// less than an active 200k. See docs/ICP.md.
+export const ENGAGEMENT_LEVELS = ['low', 'moderate', 'high'] as const;
 
 export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
   // ---- identity ----
@@ -184,6 +187,47 @@ export const FIELD_REGISTRY: Record<string, FieldDefinition> = {
     min: 0,
     max: 100_000,
     minConfidence: 0.7,
+  },
+
+  // ---- Avatar fields (docs/ICP.md). Stored in `extra` jsonb: column null, no migration. ----
+  //
+  // Engagement is 20% of the avatar's weighting and CRWN was collecting nothing for it, so
+  // every lead scored zero on a fifth of the model. Years releasing is the avatar's 3-year hard
+  // filter. Existing platforms is the wedge itself: the ideal customer already sells on Patreon,
+  // Shopify, Discord, Gumroad, Kajabi or Eventbrite, and CRWN's pitch to them is consolidation.
+  engagement_level: {
+    key: 'engagement_level',
+    type: 'enum',
+    column: null,
+    label: 'Fan engagement',
+    aiExtractable: true,
+    question: 'When you post, do your fans actually show up? (comments, DMs, people on live)',
+    retryHint: 'Roughly: is it quiet, steady, or do they flood the comments every time?',
+    values: [...ENGAGEMENT_LEVELS],
+    minConfidence: 0.6,
+  },
+  years_releasing: {
+    key: 'years_releasing',
+    type: 'integer',
+    column: null,
+    label: 'Years releasing music',
+    aiExtractable: true,
+    question: 'How long have you been putting music out?',
+    retryHint: 'A number of years is fine, even a rough one.',
+    inputType: 'number',
+    min: 0,
+    max: 60,
+    minConfidence: 0.7,
+  },
+  existing_platforms: {
+    key: 'existing_platforms',
+    type: 'string',
+    column: null,
+    label: 'Where they already sell',
+    aiExtractable: true,
+    question: 'Where do you sell to fans today? (Patreon, Shopify, Discord, Bandcamp, anywhere)',
+    retryHint: 'Just name the tools you use, or say none if fans cannot buy from you yet.',
+    minConfidence: 0.6,
   },
 
   // ---- MONEY. aiExtractable: false, every one of them. ----

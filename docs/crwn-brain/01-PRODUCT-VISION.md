@@ -18,7 +18,8 @@ Independent artists on streaming platforms (Spotify/Apple) earn fractions of a c
 
 ## 3. Target market
 
-- **Primary:** independent / early-stage recording artists who already have some audience (e.g. on Spotify/Apple/TikTok) and want to convert it into owned, recurring revenue. Launch artist named in the brief: **"The G1ft"**; the seeded test artist is **`m3rcey`** (Josh, the owner/operator). `Confirmed` (`CRWN_Kickoff_Brief.md`, `supabase/seed-demo-data.sql`, `CLAUDE.md`).
+- **Primary (customer avatar, set 2026-07-28, canonical in [`docs/ICP.md`](../ICP.md)):** artists who have **already proven they can get fans to spend money directly** (Patreon, merch, VIP, Discord, beat packs, tickets) but whose monetization stack is **fragmented** across five or six tools. Tier 1 is **250k to 5M followers, 100k to 3M monthly listeners, 40 to 300 released songs, 3+ years releasing**. Streaming is exposure; direct sales are proof. CRWN's pitch to them is **consolidation plus new products**, NOT "streaming pays pennies". Under 50k followers / 20k listeners is Tier 3: they can succeed on CRWN, but they cost too much to acquire right now. Launch artist named in the brief: **"The G1ft"**; the seeded test artist is **`m3rcey`** (Josh, the owner/operator). `Confirmed` (`docs/ICP.md`, `src/lib/acquisition/leadScoring.ts`, `CRWN_Kickoff_Brief.md`, `CLAUDE.md`).
+  - Superseded: this used to read "independent / early-stage recording artists who already have some audience." Early-stage is now explicitly the *later* wave, and code that scored leads on that basis was rewritten.
 - **Secondary market actors** the product explicitly builds for: **fans** (buyers + promoters), **recruiters/partners** (music-industry influencers who refer artists to the platform for commission), and **collaborators** (producers/managers/clippers who take a revenue-share via Team Splits). `Confirmed`.
 
 ## 4. Primary user personas

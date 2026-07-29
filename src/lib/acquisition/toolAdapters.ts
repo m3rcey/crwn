@@ -72,6 +72,14 @@ export interface LeadProfileValues {
   mechanical_collection?: string | null;
   soundexchange?: string | null;
   unregistered_backlog?: string | null;
+  // Avatar fields. Real lead_profiles columns, read by leadScoring: monetization_status is the
+  // 40% dimension and was being collected and ignored until 2026-07-28.
+  monetization_status?: string | null;
+  fan_ownership_maturity?: string | null;
+  team_status?: string | null;
+  career_stage?: string | null;
+  /** lead_profiles.extra jsonb. Holds registry fields whose `column` is null. */
+  extra?: Record<string, unknown> | null;
 }
 
 const n = (v: number | null | undefined, d = 0): number => (typeof v === 'number' && Number.isFinite(v) ? v : d);
