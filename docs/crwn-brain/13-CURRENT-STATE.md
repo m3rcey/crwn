@@ -112,9 +112,50 @@ and polls bolted on, so the build extends `live_sessions` rather than forking it
 - Demo seeds (`seed-demo-*.sql`) populate the `m3rcey` test artist; `__canary*` users are synthetic health-check accounts (skipped by notification hooks).
 - **Stale copy in the recruit marketing page** (`recruit/page.tsx:162`) still says "Pro $50, Label $150, Empire $350" — contradicts current pricing.
 
+## Unified Opportunity Calculator — live 2026-07-29 (Confirmed)
+
+The 18th public tool, and the only one that models the whole business at once
+(`/tools/opportunity-calculator`). Every other calculator models ONE opportunity honestly; summing
+their headlines is not honest, because they are all built on the same audience. At 500k followers
+their published formulas sum to ~$550k/mo and 23,500 payers, while the repo's own audience model
+says 2,250 people ever pay for anything.
+
+So this does not add them. `src/lib/opportunity/unifiedModel.ts` (`unifiedOpportunity@1`) runs one
+layered model: **one** normalized audience (the larger platform figure, never a sum; owned contacts
+folded in by inclusion-exclusion), **one** unique paying-supporter count, **one** membership ladder
+with the Vault as its middle TIER, Share-to-Earn and Clip-to-Earn as **acquisition** (they move the
+supporter count and the attribution split, and produce no revenue line), and incremental purchases
+sold **only** out of the non-member pool. That disjoint-population rule is what makes the total
+provable: every dollar is paid by a member or by a non-member, never by both.
+
+Presentation `unifiedAdapter.ts` (headline is a conservative-to-high RANGE; current direct revenue
+is SUBTRACTED). Coordinated `system` builder in `deliverableSpecs.ts` prefills the whole business,
+and `recalcUnified.ts` re-runs the model when the artist's edits change the structure, so the
+builder can never keep showing a headline the artist's own choices invalidated. **82 tests** assert
+the invariants (`unifiedModel.test.ts`, `unifiedFunnel.test.ts`).
+
+Additive, no migration, no feature flag: it is an 18th entry in the existing lead-magnet registry,
+so it inherits the tool page, wizard, capture, tokenized result, email, prospect nurture, draft
+claiming and the journey resolver. All 17 individual calculators are untouched and still work.
+Promotion is `secondary` on purpose (Own Your Fans stays `primary`: it is the assigned experience of
+the RUNNING `oyf-signup-timing-v1` experiment). `?from=<tool-slug>` entry contexts reorder the
+wizard for a single-opportunity video without changing the model. Three analytics events added
+(`opportunity_overlap_explained`, `_recommendation_edited`, `_estimate_recalculated`) and the server
+allowlist in `/api/lead-magnets/analytics` is now DERIVED from `ALL_OPPORTUNITY_EVENT_NAMES` rather
+than hand-copied, which had been silently dropping any client event the server list missed. Full
+spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
+
 ## Testing
 
-**Zero automated tests, codebase-wide.** No jest/vitest/playwright config, no `.test`/`.spec` files, no `test` npm script. Verification is the `npm run build` gate + the `onboarding-health` and `rls-canary` crons that exercise real RLS paths against production. `Confirmed`.
+**Vitest is configured and the suite is real: `npm test` runs 392 tests across 23 files.** This
+supersedes the earlier "zero automated tests" claim in this package, which was written before the
+Opportunity Funnel work landed. Coverage is concentrated in the pure business layers (the
+acquisition adapters, the opportunity model + funnel, drafts, journey resolution, experiments,
+prospect nurture, revenue ramp, analytics); there is still no component, integration or e2e test,
+and no jest/playwright config. `npm run build` remains the primary gate for everything the suite
+does not reach, alongside the `onboarding-health` and `rls-canary` crons that exercise real RLS
+paths against production. `npm run lint` is NOT a gate: it reports ~635 pre-existing errors (mostly
+`no-explicit-any`) across the codebase. `Confirmed`.
 
 ## Incident history (from migration filenames + git log)
 

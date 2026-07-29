@@ -6,8 +6,8 @@ import {
 } from './analytics';
 
 describe('opportunity event names', () => {
-  it('defines exactly the seven shared funnel events', () => {
-    expect(OPPORTUNITY_EVENT_NAMES).toHaveLength(7);
+  it('defines exactly the shared funnel events, including the three multi-opportunity ones', () => {
+    expect(OPPORTUNITY_EVENT_NAMES).toHaveLength(10);
     expect(OPPORTUNITY_EVENT_NAMES).toEqual([
       'opportunity_funnel_viewed',
       'opportunity_funnel_started',
@@ -16,8 +16,19 @@ describe('opportunity event names', () => {
       'opportunity_recommendation_viewed',
       'opportunity_cta_clicked',
       'opportunity_builder_started',
+      // Added for the all-in-one calculator, which has to disclose its overlap handling and
+      // re-derive its own headline when the artist edits the plan.
+      'opportunity_overlap_explained',
+      'opportunity_recommendation_edited',
+      'opportunity_estimate_recalculated',
     ]);
     expect(OPPORTUNITY_EVENTS.funnelViewed).toBe('opportunity_funnel_viewed');
+  });
+
+  it('lets the entry context travel as a dimension, but never raw URL text', () => {
+    const out = sanitizeOpportunityMeta({ entryContext: 'vault-revenue-planner', evil: '<script>' });
+    expect(out.entryContext).toBe('vault-revenue-planner');
+    expect(out).not.toHaveProperty('evil');
   });
 });
 

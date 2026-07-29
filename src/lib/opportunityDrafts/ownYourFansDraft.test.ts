@@ -84,8 +84,8 @@ describe('journey analytics contract', () => {
     expect(JOURNEY_EVENT_NAMES).toHaveLength(16);
     expect(JOURNEY_EVENT_NAMES).toContain('draft_claim_completed');
     expect(JOURNEY_EVENT_NAMES).toContain('signup_completed_from_opportunity');
-    // 7 funnel events + 16 journey events + 9 personalized-journey events are all allowlistable.
-    expect(ALL_OPPORTUNITY_EVENT_NAMES).toHaveLength(32);
+    // 10 funnel events + 16 journey events + 9 personalized-journey events are all allowlistable.
+    expect(ALL_OPPORTUNITY_EVENT_NAMES).toHaveLength(35);
     // A claim token is never an event name (it must never appear in analytics).
     expect(ALL_OPPORTUNITY_EVENT_NAMES.some((n) => n.includes('token'))).toBe(false);
   });

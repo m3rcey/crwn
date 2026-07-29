@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { recordLmEvent } from '@/lib/leadMagnets/server';
 import { recordFunnelEvent, LM_EVENT_TO_STAGE } from '@/lib/analytics/funnelEvents';
+import { ALL_OPPORTUNITY_EVENT_NAMES } from '@/lib/opportunityFunnels/analytics';
 
 // PUBLIC analytics sink. Append-only. The server allowlists fields (recordLmEvent),
 // so no raw email/phone/answers/payloads can land here even if a client sends them.
@@ -32,42 +33,13 @@ const ALLOWED_EVENTS = new Set([
   'lead_magnet_conversion_completed',
   'lead_magnet_conversion_failed',
   'lead_magnet_result_archived',
-  // Shared Opportunity Funnel events (parallel normalized layer; NOT mirrored into funnel_events,
-  // so they never double-count the lead-magnet stages that already are).
-  'opportunity_funnel_viewed',
-  'opportunity_funnel_started',
-  'opportunity_funnel_completed',
-  'opportunity_result_viewed',
-  'opportunity_recommendation_viewed',
-  'opportunity_cta_clicked',
-  'opportunity_builder_started',
-  // Value-before-signup journey events (anonymous -> build -> save -> signup -> claim -> resume).
-  // Same append-only sink; never mirrored into funnel_events, never carry a claim token or PII.
-  'anonymous_value_started',
-  'anonymous_value_completed',
-  'recommended_solution_viewed',
-  'pre_signup_builder_started',
-  'pre_signup_builder_step_completed',
-  'pre_signup_preview_viewed',
-  'signup_boundary_reached',
-  'signup_prompt_viewed',
-  'signup_started_from_opportunity',
-  'signup_completed_from_opportunity',
-  'draft_claim_started',
-  'draft_claim_completed',
-  'draft_claim_failed',
-  'draft_restored',
-  'authenticated_builder_resumed',
-  'feature_published',
-  // Personalized post-signup journey (opportunity context surviving signup -> restore -> action).
-  'personalized_journey_assigned',
-  'context_restored_after_signup',
-  'onboarding_context_viewed',
-  'recommended_action_viewed',
-  'recommended_action_started',
-  'recommended_action_completed',
-  'feature_activated',
-  'next_action_viewed',
+  // The Opportunity Funnel layer: shared funnel events, the value-before-signup journey, and the
+  // personalized post-signup journey. DERIVED from the client's own constant rather than
+  // hand-copied. The two lists were duplicated by hand, so adding an event on the client left the
+  // server silently dropping it (a 200 with the row never written, the worst kind of analytics
+  // bug). None of these are mirrored into funnel_events, so they never double-count the
+  // lead-magnet stages that already are, and none may carry a claim token or PII.
+  ...ALL_OPPORTUNITY_EVENT_NAMES,
 ]);
 
 export async function POST(req: NextRequest) {

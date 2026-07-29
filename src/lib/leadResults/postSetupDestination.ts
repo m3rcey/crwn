@@ -90,6 +90,29 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
       };
     }
 
+    // The unified calculator -> the SAME membership builder Streaming Loss uses, because the
+    // coordinated system's phase 1 is always the ladder and nothing else can launch before it.
+    // The full ladder rides along as the suggestion, exactly as `worth` does, so the artist sees
+    // the whole system they reviewed rather than just the one tier the Free plan can draft.
+    //
+    // Deliberately NOT fanned out into several builders at once. The growth systems and the
+    // premium experience are later phases of the artist's own launch order, and dropping them into
+    // four parallel prefilled builders would be the same additive mistake the model exists to
+    // avoid, just applied to the artist's attention instead of their money.
+    case 'opportunity-calculator': {
+      const ladder = Array.isArray(cp.ladder) ? (cp.ladder as LadderTier[]) : [];
+      const entry = ladder[0];
+      return {
+        path: '/offers/new',
+        prefill: {
+          lm_goal: 'grow-supporters',
+          lm_tier_name: entry?.name || 'Inner Circle',
+          ...(entry ? { lm_price: dollars(entry.priceCents) } : {}),
+        },
+        suggest: ladder.length ? { lm_suggest_ladder: encodeLadder(ladder) } : {},
+      };
+    }
+
     // Vault Planner -> the Vault tier. Cadence has no scheduler, so it is a suggestion only.
     case 'vault-revenue-planner': {
       const price = positive(cp.priceCents);

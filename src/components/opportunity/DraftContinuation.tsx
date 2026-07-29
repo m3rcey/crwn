@@ -52,7 +52,7 @@ export function DraftContinuation({ token }: { token: string }) {
 
   // What they built, in the shape of the deliverable.
   const items: { title: string; detail?: string }[] = [];
-  if (spec.preview.kind === 'ladder') {
+  if (spec.preview.kind === 'ladder' || spec.preview.kind === 'system') {
     for (const t of spec.preview.tiers || []) {
       const name = asText(v[t.nameKey]);
       if (!name) continue;
@@ -99,6 +99,9 @@ export function DraftContinuation({ token }: { token: string }) {
           {items.map((i) => i.title).filter(Boolean).slice(0, 4).join(', ')}
         </p>
       )}
+      {/* Only shown by a tool that models several opportunities at once, so the artist can see the
+          number is smaller than a pile of separate calculators on purpose. */}
+      {spec.overlapNote && <p className="text-[11px] text-crwn-gold/80 mt-1.5">{spec.overlapNote}</p>}
       <p className="text-[11px] text-crwn-text-secondary mt-1">A planning estimate, not a guarantee.</p>
     </div>
   );

@@ -32,6 +32,21 @@ export interface LeadMagnetInputOption {
   icon?: string; // emoji only (configs are client-safe data, no JSX)
 }
 
+/**
+ * When an input is visible. `equals` is the original single-value form and still behaves exactly as
+ * it did. `oneOf`/`notOneOf` and the `all` conjunction exist for real branching: only ask about
+ * promoter overlap when the artist has BOTH sharers and clippers, only ask how a session is
+ * structured when they are willing to go live at all.
+ */
+export interface LeadMagnetVisibilityRule {
+  key?: string;
+  equals?: string | boolean;
+  oneOf?: (string | boolean)[];
+  notOneOf?: (string | boolean)[];
+  /** Every rule must pass. Nested one level; that is all any real branch has needed. */
+  all?: LeadMagnetVisibilityRule[];
+}
+
 export interface LeadMagnetInputDefinition {
   key: string;
   type: LeadMagnetInputType;
@@ -45,7 +60,11 @@ export interface LeadMagnetInputDefinition {
   maxLength?: number;
   options?: LeadMagnetInputOption[];
   // Show this input only when another input's value matches (dependent questions).
-  dependsOn?: { key: string; equals: string | boolean };
+  // `equals` is the original single-value form. `oneOf`/`notOneOf` support real branching (only
+  // ask the promoter-overlap question when the artist has BOTH sharers and clippers, only ask
+  // about session structure when they are willing to go live at all). All three are optional and
+  // ANDed together, so an existing `equals`-only config behaves exactly as it did.
+  dependsOn?: LeadMagnetVisibilityRule;
   // Which wizard step this input renders on.
   step: string;
 }
@@ -101,6 +120,13 @@ export interface LeadMagnetConfig {
   };
   inputs: LeadMagnetInputDefinition[];
   wizardSteps: LeadMagnetWizardStep[];
+  /**
+   * Optional entry contexts, keyed by the `?from=` value a campaign link carries (usually the slug
+   * of the single-opportunity tool whose video sent them). The named steps are pulled to the front
+   * so a Vault video does not open on a generic questionnaire. This REORDERS only: no question is
+   * added or removed, `review` always stays last, and a tool with no entry contexts is unaffected.
+   */
+  entryContexts?: Record<string, { label: string; note: string; priorityStepIds: string[] }>;
   resultGeneratorKey: string;
   /**
    * When true, the tool's result is produced by its acquisition ADAPTER (the shared

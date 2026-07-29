@@ -1,5 +1,68 @@
 # CRWN Brain — Changelog
 
+## 2026-07-29 — The unified Opportunity Calculator: one model, nothing counted twice
+
+Seventeen calculators each modeled one opportunity honestly. Run together they were dishonest,
+because they were all built on the same audience and most of them resolved to the same dollar. At
+500,000 followers their own published formulas sum to about **$550,835/mo and 23,500 paying people**,
+against a following of 500,000 and a repo audience model that says only 2,250 of them ever pay for
+anything. The Vault alone claimed more payers than the entire membership model. An artist planning
+against that number plans a business that does not exist.
+
+**The new tool does not add them up.** `/tools/opportunity-calculator`, model
+`src/lib/opportunity/unifiedModel.ts` (`unifiedOpportunity@1`):
+
+- **One normalized audience.** `max(followers, listeners, owned)`, never a sum, because nothing in
+  this repo can say how much two platforms overlap. Owned contacts are folded in by
+  inclusion-exclusion (owned are fully reachable, the rest at `reachRate`), so addressable can never
+  exceed the audience. Where the overlap is genuinely unknown, the result says so.
+- **One unique paying-supporter count.** Every recurring dollar is the ladder applied ONCE to it.
+- **The Vault is a TIER** ($25, the middle rung of `RECOMMENDED_LADDER`), not a second membership.
+  Standalone only when explicitly configured, and then it replaces a rung rather than adding one.
+  Not recommended at all below five unreleased pieces.
+- **Share-to-Earn and Clip-to-Earn are acquisition, not revenue.** Clips are a capped LIFT on the
+  conversion of the audience the artist already has. Sharing is the one mechanism reaching people
+  from outside, so it adds heads, but those heads join the same ladder at the same prices. Both
+  appear only as a supporter and attribution split; `organic + clip + share == payingSupporters`.
+- **A fan may hold two roles; a person is counted once.** `uniquePromoters = sharers + clippers -
+  both`. The overlap question is asked only when both systems are live, and falls back to a
+  documented default.
+- **Incremental purchases sell only to non-members.** Members already have the live in their tier,
+  so no member is also counted as a ticket buyer. A session that is a top-tier benefit earns
+  **zero** on its own; a hybrid counts only the extra seats. This disjoint-population rule is what
+  makes the total provable: every dollar is paid by a member or a non-member, never both.
+- **Recurring and one-time stay separate**, gross is never mixed with net, the fee is applied once,
+  commission only on the attributed slice, and current direct revenue is **subtracted**, never
+  added. Headline is a conservative-to-high **range**.
+- **82 tests** (`unifiedModel.test.ts`, `unifiedFunnel.test.ts`) assert every one of those, plus that
+  the unified total stays below half the naive sum.
+
+Around the model: an 11-screen branching wizard (the overlap question renders only when the artist
+has both sharers and clippers; session structure only when they will go live; a step whose every
+input is branched away is skipped rather than shown empty), `?from=<tool-slug>` entry contexts that
+reorder the wizard for a single-opportunity video **without changing the model**, a coordinated
+`system` builder that prefills the whole business (ladder, Vault placement, both growth systems,
+the experience, the launch order) and re-runs the model via `recalcUnified.ts` the moment an edit
+changes the structure, and a compact signup boundary carrying the range, the plan preview and a
+one-line overlap disclosure.
+
+**Additive and reversible.** No migration, no feature flag: it is an 18th entry in the existing
+lead-magnet registry, so it inherits the tool page, capture, tokenized result, email, prospect
+nurture, draft claiming and the journey resolver. All 17 individual calculators are untouched and
+verified still working. Promotion is deliberately `secondary`, because Own Your Fans is `primary`
+AND is the assigned experience of the running `oyf-signup-timing-v1` experiment.
+
+Two fixes fell out of the work and apply beyond this tool:
+- **`resultVersion` is pinned** in the funnel overlay. Defaulting would have stamped it
+  `lossResult@1` and pooled its analytics with sixteen other tools, the same mislabelling the
+  royalty overlay exists to prevent.
+- **The analytics server allowlist is now DERIVED** from `ALL_OPPORTUNITY_EVENT_NAMES` instead of
+  hand-copied in `/api/lead-magnets/analytics`. The two lists had drifted apart by hand, so adding a
+  client event left the server silently dropping it: a 200 response with the row never written.
+
+Also corrected in this package: `13-CURRENT-STATE.md` claimed **zero automated tests**
+codebase-wide. That is stale. Vitest is configured and `npm test` runs 392 tests across 23 files.
+
 ## 2026-07-27 — Flagship calculator polish: wizard entry, above-fold CTA, signup continuation, four campaigns
 
 Final UX pass on the three flagship funnels so they feel like one product.

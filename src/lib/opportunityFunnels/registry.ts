@@ -78,6 +78,27 @@ const OVERLAYS: Record<string, FunnelOverlay> = {
   // its resultVersion is set explicitly here or every royalty analytics event would be mislabeled.
   'royalty-readiness-check': { featureFlag: 'royalty_readiness', resultVersion: 'readiness@1' },
   'executive-producer-session': { featureFlag: 'producer_sessions' },
+  // The all-in-one calculator. Its result comes from the unified model, NOT the shared loss engine,
+  // so resultVersion is set explicitly here. Leaving it to default would stamp every one of its
+  // analytics events 'lossResult@1' and silently pool them with sixteen other tools' results, the
+  // exact mislabelling the royalty overlay above exists to prevent.
+  //
+  // Promotion stays 'secondary', deliberately. Own Your Fans is 'primary' and is the assigned
+  // experience of a RUNNING experiment (oyf-signup-timing-v1); demoting it mid-flight would break
+  // that experiment's readout. Promoting this to primary is a founder call once it has data.
+  'opportunity-calculator': {
+    opportunityKey: 'crwn-opportunity',
+    toolType: 'calculator',
+    lifecycle: 'active',
+    promotion: 'secondary',
+    promotionRank: 2,
+    authBoundary: 'signup_to_save',
+    builderRoute: '/offers/new',
+    recommendedNextRoute: '/offers/new',
+    resultVersion: 'unifiedOpportunity@1',
+    internalNotes:
+      'The all-in-one calculator. Models every opportunity in ONE layered model so the same fan, subscriber and dollar cannot be counted twice. Entry contexts let a single-opportunity video (vault, share, clip, live, worth, own-your-fans) lead with its own questions.',
+  },
 };
 
 function toFunnelFromLeadMagnet(cfg: (typeof LEAD_MAGNETS)[number]): OpportunityFunnel {

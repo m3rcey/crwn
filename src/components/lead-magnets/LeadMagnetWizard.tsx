@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Wizard } from '@/components/ui/Wizard';
 import { LeadMagnetField } from './LeadMagnetField';
-import { validateStep, isInputVisible } from '@/lib/leadMagnets/validation';
+import { validateStep, isInputVisible, isStepVisible } from '@/lib/leadMagnets/validation';
+import { orderStepsForEntry, entryNote } from '@/lib/leadMagnets/entryContext';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
 import type { LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
@@ -17,6 +18,7 @@ export function LeadMagnetWizard({
   initialValues,
   storageKey,
   context,
+  entryContext = null,
   submitting = false,
   submitLabel = 'See my result',
   onComplete,
@@ -26,6 +28,8 @@ export function LeadMagnetWizard({
   initialValues?: LeadMagnetInputValues;
   storageKey?: string;
   context: 'public' | 'artist';
+  /** `?from=` value, when the visitor arrived from a specific opportunity's video or keyword. */
+  entryContext?: string | null;
   submitting?: boolean;
   submitLabel?: string;
   onComplete: (values: LeadMagnetInputValues) => void;
@@ -47,10 +51,19 @@ export function LeadMagnetWizard({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const started = useRef(false);
 
-  const steps = config.wizardSteps;
-  const step = steps[stepIndex];
+  // Entry context reorders (never adds or removes) the steps, then branching hides the ones whose
+  // every input was branched away. Both are pure functions of the config + current answers, so the
+  // progress bar and the Back button always agree with what is actually on screen.
+  const orderedSteps = useMemo(() => orderStepsForEntry(config, entryContext), [config, entryContext]);
+  const steps = useMemo(
+    () => orderedSteps.filter((s) => isStepVisible(config, s.id, values)),
+    [orderedSteps, config, values],
+  );
+  const safeIndex = Math.min(stepIndex, Math.max(0, steps.length - 1));
+  const step = steps[safeIndex];
   const isReview = step?.id === 'review';
-  const isLast = stepIndex >= steps.length - 1;
+  const isLast = safeIndex >= steps.length - 1;
+  const note = entryNote(config, entryContext);
 
   // Autosave (privacy-safe: local only, never a public DB write before consent).
   useEffect(() => {
@@ -68,7 +81,10 @@ export function LeadMagnetWizard({
     trackLeadMagnet(LM_EVENTS.started, { toolSlug: config.slug, context, totalSteps: steps.length, ...readUtm() });
   }, [config.slug, context, steps.length]);
 
-  const stepInputs = useMemo(() => config.inputs.filter((d) => d.step === step?.id && isInputVisible(d, values)), [config.inputs, step?.id, values]);
+  const stepInputs = useMemo(
+    () => config.inputs.filter((d) => d.step === step?.id && isInputVisible(d, values)),
+    [config.inputs, step?.id, values],
+  );
 
   const requiredOnStep = stepInputs.some((d) => d.required);
   const canSkip = !isReview && !requiredOnStep && stepInputs.length > 0;
@@ -88,30 +104,33 @@ export function LeadMagnetWizard({
       setErrors(stepErrors);
       return;
     }
-    trackLeadMagnet(LM_EVENTS.stepCompleted, { toolSlug: config.slug, context, step: stepIndex + 1, totalSteps: steps.length });
-    setStepIndex((i) => Math.min(i + 1, steps.length - 1));
+    trackLeadMagnet(LM_EVENTS.stepCompleted, { toolSlug: config.slug, context, step: safeIndex + 1, totalSteps: steps.length });
+    setStepIndex(Math.min(safeIndex + 1, steps.length - 1));
   };
 
   const goBack = () => {
-    trackLeadMagnet(LM_EVENTS.stepBack, { toolSlug: config.slug, context, step: stepIndex + 1, totalSteps: steps.length });
-    setStepIndex((i) => Math.max(0, i - 1));
+    trackLeadMagnet(LM_EVENTS.stepBack, { toolSlug: config.slug, context, step: safeIndex + 1, totalSteps: steps.length });
+    setStepIndex(Math.max(0, safeIndex - 1));
   };
 
   return (
     <Wizard
       steps={steps}
-      currentIndex={stepIndex}
+      currentIndex={safeIndex}
       title={step?.title}
       subtitle={step?.subtitle}
       onBack={goBack}
       onContinue={advance}
-      onSkip={canSkip ? () => setStepIndex((i) => Math.min(i + 1, steps.length - 1)) : undefined}
+      onSkip={canSkip ? () => setStepIndex(Math.min(safeIndex + 1, steps.length - 1)) : undefined}
       continueLabel={isReview || isLast ? submitLabel : 'Continue'}
       continueLoading={submitting}
       onClose={onClose}
     >
+      {note && safeIndex === 0 && (
+        <p className="mb-5 rounded-xl bg-crwn-gold/10 border border-crwn-gold/25 px-3 py-2.5 text-xs text-crwn-gold">{note}</p>
+      )}
       {isReview ? (
-        <ReviewStep config={config} values={values} onEdit={setStepIndex} />
+        <ReviewStep config={config} values={values} steps={steps} onEdit={setStepIndex} />
       ) : (
         <div className="space-y-6">
           {stepInputs.map((def) => (
@@ -126,13 +145,25 @@ export function LeadMagnetWizard({
   );
 }
 
-function ReviewStep({ config, values, onEdit }: { config: LeadMagnetConfig; values: LeadMagnetInputValues; onEdit: (i: number) => void }) {
+function ReviewStep({
+  config,
+  values,
+  steps,
+  onEdit,
+}: {
+  config: LeadMagnetConfig;
+  values: LeadMagnetInputValues;
+  steps: { id: string }[];
+  onEdit: (i: number) => void;
+}) {
   const rows = config.inputs
     .filter((d) => isInputVisible(d, values))
     .map((d) => ({ def: d, value: values[d.key] }))
     .filter((r) => r.value !== null && r.value !== undefined && r.value !== '' && !(Array.isArray(r.value) && r.value.length === 0));
 
-  const stepIndexOf = (stepId: string) => config.wizardSteps.findIndex((s) => s.id === stepId);
+  // Index into the VISIBLE, entry-ordered steps, not the raw config order, or "edit" jumps to the
+  // wrong screen the moment a branch is hidden or an entry context reorders things.
+  const stepIndexOf = (stepId: string) => steps.findIndex((s) => s.id === stepId);
 
   const display = (def: (typeof config.inputs)[number], value: unknown): string => {
     if (Array.isArray(value)) return value.join(', ');
@@ -151,7 +182,10 @@ function ReviewStep({ config, values, onEdit }: { config: LeadMagnetConfig; valu
         <button
           key={def.key}
           type="button"
-          onClick={() => onEdit(stepIndexOf(def.step))}
+          onClick={() => {
+            const i = stepIndexOf(def.step);
+            if (i >= 0) onEdit(i);
+          }}
           className="w-full flex items-start justify-between gap-3 py-2.5 border-b border-crwn-elevated/60 text-left"
         >
           <span className="text-sm text-crwn-text-secondary shrink-0 max-w-[45%]">{def.label}</span>

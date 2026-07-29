@@ -11,7 +11,11 @@
 // values can never leave the client even if a caller passes them by mistake. The server also
 // allowlists its columns, so this is defense in depth.
 
-/** The seven shared funnel events. */
+/**
+ * The shared funnel events. The first seven describe any funnel's journey. The last three exist
+ * for a funnel that models SEVERAL opportunities at once and therefore has to disclose its overlap
+ * handling and re-derive its own headline when the artist edits the plan.
+ */
 export const OPPORTUNITY_EVENTS = {
   funnelViewed: 'opportunity_funnel_viewed',
   funnelStarted: 'opportunity_funnel_started',
@@ -20,6 +24,12 @@ export const OPPORTUNITY_EVENTS = {
   recommendationViewed: 'opportunity_recommendation_viewed',
   ctaClicked: 'opportunity_cta_clicked',
   builderStarted: 'opportunity_builder_started',
+  /** The "what we did not count twice" explanation was rendered with the result. */
+  overlapExplained: 'opportunity_overlap_explained',
+  /** The artist changed a generated recommendation in the builder. `variant` is the field key. */
+  recommendationEdited: 'opportunity_recommendation_edited',
+  /** The estimate was re-derived because an edit changed the plan's structure. */
+  estimateRecalculated: 'opportunity_estimate_recalculated',
 } as const;
 
 export type OpportunityEvent = (typeof OPPORTUNITY_EVENTS)[keyof typeof OPPORTUNITY_EVENTS];
@@ -95,6 +105,12 @@ export interface OpportunityEventMeta {
   campaignId?: string;
   leadMagnetId?: string;
   keyword?: string;
+  /**
+   * Which single-opportunity funnel sent this visitor into the all-in-one calculator (`?from=`).
+   * A tool slug, never free text from the URL: the caller resolves it against the tool's declared
+   * entry contexts first, so an attacker cannot write arbitrary strings into the event sink.
+   */
+  entryContext?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
@@ -119,6 +135,7 @@ const ALLOWED_KEYS: (keyof OpportunityEventMeta)[] = [
   'campaignId',
   'leadMagnetId',
   'keyword',
+  'entryContext',
   'utmSource',
   'utmMedium',
   'utmCampaign',

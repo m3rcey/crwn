@@ -24,6 +24,33 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Decide whether the all-in-one calculator becomes the PRIMARY funnel.** The unified
+      Opportunity Calculator is live at
+      [`/tools/opportunity-calculator`](src/lib/opportunity/unifiedModel.ts) and models every
+      opportunity in one overlap-safe model (details:
+      [`docs/UNIFIED_OPPORTUNITY.md`](docs/UNIFIED_OPPORTUNITY.md)). It is registered as
+      **secondary** on purpose: Own Your Fans is currently `primary` AND is the assigned experience
+      of the running `oyf-signup-timing-v1` experiment, so promoting the new tool now would break
+      that experiment's readout. To promote it once you have data, change `promotion` to `'primary'`
+      and `promotionRank` to `0` for `opportunity-calculator` in
+      [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts), and demote
+      Own Your Fans to `'secondary'`. One file, two lines. This is a marketing call, not a technical
+      one, which is why it is yours.
+
+- [ ] **Point your video funnels at it with `?from=`.** Each single-opportunity video can now open
+      the all-in-one calculator with its own questions first, instead of a generic questionnaire.
+      The links are exactly:
+      `thecrwn.app/tools/opportunity-calculator?from=vault-revenue-planner` (also `worth`,
+      `share-to-earn-planner`, `clip-to-earn-campaign-planner`, `own-your-fans-calculator`,
+      `executive-producer-session`, `live-experience-calculator`). Anything else in `?from=` is
+      ignored, so a typo degrades to the normal order rather than breaking. Nothing is required
+      here: the existing per-tool links keep working untouched.
+
+- [ ] **(Cosmetic) The all-in-one calculator is reusing the Streaming Loss hero photo.** It ships
+      with `/tool-worth.jpg` because no bespoke shot exists yet. Same shared-placeholder pattern the
+      Founder Window tool uses. Say the word and I will generate an on-brand one (dark charcoal +
+      gold, artist aged 18 to 32) with the image skill.
+
 - [ ] **Decision: do we build the stack-migration on-ramp, and how far?** Your customer avatar
       ([`docs/ICP.md`](docs/ICP.md)) says the ideal customer already sells to fans across Patreon,
       Shopify, Discord, Gumroad and Eventbrite, and that **consolidation is the pitch**. CRWN has

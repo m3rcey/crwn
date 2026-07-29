@@ -16,6 +16,7 @@ import { LeadCaptureForm, type LeadCaptureValues } from './LeadCaptureForm';
 import { ResultActions } from './ResultActions';
 import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
+import { resolveEntryContext } from '@/lib/leadMagnets/entryContext';
 import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
 import { OPPORTUNITY_EVENTS, JOURNEY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
@@ -43,6 +44,9 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   const wizardRef = useRef<HTMLDivElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
   const [values, setValues] = useState<LeadMagnetInputValues>({});
+  // Which opportunity's video/keyword sent them here (?from=vault-revenue-planner). Reorders the
+  // wizard so a single-opportunity campaign does not land on a generic questionnaire.
+  const [entryContext, setEntryContext] = useState<string | null>(null);
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [publicToken, setPublicToken] = useState<string | undefined>();
   const [resultId, setResultId] = useState<string | undefined>();
@@ -64,6 +68,8 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       utmCampaign: utm.utmCampaign,
       utmContent: utm.utmContent,
       referralSource: utm.source,
+      // Already resolved against the tool's declared entry contexts, so this is never raw URL text.
+      entryContext: entryContext ?? undefined,
       context: 'public',
       ...extra,
     };
@@ -71,7 +77,9 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
 
   // Resume from an emailed link (?result=token) or start fresh at the hero.
   useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get('result');
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('result');
+    setEntryContext(resolveEntryContext(config, params.get('from')));
     trackLeadMagnet(LM_EVENTS.viewed, { toolSlug: config.slug, context: 'public', ...readUtm() });
     trackOpportunity(OPPORTUNITY_EVENTS.funnelViewed, opportunityMeta());
     if (!token) {
@@ -119,6 +127,12 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       trackOpportunity(OPPORTUNITY_EVENTS.funnelCompleted, opportunityMeta({ resultVersion: r.generatorVersion }));
       trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
       trackOpportunity(OPPORTUNITY_EVENTS.recommendationViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
+      // A result that models several opportunities at once has to show what it deliberately did
+      // NOT add together. Recording that the disclosure was shown is how we can tell later whether
+      // artists actually read it.
+      if (r.sections.some((s) => s.key === 'overlap')) {
+        trackOpportunity(OPPORTUNITY_EVENTS.overlapExplained, opportunityMeta({ resultVersion: r.generatorVersion }));
+      }
       // Experiment entry (inert unless an experiment is running for this experience). The server
       // derives the variant deterministically; if it assigns the 'preview' arm of the signup-timing
       // experiment, the builder moves its save boundary one step earlier. Default stays 'save'.
@@ -241,6 +255,7 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             <LeadMagnetWizard
               config={config}
               context="public"
+              entryContext={entryContext}
               storageKey={`lm:${config.slug}:public`}
               submitLabel="See my result"
               onComplete={onComplete}

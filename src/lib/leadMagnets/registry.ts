@@ -768,6 +768,243 @@ const ROYALTY_READINESS: LeadMagnetConfig = {
   analyticsMetadata: { toolId: 'royalty-readiness-check', category: 'Monetize', promotedFeature: 'Royalty Readiness' },
 };
 
+// The all-in-one calculator. Every other tool models ONE opportunity; this one models the whole
+// business at once, which is only defensible because it refuses to add the other tools together
+// (see src/lib/opportunity/unifiedModel.ts for the arithmetic and why).
+//
+// It is the only tool with `entryContexts`: a Vault video, a Share-to-Earn video and a Streaming
+// Loss video all point here with ?from=<their slug>, and the wizard leads with the questions their
+// video was about instead of a generic questionnaire. The individual tools keep working untouched.
+const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
+  slug: 'opportunity-calculator',
+  name: 'CRWN Opportunity Calculator',
+  featureName: 'Your CRWN business system',
+  category: 'Monetize',
+  description:
+    'One calculator for your whole direct-to-fan business, with the same fan never counted twice.',
+  videoAngle:
+    'Running five separate calculators gives you five numbers that all describe the same fans, so you plan a business that does not exist.',
+  publicRoute: '/tools/opportunity-calculator',
+  artistRoute: '/artist/tools/opportunity-calculator',
+  icon: '👑',
+  timeToComplete: '3 min',
+  dmKeywords: ['opportunity', 'system', 'plan'],
+  hero: {
+    eyebrow: 'The all-in-one calculator',
+    headline: 'You are guessing at your own business with five separate numbers.',
+    subheadline:
+      'Memberships, your vault, fan sharing, clips, live nights, premium sessions. Priced separately they all describe the same fans, so the total is fiction and the plan built on it fails. See one honest number for the whole thing, and the order to build it in.',
+    primaryCta: 'Model my whole business',
+    image: '/tool-worth.jpg',
+    imageAlt: 'An artist alone in a dark studio staring at a number on his phone',
+  },
+  inputs: [
+    {
+      key: 'social_followers',
+      type: 'number',
+      label: 'Your social following',
+      help: 'The biggest platform is fine. A rough number is fine.',
+      required: true,
+      min: 0,
+      step: 'audience',
+      placeholder: '25000',
+    },
+    {
+      key: 'monthly_listeners',
+      type: 'number',
+      label: 'Your monthly listeners',
+      help: 'Spotify or Apple. We will not add this to your followers, because they are largely the same people.',
+      min: 0,
+      step: 'platforms',
+      placeholder: '40000',
+    },
+    {
+      key: 'owned_contacts',
+      type: 'number',
+      label: 'Email and SMS contacts you own',
+      help: 'People you can reach without an algorithm deciding. Leave it at zero if you have none yet.',
+      min: 0,
+      step: 'owned',
+      placeholder: '0',
+    },
+    {
+      key: 'current_supporters',
+      type: 'number',
+      label: 'Fans already paying you directly',
+      help: 'Anywhere: Patreon, a Discord, a membership, VIP. Zero is a perfectly normal answer.',
+      min: 0,
+      step: 'proof',
+      placeholder: '0',
+    },
+    {
+      key: 'direct_fan_revenue_cents',
+      type: 'currency',
+      label: 'What that earns you a month',
+      help: 'We subtract this, so the number you see is what you would ADD, not what you already have.',
+      min: 0,
+      step: 'proof',
+      placeholder: '0',
+    },
+    {
+      key: 'unreleased_count',
+      type: 'number',
+      label: 'Unreleased songs, demos and voice notes',
+      help: 'This decides whether a Vault is worth recommending at all. Below five, we will tell you to wait.',
+      min: 0,
+      step: 'vault',
+      placeholder: '0',
+    },
+    {
+      key: 'fans_promote',
+      type: 'option',
+      label: 'Would your fans put people onto you?',
+      step: 'promote',
+      options: [
+        { value: 'already', label: 'They already do it for free', hint: 'Untracked and unpaid today', icon: '🔥' },
+        { value: 'would', label: 'They would, for a cut', icon: '🤝' },
+        { value: 'unlikely', label: 'Not yet, honestly', icon: '🌱' },
+      ],
+    },
+    {
+      key: 'video_output',
+      type: 'option',
+      label: 'How much video or livestream do you put out?',
+      help: 'Clips need something to cut from. No footage, no clip program.',
+      step: 'clips',
+      options: [
+        { value: 'lots', label: 'Plenty. I am on camera often', icon: '🎥' },
+        { value: 'some', label: 'Some, here and there', icon: '📹' },
+        { value: 'none', label: 'Almost none', icon: '🚫' },
+      ],
+    },
+    {
+      key: 'promoter_overlap',
+      type: 'option',
+      label: 'Are your sharers and your clippers the same people?',
+      help: 'This is the one thing that decides whether we count a helper once or twice.',
+      step: 'overlap',
+      // Only asked when BOTH systems are live for this artist. Otherwise the answer changes nothing.
+      dependsOn: {
+        all: [
+          { key: 'fans_promote', notOneOf: ['unlikely'] },
+          { key: 'video_output', notOneOf: ['none'] },
+        ],
+      },
+      options: [
+        { value: 'mostly_same', label: 'Mostly the same handful of superfans', icon: '🎯' },
+        { value: 'some_overlap', label: 'Some overlap', icon: '🔗' },
+        { value: 'mostly_different', label: 'Mostly different people', icon: '🫂' },
+        { value: 'unknown', label: 'I have no idea', icon: '🤷' },
+      ],
+    },
+    {
+      key: 'live_willing',
+      type: 'option',
+      label: 'Would you host a live night for your fans?',
+      step: 'live',
+      options: [
+        { value: 'yes', label: 'Yes, I would run one a month', icon: '🎤' },
+        { value: 'maybe', label: 'Maybe, occasionally', icon: '🤔' },
+        { value: 'no', label: 'No, that is not for me', icon: '🚪' },
+      ],
+    },
+    {
+      key: 'session_structure',
+      type: 'option',
+      label: 'How should a paid session work?',
+      help: 'This decides whether it earns on its own or makes your top tier worth its price.',
+      step: 'session',
+      dependsOn: { key: 'live_willing', notOneOf: ['no'] },
+      options: [
+        { value: 'included', label: 'Free for my top tier', hint: 'Sells the tier, not a ticket', icon: '👑' },
+        { value: 'ticketed', label: 'Ticketed, anyone can buy a seat', icon: '🎟️' },
+        { value: 'hybrid', label: 'Top tier gets in free, extra seats sold', icon: '⚖️' },
+        { value: 'none', label: 'Skip sessions for now', icon: '⏭️' },
+      ],
+    },
+    {
+      key: 'time_capacity',
+      type: 'option',
+      label: 'How much can you actually keep up with?',
+      help: 'We trim the plan to what you will really do. It never inflates the money.',
+      step: 'capacity',
+      options: [
+        { value: 'low', label: 'Very little. Keep it low maintenance', icon: '🪶' },
+        { value: 'medium', label: 'A few hours a week', icon: '⏳' },
+        { value: 'high', label: 'This is my main focus', icon: '🚀' },
+      ],
+    },
+  ],
+  wizardSteps: [
+    { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'One number to start. Everything is built on this.' },
+    { id: 'platforms', group: 'Audience', title: 'And your monthly listeners?', subtitle: 'We use the larger of the two, never the sum.' },
+    { id: 'owned', group: 'Audience', title: 'How many fans do you own?', subtitle: 'Contacts no platform can take away from you.' },
+    { id: 'proof', group: 'Proof', title: 'What are your fans already paying you?', subtitle: 'Whatever exists today gets subtracted, not added.' },
+    { id: 'vault', group: 'Catalog', title: 'What is sitting unreleased?', subtitle: 'A vault with nothing in it is a promise you cannot keep.' },
+    { id: 'promote', group: 'Fans', title: 'Would your fans promote you?', subtitle: 'This is acquisition, not a second income stream.' },
+    { id: 'clips', group: 'Fans', title: 'What can your fans clip?', subtitle: 'Clips convert the fans you already reach.' },
+    { id: 'overlap', group: 'Fans', title: 'The overlap question', subtitle: 'A fan can do two jobs. They are still one person.' },
+    { id: 'live', group: 'Experiences', title: 'Would you go live?', subtitle: 'Nothing here assumes an event you will not run.' },
+    { id: 'session', group: 'Experiences', title: 'How should a session work?', subtitle: 'Included in a tier, or sold as a seat.' },
+    { id: 'capacity', group: 'You', title: 'What can you keep up with?', subtitle: 'The last question, and it shapes the whole plan.' },
+    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see the whole picture.' },
+  ],
+  entryContexts: {
+    'vault-revenue-planner': {
+      label: 'Vault',
+      note: 'You came here about your vault, so we will start there. The rest of the questions decide where it sits in your business.',
+      priorityStepIds: ['vault', 'audience'],
+    },
+    'share-to-earn-planner': {
+      label: 'Share-to-Earn',
+      note: 'You came here about fan sharing, so we will start there. Sharing brings supporters in, so we need to know what they arrive to.',
+      priorityStepIds: ['promote', 'audience'],
+    },
+    'clip-to-earn-campaign-planner': {
+      label: 'Clip-to-Earn',
+      note: 'You came here about clips, so we will start there. Clips convert the fans you already reach, so your audience is next.',
+      priorityStepIds: ['clips', 'audience'],
+    },
+    worth: {
+      label: 'Streaming Loss',
+      note: 'You came here about what streaming pays you, so we start with your audience and what you already earn direct.',
+      priorityStepIds: ['audience', 'platforms', 'proof'],
+    },
+    'own-your-fans-calculator': {
+      label: 'Own Your Fans',
+      note: 'You came here about owning your fans, so we start with the contacts you actually control.',
+      priorityStepIds: ['owned', 'audience'],
+    },
+    'executive-producer-session': {
+      label: 'Producer Sessions',
+      note: 'You came here about selling a seat in the room, so we start with how you want that session to work.',
+      priorityStepIds: ['live', 'session', 'audience'],
+    },
+    'live-experience-calculator': {
+      label: 'Live Experience',
+      note: 'You came here about live, so we start there. A ticket only counts for fans who are not already members.',
+      priorityStepIds: ['live', 'session', 'audience'],
+    },
+  },
+  resultGeneratorKey: 'unifiedOpportunity',
+  usesLossEngine: true,
+  resultSections: [],
+  publicPreviewSections: [],
+  leadCapture: {
+    required: false,
+    consentCopy: 'Email me my full business plan and occasional CRWN tips for artists.',
+  },
+  cta: {
+    publicPrimary: 'Create your CRWN account and build this',
+    publicSecondary: 'Email my plan',
+    artistPrimary: 'Save my plan',
+    artistSecondary: 'Build it in CRWN',
+  },
+  conversionTarget: { type: 'prefilled_existing_flow', label: 'Build my CRWN plan', route: '/offers/new' },
+  requiresEstimateDisclaimer: true,
+  analyticsMetadata: { toolId: 'opportunity-calculator', category: 'Monetize', promotedFeature: 'CRWN business system' },
+};
+
 export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   VAULT_REVENUE_PLANNER,
   PROOF_OF_DEMAND,
@@ -785,6 +1022,7 @@ export const LEAD_MAGNETS: LeadMagnetConfig[] = [
   OWN_YOUR_FANS,
   LIVE_EXPERIENCE,
   ROYALTY_READINESS,
+  UNIFIED_OPPORTUNITY,
 ];
 
 export const LEAD_MAGNET_BY_SLUG: Record<string, LeadMagnetConfig> = Object.fromEntries(

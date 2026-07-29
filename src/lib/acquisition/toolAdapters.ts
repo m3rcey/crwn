@@ -25,6 +25,8 @@ import { calculate, getAssumptions } from '../leadCalculator';
 import { fmtDollars } from '../leadCalculator';
 import { buildLossResult } from './lossResult';
 import { scoreReadiness, sanitizeAnswers } from '../royalty/readiness';
+import { buildUnifiedResult } from '../opportunity/unifiedAdapter';
+import { UNIFIED_MODEL_VERSION } from '../opportunity/unifiedModel';
 
 export interface AcquisitionTool {
   /** Stable id. For the four registry tools this IS the registry slug. */
@@ -1619,6 +1621,39 @@ const royaltyReadiness: AcquisitionTool = {
   },
 };
 
+// The 18th tool, and the only one that models the whole business at once. It does NOT call the
+// other adapters and add them up: it runs one layered model in which the same fan, the same
+// subscriber and the same dollar can only be counted once (src/lib/opportunity/unifiedModel.ts).
+//
+// A DM can realistically collect one number, so the required field is the audience and every other
+// input falls back to the model's documented default. That produces a conservative, membership-only
+// picture in a DM, which the result page then lets the artist correct. It is the same trade every
+// other adapter here makes, and it never overstates: unanswered means not recommended.
+const unifiedOpportunity: AcquisitionTool = {
+  id: 'opportunity-calculator',
+  name: 'CRWN Opportunity Calculator',
+  requiredFields: ['social_followers'],
+  optionalFields: ['monthly_listeners', 'email_list_size', 'direct_fan_revenue_cents', 'catalog_size', 'artist_name'],
+  resultRouteBase: '/tools/opportunity-calculator/result',
+  formulaVersion: UNIFIED_MODEL_VERSION,
+  calculatorId: 'unifiedOpportunity',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'rise_mode',
+  execute(profile) {
+    // Map the DM's lead_profiles column names onto the wizard's input keys, then run the one model.
+    // `catalog_size` holds the unreleased count in this funnel, the same meaning the Vault tool
+    // gives it, so a lead who answered the Vault DM does not get asked again.
+    return buildUnifiedResult({
+      ...(profile as unknown as Record<string, unknown>),
+      social_followers: n(profile.social_followers) || n(profile.monthly_listeners),
+      monthly_listeners: n(profile.monthly_listeners),
+      owned_contacts: n(profile.email_list_size),
+      unreleased_count: n(profile.catalog_size),
+      direct_fan_revenue_cents: n(profile.direct_fan_revenue_cents),
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
@@ -1637,6 +1672,7 @@ export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   'own-your-fans-calculator': ownYourFans,
   'live-experience-calculator': liveExperience,
   'royalty-readiness-check': royaltyReadiness,
+  'opportunity-calculator': unifiedOpportunity,
 };
 
 export { royaltyReadiness };

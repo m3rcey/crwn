@@ -1,14 +1,40 @@
 // Shared, dependency-free validation for lead-magnet inputs. Used by the wizard to
 // gate "Continue" and by review before generating a result.
 
-import type { LeadMagnetConfig, LeadMagnetInputDefinition, LeadMagnetInputValues } from './types';
+import type {
+  LeadMagnetConfig,
+  LeadMagnetInputDefinition,
+  LeadMagnetInputValues,
+  LeadMagnetVisibilityRule,
+} from './types';
 
 const URL_RE = /^https?:\/\/.+/i;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function ruleHolds(rule: LeadMagnetVisibilityRule, values: LeadMagnetInputValues): boolean {
+  if (rule.all && !rule.all.every((r) => ruleHolds(r, values))) return false;
+  if (!rule.key) return true;
+  const actual = values[rule.key];
+  if (rule.equals !== undefined && actual !== rule.equals) return false;
+  if (rule.oneOf && !rule.oneOf.includes(actual as string | boolean)) return false;
+  if (rule.notOneOf && rule.notOneOf.includes(actual as string | boolean)) return false;
+  return true;
+}
+
 export function isInputVisible(def: LeadMagnetInputDefinition, values: LeadMagnetInputValues): boolean {
   if (!def.dependsOn) return true;
-  return values[def.dependsOn.key] === def.dependsOn.equals;
+  return ruleHolds(def.dependsOn, values);
+}
+
+/**
+ * Steps whose every input is hidden by a `dependsOn` branch. The wizard skips these outright, so a
+ * branched-away question never renders as an empty screen with a Continue button.
+ */
+export function isStepVisible(config: LeadMagnetConfig, stepId: string, values: LeadMagnetInputValues): boolean {
+  if (stepId === 'review') return true;
+  const onStep = config.inputs.filter((d) => d.step === stepId);
+  if (onStep.length === 0) return true; // an intentionally copy-only step
+  return onStep.some((d) => isInputVisible(d, values));
 }
 
 export function validateInput(def: LeadMagnetInputDefinition, value: unknown): string | null {

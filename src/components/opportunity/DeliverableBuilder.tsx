@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Lock, Copy, Plus, X } from 'lucide-react';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { Wizard } from '@/components/ui/Wizard';
-import { JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
+import { JOURNEY_EVENTS, OPPORTUNITY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
 import {
   getDeliverableSpec,
   sanitizeDeliverableValues,
@@ -116,6 +116,14 @@ export function DeliverableBuilder({
     }
   }, [analyticsBase, spec]);
 
+  // Fires once, the first time an edit actually moves the number. Recording every keystroke would
+  // drown the signal we care about: did the artist change the SHAPE of the plan, not the wording.
+  const recalcValue = spec?.recalc ? spec.recalc(values, conversionPayload) : null;
+  const recalcChanged = !!recalcValue?.changed;
+  useEffect(() => {
+    if (recalcChanged) trackOpportunity(OPPORTUNITY_EVENTS.estimateRecalculated, analyticsBase);
+  }, [recalcChanged, analyticsBase]);
+
   if (!spec) return null;
 
   const persist = (next: DraftValues) => {
@@ -164,6 +172,7 @@ export function DeliverableBuilder({
       persist(next);
       return next;
     });
+    trackOpportunity(OPPORTUNITY_EVENTS.recommendationEdited, { ...analyticsBase, variant: key });
   };
 
   const last = index >= spec.steps.length - 1;
@@ -189,6 +198,7 @@ export function DeliverableBuilder({
   };
 
   const step = spec.steps[index];
+  const recalc = recalcValue;
 
   return (
     <div className="space-y-4">
@@ -209,6 +219,24 @@ export function DeliverableBuilder({
           ))}
         </div>
       </Wizard>
+
+      {/* When the artist's edits move the money, the money moves on screen. A builder that keeps
+          showing the calculator's original headline after they removed half the plan is telling
+          them a number their own choices already invalidated. */}
+      {recalc && (
+        <div
+          className={`rounded-2xl border p-4 text-center ${
+            recalc.changed ? 'border-crwn-gold/40 bg-crwn-gold/[0.08]' : 'border-crwn-elevated bg-crwn-surface'
+          }`}
+        >
+          <div className="text-xs uppercase tracking-wide text-crwn-text-secondary mb-1">
+            {recalc.changed ? 'Updated for your edits' : 'Your plan is worth'}
+          </div>
+          <div className="text-2xl font-bold text-crwn-gold leading-tight">{recalc.value}</div>
+          <p className="text-xs text-crwn-text-secondary mt-1">{recalc.label}</p>
+          {recalc.note && <p className="text-xs text-crwn-text mt-2 leading-snug">{recalc.note}</p>}
+        </div>
+      )}
 
       {/* The preview is always visible, so editing a field visibly changes the deliverable. */}
       <Preview spec={spec} values={values} />
@@ -408,7 +436,7 @@ function Preview({ spec, values }: { spec: DeliverableSpec; values: DraftValues 
           </div>
         )}
 
-        {p.kind === 'ladder' && (
+        {(p.kind === 'ladder' || p.kind === 'system') && (
           <div className="space-y-3">
             {(p.tiers || []).map((t) => {
               const price = t.priceKey ? values[t.priceKey] : undefined;
@@ -434,6 +462,17 @@ function Preview({ spec, values }: { spec: DeliverableSpec; values: DraftValues 
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* The coordinated system: the ladder above, then everything that hangs off it, so the
+            artist can see it is ONE business rather than a set of unrelated drafts. */}
+        {p.kind === 'system' && (
+          <div className="mt-4 pt-4 border-t border-crwn-elevated">
+            <div className="text-xs font-semibold uppercase tracking-wide text-crwn-text-secondary mb-2">
+              And how it all connects
+            </div>
+            <Rows spec={spec} values={values} keys={p.itemKeys} labelFor={labelFor} />
           </div>
         )}
 
