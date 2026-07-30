@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Check,
   Lock,
@@ -17,6 +17,7 @@ import {
   User,
   Link2,
   CalendarCheck,
+  Banknote,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtistSetup';
@@ -53,6 +54,7 @@ type ScreenKey =
   | 'photo'
   | 'ladder'
   | 'promises'
+  | 'stripe'
   | 'track-audio'
   | 'track-title'
   | 'product-type'
@@ -84,6 +86,11 @@ const SCREENS: ScreenDef[] = [
   // the create runs on the promises screen so cadence/date edits ride along.
   { key: 'ladder', group: 'monetize', groupRequired: false, title: 'Confirm your membership ladder', subtitle: 'The proven four-tier model: a free front door plus three paid tiers. Adjust a price or drop a tier. Everything is editable later.', icon: CreditCard },
   { key: 'promises', group: 'monetize', groupRequired: false, title: 'Review your promise schedule', subtitle: 'The only recurring commitments this ladder creates. Set the cadence and the first date. They land on your Promise Calendar so nothing slips.', icon: CalendarCheck, create: 'ladder' },
+  // Launch Wizard Stage 4: surface Stripe right after the model is confirmed and
+  // before anything else. Never blocks Continue (paid tiers work later via the
+  // price backfill); the connect link returns to /setup and the resume effect
+  // restores this exact screen.
+  { key: 'stripe', group: 'monetize', groupRequired: false, title: 'Connect Stripe to get paid', subtitle: 'Connect Stripe so fans can purchase your offers and you can receive payouts. Until then, your paid tiers exist but cannot take a payment.', icon: Banknote },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -103,6 +110,8 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
     case 'ladder':
     case 'promises':
       return setup.hasTier;
+    case 'stripe':
+      return setup.stripeConnected;
     case 'track-audio':
     case 'track-title':
       return setup.hasMusic;
@@ -161,6 +170,7 @@ const promiseSettings = (p: PlannedPromise, draft: PromiseDraft) => ({
 
 function SetupWizard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
@@ -254,10 +264,17 @@ function SetupWizard() {
     // New signups aren't artists yet (the identity screens create the artist row), so
     // "not yet onboarded" counts as a start too.
     if ((isArtist || !onboardingCompleted) && !setupCompleted) trackFunnel('setup_started');
+    // Back from Stripe onboarding (?stripe=success|refresh): restore the EXACT
+    // wizard step so the artist lands on the connect screen's outcome, not
+    // wherever the completion scan would put them (Launch Wizard Stage 4).
+    if (searchParams.get('stripe')) {
+      setStepIndex(SCREENS.findIndex((sc) => sc.key === 'stripe'));
+      return;
+    }
     const firstIncomplete = SCREENS.findIndex((sc) => !screenDone(sc, setup));
     if (firstIncomplete === -1) setPhase('share');
     else setStepIndex(firstIncomplete);
-  }, [loading, setup, isArtist, setupCompleted]);
+  }, [loading, setup, isArtist, setupCompleted, searchParams]);
 
   const current = SCREENS[stepIndex];
   const currentDone = current ? screenDone(current, setup) : false;
@@ -301,6 +318,10 @@ function SetupWizard() {
         return planFromDraft(ladderDraft).every((p) =>
           isValidPromiseDate(promiseSettings(p, promiseDraft).firstDueDate),
         );
+      case 'stripe':
+        // Never blocks: Stripe is required to TAKE money, not to finish setup.
+        // Prices backfill automatically when the artist connects later.
+        return true;
       case 'track-audio':
         return !!trackDraft.audioFile && trackTermsAgreed;
       case 'track-title':
@@ -592,7 +613,7 @@ function SetupWizard() {
               <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
               {current.key === 'ladder' && !stripeConnected && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
-                  You’ll connect Stripe to actually get paid. Prices are created automatically the moment you connect, any time from your dashboard.
+                  You’ll connect Stripe in a moment to actually get paid. Prices are created automatically when you connect.
                 </p>
               )}
             </div>
@@ -802,6 +823,8 @@ function FieldBody({
           done={setup.hasTier}
         />
       );
+    case 'stripe':
+      return <StripeConnectStep connectedAtLoad={setup.stripeConnected} />;
     case 'track-audio':
       if (setup.hasMusic) {
         return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done />;
@@ -1048,6 +1071,120 @@ function LadderConfirm({
       <p className="text-xs text-crwn-text-secondary">
         Scheduled promises (the monthly Vault unlock, the quarterly Platinum event) land on your Promise Calendar
         automatically. Edit names, prices, and benefits anytime in your dashboard.
+      </p>
+    </div>
+  );
+}
+
+// Launch Wizard Stage 4: the in-wizard Stripe connect step. Verification is
+// SERVER-side (/api/stripe/connect/status does the live accounts.retrieve and,
+// once charges are enabled, backfills the wizard-created tier prices). This
+// component only renders the outcome and never gates Continue.
+function StripeConnectStep({ connectedAtLoad }: { connectedAtLoad: boolean }) {
+  const searchParams = useSearchParams();
+  const returned = !!searchParams.get('stripe');
+  const [checking, setChecking] = useState(true);
+  const [status, setStatus] = useState<{
+    chargesEnabled: boolean;
+    payoutsEnabled: boolean;
+    detailsSubmitted: boolean;
+  }>({ chargesEnabled: connectedAtLoad, payoutsEnabled: false, detailsSubmitted: connectedAtLoad });
+
+  const checkStatus = async () => {
+    setChecking(true);
+    try {
+      const res = await fetch('/api/stripe/connect/status');
+      if (res.ok) {
+        const d = await res.json();
+        setStatus({
+          chargesEnabled: !!d.chargesEnabled,
+          payoutsEnabled: !!d.payoutsEnabled,
+          detailsSubmitted: !!d.detailsSubmitted,
+        });
+      }
+    } catch {
+      /* keep whatever we knew */
+    } finally {
+      setChecking(false);
+    }
+  };
+  // One fresh server check on mount: it is what flips the success state right
+  // after Stripe redirects back, and it triggers the tier-price backfill.
+  useEffect(() => {
+    checkStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const goConnect = () => {
+    // Full-page redirect into Stripe's hosted onboarding (external URL, so
+    // window.location is correct here); it returns to /setup?stripe=success.
+    window.location.href = `/api/stripe/connect?returnTo=${encodeURIComponent('/setup')}`;
+  };
+
+  if (checking) {
+    return (
+      <div className="flex items-center gap-3 text-crwn-text-secondary text-sm">
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-crwn-gold" />
+        Checking your Stripe connection…
+      </div>
+    );
+  }
+
+  if (status.chargesEnabled) {
+    return (
+      <div className="border border-crwn-gold/40 bg-crwn-gold/5 rounded-xl p-5">
+        <div className="flex items-center gap-2">
+          <span className="w-6 h-6 rounded-full bg-crwn-gold text-crwn-bg flex items-center justify-center">
+            <Check className="w-4 h-4" />
+          </span>
+          <h4 className="font-semibold text-crwn-text">Stripe is connected</h4>
+        </div>
+        <p className="text-sm text-crwn-text-secondary mt-2">
+          Charges are enabled, so fans can pay you. Your paid tiers get their Stripe prices automatically.
+        </p>
+        <p className="text-sm text-crwn-text-secondary mt-1">
+          {status.payoutsEnabled
+            ? 'Payouts are enabled: money moves to your bank on Stripe’s normal schedule.'
+            : 'Payouts are still being verified by Stripe. Charges work now; payouts unlock when Stripe finishes, usually within a day.'}
+        </p>
+        <p className="text-sm text-crwn-text mt-3">Hit Continue.</p>
+      </div>
+    );
+  }
+
+  if (returned && status.detailsSubmitted) {
+    return (
+      <div className="border border-crwn-elevated rounded-xl p-5">
+        <h4 className="font-semibold text-crwn-text">Stripe is reviewing your details</h4>
+        <p className="text-sm text-crwn-text-secondary mt-2">
+          You finished Stripe’s form; verification usually clears in a few minutes. Your prices are created
+          automatically the moment charges are enabled, so you can keep going.
+        </p>
+        <button
+          type="button"
+          onClick={checkStatus}
+          className="mt-4 px-5 py-2.5 rounded-full border border-crwn-gold text-crwn-gold text-sm font-semibold hover:bg-crwn-gold/10 transition-colors"
+        >
+          Check again
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={goConnect}
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-8 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors"
+      >
+        <Banknote className="w-5 h-5" />
+        Connect Stripe
+      </button>
+      <p className="text-xs text-crwn-text-secondary mt-4">
+        Takes about 5 minutes on Stripe’s secure site, then you land right back here. You can also skip and
+        connect later from your dashboard: your paid tiers wait with no prices until you do, which means every
+        fan who tries to subscribe before then bounces off.
       </p>
     </div>
   );

@@ -1,5 +1,21 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 4: Stripe connect moved into the wizard
+
+The wizard now surfaces Stripe at the right moment: a `stripe` screen right after the promise
+review (monetize group). Understanding-first per the spec: the artist has just confirmed the
+model and its workload, so "Connect Stripe so fans can purchase your offers and you can receive
+payouts" finally has context. `/api/stripe/connect` accepts a validated same-site `?returnTo=`
+for its account-link refresh/return URLs (wizard passes `/setup`; everything else keeps the
+dashboard default), and the wizard's resume effect restores the EXACT `stripe` screen on
+`?stripe=success|refresh` instead of running the first-incomplete scan. Verification stays
+server-side: the screen only re-hits `/api/stripe/connect/status` (live `accounts.retrieve` +
+tier-price backfill; the response now includes `payoutsEnabled`) and renders one of three
+states: connected (charges enabled, payouts enabled-or-verifying), under review ("Check
+again"), or not connected (Connect button + loss-framed skip note). The screen NEVER blocks
+Continue, preserving the design rule that Stripe is required to take money, not to see the
+recommendation or finish setup. The wizard is now 11 screens. sw.js v314.
+
 ## 2026-07-30 — Launch Wizard Stage 3: the benefit→obligation generator and the promise review screen
 
 The wizard now shows the WORKLOAD before it creates anything. A new pure module

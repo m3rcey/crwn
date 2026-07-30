@@ -71,11 +71,24 @@ export async function GET(req: NextRequest) {
       // The milestone is recorded by /api/stripe/connect/status once charges_enabled is true.
     }
 
+    // Where Stripe sends the artist back. The setup wizard passes ?returnTo=/setup
+    // so the artist is restored to the exact wizard step (Launch Wizard Stage 4);
+    // everything else keeps the dashboard default. Same-site RELATIVE paths only —
+    // anything else (schemes, protocol-relative //host) is an open redirect.
+    const rawReturnTo = req.nextUrl.searchParams.get('returnTo') || '';
+    const returnTo =
+      rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//') ? rawReturnTo : '/profile/artist';
+    const backUrl = (flag: string) => {
+      const u = new URL(returnTo, process.env.NEXT_PUBLIC_BASE_URL);
+      u.searchParams.set('stripe', flag);
+      return u.toString();
+    };
+
     // Create account link for onboarding
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/artist?stripe=refresh`,
-      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/artist?stripe=success`,
+      refresh_url: backUrl('refresh'),
+      return_url: backUrl('success'),
       type: 'account_onboarding',
     });
 

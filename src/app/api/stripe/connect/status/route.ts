@@ -90,12 +90,13 @@ export async function GET() {
     const connectAccountId = artist ? await getConnectAccountByUserId(user.id) : null;
 
     if (!connectAccountId) {
-      return NextResponse.json({ connected: false, chargesEnabled: false, detailsSubmitted: false });
+      return NextResponse.json({ connected: false, chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false });
     }
 
     // Platform retrieves the Express account it owns by id (no stripeAccount param).
     const account = await stripe.accounts.retrieve(connectAccountId);
     const chargesEnabled = !!account.charges_enabled;
+    const payoutsEnabled = !!account.payouts_enabled;
     const detailsSubmitted = !!account.details_submitted;
 
     // Only a charges-enabled account is a real, monetizable connection.
@@ -116,12 +117,13 @@ export async function GET() {
     return NextResponse.json({
       connected: chargesEnabled,
       chargesEnabled,
+      payoutsEnabled,
       detailsSubmitted,
     });
   } catch (error) {
     console.error('Stripe connect status error:', error);
     return NextResponse.json(
-      { connected: false, chargesEnabled: false, detailsSubmitted: false, error: 'status_check_failed' },
+      { connected: false, chargesEnabled: false, payoutsEnabled: false, detailsSubmitted: false, error: 'status_check_failed' },
       { status: 200 }
     );
   }

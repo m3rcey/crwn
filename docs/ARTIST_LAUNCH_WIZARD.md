@@ -76,9 +76,16 @@ launch command screen.
    current/legacy tier name) with loss-framed attribution. Pure logic under test in
    `promisePlan.test.ts`. No migration: serve lists ride the existing `metadata` jsonb.
    Spec Phase 4 rules + Phase 6a.
-4. **Stripe step in-wizard** — surface connect at the right moment (after confirm, before
-   publish-paid), restore to the exact step on return, verify server-side. Mostly wiring;
-   `connect/status` already does the heavy parts. Spec Phase 5.
+4. **Stripe step in-wizard** — SHIPPED 2026-07-30. A `stripe` screen follows the promise
+   review (monetize group): "Connect Stripe so fans can purchase your offers and you can
+   receive payouts." Connect goes through `/api/stripe/connect`, which now honors a validated
+   same-site `?returnTo=` for its refresh/return URLs; the wizard passes `/setup`, and the
+   resume effect restores the EXACT `stripe` screen on `?stripe=success|refresh` instead of
+   the first-incomplete scan. Verification stays server-side: the screen just re-hits
+   `/api/stripe/connect/status` (which does the live `accounts.retrieve` and the tier-price
+   backfill, and now also returns `payoutsEnabled`) and renders connected / under-review
+   ("Check again") / not-connected states. The screen NEVER blocks Continue: Stripe is
+   required to take money, not to finish setup, exactly per the design rule. Spec Phase 5.
 5. **Minimum viable content step** — choose the offer needing content → upload one track / small
    collection / bulk / later; assign tier access; reuse existing upload + gating. Bulk upload
    prominent for the ICP. Spec Phase 6.
@@ -94,5 +101,5 @@ launch command screen.
    calendar, roadmap), completeness checklist, publish action bundling the existing server
    completion, and the post-launch command screen replacing the dashboard landing. Spec Phases 9-10.
 
-Stages 2-3 (the heart: the plan becomes an operational business with visible workload) are
-shipped. Stage 4 (Stripe step in-wizard) is next. Each stage updates this doc's SHIPPED markers.
+Stages 1-4 are shipped. Stage 5 (minimum viable content step) is next. Each stage updates this
+doc's SHIPPED markers.
