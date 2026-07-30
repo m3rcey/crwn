@@ -22,6 +22,40 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **CREATE the Resend webhook. It does not exist, so bounces and spam complaints have
+      NEVER been suppressed.** You were right that you could not find it. I checked: the only
+      row in `email_suppressions` is the `victim@example.com` test from the July security audit,
+      which means no real Resend event has ever reached CRWN. The endpoint itself is live and
+      correct (it returns 403 to anything unsigned); Resend has simply never been told to call
+      it. My earlier "edit the existing webhook" instruction was wrong, and that was a Claude bug.
+
+      **Why this is P0.** Prospect nurture is live and sends up to 25 emails per lead over 12
+      months. With no webhook, a dead address is never suppressed, so CRWN keeps emailing it for
+      a year, and a spam complaint never registers, so CRWN keeps emailing someone who reported
+      it. That is how a sending domain gets throttled or blocked, and `hello@thecrwn.app` is the
+      domain every lead magnet, every result email and every nurture sequence depends on.
+
+      1. Go to `https://resend.com/webhooks` (log in first).
+      2. Click **Add Webhook**.
+      3. **Endpoint URL:** `https://thecrwn.app/api/webhooks/resend`
+      4. **Select these events** (all five are handled in code):
+         `email.bounced`, `email.complained`, `email.delivered`, `email.opened`, `email.clicked`
+      5. Save. Resend then shows a **signing secret** starting with `whsec_`. Copy it.
+      6. Vercel → project `crwn` → **Settings → Environment Variables** → add
+         `RESEND_WEBHOOK_SECRET` = the whole `whsec_...` value (paste exactly, including the
+         `whsec_` prefix). Environment: **Production**. Server-only, never `NEXT_PUBLIC_`.
+      7. Tell Claude "the Resend webhook is set up" and it will redeploy (env vars only take
+         effect on the next deploy) and verify delivery end to end.
+
+      Until step 6 is done the endpoint rejects every event by design (it fails closed rather
+      than trusting an unsigned POST), so steps 1-5 alone will show failed deliveries in the
+      Resend dashboard. That is expected, not a bug.
+
+      While you are in there, check whether a SECOND webhook exists for
+      `https://thecrwn.app/api/outreach/webhook` (that one is for cold outreach and uses a
+      separate `RESEND_OUTREACH_SECRET`). If it is also missing, tell Claude and it will say
+      whether that path is in use yet.
+
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Fix the Twilio sender number so hot-lead SMS actually delivers.** You set
@@ -65,17 +99,6 @@ responsible for. Do not work those.
       A typo in `?from=` is harmless (the calculator just asks in its normal order). The old
       per-tool links keep working, so you can switch one video at a time. Do NOT touch the
       ManyChat keyword flows; those are separate and already live.
-
-- [ ] **Turn on Resend open/click events (5 clicks, here is exactly how).** Without this the
-      nurture admin panel's open/click rates stay at zero forever; sends still work either way.
-      1. Go to `https://resend.com` and log in.
-      2. Left sidebar → **Webhooks**. You will see the existing endpoint whose URL is
-         `https://thecrwn.app/api/webhooks/resend`. Click it.
-      3. Click **Edit** (top right).
-      4. In the event checklist, tick **email.opened** and **email.clicked** (leave everything
-         already ticked as it is).
-      5. Click **Save**. Done. Nothing to change in Vercel or the code; the webhook already
-         verifies and handles both events.
 
 - [ ] **(Optional, low priority) Per-video attribution for "Highest Converting Video."** CONFIRMED
       2026-07-26: ManyChat's "any post or reel" comment trigger does NOT expose the triggering post id

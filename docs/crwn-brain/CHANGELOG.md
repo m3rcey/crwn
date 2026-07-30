@@ -63,6 +63,34 @@ OAuth contact imports (Mailchimp/Google/Patreon APIs), inbound SMS, any change t
 fees/payouts, any new broadcast system. Build clean, 427 tests pass (18 added), sw.js bumped
 to v297.
 
+## 2026-07-30 (latest) — Two "done" items were not done: test artists still existed, and the Resend webhook was never registered
+
+Verifying founder-completed items caught two real gaps, both now closed or filed.
+
+**The two onboarding test artists still existed.** The SQL-editor deletion had hit a foreign-key
+error and stopped, leaving both `auth.users` rows and their profiles live. Deleted properly via
+the admin API after clearing the blocking rows (`sequences`, `abandoned_checkouts`,
+`sequence_enrollments`), each scoped to those two ids. Verified: profiles and artist_profiles
+gone, the real `m3rcey` account untouched.
+
+**`FOUNDER_ALERT_PHONE` is live, but Twilio rejects the sender.** A real end-to-end test request
+(labelled CLAUDE TEST) scored `sales_priority` 74, deduped, and reached the admin Calls tab; the
+SMS failed with *"The 'From' phone number provided (+13145573549) is not a valid message-capable
+Twilio phone number for this destination"* and the email fallback delivered. So the journey works
+and the blocker is Twilio account configuration (number capability / trial mode / A2P 10DLC),
+now written out as the founder item.
+
+**🔴 The Resend webhook was never registered in the Resend dashboard.** Josh could not find it
+because it does not exist. The route is live and correctly fails closed (403 on an unsigned
+POST), but the only row in `email_suppressions` is the July security test's
+`victim@example.com`, proving no real event has ever arrived. **Hard bounces and spam complaints
+have therefore never been suppressed in production**, while prospect nurture is live sending up
+to 25 emails per lead over 12 months. Filed as the P0 item with exact create-and-configure
+steps. `10-INTEGRATIONS.md` corrected (it still described the signature gap as open, and said
+nothing about registration). The general lesson is recorded there: **a correct, deployed,
+signature-verifying webhook proves nothing about whether the provider is calling it. Look for
+received data, not for code.**
+
 ## 2026-07-30 (later) — Founder-list sweep: ramp verified live, bespoke calculator hero, real tiers in the artist context, Terms notice
 
 Josh delegated the open TODO decisions. Executed: **revenue ramp verified end to end in
