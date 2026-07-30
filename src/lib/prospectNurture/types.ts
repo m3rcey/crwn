@@ -8,11 +8,16 @@
 // (the deterministic calculator output) and passed in as already-formatted strings.
 
 export type NurturePhase =
-  | 'delivery' // P1  days 0-3   deliver + immediate momentum
-  | 'belief' //   P2  days 4-14  problem awareness + belief building
-  | 'education'; // P3 weeks 3-6 practical education + quick wins
-// P4-P9 (objections, mechanism, proof, re-engagement, authority, evergreen) slot in here later
-// as additional phases + emails without any schema change.
+  | 'delivery' //     P1  days 0-3     deliver + immediate momentum
+  | 'belief' //       P2  days 4-14    problem awareness + belief building
+  | 'education' //    P3  weeks 3-6    practical education + quick wins
+  | 'objections' //   P4  weeks 8-12   handle the fragmented-stack objections
+  | 'mechanism' //    P5  months 3-4   how consolidation actually works
+  | 'proof' //        P6  months 5-6   transparent walkthroughs + identity
+  | 'reengagement' // P7  months 7-9   reintroduce the result, ask the blocker
+  | 'authority'; //   P8  months 10-12 cost of delay, one-year contrast, final invite
+// P9 evergreen (a low-frequency post-12-month track) slots in later as more emails with larger
+// dayOffsets, or as a behavior-triggered branch, without any schema change.
 
 // A block of an email body. The renderer turns these into both HTML and plain text.
 // `moduleQuickWin` / `moduleUseCase` inject the calculator-specific module content at render time,

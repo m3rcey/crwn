@@ -21,20 +21,36 @@ It is separate from the **platform sequences** (`platform_sequence_*`), which nu
 5. When the lead signs up, `autoClaimForUser` runs `exitProspectNurtureForUser(...)` and the sequence
    stops. The user moves into the existing signup/onboarding/activation flows.
 
-## Sequence lifecycle + cadence (v1)
+## Who it targets (docs/ICP.md)
+
+Sequence **v2** is written for the CRWN ICP: a proven direct-to-fan seller whose monetization stack
+is **fragmented** (Patreon, Shopify, Discord, Linktree, Gumroad, Eventbrite, email/SMS tools, YouTube
+Memberships). The pitch is **consolidation**, not "streaming pays pennies" (they already know that).
+The loss framing is fragmentation: stacked fees, fan lists that never talk, and offers that cannot
+compound because every piece lives in a different tool. It never tells the artist their audience is
+too small, that fans might not pay, or that they need a catalog/label/budget.
+
+## Sequence lifecycle + cadence (v2)
 
 Content lives in code (`src/lib/prospectNurture/sequence.ts`), versioned in git like the quest
-catalog. Day 0 is the transactional result email (sent by the capture route, not counted here).
+catalog. `current_step` is an index into the array, so the first 11 ids/order/dayOffsets are kept
+stable across the v1->v2 retune (only the copy changed); later phases are appended. Day 0 is the
+transactional result email (sent by the capture route, not counted here).
 
 | Phase | Days | Emails |
 |-------|------|--------|
 | P1 delivery + momentum | 1, 3 | `core.p1.recap`, `core.p1.action` |
 | P2 belief building | 5, 8, 11, 14 | `core.p2.why`, `core.p2.small-or-large`, `core.p2.recalc`, `core.p2.misconception` |
 | P3 practical education | 18, 24, 30, 36, 42 | `core.p3.first-step`, `core.p3.template`, `core.p3.rise`, `core.p3.proof-vs-guess`, `core.p3.recap-invite` |
+| P4 objections (fragmented-stack) | 56, 63, 70, 77, 84 | `already-use-tools`, `switching-cost`, `no-time`, `stack-works`, `another-tool` |
+| P5 mechanism | 100, 120 | `one-place`, `compounding` |
+| P6 proof + identity | 150, 180 | `walkthrough` (labeled hypothetical), `identity` |
+| P7 re-engagement | 220, 260 | `reintro` (re-run numbers), `blocker` (one-reply ask) |
+| P8 authority + conversion | 300, 340, 365 | `year-contrast`, `cost-of-delay`, `final-invite` (offers "reply less" + unsubscribe) |
 
-11 nurture emails + the day-0 transactional = 12 touches over 6 weeks, cadence slowing as the lead
-cools. Phases 4-9 (objections, mechanism, proof, re-engagement, authority, evergreen) are appended to
-the same array later, with larger `dayOffset` values, needing no schema or runner change.
+25 nurture emails + the day-0 transactional = 26 touches across ~12 months, cadence slowing as the
+lead cools. **P9 evergreen** (a monthly post-365 track, or a behavior-triggered branch) is a
+deliberate follow-up; it appends to the same array with no schema or runner change.
 
 ## Calculator-to-module mapping
 
