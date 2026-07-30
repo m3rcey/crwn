@@ -870,22 +870,28 @@ function FieldBody({
     case 'photo':
       return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={onPhotoSaved} />;
     case 'ladder':
+      if (setup.hasTier) {
+        // A returning artist still gets to SEE what "confirmed" means: their
+        // real tiers, read-only, never a blank "hit Continue".
+        return <ExistingLadderSummary artistId={setup.artistId} />;
+      }
       return (
         <LadderConfirm
           draft={ladderDraft}
           setDraft={setLadderDraft}
-          done={setup.hasTier}
           projections={tierProjections}
           toolName={toolName}
         />
       );
     case 'promises':
+      if (setup.hasTier) {
+        return <ExistingPromisesSummary artistId={setup.artistId} />;
+      }
       return (
         <PromisesReview
           ladderDraft={ladderDraft}
           draft={promiseDraft}
           setDraft={setPromiseDraft}
-          done={setup.hasTier}
         />
       );
     case 'stripe':
@@ -1069,24 +1075,97 @@ function AudioPicker({ file, onPick, done }: { file: File | null; onPick: (f: Fi
   );
 }
 
+// Read-only done states (a returning artist sees WHAT exists, never a blank
+// "hit Continue" under a headline that promised a review).
+function ExistingLadderSummary({ artistId }: { artistId: string | null }) {
+  const [tiers, setTiers] = useState<{ name: string; price: number }[] | null>(null);
+  useEffect(() => {
+    if (!artistId) return;
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from('subscription_tiers')
+      .select('name, price')
+      .eq('artist_id', artistId)
+      .not('is_active', 'is', false)
+      .order('price', { ascending: true })
+      .then(({ data }) => setTiers((data ?? []).map((t) => ({ name: t.name, price: Number(t.price) || 0 }))));
+  }, [artistId]);
+  if (!tiers) {
+    return <p className="text-crwn-text-secondary text-sm">Loading your ladder…</p>;
+  }
+  return (
+    <div className="space-y-3">
+      {tiers.map((t) => (
+        <div key={t.name} className="flex items-center justify-between border border-crwn-gold/40 bg-crwn-gold/5 rounded-xl px-4 py-3">
+          <span className="font-semibold text-crwn-gold">{t.name}</span>
+          <span className="text-sm text-crwn-text">{t.price === 0 ? 'Free' : `$${(t.price / 100).toFixed(0)}/mo`}</span>
+        </div>
+      ))}
+      <p className="text-xs text-crwn-text-secondary">
+        Your ladder is already live; nothing here will be duplicated. Edit names, prices, and benefits anytime
+        in Fan tiers and pricing. Hit Continue.
+      </p>
+    </div>
+  );
+}
+
+function ExistingPromisesSummary({ artistId }: { artistId: string | null }) {
+  const [rows, setRows] = useState<{ title: string; recurrence: string; next_due_at: string | null }[] | null>(null);
+  useEffect(() => {
+    if (!artistId) return;
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from('fulfillment_obligations')
+      .select('title, recurrence, next_due_at')
+      .eq('artist_id', artistId)
+      .eq('status', 'active')
+      .order('next_due_at', { ascending: true })
+      .then(({ data }) => setRows(data ?? []));
+  }, [artistId]);
+  if (!rows) {
+    return <p className="text-crwn-text-secondary text-sm">Loading your promises…</p>;
+  }
+  if (rows.length === 0) {
+    return (
+      <p className="text-crwn-text-secondary text-sm">
+        Your tiers create no scheduled promises, so nothing recurring sits on your calendar. Hit Continue.
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {rows.map((r, i) => (
+        <div key={i} className="border border-crwn-gold/40 bg-crwn-gold/5 rounded-xl px-4 py-3">
+          <p className="font-semibold text-crwn-text">{r.title}</p>
+          <p className="text-xs text-crwn-text-secondary mt-0.5">
+            {RECURRENCE_LABEL[(r.recurrence as Recurrence) ?? 'none'] ?? r.recurrence}
+            {r.next_due_at
+              ? `, next due ${new Date(r.next_due_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`
+              : ''}
+          </p>
+        </div>
+      ))}
+      <p className="text-xs text-crwn-text-secondary">
+        These are already on your Promise Calendar; nothing will be duplicated. Adjust dates or pause any of
+        them there. Hit Continue.
+      </p>
+    </div>
+  );
+}
+
 function LadderConfirm({
   draft,
   setDraft,
-  done,
   projections,
   toolName,
 }: {
   draft: LadderDraft;
   setDraft: React.Dispatch<React.SetStateAction<LadderDraft>>;
-  done?: boolean;
   /** Per-tier buyer counts from the artist's own claimed calculator (may be empty). */
   projections: TierProjection[];
   toolName: string | null;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
-  if (done) {
-    return <p className="text-crwn-text-secondary">Your ladder is already set up. Hit Continue.</p>;
-  }
   const patch = (key: string, p: Partial<LadderRungDraft>) =>
     setDraft((d) => ({ ...d, [key]: { ...d[key], ...p } }));
 
@@ -1306,16 +1385,11 @@ function PromisesReview({
   ladderDraft,
   draft,
   setDraft,
-  done,
 }: {
   ladderDraft: LadderDraft;
   draft: PromiseDraft;
   setDraft: React.Dispatch<React.SetStateAction<PromiseDraft>>;
-  done?: boolean;
 }) {
-  if (done) {
-    return <p className="text-crwn-text-secondary">Your ladder and its promises are already set up. Hit Continue.</p>;
-  }
   const planned = planFromDraft(ladderDraft);
   if (planned.length === 0) {
     return (
@@ -1425,6 +1499,14 @@ function PlanIntro({
             </p>
           )}
           {plan.headline && <p className="text-sm text-crwn-text">{plan.headline}</p>}
+          {/* A claimed draft with no number and no summary still deserves substance,
+              not a bare label: say what the saved plan actually contains. */}
+          {!plan.heroValue && !monthly && !plan.headline && (
+            <p className="text-sm text-crwn-text">
+              Your tier ladder, your growth systems, and your launch order, saved exactly as you set them. The
+              next steps make them real.
+            </p>
+          )}
           {monthly && plan.heroValue && (
             <p className="text-xs text-crwn-text-secondary mt-2">Projected at {monthly}/mo once your system is live.</p>
           )}

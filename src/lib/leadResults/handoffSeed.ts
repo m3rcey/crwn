@@ -48,6 +48,7 @@ export interface ResultRow {
   tool_slug: string;
   title?: string | null;
   result_data?: Record<string, unknown> | null;
+  input_data?: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -55,7 +56,20 @@ export interface ResultRow {
 export function rowToSeed(row: ResultRow): LeadMagnetSeed {
   const slug = String(row.tool_slug);
   const rd = (row.result_data ?? {}) as Record<string, unknown>;
+  const inputData = (row.input_data ?? {}) as Record<string, unknown>;
   const cfg = getLeadMagnet(slug);
+
+  // A deliverable DRAFT (saved pre-signup by /api/opportunity-drafts) stores the
+  // spec's CTA as its title ("Build your CRWN plan") and result_data = {}; the
+  // number the tool actually revealed lives in input_data.opportunitySummary.
+  // Under "this is the plan you built", the CTA reads as nonsense, so drafts
+  // surface the summary (or nothing), never the CTA.
+  const isDeliverableDraft = Object.keys(rd).length === 0;
+  const summary =
+    typeof inputData.opportunitySummary === 'string' && inputData.opportunitySummary.trim()
+      ? inputData.opportunitySummary.trim()
+      : null;
+  const headline = isDeliverableDraft ? summary ?? '' : String(row.title ?? rd.headline ?? '');
 
   const convertHref =
     (cfg &&
@@ -71,7 +85,7 @@ export function rowToSeed(row: ResultRow): LeadMagnetSeed {
     resultId: String(row.id),
     toolSlug: slug,
     toolName: toolName(slug),
-    headline: String(row.title ?? rd.headline ?? ''),
+    headline,
     heroValue: typeof rd.heroValue === 'string' ? rd.heroValue : null,
     heroSuffix: typeof rd.heroSuffix === 'string' ? rd.heroSuffix : null,
     estimatedMonthlyCents: typeof rd.estimatedMonthlyCents === 'number' ? rd.estimatedMonthlyCents : null,
@@ -93,7 +107,7 @@ export async function getLeadMagnetSeed(
   try {
     let query = db
       .from('lead_magnet_results')
-      .select('id, tool_slug, title, result_data, created_at')
+      .select('id, tool_slug, title, result_data, input_data, created_at')
       .order('created_at', { ascending: false })
       .limit(1);
     query = opts.artistId ? query.eq('artist_id', opts.artistId) : query.eq('user_id', opts.userId);
@@ -118,7 +132,7 @@ export async function getClaimedResults(
     if (!opts.artistId && !opts.userId) return [];
     let query = db
       .from('lead_magnet_results')
-      .select('id, tool_slug, title, result_data, created_at')
+      .select('id, tool_slug, title, result_data, input_data, created_at')
       .order('created_at', { ascending: false })
       .limit(50);
     query = opts.artistId ? query.eq('artist_id', opts.artistId) : query.eq('user_id', opts.userId as string);

@@ -1,5 +1,22 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Wizard polish from Josh's live test: no screen claims to show what it does not show
+
+Two fixes from Josh walking the wizard with a real account. (1) The plan-restore intro showed
+"Build your CRWN plan" under "From your CRWN Opportunity Calculator": a deliverable DRAFT row
+(saved pre-signup by /api/opportunity-drafts) stores the spec's CTA as its `title` and
+`result_data = {}` with the revealed number in `input_data.opportunitySummary`, and the seed
+reader never looked at input_data. `rowToSeed` now reads input_data and, for draft rows,
+surfaces the summary (never the CTA); both seed queries select `input_data`. The intro card
+also gained a substance fallback for old draft rows with no summary. This fix flows to EVERY
+seed surface (Rise banner, action plan, starter offer copy). (2) The ladder and promises
+screens showed a bare "already set up, hit Continue" to returning artists, under headlines
+promising a confirm/review. They now render read-only summaries of the REAL data: the artist's
+actual tiers (name + price) and their actual active obligations (title, cadence, next due),
+with "nothing will be duplicated" framing. Identity screens correctly stay skipped for
+existing artists (never re-ask, never pre-fill the email-seeded name). sw.js v320.
+
+
 ## 2026-07-30 — Launch Wizard Stage 9: preview, publish, command screen. The wizard is COMPLETE.
 
 The last stage. The wizard's end screen became `LaunchReview` ("Your CRWN launch system"): a
