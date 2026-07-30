@@ -26,6 +26,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { withTimeout } from '@/lib/promiseTimeout';
 import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
+import { BulkUploadForm } from '@/components/artist/BulkUploadForm';
 import {
   createOnboardingTrack,
   createOnboardingProduct,
@@ -55,6 +56,7 @@ type ScreenKey =
   | 'ladder'
   | 'promises'
   | 'stripe'
+  | 'content-plan'
   | 'track-audio'
   | 'track-title'
   | 'product-type'
@@ -91,6 +93,11 @@ const SCREENS: ScreenDef[] = [
   // price backfill); the connect link returns to /setup and the resume effect
   // restores this exact screen.
   { key: 'stripe', group: 'monetize', groupRequired: false, title: 'Connect Stripe to get paid', subtitle: 'Connect Stripe so fans can purchase your offers and you can receive payouts. Until then, your paid tiers exist but cannot take a payment.', icon: Banknote },
+  // Launch Wizard Stage 5: minimum viable content. One decision (featured track
+  // vs full catalog vs later), then the matching uploader. The catalog path
+  // mounts the EXISTING BulkUploadForm (per-track access + artwork + progress),
+  // not an onboarding-only media system.
+  { key: 'content-plan', group: 'music', groupRequired: true, title: 'How do you want to add your music?', subtitle: 'Start with one track or bring your catalog. A page with nothing to hear converts nobody.', icon: Music },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -112,6 +119,7 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
       return setup.hasTier;
     case 'stripe':
       return setup.stripeConnected;
+    case 'content-plan':
     case 'track-audio':
     case 'track-title':
       return setup.hasMusic;
@@ -231,6 +239,10 @@ function SetupWizard() {
   // Cadence + first-date adjustments from the promise-review screen, keyed by the
   // planned promise's key. Missing entries fall back to the plan's defaults.
   const [promiseDraft, setPromiseDraft] = useState<PromiseDraft>({});
+  // Stage 5: how the artist starts their catalog. 'single' = one featured free
+  // track (the fastest minimum). 'bulk' = the existing BulkUploadForm mounted
+  // in-wizard (multi-file, per-track tier access), for the 40-300-song ICP.
+  const [contentPlan, setContentPlan] = useState<'single' | 'bulk'>('single');
   const [trackDraft, setTrackDraft] = useState<{ audioFile: File | null; title: string }>({ audioFile: null, title: '' });
   const [productDraft, setProductDraft] = useState<{ type: ProductType; title: string; price: '' | string }>({
     type: 'digital',
@@ -322,7 +334,11 @@ function SetupWizard() {
         // Never blocks: Stripe is required to TAKE money, not to finish setup.
         // Prices backfill automatically when the artist connects later.
         return true;
+      case 'content-plan':
+        return true; // a default is always selected
       case 'track-audio':
+        // Bulk mode gates on real tracks existing (the form uploads them itself).
+        if (contentPlan === 'bulk') return false;
         return !!trackDraft.audioFile && trackTermsAgreed;
       case 'track-title':
         return trackDraft.title.trim() !== '';
@@ -343,9 +359,15 @@ function SetupWizard() {
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Bulk uploads name their tracks from the file names inside the form, so the
+  // single-track title screen is meaningless on that path and gets skipped.
+  const skipScreen = (s: ScreenDef): boolean => s.key === 'track-title' && contentPlan === 'bulk';
+
   const advance = () => {
-    if (stepIndex >= SCREENS.length - 1) setPhase('share');
-    else setStepIndex((i) => i + 1);
+    let next = stepIndex + 1;
+    while (next < SCREENS.length && skipScreen(SCREENS[next])) next++;
+    if (next >= SCREENS.length) setPhase('share');
+    else setStepIndex(next);
     scrollTop();
   };
 
@@ -502,7 +524,9 @@ function SetupWizard() {
   };
 
   const goBack = () => {
-    setStepIndex((i) => Math.max(0, i - 1));
+    let prev = stepIndex - 1;
+    while (prev > 0 && skipScreen(SCREENS[prev])) prev--;
+    setStepIndex(Math.max(0, prev));
     scrollTop();
   };
 
@@ -552,6 +576,12 @@ function SetupWizard() {
   const Icon = current.icon;
   const isLast = stepIndex >= SCREENS.length - 1;
   const showSkip = !current.groupRequired && !currentDone;
+  // The audio screen wears catalog copy when the artist chose the bulk path.
+  const isBulkAudio = current.key === 'track-audio' && contentPlan === 'bulk' && !currentDone;
+  const headerTitle = isBulkAudio ? 'Upload your catalog' : current.title;
+  const headerSubtitle = isBulkAudio
+    ? 'Add as many tracks as you want in one batch. Set access per track or apply one setting to all. Add more anytime in Studio.'
+    : current.subtitle;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -609,8 +639,8 @@ function SetupWizard() {
               <Icon className="w-5 h-5 text-crwn-gold" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-crwn-text">{current.title}</h1>
-              <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
+              <h1 className="text-2xl font-bold text-crwn-text">{headerTitle}</h1>
+              <p className="text-crwn-text-secondary text-sm mt-1">{headerSubtitle}</p>
               {current.key === 'ladder' && !stripeConnected && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
                   You’ll connect Stripe in a moment to actually get paid. Prices are created automatically when you connect.
@@ -637,6 +667,18 @@ function SetupWizard() {
             setPromiseDraft={setPromiseDraft}
             tierProjections={plan?.tierProjections ?? []}
             toolName={plan?.toolName ?? null}
+            contentPlan={contentPlan}
+            setContentPlan={setContentPlan}
+            onBulkComplete={() => {
+              // The single-track path fires this inside createOnboardingTrack;
+              // the bulk form doesn't, so keep the activation milestone honest.
+              fetch('/api/admin/milestone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ milestone: 'first_track_uploaded' }),
+              }).catch(() => {});
+              refresh().catch(() => {});
+            }}
             trackDraft={trackDraft}
             setTrackDraft={setTrackDraft}
             trackTermsAgreed={trackTermsAgreed}
@@ -712,6 +754,9 @@ function FieldBody({
   setPromiseDraft,
   tierProjections,
   toolName,
+  contentPlan,
+  setContentPlan,
+  onBulkComplete,
   trackDraft,
   setTrackDraft,
   trackTermsAgreed,
@@ -734,6 +779,9 @@ function FieldBody({
   setPromiseDraft: React.Dispatch<React.SetStateAction<PromiseDraft>>;
   tierProjections: TierProjection[];
   toolName: string | null;
+  contentPlan: 'single' | 'bulk';
+  setContentPlan: React.Dispatch<React.SetStateAction<'single' | 'bulk'>>;
+  onBulkComplete: () => void;
   trackDraft: { audioFile: File | null; title: string };
   setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
   trackTermsAgreed: boolean;
@@ -825,9 +873,52 @@ function FieldBody({
       );
     case 'stripe':
       return <StripeConnectStep connectedAtLoad={setup.stripeConnected} />;
+    case 'content-plan':
+      if (setup.hasMusic) {
+        return <p className="text-crwn-text-secondary">You already have music on your page. Hit Continue.</p>;
+      }
+      return (
+        <div className="grid gap-3">
+          {(
+            [
+              { value: 'single', label: 'One featured track', hint: 'Fastest. It starts free so new fans have something to hear today.' },
+              { value: 'bulk', label: 'My catalog (multiple tracks)', hint: 'Upload a batch in one go, with per-track access. Best if you already have released music: a deep catalog is exactly what your Gold tier sells.' },
+            ] as const
+          ).map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setContentPlan(opt.value)}
+              className={`text-left px-4 py-4 rounded-xl border transition-colors ${
+                contentPlan === opt.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+              }`}
+            >
+              <p className="font-medium text-crwn-text">{opt.label}</p>
+              <p className="text-xs text-crwn-text-secondary mt-0.5">{opt.hint}</p>
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={onSkipGroup}
+            className="text-left px-4 py-4 rounded-xl border border-dashed border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/40 transition-colors"
+          >
+            <p className="font-medium">I’ll add music later</p>
+            <p className="text-xs mt-0.5">Skip for now. Until something is up, your page gives fans no reason to stay.</p>
+          </button>
+        </div>
+      );
     case 'track-audio':
       if (setup.hasMusic) {
         return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done />;
+      }
+      if (contentPlan === 'bulk') {
+        if (!setup.artistId) {
+          return <p className="text-crwn-text-secondary">Your artist profile is still loading. One moment.</p>;
+        }
+        // The EXISTING dashboard bulk uploader, mounted in-wizard: multi-file
+        // queue, per-track tier access, artwork, progress, Artist Agreement
+        // consent. Continue unlocks from the DB the moment tracks exist.
+        return <BulkUploadForm artistProfileId={setup.artistId} onComplete={onBulkComplete} />;
       }
       return (
         <div>

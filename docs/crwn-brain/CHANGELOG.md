@@ -1,5 +1,20 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 5: minimum viable content, with the catalog path
+
+The wizard's music group now opens with a `content-plan` decision screen: one featured track
+(the fastest minimum, unchanged single path, starts free), the full catalog, or an explicit
+loss-framed "I'll add music later" escape that jumps the group. The catalog path mounts the
+EXISTING dashboard `BulkUploadForm` inside the wizard, exactly per the spec's "reuse existing
+systems, no onboarding-only media system": multi-file queue, per-track tier access and one-time
+prices (real `allowed_tier_ids` gating against the tiers the wizard just created), cover art,
+per-file progress, and the Artist Agreement consent line. The audio screen wears catalog copy in
+bulk mode, the track-title screen is skipped on that path (titles come from file names), Continue
+unlocks from the DB the moment tracks exist, and bulk completion fires the `first_track_uploaded`
+activation milestone the single path already fired. This is the wedge for the 40-300-song ICP:
+the deep catalog lands behind the Gold tier the artist just confirmed. The wizard is now 12
+screens. sw.js v315.
+
 ## 2026-07-30 — Launch Wizard Stage 4: Stripe connect moved into the wizard
 
 The wizard now surfaces Stripe at the right moment: a `stripe` screen right after the promise

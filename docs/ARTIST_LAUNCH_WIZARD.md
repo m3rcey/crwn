@@ -86,9 +86,16 @@ launch command screen.
    backfill, and now also returns `payoutsEnabled`) and renders connected / under-review
    ("Check again") / not-connected states. The screen NEVER blocks Continue: Stripe is
    required to take money, not to finish setup, exactly per the design rule. Spec Phase 5.
-5. **Minimum viable content step** — choose the offer needing content → upload one track / small
-   collection / bulk / later; assign tier access; reuse existing upload + gating. Bulk upload
-   prominent for the ICP. Spec Phase 6.
+5. **Minimum viable content step** — SHIPPED 2026-07-30. A `content-plan` screen opens the
+   music group with ONE decision: one featured track (fastest, starts free), the full catalog,
+   or an explicit "I'll add music later" escape (jumps the group, loss-framed). The catalog
+   path mounts the EXISTING dashboard `BulkUploadForm` inside the wizard (multi-file queue,
+   per-track tier access + one-time prices, artwork, progress, Artist Agreement consent), so
+   tier-access assignment reuses the real gating system and no onboarding-only media system
+   exists. The single-track path is unchanged. The track-title screen is skipped on the bulk
+   path (titles come from file names in the form); Continue unlocks from the DB the moment
+   tracks exist, and the bulk completion fires the `first_track_uploaded` milestone the
+   single path already fired. Spec Phase 6.
 6. **Personalized roadmap** — derive a 5-stage execution plan (Foundation → Private launch →
    Audience launch → Deliver and retain → Expand) from offer/audience/goal/availability; store
    per-artist; surface current stage + next milestone. Feed XP through the Quest Engine, not a
@@ -101,5 +108,5 @@ launch command screen.
    calendar, roadmap), completeness checklist, publish action bundling the existing server
    completion, and the post-launch command screen replacing the dashboard landing. Spec Phases 9-10.
 
-Stages 1-4 are shipped. Stage 5 (minimum viable content step) is next. Each stage updates this
+Stages 1-5 are shipped. Stage 6 (the personalized roadmap) is next. Each stage updates this
 doc's SHIPPED markers.
