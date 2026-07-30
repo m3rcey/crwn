@@ -61,18 +61,39 @@ export function useArtistContext(): {
     }
     let active = true;
     const supabase = createBrowserSupabaseClient();
+    // tiers come from the REAL subscription_tiers table. artist_profiles.tier_config is a
+    // dead column that was often empty/stale, and serving it here made the live-session
+    // tier gate show no tiers (2026-07-26) — any consumer of ctx.tiers had the same bug.
     supabase
       .from('artist_profiles')
-      .select('id, slug, platform_tier, tier_config')
+      .select('id, slug, platform_tier')
       .eq('user_id', user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (data) {
+          let tiers: TierConfig[] = [];
+          try {
+            const { data: tierRows } = await supabase
+              .from('subscription_tiers')
+              .select('id, name, price, description, access_config')
+              .eq('artist_id', data.id)
+              .eq('is_active', true)
+              .order('price', { ascending: true });
+            tiers = (tierRows || []).map((t) => ({
+              id: t.id,
+              name: t.name,
+              price: t.price,
+              description: t.description || '',
+              benefits: ((t.access_config as { benefits?: string[] } | null)?.benefits || []) as string[],
+            }));
+          } catch {
+            // A tier fetch failure must not block the artist shell; pages degrade to [].
+          }
           const next: ArtistContext = {
             artistId: data.id,
             slug: data.slug || '',
             platformTier: data.platform_tier || 'starter',
-            tiers: (data.tier_config || []) as TierConfig[],
+            tiers,
           };
           cache.set(user.id, next);
           if (active) setContext(next);

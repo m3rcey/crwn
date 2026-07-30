@@ -12,19 +12,18 @@ const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) { console.error("ERROR: GEMINI_API_KEY not set."); process.exit(1); }
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-const OUT_PATH = "public/tool-royalty-readiness.jpg";
+const OUT_PATH = "public/tool-opportunity.jpg";
 
-// Royalty Readiness is about the UNGLAMOROUS side: paperwork, registrations, the
-// admin nobody does. So the frame is a desk at 2am, not a stage. The mic is present
-// but pushed aside and unlit, because this is the part of the career that has nothing
-// to do with making the music and everything to do with getting paid for it.
+// The all-in-one Opportunity Calculator is about finally seeing the WHOLE business as
+// one picture instead of five scattered numbers. So the frame is an artist in front of
+// a planning wall where everything connects: the moment the pieces become one plan.
 const PROMPT = `A cinematic, photorealistic editorial photograph. Near-black charcoal room, background color #0D0D0D, with a single warm gold light, color #D4AF37, as the only light source. Deep shadows, rich blacks, film grain, shallow depth of field, shot on a 35mm lens at wide aperture.
 
-A young Black (African American) hip hop and R&B artist, clearly aged between 18 and 32 years old, youthful face, sitting alone at a desk very late at night in a dim home studio. He is leaning over a spread of printed paperwork and documents on the desk, one hand flat on the pages, studying them with a serious, focused, slightly weary expression. He is lit only by a single warm gold desk lamp that pools light across the papers and rim-lights one side of his face and shoulder.
+A young Black (African American) hip hop and R&B artist, clearly aged between 18 and 32 years old, youthful face, standing alone at night in a dim studio, seen in three-quarter view from behind his shoulder. He is facing a large dark planning wall covered with pinned photographs, papers and small cards, all connected by strands of fine gold thread that converge toward one central point on the wall. One hand is raised, about to touch that central point. His expression, caught in profile, is calm and certain: the moment scattered pieces finally read as one plan.
 
-A studio microphone on a boom arm sits pushed aside at the edge of the frame, unlit and out of focus. The rest of the room falls away into near-black darkness, studio gear barely suggested in the shadows.
+A single warm gold light rakes across the wall from the side, catching the threads so they glow, and rim-lights the edge of his face, shoulder and hand. The rest of the room falls away into near-black darkness, studio gear barely suggested in the shadows.
 
-The mood is quiet, expensive and unglamorous: the paperwork side of a music career, the part nobody posts about, done alone at 2am. No text, no words, no letters, no readable writing on the documents, no logos, no watermarks anywhere in the image. Photographic only, not an illustration.`;
+The mood is quiet, focused and expensive: one person seeing their whole business clearly for the first time. No text, no words, no letters, no readable writing on the papers or cards, no logos, no watermarks anywhere in the image. Photographic only, not an illustration.`;
 
 console.log(`Generating ${OUT_PATH}...`);
 

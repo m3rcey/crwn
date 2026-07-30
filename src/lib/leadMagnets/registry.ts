@@ -795,8 +795,8 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     subheadline:
       'Memberships, your vault, fan sharing, clips, live nights, premium sessions. Priced separately they all describe the same fans, so the total is fiction and the plan built on it fails. See one honest number for the whole thing, and the order to build it in.',
     primaryCta: 'Model my whole business',
-    image: '/tool-worth.jpg',
-    imageAlt: 'An artist alone in a dark studio staring at a number on his phone',
+    image: '/tool-opportunity.jpg',
+    imageAlt: 'An artist in a dark studio touching the point where gold threads from every part of his plan converge on one wall',
   },
   inputs: [
     {

@@ -219,6 +219,25 @@ export const POPUPS: PopupDef[] = [
     cta: { label: 'Show me the menu', href: '/account/payouts?from=hub' },
     dismissLabel: 'Got it',
   },
+
+  // ---- Notice: Terms updated 2026-07-24 (live-ticket refund clause) ----
+  // Not marketing, so not loss-framed: Terms §1 promises notice of material changes,
+  // and this banner is that notice. Buyer-favorable change (a seat is refundable when
+  // the artist cancels or reschedules). Lowest priority: a legal notice must never
+  // outcompete a money pop-up, and once ever is exactly what "notice" means.
+  {
+    key: 'notice_terms_2026_07_24',
+    kind: 'banner',
+    pages: ['/home', '/explore', '/library', '/studio', '/profile/artist'],
+    audience: () => true,
+    frequency: { type: 'once' },
+    priority: 10,
+    goal: 'Satisfy the Terms own notice promise for the live-ticket refund clause.',
+    title: 'Our Terms were updated on July 24, 2026.',
+    body: 'One addition: a live session or producer session seat is final once the session happens, and fully refundable if the artist cancels or reschedules to a time you cannot make.',
+    cta: { label: 'Read the Terms', href: '/terms' },
+    dismissLabel: 'Got it',
+  },
 ];
 
 /** Does this pop-up's page list arm it for the given pathname? */

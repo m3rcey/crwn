@@ -63,6 +63,20 @@ OAuth contact imports (Mailchimp/Google/Patreon APIs), inbound SMS, any change t
 fees/payouts, any new broadcast system. Build clean, 427 tests pass (18 added), sw.js bumped
 to v297.
 
+## 2026-07-30 (later) — Founder-list sweep: ramp verified live, bespoke calculator hero, real tiers in the artist context, Terms notice
+
+Josh delegated the open TODO decisions. Executed: **revenue ramp verified end to end in
+production** (promise-calendar tables probed, then `seedRevenueRamp` run for `m3rcey` via the
+real lib with the service role: 31 steps seeded, 0 skipped); **bespoke hero** for the
+opportunity calculator (`public/tool-opportunity.jpg`, charcoal + gold, artist 18-32, gold
+threads converging to one point — reviewed before shipping; registry now points at it);
+**`useArtistContext` fixed at the source** (tiers now come from `subscription_tiers`, not the
+dead `artist_profiles.tier_config`; consumers of `ctx.tiers` no longer see an empty list);
+**Terms notice shipped** as a once-ever, priority-10 banner (`notice_terms_2026_07_24`) because
+Terms §1 promises notice of material changes. Decisions recorded: do NOT promote the unified
+calculator to primary until `oyf-signup-timing-v1` concludes; the next on-ramp build is
+**(b) Patreon member import** (over (c)), queued as a dedicated session. sw v298.
+
 ## 2026-07-29 — The conversion spine: from calculator result to "launch this, charge this, do this next"
 
 The middle of the acquisition journey existed (claim, prefilled builders, post-setup routing) but

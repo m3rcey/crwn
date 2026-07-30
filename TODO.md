@@ -30,18 +30,13 @@ responsible for. Do not work those.
       Twilio creds are already set; until this var exists the alert falls back to email to
       joshn.wms@gmail.com, so nothing is lost, just slower. Server-only var, never `NEXT_PUBLIC_`.
 
-- [ ] **Decide whether the all-in-one calculator becomes the PRIMARY funnel.** The unified
-      Opportunity Calculator is live at
-      [`/tools/opportunity-calculator`](src/lib/opportunity/unifiedModel.ts) and models every
-      opportunity in one overlap-safe model (details:
-      [`docs/UNIFIED_OPPORTUNITY.md`](docs/UNIFIED_OPPORTUNITY.md)). It is registered as
-      **secondary** on purpose: Own Your Fans is currently `primary` AND is the assigned experience
-      of the running `oyf-signup-timing-v1` experiment, so promoting the new tool now would break
-      that experiment's readout. To promote it once you have data, change `promotion` to `'primary'`
-      and `promotionRank` to `0` for `opportunity-calculator` in
-      [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts), and demote
-      Own Your Fans to `'secondary'`. One file, two lines. This is a marketing call, not a technical
-      one, which is why it is yours.
+- [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
+      Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,
+      because Own Your Fans is its assigned experience and swapping traffic mid-flight burns the
+      readout we are paying for. The moment you conclude the experiment in `/admin` →
+      Experiments, tell Claude "promote the opportunity calculator" and it will flip the two
+      lines in [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts)
+      (opportunity-calculator to `primary`/rank 0, Own Your Fans to `secondary`).
 
 - [ ] **Point your video funnels at it with `?from=`.** Each single-opportunity video can now open
       the all-in-one calculator with its own questions first, instead of a generic questionnaire.
@@ -51,35 +46,6 @@ responsible for. Do not work those.
       `executive-producer-session`, `live-experience-calculator`). Anything else in `?from=` is
       ignored, so a typo degrades to the normal order rather than breaking. Nothing is required
       here: the existing per-tool links keep working untouched.
-
-- [ ] **(Cosmetic) The all-in-one calculator is reusing the Streaming Loss hero photo.** It ships
-      with `/tool-worth.jpg` because no bespoke shot exists yet. Same shared-placeholder pattern the
-      Founder Window tool uses. Say the word and I will generate an on-brand one (dark charcoal +
-      gold, artist aged 18 to 32) with the image skill.
-
-- [ ] **Decision: how much MORE of the stack-migration on-ramp do we build?** Correction to the
-      earlier version of this item: email-list CSV import ALREADY EXISTED (`/studio/fans` →
-      Import Fans, `/api/fan-contacts/import`; the ICP doc claiming otherwise was wrong and is
-      now fixed). As of 2026-07-30 option (a) is fully shipped: import now records a permission
-      attestation, and imported contacts can be EMAILED an invite through the existing campaign
-      sender (small test group first); the fan-invites migration ran 2026-07-30, so this is LIVE.
-      Still unbuilt:
-      **(b)** a Patreon member CSV import that pre-creates matching tiers and invites each
-      member to claim their membership on CRWN;
-      **(c)** (b) plus product/catalog import from Shopify/Gumroad.
-      Say (b) or (c) and I will build it. This is a scope and priority call, which is why it is
-      yours.
-
-- [ ] **Confirm the revenue ramp actually seeded (5 minutes, needs a real artist account).**
-      New artists now get a dated 12-month roadmap laid into their Promise Calendar when they
-      finish setup, aimed at the number their calculator showed
-      ([`docs/REVENUE_RAMP.md`](docs/REVENUE_RAMP.md)). It reuses the promise-calendar tables, so
-      it only works if `schema-phase2-promise-calendar.sql` is applied in production (it should
-      be, since tier benefits already seed promises). Seeding **fails silently by design** so it
-      can never block an artist from entering CRWN, which also means a missing table looks like
-      "no roadmap". Check: open [`/studio/promise`](src/app/\(main\)/studio/promise/page.tsx) on
-      your `m3rcey` account and press **"Lay out my first year"**. If roadmap steps appear, it
-      works. If nothing appears, run that migration and tell me.
 
 - [ ] **(Recommended, when data exists) Turn on Resend open/click events for prospect nurture.** In
       the Resend dashboard, enable the **email.opened** and **email.clicked** events. The signed
@@ -111,13 +77,6 @@ responsible for. Do not work those.
       If it errors with a `foreign key constraint … on table …`, paste that line to Claude for the
       one-line cleanup. **Never** add `612fa313-8d4f-4748-8148-7804fada0d0c` (that is your real
       `m3rcey` / "Mercey" account).
-
-- [ ] **The Terms changed (effective July 24, 2026): a live-ticket refund clause was added.**
-      Nothing to do unless you want to announce it. [`/terms` §4](src/app/\(public\)/terms/page.tsx)
-      now says a live-session/Executive Producer seat is final once the session happens, and
-      refundable if the artist cancels or reschedules to a time the buyer can't make. It is
-      buyer-favorable and matches the code (a full refund already revokes the seat), so a
-      notification is optional, but §1 of the Terms says material changes get one. Your call.
 
 ---
 
@@ -219,11 +178,12 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   1% to 3% conversion regardless of whether the artist has ever sold anything, which under-sells a
   proven seller. Neither blocks anything today.
 
-- **`useArtistContext` serves an empty/stale `tiers` (from `artist_profiles.tier_config`), not the
-  real `subscription_tiers` table.** This made the live-session tier gate show no tiers (2026-07-26,
-  fixed IN the live form by fetching `subscription_tiers` directly). Any OTHER hub page that reads
-  `ctx.tiers` has the same empty list. I will audit consumers and fix the context at the source
-  (point it at `subscription_tiers`) so no surface depends on the dead `tier_config`.
+- **NEXT UP: the Patreon on-ramp, option (b) (decision made 2026-07-30, you delegated it).**
+  A Patreon member CSV import that recognizes Patreon's export columns, imports members with
+  their tier and pledge amount, suggests matching CRWN tiers, and sends each member a
+  claim-your-membership invite through the (now live) contact-invite path. Chosen over (c)
+  because the member list is the wedge; product import can follow once (b) is proven. Mine to
+  build in a dedicated session so it ships whole, not scattered.
 
 The Instagram acquisition engine is feature-complete and verified in production: ingress,
 identity, Claude extraction with a complete deterministic fallback, the calculator handoff,
