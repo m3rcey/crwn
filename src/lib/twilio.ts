@@ -223,6 +223,18 @@ export async function sendSms(
     if (data.sid) {
       return { success: true, sid: data.sid };
     }
+    // Twilio 20008 means the configured credentials are the TEST pair, which by design
+    // refuses to send from any real number. Twilio's own message for this blames the FROM
+    // number ("not a valid message-capable Twilio phone number"), which sends you hunting
+    // through number capabilities, trial mode and A2P registration for a problem that is
+    // none of those. Say what it actually is.
+    if (data.code === 20008) {
+      return {
+        success: false,
+        error:
+          'Twilio is configured with TEST credentials, so no real SMS can ever send. Replace TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN with the LIVE pair from the Twilio console dashboard.',
+      };
+    }
     return { success: false, error: data.message || 'Unknown Twilio error' };
   } catch (err: any) {
     return { success: false, error: err.message || 'Failed to send SMS' };
