@@ -154,7 +154,8 @@ CRWN is a music monetization platform where artists sell subscriptions, tracks, 
 - `npm run dev` — Start dev server (port 3000)
 - `npm run build` — Production build (**must pass before pushing**)
 - `npm run lint` — ESLint
-- No test framework is configured
+- `npm test` — vitest (node env, pure `src/**/*.test.ts` suites; no jsdom/component tests). Run it before pushing when you touch a tested lib.
+- `npm run verify:quests` — quest catalog integrity check
 
 ## Architecture
 

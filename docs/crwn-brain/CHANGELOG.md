@@ -1,5 +1,58 @@
 # CRWN Brain — Changelog
 
+## 2026-07-29 — The conversion spine: from calculator result to "launch this, charge this, do this next"
+
+The middle of the acquisition journey existed (claim, prefilled builders, post-setup routing) but
+nothing ever told the artist WHAT to do: the homepage dropped all continuation context at its
+highest-intent moment, and a brand-new artist landing on `/profile/artist` met a dead "Rise Mode is
+on its way" placeholder. This ships the avatar-specific conversion spine for the ideal customer
+(a proven direct-to-fan seller with audience traction who is not converting it into owned revenue).
+
+**One deterministic starter-offer recommendation.** `src/lib/leadResults/starterOffer.ts`
+(`starterOffer@1`, 17 tests):
+
+- `buildStarterOffer(input)` is pure: claimed seeds + account state (paid-tier count, free tier,
+  track, Stripe, plan) in, ONE offer out: kind, name, integer-cent price, audience, benefits,
+  fulfillment burden, why, what is missing, three next actions, and a prefilled builder link that
+  returns to Rise Mode. No LLM, no new tables, no writes.
+- Prices come from the seed's own `conversionPayload` when the calculator modeled them, else from
+  `RECOMMENDED_LADDER` in `tierTemplate.ts`, so there is no third copy of 1000/2500/10000.
+- One monthly figure per recommendation via `monthlyCentsOf` (max semantics, never a sum across
+  tools). Share-to-Earn and missions are labeled acquisition for the same membership, never a
+  second income. Vault carries a "do not count it twice" note.
+- Pro gating honored: producer-session and live seeds on Free fall back to the membership with a
+  plain constraint note; the upgrade is never the first outcome.
+- Low confidence (no seed, score-only tool) recommends the smallest testable offer, not a menu.
+
+**Surfaces.** `GET /api/starter-offer` (session-authed, artist resolved server-side, Stripe status
+read only through `connectAccount.ts`) feeds `StarterOfferCard`, which now renders in Rise Mode's
+flag-off slot on `/profile/artist` ("Based on what you told us, start here", primary CTA "Finish my
+offer", secondary "Preview what fans will see"). Falls back to the old placeholder on any failure.
+Emits the existing `recommended_action_viewed`/`recommended_action_started` journey events; no new
+event names, no new analytics sink.
+
+**The homepage stops dropping context.** `WorthExperience` now renders the result-to-builder
+continuation on the homepage too (it was `!homepage`-gated): saving the draft routes through
+`buildContinueUrl('worth', token)` so signup receives the result token. The hero subline now
+promises the outcome: "...get the exact offer to launch, what to charge, and what to do first."
+`ConvertToFeatureButton` now calls `buildContinueUrl` instead of rebuilding the URL inline.
+
+Three defects fell out of the audit and are fixed or filed:
+
+- **`TierManager` truncated cents** (`parseInt("9.99") * 100` = $9.00) on tier create AND update;
+  both now `Math.round(parseFloat(...) * 100)`.
+- **The prospect-nurture cron wrote a `completed_at` column that does not exist**, so a finished
+  enrollment could never leave `active`; the phantom field is removed (status/exit_reason carry it).
+- **`products` CHECK constraints never allowed `physical`/`shipped`** though the setup wizard, the
+  offer builder, and ShopManager all write them; corrective idempotent migration
+  `supabase/schema-phase2-product-type-physical.sql` (self-verified), filed in TODO.md P1 together
+  with the two prospect-nurture migrations that were promised in TODO.md but never actually added.
+
+Deliberately NOT done: no new onboarding screens (refinement happens in the already-editable
+prefilled builder), no Quest Engine changes (still dark), no `/welcome` name prefill (the blank
+field is a deliberate guard against legal names leaking as public artist names), no new nurture
+system (the built-but-dark 11-email sequence already personalizes per calculator).
+
 ## 2026-07-29 — The unified Opportunity Calculator: one model, nothing counted twice
 
 Seventeen calculators each modeled one opportunity honestly. Run together they were dishonest,

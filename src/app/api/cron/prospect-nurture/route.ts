@@ -69,7 +69,9 @@ export async function GET(req: NextRequest) {
       if (stepIndex >= emails.length) {
         await supabaseAdmin
           .from('prospect_nurture_enrollments')
-          .update({ status: 'completed', exit_reason: 'completed', next_send_at: null, completed_at: nowIso, updated_at: nowIso })
+          // No completed_at column exists on this table; writing one fails the whole
+          // UPDATE (PGRST204) and the enrollment then never leaves 'active'.
+          .update({ status: 'completed', exit_reason: 'completed', next_send_at: null, updated_at: nowIso })
           .eq('id', e.id);
         continue;
       }
@@ -187,7 +189,7 @@ export async function GET(req: NextRequest) {
       } else {
         await supabaseAdmin
           .from('prospect_nurture_enrollments')
-          .update({ current_step: nextStep, status: 'completed', exit_reason: 'completed', next_send_at: null, completed_at: nowIso, last_sent_at: nowIso, updated_at: nowIso })
+          .update({ current_step: nextStep, status: 'completed', exit_reason: 'completed', next_send_at: null, last_sent_at: nowIso, updated_at: nowIso })
           .eq('id', e.id);
       }
     } catch (err) {

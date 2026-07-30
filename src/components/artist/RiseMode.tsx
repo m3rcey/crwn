@@ -9,6 +9,7 @@ import { MovementMap } from '@/components/quests/MovementMap';
 import { QuestCompletionModal } from '@/components/quests/QuestCompletionModal';
 import { Confetti } from '@/components/quests/Confetti';
 import { RoyaltyReadinessCard } from '@/components/artist/RoyaltyReadinessCard';
+import { StarterOfferCard } from '@/components/artist/StarterOfferCard';
 import { getArtistBuild } from '@/lib/quests/builds';
 import { Flame, Zap, Loader2, Sparkles } from 'lucide-react';
 
@@ -213,15 +214,10 @@ export function RiseMode() {
   }
 
   if (!data || !data.enabled) {
-    return (
-      <div className="max-w-lg mx-auto text-center py-16">
-        <div className="text-5xl mb-3">👑</div>
-        <h2 className="text-2xl font-bold text-crwn-text">Rise Mode is on its way</h2>
-        <p className="text-lg text-crwn-text-secondary mt-3 leading-relaxed">
-          Your guided career mode, your next move every day, is being prepared for your CRWN.
-        </p>
-      </div>
-    );
+    // Quest Engine dark or unavailable: the slot still earns its keep. The starter-offer
+    // card answers "what do I launch, what do I charge, what next" from the artist's own
+    // claimed calculator data, and degrades to the old placeholder on any failure.
+    return <StarterOfferCard />;
   }
 
   if (data.role === 'artist' && !data.build.primary) {

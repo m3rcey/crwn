@@ -428,7 +428,7 @@ export function WorthExperience({
 
   // ISSUE 2: the primary builder CTA, immediately under the "holy grail" result card, so the next
   // action is visible without scrolling past the derivation.
-  const resultCta = !homepage ? (
+  const resultCta = (
     <div className="mb-6">
       <ResultToBuilder
         toolSlug="worth"
@@ -437,12 +437,13 @@ export function WorthExperience({
         builderRef={worthBuilderRef}
       />
     </div>
-  ) : null;
+  );
 
-  // THE BUILDER: the immediate continuation of the result. Result -> concise derivation ->
-  // this. No signup, email gate, or booking block may appear above it (homepage keeps its
-  // original marketing flow, which has no builder).
-  const builderSection = !homepage ? (
+  // THE BUILDER: the immediate continuation of the result, on every surface including the
+  // homepage. Result -> concise derivation -> this. Saving the draft carries the result
+  // token into signup (buildContinueUrl), so the homepage no longer drops continuation
+  // context at its highest-intent moment.
+  const builderSection = (
     <section ref={worthBuilderRef} className="mb-14 scroll-mt-4">
       <SectionHeading icon={Sparkles}>Turn this estimate into an offer your fans can join</SectionHeading>
       <p className="text-crwn-text-secondary text-xl mb-5">
@@ -461,7 +462,7 @@ export function WorthExperience({
         />
       </div>
     </section>
-  ) : null;
+  );
 
   // Arrived from an Instagram comment/DM: her number is already in, so lead with the loss.
   const leadView = !!resultToken;
@@ -619,7 +620,7 @@ export function WorthExperience({
               How much money are you leaving on the table?
             </h1>
             <p className="text-crwn-text-secondary max-w-xl mx-auto text-xl sm:text-2xl">
-              {"Streaming pays pennies, and the fans who would pay you properly are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers and see what you're walking away from every month."}
+              {"Streaming pays pennies, and the fans who would pay you properly are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers, see what you're walking away from every month, and get the exact offer to launch, what to charge, and what to do first."}
             </p>
           </div>
         )}

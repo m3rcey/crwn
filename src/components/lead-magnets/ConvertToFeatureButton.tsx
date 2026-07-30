@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { buildConversionUrl } from '@/lib/leadMagnets/conversionAdapters';
-import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
+import { buildContinueUrl, continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { LM_EVENTS, trackLeadMagnet } from '@/lib/leadMagnets/analytics';
 import { OPPORTUNITY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
@@ -37,9 +37,7 @@ export function ConvertToFeatureButton({
     if (context === 'public') {
       trackLeadMagnet(LM_EVENTS.signupClicked, { toolSlug: config.slug, context, resultId });
       trackOpportunity(OPPORTUNITY_EVENTS.ctaClicked, oppBase);
-      const q = new URLSearchParams({ tool: config.slug, ref: 'lead-magnet' });
-      if (publicToken) q.set('result', publicToken);
-      router.push(`/signup?${q.toString()}`);
+      router.push(buildContinueUrl(config.slug, publicToken));
       return;
     }
 

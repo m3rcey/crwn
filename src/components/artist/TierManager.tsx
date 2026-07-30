@@ -154,8 +154,10 @@ export function TierManager() {
       }
 
       if (editingTier) {
-        // UPDATE existing tier
-        const newPriceInCents = parseInt(formData.price) * 100;
+        // UPDATE existing tier. Math.round(parseFloat(...) * 100), never parseInt * 100:
+        // the input's own placeholder allows "9.99" and parseInt would silently turn that
+        // into 900 cents.
+        const newPriceInCents = Math.round((parseFloat(formData.price) || 0) * 100);
         const priceChanged = newPriceInCents !== editingTier.price;
         const annualDiscountPct = parseInt(formData.annualDiscountPercent) || 0;
         // Annual settings can change without the price changing — regenerate Stripe prices for either.
@@ -240,8 +242,8 @@ export function TierManager() {
         setSelectedBenefits([]);
         showToast('Tier updated successfully!', 'success');
       } else {
-        // CREATE new tier
-        const priceInCents = parseInt(formData.price) * 100;
+        // CREATE new tier. Same rounding rule as the update path above.
+        const priceInCents = Math.round((parseFloat(formData.price) || 0) * 100);
         const annualDiscountPct = parseInt(formData.annualDiscountPercent) || 0;
         let stripePriceId = null;
         let stripeAnnualPriceId = null;

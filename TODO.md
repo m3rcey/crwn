@@ -24,6 +24,23 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the products CHECK migration:**
+      [`supabase/schema-phase2-product-type-physical.sql`](supabase/schema-phase2-product-type-physical.sql)
+      in the Supabase SQL Editor. The repo's `products` table constraint only allows
+      `digital/experience/bundle`, but the setup wizard, the offer builder, and the Shop manager all
+      write `physical` products with `shipped` delivery. If production still has the old constraint,
+      every physical-product create silently fails. The migration is idempotent: safe to run even if
+      the constraint was already widened by hand.
+
+- [ ] **Run the two prospect-nurture migrations** in the Supabase SQL Editor, in this order:
+      1. [`supabase/schema-phase2-prospect-nurture.sql`](supabase/schema-phase2-prospect-nurture.sql)
+      2. [`supabase/schema-phase2-fix-platform-sequence-copy.sql`](supabase/schema-phase2-fix-platform-sequence-copy.sql)
+      Until #1 runs, the 6-week nurture for email-only calculator leads is dark, AND the live
+      Instagram unsubscribe route's suppression write fails its CHECK (it inserts
+      `reason='unsubscribe'`, which only this migration permits), so CAN-SPAM opt-outs are riding on
+      a fallback flag. This item was promised in the "On Claude's plate" notes but was never actually
+      added here; that was a Claude bug, now fixed.
+
 - [ ] **Decide whether the all-in-one calculator becomes the PRIMARY funnel.** The unified
       Opportunity Calculator is live at
       [`/tools/opportunity-calculator`](src/lib/opportunity/unifiedModel.ts) and models every
@@ -294,7 +311,8 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   who runs a calculator, asks for the result by email, but does not sign up now enters a versioned,
   calculator-aware, consent-gated 12-touch sequence over 6 weeks (Phases 1-3), and exits the instant
   they create an account. It reuses the existing Resend sender, the global suppression gate, the daily
-  cron scheduler, and the lead tables (no parallel system). Two migrations are in your Do Now list.
+  cron scheduler, and the lead tables (no parallel system). Its two migrations are now really in
+  your Do Now P1 list (an earlier version of this note claimed they were there when they were not).
   Deliberately NOT built yet, in the order I would build them: **Phases 4-9** (objections → mechanism →
   proof → re-engagement → authority → evergreen), which slot into the same code array with no schema
   change; and wiring the external **`/worth`** (Streaming Loss) tool to enroll (only registry wizard
