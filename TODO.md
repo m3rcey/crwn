@@ -56,6 +56,17 @@ responsible for. Do not work those.
       separate `RESEND_OUTREACH_SECRET`). If it is also missing, tell Claude and it will say
       whether that path is in use yet.
 
+- [ ] **Run [`supabase/schema-phase2-fix-profiles-update-permission.sql`](supabase/schema-phase2-fix-profiles-update-permission.sql)
+      in the Supabase SQL Editor.** Since ~2026-07-23 EVERY browser-side save to `profiles` has
+      failed silently with 42501: your incognito signup's "Something went wrong saving your info"
+      alert, the setup wizard's photo save, tour-completion saves, and the profile settings form.
+      Root cause: the `profiles` UPDATE policy's WITH CHECK subqueries read `stripe_connect_id`,
+      which the column-privileges hardening revoked, and one forbidden column kills the whole
+      statement (the exact collision already fixed once on `artist_profiles`). The migration moves
+      the column freeze into a trigger and restores plain ownership RLS. New signups already work
+      again without it (the identity save moved server-side), but the wizard's PHOTO step and every
+      other client-side profile save stay broken until this runs.
+
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Get the hot-lead text on your phone TODAY: set `FOUNDER_ALERT_SMS_EMAIL` in Vercel.**
@@ -344,5 +355,6 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   tools enroll today). Full spec + admin controls: [`docs/PROSPECT_NURTURE.md`](docs/PROSPECT_NURTURE.md).
 
 One known limitation, and it is deliberate: **`/signup` ignores `?next`.** Auto-claim through
-signup works via `ClaimRedeemer` instead. `/welcome` and `useAuth` are the two files that broke
-onboarding silently for months, and a claim feature does not justify touching them.
+signup works via `ClaimRedeemer` instead. (`/welcome` was retired 2026-07-30; onboarding identity
+now lives in the setup wizard's first screens. `useAuth` remains a file that broke onboarding
+silently for months, and a claim feature does not justify touching it.)

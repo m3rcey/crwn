@@ -1,9 +1,10 @@
-// Founder re-engagement email for signups who never finished onboarding (/welcome).
+// Founder re-engagement email for signups who never finished onboarding (the
+// setup wizard's identity screens, which replaced /welcome on 2026-07-30).
 // Sent once by /api/cron/onboarding-reminder. Mirrors the personal note Josh sends
 // new artists, with the Cal.com booking link for a setup call.
 
 const BOOKING_URL = 'https://cal.com/jnwcreative/30min';
-const FINISH_URL = 'https://thecrwn.app/welcome';
+const FINISH_URL = 'https://thecrwn.app/setup';
 
 export function onboardingReminderEmail(params: { name?: string | null }) {
   const first = (params.name || '').trim().split(' ')[0] || 'there';

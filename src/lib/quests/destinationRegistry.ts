@@ -110,7 +110,7 @@ export interface ResolveDestinationInput {
 export function resolveDestination(input: ResolveDestinationInput): string {
   const dest = getDestination(input.destinationId) ?? DESTINATIONS.dashboard;
 
-  if (dest.requiresArtist && !input.isArtist) return '/welcome';
+  if (dest.requiresArtist && !input.isArtist) return '/setup';
 
   // The hard gate in src/app/(main)/layout.tsx would bounce them here anyway. Sending them
   // straight to /setup avoids a pointless redirect bounce.

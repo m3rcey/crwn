@@ -74,9 +74,10 @@ export default function SignupPage() {
           <div className={`neu-raised ${signupContext ? 'p-5' : 'p-8'}`}>
             <h2 className={`text-xl font-semibold text-crwn-text text-center ${signupContext ? 'mb-4' : 'mb-6'}`}>Sign Up</h2>
             <AuthForm mode="signup" pendingResultToken={pendingResultToken} onSignupComplete={() => setJustSignedUp(true)} onSuccess={() => {
-              // New signups go into onboarding, not the feed. (Only reached when email
-              // confirmation is off and signUp returns an immediate session.)
-              setTimeout(() => router.replace('/welcome'), 100);
+              // New signups go into the setup wizard (identity screens first), not the
+              // feed. (Only reached when email confirmation is off and signUp returns
+              // an immediate session.)
+              setTimeout(() => router.replace('/setup'), 100);
             }} />
             
             <p className="mt-6 text-center text-sm text-crwn-text-secondary">

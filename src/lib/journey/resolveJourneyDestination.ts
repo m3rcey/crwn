@@ -78,9 +78,10 @@ export interface JourneyDestination {
 export function resolveJourneyDestination(ctx: JourneyContext): JourneyDestination {
   const base = { opportunityKey: null as string | null, toolSlug: null as string | null };
 
-  // 1. No account yet -> the real account/publish path. Never fabricate an artist.
+  // 1. No account yet -> the real account/publish path (the wizard's identity screens
+  //    replaced /welcome on 2026-07-30). Never fabricate an artist.
   if (!ctx.isArtist) {
-    return { path: '/welcome', params: {}, reason: 'needs_account', ...base };
+    return { path: '/setup', params: {}, reason: 'needs_account', ...base };
   }
 
   // 2. Setup not finished -> setup wins. The (main) layout hard-gate would bounce here anyway; do

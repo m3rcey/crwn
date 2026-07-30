@@ -39,7 +39,7 @@ export default function VerifyEmailPage() {
           setNext(
             profile?.onboarding_completed
               ? { href: '/home', label: 'Go to CRWN' }
-              : { href: '/welcome', label: 'Finish setting up' }
+              : { href: '/setup', label: 'Finish setting up' }
           );
         }
         // No session: keep the default (login) next. Email is verified regardless.

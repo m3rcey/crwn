@@ -14,6 +14,8 @@ import {
   ShoppingBag,
   UploadCloud,
   PartyPopper,
+  User,
+  Link2,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtistSetup';
@@ -28,9 +30,13 @@ import {
   createOnboardingProduct,
 } from '@/lib/onboardingItems';
 import { getAnonId } from '@/lib/experiments/anonId';
+import { slugify } from '@/lib/slugify';
+import { isEmailLike } from '@/lib/publicName';
 import type { ProductType } from '@/types';
 
 type ScreenKey =
+  | 'artist-name'
+  | 'artist-link'
   | 'photo'
   | 'tier-name'
   | 'tier-price'
@@ -48,11 +54,16 @@ interface ScreenDef {
   title: string;
   subtitle: string;
   icon: typeof Palette;
-  create?: 'tier' | 'track' | 'product'; // last field of the item → create on Continue
+  create?: 'identity' | 'tier' | 'track' | 'product'; // last field of the item → create on Continue
 }
 
 // One FIELD per screen. Groups (the four chips) span multiple screens.
+// The identity screens (name + link) replaced the old /welcome page on
+// 2026-07-30: signup now lands straight in the wizard, and the link screen's
+// Continue saves the name and creates the artist page via /api/onboarding/identity.
 const SCREENS: ScreenDef[] = [
+  { key: 'artist-name', group: 'profile', groupRequired: true, title: 'What do fans call you?', subtitle: 'Your artist or stage name. This is the name on your page, not your email.', icon: User },
+  { key: 'artist-link', group: 'profile', groupRequired: true, title: 'Claim your CRWN link', subtitle: 'The link you share everywhere. You can change it later in your profile.', icon: Link2, create: 'identity' },
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
   { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your free entry point', subtitle: 'The free tier fans join first. e.g. “Bronze”. You build paid tiers later in Rise Mode.', icon: CreditCard },
   { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the price', subtitle: 'Keep this at 0 for your free entry point. Paid tiers come later in Rise Mode.', icon: CreditCard },
@@ -66,6 +77,11 @@ const SCREENS: ScreenDef[] = [
 
 function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
   switch (s.key) {
+    case 'artist-name':
+    case 'artist-link':
+      // Identity is saved the moment the artist page exists (an artist who
+      // onboarded through the old /welcome page resumes past these screens).
+      return !!setup.artistId;
     case 'photo':
       return setup.hasAvatar;
     case 'tier-name':
@@ -115,7 +131,7 @@ function SetupWizard() {
   // The wizard is the only place that reads `stripeConnected`, so it is the only
   // place that pays for the Stripe round trip.
   const setup = useArtistSetup({ withStripe: true });
-  const { loading, isArtist, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, refresh, markComplete } =
+  const { loading, isArtist, onboardingCompleted, artistId, slug, setupCompleted, steps, stripeConnected, avatarUrl, refresh, markComplete } =
     setup;
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -128,6 +144,17 @@ function SetupWizard() {
   // Rights/Artist-Agreement consent for uploading music (same as the Music tab).
   const [trackTermsAgreed, setTrackTermsAgreed] = useState(false);
   const initRef = useRef(false);
+
+  // Identity draft (name + link). Never pre-filled from profile.display_name:
+  // before onboarding completes that field is only the un-chosen seed (the signup
+  // email via the DB default), and pre-filling it is exactly how emails leak out
+  // as public artist names. The handle auto-syncs from the name until edited.
+  const [identityDraft, setIdentityDraft] = useState<{ name: string; handle: string; handleEdited: boolean }>({
+    name: '',
+    handle: '',
+    handleEdited: false,
+  });
+  const [supporterBusy, setSupporterBusy] = useState(false);
 
   // Drafts for the multi-screen item flows (persisted only when the item is created).
   const [tierDraft, setTierDraft] = useState<{ name: string; price: string; benefits: string[] }>({
@@ -150,19 +177,24 @@ function SetupWizard() {
 
   useEffect(() => {
     if (loading) return;
-    if (user && !isArtist) {
+    // An established fan (onboarding done, no artist page) has no business in the
+    // wizard. A BRAND-NEW signup is neither an artist nor onboarded — they stay:
+    // the identity screens are exactly where they choose their name and link.
+    if (user && !isArtist && onboardingCompleted) {
       router.replace('/home');
       return;
     }
     if (setupCompleted) router.replace('/profile/artist');
-  }, [loading, isArtist, setupCompleted, user, router]);
+  }, [loading, isArtist, onboardingCompleted, setupCompleted, user, router]);
 
   // ---- Resume at the first incomplete screen (runs once) -----------------
   useEffect(() => {
     if (loading || initRef.current) return;
     initRef.current = true;
     // Funnel: Setup Started. Server dedups once per user, so a resume/reload is not a new start.
-    if (isArtist && !setupCompleted) trackFunnel('setup_started');
+    // New signups aren't artists yet (the identity screens create the artist row), so
+    // "not yet onboarded" counts as a start too.
+    if ((isArtist || !onboardingCompleted) && !setupCompleted) trackFunnel('setup_started');
     const firstIncomplete = SCREENS.findIndex((sc) => !screenDone(sc, setup));
     if (firstIncomplete === -1) setPhase('share');
     else setStepIndex(firstIncomplete);
@@ -196,6 +228,10 @@ function SetupWizard() {
   // Local (draft) readiness for field screens that aren't derived from the DB.
   const localReady = (): boolean => {
     switch (current.key) {
+      case 'artist-name':
+        return identityDraft.name.trim() !== '';
+      case 'artist-link':
+        return slugify(identityDraft.handle || identityDraft.name) !== '';
       case 'tier-name':
         return tierDraft.name.trim() !== '';
       case 'tier-price':
@@ -229,7 +265,73 @@ function SetupWizard() {
     scrollTop();
   };
 
-  const runCreate = async (kind: 'tier' | 'track' | 'product'): Promise<string | undefined> => {
+  // Saves the identity screens (name + link + role) through the server route.
+  // Server-side because the browser cannot update `profiles` at all right now
+  // (see /api/onboarding/identity), and so the artist page + name land together.
+  const saveIdentity = async (role: 'artist' | 'fan'): Promise<string | undefined> => {
+    const recruiterCode = typeof window !== 'undefined' ? localStorage.getItem('crwn_recruiter') : null;
+    let res: Response;
+    try {
+      res = await fetch('/api/onboarding/identity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          displayName: identityDraft.name,
+          role,
+          handle: identityDraft.handle,
+          recruiterCode,
+        }),
+      });
+    } catch {
+      return 'Something went wrong saving your info. Please try again.';
+    }
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return json?.message || 'Something went wrong saving your info. Please try again.';
+    }
+    if (json?.role === 'artist' && json?.artistId) {
+      // Same fire-and-forgets the old /welcome page ran after creating the page.
+      fetch('/api/sequences/seed-defaults', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artistId: json.artistId }),
+      }).catch(() => {});
+      if (recruiterCode && user) {
+        fetch('/api/admin/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ markConverted: { recruiterCode, userId: user.id } }),
+        }).catch(() => {});
+      }
+      fetch('/api/admin/milestone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ milestone: 'onboarding_completed' }),
+      }).catch(() => {});
+    }
+    return undefined;
+  };
+
+  // The small escape hatch on the name screen for someone who is only here to
+  // support artists: same identity save, fan role, straight to the feed.
+  const continueAsSupporter = async () => {
+    if (supporterBusy) return;
+    if (!identityDraft.name.trim()) {
+      showToast('Enter your name first, then continue as a supporter.', 'error');
+      return;
+    }
+    setSupporterBusy(true);
+    const err = await saveIdentity('fan');
+    if (err) {
+      showToast(err, 'error');
+      setSupporterBusy(false);
+      return;
+    }
+    router.replace('/home');
+  };
+
+  const runCreate = async (kind: 'identity' | 'tier' | 'track' | 'product'): Promise<string | undefined> => {
+    if (kind === 'identity') return saveIdentity('artist');
     if (!artistId) return 'Your artist profile is still loading. Try again.';
     if (kind === 'tier') {
       return (
@@ -249,6 +351,12 @@ function SetupWizard() {
 
   const goNext = async () => {
     if (creating) return;
+    // Catch an email typed as the artist name HERE, not two screens later when
+    // the server rejects it. The name is public everywhere.
+    if (current.key === 'artist-name' && !currentDone && isEmailLike(identityDraft.name)) {
+      showToast('Use your artist or stage name here, not your email.', 'error');
+      return;
+    }
     // Last field of an item → create it (unless it already exists).
     if (current.create && !currentDone) {
       setCreating(true);
@@ -391,6 +499,10 @@ function SetupWizard() {
           <FieldBody
             screen={current}
             setup={setup}
+            identityDraft={identityDraft}
+            setIdentityDraft={setIdentityDraft}
+            onContinueAsSupporter={continueAsSupporter}
+            supporterBusy={supporterBusy}
             onPhotoSaved={() => {
               setPhotoUploaded(true);
               refresh().catch(() => {});
@@ -461,6 +573,10 @@ const INPUT =
 function FieldBody({
   screen,
   setup,
+  identityDraft,
+  setIdentityDraft,
+  onContinueAsSupporter,
+  supporterBusy,
   onPhotoSaved,
   avatarUrl,
   tierDraft,
@@ -475,6 +591,10 @@ function FieldBody({
 }: {
   screen: ScreenDef;
   setup: ArtistSetupState;
+  identityDraft: { name: string; handle: string; handleEdited: boolean };
+  setIdentityDraft: React.Dispatch<React.SetStateAction<{ name: string; handle: string; handleEdited: boolean }>>;
+  onContinueAsSupporter: () => void;
+  supporterBusy: boolean;
   onPhotoSaved: () => void;
   avatarUrl: string;
   tierDraft: { name: string; price: string; benefits: string[] };
@@ -488,6 +608,65 @@ function FieldBody({
   onSkipGroup: () => void;
 }) {
   switch (screen.key) {
+    case 'artist-name':
+      if (setup.artistId) {
+        return <p className="text-crwn-text-secondary">Already set. Hit Continue.</p>;
+      }
+      return (
+        <div>
+          <input
+            autoFocus
+            className={INPUT}
+            maxLength={80}
+            placeholder="Your artist or stage name"
+            value={identityDraft.name}
+            onChange={(e) =>
+              setIdentityDraft((d) => ({
+                ...d,
+                name: e.target.value,
+                // Keep the handle in sync with the name until the artist customizes it.
+                handle: d.handleEdited ? d.handle : slugify(e.target.value),
+              }))
+            }
+          />
+          <button
+            type="button"
+            onClick={onContinueAsSupporter}
+            disabled={supporterBusy}
+            className="mt-6 text-sm text-crwn-text-secondary hover:text-crwn-text underline underline-offset-4 transition-colors disabled:opacity-50"
+          >
+            {supporterBusy ? 'One moment…' : 'Not an artist? Continue as a supporter'}
+          </button>
+        </div>
+      );
+    case 'artist-link':
+      if (setup.artistId) {
+        return (
+          <p className="text-crwn-text-secondary">
+            Your link is thecrwn.app/{setup.slug}. Hit Continue.
+          </p>
+        );
+      }
+      return (
+        <div className="flex items-stretch rounded-xl border border-crwn-elevated bg-crwn-surface focus-within:border-crwn-gold transition-colors overflow-hidden">
+          <span className="flex items-center pl-4 pr-1 text-lg text-crwn-text-secondary/70 select-none whitespace-nowrap">
+            thecrwn.app/
+          </span>
+          <input
+            autoFocus
+            type="text"
+            value={identityDraft.handle}
+            onChange={(e) =>
+              setIdentityDraft((d) => ({ ...d, handle: slugify(e.target.value), handleEdited: true }))
+            }
+            placeholder="yourname"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            className="flex-1 min-w-0 py-4 pr-4 bg-transparent text-lg text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none"
+          />
+        </div>
+      );
     case 'photo':
       return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={onPhotoSaved} />;
     case 'tier-name':

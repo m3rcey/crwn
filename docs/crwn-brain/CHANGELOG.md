@@ -1,5 +1,28 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — /welcome retired; identity moved into the setup wizard; profiles UPDATE 42501 fixed
+
+A real incognito signup (joshn.wms+onboardj) hit "Something went wrong saving your info" on
+/welcome. Root cause: since `schema-phase2-profiles-column-privileges.sql` was applied
+(~2026-07-23), the `profiles` FOR UPDATE policy's WITH CHECK subqueries read
+`stripe_connect_id`, a column that migration revoked from `authenticated`; one forbidden column
+42501s the whole statement, so EVERY browser-side profiles save (welcome, wizard photo, tour
+completion, profile settings) silently failed. This is the same collision fixed once before on
+`artist_profiles`. Fix: `schema-phase2-fix-profiles-update-permission.sql` moves the
+is_active/stripe_connect_id/role freeze into a BEFORE UPDATE trigger (with an exemption for the
+trg_promote_to_artist fan→artist promotion) and restores plain-ownership RLS. **Migration
+pending Josh** (TODO.md P0).
+
+Independently of the migration, onboarding was restructured per Josh's ask: the /welcome page is
+retired (route now redirects to /setup). The wizard gained two leading identity screens
+(artist-name with a "Continue as a supporter" escape, artist-link), saved server-side by
+`POST /api/onboarding/identity` (admin client for the profiles write, so it works pre-migration;
+user-session client for the artist_profiles insert, so the canary-guarded RLS publish path stays
+real, and the welcome email now sends once with the chosen name). Phone is no longer collected.
+All entry points (signup, login, /verify, (main) gate, journey resolver, quest destination
+registry, onboarding-reminder email) now point at /setup; `slugify` moved to `src/lib/slugify.ts`;
+`setup` added to reserved slugs; sw.js bumped to v309.
+
 ## 2026-07-30 — Stock tier ladder renamed to Bronze / Silver / Gold / Platinum
 
 The recommended four-tier ladder shipped under invented names (The Wave / Inner Circle / The

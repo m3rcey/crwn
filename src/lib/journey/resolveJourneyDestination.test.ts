@@ -56,9 +56,9 @@ describe('resolveJourneyDestination', () => {
     expect(d.opportunityKey).toBe('streaming-loss');
   });
 
-  it('existing fan becoming an artist (no artist row yet) -> /welcome', () => {
+  it('existing fan becoming an artist (no artist row yet) -> /setup (identity screens)', () => {
     const d = resolveJourneyDestination({ ...baseCtx, isArtist: false, seed: seed({}) });
-    expect(d.path).toBe('/welcome');
+    expect(d.path).toBe('/setup');
     expect(d.reason).toBe('needs_account');
   });
 

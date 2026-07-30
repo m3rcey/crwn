@@ -29,7 +29,7 @@ export default function LoginPage() {
         if (profile?.onboarding_completed) {
           router.replace(next || '/home');
         } else {
-          router.replace('/welcome');
+          router.replace('/setup');
         }
       };
       checkOnboarding();

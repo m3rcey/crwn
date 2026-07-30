@@ -1021,14 +1021,14 @@ describe('destination registry (Claude can never return a URL)', () => {
     expect(route).toContain('returnTo=');
   });
 
-  it('sends a non-artist to welcome, never into an artist route', () => {
+  it('sends a non-artist to the setup wizard, never into an artist route', () => {
     const route = resolveDestination({
       destinationId: 'rise_mode',
       isArtist: false,
       questEngineEnabled: true,
       setupComplete: true,
     });
-    expect(route).toBe('/welcome');
+    expect(route).toBe('/setup');
   });
 
   it('falls back safely on an unknown destination id', () => {

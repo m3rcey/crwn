@@ -37,24 +37,24 @@
 ```mermaid
 flowchart TD
     S[/signup: email+pw, emailRedirectTo=/verify, capture ?recruiter/?invite to localStorage/] --> V[/verify: PKCE exchange -> Email verified success screen -> forward by onboarding state/]
-    V --> W[/welcome: display_name, phone, role, editable CRWN link/handle for artists/]
-    W -->|role=fan| H[/home]
-    W -->|role=artist| AP[insert artist_profiles from chosen handle -> trg_promote_to_artist flips role server-side]
-    AP --> SET[/setup wizard: 9 one-field screens]
-    SET --> Photo[photo* -> avatar_url] --> Tier[tier name/price/benefits] --> Track[track audio*/title] --> Prod[product type/title/price]
+    V --> SET[/setup wizard: 11 one-field screens; opens on the identity screens/]
+    SET --> Name[artist-name* with a Continue-as-supporter escape] --> Link[artist-link* -> POST /api/onboarding/identity]
+    Name -->|supporter escape| H[/home]
+    Link --> AP[server route: session-client artist_profiles insert from chosen handle -> trg_promote_to_artist flips role server-side; admin-client profiles update sets display_name + onboarding_completed]
+    AP --> Photo[photo* -> avatar_url] --> Tier[tier name/price/benefits] --> Track[track audio*/title] --> Prod[product type/title/price]
     Prod --> Share[share screen -> Start Rise Mode]
     Share --> Complete[POST /api/artist/complete-setup sets setup_completed=true server-side]
     Complete --> J[GET /api/lead-results/post-setup-destination -> resolveJourneyDestination]
     J -->|claimed calculator result| B[prefilled builder: /offers/new, /studio/live, /own-your-fans/plan, /missions/new, /proof-of-demand/new or /plan/tool]
     J -->|no claimed result| D[/profile/artist; Rise Mode slot shows the StarterOfferCard recommendation while the Quest Engine is dark]
 ```
-Mandatory: photo + one track. Monetize/Shop skippable. Completion is DB-derived; hard gate in `(main)/layout.tsx` bounces incomplete artists back to `/setup`. At `/welcome` artists set an editable `thecrwn.app/[handle]` link (auto-filled from the name via `slugify` until edited, validated against reserved handles and Postgres 23505 unique collisions); the slug is created from the chosen handle, not the legal display name. Finishing the wizard writes `setup_completed=true` via the service-role `POST /api/artist/complete-setup` route (`markComplete()` throws on failure); this replaced a silent client `.update()` that could fail and bounce the artist from the dashboard back into `/setup`. Recruiter/invite codes redeemed post-auth (`redeemPendingInvite`, `/api/admin/track`). `Confirmed`.
+Mandatory: identity (name + link) + photo + one track. Monetize/Shop skippable. Completion is DB-derived; hard gate in `(main)/layout.tsx` bounces incomplete artists back to `/setup`. **The `/welcome` page was retired 2026-07-30** (it now redirects to `/setup`): the wizard's first two screens collect the artist name and an editable `thecrwn.app/[handle]` link (auto-filled from the name via the shared `src/lib/slugify.ts` until edited, validated against reserved handles and Postgres 23505 unique collisions, saved by `POST /api/onboarding/identity`); the slug is created from the chosen handle, not the legal display name. The identity route writes `profiles` with the service-role client because browser-side `profiles` updates 42501 until `schema-phase2-fix-profiles-update-permission.sql` runs, but keeps the `artist_profiles` INSERT on the user session so the RLS publish path (guarded by the onboarding canary) stays real. Phone is no longer collected at onboarding. Finishing the wizard writes `setup_completed=true` via the service-role `POST /api/artist/complete-setup` route (`markComplete()` throws on failure); this replaced a silent client `.update()` that could fail and bounce the artist from the dashboard back into `/setup`. Recruiter/invite codes redeemed post-auth (`redeemPendingInvite`, `/api/admin/track`). `Confirmed`.
 
 ### Email verification
-Signup `emailRedirectTo` points at `/verify`. `/verify` runs the PKCE exchange and shows an "Email verified" success screen with a forward button routed by onboarding state (`/welcome` for new users, `/home` when a session exists, "Continue to login" when none). On PKCE exchange **failure** for the `/verify` path (cross-browser/webview case, e.g. Gmail in-app browser with no code-verifier cookie), `src/lib/supabase/middleware.ts` preserves `?verified=true` so those users still see the verified banner on `/login` instead of a blank login page. `Confirmed`.
+Signup `emailRedirectTo` points at `/verify`. `/verify` runs the PKCE exchange and shows an "Email verified" success screen with a forward button routed by onboarding state (`/setup` for new users, `/home` when a session exists, "Continue to login" when none). On PKCE exchange **failure** for the `/verify` path (cross-browser/webview case, e.g. Gmail in-app browser with no code-verifier cookie), `src/lib/supabase/middleware.ts` preserves `?verified=true` so those users still see the verified banner on `/login` instead of a blank login page. `Confirmed`.
 
 ### Login
-`/login` → Supabase email/pw (or magic link / Google / Apple) → `useAuth` loads profile → if `onboarding_completed` false → `/welcome`, else `/home`. `Confirmed`.
+`/login` → Supabase email/pw (or magic link / Google / Apple) → `useAuth` loads profile → if `onboarding_completed` false → `/setup`, else `/home`. `Confirmed`.
 
 ### Password reset
 `(public)/forgot-password` → Resend email w/ PKCE link → middleware `exchangeCodeForSession` → `(public)/reset-password`. `Confirmed`.

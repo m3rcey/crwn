@@ -1,7 +1,7 @@
 export const RESERVED_SLUGS = new Set([
   // App routes
   'home', 'explore', 'library', 'profile', 'login', 'signup',
-  'welcome', 'onboarding', 'verify', 'about',
+  'welcome', 'onboarding', 'setup', 'verify', 'about',
   // Auth routes
   'forgot-password', 'reset-password',
   // Legal

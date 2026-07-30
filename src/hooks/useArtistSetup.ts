@@ -16,6 +16,9 @@ export interface SetupStep {
 export interface ArtistSetupState {
   loading: boolean;
   isArtist: boolean;
+  // profiles.onboarding_completed — false for a brand-new signup who hasn't
+  // saved their identity (name/link) yet. The wizard's first screens create it.
+  onboardingCompleted: boolean;
   artistId: string | null;
   slug: string;
   tagline: string;
@@ -65,6 +68,7 @@ export function useArtistSetup(options: UseArtistSetupOptions = {}): ArtistSetup
   const supabase = createBrowserSupabaseClient();
 
   const [loading, setLoading] = useState(true);
+  const [onboardingCompleted, setOnboardingCompleted] = useState(false);
   const [artistId, setArtistId] = useState<string | null>(null);
   const [slug, setSlug] = useState('');
   const [tagline, setTagline] = useState('');
@@ -98,11 +102,18 @@ export function useArtistSetup(options: UseArtistSetupOptions = {}): ArtistSetup
         .select('id, slug, tagline, setup_completed')
         .eq('user_id', user.id)
         .maybeSingle(),
-      supabase.from('profiles').select('avatar_url, role').eq('id', user.id).maybeSingle(),
+      supabase.from('profiles').select('avatar_url, role, onboarding_completed').eq('id', user.id).maybeSingle(),
     ]);
 
     const ap = artistRes.data;
     setIsArtist(!!ap || profileRes.data?.role === 'artist');
+    setOnboardingCompleted(!!profileRes.data?.onboarding_completed);
+
+    // Avatar comes off profiles, so set it even before the artist row exists —
+    // a brand-new signup is in the wizard's identity screens with no row yet.
+    const avatar = profileRes.data?.avatar_url || '';
+    setAvatarUrl(avatar);
+    setHasAvatar(!!avatar);
 
     if (!ap) {
       setLoading(false);
@@ -113,12 +124,8 @@ export function useArtistSetup(options: UseArtistSetupOptions = {}): ArtistSetup
     setSlug(ap.slug || '');
     setSetupCompleted(!!ap.setup_completed);
 
-    // The two things that make a shared link worth clicking — asked one per screen.
-    const avatar = profileRes.data?.avatar_url || '';
     const tag = ap.tagline || '';
-    setAvatarUrl(avatar);
     setTagline(tag);
-    setHasAvatar(!!avatar);
     setHasTagline(!!tag.trim());
 
     const [tracks, tiers, products] = await Promise.all([
@@ -185,6 +192,7 @@ export function useArtistSetup(options: UseArtistSetupOptions = {}): ArtistSetup
   return {
     loading,
     isArtist: !!isArtist,
+    onboardingCompleted,
     artistId,
     slug,
     tagline,

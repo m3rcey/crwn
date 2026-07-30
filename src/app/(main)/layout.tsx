@@ -18,12 +18,13 @@ export default function MainLayout({
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
-  // A new signup that hasn't completed /welcome yet. Admins are exempt so the
-  // founder is never trapped by the onboarding gate.
+  // A new signup that hasn't saved their identity (the wizard's name/link screens,
+  // which replaced /welcome) yet. Admins are exempt so the founder is never trapped
+  // by the onboarding gate.
   const needsOnboarding =
     !!user && !!profile && profile.role !== 'admin' && !profile.onboarding_completed;
 
-  // Second gate: an artist who finished /welcome but hasn't completed the focused
+  // Second gate: an artist who saved their identity but hasn't completed the focused
   // setup wizard (/setup) is held there — the rest of the app is unreachable until
   // Profile + Music are done and they reach the share screen. `null` = not yet
   // resolved (block the shell to avoid a flash-then-redirect), true/false = answer.
@@ -68,9 +69,11 @@ export default function MainLayout({
     }
     // Force new signups through onboarding before they can use the app. This is the
     // single enforcement point: email signup, Google OAuth, and direct navigation all
-    // land on a (main) page, so gating here catches every bypass path into /welcome.
+    // land on a (main) page, so gating here catches every bypass path into the wizard.
+    // Both gates now point at the same place: /setup opens on the identity screens
+    // for a brand-new signup and resumes mid-wizard for an artist.
     if (needsOnboarding) {
-      router.push('/welcome');
+      router.push('/setup');
       return;
     }
     // Then hold artists in the focused setup wizard until it's complete.
@@ -84,7 +87,7 @@ export default function MainLayout({
     return null;
   }
 
-  // Avoid flashing the app shell while we redirect an unonboarded user to /welcome.
+  // Avoid flashing the app shell while we redirect an unonboarded user to /setup.
   if (needsOnboarding) {
     return null;
   }
