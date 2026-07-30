@@ -58,25 +58,28 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Open ONE link and paste Claude the result. That finishes the SMS setup.**
-      While logged into CRWN as admin, open:
-      `https://thecrwn.app/api/admin/twilio-health?sid=SMde98c2007a4fcdc6a3ffb77032492fd5`
-      It returns a page of JSON. Copy all of it into the chat. That is the whole task.
+- [ ] **Press one button in the admin panel and tell Claude what it says. That finishes SMS.**
+      Go to `/admin` → **Acquisition** → **Calls**. At the top is an **SMS alert health** panel.
+      Press **Check SMS health** and paste (or describe) what appears.
 
-      It answers, from Twilio itself, the three things nobody could see from outside the
-      deployment: which phone numbers your live account actually owns and whether they can send
-      SMS, whether the number currently in `TWILIO_PHONE_NUMBER` is one of them, and what really
-      happened to that test message (delivered, or failed with which carrier error). It reads
-      only; it changes nothing and never returns your auth token.
+      Ignore my earlier instruction to open `/api/admin/twilio-health` in the address bar: that
+      returns "Unauthorized" even though you ARE the admin, because middleware deliberately skips
+      `/api/`, so a typed URL never gets the session refresh that in-app requests get. That was my
+      mistake, and the panel now does the same job from inside the app where your session works.
 
-      **Why this is needed:** the earlier test that "succeeded" was sent while
-      `TWILIO_PHONE_NUMBER` was temporarily set to the console number, so it proved that number
-      works, NOT the old one you have since restored. And Twilio accepting a message is not the
-      same as a phone ringing. Both of my previous diagnoses were guesses; this replaces guessing
-      with Twilio's own answer.
+      It reports, from Twilio itself: which numbers the live account owns and whether they can
+      send SMS, whether the number currently in `TWILIO_PHONE_NUMBER` is one of them, and the
+      real delivery status plus error code of the recent alerts (including a plain-English
+      explanation for carrier filtering and A2P 10DLC, which are the usual reasons a message is
+      accepted but never arrives). Read only, and it never returns your auth token.
 
-      Also clear the two test leads in `/admin` → Acquisition → Calls (CLAUDE TEST and CLAUDE
-      TEST 2): set both to **Closed**.
+      **Why it is still open:** the test that "succeeded" ran while `TWILIO_PHONE_NUMBER` was
+      temporarily the console number, so it proved THAT number works, not the one you have since
+      restored. And Twilio accepting a message is not the same as your phone ringing, which is
+      the part that did not happen.
+
+      Also clear the two test leads on that same tab (CLAUDE TEST and CLAUDE TEST 2): set both to
+      **Closed**.
 
 - [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
       Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,
