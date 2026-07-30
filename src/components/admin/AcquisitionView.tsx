@@ -130,6 +130,8 @@ export default function AcquisitionView() {
   const [view, setView] = useState<View>('leads');
   const [rows, setRows] = useState<Row[]>([]);
   const [callRequests, setCallRequests] = useState<CallRequestRow[]>([]);
+  const [smsHealth, setSmsHealth] = useState<Record<string, any> | null>(null);
+  const [smsLoading, setSmsLoading] = useState(false);
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [notReady, setNotReady] = useState(false);
@@ -168,6 +170,22 @@ export default function AcquisitionView() {
     });
     setBusy(null);
     load();
+  };
+
+  // SMS health, on demand. Lives here rather than at a URL you can type, because typing an
+  // /api/ URL into the address bar skips middleware and therefore skips the session refresh,
+  // which reads as "Unauthorized" even for a signed-in admin. In-app fetch carries the session
+  // that the rest of this panel already relies on.
+  const checkSms = async () => {
+    setSmsLoading(true);
+    setSmsHealth(null);
+    try {
+      const res = await fetch('/api/admin/twilio-health?sid=SMde98c2007a4fcdc6a3ffb77032492fd5');
+      setSmsHealth(await res.json());
+    } catch {
+      setSmsHealth({ error: 'Could not reach the diagnostic.' });
+    }
+    setSmsLoading(false);
   };
 
   const setCallRequestStatus = async (id: string, status: string) => {
@@ -216,6 +234,97 @@ export default function AcquisitionView() {
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
+
+      {view === 'calls' && (
+        <div className="mb-6 bg-crwn-surface-solid rounded-xl p-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p className="text-sm font-semibold text-crwn-text">SMS alert health</p>
+              <p className="text-xs text-crwn-text-secondary">
+                Asks Twilio directly which numbers this account owns and what happened to the last
+                alerts. Read only.
+              </p>
+            </div>
+            <button
+              onClick={checkSms}
+              disabled={smsLoading}
+              className="shrink-0 bg-crwn-elevated text-crwn-text text-sm px-4 py-2 rounded-full disabled:opacity-50"
+            >
+              {smsLoading ? 'Checking…' : 'Check SMS health'}
+            </button>
+          </div>
+
+          {smsHealth && (
+            <div className="mt-4 space-y-3 text-sm">
+              {smsHealth.error && <p className="text-crwn-error">{String(smsHealth.error)}</p>}
+              {smsHealth.verdict && <p className="text-crwn-gold font-medium">{String(smsHealth.verdict)}</p>}
+
+              {smsHealth.senderCheck && (
+                <p
+                  className={
+                    String(smsHealth.senderCheck).startsWith('OK') ? 'text-green-400' : 'text-orange-400'
+                  }
+                >
+                  {String(smsHealth.senderCheck)}
+                </p>
+              )}
+
+              {Array.isArray(smsHealth.numbersOwned) && (
+                <div>
+                  <p className="text-xs text-crwn-text-secondary mb-1">Numbers this account owns:</p>
+                  {smsHealth.numbersOwned.length === 0 ? (
+                    <p className="text-orange-400 text-xs">None. This account owns no phone numbers.</p>
+                  ) : (
+                    <ul className="text-xs text-crwn-text space-y-0.5">
+                      {smsHealth.numbersOwned.map((n: any) => (
+                        <li key={String(n.number)}>
+                          {String(n.number)} {n.smsCapable ? '(SMS ok)' : '(NOT SMS capable)'}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+
+              {smsHealth.configured && (
+                <p className="text-xs text-crwn-text-secondary">
+                  Sender in use: {String(smsHealth.configured.senderNumber)} &middot; Alert phone:{' '}
+                  {String(smsHealth.configured.founderAlertPhone)}
+                </p>
+              )}
+
+              {smsHealth.message && (
+                <div className="rounded-lg bg-crwn-elevated p-3">
+                  <p className="text-xs text-crwn-text-secondary mb-1">That test message:</p>
+                  <p className="text-xs text-crwn-text">
+                    status <span className="font-medium">{String(smsHealth.message.status)}</span>
+                    {smsHealth.message.from ? ` · from ${String(smsHealth.message.from)}` : ''}
+                    {smsHealth.message.errorCode ? ` · error ${String(smsHealth.message.errorCode)}` : ''}
+                  </p>
+                  {smsHealth.message.hint && (
+                    <p className="text-xs text-orange-400 mt-1">{String(smsHealth.message.hint)}</p>
+                  )}
+                </div>
+              )}
+
+              {Array.isArray(smsHealth.recentMessages) && smsHealth.recentMessages.length > 0 && (
+                <div>
+                  <p className="text-xs text-crwn-text-secondary mb-1">Recent messages:</p>
+                  <ul className="text-xs space-y-0.5">
+                    {smsHealth.recentMessages.map((m: any) => (
+                      <li key={String(m.sid)} className="text-crwn-text">
+                        {String(m.status)} · to {String(m.to)} · from {String(m.from)}
+                        {m.errorCode ? <span className="text-orange-400"> · error {String(m.errorCode)}</span> : ''}
+                        {m.hint ? <span className="text-orange-400 block ml-3">{String(m.hint)}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {!loading && !notReady && view === 'calls' && callRequests.length > 0 && (
         <div className="mb-6">
