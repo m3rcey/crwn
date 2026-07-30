@@ -30,41 +30,6 @@ responsible for. Do not work those.
       Twilio creds are already set; until this var exists the alert falls back to email to
       joshn.wms@gmail.com, so nothing is lost, just slower. Server-only var, never `NEXT_PUBLIC_`.
 
-- [ ] **Run the fan-invites migration:**
-      [`supabase/schema-phase2-fan-invites.sql`](supabase/schema-phase2-fan-invites.sql)
-      in the Supabase SQL Editor. It adds the import-time permission attestation to
-      `fan_contacts` and contact recipients to `campaign_sends`. Until it runs: CSV import
-      still works but records no attestation, and "invite my imported contacts" returns a clean
-      "not available yet" error. Contacts imported BEFORE the migration have no attestation and
-      stay uninvitable until re-imported (deliberate).
-
-- [ ] **Run the funnel-events migrations, in this order:**
-      1. [`supabase/schema-phase2-funnel-events.sql`](supabase/schema-phase2-funnel-events.sql)
-      2. [`supabase/schema-phase2-funnel-events-journey-stages.sql`](supabase/schema-phase2-funnel-events-journey-stages.sql)
-      The CHANGELOG has said #1 is unrun since it shipped, but the item silently fell off this
-      list; that was a Claude bug, now fixed. #2 widens the stage CHECK to the new journey
-      stages (call_requested, stripe_connected, fans_imported, fan_invited,
-      first_paid_conversion) and is a safe no-op if you somehow ran #1 with them already. Until
-      these run, every funnel write silently no-ops by design and `/admin` funnel views stay
-      empty.
-
-- [ ] **Run the products CHECK migration:**
-      [`supabase/schema-phase2-product-type-physical.sql`](supabase/schema-phase2-product-type-physical.sql)
-      in the Supabase SQL Editor. The repo's `products` table constraint only allows
-      `digital/experience/bundle`, but the setup wizard, the offer builder, and the Shop manager all
-      write `physical` products with `shipped` delivery. If production still has the old constraint,
-      every physical-product create silently fails. The migration is idempotent: safe to run even if
-      the constraint was already widened by hand.
-
-- [ ] **Run the two prospect-nurture migrations** in the Supabase SQL Editor, in this order:
-      1. [`supabase/schema-phase2-prospect-nurture.sql`](supabase/schema-phase2-prospect-nurture.sql)
-      2. [`supabase/schema-phase2-fix-platform-sequence-copy.sql`](supabase/schema-phase2-fix-platform-sequence-copy.sql)
-      Until #1 runs, the 6-week nurture for email-only calculator leads is dark, AND the live
-      Instagram unsubscribe route's suppression write fails its CHECK (it inserts
-      `reason='unsubscribe'`, which only this migration permits), so CAN-SPAM opt-outs are riding on
-      a fallback flag. This item was promised in the "On Claude's plate" notes but was never actually
-      added here; that was a Claude bug, now fixed.
-
 - [ ] **Decide whether the all-in-one calculator becomes the PRIMARY funnel.** The unified
       Opportunity Calculator is live at
       [`/tools/opportunity-calculator`](src/lib/opportunity/unifiedModel.ts) and models every
@@ -97,7 +62,8 @@ responsible for. Do not work those.
       Import Fans, `/api/fan-contacts/import`; the ICP doc claiming otherwise was wrong and is
       now fixed). As of 2026-07-30 option (a) is fully shipped: import now records a permission
       attestation, and imported contacts can be EMAILED an invite through the existing campaign
-      sender (small test group first), pending the fan-invites migration above. Still unbuilt:
+      sender (small test group first); the fan-invites migration ran 2026-07-30, so this is LIVE.
+      Still unbuilt:
       **(b)** a Patreon member CSV import that pre-creates matching tiers and invites each
       member to claim their membership on CRWN;
       **(c)** (b) plus product/catalog import from Shopify/Gumroad.
@@ -330,12 +296,12 @@ and the admin panel. The privacy policy now discloses the funnel (live).
   pricing. Ask if you want it. (The ManyChat flows for the new tool keywords are now built and live.)
 
 
-- **Prospect nurture (email-only calculator leads): built, dark until the migration runs.** A lead
+- **Prospect nurture (email-only calculator leads): LIVE (migrations run 2026-07-30).** A lead
   who runs a calculator, asks for the result by email, but does not sign up now enters a versioned,
-  calculator-aware, consent-gated 12-touch sequence over 6 weeks (Phases 1-3), and exits the instant
+  calculator-aware, consent-gated sequence (v2: 25 emails over ~12 months), and exits the instant
   they create an account. It reuses the existing Resend sender, the global suppression gate, the daily
-  cron scheduler, and the lead tables (no parallel system). Its two migrations are now really in
-  your Do Now P1 list (an earlier version of this note claimed they were there when they were not).
+  cron scheduler, and the lead tables (no parallel system). The Instagram unsubscribe route's
+  suppression write also works properly now (the `reason='unsubscribe'` CHECK is in place).
   Deliberately NOT built yet, in the order I would build them: **Phases 4-9** (objections → mechanism →
   proof → re-engagement → authority → evergreen), which slot into the same code array with no schema
   change; and wiring the external **`/worth`** (Streaming Loss) tool to enroll (only registry wizard

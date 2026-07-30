@@ -53,10 +53,15 @@ can purchase this offer" whenever the status check answered that charges are off
 offer. `AudienceTab` accepts `?view=` deep links; `CampaignComposer` gained the binary
 fans/contacts audience toggle.
 
-Founder items (TODO.md): set `FOUNDER_ALERT_PHONE`, run `schema-phase2-fan-invites.sql`, run
-the two funnel-events migrations. Deliberately NOT built: OAuth contact imports (Mailchimp/
-Google/Patreon APIs), inbound SMS, any change to Stripe fees/payouts, any new broadcast system.
-Build clean, 427 tests pass (18 added), sw.js bumped to v297.
+**Migrations applied same day (2026-07-30, verified via anon-key probes):** `funnel_events`
+exists, `fan_contacts.consent_attested_at` exists, `campaign_sends.contact_id` exists, and
+`prospect_nurture_enrollments` exists, so the invite path, the 20-stage funnel AND prospect
+nurture are all LIVE. The products-physical CHECK migration was run in the same session
+(founder-confirmed; not externally probeable). Remaining founder item: set
+`FOUNDER_ALERT_PHONE` in Vercel (email fallback active until then). Deliberately NOT built:
+OAuth contact imports (Mailchimp/Google/Patreon APIs), inbound SMS, any change to Stripe
+fees/payouts, any new broadcast system. Build clean, 427 tests pass (18 added), sw.js bumped
+to v297.
 
 ## 2026-07-29 — The conversion spine: from calculator result to "launch this, charge this, do this next"
 
