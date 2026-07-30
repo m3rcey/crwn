@@ -111,13 +111,23 @@ launch command screen.
    `RoadmapCard` at the top of Rise Mode (`/profile/artist`): current stage, one next
    milestone with a prefetched deep link, overall progress, full five stages on expand. Pure
    logic tested in `artistRoadmap.test.ts`. Spec Phase 4.
-7. **Fan import hub** — CSV first (Patreon on-ramp option (b) is already the chosen wedge),
-   then other sources; review before any invite; versioned permission attestation. Spec Phase 7.
+7. **Fan import hub** — SHIPPED 2026-07-30. `FanImportModal` (Fan CRM, `/studio/fans`) is the
+   hub: the first screen asks "where are your fans right now?" (Patreon card with the exact
+   export path, plus an any-CSV card for Mailchimp/Shopify/Gumroad/spreadsheets). A Patreon
+   Relationship Manager export is auto-recognized (`src/lib/patreonImport.ts`, pure + tested):
+   the review step shows active vs former patrons (active-only by default, former importable
+   tagged `patreon-inactive` for win-back), each Patreon tier with its member count and the
+   CLOSEST CRWN tier suggestion (free pledges → the free front door; ties break cheaper), and
+   members import with `patreon` / `patreon-tier:<name>` tags for per-group targeting. The
+   versioned permission attestation gates the import exactly as before, and the done screen
+   hands off to Campaign Hub ("create the invite"), where the contacts audience already sends
+   ONLY to attested, still-subscribed contacts with suppression + unsubscribe. Import never
+   messages anyone by itself. Spec Phase 7; the TODO's Patreon on-ramp option (b) is done.
 8. **Launch campaign composer** — generate announcement/follow-up/social/DM copy + segment +
    date from the offer; artist picks test (10-25) / segment / all / manual; drafts only. Spec Phase 8.
 9. **Preview + publish + launch command screen** — four previews (storefront, checkout,
    calendar, roadmap), completeness checklist, publish action bundling the existing server
    completion, and the post-launch command screen replacing the dashboard landing. Spec Phases 9-10.
 
-Stages 1-6 are shipped. Stage 7 (the fan import hub, starting with the Patreon CSV on-ramp) is
-next. Each stage updates this doc's SHIPPED markers.
+Stages 1-7 are shipped. Stage 8 (the launch campaign composer) is next. Each stage updates
+this doc's SHIPPED markers.

@@ -1,5 +1,22 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 7: the fan import hub, with the Patreon on-ramp
+
+The Fan CRM's import modal became the fan import hub, and the TODO's chosen wedge (Patreon
+on-ramp option (b)) is built. The first screen asks "where are your fans right now?": a Patreon
+card carrying the exact export path (Audience → Relationship Manager → Download CSV) and an
+any-CSV card (Mailchimp, Shopify, Gumroad, spreadsheets) that keeps the existing column-mapping
+flow. A Patreon export is AUTO-recognized by `src/lib/patreonImport.ts` (pure + tested:
+detection, status/pledge/tier parsing, closest-CRWN-tier suggestion with free→front-door and
+ties-break-cheaper rules). The review step shows active vs former patrons (active-only default;
+former import tagged `patreon-inactive` for win-back), and each Patreon tier's member count
+with where it lands on the artist's ladder. Members import with `patreon` and
+`patreon-tier:<name>` tags so campaigns can target each group separately. Consent unchanged
+and central: the same versioned attestation gates the import, and the done screen hands off to
+Campaign Hub, whose contacts audience only ever sends to attested, still-subscribed contacts
+through the suppression-gated sender. Import never messages anyone by itself. No migration.
+sw.js v317.
+
 ## 2026-07-30 — Launch Wizard Stage 6: the personalized artist roadmap, as a view over the Quest Engine
 
 Every artist now has a 5-stage execution roadmap (Foundation → Private launch → Audience launch

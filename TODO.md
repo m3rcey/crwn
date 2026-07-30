@@ -266,15 +266,10 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   music step opens with a content-plan choice where the full-catalog path mounts the real bulk
   uploader inside the wizard; and every artist now has a personalized 5-stage roadmap at the top
   of Rise Mode (current stage + one next milestone, derived through the Quest Engine's own
-  checks so the two can never disagree). No migration, no env var. Next: Stage 7 (the fan
-  import hub, which folds in the Patreon on-ramp below).
-
-- **The Patreon on-ramp, option (b) (decision made 2026-07-30, you delegated it).**
-  A Patreon member CSV import that recognizes Patreon's export columns, imports members with
-  their tier and pledge amount, suggests matching CRWN tiers, and sends each member a
-  claim-your-membership invite through the (now live) contact-invite path. Chosen over (c)
-  because the member list is the wedge; product import can follow once (b) is proven. Mine to
-  build in a dedicated session so it ships whole, not scattered.
+  checks so the two can never disagree); and the fan import hub is live in the Fan CRM,
+  including the Patreon on-ramp you chose (auto-recognized export, active-patron filter, tier
+  and pledge kept as tags, CRWN tier suggestions, then a reviewed invite through Campaign
+  Hub). No migration, no env var. Next: Stage 8 (the launch campaign composer).
 
 The Instagram acquisition engine is feature-complete and verified in production: ingress,
 identity, Claude extraction with a complete deterministic fallback, the calculator handoff,
