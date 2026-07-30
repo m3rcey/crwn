@@ -256,17 +256,18 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
 
 - **NEXT UP: the Artist Launch Wizard (your 10-phase spec, 2026-07-30).** The full staged build
   plan lives in [`docs/ARTIST_LAUNCH_WIZARD.md`](docs/ARTIST_LAUNCH_WIZARD.md): nine stages, each
-  mapped to the existing system it reuses. **Stages 1-5 are live**: a signup with a claimed
+  mapped to the existing system it reuses. **Stages 1-6 are live**: a signup with a claimed
   calculator result opens on "Your CRWN plan is saved" with their number; the wizard confirms the
   full Bronze/Silver/Gold/Platinum model (with estimated buyers per tier from their own
   calculator); a promise-review screen shows the recurring workload before anything is created,
   backed by one shared benefit-to-obligation generator that dedups promises across tiers and
   makes "Everything in Gold" real for Platinum members; a Stripe connect screen sits right after
-  the promise review (returns to the exact wizard step, verified server-side, never blocks
-  finishing); and the music step now opens with a content-plan choice where the full-catalog
-  path mounts the real bulk uploader (per-track tier access) inside the wizard, for the
-  40-to-300-song ICP. No migration, no env var. Next: Stage 6 (the personalized artist
-  roadmap). The fan import hub stage folds in the Patreon on-ramp below.
+  the promise review (exact-step return, verified server-side, never blocks finishing); the
+  music step opens with a content-plan choice where the full-catalog path mounts the real bulk
+  uploader inside the wizard; and every artist now has a personalized 5-stage roadmap at the top
+  of Rise Mode (current stage + one next milestone, derived through the Quest Engine's own
+  checks so the two can never disagree). No migration, no env var. Next: Stage 7 (the fan
+  import hub, which folds in the Patreon on-ramp below).
 
 - **The Patreon on-ramp, option (b) (decision made 2026-07-30, you delegated it).**
   A Patreon member CSV import that recognizes Patreon's export columns, imports members with

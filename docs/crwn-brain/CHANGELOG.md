@@ -1,5 +1,23 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 6: the personalized artist roadmap, as a view over the Quest Engine
+
+Every artist now has a 5-stage execution roadmap (Foundation → Private launch → Audience launch
+→ Deliver and retain → Expand, ~21 steps) that answers "what do I do next?", surfaced as
+`RoadmapCard` at the top of Rise Mode: current stage, ONE next milestone with a prefetched deep
+link into the surface where the action happens, overall progress, and the full five stages on
+expand. The design rule that mattered: this is NOT a second progression system. Steps reference
+EXISTING Quest Engine DomainChecks by exact name, and `/api/artist/roadmap` evaluates them
+through the evaluator's own `evaluateCondition` with a minimal synthetic instance, plus three
+Promise Calendar facts the evaluator lacks (promises scheduled / first delivered / nothing
+overdue). Derived on read, stored nowhere (deliberate deviation from the spec's "store
+per-artist": the house derive-from-live-data pattern cannot go stale), so the roadmap can never
+tell a different story than the quests, and XP keeps flowing only through the Quest Engine.
+Personalized where CRWN has real data: share steps deep-link to the artist's public page, and
+the Expand MRR milestone is the monthly figure from their own claimed calculator (default
+$500/mo). Weekly availability and platform inputs are NOT used because CRWN does not collect
+them. Pure structure + assembly tested in `artistRoadmap.test.ts`. No migration. sw.js v316.
+
 ## 2026-07-30 — Launch Wizard Stage 5: minimum viable content, with the catalog path
 
 The wizard's music group now opens with a `content-plan` decision screen: one featured track

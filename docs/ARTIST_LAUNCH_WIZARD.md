@@ -96,10 +96,21 @@ launch command screen.
    path (titles come from file names in the form); Continue unlocks from the DB the moment
    tracks exist, and the bulk completion fires the `first_track_uploaded` milestone the
    single path already fired. Spec Phase 6.
-6. **Personalized roadmap** — derive a 5-stage execution plan (Foundation → Private launch →
-   Audience launch → Deliver and retain → Expand) from offer/audience/goal/availability; store
-   per-artist; surface current stage + next milestone. Feed XP through the Quest Engine, not a
-   parallel progression system. Spec Phase 4.
+6. **Personalized roadmap** — SHIPPED 2026-07-30. `src/lib/artistRoadmap.ts` is the pure
+   5-stage plan (Foundation → Private launch → Audience launch → Deliver and retain → Expand),
+   ~21 steps, each keyed to an EXISTING Quest Engine DomainCheck by exact name (plus three
+   Promise Calendar facts the evaluator lacks: scheduled / first-completed / nothing-overdue).
+   `/api/artist/roadmap` derives it on read (nothing stored, deliberately deviating from the
+   spec's "store per-artist": derive-from-live-data is the house pattern and cannot go stale):
+   'check' steps run through the quest evaluator's own `evaluateCondition` via a minimal
+   synthetic instance, so the roadmap can NEVER disagree with the quests, and XP keeps flowing
+   through the Quest Engine when the underlying action completes, exactly per the design rule.
+   Personalization: share steps deep-link to the artist's public page; the Expand MRR milestone
+   is the monthly goal from their own claimed calculator (default $500). Weekly availability /
+   platforms are NOT used because CRWN does not collect them; no step pretends. Surfaced as
+   `RoadmapCard` at the top of Rise Mode (`/profile/artist`): current stage, one next
+   milestone with a prefetched deep link, overall progress, full five stages on expand. Pure
+   logic tested in `artistRoadmap.test.ts`. Spec Phase 4.
 7. **Fan import hub** — CSV first (Patreon on-ramp option (b) is already the chosen wedge),
    then other sources; review before any invite; versioned permission attestation. Spec Phase 7.
 8. **Launch campaign composer** — generate announcement/follow-up/social/DM copy + segment +
@@ -108,5 +119,5 @@ launch command screen.
    calendar, roadmap), completeness checklist, publish action bundling the existing server
    completion, and the post-launch command screen replacing the dashboard landing. Spec Phases 9-10.
 
-Stages 1-5 are shipped. Stage 6 (the personalized roadmap) is next. Each stage updates this
-doc's SHIPPED markers.
+Stages 1-6 are shipped. Stage 7 (the fan import hub, starting with the Patreon CSV on-ramp) is
+next. Each stage updates this doc's SHIPPED markers.

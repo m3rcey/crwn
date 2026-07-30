@@ -26,6 +26,7 @@ import Link from 'next/link';
 import { Eye, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RiseMode } from '@/components/artist/RiseMode';
+import { RoadmapCard } from '@/components/artist/RoadmapCard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
 import { TourReplayButton } from '@/components/shared/TourReplayButton';
@@ -126,6 +127,7 @@ function ArtistDashboardContent() {
         </div>
 
         <div className="px-4 sm:px-6 lg:px-8 py-8">
+          <RoadmapCard />
           <RiseMode />
         </div>
       </div>
