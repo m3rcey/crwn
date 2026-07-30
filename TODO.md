@@ -256,11 +256,13 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
 
 - **NEXT UP: the Artist Launch Wizard (your 10-phase spec, 2026-07-30).** The full staged build
   plan lives in [`docs/ARTIST_LAUNCH_WIZARD.md`](docs/ARTIST_LAUNCH_WIZARD.md): nine stages, each
-  mapped to the existing system it reuses. **Stage 1 is live**: a signup with a claimed calculator
-  result now opens the wizard with "Your CRWN plan is saved" and the number they calculated,
-  instead of a cold identity form. Next: Stage 2 (confirm the recommended Bronze/Silver/Gold/
-  Platinum model in-wizard, reusing the Rise Level 3 apply) and Stage 3 (benefit-to-obligation
-  generator + the pre-launch Promise Calendar review with estimated recurring workload). The fan
+  mapped to the existing system it reuses. **Stages 1-3 are live**: a signup with a claimed
+  calculator result opens on "Your CRWN plan is saved" with their number; the wizard confirms the
+  full Bronze/Silver/Gold/Platinum model (with estimated buyers per tier from their own
+  calculator); and a new promise-review screen shows the recurring workload (cadence + first date
+  adjustable) before anything is created, with one shared benefit-to-obligation generator that
+  dedups promises across tiers and makes "Everything in Gold" real for Platinum members. No
+  migration, no env var. Next: Stage 4 (the Stripe connect step in-wizard). The fan
   import hub stage folds in the Patreon on-ramp below.
 
 - **The Patreon on-ramp, option (b) (decision made 2026-07-30, you delegated it).**
