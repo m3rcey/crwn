@@ -58,19 +58,22 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Confirm the hot-lead text actually reached your phone (10 seconds).** After you put the
-      live Twilio credentials in, I redeployed and fired a real qualified test request
-      (2026-07-30). Twilio **accepted** it: message SID `SMde98c2007a4fcdc6a3ffb77032492fd5`,
-      no error, no email fallback. That proves the credentials and the sender number both work.
-      What it cannot prove is carrier delivery, so: **did a text from +1 314 557 3549 arrive,
-      starting "CRWN hot lead: call requested by CLAUDE TEST 2"?**
-      - **Yes** → tell Claude and this item gets deleted; the alert path is done.
-      - **No** → tell Claude, and the next thing to check is whether `FOUNDER_ALERT_PHONE` is
-        your cell in E.164 (`+1` then the 10 digits, no spaces or dashes).
+- [ ] **Open ONE link and paste Claude the result. That finishes the SMS setup.**
+      While logged into CRWN as admin, open:
+      `https://thecrwn.app/api/admin/twilio-health?sid=SMde98c2007a4fcdc6a3ffb77032492fd5`
+      It returns a page of JSON. Copy all of it into the chat. That is the whole task.
 
-      Do NOT change `TWILIO_PHONE_NUMBER`. The live account owns +1 314 557 3549 and the send
-      from it succeeded. A different number showing in your console is a second number on the
-      account, not the one to use. (I briefly told you to switch it; the test proved otherwise.)
+      It answers, from Twilio itself, the three things nobody could see from outside the
+      deployment: which phone numbers your live account actually owns and whether they can send
+      SMS, whether the number currently in `TWILIO_PHONE_NUMBER` is one of them, and what really
+      happened to that test message (delivered, or failed with which carrier error). It reads
+      only; it changes nothing and never returns your auth token.
+
+      **Why this is needed:** the earlier test that "succeeded" was sent while
+      `TWILIO_PHONE_NUMBER` was temporarily set to the console number, so it proved that number
+      works, NOT the old one you have since restored. And Twilio accepting a message is not the
+      same as a phone ringing. Both of my previous diagnoses were guesses; this replaces guessing
+      with Twilio's own answer.
 
       Also clear the two test leads in `/admin` → Acquisition → Calls (CLAUDE TEST and CLAUDE
       TEST 2): set both to **Closed**.
