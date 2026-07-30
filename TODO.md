@@ -38,19 +38,33 @@ responsible for. Do not work those.
       lines in [`src/lib/opportunityFunnels/registry.ts`](src/lib/opportunityFunnels/registry.ts)
       (opportunity-calculator to `primary`/rank 0, Own Your Fans to `secondary`).
 
-- [ ] **Point your video funnels at it with `?from=`.** Each single-opportunity video can now open
-      the all-in-one calculator with its own questions first, instead of a generic questionnaire.
-      The links are exactly:
-      `thecrwn.app/tools/opportunity-calculator?from=vault-revenue-planner` (also `worth`,
-      `share-to-earn-planner`, `clip-to-earn-campaign-planner`, `own-your-fans-calculator`,
-      `executive-producer-session`, `live-experience-calculator`). Anything else in `?from=` is
-      ignored, so a typo degrades to the normal order rather than breaking. Nothing is required
-      here: the existing per-tool links keep working untouched.
+- [ ] **Point your video funnels at the all-in-one calculator (here is exactly where and how).**
+      This is only about the LINKS you paste places, nothing inside CRWN or ManyChat flows
+      changes. Wherever you currently paste a single tool's link (a video caption, your
+      Instagram bio, a Linktree/link-in-bio button, a YouTube description), replace it with the
+      matching line below. The calculator then opens leading with that video's topic before
+      asking the rest:
+      - Vault video → `thecrwn.app/tools/opportunity-calculator?from=vault-revenue-planner`
+      - Streaming-pays-nothing video → `thecrwn.app/tools/opportunity-calculator?from=worth`
+      - Share-to-Earn video → `thecrwn.app/tools/opportunity-calculator?from=share-to-earn-planner`
+      - Clip-to-Earn video → `thecrwn.app/tools/opportunity-calculator?from=clip-to-earn-campaign-planner`
+      - Own Your Fans video → `thecrwn.app/tools/opportunity-calculator?from=own-your-fans-calculator`
+      - Producer session video → `thecrwn.app/tools/opportunity-calculator?from=executive-producer-session`
+      - Live show video → `thecrwn.app/tools/opportunity-calculator?from=live-experience-calculator`
+      A typo in `?from=` is harmless (the calculator just asks in its normal order). The old
+      per-tool links keep working, so you can switch one video at a time. Do NOT touch the
+      ManyChat keyword flows; those are separate and already live.
 
-- [ ] **(Recommended, when data exists) Turn on Resend open/click events for prospect nurture.** In
-      the Resend dashboard, enable the **email.opened** and **email.clicked** events. The signed
-      webhook already handles them; without them the admin panel's open/click rates stay at zero.
-      Not blocking: sends and conversions still track. Full spec: [`docs/PROSPECT_NURTURE.md`](docs/PROSPECT_NURTURE.md).
+- [ ] **Turn on Resend open/click events (5 clicks, here is exactly how).** Without this the
+      nurture admin panel's open/click rates stay at zero forever; sends still work either way.
+      1. Go to `https://resend.com` and log in.
+      2. Left sidebar → **Webhooks**. You will see the existing endpoint whose URL is
+         `https://thecrwn.app/api/webhooks/resend`. Click it.
+      3. Click **Edit** (top right).
+      4. In the event checklist, tick **email.opened** and **email.clicked** (leave everything
+         already ticked as it is).
+      5. Click **Save**. Done. Nothing to change in Vercel or the code; the webhook already
+         verifies and handles both events.
 
 - [ ] **(Optional, low priority) Per-video attribution for "Highest Converting Video."** CONFIRMED
       2026-07-26: ManyChat's "any post or reel" comment trigger does NOT expose the triggering post id
@@ -61,22 +75,6 @@ responsible for. Do not work those.
       one specific post), where you hardcode a readable label in the External Request body, e.g.
       `,"source_post_id":"kendrick-producer-reel"` right before `,"contact":`. Not worth doing broadly
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
-
-- [ ] **(Optional) Permanently delete the two onboarding test artists.** They are ALREADY hidden
-      from the homepage/Explore/public: I set `profiles.is_active = false` on both (2026-07-26), so
-      the duplicate "Merce" tiles are gone. The dashboard delete failed with an empty `{}` error and
-      the auth admin API returns `"Database error finding users"`, so a hard delete needs the SQL
-      editor (which shows the real error). To fully remove them, run in Supabase → SQL Editor:
-
-      ```sql
-      delete from auth.users where id in (
-        '2c8f96c0-63f8-4ceb-b848-87275f991c3d',  -- joshwilliams (Merce)
-        'b0857804-c4ad-4946-b30a-1d7a65edb7fb'   -- joshnwmsonboardhgmailcom (Merce)
-      );
-      ```
-      If it errors with a `foreign key constraint … on table …`, paste that line to Claude for the
-      one-line cleanup. **Never** add `612fa313-8d4f-4748-8148-7804fada0d0c` (that is your real
-      `m3rcey` / "Mercey" account).
 
 ---
 
