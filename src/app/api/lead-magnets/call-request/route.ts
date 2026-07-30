@@ -38,6 +38,12 @@ const supabaseAdmin = createClient(
 // Server-only. NEVER expose these to the client or echo them in a response.
 const FOUNDER_ALERT_PHONE = process.env.FOUNDER_ALERT_PHONE || '';
 const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER || '';
+// Optional carrier email-to-SMS gateway address (e.g. 5551234567@vtext.com). This exists
+// because Twilio ACCEPTS the alert and US carriers then drop it with error 30034 until the
+// number is registered under A2P 10DLC, which takes days. The gateway rides the Resend path
+// that already works and puts a real text on the phone in the meantime. Unset it once A2P
+// registration completes. Internal operational alert only, never used for fan messaging.
+const FOUNDER_ALERT_SMS_EMAIL = process.env.FOUNDER_ALERT_SMS_EMAIL || '';
 const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://thecrwn.app';
 const TOKEN_TTL_DAYS = 30;
@@ -199,6 +205,24 @@ export async function POST(req: NextRequest) {
       alerted = sms.success;
     } else {
       snapshot.alert = { channel: 'sms', status: 'skipped_unconfigured', at: new Date().toISOString(), error: null };
+    }
+
+    // Carrier email-to-SMS gateway: puts a real text on the founder's phone without Twilio.
+    // Runs regardless of the Twilio result, because Twilio reports success at ACCEPTANCE and
+    // the carrier can still drop the message afterwards (30034). Short body: gateways truncate
+    // around 160 characters.
+    if (FOUNDER_ALERT_SMS_EMAIL) {
+      try {
+        await resend.emails.send({
+          from: FROM_EMAIL,
+          to: FOUNDER_ALERT_SMS_EMAIL,
+          subject: 'CRWN hot lead',
+          text: `${(body.artistName || 'Artist').trim().slice(0, 40)} wants a call. ${phone}. Band ${decision.band}.`,
+        });
+        snapshot.alert = { ...(snapshot.alert as Record<string, unknown>), gateway: 'sent' };
+      } catch {
+        snapshot.alert = { ...(snapshot.alert as Record<string, unknown>), gateway: 'failed' };
+      }
     }
 
     // Email fallback so a hot lead is never silently dropped when SMS is down or unconfigured.

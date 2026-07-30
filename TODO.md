@@ -58,28 +58,34 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Press one button in the admin panel and tell Claude what it says. That finishes SMS.**
-      Go to `/admin` → **Acquisition** → **Calls**. At the top is an **SMS alert health** panel.
-      Press **Check SMS health** and paste (or describe) what appears.
+- [ ] **Get the hot-lead text on your phone TODAY: set `FOUNDER_ALERT_SMS_EMAIL` in Vercel.**
+      **The SMS mystery is solved with hard evidence.** Twilio ACCEPTS the alert, then the US
+      carrier drops it with **error 30034: A2P 10DLC not registered**. Your credentials, your
+      sender number (+1 314 557 3549) and your alert phone are all correct; carriers simply
+      refuse business SMS from numbers that are not registered. Proven 2026-07-30: message
+      `SM3f7ce41…` came back `undelivered / 30034`, and alerts now record their own delivery
+      status so this is visible in the data.
 
-      Ignore my earlier instruction to open `/api/admin/twilio-health` in the address bar: that
-      returns "Unauthorized" even though you ARE the admin, because middleware deliberately skips
-      `/api/`, so a typed URL never gets the session refresh that in-app requests get. That was my
-      mistake, and the panel now does the same job from inside the app where your session works.
+      Registering A2P properly takes days (separate item below). To get a text in the meantime,
+      CRWN can route the alert through your carrier's email-to-text gateway, which needs no
+      Twilio registration at all:
+      1. Work out your gateway address: your 10-digit number followed by
+         **Verizon** `@vtext.com` · **AT&T** `@txt.att.net` · **T-Mobile** `@tmomail.net`
+         (example: `3145551234@vtext.com`).
+      2. Vercel → project `crwn` → **Settings → Environment Variables** → add
+         `FOUNDER_ALERT_SMS_EMAIL` = that address. Production. Server-only.
+      3. Tell Claude "the SMS gateway is set" and it will redeploy and fire a real test.
+      Delete this variable once A2P registration completes, so alerts go back to real SMS.
 
-      It reports, from Twilio itself: which numbers the live account owns and whether they can
-      send SMS, whether the number currently in `TWILIO_PHONE_NUMBER` is one of them, and the
-      real delivery status plus error code of the recent alerts (including a plain-English
-      explanation for carrier filtering and A2P 10DLC, which are the usual reasons a message is
-      accepted but never arrives). Read only, and it never returns your auth token.
-
-      **Why it is still open:** the test that "succeeded" ran while `TWILIO_PHONE_NUMBER` was
-      temporarily the console number, so it proved THAT number works, not the one you have since
-      restored. And Twilio accepting a message is not the same as your phone ringing, which is
-      the part that did not happen.
-
-      Also clear the two test leads on that same tab (CLAUDE TEST and CLAUDE TEST 2): set both to
-      **Closed**.
+- [ ] **Register A2P 10DLC in Twilio (the permanent fix, and needed before any artist uses SMS).**
+      Until this is done, NO SMS from CRWN reaches a US phone: not founder alerts, and not the
+      artist SMS marketing feature (which has zero subscribers today, so nothing is broken yet).
+      In `https://console.twilio.com` → **Messaging** → **Regulatory Compliance** → **A2P 10DLC**:
+      register a **Brand** (your business details) and then a **Campaign** (use case: account
+      notifications / marketing), and attach +1 314 557 3549 to the resulting Messaging Service.
+      If CRWN is not yet an incorporated entity, choose the **Sole Proprietor** path, which is
+      cheaper and usually clears in about a day. Approval can take a few days for standard brands.
+      Tell Claude when it is approved and it will re-run the delivery test to confirm.
 
 - [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
       Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,
