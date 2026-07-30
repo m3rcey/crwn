@@ -73,12 +73,18 @@ the admin API after clearing the blocking rows (`sequences`, `abandoned_checkout
 `sequence_enrollments`), each scoped to those two ids. Verified: profiles and artist_profiles
 gone, the real `m3rcey` account untouched.
 
-**`FOUNDER_ALERT_PHONE` is live, but Twilio rejects the sender.** A real end-to-end test request
-(labelled CLAUDE TEST) scored `sales_priority` 74, deduped, and reached the admin Calls tab; the
-SMS failed with *"The 'From' phone number provided (+13145573549) is not a valid message-capable
-Twilio phone number for this destination"* and the email fallback delivered. So the journey works
-and the blocker is Twilio account configuration (number capability / trial mode / A2P 10DLC),
-now written out as the founder item.
+**`FOUNDER_ALERT_PHONE` is live, and the hot-lead SMS now sends (resolved same day).** The first
+end-to-end test (CLAUDE TEST) scored `sales_priority` 74, deduped, reached the admin Calls tab,
+and failed at the SMS hop with *"The 'From' phone number provided (+13145573549) is not a valid
+message-capable Twilio phone number for this destination"*, delivering by email fallback instead.
+Twilio's message blames the number, so the first fix I proposed sent Josh chasing number
+capabilities, trial mode and A2P 10DLC. Querying the Twilio API directly gave the real answer:
+**error 20008, the configured credentials were Twilio's TEST pair**, which by design refuses any
+real from-number (a send from the magic test number +15005550006 was accepted, proving it). Josh
+swapped in the live Account SID + Auth Token, and a second test produced message SID `SMde98c…`
+with no error and no fallback. **The sender number never needed changing**; the live account owns
+it. `sendSms` now special-cases 20008 so this failure states its own cause instead of misdirecting
+the next person.
 
 **🔴 The Resend webhook was never registered in the Resend dashboard.** Josh could not find it
 because it does not exist. The route is live and correctly fails closed (403 on an unsigned

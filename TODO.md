@@ -58,40 +58,22 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Swap Twilio's TEST credentials for the LIVE ones. That is the whole SMS problem.**
-      Ignore my earlier instruction about number capabilities, trial mode and A2P 10DLC: I
-      diagnosed it properly against the Twilio API on 2026-07-30 and none of those are the
-      issue. Twilio returns error **20008, "Resource not accessible with Test Account
-      Credentials"**, and a send using Twilio's magic test number succeeded. So CRWN is holding
-      valid Twilio **test** credentials, which by design refuse to send from any real number.
+- [ ] **Confirm the hot-lead text actually reached your phone (10 seconds).** After you put the
+      live Twilio credentials in, I redeployed and fired a real qualified test request
+      (2026-07-30). Twilio **accepted** it: message SID `SMde98c2007a4fcdc6a3ffb77032492fd5`,
+      no error, no email fallback. That proves the credentials and the sender number both work.
+      What it cannot prove is carrier delivery, so: **did a text from +1 314 557 3549 arrive,
+      starting "CRWN hot lead: call requested by CLAUDE TEST 2"?**
+      - **Yes** → tell Claude and this item gets deleted; the alert path is done.
+      - **No** → tell Claude, and the next thing to check is whether `FOUNDER_ALERT_PHONE` is
+        your cell in E.164 (`+1` then the 10 digits, no spaces or dashes).
 
-      **You set `FOUNDER_ALERT_PHONE` correctly** (see the note below if you want to
-      double-check). Nothing about your number is wrong.
+      Do NOT change `TWILIO_PHONE_NUMBER`. The live account owns +1 314 557 3549 and the send
+      from it succeeded. A different number showing in your console is a second number on the
+      account, not the one to use. (I briefly told you to switch it; the test proved otherwise.)
 
-      In `https://console.twilio.com`:
-      1. On the main dashboard, find the **Account Info** panel. It shows the LIVE **Account
-         SID** and **Auth Token** (click to reveal the token).
-      2. Sanity check that you are looking at the live pair, not the test pair: the value CRWN
-         currently holds starts with **`AC285d`**. The live Account SID is a *different* value.
-         (Twilio's test pair lives under **API keys & tokens → Test credentials**, which is
-         where the current one came from.)
-      3. Vercel → project `crwn` → **Settings → Environment Variables** → update **both**:
-         `TWILIO_ACCOUNT_SID` = the live Account SID
-         `TWILIO_AUTH_TOKEN` = the live Auth Token
-         Leave `TWILIO_PHONE_NUMBER` (+1 314 557 3549) and `FOUNDER_ALERT_PHONE` alone.
-      4. Tell Claude "the Twilio live credentials are in" and it will redeploy and re-run the
-         real end-to-end test.
-
-      Nothing is broken while this waits: the alert falls back to email, and **no fan has ever
-      opted into artist SMS** (`sms_subscribers` is empty), so no artist-facing feature is
-      affected. The test lead in `/admin` → Acquisition → Calls (CLAUDE TEST) can be set to
-      Closed.
-
-      **Which number goes where (this tripped you up, and the naming was not obvious):**
-      - `TWILIO_PHONE_NUMBER` = **the Twilio number** (+1 314 557 3549). This is the SENDER,
-        the number the text comes FROM. Already set correctly.
-      - `FOUNDER_ALERT_PHONE` = **your personal cell**. This is the RECIPIENT, the phone that
-        rings. Never the Twilio number: a Twilio number cannot usefully text itself.
+      Also clear the two test leads in `/admin` → Acquisition → Calls (CLAUDE TEST and CLAUDE
+      TEST 2): set both to **Closed**.
 
 - [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
       Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,
