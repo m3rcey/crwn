@@ -24,11 +24,22 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Set `FOUNDER_ALERT_PHONE` in Vercel** (your cell, E.164 format, e.g. `+14045551234`).
-      This is the number the new hot-lead SMS alert texts when a QUALIFIED artist on the
-      opportunity calculator taps "Get a call now", gives a callback number, and consents.
-      Twilio creds are already set; until this var exists the alert falls back to email to
-      joshn.wms@gmail.com, so nothing is lost, just slower. Server-only var, never `NEXT_PUBLIC_`.
+- [ ] **Fix the Twilio sender number so hot-lead SMS actually delivers.** You set
+      `FOUNDER_ALERT_PHONE` and it is live (verified 2026-07-30 with a real end-to-end test:
+      qualification, dedup and the admin record all worked). But Twilio rejected the send:
+      *"The 'From' phone number provided (+13145573549) is not a valid message-capable Twilio
+      phone number for this destination."* The alert email you received from the CLAUDE TEST
+      lead is the fallback doing its job, so nothing is lost meanwhile. To fix, in
+      `https://console.twilio.com`:
+      1. **Phone Numbers → Manage → Active numbers** → click `+1 314 557 3549` and confirm it
+         shows the **SMS** capability. If it has no SMS capability, buy a local number that
+         does and put it in Vercel as `TWILIO_PHONE_NUMBER` (then tell Claude to redeploy).
+      2. If the account is still in **trial mode**, either upgrade it or add your cell under
+         **Phone Numbers → Verified Caller IDs** (trial accounts can only text verified numbers).
+      3. If the console shows an **A2P 10DLC** registration banner, complete that registration
+         (US carriers block unregistered business SMS).
+      After any change, tell Claude "test the hot-lead SMS again" and it will re-verify end to
+      end. The test lead in `/admin` → Acquisition → Calls (CLAUDE TEST) can be set to Closed.
 
 - [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
       Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,
