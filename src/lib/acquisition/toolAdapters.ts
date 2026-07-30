@@ -174,9 +174,9 @@ const worth: AcquisitionTool = {
         // supporters per tier (70/22/8 whale curve). The Membership builder pre-fills the entry
         // tier from this and surfaces the rest as the suggested ladder to grow into (Pro).
         ladder: [
-          { name: 'Inner Circle', priceCents: assumptions.tier1PriceCents, projectedSubs: Math.floor(result.tier1Subs) },
-          { name: 'The Vault', priceCents: assumptions.tier2PriceCents, projectedSubs: Math.floor(result.tier2Subs) },
-          { name: 'Throne', priceCents: assumptions.tier3PriceCents, projectedSubs: Math.floor(result.tier3Subs) },
+          { name: 'Silver', priceCents: assumptions.tier1PriceCents, projectedSubs: Math.floor(result.tier1Subs) },
+          { name: 'Gold', priceCents: assumptions.tier2PriceCents, projectedSubs: Math.floor(result.tier2Subs) },
+          { name: 'Platinum', priceCents: assumptions.tier3PriceCents, projectedSubs: Math.floor(result.tier3Subs) },
         ],
       },
       shareSummary: `Turns out my fanbase could be worth about ${net} a month direct.`,
@@ -289,7 +289,7 @@ const vault: AcquisitionTool = {
           body: 'Open the Vault with a welcome voice note, drop one unreleased track in week one, and a demo or alternate version in week two. About two pieces a month keeps it sustainable.',
         },
       ],
-      conversionPayload: { tierName: 'The Vault', priceCents: PRICE_CENTS },
+      conversionPayload: { tierName: 'Gold', priceCents: PRICE_CENTS },
       shareSummary: `Turns out my vault could be worth about ${fmtDollars(monthlyExpected)} a month.`,
     });
   },

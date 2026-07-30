@@ -39,9 +39,9 @@ const worthSeed = seed('worth', {
     netMrrCents: 389200,
     payers: 412,
     ladder: [
-      { name: 'Inner Circle', priceCents: 1000, projectedSubs: 288 },
-      { name: 'The Vault', priceCents: 2500, projectedSubs: 90 },
-      { name: 'Throne', priceCents: 10000, projectedSubs: 33 },
+      { name: 'Silver', priceCents: 1000, projectedSubs: 288 },
+      { name: 'Gold', priceCents: 2500, projectedSubs: 90 },
+      { name: 'Platinum', priceCents: 10000, projectedSubs: 33 },
     ],
   },
 });
@@ -58,7 +58,7 @@ describe('buildStarterOffer', () => {
     expect(offer.kind).toBe('membership');
     expect(offer.confidence).toBe('low');
     expect(offer.priceCents).toBe(1000);
-    expect(offer.offerName).toBe('Inner Circle');
+    expect(offer.offerName).toBe('Silver');
     expect(offer.builderHref).toContain('/offers/new');
     expect(offer.builderHref).toContain('returnTo=%2Fprofile%2Fartist');
     expect(offer.toolSlug).toBeNull();
@@ -88,12 +88,12 @@ describe('buildStarterOffer', () => {
   it('recommends the Vault tier from a vault seed, using the modeled price', () => {
     const s = seed('vault-revenue-planner', {
       estimatedMonthlyCents: 42000,
-      conversionPayload: { tierName: 'The Vault', priceCents: 1000 },
+      conversionPayload: { tierName: 'Gold', priceCents: 1000 },
     });
     const offer = buildStarterOffer(input({ seeds: [s] }));
     expect(offer.kind).toBe('vault_tier');
     expect(offer.priceCents).toBe(1000);
-    expect(offer.offerName).toBe('The Vault');
+    expect(offer.offerName).toBe('Gold');
     expect(offer.overlapNote).toMatch(/not count it twice/i);
   });
 

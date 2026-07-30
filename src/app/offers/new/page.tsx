@@ -86,7 +86,7 @@ const GOALS: GoalDef[] = [
     hint: 'A monthly membership your core fans join',
     offerType: 'subscription',
     price: '10',
-    tierName: 'Inner Circle',
+    tierName: 'Silver',
     benefits: ['Exclusive tracks', 'Members-only posts', 'Shout-outs from me'],
     productTitle: '',
     productType: 'digital',
@@ -97,7 +97,7 @@ const GOALS: GoalDef[] = [
     hint: 'A one-time backer pack fans buy to help fund the shoot',
     offerType: 'onetime',
     price: '25',
-    tierName: 'Inner Circle',
+    tierName: 'Silver',
     benefits: [],
     productTitle: 'Music Video Backer Pack',
     productType: 'digital',
@@ -113,7 +113,7 @@ const GOALS: GoalDef[] = [
     hint: 'Unreleased music behind a monthly sub',
     offerType: 'subscription',
     price: '5',
-    tierName: 'The Vault',
+    tierName: 'Gold',
     benefits: ['Unreleased vault tracks', 'Early access to new releases', 'Behind-the-scenes content'],
     productTitle: '',
     productType: 'digital',
@@ -124,7 +124,7 @@ const GOALS: GoalDef[] = [
     hint: 'Sell one exclusive drop, one time',
     offerType: 'onetime',
     price: '15',
-    tierName: 'Inner Circle',
+    tierName: 'Silver',
     benefits: [],
     productTitle: 'Exclusive Drop',
     productType: 'digital',
@@ -139,7 +139,7 @@ const GOALS: GoalDef[] = [
     hint: 'A one-time pack for the fans who were here first',
     offerType: 'onetime',
     price: '30',
-    tierName: 'Inner Circle',
+    tierName: 'Silver',
     benefits: [],
     productTitle: 'Day One Backer Pack',
     productType: 'digital',
@@ -255,7 +255,7 @@ function OfferBuilder() {
   const [goalId, setGoalId] = useState<string | null>(null);
   const [offerType, setOfferType] = useState<OfferType>('subscription');
   const [price, setPrice] = useState('10');
-  const [tierName, setTierName] = useState('Inner Circle');
+  const [tierName, setTierName] = useState('Silver');
   const [benefits, setBenefits] = useState<string[]>(GOALS[0].benefits);
   const [productTitle, setProductTitle] = useState('');
   const [productType, setProductType] = useState<Exclude<ProductType, 'experience' | 'bundle'>>('digital');
@@ -681,7 +681,7 @@ function OfferBuilder() {
                 autoFocus
                 className={INPUT}
                 maxLength={40}
-                placeholder="Inner Circle"
+                placeholder="Silver"
                 value={tierName}
                 onChange={(e) => setTierName(e.target.value)}
               />

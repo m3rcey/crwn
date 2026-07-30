@@ -244,7 +244,7 @@ describe('the coordinated system builder', () => {
 
   it('places the Vault inside the ladder rather than creating a second membership', () => {
     expect(draft.vaultPlacement).toBe('tier');
-    expect(draft.t2Name).toBe('The Vault');
+    expect(draft.t2Name).toBe('Gold');
     expect(Number(draft.t2Price)).toBeGreaterThan(0);
     // Four rungs, one ladder.
     expect([draft.t0Name, draft.t1Name, draft.t2Name, draft.t3Name].filter(Boolean)).toHaveLength(4);

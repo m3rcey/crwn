@@ -49,7 +49,7 @@ export interface StarterOfferInput {
   platformTier: string | null;
   /** Active tiers with price > 0 (the canonical Option-2 paid count). */
   paidTierCount: number;
-  /** Active tier at price 0 exists (The Wave front door). */
+  /** Active tier at price 0 exists (the free Bronze front door). */
   hasFreeTier: boolean;
   hasTrack: boolean;
   productCount: number;
@@ -63,7 +63,7 @@ export interface StarterOffer {
   kind: StarterOfferKind;
   /** The CRWN feature this maps to, e.g. "Membership". */
   featureLabel: string;
-  /** Draft offer name, e.g. "Inner Circle". */
+  /** Draft offer name, e.g. "Silver". */
   offerName: string;
   /** Integer cents. 0 for the free fan-capture front door. */
   priceCents: number;
@@ -295,7 +295,7 @@ export function buildStarterOffer(input: StarterOfferInput): StarterOffer {
           ? `Your unreleased catalog is already worth ${monthlyLabel} a month to your closest fans. Every month it sits on your drive, that money stays uncollected.`
           : 'Your unreleased catalog is the offer. Fans pay for access to what already exists, so there is nothing new to produce.',
         overlapNote:
-          'The Vault can later become one benefit inside a bigger membership ladder. Start it as its own tier; do not count it twice.',
+          'Your vault can later become one benefit inside a bigger membership ladder. Start it as its own tier; do not count it twice.',
         builderHref: builderHrefFor(seed),
         confidence: positive(cp.priceCents) || monthlyCents ? 'high' : 'medium',
         constraintNote: null,

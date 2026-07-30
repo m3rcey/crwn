@@ -6,7 +6,7 @@
 //
 // Reuses the EXISTING tier-creation path (subscription_tiers insert + tier_benefits
 // + /api/stripe/create-price when connected, else null price ids that the Stripe
-// connect backfill fills later). Never bypasses plan limits: the free The Wave
+// connect backfill fills later). Never bypasses plan limits: the free Bronze
 // tier is always allowed (Option 2), paid tiers only up to the artist's paid cap.
 
 import { useState, useEffect, useMemo } from 'react';
@@ -21,6 +21,7 @@ import {
   highTouchBenefits,
   needsFulfillmentConfirm,
   disclaimersFor,
+  tierNameAliases,
   type TierTemplateDef,
 } from '@/lib/tierTemplate';
 
@@ -65,12 +66,16 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
   const [confirmDef, setConfirmDef] = useState<TierTemplateDef | null>(null);
 
   // Mark template tiers already created (match by name, case-insensitive) as applied,
-  // so returning artists see their real state and never double-create.
+  // so returning artists see their real state and never double-create. Legacy names
+  // count as a match: an artist who applied this ladder before the Bronze/Silver/
+  // Gold/Platinum rename has "The Wave" or "Throne" in the database.
   useEffect(() => {
     const existingNames = new Set(existingTiers.map((t) => t.name.trim().toLowerCase()));
     setTiles((prev) =>
       prev.map((t) =>
-        existingNames.has(t.def.name.toLowerCase()) && t.status !== 'creating' ? { ...t, status: 'applied' } : t,
+        tierNameAliases(t.def).some((n) => existingNames.has(n)) && t.status !== 'creating'
+          ? { ...t, status: 'applied' }
+          : t,
       ),
     );
   }, [existingTiers]);
@@ -159,7 +164,7 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
         // Route through /api/tier-benefits (not a direct insert) so the Promise
         // Calendar auto-populates: that route inserts the benefits AND runs
         // syncTierObligations, which creates the recurring fulfillment
-        // obligations (the Vault's monthly unlock, Throne's quarterly listening
+        // obligations (Gold's monthly vault unlock, Platinum's quarterly listening
         // event). Best-effort: a benefits/calendar hiccup must not undo the tier.
         try {
           await fetch('/api/tier-benefits', {
@@ -236,7 +241,7 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
         <div className="px-5 pb-5 space-y-3">
           {paidCapReached && (
             <p className="text-xs text-crwn-gold bg-crwn-gold/10 border border-crwn-gold/20 rounded-lg p-3">
-              You have used your {paidTierCap} paid tier{paidTierCap === 1 ? '' : 's'} on this plan. Your free The Wave
+              You have used your {paidTierCap} paid tier{paidTierCap === 1 ? '' : 's'} on this plan. Your free Bronze
               tier is always included. Upgrade to add more paid tiers.
             </p>
           )}

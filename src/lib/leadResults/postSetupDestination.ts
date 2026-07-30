@@ -46,7 +46,7 @@ interface LadderTier {
   projectedSubs: number;
 }
 
-/** Encode the suggested ladder compactly for a URL: "Inner Circle:10:120|The Vault:25:38". */
+/** Encode the suggested ladder compactly for a URL: "Silver:10:120|Gold:25:38". */
 function encodeLadder(ladder: LadderTier[]): string {
   return ladder
     .map((t) => `${t.name}:${Math.round(t.priceCents / 100)}:${Math.max(0, Math.floor(t.projectedSubs))}`)
@@ -83,7 +83,7 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
         path: '/offers/new',
         prefill: {
           lm_goal: 'grow-supporters',
-          lm_tier_name: entry?.name || 'Inner Circle',
+          lm_tier_name: entry?.name || 'Silver',
           ...(entry ? { lm_price: dollars(entry.priceCents) } : {}),
         },
         suggest: ladder.length ? { lm_suggest_ladder: encodeLadder(ladder) } : {},
@@ -106,7 +106,7 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
         path: '/offers/new',
         prefill: {
           lm_goal: 'grow-supporters',
-          lm_tier_name: entry?.name || 'Inner Circle',
+          lm_tier_name: entry?.name || 'Silver',
           ...(entry ? { lm_price: dollars(entry.priceCents) } : {}),
         },
         suggest: ladder.length ? { lm_suggest_ladder: encodeLadder(ladder) } : {},
@@ -120,7 +120,7 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
         path: '/offers/new',
         prefill: {
           lm_goal: 'vault-access',
-          lm_tier_name: typeof cp.tierName === 'string' ? cp.tierName : 'The Vault',
+          lm_tier_name: typeof cp.tierName === 'string' ? cp.tierName : 'Gold',
           ...(price ? { lm_price: dollars(price) } : {}),
         },
         suggest: { lm_suggest_cadence: '1' },

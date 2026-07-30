@@ -1,5 +1,30 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Stock tier ladder renamed to Bronze / Silver / Gold / Platinum
+
+The recommended four-tier ladder shipped under invented names (The Wave / Inner Circle / The
+Vault / Throne). Fans had to learn what those meant before they could rank them. Bronze / Silver
+/ Gold / Platinum is a ladder every fan already knows on sight, so the ordering does the selling.
+
+Prices, keys, benefits and math are unchanged: free / $10 / $25 / $100, keys still
+`wave | inner_circle | vault | throne`. Only the display names moved, everywhere the platform
+builds tiers on an artist's behalf: `tierTemplate.ts` (`RECOMMENDED_LADDER`, the source of
+truth), the setup wizard's free entry point (`DEFAULT_TIER_NAME`), the Rise Mode Level 3 ladder,
+`/worth` (tiers, waterfall, mocks, prefilled builder), the calculator result email, the unified
+opportunity model + adapter, `postSetupDestination` fallbacks, the vault planner's seeded tier,
+the `/offers/new` goal templates, and the getting-started guides.
+
+Each rung now carries `legacyNames`, and `TierLadderTemplate`'s "already added" check matches
+those too, so an artist who applied the old ladder is never offered a duplicate tier. The quest
+evaluator recognizes the free tier by `price = 0`, not by name, so it was unaffected.
+
+"The Vault" survives as a FEATURE name (the Vault Revenue Planner, the monthly vault unlock, the
+artist's private archive). It is no longer a tier name: the vault lives in the Gold tier.
+
+Not renamed, deliberately: the `inner_circle` **fan role** in `quests/fanRoles.ts` (a different
+concept from a subscription tier), and the m3rcey test artist's real tier rows in
+`seed-demo-data.sql`.
+
 ## 2026-07-30 — The Tier 1 launch journey: qualified call requests, consent-attested fan import, and first-fan invites
 
 The calculator-to-launch spine existed end to end (unified calculator → editable pre-signup
@@ -170,7 +195,7 @@ Seventeen calculators each modeled one opportunity honestly. Run together they w
 because they were all built on the same audience and most of them resolved to the same dollar. At
 500,000 followers their own published formulas sum to about **$550,835/mo and 23,500 paying people**,
 against a following of 500,000 and a repo audience model that says only 2,250 of them ever pay for
-anything. The Vault alone claimed more payers than the entire membership model. An artist planning
+anything. The vault tier alone claimed more payers than the entire membership model. An artist planning
 against that number plans a business that does not exist.
 
 **The new tool does not add them up.** `/tools/opportunity-calculator`, model
@@ -181,7 +206,7 @@ against that number plans a business that does not exist.
   inclusion-exclusion (owned are fully reachable, the rest at `reachRate`), so addressable can never
   exceed the audience. Where the overlap is genuinely unknown, the result says so.
 - **One unique paying-supporter count.** Every recurring dollar is the ladder applied ONCE to it.
-- **The Vault is a TIER** ($25, the middle rung of `RECOMMENDED_LADDER`), not a second membership.
+- **The vault is a TIER** (Gold, $25, the middle rung of `RECOMMENDED_LADDER`), not a second membership.
   Standalone only when explicitly configured, and then it replaces a rung rather than adding one.
   Not recommended at all below five unreleased pieces.
 - **Share-to-Earn and Clip-to-Earn are acquisition, not revenue.** Clips are a capped LIFT on the

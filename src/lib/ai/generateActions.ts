@@ -213,7 +213,7 @@ LABEL FORMAT, CRITICAL:
 Every label MUST lead with the ACTION VERB, then the justification. Format: "[Verb] [what]: [metric reason]"
 - Good: "Activate win-back sequence: 3 churned fans this month"
 - Good: "Re-engage 5 inactive fans: 21+ days silent"
-- Good: "Gate 'Midnight Drive' behind Wave: RPV up 45%"
+- Good: "Gate 'Midnight Drive' behind Silver: RPV up 45%"
 - Bad: "Churn rate is rising" (observation, not action)
 - Bad: "Consider re-engaging fans" (wishy-washy)`;
 

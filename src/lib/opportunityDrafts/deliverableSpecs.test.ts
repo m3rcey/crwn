@@ -60,7 +60,7 @@ describe('honest prefill: no invented financial figures', () => {
     expect(getDeliverableSpec('vault-revenue-planner')!.prefill({ priceCents: 2500 }).price).toBe(25);
     expect(getDeliverableSpec('live-experience-calculator')!.prefill({ ticketPriceCents: 1500 }).price).toBe(15);
     // Worth is now the four-tier ladder: the entry PAID tier carries the modeled price.
-    expect(getDeliverableSpec('worth')!.prefill({ ladder: [{ name: 'Inner Circle', priceCents: 1000 }] }).t1Price).toBe(10);
+    expect(getDeliverableSpec('worth')!.prefill({ ladder: [{ name: 'Silver', priceCents: 1000 }] }).t1Price).toBe(10);
   });
 });
 
@@ -103,10 +103,10 @@ describe('sanitizeDeliverableValues (public trust boundary)', () => {
   });
 
   it('drops unknown keys entirely (no PII, no injected fields)', () => {
-    const v = sanitizeDeliverableValues(spec, { email: 'fan@example.com', artistId: 'abc', t1Name: 'Inner Circle' });
+    const v = sanitizeDeliverableValues(spec, { email: 'fan@example.com', artistId: 'abc', t1Name: 'Silver' });
     expect(JSON.stringify(v)).not.toContain('@');
     expect(JSON.stringify(v)).not.toContain('artistId');
-    expect(v.t1Name).toBe('Inner Circle');
+    expect(v.t1Name).toBe('Silver');
   });
 
   it('strips markup from copy and caps list length', () => {

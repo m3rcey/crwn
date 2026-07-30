@@ -31,7 +31,7 @@ modeled off the same audience. Their own published formulas, at 500,000 follower
 | **Naive sum** | **23,500 paying people** | **$550,835** |
 
 That total claims 23,500 payers out of 500,000 followers, while the repo's own audience model says
-2,250 of them ever pay for anything. The Vault alone claims more payers than the entire membership
+2,250 of them ever pay for anything. The vault tier alone claims more payers than the entire membership
 model. An artist who plans against that number plans a business that does not exist.
 
 The unified model produces roughly **$127,000/mo net** for the same artist with every opportunity
@@ -44,7 +44,7 @@ switched on, and a test asserts it stays below half the naive sum.
 | Opportunity | Classification | Produces revenue? |
 |---|---|---|
 | Membership ladder | core recurring offer | **yes**, and it is the only recurring line |
-| The Vault | **membership tier** (default) or a standalone offer if explicitly configured | no revenue of its own when it is a tier |
+| Gold (the vault) | **membership tier** (default) or a standalone offer if explicitly configured | no revenue of its own when it is a tier |
 | Member one-off spend | add-on, inside the core | yes, as ARPU on members |
 | Share-to-Earn | acquisition channel, referral mechanism, fan role | **no**. It moves the supporter count |
 | Clip-to-Earn | acquisition channel, engagement mechanism, fan role | **no**. It lifts conversion on the same pool |
@@ -74,9 +74,9 @@ Layer 2  Fan segments (roles overlap, people do not)
          nonMemberAddressable = addressable - membersDrawnFromAddressable
 
 Layer 3  ONE membership ladder, applied ONCE to payingSupporters
-         Inner Circle $10 (70%) | The Vault $25 (22%) | Throne $100 (8%)
+         Silver $10 (70%) | Gold $25 (22%) | Platinum $100 (8%)
 
-Layer 4  Benefits inside those tiers. The Vault IS tier 2, so it earns nothing separately.
+Layer 4  Benefits inside those tiers. The vault IS tier 2 (Gold), so it earns nothing separately.
 
 Layer 5  Incremental purchases, sold ONLY out of nonMemberAddressable
          live tickets, tips from those ticket holders, session seats
@@ -252,7 +252,7 @@ mislabelling the royalty overlay exists to prevent.
 - Proof of Demand, retention, fan missions, royalties and sponsorship are listed in
   "worth doing, but not in the number", with the reason each is excluded.
 - No replay sales and no sponsorship anywhere in the math or the copy: neither exists in CRWN.
-- The Vault is not recommended below five unreleased pieces.
+- The vault (Gold) is not recommended below five unreleased pieces.
 - Nothing assumes a live event for an artist who said live is not for them.
 - No ten-year projection. Monthly and annual only.
 

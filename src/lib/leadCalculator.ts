@@ -23,9 +23,9 @@ export interface CalcInputs {
 export interface CalcAssumptions {
   superfanRate: number;        // fraction of addressable audience that ever pays (0.03 = 3%)
   reachRate: number;           // fraction of monthly listeners that are addressable when followers unknown
-  tier1PriceCents: number;     // Inner Circle
-  tier2PriceCents: number;     // The Vault
-  tier3PriceCents: number;     // Throne
+  tier1PriceCents: number;     // Silver
+  tier2PriceCents: number;     // Gold
+  tier3PriceCents: number;     // Platinum
   tier1Share: number;          // share of payers on tier 1
   tier2Share: number;          // share of payers on tier 2
   tier3Share: number;          // share of payers on tier 3 (whales)
@@ -38,9 +38,9 @@ export interface CalcAssumptions {
 // Recommended tier prices — the "ideal setup" the whole pitch rests on.
 // Aligns with the 3-paid-tier structure that requires the Pro plan (maxFanTiers: 3).
 export const RECOMMENDED_TIER_PRICES = {
-  tier1PriceCents: 1000,   // $10  — Inner Circle
-  tier2PriceCents: 2500,   // $25  — The Vault
-  tier3PriceCents: 10000,  // $100 — Throne
+  tier1PriceCents: 1000,   // $10: Silver
+  tier2PriceCents: 2500,   // $25: Gold
+  tier3PriceCents: 10000,  // $100: Platinum
 } as const;
 
 // Whale-curve split of paying fans across the three tiers.

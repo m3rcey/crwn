@@ -478,7 +478,7 @@ export function buildSegments(
   };
 }
 
-/** Layer 3 + 4. ONE membership ladder. The Vault is a tier inside it, not a second membership. */
+/** Layer 3 + 4. ONE membership ladder. The vault is the Gold tier inside it, not a second membership. */
 export function buildCoreOffer(
   segments: FanSegments,
   inputs: UnifiedInputs,
@@ -488,7 +488,7 @@ export function buildCoreOffer(
   const payers = segments.payingSupporters;
   const placement = inputs.vaultPlacement ?? 'tier';
 
-  // The Vault is tier 2 of the recommended ladder. When the artist has nothing to put in it, that
+  // The vault is Gold, tier 2 of the recommended ladder. When the artist has nothing to put in it, that
   // tier does not disappear, its supporters redistribute onto the tiers that do exist, so we never
   // pretend a Vault that cannot be filled is still earning.
   const vaultIsTier = eligible.vault && placement !== 'standalone';
@@ -497,9 +497,9 @@ export function buildCoreOffer(
     : { t1: a.tier1Share + a.tier2Share, t2: 0, t3: a.tier3Share };
 
   const tiers = [
-    { key: 'inner_circle', name: 'Inner Circle', priceCents: a.tier1PriceCents, supporters: payers * shares.t1 },
-    { key: 'vault', name: 'The Vault', priceCents: a.tier2PriceCents, supporters: payers * shares.t2 },
-    { key: 'throne', name: 'Throne', priceCents: a.tier3PriceCents, supporters: payers * shares.t3 },
+    { key: 'inner_circle', name: 'Silver', priceCents: a.tier1PriceCents, supporters: payers * shares.t1 },
+    { key: 'vault', name: 'Gold', priceCents: a.tier2PriceCents, supporters: payers * shares.t2 },
+    { key: 'throne', name: 'Platinum', priceCents: a.tier3PriceCents, supporters: payers * shares.t3 },
   ]
     .filter((t) => t.supporters > 0)
     .map((t) => ({ ...t, monthlyCents: round(t.supporters * t.priceCents) }));

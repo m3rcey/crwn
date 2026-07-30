@@ -52,27 +52,27 @@ const PRESETS: { key: AggressivenessPreset; label: string }[] = [
 // `subs` maps a paid tier to its computed headcount; the free tier has none.
 const TIERS: { name: string; price: string; accent: boolean; subs?: 'tier1' | 'tier2' | 'tier3'; perks: string[] }[] = [
   {
-    name: 'The Wave', price: 'Free', accent: false,
+    name: 'Bronze', price: 'Free', accent: false,
     perks: ['Free tracks and public posts', 'Join the community', 'Public livestream access', 'New music after the paid windows'],
   },
   {
-    name: 'Inner Circle', price: '$10/mo', accent: false, subs: 'tier1',
+    name: 'Silver', price: '$10/mo', accent: false, subs: 'tier1',
     perks: ['Exclusive tracks and demos', '7-day early access', 'Private community posts', 'Vote on cover art and drops', '10% shop discount'],
   },
   {
-    name: 'The Vault', price: '$25/mo', accent: true, subs: 'tier2',
+    name: 'Gold', price: '$25/mo', accent: true, subs: 'tier2',
     perks: ['Unreleased songs and alternate versions', '14-day early access', 'A monthly Vault unlock from your archive', 'Private listening-party replays', 'Early ticket and merch access', '15% shop discount'],
   },
   {
-    name: 'Throne', price: '$100/mo', accent: false, subs: 'tier3',
-    perks: ['Everything in The Vault', 'Day-0 private first listen', 'Limited membership', 'Supporter credits on releases', 'Private group listening events', '20% shop discount'],
+    name: 'Platinum', price: '$100/mo', accent: false, subs: 'tier3',
+    perks: ['Everything in Gold', 'Day-0 private first listen', 'Limited membership', 'Supporter credits on releases', 'Private group listening events', '20% shop discount'],
   },
 ];
 
 const WATERFALL = [
-  { day: 'Day 0', label: 'Throne gets it first', sub: 'First listen + stems on sale' },
-  { day: 'Day 14', label: 'The Vault', sub: 'Second in line' },
-  { day: 'Day 30', label: 'Inner Circle', sub: 'Entry tier unlocks it' },
+  { day: 'Day 0', label: 'Platinum gets it first', sub: 'First listen + stems on sale' },
+  { day: 'Day 14', label: 'Gold', sub: 'Second in line' },
+  { day: 'Day 30', label: 'Silver', sub: 'Entry tier unlocks it' },
   { day: 'Day 45', label: 'Free tier on CRWN', sub: 'Everyone on CRWN, email captured' },
   { day: 'Day 60', label: 'Spotify / Apple / DSPs', sub: 'The leftovers get the pennies' },
 ];
@@ -454,7 +454,7 @@ export function WorthExperience({
           toolSlug="worth"
           conversionPayload={{
             ladder: [
-              { name: 'Inner Circle', priceCents: RECOMMENDED_TIER_PRICES.tier1PriceCents },
+              { name: 'Silver', priceCents: RECOMMENDED_TIER_PRICES.tier1PriceCents },
             ],
           }}
           opportunitySummary={hasNumber ? `${fmtDollars(result.netMrrCents)}/mo on the table` : undefined}

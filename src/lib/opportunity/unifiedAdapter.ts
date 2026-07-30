@@ -263,7 +263,7 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
     items: [
       `${pct(r.assumptions.reachRate)} of your following is realistically reachable, and contacts you own are counted as fully reachable.`,
       `${pct(r.assumptions.superfanRate)} of that reachable audience ever pays, capped at ${pct(r.assumptions.maxConversion)} however many growth systems you switch on.`,
-      'Tier prices of $10, $25 and $100, split across a typical supporter curve. The Vault is the $25 tier, not a separate membership.',
+      'Tier prices of $10, $25 and $100, split across a typical supporter curve. Your vault is the $25 Gold tier, not a separate membership.',
       `${pct(r.assumptions.shareRate)} of fans share for a reward, reaching about ${r.assumptions.reachPerSharer} new people each a month, of whom ${pct(r.assumptions.referredConversion)} subscribe.`,
       `Clips raise how many of the fans you already reach convert, by about ${pct(r.assumptions.clipConversionLift)}. They do not create separate revenue.`,
       `Tickets and seats are sold only to reachable fans who are not members. Platform fee of ${r.assumptions.platformFeePercent}% on the CRWN Pro plan.`,

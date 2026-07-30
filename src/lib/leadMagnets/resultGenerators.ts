@@ -138,7 +138,7 @@ function vaultRevenuePlan(v: LeadMagnetInputValues): GeneratedResult {
       : `You have enough for about ${runwayDrops} drops. Here is a ${recommendCadence} Vault plan and your first five drops.`,
     sections,
     conversionPayload: {
-      tierName: 'The Vault',
+      tierName: 'Gold',
       priceCents: cents(priceDollars > 0 ? priceDollars : lowP),
       cadence: recommendCadence,
       description: `Private Vault: unreleased music, demos and moments dropped ${recommendCadence}.`,

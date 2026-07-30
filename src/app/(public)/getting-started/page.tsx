@@ -77,10 +77,10 @@ function MiniDashboard() {
   }, [isInView]);
 
   const notifs = [
-    { text: 'New subscriber: The Wave', amount: '+$10' },
+    { text: 'New subscriber: Silver', amount: '+$10' },
     { text: 'Track purchased: Midnight', amount: '+$5' },
     { text: 'Fan referral commission', amount: '+$2' },
-    { text: 'Inner Circle upgrade', amount: '+$50' },
+    { text: 'Gold upgrade', amount: '+$50' },
   ];
 
   return (

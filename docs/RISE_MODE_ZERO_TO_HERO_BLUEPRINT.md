@@ -248,7 +248,7 @@ Design:
 
 ## 11. Four-tier platform-limit conflict (founder decision — NOT decided here)
 
-**The recommended ladder (Community Free / Backstage $10 / Inner Circle $25 / Executive Circle $100) is four `subscription_tiers` rows. No billable plan currently allows four.**
+**The recommended ladder (shipped as Bronze free / Silver $10 / Gold $25 / Platinum $100) is four `subscription_tiers` rows. No billable plan currently allows four.** (Resolved since: the free rung does not count against the cap, and every plan now allows 3 paid tiers.)
 
 Source of truth (`platformTier.ts`):
 | Plan | `maxFanTiers` / `fanTiers` | Billable? |

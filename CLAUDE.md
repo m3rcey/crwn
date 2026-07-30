@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Stock tier ladder — Bronze / Silver / Gold / Platinum
+
+The recommended four-tier ladder is **Bronze (free) / Silver ($10) / Gold ($25) / Platinum ($100)**,
+renamed from The Wave / Inner Circle / The Vault / Throne on 2026-07-30. Every surface that builds
+tiers for an artist (the setup wizard's free entry point, Rise Mode Level 3, the /worth calculator,
+the calculator result email, the unified opportunity model, the offer builder goals) uses these
+names. `src/lib/tierTemplate.ts` (`RECOMMENDED_LADDER`) is the source of truth: change a name there,
+not in a component.
+
+- The internal keys stay `wave | inner_circle | vault | throne`. They are referenced across the
+  calculators, drafts and offer builder, and renaming them moves data for no artist-visible gain.
+- Each rung carries `legacyNames`. The ladder's "already added" check matches those too, so an
+  artist who applied the old ladder is not offered a duplicate tier. **Never drop a legacy name.**
+- "The Vault" survives as a FEATURE name (the Vault Revenue Planner, the monthly vault unlock, the
+  artist's private archive). It is no longer a tier name: the vault lives in the Gold tier.
+
 ## UX Rule — multi-option selectors are DROPDOWNS
 
 Whenever a screen asks the user to pick ONE option from several (campaign goal type,
@@ -318,7 +334,7 @@ The artist onboarding path (signup → publish page → upload track) once broke
 New artists do NOT get the old dashboard tour first. They flow **signup → `/welcome` (name/phone/role) → `/setup`**, a full-screen, hard-gated wizard. Reference this as **"the artist setup wizard"** (branch `claude/artist-onboarding-redesign-05hgns`, PR #27).
 
 - **Route:** `src/app/setup/page.tsx` (+ `layout.tsx`). **ONE FIELD per screen** — the wizard is a flat list of single-field screens (`SCREENS` in that file), 9 in order: **photo → tier-name → tier-price → tier-benefits → track-audio → track-title → product-type → product-title → product-price**. Grouped into the four chips up top (Profile/Monetize/Music/Shop) for orientation; progress bar by screen. Photo + Track are **mandatory**; the Monetize + Shop groups are **skippable** ("Skip for now" jumps the whole group). **Tagline is NOT asked in the wizard** (set later in the Profile tab). Do NOT stack multiple asks on one screen — that was the repeated mistake; keep it strictly one-field-per-screen.
-- **Plan-aware by design (every plan now allows 3 paid tiers).** Onboarding creates the FREE "The Wave" entry point only (`tier-name`/`tier-price` pre-filled "The Wave" / $0, `tier-benefits` pre-selects free-tier perks, editable, written to `access_config.benefits`). The PAID membership ladder (Inner Circle $10 / The Vault $25 / Throne $100) is built later in Rise Mode Level 3, whose template recognizes the free "The Wave" tier by name, so setup and Rise never ask for the same thing. NOTE: the free tier does not count against the plan's fan-tier cap (paid-only counting, Option 2), and the paid cap is now **3 on every plan** (raised from 1 on Free on 2026-07-27 so the Streaming Loss calculator's four-tier promise is buildable regardless of plan). Tier COUNT is no longer a Pro paywall; Experiences + the lower fee (12% to 8%) + live/DMs/scheduling remain **Pro** ($9.99/mo), surfaced AFTER the wizard (dashboard/tour), not in it. The product step therefore offers only **Digital + Physical** (Experiences need Pro-only scheduling); experiences live in the Shop tab.
+- **Plan-aware by design (every plan now allows 3 paid tiers).** Onboarding creates the FREE "Bronze" entry point only (`tier-name`/`tier-price` pre-filled "Bronze" / $0, `tier-benefits` pre-selects free-tier perks, editable, written to `access_config.benefits`). The PAID membership ladder (Silver $10 / Gold $25 / Platinum $100) is built later in Rise Mode Level 3, whose template recognizes the free "Bronze" tier by name, so setup and Rise never ask for the same thing. NOTE: the free tier does not count against the plan's fan-tier cap (paid-only counting, Option 2), and the paid cap is now **3 on every plan** (raised from 1 on Free on 2026-07-27 so the Streaming Loss calculator's four-tier promise is buildable regardless of plan). Tier COUNT is no longer a Pro paywall; Experiences + the lower fee (12% to 8%) + live/DMs/scheduling remain **Pro** ($9.99/mo), surfaced AFTER the wizard (dashboard/tour), not in it. The product step therefore offers only **Digital + Physical** (Experiences need Pro-only scheduling); experiences live in the Shop tab.
 - **Item creation:** the multi-field items (tier, track, product) collect their fields across screens into **draft state** in `setup/page.tsx`, then create on the last field's Continue via `src/lib/onboardingItems.ts` (`createOnboardingTier/Track/Product`). Minimal fields only (first track free; product file/advanced options deferred to the Shop tab). **Onboarding tiers do NOT call Stripe** (`/api/stripe/create-price` requires a connected account) — the row is inserted with null Stripe ids and `backfillTierPrices()` in `/api/stripe/connect/status` creates the Stripe prices automatically once the artist connects Stripe and charges are enabled. Completion (`hasTier/hasMusic/hasProduct`) is DB-derived — after create, `refresh()` unlocks Continue. Ends on a **share screen** → "Enter CRWN" → dashboard + trimmed tour.
 - **Source of truth:** `src/hooks/useArtistSetup.ts`. Step completion is **DERIVED from live data, never stored per-step** — profile = fresh `profiles.avatar_url` + `artist_profiles.tagline`; music = ≥1 `tracks`; monetize = ≥1 active `subscription_tiers`; shop = ≥1 `products`. Everything is read straight from the DB, **NOT the `useAuth` context, which lags** — right after `/welcome` flips `fan→artist` the context `profile.role` is still `'fan'` until the next token refresh. So both the hook AND the `(main)` gate derive "is an artist" from the **`artist_profiles` row existing**, never from `profile.role` (a role check there would bounce a brand-new artist out of `/setup` into a redirect loop). Continue unlocks live off DB reads; Stripe status is cosmetic-only, fetched once.
 - **The only stored flag** is `artist_profiles.setup_completed` (migration `supabase/schema-phase2-artist-setup-wizard.sql`, already applied). It just records "finished the wizard once." Existing artists were backfilled to `true`. The gate fails OPEN if the column is missing.
@@ -351,9 +367,14 @@ New artists do NOT get the old dashboard tour first. They flow **signup → `/we
 
 ### Fan Subscription Tiers (M3rcey test artist)
 
-- The Wave: $10/mo
-- Inner Circle: $50/mo
-- Throne: $200/mo
+Live rows as of 2026-07-30 (verified against production, an older version of this note listed
+$10/$50/$200, which was wrong). These predate the Bronze/Silver/Gold/Platinum rename and were
+deliberately NOT rewritten, since renaming a tier a fan already pays for is a founder decision:
+
+- The Wave: free (now built as Bronze)
+- Inner Circle: $10/mo (now Silver)
+- The Vault: $25/mo (now Gold)
+- Throne: $100/mo (now Platinum)
 - Benefits managed via `tier_benefits` table + `benefitCatalog.ts`.
 
 ## Completion Signal

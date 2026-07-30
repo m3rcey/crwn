@@ -38,15 +38,15 @@ export function calculatorResultEmail(params: {
       <h3 style="color:#FFFFFF;font-size:18px;margin:0 0 12px;">The setup that captures it</h3>
       <div style="margin:0 0 24px;">
         <div style="padding:12px 0;border-bottom:1px solid #333;">
-          <span style="color:#D4AF37;font-weight:600;">Inner Circle: $10/mo</span>
+          <span style="color:#D4AF37;font-weight:600;">Silver: $10/mo</span>
           <span style="color:#A0A0A0;"> Exclusive tracks and demos, 7-day early access, private posts, 10% shop discount</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
-          <span style="color:#D4AF37;font-weight:600;">The Vault: $25/mo</span>
+          <span style="color:#D4AF37;font-weight:600;">Gold: $25/mo</span>
           <span style="color:#A0A0A0;"> Unreleased songs, 14-day early access, a monthly Vault unlock, 15% shop discount</span>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid #333;">
-          <span style="color:#D4AF37;font-weight:600;">Throne: $100/mo</span>
+          <span style="color:#D4AF37;font-weight:600;">Platinum: $100/mo</span>
           <span style="color:#A0A0A0;"> Day-0 first listen, private group listening events, supporter credits, 20% shop discount</span>
         </div>
         <div style="padding:12px 0;">
@@ -56,7 +56,7 @@ export function calculatorResultEmail(params: {
       </div>
 
       <p style="color:#A0A0A0;font-size:15px;line-height:1.6;margin:0 0 8px;">
-        <strong style="color:#FFFFFF;">Release like the majors don't:</strong> new music hits Throne first,
+        <strong style="color:#FFFFFF;">Release like the majors don't:</strong> new music hits Platinum first,
         then steps down to each tier, then the free tier, and the DSPs get it last. Every tier is a skip-the-line pass.
       </p>
 

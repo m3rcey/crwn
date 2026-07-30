@@ -133,6 +133,27 @@ responsible for. Do not work those.
       `,"source_post_id":"kendrick-producer-reel"` right before `,"contact":`. Not worth doing broadly
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
+- [ ] **Decide whether to rename the FOUR live tiers that still carry the old names.** The stock
+      ladder is now Bronze / Silver / Gold / Platinum everywhere CRWN builds tiers, but four rows
+      already in the database predate it (verified in production 2026-07-30): `The Wave` $0,
+      `Inner Circle` $10, `The Vault` $25, `Throne` $100. Nothing is broken. The ladder template
+      matches legacy names, so it will not offer a duplicate, and fans keep seeing the name they
+      subscribed under.
+
+      This is your call, not a bug: renaming a tier changes what a paying fan sees on their
+      subscription. If you want them aligned, run this in the Supabase SQL editor (it touches
+      ONLY those exact names at those exact prices, so a tier an artist named themselves is safe):
+
+      ```sql
+      UPDATE subscription_tiers SET name = 'Bronze'   WHERE name = 'The Wave'     AND price = 0;
+      UPDATE subscription_tiers SET name = 'Silver'   WHERE name = 'Inner Circle' AND price = 1000;
+      UPDATE subscription_tiers SET name = 'Gold'     WHERE name = 'The Vault'    AND price = 2500;
+      UPDATE subscription_tiers SET name = 'Platinum' WHERE name = 'Throne'       AND price = 10000;
+      ```
+
+      Stripe product names are separate and cosmetic; they do not affect billing. Skipping this
+      costs nothing.
+
 ---
 
 ## Ongoing

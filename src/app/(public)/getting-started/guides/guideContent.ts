@@ -50,7 +50,7 @@ export const guides: GuideData[] = [
       {
         title: 'Write your bio',
         content: 'Your bio appears on your public artist page. Keep it concise but compelling: 2-3 sentences max. Lead with what makes you unique, mention your genre, and include a call to action. Think of it as your elevator pitch to a potential fan who has never heard your music.',
-        tip: 'End your bio with something actionable: "Subscribe for unreleased tracks every week" or "Join Inner Circle for 1-on-1 sessions."',
+        tip: 'End your bio with something actionable: "Subscribe for unreleased tracks every week" or "Join Gold for the full vault."',
       },
       {
         title: 'Set your location and genres',
@@ -131,7 +131,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Create your tiers',
-        content: 'Go to Profile > Tiers and tap "Create Tier." Give each tier a compelling name (not just "Tier 1"). Good names evoke exclusivity: "The Wave," "Inner Circle," "Throne." Set a monthly price. Annual pricing is automatically calculated at 25% off. Add a clear description of what fans get.',
+        content: 'Go to Profile > Tiers and tap "Create Tier." Give each tier a name fans instantly rank. The recommended ladder is Bronze (free), Silver, Gold, Platinum. Set a monthly price. Annual pricing is automatically calculated at 25% off. Add a clear description of what fans get.',
       },
       {
         title: 'Assign benefits to each tier',
@@ -156,7 +156,7 @@ export const guides: GuideData[] = [
       'The most common mistake is pricing too low. Your superfans will pay more than you think. Do not leave money on the table.',
       'Update your tier benefits quarterly. Adding fresh perks keeps retention high and gives you an excuse to email fans.',
       'Create a "tier upgrade" post once a month showcasing what higher-tier fans are getting.',
-      'Use limited-time tier benefits (e.g., "first 10 subscribers to Inner Circle get a signed vinyl") to drive urgency.',
+      'Use limited-time tier benefits (e.g., "first 10 subscribers to Silver get a signed vinyl") to drive urgency.',
     ],
     nextGuide: { slug: 'uploading-music', title: 'Uploading Music' },
     prevGuide: { slug: 'stripe-payments', title: 'Stripe & Payments' },
@@ -234,7 +234,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Promote your shop',
-        content: 'Post about new products in your community. Create tier-exclusive discounts (e.g., "Inner Circle members get 20% off all beat packs"). Pin your best-selling product to the top of your shop. Share product links on social media.',
+        content: 'Post about new products in your community. Create tier-exclusive discounts (e.g., "Silver members get 20% off all beat packs"). Pin your best-selling product to the top of your shop. Share product links on social media.',
       },
       {
         title: 'Analyze product performance',
@@ -331,7 +331,7 @@ export const guides: GuideData[] = [
       },
       {
         title: 'A/B test your messaging',
-        content: 'Try different approaches: urgency ("only 24 hours left"), exclusivity ("just for Inner Circle"), personal ("I made this track thinking about..."), and value ("3 new tracks this week"). Track which approach drives the most clicks and subscriptions.',
+        content: 'Try different approaches: urgency ("only 24 hours left"), exclusivity ("just for Silver"), personal ("I made this track thinking about..."), and value ("3 new tracks this week"). Track which approach drives the most clicks and subscriptions.',
         tip: 'The single highest-converting email type is "I just uploaded something that is not available anywhere else." Exclusivity wins.',
       },
       {

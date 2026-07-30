@@ -1,20 +1,24 @@
 // Recommended four-tier membership ladder (Rise Mode Level 3).
 //
-// The Wave / Inner Circle / The Vault / Throne, the SAME four tiers the Streaming
-// Loss calculator ("/worth") shows, so the money the calculator promises is the
+// Bronze / Silver / Gold / Platinum, the SAME four tiers the Streaming Loss
+// calculator ("/worth") shows, so the money the calculator promises is the
 // money the ladder actually builds. Prices match: Free / $10 / $25 / $100.
 //
 // This is DATA the Tier Manager consumes to offer a one-tap recommended ladder.
-// It never bypasses plan limits: the free "The Wave" tier does not count against
+// It never bypasses plan limits: the free Bronze tier does not count against
 // the paid-tier cap (see platformTier.ts Option-2 counting), and the paid tiers
 // are applied only up to the artist's plan allowance.
 //
 // The recurring commitments are deliberately light: the paid tiers are built from
-// content the artist already has. The Vault sells a MONTHLY VAULT UNLOCK from the
+// content the artist already has. Gold sells a MONTHLY VAULT UNLOCK from the
 // existing backlog (schedule old demos, snippets, notes; not "make something new"),
-// and Throne sells a QUARTERLY private group listening event that serves every
+// and Platinum sells a QUARTERLY private group listening event that serves every
 // member at once (no one-on-one calls). Those two are the only scheduled promises,
 // and each auto-populates the Promise Calendar on apply (see tierObligations.ts).
+//
+// The keys stay wave/inner_circle/vault/throne on purpose: they are referenced
+// across the calculators, drafts and offer builder, and renaming them would move
+// data around for no artist-visible gain. Only the NAMES changed.
 //
 // Benefit copy is fan-facing. Rules honored:
 //  - No em dashes anywhere.
@@ -51,6 +55,13 @@ export interface TemplateBenefit {
 export interface TierTemplateDef {
   key: 'wave' | 'inner_circle' | 'vault' | 'throne';
   name: string;
+  /**
+   * Earlier names for this rung (The Wave / Inner Circle / The Vault / Throne).
+   * Artists who applied the ladder before the Bronze/Silver/Gold/Platinum rename
+   * still have tiers under the old names, so the "already added" check matches
+   * these too and never offers a duplicate.
+   */
+  legacyNames: string[];
   /** Monthly price in integer cents (0 for the free front door). */
   priceCents: number;
   description: string;
@@ -69,7 +80,8 @@ export const EXECUTIVE_RECOGNITION_DISCLAIMER =
 export const RECOMMENDED_LADDER: TierTemplateDef[] = [
   {
     key: 'wave',
-    name: 'The Wave',
+    name: 'Bronze',
+    legacyNames: ['The Wave'],
     priceCents: 0,
     description: 'Your free front door. The easiest way for new fans to join and stay close.',
     benefits: [
@@ -82,11 +94,12 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
   },
   {
     key: 'inner_circle',
-    name: 'Inner Circle',
+    name: 'Silver',
+    legacyNames: ['Inner Circle'],
     priceCents: 1000,
     description: 'For fans who want in. Exclusives, early access, and a real say.',
     benefits: [
-      { label: 'Everything in The Wave', workload: 'low' },
+      { label: 'Everything in Bronze', workload: 'low' },
       { label: 'Exclusive tracks and demos', workload: 'moderate' },
       {
         label: '7-day early access to new music',
@@ -105,11 +118,12 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
   },
   {
     key: 'vault',
-    name: 'The Vault',
+    name: 'Gold',
+    legacyNames: ['The Vault'],
     priceCents: 2500,
     description: 'For your closest supporters. Your private archive, unlocked a little at a time.',
     benefits: [
-      { label: 'Everything in Inner Circle', workload: 'low' },
+      { label: 'Everything in Silver', workload: 'low' },
       { label: 'Unreleased songs and alternate versions', workload: 'moderate' },
       {
         label: '14-day early access to new music',
@@ -143,12 +157,13 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
   },
   {
     key: 'throne',
-    name: 'Throne',
+    name: 'Platinum',
+    legacyNames: ['Throne'],
     priceCents: 10000,
     description: 'Your top supporters. Status, scarcity, and a seat at the table.',
     capacityLimited: true,
     benefits: [
-      { label: 'Everything in The Vault', workload: 'low' },
+      { label: 'Everything in Gold', workload: 'low' },
       { label: 'Day-0 or private first listen', workload: 'moderate' },
       { label: 'Limited number of memberships', workload: 'low' },
       {
@@ -156,11 +171,11 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
         workload: 'low',
         structured: { benefit_type: 'credits_on_releases', config: { role_label: 'Executive Supporter' } },
       },
-      { label: 'Permanent Throne badge in your community', workload: 'low' },
+      { label: 'Permanent Platinum badge in your community', workload: 'low' },
       { label: 'Highest priority for ticket and merch drops', workload: 'moderate' },
       {
-        // The one Throne-specific scheduled promise. A quarterly group event
-        // serves every Throne member at once, so it replaces one-on-one calls.
+        // The one Platinum-specific scheduled promise. A quarterly group event
+        // serves every Platinum member at once, so it replaces one-on-one calls.
         label: 'Private group listening events',
         workload: 'high_touch',
         structured: {
@@ -169,7 +184,7 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
         },
         fulfillment: {
           frequency: 'quarterly',
-          note: 'You host one private group listening event each quarter. You serve every Throne member at once, so it replaces one-on-one calls. Cap membership so the room stays small.',
+          note: 'You host one private group listening event each quarter. You serve every Platinum member at once, so it replaces one-on-one calls. Cap membership so the room stays small.',
           capacityRecommended: true,
         },
       },
@@ -187,6 +202,11 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
 export const TIER_TEMPLATE_MAP: Record<string, TierTemplateDef> = Object.fromEntries(
   RECOMMENDED_LADDER.map((t) => [t.key, t]),
 );
+
+/** Every name this rung has ever shipped under, lowercased, for duplicate detection. */
+export function tierNameAliases(tier: TierTemplateDef): string[] {
+  return [tier.name, ...tier.legacyNames].map((n) => n.trim().toLowerCase());
+}
 
 /** The plain-string benefit list written to subscription_tiers.access_config.benefits. */
 export function benefitLabels(tier: TierTemplateDef): string[] {

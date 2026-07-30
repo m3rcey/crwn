@@ -102,10 +102,10 @@ export function PhoneFrame({ children }: { children: ReactNode }) {
 export function TiersMock({ subs }: { subs?: { t1: number; t2: number; t3: number } }) {
   const { ref, isInView } = useInView();
   const tiers = [
-    { name: 'The Wave', price: '$0', members: null as number | null, perks: ['🎵 Free tracks & posts', '💬 Community access'], subscribed: false, accent: false },
-    { name: 'Inner Circle', price: '$10', members: subs ? Math.floor(subs.t1) : null, perks: ['🎵 Exclusive tracks & demos', '⏰ 7-day early access', '🏷️ 10% shop discount'], subscribed: true, accent: true },
-    { name: 'The Vault', price: '$25', members: subs ? Math.floor(subs.t2) : null, perks: ['🔓 Monthly Vault unlock', '🎧 Listening-party replays'], subscribed: false, accent: false },
-    { name: 'Throne', price: '$100', members: subs ? Math.floor(subs.t3) : null, perks: ['👑 Day-0 first listen', '🎤 Private group listening'], subscribed: false, accent: false },
+    { name: 'Bronze', price: '$0', members: null as number | null, perks: ['🎵 Free tracks & posts', '💬 Community access'], subscribed: false, accent: false },
+    { name: 'Silver', price: '$10', members: subs ? Math.floor(subs.t1) : null, perks: ['🎵 Exclusive tracks & demos', '⏰ 7-day early access', '🏷️ 10% shop discount'], subscribed: true, accent: true },
+    { name: 'Gold', price: '$25', members: subs ? Math.floor(subs.t2) : null, perks: ['🔓 Monthly Vault unlock', '🎧 Listening-party replays'], subscribed: false, accent: false },
+    { name: 'Platinum', price: '$100', members: subs ? Math.floor(subs.t3) : null, perks: ['👑 Day-0 first listen', '🎤 Private group listening'], subscribed: false, accent: false },
   ];
   return (
     <PhoneFrame>
@@ -151,10 +151,10 @@ export function EarningsMock({ balanceCents }: { balanceCents?: number }) {
   const { ref, isInView } = useInView();
   const balance = balanceCents && balanceCents > 0 ? Math.round(balanceCents / 100) : 2418;
   const rows = [
-    { t: 'Throne · Monthly', d: 'Today', a: '+$100.00' },
-    { t: 'The Vault · Monthly', d: 'Today', a: '+$25.00' },
+    { t: 'Platinum · Monthly', d: 'Today', a: '+$100.00' },
+    { t: 'Gold · Monthly', d: 'Today', a: '+$25.00' },
     { t: 'Stem pack sale', d: 'Yesterday', a: '+$25.00' },
-    { t: 'Inner Circle · Monthly', d: '2 days ago', a: '+$10.00' },
+    { t: 'Silver · Monthly', d: '2 days ago', a: '+$10.00' },
   ];
   return (
     <PhoneFrame>
@@ -236,7 +236,7 @@ export function LeaderboardMock({ payers }: { payers?: number }) {
 export function AiActionsMock() {
   const { ref, isInView } = useInView();
   const cards = [
-    { cat: 'TIER PRICING', status: 'Caution', statusColor: 'text-red-400 bg-red-500/10', title: 'Raise Wave tier to $15/mo (RPV up 62%)', desc: 'Audience converting better and can bear a higher price. Adds ~$40/mo to MRR.' },
+    { cat: 'TIER PRICING', status: 'Caution', statusColor: 'text-red-400 bg-red-500/10', title: 'Raise Silver tier to $15/mo (RPV up 62%)', desc: 'Audience converting better and can bear a higher price. Adds ~$40/mo to MRR.' },
     { cat: 'EMAIL CAMPAIGN', status: 'Review', statusColor: 'text-crwn-gold bg-crwn-gold/10', title: 'Email fans: 1-on-1 sessions to $100', desc: 'Selling out at $75 with 6 slots left. Draft ready.' },
     { cat: 'DISCOUNT CODE', status: 'Review', statusColor: 'text-crwn-gold bg-crwn-gold/10', title: '20% off code for churned fans', desc: 'Win-back sequence active. Targets 3 fans who canceled on price.' },
   ];

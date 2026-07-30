@@ -36,8 +36,8 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
   starter: {
     maxTracks: 20,
     maxMembers: 100,
-    // Free gets the FULL recommended ladder (3 paid tiers: Inner Circle / The
-    // Vault / Throne) so the Streaming Loss calculator's promise is buildable on
+    // Free gets the FULL recommended ladder (3 paid tiers: Silver / Gold /
+    // Platinum) so the Streaming Loss calculator's promise is buildable on
     // every plan. Pro still wins on the lower fee (12% -> 8%) plus live, DMs,
     // scheduling, clipper, and unlimited tracks/members. Tier COUNT is no longer
     // a paywall: a Free artist earning across 3 tiers pays the higher 12% fee, so

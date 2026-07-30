@@ -34,7 +34,7 @@ const PROMISE_BENEFITS: Record<
 
 const ALLOWED_RECURRENCES: Recurrence[] = ['weekly', 'biweekly', 'monthly', 'quarterly'];
 
-/** A benefit's config can override the default cadence (e.g. Throne's quarterly). */
+/** A benefit's config can override the default cadence (e.g. Platinum's quarterly). */
 function recurrenceFromConfig(config: BenefitInput['config'], fallback: Recurrence): Recurrence {
   const freq = config?.frequency;
   return typeof freq === 'string' && (ALLOWED_RECURRENCES as string[]).includes(freq)

@@ -33,9 +33,9 @@ function seed(overrides: Partial<LeadMagnetSeed>): LeadMagnetSeed {
 }
 
 const WORTH_LADDER = [
-  { name: 'Inner Circle', priceCents: 1000, projectedSubs: 120 },
-  { name: 'The Vault', priceCents: 2500, projectedSubs: 38 },
-  { name: 'Throne', priceCents: 10000, projectedSubs: 14 },
+  { name: 'Silver', priceCents: 1000, projectedSubs: 120 },
+  { name: 'Gold', priceCents: 2500, projectedSubs: 38 },
+  { name: 'Platinum', priceCents: 10000, projectedSubs: 14 },
 ];
 
 describe('buildDraftConfig drafts only real fields and suggests the rest', () => {
@@ -44,10 +44,10 @@ describe('buildDraftConfig drafts only real fields and suggests the rest', () =>
     expect(cfg?.path).toBe('/offers/new');
     // Entry tier only (plan caps Free at 1 live tier) — priced from ladder tier 1, not an average.
     expect(cfg?.prefill.lm_goal).toBe('grow-supporters');
-    expect(cfg?.prefill.lm_tier_name).toBe('Inner Circle');
+    expect(cfg?.prefill.lm_tier_name).toBe('Silver');
     expect(cfg?.prefill.lm_price).toBe('10');
     // The rest of the ladder is a suggestion, never a hidden draft.
-    expect(cfg?.suggest.lm_suggest_ladder).toBe('Inner Circle:10:120|The Vault:25:38|Throne:100:14');
+    expect(cfg?.suggest.lm_suggest_ladder).toBe('Silver:10:120|Gold:25:38|Platinum:100:14');
   });
 
   it('worth with no ladder data still routes, with no fabricated price or ladder', () => {
@@ -59,11 +59,11 @@ describe('buildDraftConfig drafts only real fields and suggests the rest', () =>
 
   it('Vault -> the Vault tier, with a cadence SUGGESTION (no scheduler is drafted)', () => {
     const cfg = buildDraftConfig(
-      seed({ toolSlug: 'vault-revenue-planner', conversionPayload: { tierName: 'The Vault', priceCents: 500 } }),
+      seed({ toolSlug: 'vault-revenue-planner', conversionPayload: { tierName: 'Gold', priceCents: 500 } }),
     );
     expect(cfg?.path).toBe('/offers/new');
     expect(cfg?.prefill.lm_goal).toBe('vault-access');
-    expect(cfg?.prefill.lm_tier_name).toBe('The Vault');
+    expect(cfg?.prefill.lm_tier_name).toBe('Gold');
     expect(cfg?.prefill.lm_price).toBe('5');
     expect(cfg?.suggest.lm_suggest_cadence).toBe('1');
   });
@@ -115,8 +115,8 @@ describe('postSetupDestination + URL serialization', () => {
     expect(dest?.path).toBe('/offers/new');
     expect(dest?.params.lm_prefill).toBe('1');
     expect(dest?.params.lm_result).toBe('r1');
-    expect(dest?.params.lm_tier_name).toBe('Inner Circle');
-    expect(dest?.params.lm_suggest_ladder).toContain('The Vault:25:38');
+    expect(dest?.params.lm_tier_name).toBe('Silver');
+    expect(dest?.params.lm_suggest_ladder).toContain('Gold:25:38');
   });
 
   it('serializes to a relative URL', () => {
@@ -128,10 +128,10 @@ describe('postSetupDestination + URL serialization', () => {
 
 describe('decodeLadder round-trips what the config encodes', () => {
   it('parses name:price:subs segments and tolerates junk', () => {
-    const parsed = decodeLadder('Inner Circle:10:120|The Vault:25:38');
+    const parsed = decodeLadder('Silver:10:120|Gold:25:38');
     expect(parsed).toEqual([
-      { name: 'Inner Circle', price: 10, subs: 120 },
-      { name: 'The Vault', price: 25, subs: 38 },
+      { name: 'Silver', price: 10, subs: 120 },
+      { name: 'Gold', price: 25, subs: 38 },
     ]);
     expect(decodeLadder('')).toEqual([]);
     expect(decodeLadder(null)).toEqual([]);
