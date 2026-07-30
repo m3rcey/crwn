@@ -1,5 +1,17 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 1: the wizard restores the pre-signup plan
+
+Josh specced the full Artist Launch Wizard (restore plan → confirm offers → roadmap → Stripe →
+content → Promise Calendar review → import fans → campaign → preview → publish → launch command
+screen). The staged build plan, mapped stage-by-stage onto existing systems, is
+`docs/ARTIST_LAUNCH_WIZARD.md`. Stage 1 shipped: `/api/lead-results/auto-claim` now returns the
+claimed seed summary (toolName/headline/heroValue/estimatedMonthlyCents), and `/setup` opens with
+a "Your CRWN plan is saved" intro for a brand-new signup with a claimed result (no artist row,
+nothing typed), so signup reads as a continuation of the calculator, not a restart. The
+profiles/artist_profiles policy-repair migration was applied and verified live the same day
+(RLS insert 201, client profiles update 204, role freeze holding, email still revoked). sw.js v311.
+
 ## 2026-07-30 — /welcome retired; identity moved into the setup wizard; profiles UPDATE 42501 fixed
 
 A real incognito signup (joshn.wms+onboardj) hit "Something went wrong saving your info" on

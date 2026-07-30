@@ -56,23 +56,6 @@ responsible for. Do not work those.
       separate `RESEND_OUTREACH_SECRET`). If it is also missing, tell Claude and it will say
       whether that path is in use yet.
 
-- [ ] **Run [`supabase/schema-phase2-fix-profiles-update-permission.sql`](supabase/schema-phase2-fix-profiles-update-permission.sql)
-      in the Supabase SQL Editor.** The profiles column-privileges hardening collided with TWO
-      RLS policies, and both break onboarding with 42501:
-      1. The `profiles` UPDATE policy's WITH CHECK subqueries read the revoked
-         `stripe_connect_id`, so EVERY browser-side profiles save fails (your first
-         "Something went wrong saving your info" alert, tour saves, the profile settings form,
-         dashboard avatar saves).
-      2. The `artist_profiles` INSERT policy's WITH CHECK reads the revoked `is_approved`, so
-         the RLS publish path fails too (your second error, "Something went wrong creating your
-         page", reproduced against production with a throwaway user).
-      The migration moves the profiles column freeze into a trigger, restores ownership RLS, and
-      rebuilds the insert gate on a SECURITY DEFINER helper. **The whole signup wizard already
-      works WITHOUT it** (identity, page creation, and the photo save all moved server-side), but
-      dashboard profile saves and tour saves stay broken until this runs, and **the 7am onboarding
-      canary will correctly email you a red alert every day until it is applied** because the
-      canary tests the RLS insert path this migration repairs.
-
 ### P1 — real risk or real friction, but nothing is on fire
 
 - [ ] **Get the hot-lead text on your phone TODAY: set `FOUNDER_ALERT_SMS_EMAIL` in Vercel.**
@@ -271,7 +254,16 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   1% to 3% conversion regardless of whether the artist has ever sold anything, which under-sells a
   proven seller. Neither blocks anything today.
 
-- **NEXT UP: the Patreon on-ramp, option (b) (decision made 2026-07-30, you delegated it).**
+- **NEXT UP: the Artist Launch Wizard (your 10-phase spec, 2026-07-30).** The full staged build
+  plan lives in [`docs/ARTIST_LAUNCH_WIZARD.md`](docs/ARTIST_LAUNCH_WIZARD.md): nine stages, each
+  mapped to the existing system it reuses. **Stage 1 is live**: a signup with a claimed calculator
+  result now opens the wizard with "Your CRWN plan is saved" and the number they calculated,
+  instead of a cold identity form. Next: Stage 2 (confirm the recommended Bronze/Silver/Gold/
+  Platinum model in-wizard, reusing the Rise Level 3 apply) and Stage 3 (benefit-to-obligation
+  generator + the pre-launch Promise Calendar review with estimated recurring workload). The fan
+  import hub stage folds in the Patreon on-ramp below.
+
+- **The Patreon on-ramp, option (b) (decision made 2026-07-30, you delegated it).**
   A Patreon member CSV import that recognizes Patreon's export columns, imports members with
   their tier and pledge amount, suggests matching CRWN tiers, and sends each member a
   claim-your-membership invite through the (now live) contact-invite path. Chosen over (c)

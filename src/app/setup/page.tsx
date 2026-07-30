@@ -156,6 +156,28 @@ function SetupWizard() {
   });
   const [supporterBusy, setSupporterBusy] = useState(false);
 
+  // Stage 1 of the launch wizard (docs/ARTIST_LAUNCH_WIZARD.md): restore the
+  // plan they built before signup. Auto-claim is idempotent and derives
+  // everything from the session (verified email + signup-carried token), and
+  // returns the claimed calculator summary. The intro renders only for a
+  // brand-new signup (no artist row, nothing typed yet), so a returning artist
+  // resumes the wizard without a detour.
+  const [plan, setPlan] = useState<{
+    toolName: string;
+    headline: string;
+    heroValue: string | null;
+    heroSuffix: string | null;
+    estimatedMonthlyCents: number | null;
+  } | null>(null);
+  const [planIntroSeen, setPlanIntroSeen] = useState(false);
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/lead-results/auto-claim', { method: 'POST' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => setPlan(j?.seed ?? null))
+      .catch(() => {});
+  }, [user]);
+
   // Drafts for the multi-screen item flows (persisted only when the item is created).
   const [tierDraft, setTierDraft] = useState<{ name: string; price: string; benefits: string[] }>({
     name: DEFAULT_TIER_NAME,
@@ -424,6 +446,12 @@ function SetupWizard() {
 
   if (phase === 'share') {
     return <ShareScreen slug={slug} finishing={finishing} onFinish={handleFinish} showToast={showToast} />;
+  }
+
+  // "Welcome them back to their plan": a claimed calculator result greets the
+  // brand-new signup with the number THEY calculated before the first ask.
+  if (!artistId && plan && !planIntroSeen && stepIndex === 0 && identityDraft.name === '') {
+    return <PlanIntro plan={plan} onContinue={() => setPlanIntroSeen(true)} />;
   }
 
   const Icon = current.icon;
@@ -883,6 +911,67 @@ function BenefitPicker({ selected, onChange, done }: { selected: string[]; onCha
         </button>
       </div>
       <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier. Edit anytime in the dashboard.</p>
+    </div>
+  );
+}
+
+function PlanIntro({
+  plan,
+  onContinue,
+}: {
+  plan: {
+    toolName: string;
+    headline: string;
+    heroValue: string | null;
+    heroSuffix: string | null;
+    estimatedMonthlyCents: number | null;
+  };
+  onContinue: () => void;
+}) {
+  const monthly =
+    plan.estimatedMonthlyCents != null && plan.estimatedMonthlyCents > 0
+      ? `$${Math.round(plan.estimatedMonthlyCents / 100).toLocaleString()}`
+      : null;
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg text-center page-fade-in">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
+          <span className="text-4xl">👑</span>
+        </div>
+        <h1 className="text-3xl font-bold text-crwn-text mb-2">Your CRWN plan is saved</h1>
+        <p className="text-crwn-text-secondary mb-8">
+          This is the plan you just built. Every answer carried over. Now let&apos;s get it ready to launch.
+        </p>
+
+        <div className="neu-raised rounded-2xl p-6 mb-8 text-left">
+          <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-2">
+            From your {plan.toolName}
+          </p>
+          {(plan.heroValue || monthly) && (
+            <p className="text-4xl font-bold text-crwn-gold mb-2">
+              {plan.heroValue || monthly}
+              {plan.heroValue && plan.heroSuffix ? (
+                <span className="text-base font-medium text-crwn-text-secondary"> {plan.heroSuffix}</span>
+              ) : null}
+            </p>
+          )}
+          {plan.headline && <p className="text-sm text-crwn-text">{plan.headline}</p>}
+          {monthly && plan.heroValue && (
+            <p className="text-xs text-crwn-text-secondary mt-2">Projected at {monthly}/mo once your system is live.</p>
+          )}
+        </div>
+
+        <button
+          onClick={onContinue}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-8 py-3 rounded-full hover:bg-crwn-gold/90 transition-colors"
+        >
+          Get it launch-ready
+          <ArrowRight className="w-4 h-4" />
+        </button>
+        <p className="text-xs text-crwn-text-secondary mt-4">
+          A few quick steps: your name, your link, your photo. Your plan does the rest.
+        </p>
+      </div>
     </div>
   );
 }

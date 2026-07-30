@@ -68,5 +68,21 @@ export async function POST() {
     }
   }
 
-  return NextResponse.json({ ok: true, claimed });
+  // The claimed plan, display-ready. The setup wizard opens with "Your CRWN plan
+  // is saved" built from this, so signup feels like a continuation of the
+  // calculator instead of a restart (docs/ARTIST_LAUNCH_WIZARD.md, Stage 1).
+  // Only summary fields — the conversionPayload stays server-side until the
+  // post-setup destination restores the builder.
+  const planSeed = seed
+    ? {
+        toolName: seed.toolName,
+        headline: seed.headline,
+        heroValue: seed.heroValue,
+        heroSuffix: seed.heroSuffix,
+        estimatedMonthlyCents: seed.estimatedMonthlyCents,
+        createdAt: seed.createdAt,
+      }
+    : null;
+
+  return NextResponse.json({ ok: true, claimed, seed: planSeed });
 }
