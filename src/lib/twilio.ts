@@ -198,12 +198,16 @@ export async function sendSms(
     const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
     const auth = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64');
 
-    const params = new URLSearchParams({
-      To: to,
-      From: from,
-      Body: body,
-      StatusCallback: 'https://thecrwn.app/api/sms/status',
-    });
+    // 10DLC routing: once an A2P campaign is approved, Twilio recommends sending through the
+    // Messaging Service that carries it rather than a raw From number. When
+    // TWILIO_MESSAGING_SERVICE_SID is set we use it and omit From (they are mutually
+    // exclusive); otherwise nothing changes and we send from the number as before.
+    const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
+    const params = new URLSearchParams(
+      messagingServiceSid
+        ? { To: to, MessagingServiceSid: messagingServiceSid, Body: body, StatusCallback: 'https://thecrwn.app/api/sms/status' }
+        : { To: to, From: from, Body: body, StatusCallback: 'https://thecrwn.app/api/sms/status' },
+    );
 
     // Attach media for MMS
     if (mediaUrl) {

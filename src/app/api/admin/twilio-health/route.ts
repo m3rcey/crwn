@@ -113,6 +113,61 @@ export async function GET(req: NextRequest) {
       : { error: msg.body.message || `HTTP ${msg.status}` };
   }
 
+  // 3b. A2P 10DLC status. US carriers reject business SMS (error 30034) until a brand AND a
+  //     campaign are APPROVED, and until the sending number is attached to the Messaging
+  //     Service that carries the campaign. Registration is not approval, so report both.
+  try {
+    const auth = Buffer.from(`${SID}:${TOKEN}`).toString('base64');
+    const headers = { Authorization: `Basic ${auth}` };
+
+    const brandRes = await fetch('https://messaging.twilio.com/v1/a2p/BrandRegistrations?PageSize=5', {
+      headers,
+      signal: AbortSignal.timeout(8000),
+    });
+    const brandJson = (await brandRes.json().catch(() => ({}))) as Record<string, unknown>;
+    const brands = (brandJson.data as Record<string, unknown>[] | undefined) || [];
+    out.a2pBrands = brands.map((b) => ({ status: b.status, type: b.brand_type, failureReason: b.failure_reason }));
+
+    const svcRes = await fetch('https://messaging.twilio.com/v1/Services?PageSize=20', {
+      headers,
+      signal: AbortSignal.timeout(8000),
+    });
+    const svcJson = (await svcRes.json().catch(() => ({}))) as Record<string, unknown>;
+    const services = (svcJson.services as Record<string, unknown>[] | undefined) || [];
+
+    const svcReports: Record<string, unknown>[] = [];
+    for (const s of services.slice(0, 5)) {
+      const sid = String(s.sid);
+      const [numsRes, compRes] = await Promise.all([
+        fetch(`https://messaging.twilio.com/v1/Services/${sid}/PhoneNumbers?PageSize=50`, { headers, signal: AbortSignal.timeout(8000) }),
+        fetch(`https://messaging.twilio.com/v1/Services/${sid}/Compliance/Usa2p`, { headers, signal: AbortSignal.timeout(8000) }),
+      ]);
+      const numsJson = (await numsRes.json().catch(() => ({}))) as Record<string, unknown>;
+      const compJson = (await compRes.json().catch(() => ({}))) as Record<string, unknown>;
+      const attached = ((numsJson.phone_numbers as Record<string, unknown>[] | undefined) || []).map((p) => p.phone_number);
+      svcReports.push({
+        sid,
+        name: s.friendly_name,
+        campaignStatus: compJson.campaign_status ?? compJson.status ?? 'none',
+        senderAttached: FROM ? attached.includes(FROM) : false,
+      });
+    }
+    out.messagingServices = svcReports;
+
+    const approved = svcReports.find(
+      (s) => String(s.campaignStatus).toUpperCase() === 'VERIFIED' || String(s.campaignStatus).toUpperCase() === 'APPROVED',
+    );
+    out.a2pVerdict = !brands.length
+      ? 'No A2P brand registered yet. US SMS will keep failing with 30034.'
+      : approved
+        ? approved.senderAttached
+          ? `A2P campaign is approved and ${FROM} is attached to Messaging Service ${approved.sid}. US SMS should deliver. Set TWILIO_MESSAGING_SERVICE_SID to ${approved.sid} for the most reliable routing.`
+          : `A2P campaign is approved BUT ${FROM} is NOT attached to Messaging Service ${approved.sid}. Attach it, or SMS keeps failing.`
+        : `A2P brand registered, campaign not approved yet (${svcReports.map((s) => s.campaignStatus).join(', ') || 'no campaign'}). Registration is not approval; US SMS keeps failing with 30034 until it clears.`;
+  } catch {
+    out.a2pVerdict = 'Could not read A2P status from Twilio.';
+  }
+
   // 4. The most recent outbound messages, so a failure is visible without knowing a SID.
   const recent = await twilio(`/2010-04-01/Accounts/${SID}/Messages.json?PageSize=5`);
   const msgs = (recent.body.messages as Record<string, unknown>[] | undefined) || [];

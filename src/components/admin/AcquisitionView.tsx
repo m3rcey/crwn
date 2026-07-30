@@ -259,6 +259,16 @@ export default function AcquisitionView() {
               {smsHealth.error && <p className="text-crwn-error">{String(smsHealth.error)}</p>}
               {smsHealth.verdict && <p className="text-crwn-gold font-medium">{String(smsHealth.verdict)}</p>}
 
+              {smsHealth.a2pVerdict && (
+                <p
+                  className={
+                    String(smsHealth.a2pVerdict).includes('should deliver') ? 'text-green-400' : 'text-orange-400'
+                  }
+                >
+                  {String(smsHealth.a2pVerdict)}
+                </p>
+              )}
+
               {smsHealth.senderCheck && (
                 <p
                   className={
