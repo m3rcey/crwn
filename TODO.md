@@ -57,15 +57,21 @@ responsible for. Do not work those.
       whether that path is in use yet.
 
 - [ ] **Run [`supabase/schema-phase2-fix-profiles-update-permission.sql`](supabase/schema-phase2-fix-profiles-update-permission.sql)
-      in the Supabase SQL Editor.** Since ~2026-07-23 EVERY browser-side save to `profiles` has
-      failed silently with 42501: your incognito signup's "Something went wrong saving your info"
-      alert, the setup wizard's photo save, tour-completion saves, and the profile settings form.
-      Root cause: the `profiles` UPDATE policy's WITH CHECK subqueries read `stripe_connect_id`,
-      which the column-privileges hardening revoked, and one forbidden column kills the whole
-      statement (the exact collision already fixed once on `artist_profiles`). The migration moves
-      the column freeze into a trigger and restores plain ownership RLS. New signups already work
-      again without it (the identity save moved server-side), but the wizard's PHOTO step and every
-      other client-side profile save stay broken until this runs.
+      in the Supabase SQL Editor.** The profiles column-privileges hardening collided with TWO
+      RLS policies, and both break onboarding with 42501:
+      1. The `profiles` UPDATE policy's WITH CHECK subqueries read the revoked
+         `stripe_connect_id`, so EVERY browser-side profiles save fails (your first
+         "Something went wrong saving your info" alert, tour saves, the profile settings form,
+         dashboard avatar saves).
+      2. The `artist_profiles` INSERT policy's WITH CHECK reads the revoked `is_approved`, so
+         the RLS publish path fails too (your second error, "Something went wrong creating your
+         page", reproduced against production with a throwaway user).
+      The migration moves the profiles column freeze into a trigger, restores ownership RLS, and
+      rebuilds the insert gate on a SECURITY DEFINER helper. **The whole signup wizard already
+      works WITHOUT it** (identity, page creation, and the photo save all moved server-side), but
+      dashboard profile saves and tour saves stay broken until this runs, and **the 7am onboarding
+      canary will correctly email you a red alert every day until it is applied** because the
+      canary tests the RLS insert path this migration repairs.
 
 ### P1 — real risk or real friction, but nothing is on fire
 

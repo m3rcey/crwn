@@ -18,10 +18,15 @@ import { welcomeEmail } from '@/lib/emails/welcome';
 //     display_name/onboarding_completed write therefore happens here with the
 //     service-role client. Auth is enforced explicitly below — the admin client
 //     bypasses RLS and middleware skips /api routes.
-//  2. The artist_profiles INSERT deliberately stays on the USER-SESSION client:
-//     that RLS insert is the exact path the daily onboarding canary
-//     (/api/cron/onboarding-health) guards, and it fires trg_promote_to_artist
-//     (fan -> artist promotion is server-side; the client must never write role).
+//  2. The artist_profiles INSERT also uses the service-role client. It was
+//     originally left on the user session to keep the canary-guarded RLS path
+//     real, but that path is broken by the SAME collision: the "Gated artist
+//     profile insert" policy's WITH CHECK subquery reads profiles.is_approved,
+//     a revoked column, so the RLS insert 42501s (reproduced against production
+//     2026-07-30). schema-phase2-fix-profiles-update-permission.sql repairs the
+//     policy; the daily canary still exercises the RLS path and will alert
+//     until it runs. Ownership is enforced here (user_id is ALWAYS the session
+//     user), and trg_promote_to_artist fires on the admin insert all the same.
 export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -109,10 +114,10 @@ export async function POST(request: NextRequest) {
       acquisitionSource = recruiter?.is_partner ? 'partner' : 'recruiter';
     }
 
-    // USER-SESSION insert on purpose — see the header comment. This is done
-    // BEFORE the profiles update so a taken handle fails clean: nothing written,
-    // the wizard stays on the link screen, the artist retries.
-    const { data: newArtist, error: insertError } = await supabase
+    // Admin insert — see the header comment. This is done BEFORE the profiles
+    // update so a taken handle fails clean: nothing written, the wizard stays
+    // on the link screen, the artist retries.
+    const { data: newArtist, error: insertError } = await supabaseAdmin
       .from('artist_profiles')
       .insert({
         user_id: user.id,

@@ -67,10 +67,16 @@ export function OnboardingAvatarStep({
         return;
       }
       const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-      const { error: saveError } = await withTimeout(
-        supabase.from('profiles').update({ avatar_url: data.publicUrl }).eq('id', user.id)
+      // Server-side save: a direct client-side profiles.update 42501s until the
+      // profiles-update-permission migration runs (see /api/onboarding/avatar).
+      const res = await withTimeout(
+        fetch('/api/onboarding/avatar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avatarUrl: data.publicUrl }),
+        })
       );
-      if (saveError) {
+      if (!res.ok) {
         showToast('Could not save your photo. Please try again.', 'error');
         setBusy(false);
         return;

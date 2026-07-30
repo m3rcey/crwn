@@ -13,6 +13,19 @@ is_active/stripe_connect_id/role freeze into a BEFORE UPDATE trigger (with an ex
 trg_promote_to_artist fan→artist promotion) and restores plain-ownership RLS. **Migration
 pending Josh** (TODO.md P0).
 
+Follow-up the same day: Josh's retest failed on the LINK screen ("Something went wrong creating
+your page"). Second policy, same collision: the "Gated artist profile insert" policy on
+artist_profiles subqueries the revoked `profiles.is_approved`, so the RLS INSERT 42501s
+(reproduced against production with a throwaway user; permissions on policy subqueries are
+checked at executor startup, so the artist_gate_enabled() short-circuit does not help). Fixes:
+the identity route's artist_profiles insert moved to the admin client (ownership still enforced,
+trg_promote_to_artist still fires), the wizard's photo save moved server-side too
+(`POST /api/onboarding/avatar`, URL restricted to the caller's own avatars folder), and the
+migration was extended to rebuild the INSERT gate on a SECURITY DEFINER helper
+(`user_passes_artist_gate`). The full RLS surface of onboarding was probed live with a throwaway
+user: tier, track, and product inserts and the avatars/audio storage uploads all pass; the daily
+canary will alarm (correctly) until the migration runs. sw.js v310.
+
 Independently of the migration, onboarding was restructured per Josh's ask: the /welcome page is
 retired (route now redirects to /setup). The wizard gained two leading identity screens
 (artist-name with a "Continue as a supporter" escape, artist-link), saved server-side by

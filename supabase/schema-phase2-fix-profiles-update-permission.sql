@@ -95,6 +95,44 @@ CREATE POLICY "Users can update own profile"
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- SAME COLLISION, THIRD INSTANCE: the "Gated artist profile insert" policy on
+-- artist_profiles subqueries profiles.is_approved (revoked), so the RLS INSERT
+-- 42501s for every authenticated user — reproduced against production
+-- 2026-07-30 with a throwaway user ("permission denied for table profiles").
+-- Postgres checks permissions for ALL tables a policy references at executor
+-- startup, so the artist_gate_enabled() short-circuit does not save it.
+-- Fix: read the approval flag through a SECURITY DEFINER helper, which runs
+-- with the function owner's privileges and never hits the column wall.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION public.user_passes_artist_gate(p_user uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM profiles p
+    WHERE p.id = p_user
+      AND (p.is_approved = true OR p.role = 'admin')
+  );
+$$;
+REVOKE ALL ON FUNCTION public.user_passes_artist_gate(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.user_passes_artist_gate(uuid) TO authenticated, anon, service_role;
+
+DROP POLICY IF EXISTS "Gated artist profile insert" ON public.artist_profiles;
+CREATE POLICY "Gated artist profile insert"
+  ON public.artist_profiles FOR INSERT
+  WITH CHECK (
+    auth.uid() = user_id
+    AND (
+      NOT artist_gate_enabled()
+      OR public.user_passes_artist_gate(auth.uid())
+    )
+  );
+
 COMMIT;
 
 -- ============================================================
@@ -145,5 +183,30 @@ BEGIN
     RAISE EXCEPTION 'MIGRATION FAILED: trg_promote_to_artist is missing (role promotion would be dead)';
   END IF;
 
-  RAISE NOTICE 'schema-phase2-fix-profiles-update-permission: OK (profiles updates work again; is_active/stripe_connect_id/role frozen in trigger)';
+  -- The artist-gate helper must exist, and the INSERT policy must no longer
+  -- subquery profiles directly (that inline subquery IS the 42501).
+  IF to_regprocedure('public.user_passes_artist_gate(uuid)') IS NULL THEN
+    RAISE EXCEPTION 'MIGRATION FAILED: user_passes_artist_gate(uuid) is missing';
+  END IF;
+  SELECT count(*) INTO n
+    FROM pg_policies
+   WHERE schemaname = 'public'
+     AND tablename = 'artist_profiles'
+     AND cmd = 'INSERT'
+     AND coalesce(with_check, '') LIKE '%is_approved%';
+  IF n <> 0 THEN
+    RAISE EXCEPTION 'MIGRATION FAILED: an INSERT policy still reads profiles.is_approved inline (%)', n;
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+     WHERE schemaname = 'public'
+       AND tablename = 'artist_profiles'
+       AND cmd = 'INSERT'
+       AND policyname = 'Gated artist profile insert'
+       AND coalesce(with_check, '') LIKE '%user_passes_artist_gate%'
+  ) THEN
+    RAISE EXCEPTION 'MIGRATION FAILED: gated INSERT policy missing or not using the SECURITY DEFINER helper';
+  END IF;
+
+  RAISE NOTICE 'schema-phase2-fix-profiles-update-permission: OK (profiles updates + RLS artist publish work again; protected cols frozen in trigger)';
 END $$;
