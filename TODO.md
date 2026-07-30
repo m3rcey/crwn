@@ -77,21 +77,26 @@ responsible for. Do not work those.
       3. Tell Claude "the SMS gateway is set" and it will redeploy and fire a real test.
       Delete this variable once A2P registration completes, so alerts go back to real SMS.
 
-- [ ] **Wait for A2P 10DLC APPROVAL, then check one button.** You registered on 2026-07-30. A
-      delivery test right afterwards still came back `undelivered / 30034`, which is expected:
-      **registering is not the same as being approved.** Sole-proprietor campaigns usually clear
-      in about a day; standard brands can take several. Nothing more to do in Twilio meanwhile.
+- [ ] **A2P 10DLC is fully registered and now waiting on carrier vetting. Nothing to do in
+      Twilio.** Completed 2026-07-30: Customer Profile, A2P Brand, A2P Campaign, and the phone
+      number (+1 314 557 3549, correctly the one CRWN sends from) are all submitted. A delivery
+      test immediately afterwards still returned `undelivered / 30034`, which is expected:
+      **submitting is not the same as being vetted.** Sole-proprietor campaigns usually clear
+      within a few hours to a business day.
 
-      To check progress yourself: `/admin` → **Acquisition** → **Calls** → **Check SMS health**.
-      It now reports your A2P brand and campaign status in plain English, and whether
-      +1 314 557 3549 is attached to the Messaging Service carrying the campaign (approval alone
-      is not enough if the number is not attached). When it says SMS should deliver, tell Claude
-      and it will run a real delivery test to confirm.
+      **When you want to check:** `/admin` → **Acquisition** → **Calls** → **Check SMS health**.
+      It reports the campaign status in plain English and whether the number is attached to the
+      Messaging Service carrying the campaign (an approved campaign with an unattached number
+      still fails, so both are shown).
 
-      If that panel reports an approved campaign, also set `TWILIO_MESSAGING_SERVICE_SID` in
-      Vercel to the Messaging Service id it names. The code already prefers that route when the
-      variable exists, which is Twilio's recommended way to send 10DLC traffic; without it,
-      sending from the raw number can still be filtered.
+      **When it clears, two steps:** the panel names the Messaging Service id (starts with `MG`).
+      Add it in Vercel as `TWILIO_MESSAGING_SERVICE_SID`, then tell Claude, which will redeploy
+      and run a real delivery test to confirm your phone rings. The code already prefers that
+      route when the variable exists; it is Twilio's recommended path for 10DLC traffic.
+
+      **If you want a text before vetting clears**, set `FOUNDER_ALERT_SMS_EMAIL` (see the
+      carrier-gateway item above). Otherwise the alerts keep arriving by email, so no hot lead
+      is missed while you wait.
 
 - [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
       Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,
