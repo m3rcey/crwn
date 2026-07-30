@@ -76,5 +76,44 @@ export async function POST(req: NextRequest) {
       .eq('twilio_message_sid', messageSid);
   }
 
+  // Hot-lead founder alerts record their own delivery outcome.
+  //
+  // Twilio ACCEPTING a message (we get a SID) is not the same fact as a phone ringing, and that
+  // gap cost a long debugging session: the alert row said "sent" while the carrier had silently
+  // dropped it. Writing the terminal status back onto the alert makes the difference visible in
+  // the admin panel instead of requiring a Twilio console dive.
+  if (messageStatus === 'delivered' || messageStatus === 'undelivered' || messageStatus === 'failed') {
+    try {
+      const { data: rows } = await supabaseAdmin
+        .from('acquisition_events')
+        .select('id, response_snapshot')
+        .eq('event_name', 'hot_lead_call_requested')
+        .filter('response_snapshot->alert->>sid', 'eq', messageSid)
+        .limit(1);
+
+      const row = rows?.[0];
+      if (row) {
+        const snap = (row.response_snapshot ?? {}) as Record<string, unknown>;
+        const alert = (snap.alert ?? {}) as Record<string, unknown>;
+        await supabaseAdmin
+          .from('acquisition_events')
+          .update({
+            response_snapshot: {
+              ...snap,
+              alert: {
+                ...alert,
+                deliveryStatus: messageStatus,
+                deliveryErrorCode: params.ErrorCode || null,
+                deliveredAt: new Date().toISOString(),
+              },
+            },
+          })
+          .eq('id', row.id);
+      }
+    } catch {
+      // Delivery bookkeeping must never break Twilio's callback handling.
+    }
+  }
+
   return new NextResponse('', { status: 200 });
 }
