@@ -138,7 +138,10 @@ export const RECOMMENDED_LADDER: TierTemplateDef[] = [
         workload: 'moderate',
         structured: {
           benefit_type: 'exclusive_posts',
-          config: { frequency: 'monthly', obligation_title: 'Monthly Vault unlock' },
+          // serves_higher_tiers makes "Everything in Gold" real for this promise:
+          // the ONE obligation also serves every tier above Gold (Platinum), via
+          // metadata.serves_tier_ids (promisePlan.ts / tierObligations.ts).
+          config: { frequency: 'monthly', obligation_title: 'Monthly Vault unlock', serves_higher_tiers: true },
         },
         fulfillment: {
           frequency: 'monthly',

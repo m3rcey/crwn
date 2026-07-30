@@ -6,9 +6,32 @@
 // Called from /api/tier-benefits POST (which replaces a tier's benefits). Best-
 // effort — must never break benefit saving. Uses the caller's RLS client: the
 // artist owns their tiers and obligations, so inserts satisfy the WITH CHECK.
+//
+// Launch Wizard Stage 3 rules (docs/ARTIST_LAUNCH_WIZARD.md): the pure decisions
+// (what counts as a promise, cadence/title/first-due from config, multi-tier
+// serve lists) live in promisePlan.ts and are shared with the wizard's review
+// screen, so what the artist reviews is exactly what this creates.
+//  - DEDUP: the same promise (benefit_type + title) on a second tier merges into
+//    the ONE existing obligation (metadata.merged_tier_ids) instead of duplicating.
+//  - INHERITANCE: a benefit whose config carries serves_higher_tiers also serves
+//    every active tier priced above its anchor (metadata.serves_tier_ids, which
+//    fan eligibility reads). Refreshed on every sync so ladder rungs created in
+//    any order converge.
+//  - FIRST DUE: config.first_due_at (the wizard's review screen) pins the first
+//    event date; otherwise a week of runway.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { computeNextDue, type Recurrence } from '@/lib/fulfillment';
+import { computeNextDue } from '@/lib/fulfillment';
+import {
+  PROMISE_BENEFITS,
+  recurrenceFromConfig,
+  titleFromConfig,
+  firstDueFromConfig,
+  defaultFirstDue,
+  computeServesTierIds,
+  mergedTierIdsOf,
+  servesTierIdsOf,
+} from '@/lib/promisePlan';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Client = SupabaseClient<any, any, any>;
@@ -19,47 +42,34 @@ export interface BenefitInput {
   config?: Record<string, unknown> | null;
 }
 
-// Only benefits that imply a RECURRING ARTIST ACTION become promises. Access /
-// passive perks (early_access, direct_messaging, shop_discount, badges, …) are
-// not scheduled fulfillment and are intentionally absent.
-const PROMISE_BENEFITS: Record<
-  string,
-  { fulfillmentType: string; recurrence: Recurrence; title: string }
-> = {
-  group_live_qa: { fulfillmentType: 'livestream', recurrence: 'monthly', title: 'Group live Q&A' },
-  one_on_one_call: { fulfillmentType: 'event', recurrence: 'monthly', title: '1-on-1 call' },
-  monthly_merch: { fulfillmentType: 'shipment', recurrence: 'monthly', title: 'Monthly merch' },
-  exclusive_posts: { fulfillmentType: 'content_drop', recurrence: 'monthly', title: 'Supporter-only post' },
-};
-
-const ALLOWED_RECURRENCES: Recurrence[] = ['weekly', 'biweekly', 'monthly', 'quarterly'];
-
-/** A benefit's config can override the default cadence (e.g. Platinum's quarterly). */
-function recurrenceFromConfig(config: BenefitInput['config'], fallback: Recurrence): Recurrence {
-  const freq = config?.frequency;
-  return typeof freq === 'string' && (ALLOWED_RECURRENCES as string[]).includes(freq)
-    ? (freq as Recurrence)
-    : fallback;
+interface ObligationRow {
+  id: string;
+  benefit_type: string | null;
+  status: string;
+  source_tier_id: string | null;
+  title: string;
+  metadata: Record<string, unknown> | null;
 }
 
-/** A benefit's config can give the obligation a specific, artist-facing title. */
-function titleFromConfig(config: BenefitInput['config'], fallback: string): string {
-  const t = config?.obligation_title;
-  return typeof t === 'string' && t.trim() ? t.trim() : fallback;
-}
+/** The dedup identity: the same promise on two tiers is the same obligation. */
+const identityOf = (benefitType: string, title: string) => `${benefitType}:${title.trim().toLowerCase()}`;
 
 /**
  * Reconcile a tier's promise obligations against its current benefit list:
  *   • create an obligation (+ first event) for each new promise-worthy benefit,
- *   • archive obligations whose benefit was removed.
+ *   • merge instead of create when another tier already carries the same promise,
+ *   • archive (or re-anchor) obligations whose benefit was removed,
+ *   • refresh inherited multi-tier serve lists.
  * Idempotent per (tier_id, benefit_type). Never touches VIP-welcome obligations
  * (those carry a null benefit_type). Returns a small summary for logging.
  */
 export async function syncTierObligations(
   supabase: Client,
   args: { tierId: string; artistId: string; benefits: BenefitInput[] },
-): Promise<{ created: number; archived: number }> {
+): Promise<{ created: number; archived: number; merged: number }> {
   const { tierId, artistId, benefits } = args;
+  const nowIso = new Date().toISOString();
+
   // Keep the first occurrence of each promise-worthy benefit type (config and all).
   const wantedByType = new Map<string, BenefitInput>();
   for (const b of benefits) {
@@ -67,44 +77,112 @@ export async function syncTierObligations(
       wantedByType.set(b.benefit_type, b);
     }
   }
-  const wanted = [...wantedByType.keys()];
-  const wantedSet = new Set(wanted);
+  const wantedSet = new Set(wantedByType.keys());
+  const wantedIdentities = new Set(
+    [...wantedByType.entries()].map(([type, b]) =>
+      identityOf(type, titleFromConfig(b.config ?? null, PROMISE_BENEFITS[type].title)),
+    ),
+  );
+
+  // The artist's active tiers (for inheritance) and ALL their tier-sourced promise
+  // obligations (this tier's for create/archive, the rest for dedup + inheritance).
+  const { data: tiers } = await supabase
+    .from('subscription_tiers')
+    .select('id, price, is_active')
+    .eq('artist_id', artistId);
+  const activeTiers = (tiers || [])
+    .filter((t: { is_active?: boolean | null }) => t.is_active !== false)
+    .map((t: { id: string; price: number | null }) => ({ id: t.id, price: t.price ?? 0 }));
+  const priceOf = (id: string | null) => activeTiers.find((t) => t.id === id)?.price ?? 0;
+
+  const { data: existing } = await supabase
+    .from('fulfillment_obligations')
+    .select('id, benefit_type, status, source_tier_id, title, metadata')
+    .eq('artist_id', artistId)
+    .eq('source_type', 'tier')
+    .not('benefit_type', 'is', null);
+  const all = (existing || []) as ObligationRow[];
+  const anchoredHere = all.filter((o) => o.source_tier_id === tierId);
+  const anchoredHereByType = new Map(anchoredHere.map((o) => [o.benefit_type as string, o]));
 
   let created = 0;
   let archived = 0;
+  let merged = 0;
 
-  // Existing promise obligations for this tier (only ones with a benefit_type —
-  // leaves VIP-welcome and other manual obligations alone).
-  const { data: existing } = await supabase
-    .from('fulfillment_obligations')
-    .select('id, benefit_type, status')
-    .eq('source_tier_id', tierId)
-    .not('benefit_type', 'is', null);
-  const existingByType = new Map<string, { id: string; status: string }>();
-  for (const o of existing || []) {
-    if (o.benefit_type) existingByType.set(o.benefit_type, { id: o.id, status: o.status });
-  }
+  const updateMeta = async (o: ObligationRow, patch: Record<string, unknown>) => {
+    const metadata = { ...(o.metadata ?? {}), ...patch };
+    await supabase
+      .from('fulfillment_obligations')
+      .update({ metadata, updated_at: nowIso })
+      .eq('id', o.id);
+    o.metadata = metadata;
+  };
 
-  // Create for newly-added promise benefits.
-  for (const benefitType of wanted) {
-    const found = existingByType.get(benefitType);
-    if (found) {
+  const recomputeServes = async (o: ObligationRow) => {
+    const inheritsUp = (o.metadata ?? {}).inherits_up === true;
+    const serves = computeServesTierIds({
+      anchorTierId: o.source_tier_id ?? '',
+      anchorPriceCents: priceOf(o.source_tier_id),
+      inheritsUp,
+      mergedTierIds: mergedTierIdsOf(o.metadata),
+      activeTiers,
+    });
+    const current = servesTierIdsOf(o.metadata);
+    if (serves.length !== current.length || serves.some((id) => !current.includes(id))) {
+      await updateMeta(o, { serves_tier_ids: serves });
+    }
+  };
+
+  // Create (or merge into) obligations for the wanted promise benefits.
+  for (const [benefitType, benefit] of wantedByType) {
+    const config = benefit.config ?? null;
+    const def = PROMISE_BENEFITS[benefitType];
+    const title = titleFromConfig(config, def.title);
+
+    const anchored = anchoredHereByType.get(benefitType);
+    if (anchored) {
       // Re-activate if it was previously archived (benefit re-added).
-      if (found.status === 'archived') {
+      if (anchored.status === 'archived') {
         await supabase
           .from('fulfillment_obligations')
-          .update({ status: 'active', updated_at: new Date().toISOString() })
-          .eq('id', found.id);
+          .update({ status: 'active', updated_at: nowIso })
+          .eq('id', anchored.id);
+        anchored.status = 'active';
       }
       continue;
     }
-    const def = PROMISE_BENEFITS[benefitType];
-    const config = wantedByType.get(benefitType)?.config ?? null;
+
+    // DEDUP: the same promise already lives on another tier — serve this tier
+    // from the ONE existing obligation instead of creating a duplicate.
+    const elsewhere = all.find(
+      (o) =>
+        o.status === 'active' &&
+        o.source_tier_id !== tierId &&
+        o.benefit_type === benefitType &&
+        identityOf(benefitType, o.title) === identityOf(benefitType, title),
+    );
+    if (elsewhere) {
+      const mergedIds = new Set(mergedTierIdsOf(elsewhere.metadata));
+      if (!mergedIds.has(tierId)) {
+        mergedIds.add(tierId);
+        await updateMeta(elsewhere, { merged_tier_ids: [...mergedIds] });
+        merged += 1;
+      }
+      await recomputeServes(elsewhere);
+      continue;
+    }
+
     const recurrence = recurrenceFromConfig(config, def.recurrence);
-    const title = titleFromConfig(config, def.title);
-    const firstDue = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // a week of runway
-    firstDue.setHours(12, 0, 0, 0);
+    const inheritsUp = (config as Record<string, unknown> | null)?.serves_higher_tiers === true;
+    const firstDue = firstDueFromConfig(config) ?? defaultFirstDue(new Date());
     const following = computeNextDue(recurrence, firstDue);
+    const serves = computeServesTierIds({
+      anchorTierId: tierId,
+      anchorPriceCents: priceOf(tierId),
+      inheritsUp,
+      mergedTierIds: [],
+      activeTiers,
+    });
 
     const { data: obligation } = await supabase
       .from('fulfillment_obligations')
@@ -122,13 +200,25 @@ export async function syncTierObligations(
         audience_id: tierId,
         requires_completion: true,
         auto_create_fan_items: true,
-        metadata: { source: 'tier_benefit_sync' },
+        metadata: {
+          source: 'tier_benefit_sync',
+          ...(inheritsUp ? { inherits_up: true } : {}),
+          ...(serves.length ? { serves_tier_ids: serves } : {}),
+        },
       })
       .select('id')
       .single();
 
     if (obligation) {
       created += 1;
+      all.push({
+        id: obligation.id,
+        benefit_type: benefitType,
+        status: 'active',
+        source_tier_id: tierId,
+        title,
+        metadata: { source: 'tier_benefit_sync', ...(inheritsUp ? { inherits_up: true } : {}), serves_tier_ids: serves },
+      });
       await supabase.from('fulfillment_events').insert({
         obligation_id: obligation.id,
         artist_id: artistId,
@@ -139,22 +229,59 @@ export async function syncTierObligations(
     }
   }
 
-  // Archive obligations whose benefit was removed from the tier.
-  for (const [benefitType, o] of existingByType) {
-    if (!wantedSet.has(benefitType) && o.status !== 'archived') {
+  // Removal pass 1: obligations ANCHORED here whose benefit was removed.
+  for (const o of anchoredHere) {
+    if (!o.benefit_type || wantedSet.has(o.benefit_type) || o.status === 'archived') continue;
+    const mergedIds = mergedTierIdsOf(o.metadata).filter((id) => id !== tierId);
+    const nextAnchor = mergedIds.find((id) => activeTiers.some((t) => t.id === id));
+    if (nextAnchor) {
+      // Other tiers still carry this promise: re-anchor instead of archiving, so
+      // their members keep what they were promised.
       await supabase
         .from('fulfillment_obligations')
-        .update({ status: 'archived', updated_at: new Date().toISOString() })
+        .update({
+          source_tier_id: nextAnchor,
+          audience_id: nextAnchor,
+          metadata: { ...(o.metadata ?? {}), merged_tier_ids: mergedIds.filter((id) => id !== nextAnchor) },
+          updated_at: nowIso,
+        })
         .eq('id', o.id);
-      // Cancel its still-pending events so they drop off the calendar.
-      await supabase
-        .from('fulfillment_events')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-        .eq('obligation_id', o.id)
-        .eq('status', 'pending');
-      archived += 1;
+      o.source_tier_id = nextAnchor;
+      o.metadata = { ...(o.metadata ?? {}), merged_tier_ids: mergedIds.filter((id) => id !== nextAnchor) };
+      await recomputeServes(o);
+      continue;
     }
+    await supabase
+      .from('fulfillment_obligations')
+      .update({ status: 'archived', updated_at: nowIso })
+      .eq('id', o.id);
+    o.status = 'archived';
+    // Cancel its still-pending events so they drop off the calendar.
+    await supabase
+      .from('fulfillment_events')
+      .update({ status: 'cancelled', updated_at: nowIso })
+      .eq('obligation_id', o.id)
+      .eq('status', 'pending');
+    archived += 1;
   }
 
-  return { created, archived };
+  // Removal pass 2: obligations anchored ELSEWHERE that served this tier via a
+  // merge, where this tier no longer carries the promise.
+  for (const o of all) {
+    if (o.source_tier_id === tierId || o.status !== 'active' || !o.benefit_type) continue;
+    if (!mergedTierIdsOf(o.metadata).includes(tierId)) continue;
+    if (wantedIdentities.has(identityOf(o.benefit_type, o.title))) continue;
+    await updateMeta(o, { merged_tier_ids: mergedTierIdsOf(o.metadata).filter((id) => id !== tierId) });
+    await recomputeServes(o);
+  }
+
+  // Inheritance refresh: serve lists depend on which tiers exist ABOVE each
+  // anchor, so any tier change can shift them (the wizard creates Gold before
+  // Platinum; Platinum's sync is what adds it to Gold's serve list).
+  for (const o of all) {
+    if (o.status !== 'active') continue;
+    if ((o.metadata ?? {}).inherits_up === true) await recomputeServes(o);
+  }
+
+  return { created, archived, merged };
 }

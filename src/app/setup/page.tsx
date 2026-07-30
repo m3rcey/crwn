@@ -16,6 +16,7 @@ import {
   PartyPopper,
   User,
   Link2,
+  CalendarCheck,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useArtistSetup, SetupStepKey, ArtistSetupState } from '@/hooks/useArtistSetup';
@@ -30,6 +31,17 @@ import {
 } from '@/lib/onboardingItems';
 import { RECOMMENDED_LADDER, benefitLabels, tierNameAliases } from '@/lib/tierTemplate';
 import { applyTemplateTier } from '@/lib/applyTierTemplate';
+import {
+  planLadderPromises,
+  estimateMonthlyWorkload,
+  workloadLabel,
+  projectedBuyersFor,
+  ALLOWED_RECURRENCES,
+  type PlannedPromise,
+  type TierProjection,
+} from '@/lib/promisePlan';
+import { RECURRENCE_LABEL, type Recurrence } from '@/lib/fulfillment';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import { getAnonId } from '@/lib/experiments/anonId';
 import { slugify } from '@/lib/slugify';
 import { isEmailLike } from '@/lib/publicName';
@@ -40,6 +52,7 @@ type ScreenKey =
   | 'artist-link'
   | 'photo'
   | 'ladder'
+  | 'promises'
   | 'track-audio'
   | 'track-title'
   | 'product-type'
@@ -66,8 +79,11 @@ const SCREENS: ScreenDef[] = [
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
   // Launch Wizard Stage 2 (docs/ARTIST_LAUNCH_WIZARD.md): confirm the recommended
   // model instead of hand-building one free tier. Same apply path as Rise Level 3,
-  // so the Promise Calendar obligations seed here too.
-  { key: 'ladder', group: 'monetize', groupRequired: false, title: 'Confirm your membership ladder', subtitle: 'The proven four-tier model: a free front door plus three paid tiers. Adjust a price or drop a tier. Everything is editable later.', icon: CreditCard, create: 'ladder' },
+  // so the Promise Calendar obligations seed here too. Stage 3 split the decision
+  // in two: confirm the MODEL (ladder), then confirm the WORKLOAD (promises) —
+  // the create runs on the promises screen so cadence/date edits ride along.
+  { key: 'ladder', group: 'monetize', groupRequired: false, title: 'Confirm your membership ladder', subtitle: 'The proven four-tier model: a free front door plus three paid tiers. Adjust a price or drop a tier. Everything is editable later.', icon: CreditCard },
+  { key: 'promises', group: 'monetize', groupRequired: false, title: 'Review your promise schedule', subtitle: 'The only recurring commitments this ladder creates. Set the cadence and the first date. They land on your Promise Calendar so nothing slips.', icon: CalendarCheck, create: 'ladder' },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -85,6 +101,7 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
     case 'photo':
       return setup.hasAvatar;
     case 'ladder':
+    case 'promises':
       return setup.hasTier;
     case 'track-audio':
     case 'track-title':
@@ -114,6 +131,33 @@ const buildLadderDraft = (): LadderDraft =>
   Object.fromEntries(
     RECOMMENDED_LADDER.map((r) => [r.key, { include: true, priceDollars: (r.priceCents / 100).toString() }]),
   );
+
+// Launch Wizard Stage 3: the promise-review screen's adjustments, keyed by the
+// planned promise key. Dates are YYYY-MM-DD (native date input).
+type PromiseDraft = Record<string, { recurrence: Recurrence; firstDueDate: string }>;
+
+const toDateInputValue = (d: Date): string => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+/** Default first date: a week of runway, matching the server's fallback. */
+const defaultPromiseDate = (): string => toDateInputValue(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+const isValidPromiseDate = (v: string): boolean => !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
+
+/** The promises the CONFIRMED ladder draft will create (dedup + inheritance applied). */
+const planFromDraft = (draft: LadderDraft): PlannedPromise[] =>
+  planLadderPromises(
+    RECOMMENDED_LADDER.map((def) => ({
+      def,
+      included: def.priceCents === 0 || (draft[def.key]?.include ?? true),
+    })),
+  );
+
+/** The (possibly adjusted) cadence + first date for a planned promise. */
+const promiseSettings = (p: PlannedPromise, draft: PromiseDraft) => ({
+  recurrence: draft[p.key]?.recurrence ?? p.defaultRecurrence,
+  firstDueDate: draft[p.key]?.firstDueDate ?? defaultPromiseDate(),
+});
 
 function SetupWizard() {
   const router = useRouter();
@@ -160,6 +204,8 @@ function SetupWizard() {
     heroValue: string | null;
     heroSuffix: string | null;
     estimatedMonthlyCents: number | null;
+    /** Per-tier buyer counts THEIR calculator modeled (Stage 3 attribution). */
+    tierProjections?: TierProjection[];
   } | null>(null);
   const [planIntroSeen, setPlanIntroSeen] = useState(false);
   useEffect(() => {
@@ -172,6 +218,9 @@ function SetupWizard() {
 
   // Drafts for the multi-screen item flows (persisted only when the item is created).
   const [ladderDraft, setLadderDraft] = useState<LadderDraft>(buildLadderDraft);
+  // Cadence + first-date adjustments from the promise-review screen, keyed by the
+  // planned promise's key. Missing entries fall back to the plan's defaults.
+  const [promiseDraft, setPromiseDraft] = useState<PromiseDraft>({});
   const [trackDraft, setTrackDraft] = useState<{ audioFile: File | null; title: string }>({ audioFile: null, title: '' });
   const [productDraft, setProductDraft] = useState<{ type: ProductType; title: string; price: '' | string }>({
     type: 'digital',
@@ -246,6 +295,11 @@ function SetupWizard() {
         // Bronze always applies; every included paid rung needs a valid price.
         return RECOMMENDED_LADDER.every(
           (r) => r.priceCents === 0 || !ladderDraft[r.key]?.include || isValidPrice(ladderDraft[r.key].priceDollars),
+        );
+      case 'promises':
+        // Defaults are always valid; only a hand-cleared date blocks Continue.
+        return planFromDraft(ladderDraft).every((p) =>
+          isValidPromiseDate(promiseSettings(p, promiseDraft).firstDueDate),
         );
       case 'track-audio':
         return !!trackDraft.audioFile && trackTermsAgreed;
@@ -352,12 +406,24 @@ function SetupWizard() {
         .select('name')
         .eq('artist_id', artistId);
       const existingNames = new Set((existing ?? []).map((t: { name: string }) => t.name.trim().toLowerCase()));
+      // The promise-review screen's cadence/date adjustments ride each rung's
+      // benefit configs into the ONE shared apply path (Stage 3).
+      const planned = planFromDraft(ladderDraft);
       for (const rung of RECOMMENDED_LADDER) {
         const draft = ladderDraft[rung.key];
         const isPaid = rung.priceCents > 0;
         if (isPaid && draft && !draft.include) continue; // Bronze always applies
         if (tierNameAliases(rung).some((n) => existingNames.has(n))) continue;
         const priceCents = isPaid ? Math.round((parseFloat(draft?.priceDollars ?? '') || 0) * 100) : 0;
+        const overrides: Record<string, Record<string, unknown>> = {};
+        for (const p of planned) {
+          if (p.tierKey !== rung.key) continue;
+          const s = promiseSettings(p, promiseDraft);
+          overrides[p.benefitType] = {
+            frequency: s.recurrence,
+            first_due_at: new Date(`${s.firstDueDate}T12:00:00`).toISOString(),
+          };
+        }
         const { error } = await applyTemplateTier(supabase, {
           artistId,
           stripeConnected,
@@ -366,6 +432,7 @@ function SetupWizard() {
           priceCents,
           description: rung.description,
           benefits: benefitLabels(rung),
+          benefitConfigOverrides: overrides,
         });
         if (error) return `Could not add the ${rung.name} tier. Please try again.`;
       }
@@ -545,6 +612,10 @@ function SetupWizard() {
             avatarUrl={avatarUrl}
             ladderDraft={ladderDraft}
             setLadderDraft={setLadderDraft}
+            promiseDraft={promiseDraft}
+            setPromiseDraft={setPromiseDraft}
+            tierProjections={plan?.tierProjections ?? []}
+            toolName={plan?.toolName ?? null}
             trackDraft={trackDraft}
             setTrackDraft={setTrackDraft}
             trackTermsAgreed={trackTermsAgreed}
@@ -616,6 +687,10 @@ function FieldBody({
   avatarUrl,
   ladderDraft,
   setLadderDraft,
+  promiseDraft,
+  setPromiseDraft,
+  tierProjections,
+  toolName,
   trackDraft,
   setTrackDraft,
   trackTermsAgreed,
@@ -634,6 +709,10 @@ function FieldBody({
   avatarUrl: string;
   ladderDraft: LadderDraft;
   setLadderDraft: React.Dispatch<React.SetStateAction<LadderDraft>>;
+  promiseDraft: PromiseDraft;
+  setPromiseDraft: React.Dispatch<React.SetStateAction<PromiseDraft>>;
+  tierProjections: TierProjection[];
+  toolName: string | null;
   trackDraft: { audioFile: File | null; title: string };
   setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
   trackTermsAgreed: boolean;
@@ -705,7 +784,24 @@ function FieldBody({
     case 'photo':
       return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={onPhotoSaved} />;
     case 'ladder':
-      return <LadderConfirm draft={ladderDraft} setDraft={setLadderDraft} done={setup.hasTier} />;
+      return (
+        <LadderConfirm
+          draft={ladderDraft}
+          setDraft={setLadderDraft}
+          done={setup.hasTier}
+          projections={tierProjections}
+          toolName={toolName}
+        />
+      );
+    case 'promises':
+      return (
+        <PromisesReview
+          ladderDraft={ladderDraft}
+          draft={promiseDraft}
+          setDraft={setPromiseDraft}
+          done={setup.hasTier}
+        />
+      );
     case 'track-audio':
       if (setup.hasMusic) {
         return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done />;
@@ -846,10 +942,15 @@ function LadderConfirm({
   draft,
   setDraft,
   done,
+  projections,
+  toolName,
 }: {
   draft: LadderDraft;
   setDraft: React.Dispatch<React.SetStateAction<LadderDraft>>;
   done?: boolean;
+  /** Per-tier buyer counts from the artist's own claimed calculator (may be empty). */
+  projections: TierProjection[];
+  toolName: string | null;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   if (done) {
@@ -867,6 +968,9 @@ function LadderConfirm({
         const benefits = benefitLabels(rung);
         const note = rung.benefits.find((b) => b.fulfillment)?.fulfillment?.note;
         const dropped = isPaid && !r.include;
+        // "Why CRWN recommends it": the buyer count THEIR calculator modeled for
+        // this rung (matched by current or legacy tier name). Null when unmodeled.
+        const buyers = isPaid ? projectedBuyersFor(rung, projections) : null;
         return (
           <div
             key={rung.key}
@@ -898,6 +1002,11 @@ function LadderConfirm({
                   )}
                 </div>
                 <p className="text-xs text-crwn-text-secondary mt-1">{rung.description}</p>
+                {buyers !== null && buyers > 0 && !dropped && (
+                  <p className="text-xs text-crwn-gold mt-1">
+                    {`Your ${toolName || 'calculator'} put about ${buyers.toLocaleString()} fans in range for this tier. Dropping it leaves them with no way to pay you.`}
+                  </p>
+                )}
               </div>
               {isPaid && (
                 <button
@@ -939,6 +1048,92 @@ function LadderConfirm({
       <p className="text-xs text-crwn-text-secondary">
         Scheduled promises (the monthly Vault unlock, the quarterly Platinum event) land on your Promise Calendar
         automatically. Edit names, prices, and benefits anytime in your dashboard.
+      </p>
+    </div>
+  );
+}
+
+// Launch Wizard Stage 3: the pre-create review of every recurring commitment the
+// confirmed ladder will put on the Promise Calendar. One decision: "can I keep
+// this schedule?" Cadence and first date are adjustable per promise; the workload
+// line keeps the total honest before anything is created.
+function PromisesReview({
+  ladderDraft,
+  draft,
+  setDraft,
+  done,
+}: {
+  ladderDraft: LadderDraft;
+  draft: PromiseDraft;
+  setDraft: React.Dispatch<React.SetStateAction<PromiseDraft>>;
+  done?: boolean;
+}) {
+  if (done) {
+    return <p className="text-crwn-text-secondary">Your ladder and its promises are already set up. Hit Continue.</p>;
+  }
+  const planned = planFromDraft(ladderDraft);
+  if (planned.length === 0) {
+    return (
+      <p className="text-crwn-text-secondary">
+        The tiers you confirmed create no scheduled promises, so nothing recurring lands on your calendar. Hit
+        Continue to create your ladder.
+      </p>
+    );
+  }
+
+  const minDate = toDateInputValue(new Date());
+  const totalMinutes = estimateMonthlyWorkload(
+    planned.map((p) => ({
+      fulfillmentType: p.fulfillmentType,
+      recurrence: promiseSettings(p, draft).recurrence,
+    })),
+  );
+
+  const patch = (key: string, p: PlannedPromise, over: Partial<PromiseDraft[string]>) =>
+    setDraft((d) => ({
+      ...d,
+      [key]: { ...promiseSettings(p, d), ...over },
+    }));
+
+  return (
+    <div className="space-y-3">
+      {planned.map((p) => {
+        const s = promiseSettings(p, draft);
+        const serves =
+          p.servesTierNames.length > 1
+            ? `${p.servesTierNames.slice(0, -1).join(', ')} and ${p.servesTierNames[p.servesTierNames.length - 1]}`
+            : p.servesTierNames[0];
+        return (
+          <div key={p.key} className="border border-crwn-gold/40 bg-crwn-gold/5 rounded-xl p-4">
+            <h4 className="font-semibold text-crwn-text">{p.title}</h4>
+            <p className="text-xs text-crwn-text-secondary mt-1">
+              One promise serving your {serves} members. {p.note ?? ''}
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3 mt-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-1">How often</p>
+                <OptionSelect
+                  options={ALLOWED_RECURRENCES.map((r) => ({ value: r, label: RECURRENCE_LABEL[r] }))}
+                  value={s.recurrence}
+                  onChange={(v) => patch(p.key, p, { recurrence: v as Recurrence })}
+                />
+              </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-1">First one due</p>
+                <input
+                  type="date"
+                  min={minDate}
+                  value={s.firstDueDate}
+                  onChange={(e) => patch(p.key, p, { firstDueDate: e.target.value })}
+                  className="w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-4 text-crwn-text focus:outline-none focus:border-crwn-gold"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+      <p className="text-xs text-crwn-text-secondary">
+        {`Estimated workload: ${workloadLabel(totalMinutes)}. Every promise lands on your Promise Calendar with reminders, so a missed month never costs you a paying fan. Adjust or pause any of it later in your dashboard.`}
       </p>
     </div>
   );

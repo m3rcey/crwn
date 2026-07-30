@@ -1,5 +1,27 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 3: the benefit→obligation generator and the promise review screen
+
+The wizard now shows the WORKLOAD before it creates anything. A new pure module
+`src/lib/promisePlan.ts` is the one benefit→obligation brain, shared by the wizard's new
+`promises` review screen and the server sync (`tierObligations.ts` consumes it): promise
+detection, cadence/title/first-due-date read from benefit config, DEDUP (the same promise on
+several tiers is ONE obligation, tracked in `metadata.merged_tier_ids` and re-anchored if the
+anchor tier drops the benefit), INHERITANCE (Gold's monthly Vault unlock carries
+`serves_higher_tiers`, so the one obligation also serves every higher tier via
+`metadata.serves_tier_ids`, refreshed on every sync so wizard creation order converges), and the
+recurring-workload model (`estimateMonthlyWorkload`, the full ladder is "about an hour a
+month"). Fan-side eligibility (`calendarProjection.fanEligibleForObligation`) and the
+promise-fulfilled fan notify now honor `serves_tier_ids`, so a Platinum member actually sees and
+gets Gold's inherited promises. The wizard's monetize group is two decisions: confirm the MODEL
+(`ladder`) then confirm the SCHEDULE (`promises`, where the create now runs); cadence
+(shared `OptionSelect`) and first-due-date adjustments ride into `applyTemplateTier` as
+`benefitConfigOverrides` → each benefit's config (`frequency`, `first_due_at`). Stage 2
+leftovers landed: the ladder screen shows estimated buyers per rung from the artist's own
+calculator (`tierProjections` on auto-claim, matched by current/legacy names) with loss-framed
+attribution. Pure logic tested in `src/lib/promisePlan.test.ts`. No migration (metadata jsonb
+only); the wizard is now 10 screens. sw.js v313.
+
 ## 2026-07-30 — Launch Wizard Stage 2: the wizard confirms the recommended model
 
 The wizard's Monetize group stopped asking the artist to hand-build one free tier

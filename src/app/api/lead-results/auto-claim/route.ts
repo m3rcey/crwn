@@ -72,7 +72,22 @@ export async function POST() {
   // is saved" built from this, so signup feels like a continuation of the
   // calculator instead of a restart (docs/ARTIST_LAUNCH_WIZARD.md, Stage 1).
   // Only summary fields — the conversionPayload stays server-side until the
-  // post-setup destination restores the builder.
+  // post-setup destination restores the builder. tierProjections (Stage 3) is the
+  // one safe extract: tier name + the buyer count THEIR calculator modeled, so
+  // the wizard's ladder screen can attribute each rung to their own numbers.
+  const rawLadder = seed?.conversionPayload?.ladder;
+  const tierProjections = Array.isArray(rawLadder)
+    ? rawLadder
+        .filter(
+          (t): t is { name: string; projectedSubs: number } =>
+            !!t &&
+            typeof t === 'object' &&
+            typeof (t as { name?: unknown }).name === 'string' &&
+            typeof (t as { projectedSubs?: unknown }).projectedSubs === 'number' &&
+            Number.isFinite((t as { projectedSubs: number }).projectedSubs),
+        )
+        .map((t) => ({ name: t.name, projectedSubs: Math.max(0, Math.floor(t.projectedSubs)) }))
+    : [];
   const planSeed = seed
     ? {
         toolName: seed.toolName,
@@ -81,6 +96,7 @@ export async function POST() {
         heroSuffix: seed.heroSuffix,
         estimatedMonthlyCents: seed.estimatedMonthlyCents,
         createdAt: seed.createdAt,
+        tierProjections,
       }
     : null;
 

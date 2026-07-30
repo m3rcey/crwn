@@ -23,10 +23,17 @@ export interface ApplyTierInput {
   priceCents: number;
   description: string;
   benefits: string[];
+  /**
+   * Per-benefit config overrides keyed by benefit_type (Launch Wizard Stage 3):
+   * the wizard's promise-review screen adjusts cadence (`frequency`) and first
+   * due date (`first_due_at`) before anything is created, and those ride the
+   * benefit config into /api/tier-benefits → syncTierObligations.
+   */
+  benefitConfigOverrides?: Record<string, Record<string, unknown>>;
 }
 
 export async function applyTemplateTier(supabase: Supa, input: ApplyTierInput): Promise<{ error?: string }> {
-  const { artistId, stripeConnected, def, name, priceCents, description, benefits } = input;
+  const { artistId, stripeConnected, def, name, priceCents, description, benefits, benefitConfigOverrides } = input;
   const isPaid = priceCents > 0;
 
   try {
@@ -83,7 +90,7 @@ export async function applyTemplateTier(supabase: Supa, input: ApplyTierInput): 
             tier_id: created.id,
             benefits: structured.map((b, i) => ({
               benefit_type: b.benefit_type,
-              config: b.config || {},
+              config: { ...(b.config || {}), ...(benefitConfigOverrides?.[b.benefit_type] ?? {}) },
               sort_order: i,
             })),
           }),

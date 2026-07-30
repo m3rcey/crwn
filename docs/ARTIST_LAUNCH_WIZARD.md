@@ -56,13 +56,26 @@ launch command screen.
    Applying uses the extracted shared path `src/lib/applyTierTemplate.ts` (same as Rise Level 3):
    Stripe prices on connect via backfill, `/api/tier-benefits` seeds the Promise Calendar
    obligations. Retry-safe via name/alias dedupe; a dropped rung stays available in Rise Level 3.
-   Still to fold in from spec Phase 3: estimated buyers per tier and calculator-answer
-   attribution ("why CRWN recommends it" beyond the description), which arrive with Stage 3's
-   workload model.
+   The Phase 3 leftovers (estimated buyers per tier, calculator-answer attribution) landed
+   with Stage 3.
 3. **Benefit→obligation generator + calendar review screen** — one module that translates
-   confirmed benefits into `fulfillment_obligations` (recurrence, first due date, tier links,
-   dedup across tiers, inheritance), plus the pre-launch review screen with estimated recurring
-   workload. Reused by the wizard AND by later tier edits. Spec Phase 4 rules + Phase 6a.
+   confirmed benefits into `fulfillment_obligations` — SHIPPED 2026-07-30.
+   `src/lib/promisePlan.ts` is the pure generator brain shared by the wizard AND the server
+   sync (`tierObligations.ts` consumes it, so what the artist reviews is exactly what gets
+   created): promise detection, cadence/title/first-due from benefit config, DEDUP (the same
+   promise on several tiers is ONE obligation, `metadata.merged_tier_ids`, re-anchored if the
+   anchor tier drops it) and INHERITANCE (`serves_higher_tiers` on Gold's vault unlock serves
+   every higher tier via `metadata.serves_tier_ids`, refreshed on every sync so wizard
+   creation order converges), plus the recurring-workload model. Fan eligibility
+   (`calendarProjection.fanEligibleForObligation`) and fulfillment notifications honor the
+   serve lists, so multi-tier access is real, not cosmetic. The wizard gained a `promises`
+   review screen (monetize group; the tier create moved onto it): cadence dropdown +
+   first-due date per promise ride into the apply path as `benefitConfigOverrides`, with an
+   honest "estimated workload" line. The ladder screen now shows estimated buyers per rung
+   from the artist's own calculator (`tierProjections` on auto-claim, matched by
+   current/legacy tier name) with loss-framed attribution. Pure logic under test in
+   `promisePlan.test.ts`. No migration: serve lists ride the existing `metadata` jsonb.
+   Spec Phase 4 rules + Phase 6a.
 4. **Stripe step in-wizard** — surface connect at the right moment (after confirm, before
    publish-paid), restore to the exact step on return, verify server-side. Mostly wiring;
    `connect/status` already does the heavy parts. Spec Phase 5.
@@ -81,5 +94,5 @@ launch command screen.
    calendar, roadmap), completeness checklist, publish action bundling the existing server
    completion, and the post-launch command screen replacing the dashboard landing. Spec Phases 9-10.
 
-Stages 2-3 are the heart (the plan becomes an operational business with visible workload) and
-come next. Each stage updates this doc's SHIPPED markers.
+Stages 2-3 (the heart: the plan becomes an operational business with visible workload) are
+shipped. Stage 4 (Stripe step in-wizard) is next. Each stage updates this doc's SHIPPED markers.

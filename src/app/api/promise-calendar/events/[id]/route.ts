@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { computeNextDue, type Recurrence } from '@/lib/fulfillment';
+import { servesTierIdsOf } from '@/lib/promisePlan';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -23,7 +24,7 @@ async function getArtistId() {
 // resolves to all active supporters / a specific tier / a squad.
 async function notifyFansOfFulfillment(
   artistId: string,
-  obligation: { audience_kind: string; audience_id: string | null },
+  obligation: { audience_kind: string; audience_id: string | null; metadata?: unknown },
   title: string,
 ) {
   let fanIds: string[] = [];
@@ -33,9 +34,12 @@ async function notifyFansOfFulfillment(
       .eq('artist_id', artistId).eq('status', 'active');
     fanIds = (data || []).map((r: any) => r.fan_id);
   } else if (obligation.audience_kind === 'tier' && obligation.audience_id) {
+    // The anchor tier plus any tiers the obligation also serves (dedup merges and
+    // inheritance — metadata.serves_tier_ids, same rule the fan calendar projects with).
+    const tierIds = [obligation.audience_id, ...servesTierIdsOf(obligation.metadata)];
     const { data } = await supabaseAdmin
       .from('subscriptions').select('fan_id')
-      .eq('artist_id', artistId).eq('status', 'active').eq('tier_id', obligation.audience_id);
+      .eq('artist_id', artistId).eq('status', 'active').in('tier_id', tierIds);
     fanIds = (data || []).map((r: any) => r.fan_id);
   } else if (obligation.audience_kind === 'squad' && obligation.audience_id) {
     const { data } = await supabaseAdmin
@@ -135,7 +139,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
   const { data: obligation } = await supabaseAdmin
     .from('fulfillment_obligations')
-    .select('id, recurrence, status, title, audience_kind, audience_id, auto_create_fan_items')
+    .select('id, recurrence, status, title, audience_kind, audience_id, auto_create_fan_items, metadata')
     .eq('id', event.obligation_id)
     .single();
 

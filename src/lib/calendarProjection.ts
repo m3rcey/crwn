@@ -14,6 +14,7 @@ import {
   type CalendarItemStatus,
   statusForDue,
 } from './calendar';
+import { servesTierIdsOf } from './promisePlan';
 
 type Admin = SupabaseClient;
 
@@ -259,7 +260,7 @@ export async function getFanCalendar(
   const { data: obs } = obIds.length
     ? await supabase
         .from('fulfillment_obligations')
-        .select('id, artist_id, audience_kind, audience_id, auto_create_fan_items, status')
+        .select('id, artist_id, audience_kind, audience_id, auto_create_fan_items, status, metadata')
         .in('id', obIds)
     : { data: [] as any[] };
   const obById = new Map((obs || []).map((o: any) => [o.id, o]));
@@ -402,7 +403,11 @@ function fanEligibleForObligation(
     case 'all_supporters':
       return true; // any active subscriber
     case 'tier':
-      return !!ob.audience_id && ob.audience_id === fanTierId;
+      // The anchor tier, or any tier the obligation also serves (dedup merges and
+      // "Everything in Gold" inheritance store those in metadata.serves_tier_ids —
+      // see tierObligations.ts / promisePlan.ts).
+      if (!fanTierId) return false;
+      return ob.audience_id === fanTierId || servesTierIdsOf(ob.metadata).includes(fanTierId);
     case 'squad':
       return !!ob.audience_id && fanSquadIds.has(ob.audience_id);
     // campaign audience not yet resolved here — hide rather than over-expose.
