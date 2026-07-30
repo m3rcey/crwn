@@ -50,11 +50,15 @@ launch command screen.
 1. **Restore the plan** — SHIPPED 2026-07-30. `/api/lead-results/auto-claim` now returns the
    claimed seed summary; the wizard opens with a "Your CRWN plan is saved" intro (headline, the
    number they calculated, source tool) for brand-new signups with a claimed result. Spec Phase 1.
-2. **Confirm the recommended model** — replace the wizard's single free-tier screens with a
-   confirm screen driven by `RECOMMENDED_LADDER` + `buildStarterOffer` + the seed's
-   conversionPayload: accept / edit price / remove optional component. Applying uses the SAME
-   code path as Rise Level 3 (tier create + calendar seed). Keep the free-Bronze-only path for
-   artists with no claimed plan. Spec Phase 3.
+2. **Confirm the recommended model** — SHIPPED 2026-07-30. The wizard's three free-tier screens
+   became ONE `ladder` confirm screen: Bronze free (always applied) + Silver/Gold/Platinum with
+   inline price edit and per-rung "Drop this tier", benefits expandable, fulfillment notes shown.
+   Applying uses the extracted shared path `src/lib/applyTierTemplate.ts` (same as Rise Level 3):
+   Stripe prices on connect via backfill, `/api/tier-benefits` seeds the Promise Calendar
+   obligations. Retry-safe via name/alias dedupe; a dropped rung stays available in Rise Level 3.
+   Still to fold in from spec Phase 3: estimated buyers per tier and calculator-answer
+   attribution ("why CRWN recommends it" beyond the description), which arrive with Stage 3's
+   workload model.
 3. **Benefit→obligation generator + calendar review screen** — one module that translates
    confirmed benefits into `fulfillment_obligations` (recurrence, first due date, tier links,
    dedup across tiers, inheritance), plus the pre-launch review screen with estimated recurring

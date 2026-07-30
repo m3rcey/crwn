@@ -1,5 +1,16 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 2: the wizard confirms the recommended model
+
+The wizard's Monetize group stopped asking the artist to hand-build one free tier
+(tier-name/tier-price/tier-benefits) and became a single `ladder` confirm screen: Bronze free
+(always applied) plus Silver/Gold/Platinum with inline price editing and per-rung "Drop this
+tier"; benefits expand in place and the Gold/Platinum fulfillment notes show what the artist is
+committing to. The apply logic was extracted from Rise Level 3's `TierLadderTemplate` into
+`src/lib/applyTierTemplate.ts` and BOTH surfaces now use it, so tier creation and Promise
+Calendar seeding (via `/api/tier-benefits` → `syncTierObligations`) cannot drift. Retry-safe via
+name/alias dedupe; the wizard is now 9 screens. sw.js v312.
+
 ## 2026-07-30 — Launch Wizard Stage 1: the wizard restores the pre-signup plan
 
 Josh specced the full Artist Launch Wizard (restore plan → confirm offers → roadmap → Stripe →

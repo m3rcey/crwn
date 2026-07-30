@@ -17,13 +17,13 @@ import { Check, ChevronDown, ChevronUp, X, ExternalLink } from 'lucide-react';
 import {
   RECOMMENDED_LADDER,
   benefitLabels,
-  structuredBenefits,
   highTouchBenefits,
   needsFulfillmentConfirm,
   disclaimersFor,
   tierNameAliases,
   type TierTemplateDef,
 } from '@/lib/tierTemplate';
+import { applyTemplateTier } from '@/lib/applyTierTemplate';
 
 interface LadderProps {
   artistId: string;
@@ -114,90 +114,27 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
     }
 
     updateTile(tile.def.key, { status: 'creating' });
-    try {
-      let stripePriceId: string | null = null;
-      let stripeAnnualPriceId: string | null = null;
-      let stripeProductId: string | null = null;
-
-      // Paid tiers get Stripe prices now if connected; otherwise insert with null ids
-      // and let /api/stripe/connect/status backfillTierPrices() create them on connect.
-      if (isPaid && stripeConnected) {
-        const res = await fetch('/api/stripe/create-price', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: tile.name,
-            price: priceInCents,
-            description: tile.description,
-            artistId,
-            offersAnnual: true,
-            annualDiscountPercent: 25,
-          }),
-        });
-        const data = await res.json();
-        stripePriceId = data.stripePriceId ?? null;
-        stripeAnnualPriceId = data.stripeAnnualPriceId ?? null;
-        stripeProductId = data.stripeProductId ?? null;
-      }
-
-      const { data: created, error } = await supabase
-        .from('subscription_tiers')
-        .insert({
-          artist_id: artistId,
-          name: tile.name,
-          price: priceInCents,
-          description: tile.description,
-          access_config: { benefits: tile.benefits.filter((b) => b.trim() !== '') },
-          stripe_price_id: stripePriceId,
-          stripe_annual_price_id: stripeAnnualPriceId,
-          stripe_product_id: stripeProductId,
-          offers_annual: true,
-          annual_discount_percent: 25,
-        })
-        .select('id')
-        .single();
-
-      if (error) throw error;
-
-      const structured = structuredBenefits(tile.def);
-      if (created && structured.length > 0) {
-        // Route through /api/tier-benefits (not a direct insert) so the Promise
-        // Calendar auto-populates: that route inserts the benefits AND runs
-        // syncTierObligations, which creates the recurring fulfillment
-        // obligations (Gold's monthly vault unlock, Platinum's quarterly listening
-        // event). Best-effort: a benefits/calendar hiccup must not undo the tier.
-        try {
-          await fetch('/api/tier-benefits', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              tier_id: created.id,
-              benefits: structured.map((b, i) => ({
-                benefit_type: b.benefit_type,
-                config: b.config || {},
-                sort_order: i,
-              })),
-            }),
-          });
-        } catch (benefitErr) {
-          console.error('Tier benefits/calendar sync failed (tier still created):', benefitErr);
-        }
-      }
-
-      updateTile(tile.def.key, { status: 'applied' });
-      setEditingKey(null);
-      showToast(`${tile.name} tier added!`, 'success');
-      fetch('/api/admin/milestone', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ milestone: 'tiers_created' }),
-      }).catch(() => {});
-      onApplied();
-    } catch (err) {
-      console.error('Apply tier failed:', err);
+    // Shared apply path (also used by the setup wizard's ladder screen): Stripe
+    // price when connected (else backfilled on connect), tier insert, and the
+    // /api/tier-benefits call that seeds the Promise Calendar obligations.
+    const { error } = await applyTemplateTier(supabase, {
+      artistId,
+      stripeConnected,
+      def: tile.def,
+      name: tile.name,
+      priceCents: priceInCents,
+      description: tile.description,
+      benefits: tile.benefits,
+    });
+    if (error) {
       updateTile(tile.def.key, { status: 'pending' });
       showToast('Could not add that tier. Please try again.', 'error');
+      return;
     }
+    updateTile(tile.def.key, { status: 'applied' });
+    setEditingKey(null);
+    showToast(`${tile.name} tier added!`, 'success');
+    onApplied();
   }
 
   function onUseTier(tile: Tile) {

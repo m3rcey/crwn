@@ -26,9 +26,10 @@ import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
 import {
   createOnboardingTrack,
-  createOnboardingTier,
   createOnboardingProduct,
 } from '@/lib/onboardingItems';
+import { RECOMMENDED_LADDER, benefitLabels, tierNameAliases } from '@/lib/tierTemplate';
+import { applyTemplateTier } from '@/lib/applyTierTemplate';
 import { getAnonId } from '@/lib/experiments/anonId';
 import { slugify } from '@/lib/slugify';
 import { isEmailLike } from '@/lib/publicName';
@@ -38,9 +39,7 @@ type ScreenKey =
   | 'artist-name'
   | 'artist-link'
   | 'photo'
-  | 'tier-name'
-  | 'tier-price'
-  | 'tier-benefits'
+  | 'ladder'
   | 'track-audio'
   | 'track-title'
   | 'product-type'
@@ -54,7 +53,7 @@ interface ScreenDef {
   title: string;
   subtitle: string;
   icon: typeof Palette;
-  create?: 'identity' | 'tier' | 'track' | 'product'; // last field of the item → create on Continue
+  create?: 'identity' | 'ladder' | 'track' | 'product'; // last field of the item → create on Continue
 }
 
 // One FIELD per screen. Groups (the four chips) span multiple screens.
@@ -65,9 +64,10 @@ const SCREENS: ScreenDef[] = [
   { key: 'artist-name', group: 'profile', groupRequired: true, title: 'What do fans call you?', subtitle: 'Your artist or stage name. This is the name on your page, not your email.', icon: User },
   { key: 'artist-link', group: 'profile', groupRequired: true, title: 'Claim your CRWN link', subtitle: 'The link you share everywhere. You can change it later in your profile.', icon: Link2, create: 'identity' },
   { key: 'photo', group: 'profile', groupRequired: true, title: 'Add a profile photo', subtitle: 'A face or logo is the first thing fans trust. Just one photo.', icon: Palette },
-  { key: 'tier-name', group: 'monetize', groupRequired: false, title: 'Name your free entry point', subtitle: 'The free tier fans join first. e.g. “Bronze”. You build paid tiers later in Rise Mode.', icon: CreditCard },
-  { key: 'tier-price', group: 'monetize', groupRequired: false, title: 'Set the price', subtitle: 'Keep this at 0 for your free entry point. Paid tiers come later in Rise Mode.', icon: CreditCard },
-  { key: 'tier-benefits', group: 'monetize', groupRequired: false, title: 'What do free members get?', subtitle: 'Pick the perks free fans unlock. These show on your page. You can edit them anytime.', icon: CreditCard, create: 'tier' },
+  // Launch Wizard Stage 2 (docs/ARTIST_LAUNCH_WIZARD.md): confirm the recommended
+  // model instead of hand-building one free tier. Same apply path as Rise Level 3,
+  // so the Promise Calendar obligations seed here too.
+  { key: 'ladder', group: 'monetize', groupRequired: false, title: 'Confirm your membership ladder', subtitle: 'The proven four-tier model: a free front door plus three paid tiers. Adjust a price or drop a tier. Everything is editable later.', icon: CreditCard, create: 'ladder' },
   { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
@@ -84,9 +84,7 @@ function screenDone(s: ScreenDef, setup: ArtistSetupState): boolean {
       return !!setup.artistId;
     case 'photo':
       return setup.hasAvatar;
-    case 'tier-name':
-    case 'tier-price':
-    case 'tier-benefits':
+    case 'ladder':
       return setup.hasTier;
     case 'track-audio':
     case 'track-title':
@@ -105,23 +103,17 @@ const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
   { value: 'physical', label: 'Physical / merch', hint: 'Vinyl, shirts, CDs' },
 ];
 
-// Setup creates the FREE "Bronze" entry point only (the smallest credible
-// foundation). The PAID membership ladder (Silver/Gold/Platinum) is
-// built later in Rise Mode Level 3, so setup and Rise never ask for the same thing.
-// The Level 3 ladder template recognizes this free "Bronze" tier by name and
-// shows it as already applied. This is the SAME free tier the Streaming Loss
-// calculator ("/worth") promises, so the money it shows is the money onboarding builds.
-const DEFAULT_TIER_NAME = 'Bronze';
-const DEFAULT_TIER_PRICE = '0';
-const TIER_BENEFIT_SUGGESTIONS = [
-  'Free tracks and public posts',
-  'Join the community',
-  'Public livestream access',
-  'Join public fan missions',
-  'New music after the paid windows',
-  'Release announcements',
-];
-const DEFAULT_TIER_BENEFITS = TIER_BENEFIT_SUGGESTIONS.slice(0, 5);
+// The wizard confirms the full recommended ladder (Bronze free + Silver $10 +
+// Gold $25 + Platinum $100 from RECOMMENDED_LADDER). Bronze is always applied;
+// paid rungs can be dropped or repriced. Rise Level 3 recognizes whatever was
+// created here (name/alias matching) and never offers duplicates, so an artist
+// who drops a rung can add it there later.
+type LadderRungDraft = { include: boolean; priceDollars: string };
+type LadderDraft = Record<string, LadderRungDraft>;
+const buildLadderDraft = (): LadderDraft =>
+  Object.fromEntries(
+    RECOMMENDED_LADDER.map((r) => [r.key, { include: true, priceDollars: (r.priceCents / 100).toString() }]),
+  );
 
 function SetupWizard() {
   const router = useRouter();
@@ -179,11 +171,7 @@ function SetupWizard() {
   }, [user]);
 
   // Drafts for the multi-screen item flows (persisted only when the item is created).
-  const [tierDraft, setTierDraft] = useState<{ name: string; price: string; benefits: string[] }>({
-    name: DEFAULT_TIER_NAME,
-    price: DEFAULT_TIER_PRICE,
-    benefits: DEFAULT_TIER_BENEFITS,
-  });
+  const [ladderDraft, setLadderDraft] = useState<LadderDraft>(buildLadderDraft);
   const [trackDraft, setTrackDraft] = useState<{ audioFile: File | null; title: string }>({ audioFile: null, title: '' });
   const [productDraft, setProductDraft] = useState<{ type: ProductType; title: string; price: '' | string }>({
     type: 'digital',
@@ -254,12 +242,11 @@ function SetupWizard() {
         return identityDraft.name.trim() !== '';
       case 'artist-link':
         return slugify(identityDraft.handle || identityDraft.name) !== '';
-      case 'tier-name':
-        return tierDraft.name.trim() !== '';
-      case 'tier-price':
-        return isValidPrice(tierDraft.price);
-      case 'tier-benefits':
-        return true; // benefits are optional; Continue creates the tier
+      case 'ladder':
+        // Bronze always applies; every included paid rung needs a valid price.
+        return RECOMMENDED_LADDER.every(
+          (r) => r.priceCents === 0 || !ladderDraft[r.key]?.include || isValidPrice(ladderDraft[r.key].priceDollars),
+        );
       case 'track-audio':
         return !!trackDraft.audioFile && trackTermsAgreed;
       case 'track-title':
@@ -352,17 +339,37 @@ function SetupWizard() {
     router.replace('/home');
   };
 
-  const runCreate = async (kind: 'identity' | 'tier' | 'track' | 'product'): Promise<string | undefined> => {
+  const runCreate = async (kind: 'identity' | 'ladder' | 'track' | 'product'): Promise<string | undefined> => {
     if (kind === 'identity') return saveIdentity('artist');
     if (!artistId) return 'Your artist profile is still loading. Try again.';
-    if (kind === 'tier') {
-      return (
-        await createOnboardingTier(supabase, artistId, {
-          name: tierDraft.name,
-          priceCents: Math.round(parseFloat(tierDraft.price) * 100),
-          benefits: tierDraft.benefits,
-        })
-      ).error;
+    if (kind === 'ladder') {
+      // Apply every included rung through the SAME path as Rise Level 3 (Stripe
+      // backfill on connect + Promise Calendar seeding). Retry-safe: rungs whose
+      // name (or legacy name) already exists are skipped, so a partial failure
+      // can be retried without duplicates.
+      const { data: existing } = await supabase
+        .from('subscription_tiers')
+        .select('name')
+        .eq('artist_id', artistId);
+      const existingNames = new Set((existing ?? []).map((t: { name: string }) => t.name.trim().toLowerCase()));
+      for (const rung of RECOMMENDED_LADDER) {
+        const draft = ladderDraft[rung.key];
+        const isPaid = rung.priceCents > 0;
+        if (isPaid && draft && !draft.include) continue; // Bronze always applies
+        if (tierNameAliases(rung).some((n) => existingNames.has(n))) continue;
+        const priceCents = isPaid ? Math.round((parseFloat(draft?.priceDollars ?? '') || 0) * 100) : 0;
+        const { error } = await applyTemplateTier(supabase, {
+          artistId,
+          stripeConnected,
+          def: rung,
+          name: rung.name,
+          priceCents,
+          description: rung.description,
+          benefits: benefitLabels(rung),
+        });
+        if (error) return `Could not add the ${rung.name} tier. Please try again.`;
+      }
+      return undefined;
     }
     if (kind === 'track') {
       if (!trackDraft.audioFile) return 'Pick an audio file first.';
@@ -516,9 +523,9 @@ function SetupWizard() {
             <div>
               <h1 className="text-2xl font-bold text-crwn-text">{current.title}</h1>
               <p className="text-crwn-text-secondary text-sm mt-1">{current.subtitle}</p>
-              {current.key === 'tier-price' && !stripeConnected && parseFloat(tierDraft.price || '0') > 0 && (
+              {current.key === 'ladder' && !stripeConnected && (
                 <p className="text-xs text-crwn-gold/80 mt-2">
-                  You’ll connect Stripe to actually get paid. You can do that any time from your dashboard.
+                  You’ll connect Stripe to actually get paid. Prices are created automatically the moment you connect, any time from your dashboard.
                 </p>
               )}
             </div>
@@ -536,8 +543,8 @@ function SetupWizard() {
               refresh().catch(() => {});
             }}
             avatarUrl={avatarUrl}
-            tierDraft={tierDraft}
-            setTierDraft={setTierDraft}
+            ladderDraft={ladderDraft}
+            setLadderDraft={setLadderDraft}
             trackDraft={trackDraft}
             setTrackDraft={setTrackDraft}
             trackTermsAgreed={trackTermsAgreed}
@@ -607,8 +614,8 @@ function FieldBody({
   supporterBusy,
   onPhotoSaved,
   avatarUrl,
-  tierDraft,
-  setTierDraft,
+  ladderDraft,
+  setLadderDraft,
   trackDraft,
   setTrackDraft,
   trackTermsAgreed,
@@ -625,8 +632,8 @@ function FieldBody({
   supporterBusy: boolean;
   onPhotoSaved: () => void;
   avatarUrl: string;
-  tierDraft: { name: string; price: string; benefits: string[] };
-  setTierDraft: React.Dispatch<React.SetStateAction<{ name: string; price: string; benefits: string[] }>>;
+  ladderDraft: LadderDraft;
+  setLadderDraft: React.Dispatch<React.SetStateAction<LadderDraft>>;
   trackDraft: { audioFile: File | null; title: string };
   setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
   trackTermsAgreed: boolean;
@@ -697,27 +704,8 @@ function FieldBody({
       );
     case 'photo':
       return <OnboardingAvatarStep initialUrl={avatarUrl} onSaved={onPhotoSaved} />;
-    case 'tier-name':
-      return (
-        <input
-          autoFocus
-          className={INPUT}
-          maxLength={40}
-          placeholder="Bronze"
-          value={tierDraft.name}
-          onChange={(e) => setTierDraft((d) => ({ ...d, name: e.target.value }))}
-        />
-      );
-    case 'tier-price':
-      return <PriceInput value={tierDraft.price} onChange={(v) => setTierDraft((d) => ({ ...d, price: v }))} suffix="/mo" done={setup.hasTier} />;
-    case 'tier-benefits':
-      return (
-        <BenefitPicker
-          selected={tierDraft.benefits}
-          onChange={(benefits) => setTierDraft((d) => ({ ...d, benefits }))}
-          done={setup.hasTier}
-        />
-      );
+    case 'ladder':
+      return <LadderConfirm draft={ladderDraft} setDraft={setLadderDraft} done={setup.hasTier} />;
     case 'track-audio':
       if (setup.hasMusic) {
         return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done />;
@@ -854,63 +842,104 @@ function AudioPicker({ file, onPick, done }: { file: File | null; onPick: (f: Fi
   );
 }
 
-function BenefitPicker({ selected, onChange, done }: { selected: string[]; onChange: (v: string[]) => void; done?: boolean }) {
-  const [custom, setCustom] = useState('');
+function LadderConfirm({
+  draft,
+  setDraft,
+  done,
+}: {
+  draft: LadderDraft;
+  setDraft: React.Dispatch<React.SetStateAction<LadderDraft>>;
+  done?: boolean;
+}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
   if (done) {
-    return <p className="text-crwn-text-secondary">Tier already created. Hit Continue.</p>;
+    return <p className="text-crwn-text-secondary">Your ladder is already set up. Hit Continue.</p>;
   }
-  const toggle = (b: string) => onChange(selected.includes(b) ? selected.filter((x) => x !== b) : [...selected, b]);
-  const addCustom = () => {
-    const v = custom.trim();
-    if (v && !selected.includes(v)) onChange([...selected, v]);
-    setCustom('');
-  };
-  const extras = selected.filter((b) => !TIER_BENEFIT_SUGGESTIONS.includes(b));
-  const chips = [...TIER_BENEFIT_SUGGESTIONS, ...extras];
+  const patch = (key: string, p: Partial<LadderRungDraft>) =>
+    setDraft((d) => ({ ...d, [key]: { ...d[key], ...p } }));
+
   return (
-    <div>
-      <div className="flex flex-wrap gap-2">
-        {chips.map((b) => {
-          const on = selected.includes(b);
-          return (
-            <button
-              key={b}
-              type="button"
-              onClick={() => toggle(b)}
-              className={`px-3 py-2 rounded-full text-sm border transition-colors ${
-                on ? 'bg-crwn-gold text-crwn-bg border-crwn-gold font-medium' : 'border-crwn-elevated text-crwn-text-secondary hover:border-crwn-gold/40'
-              }`}
-            >
-              {on ? '✓ ' : ''}
-              {b}
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex items-center gap-2 mt-4">
-        <input
-          value={custom}
-          onChange={(e) => setCustom(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              addCustom();
-            }
-          }}
-          maxLength={60}
-          placeholder="Add your own perk"
-          className="flex-1 bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-3 text-crwn-text placeholder-crwn-text-secondary/50 focus:outline-none focus:border-crwn-gold"
-        />
-        <button
-          type="button"
-          onClick={addCustom}
-          disabled={!custom.trim()}
-          className="px-4 py-3 rounded-xl border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text disabled:opacity-40 transition-colors"
-        >
-          Add
-        </button>
-      </div>
-      <p className="text-xs text-crwn-text-secondary mt-3">Tap to toggle. These show on your tier. Edit anytime in the dashboard.</p>
+    <div className="space-y-3">
+      {RECOMMENDED_LADDER.map((rung) => {
+        const r = draft[rung.key] ?? { include: true, priceDollars: (rung.priceCents / 100).toString() };
+        const isPaid = rung.priceCents > 0;
+        const isOpen = expanded === rung.key;
+        const benefits = benefitLabels(rung);
+        const note = rung.benefits.find((b) => b.fulfillment)?.fulfillment?.note;
+        const dropped = isPaid && !r.include;
+        return (
+          <div
+            key={rung.key}
+            className={`border rounded-xl p-4 transition-colors ${
+              dropped ? 'border-crwn-elevated opacity-60' : 'border-crwn-gold/40 bg-crwn-gold/5'
+            }`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-semibold text-crwn-gold">{rung.name}</h4>
+                  {!isPaid ? (
+                    <span className="text-sm text-crwn-text">Free</span>
+                  ) : (
+                    <span className="inline-flex items-center text-sm text-crwn-text">
+                      $
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        inputMode="decimal"
+                        value={r.priceDollars}
+                        disabled={dropped}
+                        onChange={(e) => patch(rung.key, { priceDollars: e.target.value })}
+                        className="w-16 bg-crwn-bg border border-crwn-elevated rounded-lg px-2 py-1 text-crwn-text text-sm ml-0.5 disabled:opacity-50"
+                      />
+                      <span className="text-crwn-text-secondary ml-1">/mo</span>
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-crwn-text-secondary mt-1">{rung.description}</p>
+              </div>
+              {isPaid && (
+                <button
+                  type="button"
+                  onClick={() => patch(rung.key, { include: !r.include })}
+                  className="text-xs text-crwn-text-secondary hover:text-crwn-text shrink-0 underline underline-offset-2"
+                >
+                  {dropped ? 'Add back' : 'Drop this tier'}
+                </button>
+              )}
+            </div>
+
+            {!dropped && (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={() => setExpanded(isOpen ? null : rung.key)}
+                  className="text-xs text-crwn-gold hover:underline"
+                >
+                  {isOpen ? 'Hide benefits' : `${benefits.length} benefits included`}
+                </button>
+                {isOpen && (
+                  <ul className="mt-2 space-y-1">
+                    {benefits.map((b) => (
+                      <li key={b} className="text-xs text-crwn-text-secondary">
+                        • {b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {note && (
+                  <p className="text-[11px] text-crwn-gold/80 mt-2">{note}</p>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      <p className="text-xs text-crwn-text-secondary">
+        Scheduled promises (the monthly Vault unlock, the quarterly Platinum event) land on your Promise Calendar
+        automatically. Edit names, prices, and benefits anytime in your dashboard.
+      </p>
     </div>
   );
 }
