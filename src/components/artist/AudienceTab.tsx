@@ -5,6 +5,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Users, Mail, Zap, MessageSquare, Link2, Tag, ShoppingCart } from 'lucide-react';
 import { FanTable } from '@/components/artist/FanTable';
 import { CampaignList } from '@/components/artist/CampaignList';
+import { LaunchKit } from '@/components/artist/LaunchKit';
 import { CampaignComposer } from '@/components/artist/CampaignComposer';
 import { CampaignStats } from '@/components/artist/CampaignStats';
 import { SequenceList } from '@/components/artist/SequenceList';
@@ -28,6 +29,8 @@ export function AudienceTab() {
   const [statsCampaignId, setStatsCampaignId] = useState<string | null>(null);
   const [editSequenceId, setEditSequenceId] = useState<string | null>(null);
   const [editLinkId, setEditLinkId] = useState<string | null>(null);
+  // Bumped when the Launch Kit creates drafts, so the campaign list refetches.
+  const [campaignListKey, setCampaignListKey] = useState(0);
 
   // Deep links from the launch flow ("choose who sees it first"): /studio/fans?view=campaigns
   // opens the campaign list, ?view=compose opens a fresh composer (which reads its own
@@ -162,12 +165,16 @@ export function AudienceTab() {
         </>
       )}
       {subView === 'campaigns' && artistId && (
-        <CampaignList
-          artistId={artistId}
-          onNewCampaign={handleNewCampaign}
-          onEditCampaign={handleEditCampaign}
-          onViewStats={handleViewStats}
-        />
+        <>
+          <LaunchKit artistId={artistId} onDraftsCreated={() => setCampaignListKey((k) => k + 1)} />
+          <CampaignList
+            key={campaignListKey}
+            artistId={artistId}
+            onNewCampaign={handleNewCampaign}
+            onEditCampaign={handleEditCampaign}
+            onViewStats={handleViewStats}
+          />
+        </>
       )}
       {subView === 'compose' && artistId && (
         <CampaignComposer

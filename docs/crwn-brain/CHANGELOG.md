@@ -1,5 +1,21 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 8: the launch campaign composer (drafts only, ever)
+
+The Campaigns view in the Fan CRM now opens with a Launch Kit panel. `src/lib/launchCampaign.ts`
+(pure + tested) writes the whole launch from what the artist actually built: the announcement
+email ("I built us a home") and the follow-up, a social caption, story copy, DM copy, the share
+link, a segment suggestion (Patreon members first when the import tagged them), a 20-contact
+test size, and a suggested send date (the coming Friday with two days of review runway). One
+click creates BOTH emails as `campaigns` DRAFTS through the existing /api/campaigns route,
+announcement preset to the contacts audience with the test group; the artist reviews them in
+the existing composer and sends through the compliant contacts sender (attested + subscribed +
+suppression + unsubscribe). Copy buttons cover the manual path. Also fixed a real wiring bug
+from Stage 7: the import done-screen CTA and the roadmap's announce step deep-linked to
+/campaign-hub, which is ROAD-TO campaigns; email campaigns live at /studio/fans, and both
+links now point there. The sign-off name is guarded by isPresentableArtistName so an email
+address never signs a launch email. No migration. sw.js v318.
+
 ## 2026-07-30 — Launch Wizard Stage 7: the fan import hub, with the Patreon on-ramp
 
 The Fan CRM's import modal became the fan import hub, and the TODO's chosen wedge (Patreon

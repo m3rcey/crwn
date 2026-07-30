@@ -189,8 +189,8 @@ export function buildRoadmapDefs(opts: {
         {
           key: 'audience-announce',
           label: 'Send your launch announcement',
-          detail: 'Your imported fans cannot join a page they never heard about.',
-          href: '/campaign-hub',
+          detail: 'Your imported fans cannot join a page they never heard about. The Launch Kit writes it for you.',
+          href: '/studio/fans?view=campaigns',
           source: { kind: 'check', check: 'artist_sent_campaign' },
         },
         {

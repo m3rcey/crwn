@@ -123,11 +123,22 @@ launch command screen.
    hands off to Campaign Hub ("create the invite"), where the contacts audience already sends
    ONLY to attested, still-subscribed contacts with suppression + unsubscribe. Import never
    messages anyone by itself. Spec Phase 7; the TODO's Patreon on-ramp option (b) is done.
-8. **Launch campaign composer** — generate announcement/follow-up/social/DM copy + segment +
-   date from the offer; artist picks test (10-25) / segment / all / manual; drafts only. Spec Phase 8.
+8. **Launch campaign composer** — SHIPPED 2026-07-30. `src/lib/launchCampaign.ts` (pure +
+   tested) generates the launch kit from what the artist ACTUALLY built (page link, free front
+   door, entry paid tier, imported audience): announcement + follow-up emails, social caption,
+   story copy, DM copy, share link, a segment suggestion (Patreon members first when they
+   exist), a suggested test size (20), and a suggested send date (coming Friday, two days of
+   review runway). Surfaced as the `LaunchKit` panel atop the Campaigns view in the Fan CRM
+   (`/studio/fans?view=campaigns`): one click creates BOTH emails as `campaigns` DRAFTS via the
+   existing /api/campaigns (announcement preset to the contacts audience with a 20-contact test
+   group; follow-up to all eligible), which the artist opens, reviews, and sends through the
+   existing compliant contacts sender. The copy-paste assets cover the manual launch path.
+   Nothing sends without review, by construction. Also fixed: the Stage 7 invite CTA and the
+   roadmap's announce step pointed at /campaign-hub (Road-To campaigns); email campaigns live
+   at /studio/fans, and both links now go there. Spec Phase 8.
 9. **Preview + publish + launch command screen** — four previews (storefront, checkout,
    calendar, roadmap), completeness checklist, publish action bundling the existing server
    completion, and the post-launch command screen replacing the dashboard landing. Spec Phases 9-10.
 
-Stages 1-7 are shipped. Stage 8 (the launch campaign composer) is next. Each stage updates
-this doc's SHIPPED markers.
+Stages 1-8 are shipped. Stage 9 (preview + publish + the launch command screen) is the last
+one. Each stage updates this doc's SHIPPED markers.

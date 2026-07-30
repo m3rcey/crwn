@@ -514,7 +514,7 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
                 </p>
                 <Link
                   prefetch
-                  href="/campaign-hub"
+                  href="/studio/fans?view=campaigns"
                   className="inline-flex items-center gap-2 mt-3 bg-crwn-gold text-crwn-bg text-sm font-semibold px-5 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
                 >
                   <Megaphone className="w-4 h-4" />
