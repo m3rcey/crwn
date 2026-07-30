@@ -1,5 +1,23 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch Wizard Stage 9: preview, publish, command screen. The wizard is COMPLETE.
+
+The last stage. The wizard's end screen became `LaunchReview` ("Your CRWN launch system"): a
+six-item completeness checklist (offers / Stripe / content / promises / audience / campaign)
+where open required items carry a "Fix it" jumping back to the exact wizard screen and the
+after-launch items say honestly where they happen; the previews, shaped by the setup gate (the
+PUBLIC PAGE serves as the storefront + checkout preview opened as a fan, while the Promise
+Calendar's next events and the roadmap's first milestone render INLINE because their routes
+bounce ungated artists back to /setup); the share block; and one publish action, "Launch my
+CRWN", which remains exactly the existing server-side completion (markComplete →
+/api/artist/complete-setup → journey resolver; role promotion stays the server trigger). The
+post-launch command screen is Rise Mode's top: RoadmapCard now renders the REAL numbers
+(members, paying members, MRR against the artist's own calculator goal) and the next three
+upcoming promises, from /api/artist/roadmap's new stats/upcomingPromises, above the current
+stage and next milestone. Real counts only, never projections dressed as results. With this,
+all nine stages of docs/ARTIST_LAUNCH_WIZARD.md are SHIPPED: restore the business they designed
+→ make it operational → show the workload → prepare the audience → launch it. sw.js v319.
+
 ## 2026-07-30 — Launch Wizard Stage 8: the launch campaign composer (drafts only, ever)
 
 The Campaigns view in the Fan CRM now opens with a Launch Kit panel. `src/lib/launchCampaign.ts`

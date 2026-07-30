@@ -136,9 +136,24 @@ launch command screen.
    Nothing sends without review, by construction. Also fixed: the Stage 7 invite CTA and the
    roadmap's announce step pointed at /campaign-hub (Road-To campaigns); email campaigns live
    at /studio/fans, and both links now go there. Spec Phase 8.
-9. **Preview + publish + launch command screen** — four previews (storefront, checkout,
-   calendar, roadmap), completeness checklist, publish action bundling the existing server
-   completion, and the post-launch command screen replacing the dashboard landing. Spec Phases 9-10.
+9. **Preview + publish + launch command screen** — SHIPPED 2026-07-30. The wizard's end screen
+   is now the `LaunchReview` ("Your CRWN launch system"): the six-item completeness checklist
+   (offers / Stripe / content / promises / audience / campaign; open REQUIRED items carry a
+   "Fix it" that jumps back to the exact wizard screen, the after-launch items say honestly
+   where they happen), the previews (the PUBLIC PAGE is the storefront + checkout preview,
+   opened as a fan; the Promise Calendar's next events and the roadmap's first milestone render
+   INLINE because /studio/promise and /profile/artist sit behind the setup gate until launch),
+   the share block, and ONE publish action, "Launch my CRWN", which is still exactly the
+   existing server-side completion (`/api/artist/complete-setup` via markComplete + the journey
+   resolver; role promotion stays the server trigger). The post-launch command screen is Rise
+   Mode's top: `RoadmapCard` now also renders the real numbers (members / paying / MRR against
+   the calculator goal, from /api/artist/roadmap's new `stats`) and the next three upcoming
+   promises (`upcomingPromises`), above the current stage + next milestone it already carried.
+   Real counts only, never projections dressed as results. Spec Phases 9-10.
 
-Stages 1-8 are shipped. Stage 9 (preview + publish + the launch command screen) is the last
-one. Each stage updates this doc's SHIPPED markers.
+ALL NINE STAGES ARE SHIPPED (2026-07-30). The wizard now runs the full journey the spec asked
+for: restore the business they designed → make it operational → show the workload → prepare the
+audience → launch it. What intentionally remains beyond the staged plan: deeper per-source
+import integrations (OAuth instead of CSV), richer performance metrics on the command screen
+(page visits, checkout starts), and folding the import/campaign steps into the wizard itself
+rather than the post-launch surfaces they live on now.

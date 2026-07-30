@@ -564,7 +564,24 @@ function SetupWizard() {
   }
 
   if (phase === 'share') {
-    return <ShareScreen slug={slug} finishing={finishing} onFinish={handleFinish} showToast={showToast} />;
+    return (
+      <LaunchReview
+        slug={slug}
+        artistId={artistId}
+        setup={setup}
+        finishing={finishing}
+        onFinish={handleFinish}
+        showToast={showToast}
+        onFix={(key) => {
+          const idx = SCREENS.findIndex((s) => s.key === key);
+          if (idx >= 0) {
+            setPhase('steps');
+            setStepIndex(idx);
+            scrollTop();
+          }
+        }}
+      />
+    );
   }
 
   // "Welcome them back to their plan": a claimed calculator result greets the
@@ -1428,19 +1445,73 @@ function PlanIntro({
   );
 }
 
-function ShareScreen({
+// Launch Wizard Stage 9: the pre-launch review. One screen that answers "is my
+// system ready?": the completeness checklist (each open item jumps to its
+// correction screen), the previews (the public page IS the storefront/checkout
+// preview; calendar and roadmap render INLINE because their routes sit behind
+// the setup gate until launch), the share block, and the one publish action,
+// which stays the existing server-side completion (markComplete + resolver).
+function LaunchReview({
   slug,
+  artistId,
+  setup,
   finishing,
   onFinish,
   showToast,
+  onFix,
 }: {
   slug: string;
+  artistId: string | null;
+  setup: ArtistSetupState;
   finishing: boolean;
   onFinish: () => void;
   showToast: (msg: string, type?: 'success' | 'error') => void;
+  onFix: (key: ScreenKey) => void;
 }) {
   const shareUrl = `https://thecrwn.app/${slug}`;
   const shareText = `I just launched my page on CRWN. Come support me here: ${shareUrl}`;
+  const [promises, setPromises] = useState<{ title: string; due_at: string }[] | null>(null);
+  const [contactCount, setContactCount] = useState(0);
+  const [campaignCount, setCampaignCount] = useState(0);
+  const [roadmapNext, setRoadmapNext] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!artistId) return;
+    let active = true;
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from('fulfillment_events')
+      .select('title, due_at')
+      .eq('artist_id', artistId)
+      .eq('status', 'pending')
+      .order('due_at', { ascending: true })
+      .limit(3)
+      .then(({ data }) => {
+        if (active) setPromises(data ?? []);
+      });
+    supabase
+      .from('fan_contacts')
+      .select('id', { count: 'exact', head: true })
+      .eq('artist_id', artistId)
+      .then(({ count }) => {
+        if (active) setContactCount(count ?? 0);
+      });
+    fetch(`/api/campaigns?artistId=${artistId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (active && Array.isArray(j?.campaigns)) setCampaignCount(j.campaigns.length);
+      })
+      .catch(() => {});
+    fetch('/api/artist/roadmap')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (active && j?.roadmap?.nextStep?.label) setRoadmapNext(j.roadmap.nextStep.label);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [artistId]);
 
   const copyLink = async () => {
     try {
@@ -1457,18 +1528,110 @@ function ShareScreen({
     { label: 'Share on WhatsApp', href: `https://wa.me/?text=${encodeURIComponent(shareText)}` },
   ];
 
+  const checklist: { label: string; done: boolean; fix?: ScreenKey; note?: string }[] = [
+    { label: 'Offers ready', done: setup.hasTier, fix: 'ladder' },
+    { label: 'Stripe connected', done: setup.stripeConnected, fix: 'stripe' },
+    { label: 'Content ready', done: setup.hasMusic, fix: 'content-plan' },
+    {
+      label: 'Promises scheduled',
+      done: (promises?.length ?? 0) > 0,
+      note: 'Set with your ladder; manage them in the Promise Calendar after launch.',
+    },
+    { label: 'Audience imported', done: contactCount > 0, note: 'After launch: bring your list over from the Fan CRM.' },
+    { label: 'Launch campaign drafted', done: campaignCount > 0, note: 'After launch: the Launch Kit writes it for you.' },
+  ];
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-lg text-center page-fade-in">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
-          <PartyPopper className="w-9 h-9 text-crwn-gold" />
+      <div className="w-full max-w-lg page-fade-in">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
+            <PartyPopper className="w-9 h-9 text-crwn-gold" />
+          </div>
+          <h1 className="text-3xl font-bold text-crwn-text mb-2">Your CRWN launch system</h1>
+          <p className="text-crwn-text-secondary mb-8">
+            Everything you built, in one place. Review it, then launch.
+          </p>
         </div>
-        <h1 className="text-3xl font-bold text-crwn-text mb-2">Your page is live 🎉</h1>
-        <p className="text-crwn-text-secondary mb-8">
-          Setup done. Now the most important step: get people on it. Share your link everywhere: your bio, your
-          stories, your group chats.
-        </p>
 
+        {/* Completeness checklist */}
+        <div className="neu-raised rounded-2xl p-4 mb-4">
+          <ul className="space-y-2.5">
+            {checklist.map((item) => (
+              <li key={item.label} className="flex items-start gap-2.5 text-sm">
+                <span
+                  className={`mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                    item.done ? 'bg-crwn-gold border-crwn-gold text-crwn-bg' : 'border-crwn-elevated'
+                  }`}
+                >
+                  {item.done && <Check className="w-3 h-3" />}
+                </span>
+                <span className={item.done ? 'text-crwn-text' : 'text-crwn-text-secondary'}>
+                  {item.label}
+                  {!item.done && item.fix && (
+                    <button
+                      type="button"
+                      onClick={() => onFix(item.fix!)}
+                      className="ml-2 text-crwn-gold hover:underline text-xs"
+                    >
+                      Fix it
+                    </button>
+                  )}
+                  {!item.done && !item.fix && item.note && (
+                    <span className="block text-xs text-crwn-text-secondary/80">{item.note}</span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Previews: storefront/checkout is the real public page; calendar and
+            roadmap render inline (their routes open after launch). */}
+        <a
+          href={`/${slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block neu-raised rounded-2xl p-4 mb-4 hover:border-crwn-gold/40 border border-transparent transition-colors"
+        >
+          <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-0.5">Storefront and checkout</p>
+          <p className="text-sm text-crwn-text">
+            See your page exactly as a fan sees it: your music, your tiers, your prices.
+          </p>
+          <p className="text-xs text-crwn-gold mt-1">thecrwn.app/{slug} ↗</p>
+        </a>
+
+        {promises !== null && promises.length > 0 && (
+          <div className="neu-raised rounded-2xl p-4 mb-4">
+            <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-2">
+              Your promise calendar, first up
+            </p>
+            <ul className="space-y-1.5">
+              {promises.map((p, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm">
+                  <CalendarCheck className="w-4 h-4 text-crwn-gold shrink-0" />
+                  <span className="text-crwn-text truncate">{p.title}</span>
+                  <span className="text-xs text-crwn-text-secondary ml-auto shrink-0">
+                    {new Date(p.due_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {roadmapNext && (
+          <div className="neu-raised rounded-2xl p-4 mb-4">
+            <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-0.5">
+              Your roadmap after launch
+            </p>
+            <p className="text-sm text-crwn-text">
+              First milestone: {roadmapNext}. The full five-stage plan is waiting on your command screen.
+            </p>
+          </div>
+        )}
+
+        {/* Share */}
         <div className="neu-raised rounded-2xl p-4 mb-4 flex items-center gap-3">
           <div className="flex-1 min-w-0 text-left">
             <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-0.5">Your CRWN link</p>
@@ -1490,23 +1653,27 @@ function ShareScreen({
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-3 rounded-xl border border-crwn-elevated text-sm font-medium text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 transition-colors"
+              className="px-4 py-3 rounded-xl border border-crwn-elevated text-sm font-medium text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 transition-colors text-center"
             >
               {s.label}
             </a>
           ))}
         </div>
-        <p className="text-xs text-crwn-text-secondary mb-8">On Instagram or TikTok? Copy the link and drop it in your bio.</p>
 
-        <button
-          onClick={onFinish}
-          disabled={finishing}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-8 py-3 rounded-full hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"
-        >
-          {finishing ? 'Loading…' : 'Start Rise Mode'}
-          {!finishing && <ArrowRight className="w-4 h-4" />}
-        </button>
-        <p className="text-xs text-crwn-text-secondary mt-4">Rise Mode will guide you through building the rest of your infrastructure.</p>
+        <div className="text-center">
+          <button
+            onClick={onFinish}
+            disabled={finishing}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-crwn-gold text-crwn-bg font-semibold px-8 py-3 rounded-full hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"
+          >
+            {finishing ? 'Launching…' : 'Launch my CRWN'}
+            {!finishing && <ArrowRight className="w-4 h-4" />}
+          </button>
+          <p className="text-xs text-crwn-text-secondary mt-4">
+            Launching opens the rest of CRWN and lands you on your command screen: your next move, your promises,
+            your numbers.
+          </p>
+        </div>
       </div>
     </div>
   );

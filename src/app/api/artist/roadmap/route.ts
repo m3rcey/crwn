@@ -127,5 +127,52 @@ export async function GET() {
   );
 
   const roadmap = assembleRoadmap(defs, Object.fromEntries(evaluated), goalMonthlyCents);
-  return NextResponse.json({ roadmap });
+
+  // Launch-command extras (Stage 9): the next promises due and the real
+  // numbers. Derived the same way as everything else; no stored copies.
+  const [promisesRes, subsRes] = await Promise.all([
+    supabaseAdmin
+      .from('fulfillment_events')
+      .select('id, title, due_at')
+      .eq('artist_id', artist.id)
+      .eq('status', 'pending')
+      .gte('due_at', new Date().toISOString())
+      .order('due_at', { ascending: true })
+      .limit(3),
+    supabaseAdmin
+      .from('subscriptions')
+      .select('tier_id')
+      .eq('artist_id', artist.id)
+      .eq('status', 'active'),
+  ]);
+  const subs = subsRes.data ?? [];
+  const tierIds = [...new Set(subs.map((s: { tier_id: string | null }) => s.tier_id).filter(Boolean))] as string[];
+  let mrrCents = 0;
+  let paidMembers = 0;
+  if (tierIds.length) {
+    const { data: tiers } = await supabaseAdmin
+      .from('subscription_tiers')
+      .select('id, price')
+      .in('id', tierIds);
+    const priceById = new Map((tiers ?? []).map((t: { id: string; price: number | null }) => [t.id, Number(t.price) || 0]));
+    for (const s of subs) {
+      const price = priceById.get(s.tier_id as string) ?? 0;
+      mrrCents += price;
+      if (price > 0) paidMembers += 1;
+    }
+  }
+
+  return NextResponse.json({
+    roadmap,
+    upcomingPromises: (promisesRes.data ?? []).map((e: { title: string; due_at: string }) => ({
+      title: e.title,
+      dueAt: e.due_at,
+    })),
+    stats: {
+      members: subs.length,
+      paidMembers,
+      mrrCents,
+      goalMonthlyCents: roadmap.goalMonthlyCents,
+    },
+  });
 }

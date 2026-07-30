@@ -254,25 +254,21 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   1% to 3% conversion regardless of whether the artist has ever sold anything, which under-sells a
   proven seller. Neither blocks anything today.
 
-- **NEXT UP: the Artist Launch Wizard (your 10-phase spec, 2026-07-30).** The full staged build
-  plan lives in [`docs/ARTIST_LAUNCH_WIZARD.md`](docs/ARTIST_LAUNCH_WIZARD.md): nine stages, each
-  mapped to the existing system it reuses. **Stages 1-6 are live**: a signup with a claimed
-  calculator result opens on "Your CRWN plan is saved" with their number; the wizard confirms the
-  full Bronze/Silver/Gold/Platinum model (with estimated buyers per tier from their own
-  calculator); a promise-review screen shows the recurring workload before anything is created,
-  backed by one shared benefit-to-obligation generator that dedups promises across tiers and
-  makes "Everything in Gold" real for Platinum members; a Stripe connect screen sits right after
-  the promise review (exact-step return, verified server-side, never blocks finishing); the
-  music step opens with a content-plan choice where the full-catalog path mounts the real bulk
-  uploader inside the wizard; and every artist now has a personalized 5-stage roadmap at the top
-  of Rise Mode (current stage + one next milestone, derived through the Quest Engine's own
-  checks so the two can never disagree); the fan import hub is live in the Fan CRM, including
-  the Patreon on-ramp you chose (auto-recognized export, active-patron filter, tier and pledge
-  kept as tags, CRWN tier suggestions); and the Launch Kit now writes the whole launch from
-  the artist's real offer (announcement + follow-up as reviewable email drafts preset to a
-  20-contact test group, plus social, story, and DM copy to paste). Nothing ever sends without
-  review. No migration, no env var. Next: Stage 9, the last one (preview + publish + the
-  launch command screen).
+- **The Artist Launch Wizard (your 10-phase spec, 2026-07-30) is COMPLETE: all nine stages
+  are live.** The full record is [`docs/ARTIST_LAUNCH_WIZARD.md`](docs/ARTIST_LAUNCH_WIZARD.md).
+  The journey now runs end to end: a signup with a claimed calculator result opens on "Your
+  CRWN plan is saved" with their number; the wizard confirms the full ladder (with estimated
+  buyers per tier from their own calculator); the promise-review screen shows the recurring
+  workload before anything is created (one shared generator, dedup + inheritance, so
+  "Everything in Gold" is real for Platinum members); Stripe connects in-wizard with exact-step
+  return; the music step offers the full-catalog bulk path; every artist has a 5-stage roadmap
+  derived through the Quest Engine's own checks; the fan import hub (with the Patreon on-ramp)
+  and the Launch Kit (drafts only) cover the audience; and the wizard ends on the launch review
+  (checklist with fix-it jumps, previews, "Launch my CRWN") with Rise Mode's roadmap card as
+  the post-launch command screen (real members/paying/MRR-vs-goal numbers plus upcoming
+  promises). No migrations, no env vars, nothing for you to run. Deliberately not built yet:
+  OAuth import integrations, page-visit/checkout-start metrics on the command screen, and
+  moving import/campaign into the wizard proper. Ask when you want any of those.
 
 The Instagram acquisition engine is feature-complete and verified in production: ingress,
 identity, Claude extraction with a complete deterministic fallback, the calculator handoff,
