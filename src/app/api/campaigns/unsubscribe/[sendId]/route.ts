@@ -12,12 +12,26 @@ export async function GET(
 ) {
   const { sendId } = await params;
 
-  // Look up the send record to get fan_id and artist_id
-  const { data: send } = await supabaseAdmin
-    .from('campaign_sends')
-    .select('fan_id, campaign_id')
-    .eq('id', sendId)
-    .single();
+  // Look up the send record. contact_id exists only after the fan-invites migration; retry
+  // without it so pre-migration unsubscribes keep working unchanged.
+  let send: { fan_id: string | null; contact_id?: string | null; campaign_id: string } | null = null;
+  {
+    const withContact = await supabaseAdmin
+      .from('campaign_sends')
+      .select('fan_id, contact_id, campaign_id')
+      .eq('id', sendId)
+      .single();
+    if (!withContact.error) {
+      send = withContact.data;
+    } else {
+      const legacy = await supabaseAdmin
+        .from('campaign_sends')
+        .select('fan_id, campaign_id')
+        .eq('id', sendId)
+        .single();
+      send = legacy.data;
+    }
+  }
 
   if (!send) {
     return new NextResponse(unsubscribePage('Invalid link', false), {
@@ -34,6 +48,26 @@ export async function GET(
 
   if (!campaign) {
     return new NextResponse(unsubscribePage('Campaign not found', false), {
+      headers: { 'Content-Type': 'text/html' },
+    });
+  }
+
+  // An imported-contact send: the opt-out lives on the contact row itself, and it gates every
+  // future contact invite for this artist. No fan_communication_prefs row exists for a lead.
+  if (!send.fan_id && send.contact_id) {
+    const { error: contactErr } = await supabaseAdmin
+      .from('fan_contacts')
+      .update({ is_subscribed_email: false })
+      .eq('id', send.contact_id)
+      .eq('artist_id', campaign.artist_id);
+
+    if (contactErr) {
+      return new NextResponse(unsubscribePage('Something went wrong. Please try again.', false), {
+        headers: { 'Content-Type': 'text/html' },
+      });
+    }
+
+    return new NextResponse(unsubscribePage("You've been unsubscribed from this artist's emails.", true), {
       headers: { 'Content-Type': 'text/html' },
     });
   }

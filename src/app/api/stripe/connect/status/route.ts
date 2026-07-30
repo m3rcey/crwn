@@ -1,8 +1,18 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { getConnectAccountByUserId } from '@/lib/stripe/connectAccount';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+
+// funnel_events revokes INSERT from `authenticated`, so the funnel write below needs the
+// service role. Build-safe fallbacks per CLAUDE.md.
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build',
+  { auth: { autoRefreshToken: false, persistSession: false } },
+);
 
 // Backfill Stripe prices for paid tiers created before Stripe was connected (e.g.
 // in the onboarding wizard, which defers Stripe). Runs only once charges are
@@ -91,6 +101,14 @@ export async function GET() {
     // Only a charges-enabled account is a real, monetizable connection.
     if (chargesEnabled && artist) {
       recordActivationMilestone(artist.id, 'stripe_connected').catch(() => {});
+      // Funnel: Stripe Connected. Deduped per artist at the DB, so polling this status
+      // endpoint records the milestone exactly once.
+      await recordFunnelEvent(supabaseAdmin, {
+        stage: 'stripe_connected',
+        artistId: artist.id,
+        userId: user.id,
+        dedupeKey: artist.id,
+      });
       // Activate any onboarding-created paid tiers that are still missing Stripe prices.
       await backfillTierPrices(supabase, artist.id);
     }

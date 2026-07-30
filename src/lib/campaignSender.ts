@@ -177,6 +177,17 @@ export async function resolveAudienceAndSend(
   artistName: string,
   platformTier: string,
 ): Promise<{ sent: number; failed: number; total: number }> {
+  // Imported-contact invites send ONLY through the interactive route, which resolves
+  // recipients from fan_contacts with the consent gates. Falling through here would resolve
+  // the platform-fan union instead and email the WRONG audience, so refuse loudly.
+  if ((campaign.filters as Record<string, unknown> | null)?.audience === 'contacts') {
+    await supabaseAdmin
+      .from('campaigns')
+      .update({ status: 'failed', stats: { error: 'Contact invites cannot be scheduled. Send them directly instead.' } })
+      .eq('id', campaign.id);
+    return { sent: 0, failed: 0, total: 0 };
+  }
+
   let fans = await resolveAudience(supabaseAdmin, campaign.artist_id, campaign.filters || {});
 
   if (fans.length === 0) {

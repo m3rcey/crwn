@@ -24,6 +24,30 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Set `FOUNDER_ALERT_PHONE` in Vercel** (your cell, E.164 format, e.g. `+14045551234`).
+      This is the number the new hot-lead SMS alert texts when a QUALIFIED artist on the
+      opportunity calculator taps "Get a call now", gives a callback number, and consents.
+      Twilio creds are already set; until this var exists the alert falls back to email to
+      joshn.wms@gmail.com, so nothing is lost, just slower. Server-only var, never `NEXT_PUBLIC_`.
+
+- [ ] **Run the fan-invites migration:**
+      [`supabase/schema-phase2-fan-invites.sql`](supabase/schema-phase2-fan-invites.sql)
+      in the Supabase SQL Editor. It adds the import-time permission attestation to
+      `fan_contacts` and contact recipients to `campaign_sends`. Until it runs: CSV import
+      still works but records no attestation, and "invite my imported contacts" returns a clean
+      "not available yet" error. Contacts imported BEFORE the migration have no attestation and
+      stay uninvitable until re-imported (deliberate).
+
+- [ ] **Run the funnel-events migrations, in this order:**
+      1. [`supabase/schema-phase2-funnel-events.sql`](supabase/schema-phase2-funnel-events.sql)
+      2. [`supabase/schema-phase2-funnel-events-journey-stages.sql`](supabase/schema-phase2-funnel-events-journey-stages.sql)
+      The CHANGELOG has said #1 is unrun since it shipped, but the item silently fell off this
+      list; that was a Claude bug, now fixed. #2 widens the stage CHECK to the new journey
+      stages (call_requested, stripe_connected, fans_imported, fan_invited,
+      first_paid_conversion) and is a safe no-op if you somehow ran #1 with them already. Until
+      these run, every funnel write silently no-ops by design and `/admin` funnel views stay
+      empty.
+
 - [ ] **Run the products CHECK migration:**
       [`supabase/schema-phase2-product-type-physical.sql`](supabase/schema-phase2-product-type-physical.sql)
       in the Supabase SQL Editor. The repo's `products` table constraint only allows
@@ -68,18 +92,17 @@ responsible for. Do not work those.
       Founder Window tool uses. Say the word and I will generate an on-brand one (dark charcoal +
       gold, artist aged 18 to 32) with the image skill.
 
-- [ ] **Decision: do we build the stack-migration on-ramp, and how far?** Your customer avatar
-      ([`docs/ICP.md`](docs/ICP.md)) says the ideal customer already sells to fans across Patreon,
-      Shopify, Discord, Gumroad and Eventbrite, and that **consolidation is the pitch**. CRWN has
-      no import of any kind today: no email-list CSV, no Patreon member import, no product import.
-      An artist with 400 paying Patreon members would have to rebuild that list by hand, so the
-      wedge has no on-ramp. Three options, cheapest first:
-      **(a)** email-list CSV import into the Fan CRM (small, unlocks outreach immediately);
-      **(b)** (a) plus a Patreon member CSV import that pre-creates matching tiers and invites
-      each member to claim their membership on CRWN;
+- [ ] **Decision: how much MORE of the stack-migration on-ramp do we build?** Correction to the
+      earlier version of this item: email-list CSV import ALREADY EXISTED (`/studio/fans` →
+      Import Fans, `/api/fan-contacts/import`; the ICP doc claiming otherwise was wrong and is
+      now fixed). As of 2026-07-30 option (a) is fully shipped: import now records a permission
+      attestation, and imported contacts can be EMAILED an invite through the existing campaign
+      sender (small test group first), pending the fan-invites migration above. Still unbuilt:
+      **(b)** a Patreon member CSV import that pre-creates matching tiers and invites each
+      member to claim their membership on CRWN;
       **(c)** (b) plus product/catalog import from Shopify/Gumroad.
-      Say (a), (b) or (c) and I will build it. This is a scope and priority call, not a technical
-      one, which is why it is yours.
+      Say (b) or (c) and I will build it. This is a scope and priority call, which is why it is
+      yours.
 
 - [ ] **Confirm the revenue ramp actually seeded (5 minutes, needs a real artist account).**
       New artists now get a dated 12-month roadmap laid into their Promise Calendar when they

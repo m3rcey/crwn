@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -221,6 +222,24 @@ export async function POST(
 
   const artistName = artistProfile?.display_name || 'Artist';
 
+  // Imported-contact invites take their own resolution path: recipients come from
+  // fan_contacts (permission-attested, still subscribed), never from the platform-fan union
+  // below. Same suppression gate, same unsubscribe header, same sender.
+  const campaignFilters = (campaign.filters || {}) as Record<string, unknown>;
+  if (campaignFilters.audience === 'contacts') {
+    return sendToContacts({
+      campaignId,
+      campaign,
+      artistId: campaign.artist_id as string,
+      artistName,
+      platformTier: artist.platform_tier || 'starter',
+      testCount:
+        typeof campaignFilters.testCount === 'number' && campaignFilters.testCount > 0
+          ? Math.round(campaignFilters.testCount)
+          : null,
+    });
+  }
+
   // Mark as sending
   await supabaseAdmin
     .from('campaigns')
@@ -404,4 +423,184 @@ export async function POST(
     failed: failedCount,
     total: sends.length,
   });
+}
+
+/**
+ * Send a campaign to the artist's IMPORTED CONTACTS (fan_contacts).
+ *
+ * Consent model: only contacts whose import carried the artist's permission attestation
+ * (consent_attested_at) AND who are still subscribed (is_subscribed_email) are eligible, and
+ * the global suppression list applies on top. Contacts imported before the attestation
+ * existed are skipped, never grandfathered.
+ *
+ * Pre-migration behavior: schema-phase2-fan-invites.sql adds the attestation columns and
+ * campaign_sends.contact_id. Until it runs, the queries below fail cleanly and the campaign is
+ * returned to draft with an explicit "not available yet" error. Nothing partial ever sends.
+ */
+async function sendToContacts(args: {
+  campaignId: string;
+  campaign: Record<string, unknown>;
+  artistId: string;
+  artistName: string;
+  platformTier: string;
+  testCount: number | null;
+}): Promise<NextResponse> {
+  const { campaignId, campaign, artistId, artistName, platformTier, testCount } = args;
+
+  const backToDraft = async (error: string, status = 400) => {
+    await supabaseAdmin.from('campaigns').update({ status: 'draft' }).eq('id', campaignId);
+    return NextResponse.json({ error }, { status });
+  };
+
+  await supabaseAdmin.from('campaigns').update({ status: 'sending' }).eq('id', campaignId);
+
+  const { data: contacts, error: contactsErr } = await supabaseAdmin
+    .from('fan_contacts')
+    .select('id, email, name')
+    .eq('artist_id', artistId)
+    .eq('is_subscribed_email', true)
+    .not('consent_attested_at', 'is', null)
+    .order('created_at', { ascending: true });
+
+  if (contactsErr) {
+    // Almost always: the fan-invites migration has not been applied yet.
+    return backToDraft('Imported-contact invites are not available yet. Ask CRWN support to enable them.');
+  }
+
+  let eligible = (contacts || []).filter(c => c.email);
+
+  // Global suppression (hard bounces, complaints, unsubscribes) always wins.
+  if (eligible.length > 0) {
+    const { data: suppressed } = await supabaseAdmin
+      .from('email_suppressions')
+      .select('email')
+      .in('email', eligible.map(c => c.email.toLowerCase()));
+    if (suppressed && suppressed.length > 0) {
+      const suppressedSet = new Set(suppressed.map(s => s.email));
+      eligible = eligible.filter(c => !suppressedSet.has(c.email.toLowerCase()));
+    }
+  }
+
+  if (eligible.length === 0) {
+    return backToDraft(
+      'No eligible imported contacts. Import fans with the permission confirmation first, from Fans in your Studio.',
+    );
+  }
+
+  // The small-test-group default: an explicit testCount caps the send to the earliest imports.
+  if (testCount != null) eligible = eligible.slice(0, testCount);
+
+  const { data: latestTrack } = await supabaseAdmin
+    .from('tracks')
+    .select('title')
+    .eq('artist_id', artistId)
+    .eq('is_active', true)
+    .order('release_date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const sendRecords = eligible.map(c => ({
+    campaign_id: campaignId,
+    contact_id: c.id,
+    email: c.email,
+    status: 'pending',
+  }));
+
+  const { data: sends, error: sendsErr } = await supabaseAdmin
+    .from('campaign_sends')
+    .insert(sendRecords)
+    .select('id, email');
+
+  if (sendsErr || !sends || sends.length === 0) {
+    return backToDraft('Imported-contact invites are not available yet. Ask CRWN support to enable them.');
+  }
+
+  const contactByEmail = new Map(eligible.map(c => [c.email, c]));
+  let sentCount = 0;
+  let failedCount = 0;
+
+  for (let i = 0; i < sends.length; i += CONCURRENCY) {
+    const batch = sends.slice(i, i + CONCURRENCY);
+    const results = await Promise.allSettled(
+      batch.map(async send => {
+        const contact = contactByEmail.get(send.email);
+        const firstName = (contact?.name || '').trim().split(' ')[0] || 'there';
+
+        const tokens = {
+          first_name: firstName,
+          full_name: contact?.name || null,
+          artist_name: artistName,
+          latest_release: latestTrack?.title || null,
+        };
+        const personalizedBody = resolveTokens(String(campaign.body || ''), tokens);
+        const personalizedSubject = resolveTokens(String(campaign.subject || campaign.name || ''), tokens);
+
+        const unsubscribeUrl = `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`;
+        const trackingPixelUrl = `${BASE_URL}/api/campaigns/track/${send.id}?pixel=1`;
+
+        const html = campaignEmail({
+          body: personalizedBody,
+          artistName,
+          sendId: send.id,
+          unsubscribeUrl,
+          trackingPixelUrl,
+          platformTier,
+        });
+
+        const { data: sendResult, error } = await resend.emails.send({
+          from: `${artistName} via CRWN <hello@thecrwn.app>`,
+          to: send.email,
+          subject: personalizedSubject,
+          html,
+          headers: {
+            'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'X-Campaign-Send-Id': send.id,
+          },
+        });
+        if (error) throw error;
+
+        await supabaseAdmin
+          .from('campaign_sends')
+          .update({ status: 'sent', sent_at: new Date().toISOString(), resend_message_id: sendResult?.id || null })
+          .eq('id', send.id);
+        return send.id;
+      }),
+    );
+
+    results.forEach((result, idx) => {
+      if (result.status === 'fulfilled') {
+        sentCount++;
+      } else {
+        failedCount++;
+        supabaseAdmin
+          .from('campaign_sends')
+          .update({ status: 'failed' })
+          .eq('id', batch[idx].id)
+          .then(() => {});
+      }
+    });
+  }
+
+  const finalStatus = sentCount > 0 ? 'sent' : 'failed';
+  await supabaseAdmin
+    .from('campaigns')
+    .update({
+      status: finalStatus,
+      sent_at: new Date().toISOString(),
+      stats: { sent_count: sentCount, failed_count: failedCount, total_recipients: sends.length, audience: 'contacts' },
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', campaignId);
+
+  // Funnel: First Fan Invited. Deduped per artist, so only the first invite marks the stage.
+  if (sentCount > 0) {
+    await recordFunnelEvent(supabaseAdmin, {
+      stage: 'fan_invited',
+      artistId,
+      dedupeKey: artistId,
+      metadata: { sent: sentCount, testGroup: testCount != null },
+    });
+  }
+
+  return NextResponse.json({ success: true, sent: sentCount, failed: failedCount, total: sends.length });
 }

@@ -148,7 +148,18 @@ export async function GET(req: NextRequest) {
         outcome: settled.get(String(r.lead_identity_id)) ?? null,
       }));
 
-      return NextResponse.json({ rows });
+      // Immediate-call requests from the opportunity calculator's hand-raiser. Anonymous web
+      // leads, so no lead_identity join: everything the founder needs (callback number, consent
+      // record, recomputed qualification, calculator answers, alert status, manual contact
+      // status) lives in the response_snapshot the request route persisted.
+      const { data: callRequests } = await supabaseAdmin
+        .from('acquisition_events')
+        .select('id, response_snapshot, occurred_at, created_at')
+        .eq('event_name', 'hot_lead_call_requested')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      return NextResponse.json({ rows, callRequests: callRequests ?? [] });
     }
 
     if (view === 'human_review') {
@@ -251,7 +262,7 @@ export async function POST(req: NextRequest) {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
-  let body: { action?: string; id?: string };
+  let body: { action?: string; id?: string; status?: string };
   try {
     body = await req.json();
   } catch {
@@ -331,6 +342,45 @@ export async function POST(req: NextRequest) {
       break;
     }
 
+    case 'set_call_request_status': {
+      // Manual contact status on an immediate-call request. `id` is the acquisition_events row.
+      // The status lives inside the same snapshot as the consent record, so the CRM row stays
+      // one self-contained record.
+      const ALLOWED_STATUSES = new Set([
+        'new',
+        'alerted',
+        'contact_attempted',
+        'connected',
+        'follow_up',
+        'launched',
+        'not_qualified',
+        'closed',
+      ]);
+      const status = String(body.status || '');
+      if (!ALLOWED_STATUSES.has(status)) {
+        return NextResponse.json({ error: 'Unknown status' }, { status: 400 });
+      }
+      const { data: row } = await supabaseAdmin
+        .from('acquisition_events')
+        .select('response_snapshot')
+        .eq('id', id)
+        .eq('event_name', 'hot_lead_call_requested')
+        .maybeSingle();
+      if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      const snap = (row.response_snapshot ?? {}) as Record<string, unknown>;
+      await supabaseAdmin
+        .from('acquisition_events')
+        .update({
+          response_snapshot: {
+            ...snap,
+            contact_status: status,
+            contact_status_updated_at: new Date().toISOString(),
+          },
+        })
+        .eq('id', id);
+      break;
+    }
+
     default:
       return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
   }
@@ -341,7 +391,7 @@ export async function POST(req: NextRequest) {
     admin_id: admin.id,
     action_type: `acquisition_${action}`,
     action_label: `Acquisition: ${action} on ${id}`,
-    action_params: { id },
+    action_params: { id, ...(body.status ? { status: body.status } : {}) },
     result: 'success',
   });
 

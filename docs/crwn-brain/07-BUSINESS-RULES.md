@@ -70,6 +70,8 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 
 ## 11. Marketing limits & protections
 - **Email blasts:** Free 1/mo, Pro 10/mo (`EMAIL_LIMITS`). PRD also cites "2 campaigns/week" — reconcile. `Confirmed` on `EMAIL_LIMITS`.
+- **Imported-contact invites (2026-07-30):** a `fan_contacts` row is emailable ONLY when its import carried the artist's permission attestation (`consent_attested_at`) AND `is_subscribed_email` is still true AND the address is not globally suppressed. Importing a file never creates consent by itself; the attestation is what CRWN records, versioned (`src/lib/fanImportConsent.ts`). Contact campaigns count against the same `EMAIL_LIMITS` quota, cannot be scheduled (interactive send only; the cron sender refuses them), default toward a small test group, and their unsubscribe flips `fan_contacts.is_subscribed_email`. `Confirmed`.
+- **Call-request consent (2026-07-30):** a founder SMS alert fires ONLY when calculator completed + server-recomputed `sales_priority` + valid callback number + explicit versioned consent + an active request. Inferred interest never alerts; unqualified requests are recorded in the admin Calls tab but never SMS'd. One alert per phone per day, DB-claimed. `Confirmed`.
 - **SMS:** Pro+ only; quiet hours 9pm–9am fan-local; **max 1 SMS/mo/fan/artist**; monthly counter reset (`sms-reset` cron). Quiet-hour sends currently dropped (not queued). `Confirmed`.
 - **Suppression:** hard bounce → global suppress; spam complaint → opt out of all artist marketing; senders check before send. `Confirmed`.
 - **Sequences:** triggers `new_subscription|new_purchase|new_post|abandoned_cart|tier_upgrade|loyalty_survey`; multi-step delays; auto-enroll on trigger; conversion checked in a 7-day window. `Confirmed`.

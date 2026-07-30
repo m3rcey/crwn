@@ -30,6 +30,10 @@ export const OPPORTUNITY_EVENTS = {
   recommendationEdited: 'opportunity_recommendation_edited',
   /** The estimate was re-derived because an edit changed the plan's structure. */
   estimateRecalculated: 'opportunity_estimate_recalculated',
+  /** The optional "get a call now" hand-raiser was expanded at the save boundary. */
+  callOptionViewed: 'opportunity_call_option_viewed',
+  /** The artist actively requested an immediate call (consent + phone accepted server-side). */
+  callRequested: 'opportunity_call_requested',
 } as const;
 
 export type OpportunityEvent = (typeof OPPORTUNITY_EVENTS)[keyof typeof OPPORTUNITY_EVENTS];

@@ -42,6 +42,7 @@ Components PascalCase; lib/hooks camelCase; routes kebab-case; `@/` alias. Build
 - **The 18th is the all-in-one Opportunity Calculator** and it is the one that must never be broken casually: it models every opportunity in ONE layered model so the same fan, subscriber and dollar cannot be counted twice. **Never add tool headlines together.** Share-to-Earn and Clip-to-Earn are acquisition, not revenue; the Vault is a membership TIER, not a second membership; tickets and seats sell only to non-members. 82 tests enforce this (`src/lib/opportunity/`). Spec: `docs/UNIFIED_OPPORTUNITY.md`.
 - **Every tool's `fix` must point to a feature that ACTUALLY exists.** This convention has already failed once in production.
 - New tool = registry entry + adapter + a `DeliverableSpec`, or the coverage guard test fails.
+- **The Tier 1 launch journey (2026-07-30):** the calculator asks `monetization_status`; a qualified artist can request an immediate founder call from BELOW the builder (`/api/lead-magnets/call-request` recomputes qualification server-side, one SMS/phone/day to server-only `FOUNDER_ALERT_PHONE`); fan-contact import requires a versioned permission attestation; imported contacts get invited through the EXISTING campaign sender (`filters.audience='contacts'`, dark until `schema-phase2-fan-invites.sql`); `funnel_events` now has 20 stages ending at `first_paid_conversion`.
 
 ## Required workflow before changing code
 1. Grep for an existing component/lib (avoid duplication).

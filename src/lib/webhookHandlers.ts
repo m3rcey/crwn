@@ -17,6 +17,7 @@ import { recordDiscountCodeUse } from '@/lib/discountCodes';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { maybeCreateVipWelcomeTask } from '@/lib/promiseTasks';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -193,6 +194,15 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
       } catch (err) {
         console.error('Activation milestone failed:', err);
       }
+
+      // Funnel: First Paid Conversion. Deduped per artist at the DB, so only the first
+      // paid event (subscription or product) ever lands; renewals and later sales collapse.
+      await recordFunnelEvent(supabaseAdmin, {
+        stage: 'first_paid_conversion',
+        artistId: artist_id,
+        dedupeKey: artist_id,
+        metadata: { kind: 'subscription' },
+      });
 
       // Promise Calendar: high-ticket (VIP) supporters get a 48h personal-welcome
       // task on the artist's Promise Calendar. Best-effort — never blocks checkout.
@@ -867,6 +877,15 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
     } catch (err) {
       console.error('Milestone check failed:', err);
     }
+
+    // Funnel: First Paid Conversion (product path). Same per-artist dedupe as the
+    // subscription path; whichever paid event lands first wins, the rest collapse.
+    await recordFunnelEvent(supabaseAdmin, {
+      stage: 'first_paid_conversion',
+      artistId: artist_id,
+      dedupeKey: artist_id,
+      metadata: { kind: 'product' },
+    });
   }
 
   // Send purchase confirmation + receipt email to fan

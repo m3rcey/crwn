@@ -1,5 +1,7 @@
 # CRWN Brain — Combined Context
 
+> **Delta 2026-07-30 (Tier 1 launch journey), not yet folded into the sections below:** the unified calculator now asks `monetization_status`; a qualified artist can request an immediate founder call below the pre-signup builder (`/api/lead-magnets/call-request`: server-recomputed `scoreLead`, one SMS/phone/day to server-only `FOUNDER_ALERT_PHONE`, CRM record in the admin Calls tab); fan-contact import requires a versioned permission attestation; imported contacts become invitable through the EXISTING campaign sender (`campaigns.filters.audience='contacts'`, dark until `schema-phase2-fan-invites.sql` runs); `/offers/new`'s done screen is now the launch transition (Stripe prompt + import/invite/copy-link); `funnel_events` grew to 20 stages ending at `first_paid_conversion`. Details: `CHANGELOG.md` 2026-07-30.
+
 > Single-file, compressed context pack for uploading into ChatGPT or another AI. Rewritten (not concatenated) from the full CRWN Brain. Reflects branch `master`, commit `86e3e8c` (2026-07-29). Certainty labels: `Confirmed` / `Strongly inferred` / `Unclear` / `Needs founder confirmation`. **The code is the source of truth; the repo's `PRD.md` is stale on pricing/AI provider/booking/onboarding.**
 
 ## 1. What CRWN is

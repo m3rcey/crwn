@@ -43,6 +43,14 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
   const [tierFilter, setTierFilter] = useState('');
   const [subscribersOnly, setSubscribersOnly] = useState(false);
   const [locationFilter, setLocationFilter] = useState('');
+  // 'fans' = platform fans (subscribers/purchasers). 'contacts' = imported fan contacts the
+  // artist attested permission for. A new composer opened with ?audience=contacts (the launch
+  // flow's "invite your imported fans") starts on contacts.
+  const [audienceType, setAudienceType] = useState<'fans' | 'contacts'>(() => {
+    if (typeof window === 'undefined' || campaignId) return 'fans';
+    return new URLSearchParams(window.location.search).get('audience') === 'contacts' ? 'contacts' : 'fans';
+  });
+  const [testCount, setTestCount] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -80,6 +88,8 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
           setTierFilter(campaign.filters?.tier || '');
           setSubscribersOnly(campaign.filters?.subscribersOnly || false);
           setLocationFilter(campaign.filters?.location || '');
+          setAudienceType(campaign.filters?.audience === 'contacts' ? 'contacts' : 'fans');
+          setTestCount(campaign.filters?.testCount ? String(campaign.filters.testCount) : '');
           setSavedId(campaign.id);
         }
       } catch {
@@ -107,6 +117,12 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
 
   const buildFilters = () => {
     const filters: Record<string, unknown> = {};
+    if (audienceType === 'contacts') {
+      filters.audience = 'contacts';
+      const n = Math.round(Number(testCount));
+      if (Number.isFinite(n) && n > 0) filters.testCount = n;
+      return filters; // fan filters do not apply to imported contacts
+    }
     if (tierFilter) filters.tier = tierFilter;
     if (subscribersOnly) filters.subscribersOnly = true;
     if (locationFilter) filters.location = locationFilter;
@@ -297,8 +313,59 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
           <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4 space-y-4">
             <h3 className="text-sm font-medium text-crwn-text">Audience</h3>
 
+            {/* Binary toggle: platform fans vs imported contacts. */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setAudienceType('fans')}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  audienceType === 'fans'
+                    ? 'bg-crwn-gold/15 text-crwn-gold border border-crwn-gold/40'
+                    : 'bg-crwn-elevated text-crwn-text-secondary border border-crwn-elevated'
+                }`}
+              >
+                My CRWN fans
+              </button>
+              <button
+                onClick={() => setAudienceType('contacts')}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  audienceType === 'contacts'
+                    ? 'bg-crwn-gold/15 text-crwn-gold border border-crwn-gold/40'
+                    : 'bg-crwn-elevated text-crwn-text-secondary border border-crwn-elevated'
+                }`}
+              >
+                Imported contacts
+              </button>
+            </div>
+
+            {audienceType === 'contacts' && (
+              <div className="space-y-3">
+                <p className="text-xs text-crwn-text-secondary">
+                  Sends to contacts you imported with the permission confirmation, minus anyone
+                  who unsubscribed or bounced. Contacts imported before that confirmation existed
+                  are skipped until you re-import them.
+                </p>
+                <div>
+                  <label className="block text-xs text-crwn-text-secondary mb-1">
+                    Test group size (optional)
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={testCount}
+                    onChange={e => setTestCount(e.target.value)}
+                    placeholder="e.g. 20. Blank sends to all"
+                    className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                  />
+                  <p className="text-[11px] text-crwn-text-secondary mt-1">
+                    Start small: send to a test group first, read the replies, then send to the
+                    rest.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Saved segments quick-pick */}
-            {segments.length > 0 && (
+            {audienceType === 'fans' && segments.length > 0 && (
               <div>
                 <label className="block text-xs text-crwn-text-secondary mb-1">
                   <Bookmark className="w-3 h-3 inline mr-1" />
@@ -323,40 +390,44 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
               </div>
             )}
 
-            <div>
-              <label className="block text-xs text-crwn-text-secondary mb-1">Tier</label>
-              <select
-                value={tierFilter}
-                onChange={e => setTierFilter(e.target.value)}
-                className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
-              >
-                <option value="">All fans</option>
-                {tiers.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
-            </div>
+            {audienceType === 'fans' && (
+              <>
+                <div>
+                  <label className="block text-xs text-crwn-text-secondary mb-1">Tier</label>
+                  <select
+                    value={tierFilter}
+                    onChange={e => setTierFilter(e.target.value)}
+                    className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+                  >
+                    <option value="">All fans</option>
+                    {tiers.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
 
-            <div>
-              <label className="block text-xs text-crwn-text-secondary mb-1">Location</label>
-              <input
-                type="text"
-                value={locationFilter}
-                onChange={e => setLocationFilter(e.target.value)}
-                placeholder="City or state..."
-                className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
-              />
-            </div>
+                <div>
+                  <label className="block text-xs text-crwn-text-secondary mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={locationFilter}
+                    onChange={e => setLocationFilter(e.target.value)}
+                    placeholder="City or state..."
+                    className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text placeholder:text-crwn-text-secondary focus:outline-none focus:border-crwn-gold/50"
+                  />
+                </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={subscribersOnly}
-                onChange={e => setSubscribersOnly(e.target.checked)}
-                className="rounded border-crwn-elevated text-crwn-gold focus:ring-crwn-gold/50"
-              />
-              <span className="text-xs text-crwn-text-secondary">Active subscribers only</span>
-            </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={subscribersOnly}
+                    onChange={e => setSubscribersOnly(e.target.checked)}
+                    className="rounded border-crwn-elevated text-crwn-gold focus:ring-crwn-gold/50"
+                  />
+                  <span className="text-xs text-crwn-text-secondary">Active subscribers only</span>
+                </label>
+              </>
+            )}
           </div>
 
           <div className="bg-crwn-surface rounded-xl border border-crwn-elevated p-4">

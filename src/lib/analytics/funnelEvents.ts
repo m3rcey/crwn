@@ -11,7 +11,10 @@
 
 import { randomUUID } from 'crypto';
 
-// The fifteen canonical stages. This is the source of truth; the funnel_events CHECK mirrors it.
+// The twenty canonical stages. This is the source of truth; the funnel_events CHECK mirrors it.
+// The last five extend the spine below the builder: through Stripe, launch, fan import, the
+// first invitation and the first paid conversion, so the funnel connects an anonymous
+// calculator run to real money.
 export const FUNNEL_STAGES = [
   'page_viewed',
   'calculator_started',
@@ -28,6 +31,11 @@ export const FUNNEL_STAGES = [
   'builder_published',
   'rise_mode_started',
   'mission_completed',
+  'call_requested',
+  'stripe_connected',
+  'fans_imported',
+  'fan_invited',
+  'first_paid_conversion',
 ] as const;
 
 export type FunnelStage = (typeof FUNNEL_STAGES)[number];

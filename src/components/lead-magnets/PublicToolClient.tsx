@@ -26,6 +26,7 @@ import { DeliverableBuilder } from '@/components/opportunity/DeliverableBuilder'
 import { hasDeliverable } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { OYF_TOOL_KEY, type OwnYourFansDraft } from '@/lib/opportunityDrafts/ownYourFansDraft';
 import { recordExperimentEntry } from '@/lib/experiments/client';
+import { CallRequestCard } from './CallRequestCard';
 import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
 // One scrollable page, no view swapping. 'hero' renders the hero AND the wizard beneath it
@@ -313,6 +314,18 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
               <ConvertToFeatureButton config={config} result={result} context="public" publicToken={publicToken} resultId={resultId} />
             )}
           </div>
+
+          {/* Optional hand-raiser, BELOW the builder (nothing may gate the builder): a qualified
+              artist can request an immediate launch call. The server alone decides whether a
+              founder alert fires; unqualified requests are recorded, never alerted. */}
+          {config.slug === 'opportunity-calculator' && (
+            <CallRequestCard
+              toolSlug={config.slug}
+              calculatorInputs={values}
+              planSummary={result.heroValue ? `${result.heroValue}${result.heroSuffix || ''} system` : result.headline}
+              publicToken={publicToken}
+            />
+          )}
 
           {/* Secondary action, BELOW the builder: optional "email my results" with real consent
               (persists the result + nurture attribution). Clearly subordinate to the save boundary. */}

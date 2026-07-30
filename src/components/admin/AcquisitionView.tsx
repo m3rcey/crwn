@@ -21,7 +21,8 @@
 // and writes an audit row. Nothing here is trusted.
 
 import { useCallback, useEffect, useState } from 'react';
-import { Loader2, RefreshCw, Check, Ban, Instagram, CalendarClock, UserX } from 'lucide-react';
+import { Loader2, RefreshCw, Check, Ban, Instagram, CalendarClock, UserX, PhoneCall } from 'lucide-react';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 
 type View = 'leads' | 'calls' | 'human_review' | 'dead_letter';
 
@@ -53,6 +54,34 @@ const OUTCOME_LABEL: Record<string, string> = {
   call_no_show: 'No-show, following up',
   sales_call_cancelled: 'Cancelled',
 };
+
+// An immediate-call request from the opportunity calculator's hand-raiser. Anonymous web lead:
+// the whole CRM record (consent, qualification, alert status, manual contact status) is the
+// snapshot the request route persisted.
+interface CallRequestRow {
+  id: string;
+  created_at?: string;
+  response_snapshot?: {
+    phone?: string;
+    artist_name?: string | null;
+    plan_summary?: string | null;
+    qualification?: { qualified?: boolean; band?: string; score?: number };
+    alert?: { channel?: string; status?: string; fallback?: string };
+    contact_status?: string;
+    requested_at?: string;
+  } | null;
+}
+
+const CALL_REQUEST_STATUSES: { value: string; label: string }[] = [
+  { value: 'new', label: 'New' },
+  { value: 'alerted', label: 'Alerted' },
+  { value: 'contact_attempted', label: 'Contact attempted' },
+  { value: 'connected', label: 'Connected' },
+  { value: 'follow_up', label: 'Follow-up' },
+  { value: 'launched', label: 'Launched' },
+  { value: 'not_qualified', label: 'Not qualified' },
+  { value: 'closed', label: 'Closed' },
+];
 
 /**
  * Has the call actually finished?
@@ -100,6 +129,7 @@ interface Config {
 export default function AcquisitionView() {
   const [view, setView] = useState<View>('leads');
   const [rows, setRows] = useState<Row[]>([]);
+  const [callRequests, setCallRequests] = useState<CallRequestRow[]>([]);
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [notReady, setNotReady] = useState(false);
@@ -115,10 +145,12 @@ export default function AcquisitionView() {
       const json = await res.json();
       const cjson = await cfg.json();
       setRows(json.rows ?? []);
+      setCallRequests(json.callRequests ?? []);
       setConfig(cjson.config ?? null);
       setNotReady(!!json.notReady);
     } catch {
       setRows([]);
+      setCallRequests([]);
     }
     setLoading(false);
   }, [view]);
@@ -133,6 +165,17 @@ export default function AcquisitionView() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, id }),
+    });
+    setBusy(null);
+    load();
+  };
+
+  const setCallRequestStatus = async (id: string, status: string) => {
+    setBusy(id);
+    await fetch('/api/admin/acquisition', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'set_call_request_status', id, status }),
     });
     setBusy(null);
     load();
@@ -173,6 +216,60 @@ export default function AcquisitionView() {
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
+
+      {!loading && !notReady && view === 'calls' && callRequests.length > 0 && (
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-crwn-text mb-2">Immediate-call requests</p>
+          <div className="space-y-2">
+            {callRequests.map((cr) => {
+              const s = cr.response_snapshot ?? {};
+              const q = s.qualification ?? {};
+              const alertStatus = s.alert?.status ?? 'not_attempted';
+              return (
+                <div key={cr.id} className="bg-crwn-surface-solid rounded-xl p-4 flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <PhoneCall className="w-4 h-4 text-crwn-gold shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-crwn-text font-medium truncate">
+                        {s.artist_name || 'Unnamed artist'} · {s.phone || 'no number'}
+                      </p>
+                      <p className="text-sm text-crwn-text-secondary truncate">
+                        {[
+                          s.plan_summary,
+                          cr.created_at ? new Date(cr.created_at).toLocaleString() : null,
+                          alertStatus === 'sent'
+                            ? 'SMS sent'
+                            : alertStatus === 'skipped_unconfigured'
+                            ? 'SMS unconfigured'
+                            : alertStatus === 'failed'
+                            ? `SMS failed${s.alert?.fallback === 'email_sent' ? ', emailed' : ''}`
+                            : 'not alerted (below threshold)',
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                    </div>
+                  </div>
+                  {q.score != null && (
+                    <div className="text-right shrink-0">
+                      <p className={`font-semibold ${BAND_COLOR[q.band ?? ''] ?? 'text-crwn-text'}`}>{q.score}</p>
+                      <p className="text-xs text-crwn-text-secondary">{(q.band ?? '').replace(/_/g, ' ')}</p>
+                    </div>
+                  )}
+                  <div className="shrink-0 w-44">
+                    <OptionSelect
+                      options={CALL_REQUEST_STATUSES}
+                      value={s.contact_status || 'new'}
+                      onChange={(v) => setCallRequestStatus(cr.id, v)}
+                      placeholder="Status"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-16">

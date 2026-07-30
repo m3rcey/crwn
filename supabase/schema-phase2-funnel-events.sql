@@ -19,7 +19,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS funnel_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- The funnel stage. One of the fifteen canonical stages; kept in sync with FUNNEL_STAGES in
+  -- The funnel stage. One of the twenty canonical stages; kept in sync with FUNNEL_STAGES in
   -- src/lib/analytics/funnelEvents.ts (the code is the source of truth; this CHECK is the guard).
   stage text NOT NULL CHECK (stage IN (
     'page_viewed',
@@ -36,7 +36,12 @@ CREATE TABLE IF NOT EXISTS funnel_events (
     'builder_opened',
     'builder_published',
     'rise_mode_started',
-    'mission_completed'
+    'mission_completed',
+    'call_requested',
+    'stripe_connected',
+    'fans_imported',
+    'fan_invited',
+    'first_paid_conversion'
   )),
 
   -- The five reporting dimensions. Kept denormalized on every row so a dashboard can group by any

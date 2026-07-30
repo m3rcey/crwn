@@ -1,5 +1,63 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — The Tier 1 launch journey: qualified call requests, consent-attested fan import, and first-fan invites
+
+The calculator-to-launch spine existed end to end (unified calculator → editable pre-signup
+builder → save boundary → auto-claim → setup → prefilled `/offers/new` → Stripe backfill →
+public page). What was missing was everything around it for the fragmented-stack ICP: a way for
+a hot lead to raise their hand, a consent-honest on-ramp for the fan list they built elsewhere,
+a way to actually invite those fans, and a funnel that reaches the first dollar.
+
+**Qualified immediate-call requests (net-new).** The unified calculator's `proof` step now asks
+the 40% question (`monetization_status`, one tap), matching every loss tool. A `CallRequestCard`
+below the pre-signup builder (never before it) collects a callback number and explicit,
+versioned consent (`src/lib/acquisition/callRequest.ts`). `POST /api/lead-magnets/call-request`
+sanitizes the calculator answers against the tool's own definitions, recomputes qualification
+through the canonical `scoreLead` (client bands are never read), claims idempotency on
+`acquisition_events` (one per phone per day, insert-as-claim), and for `sales_priority` leads
+only sends one SMS to the server-only `FOUNDER_ALERT_PHONE` via the existing `sendSms`, with an
+email fallback to the founder. The whole CRM record (consent, qualification, answers, alert
+status, manual contact status) lives in the claim row's `response_snapshot`, surfaced in
+`/admin` → Acquisition → Calls with a status dropdown (`set_call_request_status`). The public
+response is uniform so the endpoint cannot probe the scoring model. 18 new tests.
+
+**Consent-attested fan import.** `/api/fan-contacts/import` (which already existed,
+contradicting `docs/ICP.md`; the doc is corrected) now requires an explicit permission
+attestation (`src/lib/fanImportConsent.ts`, versioned), stores `consent_attested_at` +
+`consent_attestation_version` on each row (PGRST204-fallback keeps imports working
+pre-migration), and records the `fans_imported` funnel stage. `FanImportModal` renders the
+attestation checkbox and blocks import without it.
+
+**First-fan invites through the EXISTING campaign sender.** `campaigns.filters.audience =
+'contacts'` resolves recipients from `fan_contacts` (attested + still subscribed + not globally
+suppressed), supports a small-test-group cap (`testCount`), sends via the same
+`campaignEmail`/unsubscribe/pixel rails, and records `fan_invited`. `campaign_sends` learns
+nullable `fan_id` + `contact_id` (migration `schema-phase2-fan-invites.sql`, with a recipient
+CHECK); the unsubscribe route flips `fan_contacts.is_subscribed_email` for contact sends; the
+cron sender refuses scheduled contact campaigns so the wrong audience can never resolve.
+Pre-migration, the whole invite path returns a clean "not available yet" error.
+
+**The funnel now reaches money.** `FUNNEL_STAGES` grew from fifteen to twenty:
+`call_requested`, `stripe_connected` (written in `/api/stripe/connect/status` when
+charges-enabled, deduped per artist), `fans_imported`, `fan_invited`, `first_paid_conversion`
+(written in the Stripe webhook handlers on the first subscription or product sale, deduped per
+artist). The unapplied `schema-phase2-funnel-events.sql` was updated in place and
+`schema-phase2-funnel-events-journey-stages.sql` widens the CHECK for an already-applied table.
+The funnel_events migration had silently dropped off TODO.md while CHANGELOG called it unrun;
+both founder items are restored.
+
+**Launch transition.** The `/offers/new` done screen becomes the post-publish launch step:
+"now choose who should see it first" (import CTA, small-test-group invite CTA via
+`/studio/fans?view=compose&audience=contacts`, copy launch link), plus "Connect Stripe so fans
+can purchase this offer" whenever the status check answered that charges are off for a paid
+offer. `AudienceTab` accepts `?view=` deep links; `CampaignComposer` gained the binary
+fans/contacts audience toggle.
+
+Founder items (TODO.md): set `FOUNDER_ALERT_PHONE`, run `schema-phase2-fan-invites.sql`, run
+the two funnel-events migrations. Deliberately NOT built: OAuth contact imports (Mailchimp/
+Google/Patreon APIs), inbound SMS, any change to Stripe fees/payouts, any new broadcast system.
+Build clean, 427 tests pass (18 added), sw.js bumped to v297.
+
 ## 2026-07-29 — The conversion spine: from calculator result to "launch this, charge this, do this next"
 
 The middle of the acquisition journey existed (claim, prefilled builders, post-setup routing) but

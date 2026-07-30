@@ -63,7 +63,8 @@
 - **Failure:** all AI calls are try/caught and degrade to empty/fallback results, never throw. The PRD's "Moonshot AI (Kimi)" reference is **stale** — no Moonshot in code.
 
 ## Twilio — SMS/MMS
-- **Env:** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`. **No `twilio` npm package** — raw `fetch` Basic-auth to the REST API (`src/lib/twilio.ts`).
+- **Env:** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, plus `FOUNDER_ALERT_PHONE` (server-only, the hot-lead alert recipient; email fallback to the founder when unset). **No `twilio` npm package** — raw `fetch` Basic-auth to the REST API (`src/lib/twilio.ts`).
+- **Internal operational alerts (2026-07-30):** the qualified call-request route (`/api/lead-magnets/call-request`) sends ONE founder SMS per qualified request via `sendSms`, entirely separate from artist→fan SMS marketing (no `sms_subscribers`, no per-fan caps, no quiet-hour logic — it is an internal pager, not a campaign).
 - **Files:** `src/lib/twilio.ts` (send + quiet-hours + area-code→timezone), `src/app/api/sms/{send,status,provision,upload,webhook}`. Reset cron `/api/cron/sms-reset` (monthly).
 - **Gating:** Pro+ only (`getSmsLimit(tier)===0` blocks Free). Quiet hours 9pm–9am fan-local; max 1 SMS/mo/fan/artist.
 - **Dev:** stubs to `console.log('[SMS Stub]')` and returns fake success when unconfigured.

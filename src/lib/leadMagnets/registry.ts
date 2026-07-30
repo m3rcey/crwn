@@ -828,6 +828,22 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
       placeholder: '0',
     },
     {
+      // The 40% question. Every loss tool asks it (docs/ICP.md); the unified tool was the one
+      // place that skipped it, which blinded lead scoring's biggest dimension for the primary
+      // funnel candidate. It does not touch the money model, only qualification.
+      key: 'monetization_status',
+      type: 'option',
+      label: 'Have you sold directly to fans before?',
+      step: 'proof',
+      options: [
+        { value: 'direct_established', label: 'Yes, it is a real income stream', icon: '💰' },
+        { value: 'direct_some', label: 'Yes, a few times', icon: '🤝' },
+        { value: 'merch_only', label: 'Merch only', icon: '👕' },
+        { value: 'streaming_only', label: 'Only streaming so far', icon: '🎧' },
+        { value: 'none', label: 'Not yet', icon: '🌱' },
+      ],
+    },
+    {
       key: 'current_supporters',
       type: 'number',
       label: 'Fans already paying you directly',

@@ -29,6 +29,18 @@ export function AudienceTab() {
   const [editSequenceId, setEditSequenceId] = useState<string | null>(null);
   const [editLinkId, setEditLinkId] = useState<string | null>(null);
 
+  // Deep links from the launch flow ("choose who sees it first"): /studio/fans?view=campaigns
+  // opens the campaign list, ?view=compose opens a fresh composer (which reads its own
+  // ?audience=contacts prefill). Unknown values fall back to the normal fans view.
+  useEffect(() => {
+    const v = new URLSearchParams(window.location.search).get('view');
+    if (v === 'campaigns') setSubView('campaigns');
+    if (v === 'compose') {
+      setEditCampaignId(null);
+      setSubView('compose');
+    }
+  }, []);
+
   useEffect(() => {
     async function loadArtist() {
       const { data: { user } } = await supabase.auth.getUser();

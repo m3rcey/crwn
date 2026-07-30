@@ -243,6 +243,9 @@ function OfferBuilder() {
 
   const [loading, setLoading] = useState(true);
   const [artistId, setArtistId] = useState<string | null>(null);
+  const [artistSlug, setArtistSlug] = useState<string | null>(null);
+  // null = unknown (status call failed); the done screen only nags when it KNOWS charges are off.
+  const [stripeConnected, setStripeConnected] = useState<boolean | null>(null);
 
   const [stepIndex, setStepIndex] = useState(0);
   const [phase, setPhase] = useState<'steps' | 'done'>('steps');
@@ -271,10 +274,11 @@ function OfferBuilder() {
     if (!user) return;
     const { data } = await supabase
       .from('artist_profiles')
-      .select('id')
+      .select('id, slug')
       .eq('user_id', user.id)
       .maybeSingle();
     setArtistId(data?.id ?? null);
+    setArtistSlug(data?.slug ?? null);
     setLoading(false);
   }, [user, supabase]);
 
@@ -353,7 +357,18 @@ function OfferBuilder() {
   }
 
   if (phase === 'done') {
-    return <DoneScreen offerType={offerType} onOffers={() => router.push('/offers')} onDashboard={() => router.push('/profile/artist')} />;
+    return (
+      <DoneScreen
+        offerType={offerType}
+        isPaidOffer={isValidPrice(price) && Math.round(parseFloat(price) * 100) > 0}
+        stripeConnected={stripeConnected}
+        artistSlug={artistSlug}
+        onImportFans={() => router.push('/studio/fans')}
+        onInviteFans={() => router.push('/studio/fans?view=compose&audience=contacts')}
+        onOffers={() => router.push('/offers')}
+        onDashboard={() => router.push('/profile/artist')}
+      />
+    );
   }
 
   const selectedGoal = GOALS.find((g) => g.id === goalId) ?? null;
@@ -502,12 +517,17 @@ function OfferBuilder() {
         return; // stay on Review so they can retry
       }
 
-      // Subscription tiers are inserted with stripe_price_id: null; the connect
-      // status endpoint idempotently backfills Stripe prices for connected
-      // artists, making the tier purchasable now instead of at next dashboard
-      // visit. Best-effort — never block the success screen on it.
-      if (offerType === 'subscription') {
-        await fetch('/api/stripe/connect/status').catch(() => {});
+      // The connect status endpoint idempotently backfills Stripe prices for connected
+      // artists (making a new tier purchasable now instead of at next dashboard visit) and
+      // tells us whether fans can actually pay, which the done screen uses to surface the
+      // "Connect Stripe so fans can purchase this offer" step. Best-effort — never block
+      // the success screen on it.
+      try {
+        const statusRes = await fetch('/api/stripe/connect/status');
+        const status = await statusRes.json();
+        setStripeConnected(status?.connected === true ? true : status?.connected === false ? false : null);
+      } catch {
+        setStripeConnected(null);
       }
 
       // 2) Promotion — artist-wide rails. The offer already exists at this point,
@@ -1021,25 +1041,103 @@ function BenefitPicker({ selected, onChange }: { selected: string[]; onChange: (
 
 function DoneScreen({
   offerType,
+  isPaidOffer,
+  stripeConnected,
+  artistSlug,
+  onImportFans,
+  onInviteFans,
   onOffers,
   onDashboard,
 }: {
   offerType: OfferType;
+  isPaidOffer: boolean;
+  stripeConnected: boolean | null;
+  artistSlug: string | null;
+  onImportFans: () => void;
+  onInviteFans: () => void;
   onOffers: () => void;
   onDashboard: () => void;
 }) {
+  const [copied, setCopied] = useState(false);
+  const launchUrl = artistSlug ? `https://thecrwn.app/${artistSlug}` : null;
+
+  const copyLink = async () => {
+    if (!launchUrl) return;
+    try {
+      await navigator.clipboard.writeText(launchUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard denied; the URL is visible to copy by hand */
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-lg text-center page-fade-in">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
-          <PartyPopper className="w-9 h-9 text-crwn-gold" />
+      <div className="w-full max-w-lg page-fade-in">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-crwn-gold/15 flex items-center justify-center">
+            <PartyPopper className="w-9 h-9 text-crwn-gold" />
+          </div>
+          <h1 className="text-3xl font-bold text-crwn-text mb-2">Your offer is live 🎉</h1>
+          <p className="text-crwn-text-secondary mb-6">
+            {offerType === 'subscription'
+              ? 'Your membership tier is on your page. Now choose who should see it first.'
+              : 'Your offer is in your shop. Now choose who should see it first.'}
+          </p>
         </div>
-        <h1 className="text-3xl font-bold text-crwn-text mb-2">Your offer is live 🎉</h1>
-        <p className="text-crwn-text-secondary mb-8">
-          {offerType === 'subscription'
-            ? 'Your membership tier is on your page. Now put the link everywhere fans already watch you.'
-            : 'Your offer is in your shop. Now put the link everywhere fans already watch you.'}
-        </p>
+
+        {/* An offer nobody can pay for is a preview, not a launch. Only shown when the status
+            check ANSWERED false; an unknown status never nags. */}
+        {isPaidOffer && stripeConnected === false && (
+          <div className="rounded-2xl bg-crwn-surface border border-crwn-gold/40 p-4 mb-4">
+            <p className="text-sm font-semibold text-crwn-text">Fans cannot pay you yet</p>
+            <p className="text-xs text-crwn-text-secondary mt-1 mb-3">
+              Connect Stripe so fans can purchase this offer. Until then it shows on your page
+              but every purchase attempt dies at checkout.
+            </p>
+            <a
+              href="/api/stripe/connect"
+              className="inline-flex items-center gap-2 bg-crwn-gold text-crwn-bg text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-crwn-gold/90 transition-colors"
+            >
+              Connect Stripe
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        )}
+
+        {/* Who sees it first. Small test group beats a cold blast. */}
+        <div className="rounded-2xl bg-crwn-surface border border-crwn-elevated p-4 mb-4 space-y-3">
+          <button
+            onClick={onImportFans}
+            className="w-full text-left rounded-xl bg-crwn-elevated p-3 hover:border-crwn-gold/40 border border-transparent transition-colors"
+          >
+            <p className="text-sm font-medium text-crwn-text">Bring your fans with you</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">
+              Import the list you built on Patreon, Shopify, or your email tool. A launch nobody
+              sees earns nothing.
+            </p>
+          </button>
+          <button
+            onClick={onInviteFans}
+            className="w-full text-left rounded-xl bg-crwn-elevated p-3 hover:border-crwn-gold/40 border border-transparent transition-colors"
+          >
+            <p className="text-sm font-medium text-crwn-text">Invite a small test group</p>
+            <p className="text-xs text-crwn-text-secondary mt-0.5">
+              Email your first invite to a handful of imported fans before going wide.
+            </p>
+          </button>
+          {launchUrl && (
+            <button
+              onClick={copyLink}
+              className="w-full text-left rounded-xl bg-crwn-elevated p-3 hover:border-crwn-gold/40 border border-transparent transition-colors"
+            >
+              <p className="text-sm font-medium text-crwn-text">{copied ? 'Copied!' : 'Copy your launch link'}</p>
+              <p className="text-xs text-crwn-text-secondary mt-0.5 break-all">{launchUrl}</p>
+            </button>
+          )}
+        </div>
+
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={onOffers}

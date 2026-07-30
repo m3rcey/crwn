@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useToast } from '@/components/shared/Toast';
 import { Upload, X, Loader2, FileSpreadsheet, ArrowRight, CheckCircle } from 'lucide-react';
+import { IMPORT_ATTESTATION_TEXT } from '@/lib/fanImportConsent';
 
 interface FanImportModalProps {
   artistId: string;
@@ -25,6 +26,7 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
   const [csvRows, setCsvRows] = useState<string[][]>([]);
   const [columnMap, setColumnMap] = useState<Record<string, FieldName | ''>>({}); // csv header → field
   const [importResult, setImportResult] = useState<{ imported: number; skipped: number; invalid: number } | null>(null);
+  const [attested, setAttested] = useState(false);
 
   if (!isOpen) return null;
 
@@ -34,6 +36,7 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
     setCsvRows([]);
     setColumnMap({});
     setImportResult(null);
+    setAttested(false);
   };
 
   const handleClose = () => {
@@ -126,6 +129,11 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
     const headerIndex: Record<string, number> = {};
     csvHeaders.forEach((h, i) => { headerIndex[h] = i; });
 
+    if (!attested) {
+      showToast('Confirm these fans gave you permission first', 'error');
+      return;
+    }
+
     const mappedRows = csvRows.map(row => {
       const record: Record<string, string> = {};
       Object.entries(columnMap).forEach(([csvHeader, field]) => {
@@ -142,7 +150,7 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
       const res = await fetch('/api/fan-contacts/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ artistId, rows: mappedRows }),
+        body: JSON.stringify({ artistId, rows: mappedRows, attestedPermission: true }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Import failed');
@@ -251,6 +259,19 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
               </div>
             </div>
 
+            {/* Permission attestation. Importing a file never creates consent by itself; what
+                CRWN records is this explicit, versioned attestation, and the invite path
+                refuses contacts imported without it. */}
+            <label className="flex items-start gap-2 mt-4 text-xs text-crwn-text-secondary cursor-pointer">
+              <input
+                type="checkbox"
+                checked={attested}
+                onChange={e => setAttested(e.target.checked)}
+                className="mt-0.5 accent-[#D4AF37]"
+              />
+              <span>{IMPORT_ATTESTATION_TEXT}</span>
+            </label>
+
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={reset}
@@ -260,7 +281,7 @@ export function FanImportModal({ artistId, isOpen, onClose, onImported }: FanImp
               </button>
               <button
                 onClick={handleImport}
-                disabled={!Object.values(columnMap).includes('email')}
+                disabled={!Object.values(columnMap).includes('email') || !attested}
                 className="flex items-center gap-2 px-4 py-2.5 bg-crwn-gold text-crwn-bg rounded-full text-sm font-semibold hover:bg-crwn-gold/90 disabled:opacity-40 transition-colors"
               >
                 Import {csvRows.length} Contacts

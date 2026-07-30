@@ -94,7 +94,15 @@ all live together.
 
 ## Still open
 
-**The consolidation wedge has no on-ramp.** CRWN has no email-list CSV import and no migration
-path from Patreon, Shopify, Gumroad or Mailchimp. The avatar is defined by having a paid audience
-somewhere else, and today CRWN asks them to rebuild it by hand. See "On Claude's plate" in
-[TODO.md](../TODO.md).
+**The consolidation on-ramp is partially built.** An earlier version of this section claimed CRWN
+had no email-list CSV import; that was wrong. The CSV import has existed at `/studio/fans` (Import
+Fans, `/api/fan-contacts/import`) and, as of 2026-07-30, records an explicit permission
+attestation at import, and imported contacts can be emailed a launch invite through the existing
+campaign sender (small test group first). What is still missing is the deeper migration path:
+Patreon member import with tier matching, and product/catalog import from Shopify or Gumroad. That
+scope decision sits in [TODO.md](../TODO.md).
+
+**Qualified hand-raising now exists.** The unified opportunity calculator asks the 40% question
+(`monetization_status`) like every loss tool, and a qualified (sales_priority, recomputed
+server-side) artist who explicitly consents can request an immediate founder call from the save
+boundary, which sends one deduplicated SMS to `FOUNDER_ALERT_PHONE`.

@@ -145,6 +145,12 @@ A step whose every input is branched away is skipped outright (`isStepVisible`),
 sees an empty screen with a Continue button. Only the audience question is required; an artist can
 reach a real result from one number.
 
+The `proof` step also asks the 40% qualification question, `monetization_status` ("Have you sold
+directly to fans before?", one tap), added 2026-07-30. Every loss tool already asked it
+(docs/ICP.md); the unified tool was the one place that skipped it, which blinded lead scoring's
+biggest dimension for the primary funnel candidate. It feeds ONLY qualification (the hand-raiser
+below and lead scoring), never the money model.
+
 ### Entry context
 
 A campaign link carries `?from=<tool-slug>` and the wizard leads with that opportunity's questions.
@@ -195,14 +201,40 @@ would be the same additive mistake applied to the artist's attention instead of 
 **No referral link is ever fabricated before an account exists.** A test asserts the conversion
 payload contains no referral code or link.
 
+### The qualified immediate-call hand-raiser (2026-07-30)
+
+Below the builder (never before it), the artist can tap "Get a call now", enter a callback
+number, and explicitly consent to a call and text about launching their plan
+(`CALL_CONSENT_VERSION` in `src/lib/acquisition/callRequest.ts`). The server
+(`POST /api/lead-magnets/call-request`) then:
+
+- sanitizes the calculator answers against the tool's own input definitions and **recomputes
+  qualification through the canonical `scoreLead`** (never a client band);
+- claims idempotency on `acquisition_events` (one request per phone per day, insert-as-claim);
+- for a `sales_priority` lead only, sends ONE SMS to the server-only `FOUNDER_ALERT_PHONE` via
+  the existing Twilio helper, falling back to email to the founder when SMS is unconfigured or
+  fails;
+- persists the whole CRM record (consent, qualification, calculator answers, alert status,
+  manual contact status) in the claim row's `response_snapshot`, surfaced in `/admin` →
+  Acquisition → Calls with a manual status dropdown.
+
+The response is uniform (`{ ok: true }`) whether or not the lead qualified, so the endpoint
+cannot be used to probe the scoring model. Unqualified requests are recorded, never alerted.
+Tests: `src/lib/acquisition/callRequest.test.ts`.
+
 ---
 
 ## 8. Analytics
 
 Rides the existing `lead_magnet_events` sink. Three events were added to the shared funnel
 vocabulary: `opportunity_overlap_explained`, `opportunity_recommendation_edited`,
-`opportunity_estimate_recalculated`. One dimension was added: `entryContext` (resolved against the
-tool's declared contexts first, so raw URL text can never reach the sink).
+`opportunity_estimate_recalculated`, and two more on 2026-07-30 for the hand-raiser:
+`opportunity_call_option_viewed`, `opportunity_call_requested`. One dimension was added:
+`entryContext` (resolved against the tool's declared contexts first, so raw URL text can never
+reach the sink). The canonical `funnel_events` taxonomy also grew five journey stages the same
+day: `call_requested`, `stripe_connected`, `fans_imported`, `fan_invited`,
+`first_paid_conversion`, connecting the anonymous calculator run to the artist's first real
+dollar.
 
 The server allowlist in `/api/lead-magnets/analytics` is now **derived** from
 `ALL_OPPORTUNITY_EVENT_NAMES` instead of hand-copied. The two lists were duplicated by hand, so

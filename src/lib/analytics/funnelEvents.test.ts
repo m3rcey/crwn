@@ -14,16 +14,22 @@ import {
   recordFunnelEvent,
 } from './funnelEvents';
 
-describe('the stage taxonomy is exactly the fifteen funnel stages', () => {
-  it('has 15 stages including the endpoints', () => {
-    expect(FUNNEL_STAGES).toHaveLength(15);
+describe('the stage taxonomy is exactly the twenty funnel stages', () => {
+  it('has 20 stages including the endpoints', () => {
+    expect(FUNNEL_STAGES).toHaveLength(20);
     expect(FUNNEL_STAGES[0]).toBe('page_viewed');
-    expect(FUNNEL_STAGES[FUNNEL_STAGES.length - 1]).toBe('mission_completed');
+    expect(FUNNEL_STAGES[FUNNEL_STAGES.length - 1]).toBe('first_paid_conversion');
   });
 
   it('isFunnelStage accepts the canonical stages and rejects anything else', () => {
     expect(isFunnelStage('setup_completed')).toBe(true);
     expect(isFunnelStage('builder_published')).toBe(true);
+    // The journey extension: through Stripe, launch, import, invite and first money.
+    expect(isFunnelStage('call_requested')).toBe(true);
+    expect(isFunnelStage('stripe_connected')).toBe(true);
+    expect(isFunnelStage('fans_imported')).toBe(true);
+    expect(isFunnelStage('fan_invited')).toBe(true);
+    expect(isFunnelStage('first_paid_conversion')).toBe(true);
     expect(isFunnelStage('nonsense')).toBe(false);
     expect(isFunnelStage(undefined)).toBe(false);
     expect(isFunnelStage(42)).toBe(false);

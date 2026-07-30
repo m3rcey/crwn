@@ -7,7 +7,7 @@ import {
 
 describe('opportunity event names', () => {
   it('defines exactly the shared funnel events, including the three multi-opportunity ones', () => {
-    expect(OPPORTUNITY_EVENT_NAMES).toHaveLength(10);
+    expect(OPPORTUNITY_EVENT_NAMES).toHaveLength(12);
     expect(OPPORTUNITY_EVENT_NAMES).toEqual([
       'opportunity_funnel_viewed',
       'opportunity_funnel_started',
@@ -21,6 +21,9 @@ describe('opportunity event names', () => {
       'opportunity_overlap_explained',
       'opportunity_recommendation_edited',
       'opportunity_estimate_recalculated',
+      // The qualified immediate-call hand-raiser at the save boundary.
+      'opportunity_call_option_viewed',
+      'opportunity_call_requested',
     ]);
     expect(OPPORTUNITY_EVENTS.funnelViewed).toBe('opportunity_funnel_viewed');
   });
