@@ -98,6 +98,16 @@ export async function POST(req: NextRequest) {
     return twiml('You have been unsubscribed. You will no longer receive texts.');
   }
 
+  // HELP — required by US carriers for A2P 10DLC. The reply must name the program, say how to
+  // stop, and give a real support contact. Previously HELP fell through to the generic
+  // catch-all, which technically pointed at support but did not name the program, and carriers
+  // check this during campaign vetting.
+  if (upperBody === 'HELP' || upperBody === 'INFO') {
+    return twiml(
+      'CRWN Alerts: updates from artists you subscribed to. Msg&data rates may apply. Reply STOP to unsubscribe. Support: support@thecrwn.app',
+    );
+  }
+
   // YES — double opt-in confirmation
   if (upperBody === 'YES' || upperBody === 'Y') {
     const { data: pending } = await supabaseAdmin
