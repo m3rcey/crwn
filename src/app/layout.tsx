@@ -8,6 +8,7 @@ import { MiniPlayer } from "@/components/player/MiniPlayer";
 import { FullScreenPlayer } from "@/components/player/FullScreenPlayer";
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration";
 import { ReferralPersist } from "@/components/shared/ReferralPersist";
+import { BugReportButton } from "@/components/shared/BugReportButton";
 import { Suspense } from "react";
 
 const inter = Inter({
@@ -83,6 +84,7 @@ export default function RootLayout({
               <MiniPlayer />
               <FullScreenPlayer />
               <Suspense><ReferralPersist /></Suspense>
+              <Suspense><BugReportButton /></Suspense>
               <ServiceWorkerRegistration />
             </PlayerProvider>
           </ToastProvider>

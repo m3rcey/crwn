@@ -58,45 +58,29 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Get the hot-lead text on your phone TODAY: set `FOUNDER_ALERT_SMS_EMAIL` in Vercel.**
-      **The SMS mystery is solved with hard evidence.** Twilio ACCEPTS the alert, then the US
-      carrier drops it with **error 30034: A2P 10DLC not registered**. Your credentials, your
-      sender number (+1 314 557 3549) and your alert phone are all correct; carriers simply
-      refuse business SMS from numbers that are not registered. Proven 2026-07-30: message
-      `SM3f7ce41…` came back `undelivered / 30034`, and alerts now record their own delivery
-      status so this is visible in the data.
+- [ ] **Run the support-chat migration:**
+      [`supabase/schema-phase2-support-chat.sql`](supabase/schema-phase2-support-chat.sql)
+      in the Supabase SQL editor. Until it runs, the new /support chat quietly falls back to
+      the contact form (nothing breaks), and the admin **Support** tab tells you the same.
+      The moment it runs, users can chat with the AI assistant and escalate to you; you get an
+      email per escalation and reply from `/admin?tab=support`.
 
-      Registering A2P properly takes days (separate item below). To get a text in the meantime,
-      CRWN can route the alert through your carrier's email-to-text gateway, which needs no
-      Twilio registration at all:
-      1. Work out your gateway address: your 10-digit number followed by
-         **Verizon** `@vtext.com` · **AT&T** `@txt.att.net` · **T-Mobile** `@tmomail.net`
-         (example: `3145551234@vtext.com`).
-      2. Vercel → project `crwn` → **Settings → Environment Variables** → add
-         `FOUNDER_ALERT_SMS_EMAIL` = that address. Production. Server-only.
-      3. Tell Claude "the SMS gateway is set" and it will redeploy and fire a real test.
-      Delete this variable once A2P registration completes, so alerts go back to real SMS.
+- [ ] **Verify `DEEPSEEK_API_KEY` exists in Vercel (Production).** The support chat's AI answers
+      use it (same key the admin Sage route already referenced). If it is missing the chat still
+      works, it just escalates every message straight to you, which defeats the point. Check
+      Vercel → project `crwn` → Settings → Environment Variables; if absent, create a key at
+      platform.deepseek.com and add it (server-only, never `NEXT_PUBLIC_`). Then tell Claude and
+      it will redeploy and test a real chat answer.
 
-- [ ] **A2P 10DLC is fully registered and now waiting on carrier vetting. Nothing to do in
-      Twilio.** Completed 2026-07-30: Customer Profile, A2P Brand, A2P Campaign, and the phone
-      number (+1 314 557 3549, correctly the one CRWN sends from) are all submitted. A delivery
-      test immediately afterwards still returned `undelivered / 30034`, which is expected:
-      **submitting is not the same as being vetted.** Sole-proprietor campaigns usually clear
-      within a few hours to a business day.
-
-      **When you want to check:** `/admin` → **Acquisition** → **Calls** → **Check SMS health**.
-      It reports the campaign status in plain English and whether the number is attached to the
-      Messaging Service carrying the campaign (an approved campaign with an unattached number
-      still fails, so both are shown).
-
-      **When it clears, two steps:** the panel names the Messaging Service id (starts with `MG`).
-      Add it in Vercel as `TWILIO_MESSAGING_SERVICE_SID`, then tell Claude, which will redeploy
-      and run a real delivery test to confirm your phone rings. The code already prefers that
-      route when the variable exists; it is Twilio's recommended path for 10DLC traffic.
-
-      **If you want a text before vetting clears**, set `FOUNDER_ALERT_SMS_EMAIL` (see the
-      carrier-gateway item above). Otherwise the alerts keep arriving by email, so no hot lead
-      is missed while you wait.
+- [ ] **Wind down Twilio: the SMS feature is REMOVED from CRWN (your call, 2026-07-31, for
+      compliance cost).** Code, routes, cron, tier copy, legal SMS program section: all gone.
+      Hot-lead alerts now arrive by EMAIL always (plus the carrier-gateway text if
+      `FOUNDER_ALERT_SMS_EMAIL` is set; that path is just email and needs no Twilio). In Twilio:
+      release the number (+1 314 557 3549) and close or downgrade the account so it stops
+      billing, and abandon the A2P campaign (no action needed, it just lapses). In Vercel you
+      can delete `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`; nothing
+      reads them anymore. KEEP `FOUNDER_ALERT_SMS_EMAIL` if you want hot-lead texts.
+      The old `sms_*` tables keep their consent history; they are simply unused.
 
 - [ ] **Promote the all-in-one calculator to PRIMARY when `oyf-signup-timing-v1` concludes.**
       Decision made 2026-07-30 (you delegated it): do NOT promote while the experiment runs,

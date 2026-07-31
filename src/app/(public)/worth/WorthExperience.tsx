@@ -101,13 +101,12 @@ const COMPARE = [
   { label: 'Pay per fan', streaming: 'Fractions of a cent', crwn: '$10–$200 / month' },
   { label: 'Who you reach', streaming: 'The algorithm decides', crwn: 'Every fan, directly' },
   { label: 'Your cut', streaming: 'They keep most of it', crwn: 'You keep up to 92%' },
-  { label: 'Fan data', streaming: 'You get none', crwn: 'Names, emails, phones' },
+  { label: 'Fan data', streaming: 'You get none', crwn: 'Names and emails, yours' },
   { label: 'Payout', streaming: 'Months later, if at all', crwn: 'Straight to your bank' },
 ];
 
 const AUDIENCE_TOOLS = [
   { icon: '✉️', name: 'Email campaigns', desc: 'Reach every fan directly.' },
-  { icon: '💬', name: 'SMS marketing', desc: 'Text supporters when it matters.' },
   { icon: '🔁', name: 'Automated sequences', desc: 'Welcome & win-back on autopilot.' },
   { icon: '🔗', name: 'Smart links & presaves', desc: 'Capture emails on every release.' },
   { icon: '🏷️', name: 'Discount codes', desc: 'Run drops and promos.' },

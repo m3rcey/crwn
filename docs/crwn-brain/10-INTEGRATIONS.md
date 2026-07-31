@@ -11,9 +11,9 @@
 | Cloudflare R2 (S3 SDK) | Audio masters, art, VOD storage | Complete (audio recently moved to private + signed URLs) | n/a |
 | LiveKit | Live streaming + egress→VOD | Complete | ✅ yes |
 | Resend | Transactional + marketing email | Complete | ❌ **no (High)** |
-| DeepSeek (via `openai` SDK) | AI Manager + admin autonomous agent | Complete | n/a |
+| DeepSeek (via `openai` SDK) | AI Manager + admin autonomous agent + /support chat (2026-07-31) | Complete | n/a |
 | OpenAI (`gpt-4o-mini`) | `sync-opportunities` cron only | Complete (narrow) | n/a |
-| Twilio (raw REST) | SMS/MMS marketing | Complete (Pro+, dev-stubbed) | status ✅ / inbound ❌ **(High)** |
+| Twilio (raw REST) | SMS/MMS marketing | **REMOVED 2026-07-31** (founder decision: A2P 10DLC compliance cost not worth it) | n/a (routes deleted) |
 | Calendly (`react-calendly`) | Booking embed | **Orphaned/unused** | n/a |
 | `@google/genai` | — | **Scaffolded, unused by app** | n/a |
 | DiceBear | Demo avatars only | Not a real integration | n/a |
@@ -59,18 +59,16 @@
 
 ## DeepSeek + OpenAI — AI (two providers, both via the `openai` npm SDK)
 - **Env:** `DEEPSEEK_API_KEY` (baseURL `https://api.deepseek.com`, model `deepseek-chat`), `OPENAI_API_KEY` (`gpt-4o-mini`).
-- **DeepSeek powers:** artist **AI Manager** (`src/lib/ai/generateInsights.ts`, `generateActions.ts`) and the **admin autonomous agent** (`src/app/api/admin/agent/{analyze,briefing}/route.ts`, `admin/support`). Actions execute via `src/app/api/admin/agent/execute/route.ts` behind a coordination lock (`src/lib/ai/coordinationLock.ts`) + `requireAdmin()`.
+- **DeepSeek powers:** artist **AI Manager** (`src/lib/ai/generateInsights.ts`, `generateActions.ts`), the **admin autonomous agent** (`src/app/api/admin/agent/{analyze,briefing}/route.ts`, `admin/support`), and since 2026-07-31 the **/support live chat** (`/api/support/chat`, `deepseek-chat` with a knowledge prompt generated from the 14 real getting-started guides via `src/lib/supportKnowledge.ts`). If `DEEPSEEK_API_KEY` is unset, or the AI flags the question, or the user taps "Talk to a human", the conversation escalates to `human_requested` and the founder is emailed a link to `/admin?tab=support` (SupportChatView), where admin replies email the user.
 - **OpenAI powers:** exactly one place — `src/app/api/cron/sync-opportunities/route.ts` (generates synthetic sync-licensing "opportunity" listings, Mon/Thu).
 - **Failure:** all AI calls are try/caught and degrade to empty/fallback results, never throw. The PRD's "Moonshot AI (Kimi)" reference is **stale** — no Moonshot in code.
 
-## Twilio — SMS/MMS
-- **Env:** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` (the SENDER, +1 314 557 3549), plus `FOUNDER_ALERT_PHONE` (the RECIPIENT: the founder's personal cell, server-only; email fallback when unset). **No `twilio` npm package** — raw `fetch` Basic-auth to the REST API (`src/lib/twilio.ts`).
-- **✅ RESOLVED 2026-07-30: SMS had never sent because the configured credentials were Twilio's TEST pair.** Diagnosed against the API (any real from-number returned **20008 "Resource not accessible with Test Account Credentials"**, while a send from the magic test number +15005550006 was accepted), fixed by swapping in the live Account SID + Auth Token. Verified end to end afterwards: a real qualified call request produced message SID `SMde98c…` with no error and no email fallback. **The sender number never needed changing** — the live account owns +1 314 557 3549; only the credentials were wrong. `sendSms` now special-cases code 20008 and returns that diagnosis, because Twilio's own message blames the from-number ("not a valid message-capable Twilio phone number") for what is purely a credentials problem, which sends you chasing number capabilities, trial mode and A2P 10DLC for nothing.
-- **Internal operational alerts (2026-07-30):** the qualified call-request route (`/api/lead-magnets/call-request`) sends ONE founder SMS per qualified request via `sendSms`, entirely separate from artist→fan SMS marketing (no `sms_subscribers`, no per-fan caps, no quiet-hour logic — it is an internal pager, not a campaign).
-- **Files:** `src/lib/twilio.ts` (send + quiet-hours + area-code→timezone), `src/app/api/sms/{send,status,provision,upload,webhook}`. Reset cron `/api/cron/sms-reset` (monthly).
-- **Gating:** Pro+ only (`getSmsLimit(tier)===0` blocks Free). Quiet hours 9pm–9am fan-local; max 1 SMS/mo/fan/artist.
-- **Dev:** stubs to `console.log('[SMS Stub]')` and returns fake success when unconfigured.
-- **Webhooks:** `/api/sms/status` (delivery) **verifies** Twilio HMAC-SHA1 signature. `/api/sms/webhook` (inbound STOP/YES keywords) does **NOT** verify — **High** gap. `sms/send` has a TODO: quiet-hour sends are silently dropped (counted, never queued) — partial feature.
+## Twilio: REMOVED 2026-07-31
+The entire SMS feature was removed on 2026-07-31 (founder decision: the A2P 10DLC compliance cost was not worth it). Twilio is no longer an integration.
+- **Deleted:** `src/lib/twilio.ts`, all `/api/sms/*` routes (send, webhook, status, provision, upload), `/api/cron/sms-reset` (and its `vercel.json` cron), `/api/admin/twilio-health`, the `SmsSetup` component, the SMS tab in the Fan CRM (AudienceTab), SMS limits in `platformTier.ts`, SMS mentions in tier upgrade emails / `PlatformTierModal` / `PlatformBilling` / the worth page, the SMS consent checkbox on lead capture, the fan SMS marketing toggle, and Terms §13 (SMS Messaging Program) plus the privacy policy's Twilio mention.
+- **DB tables kept, dormant:** `artist_phone_numbers`, `sms_subscribers`, `sms_consent_log` were NOT dropped. They preserve historical consent records; nothing reads or writes them anymore.
+- **Founder alerts:** hot-lead call-request alerts are now EMAIL always (joshn.wms@gmail.com), plus an optional carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend email, no Twilio). `TWILIO_*` env vars are dead.
+- The 2026-07-30 test-credentials saga and the earlier webhook-signature work are recorded in `CHANGELOG.md`; they describe what was true before the removal.
 
 ## Calendly — booking embed (orphaned)
 - **Env:** `CALCOM_API_KEY` exists in `.env.local` but **no cal.com server integration found**. `react-calendly` is installed.

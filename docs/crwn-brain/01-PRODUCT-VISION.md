@@ -10,7 +10,7 @@
 
 CRWN (pronounced "Crown") is a **music-monetization SaaS platform** for independent artists to sell subscriptions, tracks, albums, digital/physical products, and experiences **directly to fans**, and to own the fan relationship, revenue, and data. `Confirmed` (`CLAUDE.md`, `PRD.md §1`).
 
-The kickoff brief positions it as **"Skool meets EVEN meets YouTube, purpose-built for music creators"** (`CRWN_Kickoff_Brief.md`). In practice the codebase has grown well past a storefront into an **artist growth/operations suite**: email + SMS marketing automation, a CRM, referral/recruiter/partner acquisition programs, gamified fan engagement (missions/squads/bounties/city-unlocks), live streaming + VOD, team revenue-splits, and an autonomous AI "manager" that diagnoses an artist's business and proposes/executes growth actions. `Confirmed` (feature audit across `src/`).
+The kickoff brief positions it as **"Skool meets EVEN meets YouTube, purpose-built for music creators"** (`CRWN_Kickoff_Brief.md`). In practice the codebase has grown well past a storefront into an **artist growth/operations suite**: email marketing automation (SMS was removed 2026-07-31), a CRM, referral/recruiter/partner acquisition programs, gamified fan engagement (missions/squads/bounties/city-unlocks), live streaming + VOD, team revenue-splits, and an autonomous AI "manager" that diagnoses an artist's business and proposes/executes growth actions. `Confirmed` (feature audit across `src/`).
 
 ## 2. Core problem it solves
 
@@ -27,7 +27,7 @@ Independent artists on streaming platforms (Spotify/Apple) earn fractions of a c
 | Persona | Who they are | What they do on CRWN | Evidence |
 |---|---|---|---|
 | **Fan** | A supporter of one or more artists | Discovers artists, subscribes to tiers, buys tracks/products/tickets, joins community + DMs, refers others for commission, joins missions/squads/bounties | `UserRole='fan'` (`src/types/index.ts`), fan routes under `(main)/` |
-| **Artist** | An independent musician | Publishes profile/music/shop, sets tiers, runs email/SMS campaigns + sequences, views analytics, manages payouts, runs Team Splits and referral/clipper programs, goes live | `UserRole='artist'`, `artist_profiles` table, 17-tab dashboard `src/app/(main)/profile/artist/page.tsx` |
+| **Artist** | An independent musician | Publishes profile/music/shop, sets tiers, runs email campaigns + sequences (SMS removed 2026-07-31), views analytics, manages payouts, runs Team Splits and referral/clipper programs, goes live | `UserRole='artist'`, `artist_profiles` table, 17-tab dashboard `src/app/(main)/profile/artist/page.tsx` |
 | **Admin** | CRWN's internal operator (Josh) | Platform KPI dashboards, artist CRM pipeline, acquisition funnel, platform-to-artist nurture sequences, autonomous AI ops | `UserRole='admin'`, `/admin`, `src/app/api/admin/*` |
 | **Recruiter / Partner** | Music-industry influencer referring *artists* to CRWN | Applies at `/partner`, gets a `join/[code]` link, earns flat + recurring commission, tracks a conversion funnel | `recruiters`/`partner_applications` tables, `/recruit/dashboard`, `PRD.md §6` |
 | **Collaborator** | Producer/manager/clipper on a specific artist deal | Accepts a Team Split invite, completes deliverables, accrues a capped revenue share, cashes out separately | `team_split_deals`, `src/app/team/*`, `src/lib/teamSplits/*` |
@@ -38,7 +38,7 @@ Independent artists on streaming platforms (Spotify/Apple) earn fractions of a c
 - Sell **fan subscriptions** (recurring), **tracks/products** (one-time), **booking sessions** and **live tickets**.
 - Gate any content by free / specific subscription tier / one-time price.
 - Run **email campaigns** and **automated sequences** (welcome, abandoned-cart, tier-upgrade, loyalty) with open/click/conversion tracking and UTM revenue attribution.
-- Run **SMS marketing** (Twilio; Pro+ only, quiet-hours + 1/mo-per-fan caps).
+- ~~Run **SMS marketing**~~ REMOVED 2026-07-31 (founder decision: A2P 10DLC compliance cost was not worth it; Twilio is no longer an integration).
 - View **analytics**: revenue trends, subscriber growth, cohort retention heatmap, churn-vs-benchmark, top content, visitor tracking.
 - Manage **payouts** via Stripe Connect (weekly auto-payout + on-demand cashout).
 - Recruit fans as **referrers/clippers** (commission on referred subscriptions/clips).
@@ -92,7 +92,7 @@ CRWN makes money two ways:
 | AI provider | "Moonshot AI (Kimi)" (`PRD.md §9.6`) | **DeepSeek** (`deepseek-chat` via `openai` SDK) for AI Manager + admin agent; real **OpenAI** `gpt-4o-mini` only in the `sync-opportunities` cron | **Code wins.** `Confirmed` (`src/lib/ai/*`). |
 | Booking | Calendly OAuth integration (`PRD.md §9.4`) | `react-calendly` embed is **orphaned/unused**; the live flow is **booking tokens** (`booking-tokens-migration.sql`). `CALCOM_API_KEY` exists in env but no cal.com server integration found. | **Code wins.** |
 | Onboarding | "Role selection + guided tour + post-tour action picker" (`PRD.md §3`) | Flow is signup → `/welcome` → **`/setup` wizard** (one-field-per-screen), post-tour picker was removed (`CLAUDE.md`, `src/app/setup`). | **Code wins.** |
-| SMS provider | Twilio SDK | Raw `fetch` to Twilio REST (no `twilio` npm package); stubs to console in dev | Minor — same vendor, different integration shape. |
+| SMS provider | Twilio SDK (`PRD.md`) | SMS was removed entirely 2026-07-31; no Twilio integration exists anymore | **Code wins.** The PRD's SMS feature no longer exists. |
 
 ## 10. How CRWN differs from adjacent products (Strongly inferred from feature set)
 

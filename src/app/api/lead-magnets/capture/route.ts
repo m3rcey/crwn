@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
       monthlyListeners?: number;
       mainGoal?: string;
       emailConsent?: boolean;
-      smsConsent?: boolean;
     };
     utm?: { source?: string; medium?: string; campaign?: string; content?: string };
     sourceUrl?: string;
@@ -91,7 +90,6 @@ export async function POST(req: NextRequest) {
   }
 
   const phone = (body.lead?.phone || '').trim() || null;
-  const smsConsent = phone ? body.lead?.smsConsent === true : false;
 
   // 1. Store the lead.
   const { data: lead, error: leadErr } = await supabaseAdmin
@@ -111,7 +109,7 @@ export async function POST(req: NextRequest) {
       utm_campaign: body.utm?.campaign || null,
       utm_content: body.utm?.content || null,
       email_consent: body.lead?.emailConsent === true,
-      sms_consent: smsConsent,
+      sms_consent: false,
       consent_text_version: CONSENT_TEXT_VERSION,
       consented_at: new Date().toISOString(),
     })

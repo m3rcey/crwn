@@ -48,7 +48,7 @@ export const PLATFORM_LOYALTY_REASONS = [
   { key: 'revenue', label: 'Revenue / earnings' },
   { key: 'community_features', label: 'Community features' },
   { key: 'analytics', label: 'Analytics & insights' },
-  { key: 'email_marketing', label: 'Email / SMS marketing' },
+  { key: 'email_marketing', label: 'Email marketing' },
   { key: 'easy_setup', label: 'Easy to set up and use' },
   { key: 'fair_pricing', label: 'Fair pricing / low fees' },
   { key: 'support', label: 'Great support' },

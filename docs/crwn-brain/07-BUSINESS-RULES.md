@@ -8,12 +8,14 @@ ALL DB price/amount columns are integers in cents. Form input → `Math.round(pa
 ## 2. Platform SaaS tiers, fees, and limits
 Source of truth: `TIER_LIMITS` in `src/lib/platformTier.ts`. `getArtistFeePercent(artistId)` is the single fee-determination function used at charge time.
 
-| Tier | Price | Fee | maxFanTiers | maxTracks | maxMembers | bundles/scheduling/live/DMs/clipper | SMS/mo | Email blasts/mo |
-|---|---|---|---|---|---|---|---|---|
-| Free (`starter`) | $0 | **12%** | 1 | 20 | 100 | all off | 0 | 1 |
-| Pro (`pro`) | **$9.99/mo** | **8%** | 3 | ∞ | ∞ | all on | 500 | 10 |
-| $99 (`label`, spec-only) | $99/mo | 5% | 10 | ∞ | ∞ | all on | 2500 | 50 |
-| `empire` (dead) | — | 3% | ∞ | ∞ | ∞ | all on | 10000 | ∞ |
+| Tier | Price | Fee | maxFanTiers | maxTracks | maxMembers | bundles/scheduling/live/DMs/clipper | Email blasts/mo |
+|---|---|---|---|---|---|---|---|
+| Free (`starter`) | $0 | **12%** | 1 | 20 | 100 | all off | 1 |
+| Pro (`pro`) | **$9.99/mo** | **8%** | 3 | ∞ | ∞ | all on | 10 |
+| $99 (`label`, spec-only) | $99/mo | 5% | 10 | ∞ | ∞ | all on | 50 |
+| `empire` (dead) | — | 3% | ∞ | ∞ | ∞ | all on | ∞ |
+
+(The SMS/mo column was removed 2026-07-31: the SMS feature was deleted entirely, and `platformTier.ts` no longer carries SMS limits.)
 
 - **Founding-artist program is RETIRED and the code is GONE (2026-07-15).** There is no per-artist fee override anymore: `getArtistFeePercent()` returns the tier fee, full stop. Nothing writes `is_founding_artist` (the sole writer, `metadata.founding_artist` in `platform-checkout`, was removed), so the flag is permanently false; the dead readers in `getArtistFeePercent`, `cron/ai-manager`, `ai-manager/generate`, and `AiManagerCard` were deleted. A partner code is now **attribution only** (`webhookHandlers` `if (partnerCode)`): it records `partner_code_used`/`acquisition_source='partner'`, creates the `artist_referrals` row + `recruited_by`, and grants the **1-month Stripe trial** (a SaaS-price perk, not a fee cut). Zero artists ever carried the flag in production. Only inert residue left: `FoundingBadge` renders behind `founding_artist_number`, which nothing sets, so it never shows.
 - **The legal pages state the fees, and must be kept true by hand.** `/artist-agreement` and `/terms` list Free 12% / Pro 8% $9.99. They once claimed Starter was 8% while the code charged 12%, i.e. a contract term wrong in the direction that hurt the artist. Do NOT render them from `TIER_LIMITS`: a code change would then silently rewrite the agreement artists already accepted.
@@ -71,8 +73,8 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 ## 11. Marketing limits & protections
 - **Email blasts:** Free 1/mo, Pro 10/mo (`EMAIL_LIMITS`). PRD also cites "2 campaigns/week" — reconcile. `Confirmed` on `EMAIL_LIMITS`.
 - **Imported-contact invites (2026-07-30):** a `fan_contacts` row is emailable ONLY when its import carried the artist's permission attestation (`consent_attested_at`) AND `is_subscribed_email` is still true AND the address is not globally suppressed. Importing a file never creates consent by itself; the attestation is what CRWN records, versioned (`src/lib/fanImportConsent.ts`). Contact campaigns count against the same `EMAIL_LIMITS` quota, cannot be scheduled (interactive send only; the cron sender refuses them), default toward a small test group, and their unsubscribe flips `fan_contacts.is_subscribed_email`. `Confirmed`.
-- **Call-request consent (2026-07-30):** a founder SMS alert fires ONLY when calculator completed + server-recomputed `sales_priority` + valid callback number + explicit versioned consent + an active request. Inferred interest never alerts; unqualified requests are recorded in the admin Calls tab but never SMS'd. One alert per phone per day, DB-claimed. `Confirmed`.
-- **SMS:** Pro+ only; quiet hours 9pm–9am fan-local; **max 1 SMS/mo/fan/artist**; monthly counter reset (`sms-reset` cron). Quiet-hour sends currently dropped (not queued). `Confirmed`.
+- **Call-request consent (2026-07-30, alert channel changed 2026-07-31):** a founder alert fires ONLY when calculator completed + server-recomputed `sales_priority` + valid callback number + explicit versioned consent + an active request. Inferred interest never alerts; unqualified requests are recorded in the admin Calls tab but never alerted. One alert per phone per day, DB-claimed. Since the SMS removal the alert is EMAIL always (joshn.wms@gmail.com), optionally mirrored to a carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend, no Twilio). `Confirmed`.
+- **SMS: REMOVED 2026-07-31** (founder decision: A2P 10DLC compliance cost not worth it). The Pro+ gating, quiet hours, 1 SMS/mo/fan cap and `sms-reset` cron are all gone with the feature; `sms_*` tables stay dormant for consent history. Terms §13 (SMS Messaging Program) was removed from the legal pages.
 - **Suppression:** hard bounce → global suppress; spam complaint → opt out of all artist marketing; senders check before send. `Confirmed`.
 - **Sequences:** triggers `new_subscription|new_purchase|new_post|abandoned_cart|tier_upgrade|loyalty_survey`; multi-step delays; auto-enroll on trigger; conversion checked in a 7-day window. `Confirmed`.
 

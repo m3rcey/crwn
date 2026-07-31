@@ -50,7 +50,8 @@
 - Notifications: `src/lib/notifications.ts`, `src/components/notifications/NotificationBell.tsx`, `src/app/api/notifications/*`
 - Live/VOD: `src/lib/livekit/livekit.ts`, `src/app/api/live/*`, `src/components/live/*`, `src/app/[slug]/live/*`
 - Gamification: `src/lib/quests/*`, `src/components/quests/*`, `src/components/artist/RiseMode.tsx`, `src/lib/{missions,squads,bounties,cityUnlocks}.ts`, routes `src/app/api/{missions,squads,bounties,city-unlocks,road-campaigns,quests,proof-of-demand}/*`
-- Marketing/CRM: `src/lib/emails/*`, `src/app/api/{campaigns,sequences,segments,crm,fan-contacts,smart-links,sms}/*`, `src/lib/twilio.ts`
+- Marketing/CRM: `src/lib/emails/*`, `src/app/api/{campaigns,sequences,segments,crm,fan-contacts,smart-links}/*` (the `sms/*` routes and `src/lib/twilio.ts` were deleted 2026-07-31 with the SMS removal)
+- Support (2026-07-31): `/support` help center page, `src/lib/supportKnowledge.ts` (guide-derived AI knowledge prompt), `src/app/api/support/{route,chat}` + `src/app/api/admin/support-chat`, admin `SupportChatView` (`/admin?tab=support`), global `BugReportButton` in the root layout, tables `support_conversations`/`support_messages` (`schema-phase2-support-chat.sql`, pending)
 - Referrals/recruiters: `src/lib/referrals.ts`, `src/lib/attribution.ts`, `src/app/api/{referrals,recruit}/*`, `src/app/{join/[code],partner}/`
 - Admin/AI: `src/app/admin/`, `src/app/api/admin/*`, `src/lib/ai/*`, `src/app/api/ai-manager/*`, `src/components/admin/*`
 - Lead magnets / public tools: registry `src/lib/leadMagnets/*` (16 `LeadMagnetConfig` + `EXTERNAL_TOOLS` worth); DM/execution adapters `src/lib/acquisition/{toolAdapters,orchestration,lossResult}.ts`; result/claim `src/lib/leadResults/*`; pages `src/app/(public)/{tools,worth}/*`; DM ingress `src/app/api/integrations/manychat/webhook/route.ts`
@@ -66,7 +67,7 @@
 - Hooks: `src/hooks/*`
 
 ## Cron (vercel.json ↔ routes)
-`src/app/api/cron/{weekly-payout,weekly-report,recruiter-qualify,recruiter-recurring,ai-manager,sequences,sms-reset,sync-opportunities,lead-scoring,inactive-subscribers,scheduled-releases,scheduled-campaigns,platform-crm,activation-nudges,onboarding-reminder,platform-sequences,fan-digest,sequence-conversions,outcome-measure,agent-health,clipper-rate-drops,team-split-accruals,rls-canary,onboarding-health,team-split-selfcheck}/route.ts`; briefing `src/app/api/admin/agent/briefing/route.ts`
+`src/app/api/cron/{weekly-payout,weekly-report,recruiter-qualify,recruiter-recurring,ai-manager,sequences,sync-opportunities,lead-scoring,inactive-subscribers,scheduled-releases,scheduled-campaigns,platform-crm,activation-nudges,onboarding-reminder,platform-sequences,fan-digest,sequence-conversions,outcome-measure,agent-health,clipper-rate-drops,team-split-accruals,rls-canary,onboarding-health,team-split-selfcheck}/route.ts` (`sms-reset` deleted 2026-07-31 with the SMS removal); briefing `src/app/api/admin/agent/briefing/route.ts`
 
 ## Health / canaries
 `src/app/api/cron/onboarding-health/route.ts`, `src/app/api/cron/rls-canary/route.ts`, `schema-phase2-cron-heartbeat.sql`

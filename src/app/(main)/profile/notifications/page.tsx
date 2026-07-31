@@ -7,7 +7,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { smartBack } from '@/lib/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Mail, MessageSquare, Loader2, BellOff, Clock, Zap } from 'lucide-react';
+import { ArrowLeft, Mail, Loader2, BellOff, Clock, Zap } from 'lucide-react';
 
 interface ArtistPref {
   artist_id: string;
@@ -15,8 +15,6 @@ interface ArtistPref {
   avatar_url: string | null;
   slug: string;
   email_marketing: boolean;
-  sms_marketing: boolean;
-  has_sms: boolean;
   digest_only: boolean;
 }
 
@@ -34,7 +32,7 @@ export default function NotificationsPage() {
     if (!user) return;
 
     // Get all artist relationships via subscriptions + earnings
-    const [{ data: subs }, { data: earnings }, { data: smsSubs }] = await Promise.all([
+    const [{ data: subs }, { data: earnings }] = await Promise.all([
       supabase
         .from('subscriptions')
         .select('artist_id, artist:artist_profiles(slug, profile:profiles(display_name, avatar_url))')
@@ -43,16 +41,10 @@ export default function NotificationsPage() {
         .from('earnings')
         .select('artist_id, artist:artist_profiles(slug, profile:profiles(display_name, avatar_url))')
         .eq('fan_id', user.id),
-      supabase
-        .from('sms_subscribers')
-        .select('artist_id')
-        .eq('fan_id', user.id)
-        .eq('status', 'active'),
     ]);
 
     // Deduplicate artists
-    const artistMap: Record<string, { name: string; avatar: string | null; slug: string; has_sms: boolean }> = {};
-    const smsArtistIds = new Set((smsSubs || []).map((s: { artist_id: string }) => s.artist_id));
+    const artistMap: Record<string, { name: string; avatar: string | null; slug: string }> = {};
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const processRecord = (r: any) => {
@@ -61,34 +53,11 @@ export default function NotificationsPage() {
         name: r.artist?.profile?.display_name || 'Unknown Artist',
         avatar: r.artist?.profile?.avatar_url || null,
         slug: r.artist?.slug || '',
-        has_sms: smsArtistIds.has(r.artist_id),
       };
     };
 
     (subs || []).forEach(processRecord);
     (earnings || []).forEach(processRecord);
-
-    // Also add artists from SMS that might not be in subs/earnings
-    if (smsSubs) {
-      for (const s of smsSubs) {
-        if (!artistMap[s.artist_id]) {
-          const { data: artist } = await supabase
-            .from('artist_profiles')
-            .select('slug, profile:profiles(display_name, avatar_url)')
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .eq('id', s.artist_id as any)
-            .single();
-          artistMap[s.artist_id] = {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            name: (artist as any)?.profile?.display_name || 'Unknown Artist',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            avatar: (artist as any)?.profile?.avatar_url || null,
-            slug: artist?.slug || '',
-            has_sms: true,
-          };
-        }
-      }
-    }
 
     const artistIds = Object.keys(artistMap);
     if (artistIds.length === 0) {
@@ -100,12 +69,12 @@ export default function NotificationsPage() {
     // Get existing prefs
     const { data: existingPrefs } = await supabase
       .from('fan_communication_prefs')
-      .select('artist_id, email_marketing, sms_marketing, digest_only')
+      .select('artist_id, email_marketing, digest_only')
       .eq('fan_id', user.id);
 
-    const prefMap: Record<string, { email_marketing: boolean; sms_marketing: boolean; digest_only: boolean }> = {};
-    (existingPrefs || []).forEach((p: { artist_id: string; email_marketing: boolean; sms_marketing: boolean; digest_only?: boolean }) => {
-      prefMap[p.artist_id] = { email_marketing: p.email_marketing, sms_marketing: p.sms_marketing, digest_only: p.digest_only ?? false };
+    const prefMap: Record<string, { email_marketing: boolean; digest_only: boolean }> = {};
+    (existingPrefs || []).forEach((p: { artist_id: string; email_marketing: boolean; digest_only?: boolean }) => {
+      prefMap[p.artist_id] = { email_marketing: p.email_marketing, digest_only: p.digest_only ?? false };
     });
 
     const result: ArtistPref[] = artistIds.map(id => ({
@@ -114,8 +83,6 @@ export default function NotificationsPage() {
       avatar_url: artistMap[id].avatar,
       slug: artistMap[id].slug,
       email_marketing: prefMap[id]?.email_marketing ?? true,
-      sms_marketing: prefMap[id]?.sms_marketing ?? true,
-      has_sms: artistMap[id].has_sms,
       digest_only: prefMap[id]?.digest_only ?? false,
     }));
 
@@ -128,7 +95,7 @@ export default function NotificationsPage() {
     if (user) loadPrefs();
   }, [user, loadPrefs]);
 
-  const togglePref = async (artistId: string, field: 'email_marketing' | 'sms_marketing', value: boolean) => {
+  const togglePref = async (artistId: string, field: 'email_marketing', value: boolean) => {
     if (!user) return;
     setUpdating(`${artistId}-${field}`);
 
@@ -142,7 +109,6 @@ export default function NotificationsPage() {
           fan_id: user.id,
           artist_id: artistId,
           email_marketing: field === 'email_marketing' ? value : existing.email_marketing,
-          sms_marketing: field === 'sms_marketing' ? value : existing.sms_marketing,
           updated_at: new Date().toISOString(),
         },
         { onConflict: 'fan_id,artist_id' }
@@ -157,12 +123,12 @@ export default function NotificationsPage() {
   };
 
   const handleUnsubscribeAll = async () => {
-    if (!confirm('This will unsubscribe you from all marketing emails and SMS from every artist. Are you sure?')) return;
+    if (!confirm('This will unsubscribe you from all marketing emails from every artist. Are you sure?')) return;
     setUnsubAllLoading(true);
 
     const res = await fetch('/api/fan/unsubscribe-all', { method: 'POST' });
     if (res.ok) {
-      setPrefs(prev => prev.map(p => ({ ...p, email_marketing: false, sms_marketing: false })));
+      setPrefs(prev => prev.map(p => ({ ...p, email_marketing: false })));
       setUnsubAllDone(true);
     }
 
@@ -188,7 +154,7 @@ export default function NotificationsPage() {
       </div>
 
       <p className="text-crwn-text-secondary text-sm">
-        Manage marketing emails and SMS from artists you follow. Transactional emails (receipts, subscription confirmations) are not affected.
+        Manage marketing emails from artists you follow. Transactional emails (receipts, subscription confirmations) are not affected.
       </p>
 
       {/* Notification Frequency — overwhelm guard */}
@@ -210,7 +176,6 @@ export default function NotificationsPage() {
                       fan_id: user.id,
                       artist_id: p.artist_id,
                       email_marketing: p.email_marketing,
-                      sms_marketing: p.sms_marketing,
                       digest_only: false,
                       updated_at: new Date().toISOString(),
                     }, { onConflict: 'fan_id,artist_id' });
@@ -240,7 +205,6 @@ export default function NotificationsPage() {
                       fan_id: user.id,
                       artist_id: p.artist_id,
                       email_marketing: p.email_marketing,
-                      sms_marketing: p.sms_marketing,
                       digest_only: true,
                       updated_at: new Date().toISOString(),
                     }, { onConflict: 'fan_id,artist_id' });
@@ -300,30 +264,13 @@ export default function NotificationsPage() {
                         <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all ${pref.email_marketing ? 'left-4' : 'left-0.5'}`} />
                       </div>
                     </button>
-
-                    {/* SMS toggle — only show if fan has SMS with this artist */}
-                    {pref.has_sms && (
-                      <button
-                        onClick={() => togglePref(pref.artist_id, 'sms_marketing', !pref.sms_marketing)}
-                        disabled={updating === `${pref.artist_id}-sms_marketing`}
-                        className="flex items-center gap-1.5 group"
-                        title={pref.sms_marketing ? 'SMS marketing on' : 'SMS marketing off'}
-                      >
-                        <MessageSquare className={`w-4 h-4 ${pref.sms_marketing ? 'text-crwn-gold' : 'text-crwn-text-secondary/40'}`} />
-                        <div className={`w-8 h-4.5 rounded-full relative transition-colors ${pref.sms_marketing ? 'bg-crwn-gold' : 'bg-crwn-elevated'}`}>
-                          <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all ${pref.sms_marketing ? 'left-4' : 'left-0.5'}`} />
-                        </div>
-                      </button>
-                    )}
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="flex items-center gap-2 mt-4 text-xs text-crwn-text-secondary">
-              <Mail className="w-3.5 h-3.5" /> Email
-              <span className="mx-1">·</span>
-              <MessageSquare className="w-3.5 h-3.5" /> SMS
+              <Mail className="w-3.5 h-3.5" /> Email marketing
             </div>
           </div>
 
@@ -342,7 +289,7 @@ export default function NotificationsPage() {
               {unsubAllDone ? 'Unsubscribed from all marketing' : 'Unsubscribe from all artists'}
             </button>
             <p className="text-center text-xs text-crwn-text-secondary/60 mt-2">
-              This stops all marketing emails and SMS from every artist on CRWN.
+              This stops all marketing emails from every artist on CRWN.
             </p>
           </div>
         </>

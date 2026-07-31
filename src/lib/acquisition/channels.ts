@@ -101,9 +101,9 @@ export async function send(req: SendRequest): Promise<ChannelResult> {
     case 'sms':
       // DISABLED SAFE ADAPTER, deliberately.
       //
-      // The SMS infrastructure exists (twilio.ts, quiet hours, sms_consent_log) but a cold
-      // Instagram lead has no phone and no SMS consent, so this channel would reach nobody
-      // while adding a live compliance surface. The interface is here so a future phase can
+      // CRWN has no SMS sending at all anymore (the Twilio integration was removed for A2P
+      // compliance cost), and a cold Instagram lead has no phone and no SMS consent anyway.
+      // The channel stays in the type because historical rows reference it. The interface is here so a future phase can
       // enable it without restructuring anything. It is not wired, and it does not pretend
       // to be.
       outcome = { sent: false, reason: 'sms_channel_disabled' };

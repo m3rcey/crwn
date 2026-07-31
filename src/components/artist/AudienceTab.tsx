@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Users, Mail, Zap, MessageSquare, Link2, Tag, ShoppingCart } from 'lucide-react';
+import { Users, Mail, Zap, Link2, Tag, ShoppingCart } from 'lucide-react';
 import { FanTable } from '@/components/artist/FanTable';
 import { CampaignList } from '@/components/artist/CampaignList';
 import { LaunchKit } from '@/components/artist/LaunchKit';
@@ -10,19 +10,17 @@ import { CampaignComposer } from '@/components/artist/CampaignComposer';
 import { CampaignStats } from '@/components/artist/CampaignStats';
 import { SequenceList } from '@/components/artist/SequenceList';
 import { SequenceBuilder } from '@/components/artist/SequenceBuilder';
-import { SmsSetup } from '@/components/artist/SmsSetup';
 import { SmartLinkList } from '@/components/artist/SmartLinkList';
 import { SmartLinkEditor } from '@/components/artist/SmartLinkEditor';
 import { DiscountCodeManager } from '@/components/artist/DiscountCodeManager';
 import { AbandonedCartDashboard } from '@/components/artist/AbandonedCartDashboard';
 import { TrueRegulars } from '@/components/artist/TrueRegulars';
 
-type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit' | 'sms' | 'links' | 'link-edit' | 'discounts' | 'recovery';
+type SubView = 'fans' | 'campaigns' | 'compose' | 'stats' | 'sequences' | 'sequence-edit' | 'links' | 'link-edit' | 'discounts' | 'recovery';
 
 export function AudienceTab() {
   const supabase = createBrowserSupabaseClient();
   const [artistId, setArtistId] = useState<string | null>(null);
-  const [platformTier, setPlatformTier] = useState<string>('starter');
   const [tiers, setTiers] = useState<{ id: string; name: string }[]>([]);
   const [subView, setSubView] = useState<SubView>('fans');
   const [editCampaignId, setEditCampaignId] = useState<string | null>(null);
@@ -51,13 +49,12 @@ export function AudienceTab() {
 
       const { data: artist } = await supabase
         .from('artist_profiles')
-        .select('id, platform_tier')
+        .select('id')
         .eq('user_id', user.id)
         .single();
 
       if (artist) {
         setArtistId(artist.id);
-        setPlatformTier(artist.platform_tier || 'starter');
 
         const { data: tierData } = await supabase
           .from('subscription_tiers')
@@ -124,7 +121,7 @@ export function AudienceTab() {
     setSubView('links');
   };
 
-  const isTopLevel = subView === 'fans' || subView === 'campaigns' || subView === 'sequences' || subView === 'sms' || subView === 'links' || subView === 'discounts' || subView === 'recovery';
+  const isTopLevel = subView === 'fans' || subView === 'campaigns' || subView === 'sequences' || subView === 'links' || subView === 'discounts' || subView === 'recovery';
 
   return (
     <div className="space-y-6">
@@ -135,7 +132,6 @@ export function AudienceTab() {
             { id: 'fans' as SubView, label: 'Fans', icon: <Users className="w-4 h-4" /> },
             { id: 'campaigns' as SubView, label: 'Campaigns', icon: <Mail className="w-4 h-4" /> },
             { id: 'sequences' as SubView, label: 'Sequences', icon: <Zap className="w-4 h-4" /> },
-            { id: 'sms' as SubView, label: 'SMS', icon: <MessageSquare className="w-4 h-4" /> },
             { id: 'links' as SubView, label: 'Links', icon: <Link2 className="w-4 h-4" /> },
             { id: 'discounts' as SubView, label: 'Promos', icon: <Tag className="w-4 h-4" /> },
             { id: 'recovery' as SubView, label: 'Recovery', icon: <ShoppingCart className="w-4 h-4" /> },
@@ -205,9 +201,6 @@ export function AudienceTab() {
           onBack={handleBackToSequences}
           onSaved={handleBackToSequences}
         />
-      )}
-      {subView === 'sms' && artistId && (
-        <SmsSetup artistId={artistId} platformTier={platformTier} />
       )}
       {subView === 'links' && artistId && (
         <SmartLinkList

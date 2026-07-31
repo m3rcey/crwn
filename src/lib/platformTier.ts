@@ -137,18 +137,6 @@ export const TIER_LIMITS_V2 = {
   },
 } as const;
 
-// SMS limits per platform tier (monthly message quota)
-export const SMS_LIMITS: Record<string, number> = {
-  starter: 0,    // No SMS
-  pro: 500,
-  label: 2500,
-  empire: 10000,
-};
-
-export function getSmsLimit(tier: string | null | undefined): number {
-  return SMS_LIMITS[tier || 'starter'] || 0;
-}
-
 // Email campaign (blast) limits per platform tier — MONTHLY quota.
 // Free: 1/mo, Pro: 10/mo. -1 = unlimited. (label/empire are spec-only.)
 export const EMAIL_LIMITS: Record<string, number> = {

@@ -261,7 +261,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
             {[
               { tool: 'Fan subscriptions', price: '$80+/mo', note: 'Patreon Pro takes 8-12%' },
               { tool: 'Email marketing', price: '$59+/mo', note: 'ConvertKit, Mailchimp' },
-              { tool: 'SMS messaging', price: '$99+/mo', note: 'Community, Twilio' },
+              { tool: 'Smart links + pages', price: '$29+/mo', note: 'Linktree, Carrd' },
               { tool: 'Insights + CRM', price: '$49+/mo', note: 'Chartmetric, Linkfire' },
             ].map((item) => (
               <div key={item.tool} className="text-center">
@@ -275,7 +275,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
           </div>
           <div className="mt-4 pt-3 border-t border-crwn-text/10 text-center">
             <p className="text-xs text-crwn-text-secondary">
-              Elsewhere: <span className="text-crwn-text font-semibold line-through decoration-crwn-text/30">$287+/mo</span> across 4+ tools
+              Elsewhere: <span className="text-crwn-text font-semibold line-through decoration-crwn-text/30">$217+/mo</span> across 4+ tools
             </p>
             <p className="text-sm text-crwn-gold font-semibold mt-1">
               CRWN Pro: everything in one place for $9.99/mo

@@ -101,7 +101,8 @@ Ownership is almost always expressed in RLS as `auth.uid() IN (SELECT user_id FR
 | `community_channels`, `community_channel_messages` | `schema-phase2-community-channels.sql` | Discord-style channels; gated **in RLS** (Realtime replays RLS per row) |
 | `posts`, `comments`, `likes` | `schema-ticket7.sql` | **Legacy** generic social layer (superseded — see Risks) |
 | `dm_conversations`, `dm_messages` | `schema-phase2-direct-messages.sql` (+ voice/broadcast ALTERs) | Tier-gated 1:1 DMs, voice notes (private `audio` bucket), UNIQUE(artist_id, fan_id) |
-| `artist_phone_numbers`, `sms_subscribers`, `sms_consent_log` | `schema-phase2-sms*.sql` | Twilio SMS/MMS |
+| `artist_phone_numbers`, `sms_subscribers`, `sms_consent_log` | `schema-phase2-sms*.sql` | **DORMANT since 2026-07-31**: the SMS feature was removed but the tables were deliberately NOT dropped, so historical consent records are preserved; nothing reads or writes them anymore |
+| `support_conversations`, `support_messages` | `schema-phase2-support-chat.sql` (**PENDING**, unrun as of 2026-07-31) | /support live chat (2026-07-31): client reads via RLS + realtime, ALL writes via API service-role; UI falls back to the contact form until the migration runs |
 
 ### Notifications
 `notifications` (`schema-phase2-notifications.sql`) — in-app feed. **`type` CHECK was dropped** (`schema-phase2-direct-messages.sql`), so `type` is now unconstrained free text (typos not caught by DB). `Confirmed`.
@@ -130,7 +131,7 @@ Ownership is almost always expressed in RLS as `auth.uid() IN (SELECT user_id FR
 
 ## 3. Enums / CHECK constraints (representative)
 
-`profiles.role`: fan\|artist\|admin · `subscriptions.status`: incomplete\|active\|past_due\|canceled\|paused · `tracks.access_level` (legacy): free\|subscriber\|purchase · `products.type`: digital\|experience\|bundle · `purchases.status`: pending\|completed\|refunded · `earnings.type`: subscription\|purchase\|booking\|live_ticket\|refund\|dispute · `referrals.source`: fan\|clipper · `discount_codes.discount_type`: percent\|fixed · `sms_subscribers.status`: pending\|active\|unsubscribed · `artist_profiles.acquisition_source`: organic\|recruiter\|partner\|founding · `live_sessions.status`: scheduled\|live\|ended. `artist_profiles.platform_tier` values (`starter\|pro\|label`) are **not** a DB CHECK, only convention. `Confirmed`.
+`profiles.role`: fan\|artist\|admin · `subscriptions.status`: incomplete\|active\|past_due\|canceled\|paused · `tracks.access_level` (legacy): free\|subscriber\|purchase · `products.type`: digital\|experience\|bundle · `purchases.status`: pending\|completed\|refunded · `earnings.type`: subscription\|purchase\|booking\|live_ticket\|refund\|dispute · `referrals.source`: fan\|clipper · `discount_codes.discount_type`: percent\|fixed · `sms_subscribers.status`: pending\|active\|unsubscribed (dormant table; SMS removed 2026-07-31) · `artist_profiles.acquisition_source`: organic\|recruiter\|partner\|founding · `live_sessions.status`: scheduled\|live\|ended. `artist_profiles.platform_tier` values (`starter\|pro\|label`) are **not** a DB CHECK, only convention. `Confirmed`.
 
 ## 4. RLS, functions, triggers
 

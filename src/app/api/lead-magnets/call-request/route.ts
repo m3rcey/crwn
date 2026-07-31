@@ -14,7 +14,6 @@ import {
   sanitizeCalculatorInputs,
 } from '@/lib/acquisition/callRequest';
 import { SCORE_VERSION } from '@/lib/acquisition/leadScoring';
-import { sendSms } from '@/lib/twilio';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
@@ -27,7 +26,7 @@ import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 // the scoring model, and no internal lead data ever leaves it.
 //
 // Idempotency is insert-as-claim on acquisition_events (one request per phone per day); the
-// founder SMS therefore cannot storm. A failed alert NEVER erases the lead: the claim row and
+// founder alert therefore cannot storm. A failed alert NEVER erases the lead: the claim row and
 // consent record are persisted before any send is attempted.
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -36,13 +35,10 @@ const supabaseAdmin = createClient(
 );
 
 // Server-only. NEVER expose these to the client or echo them in a response.
-const FOUNDER_ALERT_PHONE = process.env.FOUNDER_ALERT_PHONE || '';
-const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER || '';
-// Optional carrier email-to-SMS gateway address (e.g. 5551234567@vtext.com). This exists
-// because Twilio ACCEPTS the alert and US carriers then drop it with error 30034 until the
-// number is registered under A2P 10DLC, which takes days. The gateway rides the Resend path
-// that already works and puts a real text on the phone in the meantime. Unset it once A2P
-// registration completes. Internal operational alert only, never used for fan messaging.
+// Optional carrier email-to-SMS gateway address (e.g. 5551234567@vtext.com). CRWN carries no
+// Twilio integration anymore (the SMS feature was removed for A2P compliance cost), so this
+// gateway is how a hot-lead alert still lands as a text on the founder's phone: it rides the
+// Resend email path. Internal operational alert only, never used for fan messaging.
 const FOUNDER_ALERT_SMS_EMAIL = process.env.FOUNDER_ALERT_SMS_EMAIL || '';
 const FOUNDER_EMAIL = 'joshn.wms@gmail.com';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://thecrwn.app';
@@ -192,25 +188,29 @@ export async function POST(req: NextRequest) {
       adminUrl,
     });
 
-    let alerted = false;
-    if (FOUNDER_ALERT_PHONE && TWILIO_FROM) {
-      const sms = await sendSms(FOUNDER_ALERT_PHONE, smsBody, TWILIO_FROM);
+    // Primary alert: founder email. Twilio SMS was removed (A2P compliance cost), so email
+    // is the channel of record for hot leads.
+    try {
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to: FOUNDER_EMAIL,
+        subject: 'CRWN hot lead: call requested now',
+        html: `<pre style="font-family:inherit;white-space:pre-wrap">${smsBody
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')}</pre>`,
+      });
+      snapshot.alert = { channel: 'email', status: 'sent', at: new Date().toISOString(), error: null };
+    } catch (err) {
       snapshot.alert = {
-        channel: 'sms',
-        status: sms.success ? 'sent' : 'failed',
+        channel: 'email',
+        status: 'failed',
         at: new Date().toISOString(),
-        error: sms.success ? null : (sms.error || 'unknown').slice(0, 200),
-        sid: sms.sid || null,
+        error: (err instanceof Error ? err.message : 'unknown').slice(0, 200),
       };
-      alerted = sms.success;
-    } else {
-      snapshot.alert = { channel: 'sms', status: 'skipped_unconfigured', at: new Date().toISOString(), error: null };
     }
 
-    // Carrier email-to-SMS gateway: puts a real text on the founder's phone without Twilio.
-    // Runs regardless of the Twilio result, because Twilio reports success at ACCEPTANCE and
-    // the carrier can still drop the message afterwards (30034). Short body: gateways truncate
-    // around 160 characters.
+    // Carrier email-to-SMS gateway: puts a real text on the founder's phone with no Twilio and
+    // no compliance surface. Short body: gateways truncate around 160 characters.
     if (FOUNDER_ALERT_SMS_EMAIL) {
       try {
         await resend.emails.send({
@@ -222,23 +222,6 @@ export async function POST(req: NextRequest) {
         snapshot.alert = { ...(snapshot.alert as Record<string, unknown>), gateway: 'sent' };
       } catch {
         snapshot.alert = { ...(snapshot.alert as Record<string, unknown>), gateway: 'failed' };
-      }
-    }
-
-    // Email fallback so a hot lead is never silently dropped when SMS is down or unconfigured.
-    if (!alerted) {
-      try {
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: FOUNDER_EMAIL,
-          subject: 'CRWN hot lead: call requested now',
-          html: `<pre style="font-family:inherit;white-space:pre-wrap">${smsBody
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')}</pre>`,
-        });
-        snapshot.alert = { ...(snapshot.alert as Record<string, unknown>), fallback: 'email_sent' };
-      } catch {
-        snapshot.alert = { ...(snapshot.alert as Record<string, unknown>), fallback: 'email_failed' };
       }
     }
     snapshot.contact_status = 'alerted';

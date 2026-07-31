@@ -39,7 +39,7 @@
 ## Security
 16. **Are `NEXT_PUBLIC_CRON_SECRET` and `CRON_SECRET` set to the same value in production?** (Determines whether HIGH-2 is exploitable to trigger payouts.)
 17. **Acceptable to leave `profiles.stripe_connect_id` readable** (deferred column lockdown, leaks via `useAuth select('*')`)?
-18. **Is there a plan to sign the Resend/Twilio inbound webhooks?** (HIGH-1.)
+18. **Is there a plan to sign the Resend inbound webhooks?** (HIGH-1. The Twilio half is moot: SMS was removed 2026-07-31.)
 
 ## Data
 19. **Where is the CREATE TABLE definition for `earnings`, `referrals`, `referral_earnings`, `fan_payouts`, `processed_webhook_events`, `recruiters`?** Needed to rebuild the schema. Can we get a prod `pg_dump`?

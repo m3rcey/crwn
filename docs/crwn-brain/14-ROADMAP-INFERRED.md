@@ -7,11 +7,11 @@ Recent git history (last ~30 commits) shows two active threads: (1) a **security
 
 ## Likely near-term priorities (inferred)
 1. **Ship the Quest Engine / Rise Mode** — flip `admin_settings.quest_engine` on after stabilization. It's the dominant WIP; the recent "getQuests ordered by non-existent sort_order returned []" bug suggests it's close but not yet trusted. `Strongly inferred`.
-2. **Finish the two remaining HIGH security fixes** — verify Resend/Twilio inbound webhooks and the `NEXT_PUBLIC_CRON_SECRET` pattern. Given the just-completed security sprint, these fit the current arc. `Strongly inferred`.
+2. **Finish the two remaining HIGH security fixes** — verify Resend inbound webhooks and the `NEXT_PUBLIC_CRON_SECRET` pattern. (The Twilio inbound webhook is gone: SMS was removed 2026-07-31.) Given the just-completed security sprint, these fit the current arc. `Strongly inferred`.
 3. **Possibly activate the `$99 label` tier** — fully specced and env-wired but hard-disabled. A pricing/packaging decision away from launch. `Needs founder confirmation`.
 
 ## Unfinished features (evidence-backed)
-- **SMS deferred-send queue** (`sms/send/route.ts:155` TODO) — quiet-hour sends currently dropped.
+- ~~SMS deferred-send queue~~ Moot since 2026-07-31: the SMS feature was removed entirely.
 - **Campaign-hub per-campaign breakdowns** and **admin fan-referral tracking metric** — explicit "coming soon" placeholders.
 - **Benefit catalog "coming soon" items** (e.g. `monthly_merch`).
 - **Subscription downgrade** Stripe-side application — appears to write DB fields without a Stripe schedule call; needs completion/verification.
@@ -33,7 +33,7 @@ Recent git history (last ~30 commits) shows two active threads: (1) a **security
 
 ## High-risk blockers
 - **Money tables without CREATE TABLE migrations** — blocks reproducible environments and disaster recovery. `Critical`.
-- **Unauthenticated state-mutating webhooks** — abuse could break email/SMS deliverability platform-wide. `High`.
+- **Unauthenticated state-mutating webhooks** — abuse could break email deliverability platform-wide (SMS removed 2026-07-31). `High`.
 - **No tests + huge surface** — every change risks silent regressions (as the `getQuests` and entitlement-oracle incidents show). `High`.
 
 ## Product opportunities suggested by existing code

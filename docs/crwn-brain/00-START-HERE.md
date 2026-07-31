@@ -3,7 +3,7 @@
 > The master entry point for any AI agent working on CRWN. Load this first. It is concise on purpose; each section links to a detailed doc. Generated at branch `master`, commit `614b958`. Certainty labels (`Confirmed` / `Strongly inferred` / `Unclear` / `Needs founder confirmation`) are used throughout the package.
 
 ## What CRWN is
-CRWN ("Crown", `thecrwn.app`) is a **music-monetization SaaS** for independent artists to sell subscriptions, tracks, albums, products, and experiences **directly to fans**, and to own the fan relationship + data. Positioned as "Skool meets EVEN meets YouTube for musicians." In practice it's grown into a full **artist growth/operations suite**: monetization + email/SMS marketing + CRM + referral/recruiter acquisition + gamified fan engagement + live streaming + team revenue-splits + an AI "manager." `Confirmed`. → `01-PRODUCT-VISION.md`
+CRWN ("Crown", `thecrwn.app`) is a **music-monetization SaaS** for independent artists to sell subscriptions, tracks, albums, products, and experiences **directly to fans**, and to own the fan relationship + data. Positioned as "Skool meets EVEN meets YouTube for musicians." In practice it's grown into a full **artist growth/operations suite**: monetization + email marketing + CRM + referral/recruiter acquisition + gamified fan engagement + live streaming + team revenue-splits + an AI "manager." `Confirmed`. → `01-PRODUCT-VISION.md`
 
 ## Core problem it solves
 Streaming pays fractions of a cent and hides the fan. CRWN gives artists a **direct-to-fan monetization layer they own** (recurring subs + one-time sales via Stripe Connect) plus first-party fan contact data to market to.
@@ -18,7 +18,7 @@ Own your revenue, your subscribers, and your data — with the marketing/analyti
 **Live in production.** Core money loop is real and hardened. Codebase is **large and layered** (241 API routes, 25 crons, 134 migrations, 115 pages) and has grown faster than it's been consolidated — real dead/duplicate code and design-token drift exist. Current frontier: the **Opportunity Funnel** (public tools → value-before-signup → journey resolver → experiments, live), with the Quest Engine / Rise Mode still dark. **`npm test` runs 392 vitest tests across 23 files**, all in the pure business layers; there is still no component/integration/e2e test, so `npm run build` remains the gate for everything the suite does not reach. → `13-CURRENT-STATE.md`
 
 ## High-level architecture
-Next.js 16 (App Router, mostly client components) on Vercel · Supabase (Postgres + Auth + Storage + Realtime, RLS) · Stripe Connect · Cloudflare R2 (audio/VOD) · LiveKit (live) · Resend (email) · Twilio (SMS) · DeepSeek + OpenAI (AI). Business logic lives in `/api/` route handlers (service-role) and `src/lib/*`. → `04-ARCHITECTURE.md`
+Next.js 16 (App Router, mostly client components) on Vercel · Supabase (Postgres + Auth + Storage + Realtime, RLS) · Stripe Connect · Cloudflare R2 (audio/VOD) · LiveKit (live) · Resend (email) · DeepSeek + OpenAI (AI). Business logic lives in `/api/` route handlers (service-role) and `src/lib/*`. (Twilio SMS was removed entirely on 2026-07-31.) → `04-ARCHITECTURE.md`
 
 ## Most important business rules
 - **Money is integer cents.** Input `Math.round(val*100)`, display `(price/100).toFixed(2)`.
@@ -37,7 +37,7 @@ Next.js 16 (App Router, mostly client components) on Vercel · Supabase (Postgre
 - **Run `npm run build` and `git` inside WSL** in this environment (Windows-side git/build misbehave). → `09-CODING-CONVENTIONS.md`, `12-ENVIRONMENT-AND-SETUP.md`
 
 ## Most important security warnings
-- 🔴 **Unauthenticated webhooks** (`/api/webhooks/resend`, `/api/outreach/webhook`, `/api/outreach/inbound`, `/api/sms/webhook`) mutate suppression/opt-in state without signature checks.
+- 🔴 **Unauthenticated webhooks** (`/api/webhooks/resend`, `/api/outreach/webhook`, `/api/outreach/inbound`) mutate suppression/opt-in state without signature checks. (`/api/sms/webhook` was on this list until the SMS feature was removed 2026-07-31.)
 - 🔴 **`NEXT_PUBLIC_CRON_SECRET`** is client-bundled and mirrors `CRON_SECRET` (which gates 25 cron routes incl. payouts); `/api/ai-manager/generate` has no ownership check.
 - 🟠 Low adoption of the shared ownership helper; `/api/platform/limits` unauthenticated; `booking-checkout` trusts client `artistId`.
 - ✅ Already fixed (don't reopen): `/api/audience` fan-email leak, paid-track audio leak, entitlement-oracle outage. Money/entitlement paths are canary-monitored. → `11-SECURITY-AND-PRIVACY.md`

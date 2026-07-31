@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import type { LeadMagnetConfig } from '@/lib/leadMagnets/types';
-import { SMS_CONSENT_COPY_DEFAULT } from '@/lib/leadMagnets/disclaimers';
 
 export interface LeadCaptureValues {
   email: string;
@@ -13,7 +12,6 @@ export interface LeadCaptureValues {
   monthlyListeners: string;
   mainGoal: string;
   emailConsent: boolean;
-  smsConsent: boolean;
 }
 
 const INPUT =
@@ -21,8 +19,8 @@ const INPUT =
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Public lead capture. Email + explicit marketing consent required. Phone + SMS
-// consent are separate and optional. No prechecked boxes (compliance).
+// Public lead capture. Email + explicit marketing consent required. Phone is optional
+// (used only for a callback the lead asks for; CRWN sends no SMS). No prechecked boxes.
 export function LeadCaptureForm({ config, submitting, onSubmit }: { config: LeadMagnetConfig; submitting: boolean; onSubmit: (v: LeadCaptureValues) => void }) {
   const [v, setV] = useState<LeadCaptureValues>({
     email: '',
@@ -33,7 +31,6 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
     monthlyListeners: '',
     mainGoal: '',
     emailConsent: false,
-    smsConsent: false,
   });
   const [error, setError] = useState('');
 
@@ -69,13 +66,6 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
         <input type="checkbox" className="mt-1 accent-[#D4AF37] w-4 h-4" checked={v.emailConsent} onChange={(e) => set('emailConsent', e.target.checked)} />
         <span className="text-xs text-crwn-text-secondary leading-relaxed">{config.leadCapture.consentCopy}</span>
       </label>
-
-      {v.phone.trim() && (
-        <label className="flex gap-3 items-start cursor-pointer">
-          <input type="checkbox" className="mt-1 accent-[#D4AF37] w-4 h-4" checked={v.smsConsent} onChange={(e) => set('smsConsent', e.target.checked)} />
-          <span className="text-xs text-crwn-text-secondary leading-relaxed">{SMS_CONSENT_COPY_DEFAULT}</span>
-        </label>
-      )}
 
       {error && <p className="text-xs text-crwn-error">{error}</p>}
 

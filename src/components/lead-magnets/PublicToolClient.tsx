@@ -203,7 +203,6 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             monthlyListeners: lead.monthlyListeners ? Number(lead.monthlyListeners) : undefined,
             mainGoal: lead.mainGoal,
             emailConsent: lead.emailConsent,
-            smsConsent: lead.smsConsent,
           },
           utm: { source: utm.utmSource, medium: utm.utmMedium, campaign: utm.utmCampaign, content: utm.utmContent },
           sourceUrl: window.location.href.split('?')[0],

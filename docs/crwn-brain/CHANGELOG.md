@@ -1,5 +1,38 @@
 # CRWN Brain — Changelog
 
+## 2026-07-31 - SMS removed entirely; a real support system ships
+
+(1) SMS REMOVAL (founder decision: the A2P 10DLC compliance cost was not worth it). Deleted:
+`src/lib/twilio.ts`, all `/api/sms/*` routes (send, webhook, status, provision, upload),
+`/api/cron/sms-reset` and its vercel.json cron, `/api/admin/twilio-health`, the `SmsSetup`
+component, the SMS tab in the Fan CRM (AudienceTab), SMS limits in `platformTier.ts`, SMS
+mentions in the tier upgrade emails / PlatformTierModal / PlatformBilling / worth page, the
+SMS consent checkbox on lead capture, the fan SMS marketing toggle, and Terms §13 (SMS
+Messaging Program) plus the privacy policy's Twilio mention. The DB tables
+(`artist_phone_numbers`, `sms_subscribers`, `sms_consent_log`) were NOT dropped: they keep the
+historical consent records, but nothing reads or writes them. Hot-lead call-request alerts to
+the founder are now EMAIL always (joshn.wms@gmail.com), plus an optional carrier email-to-SMS
+gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend email, no Twilio). `TWILIO_*` env vars are
+dead; Twilio is no longer an integration. This also resolves by removal the old Twilio-inbound
+webhook exposure and the LOW-3 quiet-hour drop finding, and moots the deferred-send-queue TODO.
+
+(2) SUPPORT SYSTEM SHIPPED. `/support` is now a help center: search across the 14
+getting-started guides, a link to /getting-started, a live chat, and the existing contact form
+(which now CCs joshn.wms@gmail.com and accepts auto-captured context). The chat stores in
+`support_conversations` + `support_messages` (migration `supabase/schema-phase2-support-chat.sql`,
+PENDING until Josh runs it; the UI falls back to the form until then); the client reads via RLS
++ realtime, and ALL writes go through service-role API routes: `/api/support/chat` (user side,
+session-auth) and `/api/admin/support-chat` (requireAdmin). AI answers come from DeepSeek
+(deepseek-chat) with a knowledge prompt generated from the real guide content
+(`src/lib/supportKnowledge.ts`, env `DEEPSEEK_API_KEY`). If the key is unset, the AI flags the
+question, or the user taps "Talk to a human", the conversation escalates: status
+`human_requested`, founder emailed a link to /admin?tab=support, where the new Support tab
+(`SupportChatView`) lets the founder reply; replies email the user. A global bug-report widget
+(`BugReportButton`, mounted in the root layout, hidden on auth/setup screens) shows a subtle
+flag button bottom-right on every page and posts to `/api/support` with category Bug Report and
+auto-captured page URL / user agent / user id. Announced via the one-time
+`announce_support_chat` popup (2026-07-31) in the popup registry.
+
 ## 2026-07-31 — Purchase-level obligations and promise reminders: the calendar's last two organs
 
 (1) PURCHASE-LEVEL FULFILLMENT (the spec's offer-level vs purchase-level rule, now complete):

@@ -233,6 +233,25 @@ export const POPUPS: PopupDef[] = [
     dismissLabel: 'Got it',
   },
 
+  // ---- Announcement: live support chat + guide search on /support ----
+  // Not feature-flagged: the /support page ships to everyone at once, and the chat
+  // itself degrades to the contact form until its migration runs. Everyone sees it,
+  // because fans get stuck too. Loss-framed per the copy rule.
+  {
+    key: 'announce_support_chat',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist', '/library'],
+    audience: () => true,
+    frequency: { type: 'once' },
+    priority: 45,
+    announcedAt: '2026-07-31',
+    goal: 'User learns help now lives one tap away, so a stuck moment becomes a chat instead of a silent churn.',
+    title: 'Getting stuck used to cost you two days.',
+    body: 'Every question you sat on was momentum lost: a page not published, a payout not checked, a fan not converted. The Support page now answers instantly. Search every guide, chat and get an answer in seconds, and if the answer needs a human, a real person from CRWN steps into the same chat. Spot a bug anywhere? The flag in the corner reports it from the exact screen it happened on.',
+    cta: { label: 'Open Support', href: '/support' },
+    dismissLabel: 'Got it',
+  },
+
   // ---- Notice: Terms updated 2026-07-24 (live-ticket refund clause) ----
   // Not marketing, so not loss-framed: Terms §1 promises notice of material changes,
   // and this banner is that notice. Buyer-favorable change (a seat is refundable when

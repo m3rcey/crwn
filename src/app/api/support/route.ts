@@ -10,16 +10,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
-    const { name, email, category, message } = await request.json();
+    const { name, email, category, message, context } = await request.json();
 
     if (!name || !email || !category || !message) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
     }
 
-    // Send to support inbox
+    // Auto-captured context from the bug report widget: page URL, browser, user id.
+    const ctx = context && typeof context === 'object' ? (context as Record<string, unknown>) : null;
+    const contextHtml = ctx
+      ? `<div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #333;">
+          <p style="color: #A0A0A0; margin: 0 0 8px;">Context</p>
+          <p style="color: #A0A0A0; font-size: 12px; white-space: pre-wrap; margin: 0;">${['page', 'userAgent', 'userId']
+            .filter((k) => ctx[k])
+            .map((k) => `${k}: ${String(ctx[k]).slice(0, 300)}`)
+            .join('\n')}</p>
+        </div>`
+      : '';
+
+    // Send to support inbox. The founder's personal address rides along so a bug
+    // report is never sitting unseen in a forwarding inbox.
     await resend.emails.send({
       from: FROM_EMAIL,
       to: 'support@thecrwn.app',
+      cc: 'joshn.wms@gmail.com',
       replyTo: email,
       subject: `[${category}] Support request from ${name}`,
       html: `
@@ -43,6 +57,7 @@ export async function POST(request: NextRequest) {
             <p style="color: #A0A0A0; margin: 0 0 8px;">Message</p>
             <p style="color: #ffffff; white-space: pre-wrap; margin: 0;">${message}</p>
           </div>
+          ${contextHtml}
         </div>
       `,
     });

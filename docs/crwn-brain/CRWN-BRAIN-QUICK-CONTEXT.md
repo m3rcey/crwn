@@ -9,7 +9,7 @@ CRWN (thecrwn.app) = music-monetization SaaS. Independent artists sell subscript
 `profiles.role = fan | artist | admin`. Overlay actors: recruiter/partner (refer artists), collaborator (Team Splits). Role is frozen at the column level; fan→artist promotion is a **server-side trigger on publish** — never client-`update({role})`.
 
 ## Architecture
-Next.js 16 App Router (mostly client components) on Vercel · Supabase (Postgres/Auth/Storage/Realtime + RLS) · Stripe Connect · Cloudflare R2 (audio/VOD) · LiveKit (live) · Resend (email) · Twilio (SMS) · DeepSeek/OpenAI (AI). State = React Context + direct Supabase queries in hooks. No tests, no analytics vendor.
+Next.js 16 App Router (mostly client components) on Vercel · Supabase (Postgres/Auth/Storage/Realtime + RLS) · Stripe Connect · Cloudflare R2 (audio/VOD) · LiveKit (live) · Resend (email) · DeepSeek/OpenAI (AI, incl. the /support chat). State = React Context + direct Supabase queries in hooks. No tests, no analytics vendor. (Twilio SMS was removed entirely 2026-07-31; TWILIO_* env vars are dead.)
 
 **Two Supabase clients:** anon+RLS (components) vs service-role (API routes only, bypasses RLS). Middleware excludes `/api/` → every API route self-authenticates + checks ownership.
 
@@ -32,7 +32,7 @@ Components PascalCase; lib/hooks camelCase; routes kebab-case; `@/` alias. Build
 
 ## Security must-knows
 - Service-role client = `/api/` only + ownership check (no IDOR).
-- Verify webhook signatures (Stripe/LiveKit/Twilio-status do; Resend + Twilio-inbound DON'T — known HIGH gap).
+- Verify webhook signatures (Stripe/LiveKit do; Resend DOESN'T — known HIGH gap). The Twilio webhooks are gone: SMS was removed 2026-07-31.
 - `NEXT_PUBLIC_CRON_SECRET` is a known HIGH risk (client-bundled, mirrors `CRON_SECRET`).
 - Entitlement is server-side (redacting views), never TypeScript.
 - Fixed already: `/api/audience` email leak, paid-audio leak.
@@ -42,7 +42,7 @@ Components PascalCase; lib/hooks camelCase; routes kebab-case; `@/` alias. Build
 - **The 18th is the all-in-one Opportunity Calculator** and it is the one that must never be broken casually: it models every opportunity in ONE layered model so the same fan, subscriber and dollar cannot be counted twice. **Never add tool headlines together.** Share-to-Earn and Clip-to-Earn are acquisition, not revenue; the Vault is a membership TIER, not a second membership; tickets and seats sell only to non-members. 82 tests enforce this (`src/lib/opportunity/`). Spec: `docs/UNIFIED_OPPORTUNITY.md`.
 - **Every tool's `fix` must point to a feature that ACTUALLY exists.** This convention has already failed once in production.
 - New tool = registry entry + adapter + a `DeliverableSpec`, or the coverage guard test fails.
-- **The Tier 1 launch journey (2026-07-30):** the calculator asks `monetization_status`; a qualified artist can request an immediate founder call from BELOW the builder (`/api/lead-magnets/call-request` recomputes qualification server-side, one SMS/phone/day to server-only `FOUNDER_ALERT_PHONE`); fan-contact import requires a versioned permission attestation; imported contacts get invited through the EXISTING campaign sender (`filters.audience='contacts'`, LIVE — `schema-phase2-fan-invites.sql` applied 2026-07-30); `funnel_events` now has 20 stages ending at `first_paid_conversion` (migration applied 2026-07-30).
+- **The Tier 1 launch journey (2026-07-30):** the calculator asks `monetization_status`; a qualified artist can request an immediate founder call from BELOW the builder (`/api/lead-magnets/call-request` recomputes qualification server-side, one alert/phone/day; since the SMS removal 2026-07-31 the alert is EMAIL to joshn.wms@gmail.com, optionally mirrored to a carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL`); fan-contact import requires a versioned permission attestation; imported contacts get invited through the EXISTING campaign sender (`filters.audience='contacts'`, LIVE — `schema-phase2-fan-invites.sql` applied 2026-07-30); `funnel_events` now has 20 stages ending at `first_paid_conversion` (migration applied 2026-07-30).
 
 ## Required workflow before changing code
 1. Grep for an existing component/lib (avoid duplication).

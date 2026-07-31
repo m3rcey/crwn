@@ -65,20 +65,6 @@ export default function TermsPage() {
           <h2 className="text-xl font-semibold text-crwn-text">12. General Provisions</h2>
           <p><strong>Governing Law:</strong> State of Missouri.</p>
           <p><strong>Contact:</strong> support@thecrwn.app</p>
-
-          {/* Required by US carriers for A2P 10DLC campaign registration: the program name,
-              what is sent, frequency, cost disclosure, HELP and STOP instructions, and a
-              support contact must all appear at the Terms URL submitted to Twilio. */}
-          <h2 className="text-xl font-semibold text-crwn-text">13. SMS Messaging Program</h2>
-          <p><strong>Program name:</strong> CRWN Alerts, operated by JNW Creative Enterprises, Inc.</p>
-          <p><strong>What we send:</strong> two kinds of text message, and nothing else. First, operational account notifications to the CRWN account owner, such as an alert that an artist has asked to be contacted. Second, where an artist has enabled texting and a fan has opted in, updates from that specific artist about new releases, shows, exclusive drops, and event reminders. We never send texts to anyone who has not opted in, and we never sell or share phone numbers with third parties for their own marketing.</p>
-          <p><strong>How to opt in:</strong> a fan opts in by texting the artist&apos;s keyword to that artist&apos;s CRWN number. We reply asking them to confirm, and they are only subscribed after they reply <strong>YES</strong>. Account owners receive operational alerts for their own account only, at a number they entered themselves.</p>
-          <p><strong>Message frequency:</strong> varies. Artist updates are capped at a maximum of 4 messages per month per fan, and no more than 1 per day. Operational account alerts are sent only when the event they describe actually occurs.</p>
-          <p><strong>Cost:</strong> message and data rates may apply. CRWN does not charge you for receiving texts; your mobile carrier&apos;s standard rates apply.</p>
-          <p><strong>To stop receiving texts:</strong> reply <strong>STOP</strong> to any message. You may also reply UNSUBSCRIBE, CANCEL, or QUIT. You will receive one confirmation, and then no further texts from that sender.</p>
-          <p><strong>For help:</strong> reply <strong>HELP</strong> to any message, or email support@thecrwn.app.</p>
-          <p><strong>Carriers:</strong> carriers are not liable for delayed or undelivered messages.</p>
-          <p><strong>Privacy:</strong> phone numbers and consent records are handled as described in our <Link href="/privacy" className="text-crwn-gold hover:underline">Privacy Policy</Link>. Consent to SMS is recorded separately from email and is never shared with third parties for marketing.</p>
         </div>
 
         <div className="mt-12 pt-6 border-t border-crwn-elevated text-center text-xs text-crwn-text-secondary">

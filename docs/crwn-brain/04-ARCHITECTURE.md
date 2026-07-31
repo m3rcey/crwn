@@ -12,7 +12,7 @@
 | Media storage | **Cloudflare R2** via `@aws-sdk/client-s3` + presigner |
 | Live video | **LiveKit** (`livekit-client`, `livekit-server-sdk`, `@livekit/components-react`) |
 | Email | **Resend** |
-| SMS | **Twilio** (raw REST, no SDK) |
+| SMS | None. Twilio was removed 2026-07-31 (founder decision, A2P 10DLC compliance cost); founder alerts are email, optionally via a carrier email-to-SMS gateway (`FOUNDER_ALERT_SMS_EMAIL`, plain Resend) |
 | AI | **DeepSeek** (via `openai` SDK) + narrow **OpenAI** `gpt-4o-mini` |
 | UI libs | `lucide-react` (icons), `recharts` (charts), `@dnd-kit` (drag), `driver.js` (tours), `react-easy-crop`, `react-calendly` (unused) |
 | Hosting / cron | **Vercel** (Hobby plan — cron ≤ daily) |
@@ -40,7 +40,6 @@ flowchart LR
         R2[Cloudflare R2]
         LK[LiveKit]
         Resend[Resend]
-        Twilio[Twilio]
         AI[DeepSeek / OpenAI]
     end
     UI --> Ctx --> SB
@@ -48,7 +47,7 @@ flowchart LR
     MW --> Pages
     API -->|anon client| SB
     API -->|service-role client| SB
-    API --> Stripe & R2 & LK & Resend & Twilio & AI
+    API --> Stripe & R2 & LK & Resend & AI
     Stripe -->|webhook| API
     LK -->|egress webhook| API
     Cron -->|Bearer CRON_SECRET| API
@@ -110,7 +109,7 @@ public/            sw.js, manifest.json, icons
 - **Auth:** Supabase cookie sessions; PKCE exchange in middleware; server-side role promotion trigger.
 - **Payments:** platform-account subscriptions/prices; Connect for payouts; idempotent signed webhook; atomic cashout RPCs.
 - **Entitlement:** SECURITY DEFINER functions + redacting views (`tracks_public`, `community_posts_feed`, `artist_profiles_public`); column privileges on sensitive columns.
-- **Background jobs:** 25 Vercel crons (≤ daily), each `CRON_SECRET`-gated. Cover payouts, sequences, activation nudges, lead scoring, AI, health canaries, team-split accrual, SMS reset, releases.
+- **Background jobs:** Vercel crons (≤ daily, 24 after `sms-reset` was deleted with the SMS removal 2026-07-31), each `CRON_SECRET`-gated. Cover payouts, sequences, activation nudges, lead scoring, AI, health canaries, team-split accrual, releases.
 - **Storage:** R2 for audio masters/art/VOD (signed URLs); Supabase Storage for avatars/community media; `audio` bucket is private.
 - **Realtime:** Supabase Realtime for live chat + notification bell.
 - **Feature flags:** one real flag store — `admin_settings` KV (`quest_engine`, `artist_gate`).

@@ -4,7 +4,7 @@
 
 ## 1. Prerequisites
 - Node 20+ (`@types/node: ^20`), npm. Next.js 16 + Turbopack.
-- Accounts/services: Supabase project (`ecpqtuidtsncjfwtkvwc`, US East), Stripe (platform + Connect), Cloudflare R2, LiveKit, Resend, Twilio, DeepSeek + OpenAI, Vercel.
+- Accounts/services: Supabase project (`ecpqtuidtsncjfwtkvwc`, US East), Stripe (platform + Connect), Cloudflare R2, LiveKit, Resend, DeepSeek + OpenAI, Vercel. (Twilio is no longer needed: SMS was removed 2026-07-31.)
 - **This repo lives in WSL** (`\\wsl.localhost\Ubuntu\home\merce\workspace-crwn`). Per project memory, **run `npm run build` and `git` inside WSL** — the Windows-side Bash tool build can fake-pass, and Windows git fabricates deletions from colon-named sidecar files. `Confirmed` (user memory).
 
 ## 2. Install & run
@@ -50,9 +50,10 @@ npm test             # vitest, 392 tests across 23 files (pure business logic on
 | `CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | Cloudflare R2 |
 | `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVE_PROVIDER` | LiveKit |
 | `RESEND_API_KEY`, `FROM_EMAIL` | Resend email |
-| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` | Twilio SMS |
-| `DEEPSEEK_API_KEY`, `OPENAI_API_KEY` | AI |
-| `CRON_SECRET` | gates all 25 cron routes |
+| ~~`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`~~ | DEAD since 2026-07-31 (SMS removed; nothing reads them) |
+| `FOUNDER_ALERT_SMS_EMAIL` | optional carrier email-to-SMS gateway address for founder hot-lead alerts (plain Resend email, no Twilio) |
+| `DEEPSEEK_API_KEY`, `OPENAI_API_KEY` | AI (DeepSeek also powers the /support chat; if unset, chat escalates to the founder) |
+| `CRON_SECRET` | gates all cron routes (24 after `sms-reset` was deleted 2026-07-31) |
 | `INTERNAL_TRACK_SECRET` | middleware → `/api/admin/track` |
 | `NEW_ARTIST_WEBHOOK_SECRET` | new-artist hook |
 | `SURVEY_TOKEN_SECRET` | signed loyalty-survey tokens |

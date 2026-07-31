@@ -52,7 +52,7 @@
 
 ## Security checks before shipping
 - New endpoint returning data? Confirm session + ownership scoping (no IDOR).
-- New webhook? Verify the provider signature (Resend=Svix, Twilio=HMAC, Stripe=constructEvent, LiveKit=WebhookReceiver).
+- New webhook? Verify the provider signature (Resend=Svix, Stripe=constructEvent, LiveKit=WebhookReceiver). (Twilio is gone: SMS was removed 2026-07-31.)
 - Handling money? Recompute amounts server-side; don't trust request-body values.
 - Touching sensitive columns (role/tier/Stripe ids/audio urls)? They're column-privilege-frozen — changes go through the right server path.
 

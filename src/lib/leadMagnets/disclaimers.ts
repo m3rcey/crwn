@@ -12,6 +12,3 @@ export const CONSENT_TEXT_VERSION = '2026-07-11.v1';
 
 export const MARKETING_CONSENT_COPY_DEFAULT =
   'Email me my result and occasional CRWN tips for independent artists. You can unsubscribe anytime.';
-
-export const SMS_CONSENT_COPY_DEFAULT =
-  'Text me about my result and CRWN updates. Message and data rates may apply. Reply STOP to opt out. Optional, not required to get your result.';

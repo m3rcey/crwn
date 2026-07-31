@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical, LifeBuoy } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import LeadMagnetsView from '@/components/admin/LeadMagnetsView';
 import ExperimentsView from '@/components/admin/ExperimentsView';
@@ -18,15 +18,23 @@ import CrmView from '@/components/admin/CrmView';
 import AgentInsights from '@/components/admin/AgentInsights';
 import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
+import SupportChatView from '@/components/admin/SupportChatView';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'experiments';
+type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'experiments' | 'support';
+
+const TAB_IDS: AdminTab[] = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm', 'access', 'acquisition', 'leadmagnets', 'experiments', 'support'];
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  // ?tab= deep link, so escalation emails can land straight on the Support tab.
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    if (typeof window === 'undefined') return 'dashboard';
+    const t = new URLSearchParams(window.location.search).get('tab') as AdminTab | null;
+    return t && TAB_IDS.includes(t) ? t : 'dashboard';
+  });
 
   useEffect(() => {
     if (authLoading) return;
@@ -165,6 +173,15 @@ export default function AdminPage() {
             <KeyRound className="w-4 h-4" />
             Access
           </button>
+          <button
+            onClick={() => setActiveTab('support')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'support' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <LifeBuoy className="w-4 h-4" />
+            Support
+          </button>
         </div>
       </div>
 
@@ -227,6 +244,12 @@ export default function AdminPage() {
       {activeTab === 'access' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <ApprovalsManager userId={user.id} />
+        </div>
+      )}
+
+      {activeTab === 'support' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <SupportChatView />
         </div>
       )}
     </div>

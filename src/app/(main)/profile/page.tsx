@@ -220,7 +220,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <p className="font-medium text-crwn-text">Communication Preferences</p>
-            <p className="text-sm text-crwn-text-secondary">Manage email and SMS notifications from artists</p>
+            <p className="text-sm text-crwn-text-secondary">Manage email notifications from artists</p>
           </div>
         </div>
       </Link>

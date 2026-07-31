@@ -277,7 +277,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
       <MockSection
         icon={Mail}
         title="Own your audience, do not rent it"
-        copy="Email, SMS, and automated sequences. CRWN hands you your fans' contact info and the tools to reach them any time, no algorithm."
+        copy="Email campaigns and automated sequences. CRWN hands you your fans' contact info and the tools to reach them any time, no algorithm."
       >
         <SequencesMock />
       </MockSection>

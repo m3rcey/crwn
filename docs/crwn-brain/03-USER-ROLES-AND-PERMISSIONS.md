@@ -53,7 +53,7 @@ flowchart TD
 
 ## 5. Artist authorization
 - Ownership pattern: `requireArtistOwner(artistId)` (`apiAuth.ts`) — session user must own `artist_profiles.id = artistId AND user_id = user.id`. ⚠️ Only ~3/195 service-role routes use the shared helper; most hand-roll `getOwnedArtistIds`/`getDealForUser`. No inconsistency found in sampled routes, but low adoption is a latent risk. `Confirmed`.
-- Feature gates by platform tier (`canUseFeature`, `checkArtistLimit`): DMs, live, clipper, bundles, scheduling, extra fan tiers, SMS, discount codes are Pro+.
+- Feature gates by platform tier (`canUseFeature`, `checkArtistLimit`): DMs, live, clipper, bundles, scheduling, extra fan tiers, discount codes are Pro+. (SMS was a Pro+ gate until the feature was removed 2026-07-31.)
 
 ## 6. Fan authorization
 - Fans read/write only their own rows (subscriptions, favorites, purchases, playlists, DMs) — routes scope to `fan_id = user.id`; an IDOR on another fan's id → 404, not exposure. `Confirmed`.

@@ -232,6 +232,5 @@ export type LeadCapturePayload = {
   monthlyListeners?: number;
   mainGoal?: string;
   emailConsent: boolean;
-  smsConsent?: boolean;
   consentTextVersion: string;
 };
