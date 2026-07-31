@@ -1,5 +1,7 @@
 # CRWN — Product Requirements Document
 
+> **STALE PRICING:** all pricing in this document is superseded by `CRWN_PRICING STRATEGY.md` (2026-07-31): Launch $0 12% fee, Pro $49/mo 8% fee, Scale $199/mo 5% fee.
+
 **Version:** 1.3
 **Date:** March 25, 2026
 **Product:** CRWN (thecrwn.app)

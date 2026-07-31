@@ -42,8 +42,8 @@ const TOOLTIPS: Record<string, string> = {
   // Retention
   'Artist Churn Rate': 'Percentage of paid artists who cancel per month. 1/churn = average lifespan. Under 2% = excellent, 2-5% = okay, over 5% = leaky bucket that needs fixing before scaling.',
   'Avg Lifespan': 'Average number of months a paid artist stays on the platform. Calculated as 1 ÷ monthly churn rate. Directly multiplies your LGP.',
-  'Total Artists': 'All artists on the platform, both free (Starter) and paid tiers.',
-  'Paid Conversion': 'Percentage of total artists on a paid tier (Pro/Label/Empire). Shows how well the free-to-paid funnel works.',
+  'Total Artists': 'All artists on the platform, both free (Launch) and paid plans.',
+  'Paid Conversion': 'Percentage of total artists on a paid plan (Pro/Scale). Shows how well the free-to-paid funnel works.',
 
   // Acquisition
   'Artists Acquired': 'Number of new artist signups during the trailing period.',
@@ -729,7 +729,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           <MetricCard label="Artist Churn Rate" value={`${metrics.artistChurnRate}%`} color={churnColor(metrics.artistChurnRate)} subValue="monthly" />
           <MetricCard label="Avg Lifespan" value={`${metrics.avgLifespanMonths}mo`} subValue="1 / churn rate" />
           <MetricCard label="Total Artists" value={metrics.totalArtists.toString()} subValue={`${metrics.paidArtists} paid / ${metrics.starterArtists} free`} />
-          <MetricCard label="Paid Conversion" value={metrics.totalArtists > 0 ? `${Math.round((metrics.paidArtists / metrics.totalArtists) * 100)}%` : '0%'} subValue="Starter → Paid" />
+          <MetricCard label="Paid Conversion" value={metrics.totalArtists > 0 ? `${Math.round((metrics.paidArtists / metrics.totalArtists) * 100)}%` : '0%'} subValue="Launch → Paid" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -898,7 +898,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           <MetricCard label="Organic Artists" value={metrics.organicArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.organicArtists / metrics.totalArtists) * 100) : 0}% of total, $0 CAC`} color={GREEN} />
           <MetricCard label="Recruited Artists" value={metrics.recruitedArtists.toString()} subValue={`${metrics.totalArtists > 0 ? Math.round((metrics.recruitedArtists / metrics.totalArtists) * 100) : 0}% of total, paid acquisition`} color={GOLD} />
           <MetricCard
-            label="Pro → Label+ Rate"
+            label="Pro → Scale Rate"
             value={`${metrics.tierUpgradeMetrics.upgradeRate}%`}
             subValue={`${metrics.tierUpgradeMetrics.onLabelPlus} of ${metrics.tierUpgradeMetrics.establishedPaidCount} (60d+ artists)`}
             color={metrics.tierUpgradeMetrics.upgradeRate >= 30 ? GREEN : metrics.tierUpgradeMetrics.upgradeRate >= 15 ? GOLD : RED}

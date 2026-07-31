@@ -75,7 +75,7 @@ export function campaignEmail({
   trackBasePath,
   utmParams,
 }: CampaignEmailParams): string {
-  const showCrwnBranding = platformTier !== 'label' && platformTier !== 'empire';
+  const showCrwnBranding = platformTier !== 'scale' && platformTier !== 'label' && platformTier !== 'empire';
   const wrappedBody = wrapLinks(bodyToHtml(body), sendId, trackBasePath, utmParams);
 
   return `

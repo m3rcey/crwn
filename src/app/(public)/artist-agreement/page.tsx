@@ -37,8 +37,9 @@ export default function ArtistAgreementPage() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Free</td><td className="p-3">12%</td><td className="p-3">$0</td></tr>
-              <tr className="border-t border-crwn-elevated"><td className="p-3">Pro</td><td className="p-3">8%</td><td className="p-3">$9.99/month</td></tr>
+              <tr className="border-t border-crwn-elevated"><td className="p-3">Launch</td><td className="p-3">12%</td><td className="p-3">$0</td></tr>
+              <tr className="border-t border-crwn-elevated"><td className="p-3">Pro</td><td className="p-3">8%</td><td className="p-3">$49/month</td></tr>
+              <tr className="border-t border-crwn-elevated"><td className="p-3">Scale</td><td className="p-3">5%</td><td className="p-3">$199/month</td></tr>
             </tbody>
           </table>
           <p>The platform fee is charged on fan-to-artist transactions (subscriptions and sales). Stripe processing fees (~2.9% + $0.30) are separate and deducted by Stripe before funds reach your account.</p>

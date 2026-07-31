@@ -105,7 +105,7 @@ person is in both sets, so no person can pay twice.
 | `promoterDualRate` | 0.5 | **new.** Documented default, overridden by the artist's answer |
 | ticket $15, tip $5, tipRate 0.25, ticketRate 0.01 | | Live Experience adapter |
 | `seatRate` 0.003, seat price bands | | Executive Producer adapter |
-| `platformFeePercent` | 8 | Pro plan, `TIER_LIMITS` |
+| `platformFeePercent` | 8 | sourced from `TIER_LIMITS.pro.platformFeePercent` (the Pro plan rate in `platformTier.ts`) |
 
 The two new rates are the only numbers not lifted from existing repo models. Both are conservative
 and both are stated in the artist-facing assumptions block.
@@ -123,7 +123,7 @@ repository-backed overlap rule, so the model asks, and falls back to a documente
 - **Recurring** (`recurringGrossCents`) and **one-time** (`oneTimeGrossCents`) are tracked
   separately and only added at the gross line. Both are already monthly-normalized.
 - Gross is never mixed with net. `net = gross - platformFee - contributorCommission`.
-- Platform fee is applied **once**, to total gross, at the Pro rate.
+- Platform fee is applied **once**, to total gross, at the Pro plan rate read from `TIER_LIMITS.pro.platformFeePercent` in `platformTier.ts` (still 8).
 - Contributor commission is artist-funded on the **attributed slice only**, capped at
   `gross - platformFee`, matching how `checkout/route.ts` charges an `attributedCut`.
 - `currentDirectRevenueCents` is **subtracted**, never added. The headline is what the artist would

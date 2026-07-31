@@ -907,7 +907,7 @@ export function WorthExperience({
             <div className="h-3 rounded-full bg-crwn-elevated overflow-hidden">
               <div className="h-full bg-crwn-gold rounded-full" style={{ width: '92%' }} />
             </div>
-            <div className="text-lg text-crwn-text-secondary mt-2">Free plan keeps 88%. Pro keeps 92%. Every plan pays out straight to your bank.</div>
+            <div className="text-lg text-crwn-text-secondary mt-2">Launch (free) keeps you 88%. Pro keeps 92%, Scale 95%. Every plan pays out straight to your bank.</div>
           </div>
         </section>
         )}

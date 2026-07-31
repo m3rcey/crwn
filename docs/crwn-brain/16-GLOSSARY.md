@@ -12,7 +12,7 @@
 
 ## Product concepts
 - **Tier (fan tier / subscription tier)** — an artist's paid membership level (`subscription_tiers`), e.g. The Wave $10 / Inner Circle $50 / Throne $200 (test artist). NOT the platform tier.
-- **Platform tier** — the artist's CRWN SaaS plan: Free (`starter`) / Pro / `label`($99, spec) / `empire`(dead). Sets fee % and limits.
+- **Platform tier** — the artist's CRWN SaaS plan (repriced 2026-07-31): **Launch** (`starter`, $0, 12%) / **Pro** ($49/mo, 8%) / **Scale** (`scale`, $199/mo, 5%; renamed from the old spec-only `label` $99 concept). Sets fee % and limits. `empire` was deleted 2026-07-31; `resolveTierKey()` aliases stray `label`/`empire` strings to `scale`.
 - **Founding artist** — **RETIRED (2026-07-15), and it never paid out.** Was meant to be a flat 5% fee for 6 months via `is_founding_artist`. The override is gone from `getArtistFeePercent()`, nothing writes the flag, and no production row ever carried it. The column and a `FoundingBadge` component still exist as inert residue. Do not quote a founding-artist fee.
 - **Benefit** — a perk attached to a tier (`tier_benefits` + `benefitCatalog.ts`); some are "coming soon".
 - **Product** — a shop item: `digital` / `physical` / `experience` / `bundle`.
@@ -64,7 +64,7 @@
 - **`access_level`** (legacy enum, dead) vs **`is_free`/`allowed_tier_ids`** (current).
 - **`album_tracks.track_number`** vs **`playlist_tracks.position`** (different ordering columns).
 - **`[slug]`** (canonical artist pages) vs **`artist/[slug]`** (legacy redirect + dead dupes).
-- **`empire`** — a dead platform tier still wired into the type union.
+- **`empire`** — a dead platform tier, fully deleted 2026-07-31 (`resolveTierKey()` aliases any stray string to `scale`).
 - **`neu-*` CSS classes** — flat design, NOT neumorphic (naming leftover).
 
 ---

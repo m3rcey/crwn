@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Artist not set up for payments' }, { status: 400 });
     }
 
-    // Calculate dynamic platform fee based on artist's founding status
+    // Platform fee comes from the artist's plan (Launch 12 / Pro 8 / Scale 5)
     const platformFeePercent = await getArtistFeePercent(artistIdFromArtist);
     const platformFee = Math.round(session.price * (platformFeePercent / 100));
 

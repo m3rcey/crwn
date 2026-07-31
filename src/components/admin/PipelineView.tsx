@@ -35,7 +35,7 @@ interface Note {
 const STAGES = [
   { id: 'signed_up', label: 'Signed Up', color: 'text-blue-400', bg: 'bg-blue-400/10', icon: <Users className="w-4 h-4" /> },
   { id: 'onboarding', label: 'Onboarding', color: 'text-purple-400', bg: 'bg-purple-400/10', icon: <Zap className="w-4 h-4" /> },
-  { id: 'free', label: 'Free (Starter)', color: 'text-crwn-text-secondary', bg: 'bg-crwn-elevated', icon: <Users className="w-4 h-4" /> },
+  { id: 'free', label: 'Launch (free)', color: 'text-crwn-text-secondary', bg: 'bg-crwn-elevated', icon: <Users className="w-4 h-4" /> },
   { id: 'paid', label: 'Paid', color: 'text-green-400', bg: 'bg-green-400/10', icon: <Star className="w-4 h-4" /> },
   { id: 'at_risk', label: 'At Risk', color: 'text-orange-400', bg: 'bg-orange-400/10', icon: <AlertTriangle className="w-4 h-4" /> },
   { id: 'churned', label: 'Churned', color: 'text-red-400', bg: 'bg-red-400/10', icon: <UserX className="w-4 h-4" /> },
@@ -44,8 +44,7 @@ const STAGES = [
 const TIER_COLORS: Record<string, string> = {
   starter: 'text-crwn-text-secondary',
   pro: 'text-blue-400',
-  label: 'text-purple-400',
-  empire: 'text-crwn-gold',
+  scale: 'text-purple-400',
 };
 
 function timeAgo(dateStr: string | null): string {

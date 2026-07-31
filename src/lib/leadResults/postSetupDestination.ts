@@ -11,8 +11,8 @@
 //     referral share step) and /studio/live (a ticketed Live Experience or Executive Producer
 //     session). No dedicated Referral/Vault/Live route exists.
 //   - Some requested "pre-builds" are NOT draftable fields, so they are carried as SUGGESTIONS, not
-//     fake drafts: the full membership ladder (the Free plan caps live paid tiers at 1, so only the
-//     entry tier is a real draft; the rest is a suggestion linking to the Pro ladder builder),
+//     fake drafts: the full membership ladder (every plan now allows all 3 paid tiers, and the
+//     ladder is offered as a suggestion linking to the ladder builder),
 //     replay (recording is automatic, gating is post-hoc), tip goals (need a live session, commit
 //     immediately, dark-launched), and Vault release cadence (no scheduler exists at all).
 //
@@ -93,7 +93,7 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
     // The unified calculator -> the SAME membership builder Streaming Loss uses, because the
     // coordinated system's phase 1 is always the ladder and nothing else can launch before it.
     // The full ladder rides along as the suggestion, exactly as `worth` does, so the artist sees
-    // the whole system they reviewed rather than just the one tier the Free plan can draft.
+    // the whole system they reviewed rather than just the single drafted entry tier.
     //
     // Deliberately NOT fanned out into several builders at once. The growth systems and the
     // premium experience are later phases of the artist's own launch order, and dropping them into

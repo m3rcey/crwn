@@ -76,7 +76,7 @@ export default async function SmartLinkPage({ params }: Props) {
     artistAvatar = profile?.avatar_url || null;
   }
 
-  const showCrwnBranding = artistProfile?.platform_tier !== 'label' && artistProfile?.platform_tier !== 'empire';
+  const showCrwnBranding = artistProfile?.platform_tier !== 'scale' && artistProfile?.platform_tier !== 'label' && artistProfile?.platform_tier !== 'empire';
 
   return (
     <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center p-4">

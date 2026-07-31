@@ -16,7 +16,7 @@ export default function UpgradePrompt({ currentTier, feature, current, limit, me
   const defaultMessage = currentTier === 'starter'
     ? 'Upgrade to Pro to unlock more'
     : currentTier === 'pro'
-      ? 'Upgrade to Label for higher limits'
+      ? 'Upgrade to Scale for higher limits'
       : 'You have reached the maximum';
 
   return (

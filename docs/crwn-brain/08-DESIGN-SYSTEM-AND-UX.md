@@ -80,7 +80,7 @@ Installable PWA (`public/manifest.json`, `ServiceWorkerRegistration.tsx`). Servi
 - **Two stagger mechanisms** (CSS `.stagger-fade-in` vs `<StaggerChildren>`) — pick one.
 - **No canonical Modal primitive** — modals are hand-rolled.
 - Dead barrel files `ui/index.ts`, `hooks/index.ts` (`export {}`).
-- Some outdated/marketing screens: `/about` footer says "© 2024"; `recruit/page.tsx` copy cites stale pricing.
+- Some outdated/marketing screens: `/about` footer says "© 2024". (The `recruit/page.tsx` stale-pricing copy was fixed 2026-07-31 in the Launch/Pro/Scale repricing.)
 
 ---
 

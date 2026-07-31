@@ -8,7 +8,7 @@ Recent git history (last ~30 commits) shows two active threads: (1) a **security
 ## Likely near-term priorities (inferred)
 1. **Ship the Quest Engine / Rise Mode** — flip `admin_settings.quest_engine` on after stabilization. It's the dominant WIP; the recent "getQuests ordered by non-existent sort_order returned []" bug suggests it's close but not yet trusted. `Strongly inferred`.
 2. **Finish the two remaining HIGH security fixes** — verify Resend inbound webhooks and the `NEXT_PUBLIC_CRON_SECRET` pattern. (The Twilio inbound webhook is gone: SMS was removed 2026-07-31.) Given the just-completed security sprint, these fit the current arc. `Strongly inferred`.
-3. **Possibly activate the `$99 label` tier** — fully specced and env-wired but hard-disabled. A pricing/packaging decision away from launch. `Needs founder confirmation`.
+3. ~~Possibly activate the `$99 label` tier~~ **DONE 2026-07-31**: the pricing strategy shipped it as **Scale** at $199/mo ($1,990/yr), 5% fee, in the checkout whitelist; billable once its Stripe prices + env vars exist.
 
 ## Unfinished features (evidence-backed)
 - ~~SMS deferred-send queue~~ Moot since 2026-07-31: the SMS feature was removed entirely.
@@ -28,7 +28,7 @@ Recent git history (last ~30 commits) shows two active threads: (1) a **security
 ## Technical prerequisites before scaling
 - Consolidate the **admin Supabase client** and **ownership-check helper** (reduce per-route copy-paste risk).
 - Extract the **fee-calc formula** to one function.
-- Remove **dead code** that risks bugs: `empire` tier from the type union, legacy `access_level` from types, duplicate `artist/[slug]` routes.
+- Remove **dead code** that risks bugs: legacy `access_level` from types, duplicate `artist/[slug]` routes. (The `empire` tier was removed from the type union 2026-07-31.)
 - Fix the **design-token drift** (`bg-crwn-card`, color/font vars) before more UI is built on it.
 
 ## High-risk blockers
@@ -46,9 +46,9 @@ Recent git history (last ~30 commits) shows two active threads: (1) a **security
 1. Close the two HIGH security findings.
 2. Obtain/commit the money-table schema; add a migration registry.
 3. Decide Quest Engine launch; stabilize + flip flag.
-4. Cleanup pass: dead `empire`/`access_level`/duplicate routes; design tokens.
+4. Cleanup pass: dead `access_level`/duplicate routes; design tokens. (`empire` removed 2026-07-31.)
 5. Add a minimal test/monitoring baseline around money + entitlement.
-6. Then decide on `$99` tier + acquisition activation as growth levers.
+6. Then decide on acquisition activation as a growth lever. (The $99 tier question was answered 2026-07-31: it shipped as Scale at $199.)
 
 ---
 

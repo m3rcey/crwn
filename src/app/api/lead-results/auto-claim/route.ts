@@ -17,6 +17,7 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { recommendPlan } from '@/lib/planRecommendation';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -57,6 +58,28 @@ export async function POST() {
   await recordFunnelEvent(supabaseAdmin, { stage: 'account_created', dedupeKey: user.id, ...dims });
   if (user.email_confirmed_at) {
     await recordFunnelEvent(supabaseAdmin, { stage: 'email_verified', dedupeKey: user.id, ...dims });
+  }
+
+  // Store the deterministic plan recommendation (pricing strategy 2026-07-31): the account
+  // starts on Launch, but the RECOMMENDED operating plan is derived from the artist's own
+  // calculator projection and saved so onboarding can personalize around it. Best-effort on
+  // purpose: the artist_profiles row may not exist yet (this route also fires before the
+  // identity screen), and the columns land with schema-phase2-platform-plan-recommendation.sql.
+  // Auto-claim re-fires inside the app, so a later hit backfills once the row exists.
+  if (seed?.estimatedMonthlyCents) {
+    try {
+      const rec = recommendPlan({ projectedMonthlyGmvCents: seed.estimatedMonthlyCents });
+      await supabaseAdmin
+        .from('artist_profiles')
+        .update({
+          recommended_plan: rec.plan,
+          recommendation_reason: rec.reason,
+          projected_monthly_gmv: seed.estimatedMonthlyCents,
+        })
+        .eq('user_id', user.id);
+    } catch {
+      /* pre-migration schema or no artist row yet; nothing to do */
+    }
   }
 
   // Burn the one-shot token so it does not re-run forever. Best-effort: the email match still

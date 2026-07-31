@@ -1,5 +1,7 @@
 # CRWN Pitch Deck — Slide Content + Nano Banana Pro Prompts
 
+> **STALE PRICING:** any pricing in this document is superseded by `CRWN_PRICING STRATEGY.md` (2026-07-31): Launch $0 12% fee, Pro $49/mo 8% fee, Scale $199/mo 5% fee.
+
 14 slides. White paper + black sharpie style. 3:4 aspect ratio. Self-contained (no presenter).
 
 ---

@@ -1,5 +1,7 @@
 # CRWN — Script + Shot Map
 
+> **STALE PRICING (2026-07-31):** the fee lines below predate the repricing. Current plans: Launch $0 12% fee, Pro $49/mo 8%, Scale $199/mo 5%. Fix the voiceover numbers before filming.
+
 Every voiceover line is followed by its shot in italics.
 
 ---

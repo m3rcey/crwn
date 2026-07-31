@@ -18,7 +18,7 @@ Next.js 16 App Router (mostly client components) on Vercel · Supabase (Postgres
 
 ## Most important business rules
 - **Cents everywhere:** input `Math.round(val*100)`, display `(price/100).toFixed(2)`.
-- **Platform tiers/fees (SoT `TIER_LIMITS`):** Free 12% / **Pro $9.99 8%** (only billable) / $99 `label` 5% (spec) / `empire` dead. **No founding-artist override exists** (retired 2026-07-15; `getArtistFeePercent` returns the tier fee, full stop). (PRD pricing is stale.)
+- **Platform tiers/fees (SoT `TIER_LIMITS`; repriced 2026-07-31):** **Launch** (`starter`) free 12% / **Pro $49/mo 8%** / **Scale** (`scale`, ex-`label`) $199/mo 5%. `empire` deleted; `resolveTierKey()` aliases stray `label`/`empire` to `scale`. All plans get free + 3 paid fan tiers. **No founding-artist override exists** (retired 2026-07-15; `getArtistFeePercent` returns the tier fee, full stop). (PRD pricing is stale.)
 - **Stripe:** subscriptions/prices on **platform** account; `transfer_data.destination` for Connect; never pass `stripeAccount` to subscription calls; metadata `fan_id/artist_id/tier_id`; checkout checks `data.url`.
 - **Content gating:** `is_free` + `allowed_tier_ids` + `price`. Legacy `access_level` is DEAD.
 - **Subscriptions:** UNIQUE(fan_id, artist_id) → resubscribe = upsert; free tier bypasses Stripe.

@@ -88,8 +88,8 @@ export const guides: GuideData[] = [
       },
       {
         title: 'Understand platform fees',
-        content: 'CRWN charges a platform fee on every transaction. The fee depends on your plan: Free is 12%, Pro ($9.99/mo) is 8%. Stripe also charges their standard processing fee (~2.9% + $0.30) on top.',
-        tip: 'Pro cuts the fee by 4 points, so it pays for itself at about $250/month in sales. Earn more than that on Free and the difference is money you are handing back every month.',
+        content: 'CRWN charges a platform fee on every transaction. The fee depends on your plan: Launch (free) is 12%, Pro ($49/mo) is 8%, Scale ($199/mo) is 5%. Stripe also charges their standard processing fee (~2.9% + $0.30) on top.',
+        tip: 'Pro cuts the fee by 4 points, so it pays for itself at about $1,225/month in sales. Earn more than that on Launch and the difference is money you are handing back every month.',
       },
       {
         title: 'Set up your payout schedule',
@@ -109,7 +109,7 @@ export const guides: GuideData[] = [
       'Enable Stripe notifications so you get an alert every time you earn money, it is motivating.',
       'Save a percentage of every payout for taxes. As a creator, you are responsible for self-employment tax.',
       'If you plan to offer products in multiple currencies, Stripe handles conversion automatically.',
-      'Upgrading to Pro drops your platform fee from 12% to 8%. On $1,000/month of sales that is $40 back in your pocket, which is four times what Pro costs.',
+      'Upgrading to Pro drops your platform fee from 12% to 8%. Above about $1,225/month in sales, Pro costs you less than staying on Launch: on $3,000/month the 4-point cut is $120 back against the $49 plan.',
     ],
     nextGuide: { slug: 'subscription-tiers', title: 'Subscription Tiers' },
     prevGuide: { slug: 'profile-setup', title: 'Profile & Branding' },
@@ -550,7 +550,7 @@ export const guides: GuideData[] = [
       {
         title: 'Browse sync opportunities',
         content: 'CRWN curates real sync licensing briefs from music supervisors and brands. Browse available opportunities in the Sync tab. Each brief describes what they are looking for: genre, mood, tempo, and deadline. Submit tracks that match the brief.',
-        tip: 'Pro tier and above gets access to the full sync catalog. Free and Starter tiers see a limited selection.',
+        tip: 'Pro and Scale get access to the full sync catalog. The Launch plan sees a limited selection.',
       },
       {
         title: 'Prepare your music for sync',

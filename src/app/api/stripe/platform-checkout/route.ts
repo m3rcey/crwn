@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { STRIPE_PRICE_IDS } from '@/lib/platformTier';
+import { STRIPE_PRICE_IDS, TIER_PRICING } from '@/lib/platformTier';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
 
@@ -19,9 +19,12 @@ export async function POST(request: NextRequest) {
   try {
     const { tierId, billingCycle = 'monthly', partnerCode } = await request.json();
 
-    // v1 sells Pro only. label/empire are spec-only (no Stripe price) until they ship.
-    if (!tierId || !['pro'].includes(tierId)) {
+    // Sellable plans: Pro ($49/mo) and Scale ($199/mo). Launch is free and never checks out.
+    if (!tierId || !['pro', 'scale'].includes(tierId)) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 });
+    }
+    if (!['monthly', 'annual'].includes(billingCycle)) {
+      return NextResponse.json({ error: 'Invalid billing cycle' }, { status: 400 });
     }
 
     const supabase = await createServerSupabaseClient();
@@ -109,6 +112,18 @@ export async function POST(request: NextRequest) {
 
     if (!priceId) {
       return NextResponse.json({ error: 'Price ID not configured' }, { status: 500 });
+    }
+
+    // Verify the live Stripe price matches TIER_PRICING before selling it. The env var can
+    // lag a pricing change (the old $9.99 Pro price id would otherwise silently undercharge
+    // while every surface advertises $49), so a mismatch fails loudly instead of checking out.
+    const expectedAmount = TIER_PRICING[tierId as keyof typeof TIER_PRICING][billingCycle as 'monthly' | 'annual'];
+    const stripePrice = await stripe.prices.retrieve(priceId);
+    if (stripePrice.unit_amount !== expectedAmount) {
+      console.error(
+        `platform-checkout: Stripe price ${priceId} is ${stripePrice.unit_amount} but TIER_PRICING says ${expectedAmount} for ${tierId}/${billingCycle}`
+      );
+      return NextResponse.json({ error: 'Plan pricing is being updated. Please try again shortly.' }, { status: 500 });
     }
 
     // Build metadata

@@ -1870,7 +1870,7 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
       .eq('id', user_id)
       .single();
     const artistEmail = session.customer_email || session.customer_details?.email;
-    const tierLabel = tier === 'pro' ? 'Pro' : tier === 'empire' ? 'Empire' : 'Label';
+    const tierLabel = tier === 'pro' ? 'Pro' : 'Scale';
     if (artistEmail) {
       await resend.emails.send({
         from: FROM_EMAIL,

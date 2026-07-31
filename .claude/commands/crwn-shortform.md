@@ -71,7 +71,7 @@ Tiers are ONE solution. CRWN has many. For each script, identify the specific pa
 
 **C. Fans grow you and get paid for it** (pain: ad spend/CAC, no marketing budget, label "breaks" you). Share-and-earn referral: a fan earns a commission (around 10%) for every subscriber they bring and can cash it out. Your fans become a paid street team.
 
-**D. Keep more of every dollar** (pain: label takes the bigger half). Platform fee is 3–8% vs a label's majority cut; money pays out direct to the artist.
+**D. Keep more of every dollar** (pain: label takes the bigger half). Platform fee is 5-12% (as low as 5%) vs a label's majority cut; money pays out direct to the artist.
 
 **E. See and act on the money** (pain: "millions went missing", you never see the books, churn). Transparent real-time analytics (every dollar, MRR, churn, top spenders, geography); an AI manager that flags fans about to leave and your top spenders.
 

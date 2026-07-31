@@ -166,7 +166,8 @@ Ownership is almost always expressed in RLS as `auth.uid() IN (SELECT user_id FR
 5. **`notifications.type` is unconstrained** (CHECK dropped) — no DB guard against typos. Also `notifyNewPost`/`notifyNewComment` write `link:'/community'`, a route that does not exist (dead link). `Low`.
 6. **`purchases.status` lacks a `failed` state** — a failed one-time attempt is indistinguishable from `pending`. `Low`.
 7. **Two commission systems share the `referrals`/`referral_earnings` tables** via a `source` discriminator (fan vs clipper); changing one payout path risks the other. `Medium`.
-8. Prose docs / migration comments carry **stale pricing** (`schema-platform-tiers.sql` says $49/$149). `Informational`.
+8. Prose docs / migration comments carry **stale pricing** (`schema-platform-tiers.sql` says $49/$149; current pricing since 2026-07-31 is Launch $0 12% / Pro $49 8% / Scale $199 5% per `CRWN_PRICING STRATEGY.md`). `Informational`.
+9. **Plan recommendation columns:** `artist_profiles.recommended_plan` / `recommendation_reason` / `projected_monthly_gmv` (migration `supabase/schema-phase2-platform-plan-recommendation.sql`, NOT yet applied) store the deterministic operating-plan recommendation from `src/lib/planRecommendation.ts`, seeded from the claimed calculator in `/api/lead-results/auto-claim` (fail-soft pre-migration). Every account still starts on Launch. `Confirmed`.
 
 ---
 

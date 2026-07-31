@@ -86,8 +86,8 @@ moment; the whole-video scan is the costly, least-necessary part.
   `source='clipper'` auth gate. Serving the clips is **free** (R2 zero egress).
 
 **Per-tier caps (the guardrail that bounds free-tier downside).**
-- Free Starter: ~20 clip-minutes/mo (worst case ≈ $5/mo/artist even at 0% conversion).
-- Pro / $99 tier: generous-to-uncapped. Caps make clipping an upgrade lever, not a cost sink.
+- Launch: ~20 clip-minutes/mo (worst case ≈ $5/mo/artist even at 0% conversion).
+- Pro / Scale: generous-to-uncapped. Caps make clipping an upgrade lever, not a cost sink.
 
 **Gate (lighter than 2–4).** Phase 1 is live (it is) **and** a provider is chosen/budgeted.
 NOT gated on conversion data — it reduces friction rather than depending on proven

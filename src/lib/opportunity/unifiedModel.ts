@@ -37,6 +37,7 @@
 // added.
 
 import { RECOMMENDED_TIER_PRICES } from '@/lib/leadCalculator';
+import { TIER_LIMITS } from '@/lib/platformTier';
 
 export const UNIFIED_MODEL_VERSION = 'unifiedOpportunity@1';
 export const UNIFIED_ASSUMPTIONS_VERSION = 'unifiedAssumptions@1';
@@ -202,7 +203,7 @@ export function getUnifiedAssumptions(scenario: Scenario = 'expected'): UnifiedA
     tipCents: 500,
     seatRate: 0.003,
     hybridSeatShare: 0.4,
-    platformFeePercent: 8,
+    platformFeePercent: TIER_LIMITS.pro.platformFeePercent,
   };
 }
 

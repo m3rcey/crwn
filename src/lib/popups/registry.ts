@@ -15,7 +15,7 @@ export interface PopupContext {
   userId: string;
   role: 'fan' | 'artist' | 'admin';
   isArtist: boolean;
-  platformTier: string | null; // 'starter' | 'pro' | 'label' | null
+  platformTier: string | null; // 'starter' | 'pro' | 'scale' | null
   stripeConnected: boolean;
   /** Artists: their active subscriber count. Fans: their active subscription count. */
   supportCount: number;
@@ -116,11 +116,29 @@ export const POPUPS: PopupDef[] = [
     audience: (c) => c.isArtist && c.platformTier === 'starter' && c.supportCount >= 3,
     frequency: { type: 'everyN', days: 7, max: 4 },
     priority: 50,
-    goal: 'Convert an activated free artist to Pro (8% fee, multi-tier ladder).',
+    goal: 'Convert an activated Launch artist to Pro (8% fee, full operating features).',
     title: 'You are giving away 12% of every sale.',
-    body: 'On the free plan CRWN keeps 12 percent. Pro drops that to 8 and unlocks the paid membership ladder. At your volume the lower fee starts paying for itself.',
-    cta: { label: 'See Pro', href: '/pricing' },
+    body: 'On the Launch plan CRWN keeps 12 percent. Pro drops that to 8 and unlocks live, DMs, scheduling and sequences. Above about $1,225 a month in sales, staying on Launch costs you more than Pro does.',
+    cta: { label: 'See Pro', href: '/account/billing' },
     dismissLabel: 'Dismiss',
+  },
+
+  // ---- Announcement: Launch plan limits raised (50 tracks, 250 members) ----
+  // Loss-framed on what the old caps were costing them. Announce-once; skipped for
+  // accounts created after the change shipped (announcedAt), who met these limits as normal.
+  {
+    key: 'announce_launch_limits',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist && c.platformTier === 'starter',
+    frequency: { type: 'once' },
+    priority: 45,
+    announcedAt: '2026-07-31',
+    goal: 'Free artists upload the catalog and import the fans the old caps made them leave out.',
+    title: 'Your full catalog was locked out. It is not anymore.',
+    body: 'The free plan (now called Launch) held you to 20 tracks and 100 members, which meant most of your catalog and your fan list stayed off CRWN earning nothing. Launch now holds 50 tracks and 250 members and contacts. The music and fans you left out are still making you $0 until you bring them in.',
+    cta: { label: 'Upload your catalog', href: '/studio/music' },
+    dismissLabel: 'Later',
   },
 
   // ---- Fan: back an artist (activation, starts money flow) ----

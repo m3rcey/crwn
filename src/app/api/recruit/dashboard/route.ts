@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { TIER_LIMITS } from '@/lib/platformTier';
 
-// CRWN's platform fee % for the artist's tier (Free 12 / Pro 8 / $99-tier 5).
+// CRWN's platform fee % for the artist's plan (Launch 12 / Pro 8 / Scale 5).
 function crwnFeePercent(tier: string | null): number {
   const key = tier && tier !== 'starter' ? tier : 'starter';
   return TIER_LIMITS[key]?.platformFeePercent ?? TIER_LIMITS.starter.platformFeePercent;

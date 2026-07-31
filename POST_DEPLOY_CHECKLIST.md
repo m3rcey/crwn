@@ -9,7 +9,7 @@ Run after every deploy that touches money-path code (webhook, checkout, cashout,
 **Subscription checkout:**
 - [ ] Go to a test artist page, pick a tier, click Subscribe
 - [ ] Verify redirect to Stripe Checkout (correct amount, correct artist name in statement descriptor)
-- [ ] Verify `application_fee_percent` matches artist's platform tier (Starter/Pro 8%, Label 6%, Empire 4%)
+- [ ] Verify `application_fee_percent` matches artist's platform tier (Launch 12%, Pro 8%, Scale 5%)
 - [ ] Verify `transfer_data.destination` is the artist's Connect account ID
 
 **Product checkout:**
@@ -83,7 +83,7 @@ For product purchase additionally:
 
 ## 8. Platform Tier Changes
 
-- [ ] After platform checkout (artist upgrades to Pro/Label/Empire): `artist_profiles.platform_tier` updated
+- [ ] After platform checkout (artist upgrades to Pro or Scale): `artist_profiles.platform_tier` updated
 - [ ] After platform subscription deleted: artist downgraded to `starter`
 - [ ] `profiles.platform_tier` stays in sync with `artist_profiles.platform_tier`
 

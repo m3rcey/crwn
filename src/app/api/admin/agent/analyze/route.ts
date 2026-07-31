@@ -19,9 +19,9 @@ const SYSTEM_PROMPT = `You are CRWN's business intelligence agent. You diagnose 
 
 CRWN CONTEXT:
 - Two-sided marketplace: artists (supply) and fans (demand).
-- Artists pay platform tier subscriptions (Starter free, Pro $69/mo, Label $175/mo, Empire $350/mo).
-- Annual billing: Pro $52/mo, Label $131/mo, Empire $262/mo (25% off).
-- Platform takes 3-8% fee on fan transactions depending on artist tier (Starter 8%, Pro 6%, Label 5%, Empire 3%).
+- Artists pay platform plan subscriptions (Launch free, Pro $49/mo, Scale $199/mo).
+- Annual billing: Pro $490/yr, Scale $1,990/yr (about two months free).
+- Platform takes 5-12% fee on fan transactions depending on artist plan (Launch 12%, Pro 8%, Scale 5%).
 - Prices are in CENTS in the data. Convert to dollars for display.
 - Variable costs (SMS, MMS, email) are per-message and factored into COGS.
 

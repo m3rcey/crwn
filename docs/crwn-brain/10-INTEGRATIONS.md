@@ -32,7 +32,7 @@
 - **Local dev:** build-safe fallbacks `http://localhost:54321` / `dummy-service-key-for-build` so Vercel static build never crashes on missing envs.
 
 ## Stripe — Platform account + Connect
-- **Env:** `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, plus six `STRIPE_CRWN_*_PRICE_ID` (pro/label/empire × monthly/annual).
+- **Env:** `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, plus four platform-plan price ids: `STRIPE_CRWN_PRO_PRICE_ID`, `STRIPE_CRWN_PRO_ANNUAL_PRICE_ID`, `STRIPE_CRWN_SCALE_PRICE_ID`, `STRIPE_CRWN_SCALE_ANNUAL_PRICE_ID` (the LABEL/EMPIRE ones were removed 2026-07-31; the checkout route verifies the live Stripe price amount against `TIER_PRICING`, so a stale id fails loudly).
 - **Files:** `src/lib/stripe/client.ts` (`apiVersion: '2026-02-25.clover'`), `src/lib/webhookHandlers.ts`, `src/app/api/stripe/**` (~20 routes). ⚠️ ~7 routes instantiate `new Stripe(...)` inline instead of importing the shared client (maintenance smell; same key).
 - **Model:** fan subscriptions + prices live on the **platform** account; fan→artist money uses `transfer_data.destination` + `application_fee`. Artist payouts go to per-artist **Connect Express** accounts. See `07-BUSINESS-RULES.md`.
 - **Webhook** `/api/stripe/webhook`: **signature-verified** (`stripe.webhooks.constructEvent`). Idempotent via atomic `processed_webhook_events` INSERT (unique-violation = already processed). Handles `checkout.session.completed` (routed by metadata), `invoice.paid`, `invoice.payment_failed`, `customer.subscription.updated/deleted`, `charge.refunded`, `checkout.session.expired`, `charge.dispute.created`.

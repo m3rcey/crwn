@@ -127,11 +127,11 @@ export async function GET(req: NextRequest) {
   // Import from single source of truth — monthly equivalent for annual = annual total / 12
   const TIER_PRICES: Record<string, number> = {
     pro: TIER_PRICING.pro.monthly,
-    label: TIER_PRICING.label.monthly,
+    scale: TIER_PRICING.scale.monthly,
   };
   const ANNUAL_PRICES: Record<string, number> = {
     pro: Math.round(TIER_PRICING.pro.annual / 12),
-    label: Math.round(TIER_PRICING.label.annual / 12),
+    scale: Math.round(TIER_PRICING.scale.annual / 12),
   };
 
   const paidArtists = artists.filter(a => a.platform_subscription_status === 'active' && a.platform_tier && a.platform_tier !== 'starter');
@@ -348,10 +348,9 @@ export async function GET(req: NextRequest) {
 
   // ---- TIER DISTRIBUTION ----
   const tierDistribution = [
-    { name: 'Starter', count: starterArtists.length, color: '#666' },
+    { name: 'Launch', count: starterArtists.length, color: '#666' },
     { name: 'Pro', count: paidArtists.filter(a => a.platform_tier === 'pro').length, color: '#D4AF37' },
-    { name: 'Label', count: paidArtists.filter(a => a.platform_tier === 'label').length, color: '#3B82F6' },
-    { name: 'Empire', count: paidArtists.filter(a => a.platform_tier === 'empire').length, color: '#8B5CF6' },
+    { name: 'Scale', count: paidArtists.filter(a => a.platform_tier === 'scale').length, color: '#3B82F6' },
   ];
 
   // ---- ANNUAL vs MONTHLY MIX ----
@@ -492,7 +491,7 @@ export async function GET(req: NextRequest) {
   // ---- PER-TIER HORMOZI BREAKDOWN ----
   // For each tier: does LGP ≥ 2x CAC? (lifetime comparison, not monthly)
   // Monthly view: tier monthly profit vs amortized monthly (CAC + COGs)
-  const tierHealthCheck = (['pro', 'label'] as const).map(tier => {
+  const tierHealthCheck = (['pro', 'scale'] as const).map(tier => {
     const tierPrice = TIER_PRICES[tier]; // monthly price in cents
     const tierStripeFee = stripeFee(tierPrice);
     // Per-person MARGINAL COGS for this tier: messaging share + Stripe on this tier's price.
@@ -655,9 +654,9 @@ export async function GET(req: NextRequest) {
   })();
 
   // ---- TIER UPGRADE TRACKING ----
-  // Pro→Label+ upgrade rate: key metric for partner program economics
+  // Pro→Scale upgrade rate: key metric for partner program economics
   // Without tier change history, approximate from current state:
-  // Artists on Label/Empire who've been on platform 60+ days likely started on Pro
+  // Artists on Scale who've been on platform 60+ days likely started on Pro
   const sixtyDaysAgo = new Date(Date.now() - 60 * 86400000);
   const establishedPaidArtists = artists.filter(a =>
     new Date(a.created_at) < sixtyDaysAgo &&
@@ -665,7 +664,7 @@ export async function GET(req: NextRequest) {
     a.platform_tier && a.platform_tier !== 'starter'
   );
   const establishedOnLabelPlus = establishedPaidArtists.filter(a =>
-    a.platform_tier === 'label' || a.platform_tier === 'empire'
+    a.platform_tier === 'scale' || a.platform_tier === 'label' || a.platform_tier === 'empire'
   );
   const upgradeRate = establishedPaidArtists.length > 0
     ? Number(((establishedOnLabelPlus.length / establishedPaidArtists.length) * 100).toFixed(1))
@@ -674,10 +673,10 @@ export async function GET(req: NextRequest) {
   const tierUpgradeMetrics = {
     establishedPaidCount: establishedPaidArtists.length,
     onLabelPlus: establishedOnLabelPlus.length,
-    upgradeRate, // % of established paid artists on Label+
+    upgradeRate, // % of established paid artists on Scale
     proCount: establishedPaidArtists.filter(a => a.platform_tier === 'pro').length,
-    labelCount: establishedOnLabelPlus.filter(a => a.platform_tier === 'label').length,
-    empireCount: establishedOnLabelPlus.filter(a => a.platform_tier === 'empire').length,
+    labelCount: establishedOnLabelPlus.length,
+    empireCount: 0,
   };
 
   // ---- PROJECTIONS ----

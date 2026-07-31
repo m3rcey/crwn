@@ -5,6 +5,7 @@
 ## Product / docs (repo)
 - Vision/positioning: `CRWN_Kickoff_Brief.md`, `PITCH_DECK.md`, `CRWN_Product_Plan.docx`
 - Requirements (stale on pricing/AI): `PRD.md`
+- Pricing (current, 2026-07-31): `CRWN_PRICING STRATEGY.md` (Launch $0 12% / Pro $49 8% / Scale $199 5%); code SoT `src/lib/platformTier.ts`
 - Working rules (authoritative): `CLAUDE.md`, `DEV_RULES.md`, `CODEBASE.md`, `AGENT_INSTRUCTIONS.md`
 - Ops: `POST_DEPLOY_CHECKLIST.md`; handoffs: `CRWN_*_HANDOFF.md`, `CRWN_SESSION_CONTEXT_MAR10.md`, `CLIP_TO_SUBSCRIBE_PHASE1*.md`
 
@@ -31,7 +32,7 @@
 - Types mirror: `src/types/index.ts`, `community.ts`, `live.ts`
 
 ## Payments / Stripe
-- `src/lib/stripe/client.ts`, `src/lib/webhookHandlers.ts`, `src/lib/platformTier.ts` (fees/limits SoT)
+- `src/lib/stripe/client.ts`, `src/lib/webhookHandlers.ts`, `src/lib/platformTier.ts` (fees/limits SoT), `src/lib/planRecommendation.ts` (deterministic operating-plan recommendation engine, `recommendPlan()`, pure + tested)
 - Routes: `src/app/api/stripe/*` (checkout, track/product/booking/live/platform-checkout, connect(+status), cashout, fan-cashout, team-split-cashout, subscription-update, webhook, create-price, balance, free-subscribe, fan-connect, fan-portal, login-link)
 - Subscription mgmt: `src/app/api/subscriptions/{cancel,pause}`
 - Team splits lib: `src/lib/teamSplits/{allocation,server,constants,types,warnings}.ts`; routes `src/app/api/team-splits/*`; crons `cron/team-split-accruals`, `cron/team-split-selfcheck`; audit `supabase/audit-team-split-road-campaign-accruals.sql`

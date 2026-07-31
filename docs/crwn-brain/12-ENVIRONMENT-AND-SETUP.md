@@ -46,7 +46,7 @@ npm test             # vitest, 392 tests across 23 files (pure business logic on
 |---|---|
 | `SUPABASE_SERVICE_ROLE_KEY` | RLS-bypassing admin client (API routes only) |
 | `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe |
-| `STRIPE_CRWN_{PRO,LABEL,EMPIRE}_{,ANNUAL_}PRICE_ID` (6) | platform plan Stripe price ids |
+| `STRIPE_CRWN_{PRO,SCALE}_{,ANNUAL_}PRICE_ID` (4) | platform plan Stripe price ids (LABEL/EMPIRE vars removed 2026-07-31; checkout verifies the live price amount against `TIER_PRICING`) |
 | `CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | Cloudflare R2 |
 | `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVE_PROVIDER` | LiveKit |
 | `RESEND_API_KEY`, `FROM_EMAIL` | Resend email |

@@ -11,6 +11,8 @@
 //   - The artist currently captures ~$0 of DIRECT fan revenue, so the CRWN net IS the
 //     money left on the table. Streaming continues alongside it (additive, honest).
 
+import { TIER_LIMITS } from './platformTier';
+
 export interface CalcInputs {
   /** Required — the number every artist knows by heart. */
   monthlyListeners: number;
@@ -65,7 +67,7 @@ export function getAssumptions(preset: AggressivenessPreset = 'conservative'): C
     ...RECOMMENDED_TIER_PRICES,
     ...TIER_SPLIT,
     ...STREAMING,
-    platformFeePercent: 8, // Pro plan — the plan the recommended 3-tier setup requires
+    platformFeePercent: TIER_LIMITS.pro.platformFeePercent, // Pro, the recommended operating plan
   };
 }
 

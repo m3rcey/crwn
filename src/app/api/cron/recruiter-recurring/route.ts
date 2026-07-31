@@ -16,7 +16,7 @@ const supabaseAdmin = createClient(
  *
  * It is the artist's revenue, not what the artist pays CRWN. Those are different numbers by
  * an order of magnitude, and this route used to pay a percentage of the latter from a
- * hardcoded price map that had drifted into fiction (pro: 5000, when Pro is $9.99).
+ * hardcoded price map that had drifted into fiction (a stale copy of the Pro price).
  *
  * `earnings.net_amount` is what the artist keeps, the same basis the team-splits engine
  * uses, so an artist, a collaborator and an influencer all read one definition of revenue.

@@ -72,23 +72,27 @@ CRWN makes money two ways:
 1. **Platform SaaS subscription** paid by the artist (Stripe subscription on the CRWN *platform* account).
 2. **Transaction fee** (a percentage `application_fee`) skimmed from every fan→artist payment routed through Stripe Connect.
 
-**Actual tiers and fees** (source of truth: `TIER_LIMITS` in `src/lib/platformTier.ts`):
+**Actual tiers and fees** (source of truth: `TIER_LIMITS` in `src/lib/platformTier.ts`; repriced 2026-07-31 per `CRWN_PRICING STRATEGY.md`):
 
-| Tier (internal key) | Price | Platform fee | Fan tiers | Notes |
+| Plan (internal key) | Price | Platform fee | Fan tiers | Notes |
 |---|---|---|---|---|
-| **Free** (`starter`) | $0 | **12%** | 1 | 20 tracks, 100 members, no bundles/scheduling/live/DMs/clipper |
-| **Pro** (`pro`) | **$9.99/mo** | **8%** | 3 | unlimited tracks/members, all features on. Only billable paid tier in v1 |
-| **$99 tier** (`label`) | $99/mo | 5% | 10 | **SPEC ONLY — not billable/gated in v1** (removed from checkout whitelist) |
-| `empire` | — | 3% | ∞ | **Dead/legacy** — removed from pricing + checkout, lingers in some config maps |
+| **Launch** (`starter`) | $0 | **12%** | free + 3 paid | 50 tracks, 250 members/contacts, 1 email campaign/mo. "Prove your first direct-to-fan offer" |
+| **Pro** (`pro`) | **$49/mo or $490/yr** | **8%** | free + 3 paid | unlimited tracks/members, 20 email campaigns/mo. "Run your entire direct-to-fan business in one place" |
+| **Scale** (`scale`) | **$199/mo or $1,990/yr** | **5%** | free + 3 paid | 100 email campaigns/mo, assisted migration, team permissions. Renamed from the spec-only `label` $99 concept. "Scale revenue, your team, and fan operations with less manual work" |
 
+- The `empire` tier is **fully deleted** from `TIER_LIMITS`/`TIER_LIMITS_V2`/`PlatformTierName` (2026-07-31). `resolveTierKey()` aliases stray `label`/`empire` strings to `scale`; `formatTierName()` maps `starter` to "Launch".
+- Break-evens: Pro beats Launch above $1,225/mo GMV ($49 / 4 fee points); Scale beats Pro above $5,000/mo GMV ($150 / 3 fee points).
+- A true multi-artist **Label** tier is custom-priced and does not ship until org accounts / cross-artist analytics / bulk ops exist. Never describe the old $99 Label as a current plan.
 - **There is NO founding-artist fee override.** `getArtistFeePercent()` reads `platform_tier` and returns that tier's fee, full stop. The 5% override was retired by founder call on 2026-07-15 and the code removed; nothing writes `is_founding_artist`, and no production row ever carried it. This doc previously claimed the override was live and `Confirmed`, which contradicted `07-BUSINESS-RULES.md` and would have had an agent quoting the wrong fee. `Confirmed` (`src/lib/platformTier.ts`, read 2026-07-29).
-- Platform checkout **hard-whitelists `pro` only** in v1 (`src/app/api/stripe/platform-checkout/route.ts`). `Confirmed`.
+- Platform checkout whitelists **`pro` and `scale`** (`src/app/api/stripe/platform-checkout/route.ts`) and verifies the live Stripe price amount against `TIER_PRICING` before checkout, so a stale env var fails loudly. `Confirmed`.
 
 ## 9. How the docs disagree (reconciliation — read before trusting any repo `.md`)
 
+> Historical table. The **2026-07-31 pricing strategy (`CRWN_PRICING STRATEGY.md`) supersedes everything below on pricing**: Launch $0 12% / Pro $49 8% / Scale $199 5%.
+
 | Claim | Stale doc says | Code actually says | Verdict |
 |---|---|---|---|
-| Platform pricing | Starter free / Pro **$50** / Label **$175** / Empire **$350**, fees 8/6/5/3% (`PRD.md §7`); `$69/$175/$350` (`CLAUDE.md` note); `$49/$149` (`schema-platform-tiers.sql`) | Free 12% / Pro **$9.99** 8% / $99 `label` 5% (spec-only) / `empire` dead | **Code wins.** All prose docs are stale on pricing. |
+| Platform pricing | Starter free / Pro **$50** / Label **$175** / Empire **$350**, fees 8/6/5/3% (`PRD.md §7`); `$69/$175/$350` (`CLAUDE.md` note); `$49/$149` (`schema-platform-tiers.sql`) | Free 12% / Pro **$9.99** 8% / $99 `label` 5% (spec-only) / `empire` dead (code as of 2026-07-29; since 2026-07-31 the code says Launch $0 12% / Pro $49 8% / Scale $199 5%) | **Code wins.** All prose docs are stale on pricing. |
 | AI provider | "Moonshot AI (Kimi)" (`PRD.md §9.6`) | **DeepSeek** (`deepseek-chat` via `openai` SDK) for AI Manager + admin agent; real **OpenAI** `gpt-4o-mini` only in the `sync-opportunities` cron | **Code wins.** `Confirmed` (`src/lib/ai/*`). |
 | Booking | Calendly OAuth integration (`PRD.md §9.4`) | `react-calendly` embed is **orphaned/unused**; the live flow is **booking tokens** (`booking-tokens-migration.sql`). `CALCOM_API_KEY` exists in env but no cal.com server integration found. | **Code wins.** |
 | Onboarding | "Role selection + guided tour + post-tour action picker" (`PRD.md §3`) | Flow is signup → `/welcome` → **`/setup` wizard** (one-field-per-screen), post-tour picker was removed (`CLAUDE.md`, `src/app/setup`). | **Code wins.** |
@@ -114,7 +118,7 @@ The combination — **storefront + membership + owned CRM + acquisition machine 
 ## 12. Areas needing founder confirmation
 
 - **True product priority:** the codebase spans an enormous surface (60+ API domains, 25 crons). Which of these are core to the current go-to-market vs. speculative? (see `13-CURRENT-STATE.md`, `14-ROADMAP-INFERRED.md`). `Needs founder confirmation`.
-- **Is the `$99 label` tier launching, and when?** It is fully specced but hard-disabled. `Needs founder confirmation`.
+- ~~**Is the `$99 label` tier launching, and when?**~~ **ANSWERED 2026-07-31:** renamed **Scale** at $199/mo ($1,990/yr), 5% fee, billable once its Stripe prices and env vars exist. A true multi-artist Label tier stays custom-priced and unshipped.
 - **Is the Quest Engine / Rise Mode meant to ship on** (flag currently defaults off)? `Needs founder confirmation`.
 - **Recruiter/partner program economics** (flat fee + recurring %) — are these live payouts today or spec? Code paths exist and pay via Stripe Connect; real-world activation unclear. `Needs founder confirmation`.
 - **Founding-artist program** parameters (count cap, fee window). `Needs founder confirmation`.

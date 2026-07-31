@@ -92,7 +92,7 @@ function LockedCard({ title, description }: { title: string; description: string
 
 export default function UnitEconomics({ artistId, platformTier, analytics }: UnitEconomicsProps) {
   const isPro = platformTier !== 'starter';
-  const isLabelPlus = platformTier === 'label' || platformTier === 'empire';
+  const isLabelPlus = platformTier === 'scale' || platformTier === 'label' || platformTier === 'empire';
 
   const [costs, setCosts] = useState<MarketingCost[]>([]);
   const [isLoading, setIsLoading] = useState(true);

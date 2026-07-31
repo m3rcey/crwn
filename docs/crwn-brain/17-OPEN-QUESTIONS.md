@@ -14,16 +14,18 @@
 ## Business model
 3. **Is the `$99 "label"` platform tier launching, and when?**
    - *Evidence:* fully specced in `TIER_LIMITS`, Stripe price env vars exist, but checkout hard-whitelists `pro` only; marked "SPEC ONLY".
+   - **RESOLVED 2026-07-31** by `CRWN_PRICING STRATEGY.md`: renamed **Scale** (internal key `scale`) at $199/mo or $1,990/yr, 5% fee; in the checkout whitelist, billable once its Stripe prices + env vars exist. A true multi-artist Label tier stays custom-priced and unshipped.
 4. **Should `empire` be deleted?**
    - *Evidence:* dead but wired into the live type union + fee config + admin metric across ~20 files. Latent bug risk.
+   - **RESOLVED 2026-07-31**: deleted from `TIER_LIMITS`/`TIER_LIMITS_V2`/`PlatformTierName`; `resolveTierKey()` aliases stray `label`/`empire` strings to `scale`.
 5. **Recruiter/partner program — live or spec?**
    - *Evidence:* dashboards, Stripe Connect payouts, qualification crons all exist; marketing copy stale ($50/$150/$350).
    - *Unclear:* whether real commissions are being paid today.
 6. **Founding-artist program parameters** (count cap, fee window, current enrollment)?
 
 ## Pricing
-7. **Confirm the live pricing/fees**: Free 12% / Pro $9.99 8% is what the code says; the PRD, `schema-platform-tiers.sql`, and `recruit/page.tsx` all disagree with each other and with the code. Which is the real, current, customer-facing pricing?
-8. **Email limit**: `EMAIL_LIMITS` says Free 1/mo, Pro 10/mo; PRD says "2 campaigns/week". Which governs?
+7. **Confirm the live pricing/fees**: **RESOLVED 2026-07-31** by `CRWN_PRICING STRATEGY.md` (founder call): **Launch $0 12% / Pro $49/mo 8% / Scale $199/mo 5%**, annual $490/$1,990. Code, legal pages and `recruit/page.tsx` now match; the PRD and `schema-platform-tiers.sql` remain historical.
+8. **Email limit**: **RESOLVED 2026-07-31** by the pricing strategy: Launch 1 / Pro 20 / Scale 100 email campaigns per month. The PRD's "2 campaigns/week" is stale.
 9. **Cashout fee asymmetry**: weekly auto-payout takes no fee, manual cashout takes $2. Intended?
 
 ## User experience

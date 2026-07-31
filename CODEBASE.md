@@ -5,7 +5,7 @@
 ## Tech Stack
 - Next.js 16 with TypeScript (Turbopack)
 - Supabase (Postgres + Auth + Storage + Realtime)
-- Stripe Connect (8% platform fee)
+- Stripe Connect (per-plan platform fee: Launch 12% / Pro 8% / Scale 5%, via `getArtistFeePercent()`)
 - Vercel deployment
 - Tailwind CSS (dark mode)
 - recharts for charts
@@ -284,7 +284,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 ## Stripe Architecture
 - Prices created on PLATFORM account (not connected account)
 - Checkout uses `transfer_data.destination` for connected account
-- 8% fee via `application_fee_percent` (subscriptions) or `application_fee_amount` (products)
+- Per-plan fee (Launch 12% / Pro 8% / Scale 5%, from `getArtistFeePercent()`) via `application_fee_percent` (subscriptions) or `application_fee_amount` (products)
 - Webhook handles: checkout.session.completed, invoice.paid, invoice.payment_failed, customer.subscription.updated, customer.subscription.deleted
 
 ## Design System

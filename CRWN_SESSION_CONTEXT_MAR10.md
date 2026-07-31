@@ -1,5 +1,7 @@
 # CRWN Session Context — March 10, 2026
 
+> **STALE PRICING:** pricing below is superseded by `CRWN_PRICING STRATEGY.md` (2026-07-31): Launch $0 12%, Pro $49 8%, Scale $199 5%.
+
 ## What CRWN Is
 All-in-one platform for music artists to monetize, connect with fans, and build community. "Patreon meets Spotify meets Discord." Built with Next.js 16 + TypeScript, Supabase, Stripe Connect, Vercel, Tailwind CSS. Dark neumorphic UI with gold accent (#D4AF37). URL: crwn-mauve.vercel.app. GitHub: m3rcey/crwn, master branch. Workspace: /home/merce/.openclaw/workspace-crwn/
 

@@ -1,16 +1,12 @@
 export function artistTierEmail(displayName: string, tierName: string): string {
+  // Two paid plans: Pro ($49/mo, 8% fee) and Scale ($199/mo, 5% fee). Fee numbers here
+  // must match TIER_LIMITS in platformTier.ts; this email once claimed 4% and 6% fees
+  // for plans that charge 3% and 5%.
   const isPro = tierName.toLowerCase().includes('pro');
-  const isEmpire = tierName.toLowerCase().includes('empire');
 
-  const features = isEmpire ? [
-    { icon: '👑', label: 'Everything in Label', desc: 'All Label features included' },
-    { icon: '💰', label: '4% Platform Fee', desc: 'The lowest rate on CRWN' },
-    { icon: '🎤', label: 'Unlimited Artist Profiles', desc: 'No limits on your roster' },
-    { icon: '📊', label: 'Unlimited Fan Tiers', desc: 'Monetize however you want' },
-    { icon: '⚡', label: 'Priority Support', desc: 'Direct line when you need help' },
-    { icon: '🚀', label: 'Early Access', desc: 'First to get new features' },
-  ] : isPro ? [
+  const features = isPro ? [
     { icon: '🎵', label: 'Unlimited Uploads', desc: 'No more track limits' },
+    { icon: '💰', label: '8% Platform Fee', desc: 'Down from 12% on Launch' },
     { icon: '📈', label: 'Artist Manager', desc: 'Insights, churn alerts, and VIP fan detection' },
     { icon: '📧', label: 'Email Campaigns', desc: 'Personalized broadcasts with open/click tracking' },
     { icon: '⚡', label: 'Welcome Sequences', desc: 'Automated drip emails for new subscribers' },
@@ -19,11 +15,11 @@ export function artistTierEmail(displayName: string, tierName: string): string {
     { icon: '📅', label: '1-on-1 Scheduling', desc: 'Book paid sessions with fans' },
   ] : [
     { icon: '👑', label: 'Everything in Pro', desc: 'All Pro features included' },
-    { icon: '💰', label: '6% Platform Fee', desc: 'Down from 8%, more money in your pocket' },
+    { icon: '💰', label: '5% Platform Fee', desc: 'Down from 8%, more money in your pocket' },
+    { icon: '🚚', label: 'Assisted Migration', desc: 'CRWN helps move your fans and catalog over' },
     { icon: '✨', label: 'White-label Emails', desc: 'Remove CRWN branding from campaign emails' },
-    { icon: '🎤', label: 'Up to 10 Artist Profiles', desc: 'Manage your entire roster' },
-    { icon: '📊', label: 'Up to 10 Fan Tiers', desc: 'More ways to monetize your audience' },
-    { icon: '🔌', label: 'API Access', desc: 'Integrate with your existing tools' },
+    { icon: '🤝', label: 'Team Workflows', desc: 'Larger team with granular permissions' },
+    { icon: '⚡', label: 'Priority Support', desc: 'Direct line when you need help' },
   ];
 
   const featureRows = features.map(f =>

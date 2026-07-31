@@ -121,7 +121,7 @@ STRIPE_WEBHOOK_SECRET=            # Created when setting up webhook endpoint
 - Platform-controlled fee collection
 - Industry: On-demand services
 
-**Platform fee:** 8% on all transactions via `application_fee_amount` on each payment. Label tier gets 6%.
+**Platform fee:** per plan, via `application_fee_amount` on each payment: Launch 12%, Pro 8%, Scale 5% (2026-07-31 pricing).
 
 ### Cloudflare R2
 ```
@@ -269,7 +269,7 @@ Ian should execute these in order. Each ticket is a deployable milestone.
 - [ ] Stripe Connect onboarding for artists (embedded components)
 - [ ] Fan subscription flow: select tier → Stripe Checkout → active subscription
 - [ ] Stripe webhooks: handle subscription.created, updated, canceled, invoice.paid, invoice.payment_failed
-- [ ] Platform fee: `application_fee_amount` = 8% (6% for Label tier artists)
+- [ ] Platform fee: `application_fee_amount` = per plan (Launch 12%, Pro 8%, Scale 5%)
 - [ ] Artist payout dashboard (embedded Stripe account components)
 - [ ] **Database tables:**
   - `subscription_tiers`: id, artist_id, name, price, description, access_config (JSONB), stripe_price_id

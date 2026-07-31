@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
       // The old rates (5% or 10% by recruiter tier, and 0% unless the artist was on Label+)
       // were a share of the artist's monthly SaaS fee to CRWN, which is a much smaller
       // number than what the artist earns. Do not read them as a precedent for what 1% is
-      // worth here: 1% of revenue on a working artist is far more than 10% of a $9.99 fee.
+      // worth here: 1% of revenue on a working artist is far more than 10% of a $49 fee.
       const recurringRate = recruiter.partner_recurring_rate ?? DEFAULT_RECURRING_RATE;
 
       // Update referral to qualified

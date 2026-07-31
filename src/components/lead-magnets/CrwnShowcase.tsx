@@ -326,7 +326,7 @@ export function CrwnShowcase({ claimed, claimHref }: { claimed: boolean; claimHr
             <div className="h-full rounded-full" style={{ width: '92%', backgroundColor: GOLD }} />
           </div>
           <p className="text-white/45 text-xs mt-3">
-            Free plan keeps 88%. Pro keeps 92%. Every plan pays out straight to your bank.
+            Launch (free) keeps you 88%. Pro keeps 92%, Scale 95%. Every plan pays out straight to your bank.
           </p>
         </div>
         <EarningsMock />

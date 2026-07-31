@@ -8,8 +8,8 @@
 // next and links to where they do it. It renders only when routed from a calculator (lm_prefill=1).
 //
 // Why guidance and not a draft, per the builder audit:
-//   - the full membership ladder: the Free plan caps live paid tiers at 1, so only the entry tier
-//     below is a real draft; the rest of the ladder is built in Tiers (Pro).
+//   - the full membership ladder: every plan allows all 3 paid tiers; the entry tier below is a
+//     real draft and the rest of the ladder is built in Tiers.
 //   - replay: a live session records automatically; the replay is gated AFTER it airs, not here.
 //   - tip goals: added to a session once it is live (and behind a rollout flag), not at create time.
 //   - Vault release cadence: there is no scheduler; release timing is set per track in Music.

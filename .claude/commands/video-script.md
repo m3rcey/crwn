@@ -275,7 +275,7 @@ Tiers are ONE solution. CRWN has many. From the proxy's / famous artist's specif
 - **A. Own the direct line** (label/algorithm gatekeeps the fans): email subscribers; **text/SMS fans directly**; you hold the list (email, phone, city); auto win-back when a fan leaves.
 - **B. More than one income stream** (streaming pennies, advance/recoupment): free + paid tiers; digital products (stems, sample packs); physical (vinyl, CD, merch); paid experiences (1-on-1, custom verse, critique, shoutout); bundles; tips.
 - **C. Fans grow you and get paid** (CAC, ad spend, label "breaks" you): share-and-earn referral — a fan earns ~10% commission per subscriber they bring and cashes out. A paid street team.
-- **D. Keep more of every dollar**: 3–8% platform fee vs a label's majority cut; direct payout.
+- **D. Keep more of every dollar**: 5-12% platform fee (as low as 5%) vs a label's majority cut; direct payout.
 - **E. See and act on the money** ("millions went missing", churn): transparent real-time analytics; AI manager flags churn risk and top spenders.
 - **F. Launch without a label budget** (Drake's ~$1.2M Iceman rollout): smart links / pre-save pages with DSP embeds + lead capture; discount codes.
 

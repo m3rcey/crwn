@@ -24,7 +24,7 @@ interface Sequence {
 const TRIGGER_LABELS: Record<string, string> = {
   new_signup: 'New Signup',
   onboarding_incomplete: 'Onboarding Incomplete',
-  starter_upgrade_nudge: 'Starter → Pro Upgrade',
+  starter_upgrade_nudge: 'Launch → Pro Upgrade',
   paid_at_risk: 'Paid At Risk',
   paid_churned: 'Paid Churned (Win-Back)',
   upgrade_abandoned: 'Upgrade Abandoned',

@@ -134,7 +134,7 @@ Every topic must point to a direct-to-fan solution, but NOT always the same one.
 - **Own the direct line** (label/algorithm gatekeeps fans): email + text/SMS your fans, you own the list.
 - **More income streams** (streaming pennies, recoupment): free + paid tiers, digital/physical products, paid experiences.
 - **Fans grow you and get paid** (CAC, no budget): share-and-earn referral, fans earn commission for bringing subscribers.
-- **Keep more of every dollar**: 3–8% platform fee vs a label's majority cut.
+- **Keep more of every dollar**: 5-12% platform fee (as low as 5%) vs a label's majority cut.
 - **See and act on the money** ("millions went missing", churn): transparent analytics, AI manager flags churn and top spenders.
 - **Launch without a label budget** (huge rollout costs): smart links / pre-save pages, discount codes.
 - **Be present, not just posted** (no real-time relationship, algorithm decides reach): native livestreaming ("Listening Sessions") — tier-gated live broadcasts plus prerecorded VODs, with live chat and a guest "stage" role. Pairs with clippers/share-to-earn (cut the live into promo) and the release waterfall (paid tier first).

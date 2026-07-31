@@ -1,5 +1,7 @@
 # CRWN — Pitch Video Script
 
+> **STALE PRICING (2026-07-31):** the fee lines below predate the repricing. Current plans: Launch $0 12% fee, Pro $49/mo 8%, Scale $199/mo 5%. Fix the voiceover numbers before filming.
+
 I built a music platform that watches its own data. Finds its own problems. And fixes them. Without a human touching it.
 
 In the next three minutes you're going to see how I built CRWN, an autonomous agent driven music platform that runs every artist's business for them.

@@ -49,4 +49,4 @@ When given a support request:
 - **"I can't connect Stripe"** — Check if `stripe_connect_id` exists on their `artist_profiles` row. If null, they haven't completed onboarding. Link: `/profile/artist?tab=billing`
 - **"My payout didn't come"** — Check `earnings` table for their `artist_id`. Weekly payouts run Monday 11am UTC via `/api/cron/weekly-payout`. If balance is $0 in Stripe Connect, nothing to pay out.
 - **"Fans can't see my content"** — Check `is_free` and `allowed_tier_ids` on the track/product. If gated, fan needs an active subscription with a matching `tier_id`.
-- **"My AI Manager isn't showing insights"** — Runs daily at 1pm UTC. Check `ai_insights` table for their `artist_id`. Starter tier only gets basic nudges. Pro+ gets full insights.
+- **"My AI Manager isn't showing insights"** — Runs daily at 1pm UTC. Check `ai_insights` table for their `artist_id`. The Launch plan only gets basic nudges. Pro+ gets full insights.

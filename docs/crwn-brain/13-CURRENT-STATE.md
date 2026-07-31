@@ -31,7 +31,7 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   - **Full artist career game (Prompt 3, shipped dark):** Levels 5-10 + Empire Mode now seeded. ~40 new artist quests (Recruit Founding Fans, Build the First 10, Turn Fans Into a Community, Launch Your First Movement, Build the Growth Engine, Become the Artist CEO) with ~24 new authoritative `DomainCheck`s (free-member count, members-post count, went-live, survey, retention cycle, proof-of-demand, mission, squad, campaign closed/reached, smart link, captured lead, active sequence, referrals/clipper on, sent campaign, growth-loop composite, revenue milestone, MRR, team split, referral conversions, cities unlocked, and the `artist_beat_rise_mode` victory composite). Coaching-only steps use `kind:'manual'` completed through a NEW **guarded** `POST /api/quests/complete` that refuses any non-manual (domain/fan_event) quest, so financial/supporter milestones stay server-derived. Empire is escalating **non-repeatable** milestones (25/50/100/250/500 supporters, $1k/$5k MRR, referrals, cities) gated on the prior rung, so no XP farming. Main-game **victory** payload + `RiseMode` "You Beat Rise Mode" banner (real counts only). `recommendNextQuest` is now build-aware (boosts side quests by the artist build's `priorityCategories`; the main spine never branches). Opt-in full quest map + per-quest "Mark as done" for manual quests. No migration required. `Confirmed`.
   - **Setup ↔ Rise alignment (latest):** the Artist Setup Wizard creates the **free "Bronze" entry point** by default (`DEFAULT_TIER_NAME` in `src/app/setup/page.tsx`; an earlier version of this note said "Community", which was wrong) so setup and Rise Mode never ask for the same thing; the paid ladder is built in Rise Level 3. Note the ladder template (`TierLadderTemplate.tsx`) recognizes the free tier **by name** while the quest evaluator recognizes it **by price = 0**, so renaming the free tier desyncs the ladder tile from quest completion. Setup completion CTA is now **"Start Rise Mode."** `/welcome` shows the minimum-viable-setup promise and a **"Build My CRWN"** CTA for artists. Rise Level 1 boss is **"Complete Your Artist Destination"** (authoritative composite: photo + banner + bio + slug + track + social link). A new **infrastructure-ready capstone** quest (`artist_infrastructure_ready`, L4) + RiseMode banner marks the setup→growth handoff, derived from a composite check (free+paid tier, Stripe connected, purchasable tier, track, community post, profile) — **not** overloading `setup_completed`. Executive Supporter recognition disclaimer expanded to explicitly exclude master ownership, publishing, songwriting/producer credit, royalties, revenue participation, approval rights, creative control, and Team Split. No migration. `Confirmed`.
   - **Closeout fixes:** the previously-corrupted `supabase/schema-phase2-quest-notifications.sql` (`EXECUccTE`/`L88OOP`) is repaired to valid PL/pgSQL and ready to apply. A zero-dependency catalog integrity guard (`scripts/verify-quest-catalog.mjs`, `npm run verify:quests`) asserts unique keys, resolvable prerequisites/fan-quest refs, and that every domain `check` is both declared in the union and handled by an evaluator case (currently: 71 quests, 43 checks, all clean). `Confirmed`.
-- **`$99 "label" platform tier** — fully specced (`TIER_LIMITS`, Stripe price env vars) but **hard-disabled** (checkout whitelists `pro` only). `Confirmed`.
+- **Scale platform tier ($199/mo, 5%)** — renamed from the old spec-only `label` $99 concept in the 2026-07-31 repricing. In `TIER_LIMITS` and the checkout whitelist (alongside `pro`); billable once its Stripe prices exist and `STRIPE_CRWN_SCALE_PRICE_ID` / `STRIPE_CRWN_SCALE_ANNUAL_PRICE_ID` are set (the route verifies the live Stripe price amount against `TIER_PRICING`, so a stale env var fails loudly). `Confirmed`.
 - **Benefit catalog "coming soon" items** (`benefitCatalog.ts:225`, e.g. `monthly_merch`) — explicitly `available:false`. `Confirmed`.
 
 ## Partial / gaps (Confirmed)
@@ -91,7 +91,7 @@ and polls bolted on, so the build extends `live_sessions` rather than forking it
 ## Legacy / duplicated / dead (Confirmed)
 
 - **`src/app/artist/[slug]/*` vs `src/app/[slug]/*`** — the top-level `artist/[slug]/page.tsx` is a redirect shim, but the subroutes (`track/album/post/playlist/[id]`, `book/success`) are **full near-byte-identical duplicates** that have already **drifted one field** (album `description`). `[slug]/*` is canonical. Stray link `TrackUploadForm.tsx:525` still builds `/artist/${slug}`. Recommend deleting or shimming the duplicates.
-- **`empire` platform tier** — dead/spec but **still wired into a live type union + fee/limit config + Stripe env placeholders + admin-dashboard metric across ~20 files**. Latent bug if a stale row ever reads `platform_tier='empire'`.
+- **`empire` platform tier** — **fully deleted 2026-07-31** from `TIER_LIMITS`/`TIER_LIMITS_V2`/`PlatformTierName` as part of the pricing strategy. `resolveTierKey()` aliases any stray `label`/`empire` string to `scale`, so a stale row can no longer break fee lookups.
 - **Legacy `access_level` enum** — superseded by `is_free`/`allowed_tier_ids` but still present on `tracks`/`albums`/`products`/posts columns **and** in the TS `Track`/`Album`/`Post`/`CommunityPost` types. A live foot-gun.
 - **`useContentAccess.ts`** — old access model, only one consumer (`GatedCommunityPost`); superseded by `useSubscription`.
 - **Calendly booking components** (`CalendlyBooking`, `SessionManager`, `BookingSettings`) — **not imported anywhere**; superseded by booking tokens.
@@ -111,7 +111,7 @@ and polls bolted on, so the build extends `live_sessions` rather than forking it
 
 - Only **marketing mockups** use fake data (`(public)/worth/mocks.tsx`, `recruit/page.tsx` `MockRecruiterDashboard`) — intentional illustrations, not bugs. Production UI queries Supabase directly.
 - Demo seeds (`seed-demo-*.sql`) populate the `m3rcey` test artist; `__canary*` users are synthetic health-check accounts (skipped by notification hooks).
-- **Stale copy in the recruit marketing page** (`recruit/page.tsx:162`) still says "Pro $50, Label $150, Empire $350" — contradicts current pricing.
+- ~~Stale copy in the recruit marketing page~~ Fixed 2026-07-31: `recruit/page.tsx` no longer carries the old "Pro $50, Label $150, Empire $350" prices.
 
 ## Unified Opportunity Calculator — live 2026-07-29 (Confirmed)
 
@@ -168,7 +168,7 @@ Repairs/hardening migrations reveal past incidents: `artist-approval-gate-repair
 2. **Get a full schema dump** for the money tables lacking CREATE TABLE migrations — see `05-DATABASE.md`.
 3. **Delete/shim the `artist/[slug]/*` duplicate subroutes** (they drift silently).
 4. **Fix `bg-crwn-card`** (56 files rendering wrong background).
-5. **Excise the dead `empire` tier** from the live type union + config.
+5. ~~Excise the dead `empire` tier~~ Done 2026-07-31 (deleted in the Launch/Pro/Scale repricing).
 6. **Drop legacy `access_level`** from types to stop new code reading the wrong field.
 
 ---

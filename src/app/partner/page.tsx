@@ -126,7 +126,7 @@ export default function PartnerPage() {
             {
               icon: Crown,
               title: 'Free Platform Access',
-              desc: 'Free Pro (a $9.99/mo plan) for up to 12 months, depending on your tier.',
+              desc: 'Free Pro (a $49/mo plan) for up to 12 months, depending on your tier.',
             },
             {
               icon: DollarSign,

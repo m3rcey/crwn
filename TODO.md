@@ -22,6 +22,35 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
+- [ ] **Create the new Stripe prices for the 2026-07-31 repricing and set 4 Vercel env vars.
+      Until you do, the Pro upgrade checkout REFUSES on purpose** (the route now verifies the
+      live Stripe price amount against the code's $49 and errors loudly rather than silently
+      charging the old $9.99 while every screen says $49). I tried to create the prices myself
+      with the local live key and the permission layer blocked it, so this is yours:
+
+      1. Stripe Dashboard (live mode) → Product catalog → **CRWN Pro** (`prod_U5RxBKjYuwKmvM`)
+         → Add price: **$49.00 / month**. Add a second price: **$490.00 / year**.
+      2. Create a new product **CRWN Scale** → prices **$199.00 / month** and **$1,990.00 / year**.
+      3. Copy the four `price_...` ids into Vercel → project `crwn` → Settings → Environment
+         Variables (Production):
+         - `STRIPE_CRWN_PRO_PRICE_ID` = the $49 monthly price id (OVERWRITE the old $9.99 one)
+         - `STRIPE_CRWN_PRO_ANNUAL_PRICE_ID` = the $490 annual price id
+         - `STRIPE_CRWN_SCALE_PRICE_ID` = the $199 monthly price id
+         - `STRIPE_CRWN_SCALE_ANNUAL_PRICE_ID` = the $1,990 annual price id
+         (The old `STRIPE_CRWN_LABEL_*` and `STRIPE_CRWN_EMPIRE_*` vars are dead; delete them.)
+      4. Tell Claude "Stripe prices are set" and it will redeploy and verify checkout end to end.
+
+      Also your call, not code: **any existing Pro subscriber on $9.99 stays on $9.99** (their
+      Stripe subscription rides the old price object; nothing migrates them). Say the word if you
+      want them grandfathered formally announced, or moved.
+
+- [ ] **Run the plan-recommendation migration:**
+      [`supabase/schema-phase2-platform-plan-recommendation.sql`](supabase/schema-phase2-platform-plan-recommendation.sql)
+      in the Supabase SQL editor. Adds `recommended_plan` / `recommendation_reason` /
+      `projected_monthly_gmv` to `artist_profiles` WITH the column grant that keeps
+      `select('*')` from 42501-ing. Until it runs, the recommendation writes fail soft
+      (nothing breaks, nothing is stored).
+
 - [ ] **CREATE the Resend webhook. It does not exist, so bounces and spam complaints have
       NEVER been suppressed.** You were right that you could not find it. I checked: the only
       row in `email_suppressions` is the `victim@example.com` test from the July security audit,

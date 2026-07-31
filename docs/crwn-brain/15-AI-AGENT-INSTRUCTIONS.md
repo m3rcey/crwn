@@ -61,7 +61,7 @@
 - If you discover an exposed secret, report the file path + severity WITHOUT reproducing the value.
 
 ## When to propose before implementing
-Get founder confirmation before: schema changes to money tables; anything touching payouts/fees/entitlement; enabling a dark-launched feature (Quest Engine); deleting "dead" code that's still wired (e.g. `empire` tier); changing pricing.
+Get founder confirmation before: schema changes to money tables; anything touching payouts/fees/entitlement; enabling a dark-launched feature (Quest Engine); deleting "dead" code that's still wired; changing pricing. (The `empire` tier was deleted 2026-07-31 as part of the founder-approved pricing strategy, so it is no longer an example here. Fees still come only from `TIER_LIMITS`/`getArtistFeePercent()`.)
 
 ## Post-work checklist
 - [ ] `npm run build` passes (WSL).

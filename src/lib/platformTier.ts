@@ -1,9 +1,10 @@
-// Platform Tier Pricing
-// Pro is monthly-only at launch ($9.99/mo, no annual plan); annual fields mirror monthly.
+// Platform Tier Pricing (2026-07-31 pricing strategy: Launch $0 / Pro $49 / Scale $199).
+// Annual = roughly two months free ($490 / $1,990). The checkout VERIFIES the live Stripe
+// price amount against these numbers before creating a session, so a stale Stripe price id
+// (e.g. the old $9.99 Pro price) fails loudly instead of silently undercharging.
 export const TIER_PRICING = {
-  pro: { monthly: 999, annual: 11988, monthlyDisplay: 9.99, annualMonthlyDisplay: 9.99, annualTotal: 120, savings: 0 },
-  // SPEC ONLY — $99/mo tier (internal key 'label'), not billable/gated in v1.
-  label: { monthly: 9900, annual: 118800, monthlyDisplay: 99, annualMonthlyDisplay: 99, annualTotal: 1188, savings: 0 },
+  pro: { monthly: 4900, annual: 49000, monthlyDisplay: 49, annualMonthlyDisplay: 40.84, annualTotal: 490, savings: 98 },
+  scale: { monthly: 19900, annual: 199000, monthlyDisplay: 199, annualMonthlyDisplay: 165.84, annualTotal: 1990, savings: 398 },
 } as const;
 
 // The only prices CRWN can actually charge. There is no 'empire' tier: it was removed, but
@@ -12,8 +13,8 @@ export const TIER_PRICING = {
 export const STRIPE_PRICE_IDS = {
   pro_monthly: process.env.STRIPE_CRWN_PRO_PRICE_ID || '',
   pro_annual: process.env.STRIPE_CRWN_PRO_ANNUAL_PRICE_ID || '',
-  label_monthly: process.env.STRIPE_CRWN_LABEL_PRICE_ID || '',
-  label_annual: process.env.STRIPE_CRWN_LABEL_ANNUAL_PRICE_ID || '',
+  scale_monthly: process.env.STRIPE_CRWN_SCALE_PRICE_ID || '',
+  scale_annual: process.env.STRIPE_CRWN_SCALE_ANNUAL_PRICE_ID || '',
 };
 
 // Platform Tier Limits Configuration
@@ -32,16 +33,16 @@ export interface TierLimits {
 }
 
 export const TIER_LIMITS: Record<string, TierLimits> = {
-  // FREE tier (internal key 'starter'; displayed as "Free").
+  // LAUNCH, the free plan (internal key 'starter' — kept so existing rows keep matching;
+  // displayed as "Launch"). Purpose: prove the first direct-to-fan offer. The ICP has 50+
+  // released songs, so 50 tracks (not 20) lets them evaluate CRWN with a representative
+  // catalog, and 250 members covers a meaningful fan-import sample.
   starter: {
-    maxTracks: 20,
-    maxMembers: 100,
-    // Free gets the FULL recommended ladder (3 paid tiers: Silver / Gold /
-    // Platinum) so the Streaming Loss calculator's promise is buildable on
-    // every plan. Pro still wins on the lower fee (12% -> 8%) plus live, DMs,
-    // scheduling, clipper, and unlimited tracks/members. Tier COUNT is no longer
-    // a paywall: a Free artist earning across 3 tiers pays the higher 12% fee, so
-    // more tiers means more platform revenue, not less.
+    maxTracks: 50,
+    maxMembers: 250,
+    // Every plan gets the FULL recommended ladder (free Bronze door + 3 paid tiers:
+    // Silver / Gold / Platinum) so the calculator's promise is buildable on every plan.
+    // Tier COUNT is never a paywall: plans differentiate on fee + scale + leverage.
     maxFanTiers: 3,
     allowsBundles: false,
     allowsScheduling: false,
@@ -50,6 +51,8 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsClipper: false,
     platformFeePercent: 12,
   },
+  // PRO ($49/mo): operate a serious direct-to-fan business. Break-even vs Launch:
+  // $49 / 4% = $1,225 monthly GMV.
   pro: {
     maxTracks: -1, // unlimited
     maxMembers: -1, // unlimited
@@ -61,12 +64,14 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsClipper: true,
     platformFeePercent: 8,
   },
-  // SPEC ONLY — Label ($99) slots in here. Not billable/gated in v1
-  // (removed from the checkout whitelist + pricing modal). Values below are placeholders.
-  label: {
+  // SCALE ($199/mo, renamed from the old $99 'label' concept): higher-volume artist
+  // business with a team. Break-even vs Pro: ($199 - $49) / 3% = $5,000 monthly GMV.
+  // Billable once its Stripe price env vars are set. A true multi-artist Label tier is
+  // custom-priced and does NOT ship until org accounts / cross-artist infra exist.
+  scale: {
     maxTracks: -1, // unlimited
     maxMembers: -1, // unlimited
-    maxFanTiers: 10,
+    maxFanTiers: 3,
     allowsBundles: true,
     allowsScheduling: true,
     allowsLive: true,
@@ -74,27 +79,28 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
     allowsClipper: true,
     platformFeePercent: 5,
   },
-  // SPEC ONLY — not billable/gated in v1.
-  empire: {
-    maxTracks: -1, // unlimited
-    maxMembers: -1, // unlimited
-    maxFanTiers: -1, // unlimited
-    allowsBundles: true,
-    allowsScheduling: true,
-    allowsLive: true,
-    allowsDMs: true,
-    allowsClipper: true,
-    platformFeePercent: 3,
-  },
 };
+
+// Old spec-only keys that may linger in code paths or copy. No production row ever carried
+// them ('label' and 'empire' were never billable), but resolve them to the nearest real
+// plan instead of silently falling back to the free plan's 12% fee.
+const LEGACY_TIER_ALIASES: Record<string, string> = {
+  label: 'scale',
+  empire: 'scale',
+};
+
+function resolveTierKey(tier: string | null | undefined): string {
+  const key = tier || 'starter';
+  return LEGACY_TIER_ALIASES[key] || key;
+}
 
 // New simplified structure for server-side gating
 export const TIER_LIMITS_V2 = {
   starter: {
-    tracks: 20,
-    // Free gets all 3 paid tiers (the full recommended ladder). See TIER_LIMITS above.
+    tracks: 50,
+    // Every plan gets all 3 paid tiers (the full recommended ladder). See TIER_LIMITS above.
     fanTiers: 3,
-    members: 100,
+    members: 250,
     bundles: false,
     scheduling: false,
     liveQA: false,
@@ -113,48 +119,37 @@ export const TIER_LIMITS_V2 = {
     artistProfiles: 1,
     apiAccess: false,
   },
-  label: {
+  // Multi-workspace + API access belong to the future custom-priced Label tier, not Scale.
+  scale: {
     tracks: -1,
-    fanTiers: 10,
+    fanTiers: 3,
     members: -1,
     bundles: true,
     scheduling: true,
     liveQA: true,
     analytics: 'full' as const,
-    artistProfiles: 10,
-    apiAccess: true,
-  },
-  empire: {
-    tracks: -1,
-    fanTiers: -1,
-    members: -1,
-    bundles: true,
-    scheduling: true,
-    liveQA: true,
-    analytics: 'full' as const,
-    artistProfiles: -1,
-    apiAccess: true,
+    artistProfiles: 1,
+    apiAccess: false,
   },
 } as const;
 
 // Email campaign (blast) limits per platform tier — MONTHLY quota.
-// Free: 1/mo, Pro: 10/mo. -1 = unlimited. (label/empire are spec-only.)
+// Launch: 1/mo, Pro: 20/mo, Scale: 100/mo. -1 = unlimited.
 export const EMAIL_LIMITS: Record<string, number> = {
   starter: 1,
-  pro: 10,
-  label: 50,
-  empire: -1,
+  pro: 20,
+  scale: 100,
 };
 
 export function getEmailLimit(tier: string | null | undefined): number {
-  const v = EMAIL_LIMITS[tier || 'starter'];
+  const v = EMAIL_LIMITS[resolveTierKey(tier)];
   return v === undefined ? 1 : v;
 }
 
-export type PlatformTierName = 'starter' | 'pro' | 'label' | 'empire';
+export type PlatformTierName = 'starter' | 'pro' | 'scale';
 
 export function getTierLimitsV2(tier: string | null) {
-  const key = (tier || 'starter') as PlatformTierName;
+  const key = resolveTierKey(tier) as PlatformTierName;
   return TIER_LIMITS_V2[key] || TIER_LIMITS_V2.starter;
 }
 
@@ -219,7 +214,7 @@ export async function checkArtistLimit(
 }
 
 export function getTierLimits(tier: string | null | undefined): TierLimits {
-  return TIER_LIMITS[tier || 'starter'] || TIER_LIMITS.starter;
+  return TIER_LIMITS[resolveTierKey(tier)] || TIER_LIMITS.starter;
 }
 
 export function canUseFeature(tier: string | null | undefined, feature: keyof Omit<TierLimits, 'maxTracks' | 'maxMembers' | 'maxFanTiers' | 'platformFeePercent'>): boolean {
@@ -237,9 +232,17 @@ export function getPlatformFeePercent(tier: string | null | undefined): number {
   return limits.platformFeePercent;
 }
 
+// Display names. The free plan's internal key stays 'starter' (existing rows reference it),
+// but the artist-facing name is "Launch": prove your first direct-to-fan offer.
+const TIER_DISPLAY_NAMES: Record<string, string> = {
+  starter: 'Launch',
+  pro: 'Pro',
+  scale: 'Scale',
+};
+
 export function formatTierName(tier: string | null | undefined): string {
-  if (!tier) return 'Starter';
-  return tier.charAt(0).toUpperCase() + tier.slice(1);
+  const key = resolveTierKey(tier);
+  return TIER_DISPLAY_NAMES[key] || key.charAt(0).toUpperCase() + key.slice(1);
 }
 
 /**

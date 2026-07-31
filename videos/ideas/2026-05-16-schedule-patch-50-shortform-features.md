@@ -2,7 +2,7 @@
 
 Generated 2026-05-16. Goal: more videos implicitly highlighting CRWN capabilities OTHER than subscription tiers. All [S]. Solutions stay implicit (proof, not instruction; CRWN named only in caption per skill). Capability tag in brackets is internal (printed here so the feature spread is visible per the request). Deduped against the 270-topic calendar, the 42 written scripts, and the Aug 10+ patch.
 
-Capability legend: A = own the direct line (email/SMS, own the list) · C = share-and-earn referral (fans paid to bring subscribers) · D = keep more (3-8% fee vs label majority) · E = transparent analytics + AI manager · F = launch without a label budget (smart links/pre-save, discount codes).
+Capability legend: A = own the direct line (email/SMS, own the list) · C = share-and-earn referral (fans paid to bring subscribers) · D = keep more (5-12% fee, as low as 5%, vs label majority) · E = transparent analytics + AI manager · F = launch without a label budget (smart links/pre-save, discount codes).
 
 Spread: A 13 · C 12 · D 9 · E 9 · F 7. Subscription-tier math intentionally minimized.
 

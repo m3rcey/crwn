@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Check, Crown, X } from 'lucide-react';
+import { TIER_PRICING } from '@/lib/platformTier';
 
 interface PlatformTier {
   id: string;
@@ -21,47 +22,64 @@ interface PlatformTier {
   badge?: string;
 }
 
+// Prices come from TIER_PRICING (the source of truth); never retype a number here.
 const PLATFORM_TIERS: PlatformTier[] = [
   {
     id: 'starter',
-    name: 'Free',
+    name: 'Launch',
     monthlyPrice: 0,
     annualMonthlyPrice: 0,
     annualTotal: 0,
     savings: 0,
-    description: 'Get started for free',
+    description: 'Prove your first direct-to-fan offer',
     features: [
-      '20 track uploads',
-      'Up to 3 subscription tiers',
-      '1 email blast / month',
-      'Community posts',
+      '50 track uploads',
+      'Full 4-tier ladder (free + 3 paid)',
+      'Up to 250 members and contacts',
+      '1 email campaign / month',
+      'Fan CRM + CSV fan import',
       'Basic analytics',
-      'Audience CRM & fan database',
       '12% platform fee',
     ],
   },
   {
     id: 'pro',
     name: 'Pro',
-    monthlyPrice: 9.99,
-    annualMonthlyPrice: 9.99,
-    annualTotal: 120,
-    savings: 0,
-    description: 'For growing artists',
+    monthlyPrice: TIER_PRICING.pro.monthlyDisplay,
+    annualMonthlyPrice: TIER_PRICING.pro.annualMonthlyDisplay,
+    annualTotal: TIER_PRICING.pro.annualTotal,
+    savings: TIER_PRICING.pro.savings,
+    description: 'Run your entire direct-to-fan business in one place',
     features: [
-      'Unlimited uploads',
-      'Up to 3 subscription tiers',
-      '10 email blasts / month',
-      'Livestreaming + VOD',
+      'Unlimited tracks and members',
+      'Live experiences + VOD',
       'Direct messaging with fans',
-      'Clipper rev-share',
-      'Advanced analytics',
-      '8% platform fee',
+      'Scheduling + Promise Calendar automation',
+      'Bundles, discount codes, Share-to-Earn',
+      '20 email campaigns / month + sequences',
+      'Advanced analytics + team splits',
+      '8% platform fee (saves money above $1,225/mo in sales)',
     ],
     popular: true,
   },
-  // SPEC ONLY — Label ($99) slots in here as a third card when it ships.
-  // Not billable in v1 (no Stripe price, excluded from platform-checkout).
+  {
+    id: 'scale',
+    name: 'Scale',
+    monthlyPrice: TIER_PRICING.scale.monthlyDisplay,
+    annualMonthlyPrice: TIER_PRICING.scale.annualMonthlyDisplay,
+    annualTotal: TIER_PRICING.scale.annualTotal,
+    savings: TIER_PRICING.scale.savings,
+    description: 'Scale revenue, your team, and fan operations with less manual work',
+    features: [
+      'Everything in Pro',
+      'Assisted fan + catalog migration',
+      'Larger team, granular permissions',
+      '100 email campaigns / month',
+      'Advanced reporting + exports',
+      'Priority support + strategy review',
+      '5% platform fee (saves money above $5,000/mo in sales)',
+    ],
+  },
 ];
 
 interface PlatformTierModalProps {
@@ -75,7 +93,8 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
   const supabase = createBrowserSupabaseClient();
   const { showToast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
-  // Monthly-only at launch (Pro is a flat $9.99/mo; no annual plan yet).
+  // Monthly-only for now: annual prices ($490 Pro / $1,990 Scale) exist in TIER_PRICING but
+  // go live once their Stripe prices are created and env vars set.
   const [billingCycle] = useState<'annual' | 'monthly'>('monthly');
   const [partnerCode, setPartnerCode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -167,7 +186,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
 
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
           {PLATFORM_TIERS.map((tier) => {
             const displayPrice = tier.monthlyPrice === 0
               ? 0
@@ -278,7 +297,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
               Elsewhere: <span className="text-crwn-text font-semibold line-through decoration-crwn-text/30">$217+/mo</span> across 4+ tools
             </p>
             <p className="text-sm text-crwn-gold font-semibold mt-1">
-              CRWN Pro: everything in one place for $9.99/mo
+              CRWN Pro: everything in one place for ${TIER_PRICING.pro.monthlyDisplay}/mo
             </p>
           </div>
         </div>

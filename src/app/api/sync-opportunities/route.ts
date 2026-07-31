@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
   });
 
   // For Label+: add "recommended" flag for genre + location matches
-  if (platformTier === 'label' || platformTier === 'empire') {
+  if (platformTier === 'scale' || platformTier === 'label' || platformTier === 'empire') {
     enriched.forEach(o => {
       (o as any).recommended = o.genreMatch && o.locationMatch;
     });

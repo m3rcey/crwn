@@ -1,5 +1,7 @@
 # Demo Video — Updated Script & Shot List
 
+> **STALE PRICING (2026-07-31):** the fee lines and the "4 tiers (Starter / Pro / Label / Empire)" shot below predate the repricing. Current plans: Launch $0 12% fee, Pro $49/mo 8%, Scale $199/mo 5%. Fix before filming.
+
 Changes from the original are marked with `>>> CHANGED` or `>>> NEW`.
 
 ---

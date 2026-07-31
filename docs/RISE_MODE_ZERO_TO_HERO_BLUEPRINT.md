@@ -250,13 +250,12 @@ Design:
 
 **The recommended ladder (shipped as Bronze free / Silver $10 / Gold $25 / Platinum $100) is four `subscription_tiers` rows. No billable plan currently allows four.** (Resolved since: the free rung does not count against the cap, and every plan now allows 3 paid tiers.)
 
-Source of truth (`platformTier.ts`):
-| Plan | `maxFanTiers` / `fanTiers` | Billable? |
+Source of truth (`platformTier.ts`; repriced 2026-07-31, Launch/Pro/Scale):
+| Plan | Paid fan tiers | Billable? |
 |---|---|---|
-| Free (`starter`) | **1** | yes |
-| Pro | **3** | yes |
-| `label` ($99) | 10 | **no** — checkout whitelists `pro` only (`07-BUSINESS-RULES.md:19`) |
-| `empire` | ∞ | dead/spec |
+| Launch (`starter`, free) | **3** (plus the free tier, which does not count) | yes (free) |
+| Pro ($49/mo) | **3** (plus free) | yes |
+| Scale (`scale`, $199/mo) | **3** (plus free) | once its Stripe prices + env vars exist |
 
 **Enforcement reality (critical):** the cap is **client-side only and fail-open**. Tiers are inserted directly via the browser Supabase client (`TierManager.tsx:252`, `onboardingItems.ts:101`); the only blocks are UI (`TierManager.tsx:62,488`; `offers/new/page.tsx:418-439`, which skips the check on any fetch error). A **real server gate exists but is dead** — `api/tiers/check-limit/route.ts` is never called (and its copy is stale: "up to 5"). There is **no DB/RLS count constraint** (`schema-ticket5.sql`). **The free tier counts against the cap** (the count query includes price-0 rows).
 

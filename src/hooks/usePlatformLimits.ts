@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { TIER_LIMITS_V2 } from '@/lib/platformTier';
 
 interface PlatformLimits {
   tier: string;
@@ -22,19 +23,12 @@ interface PlatformLimits {
   loading: boolean;
 }
 
+// Pre-fetch defaults mirror the real Launch limits from the source of truth. A private
+// copy here once drifted to 10 tracks / 1 fan tier and rendered wrong caps before the
+// fetch resolved.
 const defaultLimits: PlatformLimits = {
   tier: 'starter',
-  limits: {
-    tracks: 10,
-    fanTiers: 1,
-    members: 100,
-    bundles: false,
-    scheduling: false,
-    liveQA: false,
-    analytics: 'basic',
-    artistProfiles: 1,
-    apiAccess: false,
-  },
+  limits: { ...TIER_LIMITS_V2.starter },
   usage: { tracks: 0, fanTiers: 0 },
   loading: true,
 };

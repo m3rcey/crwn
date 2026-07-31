@@ -170,7 +170,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
 
   const firstName = (profile?.display_name || user?.email || 'You').split(' ')[0];
   const planLabel =
-    platformTier === 'pro' ? 'Pro plan' : platformTier === 'label' ? 'Label plan' : 'Free plan';
+    platformTier === 'pro' ? 'Pro plan'
+      : platformTier === 'scale' || platformTier === 'label' ? 'Scale plan'
+      : 'Launch plan (free)';
 
   // EVERY screen the old 16-tab dashboard had is listed here. That is the point of
   // this menu: an artist who knew the tab strip must be able to find all sixteen
@@ -339,7 +341,7 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         {/* Plan pill (artists): a persistent, honest upgrade hook */}
         {artist && (
           <button
-            onClick={() => go('/pricing')}
+            onClick={() => go('/account/billing')}
             className="w-full flex items-center justify-between rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] px-4 py-3 mb-6"
           >
             <span className="text-sm text-gray-300">

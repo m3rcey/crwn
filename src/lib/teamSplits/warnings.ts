@@ -17,7 +17,7 @@ export interface DealTermsForRisk {
   hasDeliverables: boolean;
   /** Sum of OTHER active split percentages already on this same source. */
   existingSourceSplitPct?: number;
-  /** Artist platform fee % (12 starter / 8 pro / 5 founding). */
+  /** Artist platform fee % (12 Launch / 8 Pro / 5 Scale). */
   artistFeePct?: number;
 }
 

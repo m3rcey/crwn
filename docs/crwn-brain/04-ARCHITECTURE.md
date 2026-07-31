@@ -130,7 +130,7 @@ public/            sw.js, manifest.json, icons
 ## 8. Anti-patterns / technical debt / fragile areas
 - **No shared admin-client factory** (copy-pasted per route); **low ownership-helper adoption**. `Medium`.
 - **Fee-calc formula duplicated 8+ times**; two Stripe client instantiations.
-- **Legacy `access_level` still in types + columns**; **dead `empire` tier wired into a live type union**; **duplicate `artist/[slug]` routes** drifting.
+- **Legacy `access_level` still in types + columns**; **duplicate `artist/[slug]` routes** drifting. (The dead `empire` tier was deleted from the type union 2026-07-31; `resolveTierKey()` aliases stray strings to `scale`.)
 - **Undefined `bg-crwn-card`** token in 56 files; color/font token mismatches.
 - **Money tables lack CREATE TABLE migrations** — repo can't rebuild prod schema. `Critical` for portability.
 - **RLS is per-table opt-in** — a new table is wide open until policies are added.

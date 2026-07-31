@@ -1,5 +1,34 @@
 # CRWN Brain — Changelog
 
+## 2026-07-31 - Platform repricing: Launch / Pro / Scale (CRWN_PRICING STRATEGY.md)
+
+The platform plan lineup was repriced per the founder-approved `CRWN_PRICING STRATEGY.md`.
+(1) NEW LINEUP: **Launch** (internal key `starter`, free, 12% fee, 50 tracks, 250
+members/contacts, 1 email campaign/mo, free tier + 3 paid fan tiers), **Pro** ($49/mo or
+$490/yr, 8% fee, unlimited tracks/members, 20 email campaigns/mo), **Scale** (internal key
+`scale`, renamed from the old spec-only `label` $99 concept; $199/mo or $1,990/yr, 5% fee,
+100 email campaigns/mo, assisted migration, team permissions). All plans allow the same
+4-tier fan ladder. Launch limits were raised from 20 to 50 tracks and 100 to 250 members.
+Break-evens: Pro beats Launch above $1,225/mo GMV; Scale beats Pro above $5,000/mo GMV.
+Positioning: Launch "Prove your first direct-to-fan offer", Pro "Run your entire
+direct-to-fan business in one place", Scale "Scale revenue, your team, and fan operations
+with less manual work". (2) CODE: `empire` fully deleted from
+`TIER_LIMITS`/`TIER_LIMITS_V2`/`PlatformTierName`; `resolveTierKey()` aliases stray
+`label`/`empire` strings to `scale`; `formatTierName()` maps `starter` to "Launch". Both
+`pro` and `scale` are in the platform-checkout whitelist, and the route now verifies the
+live Stripe price amount against `TIER_PRICING` before checkout, so a stale env var fails
+loudly. Stripe env vars are now `STRIPE_CRWN_PRO_PRICE_ID`, `STRIPE_CRWN_PRO_ANNUAL_PRICE_ID`,
+`STRIPE_CRWN_SCALE_PRICE_ID`, `STRIPE_CRWN_SCALE_ANNUAL_PRICE_ID` (LABEL/EMPIRE vars gone).
+(3) PLAN RECOMMENDATION ENGINE: `src/lib/planRecommendation.ts` (`recommendPlan()`, pure +
+tested). Every account starts on Launch; the recommended operating plan is stored on
+`artist_profiles.recommended_plan` / `recommendation_reason` / `projected_monthly_gmv`
+(migration `supabase/schema-phase2-platform-plan-recommendation.sql`, NOT yet applied),
+seeded from the claimed calculator in `/api/lead-results/auto-claim` (fail-soft
+pre-migration). (4) LEGAL: `/terms` and `/artist-agreement` now state Launch 12% / Pro $49
+8% / Scale $199 5% (hand-kept, never rendered from code). A true multi-artist Label tier
+stays custom-priced and unshipped until org accounts / cross-artist analytics / bulk ops
+exist; never describe the old $99 Label as a current plan.
+
 ## 2026-07-31 - SMS removed entirely; a real support system ships
 
 (1) SMS REMOVAL (founder decision: the A2P 10DLC compliance cost was not worth it). Deleted:
