@@ -470,6 +470,37 @@ async function evalDomain(admin: any, instance: QuestInstance, cond: Extract<Com
       const n = artistId ? await countActive(admin, 'fan_contacts', { artist_id: artistId }) : 0;
       return { done: n >= target, progressPercent: pct(n, target), current: n, target };
     }
+    case 'artist_first_visit': {
+      // Unique daily visits to the artist's public page, written by the middleware
+      // tracker (artist_page_visits has no id column; count on visit_date).
+      if (!artistId) return EMPTY_EVAL;
+      try {
+        const { count } = await admin
+          .from('artist_page_visits')
+          .select('visit_date', { count: 'exact', head: true })
+          .eq('artist_id', artistId);
+        const n = count || 0;
+        return { done: n >= target, progressPercent: pct(n, target), current: n, target };
+      } catch {
+        return EMPTY_EVAL;
+      }
+    }
+    case 'artist_promise_fulfilled': {
+      // Promise Calendar: a fulfillment event marked completed. Same read the
+      // roadmap's promises_completed fact uses; authoritative, never client-set.
+      if (!artistId) return EMPTY_EVAL;
+      try {
+        const { count } = await admin
+          .from('fulfillment_events')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('status', 'completed');
+        const n = count || 0;
+        return { done: n >= target, progressPercent: pct(n, target), current: n, target };
+      } catch {
+        return EMPTY_EVAL;
+      }
+    }
     case 'artist_members_post_count': {
       // Members-only = tier-gated (is_free = false). L6/L7.
       if (!artistId) return EMPTY_EVAL;

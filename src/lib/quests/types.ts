@@ -83,6 +83,8 @@ export type DomainCheck =
   // artist-side — Rise Mode journey (Levels 5-10 + Empire)
   | 'artist_free_supporter_count' // active subscriptions on a $0 tier >= count (L5 mini-boss)
   | 'artist_has_fan_contacts' // fan_contacts rows >= count (L5 prospect list)
+  | 'artist_first_visit' // unique daily artist_page_visits rows >= count (L5 launch signal)
+  | 'artist_promise_fulfilled' // fulfillment_events status='completed' >= count (L5 deliver the promise)
   | 'artist_members_post_count' // active community_posts gated to a tier >= count (L6/L7)
   | 'artist_went_live' // >=1 live_session that ended (L7)
   | 'artist_has_survey_response' // >=1 survey_response (L7 feedback)

@@ -414,6 +414,25 @@ const ARTIST_FIRST_SUPPORTERS: QuestTemplate[] = [
     sortOrder: 7,
   },
   {
+    key: 'artist_first_visit',
+    title: 'Get your first page visit',
+    subtitle: 'Proof your launch reached someone',
+    whyItMatters:
+      'A link nobody opens earns nothing. The first visit is the proof your invites and posts are landing; until it shows up, every share is still reaching zero people.',
+    category: 'promotion',
+    questType: 'main_quest',
+    requiredRole: 'artist',
+    difficulty: 'easy',
+    estimatedTime: 'same day',
+    levelKey: 'founding_fans',
+    prerequisites: ['artist_stripe_connect'],
+    // Authoritative: middleware writes artist_page_visits on every real page view.
+    completionCondition: { kind: 'domain', check: 'artist_first_visit', count: 1 },
+    reward: { xp: 50 },
+    priorityScore: 179,
+    sortOrder: 8,
+  },
+  {
     key: 'artist_first_free_member',
     title: 'Get your first free member',
     subtitle: 'The top of your funnel comes alive',
@@ -481,6 +500,25 @@ const ARTIST_FIRST_SUPPORTERS: QuestTemplate[] = [
     reward: { xp: 75 },
     priorityScore: 172,
     sortOrder: 11,
+  },
+  {
+    key: 'artist_deliver_first_promise',
+    title: 'Deliver your first promise',
+    subtitle: 'The proof that paying was worth it',
+    whyItMatters:
+      'A supporter who paid and got nothing does not renew, and they tell other fans why. Your Promise Calendar shows exactly what is due; delivering the first one is the moment your CRWN becomes a business fans trust.',
+    category: 'calendar',
+    questType: 'main_quest',
+    requiredRole: 'artist',
+    difficulty: 'medium',
+    estimatedTime: 'multi-day',
+    levelKey: 'founding_fans',
+    prerequisites: ['artist_first_supporter'],
+    // Authoritative: a fulfillment_events row marked completed in the Promise Calendar.
+    completionCondition: { kind: 'domain', check: 'artist_promise_fulfilled', count: 1 },
+    reward: { xp: 150, badges: ['first_promise_kept'] },
+    priorityScore: 171,
+    sortOrder: 12,
   },
 
   // ---- Level 6: Build the First 10 (boss = ten paid supporters) ----

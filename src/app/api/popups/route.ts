@@ -104,6 +104,7 @@ async function buildContext(userId: string): Promise<PopupContext> {
     stripeConnected: false,
     supportCount: 0,
     hasSentBroadcast: false,
+    gmv30dCents: 0,
     accountCreatedAt: null,
     featureFlags: {},
   };
@@ -155,6 +156,19 @@ async function buildContext(userId: string): Promise<PopupContext> {
         .limit(1)
         .maybeSingle();
       base.hasSentBroadcast = !!bc;
+
+      // Trailing 30-day GMV from the real earnings ledger (gross, in cents).
+      // Drives the break-even upgrade pop-ups; a read failure just leaves 0.
+      const since = new Date(Date.now() - 30 * 86400000).toISOString();
+      const { data: recent } = await supabaseAdmin
+        .from('earnings')
+        .select('gross_amount')
+        .eq('artist_id', artist.id)
+        .gte('created_at', since);
+      base.gmv30dCents = (recent || []).reduce(
+        (sum, row) => sum + (Number(row.gross_amount) || 0),
+        0,
+      );
     } else {
       const { count: subs } = await supabaseAdmin
         .from('subscriptions')

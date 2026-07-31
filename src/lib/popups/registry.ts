@@ -9,6 +9,9 @@
 // Copy rule (CLAUDE.md): lead with the LOSS, never the gain. Name the money not
 // earned / the fans not converted first, then the fix. No em dashes anywhere.
 
+import { proBreakEvenGmvCents, scaleBreakEvenGmvCents } from '@/lib/planRecommendation';
+import { TIER_LIMITS, TIER_PRICING } from '@/lib/platformTier';
+
 export type PopupKind = 'modal' | 'banner' | 'survey';
 
 export interface PopupContext {
@@ -21,6 +24,8 @@ export interface PopupContext {
   supportCount: number;
   /** Artists only: have they ever sent a broadcast/DM to a fan? */
   hasSentBroadcast: boolean;
+  /** Artists only: trailing 30-day GMV in cents (sum of earnings.gross_amount). */
+  gmv30dCents: number;
   /** profiles.created_at, ISO. Null only if the read failed. */
   accountCreatedAt: string | null;
   /**
@@ -77,6 +82,14 @@ export interface PopupDef {
   survey?: PopupSurveyConfig;
 }
 
+// Break-even GMV thresholds derived from live pricing (never hardcoded): the exact
+// monthly sales volume where the next plan's subscription costs less than the fee
+// delta it removes. Repricing the platform moves every number below automatically.
+const PRO_BREAK_EVEN = proBreakEvenGmvCents(); // $1,225/mo at current pricing
+const SCALE_BREAK_EVEN = scaleBreakEvenGmvCents(); // $5,000/mo at current pricing
+const PRO_APPROACH = Math.round(PRO_BREAK_EVEN * 0.6); // the quiet early nudge (~$750)
+const usd = (cents: number) => Math.round(cents / 100).toLocaleString();
+
 export const POPUPS: PopupDef[] = [
   // ---- Artist: get paid (highest stakes, blocks money flow) ----
   {
@@ -109,18 +122,55 @@ export const POPUPS: PopupDef[] = [
   },
 
   // ---- Artist: upgrade to Pro (platform growth + lower fee for them) ----
+  // The quiet early nudge: an activated artist (3+ supporters) or one whose real
+  // trailing 30-day GMV is approaching Pro break-even. The hard one-time modals
+  // below take over at the actual break-even lines.
   {
     key: 'artist_upgrade_pro',
     kind: 'banner',
     pages: ['/studio', '/profile/artist'],
-    audience: (c) => c.isArtist && c.platformTier === 'starter' && c.supportCount >= 3,
+    audience: (c) =>
+      c.isArtist && c.platformTier === 'starter' && (c.supportCount >= 3 || c.gmv30dCents >= PRO_APPROACH),
     frequency: { type: 'everyN', days: 7, max: 4 },
     priority: 50,
     goal: 'Convert an activated Launch artist to Pro (8% fee, full operating features).',
-    title: 'You are giving away 12% of every sale.',
-    body: 'On the Launch plan CRWN keeps 12 percent. Pro drops that to 8 and unlocks live, DMs, scheduling and sequences. Above about $1,225 a month in sales, staying on Launch costs you more than Pro does.',
+    title: `You are giving away ${TIER_LIMITS.starter.platformFeePercent}% of every sale.`,
+    body: `On the Launch plan CRWN keeps ${TIER_LIMITS.starter.platformFeePercent} percent. Pro drops that to ${TIER_LIMITS.pro.platformFeePercent} and unlocks live, DMs, scheduling and sequences. Above about $${usd(PRO_BREAK_EVEN)} a month in sales, staying on Launch costs you more than Pro does.`,
     cta: { label: 'See Pro', href: '/account/billing' },
     dismissLabel: 'Dismiss',
+  },
+
+  // ---- Artist: Pro break-even crossed (one-time, computed from REAL earnings) ----
+  // Fires only when the artist's actual trailing 30-day GMV makes Launch the more
+  // expensive plan. This is arithmetic, not marketing: the fee delta now exceeds
+  // Pro's subscription every month they stay.
+  {
+    key: 'artist_pro_break_even',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist && c.platformTier === 'starter' && c.gmv30dCents >= PRO_BREAK_EVEN,
+    frequency: { type: 'once' },
+    priority: 75,
+    goal: 'Move a Launch artist past break-even onto Pro, where their fee bill drops.',
+    title: 'Staying free is now costing you money.',
+    body: `Your last 30 days of sales crossed $${usd(PRO_BREAK_EVEN)}. At that volume, Launch's ${TIER_LIMITS.starter.platformFeePercent}% fee costs more every month than Pro's $${TIER_PRICING.pro.monthlyDisplay} plus ${TIER_LIMITS.pro.platformFeePercent}%. Every month you wait, the difference comes out of your pocket.`,
+    cta: { label: 'Switch to Pro', href: '/account/billing' },
+    dismissLabel: 'Not now',
+  },
+
+  // ---- Artist: Scale break-even crossed (one-time, Pro artists only) ----
+  {
+    key: 'artist_scale_break_even',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist && c.platformTier === 'pro' && c.gmv30dCents >= SCALE_BREAK_EVEN,
+    frequency: { type: 'once' },
+    priority: 75,
+    goal: 'Move a Pro artist past break-even onto Scale, where their fee bill drops.',
+    title: 'Pro is now your expensive plan.',
+    body: `Your last 30 days of sales crossed $${usd(SCALE_BREAK_EVEN)}. At that volume, Scale's ${TIER_LIMITS.scale.platformFeePercent}% fee plus $${TIER_PRICING.scale.monthlyDisplay} costs less than what Pro's ${TIER_LIMITS.pro.platformFeePercent}% keeps taking. Every month on Pro past this line is money handed back.`,
+    cta: { label: 'See Scale', href: '/account/billing' },
+    dismissLabel: 'Not now',
   },
 
   // ---- Announcement: Launch plan limits raised (50 tracks, 250 members) ----

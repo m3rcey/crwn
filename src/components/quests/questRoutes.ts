@@ -52,7 +52,12 @@ const TEMPLATE_CTA: Record<string, QuestCta> = {
   artist_infrastructure_ready: { label: 'Review your tiers', href: '/account/tiers' },
   // Level 5 (Founding Fans)
   artist_prospect_list: { label: 'Open audience', href: '/studio/fans' },
+  // The Launch Kit (campaigns view) writes the announcement and sends it, which is
+  // what actually produces the first visits. Point both quests straight at it.
+  artist_launch_announcement: { label: 'Open the Launch Kit', href: '/studio/fans?view=campaigns' },
+  artist_first_visit: { label: 'Open the Launch Kit', href: '/studio/fans?view=campaigns' },
   artist_first_free_member: { label: 'View audience', href: '/studio/fans' },
+  artist_deliver_first_promise: { label: 'Open Promise Calendar', href: '/studio/promise' },
   // Level 6 (First 10)
   artist_first_members_post: { label: 'Post to members', href: '/community' },
   artist_five_supporters: { label: 'View audience', href: '/studio/fans' },

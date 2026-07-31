@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, Suspense } from 'react';
+import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Check,
@@ -46,6 +46,8 @@ import {
 } from '@/lib/promisePlan';
 import { RECURRENCE_LABEL, FULFILLMENT_TYPE_LABEL, type Recurrence } from '@/lib/fulfillment';
 import { OptionSelect } from '@/components/ui/OptionSelect';
+import { recommendPlan, monthlyPlanCostCents, proBreakEvenGmvCents } from '@/lib/planRecommendation';
+import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
 import { getAnonId } from '@/lib/experiments/anonId';
 import { slugify } from '@/lib/slugify';
 import { isEmailLike } from '@/lib/publicName';
@@ -1627,6 +1629,13 @@ function PlanIntro({
 // preview; calendar and roadmap render INLINE because their routes sit behind
 // the setup gate until launch), the share block, and the one publish action,
 // which stays the existing server-side completion (markComplete + resolver).
+// Artist-facing names for the internal plan keys ('starter' stays internal-only).
+const PLAN_DISPLAY: Record<'starter' | 'pro' | 'scale', string> = {
+  starter: 'Launch',
+  pro: 'Pro',
+  scale: 'Scale',
+};
+
 function LaunchReview({
   slug,
   artistId,
@@ -1650,9 +1659,17 @@ function LaunchReview({
   const [contactCount, setContactCount] = useState(0);
   const [campaignCount, setCampaignCount] = useState(0);
   const [roadmapNext, setRoadmapNext] = useState<string | null>(null);
+  const [goalCents, setGoalCents] = useState<number | null>(null);
   // The fan import hub, right here in the review: the modal is route-independent,
   // so the audience does not have to wait for the post-launch Fan CRM.
   const [importOpen, setImportOpen] = useState(false);
+  // The launch boundary is where the operating plan gets its context: the same
+  // deterministic recommendPlan() that seeded recommended_plan at claim, re-derived
+  // from the artist's own projected GMV. Advisory only; launching stays free.
+  const planRec = useMemo(
+    () => recommendPlan({ projectedMonthlyGmvCents: goalCents ?? 0 }),
+    [goalCents],
+  );
 
   useEffect(() => {
     if (!artistId) return;
@@ -1685,6 +1702,9 @@ function LaunchReview({
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         if (active && j?.roadmap?.nextStep?.label) setRoadmapNext(j.roadmap.nextStep.label);
+        if (active && typeof j?.stats?.goalMonthlyCents === 'number' && j.stats.goalMonthlyCents > 0) {
+          setGoalCents(j.stats.goalMonthlyCents);
+        }
       })
       .catch(() => {});
     return () => {
@@ -1818,6 +1838,40 @@ function LaunchReview({
             </p>
           </div>
         )}
+
+        {/* Operating plan at the launch boundary (advisory, never blocking).
+            Every number comes from TIER_PRICING / TIER_LIMITS / recommendPlan;
+            nothing here is hardcoded, so a repricing cannot strand this copy. */}
+        <div className="neu-raised rounded-2xl p-4 mb-4">
+          <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-2">Your operating plan</p>
+          {goalCents ? (
+            <>
+              <p className="text-sm text-crwn-text mb-1">
+                Recommended: <span className="font-semibold text-crwn-gold">{PLAN_DISPLAY[planRec.plan]}</span>
+              </p>
+              <p className="text-xs text-crwn-text-secondary mb-3">{planRec.reasons[0]}</p>
+              <ul className="space-y-1.5 mb-3">
+                {(['starter', 'pro', 'scale'] as const).map((p) => (
+                  <li key={p} className="flex items-center justify-between gap-2 text-xs">
+                    <span className={p === planRec.plan ? 'text-crwn-text font-medium' : 'text-crwn-text-secondary'}>
+                      {`${PLAN_DISPLAY[p]}: ${TIER_LIMITS[p].platformFeePercent}% fee${p === 'starter' ? ', free' : ` + $${TIER_PRICING[p].monthlyDisplay}/mo`}`}
+                    </span>
+                    <span className={p === planRec.plan ? 'text-crwn-gold font-medium shrink-0' : 'text-crwn-text-secondary shrink-0'}>
+                      {`about $${Math.round(monthlyPlanCostCents(p, goalCents) / 100).toLocaleString()}/mo`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-crwn-text-secondary">
+                {`Costs shown at your projected $${Math.round(goalCents / 100).toLocaleString()} a month. You launch on Launch (free) today. Upgrading later in Billing changes your fee, never your work.`}
+              </p>
+            </>
+          ) : (
+            <p className="text-xs text-crwn-text-secondary">
+              {`You launch on Launch: free, with a ${TIER_LIMITS.starter.platformFeePercent}% platform fee. Pro ($${TIER_PRICING.pro.monthlyDisplay}/mo) drops the fee to ${TIER_LIMITS.pro.platformFeePercent}%. Above $${Math.round(proBreakEvenGmvCents() / 100).toLocaleString()} a month in sales, staying on Launch costs you more than Pro would. Upgrade any time in Billing; nothing you built is ever removed.`}
+            </p>
+          )}
+        </div>
 
         {/* Share */}
         <div className="neu-raised rounded-2xl p-4 mb-4 flex items-center gap-3">

@@ -109,6 +109,12 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
     - Previews: the PUBLIC PAGE is the storefront + checkout preview (opened as a fan); the
       Promise Calendar's next events and the roadmap's first milestone render INLINE (their
       routes sit behind the setup gate until launch).
+    - **Operating plan panel** ("Your operating plan", 2026-07-31): the deterministic
+      `recommendPlan()` re-derived on the client from the artist's own projected GMV (the
+      roadmap goal), with per-plan monthly cost arithmetic from `monthlyPlanCostCents()` and
+      every fee/price read from `TIER_PRICING`/`TIER_LIMITS`. Advisory and never blocking:
+      every artist still launches on Launch (free) and upgrades later in Billing. Without a
+      calculator goal it degrades to the static fee ladder + Pro break-even line.
     - Share block (copy link + socials).
     - **"Launch my CRWN"** = `markComplete` → `POST /api/artist/complete-setup`
       (service-role; also seeds the 12-month revenue ramp into the Promise Calendar) → the
@@ -174,8 +180,21 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
   Idempotent per purchase; never in the money path.
 - **Tours**: per-surface first-visit tours capped at ONE auto-start per browser session (no
   chaining across tabs); replays uncapped via the `TourReplayButton` / help affordances.
+- **The launch journey closes its loop in quests** (2026-07-31): Level 5 (Founding Fans)
+  now runs first visit → first free member → first paid supporter → first delivered promise.
+  `artist_first_visit` reads `artist_page_visits` (the middleware tracker) and
+  `artist_deliver_first_promise` reads completed `fulfillment_events` via the new
+  `artist_promise_fulfilled` DomainCheck, the same fact the roadmap's `promises_completed`
+  uses. The announcement + first-visit quests deep-link to the Launch Kit
+  (`/studio/fans?view=campaigns`), the promise quest to `/studio/promise`.
 - **Pop-ups**: governed by the Pop-up Engine (one per user per day); every ANNOUNCEMENT def
   carries `announcedAt` and is skipped for accounts created on/after that date.
+- **Upgrade triggers are arithmetic, not vibes** (2026-07-31): the popup context carries
+  `gmv30dCents` (trailing 30-day sum of `earnings.gross_amount`). `artist_upgrade_pro`
+  nudges at ~60% of Pro break-even or 3+ supporters; `artist_pro_break_even` and
+  `artist_scale_break_even` fire ONCE when real GMV crosses `proBreakEvenGmvCents()` /
+  `scaleBreakEvenGmvCents()` ($1,225 / $5,000 at current pricing, derived live from
+  `TIER_PRICING`, never hardcoded).
 
 ## H. Guards that keep all of this honest
 
