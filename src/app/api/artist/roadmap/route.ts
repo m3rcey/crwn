@@ -17,6 +17,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { evaluateCondition } from '@/lib/quests/evaluator';
 import type { QuestInstance } from '@/lib/quests/types';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { reconcileStripeConnect } from '@/lib/stripe/connectReconcile';
 import {
   buildRoadmapDefs,
   assembleRoadmap,
@@ -92,6 +93,29 @@ export async function GET() {
     .maybeSingle();
   if (!artist) {
     return NextResponse.json({ error: 'Not an artist' }, { status: 403 });
+  }
+
+  // Stripe self-heal: Connect verification finishes ASYNCHRONOUSLY, and the
+  // stripe_connected milestone (which the evaluator's check reads) is only
+  // written when someone verifies against Stripe. This route is the post-launch
+  // landing, so reconcile here whenever an account exists without the milestone:
+  // one Stripe call, only in that transitional state, then never again.
+  try {
+    const { data: ap } = await supabaseAdmin
+      .from('artist_profiles')
+      .select('stripe_connect_id, activation_milestones')
+      .eq('id', artist.id)
+      .maybeSingle();
+    const milestones = (ap?.activation_milestones || {}) as Record<string, unknown>;
+    if (ap?.stripe_connect_id && !milestones.stripe_connected) {
+      await reconcileStripeConnect(supabaseAdmin, {
+        artistId: artist.id,
+        userId: user.id,
+        connectAccountId: ap.stripe_connect_id as string,
+      });
+    }
+  } catch {
+    // Best-effort: a Stripe hiccup must never break the roadmap.
   }
 
   // The monthly goal THEIR calculator modeled personalizes the Expand milestone.
