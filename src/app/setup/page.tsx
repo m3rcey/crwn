@@ -651,7 +651,7 @@ function SetupWizard() {
   const isBulkAudio = current.key === 'track-audio' && contentPlan === 'bulk' && !currentDone;
   const headerTitle = isBulkAudio ? 'Upload your catalog' : current.title;
   const headerSubtitle = isBulkAudio
-    ? 'Add as many tracks as you want in one batch. Set access per track or apply one setting to all. Add more anytime in Studio.'
+    ? 'Upload your catalog in one batch. Set access per track or apply one setting to all. Add more anytime in Studio.'
     : current.subtitle;
 
   return (

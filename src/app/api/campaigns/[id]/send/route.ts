@@ -4,6 +4,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { getEmailLimit } from '@/lib/platformTier';
+import { countMonthlyEmailUsage, emailQuotaMessage } from '@/lib/emailQuota';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -211,6 +213,18 @@ export async function POST(
 
   if (campaign.status !== 'draft') {
     return NextResponse.json({ error: 'Campaign already sent or sending' }, { status: 400 });
+  }
+
+  // The AUTHORITATIVE monthly quota gate. Creation charges the quota too, but a
+  // draft is free and only counted statuses (sent/sending/scheduled) spend it,
+  // so an artist could stockpile drafts and then send every one of them. This is
+  // the moment the resource is actually consumed, so this is where it is refused.
+  const emailLimit = getEmailLimit(artist.platform_tier);
+  if (emailLimit !== -1) {
+    const { used } = await countMonthlyEmailUsage(supabaseAdmin, campaign.artist_id, campaignId);
+    if (used >= emailLimit) {
+      return NextResponse.json({ error: emailQuotaMessage(emailLimit) }, { status: 429 });
+    }
   }
 
   // Get artist display name

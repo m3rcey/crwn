@@ -87,6 +87,32 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **DECIDE: do the Launch plan limits actually exist?** Right now they mostly do not, and I
+      am not enforcing them without your call because enforcing could block the exact artist we
+      are chasing. Verified 2026-07-31 by reading every enforcement path:
+
+      | Limit | Advertised | Reality |
+      |---|---|---|
+      | 250 members | Pricing modal, announcement pop-up | **Enforced nowhere.** The 251st subscriber is accepted. No count exists in any subscribe path. |
+      | 50 tracks | Pricing, plan copy | Client-side CSS only (`pointer-events:none`), and the BULK uploader had no check at all. An artist could upload 500. |
+      | 3 paid tiers | Plan copy | Client-side only; the offer builder's check is fail-open (a failed request publishes past the cap). |
+      | 1 email blast/mo | Plan copy | **Genuinely enforced** (the only one). I closed a draft-then-send bypass today. |
+
+      Two fully-written server routes already exist and have ZERO callers, ready to wire up:
+      `src/app/api/tracks/check-limit/route.ts` and `src/app/api/tiers/check-limit/route.ts`.
+
+      **The tension, plainly.** Your ICP has 40 to 300 released songs and Launch caps at 50. Turn
+      on real enforcement and their first run hits a wall mid-catalog, which is the definition of
+      blocking acquisition. Leave it off and the plan ladder means nothing, since Pro's headline
+      benefit (unlimited catalog and members) is something Launch already silently gives away.
+
+      **My recommendation: enforce TRACKS, drop the member cap from the copy.** A track cap is
+      visible to the artist before they commit (I shipped the pre-upload warning today) and it is
+      the one limit that maps to real storage cost. The 250-member cap is the opposite: it would
+      have to reject a paying fan at checkout, which is the worst possible place to enforce
+      anything, so it should stop being advertised rather than start being enforced. Tell me which
+      way and I will wire it in one pass.
+
 - [ ] **Run the artist-post authorship migration:**
       [`supabase/schema-phase2-artist-post-authorship.sql`](supabase/schema-phase2-artist-post-authorship.sql)
       in the Supabase SQL editor. `community_posts.is_artist_post` is what renders a post with

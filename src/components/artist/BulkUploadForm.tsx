@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { useToast } from '@/components/shared/Toast';
 import { hapticMedium } from '@/lib/haptics';
 import { audioContentType } from '@/lib/uploadValidation';
@@ -50,6 +52,16 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const artInputRefs = useRef<{ [key: string]: HTMLInputElement }>({});
+
+  // Plan capacity, checked BEFORE the upload starts. The house rule (and the
+  // only honest moment to say it): never reveal the limit after the artist has
+  // already committed the work. This informs, it does not block: the caps are
+  // not enforced server-side today, so pretending otherwise here would be a
+  // second lie on top of the first.
+  const { limits, usage, loading: limitsLoading } = usePlatformLimits(artistProfileId);
+  const trackCapacity = limits.tracks === -1 ? null : Math.max(0, limits.tracks - usage.tracks);
+  const overCapacity =
+    !limitsLoading && trackCapacity !== null && queue.length > trackCapacity;
 
   // Fetch tiers
   useEffect(() => {
@@ -448,6 +460,28 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
               </button>
             )}
           </div>
+
+          {/* Plan capacity, stated BEFORE the upload runs, never after. */}
+          {overCapacity && !isUploading && (
+            <div className="rounded-xl border border-crwn-gold/40 bg-crwn-gold/5 p-3">
+              <p className="text-sm text-crwn-text">
+                {`You selected ${queue.length} tracks and your plan holds ${limits.tracks}. `}
+                {trackCapacity === 0
+                  ? 'Your catalog is already at that number.'
+                  : `You have room for ${trackCapacity} more.`}
+              </p>
+              <p className="text-xs text-crwn-text-secondary mt-1">
+                Pro carries an unlimited catalog. Every track you leave off CRWN earns you nothing here.
+              </p>
+              <Link
+                prefetch
+                href="/account/billing"
+                className="inline-block mt-2 text-xs font-semibold text-crwn-gold hover:underline"
+              >
+                See Pro
+              </Link>
+            </div>
+          )}
 
           {/* Overall Progress */}
           {isUploading && (

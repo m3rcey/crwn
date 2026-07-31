@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getEmailLimit } from '@/lib/platformTier';
+import { countMonthlyEmailUsage, emailQuotaMessage } from '@/lib/emailQuota';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -57,23 +58,16 @@ export async function POST(req: NextRequest) {
     .single();
   if (!artist) return NextResponse.json({ error: 'Not your profile' }, { status: 403 });
 
-  // Monthly email-blast quota, tier-driven (Free 1/mo, Pro 10/mo; -1 = unlimited).
+  // Monthly email-blast quota, tier-driven (limits from EMAIL_LIMITS; -1 = unlimited).
   // Editing an existing draft (id present) never counts against the quota.
+  // NOTE: this is the DRAFT-CREATION check and is deliberately advisory. The
+  // authoritative check is at SEND (api/campaigns/[id]/send), because a draft
+  // costs nothing and only a send consumes the quota.
   const emailLimit = getEmailLimit(artist.platform_tier);
   if (emailLimit !== -1 && !id) {
-    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { count: monthlyCount } = await supabaseAdmin
-      .from('campaigns')
-      .select('id', { count: 'exact', head: true })
-      .eq('artist_id', artistId)
-      .in('status', ['sent', 'sending', 'scheduled'])
-      .gte('created_at', monthAgo);
-
-    if ((monthlyCount || 0) >= emailLimit) {
-      return NextResponse.json(
-        { error: `You've used all ${emailLimit} email blast${emailLimit === 1 ? '' : 's'} for this month. Upgrade to Pro for 10/month.` },
-        { status: 429 }
-      );
+    const { used } = await countMonthlyEmailUsage(supabaseAdmin, artistId);
+    if (used >= emailLimit) {
+      return NextResponse.json({ error: emailQuotaMessage(emailLimit) }, { status: 429 });
     }
   }
 
