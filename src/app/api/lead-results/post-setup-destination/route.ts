@@ -63,6 +63,19 @@ export async function GET(req: NextRequest) {
   }
   const questEngineEnabled = await isQuestEngineEnabled(supabaseAdmin);
 
+  // Since Launch Wizard Stages 2-3 the wizard applies the ladder itself; a paid tier existing
+  // means tier-drafting destinations (/offers/new) would only re-build what is live.
+  let hasPaidTier = false;
+  if (artistId) {
+    const { count } = await supabaseAdmin
+      .from('subscription_tiers')
+      .select('id', { count: 'exact', head: true })
+      .eq('artist_id', artistId)
+      .not('is_active', 'is', false)
+      .gt('price', 0);
+    hasPaidTier = (count ?? 0) > 0;
+  }
+
   // Experiment variant: re-derived server-side from the anon id (tamper-proof), never trusted from
   // the client, and only when an experiment is actually running for this experience.
   let experimentVariant: string | null = null;
@@ -81,6 +94,7 @@ export async function GET(req: NextRequest) {
     experimentVariant,
     returnTo: req.nextUrl.searchParams.get('returnTo'),
     savedDeliverableTool,
+    hasPaidTier,
   });
 
   // Funnel: Builder Opened, plus the personalized-journey markers. All deduped per (user, result).

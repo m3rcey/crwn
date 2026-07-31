@@ -11,7 +11,7 @@
 
 import { buildDraftConfig } from '@/lib/leadResults/postSetupDestination';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
-import { hasDeliverable } from '@/lib/opportunityDrafts/deliverableSpecs';
+import { hasDeliverable, getDeliverableSpec } from '@/lib/opportunityDrafts/deliverableSpecs';
 import type { LeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 
 const RISE_MODE_ROUTE = '/profile/artist';
@@ -52,6 +52,15 @@ export interface JourneyContext {
    * re-deriving from the calculator would silently discard them.
    */
   savedDeliverableTool?: string | null;
+  /**
+   * Does the artist already have an active PAID tier? Since Launch Wizard Stages 2-3 the setup
+   * wizard applies the full recommended ladder itself, so any restore whose end state is "create
+   * your membership tier" (/offers/new) is asking them to re-build what exists: the offer builder
+   * would draft a duplicate and the plan's paid-tier cap rightly refuses it. When true, those
+   * destinations are skipped and the artist lands on the command screen instead. (Resolved
+   * server-side, never from the client.)
+   */
+  hasPaidTier?: boolean;
 }
 
 export type JourneyReason =
@@ -91,7 +100,13 @@ export function resolveJourneyDestination(ctx: JourneyContext): JourneyDestinati
   }
 
   // 3. A deliverable the artist BUILT before signing up wins: restore their own saved work.
-  if (ctx.savedDeliverableTool && hasDeliverable(ctx.savedDeliverableTool)) {
+  //    EXCEPT when the wizard already made it real: a deliverable whose continuation is the
+  //    membership offer builder has nothing left to restore once a paid tier exists.
+  const deliverableIsRedundant =
+    !!ctx.hasPaidTier &&
+    !!ctx.savedDeliverableTool &&
+    getDeliverableSpec(ctx.savedDeliverableTool)?.continueRoute === '/offers/new';
+  if (ctx.savedDeliverableTool && hasDeliverable(ctx.savedDeliverableTool) && !deliverableIsRedundant) {
     const funnel = getFunnelByToolKey(ctx.savedDeliverableTool);
     const params: Record<string, string> = {};
     if (ctx.experimentVariant) params.lm_variant = ctx.experimentVariant;
@@ -108,8 +123,9 @@ export function resolveJourneyDestination(ctx: JourneyContext): JourneyDestinati
   }
 
   // 4. Otherwise a claimed calculator -> its real prefilled builder (the recommended action).
+  //    Same redundancy rule: a tier-drafting destination is skipped once a paid tier exists.
   const draft = ctx.seed ? buildDraftConfig(ctx.seed) : null;
-  if (ctx.seed && draft) {
+  if (ctx.seed && draft && !(ctx.hasPaidTier && draft.path === '/offers/new')) {
     const funnel = getFunnelByToolKey(ctx.seed.toolSlug);
     const params: Record<string, string> = {
       lm_prefill: '1',

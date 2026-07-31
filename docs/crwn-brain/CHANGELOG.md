@@ -1,5 +1,23 @@
 # CRWN Brain — Changelog
 
+## 2026-07-30 — Launch no longer re-asks for the business the wizard just built
+
+Josh's live test caught a stale journey: pressing "Launch my CRWN" routed him into the restored
+deliverable builder (re-confirm tiers/growth/experiences), then into the offer builder, whose
+publish tried to create a DUPLICATE Silver tier and was blocked by the paid-tier cap ("Your plan
+allows 3 fan tiers"), reading like a broken free-tier promise. Diagnosis: the cap is CORRECT
+(Option-2 counting, paid tiers only, the free Bronze does not count; he already had his 3 paid
+tiers live). The restored-builder destinations were designed BEFORE Launch Wizard Stages 2-3,
+when the wizard did not build the ladder; now they re-build what exists. Fixes: (1)
+`resolveJourneyDestination` takes `hasPaidTier` (resolved server-side in
+/api/lead-results/post-setup-destination) and skips any restore whose end state is tier creation
+(calculator prefills bound for /offers/new, and saved deliverables whose spec `continueRoute` is
+/offers/new), landing on the Rise Mode command screen instead; non-tier restores (Own Your Fans
+plan, missions, demand tests, live builder) still restore. (2) The offer builder's publish now
+has a duplicate-name guard: a tier whose name already exists gets "edit it in Fan tiers and
+pricing instead of creating it twice," never a twin and never a confusing cap error. Resolver
+covered by new tests. sw.js v321.
+
 ## 2026-07-30 — Wizard polish from Josh's live test: no screen claims to show what it does not show
 
 Two fixes from Josh walking the wizard with a real account. (1) The plan-restore intro showed

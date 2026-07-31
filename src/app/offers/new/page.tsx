@@ -464,6 +464,25 @@ function OfferBuilder() {
     try {
       const priceCents = Math.round(parseFloat(price) * 100);
 
+      // Duplicate guard: a prefilled draft (or a retyped name) matching a tier
+      // that ALREADY exists must not create a twin or waste the plan cap on it.
+      // The wizard applies the ladder now, so this is a real path, not an edge.
+      if (offerType === 'subscription') {
+        const { data: existingTiers } = await supabase
+          .from('subscription_tiers')
+          .select('name')
+          .eq('artist_id', artistId)
+          .not('is_active', 'is', false);
+        const wanted = tierName.trim().toLowerCase();
+        if ((existingTiers ?? []).some((t: { name: string }) => t.name.trim().toLowerCase() === wanted)) {
+          showToast(
+            `${tierName.trim()} is already live on your page. Edit it in Fan tiers and pricing instead of creating it twice.`,
+            'error',
+          );
+          return; // stay on Review
+        }
+      }
+
       // Plan cap: enforce the fan-tier limit the same way TierManager does —
       // /api/platform/limits (getTierLimitsV2(platform_tier).fanTiers) vs the
       // live count of ACTIVE subscription_tiers. Fail-open on fetch errors.

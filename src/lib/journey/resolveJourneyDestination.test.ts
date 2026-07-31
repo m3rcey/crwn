@@ -56,6 +56,33 @@ describe('resolveJourneyDestination', () => {
     expect(d.opportunityKey).toBe('streaming-loss');
   });
 
+  it('a paid tier already existing skips tier-drafting restores (the wizard built the ladder)', () => {
+    // The calculator-derived /offers/new prefill would re-create what is live.
+    const worth = resolveJourneyDestination({
+      ...baseCtx,
+      hasPaidTier: true,
+      seed: seed({ toolSlug: 'worth', toolName: 'Streaming Loss', resultId: 'r2' }),
+    });
+    expect(worth.path).toBe('/profile/artist');
+    expect(worth.reason).toBe('fallback_dashboard');
+
+    // A saved membership-system deliverable (continueRoute /offers/new) is equally redundant.
+    const deliverable = resolveJourneyDestination({
+      ...baseCtx,
+      hasPaidTier: true,
+      savedDeliverableTool: 'opportunity-calculator',
+      seed: seed({ toolSlug: 'opportunity-calculator', toolName: 'Opportunity Calculator', resultId: 'r3' }),
+    });
+    expect(deliverable.path).toBe('/profile/artist');
+    expect(deliverable.reason).toBe('fallback_dashboard');
+  });
+
+  it('a paid tier existing does NOT skip non-tier destinations', () => {
+    const oyf = resolveJourneyDestination({ ...baseCtx, hasPaidTier: true, seed: seed({}) });
+    expect(oyf.path).toBe('/own-your-fans/plan');
+    expect(oyf.reason).toBe('builder_restored');
+  });
+
   it('existing fan becoming an artist (no artist row yet) -> /setup (identity screens)', () => {
     const d = resolveJourneyDestination({ ...baseCtx, isArtist: false, seed: seed({}) });
     expect(d.path).toBe('/setup');
