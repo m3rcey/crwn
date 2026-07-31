@@ -12,11 +12,14 @@ import { ShareButtons } from '@/components/shared/ShareButtons';
 import { FoundingBadge } from '@/components/shared/FoundingBadge';
 import { ShareEarnWrapper } from '@/components/shared/ShareEarnWrapper';
 import { ClipperProgram } from '@/components/shared/ClipperProgram';
+import { ArtistPreviewProvider } from '@/hooks/useArtistPreview';
+import { PreviewBar } from '@/components/artist/PreviewBar';
 import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
@@ -88,23 +91,13 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
   };
 }
 
-export default async function ArtistPage({ params }: ArtistPageProps) {
+export default async function ArtistPage({ params, searchParams }: ArtistPageProps) {
   const { slug } = await params;
+  const previewParam = (await searchParams)?.preview;
+  const initialPersona = typeof previewParam === 'string' ? previewParam : null;
   const supabase = await createServerSupabaseClient();
 
-  // Check if user is logged in and if this is their profile
   const { data: { session } } = await supabase.auth.getSession();
-  
-  let isArtistProfile = false;
-  if (session?.user) {
-    const { data: artistProfile } = await supabase
-      .from('artist_profiles')
-      .select('id')
-      .eq('user_id', session.user.id)
-      .maybeSingle();
-    
-    isArtistProfile = artistProfile?.id !== undefined;
-  }
 
   // Fetch artist profile. artist_profiles_public: the base table no longer allows
   // `select('*')` (the Stripe ids are withheld by column grant, and PostgREST
@@ -286,10 +279,21 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
     .order('created_at', { ascending: false });
 
 
+  // The REAL ownership check. Never "does this viewer have an artist row": a
+  // rival artist is not the owner of this page, and treating them as one handed
+  // them owner-only controls on someone else's community.
+  const isOwner = !!session?.user?.id && session.user.id === artist.user_id;
+
   return (
+    <ArtistPreviewProvider
+      isOwner={isOwner}
+      tiers={tiers.map((t) => ({ id: t.id, name: t.name, price: t.price }))}
+      initialPersona={initialPersona}
+    >
     <div className="relative min-h-screen pb-20 md:pb-0 page-fade-in">
       <BackgroundImage src="/backgrounds/bg-artist.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
+        <PreviewBar />
         {/* Live now banner */}
         {liveNow && (
           <a
@@ -398,11 +402,12 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           playlists={playlistsWithCounts}
           products={products || []}
           tracks={tracks || []}
-          isArtistProfile={isArtistProfile}
+          isOwner={isOwner}
           commissionRate={artist.referral_commission_rate ?? 0}
           liveSessions={liveSessions || []}
         />
       </div>
     </div>
+    </ArtistPreviewProvider>
   );
 }

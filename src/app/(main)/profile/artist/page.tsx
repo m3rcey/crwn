@@ -115,7 +115,7 @@ function ArtistDashboardContent() {
           {context?.slug && (
             <div className="px-4 sm:px-6 lg:px-8 pb-3">
               <Link
-                href={`/${context.slug}`}
+                href={`/${context.slug}?preview=visitor`}
                 data-tour="view-as-fan"
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-crwn-text-secondary hover:text-crwn-gold border border-crwn-elevated rounded-full transition-colors"
               >

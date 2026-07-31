@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { CommunityPost } from '@/types';
 import { CommentSection } from './CommentSection';
@@ -96,7 +97,13 @@ export function CommunityPostCard({
   // The client check remains only as a fallback for callers that still hand us a
   // raw row. It is no longer what protects the content: the view NULLs the body
   // and media for anyone it marks can_view = false.
-  const canView = post.can_view ?? (post.is_free || (tierId && post.allowed_tier_ids?.includes(tierId)));
+  //
+  // In owner preview, can_view is TRUE for every post (the owner is entitled to
+  // their own), so trusting it would show an unlocked feed while claiming to be
+  // a fan. Fall back to the tier math against the previewed persona instead.
+  const { previewing } = useArtistPreview();
+  const tierMatch = post.is_free || (tierId && post.allowed_tier_ids?.includes(tierId));
+  const canView = previewing ? tierMatch : post.can_view ?? tierMatch;
 
   const formatTimestamp = (dateStr: string) => {
     const date = new Date(dateStr);

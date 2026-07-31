@@ -322,7 +322,7 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
                   </h1>
                 </button>
                 <button
-                  onClick={() => go(`/${slug}`)}
+                  onClick={() => go(`/${slug}?preview=visitor`)}
                   className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-[#D4AF37] hover:underline"
                 >
                   View as fan

@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Gift, Link2, Check, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { buildReferralUrl, generateReferralCode } from '@/lib/referrals';
 import { canUseFeature } from '@/lib/platformTier';
 import {
@@ -61,14 +62,17 @@ export function EarnWithArtist({
   embedded = false,
 }: EarnWithArtistProps) {
   const { user, profile } = useAuth();
+  const { previewing } = useArtistPreview();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   const wrapperClass = embedded ? '' : 'px-4 sm:px-6 lg:px-8 mt-6';
 
   // Never pitch the artist on promoting themselves — unless the Movement tab
-  // explicitly asked for an owner preview of what fans see.
-  const isOwner = !!user && user.id === artistUserId;
+  // explicitly asked for an owner preview of what fans see. While the owner is
+  // previewing the page as a fan, they ARE the audience for this card, so the
+  // real fan-facing version renders instead of being hidden.
+  const isOwner = !!user && user.id === artistUserId && !previewing;
   if (isOwner && !ownerPreview) return null;
   const showOwnerPreview = isOwner && ownerPreview;
 

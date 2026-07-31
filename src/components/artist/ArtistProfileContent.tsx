@@ -26,6 +26,7 @@ import { ArtistBounties } from '@/components/artist/ArtistBounties';
 import { ArtistRoadCampaign } from '@/components/artist/ArtistRoadCampaign';
 import type { ClipperRateStep } from '@/lib/clipperRate';
 import { useAuth } from '@/hooks/useAuth';
+import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { startTour } from '@/lib/tour';
 import { getArtistPageTourSteps } from '@/lib/artistPageTourSteps';
 import { useTourCheck } from '@/hooks/useTourCheck';
@@ -56,7 +57,8 @@ interface ArtistProfileContentProps {
   playlists: (Playlist & { track_count: number })[];
   products: Product[];
   tracks: Track[];
-  isArtistProfile: boolean;
+  /** True ONLY for the artist who owns this page (never "viewer is an artist"). */
+  isOwner: boolean;
   commissionRate?: number;
   liveSessions?: LiveSession[];
 }
@@ -68,11 +70,16 @@ export function ArtistProfileContent({
   playlists,
   products,
   tracks,
-  isArtistProfile,
+  isOwner,
   commissionRate = 10,
   liveSessions = [],
 }: ArtistProfileContentProps) {
   const { user } = useAuth();
+  // While previewing, the owner should be treated as the fan they picked: owner
+  // controls (moderation, the composer's artist voice) disappear, and the
+  // fan-only blocks they normally never see appear.
+  const { previewing } = useArtistPreview();
+  const isArtistProfile = isOwner && !previewing;
   const router = useRouter();
   const searchParams = useSearchParams();
   const returningFromCheckout = searchParams.get('subscription') === 'success' || searchParams.get('subscription') === 'canceled';

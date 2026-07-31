@@ -1797,14 +1797,15 @@ function LaunchReview({
         {/* Previews: storefront/checkout is the real public page; calendar and
             roadmap render inline (their routes open after launch). */}
         <a
-          href={`/${slug}`}
+          href={`/${slug}?preview=visitor`}
           target="_blank"
           rel="noopener noreferrer"
           className="block neu-raised rounded-2xl p-4 mb-4 hover:border-crwn-gold/40 border border-transparent transition-colors"
         >
           <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-0.5">Storefront and checkout</p>
           <p className="text-sm text-crwn-text">
-            See your page exactly as a fan sees it: your music, your tiers, your prices.
+            See your page exactly as a fan sees it: your music, your tiers, your prices. Switch between a visitor and
+            each paid tier to check what every fan actually unlocks.
           </p>
           <p className="text-xs text-crwn-gold mt-1">thecrwn.app/{slug} ↗</p>
         </a>

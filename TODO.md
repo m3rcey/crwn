@@ -87,6 +87,18 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the artist-post authorship migration:**
+      [`supabase/schema-phase2-artist-post-authorship.sql`](supabase/schema-phase2-artist-post-authorship.sql)
+      in the Supabase SQL editor. `community_posts.is_artist_post` is what renders a post with
+      YOUR badge, as you speaking to your community, and its INSERT policy only checked
+      `auth.uid() = author_id`. Nothing in the database stopped another user from setting it on
+      your page. The public page also computed "is this viewer an artist" instead of "does this
+      viewer own this page", so any artist posting on another artist's page had their post
+      written as that artist's own. **The code half is fixed and shipped** (the page now uses a
+      real ownership check), so the normal path is closed. This migration adds the trigger that
+      makes the database the authority, and repairs any existing row that carries a false claim.
+      It self-verifies and refuses to half-apply.
+
 - [ ] **Run the support-chat migration:**
       [`supabase/schema-phase2-support-chat.sql`](supabase/schema-phase2-support-chat.sql)
       in the Supabase SQL editor. Until it runs, the new /support chat quietly falls back to

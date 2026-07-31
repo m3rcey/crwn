@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
+import { useArtistPreview } from './useArtistPreview';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 interface SubscriptionCheck {
@@ -13,6 +14,10 @@ interface SubscriptionCheck {
 
 export function useSubscription(artistId: string | null) {
   const { user } = useAuth();
+  // Owner preview: every gated surface on the artist page reads its lock state
+  // from this hook, so overriding the answer here is the single place that makes
+  // "view as a Silver member" true everywhere at once. Inert off the artist page.
+  const { previewing, previewTierId, previewTierName } = useArtistPreview();
   const supabase = createBrowserSupabaseClient();
   const [subscription, setSubscription] = useState<SubscriptionCheck>({
     isSubscribed: false,
@@ -65,6 +70,17 @@ export function useSubscription(artistId: string | null) {
       cancelled = true;
     };
   }, [user?.id, artistId, supabase]);
+
+  // Preview wins over the real read. It only ever narrows access: the previewed
+  // persona holds one tier or none, never more than the owner already has.
+  if (previewing) {
+    return {
+      isSubscribed: !!previewTierId,
+      tierId: previewTierId,
+      tierName: previewTierName,
+      isLoading: false,
+    };
+  }
 
   return subscription;
 }

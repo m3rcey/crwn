@@ -191,6 +191,25 @@ export const POPUPS: PopupDef[] = [
     dismissLabel: 'Later',
   },
 
+  // ---- Announcement: preview your page as a fan (artists only) ----
+  // Not feature-flagged: the preview ships to everyone at once and is owner-only
+  // by construction. Loss-framed on what a mis-configured ladder costs, because
+  // that is the actual failure this fixes.
+  {
+    key: 'announce_fan_preview',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist,
+    frequency: { type: 'once' },
+    priority: 58,
+    announcedAt: '2026-07-31',
+    goal: 'Artist previews their page as a visitor and each tier, and finds the locks they set wrong before a fan does.',
+    title: 'You have never seen your own page the way a fan does.',
+    body: 'Everything looks unlocked to you because you own it. So the two ways a ladder breaks stay invisible: a free visitor hits a wall where your best song should be, or your paid catalog is sitting there free and nobody needs to subscribe. Either way you only find out from the money that never arrives. Open your page and switch between a visitor and each tier to see the real locks.',
+    cta: { label: 'View my page as a fan', href: '/profile/artist' },
+    dismissLabel: 'Later',
+  },
+
   // ---- Fan: back an artist (activation, starts money flow) ----
   {
     key: 'fan_first_support',

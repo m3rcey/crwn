@@ -106,7 +106,8 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
     - Six-item checklist: offers / Stripe / content / promises / audience / campaign. Open
       REQUIRED items carry "Fix it" (jumps back to the exact screen). "Audience imported"
       carries **Import now**, which opens the full `FanImportModal` in place (see F).
-    - Previews: the PUBLIC PAGE is the storefront + checkout preview (opened as a fan); the
+    - Previews: the PUBLIC PAGE is the storefront + checkout preview (opened with
+      `?preview=visitor`, so the artist lands in the real fan view, see G); the
       Promise Calendar's next events and the roadmap's first milestone render INLINE (their
       routes sit behind the setup gate until launch).
     - **Operating plan panel** ("Your operating plan", 2026-07-31): the deterministic
@@ -187,6 +188,19 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
   `artist_promise_fulfilled` DomainCheck, the same fact the roadmap's `promises_completed`
   uses. The announcement + first-visit quests deep-link to the Launch Kit
   (`/studio/fans?view=campaigns`), the promise quest to `/studio/promise`.
+- **Fan-perspective preview** (2026-07-31): the owner switches the public page between "a
+  visitor" and each tier via `ArtistPreviewProvider` (`src/hooks/useArtistPreview.tsx`) and the
+  sticky `PreviewBar`. `useSubscription` is the single injection point (13 consumers), so one
+  override re-derives every lock at once. Preview only ever REMOVES access, so it is a rendering
+  lens and never an authorization boundary. Two surfaces need explicit handling because the DB
+  hands the OWNER entitled data: `GatedTrackPlayer` ignores the owner's own purchases, and
+  `CommunityPostCard` ignores `community_posts_feed.can_view` (true for every own post) and
+  falls back to tier math. "View as fan" everywhere now carries `?preview=visitor`.
+  **`isOwner` is the real check** (`session.user.id === artist.user_id`); the page previously
+  used "does this viewer have an artist row", which handed any artist owner-only controls on
+  every other artist's page. Server-side gates (`/api/tracks/[id]/stream`, `/api/live/vod`)
+  still answer as the owner, so preview shows the LOCK correctly but a locked track's click
+  routes to the track page rather than being refused.
 - **Pop-ups**: governed by the Pop-up Engine (one per user per day); every ANNOUNCEMENT def
   carries `announcedAt` and is skipped for accounts created on/after that date.
 - **Upgrade triggers are arithmetic, not vibes** (2026-07-31): the popup context carries

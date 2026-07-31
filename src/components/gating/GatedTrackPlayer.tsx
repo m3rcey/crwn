@@ -3,6 +3,7 @@
 import { Track } from '@/types';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { useTrackPurchases } from '@/hooks/useTrackPurchases';
 import { useFavorites } from '@/hooks/useFavorites';
 import { TrackActionButtons } from '@/components/shared/TrackActionButtons';
@@ -22,6 +23,7 @@ interface GatedTrackPlayerProps {
 export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: GatedTrackPlayerProps) {
   const { play, pause, currentTrack, isPlaying } = usePlayer();
   const { isSubscribed, tierId, isLoading } = useSubscription(artistId);
+  const { previewing } = useArtistPreview();
   const { purchasedTrackIds } = useTrackPurchases(artistId);
   const { isLiked, toggleFavorite } = useFavorites();
   const referralCode = useReferralCode();
@@ -34,7 +36,9 @@ export function GatedTrackPlayer({ track, artistId, artistSlug, trackList }: Gat
   //   2. Early access window → only tier subscribers unlock
   //   3. Track is marked free
   //   4. Fan has a tier subscription that includes this track
-  const hasPurchased = purchasedTrackIds.has(track.id);
+  // In preview the owner's OWN purchase history must not unlock the track: the
+  // fan they are previewing has not bought anything.
+  const hasPurchased = !previewing && purchasedTrackIds.has(track.id);
   const canAccess = hasPurchased
     ? true
     : isEarlyAccess

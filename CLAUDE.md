@@ -81,6 +81,23 @@ Rules:
   do not copy claims out of the Brain or CLAUDE.md without checking the code, because both
   have been wrong.
 
+## The public artist page — `isOwner` is the OWNER, and preview only removes access
+
+Two rules on `src/app/[slug]/page.tsx` and everything under it:
+
+- **Owner checks are `session.user.id === artist.user_id`, never "does this viewer have an
+  `artist_profiles` row."** The page used the latter for months, so every artist got owner-only
+  controls (locked-channel reads, moderation menus, the artist-voice composer) on every OTHER
+  artist's page. The DB stopped the reads; it did NOT stop `community_posts.is_artist_post`,
+  whose INSERT policy is only `auth.uid() = author_id`
+  (`supabase/schema-phase2-artist-post-authorship.sql` adds the trigger).
+- **Owner preview** (`src/hooks/useArtistPreview.tsx` + `PreviewBar`) lets the owner view the
+  page as a visitor or any tier. `useSubscription` is the ONE injection point: override it and
+  all 13 gated consumers follow. It must only ever REMOVE access, which is what makes it safe
+  as a pure rendering lens. If you add a surface that reads a SERVER-granted flag
+  (`can_view`, a signed URL, a purchase row), it must fall back to tier math when `previewing`,
+  or the owner sees an unlocked page while it claims to be a fan's.
+
 ## Interruptions are governed — one engine, one cap
 
 Every surface that interrupts a user (pop-ups, artist broadcasts, fan notifications, surveys)

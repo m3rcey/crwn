@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Gift } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { ShareEarnButton } from '@/components/shared/ShareEarnButton';
 
@@ -21,8 +22,12 @@ interface ShareEarnWrapperProps {
   isOwner?: boolean;
 }
 
-export function ShareEarnWrapper({ artistSlug, artistId, commissionRate, sharePath, isSubscribedOverride, isOwner }: ShareEarnWrapperProps) {
+export function ShareEarnWrapper({ artistSlug, artistId, commissionRate, sharePath, isSubscribedOverride, isOwner: isOwnerProp }: ShareEarnWrapperProps) {
   const { user } = useAuth();
+  // Previewing as a fan means seeing the fan button (or its absence), not the
+  // owner's manage link.
+  const { previewing } = useArtistPreview();
+  const isOwner = isOwnerProp && !previewing;
   const [isSubscribed, setIsSubscribed] = useState(isSubscribedOverride ?? false);
   const supabase = createBrowserSupabaseClient();
 
