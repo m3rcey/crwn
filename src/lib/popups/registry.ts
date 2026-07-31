@@ -21,6 +21,8 @@ export interface PopupContext {
   supportCount: number;
   /** Artists only: have they ever sent a broadcast/DM to a fan? */
   hasSentBroadcast: boolean;
+  /** profiles.created_at, ISO. Null only if the read failed. */
+  accountCreatedAt: string | null;
   /**
    * Dark-launch flags from admin_settings, keyed by flag name. An ANNOUNCEMENT
    * pop-up for a feature that ships dark MUST gate on its flag here, or flipping
@@ -59,6 +61,13 @@ export interface PopupDef {
   frequency: PopupFrequency;
   /** Higher wins when several are eligible on the same page. */
   priority: number;
+  /**
+   * ANNOUNCEMENTS ONLY: when the change being announced went live (ISO date).
+   * A user whose account was created on/after this date experiences the change
+   * as the normal product, so "we changed X" is noise to them: the engine skips
+   * the pop-up for them centrally. Leave unset for evergreen pop-ups.
+   */
+  announcedAt?: string;
   /** Internal only: what forward motion this pop-up is trying to cause. */
   goal: string;
   title: string;
@@ -159,6 +168,7 @@ export const POPUPS: PopupDef[] = [
     audience: (c) => c.isArtist && c.featureFlags.live_tips === true,
     frequency: { type: 'once' },
     priority: 55,
+    announcedAt: '2026-07-24',
     goal: 'Artist sets a tip goal on their next live session so the show earns instead of just entertaining.',
     title: 'Your last live show earned you nothing.',
     body: 'Fans who show up live are the ones most willing to pay, and until now there was no way for them to. Tips and tip goals are on: set a goal, and the room can see it fill in real time.',
@@ -176,6 +186,7 @@ export const POPUPS: PopupDef[] = [
     audience: (c) => c.isArtist && c.featureFlags.royalty_readiness === true,
     frequency: { type: 'once' },
     priority: 55,
+    announcedAt: '2026-07-27',
     goal: 'Artist runs the Royalty Readiness Check and finds the streams nobody is collecting.',
     title: 'Your distributor is not collecting most of what your songs earn.',
     body: 'Performance royalties, mechanicals, digital radio, and everything outside the US are all paid by different organizations, and none of them pay you unless you are registered. Twelve questions will show you which ones currently have nobody assigned to them.',
@@ -194,6 +205,7 @@ export const POPUPS: PopupDef[] = [
     audience: (c) => c.isArtist && c.featureFlags.producer_sessions === true,
     frequency: { type: 'once' },
     priority: 55,
+    announcedAt: '2026-07-24',
     goal: 'Artist opens their next live session for fan submissions so the room pays to be in the process, not just to watch it.',
     title: 'You give your process away for free in vlogs.',
     body: 'The thing your fans crave most, being in the room while the music gets made, earns you nothing right now. Open your next live session for submissions: fans send beats, vocals, and ideas beforehand, you review and play the best on stream, and you keep full creative control.',
@@ -213,6 +225,7 @@ export const POPUPS: PopupDef[] = [
     audience: (c) => c.isArtist,
     frequency: { type: 'once' },
     priority: 60,
+    announcedAt: '2026-07-26',
     goal: 'Artist opens the menu once and finds payouts, tiers, and billing where they now live.',
     title: 'Half your dashboard was hiding off the side of the screen.',
     body: 'Sixteen tabs in one scrolling row meant payouts, tiers, billing and referrals sat past the edge of your phone, and several links to them were landing on the wrong screen entirely. They are all full screens now: tap the menu (top left) for your money and your account, tap Studio for your tools.',
@@ -232,6 +245,9 @@ export const POPUPS: PopupDef[] = [
     audience: () => true,
     frequency: { type: 'once' },
     priority: 10,
+    // Accounts created after the update accepted the CURRENT Terms at signup,
+    // so the change notice is only owed to accounts that predate it.
+    announcedAt: '2026-07-24',
     goal: 'Satisfy the Terms own notice promise for the live-ticket refund clause.',
     title: 'Our Terms were updated on July 24, 2026.',
     body: 'One addition: a live session or producer session seat is final once the session happens, and fully refundable if the artist cancels or reschedules to a time you cannot make.',

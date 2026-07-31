@@ -83,6 +83,21 @@ function passesFrequency(def: PopupDef, events: PopupEventRow[], now: Date): boo
  * or null. Enforces the global governor: if the user has already been shown ANY
  * pop-up today, return null (one interruption per day, period).
  */
+/**
+ * "We changed X" is only news to accounts that lived through X being different.
+ * A def carrying `announcedAt` is skipped for any account created on/after that
+ * date: those users met the current product at signup. Enforced HERE, once, so
+ * no announcement def can forget it. Missing created_at fails open (show), so a
+ * read hiccup can only over-inform, never silently drop a legal notice.
+ */
+function announcementApplies(def: PopupDef, ctx: PopupContext): boolean {
+  if (!def.announcedAt || !ctx.accountCreatedAt) return true;
+  const created = new Date(ctx.accountCreatedAt).getTime();
+  const announced = new Date(def.announcedAt).getTime();
+  if (Number.isNaN(created) || Number.isNaN(announced)) return true;
+  return created < announced;
+}
+
 export async function eligiblePopupFor(
   admin: any,
   ctx: PopupContext,
@@ -107,6 +122,7 @@ export async function eligiblePopupFor(
     const candidates = POPUPS.filter(
       (def) =>
         popupArmedForPage(def, pathname) &&
+        announcementApplies(def, ctx) &&
         safeAudience(def, ctx) &&
         passesFrequency(def, events, now),
     ).sort((a, b) => b.priority - a.priority);

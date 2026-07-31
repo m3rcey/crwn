@@ -104,6 +104,7 @@ async function buildContext(userId: string): Promise<PopupContext> {
     stripeConnected: false,
     supportCount: 0,
     hasSentBroadcast: false,
+    accountCreatedAt: null,
     featureFlags: {},
   };
 
@@ -120,10 +121,12 @@ async function buildContext(userId: string): Promise<PopupContext> {
 
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('role')
+      .select('role, created_at')
       .eq('id', userId)
       .maybeSingle();
     if (profile?.role === 'admin') base.role = 'admin';
+    // Announcements only apply to accounts that predate the announced change.
+    if (profile?.created_at) base.accountCreatedAt = String(profile.created_at);
 
     const { data: artist } = await supabaseAdmin
       .from('artist_profiles')

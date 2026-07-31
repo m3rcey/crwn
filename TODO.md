@@ -237,6 +237,18 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Rise Mode per-task dollar estimates (from your live-test list, deferred on purpose).** Each
+  quest card should show the estimated extra $/month completing it unlocks, derived only from
+  numbers CRWN really has (calculator payload, tier prices, member counts). Deferred rather than
+  rushed because a per-quest estimate model done sloppily invents figures, and the house rule is
+  show nothing over showing a made-up number. Its own session.
+
+- **Full tour audit (the rest of your tour feedback).** Fixed this round: one auto-tour per
+  session (no more tour chaining across tabs), community step mentions channels, home tour's
+  dead final anchor. Still mine: audit all ~20 per-page tours against current selectors and
+  features, and decide whether the artist-page tour should stop clicking through its own
+  Music/Tiers/Community tabs (kept for now because each tab's content only mounts when active).
+
 - **Make the roadmap fully adaptive, and wire it to the Quest Engine.** The ramp already re-plans
   from real pace and real MRR, shows one milestone at a time, and promotes the step the artist's
   entry calculator was about ([`docs/REVENUE_RAMP.md`](docs/REVENUE_RAMP.md)). What is still

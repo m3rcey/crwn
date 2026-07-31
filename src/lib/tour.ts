@@ -69,12 +69,30 @@ export function endActiveTour() {
   }
 }
 
+// One AUTO-started tour per browser session. Every surface has its own
+// first-visit tour, so a new user tapping through the tabs got greeted by tour
+// after tour after tour: one uninterrupted chain that read as a single tour
+// dragging them across the app. An auto-start (recognized by its completion
+// callback) beyond the first now defers to that surface's NEXT visit in a new
+// session; explicit replays are never capped.
+const AUTO_TOUR_SESSION_KEY = 'crwn_auto_tour_ran';
+
 export function startTour(
   steps: DriveStep[],
   onComplete?: () => void,
   onDismiss?: (stepIndex: number) => void,
   startIndex?: number
 ) {
+  const isAutoStart = typeof onComplete === 'function';
+  if (isAutoStart && typeof sessionStorage !== 'undefined') {
+    try {
+      if (sessionStorage.getItem(AUTO_TOUR_SESSION_KEY)) return null;
+      sessionStorage.setItem(AUTO_TOUR_SESSION_KEY, '1');
+    } catch {
+      /* storage unavailable: behave as before */
+    }
+  }
+
   endActiveTour(); // tear down any prior/leaked tour before starting a new one
 
   let currentStep = startIndex || 0;

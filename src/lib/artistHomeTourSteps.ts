@@ -44,10 +44,13 @@ export const artistHomeTourSteps: DriveStep[] = [
     },
   },
   {
-    element: '[data-tour="tour-replay"]',
+    // Anchored on the help button that actually exists on /home. The old anchor
+    // ([data-tour="tour-replay"]) is a Rise Mode element, so this final step
+    // floated over nothing here.
+    element: '[data-tour="home-help"]',
     popover: {
       title: 'Replay anytime',
-      description: 'That is the tour. Replay it anytime by tapping this button.',
+      description: 'That is the tour. Tap this help button anytime to see it again or get the setup guide.',
       side: 'bottom',
       align: 'end',
     },

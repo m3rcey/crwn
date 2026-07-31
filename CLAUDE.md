@@ -87,7 +87,10 @@ Every surface that interrupts a user (pop-ups, artist broadcasts, fan notificati
 must pass a frequency governor. Do NOT add a new interruption path without one.
 - **Pop-ups** go through the Pop-up Engine, NOT ad-hoc modals: add a `PopupDef` to
   `src/lib/popups/registry.ts` (targeting + `frequency` cap + loss-framed copy). The engine
-  enforces **max one pop-up per user per day** on top of each pop-up's own cap. Dark-launched via
+  enforces **max one pop-up per user per day** on top of each pop-up's own cap. **Every
+  ANNOUNCEMENT pop-up ("we changed X" / "new feature") MUST carry `announcedAt`** (the date the
+  change went live): the engine skips it for accounts created on/after that date, because those
+  users met the current product at signup and the announcement is noise to them. Dark-launched via
   `admin_settings.popup_engine` (off by default), same pattern as `quest_engine`. Surveys are a
   pop-up `kind` (1-5 + feedback), stored in `popup_survey_responses`; low scores email the founder.
 - **Broadcasts / fan notifications** already carry hourly + daily rate-limit caps in their routes

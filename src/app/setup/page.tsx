@@ -27,6 +27,7 @@ import { withTimeout } from '@/lib/promiseTimeout';
 import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
 import { BulkUploadForm } from '@/components/artist/BulkUploadForm';
+import { FanImportModal } from '@/components/artist/FanImportModal';
 import {
   createOnboardingTrack,
   createOnboardingProduct,
@@ -1556,6 +1557,9 @@ function LaunchReview({
   const [contactCount, setContactCount] = useState(0);
   const [campaignCount, setCampaignCount] = useState(0);
   const [roadmapNext, setRoadmapNext] = useState<string | null>(null);
+  // The fan import hub, right here in the review: the modal is route-independent,
+  // so the audience does not have to wait for the post-launch Fan CRM.
+  const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
     if (!artistId) return;
@@ -1619,7 +1623,7 @@ function LaunchReview({
       done: (promises?.length ?? 0) > 0,
       note: 'Set with your ladder; manage them in the Promise Calendar after launch.',
     },
-    { label: 'Audience imported', done: contactCount > 0, note: 'After launch: bring your list over from the Fan CRM.' },
+    { label: 'Audience imported', done: contactCount > 0, note: 'import-now' },
     { label: 'Launch campaign drafted', done: campaignCount > 0, note: 'After launch: the Launch Kit writes it for you.' },
   ];
 
@@ -1659,7 +1663,16 @@ function LaunchReview({
                       Fix it
                     </button>
                   )}
-                  {!item.done && !item.fix && item.note && (
+                  {!item.done && item.note === 'import-now' && (
+                    <button
+                      type="button"
+                      onClick={() => setImportOpen(true)}
+                      className="ml-2 text-crwn-gold hover:underline text-xs"
+                    >
+                      Import now
+                    </button>
+                  )}
+                  {!item.done && !item.fix && item.note && item.note !== 'import-now' && (
                     <span className="block text-xs text-crwn-text-secondary/80">{item.note}</span>
                   )}
                 </span>
@@ -1757,6 +1770,15 @@ function LaunchReview({
           </p>
         </div>
       </div>
+
+      {artistId && (
+        <FanImportModal
+          artistId={artistId}
+          isOpen={importOpen}
+          onClose={() => setImportOpen(false)}
+          onImported={() => setContactCount((c) => Math.max(1, c + 1))}
+        />
+      )}
     </div>
   );
 }

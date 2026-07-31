@@ -1,5 +1,31 @@
 # CRWN Brain — Changelog
 
+## 2026-07-31 — Live-test sweep: nine onboarding findings diagnosed from production, seven fixed
+
+Josh walked the full journey on a fresh account (lagoo); every item was diagnosed against live
+data before any code moved. (1) STRIPE: Stripe said charges_enabled and the milestone/backfill
+HAD landed, but 30 minutes late; verification is asynchronous and nothing reconciled until a
+polling surface was opened. One shared reconciler (`src/lib/stripe/connectReconcile.ts`) is now
+used by connect/status AND run by the roadmap route whenever an account exists without the
+milestone. (2) SHARE-TO-EARN: the public page advertised `|| 10` percent while the payout pays
+the real rate (default 0): rates are now real everywhere, the fan button hides when the program
+is off, and the page OWNER sees a program-state pill (live at X% / turn it on) since the fan
+button is invisible to them by design. (3) RAMP: "Build your four-tier ladder" stayed pending
+after the wizard built it; `rampReconcile.ts` completes ramp events via the quest evaluator's
+own checks before the calendar projects. (4) RISE XP: not a flag (quest_engine on) or a
+regression; lagoo had 975 XP at level 4 but a null artist build, and the build picker replaced
+the whole board. The progression header now renders above the picker. (5) POP-UPS: PopupDef
+gained `announcedAt`; the engine skips announcements for accounts created on/after that date
+(context now carries profiles.created_at). All five announcement/notice defs dated. (6) TOURS:
+the cross-tab feel is the artist-page tour clicking its own in-page tabs (kept: content mounts
+per tab) plus tour CHAINING (every surface auto-firing its first-visit tour in one session);
+startTour now caps auto-starts to ONE per browser session, deferring the rest to later visits.
+Stale copy fixed (community step now mentions channels; the home tour's dead replay anchor now
+points at the real help button). (7) FAN IMPORT: the launch review's "Audience imported" row
+gained an in-place "Import now" that opens the FanImportModal inside the wizard. Deferred with
+reasons: per-quest $/month estimates (needs an honest estimate model, not invented figures) and
+the full 20-file tour audit. sw.js v322.
+
 ## 2026-07-30 — Launch no longer re-asks for the business the wizard just built
 
 Josh's live test caught a stale journey: pressing "Launch my CRWN" routed him into the restored

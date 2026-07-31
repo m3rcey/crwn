@@ -69,7 +69,7 @@ export function getArtistPageTourSteps(artistSlug: string): DriveStep[] {
       element: '[data-tour="artist-page-community"]',
       popover: {
         title: 'Your community feed',
-        description: 'Post updates, behind the scenes content, photos, and videos here. You can gate posts to specific tiers for exclusive content. This is your direct line to fans.',
+        description: 'Post updates, behind the scenes content, photos, and videos, organized into channels your fans can browse. You can gate posts and whole channels to specific tiers for exclusive content. This is your direct line to fans.',
         side: 'top',
         align: 'start',
       },
