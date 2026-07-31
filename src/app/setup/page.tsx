@@ -40,10 +40,11 @@ import {
   workloadLabel,
   projectedBuyersFor,
   ALLOWED_RECURRENCES,
+  WORKLOAD_MINUTES,
   type PlannedPromise,
   type TierProjection,
 } from '@/lib/promisePlan';
-import { RECURRENCE_LABEL, type Recurrence } from '@/lib/fulfillment';
+import { RECURRENCE_LABEL, FULFILLMENT_TYPE_LABEL, type Recurrence } from '@/lib/fulfillment';
 import { OptionSelect } from '@/components/ui/OptionSelect';
 import { getAnonId } from '@/lib/experiments/anonId';
 import { slugify } from '@/lib/slugify';
@@ -170,8 +171,10 @@ const toDateInputValue = (d: Date): string => {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
-/** Default first date: a week of runway, matching the server's fallback. */
-const defaultPromiseDate = (): string => toDateInputValue(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+/** Default first date: a week of runway (matching the server's fallback), plus a
+ *  per-promise stagger so two commitments never DEFAULT to the same day. */
+const defaultPromiseDate = (offsetDays = 0): string =>
+  toDateInputValue(new Date(Date.now() + (7 + offsetDays) * 24 * 60 * 60 * 1000));
 const isValidPromiseDate = (v: string): boolean => !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
 
 /** The promises the CONFIRMED ladder draft will create (dedup + inheritance applied).
@@ -187,10 +190,11 @@ const planFromDraft = (draft: LadderDraft): PlannedPromise[] =>
     }),
   );
 
-/** The (possibly adjusted) cadence + first date for a planned promise. */
-const promiseSettings = (p: PlannedPromise, draft: PromiseDraft) => ({
+/** The (possibly adjusted) cadence + first date for a planned promise. The
+ *  offset staggers untouched defaults one day apart (no same-day stacking). */
+const promiseSettings = (p: PlannedPromise, draft: PromiseDraft, offsetDays = 0) => ({
   recurrence: draft[p.key]?.recurrence ?? p.defaultRecurrence,
-  firstDueDate: draft[p.key]?.firstDueDate ?? defaultPromiseDate(),
+  firstDueDate: draft[p.key]?.firstDueDate ?? defaultPromiseDate(offsetDays),
 });
 
 function SetupWizard() {
@@ -363,8 +367,8 @@ function SetupWizard() {
         );
       case 'promises':
         // Defaults are always valid; only a hand-cleared date blocks Continue.
-        return planFromDraft(ladderDraft).every((p) =>
-          isValidPromiseDate(promiseSettings(p, promiseDraft).firstDueDate),
+        return planFromDraft(ladderDraft).every((p, i) =>
+          isValidPromiseDate(promiseSettings(p, promiseDraft, i).firstDueDate),
         );
       case 'stripe':
         // Never blocks: Stripe is required to TAKE money, not to finish setup.
@@ -499,7 +503,7 @@ function SetupWizard() {
         const overrides: Record<string, Record<string, unknown>> = {};
         for (const p of planned) {
           if (p.tierKey !== rung.key) continue;
-          const s = promiseSettings(p, promiseDraft);
+          const s = promiseSettings(p, promiseDraft, planned.indexOf(p));
           overrides[p.benefitType] = {
             frequency: s.recurrence,
             first_due_at: new Date(`${s.firstDueDate}T12:00:00`).toISOString(),
@@ -1461,22 +1465,22 @@ function PromisesReview({
 
   const minDate = toDateInputValue(new Date());
   const totalMinutes = estimateMonthlyWorkload(
-    planned.map((p) => ({
+    planned.map((p, i) => ({
       fulfillmentType: p.fulfillmentType,
-      recurrence: promiseSettings(p, draft).recurrence,
+      recurrence: promiseSettings(p, draft, i).recurrence,
     })),
   );
 
-  const patch = (key: string, p: PlannedPromise, over: Partial<PromiseDraft[string]>) =>
+  const patch = (key: string, p: PlannedPromise, idx: number, over: Partial<PromiseDraft[string]>) =>
     setDraft((d) => ({
       ...d,
-      [key]: { ...promiseSettings(p, d), ...over },
+      [key]: { ...promiseSettings(p, d, idx), ...over },
     }));
 
   return (
     <div className="space-y-3">
-      {planned.map((p) => {
-        const s = promiseSettings(p, draft);
+      {planned.map((p, idx) => {
+        const s = promiseSettings(p, draft, idx);
         const serves =
           p.servesTierNames.length > 1
             ? `${p.servesTierNames.slice(0, -1).join(', ')} and ${p.servesTierNames[p.servesTierNames.length - 1]}`
@@ -1487,13 +1491,18 @@ function PromisesReview({
             <p className="text-xs text-crwn-text-secondary mt-1">
               One promise serving your {serves} members. {p.note ?? ''}
             </p>
+            <p className="text-[11px] text-crwn-text-secondary mt-1.5">
+              About {WORKLOAD_MINUTES[p.fulfillmentType] ?? 30} minutes each time · Delivered as a{' '}
+              {(FULFILLMENT_TYPE_LABEL[p.fulfillmentType] ?? p.fulfillmentType).toLowerCase()} · Reminded at 7, 3,
+              and 1 days out
+            </p>
             <div className="grid sm:grid-cols-2 gap-3 mt-3">
               <div>
                 <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-1">How often</p>
                 <OptionSelect
                   options={ALLOWED_RECURRENCES.map((r) => ({ value: r, label: RECURRENCE_LABEL[r] }))}
                   value={s.recurrence}
-                  onChange={(v) => patch(p.key, p, { recurrence: v as Recurrence })}
+                  onChange={(v) => patch(p.key, p, idx, { recurrence: v as Recurrence })}
                 />
               </div>
               <div>
@@ -1502,7 +1511,7 @@ function PromisesReview({
                   type="date"
                   min={minDate}
                   value={s.firstDueDate}
-                  onChange={(e) => patch(p.key, p, { firstDueDate: e.target.value })}
+                  onChange={(e) => patch(p.key, p, idx, { firstDueDate: e.target.value })}
                   className="w-full bg-crwn-surface border border-crwn-elevated rounded-xl px-4 py-4 text-crwn-text focus:outline-none focus:border-crwn-gold"
                 />
               </div>

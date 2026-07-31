@@ -242,11 +242,12 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   richer plan intro, cadence changes propagating to existing obligations, Share-to-Earn config
   restored at ladder create, the purchase-level obligation engine (shipped products and
   scheduled experiences create their fulfillment task at purchase; digital creates nothing),
-  and promise reminder delivery (daily digest, piggybacked on the 6am cron). Still mine:
+  promise reminder delivery (daily digest, piggybacked on the 6am cron), per-promise prep
+  time + delivery method + reminder schedule on the review screen, and staggered default
+  first-due dates (no two promises default to the same day). Still mine:
   1. the quarterly live experience as a confirmable wizard component;
-  2. per-promise prep time and delivery method on the review screen;
-  3. OAuth import connectors (Mailchimp, Google, Shopify, Gumroad); CSV covers them today;
-  4. same-day high-effort promise spacing and warn-before-deleting future obligations.
+  2. OAuth import connectors (Mailchimp, Google, Shopify, Gumroad); CSV covers them today;
+  3. warn-before-deleting future obligations in the Promise Calendar UI.
 
 - **Rise Mode per-task dollar estimates (from your live-test list, deferred on purpose).** Each
   quest card should show the estimated extra $/month completing it unlocks, derived only from
