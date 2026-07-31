@@ -243,6 +243,8 @@ function SetupWizard() {
     tierProjections?: TierProjection[];
     /** The artist's own tier names/prices from pre-signup edits (null = stock). */
     ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
+    /** The Share-to-Earn config they set in the builder (null = not configured). */
+    shareToEarn?: { percent: number } | null;
   } | null>(null);
   const [planIntroSeen, setPlanIntroSeen] = useState(false);
   // Once the artist edits the ladder draft, their edits win over any prefill.
@@ -515,6 +517,16 @@ function SetupWizard() {
         });
         if (error) return `Could not add the ${rungName} tier. Please try again.`;
       }
+      // Restore the Share-to-Earn program they configured in the builder: the
+      // rate THEY chose, applied once the ladder it feeds exists. Best-effort;
+      // the toggle stays editable in Referrals.
+      if (plan?.shareToEarn?.percent) {
+        fetch('/api/referrals/artist/commission', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ artistId, commissionRate: plan.shareToEarn.percent }),
+        }).catch(() => {});
+      }
       return undefined;
     }
     if (kind === 'track') {
@@ -699,6 +711,12 @@ function SetupWizard() {
                   You’ll connect Stripe in a moment to actually get paid. Prices are created automatically when you connect.
                 </p>
               )}
+              {current.key === 'ladder' && plan?.shareToEarn?.percent ? (
+                <p className="text-xs text-crwn-gold/80 mt-1">
+                  Your Share-to-Earn program comes with this plan: fans earn {plan.shareToEarn.percent}% recruiting
+                  for you, exactly as you set it. Adjust anytime in Referrals.
+                </p>
+              ) : null}
             </div>
           </div>
 

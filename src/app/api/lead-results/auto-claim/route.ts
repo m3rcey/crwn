@@ -101,6 +101,15 @@ export async function POST() {
         // The artist's OWN tier names/prices from their pre-signup edits, so the
         // wizard's ladder opens on the ladder THEY designed (null = stock).
         ladderPrefill: buildLadderPrefill(seed),
+        // The Share-to-Earn config THEY set in the builder (artist-funded
+        // commission). The wizard applies it when the ladder is created, so the
+        // growth system they designed exists at launch instead of never.
+        shareToEarn: (() => {
+          const dv = seed.draftValues ?? {};
+          if (dv.shareOn !== 'on') return null;
+          const pct = Math.round(Number(dv.shareCommission));
+          return Number.isFinite(pct) && pct > 0 && pct <= 50 ? { percent: pct } : null;
+        })(),
       }
     : null;
 
