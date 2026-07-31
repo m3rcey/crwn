@@ -221,7 +221,40 @@ export function RiseMode() {
   }
 
   if (data.role === 'artist' && !data.build.primary) {
-    return <ArtistBuildPicker onChosen={() => load()} />;
+    // The build is a PREFERENCE question; it must never hide progression the
+    // artist already earned (the wizard catch-up can grant hundreds of XP
+    // before this screen is ever seen, and a bare picker read as "Rise Mode
+    // lost my XP" in live testing). Header first, picker below.
+    const p0 = data.progression;
+    return (
+      <div className="space-y-6">
+        <div>
+          <span className="text-base font-bold tracking-widest text-crwn-gold uppercase">Rise Mode</span>
+          <div className="flex items-end justify-between gap-4 flex-wrap mt-1.5">
+            <h2 className="text-3xl font-bold text-crwn-text">
+              Level {p0.level}: {p0.levelTitle}
+            </h2>
+            <div className="flex items-center gap-2 text-crwn-text">
+              <Zap className="w-5 h-5 text-crwn-gold" />
+              <span className="text-2xl font-bold">{p0.xp}</span>
+              <span className="text-base text-crwn-text-secondary">XP</span>
+            </div>
+          </div>
+          {!p0.isMax && (
+            <div className="mt-4">
+              <div className="h-2 rounded-full bg-[#2A2A2A] overflow-hidden">
+                <div
+                  className="h-full bg-crwn-gold rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${p0.percentToNext}%` }}
+                />
+              </div>
+              <div className="text-sm text-crwn-text-secondary mt-1.5">{p0.percentToNext}% to next level</div>
+            </div>
+          )}
+        </div>
+        <ArtistBuildPicker onChosen={() => load()} />
+      </div>
+    );
   }
 
   const open = data.quests.filter((q) => OPEN.includes(q.status));

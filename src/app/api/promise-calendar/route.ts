@@ -5,6 +5,7 @@ import { getArtistCalendar } from '@/lib/calendarProjection';
 import { sortCalendarItems } from '@/lib/calendar';
 import { loadRevenueRamp, currentMrrCents } from '@/lib/revenueRampSeed';
 import { phaseAt, computeRampProgress } from '@/lib/revenueRamp';
+import { reconcileRampSteps } from '@/lib/rampReconcile';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -24,6 +25,11 @@ export async function GET() {
     .eq('user_id', user.id)
     .single();
   if (!artist?.id) return NextResponse.json({ error: 'Not an artist' }, { status: 403 });
+
+  // Ramp steps the artist already did through the real features (the wizard
+  // builds the ladder, connects Stripe, schedules promises) complete themselves
+  // before projection, so the calendar never nags about finished work.
+  await reconcileRampSteps(supabaseAdmin, { artistId: artist.id, userId: user.id });
 
   // The ramp rides along so the calendar can show WHAT the dated steps are adding up to.
   // A task list without the number it is building is just chores.

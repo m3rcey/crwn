@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { seedRevenueRamp } from '@/lib/revenueRampSeed';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { reconcileRampSteps } from '@/lib/rampReconcile';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -42,5 +43,8 @@ export async function POST() {
   if (!result.ok) {
     return NextResponse.json({ error: 'Could not lay out the roadmap' }, { status: 500 });
   }
-  return NextResponse.json({ seeded: result.seeded, skipped: result.skipped });
+  // Steps satisfied before they were ever seeded (the wizard already built the
+  // ladder / connected Stripe / scheduled promises) complete immediately.
+  const reconciled = await reconcileRampSteps(supabaseAdmin, { artistId, userId: user.id });
+  return NextResponse.json({ seeded: result.seeded, skipped: result.skipped, reconciled });
 }

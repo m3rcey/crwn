@@ -89,7 +89,9 @@ export async function GET(req: NextRequest) {
     totalReferrals: (referrals || []).length,
     activeReferrals: (referrals || []).filter(r => r.status === 'active').length,
     totalCommissionPaid,
-    commissionRate: artist?.referral_commission_rate || 10,
+    // The REAL rate (0 = program off). The payout pays this, never a default,
+    // so reporting `|| 10` here advertised money that would not be paid.
+    commissionRate: artist?.referral_commission_rate ?? 0,
     topReferrers,
   });
 }

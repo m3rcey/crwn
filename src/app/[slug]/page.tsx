@@ -352,7 +352,8 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                 <ShareEarnWrapper
                   artistSlug={artist.slug}
                   artistId={artist.id}
-                  commissionRate={artist.referral_commission_rate || 10}
+                  commissionRate={artist.referral_commission_rate ?? 0}
+                  isOwner={session?.user?.id === artist.user_id}
                 />
                 <ClipperProgram
                   artistSlug={artist.slug}
@@ -398,7 +399,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           products={products || []}
           tracks={tracks || []}
           isArtistProfile={isArtistProfile}
-          commissionRate={artist.referral_commission_rate || 10}
+          commissionRate={artist.referral_commission_rate ?? 0}
           liveSessions={liveSessions || []}
         />
       </div>
