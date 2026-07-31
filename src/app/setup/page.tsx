@@ -143,11 +143,23 @@ const PRODUCT_TYPES: { value: ProductType; label: string; hint: string }[] = [
 // paid rungs can be dropped or repriced. Rise Level 3 recognizes whatever was
 // created here (name/alias matching) and never offers duplicates, so an artist
 // who drops a rung can add it there later.
-type LadderRungDraft = { include: boolean; priceDollars: string };
+type LadderRungDraft = { include: boolean; priceDollars: string; name: string };
 type LadderDraft = Record<string, LadderRungDraft>;
-const buildLadderDraft = (): LadderDraft =>
+// The artist's own pre-signup edits (names/prices) seed the draft when they
+// exist ("restore the business they designed"); the stock template otherwise.
+const buildLadderDraft = (prefill?: { key: string; name: string; priceCents: number }[] | null): LadderDraft =>
   Object.fromEntries(
-    RECOMMENDED_LADDER.map((r) => [r.key, { include: true, priceDollars: (r.priceCents / 100).toString() }]),
+    RECOMMENDED_LADDER.map((r) => {
+      const p = prefill?.find((x) => x.key === r.key);
+      return [
+        r.key,
+        {
+          include: true,
+          priceDollars: ((p?.priceCents ?? r.priceCents) / 100).toString(),
+          name: p?.name ?? r.name,
+        },
+      ];
+    }),
   );
 
 // Launch Wizard Stage 3: the promise-review screen's adjustments, keyed by the
@@ -162,13 +174,17 @@ const toDateInputValue = (d: Date): string => {
 const defaultPromiseDate = (): string => toDateInputValue(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 const isValidPromiseDate = (v: string): boolean => !Number.isNaN(new Date(`${v}T12:00:00`).getTime());
 
-/** The promises the CONFIRMED ladder draft will create (dedup + inheritance applied). */
+/** The promises the CONFIRMED ladder draft will create (dedup + inheritance applied).
+ *  Custom rung names ride into the plan so "serves your X members" says THEIR name. */
 const planFromDraft = (draft: LadderDraft): PlannedPromise[] =>
   planLadderPromises(
-    RECOMMENDED_LADDER.map((def) => ({
-      def,
-      included: def.priceCents === 0 || (draft[def.key]?.include ?? true),
-    })),
+    RECOMMENDED_LADDER.map((def) => {
+      const customName = draft[def.key]?.name?.trim();
+      return {
+        def: customName && customName !== def.name ? { ...def, name: customName } : def,
+        included: def.priceCents === 0 || (draft[def.key]?.include ?? true),
+      };
+    }),
   );
 
 /** The (possibly adjusted) cadence + first date for a planned promise. */
@@ -225,18 +241,35 @@ function SetupWizard() {
     estimatedMonthlyCents: number | null;
     /** Per-tier buyer counts THEIR calculator modeled (Stage 3 attribution). */
     tierProjections?: TierProjection[];
+    /** The artist's own tier names/prices from pre-signup edits (null = stock). */
+    ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
   } | null>(null);
   const [planIntroSeen, setPlanIntroSeen] = useState(false);
+  // Once the artist edits the ladder draft, their edits win over any prefill.
+  const ladderTouchedRef = useRef(false);
   useEffect(() => {
     if (!user) return;
     fetch('/api/lead-results/auto-claim', { method: 'POST' })
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => setPlan(j?.seed ?? null))
+      .then((j) => {
+        const s = j?.seed ?? null;
+        setPlan(s);
+        // Restore the ladder THEY designed pre-signup (names + prices), unless
+        // they already started editing the stock draft in this session.
+        if (s?.ladderPrefill && !ladderTouchedRef.current) {
+          setLadderDraft(buildLadderDraft(s.ladderPrefill));
+        }
+      })
       .catch(() => {});
   }, [user]);
 
   // Drafts for the multi-screen item flows (persisted only when the item is created).
-  const [ladderDraft, setLadderDraft] = useState<LadderDraft>(buildLadderDraft);
+  const [ladderDraft, setLadderDraft] = useState<LadderDraft>(() => buildLadderDraft());
+  // Edits mark the draft as the artist's; a late-arriving prefill then never clobbers them.
+  const setLadderDraftTouched: React.Dispatch<React.SetStateAction<LadderDraft>> = (v) => {
+    ladderTouchedRef.current = true;
+    setLadderDraft(v);
+  };
   // Cadence + first-date adjustments from the promise-review screen, keyed by the
   // planned promise's key. Missing entries fall back to the plan's defaults.
   const [promiseDraft, setPromiseDraft] = useState<PromiseDraft>({});
@@ -457,7 +490,9 @@ function SetupWizard() {
         const draft = ladderDraft[rung.key];
         const isPaid = rung.priceCents > 0;
         if (isPaid && draft && !draft.include) continue; // Bronze always applies
-        if (tierNameAliases(rung).some((n) => existingNames.has(n))) continue;
+        // The artist's own name for this rung (from their pre-signup draft or template).
+        const rungName = draft?.name?.trim() || rung.name;
+        if ([...tierNameAliases(rung), rungName.toLowerCase()].some((n) => existingNames.has(n))) continue;
         const priceCents = isPaid ? Math.round((parseFloat(draft?.priceDollars ?? '') || 0) * 100) : 0;
         const overrides: Record<string, Record<string, unknown>> = {};
         for (const p of planned) {
@@ -472,13 +507,13 @@ function SetupWizard() {
           artistId,
           stripeConnected,
           def: rung,
-          name: rung.name,
+          name: rungName,
           priceCents,
           description: rung.description,
           benefits: benefitLabels(rung),
           benefitConfigOverrides: overrides,
         });
-        if (error) return `Could not add the ${rung.name} tier. Please try again.`;
+        if (error) return `Could not add the ${rungName} tier. Please try again.`;
       }
       return undefined;
     }
@@ -680,7 +715,7 @@ function SetupWizard() {
             }}
             avatarUrl={avatarUrl}
             ladderDraft={ladderDraft}
-            setLadderDraft={setLadderDraft}
+            setLadderDraft={setLadderDraftTouched}
             promiseDraft={promiseDraft}
             setPromiseDraft={setPromiseDraft}
             tierProjections={plan?.tierProjections ?? []}
@@ -1173,8 +1208,10 @@ function LadderConfirm({
   return (
     <div className="space-y-3">
       {RECOMMENDED_LADDER.map((rung) => {
-        const r = draft[rung.key] ?? { include: true, priceDollars: (rung.priceCents / 100).toString() };
+        const r =
+          draft[rung.key] ?? { include: true, priceDollars: (rung.priceCents / 100).toString(), name: rung.name };
         const isPaid = rung.priceCents > 0;
+        const displayName = r.name?.trim() || rung.name;
         const isOpen = expanded === rung.key;
         const benefits = benefitLabels(rung);
         const note = rung.benefits.find((b) => b.fulfillment)?.fulfillment?.note;
@@ -1192,7 +1229,10 @@ function LadderConfirm({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="font-semibold text-crwn-gold">{rung.name}</h4>
+                  <h4 className="font-semibold text-crwn-gold">{displayName}</h4>
+                  {displayName !== rung.name && (
+                    <span className="text-[10px] text-crwn-text-secondary">your {rung.name} rung</span>
+                  )}
                   {!isPaid ? (
                     <span className="text-sm text-crwn-text">Free</span>
                   ) : (
@@ -1469,6 +1509,7 @@ function PlanIntro({
     heroValue: string | null;
     heroSuffix: string | null;
     estimatedMonthlyCents: number | null;
+    ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
   };
   onContinue: () => void;
 }) {
@@ -1476,6 +1517,20 @@ function PlanIntro({
     plan.estimatedMonthlyCents != null && plan.estimatedMonthlyCents > 0
       ? `$${Math.round(plan.estimatedMonthlyCents / 100).toLocaleString()}`
       : null;
+  // The plan's substance, from real data only: THEIR ladder (or the stock model),
+  // the honest recurring workload it creates, and what happens next.
+  const rungs = plan.ladderPrefill ?? RECOMMENDED_LADDER.map((r) => ({ key: r.key, name: r.name, priceCents: r.priceCents }));
+  const modelLine = rungs
+    .map((r) => (r.priceCents === 0 ? `${r.name} free` : `${r.name} $${Math.round(r.priceCents / 100)}/mo`))
+    .join(' · ');
+  const workload = workloadLabel(
+    estimateMonthlyWorkload(
+      planLadderPromises(RECOMMENDED_LADDER.map((def) => ({ def, included: true }))).map((p) => ({
+        fulfillmentType: p.fulfillmentType,
+        recurrence: p.defaultRecurrence,
+      })),
+    ),
+  );
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-lg text-center page-fade-in">
@@ -1511,6 +1566,17 @@ function PlanIntro({
           {monthly && plan.heroValue && (
             <p className="text-xs text-crwn-text-secondary mt-2">Projected at {monthly}/mo once your system is live.</p>
           )}
+          <div className="mt-4 pt-4 border-t border-crwn-elevated space-y-1.5">
+            <p className="text-xs text-crwn-text-secondary">
+              <span className="text-crwn-text">Your model:</span> {modelLine}
+            </p>
+            <p className="text-xs text-crwn-text-secondary">
+              <span className="text-crwn-text">Recurring workload:</span> {workload}, from content you already have
+            </p>
+            <p className="text-xs text-crwn-text-secondary">
+              <span className="text-crwn-text">Timeline:</span> launch-ready in about ten minutes, right here
+            </p>
+          </div>
         </div>
 
         <button

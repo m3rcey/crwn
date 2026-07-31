@@ -29,6 +29,8 @@ export interface LeadMagnetSeed {
   estimatedAnnualCents: number | null;
   /** The tool's suggested config (tier name, price, seats, ...) used to prefill the builder. */
   conversionPayload: Record<string, unknown>;
+  /** For deliverable DRAFTS: the artist's own edited field values (t1Name, t1Price, ...). */
+  draftValues?: Record<string, unknown> | null;
   /** Deep link to the matching builder (prefilled) or the tool's own route. */
   convertHref: string;
   createdAt: string;
@@ -91,6 +93,10 @@ export function rowToSeed(row: ResultRow): LeadMagnetSeed {
     estimatedMonthlyCents: typeof rd.estimatedMonthlyCents === 'number' ? rd.estimatedMonthlyCents : null,
     estimatedAnnualCents: typeof rd.estimatedAnnualCents === 'number' ? rd.estimatedAnnualCents : null,
     conversionPayload: (rd.conversionPayload as Record<string, unknown>) ?? {},
+    draftValues:
+      inputData.deliverableValues && typeof inputData.deliverableValues === 'object'
+        ? (inputData.deliverableValues as Record<string, unknown>)
+        : null,
     convertHref,
     createdAt: String(row.created_at),
   };

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useToast } from '@/components/shared/Toast';
+import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { ArrowLeft, Send, Save, Loader2, Plus, Bookmark } from 'lucide-react';
 
 interface SavedSegment {
@@ -51,12 +52,38 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
     return new URLSearchParams(window.location.search).get('audience') === 'contacts' ? 'contacts' : 'fans';
   });
   const [testCount, setTestCount] = useState('');
+  // Contact segments: the tags imports attach (patreon, patreon-tier:X, ...).
+  // '' = all attested contacts. Counts shown so the artist knows the reach.
+  const [contactTag, setContactTag] = useState('');
+  const [contactTags, setContactTags] = useState<{ tag: string; count: number }[]>([]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isLoadingCampaign, setIsLoadingCampaign] = useState(!!campaignId);
   const [savedId, setSavedId] = useState<string | null>(campaignId);
   const [segments, setSegments] = useState<SavedSegment[]>([]);
+
+  // Distinct contact tags with counts, for the imported-contacts segment picker.
+  useEffect(() => {
+    if (audienceType !== 'contacts' || contactTags.length > 0) return;
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from('fan_contacts')
+      .select('tags')
+      .eq('artist_id', artistId)
+      .eq('is_subscribed_email', true)
+      .limit(5000)
+      .then(({ data }) => {
+        const counts = new Map<string, number>();
+        for (const row of data ?? []) {
+          const tags = Array.isArray(row.tags) ? row.tags : [];
+          for (const t of tags) {
+            if (typeof t === 'string' && t.trim()) counts.set(t, (counts.get(t) ?? 0) + 1);
+          }
+        }
+        setContactTags([...counts.entries()].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count));
+      });
+  }, [audienceType, artistId, contactTags.length]);
 
   // Load saved segments
   useEffect(() => {
@@ -90,6 +117,7 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
           setLocationFilter(campaign.filters?.location || '');
           setAudienceType(campaign.filters?.audience === 'contacts' ? 'contacts' : 'fans');
           setTestCount(campaign.filters?.testCount ? String(campaign.filters.testCount) : '');
+          setContactTag(typeof campaign.filters?.contactTag === 'string' ? campaign.filters.contactTag : '');
           setSavedId(campaign.id);
         }
       } catch {
@@ -121,6 +149,7 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
       filters.audience = 'contacts';
       const n = Math.round(Number(testCount));
       if (Number.isFinite(n) && n > 0) filters.testCount = n;
+      if (contactTag) filters.contactTag = contactTag;
       return filters; // fan filters do not apply to imported contacts
     }
     if (tierFilter) filters.tier = tierFilter;
@@ -344,6 +373,24 @@ export function CampaignComposer({ artistId, campaignId, tiers, onBack, onSent }
                   who unsubscribed or bounced. Contacts imported before that confirmation existed
                   are skipped until you re-import them.
                 </p>
+                {contactTags.length > 0 && (
+                  <div>
+                    <label className="block text-xs text-crwn-text-secondary mb-1">Segment</label>
+                    <select
+                      value={contactTag}
+                      onChange={e => setContactTag(e.target.value)}
+                      className="w-full px-3 py-2 bg-crwn-elevated border border-crwn-elevated rounded-lg text-sm text-crwn-text focus:outline-none focus:border-crwn-gold/50"
+                    >
+                      <option value="">All imported contacts</option>
+                      {contactTags.map(t => (
+                        <option key={t.tag} value={t.tag}>{t.tag} ({t.count})</option>
+                      ))}
+                    </select>
+                    <p className="text-[11px] text-crwn-text-secondary mt-1">
+                      Patreon imports arrive tagged by tier, so you can invite each group with its own message.
+                    </p>
+                  </div>
+                )}
                 <div>
                   <label className="block text-xs text-crwn-text-secondary mb-1">
                     Test group size (optional)

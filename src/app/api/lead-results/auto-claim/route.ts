@@ -15,6 +15,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { autoClaimForUser } from '@/lib/leadResults/resultAccess';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 const supabaseAdmin = createClient(
@@ -97,6 +98,9 @@ export async function POST() {
         estimatedMonthlyCents: seed.estimatedMonthlyCents,
         createdAt: seed.createdAt,
         tierProjections,
+        // The artist's OWN tier names/prices from their pre-signup edits, so the
+        // wizard's ladder opens on the ladder THEY designed (null = stock).
+        ladderPrefill: buildLadderPrefill(seed),
       }
     : null;
 

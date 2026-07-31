@@ -237,6 +237,17 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Launch-spec remainders (each its own session, in this order).** Done this round: ladder
+  prefill from the artist's own draft, per-tag segment targeting for imported contacts, the
+  richer plan intro, cadence changes propagating to existing obligations. Still mine:
+  1. purchase-level obligation engine (an individually-fulfilled purchase creates its
+     obligation at purchase time: consultations, personalized deliverables, EP sessions);
+  2. promise reminder delivery (reminder_offsets are stored, nothing sends yet) + per-promise
+     prep time and delivery method on the review screen;
+  3. Share-to-Earn and the quarterly live experience as confirmable wizard components;
+  4. OAuth import connectors (Mailchimp, Google, Shopify, Gumroad); CSV covers them today;
+  5. same-day high-effort promise spacing and warn-before-deleting future obligations.
+
 - **Rise Mode per-task dollar estimates (from your live-test list, deferred on purpose).** Each
   quest card should show the estimated extra $/month completing it unlocks, derived only from
   numbers CRWN really has (calculator payload, tier prices, member counts). Deferred rather than

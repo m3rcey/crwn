@@ -48,6 +48,7 @@ interface ObligationRow {
   status: string;
   source_tier_id: string | null;
   title: string;
+  recurrence: string;
   metadata: Record<string, unknown> | null;
 }
 
@@ -97,7 +98,7 @@ export async function syncTierObligations(
 
   const { data: existing } = await supabase
     .from('fulfillment_obligations')
-    .select('id, benefit_type, status, source_tier_id, title, metadata')
+    .select('id, benefit_type, status, source_tier_id, title, recurrence, metadata')
     .eq('artist_id', artistId)
     .eq('source_type', 'tier')
     .not('benefit_type', 'is', null);
@@ -141,13 +142,23 @@ export async function syncTierObligations(
 
     const anchored = anchoredHereByType.get(benefitType);
     if (anchored) {
-      // Re-activate if it was previously archived (benefit re-added).
-      if (anchored.status === 'archived') {
+      // Re-activate if it was previously archived (benefit re-added), and
+      // propagate cadence/title edits so FUTURE cycles follow the changed
+      // benefit (completed history is never rewritten; the next chained event
+      // uses obligation.recurrence at completion time).
+      const wantedRecurrence = recurrenceFromConfig(config, def.recurrence);
+      const patch: Record<string, unknown> = {};
+      if (anchored.status === 'archived') patch.status = 'active';
+      if (anchored.recurrence !== wantedRecurrence) patch.recurrence = wantedRecurrence;
+      if (anchored.title !== title) patch.title = title;
+      if (Object.keys(patch).length > 0) {
         await supabase
           .from('fulfillment_obligations')
-          .update({ status: 'active', updated_at: nowIso })
+          .update({ ...patch, updated_at: nowIso })
           .eq('id', anchored.id);
-        anchored.status = 'active';
+        if (patch.status) anchored.status = 'active';
+        if (patch.recurrence) anchored.recurrence = wantedRecurrence;
+        if (patch.title) anchored.title = title;
       }
       continue;
     }
@@ -217,6 +228,7 @@ export async function syncTierObligations(
         status: 'active',
         source_tier_id: tierId,
         title,
+        recurrence,
         metadata: { source: 'tier_benefit_sync', ...(inheritsUp ? { inherits_up: true } : {}), serves_tier_ids: serves },
       });
       await supabase.from('fulfillment_events').insert({

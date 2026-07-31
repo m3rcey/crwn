@@ -1,5 +1,25 @@
 # CRWN Brain — Changelog
 
+## 2026-07-31 — Spec-gap sweep: the ladder they designed, segments they can target
+
+Four gaps from the wizard spec closed. (1) LADDER PREFILL, the core "restore the business they
+designed" promise: `src/lib/leadResults/ladderPrefill.ts` (pure + tested) shapes the artist's
+own pre-signup tier edits (deliverable-draft t0-t3 values first, conversionPayload.ladder as
+fallback, template filling every gap) and auto-claim returns it as `ladderPrefill`; the wizard's
+ladder draft now carries a per-rung NAME, seeds from the prefill until the artist touches the
+draft, renders custom names (with a "your Gold rung" hint), threads them through promise
+planning ("serves your Day Ones members") and tier creation, and dedupes on custom name +
+template aliases. (2) SEGMENT TARGETING: the campaign composer's contacts audience gained a
+segment dropdown built from real contact tags with counts (patreon, patreon-tier:X), stored as
+`filters.contactTag`; the contacts sender narrows with `.contains('tags', [tag])` under the SAME
+consent rules, making per-tier Patreon invites real. (3) PLAN INTRO now shows the plan's
+substance: their model line (their names/prices or stock), the honest recurring workload, and
+the launch timeline. (4) CADENCE/TITLE PROPAGATION: syncTierObligations updates an existing
+obligation's recurrence and title when a benefit's config changes (future cycles follow; history
+never rewritten). Still open, recorded in TODO: purchase-level obligation engine, reminder
+delivery, OAuth import connectors, Share-to-Earn as a confirmable wizard component, same-day
+high-effort spacing, warn-before-delete. sw.js v323.
+
 ## 2026-07-31 — Live-test sweep: nine onboarding findings diagnosed from production, seven fixed
 
 Josh walked the full journey on a fresh account (lagoo); every item was diagnosed against live

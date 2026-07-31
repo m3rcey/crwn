@@ -454,13 +454,20 @@ async function sendToContacts(args: {
 
   await supabaseAdmin.from('campaigns').update({ status: 'sending' }).eq('id', campaignId);
 
-  const { data: contacts, error: contactsErr } = await supabaseAdmin
+  // Optional segment: a contact tag ('patreon', 'patreon-tier:X', ...) narrows
+  // the audience to that group. Consent rules are identical either way.
+  const filters = (campaign.filters || {}) as Record<string, unknown>;
+  const contactTag = typeof filters.contactTag === 'string' && filters.contactTag.trim() ? filters.contactTag.trim() : null;
+
+  let contactsQuery = supabaseAdmin
     .from('fan_contacts')
     .select('id, email, name')
     .eq('artist_id', artistId)
     .eq('is_subscribed_email', true)
     .not('consent_attested_at', 'is', null)
     .order('created_at', { ascending: true });
+  if (contactTag) contactsQuery = contactsQuery.contains('tags', [contactTag]);
+  const { data: contacts, error: contactsErr } = await contactsQuery;
 
   if (contactsErr) {
     // Almost always: the fan-invites migration has not been applied yet.
