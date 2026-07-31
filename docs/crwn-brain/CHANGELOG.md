@@ -1,5 +1,21 @@
 # CRWN Brain — Changelog
 
+## 2026-07-31 — Purchase-level obligations and promise reminders: the calendar's last two organs
+
+(1) PURCHASE-LEVEL FULFILLMENT (the spec's offer-level vs purchase-level rule, now complete):
+`src/lib/purchaseObligations.ts`, called from the Stripe webhook's product-purchase handler
+after the purchase row lands. A shipped product creates "Ship X to fan" (shipment, due +5
+days); a scheduled experience creates "Schedule X with fan" (event, due +7 days); a digital
+download creates NOTHING (no fake workload). Idempotent per purchase via metadata.purchase_id
+(webhook retries safe), best-effort (never blocks the money path), artist-task only
+(auto_create_fan_items false; the buyer already has their confirmation). (2) PROMISE REMINDER
+DELIVERY: obligations always carried reminder_offsets ([7,3,1]) and nothing ever sent them.
+`src/lib/promiseReminders.ts` now delivers: one loss-framed DIGEST email per artist per run
+listing every promise crossing an offset today, deduped per (event, offset) via
+metadata.reminded_offsets, paused/archived obligations never remind, artist email resolved via
+auth admin. Piggybacked on the 6am scheduled-releases cron (Vercel Hobby allows no new
+schedules), best-effort. sw.js v325.
+
 ## 2026-07-31 — Spec-gap sweep: the ladder they designed, segments they can target
 
 Four gaps from the wizard spec closed. (1) LADDER PREFILL, the core "restore the business they

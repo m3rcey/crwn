@@ -239,14 +239,14 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
 
 - **Launch-spec remainders (each its own session, in this order).** Done this round: ladder
   prefill from the artist's own draft, per-tag segment targeting for imported contacts, the
-  richer plan intro, cadence changes propagating to existing obligations. Still mine:
-  1. purchase-level obligation engine (an individually-fulfilled purchase creates its
-     obligation at purchase time: consultations, personalized deliverables, EP sessions);
-  2. promise reminder delivery (reminder_offsets are stored, nothing sends yet) + per-promise
-     prep time and delivery method on the review screen;
-  3. Share-to-Earn and the quarterly live experience as confirmable wizard components;
-  4. OAuth import connectors (Mailchimp, Google, Shopify, Gumroad); CSV covers them today;
-  5. same-day high-effort promise spacing and warn-before-deleting future obligations.
+  richer plan intro, cadence changes propagating to existing obligations, Share-to-Earn config
+  restored at ladder create, the purchase-level obligation engine (shipped products and
+  scheduled experiences create their fulfillment task at purchase; digital creates nothing),
+  and promise reminder delivery (daily digest, piggybacked on the 6am cron). Still mine:
+  1. the quarterly live experience as a confirmable wizard component;
+  2. per-promise prep time and delivery method on the review screen;
+  3. OAuth import connectors (Mailchimp, Google, Shopify, Gumroad); CSV covers them today;
+  4. same-day high-effort promise spacing and warn-before-deleting future obligations.
 
 - **Rise Mode per-task dollar estimates (from your live-test list, deferred on purpose).** Each
   quest card should show the estimated extra $/month completing it unlocks, derived only from

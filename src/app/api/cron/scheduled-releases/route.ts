@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { notifyNewTrack } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { presaveReleaseEmail } from '@/lib/emails/presaveRelease';
+import { sendPromiseReminders } from '@/lib/promiseReminders';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -228,5 +229,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ published, notified, presaveNotified });
+  // Piggybacked (Vercel Hobby allows no new cron schedules): deliver the
+  // Promise Calendar reminders artists' obligations have always carried.
+  // Best-effort; a reminder failure never breaks release publishing.
+  const promiseReminders = await sendPromiseReminders(supabaseAdmin);
+
+  return NextResponse.json({ published, notified, presaveNotified, promiseReminders });
 }

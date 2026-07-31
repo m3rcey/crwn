@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
+import { createPurchaseObligation } from '@/lib/purchaseObligations';
 import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterArtistSignupEmail } from '@/lib/emails/recruiterArtistSignup';
@@ -750,7 +751,7 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
   // Get product price and quantity_sold
   const { data: product } = await supabaseAdmin
     .from('products')
-    .select('price, quantity_sold, title, type')
+    .select('price, quantity_sold, title, type, delivery_type')
     .eq('id', product_id)
     .single();
 
@@ -806,6 +807,22 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
   if (stockOk === false) {
     console.error('Product sold out during webhook processing:', product_id);
     return;
+  }
+
+  // PURCHASE-level fulfillment (spec rule: only a real purchase creates the
+  // task): a shipped product gets its shipment on the Promise Calendar, a
+  // scheduled experience gets its booking task. Digital creates nothing.
+  // Best-effort + idempotent per purchase; never blocks the money path.
+  if (purchase?.id) {
+    await createPurchaseObligation(supabaseAdmin, {
+      artistId: artist_id,
+      productId: product_id,
+      purchaseId: purchase.id,
+      fanId: fan_id,
+      fanName,
+      productTitle,
+      deliveryType: (product as { delivery_type?: string | null }).delivery_type,
+    });
   }
 
   // Resolve campaign attribution from UTM params
