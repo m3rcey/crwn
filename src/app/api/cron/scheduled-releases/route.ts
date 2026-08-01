@@ -4,6 +4,7 @@ import { notifyNewTrack } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { presaveReleaseEmail } from '@/lib/emails/presaveRelease';
 import { sendPromiseReminders } from '@/lib/promiseReminders';
+import { dueOpenings } from '@/lib/waterfall';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -20,6 +21,38 @@ export async function GET(req: NextRequest) {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   let published = 0;
   let notified = 0;
+  let tiersOpened = 0;
+
+  // Waterfall openings (release strategy 11/28.4): ADD each due tier to
+  // allowed_tier_ids and consume the entry. Additive only, so a bug here can
+  // open a tier early, never lock a paying member out. Fails soft until
+  // schema-phase2-track-waterfall.sql runs (42703 = column missing).
+  try {
+    const { data: waterfallTracks, error: wfErr } = await supabaseAdmin
+      .from('tracks')
+      .select('id, allowed_tier_ids, waterfall')
+      .not('waterfall', 'is', null)
+      .eq('is_active', true);
+    if (!wfErr && waterfallTracks) {
+      for (const track of waterfallTracks) {
+        const { openTierIds, remaining } = dueOpenings(track.waterfall);
+        if (openTierIds.length === 0) continue;
+        const current: string[] = Array.isArray(track.allowed_tier_ids) ? track.allowed_tier_ids : [];
+        const merged = [...new Set([...current, ...openTierIds])];
+        await supabaseAdmin
+          .from('tracks')
+          .update({
+            allowed_tier_ids: merged,
+            waterfall: remaining.length > 0 ? remaining : null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', track.id);
+        tiersOpened += openTierIds.length;
+      }
+    }
+  } catch (err) {
+    console.error('[scheduled-releases] waterfall pass failed:', err);
+  }
 
   // Find tracks with public_release_date = today that are still gated
   // (public_release_date is used for early access — the track exists but isn't publicly available yet)
@@ -234,5 +267,5 @@ export async function GET(req: NextRequest) {
   // Best-effort; a reminder failure never breaks release publishing.
   const promiseReminders = await sendPromiseReminders(supabaseAdmin);
 
-  return NextResponse.json({ published, notified, presaveNotified, promiseReminders });
+  return NextResponse.json({ published, notified, presaveNotified, promiseReminders, tiersOpened });
 }

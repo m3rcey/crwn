@@ -23,6 +23,7 @@ import {
   fieldsForClass,
   type ContentClass,
 } from '@/lib/membershipStrategy';
+import { buildWaterfall, type WaterfallEntry } from '@/lib/waterfall';
 import { ReleaseCreditsModal } from './ReleaseCreditsModal';
 import { Edit2, X, Upload, Plus, Loader2, Music, Award } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
@@ -45,6 +46,12 @@ interface TrackFormData {
    * an empty tier list); building fields from the class makes that impossible.
    */
   contentClass: ContentClass;
+  /**
+   * paid_first only: stagger the window tier by tier (top tier now, lower tiers
+   * as their window opens, public at the end) instead of all tiers at once.
+   * The schedule is built by src/lib/waterfall.ts and opened by the daily cron.
+   */
+  staggered: boolean;
   allowedTierIds: string[];
   price: string;
   audioFile: File | null;
@@ -79,6 +86,7 @@ export function TrackUploadForm() {
   const [formData, setFormData] = useState<TrackFormData>({
     title: '',
     contentClass: 'free_forever',
+    staggered: false,
     allowedTierIds: [],
     price: '',
     audioFile: null,
@@ -247,6 +255,7 @@ export function TrackUploadForm() {
     setFormData({
       title: track.title || '',
       contentClass: classifyTrack(track),
+      staggered: false,
       allowedTierIds: track.allowed_tier_ids || [],
       price: track.price ? (track.price / 100).toString() : '',
       audioFile: null,
@@ -267,6 +276,7 @@ export function TrackUploadForm() {
     setFormData({
       title: '',
       contentClass: 'free_forever',
+    staggered: false,
       allowedTierIds: [],
       price: '',
       audioFile: null,
@@ -322,6 +332,25 @@ export function TrackUploadForm() {
       tierIds: formData.allowedTierIds,
       windowDays: formData.earlyAccessDays,
     });
+
+    // Staggered rollout (new uploads only): the top tier hears it now, lower
+    // tiers as their window opens, public at the end. Immediate tiers replace
+    // the full list; the rest ride tracks.waterfall for the daily cron.
+    let waterfallEntries: WaterfallEntry[] | null = null;
+    if (!editingTrack && formData.contentClass === 'paid_first' && formData.staggered) {
+      const selectedPaidDesc = tiers
+        .filter((t) => t.price > 0 && formData.allowedTierIds.includes(t.id))
+        .sort((a, b) => b.price - a.price);
+      if (selectedPaidDesc.length > 1) {
+        const w = buildWaterfall({
+          paidTiersByPriceDesc: selectedPaidDesc,
+          windowDays: formData.earlyAccessDays,
+        });
+        access.allowed_tier_ids = w.immediateTierIds;
+        access.public_release_date = w.publicReleaseDate;
+        waterfallEntries = w.scheduled.length > 0 ? w.scheduled : null;
+      }
+    }
     // One-time purchase pricing only makes sense for the members-only archive.
     const accessPrice =
       formData.contentClass === 'member_only' && formData.price
@@ -475,27 +504,50 @@ export function TrackUploadForm() {
         // `.select()` on the insert would RETURN *, which now requires SELECT on
         // the audio columns nobody holds. Return the id, then read the full row
         // back through tracks_public.
-        const { data: inserted, error } = await supabase
+        const basePayload = {
+          artist_id: artistProfile.id,
+          title: formData.title,
+          audio_url_128: audioUrl,
+          audio_url_320: audioUrl,
+          duration,
+          is_free: access.is_free,
+          allowed_tier_ids: access.allowed_tier_ids,
+          price: accessPrice,
+          album_art_url: albumArtUrl,
+          public_release_date: access.public_release_date,
+          genre: formData.genre || null,
+          record_label: formData.recordLabel.trim() || null,
+          isrc: formData.isrc.trim() || null,
+          explicit: formData.explicit,
+          ai_generated: formData.aiGenerated,
+        };
+        let { data: inserted, error } = await supabase
           .from('tracks')
-          .insert({
-            artist_id: artistProfile.id,
-            title: formData.title,
-            audio_url_128: audioUrl,
-            audio_url_320: audioUrl,
-            duration,
-            is_free: access.is_free,
-            allowed_tier_ids: access.allowed_tier_ids,
-            price: accessPrice,
-            album_art_url: albumArtUrl,
-            public_release_date: access.public_release_date,
-            genre: formData.genre || null,
-            record_label: formData.recordLabel.trim() || null,
-            isrc: formData.isrc.trim() || null,
-            explicit: formData.explicit,
-            ai_generated: formData.aiGenerated,
-          })
+          .insert(waterfallEntries ? { ...basePayload, waterfall: waterfallEntries } : basePayload)
           .select('id')
           .single();
+
+        // Pre-migration fail-soft: tracks.waterfall missing (42703) must not
+        // block the upload. Retry all-at-once (every selected tier hears it now)
+        // and say so, which is strictly more access than the stagger, never less.
+        if (error && waterfallEntries && (error.code === '42703' || /waterfall/.test(error.message ?? ''))) {
+          const allTiers = fieldsForClass('paid_first', {
+            tierIds: formData.allowedTierIds,
+            windowDays: formData.earlyAccessDays,
+          });
+          ({ data: inserted, error } = await supabase
+            .from('tracks')
+            .insert({
+              ...basePayload,
+              allowed_tier_ids: allTiers.allowed_tier_ids,
+              public_release_date: allTiers.public_release_date,
+            })
+            .select('id')
+            .single());
+          if (!error) {
+            showToast('Staggered rollout is not available yet, so every selected tier hears it now.', 'success');
+          }
+        }
 
         if (error) {
           console.error('Track insert error:', error);
@@ -504,6 +556,8 @@ export function TrackUploadForm() {
           }
           throw error;
         }
+
+        if (!inserted) throw new Error('Insert returned no row');
 
         const { data: track } = await supabase
           .from('tracks_public')
@@ -548,6 +602,7 @@ export function TrackUploadForm() {
       setFormData({
         title: '',
         contentClass: 'free_forever',
+    staggered: false,
         allowedTierIds: [],
         price: '',
         audioFile: null,
@@ -837,6 +892,38 @@ export function TrackUploadForm() {
               <p className="text-xs text-crwn-text-secondary">
                 Members below hear it now. Everyone else sees a countdown until it opens.
               </p>
+
+              {/* Rollout: all at once, or the waterfall (spec section 11). A
+                  genuine binary, so two buttons. New uploads only: staggering
+                  an existing track would rewrite a window fans already saw. */}
+              {!editingTrack && tiers.filter((t) => t.price > 0 && formData.allowedTierIds.includes(t.id)).length > 1 && (
+                <div className="pt-1">
+                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1.5">Rollout</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, staggered: false }))}
+                      className={`text-left rounded-xl border px-3 py-2 transition-colors ${
+                        !formData.staggered ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                      }`}
+                    >
+                      <span className="block text-sm font-medium text-crwn-text">All tiers at once</span>
+                      <span className="block text-xs text-crwn-text-secondary mt-0.5">Every selected tier hears it today</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, staggered: true }))}
+                      className={`text-left rounded-xl border px-3 py-2 transition-colors ${
+                        formData.staggered ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
+                      }`}
+                    >
+                      <span className="block text-sm font-medium text-crwn-text">Higher tiers first</span>
+                      <span className="block text-xs text-crwn-text-secondary mt-0.5">Your top tier today, the rest as the window opens</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <label className="block text-sm font-medium text-crwn-text-secondary pt-1">Who hears it early</label>
               {tiers.filter((t) => t.price > 0).map((tier) => (
                 <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-1">

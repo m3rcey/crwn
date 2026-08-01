@@ -37,6 +37,14 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       Until it runs, everything works on the derived recommendation; only saving answers or
       switching strategy reports it cannot save yet. Self-verifies, including the grants.
 
+- [ ] **Run the track-waterfall migration:**
+      [`supabase/schema-phase2-track-waterfall.sql`](supabase/schema-phase2-track-waterfall.sql).
+      Adds `tracks.waterfall` (the staggered tier-by-tier rollout schedule) with its SELECT
+      grant. The entitlement gate is untouched: the daily cron just ADDS tiers to
+      `allowed_tier_ids` as their window opens, so nothing here can lock a paying member out.
+      Until it runs, choosing "Higher tiers first" on an upload falls back to all-at-once and
+      says so. Self-verifies.
+
 - [ ] **Run the support-chat resolution migration:**
       [`supabase/schema-phase2-support-chat-resolution.sql`](supabase/schema-phase2-support-chat-resolution.sql).
       Adds `resolved_by` / `resolved_at` / `satisfaction_rating` / `satisfaction_comment` to

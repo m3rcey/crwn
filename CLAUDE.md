@@ -50,6 +50,14 @@ class** (free forever / paid first / member only, how one piece of content is ga
   the whole window. `paid_first` keeps `is_free: true` (that is what makes "public later" real)
   and degrades to free when no tiers are selected. Editing a mid-window paid-first track keeps
   its existing date, or every unrelated edit would silently extend the window.
+- **The release waterfall NEVER touches the entitlement gate.** "Higher tiers first" stores a
+  schedule in `tracks.waterfall` (`src/lib/waterfall.ts`, migration
+  `schema-phase2-track-waterfall.sql`), and the daily scheduled-releases cron ADDS each tier to
+  `allowed_tier_ids` when its entry comes due. Additive only: a scheduler bug can open a tier
+  early or late, never lock a paying member out. Stagger order is PRICE order (artists rename
+  tiers); malformed entries open immediately rather than stranding a paid tier. Do not implement
+  per-tier windows inside `can_play_track` or any gate; the schedule-mutates-fields approach is
+  the deliberate design.
 
 ## UX Rule — multi-option selectors are DROPDOWNS
 
