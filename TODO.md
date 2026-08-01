@@ -44,16 +44,6 @@ responsible for. Do not work those.
       Stripe subscription rides the old price object; nothing migrates them). Say the word if you
       want them grandfathered formally announced, or moved.
 
-- [ ] **Run the plan-recommendation migration. STILL NOT APPLIED** (I probed production with the
-      anon key on 2026-08-01: `artist_profiles.recommended_plan` does not exist yet, so this one
-      was not part of the batch you just ran).
-      [`supabase/schema-phase2-platform-plan-recommendation.sql`](supabase/schema-phase2-platform-plan-recommendation.sql)
-      in the Supabase SQL editor. Adds `recommended_plan` / `recommendation_reason` /
-      `projected_monthly_gmv` to `artist_profiles` WITH the column grant that keeps
-      `select('*')` from 42501-ing. Until it runs, the recommendation writes fail soft
-      (nothing breaks, nothing is stored). The launch-review plan panel is unaffected either way:
-      it recomputes the recommendation client-side rather than reading the column.
-
 - [ ] **CREATE the Resend webhook. It does not exist, so bounces and spam complaints have
       NEVER been suppressed.** You were right that you could not find it. I checked: the only
       row in `email_suppressions` is the `victim@example.com` test from the July security audit,
@@ -150,7 +140,7 @@ responsible for. Do not work those.
       `,"source_post_id":"kendrick-producer-reel"` right before `,"contact":`. Not worth doing broadly
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
-- [ ] **Rename the four legacy tiers (SQL below). I verified the blast radius: they are ALL
+- [ ] **Rename the four legacy tiers. I verified the blast radius: they are ALL
       m3rcey's, your own test artist.** Probed production 2026-08-01: `The Wave` $0,
       `Inner Circle` $10, `The Vault` $25, `Throne` $100 all belong to slug `m3rcey`, no other
       artist carries them. You told me Bronze/Silver/Gold/Platinum is the default unless the
@@ -160,15 +150,13 @@ responsible for. Do not work those.
       hidden from the anon key, so "0 visible" is RLS working, not proof of zero. Given it is your
       own test account, that risk is yours to weigh in one glance at the dashboard.)
 
-      Run this in the Supabase SQL editor (it touches ONLY those exact names at those exact
-      prices, so a tier an artist named themselves is safe):
-
-      ```sql
-      UPDATE subscription_tiers SET name = 'Bronze'   WHERE name = 'The Wave'     AND price = 0;
-      UPDATE subscription_tiers SET name = 'Silver'   WHERE name = 'Inner Circle' AND price = 1000;
-      UPDATE subscription_tiers SET name = 'Gold'     WHERE name = 'The Vault'    AND price = 2500;
-      UPDATE subscription_tiers SET name = 'Platinum' WHERE name = 'Throne'       AND price = 10000;
-      ```
+      **Open the file and run it, do not copy SQL out of this list:**
+      [`supabase/schema-phase2-rename-legacy-tiers.sql`](supabase/schema-phase2-rename-legacy-tiers.sql).
+      (My fault on the last attempt: I had the SQL in a fenced markdown block here, so selecting
+      it carried the backtick fence into the editor and Postgres rejected the fence, not the SQL.
+      Every hand-off is a file now.) It is scoped to slug `m3rcey` so no other artist's tier can be caught, and it
+      self-verifies: if a row's price does not match the ladder it fails loudly rather than
+      renaming something that was customized.
 
       Stripe product names are separate and cosmetic; they do not affect billing. Skipping this
       costs nothing except that your own test artist keeps showing the pre-rename ladder in every
@@ -183,15 +171,12 @@ responsible for. Do not work those.
       right next action is (membership strategy presets, content classes, release waterfalls,
       free-to-paid live progression), so flipping the engine first means artists accumulate real
       progress against a catalog we are about to rewrite, and rewritten templates leave completed
-      instances pointing at dead keys. Flip it in the SAME change that ships the new catalog:
+      instances pointing at dead keys. When that build lands I will ship the flip as a migration
+      file alongside it, so there is nothing for you to hand-copy. Nothing to do today.
 
-      ```sql
-      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'quest_engine';
-      ```
-
-      Reverse with `false`. Quests are guidance, never access control, so it cannot gate a feature
-      an artist already had. Meanwhile the roadmap covers the activation loop (first visit, first
-      dollar, first delivered promise) and I can change it freely.
+      Quests are guidance, never access control, so turning it on cannot gate a feature an artist
+      already had. Meanwhile the roadmap covers the activation loop (first visit, first dollar,
+      first delivered promise) and I can change it freely.
 
 ---
 

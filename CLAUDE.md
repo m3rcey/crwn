@@ -80,6 +80,12 @@ Rules:
   same definition as the triage principle below, or the priorities become meaningless.
 - Each item carries the **exact command, SQL, or file path**. The item IS the instruction. If
   Josh has to go look something up, the item is not finished.
+- **NEVER put SQL in a fenced ```` ```sql ```` block in TODO.md.** Josh selects the block and
+  pastes it, fence included, and Postgres answers `syntax error at or near "```"` (this really
+  happened, 2026-08-01). Any SQL he must run goes in a **`supabase/*.sql` file** that he opens and
+  runs, and the TODO item links to it. That is already the pattern for migrations; it is now the
+  pattern for one-off statements and flag flips too. Same for shell commands: give one plain
+  indented line, never a fence.
 - **DELETE items the moment they are done. Do not tick them, do not strike them through, do not
   keep them "for the record."** Git remembers what was done and when; TODO.md is only for what
   is still true. Every completed item left in the file is a line Josh has to read past to find
