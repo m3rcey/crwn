@@ -27,6 +27,13 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the support-chat resolution migration:**
+      [`supabase/schema-phase2-support-chat-resolution.sql`](supabase/schema-phase2-support-chat-resolution.sql).
+      Adds `resolved_by` / `resolved_at` / `satisfaction_rating` / `satisfaction_comment` to
+      `support_conversations`, for the new end-of-session survey. The chat works fine before it
+      runs (it detects the missing columns once and falls back), it just cannot record a rating,
+      so you would see the survey do nothing. Self-verifies.
+
 - [ ] **Two one-click confirmations only you can do (both need a logged-in session), then tell me
       and I will delete this.**
 

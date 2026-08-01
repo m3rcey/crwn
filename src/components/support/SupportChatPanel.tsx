@@ -17,18 +17,33 @@ interface ChatState {
   conversationId: string | null;
   status: string;
   messages: ChatMessage[];
+  resolvedBy: string | null;
+  rated: boolean;
 }
 
-// The /support live chat. Answers come from the CRWN AI assistant first; "Talk to a
-// human" (or the AI flagging itself out of its depth) escalates to the founder, whose
-// replies land in this same thread. Reads ride /api/support/chat (service-role behind
-// session auth) with a light poll, plus realtime on support_messages once the
-// migration's publication is live. If the API reports the table missing, the panel
+// The /support live chat. The assistant ALWAYS gets the first attempt: there is no
+// "Talk to a human" button, because a button sitting there invites people to skip
+// the answer they could have had in two seconds. After a reply the user says
+// whether it solved the problem, and "No" is what brings a person in. Every session
+// ends with a short rating, for AI-resolved and human-resolved threads alike, so
+// support quality is measured rather than assumed. (The assistant can still escalate
+// itself for account, money, and legal questions, which must never wait on the user
+// failing first.)
+//
+// Reads ride /api/support/chat (service-role behind session auth) with a light poll,
+// plus realtime on support_messages. If the API reports the table missing, the panel
 // tells the user to use the form below instead of dying.
 export function SupportChatPanel() {
   const { user, isLoading: authLoading } = useAuth();
   const [open, setOpen] = useState(false);
-  const [chat, setChat] = useState<ChatState>({ conversationId: null, status: 'ai', messages: [] });
+  const [chat, setChat] = useState<ChatState>({
+    conversationId: null,
+    status: 'ai',
+    messages: [],
+    resolvedBy: null,
+    rated: false,
+  });
+  const [comment, setComment] = useState('');
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
@@ -38,15 +53,28 @@ export function SupportChatPanel() {
   const conversationIdRef = useRef<string | null>(null);
   conversationIdRef.current = chat.conversationId;
 
-  const applyResponse = useCallback((data: { unavailable?: boolean; conversation?: { id: string; status: string } | null; messages?: ChatMessage[] }) => {
-    if (data.unavailable) {
-      setUnavailable(true);
-      return;
-    }
-    if (data.conversation) {
-      setChat({ conversationId: data.conversation.id, status: data.conversation.status, messages: data.messages || [] });
-    }
-  }, []);
+  const applyResponse = useCallback(
+    (data: {
+      unavailable?: boolean;
+      conversation?: { id: string; status: string; resolvedBy?: string | null; rated?: boolean } | null;
+      messages?: ChatMessage[];
+    }) => {
+      if (data.unavailable) {
+        setUnavailable(true);
+        return;
+      }
+      if (data.conversation) {
+        setChat({
+          conversationId: data.conversation.id,
+          status: data.conversation.status,
+          messages: data.messages || [],
+          resolvedBy: data.conversation.resolvedBy ?? null,
+          rated: data.conversation.rated ?? false,
+        });
+      }
+    },
+    [],
+  );
 
   const refresh = useCallback(async () => {
     try {
@@ -138,6 +166,12 @@ export function SupportChatPanel() {
   };
 
   const humanRequested = chat.status === 'human_requested' || chat.status === 'human_active';
+  const closed = chat.status === 'closed';
+  const lastMessage = chat.messages[chat.messages.length - 1];
+  // Ask "did that solve it?" only after something has actually answered. Asking
+  // before a reply exists is just a second way to skip the assistant.
+  const awaitingOutcome = !closed && !sending && (lastMessage?.sender === 'ai' || lastMessage?.sender === 'human');
+  const showSurvey = closed && !chat.rated;
 
   if (!open) {
     return (
@@ -192,17 +226,10 @@ export function SupportChatPanel() {
           <p className="text-sm font-semibold text-crwn-text">CRWN Support</p>
         </div>
         <div className="flex items-center gap-3">
-          {!humanRequested ? (
-            <button
-              onClick={() => post({ action: 'escalate' })}
-              disabled={sending}
-              className="text-xs text-crwn-text-secondary hover:text-crwn-gold transition-colors disabled:opacity-50"
-            >
-              Talk to a human
-            </button>
-          ) : (
-            <span className="text-xs text-crwn-gold">A person has been notified</span>
-          )}
+          {/* No "Talk to a human" button by design: the assistant gets the first
+              attempt, and the user's "No, that did not solve it" is what brings a
+              person in. */}
+          {humanRequested && <span className="text-xs text-crwn-gold">A person has been notified</span>}
           {/* Without this, one escalation was a dead end: the panel always
               resumes the newest conversation and a human-owned one never goes
               back to the assistant, so a user could never reach the AI again. */}
@@ -272,6 +299,67 @@ export function SupportChatPanel() {
         )}
         <div ref={bottomRef} />
       </div>
+
+      {/* Did that solve it? This is the escalation path: "No" is what brings a
+          person in, so the assistant is always tried first. */}
+      {awaitingOutcome && (
+        <div className="px-4 py-3 border-t border-crwn-elevated flex flex-wrap items-center gap-2">
+          <span className="text-xs text-crwn-text-secondary">Did that solve it?</span>
+          <button
+            onClick={() => post({ action: 'resolved' })}
+            disabled={sending}
+            className="text-xs font-semibold px-3 py-1.5 rounded-full bg-crwn-gold text-crwn-bg hover:bg-crwn-gold/90 disabled:opacity-50 transition-colors"
+          >
+            Yes, thanks
+          </button>
+          {!humanRequested && (
+            <button
+              onClick={() => post({ action: 'unresolved' })}
+              disabled={sending}
+              className="text-xs font-medium px-3 py-1.5 rounded-full border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 disabled:opacity-50 transition-colors"
+            >
+              No, get a person
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* One question at the end of every session, AI-resolved or human-resolved. */}
+      {showSurvey && (
+        <div className="px-4 py-3 border-t border-crwn-elevated">
+          <p className="text-xs text-crwn-text-secondary mb-2">
+            {chat.resolvedBy === 'human' ? 'How did the CRWN team do?' : 'How did that go?'}
+          </p>
+          <div className="flex items-center gap-1.5 mb-2">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                onClick={() => post({ action: 'survey', rating: n, comment })}
+                disabled={sending}
+                aria-label={`${n} out of 5`}
+                className="w-9 h-9 rounded-full border border-crwn-elevated text-sm text-crwn-text hover:border-crwn-gold hover:text-crwn-gold disabled:opacity-50 transition-colors"
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Anything we should fix? (optional)"
+            className="w-full bg-crwn-elevated rounded-full px-4 py-2 text-xs text-crwn-text placeholder:text-crwn-text-secondary/60 focus:outline-none focus:ring-1 focus:ring-crwn-gold"
+          />
+        </div>
+      )}
+
+      {closed && chat.rated && (
+        <div className="px-4 py-3 border-t border-crwn-elevated">
+          <p className="text-xs text-crwn-text-secondary">
+            Thanks. Ask anything else with New question above.
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 p-3 border-t border-crwn-elevated">
         <input

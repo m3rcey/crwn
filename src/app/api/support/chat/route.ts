@@ -49,23 +49,56 @@ function missingTable(err: { code?: string } | null): boolean {
   return err?.code === '42P01';
 }
 
+// The resolution/survey columns arrive with schema-phase2-support-chat-resolution.sql.
+// Naming a column that does not exist 42703s the WHOLE query, so selecting them
+// before the migration runs would take the entire chat down. Probe once, then
+// remember: the chat keeps working either way, it just cannot record a rating yet.
+const BASE_COLS = 'id, status, user_id';
+const RESOLUTION_COLS = 'id, status, user_id, resolved_by, satisfaction_rating';
+let hasResolutionCols: boolean | null = null;
+
+function missingColumn(err: { code?: string } | null): boolean {
+  return err?.code === '42703';
+}
+
+function conversationCols(): string {
+  return hasResolutionCols === false ? BASE_COLS : RESOLUTION_COLS;
+}
+
+interface ConversationRow {
+  id: string;
+  status: string;
+  user_id: string;
+  resolved_by?: string | null;
+  satisfaction_rating?: number | null;
+}
+
 async function loadConversation(userId: string, conversationId: string | null) {
-  let query = supabaseAdmin
-    .from('support_conversations')
-    .select('id, status, user_id')
-    .eq('user_id', userId)
-    .order('last_message_at', { ascending: false })
-    .limit(1);
-  if (conversationId) {
-    query = supabaseAdmin
-      .from('support_conversations')
-      .select('id, status, user_id')
-      .eq('id', conversationId)
-      .eq('user_id', userId)
-      .limit(1);
+  const run = (cols: string) =>
+    conversationId
+      ? supabaseAdmin
+          .from('support_conversations')
+          .select(cols)
+          .eq('id', conversationId)
+          .eq('user_id', userId)
+          .limit(1)
+      : supabaseAdmin
+          .from('support_conversations')
+          .select(cols)
+          .eq('user_id', userId)
+          .order('last_message_at', { ascending: false })
+          .limit(1);
+
+  let { data, error } = await run(conversationCols());
+  if (missingColumn(error)) {
+    // Pre-migration: fall back and remember, so this costs one extra query once.
+    hasResolutionCols = false;
+    ({ data, error } = await run(BASE_COLS));
+  } else if (!error && hasResolutionCols === null) {
+    hasResolutionCols = true;
   }
-  const { data, error } = await query;
-  return { conversation: data?.[0] ?? null, error };
+
+  return { conversation: (data?.[0] ?? null) as ConversationRow | null, error };
 }
 
 async function loadMessages(conversationId: string): Promise<Message[]> {
@@ -245,7 +278,12 @@ export async function GET(req: NextRequest) {
 
   const messages = await loadMessages(conversation.id);
   return NextResponse.json({
-    conversation: { id: conversation.id, status: conversation.status },
+    conversation: {
+      id: conversation.id,
+      status: conversation.status,
+      resolvedBy: conversation.resolved_by ?? null,
+      rated: conversation.satisfaction_rating != null,
+    },
     messages,
   });
 }
@@ -258,14 +296,22 @@ export async function POST(req: NextRequest) {
   const allowed = await checkRateLimit(user.id, 'support-chat', 60, 15);
   if (!allowed) return NextResponse.json({ error: 'Slow down a moment, then try again.' }, { status: 429 });
 
-  let body: { message?: string; conversationId?: string; action?: 'send' | 'escalate' | 'new_thread' };
+  let body: {
+    message?: string;
+    conversationId?: string;
+    action?: 'send' | 'escalate' | 'new_thread' | 'resolved' | 'unresolved' | 'survey';
+    rating?: number;
+    comment?: string;
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
-  const action =
-    body.action === 'escalate' ? 'escalate' : body.action === 'new_thread' ? 'new_thread' : 'send';
+  const ACTIONS = ['escalate', 'new_thread', 'resolved', 'unresolved', 'survey'] as const;
+  const action = (ACTIONS as readonly string[]).includes(body.action || '')
+    ? (body.action as (typeof ACTIONS)[number])
+    : 'send';
   const text = (body.message || '').trim().slice(0, 2000);
   if (action === 'send' && !text) return NextResponse.json({ error: 'Message required' }, { status: 400 });
 
@@ -286,34 +332,85 @@ export async function POST(req: NextRequest) {
         .eq('id', existing.id)
         .eq('user_id', user.id);
     }
-    const { data: created, error: createErr } = await supabaseAdmin
+    const { data: createdRaw, error: createErr } = await supabaseAdmin
       .from('support_conversations')
       .insert({ user_id: user.id })
-      .select('id, status, user_id')
+      .select(conversationCols())
       .single();
     if (missingTable(createErr)) return NextResponse.json({ unavailable: true });
+    // A runtime column list defeats supabase-js's row typing, so name the shape.
+    const created = createdRaw as unknown as ConversationRow | null;
     if (createErr || !created) {
       return NextResponse.json({ error: 'Could not start a new chat.' }, { status: 500 });
     }
-    return NextResponse.json({ conversation: { id: created.id, status: created.status }, messages: [] });
+    return NextResponse.json({
+      conversation: { id: created.id, status: created.status, resolvedBy: null, rated: false },
+      messages: [],
+    });
   }
 
   let conversation = existing;
   if (!conversation || conversation.status === 'closed') {
-    const { data: created, error: createErr } = await supabaseAdmin
+    const { data: createdRaw, error: createErr } = await supabaseAdmin
       .from('support_conversations')
       .insert({ user_id: user.id })
-      .select('id, status, user_id')
+      .select(conversationCols())
       .single();
     if (missingTable(createErr)) return NextResponse.json({ unavailable: true });
+    const created = createdRaw as unknown as ConversationRow | null;
     if (createErr || !created) {
       return NextResponse.json({ error: 'Could not start the chat. Use the form below instead.' }, { status: 500 });
     }
     conversation = created;
   }
 
+  // The user says it is sorted. Close the thread and record WHICH half solved it,
+  // so "the assistant handled it" is measurable rather than inferred from the
+  // absence of an escalation.
+  if (action === 'resolved') {
+    const solvedByHuman = conversation.status === 'human_active' || conversation.status === 'human_requested';
+    await supabaseAdmin
+      .from('support_conversations')
+      .update({
+        status: 'closed',
+        resolved_by: solvedByHuman ? 'human' : 'ai',
+        resolved_at: new Date().toISOString(),
+      })
+      .eq('id', conversation.id)
+      .eq('user_id', user.id);
+  }
+
+  // The user says it did NOT solve it. This is the ONLY path to a human now:
+  // the assistant always gets the first attempt, and the person is brought in
+  // because it failed, not because a button was sitting there.
+  if (action === 'unresolved') {
+    await escalate(user.id, conversation.id, conversation.status, 'The user said the assistant did not solve it.');
+  }
+
+  if (action === 'survey') {
+    const rating = Number(body.rating);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return NextResponse.json({ error: 'Rating must be 1 to 5' }, { status: 400 });
+    }
+    await supabaseAdmin
+      .from('support_conversations')
+      .update({
+        satisfaction_rating: rating,
+        satisfaction_comment: (body.comment || '').trim().slice(0, 1000) || null,
+      })
+      .eq('id', conversation.id)
+      .eq('user_id', user.id);
+    // A poor score is the "go read this" signal, same rule as the pop-up survey.
+    if (rating <= 2) {
+      const messages = await loadMessages(conversation.id);
+      await alertFounderEscalation(user.id, messages, `Support session rated ${rating}/5. ${body.comment || ''}`.trim());
+    }
+  }
+
   if (action === 'escalate') {
     await escalate(user.id, conversation.id, conversation.status, 'User asked for a human.');
+  } else if (action === 'resolved' || action === 'unresolved' || action === 'survey') {
+    // Handled above; these carry no message to store.
   } else {
     await supabaseAdmin.from('support_messages').insert({
       conversation_id: conversation.id,
@@ -406,7 +503,12 @@ export async function POST(req: NextRequest) {
   const { conversation: fresh } = await loadConversation(user.id, conversation.id);
   const messages = await loadMessages(conversation.id);
   return NextResponse.json({
-    conversation: { id: conversation.id, status: fresh?.status ?? conversation.status },
+    conversation: {
+      id: conversation.id,
+      status: fresh?.status ?? conversation.status,
+      resolvedBy: fresh?.resolved_by ?? null,
+      rated: fresh?.satisfaction_rating != null,
+    },
     messages,
   });
 }
