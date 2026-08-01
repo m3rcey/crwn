@@ -30,18 +30,21 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 - [ ] **Two one-click confirmations only you can do (both need a logged-in session), then tell me
       and I will delete this.**
 
-      **1. DeepSeek is rejecting our calls. Send one message at `/support` and read the reply.**
-      You are an admin, so the chat now prints the fault inline as `[admin only] ...`. No inbox
-      digging, no forwarding to me:
-      - `AI is not configured (DEEPSEEK_API_KEY unset)` means the env var is not reaching
-        production. Re-check the variable's ENVIRONMENT scope in Vercel (Production, not just
-        Preview) and redeploy.
-      - `AI call failed: HTTP 402 ...` means the key is valid but the DeepSeek balance is empty.
-        That is the usual failure on a new key: top up at platform.deepseek.com. No code change.
-      - `AI call failed: HTTP 401 ...` means the key itself is wrong. Regenerate it.
+      **1. Top up the DeepSeek balance. DIAGNOSED 2026-08-01: `HTTP 402 Insufficient Balance`.**
+      The `DEEPSEEK_API_KEY` is valid and is reaching production. The account simply has no
+      credit, which is the standard failure on a new DeepSeek key. There is nothing to fix in
+      code.
 
-      Tell me which one and I will finish it. Note the chat is NOT dead meanwhile: on any
-      assistant fault it now answers from the getting-started guides, which need no key.
+      1. Log in at `platform.deepseek.com` with the account that owns the key.
+      2. Billing (or "Top up"), add credit. Their minimum is a few dollars and the support
+         assistant uses `deepseek-chat` with an 800-token cap per reply, so a small balance lasts
+         a long time at CRWN's current volume.
+      3. Send a message at `/support`. A real answer means it is working. As an admin you would
+         see any remaining fault printed inline as `[admin only] ...`.
+
+      Not urgent, because the chat is NOT dead: on any assistant fault it answers from the
+      getting-started guides (no key, no balance, no network), and it still notifies you. You now
+      get at most ONE "assistant is down" email per hour no matter how many people chat.
 
       **2. Stripe env wiring.** First just OPEN `/account/billing`. You are not actually on Pro:
       the row says `pro`/`active` but Stripe has no subscription behind it, and the SQL migration

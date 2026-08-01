@@ -184,6 +184,18 @@ async function escalate(
       : { escalated_at: new Date().toISOString() },
   );
   const messages = await loadMessages(conversationId);
+
+  // A deliberate escalation ALWAYS emails: a person is waiting on a reply.
+  // A system fault does not. An unfunded DeepSeek balance (HTTP 402) persists
+  // until someone tops it up, so without this every message from every user
+  // sends an identical "the assistant is down" alert, and an inbox full of
+  // duplicates is how real alerts start getting ignored. One per hour, globally,
+  // is enough to know the assistant is down.
+  if (!lockThread) {
+    const shouldAlert = await checkRateLimit('global', 'support-ai-fault-alert', 3600, 1);
+    if (!shouldAlert) return;
+  }
+
   await alertFounderEscalation(userId, messages, reason);
 }
 
@@ -370,12 +382,13 @@ export async function POST(req: NextRequest) {
           // (402, common on a new key) and a timeout all looked identical, so the
           // founder alert could not tell you which. The reason goes to the
           // escalation email only, never to the user.
+          const status = (err as { status?: number } | null)?.status;
+          const message = err instanceof Error ? err.message : String(err);
+          // The SDK's message often already leads with the status ("402
+          // Insufficient Balance"), which read as "HTTP 402 402 Insufficient
+          // Balance". Only prepend when it is not already there.
           const detail =
-            err && typeof err === 'object' && 'status' in err
-              ? `HTTP ${(err as { status?: number }).status} ${(err as { message?: string }).message ?? ''}`
-              : err instanceof Error
-                ? err.message
-                : String(err);
+            status && !message.startsWith(String(status)) ? `HTTP ${status} ${message}` : status ? `HTTP ${message}` : message;
           await escalate(
             user.id,
             conversation.id,
