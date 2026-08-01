@@ -359,6 +359,17 @@ This silently killed every checkout, payout, and Stripe-connect flow on the plat
 - To verify, probe production with the ANON key, never a superuser session:
   `curl "$URL/rest/v1/artist_profiles?select=slug,stripe_connect_id" -H "apikey: $ANON"`
 
+### A stored plan is a claim; Stripe is the truth
+
+`artist_profiles.platform_tier` can say `pro` with nothing billing behind it, and no SQL migration
+can fix that class (deciding whether a subscription is live means asking Stripe). Every platform
+webhook matches the artist by `platform_stripe_subscription_id` and **returns early on a miss**, so
+a subscription deleted in Stripe never downgrades the row. `src/lib/stripe/platformPlanReconcile.ts`
+is the ONE place that asks Stripe and corrects it; `/api/stripe/platform-status` calls it and the
+billing screen self-heals on load, same pattern as `connectReconcile`. It only ever downgrades when
+Stripe positively reports no live subscription: any other API error leaves the row alone, because
+wrongly downgrading a paying artist is worse than briefly trusting a stale row.
+
 ### A platform plan change is never a new checkout session
 
 An artist already on a paid plan must NEVER be able to open a new platform checkout: Stripe runs

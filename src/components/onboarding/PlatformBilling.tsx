@@ -44,6 +44,25 @@ export function PlatformBilling() {
 
       setArtist(data);
       setIsLoading(false);
+
+      // The row can CLAIM a paid plan with nothing billing behind it (a
+      // subscription deleted in Stripe never downgrades the row, because every
+      // platform webhook matches on the subscription id and returns early on a
+      // miss). Ask the server, which asks Stripe and corrects the row, then
+      // re-render with the truth. Never blocks the first paint.
+      try {
+        const res = await fetch('/api/stripe/platform-status');
+        if (res.ok) {
+          const state = await res.json();
+          if (state?.reconciled) {
+            setArtist((prev) =>
+              prev ? { ...prev, platform_tier: state.tier, platform_subscription_status: state.status } : prev,
+            );
+          }
+        }
+      } catch {
+        // Billing still renders from the stored row if this fails.
+      }
     }
 
     loadArtist();
