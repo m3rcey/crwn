@@ -158,7 +158,15 @@ async function escalate(
   await alertFounderEscalation(userId, messages, reason);
 }
 
-async function askAssistant(history: Message[]): Promise<{ reply: string; needsHuman: boolean }> {
+/**
+ * `needsHuman` is the assistant's JUDGMENT that a person is required.
+ * `failed` means the model gave us nothing usable, which is a FAULT. They are
+ * handled differently: a judgment hands the thread to a human, a fault must not,
+ * or one empty response takes the assistant off that conversation permanently.
+ */
+async function askAssistant(
+  history: Message[],
+): Promise<{ reply: string; needsHuman: boolean; failed: boolean }> {
   const chatHistory = history.slice(-20).map((m) => ({
     role: m.sender === 'user' ? ('user' as const) : ('assistant' as const),
     content: m.sender === 'human' ? `[CRWN team member] ${m.body}` : m.body,
@@ -173,13 +181,15 @@ async function askAssistant(history: Message[]): Promise<{ reply: string; needsH
   try {
     const parsed = JSON.parse(raw.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
     if (typeof parsed.reply === 'string' && parsed.reply.trim()) {
-      return { reply: parsed.reply.trim(), needsHuman: parsed.needs_human === true };
+      return { reply: parsed.reply.trim(), needsHuman: parsed.needs_human === true, failed: false };
     }
   } catch {
     // Unparseable but non-empty output is still a usable answer.
   }
-  if (raw.trim()) return { reply: raw.trim(), needsHuman: false };
-  return { reply: '', needsHuman: true };
+  if (raw.trim()) return { reply: raw.trim(), needsHuman: false, failed: false };
+  // Nothing usable came back. That is a fault, not the assistant deciding a
+  // person is needed, so the caller must not lock the thread over it.
+  return { reply: '', needsHuman: false, failed: true };
 }
 
 export async function GET(req: NextRequest) {
@@ -303,7 +313,7 @@ export async function POST(req: NextRequest) {
       } else {
         try {
           const history = await loadMessages(conversation.id);
-          const { reply, needsHuman } = await askAssistant(history);
+          const { reply, needsHuman, failed } = await askAssistant(history);
           if (reply) {
             await supabaseAdmin.from('support_messages').insert({
               conversation_id: conversation.id,
@@ -312,7 +322,14 @@ export async function POST(req: NextRequest) {
             });
             await touchConversation(conversation.id, reply);
           }
-          if (needsHuman) {
+          if (failed) {
+            // Empty output from the model: a fault, so alert a person but keep
+            // the assistant on the thread for the next message.
+            await escalate(user.id, conversation.id, conversation.status, 'The assistant returned an empty response.', {
+              lockThread: false,
+            });
+          } else if (needsHuman) {
+            // A real judgment that a person is required: the human owns it now.
             await escalate(user.id, conversation.id, 'ai', 'The AI assistant flagged this for a human.');
           }
         } catch (err) {
