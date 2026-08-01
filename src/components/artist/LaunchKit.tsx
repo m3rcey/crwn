@@ -30,6 +30,12 @@ export function LaunchKit({ artistId, onDraftsCreated }: LaunchKitProps) {
   const [kit, setKit] = useState<Kit | null>(null);
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState(false);
+  const [contactCount, setContactCount] = useState(0);
+  // Controlled vs full launch. A genuine binary, so two buttons rather than a
+  // dropdown (the UX rule's stated exception). Controlled is the default because
+  // a launch email that lands wrong cannot be unsent, and the small group is how
+  // an artist finds that out while it is still fixable.
+  const [launchType, setLaunchType] = useState<'controlled' | 'full'>('controlled');
 
   useEffect(() => {
     if (!user) return;
@@ -66,6 +72,7 @@ export function LaunchKit({ artistId, onDraftsCreated }: LaunchKitProps) {
           ? profile.display_name
           : artist.slug;
 
+      setContactCount(contactsRes.count ?? 0);
       setKit(
         buildLaunchKit({
           artistName: name,
@@ -104,14 +111,18 @@ export function LaunchKit({ artistId, onDraftsCreated }: LaunchKitProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-      // Announcement starts on the spec's small test group; the follow-up goes
-      // to everyone eligible. Both are DRAFTS the artist opens and reviews.
+      // Controlled launch sends the announcement to a small test group first; a
+      // full launch sends to everyone eligible. The follow-up always goes to
+      // everyone. Both are DRAFTS the artist opens and reviews.
       const res1 = await post({
         artistId,
         name: kit.announcement.name,
         subject: kit.announcement.subject,
         body: kit.announcement.body,
-        filters: { audience: 'contacts', testCount: kit.suggestedTestCount },
+        filters:
+          launchType === 'controlled'
+            ? { audience: 'contacts', testCount: kit.suggestedTestCount }
+            : { audience: 'contacts' },
       });
       const j1 = await res1.json();
       if (!res1.ok) throw new Error(j1.error || 'Could not create the announcement draft');
@@ -170,9 +181,50 @@ export function LaunchKit({ artistId, onDraftsCreated }: LaunchKitProps) {
               Two emails, ready to review
             </p>
             <p className="text-xs text-crwn-text-secondary mt-1">
-              The announcement (preset to a {kit.suggestedTestCount}-contact test group) and the follow-up for a
-              few days later. {kit.segmentSuggestion}
+              The announcement and the follow-up for a few days later. {kit.segmentSuggestion}
             </p>
+
+            {/* Controlled vs full launch. Two options, so two buttons. */}
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {(
+                [
+                  {
+                    key: 'controlled' as const,
+                    title: 'Controlled launch',
+                    detail: `Announcement to ${Math.min(kit.suggestedTestCount, contactCount || kit.suggestedTestCount)} contacts first`,
+                  },
+                  {
+                    key: 'full' as const,
+                    title: 'Full launch',
+                    detail:
+                      contactCount > 0
+                        ? `Announcement to all ${contactCount} contacts`
+                        : 'Announcement to every eligible contact',
+                  },
+                ]
+              ).map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setLaunchType(opt.key)}
+                  disabled={created}
+                  className={`text-left rounded-xl border px-3 py-2.5 transition-colors disabled:opacity-50 ${
+                    launchType === opt.key
+                      ? 'border-crwn-gold bg-crwn-gold/10'
+                      : 'border-crwn-elevated hover:border-crwn-gold/40'
+                  }`}
+                >
+                  <span className="block text-sm font-medium text-crwn-text">{opt.title}</span>
+                  <span className="block text-xs text-crwn-text-secondary mt-0.5">{opt.detail}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-crwn-text-secondary mt-2">
+              {launchType === 'controlled'
+                ? 'A launch email cannot be unsent. The small group is how you catch a broken link or a wrong price while it is still fixable.'
+                : 'Everyone hears at once. Best when you have sent to this list before and know it lands.'}
+            </p>
+
             <p className="text-xs text-crwn-text-secondary mt-1">Good send day: {dateLabel}.</p>
             <button
               type="button"

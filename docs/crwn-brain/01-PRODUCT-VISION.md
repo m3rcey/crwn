@@ -76,7 +76,7 @@ CRWN makes money two ways:
 
 | Plan (internal key) | Price | Platform fee | Fan tiers | Notes |
 |---|---|---|---|---|
-| **Launch** (`starter`) | $0 | **12%** | free + 3 paid | 50 tracks, 250 members/contacts, 1 email campaign/mo. "Prove your first direct-to-fan offer" |
+| **Launch** (`starter`) | $0 | **12%** | free + 3 paid | 50 tracks, unlimited members/contacts, 1 email campaign/mo. "Prove your first direct-to-fan offer" |
 | **Pro** (`pro`) | **$49/mo or $490/yr** | **8%** | free + 3 paid | unlimited tracks/members, 20 email campaigns/mo. "Run your entire direct-to-fan business in one place" |
 | **Scale** (`scale`) | **$199/mo or $1,990/yr** | **5%** | free + 3 paid | 100 email campaigns/mo, assisted migration, team permissions. Renamed from the spec-only `label` $99 concept. "Scale revenue, your team, and fan operations with less manual work" |
 

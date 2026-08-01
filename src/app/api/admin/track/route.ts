@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -63,6 +64,20 @@ export async function POST(req: NextRequest) {
             },
             { onConflict: 'artist_id,visit_date,visitor_hash' }
           );
+
+        // Mirror the visit into the funnel. Without this, "first fan visit" (the
+        // step between launching and a first member) was invisible: page_viewed
+        // was only ever emitted for lead-magnet pages, so an artist's own page
+        // traffic never reached funnel_events. Deduped per visitor per day, the
+        // same grain as artist_page_visits, so the two can be reconciled.
+        await recordFunnelEvent(supabaseAdmin, {
+          stage: 'page_viewed',
+          artistId: String(artist.id),
+          userId: userId || null,
+          referrer: artistSlug,
+          dedupeKey: `artistpage:${artist.id}:${visitorHash}:${today}`,
+          metadata: { surface: 'artist_page', slug: artistSlug },
+        });
       }
     }
 

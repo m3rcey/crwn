@@ -98,6 +98,22 @@ Two rules on `src/app/[slug]/page.tsx` and everything under it:
   (`can_view`, a signed URL, a purchase row), it must fall back to tier math when `previewing`,
   or the owner sees an unlocked page while it claims to be a fan's.
 
+## Plan limits: only advertise what the product enforces
+
+Audited and settled 2026-08-01. Every limit is now either real or gone; do not reintroduce a
+third state.
+- **Members: NO CAP on any plan.** Removed rather than enforced, because the only enforcement
+  point is refusing a paying fan at checkout. Never re-advertise one. A big list routes to Pro
+  via `contacts_need_more_sends` (the email cadence limit), never a member count.
+- **Tracks (50 on Launch): enforced by a DB trigger** (`schema-phase2-track-cap-enforcement.sql`),
+  because tracks are inserted straight from the browser client and no API guard can cover that.
+  The UI must warn BEFORE an upload starts and translate `TRACK_LIMIT_REACHED` into plain words.
+- **Email blasts: enforced at CREATE and, authoritatively, at SEND** through
+  `src/lib/emailQuota.ts`. A draft costs nothing; only a send spends the quota. Never write a
+  second copy of that rule.
+If you add a plan limit, it needs an enforcement point that a browser cannot route around, or it
+does not go in the marketing copy.
+
 ## Interruptions are governed — one engine, one cap
 
 Every surface that interrupts a user (pop-ups, artist broadcasts, fan notifications, surveys)

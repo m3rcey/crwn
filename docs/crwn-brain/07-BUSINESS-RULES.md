@@ -10,7 +10,7 @@ Source of truth: `TIER_LIMITS` in `src/lib/platformTier.ts`. `getArtistFeePercen
 
 | Plan | Price | Fee | maxFanTiers (paid) | maxTracks | maxMembers | bundles/scheduling/live/DMs/clipper | Email campaigns/mo |
 |---|---|---|---|---|---|---|---|
-| Launch (`starter`) | $0 | **12%** | 3 | 50 | 250 | all off | 1 |
+| Launch (`starter`) | $0 | **12%** | 3 | 50 | ∞ | all off | 1 |
 | Pro (`pro`) | **$49/mo** ($490/yr) | **8%** | 3 | ∞ | ∞ | all on | 20 |
 | Scale (`scale`) | **$199/mo** ($1,990/yr) | **5%** | 3 | ∞ | ∞ | all on | 100 |
 
@@ -20,30 +20,30 @@ Source of truth: `TIER_LIMITS` in `src/lib/platformTier.ts`. `getArtistFeePercen
 - **Checkout price verification:** `platform-checkout` retrieves the live Stripe price and refuses if `unit_amount` differs from `TIER_PRICING` — a stale env var (e.g. the old $9.99 Pro price) fails loudly instead of silently undercharging. Whitelist is `['pro','scale']`; annual cycle is wired but the UI stays monthly-only until the annual Stripe prices exist.
 - **Founding-artist program is RETIRED and the code is GONE (2026-07-15).** There is no per-artist fee override anymore: `getArtistFeePercent()` returns the plan fee, full stop. A partner code is **attribution only** plus a 1-month Stripe trial (a SaaS-price perk, not a fee cut).
 - **The legal pages state the fees, and must be kept true by hand.** `/artist-agreement` and `/terms` list Launch 12% / Pro 8% $49 / Scale 5% $199. They once claimed Starter was 8% while the code charged 12%. Do NOT render them from `TIER_LIMITS`: a code change would then silently rewrite the agreement artists already accepted.
-- **⚠️ MOST PLAN LIMITS ARE NOT ENFORCED. Re-verified 2026-07-31 by reading every path.** An
-  earlier version of this line claimed `checkArtistLimit()` "enforces caps server-side" and
-  marked it `Confirmed`; that was wrong. `checkArtistLimit(artistId, 'tracks'|'fanTiers')` exists
-  (`platformTier.ts:161`) but its ONLY callers are `/api/tracks/check-limit` and
-  `/api/tiers/check-limit`, and **those two routes have zero callers of their own**. Reality:
-  - **maxMembers (250): enforced NOWHERE.** No subscribe path counts members; the 251st
-    subscriber is accepted. The only cap in checkout is `tier.founder_cap` (an artist-set
-    founding window), which is unrelated. It is still advertised in `PlatformTierModal` and the
-    `announce_launch_limits` pop-up.
-  - **maxTracks (50): client-side only.** `TrackUploadForm` disables the form with
-    `pointer-events:none`; `handleSubmit` has no guard and the insert is a direct browser
-    `supabase.from('tracks').insert`. `BulkUploadForm` had NO check at all (it now shows a
-    pre-upload capacity warning, which informs but does not block).
-  - **maxFanTiers (3): client-side only**, and `offers/new` fails OPEN (a failed limits fetch
-    publishes past the cap).
-  - **Email blasts: the ONE genuinely enforced limit.** Gated server-side at CREATE
-    (`/api/campaigns`) and, since 2026-07-31, authoritatively at SEND
-    (`/api/campaigns/[id]/send`) — creation alone left a draft-then-send bypass, because only
-    `sent/sending/scheduled` count and a draft is none of those. Both use `src/lib/emailQuota.ts`
-    so the rule cannot drift between them.
-  - **No DB constraint or trigger counts anything against a plan.** RLS gates ownership only.
-  Whether to make tracks/members real is an open founder decision (see TODO.md): enforcing the
-  track cap would wall the 40-to-300-song ICP mid-catalog, and enforcing the member cap would
-  mean rejecting a paying fan at checkout.
+- **PLAN LIMITS: what is real, settled 2026-08-01.** An earlier version of this line claimed
+  `checkArtistLimit()` "enforces caps server-side" and marked it `Confirmed`; that was wrong (its
+  only callers are `/api/tracks/check-limit` and `/api/tiers/check-limit`, and those two routes
+  have zero callers of their own). Every limit was audited and each one was either made real or
+  removed from the product. There are no advertised-but-unenforced limits left.
+  - **Members: NO CAP, on any plan.** The 250 figure was enforced nowhere and is gone from
+    `TIER_LIMITS` (`maxMembers: -1`), the pricing modal, the announcement pop-up, and the plan
+    recommender. It was removed rather than enforced because the only possible enforcement point
+    is refusing a paying fan at checkout. **Never re-advertise a member cap.** A large contact
+    list still routes to Pro, but on the honest reason: `contacts_need_more_sends` (Launch's one
+    email campaign a month), not a member count.
+  - **Tracks (50 on Launch): ENFORCED at the database** by `trg_enforce_track_plan_cap`
+    (`supabase/schema-phase2-track-cap-enforcement.sql`). It must live there because tracks are
+    inserted directly from the browser client, so no API guard could cover it. Soft-deleted
+    tracks do not consume the allowance, and an UPDATE reactivating one is allowed through (the
+    artist already had that track). The UI warns BEFORE an upload starts and translates
+    `TRACK_LIMIT_REACHED` into plain language; the bulk uploader uploads what fits and labels the
+    overflow. Enforcing is what makes `recommendPlan()`'s "your 82 tracks need Pro" honest.
+  - **maxFanTiers (3): client-side only, and deliberately not a paywall** since every plan allows
+    the same 3 paid tiers. `offers/new` fails OPEN, which is harmless while the cap is uniform.
+  - **Email blasts: enforced server-side** at CREATE (`/api/campaigns`) and authoritatively at
+    SEND (`/api/campaigns/[id]/send`) — creation alone left a draft-then-send bypass, because
+    only `sent/sending/scheduled` count and a draft is none of those. Both use
+    `src/lib/emailQuota.ts` so the rule cannot drift between them.
 - **Fan-tier cap counts PAID tiers only (price > 0).** The free "front door" tier does NOT consume a plan's fan-tier allowance (founder-approved rule, Rise Mode Prompt 2). **Every plan now allows 3 paid tiers** (`starter` was 1, raised to 3 on 2026-07-27 so the calculator's promise is buildable on any plan; `pro` unchanged at 3). Tier COUNT is no longer a Pro paywall: Pro differentiates on fee (12% -> 8%), live, DMs, scheduling, clipper, and unlimited tracks/members. A Free artist earning across 3 tiers pays the higher 12% fee, so more tiers means more platform revenue, not less. Because both plans cap at 3, hitting the cap is NOT an upsell moment (no billable plan gives more in v1): `TierManager` shows a "you've built the full ladder" note, not an UpgradePrompt. This lets the recommended four-tier ladder (free Bronze + Silver $10 + Gold $25 + Platinum $100 = free + 3 paid) fit **every** plan without changing any price or fee. These four are the SAME tiers the Streaming Loss calculator (`/worth`) shows, so the money the calculator promises is the money the ladder actually builds (`tierTemplate.ts` `RECOMMENDED_LADDER`, applied by `TierLadderTemplate`, whose free tier the setup wizard also creates by the name "Bronze"). Applying a paid tier routes its benefits through `/api/tier-benefits`, which runs `syncTierObligations` and auto-populates the Promise Calendar: Gold seeds a **monthly Vault unlock** obligation, Platinum a **quarterly private group listening event** (config-driven title + cadence in `tierObligations.ts`). The monthly unlock lives on the Gold tier only (Platinum inherits it via access), so the calendar never double-books. The paid-only predicate is defined identically in `checkArtistLimit()` (`platformTier.ts`) and `/api/platform/limits`; enforcement remains client-side (the server gate `/api/tiers/check-limit` is still not wired into creation). `Confirmed`.
 
 ## 3. Fan monetization surfaces and fees

@@ -156,8 +156,10 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
   closest-CRWN-tier suggestions, members tagged `patreon` + `patreon-tier:<name>`. The
   versioned permission attestation gates every import; importing never messages anyone.
 - **Launch Kit** (`src/lib/launchCampaign.ts` + `LaunchKit` atop
-  `/studio/fans?view=campaigns`): announcement + follow-up created as campaign DRAFTS
-  (contacts audience, 20-contact test group preset), social/story/DM/share copy with copy
+  `/studio/fans?view=campaigns`): announcement + follow-up created as campaign DRAFTS, with an
+  explicit **controlled vs full launch** choice (2026-08-01) showing real recipient counts.
+  Controlled (the default) puts the announcement on the 20-contact test group; full sends to
+  every eligible contact. The follow-up always goes to everyone. Plus social/story/DM/share copy with copy
   buttons, Patreon-first segment suggestion, Friday send-date suggestion. The composer's
   contacts audience supports SEGMENTS by contact tag; the sender narrows by tag under the
   same consent rules (attested + subscribed + suppression + unsubscribe). Nothing sends
@@ -188,6 +190,13 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
   `artist_promise_fulfilled` DomainCheck, the same fact the roadmap's `promises_completed`
   uses. The announcement + first-visit quests deep-link to the Launch Kit
   (`/studio/fans?view=campaigns`), the promise quest to `/studio/promise`.
+- **Funnel coverage of the launch itself** (2026-08-01): artist page visits now emit
+  `page_viewed` with `artistId` from `/api/admin/track` (deduped per visitor per day, the same
+  grain as `artist_page_visits`), so "first fan visit" is finally visible in `funnel_events`.
+  Manual sharing from the launch review emits `fan_invited` with
+  `metadata.method = 'manual_share'` and the channel, because an artist who launches by pasting
+  their link used to produce zero funnel signal and looked like they never launched. Both reuse
+  EXISTING stages on purpose: adding a stage means migrating the `funnel_events` CHECK.
 - **Fan-perspective preview** (2026-07-31): the owner switches the public page between "a
   visitor" and each tier via `ArtistPreviewProvider` (`src/hooks/useArtistPreview.tsx`) and the
   sticky `PreviewBar`. `useSubscription` is the single injection point (13 consumers), so one

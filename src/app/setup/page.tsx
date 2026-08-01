@@ -1712,9 +1712,22 @@ function LaunchReview({
     };
   }, [artistId]);
 
+  // Manual sharing IS a launch method (the spec allows launching without importing
+  // a single contact), but only the campaign sender emitted fan_invited, so an
+  // artist who launched by pasting their link produced ZERO funnel signal and
+  // looked like they never launched. Metadata marks it manual so it is never
+  // mistaken for a real send with recipients.
+  const trackShare = (channel: string) => {
+    trackFunnel('fan_invited', {
+      dedupeKey: `${artistId ?? slug}:manual:${channel}`,
+      metadata: { method: 'manual_share', channel },
+    });
+  };
+
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
+      trackShare('copy_link');
       showToast('Link copied!', 'success');
     } catch {
       showToast('Could not copy. Long-press the link to copy it.', 'error');
@@ -1722,9 +1735,9 @@ function LaunchReview({
   };
 
   const socials = [
-    { label: 'Share on X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}` },
-    { label: 'Share on Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
-    { label: 'Share on WhatsApp', href: `https://wa.me/?text=${encodeURIComponent(shareText)}` },
+    { label: 'Share on X', channel: 'x', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}` },
+    { label: 'Share on Facebook', channel: 'facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` },
+    { label: 'Share on WhatsApp', channel: 'whatsapp', href: `https://wa.me/?text=${encodeURIComponent(shareText)}` },
   ];
 
   const checklist: { label: string; done: boolean; fix?: ScreenKey; note?: string }[] = [
@@ -1896,6 +1909,7 @@ function LaunchReview({
               href={s.href}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackShare(s.channel)}
               className="px-4 py-3 rounded-xl border border-crwn-elevated text-sm font-medium text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 transition-colors text-center"
             >
               {s.label}

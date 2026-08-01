@@ -45,9 +45,17 @@ describe('recommendPlan', () => {
     expect(r.reason).toBe('catalog_over_launch_limit');
   });
 
-  it('recommends Pro when contacts exceed Launch limits', () => {
+  it('recommends Pro for a big list, on send cadence rather than a member cap', () => {
     const r = recommendPlan({ contacts: 1200 });
     expect(r.plan).toBe('pro');
+    // CRWN caps members on NO plan, so the reason must be the email cadence
+    // limit (the one limit that is really enforced), never a member cap.
+    expect(r.reason).toBe('contacts_need_more_sends');
+    expect(r.reasons.join(' ')).not.toMatch(/member/i);
+  });
+
+  it('leaves a small contact list on Launch', () => {
+    expect(recommendPlan({ contacts: 40 }).plan).toBe('starter');
   });
 
   it('recommends Pro on feature intent alone', () => {

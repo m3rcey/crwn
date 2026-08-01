@@ -36,10 +36,15 @@ export const TIER_LIMITS: Record<string, TierLimits> = {
   // LAUNCH, the free plan (internal key 'starter' — kept so existing rows keep matching;
   // displayed as "Launch"). Purpose: prove the first direct-to-fan offer. The ICP has 50+
   // released songs, so 50 tracks (not 20) lets them evaluate CRWN with a representative
-  // catalog, and 250 members covers a meaningful fan-import sample.
+  // catalog. Members are unlimited (see maxMembers below).
   starter: {
     maxTracks: 50,
-    maxMembers: 250,
+    // Members are UNLIMITED on every plan and this number is not enforced anywhere.
+    // The only enforcement point would be refusing a paying fan at checkout, which
+    // CRWN will never do, so the cap was removed from all artist-facing copy
+    // (2026-08-01). Kept as -1 rather than deleted because planRecommendation and
+    // the limits API read the shape. Do not re-advertise a member cap.
+    maxMembers: -1,
     // Every plan gets the FULL recommended ladder (free Bronze door + 3 paid tiers:
     // Silver / Gold / Platinum) so the calculator's promise is buildable on every plan.
     // Tier COUNT is never a paywall: plans differentiate on fee + scale + leverage.
@@ -100,7 +105,8 @@ export const TIER_LIMITS_V2 = {
     tracks: 50,
     // Every plan gets all 3 paid tiers (the full recommended ladder). See TIER_LIMITS above.
     fanTiers: 3,
-    members: 250,
+    // Unlimited: see the note on TIER_LIMITS.starter.maxMembers.
+    members: -1,
     bundles: false,
     scheduling: false,
     liveQA: false,

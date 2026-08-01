@@ -219,6 +219,10 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     let position = await getMaxPosition();
     let successCount = 0;
     let failCount = 0;
+    // Upload everything that FITS, and mark the overflow with the real reason
+    // instead of letting each one fail against the database trigger one by one.
+    // Refusing the whole batch would waste the tracks that are within the plan.
+    let remainingCapacity = trackCapacity;
 
     const { data: artistProfile } = await supabase
       .from('artist_profiles')
@@ -229,6 +233,16 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     for (let i = 0; i < queue.length; i++) {
       const item = queue[i];
       if (item.status !== 'pending') continue;
+
+      if (remainingCapacity !== null && remainingCapacity <= 0) {
+        setQueue(prev => prev.map(q =>
+          q.id === item.id
+            ? { ...q, status: 'error', error: `Not uploaded: your plan holds ${limits.tracks} tracks. Upgrade to Pro for an unlimited catalog.` }
+            : q
+        ));
+        failCount++;
+        continue;
+      }
 
       setCurrentIndex(i);
 
@@ -314,13 +328,21 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
 
         if (insertError) throw insertError;
 
-        setQueue(prev => prev.map(q => 
+        if (remainingCapacity !== null) remainingCapacity -= 1;
+
+        setQueue(prev => prev.map(q =>
           q.id === item.id ? { ...q, status: 'complete', progress: 100 } : q
         ));
         successCount++;
 
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+        const raw = error instanceof Error ? error.message : 'Upload failed';
+        // The database trigger is the real cap. Translate its error rather than
+        // showing an artist a Postgres exception.
+        const errorMessage = raw.includes('TRACK_LIMIT_REACHED')
+          ? `Not uploaded: your plan holds ${limits.tracks} tracks. Upgrade to Pro for an unlimited catalog.`
+          : raw;
+        if (raw.includes('TRACK_LIMIT_REACHED')) remainingCapacity = 0;
         setQueue(prev => prev.map(q => 
           q.id === item.id ? { ...q, status: 'error', error: errorMessage } : q
         ));

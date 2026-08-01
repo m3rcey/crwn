@@ -310,6 +310,13 @@ export function TrackUploadForm() {
     if (!formData.title) return;
     if (!editingTrack && !formData.audioFile) return;
     if (isUploading) return;
+    // The form is visually disabled at the cap, but pointer-events:none is not a
+    // guard: keyboard submit still fires. The database trigger is the real cap;
+    // this just refuses early with a message the artist can act on.
+    if (!editingTrack && trackLimitReached) {
+      showToast(`Your plan holds ${limits.tracks} tracks. Upgrade to Pro for an unlimited catalog.`, 'error');
+      return;
+    }
     if (!formData.isFree && formData.allowedTierIds.length === 0 && !formData.price) {
       showToast('Pick a tier or set a one-time price', 'error');
       return;
@@ -488,6 +495,9 @@ export function TrackUploadForm() {
 
         if (error) {
           console.error('Track insert error:', error);
+          if (error.message?.includes('TRACK_LIMIT_REACHED')) {
+            throw new Error(`Your plan holds ${limits.tracks} tracks. Upgrade to Pro for an unlimited catalog.`);
+          }
           throw error;
         }
 

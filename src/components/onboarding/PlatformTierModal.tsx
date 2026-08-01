@@ -35,7 +35,10 @@ const PLATFORM_TIERS: PlatformTier[] = [
     features: [
       '50 track uploads',
       'Full 4-tier ladder (free + 3 paid)',
-      'Up to 250 members and contacts',
+      // No member cap is listed: CRWN does not enforce one, and the only place it
+      // COULD be enforced is refusing a paying fan at checkout, which we will not do.
+      // Never re-add a limit here that the product does not apply.
+      'Unlimited members and contacts',
       '1 email campaign / month',
       'Fan CRM + CSV fan import',
       'Basic analytics',
@@ -51,7 +54,7 @@ const PLATFORM_TIERS: PlatformTier[] = [
     savings: TIER_PRICING.pro.savings,
     description: 'Run your entire direct-to-fan business in one place',
     features: [
-      'Unlimited tracks and members',
+      'Unlimited catalog (Launch holds 50 tracks)',
       'Live experiences + VOD',
       'Direct messaging with fans',
       'Scheduling + Promise Calendar automation',

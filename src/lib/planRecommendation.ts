@@ -7,7 +7,13 @@
 // Plan ladder: Launch $0 / 12% -> Pro $49 / 8% -> Scale $199 / 5%. A true multi-artist
 // Label tier is custom-priced and does not exist until org accounts ship.
 
-import { TIER_LIMITS, TIER_PRICING } from './platformTier';
+import { EMAIL_LIMITS, TIER_LIMITS, TIER_PRICING } from './platformTier';
+
+/**
+ * Contact-list size above which one email campaign a month stops being enough.
+ * A cadence judgment, NOT a member cap: CRWN does not cap members on any plan.
+ */
+const LIST_SIZE_NEEDING_MORE_SENDS = 250;
 
 export type PlatformPlan = 'starter' | 'pro' | 'scale';
 
@@ -109,8 +115,18 @@ export function recommendPlan(input: PlanRecommendationInput): PlanRecommendatio
   if ((input.catalogTracks || 0) > LAUNCH.maxTracks) {
     proReasons.push(['catalog_over_launch_limit', `Your ${input.catalogTracks} tracks are more than the ${LAUNCH.maxTracks} the Launch plan holds`]);
   }
-  if ((input.contacts || 0) > LAUNCH.maxMembers) {
-    proReasons.push(['contacts_over_launch_limit', `Your ${(input.contacts || 0).toLocaleString()} contacts are more than the ${LAUNCH.maxMembers} the Launch plan holds`]);
+  // A big list still points at Pro, but for the HONEST reason. Members are
+  // unlimited on every plan (2026-08-01), so "your contacts exceed the cap" was a
+  // claim with nothing behind it. What a large list really runs into is Launch's
+  // ONE email campaign per month, which is the single limit CRWN actually
+  // enforces. The threshold is a judgment call about cadence, not a cap: below it
+  // a monthly send is a reasonable rhythm, above it the artist will want to
+  // segment and send more often than Launch allows.
+  if ((input.contacts || 0) >= LIST_SIZE_NEEDING_MORE_SENDS) {
+    proReasons.push([
+      'contacts_need_more_sends',
+      `Launch includes ${EMAIL_LIMITS.starter} email campaign a month, and a list of ${(input.contacts || 0).toLocaleString()} needs to hear from you more often than that`,
+    ]);
   }
   if (input.wantsLiveExperiences) proReasons.push(['live_experiences', 'Live experiences and Executive Producer sessions are Pro features']);
   if (input.wantsScheduling) proReasons.push(['scheduling', 'Content and offer scheduling is a Pro feature']);

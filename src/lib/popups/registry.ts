@@ -173,7 +173,7 @@ export const POPUPS: PopupDef[] = [
     dismissLabel: 'Not now',
   },
 
-  // ---- Announcement: Launch plan limits raised (50 tracks, 250 members) ----
+  // ---- Announcement: Launch plan limits raised (50 tracks, unlimited members) ----
   // Loss-framed on what the old caps were costing them. Announce-once; skipped for
   // accounts created after the change shipped (announcedAt), who met these limits as normal.
   {
@@ -186,7 +186,7 @@ export const POPUPS: PopupDef[] = [
     announcedAt: '2026-07-31',
     goal: 'Free artists upload the catalog and import the fans the old caps made them leave out.',
     title: 'Your full catalog was locked out. It is not anymore.',
-    body: 'The free plan (now called Launch) held you to 20 tracks and 100 members, which meant most of your catalog and your fan list stayed off CRWN earning nothing. Launch now holds 50 tracks and 250 members and contacts. The music and fans you left out are still making you $0 until you bring them in.',
+    body: 'The free plan (now called Launch) held you to 20 tracks and 100 members, which meant most of your catalog and your fan list stayed off CRWN earning nothing. Launch now holds 50 tracks and an unlimited number of members and contacts. The music and fans you left out are still making you $0 until you bring them in.',
     cta: { label: 'Upload your catalog', href: '/studio/music' },
     dismissLabel: 'Later',
   },
