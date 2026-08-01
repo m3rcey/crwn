@@ -207,19 +207,45 @@ export async function POST(req: NextRequest) {
   const allowed = await checkRateLimit(user.id, 'support-chat', 60, 15);
   if (!allowed) return NextResponse.json({ error: 'Slow down a moment, then try again.' }, { status: 429 });
 
-  let body: { message?: string; conversationId?: string; action?: 'send' | 'escalate' };
+  let body: { message?: string; conversationId?: string; action?: 'send' | 'escalate' | 'new_thread' };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
-  const action = body.action === 'escalate' ? 'escalate' : 'send';
+  const action =
+    body.action === 'escalate' ? 'escalate' : body.action === 'new_thread' ? 'new_thread' : 'send';
   const text = (body.message || '').trim().slice(0, 2000);
   if (action === 'send' && !text) return NextResponse.json({ error: 'Message required' }, { status: 400 });
 
   // Resolve or create the conversation.
   const { conversation: existing, error: loadErr } = await loadConversation(user.id, body.conversationId || null);
   if (missingTable(loadErr)) return NextResponse.json({ unavailable: true });
+
+  // Start a fresh thread. Without this, one escalation was a permanent dead end:
+  // the support page always resumes the newest conversation, and a human-owned
+  // conversation never returns to the assistant, so a user who was escalated once
+  // could never reach the AI again. Closing is enough, because the create path
+  // below already opens a new conversation whenever the latest one is closed.
+  if (action === 'new_thread') {
+    if (existing && existing.status !== 'closed') {
+      await supabaseAdmin
+        .from('support_conversations')
+        .update({ status: 'closed' })
+        .eq('id', existing.id)
+        .eq('user_id', user.id);
+    }
+    const { data: created, error: createErr } = await supabaseAdmin
+      .from('support_conversations')
+      .insert({ user_id: user.id })
+      .select('id, status, user_id')
+      .single();
+    if (missingTable(createErr)) return NextResponse.json({ unavailable: true });
+    if (createErr || !created) {
+      return NextResponse.json({ error: 'Could not start a new chat.' }, { status: 500 });
+    }
+    return NextResponse.json({ conversation: { id: created.id, status: created.status }, messages: [] });
+  }
 
   let conversation = existing;
   if (!conversation || conversation.status === 'closed') {

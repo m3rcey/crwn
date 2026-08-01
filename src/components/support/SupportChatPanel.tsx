@@ -184,17 +184,31 @@ export function SupportChatPanel() {
           <MessageCircle className="w-4 h-4 text-crwn-gold" />
           <p className="text-sm font-semibold text-crwn-text">CRWN Support</p>
         </div>
-        {!humanRequested ? (
-          <button
-            onClick={() => post({ action: 'escalate' })}
-            disabled={sending}
-            className="text-xs text-crwn-text-secondary hover:text-crwn-gold transition-colors disabled:opacity-50"
-          >
-            Talk to a human
-          </button>
-        ) : (
-          <span className="text-xs text-crwn-gold">A person has been notified</span>
-        )}
+        <div className="flex items-center gap-3">
+          {!humanRequested ? (
+            <button
+              onClick={() => post({ action: 'escalate' })}
+              disabled={sending}
+              className="text-xs text-crwn-text-secondary hover:text-crwn-gold transition-colors disabled:opacity-50"
+            >
+              Talk to a human
+            </button>
+          ) : (
+            <span className="text-xs text-crwn-gold">A person has been notified</span>
+          )}
+          {/* Without this, one escalation was a dead end: the panel always
+              resumes the newest conversation and a human-owned one never goes
+              back to the assistant, so a user could never reach the AI again. */}
+          {(humanRequested || chat.messages.length > 0) && (
+            <button
+              onClick={() => post({ action: 'new_thread' })}
+              disabled={sending}
+              className="text-xs text-crwn-text-secondary hover:text-crwn-gold transition-colors disabled:opacity-50"
+            >
+              New question
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="h-80 overflow-y-auto p-4 space-y-3">
