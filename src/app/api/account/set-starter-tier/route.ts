@@ -48,17 +48,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // artist_profiles is the single source of truth for the plan. There is no
+  // profiles.platform_tier mirror: that column does not exist in production and
+  // nothing reads it, so the old write here failed silently every time.
   const { error: e1 } = await supabaseAdmin
     .from('artist_profiles')
     .update({ platform_tier: 'starter' })
     .eq('user_id', user.id);
 
-  const { error: e2 } = await supabaseAdmin
-    .from('profiles')
-    .update({ platform_tier: 'starter' })
-    .eq('id', user.id);
-
-  if (e1 || e2) {
+  if (e1) {
     return NextResponse.json({ error: 'Failed to set tier' }, { status: 500 });
   }
 

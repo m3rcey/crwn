@@ -285,6 +285,14 @@ ALL database prices are integers in cents. Form input: `Math.round(parseFloat(va
 | `banner_url` | `artist_profiles` | ~~profiles~~ |
 | `stripe_connect_id` | `artist_profiles` | ~~profiles~~ |
 | `user_id` | `artist_profiles` | (profiles uses `id` from auth.users) |
+| `platform_tier` | `artist_profiles` | ~~profiles~~ (see below) |
+
+**`profiles.platform_tier` DOES NOT EXIST.** `supabase/schema-platform-tiers.sql` declares it but
+was never applied to production. Three code paths wrote to it anyway and every write failed
+silently, because supabase-js returns an `{error}` object instead of throwing and none of them
+checked it. Nothing ever read it: every `platform_tier` reader queries `artist_profiles`. The
+writes are deleted. **`artist_profiles` is the single source of truth for the plan; do not add a
+mirror.**
 
 To get an artist's display name: query `profiles` WHERE `id = artist_profiles.user_id`.
 

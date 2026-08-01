@@ -29,6 +29,13 @@
 -- (portal, cancel, webhooks, limits) keeps working. To re-set one by hand:
 --   UPDATE artist_profiles SET platform_tier = 'pro' WHERE slug = 'your-slug';
 
+-- NOTE: there is no companion UPDATE on profiles. An earlier draft of this file
+-- had one and failed with 42703: `profiles.platform_tier` DOES NOT EXIST in
+-- production (schema-platform-tiers.sql declares it but was never applied). The
+-- app wrote to it in three places, all of which failed silently because
+-- supabase-js returns an error object instead of throwing, and NOTHING ever read
+-- it. Those writes are now deleted. artist_profiles is the single source of truth.
+
 BEGIN;
 
 UPDATE artist_profiles
@@ -37,15 +44,6 @@ UPDATE artist_profiles
  WHERE platform_tier IS NOT NULL
    AND platform_tier <> 'starter'
    AND platform_stripe_subscription_id IS NULL;
-
--- profiles.platform_tier mirrors artist_profiles (the webhook writes both).
-UPDATE profiles p
-   SET platform_tier = 'starter'
-  FROM artist_profiles a
- WHERE a.user_id = p.id
-   AND a.platform_tier = 'starter'
-   AND p.platform_tier IS NOT NULL
-   AND p.platform_tier <> 'starter';
 
 COMMIT;
 

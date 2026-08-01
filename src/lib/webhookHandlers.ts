@@ -1772,13 +1772,12 @@ export async function handlePlatformCheckoutCompleted(supabaseAdmin: AdminClient
     .update(updateData)
     .eq('id', artist_id);
 
-  // Also update the user's profile
-  await supabaseAdmin
-    .from('profiles')
-    .update({
-      platform_tier: tier,
-    })
-    .eq('id', user_id);
+  // NOTE: there is deliberately no mirror write to profiles.platform_tier.
+  // That column does not exist in production (schema-platform-tiers.sql was never
+  // applied), nothing reads it — every platform_tier reader queries
+  // artist_profiles — and the write silently failed on every upgrade because
+  // supabase-js returns an error object rather than throwing. artist_profiles is
+  // the single source of truth for the plan; do not reintroduce a mirror.
 
   // Track recruiter referral if artist was recruited
   try {
@@ -1943,15 +1942,8 @@ export async function handlePlatformSubscriptionDeleted(supabaseAdmin: AdminClie
     })
     .eq('id', artist.id);
 
-  // Also update user profile
-  if (artist.user_id) {
-    await supabaseAdmin
-      .from('profiles')
-      .update({
-        platform_tier: 'starter',
-      })
-      .eq('id', artist.user_id);
-  }
+  // No profiles.platform_tier mirror here either: the column does not exist and
+  // nothing reads it. See the note in handlePlatformCheckoutCompleted.
 
   console.log('Platform subscription cancelled:', { artist_id: artist.id });
 
