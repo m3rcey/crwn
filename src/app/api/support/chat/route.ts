@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { resend, FROM_EMAIL } from '@/lib/resend';
-import { SUPPORT_ASSISTANT_PROMPT } from '@/lib/supportKnowledge';
+import { SUPPORT_ASSISTANT_PROMPT, offlineAnswer } from '@/lib/supportKnowledge';
 
 // The /support chat. Users talk to a CRWN AI assistant; when it cannot answer (or the
 // user asks for a person) the conversation escalates: status flips to human_requested,
@@ -139,17 +139,46 @@ async function escalate(
   conversationId: string,
   currentStatus: string,
   reason: string,
-  { lockThread = true }: { lockThread?: boolean } = {},
+  { lockThread = true, query }: { lockThread?: boolean; query?: string } = {},
 ) {
   if (currentStatus !== 'ai' && currentStatus !== 'closed') return; // already with a human
+
+  // When the ASSISTANT is the thing that broke, still try to answer from the
+  // guides. They need no API key and no balance, and "here is the guide that
+  // covers this" is worth far more than an apology while DeepSeek is down.
+  let body = lockThread ? ESCALATED_REPLY : SYSTEM_FAULT_REPLY;
+  if (!lockThread && query) {
+    const offline = offlineAnswer(query);
+    if (offline.matched) body = offline.reply;
+  }
+
+  // ADMINS see why it broke, right in the chat. The reason otherwise lives only
+  // in the founder's escalation email, which meant diagnosing "the assistant is
+  // down" needed a round trip through an inbox every single time. Gated on
+  // profiles.role so no artist or fan ever sees internal fault detail.
+  if (!lockThread) {
+    try {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle();
+      if (profile?.role === 'admin') {
+        body += `\n\n[admin only] ${reason}`;
+      }
+    } catch {
+      // Diagnostics must never break the reply.
+    }
+  }
+
   await supabaseAdmin.from('support_messages').insert({
     conversation_id: conversationId,
     sender: 'ai',
-    body: lockThread ? ESCALATED_REPLY : SYSTEM_FAULT_REPLY,
+    body,
   });
   await touchConversation(
     conversationId,
-    lockThread ? ESCALATED_REPLY : SYSTEM_FAULT_REPLY,
+    body,
     lockThread
       ? { status: 'human_requested', escalated_at: new Date().toISOString() }
       : { escalated_at: new Date().toISOString() },
@@ -303,12 +332,13 @@ export async function POST(req: NextRequest) {
       if (!process.env.DEEPSEEK_API_KEY) {
         // No AI configured: alert a person, but do NOT lock the thread. Setting
         // the key later must be enough to make this conversation work again.
+        // The user still gets a guide answer where one exists.
         await escalate(
           user.id,
           conversation.id,
           conversation.status,
           'AI is not configured (DEEPSEEK_API_KEY unset).',
-          { lockThread: false },
+          { lockThread: false, query: text },
         );
       } else {
         try {
@@ -327,6 +357,7 @@ export async function POST(req: NextRequest) {
             // the assistant on the thread for the next message.
             await escalate(user.id, conversation.id, conversation.status, 'The assistant returned an empty response.', {
               lockThread: false,
+              query: text,
             });
           } else if (needsHuman) {
             // A real judgment that a person is required: the human owns it now.
@@ -352,7 +383,7 @@ export async function POST(req: NextRequest) {
             `AI call failed: ${detail.slice(0, 300)}`,
             // Transient by assumption: an outage or an exhausted balance must not
             // permanently take the assistant off this conversation.
-            { lockThread: false },
+            { lockThread: false, query: text },
           );
         }
       }

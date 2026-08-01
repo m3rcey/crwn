@@ -50,3 +50,88 @@ HOW TO ANSWER:
 
 RESPONSE FORMAT: return ONLY a JSON object, no markdown fences:
 {"reply": "your message to the user", "needs_human": true or false}`;
+
+// ---------------------------------------------------------------------------
+// Offline fallback: answer from the guides when the AI is unavailable.
+// ---------------------------------------------------------------------------
+// Josh's live test, 2026-08-01: DeepSeek was rejecting our calls, so every
+// message got an apology and a hand-off. But the answers to most support
+// questions are already sitting in the guides that feed the prompt, and matching
+// them needs no API, no key, and no balance. A chat that says "here is the guide
+// that covers this" beats one that says "someone will get back to you", and it
+// keeps working during any outage.
+//
+// Deliberately dumb keyword scoring, not embeddings: it must never fail, never
+// call out, and never invent. It only ever POINTS AT real guide content.
+
+const STOPWORDS = new Set([
+  'a','an','and','are','as','at','be','but','by','can','cant','do','does','for','from','get','got','has','have',
+  'how','i','if','in','is','it','its','me','my','no','not','of','on','or','so','than','that','the','then','there',
+  'these','they','this','to','up','was','what','when','where','which','why','will','with','you','your','im','ive',
+  'hello','hi','hey','please','help','question','problem','issue','need','want','about',
+]);
+
+export interface GuideMatch {
+  slug: string;
+  title: string;
+  subtitle: string;
+  path: string;
+  score: number;
+}
+
+function tokenize(q: string): string[] {
+  return q
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !STOPWORDS.has(w));
+}
+
+/** Guides ranked by keyword overlap. Empty when nothing meaningfully matches. */
+export function searchGuides(query: string, limit = 2): GuideMatch[] {
+  const terms = tokenize(query);
+  if (terms.length === 0) return [];
+
+  const scored = guides.map((g) => {
+    const title = g.title.toLowerCase();
+    const subtitle = g.subtitle.toLowerCase();
+    const category = g.category.toLowerCase();
+    const stepTitles = g.steps.map((s) => s.title.toLowerCase()).join(' ');
+    const body = g.steps.map((s) => s.content.toLowerCase()).join(' ') + ' ' + g.proTips.join(' ').toLowerCase();
+
+    let score = 0;
+    for (const t of terms) {
+      if (title.includes(t)) score += 10;
+      if (subtitle.includes(t)) score += 5;
+      if (category.includes(t)) score += 4;
+      if (stepTitles.includes(t)) score += 3;
+      if (body.includes(t)) score += 1;
+    }
+    return { slug: g.slug, title: g.title, subtitle: g.subtitle, path: `/getting-started/guides/${g.slug}`, score };
+  });
+
+  return scored
+    .filter((g) => g.score >= 5) // one title hit, or a couple of weaker ones
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit);
+}
+
+/**
+ * The reply to send when the assistant itself is unavailable. Returns matched:false
+ * when the guides have nothing relevant, so the caller can fall back to a plain
+ * apology rather than pointing someone at an unrelated article.
+ */
+export function offlineAnswer(query: string): { reply: string; matched: boolean } {
+  const hits = searchGuides(query);
+  if (hits.length === 0) return { reply: '', matched: false };
+
+  const lines = hits.map((h) => `${h.title}: ${h.subtitle} (${h.path})`);
+  return {
+    matched: true,
+    reply: [
+      'Our assistant is offline at the moment, so here is the guide that covers this:',
+      ...lines,
+      'A real person from CRWN has also been notified and will reply right here if that does not sort it.',
+    ].join('\n'),
+  };
+}
