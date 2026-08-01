@@ -1,5 +1,51 @@
 # CRWN Brain — Changelog
 
+## 2026-08-01 - Money-path guards, plan truth, and the support chat's escalation model
+
+Found by Josh's live testing, in order of severity.
+
+(1) **Platform plan double-subscribe.** `/account/billing` offered "Go Pro" to an artist already
+on Pro and opened Stripe. NOTHING checked at any layer: the billing screen read `platform_tier`
+only to display it, `PlatformTierModal` never received the current tier, and `platform-checkout`
+never selected it. Completing it would have created a real second $49/mo subscription, and because
+`handlePlatformCheckoutCompleted` stores a SINGLE `platform_stripe_subscription_id` and overwrites
+it, the first subscription would have become uncancellable from the app and billed forever.
+Guards: checkout 409s when **Stripe** reports an active subscription for the customer (the DB pair
+is only the fallback when Stripe is unreachable); the modal takes `currentTier` and disables the
+current plan. **A first attempt that refused on `platform_tier` equality alone was wrong and was
+reverted**: it would have trapped every comped/stale row as permanently unable to start paying.
+
+(2) **"Start Free" left artists billed.** `/api/account/set-starter-tier` carried a comment saying
+it only allows the downgrade if there is no paid Stripe plan, and never implemented it. It flipped
+the DB row without cancelling Stripe, so an artist on Pro who clicked it kept paying while the
+product treated them as free. Now 409s and points at the cancel route.
+
+(3) **Phantom plans: a stored tier is a claim, Stripe is the truth.** `artist_profiles` can read
+`pro`/`active` with nothing billing (every platform webhook matches by subscription id and returns
+early on a miss, so a subscription deleted in Stripe never downgrades the row). Production had
+exactly that. `src/lib/stripe/platformPlanReconcile.ts` + `/api/stripe/platform-status` ask Stripe
+and correct the row; the billing screen self-heals on load. Only downgrades when Stripe positively
+says nothing is billing. A SQL migration (`schema-phase2-reconcile-phantom-platform-plans.sql`)
+covers the narrower NULL-subscription-id case.
+
+(4) **`profiles.platform_tier` DOES NOT EXIST.** `schema-platform-tiers.sql` declares it but was
+never applied. Three code paths wrote to it and every write failed silently (supabase-js returns an
+error object rather than throwing, and none checked it). Nothing ever read it. Writes deleted;
+`artist_profiles` is the single source of truth. Do not add a mirror.
+
+(5) **Support chat escalation model.** The prompt said "ALWAYS escalate when you are not
+confident", so a vague opener went straight to a human with no attempt. It now leads with TRY
+FIRST. Escalation now splits JUDGMENT (user asked, or the assistant flagged it: thread locks to a
+human) from FAULT (key unset, API error, empty response: alert only, thread stays open so it
+self-heals). A "New question" control was added because the panel always resumes the newest
+conversation, making one escalation a permanent dead end.
+
+(6) **Plan limits are real or gone.** Members are UNCAPPED on every plan (the cap was enforced
+nowhere and the only enforcement point would be refusing a paying fan at checkout); the 50-track
+Launch cap is enforced by DB trigger; the email quota is enforced at CREATE and, authoritatively,
+at SEND (a draft-then-send bypass existed because only sent/sending/scheduled count). Tooling:
+`npm run verify:migrations` and `npm run verify:stripe`.
+
 ## 2026-07-31 - Platform repricing: Launch / Pro / Scale (CRWN_PRICING STRATEGY.md)
 
 The platform plan lineup was repriced per the founder-approved `CRWN_PRICING STRATEGY.md`.
