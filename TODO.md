@@ -27,7 +27,16 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Click Upgrade once to confirm the Stripe env wiring, then tell me.** I verified the four
+- [ ] **Two one-click confirmations only you can do (both need a logged-in session), then tell me
+      and I will delete this.**
+
+      **1. Support chat answers with AI, not an escalation.** Open `/support` and send any
+      question. A real answer means the migration and `DEEPSEEK_API_KEY` are both working. If the
+      key were missing you would instead get an escalation email that literally says "AI is not
+      configured", so this diagnoses itself; I just cannot trigger it, because the route requires
+      a session (verified: it returns 401 to me, which at least proves it deployed).
+
+      **2. Stripe env wiring.** I verified the four
       live prices exist at the right amounts on the right products (CRWN Pro $49/$490, CRWN Scale
       $199/$1,990), and that ZERO artists sit on the old $9.99 price, so there is nobody to
       grandfather and that question is closed. What I cannot check is which price id each Vercel
