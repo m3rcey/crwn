@@ -243,7 +243,23 @@ export async function POST(req: NextRequest) {
           }
         } catch (err) {
           console.error('[support-chat] assistant error:', err);
-          await escalate(user.id, conversation.id, conversation.status, 'AI call failed.');
+          // Name the actual failure. "AI call failed." threw away the one detail
+          // that says what to fix: an invalid key, an exhausted DeepSeek balance
+          // (402, common on a new key) and a timeout all looked identical, so the
+          // founder alert could not tell you which. The reason goes to the
+          // escalation email only, never to the user.
+          const detail =
+            err && typeof err === 'object' && 'status' in err
+              ? `HTTP ${(err as { status?: number }).status} ${(err as { message?: string }).message ?? ''}`
+              : err instanceof Error
+                ? err.message
+                : String(err);
+          await escalate(
+            user.id,
+            conversation.id,
+            conversation.status,
+            `AI call failed: ${detail.slice(0, 300)}`,
+          );
         }
       }
     }

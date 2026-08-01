@@ -64,12 +64,27 @@ export async function POST(request: NextRequest) {
     // Get the user's artist profile. RLS still scopes this to the caller.
     const { data: artist } = await supabase
       .from('artist_profiles')
-      .select('id, profile:profiles(display_name)')
+      .select('id, platform_tier, platform_subscription_status, profile:profiles(display_name)')
       .eq('user_id', user.id)
       .single();
 
     if (!artist) {
       return NextResponse.json({ error: 'Artist profile not found' }, { status: 404 });
+    }
+
+    // ALREADY ON THIS PLAN? Refuse. Nothing used to check this at any layer, so an
+    // artist already on Pro could open checkout and be charged a SECOND $49/mo.
+    // Worse, the webhook stores one subscription id per artist, so the second
+    // subscription would overwrite the first and the app could no longer cancel
+    // the original. Plan changes go through the billing portal, not a new session.
+    if (artist.platform_tier === tierId) {
+      return NextResponse.json(
+        {
+          error: `You are already on ${tierId === 'pro' ? 'Pro' : 'Scale'}. Use Manage Subscription to change your billing cycle or cancel.`,
+          alreadySubscribed: true,
+        },
+        { status: 409 },
+      );
     }
 
     const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
@@ -85,6 +100,37 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     let customerId = billing?.platform_stripe_customer_id;
+
+    // Stripe is the authority on whether they are already paying. The DB check
+    // above misses the case where a webhook never landed, leaving platform_tier
+    // 'starter' while a real subscription bills every month. Reusing the customer
+    // id does NOT dedupe: Stripe happily runs two subscriptions to the same price
+    // on one customer, so this lookup is the only thing standing between a
+    // double-charge and the artist.
+    if (customerId) {
+      try {
+        const existing = await stripe.subscriptions.list({
+          customer: customerId,
+          status: 'active',
+          limit: 10,
+        });
+        const live = existing.data.filter((s) => !s.cancel_at_period_end || s.status === 'active');
+        if (live.length > 0) {
+          return NextResponse.json(
+            {
+              error:
+                'You already have an active CRWN plan. Use Manage Subscription to change or cancel it, so you are never billed twice.',
+              alreadySubscribed: true,
+            },
+            { status: 409 },
+          );
+        }
+      } catch (err) {
+        // Never block a legitimate upgrade because Stripe was briefly unreachable.
+        // The DB guard above still applies.
+        console.error('platform-checkout: could not list existing subscriptions', err);
+      }
+    }
 
     if (!customerId) {
       const customer = await stripe.customers.create({

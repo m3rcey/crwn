@@ -186,6 +186,7 @@ export function PlatformBilling() {
 
       <PlatformTierModal
         isOpen={showTierModal}
+        currentTier={tier}
         onComplete={() => setShowTierModal(false)}
       />
 

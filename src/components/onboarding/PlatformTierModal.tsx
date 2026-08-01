@@ -88,9 +88,16 @@ const PLATFORM_TIERS: PlatformTier[] = [
 interface PlatformTierModalProps {
   isOpen: boolean;
   onComplete?: () => void;
+  /**
+   * The plan the artist is already on. Without it this modal offered "Go Pro" to
+   * an artist already paying for Pro, and the checkout route had no guard either,
+   * so completing it created a SECOND $49/mo subscription. The server refuses now;
+   * this stops the button from lying in the first place.
+   */
+  currentTier?: string | null;
 }
 
-export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps) {
+export function PlatformTierModal({ isOpen, onComplete, currentTier }: PlatformTierModalProps) {
   const { user } = useAuth();
   const router = useRouter();
   const supabase = createBrowserSupabaseClient();
@@ -108,7 +115,11 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
 
   if (!isOpen) return null;
 
+  // 'starter' is the implicit default when nothing is stored.
+  const isCurrent = (tier: PlatformTier) => (currentTier || 'starter') === tier.id;
+
   const handleSelectTier = async (tier: PlatformTier) => {
+    if (isCurrent(tier)) return;
     if (!user) return;
 
     if (tier.monthlyPrice === 0) {
@@ -254,7 +265,7 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
 
                 <button
                   onClick={() => handleSelectTier(tier)}
-                  disabled={isLoading === tier.id}
+                  disabled={isLoading === tier.id || isCurrent(tier)}
                   className={`mt-5 w-full py-3 rounded-xl font-semibold transition-colors disabled:opacity-50 ${
                     tier.popular
                       ? 'neu-button-accent text-crwn-bg'
@@ -263,6 +274,8 @@ export function PlatformTierModal({ isOpen, onComplete }: PlatformTierModalProps
                 >
                   {isLoading === tier.id ? (
                     <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                  ) : isCurrent(tier) ? (
+                    'Your current plan'
                   ) : tier.monthlyPrice === 0 ? (
                     'Start Free'
                   ) : (

@@ -351,6 +351,22 @@ This silently killed every checkout, payout, and Stripe-connect flow on the plat
 - To verify, probe production with the ANON key, never a superuser session:
   `curl "$URL/rest/v1/artist_profiles?select=slug,stripe_connect_id" -H "apikey: $ANON"`
 
+### A platform plan change is never a new checkout session
+
+An artist already on a paid plan must NEVER be able to open a new platform checkout: Stripe runs
+unlimited concurrent subscriptions on one customer, and `handlePlatformCheckoutCompleted` stores a
+SINGLE `platform_stripe_subscription_id`, so a second subscription overwrites the first and the app
+can no longer cancel the original. It bills forever. Guards, all of which must stay:
+- `platform-checkout` refuses with 409 when `artist_profiles.platform_tier` already equals the
+  requested tier, AND when Stripe reports an active subscription for the customer (the DB check
+  alone misses a webhook that never landed).
+- `PlatformTierModal` takes `currentTier` and renders the current plan as a disabled
+  "Your current plan". The UI is not the control, but it should not lie either.
+- `set-starter-tier` refuses when a paid plan exists. It only ever flipped the DB row, so
+  "Start Free" used to leave the artist billed while the product treated them as free.
+  Cancellation goes through the cancel route, and the downgrade lands via the
+  `customer.subscription.deleted` webhook, never from a button.
+
 ### Stripe Platform vs Connect — THIS CAUSES THE MOST BUGS
 
 - **Subscriptions live on the PLATFORM account, NOT Connect** — NEVER pass `stripeAccount` to subscription retrieve/update/cancel calls.
