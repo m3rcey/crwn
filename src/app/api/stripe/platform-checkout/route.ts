@@ -72,20 +72,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Artist profile not found' }, { status: 404 });
     }
 
-    // ALREADY ON THIS PLAN? Refuse. Nothing used to check this at any layer, so an
-    // artist already on Pro could open checkout and be charged a SECOND $49/mo.
-    // Worse, the webhook stores one subscription id per artist, so the second
-    // subscription would overwrite the first and the app could no longer cancel
-    // the original. Plan changes go through the billing portal, not a new session.
-    if (artist.platform_tier === tierId) {
-      return NextResponse.json(
-        {
-          error: `You are already on ${tierId === 'pro' ? 'Pro' : 'Scale'}. Use Manage Subscription to change your billing cycle or cancel.`,
-          alreadySubscribed: true,
-        },
-        { status: 409 },
-      );
-    }
+    // Whether to refuse is decided by STRIPE (below), never by platform_tier alone.
+    //
+    // platform_tier can read 'pro' with nothing billing behind it: a partner-code
+    // trial completes without payment, a test-mode webhook writes it, a
+    // subscription deleted in Stripe that could not be matched by id leaves it
+    // stale, and it can be set by hand. Production has exactly such a row today
+    // (tier 'pro', status 'active', no Stripe subscription). Refusing on the label
+    // would trap those accounts as permanently unable to start actually paying,
+    // which is a worse bug than the double-charge it was meant to prevent.
 
     const profile = Array.isArray(artist.profile) ? artist.profile[0] : artist.profile;
 
@@ -101,12 +96,14 @@ export async function POST(request: NextRequest) {
 
     let customerId = billing?.platform_stripe_customer_id;
 
-    // Stripe is the authority on whether they are already paying. The DB check
-    // above misses the case where a webhook never landed, leaving platform_tier
-    // 'starter' while a real subscription bills every month. Reusing the customer
-    // id does NOT dedupe: Stripe happily runs two subscriptions to the same price
-    // on one customer, so this lookup is the only thing standing between a
-    // double-charge and the artist.
+    // THE double-charge guard, and the authoritative one: is Stripe actually
+    // billing this customer right now? Reusing the customer id does NOT dedupe,
+    // because Stripe runs unlimited concurrent subscriptions to the same price on
+    // one customer. And the app stores a SINGLE platform_stripe_subscription_id,
+    // so a second subscription would overwrite the first and leave it
+    // uncancellable from the app, billing forever.
+    //
+    // No customer id means nothing can be billing yet, so there is nothing to check.
     if (customerId) {
       try {
         const existing = await stripe.subscriptions.list({
@@ -114,8 +111,7 @@ export async function POST(request: NextRequest) {
           status: 'active',
           limit: 10,
         });
-        const live = existing.data.filter((s) => !s.cancel_at_period_end || s.status === 'active');
-        if (live.length > 0) {
+        if (existing.data.length > 0) {
           return NextResponse.json(
             {
               error:
@@ -126,9 +122,19 @@ export async function POST(request: NextRequest) {
           );
         }
       } catch (err) {
-        // Never block a legitimate upgrade because Stripe was briefly unreachable.
-        // The DB guard above still applies.
+        // Stripe unreachable: fall back to what the database believes. Conservative
+        // on purpose, because the cost of wrongly allowing is a duplicate charge
+        // while the cost of wrongly refusing is a retry in a minute.
         console.error('platform-checkout: could not list existing subscriptions', err);
+        if (artist.platform_tier === tierId && artist.platform_subscription_status === 'active') {
+          return NextResponse.json(
+            {
+              error: 'We could not confirm your current plan with Stripe. Please try again in a moment.',
+              alreadySubscribed: true,
+            },
+            { status: 409 },
+          );
+        }
       }
     }
 

@@ -27,6 +27,17 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the phantom-plan reconcile FIRST, then do the two checks below:**
+      [`supabase/schema-phase2-reconcile-phantom-platform-plans.sql`](supabase/schema-phase2-reconcile-phantom-platform-plans.sql).
+      Your `m3rcey` row claims `platform_tier = 'pro'` with `platform_subscription_status =
+      'active'`, but live Stripe has NO platform subscription behind it. That row cannot use
+      Manage Subscription (the portal errors), cannot Cancel (404, no subscription id), and now
+      shows Pro as "Your current plan" and disabled, so **you cannot click Upgrade to Pro to test
+      the Stripe wiring until this runs.** The migration only touches rows with a paid tier and a
+      NULL subscription id, and it self-verifies. If you meant that as a comp, it clears it: comp
+      with a 100% off coupon on a real subscription instead, so the portal and webhooks keep
+      working. The file shows the one-line SQL to re-set it by hand.
+
 - [ ] **Two one-click confirmations only you can do (both need a logged-in session), then tell me
       and I will delete this.**
 

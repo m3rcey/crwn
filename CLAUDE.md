@@ -357,9 +357,12 @@ An artist already on a paid plan must NEVER be able to open a new platform check
 unlimited concurrent subscriptions on one customer, and `handlePlatformCheckoutCompleted` stores a
 SINGLE `platform_stripe_subscription_id`, so a second subscription overwrites the first and the app
 can no longer cancel the original. It bills forever. Guards, all of which must stay:
-- `platform-checkout` refuses with 409 when `artist_profiles.platform_tier` already equals the
-  requested tier, AND when Stripe reports an active subscription for the customer (the DB check
-  alone misses a webhook that never landed).
+- `platform-checkout` refuses with 409 when **Stripe** reports an active subscription for the
+  customer. Stripe is the authority; `platform_tier` is only a label and several paths set it to
+  `pro` with nothing billing (a partner-code trial, a test-mode webhook, an unmatched
+  `subscription.deleted`, a manual write). **Never refuse on the label alone** — that traps those
+  accounts as unable to ever start paying, which is worse than the double charge. The DB pair
+  (tier match AND status active) is only the fallback when Stripe is unreachable.
 - `PlatformTierModal` takes `currentTier` and renders the current plan as a disabled
   "Your current plan". The UI is not the control, but it should not lie either.
 - `set-starter-tier` refuses when a paid plan exists. It only ever flipped the DB row, so
