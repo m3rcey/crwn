@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { STRIPE_PRICE_IDS, TIER_PRICING } from '@/lib/platformTier';
+import { isPlatformPlanSubscription } from '@/lib/stripe/platformPlanReconcile';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
 
@@ -111,7 +112,12 @@ export async function POST(request: NextRequest) {
           status: 'active',
           limit: 10,
         });
-        if (existing.data.length > 0) {
+        // Only CRWN's own plans count. Fan tier subscriptions live on the same
+        // Stripe account and can sit on the same customer: production had an
+        // artist whose platform customer carried an active $10/month FAN tier,
+        // which made this guard refuse to sell them a real plan forever.
+        const livePlans = existing.data.filter(isPlatformPlanSubscription);
+        if (livePlans.length > 0) {
           return NextResponse.json(
             {
               error:

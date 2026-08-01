@@ -10,6 +10,12 @@
 // row. The result is an account that is treated as paying, cannot open the
 // billing portal, cannot cancel, and shows its plan as "current" in the picker.
 //
+// Confirmed cause in production (Josh, 2026-08-01): he subscribed to Pro while
+// Stripe was in TEST mode. The test webhook wrote platform_tier 'pro' and a
+// TEST-mode subscription id, which the LIVE api answers with resource_missing
+// forever. Test-mode traffic writing to the production database is exactly how a
+// row ends up claiming a plan nobody is paying for.
+//
 // A SQL migration cannot fix this class: deciding whether a subscription is live
 // requires asking Stripe. Hence code.
 //
@@ -19,13 +25,45 @@
 // than briefly trusting a stale row.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
+import { STRIPE_PRICE_IDS, TIER_PRICING } from '@/lib/platformTier';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any, any, any>;
 
 /** Stripe statuses that mean money is (or is about to be) moving. */
 const LIVE_STATUSES = new Set(['active', 'trialing', 'past_due', 'unpaid']);
+
+/**
+ * Is this subscription one of CRWN's own PLATFORM PLANS (Pro/Scale), as opposed
+ * to any other subscription sitting on the same Stripe customer?
+ *
+ * This distinction is the whole ballgame. Fan tier subscriptions live on the
+ * SAME platform Stripe account, and in production one artist's platform customer
+ * carried an active $10/month FAN tier subscription. Treating "has any live
+ * subscription" as "is on a paid plan" made that artist permanently look like a
+ * Pro subscriber: the reconciler refused to correct the row and checkout refused
+ * to sell them a real plan.
+ *
+ * Matched by configured price id first, then by amount as a backstop so a plan
+ * still resolves if an env var is momentarily unset.
+ */
+const PLAN_AMOUNTS = new Set<number>([
+  TIER_PRICING.pro.monthly,
+  TIER_PRICING.pro.annual,
+  TIER_PRICING.scale.monthly,
+  TIER_PRICING.scale.annual,
+]);
+
+export function isPlatformPlanSubscription(sub: Stripe.Subscription): boolean {
+  const planPriceIds = new Set(Object.values(STRIPE_PRICE_IDS).filter(Boolean));
+  return sub.items.data.some((item) => {
+    const price = item.price;
+    if (price?.id && planPriceIds.has(price.id)) return true;
+    return typeof price?.unit_amount === 'number' && PLAN_AMOUNTS.has(price.unit_amount);
+  });
+}
 
 export interface PlatformPlanState {
   tier: string;
@@ -56,7 +94,7 @@ export async function reconcilePlatformPlan(admin: Db, artistId: string): Promis
     if (artist.platform_stripe_subscription_id) {
       try {
         const sub = await stripe.subscriptions.retrieve(artist.platform_stripe_subscription_id as string);
-        live = LIVE_STATUSES.has(sub.status);
+        live = LIVE_STATUSES.has(sub.status) && isPlatformPlanSubscription(sub);
       } catch (err) {
         // resource_missing is the answer we want: the subscription is gone.
         // Anything else is an outage, and we must not act on it.
@@ -73,7 +111,7 @@ export async function reconcilePlatformPlan(admin: Db, artistId: string): Promis
         status: 'all',
         limit: 10,
       });
-      live = list.data.some((s) => LIVE_STATUSES.has(s.status));
+      live = list.data.some((s) => LIVE_STATUSES.has(s.status) && isPlatformPlanSubscription(s));
     }
   } catch (err) {
     console.error('[platformPlanReconcile] Stripe unreachable, leaving the row alone', err);

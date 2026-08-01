@@ -34,6 +34,7 @@ export function SupportChatPanel() {
   const [unavailable, setUnavailable] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollBoxRef = useRef<HTMLDivElement>(null);
   const conversationIdRef = useRef<string | null>(null);
   conversationIdRef.current = chat.conversationId;
 
@@ -94,8 +95,14 @@ export function SupportChatPanel() {
     };
   }, [open, user, chat.conversationId]);
 
+  // Keep the chat pinned to its newest message WITHOUT moving the page.
+  // scrollIntoView scrolls every scrollable ancestor, including the window, so
+  // any action that changed the message list yanked the whole Support page down
+  // to the composer. Scrolling the message box directly cannot move the page.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const box = scrollBoxRef.current;
+    if (!box) return;
+    box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
   }, [chat.messages.length, open]);
 
   const post = async (payload: Record<string, unknown>) => {
@@ -211,7 +218,7 @@ export function SupportChatPanel() {
         </div>
       </div>
 
-      <div className="h-80 overflow-y-auto p-4 space-y-3">
+      <div ref={scrollBoxRef} className="h-80 overflow-y-auto p-4 space-y-3">
         {loadingHistory ? (
           <div className="h-full flex items-center justify-center">
             <Loader2 className="w-5 h-5 text-crwn-gold animate-spin" />
