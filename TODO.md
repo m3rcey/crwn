@@ -173,20 +173,22 @@ responsible for. Do not work those.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Decide whether to turn the Quest Engine on.** It is built, dark, and has been since it
-      shipped: `/api/quests` returns `{enabled:false}`, so Rise Mode renders the roadmap card plus
-      the starter-offer card and none of the 74 quests. That screen is coherent as-is, which is
-      why this is P2 and not higher. What is dormant: the whole Level 1-10 progression, XP, and
-      the launch journey I added on 2026-07-31 (first page visit → first free member → first
-      paying supporter → first delivered promise, all completing automatically from real data).
-      I cannot flip it (no DB access). One statement in the Supabase SQL editor:
+- [ ] **Quest Engine: LEAVE IT DARK until the release-strategy build lands.** My recommendation,
+      2026-08-01, so this is a "do not do it yet" item rather than a decision waiting on you.
+      Quest progress is STORED (`quest_instances`, `xp_ledger`, `user_progression`); the roadmap
+      is DERIVED on read and stores nothing. `CRWN_UPDATED_RELEASE_STRATEGY.md` rewrites what the
+      right next action is (membership strategy presets, content classes, release waterfalls,
+      free-to-paid live progression), so flipping the engine first means artists accumulate real
+      progress against a catalog we are about to rewrite, and rewritten templates leave completed
+      instances pointing at dead keys. Flip it in the SAME change that ships the new catalog:
 
       ```sql
       UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'quest_engine';
       ```
 
-      Reverse it by setting `false`. Nothing else changes: quests are guidance, never access
-      control, so turning it on cannot gate a feature an artist already had.
+      Reverse with `false`. Quests are guidance, never access control, so it cannot gate a feature
+      an artist already had. Meanwhile the roadmap covers the activation loop (first visit, first
+      dollar, first delivered promise) and I can change it freely.
 
 ---
 

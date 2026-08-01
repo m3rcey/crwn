@@ -159,6 +159,13 @@ export function buildRoadmapDefs(opts: {
           source: { kind: 'check', check: 'artist_has_community_post' },
         },
         {
+          key: 'private-first-visit',
+          label: 'Get your first page visit',
+          detail: 'Someone has to actually open the link. No visits means a reach problem, not an offer problem, and the fix is different.',
+          href: share,
+          source: { kind: 'check', check: 'artist_first_visit' },
+        },
+        {
           key: 'private-first-10',
           label: 'Invite your first 10 fans',
           detail: 'Ten trusted fans through the free front door. Send your link directly, one at a time.',

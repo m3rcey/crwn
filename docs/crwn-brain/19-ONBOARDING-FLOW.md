@@ -190,6 +190,12 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
   `artist_promise_fulfilled` DomainCheck, the same fact the roadmap's `promises_completed`
   uses. The announcement + first-visit quests deep-link to the Launch Kit
   (`/studio/fans?view=campaigns`), the promise quest to `/studio/promise`.
+- **Roadmap covers the first visit** (2026-08-01): `private-first-visit` sits between the welcome
+  post and the first 10 free members, reading the `artist_first_visit` DomainCheck. It exists
+  because the roadmap jumped from "announce" to "get 10 members" with nothing in between, so an
+  artist with zero traffic was told to work on conversion when the real problem was reach.
+  Deliberately in the ROADMAP (derived on read, changes freely) rather than only in the quest
+  catalog (stored progress), while the Quest Engine stays dark ahead of the release-strategy work.
 - **Funnel coverage of the launch itself** (2026-08-01): artist page visits now emit
   `page_viewed` with `artistId` from `/api/admin/track` (deduped per visitor per day, the same
   grain as `artist_page_visits`), so "first fan visit" is finally visible in `funnel_events`.
