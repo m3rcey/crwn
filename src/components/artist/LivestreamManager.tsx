@@ -12,6 +12,8 @@ import { BroadcasterStudio } from './BroadcasterStudio';
 import { LiveGoalsEditor } from './LiveGoalsEditor';
 import { EditRecordingModal } from './EditRecordingModal';
 import { GoLiveAgreementModal } from '@/components/live/GoLiveAgreementModal';
+import { OptionSelect } from '@/components/ui/OptionSelect';
+import { LIVE_SESSION_TEMPLATES, audienceTierIds, liveTemplate } from '@/lib/liveSessionTemplates';
 import { SubmissionReviewPanel } from '@/components/producer/SubmissionReviewPanel';
 import { SessionStatsPanel } from '@/components/producer/SessionStatsPanel';
 import { validateUpload } from '@/lib/uploadValidation';
@@ -50,6 +52,8 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
 
   // Form state
   const [mode, setMode] = useState<'live' | 'prerecorded'>('live');
+  // Which session template prefilled the form (display state for the dropdown only).
+  const [templateKey, setTemplateKey] = useState<string | null>(null);
   // Executive Producer Session fields (only offered while the flag is on + mode=live).
   const [acceptsSubmissions, setAcceptsSubmissions] = useState(false);
   const [submissionPrompt, setSubmissionPrompt] = useState('');
@@ -182,6 +186,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
 
   const resetForm = () => {
     setMode('live');
+    setTemplateKey(null);
     setVisibility('public');
     setVideoFile(null);
     setThumbnailFile(null);
@@ -578,6 +583,40 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                   </p>
                 </div>
               </>
+            )}
+
+            {/* Session templates (release strategy 28.5): a blank live form asks
+                the artist to invent the format every time. A template is a
+                PREFILL of fields this form already has; everything stays
+                editable. Only on create, never while editing a real session. */}
+            {mode === 'live' && !editingSession && (
+              <div>
+                <label className="block text-crwn-text-secondary text-sm mb-1">Start from a session type</label>
+                <OptionSelect
+                  options={LIVE_SESSION_TEMPLATES.filter((t) => !t.producerSession || producerEnabled).map((t) => ({
+                    value: t.key,
+                    label: t.name,
+                    hint: t.hint,
+                  }))}
+                  value={templateKey}
+                  onChange={(key) => {
+                    const t = liveTemplate(key);
+                    if (!t) return;
+                    setTemplateKey(key);
+                    setTitle(t.title);
+                    setDescription(t.agenda);
+                    const tierIds = audienceTierIds(t.audience, tierList);
+                    setIsFree(tierIds.length === 0);
+                    setSelectedTiers(tierIds);
+                    if (t.maxSlots) setMaxSlots(t.maxSlots);
+                    if (t.producerSession && producerEnabled) {
+                      setAcceptsSubmissions(true);
+                      if (t.submissionPrompt) setSubmissionPrompt(t.submissionPrompt);
+                    }
+                  }}
+                  placeholder="Pick a format, or build your own below"
+                />
+              </div>
             )}
 
             <div>

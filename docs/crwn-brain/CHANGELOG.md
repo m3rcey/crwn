@@ -20,10 +20,16 @@ write a future `public_release_date` with an empty tier list, which `GatedTrackP
 locked for EVERYONE (paying members included) for the whole window; and early access on an
 is_free=false track never actually opened to the public. `paid_first` keeps `is_free: true` so
 "public later" is real, refuses to encode with zero tiers, and editing a mid-window track keeps
-its existing date so unrelated edits cannot silently extend the window. Deferred, in order:
-per-tier waterfall automation (Pro; per-tier dates need an entitlement change), the strategy
-builder questionnaire (declared facts like unreleased count feed `StrategyFacts` when it exists),
-live-session templates, quest catalog realignment (the Quest Engine stays dark until then).
+its existing date so unrelated edits cannot silently extend the window. (4) **Declared facts** (same day):
+the strategy card asks the two questions that separate the strategies (unreleased depth, release
+cadence) as range dropdowns; stored in `artist_profiles.declared_unreleased_tracks` /
+`declared_releases_per_year` (same migration, idempotent) and re-derives live. (5) **Live-session
+templates** (same day, spec 28.5): `src/lib/liveSessionTemplates.ts` (7 templates, tested) with an
+OptionSelect picker in `LivestreamManager`; a template is a PREFILL of fields the form already has
+(title, agenda, free vs paid vs top-tier audience via `audienceTierIds`, capacity, and the
+Executive Producer template pre-wires submissions when the flag is on). Only on create, never
+while editing. Deferred, in order: per-tier waterfall automation (Pro; per-tier dates need an
+entitlement change), quest catalog realignment (the Quest Engine stays dark until then).
 
 ## 2026-08-01 - Money-path guards, plan truth, and the support chat's escalation model
 
