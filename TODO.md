@@ -229,6 +229,19 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **NEXT UP: realign the quest catalog to the membership strategies, then flip the Quest Engine
+  on.** The release strategy (`CRWN_UPDATED_RELEASE_STRATEGY.md`) is otherwise implemented end
+  to end (2026-08-01): brain, content classes, declared facts, live templates, waterfall. The
+  74-quest catalog still describes the pre-strategy journey, and quest progress is STORED, so
+  the catalog must be rewritten BEFORE the engine goes live or artists accumulate XP against
+  content about to change. The plan, so the next session starts cold: (1) rewrite
+  `src/lib/quests/templates.ts` levels 5-10 around the strategy vocabulary (launch the monthly
+  promise, first waterfall release, first live from a template, first vault unlock), reusing
+  the existing DomainChecks plus `artist_promise_fulfilled`/`artist_first_visit`; (2) keep
+  every existing template KEY that still fits (stored instances reference keys); (3)
+  `npm run verify:quests` + tests; (4) ship the flag flip as a migration file in the same
+  commit. One session, no migrations for Josh beyond the flip file.
+
 - **Launch-spec remainders (each its own session, in this order).** Done this round: ladder
   prefill from the artist's own draft, per-tag segment targeting for imported contacts, the
   richer plan intro, cadence changes propagating to existing obligations, Share-to-Earn config

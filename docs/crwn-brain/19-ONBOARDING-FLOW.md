@@ -167,6 +167,11 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
 
 ## G. Inside CRWN: the command screen and the loops that keep running
 
+- **The membership strategy card** (2026-08-01) sits between the roadmap and Rise Mode: the
+  deterministic Release Club vs Vault pick (`/api/artist/strategy`, derived on read), the monthly
+  promise by platform plan, what each rung means in this strategy, the two declared questions
+  (unreleased depth, release cadence) that can flip the recommendation live, and a switch stored
+  as the artist's override.
 - **The landing is Rise Mode** (`/profile/artist`), topped by `RoadmapCard`: the 5-stage
   personalized roadmap (Foundation → Private launch → Audience launch → Deliver and retain →
   Expand, `src/lib/artistRoadmap.ts` + `/api/artist/roadmap`), derived through the Quest

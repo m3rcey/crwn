@@ -72,7 +72,11 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 ## Gamified growth & fan engagement
 | Feature | Routes / files | Status |
 |---|---|---|
-| Quest Engine / Rise Mode / Supporter Mode | `RiseMode`, `SupporterMode`, `src/lib/quests/*`, `/api/quests/*`; `admin_settings.quest_engine` flag **off** | **Experimental/dark-launched** (actively worked, 2 recent bugfixes) |
+| Quest Engine / Rise Mode / Supporter Mode | `RiseMode`, `SupporterMode`, `src/lib/quests/*`, `/api/quests/*`; `admin_settings.quest_engine` flag **off** | **Experimental/dark-launched** (stays dark until the quest catalog is realigned to the membership strategies) |
+| Membership strategy (Release Club / Vault) | `src/lib/membershipStrategy.ts` (pure, tested, deterministic), `/api/artist/strategy` (derived on read; override + declared facts stored on `artist_profiles`, migration `schema-phase2-membership-strategy.sql`), `StrategyCard` on `/profile/artist`, `announce_membership_strategy` pop-up. Spec tier names are ROLES mapped onto the pinned Bronze/Silver/Gold/Platinum rungs | **Live** (2026-08-01) |
+| Content classes (free forever / paid first / member only) | `classifyTrack`/`fieldsForClass` in `membershipStrategy.ts`; the ONE access control in `TrackUploadForm` (OptionSelect), encoded onto existing `is_free`/`allowed_tier_ids`/`public_release_date`. Replaced the two-toggle UI whose free+early-access combo locked a track for EVERYONE during the window | **Live** (2026-08-01) |
+| Release waterfall (higher tiers first) | `src/lib/waterfall.ts` (spec offsets 30/14/7 by PRICE order, tested), schedule on `tracks.waterfall` (migration `schema-phase2-track-waterfall.sql`), opened ADDITIVELY by the daily scheduled-releases cron; entitlement gate untouched by design. Upload form offers all-at-once vs staggered; fail-soft pre-migration | **Live** (2026-08-01) |
+| Live-session templates | `src/lib/liveSessionTemplates.ts` (7 formats incl. free monthly check-in + Executive Producer small room), OptionSelect picker in `LivestreamManager`, prefill-only over existing fields, `audienceTierIds` resolves top/paid/everyone against the real ladder | **Live** (2026-08-01) |
 | Missions | `/missions`, `/missions/new`, `(main)/my-missions`, `/api/missions/*`, `missions.ts` | **Production-ready** |
 | Mission suggestions | `/[slug]/suggest-mission`, `/api/mission-suggestions/*` | **Production-ready** |
 | Squads | `/squads(/new)`, `/my-squads`, `/api/squads/*`, `squads.ts` | **Production-ready** |
