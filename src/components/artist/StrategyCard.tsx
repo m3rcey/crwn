@@ -14,6 +14,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Compass } from 'lucide-react';
+import { OptionSelect } from '@/components/ui/OptionSelect';
 import { RECOMMENDED_LADDER } from '@/lib/tierTemplate';
 import type {
   MembershipStrategyDef,
@@ -27,7 +28,24 @@ interface StrategyResponse {
   active: MembershipStrategyKey;
   strategy: MembershipStrategyDef;
   platformPlan: string;
+  facts: { unreleasedTracks?: number | null; releasesPerYear?: number | null };
 }
+
+// The two DECLARED questions that actually separate the strategies (spec
+// section 20). Ranges, not numbers: the artist knows "a lot" better than "23",
+// and each range maps to one deterministic value the brain thresholds on.
+const UNRELEASED_OPTIONS = [
+  { value: '0', label: 'Nothing unreleased', hint: 'Everything I have is out' },
+  { value: '5', label: 'A few songs', hint: 'A handful of demos or leftovers' },
+  { value: '15', label: 'A real archive', hint: 'Ten to twenty five unreleased songs' },
+  { value: '40', label: 'A deep vault', hint: 'More than twenty five' },
+];
+const CADENCE_OPTIONS = [
+  { value: '12', label: 'Monthly or more', hint: 'I release all the time' },
+  { value: '5', label: 'Every few months', hint: 'A handful of drops a year' },
+  { value: '2', label: 'Once or twice a year', hint: 'Big drops, long gaps' },
+  { value: '0', label: 'Rarely right now', hint: 'Nothing on the calendar' },
+];
 
 const rungName = (key: string) => RECOMMENDED_LADDER.find((t) => t.key === key)?.name ?? key;
 
@@ -55,6 +73,29 @@ export function StrategyCard() {
   const otherKey: MembershipStrategyKey = activeKey === 'release_club' ? 'vault_membership' : 'release_club';
   const promise = platformPlan === 'starter' ? strategy.monthlyPromise.launch : strategy.monthlyPromise.pro;
   const isRecommended = activeKey === recommendation.strategy;
+
+  const saveFacts = async (patch: { unreleasedTracks?: number; releasesPerYear?: number }) => {
+    if (switching) return;
+    setSwitching(true);
+    try {
+      const res = await fetch('/api/artist/strategy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      // Pre-migration the save 503s; the card just keeps showing the derived
+      // recommendation, which is the documented fail-soft.
+      if (res.ok) {
+        const fresh = await fetch('/api/artist/strategy');
+        if (fresh.ok) {
+          const j = await fresh.json();
+          if (j?.strategy) setData(j);
+        }
+      }
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   const switchTo = async (key: MembershipStrategyKey) => {
     if (switching) return;
@@ -167,6 +208,34 @@ export function StrategyCard() {
             >
               Promise Calendar
             </Link>
+          </div>
+
+          {/* The two declared questions that decide the recommendation. Answering
+              can flip it, which is the point: the brain thresholds on these. */}
+          <div className="pt-1 border-t border-crwn-elevated/60">
+            <p className="text-[11px] text-crwn-text-secondary mt-2 mb-1.5">
+              Tune the recommendation (only you know these):
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <p className="text-[11px] text-crwn-text-secondary mb-1">Unreleased music</p>
+                <OptionSelect
+                  options={UNRELEASED_OPTIONS}
+                  value={data.facts.unreleasedTracks != null ? String(data.facts.unreleasedTracks) : null}
+                  onChange={(v) => saveFacts({ unreleasedTracks: parseInt(v) })}
+                  placeholder="How much is unreleased?"
+                />
+              </div>
+              <div>
+                <p className="text-[11px] text-crwn-text-secondary mb-1">Public release pace</p>
+                <OptionSelect
+                  options={CADENCE_OPTIONS}
+                  value={data.facts.releasesPerYear != null ? String(data.facts.releasesPerYear) : null}
+                  onChange={(v) => saveFacts({ releasesPerYear: parseInt(v) })}
+                  placeholder="How often do you release?"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Two strategies: a genuine binary, so two buttons (the dropdown rule's exception). */}

@@ -76,22 +76,31 @@ export async function GET() {
     hasRunLiveSession: (liveCount ?? 0) > 0,
     projectedMonthlyGmvCents: projected,
   };
-  const recommendation = recommendStrategy(facts);
 
-  // The artist's override, if its column exists yet.
+  // The artist's override and declared facts, if their columns exist yet.
   let override: string | null = null;
   const { data: row, error } = await supabaseAdmin
     .from('artist_profiles')
-    .select('membership_strategy')
+    .select('membership_strategy, declared_unreleased_tracks, declared_releases_per_year')
     .eq('id', artist.id)
     .maybeSingle();
-  if (!error) override = (row?.membership_strategy as string | null) ?? null;
-  else if (!missingColumn(error)) console.error('[strategy] override read failed:', error);
+  if (!error) {
+    override = (row?.membership_strategy as string | null) ?? null;
+    const unreleased = row?.declared_unreleased_tracks;
+    const perYear = row?.declared_releases_per_year;
+    if (typeof unreleased === 'number') facts.unreleasedTracks = unreleased;
+    if (typeof perYear === 'number') facts.releasesPerYear = perYear;
+  } else if (!missingColumn(error)) {
+    console.error('[strategy] override read failed:', error);
+  }
 
-  const active = isMembershipStrategyKey(override) ? override : recommendation.strategy;
+  // Re-derive with declared facts included: they are exactly what separates the
+  // two strategies, so answering the questions can flip the recommendation.
+  const recommendationWithDeclared = recommendStrategy(facts);
+  const active = isMembershipStrategyKey(override) ? override : recommendationWithDeclared.strategy;
 
   return NextResponse.json({
-    recommendation,
+    recommendation: recommendationWithDeclared,
     override: isMembershipStrategyKey(override) ? override : null,
     active,
     strategy: MEMBERSHIP_STRATEGIES[active],
@@ -109,23 +118,45 @@ export async function POST(req: NextRequest) {
   const artist = await requireArtist(user.id);
   if (!artist) return NextResponse.json({ error: 'Artist profile not found' }, { status: 404 });
 
-  let body: { strategy?: unknown };
+  let body: { strategy?: unknown; unreleasedTracks?: unknown; releasesPerYear?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
-  // null clears the override (back to the recommendation); otherwise it must be
-  // a real strategy key.
-  const value = body.strategy === null ? null : body.strategy;
-  if (value !== null && !isMembershipStrategyKey(value)) {
-    return NextResponse.json({ error: 'Unknown strategy' }, { status: 400 });
+  const patch: Record<string, unknown> = {};
+
+  // Strategy override: null clears it (back to the recommendation); otherwise it
+  // must be a real strategy key. Absent means "leave it alone".
+  if ('strategy' in body) {
+    const value = body.strategy === null ? null : body.strategy;
+    if (value !== null && !isMembershipStrategyKey(value)) {
+      return NextResponse.json({ error: 'Unknown strategy' }, { status: 400 });
+    }
+    patch.membership_strategy = value;
+  }
+
+  // Declared facts (spec section 20). Clamped, integer, null clears.
+  const declared = (v: unknown): number | null | undefined => {
+    if (v === undefined) return undefined;
+    if (v === null) return null;
+    const n = Number(v);
+    if (!Number.isFinite(n) || n < 0) return undefined;
+    return Math.min(Math.round(n), 10000);
+  };
+  const unreleased = declared(body.unreleasedTracks);
+  const perYear = declared(body.releasesPerYear);
+  if (unreleased !== undefined) patch.declared_unreleased_tracks = unreleased;
+  if (perYear !== undefined) patch.declared_releases_per_year = perYear;
+
+  if (Object.keys(patch).length === 0) {
+    return NextResponse.json({ error: 'Nothing to save' }, { status: 400 });
   }
 
   const { error } = await supabaseAdmin
     .from('artist_profiles')
-    .update({ membership_strategy: value })
+    .update(patch)
     .eq('id', artist.id);
 
   if (missingColumn(error)) {
@@ -139,5 +170,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Could not save your choice' }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, override: value });
+  return NextResponse.json({ ok: true });
 }
