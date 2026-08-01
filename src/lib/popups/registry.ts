@@ -210,6 +210,25 @@ export const POPUPS: PopupDef[] = [
     dismissLabel: 'Later',
   },
 
+  // ---- Announcement: membership strategy + content classes (artists only) ----
+  // Not feature-flagged: the strategy card and the class dropdown ship to
+  // everyone at once. Loss-framed on the real failure it fixes: charging fans
+  // only for music they can already stream is why memberships stall.
+  {
+    key: 'announce_membership_strategy',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist,
+    frequency: { type: 'once' },
+    priority: 58,
+    announcedAt: '2026-08-01',
+    goal: 'Artist opens their strategy card, classifies their catalog, and gives fans a reason to join beyond songs they can already stream.',
+    title: 'Fans will not pay for music they can already stream.',
+    body: 'If your membership only offers the same songs Spotify has, joining buys nothing and your tiers stall. Your command screen now carries your membership strategy: what each tier promises, your monthly promise, and a new way to mark every track as free forever, members first, or members only. The archive and the early window are what fans pay for.',
+    cta: { label: 'See my strategy', href: '/profile/artist' },
+    dismissLabel: 'Later',
+  },
+
   // ---- Fan: back an artist (activation, starts money flow) ----
   {
     key: 'fan_first_support',

@@ -15,6 +15,14 @@ import { BulkUploadForm } from './BulkUploadForm';
 import { QuickCreateAlbumModal } from './QuickCreateAlbumModal';
 import { QuickCreatePlaylistModal } from './QuickCreatePlaylistModal';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { OptionSelect } from '@/components/ui/OptionSelect';
+import {
+  CONTENT_CLASS_LABELS,
+  PAID_FIRST_WINDOWS,
+  classifyTrack,
+  fieldsForClass,
+  type ContentClass,
+} from '@/lib/membershipStrategy';
 import { ReleaseCreditsModal } from './ReleaseCreditsModal';
 import { Edit2, X, Upload, Plus, Loader2, Music, Award } from 'lucide-react';
 import { hapticMedium } from '@/lib/haptics';
@@ -25,21 +33,22 @@ interface SubscriptionTier {
   price: number;
 }
 
-interface TierBenefit {
-  id: string;
-  tier_id: string;
-  benefit_type: string;
-  config: Record<string, any>;
-}
-
 interface TrackFormData {
   title: string;
-  isFree: boolean;
+  /**
+   * The content class (release strategy, section 5): free forever, members
+   * first then public, or members only. This is the ONE access control; the
+   * stored fields (is_free / allowed_tier_ids / public_release_date) are
+   * derived from it via fieldsForClass() at submit. The old separate
+   * "Free to all" + "Enable early access" toggles could combine into a state
+   * that locked the track for EVERYONE during the window (a future date with
+   * an empty tier list); building fields from the class makes that impossible.
+   */
+  contentClass: ContentClass;
   allowedTierIds: string[];
   price: string;
   audioFile: File | null;
   albumArt: File | null;
-  enableEarlyAccess: boolean;
   earlyAccessDays: number;
   genre: string;
   recordLabel: string;
@@ -69,12 +78,11 @@ export function TrackUploadForm() {
 
   const [formData, setFormData] = useState<TrackFormData>({
     title: '',
-    isFree: true,
+    contentClass: 'free_forever',
     allowedTierIds: [],
     price: '',
     audioFile: null,
     albumArt: null,
-    enableEarlyAccess: false,
     earlyAccessDays: 7,
     genre: '',
     recordLabel: '',
@@ -82,8 +90,6 @@ export function TrackUploadForm() {
     explicit: false,
     aiGenerated: false,
   });
-  const [tierBenefits, setTierBenefits] = useState<TierBenefit[]>([]);
-  const [maxEarlyAccessDays, setMaxEarlyAccessDays] = useState<number>(0);
   const [selectedTrackIds, setSelectedTrackIds] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [albums, setAlbums] = useState<{id: string; title: string}[]>([]);
@@ -147,23 +153,9 @@ export function TrackUploadForm() {
         setTiers(tiersData);
       }
 
-      // Fetch tier benefits to check for early_access
-      const tierIds = tiersData?.map(t => t.id) || [];
-      if (tierIds.length > 0) {
-        const { data: benefitsData } = await supabase
-          .from('tier_benefits')
-          .select('*')
-          .in('tier_id', tierIds)
-          .eq('benefit_type', 'early_access')
-          .eq('is_active', true);
-        
-        if (benefitsData && benefitsData.length > 0) {
-          setTierBenefits(benefitsData);
-          // Get max days_early across all tiers
-          const maxDays = Math.max(...benefitsData.map((b: TierBenefit) => b.config?.days_early || 7));
-          setMaxEarlyAccessDays(maxDays);
-        }
-      }
+      // (The old early-access toggle read tier_benefits to decide whether to
+      // render; the content class replaced it, so "members first" is available
+      // whenever paid tiers exist and no benefits query is needed here.)
       // Fetch tracks. tracks_public: the audio columns are not selectable on
       // `tracks` any more, and the owner is entitled so the view returns them.
       const { data: tracksData } = await supabase
@@ -254,12 +246,11 @@ export function TrackUploadForm() {
     setEditingTrack(track);
     setFormData({
       title: track.title || '',
-      isFree: track.is_free !== false,
+      contentClass: classifyTrack(track),
       allowedTierIds: track.allowed_tier_ids || [],
       price: track.price ? (track.price / 100).toString() : '',
       audioFile: null,
       albumArt: null,
-      enableEarlyAccess: false,
       earlyAccessDays: 7,
       genre: track.genre || '',
       recordLabel: track.record_label || '',
@@ -275,12 +266,11 @@ export function TrackUploadForm() {
     setEditingTrack(null);
     setFormData({
       title: '',
-      isFree: true,
+      contentClass: 'free_forever',
       allowedTierIds: [],
       price: '',
       audioFile: null,
       albumArt: null,
-      enableEarlyAccess: false,
       earlyAccessDays: 7,
       genre: '',
       recordLabel: '',
@@ -317,10 +307,26 @@ export function TrackUploadForm() {
       showToast(`Your plan holds ${limits.tracks} tracks. Upgrade to Pro for an unlimited catalog.`, 'error');
       return;
     }
-    if (!formData.isFree && formData.allowedTierIds.length === 0 && !formData.price) {
+    if (formData.contentClass === 'member_only' && formData.allowedTierIds.length === 0 && !formData.price) {
       showToast('Pick a tier or set a one-time price', 'error');
       return;
     }
+    if (formData.contentClass === 'paid_first' && formData.allowedTierIds.length === 0) {
+      showToast('Pick which tiers hear it early', 'error');
+      return;
+    }
+
+    // The stored access fields are DERIVED from the class, never set directly:
+    // that is what makes the lock-everyone combination unrepresentable.
+    const access = fieldsForClass(formData.contentClass, {
+      tierIds: formData.allowedTierIds,
+      windowDays: formData.earlyAccessDays,
+    });
+    // One-time purchase pricing only makes sense for the members-only archive.
+    const accessPrice =
+      formData.contentClass === 'member_only' && formData.price
+        ? Math.round(parseFloat(formData.price) * 100)
+        : null;
 
     setIsUploading(true);
     setUploadProgress(0);
@@ -425,11 +431,16 @@ export function TrackUploadForm() {
         }
       }
 
-      // Calculate price in cents
-      const priceInCents = formData.price ? Math.round(parseFloat(formData.price) * 100) : null;
-
       if (editingTrack) {
-        // Update existing track
+        // Update existing track. Editing re-derives the access fields, with one
+        // exception: a members-first track mid-window KEEPS its existing public
+        // date. Re-deriving would quietly extend the window on every unrelated
+        // edit (fix a typo in the title, gain a week of exclusivity), which is a
+        // promise change the artist never made.
+        const keepExistingWindow =
+          formData.contentClass === 'paid_first' &&
+          editingTrack.public_release_date &&
+          new Date(editingTrack.public_release_date) > new Date();
         const { error: updateError } = await supabase
           .from('tracks')
           .update({
@@ -437,9 +448,10 @@ export function TrackUploadForm() {
             audio_url_128: audioUrl,
             audio_url_320: audioUrl,
             duration,
-            is_free: formData.isFree,
-            allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
-            price: formData.isFree ? null : priceInCents,
+            is_free: access.is_free,
+            allowed_tier_ids: access.allowed_tier_ids,
+            price: accessPrice,
+            public_release_date: keepExistingWindow ? editingTrack.public_release_date : access.public_release_date,
             album_art_url: albumArtUrl,
             genre: formData.genre || null,
             record_label: formData.recordLabel.trim() || null,
@@ -454,20 +466,12 @@ export function TrackUploadForm() {
         // Update local state
         setTracks(prev => prev.map(t =>
           t.id === editingTrack.id
-            ? { ...t, title: formData.title, is_free: formData.isFree, allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds, price: formData.isFree ? null : priceInCents, album_art_url: albumArtUrl }
+            ? { ...t, title: formData.title, is_free: access.is_free, allowed_tier_ids: access.allowed_tier_ids, price: accessPrice, album_art_url: albumArtUrl }
             : t
         ));
         showToast('Track updated!', 'success');
       } else {
-        // Insert new track
-        // Calculate public_release_date if early access is enabled
-        let publicReleaseDate: string | null = null;
-        if (formData.enableEarlyAccess && formData.earlyAccessDays > 0) {
-          const releaseDate = new Date();
-          releaseDate.setDate(releaseDate.getDate() + formData.earlyAccessDays);
-          publicReleaseDate = releaseDate.toISOString();
-        }
-
+        // Insert new track. Access fields come from the class (see `access` above).
         // `.select()` on the insert would RETURN *, which now requires SELECT on
         // the audio columns nobody holds. Return the id, then read the full row
         // back through tracks_public.
@@ -479,11 +483,11 @@ export function TrackUploadForm() {
             audio_url_128: audioUrl,
             audio_url_320: audioUrl,
             duration,
-            is_free: formData.isFree,
-            allowed_tier_ids: formData.isFree ? [] : formData.allowedTierIds,
-            price: formData.isFree ? null : priceInCents,
+            is_free: access.is_free,
+            allowed_tier_ids: access.allowed_tier_ids,
+            price: accessPrice,
             album_art_url: albumArtUrl,
-            public_release_date: publicReleaseDate,
+            public_release_date: access.public_release_date,
             genre: formData.genre || null,
             record_label: formData.recordLabel.trim() || null,
             isrc: formData.isrc.trim() || null,
@@ -543,12 +547,11 @@ export function TrackUploadForm() {
       setEditingTrack(null);
       setFormData({
         title: '',
-        isFree: true,
+        contentClass: 'free_forever',
         allowedTierIds: [],
         price: '',
         audioFile: null,
         albumArt: null,
-        enableEarlyAccess: false,
         earlyAccessDays: 7,
         genre: '',
         recordLabel: '',
@@ -791,45 +794,91 @@ export function TrackUploadForm() {
           <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
             Access
           </label>
-          <div className="space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.isFree}
-                onChange={(e) => {
-                  const willBeFree = e.target.checked;
-                  const paidTierIds = tiers.filter(t => t.price > 0).map(t => t.id);
-                  setFormData(p => ({
-                    ...p,
-                    isFree: willBeFree,
-                    allowedTierIds: willBeFree
-                      ? []
-                      : (p.allowedTierIds.length > 0 ? p.allowedTierIds : paidTierIds),
-                    price: willBeFree ? '' : p.price,
-                  }));
-                }}
-                className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
-              />
-              <span className="text-crwn-text text-sm">Free to all</span>
-            </label>
-            {!formData.isFree && tiers.length > 0 && tiers.map(tier => (
-              <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-6">
-                <input
-                  type="checkbox"
-                  checked={formData.allowedTierIds.includes(tier.id)}
-                  onChange={(e) => {
-                    const ids = e.target.checked
-                      ? [...formData.allowedTierIds, tier.id]
-                      : formData.allowedTierIds.filter(id => id !== tier.id);
-                    setFormData(p => ({ ...p, allowedTierIds: ids }));
-                  }}
-                  className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
-                />
-                <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
-              </label>
-            ))}
-            {!formData.isFree && (
-              <div className="ml-6 mt-2">
+          {/* One decision, three classes (release strategy section 5). The old
+              "Free to all" + "Enable early access" toggles could combine into a
+              track locked for EVERYONE during the window; the class makes the
+              broken states unrepresentable. Pick-one-of-3 = dropdown (UX rule). */}
+          <OptionSelect
+            options={(
+              ['free_forever', ...(tiers.some((t) => t.price > 0) ? (['paid_first', 'member_only'] as const) : (['member_only'] as const))] as ContentClass[]
+            ).map((cls) => ({
+              value: cls,
+              label: CONTENT_CLASS_LABELS[cls].label,
+              hint: CONTENT_CLASS_LABELS[cls].hint,
+            }))}
+            value={formData.contentClass}
+            onChange={(v) => {
+              const cls = v as ContentClass;
+              const paidTierIds = tiers.filter((t) => t.price > 0).map((t) => t.id);
+              setFormData((p) => ({
+                ...p,
+                contentClass: cls,
+                // Paid classes default to every paid tier so the common case is
+                // one tap; the artist can narrow below.
+                allowedTierIds:
+                  cls === 'free_forever' ? [] : p.allowedTierIds.length > 0 ? p.allowedTierIds : paidTierIds,
+                price: cls === 'member_only' ? p.price : '',
+              }));
+            }}
+          />
+
+          {formData.contentClass === 'paid_first' && (
+            <div className="mt-3 space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
+              <label className="block text-sm font-medium text-crwn-text-secondary">Opens to everyone after</label>
+              <select
+                value={formData.earlyAccessDays}
+                onChange={(e) => setFormData((p) => ({ ...p, earlyAccessDays: parseInt(e.target.value) }))}
+                className="neu-inset px-3 py-2 text-crwn-text"
+              >
+                {PAID_FIRST_WINDOWS.map((d) => (
+                  <option key={d} value={d}>{d} days</option>
+                ))}
+              </select>
+              <p className="text-xs text-crwn-text-secondary">
+                Members below hear it now. Everyone else sees a countdown until it opens.
+              </p>
+              <label className="block text-sm font-medium text-crwn-text-secondary pt-1">Who hears it early</label>
+              {tiers.filter((t) => t.price > 0).map((tier) => (
+                <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-1">
+                  <input
+                    type="checkbox"
+                    checked={formData.allowedTierIds.includes(tier.id)}
+                    onChange={(e) => {
+                      const ids = e.target.checked
+                        ? [...formData.allowedTierIds, tier.id]
+                        : formData.allowedTierIds.filter((id) => id !== tier.id);
+                      setFormData((p) => ({ ...p, allowedTierIds: ids }));
+                    }}
+                    className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                  />
+                  <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          {formData.contentClass === 'member_only' && (
+            <div className="mt-3 space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
+              {tiers.length > 0 && (
+                <label className="block text-sm font-medium text-crwn-text-secondary">Which tiers unlock it</label>
+              )}
+              {tiers.map((tier) => (
+                <label key={tier.id} className="flex items-center gap-2 cursor-pointer ml-1">
+                  <input
+                    type="checkbox"
+                    checked={formData.allowedTierIds.includes(tier.id)}
+                    onChange={(e) => {
+                      const ids = e.target.checked
+                        ? [...formData.allowedTierIds, tier.id]
+                        : formData.allowedTierIds.filter((id) => id !== tier.id);
+                      setFormData((p) => ({ ...p, allowedTierIds: ids }));
+                    }}
+                    className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
+                  />
+                  <span className="text-crwn-text text-sm">{tier.name} (${(tier.price / 100).toFixed(0)}/mo)</span>
+                </label>
+              ))}
+              <div className="mt-2">
                 <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
                   {tiers.length > 0 ? 'Or set a one-time price (USD)' : 'One-time price (USD)'}
                 </label>
@@ -841,7 +890,7 @@ export function TrackUploadForm() {
                     step="0.01"
                     placeholder={tiers.length > 0 ? 'Leave empty for tier access only' : '1.50'}
                     value={formData.price}
-                    onChange={(e) => setFormData(p => ({ ...p, price: e.target.value }))}
+                    onChange={(e) => setFormData((p) => ({ ...p, price: e.target.value }))}
                     className="w-full neu-inset px-3 py-2 text-crwn-text"
                   />
                 </div>
@@ -849,52 +898,9 @@ export function TrackUploadForm() {
                   Fans who buy this track keep permanent access to it.
                 </p>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Early Access Toggle */}
-        {maxEarlyAccessDays > 0 && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-crwn-text-secondary mb-2">
-              Early Access
-            </label>
-            <div className="space-y-2 bg-crwn-bg border border-crwn-elevated rounded-lg p-3">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.enableEarlyAccess}
-                  onChange={(e) => setFormData(p => ({ 
-                    ...p, 
-                    enableEarlyAccess: e.target.checked,
-                  }))}
-                  className="w-4 h-4 rounded border-crwn-elevated bg-crwn-bg text-crwn-gold focus:ring-crwn-gold"
-                />
-                <span className="text-crwn-text text-sm">Enable early access for subscribers</span>
-              </label>
-              {formData.enableEarlyAccess && (
-                <div className="ml-6 mt-2">
-                  <label className="block text-sm font-medium text-crwn-text-secondary mb-1">
-                    Release publicly after:
-                  </label>
-                  <select
-                    value={formData.earlyAccessDays}
-                    onChange={(e) => setFormData(p => ({ ...p, earlyAccessDays: parseInt(e.target.value) }))}
-                    className="neu-inset px-3 py-2 text-crwn-text"
-                  >
-                    <option value={1}>1 day</option>
-                    <option value={3}>3 days</option>
-                    <option value={7}>1 week</option>
-                    <option value={14}>2 weeks</option>
-                  </select>
-                  <p className="text-xs text-crwn-text-secondary mt-1">
-                    Fans in tiers with early access will hear it immediately. Everyone else sees a countdown.
-                  </p>
-                </div>
-              )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Upload Progress */}
         {isUploading && (

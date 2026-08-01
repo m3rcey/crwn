@@ -27,6 +27,30 @@ names and prices, so drift fails `npm test` instead of reaching an artist.
 - "The Vault" survives as a FEATURE name (the Vault Revenue Planner, the monthly vault unlock, the
   artist's private archive). It is no longer a tier name: the vault lives in the Gold tier.
 
+## Membership strategy + content classes (release strategy spec, 2026-08-01)
+
+`src/lib/membershipStrategy.ts` is the pure, tested brain for the release strategy
+(`CRWN_UPDATED_RELEASE_STRATEGY.md`). Vocabulary is strict: **platform plan** (Launch/Pro/Scale,
+what the artist pays CRWN), **membership tier** (Bronze/Silver/Gold/Platinum, what fans buy),
+**membership strategy** (Release Club / Vault Membership, how the tiers are run), **content
+class** (free forever / paid first / member only, how one piece of content is gated).
+
+- The strategy pick is DETERMINISTIC (`recommendStrategy`) and derived on read by
+  `/api/artist/strategy`, roadmap-style: nothing derived is stored. The only stored value is the
+  artist's override (`artist_profiles.membership_strategy`, migration
+  `schema-phase2-membership-strategy.sql`, fail-soft before it runs). Surfaced by `StrategyCard`
+  on `/profile/artist` between the roadmap and Rise Mode.
+- The spec's tier names (First Listen, Inner Circle, Executive, Vault) are ROLES a strategy
+  assigns to rungs; the rung names stay Bronze/Silver/Gold/Platinum (pinned by
+  `tierTemplate.test.ts`). A strategy's `tierRoles` may never carry a `name` field.
+- **Content classes are the ONE track access control.** `fieldsForClass()` derives
+  `is_free`/`allowed_tier_ids`/`public_release_date`; `classifyTrack()` reads them back. Never
+  set those fields directly in a form: the old independent toggles could produce a future date
+  with an empty tier list, which the gate reads as LOCKED FOR EVERYONE (members included) for
+  the whole window. `paid_first` keeps `is_free: true` (that is what makes "public later" real)
+  and degrades to free when no tiers are selected. Editing a mid-window paid-first track keeps
+  its existing date, or every unrelated edit would silently extend the window.
+
 ## UX Rule — multi-option selectors are DROPDOWNS
 
 Whenever a screen asks the user to pick ONE option from several (campaign goal type,

@@ -1,5 +1,30 @@
 # CRWN Brain — Changelog
 
+## 2026-08-01 - Release strategy phase 1: the membership strategy brain + content classes
+
+Implements the core of `CRWN_UPDATED_RELEASE_STRATEGY.md`. (1) **The brain**:
+`src/lib/membershipStrategy.ts` (pure, 18 tests), deterministic pick between **The Release Club**
+(enhances the public release cycle, the default) and **The Vault Membership** (monetizes catalog
+depth: 10+ declared unreleased songs, or 2 or fewer releases a year over a 20+ track catalog).
+Each strategy maps ROLES onto the pinned Bronze/Silver/Gold/Platinum rungs (the spec's "First
+Listen"/"Inner Circle"/"Executive" are roles, never names), and carries the monthly promise by
+platform plan, a single-release waterfall template, and a 90-day outline. (2) **Derived on read**:
+`/api/artist/strategy` (roadmap pattern) derives facts from real data; the only stored value is
+the artist's override (`artist_profiles.membership_strategy`, migration
+`schema-phase2-membership-strategy.sql`, fail-soft pre-migration). Surfaced by `StrategyCard` on
+the command screen; announced via `announce_membership_strategy`. (3) **Content classes replace
+the track access toggles**: free forever / members first, public later / members only, one
+OptionSelect in `TrackUploadForm`, encoded onto the EXISTING fields by `fieldsForClass()`. This
+fixed a real gating bug: the old independent "Free to all" + "Enable early access" toggles could
+write a future `public_release_date` with an empty tier list, which `GatedTrackPlayer` reads as
+locked for EVERYONE (paying members included) for the whole window; and early access on an
+is_free=false track never actually opened to the public. `paid_first` keeps `is_free: true` so
+"public later" is real, refuses to encode with zero tiers, and editing a mid-window track keeps
+its existing date so unrelated edits cannot silently extend the window. Deferred, in order:
+per-tier waterfall automation (Pro; per-tier dates need an entitlement change), the strategy
+builder questionnaire (declared facts like unreleased count feed `StrategyFacts` when it exists),
+live-session templates, quest catalog realignment (the Quest Engine stays dark until then).
+
 ## 2026-08-01 - Money-path guards, plan truth, and the support chat's escalation model
 
 Found by Josh's live testing, in order of severity.

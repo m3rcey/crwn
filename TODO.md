@@ -27,6 +27,13 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the membership-strategy migration:**
+      [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql).
+      Adds `artist_profiles.membership_strategy` (the artist's explicit Release Club vs Vault
+      override) WITH the per-column SELECT grant that keeps `select('*')` from 42501-ing. Until
+      it runs, everything works on the derived recommendation; only "switch strategy" reports it
+      cannot save yet. Self-verifies, including the grant.
+
 - [ ] **Run the support-chat resolution migration:**
       [`supabase/schema-phase2-support-chat-resolution.sql`](supabase/schema-phase2-support-chat-resolution.sql).
       Adds `resolved_by` / `resolved_at` / `satisfaction_rating` / `satisfaction_comment` to
