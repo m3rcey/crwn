@@ -30,17 +30,18 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 - [ ] **Two one-click confirmations only you can do (both need a logged-in session), then tell me
       and I will delete this.**
 
-      **1. Support chat answers with AI, not an escalation.** Start a NEW conversation at
-      `/support` (your existing thread is still owned by a human from the first escalation, so it
-      will keep going to a person by design). A real answer means the migration and
-      `DEEPSEEK_API_KEY` are both working.
+      **1. DeepSeek is rejecting our calls. Send one message at `/support` and read the reply.**
+      You are an admin, so the chat now prints the fault inline as `[admin only] ...`. No inbox
+      digging, no forwarding to me:
+      - `AI is not configured (DEEPSEEK_API_KEY unset)` means the env var is not reaching
+        production. Re-check the variable's ENVIRONMENT scope in Vercel (Production, not just
+        Preview) and redeploy.
+      - `AI call failed: HTTP 402 ...` means the key is valid but the DeepSeek balance is empty.
+        That is the usual failure on a new key: top up at platform.deepseek.com. No code change.
+      - `AI call failed: HTTP 401 ...` means the key itself is wrong. Regenerate it.
 
-      **If it escalates again, forward me the reason line from the escalation email** — that is
-      the one thing that says which fault it is, and it is now specific. "AI is not configured"
-      means the key is not reaching production. "AI call failed: HTTP 402 ..." means the key works
-      but the DeepSeek balance is empty, which is a top-up, not a code change. I cannot trigger
-      this myself: the route needs a session (it returns 401 to me, which at least proves it
-      deployed).
+      Tell me which one and I will finish it. Note the chat is NOT dead meanwhile: on any
+      assistant fault it now answers from the getting-started guides, which need no key.
 
       **2. Stripe env wiring.** First just OPEN `/account/billing`. You are not actually on Pro:
       the row says `pro`/`active` but Stripe has no subscription behind it, and the SQL migration
