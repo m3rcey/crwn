@@ -25,6 +25,12 @@ import {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_dummy_key_for_build';
 
+// The production Supabase project ref (CLAUDE.md: ecpqtuidtsncjfwtkvwc). Used only
+// to refuse test-mode Stripe events that would otherwise write real rows; see the
+// guard in POST. A dev/staging project ref simply will not match, so local test
+// traffic against a local database keeps working normally.
+const PRODUCTION_SUPABASE_REF = 'ecpqtuidtsncjfwtkvwc';
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build';
 
@@ -56,6 +62,32 @@ export async function POST(req: NextRequest) {
   }
 
   console.log('Webhook event received:', event.type);
+
+  // TEST-MODE EVENTS MUST NEVER WRITE TO THE PRODUCTION DATABASE.
+  //
+  // This is not hypothetical: an artist's platform_tier was set to 'pro' with a
+  // TEST-mode subscription id (Josh, confirmed 2026-08-01), which the live Stripe
+  // api answers with resource_missing forever. The row then claimed a plan nobody
+  // was paying for, the billing portal errored, cancel 404'd, and the plan picker
+  // greyed out a plan they were not on. It took three rounds to diagnose.
+  //
+  // The realistic route in is local development: `stripe listen` forwarding test
+  // events to a dev server whose .env.local points at the PRODUCTION Supabase
+  // project. Signature verification passes (it is a real test event, correctly
+  // signed), the key is a test key, everything looks consistent, and the write
+  // lands in production. Checking livemode against the DATABASE is what catches
+  // that, because the keys alone are perfectly self-consistent.
+  //
+  // Returns 200 so Stripe treats it as handled and does not retry forever.
+  const usingLiveKey = (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_live');
+  const usingProductionDb = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').includes(PRODUCTION_SUPABASE_REF);
+  if (!event.livemode && (usingLiveKey || usingProductionDb)) {
+    console.error(
+      `[stripe-webhook] REFUSED a test-mode ${event.type} against production (liveKey=${usingLiveKey}, prodDb=${usingProductionDb}). ` +
+        'Point test-mode Stripe at a dev database, not this one.',
+    );
+    return NextResponse.json({ received: true, ignored: 'test-mode event refused against production' });
+  }
 
   // Idempotency — claim the event atomically via the UNIQUE(event_id)
   // constraint instead of check-then-insert. Two concurrent redeliveries of the

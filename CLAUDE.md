@@ -359,6 +359,22 @@ This silently killed every checkout, payout, and Stripe-connect flow on the plat
 - To verify, probe production with the ANON key, never a superuser session:
   `curl "$URL/rest/v1/artist_profiles?select=slug,stripe_connect_id" -H "apikey: $ANON"`
 
+### Test-mode Stripe must never write to the production database
+
+`/api/stripe/webhook` refuses any event with `livemode: false` when the live secret key or the
+production Supabase project is configured. This is not theoretical: a test-mode Pro checkout wrote
+`platform_tier = 'pro'` plus a TEST subscription id into production, and the live Stripe API
+answers that id with `resource_missing` forever, so the row claimed a plan nobody paid for. The
+realistic route in is local development, `stripe listen` forwarding test events to a dev server
+whose `.env.local` points at the PRODUCTION Supabase project: the signature verifies, the key is a
+test key, everything is self-consistent, and the write still lands in production. Checking
+`livemode` against the DATABASE is what catches it.
+
+**When a check asks "is this subscription a CRWN plan", it must match the PRICE**, not merely
+"is there a live subscription". Fan tier subscriptions live on the same Stripe account and can sit
+on the artist's own platform customer (production had an artist whose platform customer carried an
+active $10/mo fan tier). Use `isPlatformPlanSubscription()`.
+
 ### A stored plan is a claim; Stripe is the truth
 
 `artist_profiles.platform_tier` can say `pro` with nothing billing behind it, and no SQL migration
