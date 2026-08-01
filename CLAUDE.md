@@ -223,6 +223,10 @@ CRWN is a music monetization platform where artists sell subscriptions, tracks, 
 - `npm run lint` — ESLint
 - `npm test` — vitest (node env, pure `src/**/*.test.ts` suites; no jsdom/component tests). Run it before pushing when you touch a tested lib.
 - `npm run verify:quests` — quest catalog integrity check
+- `npm run verify:stripe` — read-only check that the live CRWN Pro/Scale prices match
+  `TIER_PRICING`, plus a count of anyone still on the old $9.99 Pro price. Proves the PRICES are
+  right; it cannot prove which id each Vercel var holds (Sensitive vars are unreadable), so one
+  real Upgrade click is the final confirmation.
 - `npm run verify:migrations` — probes PRODUCTION (anon key) for which migrations are applied.
   Run it after any "I ran the migrations": that has meant "some of them" more than once. Add a
   probe line when you ship a migration.
