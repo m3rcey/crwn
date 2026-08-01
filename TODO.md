@@ -22,78 +22,20 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Create the new Stripe prices for the 2026-07-31 repricing and set 4 Vercel env vars.
-      Until you do, the Pro upgrade checkout REFUSES on purpose** (the route now verifies the
-      live Stripe price amount against the code's $49 and errors loudly rather than silently
-      charging the old $9.99 while every screen says $49). I tried to create the prices myself
-      with the local live key and the permission layer blocked it, so this is yours:
-
-      1. Stripe Dashboard (live mode) → Product catalog → **CRWN Pro** (`prod_U5RxBKjYuwKmvM`)
-         → Add price: **$49.00 / month**. Add a second price: **$490.00 / year**.
-      2. Create a new product **CRWN Scale** → prices **$199.00 / month** and **$1,990.00 / year**.
-      3. Copy the four `price_...` ids into Vercel → project `crwn` → Settings → Environment
-         Variables (Production):
-         - `STRIPE_CRWN_PRO_PRICE_ID` = the $49 monthly price id (OVERWRITE the old $9.99 one)
-         - `STRIPE_CRWN_PRO_ANNUAL_PRICE_ID` = the $490 annual price id
-         - `STRIPE_CRWN_SCALE_PRICE_ID` = the $199 monthly price id
-         - `STRIPE_CRWN_SCALE_ANNUAL_PRICE_ID` = the $1,990 annual price id
-         (The old `STRIPE_CRWN_LABEL_*` and `STRIPE_CRWN_EMPIRE_*` vars are dead; delete them.)
-      4. Tell Claude "Stripe prices are set" and it will redeploy and verify checkout end to end.
-
-      Also your call, not code: **any existing Pro subscriber on $9.99 stays on $9.99** (their
-      Stripe subscription rides the old price object; nothing migrates them). Say the word if you
-      want them grandfathered formally announced, or moved.
-
-- [ ] **CREATE the Resend webhook. It does not exist, so bounces and spam complaints have
-      NEVER been suppressed.** You were right that you could not find it. I checked: the only
-      row in `email_suppressions` is the `victim@example.com` test from the July security audit,
-      which means no real Resend event has ever reached CRWN. The endpoint itself is live and
-      correct (it returns 403 to anything unsigned); Resend has simply never been told to call
-      it. My earlier "edit the existing webhook" instruction was wrong, and that was a Claude bug.
-
-      **Why this is P0.** Prospect nurture is live and sends up to 25 emails per lead over 12
-      months. With no webhook, a dead address is never suppressed, so CRWN keeps emailing it for
-      a year, and a spam complaint never registers, so CRWN keeps emailing someone who reported
-      it. That is how a sending domain gets throttled or blocked, and `hello@thecrwn.app` is the
-      domain every lead magnet, every result email and every nurture sequence depends on.
-
-      1. Go to `https://resend.com/webhooks` (log in first).
-      2. Click **Add Webhook**.
-      3. **Endpoint URL:** `https://thecrwn.app/api/webhooks/resend`
-      4. **Select these events** (all five are handled in code):
-         `email.bounced`, `email.complained`, `email.delivered`, `email.opened`, `email.clicked`
-      5. Save. Resend then shows a **signing secret** starting with `whsec_`. Copy it.
-      6. Vercel → project `crwn` → **Settings → Environment Variables** → add
-         `RESEND_WEBHOOK_SECRET` = the whole `whsec_...` value (paste exactly, including the
-         `whsec_` prefix). Environment: **Production**. Server-only, never `NEXT_PUBLIC_`.
-      7. Tell Claude "the Resend webhook is set up" and it will redeploy (env vars only take
-         effect on the next deploy) and verify delivery end to end.
-
-      Until step 6 is done the endpoint rejects every event by design (it fails closed rather
-      than trusting an unsigned POST), so steps 1-5 alone will show failed deliveries in the
-      Resend dashboard. That is expected, not a bug.
-
-      While you are in there, check whether a SECOND webhook exists for
-      `https://thecrwn.app/api/outreach/webhook` (that one is for cold outreach and uses a
-      separate `RESEND_OUTREACH_SECRET`). If it is also missing, tell Claude and it will say
-      whether that path is in use yet.
+Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webhook exists
+(both the main and outreach endpoints), and every migration is applied.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the support-chat migration. STILL NOT APPLIED** (probed 2026-08-01:
-      `support_conversations` does not exist).
-      [`supabase/schema-phase2-support-chat.sql`](supabase/schema-phase2-support-chat.sql)
-      in the Supabase SQL editor. Until it runs, the new /support chat quietly falls back to
-      the contact form (nothing breaks), and the admin **Support** tab tells you the same.
-      The moment it runs, users can chat with the AI assistant and escalate to you; you get an
-      email per escalation and reply from `/admin?tab=support`.
-
-- [ ] **Verify `DEEPSEEK_API_KEY` exists in Vercel (Production).** The support chat's AI answers
-      use it (same key the admin Sage route already referenced). If it is missing the chat still
-      works, it just escalates every message straight to you, which defeats the point. Check
-      Vercel → project `crwn` → Settings → Environment Variables; if absent, create a key at
-      platform.deepseek.com and add it (server-only, never `NEXT_PUBLIC_`). Then tell Claude and
-      it will redeploy and test a real chat answer.
+- [ ] **Click Upgrade once to confirm the Stripe env wiring, then tell me.** I verified the four
+      live prices exist at the right amounts on the right products (CRWN Pro $49/$490, CRWN Scale
+      $199/$1,990), and that ZERO artists sit on the old $9.99 price, so there is nobody to
+      grandfather and that question is closed. What I cannot check is which price id each Vercel
+      variable holds: Sensitive vars are unreadable to me. Go to `/account/billing` → Pro →
+      Upgrade. If the Stripe page opens showing **$49.00 / month**, the wiring is right and I will
+      delete this. If it errors instead, the wiring is wrong and the error is deliberate: checkout
+      compares the live price to the code's $49 and refuses rather than charging you the stale
+      $9.99. Either way nothing can silently undercharge.
 
 - [ ] **Wind down Twilio: the SMS feature is REMOVED from CRWN (your call, 2026-07-31, for
       compliance cost).** Code, routes, cron, tier copy, legal SMS program section: all gone.
@@ -139,28 +81,6 @@ responsible for. Do not work those.
       one specific post), where you hardcode a readable label in the External Request body, e.g.
       `,"source_post_id":"kendrick-producer-reel"` right before `,"contact":`. Not worth doing broadly
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
-
-- [ ] **Rename the four legacy tiers. I verified the blast radius: they are ALL
-      m3rcey's, your own test artist.** Probed production 2026-08-01: `The Wave` $0,
-      `Inner Circle` $10, `The Vault` $25, `Throne` $100 all belong to slug `m3rcey`, no other
-      artist carries them. You told me Bronze/Silver/Gold/Platinum is the default unless the
-      artist changes it, and these predate that rename rather than being a deliberate choice, so
-      aligning them is the right call. I would run it myself if I could; it is SQL, so it is
-      yours. (I could not count active subscribers from outside: `subscriptions` is correctly
-      hidden from the anon key, so "0 visible" is RLS working, not proof of zero. Given it is your
-      own test account, that risk is yours to weigh in one glance at the dashboard.)
-
-      **Open the file and run it, do not copy SQL out of this list:**
-      [`supabase/schema-phase2-rename-legacy-tiers.sql`](supabase/schema-phase2-rename-legacy-tiers.sql).
-      (My fault on the last attempt: I had the SQL in a fenced markdown block here, so selecting
-      it carried the backtick fence into the editor and Postgres rejected the fence, not the SQL.
-      Every hand-off is a file now.) It is scoped to slug `m3rcey` so no other artist's tier can be caught, and it
-      self-verifies: if a row's price does not match the ladder it fails loudly rather than
-      renaming something that was customized.
-
-      Stripe product names are separate and cosmetic; they do not affect billing. Skipping this
-      costs nothing except that your own test artist keeps showing the pre-rename ladder in every
-      screenshot and demo.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
