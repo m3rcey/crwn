@@ -27,35 +27,34 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the phantom-plan reconcile FIRST, then do the two checks below:**
-      [`supabase/schema-phase2-reconcile-phantom-platform-plans.sql`](supabase/schema-phase2-reconcile-phantom-platform-plans.sql).
-      Your `m3rcey` row claims `platform_tier = 'pro'` with `platform_subscription_status =
-      'active'`, but live Stripe has NO platform subscription behind it. That row cannot use
-      Manage Subscription (the portal errors), cannot Cancel (404, no subscription id), and now
-      shows Pro as "Your current plan" and disabled, so **you cannot click Upgrade to Pro to test
-      the Stripe wiring until this runs.** The migration only touches rows with a paid tier and a
-      NULL subscription id, and it self-verifies. If you meant that as a comp, it clears it: comp
-      with a 100% off coupon on a real subscription instead, so the portal and webhooks keep
-      working. The file shows the one-line SQL to re-set it by hand.
-
 - [ ] **Two one-click confirmations only you can do (both need a logged-in session), then tell me
       and I will delete this.**
 
-      **1. Support chat answers with AI, not an escalation.** Open `/support` and send any
-      question. A real answer means the migration and `DEEPSEEK_API_KEY` are both working. If the
-      key were missing you would instead get an escalation email that literally says "AI is not
-      configured", so this diagnoses itself; I just cannot trigger it, because the route requires
-      a session (verified: it returns 401 to me, which at least proves it deployed).
+      **1. Support chat answers with AI, not an escalation.** Start a NEW conversation at
+      `/support` (your existing thread is still owned by a human from the first escalation, so it
+      will keep going to a person by design). A real answer means the migration and
+      `DEEPSEEK_API_KEY` are both working.
 
-      **2. Stripe env wiring.** I verified the four
-      live prices exist at the right amounts on the right products (CRWN Pro $49/$490, CRWN Scale
-      $199/$1,990), and that ZERO artists sit on the old $9.99 price, so there is nobody to
-      grandfather and that question is closed. What I cannot check is which price id each Vercel
-      variable holds: Sensitive vars are unreadable to me. Go to `/account/billing` → Pro →
-      Upgrade. If the Stripe page opens showing **$49.00 / month**, the wiring is right and I will
-      delete this. If it errors instead, the wiring is wrong and the error is deliberate: checkout
-      compares the live price to the code's $49 and refuses rather than charging you the stale
-      $9.99. Either way nothing can silently undercharge.
+      **If it escalates again, forward me the reason line from the escalation email** — that is
+      the one thing that says which fault it is, and it is now specific. "AI is not configured"
+      means the key is not reaching production. "AI call failed: HTTP 402 ..." means the key works
+      but the DeepSeek balance is empty, which is a top-up, not a code change. I cannot trigger
+      this myself: the route needs a session (it returns 401 to me, which at least proves it
+      deployed).
+
+      **2. Stripe env wiring.** First just OPEN `/account/billing`. You are not actually on Pro:
+      the row says `pro`/`active` but Stripe has no subscription behind it, and the SQL migration
+      could not catch it because your `platform_stripe_subscription_id` is not null, it points at
+      a subscription that no longer exists. The page now asks Stripe on load and corrects itself,
+      so it should flip you to Launch and make Pro clickable.
+
+      Then Pro → Upgrade. I verified the four live prices exist at the right amounts on the right
+      products (CRWN Pro $49/$490, CRWN Scale $199/$1,990) and that ZERO artists sit on the old
+      $9.99 price, so grandfathering is a closed question. What I cannot check is which price id
+      each Vercel variable holds, because Sensitive vars are unreadable to me. If Stripe opens
+      showing **$49.00 / month**, the wiring is right and I will delete this. If it errors, the
+      wiring is wrong and the error is deliberate: checkout compares the live price to the code's
+      $49 and refuses rather than charging the stale $9.99. Nothing can silently undercharge.
 
 - [ ] **Wind down Twilio: the SMS feature is REMOVED from CRWN (your call, 2026-07-31, for
       compliance cost).** Code, routes, cron, tier copy, legal SMS program section: all gone.
