@@ -44,12 +44,15 @@ responsible for. Do not work those.
       Stripe subscription rides the old price object; nothing migrates them). Say the word if you
       want them grandfathered formally announced, or moved.
 
-- [ ] **Run the plan-recommendation migration:**
+- [ ] **Run the plan-recommendation migration. STILL NOT APPLIED** (I probed production with the
+      anon key on 2026-08-01: `artist_profiles.recommended_plan` does not exist yet, so this one
+      was not part of the batch you just ran).
       [`supabase/schema-phase2-platform-plan-recommendation.sql`](supabase/schema-phase2-platform-plan-recommendation.sql)
       in the Supabase SQL editor. Adds `recommended_plan` / `recommendation_reason` /
       `projected_monthly_gmv` to `artist_profiles` WITH the column grant that keeps
       `select('*')` from 42501-ing. Until it runs, the recommendation writes fail soft
-      (nothing breaks, nothing is stored).
+      (nothing breaks, nothing is stored). The launch-review plan panel is unaffected either way:
+      it recomputes the recommendation client-side rather than reading the column.
 
 - [ ] **CREATE the Resend webhook. It does not exist, so bounces and spam complaints have
       NEVER been suppressed.** You were right that you could not find it. I checked: the only
@@ -87,32 +90,8 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the track-cap enforcement migration:**
-      [`supabase/schema-phase2-track-cap-enforcement.sql`](supabase/schema-phase2-track-cap-enforcement.sql)
-      in the Supabase SQL editor. Until it runs, the 50-track Launch cap stays decorative (tracks
-      are inserted straight from the browser, so a form's `pointer-events:none` was the only
-      "limit"; the bulk uploader had no check at all and would accept 500 tracks). The UI already
-      warns before an upload starts and refuses politely, so this trigger is the backstop, not the
-      messenger. **I decided the two open limit questions rather than leaving them with you:**
-      tracks are now enforced (the plan recommender already tells a 50+ catalog artist they need
-      Pro, so enforcing is what makes that honest), and the **250-member cap was removed from the
-      product entirely** rather than enforced, because the only place to enforce it is refusing a
-      paying fan at checkout. Reverse either in one place: the `cap` line in this migration, or
-      `TIER_LIMITS.starter` in `src/lib/platformTier.ts`.
-
-- [ ] **Run the artist-post authorship migration:**
-      [`supabase/schema-phase2-artist-post-authorship.sql`](supabase/schema-phase2-artist-post-authorship.sql)
-      in the Supabase SQL editor. `community_posts.is_artist_post` is what renders a post with
-      YOUR badge, as you speaking to your community, and its INSERT policy only checked
-      `auth.uid() = author_id`. Nothing in the database stopped another user from setting it on
-      your page. The public page also computed "is this viewer an artist" instead of "does this
-      viewer own this page", so any artist posting on another artist's page had their post
-      written as that artist's own. **The code half is fixed and shipped** (the page now uses a
-      real ownership check), so the normal path is closed. This migration adds the trigger that
-      makes the database the authority, and repairs any existing row that carries a false claim.
-      It self-verifies and refuses to half-apply.
-
-- [ ] **Run the support-chat migration:**
+- [ ] **Run the support-chat migration. STILL NOT APPLIED** (probed 2026-08-01:
+      `support_conversations` does not exist).
       [`supabase/schema-phase2-support-chat.sql`](supabase/schema-phase2-support-chat.sql)
       in the Supabase SQL editor. Until it runs, the new /support chat quietly falls back to
       the contact form (nothing breaks), and the admin **Support** tab tells you the same.
@@ -191,6 +170,23 @@ responsible for. Do not work those.
 
       Stripe product names are separate and cosmetic; they do not affect billing. Skipping this
       costs nothing.
+
+### P2 — worth doing, nothing breaks if you never do it
+
+- [ ] **Decide whether to turn the Quest Engine on.** It is built, dark, and has been since it
+      shipped: `/api/quests` returns `{enabled:false}`, so Rise Mode renders the roadmap card plus
+      the starter-offer card and none of the 74 quests. That screen is coherent as-is, which is
+      why this is P2 and not higher. What is dormant: the whole Level 1-10 progression, XP, and
+      the launch journey I added on 2026-07-31 (first page visit → first free member → first
+      paying supporter → first delivered promise, all completing automatically from real data).
+      I cannot flip it (no DB access). One statement in the Supabase SQL editor:
+
+      ```sql
+      UPDATE admin_settings SET value = '{"enabled": true}'::jsonb WHERE key = 'quest_engine';
+      ```
+
+      Reverse it by setting `false`. Nothing else changes: quests are guidance, never access
+      control, so turning it on cannot gate a feature an artist already had.
 
 ---
 

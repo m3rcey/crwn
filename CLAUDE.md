@@ -208,6 +208,9 @@ CRWN is a music monetization platform where artists sell subscriptions, tracks, 
 - `npm run lint` — ESLint
 - `npm test` — vitest (node env, pure `src/**/*.test.ts` suites; no jsdom/component tests). Run it before pushing when you touch a tested lib.
 - `npm run verify:quests` — quest catalog integrity check
+- `npm run verify:migrations` — probes PRODUCTION (anon key) for which migrations are applied.
+  Run it after any "I ran the migrations": that has meant "some of them" more than once. Add a
+  probe line when you ship a migration.
 
 ## Architecture
 
