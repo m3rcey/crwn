@@ -15,7 +15,7 @@
 
 import type { Recurrence } from '@/lib/fulfillment';
 import type { TierTemplateDef } from '@/lib/tierTemplate';
-import { tierNameAliases } from '@/lib/tierTemplate';
+import { tierNameAliases, normalizeTierName } from '@/lib/tierTemplate';
 
 // Only benefits that imply a RECURRING ARTIST ACTION become promises. Access /
 // passive perks (early_access, direct_messaging, shop_discount, badges, …) are
@@ -250,7 +250,7 @@ export function projectedBuyersFor(def: TierTemplateDef, projections: TierProjec
   const aliases = new Set(tierNameAliases(def));
   for (const p of projections) {
     if (typeof p?.name !== 'string') continue;
-    if (aliases.has(p.name.trim().toLowerCase())) {
+    if (aliases.has(normalizeTierName(p.name))) {
       const n = Math.floor(p.projectedSubs);
       return Number.isFinite(n) && n >= 0 ? n : null;
     }

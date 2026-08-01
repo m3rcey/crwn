@@ -32,7 +32,7 @@ import {
   createOnboardingTrack,
   createOnboardingProduct,
 } from '@/lib/onboardingItems';
-import { RECOMMENDED_LADDER, benefitLabels, tierNameAliases } from '@/lib/tierTemplate';
+import { RECOMMENDED_LADDER, benefitLabels, tierNameAliases, normalizeTierName } from '@/lib/tierTemplate';
 import { applyTemplateTier } from '@/lib/applyTierTemplate';
 import {
   planLadderPromises,
@@ -490,7 +490,7 @@ function SetupWizard() {
         .from('subscription_tiers')
         .select('name')
         .eq('artist_id', artistId);
-      const existingNames = new Set((existing ?? []).map((t: { name: string }) => t.name.trim().toLowerCase()));
+      const existingNames = new Set((existing ?? []).map((t: { name: string }) => normalizeTierName(t.name)));
       // The promise-review screen's cadence/date adjustments ride each rung's
       // benefit configs into the ONE shared apply path (Stage 3).
       const planned = planFromDraft(ladderDraft);
@@ -500,7 +500,7 @@ function SetupWizard() {
         if (isPaid && draft && !draft.include) continue; // Bronze always applies
         // The artist's own name for this rung (from their pre-signup draft or template).
         const rungName = draft?.name?.trim() || rung.name;
-        if ([...tierNameAliases(rung), rungName.toLowerCase()].some((n) => existingNames.has(n))) continue;
+        if ([...tierNameAliases(rung), normalizeTierName(rungName)].some((n) => existingNames.has(n))) continue;
         const priceCents = isPaid ? Math.round((parseFloat(draft?.priceDollars ?? '') || 0) * 100) : 0;
         const overrides: Record<string, Record<string, unknown>> = {};
         for (const p of planned) {

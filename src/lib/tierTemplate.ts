@@ -207,8 +207,22 @@ export const TIER_TEMPLATE_MAP: Record<string, TierTemplateDef> = Object.fromEnt
 );
 
 /** Every name this rung has ever shipped under, lowercased, for duplicate detection. */
+/**
+ * Canonical form for comparing tier names. Lowercases, collapses whitespace, and
+ * drops a leading "the".
+ *
+ * The "the" rule is not cosmetic: production carries tiers named "The Inner
+ * Circle" and "The Throne" alongside "Inner Circle" and "Throne" (verified
+ * 2026-08-01). Exact matching treated those as different rungs, so the ladder
+ * would offer an artist a SECOND Silver or Platinum they already had. Both sides
+ * of every comparison must go through this.
+ */
+export function normalizeTierName(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ').replace(/^the\s+/, '');
+}
+
 export function tierNameAliases(tier: TierTemplateDef): string[] {
-  return [tier.name, ...tier.legacyNames].map((n) => n.trim().toLowerCase());
+  return [tier.name, ...tier.legacyNames].map(normalizeTierName);
 }
 
 /** The plain-string benefit list written to subscription_tiers.access_config.benefits. */

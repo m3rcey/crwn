@@ -11,6 +11,15 @@ the calculator result email, the unified opportunity model, the offer builder go
 names. `src/lib/tierTemplate.ts` (`RECOMMENDED_LADDER`) is the source of truth: change a name there,
 not in a component.
 
+**Strategy documents propose their own tier names. Those are ROLES, not the ladder.**
+`CRWN_UPDATED_RELEASE_STRATEGY.md` and similar specs say things like First Listen, Inner Circle,
+Executive, and Vault. Those describe what a rung DOES in a membership strategy; they are not
+names to ship. Map them onto the four rungs and keep the rung names:
+Free/entry → **Bronze**, first paid ("First Listen"/"Vault") → **Silver**, mid ("Inner Circle")
+→ **Gold**, top ("Executive"/"Throne") → **Platinum**. Artists may rename their own tiers
+whenever they like; that is their choice, not a default. `src/lib/tierTemplate.test.ts` pins the
+names and prices, so drift fails `npm test` instead of reaching an artist.
+
 - The internal keys stay `wave | inner_circle | vault | throne`. They are referenced across the
   calculators, drafts and offer builder, and renaming them moves data for no artist-visible gain.
 - Each rung carries `legacyNames`. The ladder's "already added" check matches those too, so an

@@ -21,6 +21,7 @@ import {
   needsFulfillmentConfirm,
   disclaimersFor,
   tierNameAliases,
+  normalizeTierName,
   type TierTemplateDef,
 } from '@/lib/tierTemplate';
 import { applyTemplateTier } from '@/lib/applyTierTemplate';
@@ -70,7 +71,7 @@ export function TierLadderTemplate({ artistId, stripeConnected, paidTierCap, exi
   // count as a match: an artist who applied this ladder before the Bronze/Silver/
   // Gold/Platinum rename has "The Wave" or "Throne" in the database.
   useEffect(() => {
-    const existingNames = new Set(existingTiers.map((t) => t.name.trim().toLowerCase()));
+    const existingNames = new Set(existingTiers.map((t) => normalizeTierName(t.name)));
     setTiles((prev) =>
       prev.map((t) =>
         tierNameAliases(t.def).some((n) => existingNames.has(n)) && t.status !== 'creating'

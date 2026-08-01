@@ -150,16 +150,18 @@ responsible for. Do not work those.
       `,"source_post_id":"kendrick-producer-reel"` right before `,"contact":`. Not worth doing broadly
       (one automation per video, forever). Do it ONLY for a hero video you want to measure.
 
-- [ ] **Decide whether to rename the FOUR live tiers that still carry the old names.** The stock
-      ladder is now Bronze / Silver / Gold / Platinum everywhere CRWN builds tiers, but four rows
-      already in the database predate it (verified in production 2026-07-30): `The Wave` $0,
-      `Inner Circle` $10, `The Vault` $25, `Throne` $100. Nothing is broken. The ladder template
-      matches legacy names, so it will not offer a duplicate, and fans keep seeing the name they
-      subscribed under.
+- [ ] **Rename the four legacy tiers (SQL below). I verified the blast radius: they are ALL
+      m3rcey's, your own test artist.** Probed production 2026-08-01: `The Wave` $0,
+      `Inner Circle` $10, `The Vault` $25, `Throne` $100 all belong to slug `m3rcey`, no other
+      artist carries them. You told me Bronze/Silver/Gold/Platinum is the default unless the
+      artist changes it, and these predate that rename rather than being a deliberate choice, so
+      aligning them is the right call. I would run it myself if I could; it is SQL, so it is
+      yours. (I could not count active subscribers from outside: `subscriptions` is correctly
+      hidden from the anon key, so "0 visible" is RLS working, not proof of zero. Given it is your
+      own test account, that risk is yours to weigh in one glance at the dashboard.)
 
-      This is your call, not a bug: renaming a tier changes what a paying fan sees on their
-      subscription. If you want them aligned, run this in the Supabase SQL editor (it touches
-      ONLY those exact names at those exact prices, so a tier an artist named themselves is safe):
+      Run this in the Supabase SQL editor (it touches ONLY those exact names at those exact
+      prices, so a tier an artist named themselves is safe):
 
       ```sql
       UPDATE subscription_tiers SET name = 'Bronze'   WHERE name = 'The Wave'     AND price = 0;
@@ -169,7 +171,8 @@ responsible for. Do not work those.
       ```
 
       Stripe product names are separate and cosmetic; they do not affect billing. Skipping this
-      costs nothing.
+      costs nothing except that your own test artist keeps showing the pre-rename ladder in every
+      screenshot and demo.
 
 ### P2 — worth doing, nothing breaks if you never do it
 
