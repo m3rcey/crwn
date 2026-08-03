@@ -246,7 +246,7 @@ export default function HomePage() {
           right-aligned, shrink-0) instead of absolutely positioned, so it reserves
           its own space and can never overlap the heading or anything else, on mobile
           or desktop. data-tour="home-help" stays so the home tours still land. */}
-      <div className="bg-crwn-surface rounded-xl p-6">
+      <div className="neu-raised p-6">
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
             {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!

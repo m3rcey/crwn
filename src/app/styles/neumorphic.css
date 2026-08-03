@@ -108,21 +108,24 @@
   transform: scale(0.965);
 }
 
-/* Accent button - gold */
+/* Accent button - gold raised (v2): gradient body, 1px inner top highlight,
+   soft gold glow. The signature primary-action look from the redesign; hover
+   brightens the whole pill instead of swapping the fill. */
 .neu-button-accent {
-  background: #D4AF37;
+  background: var(--crwn-gold-raised);
   border-radius: 9999px;
   color: #0f0f0f;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 6px 18px rgba(212, 175, 55, 0.22);
   transition:
     transform var(--crwn-dur-move) var(--crwn-ease-spring),
-    background-color var(--crwn-dur-tint) var(--crwn-ease-out),
+    filter var(--crwn-dur-tint) var(--crwn-ease-out),
     opacity var(--crwn-dur-tint) var(--crwn-ease-out),
     box-shadow 220ms var(--crwn-ease-out);
 }
 .neu-button-accent:hover {
-  background: #e5c04a;
+  filter: brightness(1.06);
 }
 .neu-button-accent:active {
   transform: scale(0.965);
@@ -171,13 +174,14 @@
   border-radius: 20px;
 }
 
-/* Progress Bar */
+/* Progress Bar (v2): inset track, gold gradient fill */
 .neu-progress-track {
   background: #0f0f0f;
   border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55) inset;
 }
 .neu-progress-fill {
-  background: #D4AF37;
+  background: linear-gradient(90deg, #BE9B2E, #E5C04A);
   border-radius: 999px;
 }
 
