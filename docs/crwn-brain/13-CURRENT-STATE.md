@@ -10,7 +10,16 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 - **Auth + onboarding + setup wizard** (`/welcome` → `/setup`, DB-derived completion, hard gate, daily canary). `setup_completed` now persists via the service-role `POST /api/artist/complete-setup` route (was a silent client `.update()`).
 - **Fan subscriptions** (paid + free), **track/product/booking/live-ticket purchases**, **discount codes** (end-to-end wired), **Stripe Connect payouts** (weekly cron + on-demand cashout).
-- **Content + gating** via `is_free`/`allowed_tier_ids` (redacting views enforce it).
+- **Content + gating** via `is_free`/`allowed_tier_ids` (redacting views enforce it). For TRACKS
+  the authoring model is **content classes** (free forever / members first, public later /
+  members only, 2026-08-01): `fieldsForClass()` derives the stored fields, the old two-toggle UI
+  is gone, and a staggered members-first release rides `tracks.waterfall`, opened additively by
+  the daily cron (entitlement gate untouched).
+- **Membership strategy layer (2026-08-01):** deterministic Release Club vs Vault brain
+  (`src/lib/membershipStrategy.ts`), derived on read at `/api/artist/strategy`, surfaced by
+  `StrategyCard` on the command screen with the two declared questions that can flip the pick;
+  live-session templates prefill the live form. Spec tier names are roles on the pinned
+  Bronze/Silver/Gold/Platinum ladder. `Confirmed`.
 - **Stripe webhook** (idempotent, signed, refunds/disputes handled).
 - **Team Splits** (capped-hybrid, accrual cron, deliverables/disputes/release, separate cashout ledger) — carefully engineered.
 - **Email**: campaigns + multi-step sequences + attribution + suppression + fan digest.

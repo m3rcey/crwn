@@ -55,6 +55,17 @@ Every fan→artist payment routes through Stripe on the **platform account** wit
 ## 4. Content access / gating
 Current model (per `CLAUDE.md`, enforced in `tracks_public`/`community_posts_feed` views): each track/album/product/post uses `is_free` (bool) + `allowed_tier_ids` (JSONB tier UUIDs) + optional `price` (cents). Gating check uses `useSubscription().tierId`. **Legacy `access_level` enum (`free|subscriber|purchase`) is superseded but still present** in columns and types — do not use it. `Confirmed`.
 
+**For TRACKS the authoring model is CONTENT CLASSES (2026-08-01), never the raw fields.** The
+upload form asks one question (free forever / members first, public later / members only) and
+`fieldsForClass()` in `src/lib/membershipStrategy.ts` derives the stored fields; `classifyTrack()`
+reads them back. The old independent "Free to all" + "Enable early access" toggles are GONE: their
+free+early combo wrote a future `public_release_date` with an empty tier list, which the gate
+reads as locked for EVERYONE (members included) for the whole window. `paid_first` keeps
+`is_free: true` (what makes "public later" real), refuses to encode with zero tiers, and editing a
+mid-window track keeps its date. A staggered `paid_first` additionally stores a schedule in
+`tracks.waterfall`; the daily cron ADDS tiers to `allowed_tier_ids` as windows open (additive
+only, the entitlement gate is never modified). `Confirmed` (2026-08-01, this session, from code).
+
 ## 5. Subscription lifecycle
 - **Unique constraint `(fan_id, artist_id)`** → one sub per fan/artist pair; resubscribe = **upsert** (`onConflict:'fan_id,artist_id'`). `Confirmed`.
 - **Free tier** ($0 price): no Stripe; direct `subscriptions` upsert (`free-subscribe/route.ts` and a duplicate branch in `checkout/route.ts`; only `free-subscribe` notifies the artist — behavioral inconsistency). `Confirmed`.

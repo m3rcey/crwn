@@ -1,5 +1,30 @@
 # CRWN Brain — Combined Context
 
+> **Delta 2026-08-01, not yet folded into the sections below:** (1) **The release strategy
+> shipped end to end** (`CRWN_UPDATED_RELEASE_STRATEGY.md`): `src/lib/membershipStrategy.ts` is
+> the pure deterministic brain (The Release Club vs The Vault Membership; spec tier names are
+> ROLES mapped onto the pinned Bronze/Silver/Gold/Platinum rungs), `/api/artist/strategy` derives
+> it on read (only the artist's override + two declared facts persist:
+> `schema-phase2-membership-strategy.sql`), `StrategyCard` sits on the command screen.
+> **Content classes** (free forever / paid first / member only) are now the ONE track access
+> control in `TrackUploadForm`, encoded by `fieldsForClass()` onto the existing fields; the old
+> free+early-access toggle combo (which locked a track for EVERYONE during the window) is
+> unrepresentable. **The release waterfall** ("higher tiers first", `src/lib/waterfall.ts`,
+> `tracks.waterfall`, `schema-phase2-track-waterfall.sql`) is opened ADDITIVELY by the daily
+> scheduled-releases cron; the entitlement gate is untouched by design. **Live-session
+> templates** (`src/lib/liveSessionTemplates.ts`, 7 formats) prefill the live form. The Quest
+> Engine stays dark until the quest catalog is realigned to this vocabulary (plan in TODO "On
+> Claude's plate"). (2) **Money-path guards landed** (see CHANGELOG 2026-08-01): platform
+> checkout refuses a second subscription (Stripe is the authority, `isPlatformPlanSubscription`
+> matches the PRICE), "Start Free" refuses while a paid plan exists, phantom plans self-heal via
+> `platformPlanReconcile` on the billing screen, test-mode Stripe events are refused against the
+> production DB, and `profiles.platform_tier` DOES NOT EXIST (three silent writes deleted).
+> (3) **Plan limits are real or gone**: members uncapped everywhere, the 50-track Launch cap is
+> a DB trigger, the email quota is enforced at create + send via `src/lib/emailQuota.ts`.
+> (4) **Support chat**: assistant tries first, faults never lock the thread, "New question"
+> starts a fresh one, sessions end with a survey (`schema-phase2-support-chat-resolution.sql`),
+> offline guide-fallback answers when DeepSeek is down, admins see fault reasons inline.
+
 > **Delta 2026-07-31, not yet folded into the sections below:** (1) **SMS was REMOVED entirely** (founder decision: A2P 10DLC compliance cost not worth it). `src/lib/twilio.ts`, all `/api/sms/*` routes, the `sms-reset` cron, `/api/admin/twilio-health`, `SmsSetup`, the CRM SMS tab, SMS limits in `platformTier.ts`, all SMS marketing mentions, the lead-capture SMS consent checkbox, the fan SMS toggle and Terms §13 are gone; the `sms_*` tables stay dormant for consent history; `TWILIO_*` env vars are dead; founder hot-lead alerts are EMAIL always (joshn.wms@gmail.com) with an optional carrier email-to-SMS gateway via `FOUNDER_ALERT_SMS_EMAIL` (plain Resend). (2) **A support system SHIPPED**: `/support` is a help center (search over the 14 getting-started guides, live chat, contact form CCing the founder with auto-captured context); chat tables `support_conversations`/`support_messages` (`schema-phase2-support-chat.sql`, PENDING; form fallback until run); reads via RLS + realtime, writes via service-role (`/api/support/chat` user side, `/api/admin/support-chat` requireAdmin); AI answers from DeepSeek `deepseek-chat` over `src/lib/supportKnowledge.ts`; escalation to `human_requested` emails the founder a link to `/admin?tab=support` (SupportChatView), whose replies email the user; a global `BugReportButton` (root layout, hidden on auth/setup) posts bug reports to `/api/support`; announced via the one-time `announce_support_chat` popup.
 
 > **Delta 2026-07-30 (Tier 1 launch journey), not yet folded into the sections below:** the unified calculator now asks `monetization_status`; a qualified artist can request an immediate founder call below the pre-signup builder (`/api/lead-magnets/call-request`: server-recomputed `scoreLead`, one alert/phone/day (SMS at ship time; EMAIL since the 2026-07-31 SMS removal, see the delta above), CRM record in the admin Calls tab); fan-contact import requires a versioned permission attestation; imported contacts become invitable through the EXISTING campaign sender (`campaigns.filters.audience='contacts'`, LIVE — `schema-phase2-fan-invites.sql` applied 2026-07-30, same day as the funnel-events and prospect-nurture migrations); `/offers/new`'s done screen is now the launch transition (Stripe prompt + import/invite/copy-link); `funnel_events` grew to 20 stages ending at `first_paid_conversion`. Details: `CHANGELOG.md` 2026-07-30.

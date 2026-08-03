@@ -1,6 +1,6 @@
 # CRWN Brain — Quick Context
 
-> Short context for routine tasks. If you need depth, load `CRWN-BRAIN-COMBINED.md` or the numbered docs. Reflects commit `86e3e8c` (2026-07-29).
+> Short context for routine tasks. If you need depth, load `CRWN-BRAIN-COMBINED.md` or the numbered docs. Reflects commit `86e3e8c` (2026-07-29); see the delta blocks atop `CRWN-BRAIN-COMBINED.md` for 2026-07-30 through 2026-08-01 (release strategy shipped end to end: membership strategies, content classes as the ONE track access control, the additive release waterfall, live-session templates; money-path guards; plan limits made real or removed; support chat rework). Test count grew to ~550.
 
 ## What it is
 CRWN (thecrwn.app) = music-monetization SaaS. Independent artists sell subscriptions + tracks/albums/products/experiences directly to fans via Stripe Connect, and own the fan CRM. Also bundles marketing automation, gamified engagement, live streaming, team revenue-splits, an AI manager, and an acquisition funnel of 18 public calculator tools. **Live and large.** `npm test` = 392 vitest tests, but they cover the **pure business layers only** (no component/integration/e2e), so `npm run build` is still the gate for everything else. `npm run lint` is not a gate (~635 pre-existing errors).
