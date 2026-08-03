@@ -142,6 +142,31 @@ export const requiredRatio = (fontSizePx: number, fontWeight: number) =>
   fontSizePx >= 24 || (fontSizePx >= 18.66 && fontWeight >= 700) ? 3 : 4.5;
 
 /**
+ * Scoped CSS-variable overrides for an artist-accented page.
+ *
+ * The app's gold utilities compile to `var(--crwn-gold)` (Tailwind v4 `@theme
+ * inline`), so overriding the variable on the page wrapper recolours every
+ * gold surface inside it: tabs, play glyphs, tier cards, CTAs. One variable
+ * serves BOTH roles (fill under dark ink, ink on the dark ground) only if it
+ * clears 4.5:1 against near-black, which is exactly what liftForInk produces.
+ *
+ * Returns null when the hue cannot get there before clipping to white; the
+ * caller keeps CRWN gold rather than shipping an illegible page.
+ */
+export function accentPageVars(accent: string | null | undefined): Record<string, string> | null {
+  if (!accent || !/^#[0-9a-fA-F]{6}$/.test(accent)) return null;
+  const safe = liftForInk(accent, 4.5);
+  if (safe === toHex(LIGHT)) return null; // hue unusable; keep gold
+  const [r, g, b] = hexToRgb(safe);
+  const scale = (k: number): string => toHex([r * k, g * k, b * k]);
+  return {
+    '--crwn-gold': safe,
+    '--crwn-gold-hover': scale(0.9),
+    '--crwn-gold-muted': scale(0.62),
+  };
+}
+
+/**
  * Everything an artist-accented surface needs, resolved in one call.
  *
  *   const t = accentTheme(artist.accentHex);

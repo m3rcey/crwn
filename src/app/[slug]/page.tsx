@@ -16,6 +16,8 @@ import { ArtistPreviewProvider } from '@/hooks/useArtistPreview';
 import { PreviewBar } from '@/components/artist/PreviewBar';
 import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
+import { accentPageVars } from '@/lib/contrast';
+import type { CSSProperties } from 'react';
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
@@ -290,7 +292,17 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
       tiers={tiers.map((t) => ({ id: t.id, name: t.name, price: t.price }))}
       initialPersona={initialPersona}
     >
-    <div className="relative min-h-screen pb-20 md:pb-0 page-fade-in">
+    {/* Artist accent (v2 redesign): the page's gold utilities compile to
+        var(--crwn-gold), so overriding the variable here recolours every gold
+        surface inside — tabs, play glyphs, tier cards, CTAs — with the colour
+        sampled from this artist's own banner. accentPageVars returns null (keep
+        CRWN gold) when there is no stored palette or the hue cannot clear
+        4.5:1 on the dark ground. Scoped to this subtree only; the rest of the
+        app stays gold. */}
+    <div
+      className="relative min-h-screen pb-20 md:pb-0 page-fade-in"
+      style={(accentPageVars((artist as { accent_hex?: string | null }).accent_hex) ?? undefined) as CSSProperties | undefined}
+    >
       <BackgroundImage src="/backgrounds/bg-artist.jpg" overlayOpacity="bg-black/80" />
       <div className="relative z-10">
         <PreviewBar />

@@ -7,6 +7,7 @@ import {
   liftForInk,
   requiredRatio,
   accentTheme,
+  accentPageVars,
   type RGB,
 } from './contrast';
 
@@ -66,6 +67,31 @@ describe('requiredRatio', () => {
     expect(requiredRatio(19, 700)).toBe(3);
     expect(requiredRatio(14, 400)).toBe(4.5);
     expect(requiredRatio(18, 400)).toBe(4.5);
+  });
+});
+
+describe('accentPageVars', () => {
+  it('returns null for missing or malformed input (page keeps CRWN gold)', () => {
+    expect(accentPageVars(null)).toBeNull();
+    expect(accentPageVars(undefined)).toBeNull();
+    expect(accentPageVars('gold')).toBeNull();
+    expect(accentPageVars('#fff')).toBeNull();
+    expect(accentPageVars('#D4AF37"; background:url(x)')).toBeNull();
+  });
+
+  it('returns null for a hue that cannot reach legibility (pure black)', () => {
+    expect(accentPageVars('#000000')).toBeNull();
+  });
+
+  it('produces a dual-role-safe --crwn-gold for real sampled accents', () => {
+    for (const hex of ['#F5A800', '#E0473A', '#4F8DF5', '#7B5BD6', '#3FB27F', '#960F23']) {
+      const vars = accentPageVars(hex);
+      expect(vars).not.toBeNull();
+      const c = hexToRgb(vars!['--crwn-gold']);
+      // >=4.5:1 vs near-black covers BOTH roles: legible as ink on the dark
+      // ground, and legible under the dark ink components put on gold fills.
+      expect(contrast(c, [15, 15, 15])).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });
 
