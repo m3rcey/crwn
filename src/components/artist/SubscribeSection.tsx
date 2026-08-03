@@ -10,6 +10,7 @@ import { TierConfig } from '@/types';
 import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
 import { getPersistedReferralCode, getPersistedAttributionSource } from '@/components/shared/ReferralPersist';
 import { useTierViewTracker } from '@/hooks/useTierViewTracker';
+import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { Check, Loader2, X } from 'lucide-react';
 
 interface SubscribeButtonProps {
@@ -19,6 +20,7 @@ interface SubscribeButtonProps {
 }
 
 export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButtonProps) {
+  const { embedded } = useArtistPreview();
   const { user } = useAuth();
   const router = useRouter();
   const { showToast } = useToast();
@@ -75,6 +77,13 @@ export function SubscribeButton({ tiers, artistSlug, artistId }: SubscribeButton
 
   const handleSubscribe = async (tier: TierConfig) => {
     hapticMedium();
+    // Inside the onboarding live preview the page is real, so this button is
+    // real too. Stop before checkout: an artist must not be able to subscribe
+    // to themselves while watching their page come alive.
+    if (embedded) {
+      showToast('This is a preview of what fans see. Subscribing is switched off here.', 'info');
+      return;
+    }
     if (!user) {
       showToast('Please sign in to subscribe', 'warning');
       return;
@@ -181,6 +190,7 @@ interface TierCardsProps {
 }
 
 export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
+  const { embedded } = useArtistPreview();
   const { user } = useAuth();
   const router = useRouter();
   const { showToast } = useToast();
@@ -247,6 +257,12 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
 
   const handleSubscribe = async (tier: TierConfig) => {
     hapticMedium();
+    // See SubscribeButton: real page, real button, but checkout stops here while
+    // the page is embedded in the onboarding preview.
+    if (embedded) {
+      showToast('This is a preview of what fans see. Subscribing is switched off here.', 'info');
+      return;
+    }
     if (!user) {
       router.push('/login');
       return;

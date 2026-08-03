@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useArtistPreview } from '@/hooks/useArtistPreview';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Product, ProductType } from '@/types';
 import Image from 'next/image';
@@ -23,6 +24,7 @@ interface ShopSectionProps {
 }
 
 export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: ShopSectionProps) {
+  const { embedded } = useArtistPreview();
   const { user } = useAuth();
   const { showToast } = useToast();
   const searchParams = useSearchParams();
@@ -79,6 +81,12 @@ export function ShopSection({ products, artistId, artistSlug, merchStoreUrl }: S
 
   const handleBuy = async (product: Product) => {
     hapticMedium();
+    // Real page, real button, but no checkout while embedded in the onboarding
+    // preview. The artist is looking at their shop, not shopping in it.
+    if (embedded) {
+      showToast('This is a preview of what fans see. Buying is switched off here.', 'info');
+      return;
+    }
     if (!user) {
       showToast('Please sign in to purchase', 'warning');
       return;

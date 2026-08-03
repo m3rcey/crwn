@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Check,
@@ -28,6 +28,8 @@ import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
 import { BulkUploadForm } from '@/components/artist/BulkUploadForm';
 import { OnboardingProjectUpload } from '@/components/onboarding/OnboardingProjectUpload';
+import { LivePagePreview } from '@/components/onboarding/LivePagePreview';
+import { previewSignature } from '@/lib/onboardingPreview';
 import { PROJECT_TYPE_OPTIONS } from '@/lib/projectUpload';
 import { FanImportModal } from '@/components/artist/FanImportModal';
 import {
@@ -222,6 +224,11 @@ function SetupWizard() {
   const [photoUploaded, setPhotoUploaded] = useState(false);
   // Rights/Artist-Agreement consent for uploading music (same as the Music tab).
   const [trackTermsAgreed, setTrackTermsAgreed] = useState(false);
+  // Live preview reload counter. The derived setup booleans catch most changes,
+  // but not "a SECOND track landed" (hasMusic was already true), so every place
+  // that already calls refresh() after a create bumps this too.
+  const [previewNonce, setPreviewNonce] = useState(0);
+  const bumpPreview = useCallback(() => setPreviewNonce((n) => n + 1), []);
   const initRef = useRef(false);
 
   // Identity draft (name + link). Never pre-filled from profile.display_name:
@@ -578,6 +585,9 @@ function SetupWizard() {
       // the wizard right after a successful submit — the actual "stuck on submit"
       // bug. refresh runs in the background; the group chip / live poll catch up.
       refresh().catch(() => {});
+      // Something a fan can see just got created (tiers, a track, a product):
+      // reload the live preview so the artist watches it land.
+      bumpPreview();
     }
     advance();
   };
@@ -665,6 +675,19 @@ function SetupWizard() {
       : 'Upload your catalog in one batch. Set access per track or apply one setting to all. Add more anytime in Studio.'
     : current.subtitle;
 
+  // The live fan preview binds to `useArtistSetup`, the wizard's existing source
+  // of truth. No second copy of onboarding state: the preview reads the same
+  // derived facts the Continue buttons read, so it can never disagree with them.
+  const previewFacts = {
+    slug,
+    avatarUrl,
+    hasMusic: setup.hasMusic,
+    hasTier: setup.hasTier,
+    hasProduct: setup.hasProduct,
+    stripeConnected,
+  };
+  const previewVersion = previewSignature(previewFacts, previewNonce);
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Progress header */}
@@ -713,8 +736,10 @@ function SetupWizard() {
         </div>
       </header>
 
-      {/* One field */}
-      <main className="flex-1">
+      {/* One field, with the live fan preview alongside it. On xl the preview is
+          a sticky column; below that it is a sheet, so the field keeps the width. */}
+      <div className="flex-1 flex justify-center w-full">
+      <main className="flex-1 min-w-0">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
           <div className="flex items-start gap-3 mb-8">
             <div className="w-11 h-11 rounded-full bg-crwn-gold/10 flex items-center justify-center flex-shrink-0">
@@ -747,6 +772,7 @@ function SetupWizard() {
             onPhotoSaved={() => {
               setPhotoUploaded(true);
               refresh().catch(() => {});
+              bumpPreview();
             }}
             avatarUrl={avatarUrl}
             ladderDraft={ladderDraft}
@@ -766,6 +792,8 @@ function SetupWizard() {
                 body: JSON.stringify({ milestone: 'first_track_uploaded' }),
               }).catch(() => {});
               refresh().catch(() => {});
+              // Every finished batch is new music on the page.
+              bumpPreview();
             }}
             trackDraft={trackDraft}
             setTrackDraft={setTrackDraft}
@@ -777,6 +805,8 @@ function SetupWizard() {
           />
         </div>
       </main>
+      <LivePagePreview facts={previewFacts} version={previewVersion} />
+      </div>
 
       {/* Footer nav */}
       <footer className="sticky bottom-0 z-20 bg-crwn-bg/90 backdrop-blur-md border-t border-crwn-elevated">

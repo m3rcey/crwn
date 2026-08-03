@@ -32,6 +32,15 @@ export interface PreviewPersona {
 export interface ArtistPreviewValue {
   /** True only while the owner is actively viewing as someone else. */
   previewing: boolean;
+  /**
+   * True when the page is rendered inside the onboarding live preview
+   * (`?embed=1`). Everything still renders exactly as a fan sees it; the one
+   * difference is that money actions are inert, because an artist watching
+   * their page come alive must not be able to buy from themselves by mistake.
+   * Unlike `previewing`, this holds even for a non-owner: it can only ever
+   * remove an action, never grant one.
+   */
+  embedded: boolean;
   /** Tier the previewed persona holds. null = visitor or free-tier-less. */
   previewTierId: string | null;
   previewTierName: string | null;
@@ -45,6 +54,7 @@ export interface ArtistPreviewValue {
 // artist page). previewing:false means all consumers behave exactly as before.
 const INERT: ArtistPreviewValue = {
   previewing: false,
+  embedded: false,
   previewTierId: null,
   previewTierName: null,
   personaKey: OWNER_PERSONA,
@@ -68,11 +78,14 @@ export function ArtistPreviewProvider({
   isOwner,
   tiers,
   initialPersona,
+  embedded = false,
   children,
 }: {
   isOwner: boolean;
   tiers: { id: string; name: string; price: number }[];
   initialPersona?: string | null;
+  /** Rendered inside the onboarding live preview (`?embed=1`). */
+  embedded?: boolean;
   children: ReactNode;
 }) {
   const personas = useMemo<PreviewPersona[]>(() => {
@@ -98,11 +111,14 @@ export function ArtistPreviewProvider({
   const setPersona = useCallback((key: string) => setPersonaKey(key), []);
 
   const value = useMemo<ArtistPreviewValue>(() => {
-    if (!isOwner) return INERT;
+    // `embedded` survives the non-owner path: it only ever disables a money
+    // action, so it must never depend on the ownership check to apply.
+    if (!isOwner) return { ...INERT, embedded };
     const active = personas.find((p) => p.key === personaKey) ?? personas[0];
     const previewing = personaKey !== OWNER_PERSONA;
     return {
       previewing,
+      embedded,
       previewTierId: previewing ? active?.tierId ?? null : null,
       previewTierName: previewing && active?.tierId ? active.label : null,
       personaKey,
@@ -110,7 +126,7 @@ export function ArtistPreviewProvider({
       isOwner,
       setPersona,
     };
-  }, [isOwner, personaKey, personas, setPersona]);
+  }, [isOwner, personaKey, personas, setPersona, embedded]);
 
   return <ArtistPreviewContext.Provider value={value}>{children}</ArtistPreviewContext.Provider>;
 }

@@ -113,6 +113,32 @@ model. Idempotent saves (album once, join UPSERTs, numbering from max). Mileston
 with a Retry (previously they fabricated a dead crwn-media.r2.dev URL and inserted it), and bulk
 file selection uses the shared `validateUpload`.
 
+### The live fan preview runs beside the whole wizard (2026-08-03)
+
+From the moment the artist claims their link, `LivePagePreview`
+(`src/components/onboarding/LivePagePreview.tsx`) shows their REAL public page as a fan sees it,
+for every screen through launch. It is an **iframe of `/{slug}?preview=visitor&embed=1`**, not a
+rebuild: there is one artist-page rendering architecture, the preview cannot drift from what fans
+get, and at launch the artist is already looking at the finished page.
+
+- **`preview=visitor`** is the EXISTING persona lens (`useArtistPreview`), which only ever REMOVES
+  access, so the artist sees a signed-out fan's locks rather than their own entitled view.
+- **`embed=1`** is new: it hides the owner's `PreviewBar` and makes checkout inert
+  (`embedded` is read by both `SubscribeSection` handlers and `ShopSection.handleBuy`). `embedded`
+  survives the non-owner branch of the provider on purpose, because it can only ever remove an
+  action. The iframe additionally runs without `allow-top-navigation` / `allow-forms`.
+- **Framing is same-origin only.** `next.config.ts` moved from `X-Frame-Options: DENY` to
+  `SAMEORIGIN` plus `Content-Security-Policy: frame-ancestors 'self'`. Every cross-origin framer is
+  still blocked exactly as before; only thecrwn.app may frame thecrwn.app.
+- **No duplicate state.** The preview binds to `useArtistSetup`, the wizard's existing source of
+  truth. `previewSignature()` (`src/lib/onboardingPreview.ts`, pure and tested) changes only when
+  something fan-visible changed, and the iframe reloads on that and nothing else, never per
+  keystroke. A `nonce` bumped wherever the wizard already calls `refresh()` covers the changes the
+  derived booleans cannot see (a SECOND track does not flip `hasMusic`).
+- **Layout**: sticky column on xl, a "See my page" button opening a portalled bottom sheet below
+  that. Before the link exists, an honest checklist ("Your page is live at a link", "Music fans can
+  hear") stands in, and fills top to bottom as the wizard progresses.
+
 ## D. The launch review and the publish
 
 11. **`LaunchReview`** ("Your CRWN launch system", the wizard's end screen):

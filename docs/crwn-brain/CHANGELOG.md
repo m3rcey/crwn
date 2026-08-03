@@ -1,5 +1,42 @@
 # CRWN Brain — Changelog
 
+## 2026-08-03 - The live fan preview runs beside the whole setup wizard
+
+**What/why:** an artist building their CRWN could not see what they were building. The only fan
+view was a link at the very end of the wizard. Now, from the moment they claim their link through
+launch, `LivePagePreview` renders their REAL public page beside every screen, as a signed-out fan
+sees it.
+
+**Architecture:** an **iframe of `/{slug}?preview=visitor&embed=1`**, deliberately not a rebuild.
+The public page is an RSC running ten Supabase queries over the money surface; re-rendering it from
+wizard state would create the exact duplicate rendering architecture worth avoiding, and
+refactoring it would put the highest-risk page in a preview widget's blast radius. Framing the real
+route reuses it whole and cannot drift.
+
+**Safety:** `preview=visitor` is the EXISTING persona lens (only ever REMOVES access). `embed=1` is
+new: hides the owner `PreviewBar`, and makes both `SubscribeSection` handlers and
+`ShopSection.handleBuy` inert. `embedded` survives the provider's non-owner branch on purpose (it
+can only remove an action). The frame runs without `allow-top-navigation` / `allow-forms`.
+`next.config.ts` went from `X-Frame-Options: DENY` to `SAMEORIGIN` + `frame-ancestors 'self'`:
+cross-origin framing is still blocked exactly as before, same-origin is now permitted. Verified by
+curling the built server, not inferred from config.
+
+**State:** binds to `useArtistSetup`; no second copy of onboarding state. `previewSignature()`
+(pure, tested) changes only on fan-visible change and the iframe reloads on that alone, never per
+keystroke. A nonce bumped where the wizard already calls `refresh()` catches what the derived
+booleans cannot see (a second track does not flip `hasMusic`).
+
+**Files:** `src/lib/onboardingPreview.ts` (new), `src/components/onboarding/LivePagePreview.tsx`
+(new), `src/app/setup/page.tsx`, `src/app/[slug]/page.tsx`, `src/hooks/useArtistPreview.tsx`,
+`src/components/artist/SubscribeSection.tsx`, `src/components/artist/ShopSection.tsx`,
+`next.config.ts`. **DB impact:** none. **Migration:** none. **Tests:** 820 pass (26 new).
+
+**Deliberately deferred:** the pre-signup half of the ask (a preview on the calculator and builder
+pages, before an account exists). See the report and TODO "On Claude's plate": before signup there
+is no page, no name, no photo and no music, so the only fan-visible thing that exists is the tier
+ladder, and `TierCards` is coupled to auth, router and live checkout. Showing an artist a
+near-empty page at the moment of peak excitement is a conversion risk, not a north star.
+
 ## 2026-08-03 - The homepage server-renders again (loading gate was hiding the whole page)
 
 **What/why:** the funnel reuse below shipped a real SEO regression, caught on the LIVE page. The

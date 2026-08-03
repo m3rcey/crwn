@@ -247,6 +247,15 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Pre-signup live preview (the half of the preview ask that is still open).** The live fan
+  preview now runs from the artist-link screen through launch, showing their real page in an
+  iframe. It does NOT run on the calculator or builder pages, because before signup there is no
+  page, no name, no photo and no music: the only fan-visible thing that exists is the tier ladder,
+  and `TierCards` is wired to auth, router and live checkout, so reusing it there is not a small
+  change. Showing a near-empty page at the moment of peak excitement is also a conversion risk
+  worth measuring before building. The honest version is a ladder-only "what fans will see"
+  card in `DeliverableBuilder`, reusing the tier presentation only. Mine, not urgent.
+
 - **v2 interface redesign, remaining screens.** Landed 2026-08-02: tokens + the
   `.neu-raised`/`.neu-inset` surface treatment (75+ call sites upgraded through two classes), the
   nav rail marker (no more filled gold block), the spring motion vocabulary on every shared

@@ -11,7 +11,14 @@ const nextConfig: NextConfig = {
       {
         source: '/(.*)',
         headers: [
-          { key: 'X-Frame-Options', value: 'DENY' },
+          // SAMEORIGIN, not DENY, so the onboarding live preview can frame the
+          // artist's OWN page (`/{slug}?embed=1`) while they build it. This is
+          // not a relaxation against attackers: `frame-ancestors 'self'` below
+          // is the header modern browsers actually enforce, and it still blocks
+          // every cross-origin framer exactly as DENY did. Only thecrwn.app can
+          // frame thecrwn.app.
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },

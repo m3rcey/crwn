@@ -97,8 +97,13 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
 
 export default async function ArtistPage({ params, searchParams }: ArtistPageProps) {
   const { slug } = await params;
-  const previewParam = (await searchParams)?.preview;
+  const resolvedSearch = await searchParams;
+  const previewParam = resolvedSearch?.preview;
   const initialPersona = typeof previewParam === 'string' ? previewParam : null;
+  // Rendered inside the onboarding live preview. The page is otherwise identical
+  // to what a fan gets (that is the whole point); `embedded` only strips the
+  // owner's preview bar and makes checkout inert.
+  const embedded = resolvedSearch?.embed === '1';
   const supabase = await createServerSupabaseClient();
 
   const { data: { session } } = await supabase.auth.getSession();
@@ -293,6 +298,7 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
       isOwner={isOwner}
       tiers={tiers.map((t) => ({ id: t.id, name: t.name, price: t.price }))}
       initialPersona={initialPersona}
+      embedded={embedded}
     >
     {/* Artist accent (v2 redesign): the page's gold utilities compile to
         var(--crwn-gold), so overriding the variable here recolours every gold
@@ -319,7 +325,10 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
         }}
       />
       <div className="relative z-10">
-        <PreviewBar />
+        {/* The preview bar is the OWNER's persona switcher. Inside the onboarding
+            preview the persona is already fixed to "a visitor", and a second bar
+            of chrome inside the little page frame would only be noise. */}
+        {!embedded && <PreviewBar />}
         <PaletteBackfill
           artistId={artist.id}
           bannerUrl={artist.banner_url ?? null}
