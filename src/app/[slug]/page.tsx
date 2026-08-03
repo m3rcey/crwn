@@ -17,6 +17,7 @@ import { PreviewBar } from '@/components/artist/PreviewBar';
 import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 import { accentPageVars } from '@/lib/contrast';
+import { PaletteBackfill } from '@/components/artist/PaletteBackfill';
 import type { CSSProperties } from 'react';
 
 interface ArtistPageProps {
@@ -304,8 +305,26 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
       style={(accentPageVars((artist as { accent_hex?: string | null }).accent_hex) ?? undefined) as CSSProperties | undefined}
     >
       <BackgroundImage src="/backgrounds/bg-artist.jpg" overlayOpacity="bg-black/80" />
+      {/* Ambient accent wash (v2): a contained pool of the artist's light at the
+          top of the page, fading into the ground. Pure CSS (the shader tier is a
+          later pass); color-mix keeps it on the sampled accent, gold before one
+          exists. Never a full-bleed field: the glow enters from the top only. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[480px]"
+        style={{
+          background:
+            'radial-gradient(120% 65% at 50% -12%, color-mix(in srgb, var(--crwn-gold) 30%, transparent) 0%, color-mix(in srgb, var(--crwn-gold) 8%, transparent) 48%, transparent 78%)',
+        }}
+      />
       <div className="relative z-10">
         <PreviewBar />
+        <PaletteBackfill
+          artistId={artist.id}
+          bannerUrl={artist.banner_url ?? null}
+          isOwner={isOwner}
+          hasPalette={!!(artist as { accent_hex?: string | null }).accent_hex}
+        />
         {/* Live now banner */}
         {liveNow && (
           <a
@@ -316,27 +335,36 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
             {(artist.profile?.display_name || 'Artist')} is live now: {liveNow.title}. Tap to join.
           </a>
         )}
-        {/* Banner */}
-        <div className="relative h-48 sm:h-64 md:h-80 w-full">
-          {artist.banner_url ? (
-            <Image
-              src={artist.banner_url}
-              alt={`${artist.profile?.display_name || 'Artist'} banner`}
-              fill
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-b from-crwn-elevated to-crwn-bg" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg via-transparent to-transparent" />
+        {/* Banner (v2): a rounded media card inset from the page edges, not a
+            full-bleed strip. The soft shadow below it is the accent glow. */}
+        <div className="px-4 sm:px-6 lg:px-8 pt-4">
+          <div
+            className="relative h-48 sm:h-64 md:h-72 w-full rounded-2xl md:rounded-[20px] overflow-hidden"
+            style={{ boxShadow: '0 24px 60px color-mix(in srgb, var(--crwn-gold) 20%, transparent)' }}
+          >
+            {artist.banner_url ? (
+              <Image
+                src={artist.banner_url}
+                alt={`${artist.profile?.display_name || 'Artist'} banner`}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-b from-crwn-elevated to-crwn-bg" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
+          </div>
         </div>
 
         {/* Profile Header */}
-        <div className="px-4 sm:px-6 lg:px-8 -mt-16 relative z-10" data-tour="artist-page-header">
+        <div className="px-4 sm:px-6 lg:px-8 -mt-12 relative z-10" data-tour="artist-page-header">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6">
-            {/* Avatar */}
-            <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-crwn-bg overflow-hidden bg-crwn-surface">
+            {/* Avatar (v2): rounded tile, hairline border, deep lift */}
+            <div
+              className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl md:rounded-[20px] border border-white/15 overflow-hidden bg-crwn-surface-solid"
+              style={{ boxShadow: '0 18px 40px rgba(0,0,0,0.5)' }}
+            >
               {artist.profile?.avatar_url ? (
                 <Image
                   src={artist.profile.avatar_url}
@@ -353,12 +381,18 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
 
             {/* Info */}
             <div className="flex-1 mb-2">
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-bold text-crwn-text">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-3xl sm:text-4xl md:text-[44px] font-bold text-crwn-text tracking-tight leading-none">
                   {artist.profile?.display_name || 'Artist Name'}
                 </h1>
                 {artist.is_verified && (
-                  <span className="text-crwn-gold" title="Verified Artist">✓</span>
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs text-crwn-text"
+                    style={{ background: 'color-mix(in srgb, var(--crwn-gold) 14%, transparent)' }}
+                    title="Verified Artist"
+                  >
+                    <span className="text-crwn-gold">✓</span> Verified
+                  </span>
                 )}
                 {artist.is_founding_artist && artist.founding_artist_number && (
                   <span data-tour="founding-badge"><span data-tour="founding-badge"><FoundingBadge number={artist.founding_artist_number} size="sm" /></span></span>

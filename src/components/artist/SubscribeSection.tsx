@@ -428,9 +428,15 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           return (
             <div
               key={tier.id}
-              className={`neu-raised neu-card-hover p-6 flex flex-col ${
+              className={`neu-card-hover p-6 flex flex-col rounded-2xl ${
                 isThisTierSubscribed ? 'ring-2 ring-crwn-gold' : ''
               }`}
+              style={{
+                border: '1px solid color-mix(in srgb, var(--crwn-gold) 34%, transparent)',
+                background:
+                  'radial-gradient(110% 130% at 12% 0%, color-mix(in srgb, var(--crwn-gold) 15%, transparent) 0%, transparent 62%), #1a1a1a',
+                boxShadow: '0 1px 0 rgba(255,255,255,0.06) inset, 0 14px 34px rgba(0,0,0,0.5)',
+              }}
             >
               {isThisTierSubscribed && (
                 <div className="flex items-center gap-1 text-crwn-gold text-sm font-medium mb-2">
@@ -477,7 +483,7 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
               <button
                 onClick={() => handleTierAction(tier)}
                 disabled={isLoading === tier.id || subscribedTierId === tier.id}
-                className={`mt-4 w-full py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${getButtonClass(tier)}`}
+                className={`mt-4 w-full py-2.5 rounded-full font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${getButtonClass(tier)}`}
               >
                 {isLoading === tier.id && <Loader2 className="w-4 h-4 animate-spin" />}
                 {getButtonText(tier)}
