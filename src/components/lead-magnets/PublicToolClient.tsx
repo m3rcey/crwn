@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { smartBack } from '@/lib/navigation';
@@ -35,7 +35,25 @@ import type { GeneratedResult, LeadMagnetConfig, LeadMagnetInputValues } from '@
 // result hostage for an email.
 type Phase = 'loading' | 'hero' | 'full';
 
-export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
+/**
+ * Where this funnel is mounted. 'tool' is /tools/[slug] (unchanged default).
+ * 'homepage' is `/`, which reuses this EXACT composition rather than owning a
+ * second calculator: the only differences are the chrome (no "All tools" back
+ * control, its own nav above), the signup ref, and a `surface` dimension on the
+ * funnel analytics so homepage and tool traffic stay distinguishable.
+ */
+export type ToolSurface = 'tool' | 'homepage';
+
+export function PublicToolClient({
+  config,
+  surface = 'tool',
+  below,
+}: {
+  config: LeadMagnetConfig;
+  surface?: ToolSurface;
+  /** Route-specific supporting sections, rendered AFTER the whole funnel. */
+  below?: ReactNode;
+}) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>('loading');
   // Signup-timing experiment variant for the Own Your Fans builder. 'save' = control (current).
@@ -72,6 +90,9 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
       // Already resolved against the tool's declared entry contexts, so this is never raw URL text.
       entryContext: entryContext ?? undefined,
       context: 'public',
+      // Which page this funnel ran on. Same events, same names: one extra
+      // dimension so homepage traffic is separable from /tools traffic.
+      surface,
       ...extra,
     };
   };
@@ -230,9 +251,11 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
   // the narrow single-column reading width.
   return (
     <div className={`${phase === 'hero' ? 'max-w-5xl' : 'max-w-lg'} mx-auto px-4 py-6`}>
-      <button onClick={() => smartBack(router, '/tools')} className="flex items-center gap-1.5 text-sm text-crwn-text-secondary mb-4">
-        <ArrowLeft className="w-4 h-4" /> All tools
-      </button>
+      {surface === 'tool' && (
+        <button onClick={() => smartBack(router, '/tools')} className="flex items-center gap-1.5 text-sm text-crwn-text-secondary mb-4">
+          <ArrowLeft className="w-4 h-4" /> All tools
+        </button>
+      )}
 
       {error && <div className="mb-4 rounded-xl bg-crwn-error/10 border border-crwn-error/30 p-3 text-sm text-crwn-error">{error}</div>}
 
@@ -268,7 +291,10 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
               comparisons, CTAs throughout), the same continuous-funnel model as /worth. */}
           <div className="max-w-2xl mx-auto">
             <ToolShowcase slug={config.slug} />
-            <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
+            <CrwnShowcase claimed={false} claimHref={surface === 'homepage' ? '/signup?ref=homepage' : `/signup?ref=tool-${config.slug}`} />
+            {/* Route-specific supporting sections, LAST: the homepage keeps its
+                existing marketing sections here, below the whole funnel. */}
+            {below}
           </div>
         </>
       )}
@@ -336,13 +362,16 @@ export function PublicToolClient({ config }: { config: LeadMagnetConfig }) {
             </div>
           )}
 
-          <button onClick={() => router.push('/tools')} className="w-full text-sm text-crwn-text-secondary">
-            Explore another CRWN tool
-          </button>
+          {surface === 'tool' && (
+            <button onClick={() => router.push('/tools')} className="w-full text-sm text-crwn-text-secondary">
+              Explore another CRWN tool
+            </button>
+          )}
 
           {/* Supporting content, last: this tool's own mockups, then the CRWN app explanation. */}
           <ToolShowcase slug={config.slug} />
-          <CrwnShowcase claimed={false} claimHref={`/signup?ref=tool-${config.slug}`} />
+          <CrwnShowcase claimed={false} claimHref={surface === 'homepage' ? '/signup?ref=homepage' : `/signup?ref=tool-${config.slug}`} />
+          {below}
         </div>
       )}
     </div>

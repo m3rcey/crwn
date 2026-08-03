@@ -171,12 +171,26 @@ export function WorthExperience({
   prefill,
   claimHref,
   resultToken,
+  marketingOnly = false,
 }: {
   homepage?: boolean;
   prefill?: WorthPrefill;
   claimHref?: string;
   /** Set only on a personalized result page. Persists her corrections. */
   resultToken?: string;
+  /**
+   * Render ONLY the marketing sections: no nav, no hero, no Streaming Loss
+   * calculator. The homepage uses this to keep every one of its existing
+   * sections, in their existing order, BELOW the shared Opportunity Calculator
+   * funnel, without owning a second calculator. The sections already have a
+   * no-number path (the cold /worth view uses it), so they render unchanged
+   * apart from the personalized figures they cannot have without a result.
+   *
+   * This component fires NO analytics of its own (verified: no trackLeadMagnet
+   * / trackOpportunity call sites), so embedding it cannot double-count the
+   * funnel events the Opportunity Calculator emits above it.
+   */
+  marketingOnly?: boolean;
 }) {
   const router = useRouter();
   const worthBuilderRef = useRef<HTMLDivElement>(null);
@@ -604,13 +618,21 @@ export function WorthExperience({
   ) : null;
 
   return (
-    <div className="min-h-screen bg-crwn-bg text-crwn-text">
-      {homepage && <HomeNav />}
-      <div className="max-w-3xl mx-auto px-4 page-fade-in py-12 sm:py-16">
+    // Embedded (marketingOnly) it is a section of another page, so it must not
+    // claim a full screen or re-run the page fade.
+    <div className={marketingOnly ? 'text-crwn-text' : 'min-h-screen bg-crwn-bg text-crwn-text'}>
+      {homepage && !marketingOnly && <HomeNav />}
+      <div
+        className={
+          marketingOnly
+            ? 'max-w-3xl mx-auto px-4 pt-4'
+            : 'max-w-3xl mx-auto px-4 page-fade-in py-12 sm:py-16'
+        }
+      >
         {/* The marketing homepage keeps its centered hero. The CALCULATOR renders the same
             tool hero as every other funnel on the cold view, and no hero at all once the
             result is on screen (the number is the headline at that point). */}
-        {homepage && (
+        {homepage && !marketingOnly && (
           <div className="text-center mb-8">
             <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-crwn-gold/20 flex items-center justify-center">
               <Crown className="w-8 h-8 text-crwn-gold" />
@@ -624,7 +646,7 @@ export function WorthExperience({
           </div>
         )}
 
-        {useEntryWizard && (
+        {useEntryWizard && !marketingOnly && (
           <ToolHero
             eyebrow="Streaming Loss"
             headline="How much money are you leaving on the table?"
@@ -640,15 +662,22 @@ export function WorthExperience({
         {/* Lead view (arrived from an Instagram comment): lead with the loss and the ask,
             then the derivation, then the inputs to adjust. Cold view: inputs first, because
             there is no number yet. */}
-        {useEntryWizard ? (
-          entryWizard
-        ) : (
+        {/* marketingOnly (homepage embed) renders the sections only: the
+            Opportunity Calculator funnel above owns the calculator there. The
+            /worth flow below is unchanged. */}
+        {marketingOnly ? null : (
           <>
-            {resultCard}
-            {derivationCard}
-            {builderSection}
-            {inputsCard}
-            {emailCaptureCard}
+            {useEntryWizard ? (
+              entryWizard
+            ) : (
+              <>
+                {resultCard}
+                {derivationCard}
+                {builderSection}
+                {inputsCard}
+                {emailCaptureCard}
+              </>
+            )}
           </>
         )}
 
@@ -1028,7 +1057,9 @@ export function WorthExperience({
 
 // ---- Presentational helpers ----
 
-function HomeNav() {
+// Exported so the homepage wrapper can render the SAME nav above the shared
+// Opportunity Calculator funnel (this component no longer renders it there).
+export function HomeNav() {
   return (
     <nav className="sticky top-0 z-50 bg-crwn-bg/90 backdrop-blur border-b border-crwn-elevated">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">

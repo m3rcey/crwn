@@ -1,5 +1,42 @@
 # CRWN Brain — Changelog
 
+## 2026-08-01 - The homepage runs the Opportunity Calculator funnel (structural reuse)
+
+**What/why:** `/` led with the Streaming Loss Calculator (`WorthExperience homepage`) while the
+all-in-one Opportunity Calculator lived only at `/tools/opportunity-calculator`. The homepage now
+opens with the same photo-led hero, one primary CTA that smooth-scrolls to the wizard on the same
+page, and the same result → transition → builder → save/signup chain, because it mounts the SAME
+component (`PublicToolClient` + the registry config). No homepage copy of the calculator, result,
+builder, or boundary exists; both routes get every future fix.
+
+**Order:** photo hero → one CTA → wizard → result → transition → builder → save/signup → tool +
+CRWN showcase → **every existing homepage marketing section, unchanged and in the same order**
+(embedded via a new `below` slot using `WorthExperience marketingOnly`, which strips that
+component's own nav, hero, and calculator). Those sections render their existing no-number copy
+path since the Streaming Loss result no longer leads the page; no section was removed, reordered,
+or rewritten.
+
+**Analytics:** no event renamed, added, or duplicated. `OpportunityEventMeta` gained one
+allowlisted dimension, `surface: 'tool' | 'homepage'`, so the shared funnel's events stay
+separable per page. `WorthExperience` fires no analytics of its own (verified), so embedding it
+cannot double-count.
+
+**Files:** `src/app/page.tsx`, `src/app/HomeFunnel.tsx` (new), `src/components/lead-magnets/PublicToolClient.tsx`
+(additive `surface` + `below` props; `surface === 'tool'` keeps the "All tools" and "Explore
+another tool" chrome so the tool page is visually unchanged), `src/app/(public)/worth/WorthExperience.tsx`
+(additive `marketingOnly`, `HomeNav` exported), `src/lib/opportunityFunnels/analytics.ts`.
+
+**DB impact:** none. **Migration:** none. **Tests:** 793 pass (5 new structural reuse tests in
+`pageComposition.test.ts`, 6 config tests in `homepageFunnel.test.ts`, 1 analytics surface test);
+`npm run build` passes with `/` still prerendered; `npm run verify:quests` OK.
+
+**Known limitations:** the homepage marketing sections lose the personalized Streaming Loss
+figures they used to interpolate (they fall back to their existing generic copy) because the
+homepage no longer runs that calculator; `/worth` keeps the personalized version. Component-level
+rendering (mobile overlap, focus order) was not automatically tested: this repo's vitest setup is
+node-only with no jsdom, so those were verified by reading the shared components rather than
+executed.
+
 ## 2026-08-01 - Onboarding music upload is project-centric (albums/EPs/singles/loose tracks)
 
 **What/why:** the wizard's music step bulk-uploaded independent tracks and could ask for artwork

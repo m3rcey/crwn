@@ -33,6 +33,15 @@ describe('opportunity event names', () => {
     expect(out.entryContext).toBe('vault-revenue-planner');
     expect(out).not.toHaveProperty('evil');
   });
+
+  // The homepage mounts the SAME funnel component as /tools/[slug], so without a
+  // surface dimension the two are indistinguishable in the event stream. The
+  // allowlist is what lets it out: forget the ALLOWED_KEYS entry and the field
+  // is silently dropped, which is exactly how analytics quietly stop answering.
+  it('carries the surface dimension so homepage and tool traffic stay separable', () => {
+    expect(sanitizeOpportunityMeta({ surface: 'homepage' }).surface).toBe('homepage');
+    expect(sanitizeOpportunityMeta({ surface: 'tool' }).surface).toBe('tool');
+  });
 });
 
 describe('sanitizeOpportunityMeta', () => {

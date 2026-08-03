@@ -123,6 +123,12 @@ export interface OpportunityEventMeta {
   experienceId?: string;
   variant?: string;
   context?: 'public' | 'artist';
+  /**
+   * Which PAGE the funnel ran on. The same funnel composition is mounted by
+   * /tools/[slug] and by the homepage, so without this the two are
+   * indistinguishable in the event stream. A closed set, never free text.
+   */
+  surface?: 'tool' | 'homepage';
   authed?: boolean;
 }
 
@@ -148,6 +154,7 @@ const ALLOWED_KEYS: (keyof OpportunityEventMeta)[] = [
   'experienceId',
   'variant',
   'context',
+  'surface',
   'authed',
 ];
 

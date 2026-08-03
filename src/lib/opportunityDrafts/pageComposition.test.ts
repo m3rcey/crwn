@@ -10,6 +10,8 @@ import { DELIVERABLE_SPECS, buildCtaFor, transitionFor, DELIVERABLE_TOOL_SLUGS }
 const root = process.cwd();
 const publicToolClient = readFileSync(join(root, 'src/components/lead-magnets/PublicToolClient.tsx'), 'utf-8');
 const worth = readFileSync(join(root, 'src/app/(public)/worth/WorthExperience.tsx'), 'utf-8');
+const homeFunnel = readFileSync(join(root, 'src/app/HomeFunnel.tsx'), 'utf-8');
+const homePage = readFileSync(join(root, 'src/app/page.tsx'), 'utf-8');
 
 describe('CTA contract: the builder is the CTA', () => {
   it('every deliverable tool has a transition line and a build CTA that never mentions signup', () => {
@@ -233,5 +235,52 @@ describe('artists are not shown blank boxes', () => {
       const filled = Object.values(v).filter((x) => (Array.isArray(x) ? x.length : String(x ?? '').length)).length;
       expect(filled, `${spec.toolSlug} prefilled fields`).toBeGreaterThan(1);
     }
+  });
+});
+
+
+// The homepage runs the Opportunity Calculator funnel by mounting the SAME
+// component as /tools/[slug]. These read the source so a future edit cannot
+// quietly fork a second homepage calculator or drop the preserved sections.
+describe('Homepage funnel reuse', () => {
+  it('the homepage renders the shared funnel component, not its own calculator', () => {
+    expect(homePage).toContain('HomeFunnel');
+    expect(homeFunnel).toContain('PublicToolClient');
+    expect(homeFunnel).toContain("'opportunity-calculator'");
+    // No parallel wizard/result/builder implementation on the homepage.
+    for (const forked of ['LeadMagnetWizard', 'LeadMagnetResult', 'DeliverableBuilder', 'generateResult']) {
+      expect(homeFunnel, forked).not.toContain(forked);
+    }
+  });
+
+  it('marks itself as the homepage surface so analytics stay separable', () => {
+    expect(homeFunnel).toContain('surface="homepage"');
+  });
+
+  it('keeps every existing homepage marketing section, below the funnel', () => {
+    // The sections live in WorthExperience; the homepage embeds them via the
+    // `below` slot, which PublicToolClient renders AFTER the whole funnel.
+    expect(homeFunnel).toContain('marketingOnly');
+    expect(homeFunnel).toContain('below=');
+    // Scoped to the RESULT phase: `below` also renders in the hero phase (where
+    // there is no builder yet), so the ordering claim only means anything here.
+    const full = publicToolClient.slice(publicToolClient.indexOf("phase === 'full'"));
+    const belowAt = full.indexOf('{below}');
+    expect(belowAt).toBeGreaterThan(-1);
+    expect(belowAt).toBeGreaterThan(full.indexOf('ref={builderRef}'));
+    expect(belowAt).toBeGreaterThan(full.indexOf('LeadCaptureForm'));
+    expect(belowAt).toBeGreaterThan(full.indexOf('<CrwnShowcase'));
+  });
+
+  it('marketingOnly strips the /worth calculator but keeps the sections', () => {
+    // Guards the embed contract: no second calculator and no duplicate nav on
+    // the homepage, while the marketing sections still render.
+    expect(worth).toContain('marketingOnly ? null : (');
+    expect(worth).toContain('{homepage && !marketingOnly && <HomeNav />}');
+  });
+
+  it('the tool route keeps its own chrome, so /tools/opportunity-calculator is unchanged', () => {
+    expect(publicToolClient).toContain("surface === 'tool' &&");
+    expect(publicToolClient).toContain('All tools');
   });
 });
