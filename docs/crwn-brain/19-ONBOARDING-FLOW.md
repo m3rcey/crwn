@@ -100,6 +100,19 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
 10. **Shop group (skippable).** `product-type` (digital/physical; experiences are Pro) →
     `product-title` → `product-price`. Creates via `createOnboardingProduct`.
 
+### The music step is project-centric (2026-08-01)
+
+`content-plan` asks WHAT the artist is adding first (OptionSelect): an **album/EP/mixtape**
+(`OnboardingProjectUpload` wrapping `BulkUploadForm` in `projectMode`: one title, ONE cover
+upload, bulk audio with per-item title edit and reorder; saved as `albums` + `album_tracks` in
+queue order, cover URL copied onto art-less tracks per the AlbumManager convention), **one
+featured track** (the single path, optional cover), or **loose tracks** (bulk, no artwork
+needed). No migration: a single is a standalone track, and the junction table is the project
+model. Idempotent saves (album once, join UPSERTs, numbering from max). Milestone
+`first_project_created` fires on the first container. Bulk upload failures now FAIL the item
+with a Retry (previously they fabricated a dead crwn-media.r2.dev URL and inserted it), and bulk
+file selection uses the shared `validateUpload`.
+
 ## D. The launch review and the publish
 
 11. **`LaunchReview`** ("Your CRWN launch system", the wizard's end screen):

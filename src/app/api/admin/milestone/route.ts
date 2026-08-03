@@ -8,6 +8,7 @@ const VALID_MILESTONES: ActivationMilestone[] = [
   'tiers_created',
   'stripe_connected',
   'first_subscriber',
+  'first_project_created',
 ];
 
 export async function POST(req: NextRequest) {

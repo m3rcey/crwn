@@ -5,7 +5,9 @@ export type ActivationMilestone =
   | 'first_track_uploaded'
   | 'tiers_created'
   | 'stripe_connected'
-  | 'first_subscriber';
+  | 'first_subscriber'
+  // First album/EP/mixtape container created (onboarding project flow).
+  | 'first_project_created';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',

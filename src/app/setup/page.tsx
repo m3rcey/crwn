@@ -27,6 +27,8 @@ import { withTimeout } from '@/lib/promiseTimeout';
 import { trackFunnel } from '@/lib/analytics/trackFunnelClient';
 import { OnboardingAvatarStep } from '@/components/onboarding/OnboardingAvatarStep';
 import { BulkUploadForm } from '@/components/artist/BulkUploadForm';
+import { OnboardingProjectUpload } from '@/components/onboarding/OnboardingProjectUpload';
+import { PROJECT_TYPE_OPTIONS } from '@/lib/projectUpload';
 import { FanImportModal } from '@/components/artist/FanImportModal';
 import {
   createOnboardingTrack,
@@ -284,8 +286,10 @@ function SetupWizard() {
   // Stage 5: how the artist starts their catalog. 'single' = one featured free
   // track (the fastest minimum). 'bulk' = the existing BulkUploadForm mounted
   // in-wizard (multi-file, per-track tier access), for the 40-300-song ICP.
-  const [contentPlan, setContentPlan] = useState<'single' | 'bulk'>('single');
-  const [trackDraft, setTrackDraft] = useState<{ audioFile: File | null; title: string }>({ audioFile: null, title: '' });
+  // 'project' = album/EP/mixtape (one container, one cover); 'bulk' = loose
+  // tracks with no container; 'single' = the one featured track.
+  const [contentPlan, setContentPlan] = useState<'single' | 'bulk' | 'project'>('single');
+  const [trackDraft, setTrackDraft] = useState<{ audioFile: File | null; title: string; artFile: File | null }>({ audioFile: null, title: '', artFile: null });
   const [productDraft, setProductDraft] = useState<{ type: ProductType; title: string; price: '' | string }>({
     type: 'digital',
     title: '',
@@ -380,7 +384,7 @@ function SetupWizard() {
         return true; // a default is always selected
       case 'track-audio':
         // Bulk mode gates on real tracks existing (the form uploads them itself).
-        if (contentPlan === 'bulk') return false;
+        if (contentPlan === 'bulk' || contentPlan === 'project') return false;
         return !!trackDraft.audioFile && trackTermsAgreed;
       case 'track-title':
         return trackDraft.title.trim() !== '';
@@ -403,7 +407,8 @@ function SetupWizard() {
 
   // Bulk uploads name their tracks from the file names inside the form, so the
   // single-track title screen is meaningless on that path and gets skipped.
-  const skipScreen = (s: ScreenDef): boolean => s.key === 'track-title' && contentPlan === 'bulk';
+  const skipScreen = (s: ScreenDef): boolean =>
+    s.key === 'track-title' && (contentPlan === 'bulk' || contentPlan === 'project');
 
   const advance = () => {
     let next = stepIndex + 1;
@@ -537,7 +542,7 @@ function SetupWizard() {
     }
     if (kind === 'track') {
       if (!trackDraft.audioFile) return 'Pick an audio file first.';
-      return (await createOnboardingTrack(supabase, artistId, { audioFile: trackDraft.audioFile, title: trackDraft.title })).error;
+      return (await createOnboardingTrack(supabase, artistId, { audioFile: trackDraft.audioFile, title: trackDraft.title, artFile: trackDraft.artFile })).error;
     }
     return (await createOnboardingProduct(supabase, artistId, { type: productDraft.type, title: productDraft.title, priceCents: Math.round(parseFloat(productDraft.price) * 100) })).error;
   };
@@ -648,10 +653,16 @@ function SetupWizard() {
   const isLast = stepIndex >= SCREENS.length - 1;
   const showSkip = !current.groupRequired && !currentDone;
   // The audio screen wears catalog copy when the artist chose the bulk path.
-  const isBulkAudio = current.key === 'track-audio' && contentPlan === 'bulk' && !currentDone;
-  const headerTitle = isBulkAudio ? 'Upload your catalog' : current.title;
+  const isBulkAudio = current.key === 'track-audio' && (contentPlan === 'bulk' || contentPlan === 'project') && !currentDone;
+  const headerTitle = isBulkAudio
+    ? contentPlan === 'project'
+      ? 'Build your first project'
+      : 'Upload your catalog'
+    : current.title;
   const headerSubtitle = isBulkAudio
-    ? 'Upload your catalog in one batch. Set access per track or apply one setting to all. Add more anytime in Studio.'
+    ? contentPlan === 'project'
+      ? 'One title, one cover, all its tracks. Reorder before you upload; manage it anytime in Studio.'
+      : 'Upload your catalog in one batch. Set access per track or apply one setting to all. Add more anytime in Studio.'
     : current.subtitle;
 
   return (
@@ -856,11 +867,11 @@ function FieldBody({
   setPromiseDraft: React.Dispatch<React.SetStateAction<PromiseDraft>>;
   tierProjections: TierProjection[];
   toolName: string | null;
-  contentPlan: 'single' | 'bulk';
-  setContentPlan: React.Dispatch<React.SetStateAction<'single' | 'bulk'>>;
+  contentPlan: 'single' | 'bulk' | 'project';
+  setContentPlan: React.Dispatch<React.SetStateAction<'single' | 'bulk' | 'project'>>;
   onBulkComplete: () => void;
-  trackDraft: { audioFile: File | null; title: string };
-  setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string }>>;
+  trackDraft: { audioFile: File | null; title: string; artFile: File | null };
+  setTrackDraft: React.Dispatch<React.SetStateAction<{ audioFile: File | null; title: string; artFile: File | null }>>;
   trackTermsAgreed: boolean;
   setTrackTermsAgreed: React.Dispatch<React.SetStateAction<boolean>>;
   productDraft: { type: ProductType; title: string; price: string };
@@ -962,24 +973,16 @@ function FieldBody({
       }
       return (
         <div className="grid gap-3">
-          {(
-            [
-              { value: 'single', label: 'One featured track', hint: 'Fastest. It starts free so new fans have something to hear today.' },
-              { value: 'bulk', label: 'My catalog (multiple tracks)', hint: 'Upload a batch in one go, with per-track access. Best if you already have released music: a deep catalog is exactly what your Gold tier sells.' },
-            ] as const
-          ).map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => setContentPlan(opt.value)}
-              className={`text-left px-4 py-4 rounded-xl border transition-colors ${
-                contentPlan === opt.value ? 'border-crwn-gold bg-crwn-gold/10' : 'border-crwn-elevated hover:border-crwn-gold/40'
-              }`}
-            >
-              <p className="font-medium text-crwn-text">{opt.label}</p>
-              <p className="text-xs text-crwn-text-secondary mt-0.5">{opt.hint}</p>
-            </button>
-          ))}
+          {/* Pick-one-of-3 = dropdown (house UX rule). The choice decides which
+              upload flow the next screen mounts: a project (album/EP/mixtape
+              container with ONE cover), the single featured track, or loose
+              tracks with no container. */}
+          <OptionSelect
+            options={PROJECT_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label, hint: o.hint }))}
+            value={contentPlan === 'bulk' ? 'loose' : contentPlan}
+            onChange={(v) => setContentPlan(v === 'loose' ? 'bulk' : (v as 'single' | 'project'))}
+            placeholder="What are you adding first?"
+          />
           <button
             type="button"
             onClick={onSkipGroup}
@@ -994,18 +997,41 @@ function FieldBody({
       if (setup.hasMusic) {
         return <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} done />;
       }
-      if (contentPlan === 'bulk') {
+      if (contentPlan === 'bulk' || contentPlan === 'project') {
         if (!setup.artistId) {
           return <p className="text-crwn-text-secondary">Your artist profile is still loading. One moment.</p>;
         }
-        // The EXISTING dashboard bulk uploader, mounted in-wizard: multi-file
-        // queue, per-track tier access, artwork, progress, Artist Agreement
-        // consent. Continue unlocks from the DB the moment tracks exist.
+        // Both paths ride the EXISTING bulk uploader (multi-file queue, access,
+        // progress, retry). The project path wraps it: one title, ONE cover,
+        // and the batch is linked into an albums row + album_tracks in queue
+        // order. Continue unlocks from the DB the moment tracks exist.
+        if (contentPlan === 'project') {
+          return <OnboardingProjectUpload artistProfileId={setup.artistId} onComplete={onBulkComplete} />;
+        }
         return <BulkUploadForm artistProfileId={setup.artistId} onComplete={onBulkComplete} />;
       }
       return (
         <div>
           <AudioPicker file={trackDraft.audioFile} onPick={(f) => setTrackDraft((d) => ({ ...d, audioFile: f }))} />
+
+          {/* Optional single cover. Never required: every surface has the 🎵
+              fallback, and the mandatory step is the music, not the art. */}
+          <div className="mt-4">
+            <input
+              type="file"
+              accept="image/*"
+              id="single-cover"
+              className="hidden"
+              onChange={(e) => setTrackDraft((d) => ({ ...d, artFile: e.target.files?.[0] ?? null }))}
+            />
+            <label
+              htmlFor="single-cover"
+              className="inline-block px-4 py-2 bg-crwn-bg border border-crwn-elevated text-crwn-text text-sm rounded-lg hover:border-crwn-gold cursor-pointer"
+            >
+              {trackDraft.artFile ? `Cover: ${trackDraft.artFile.name}` : 'Add cover art (optional)'}
+            </label>
+          </div>
+
           <label className="flex items-start gap-3 mt-5 cursor-pointer">
             <input
               type="checkbox"

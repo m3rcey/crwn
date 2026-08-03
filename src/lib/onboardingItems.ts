@@ -46,10 +46,15 @@ async function readAudioDuration(file: File): Promise<number> {
 
 // First track is FREE (best for discovery — matches the old tour guidance). Access
 // tiers/pricing are set later in the Music tab.
+//
+// artFile is the single's OPTIONAL cover (a single is a standalone track, and
+// track artwork is never required: every surface has the 🎵 fallback). Art
+// failure never blocks the track: the single is the mandatory step, the cover
+// is polish the artist can add in Studio.
 export async function createOnboardingTrack(
   supabase: Supa,
   artistId: string,
-  { audioFile, title }: { audioFile: File; title: string }
+  { audioFile, title, artFile }: { audioFile: File; title: string; artFile?: File | null }
 ): Promise<Result> {
   const check = validateUpload(audioFile, 'audio');
   if (!check.valid) return { error: check.error || 'Invalid audio file' };
@@ -67,6 +72,16 @@ export async function createOnboardingTrack(
     data: { publicUrl },
   } = supabase.storage.from('audio').getPublicUrl(path);
 
+  let albumArtUrl: string | null = null;
+  if (artFile && validateUpload(artFile, 'image').valid) {
+    const artExt = artFile.name.split('.').pop();
+    const artPath = `${artistId}/album-art/${Date.now()}.${artExt}`;
+    const { error: artErr } = await supabase.storage.from('album-art').upload(artPath, artFile);
+    if (!artErr) {
+      albumArtUrl = supabase.storage.from('album-art').getPublicUrl(artPath).data.publicUrl;
+    }
+  }
+
   const { error } = await supabase.from('tracks').insert({
     artist_id: artistId,
     title: title.trim(),
@@ -76,6 +91,7 @@ export async function createOnboardingTrack(
     is_free: true,
     allowed_tier_ids: [],
     price: null,
+    album_art_url: albumArtUrl,
   });
   if (error) return { error: error.message };
 

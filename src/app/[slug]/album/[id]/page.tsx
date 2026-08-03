@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
 
   const { data: album } = await supabase
     .from('albums')
-    .select('title, cover_art_url, is_free')
+    .select('title, album_art_url, is_free')
     .eq('id', id)
     .eq('artist_id', artist.id)
     .single();
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
 
   const artistName = artistProfile?.display_name || 'Artist';
   const description = `Listen to "${album.title}" by ${artistName} on CRWN`;
-  const ogImage = album.cover_art_url || artistProfile?.avatar_url || '/icon-512x512.png';
+  const ogImage = album.album_art_url || artistProfile?.avatar_url || '/icon-512x512.png';
   const url = `https://thecrwn.app/${slug}/album/${id}`;
 
   return {

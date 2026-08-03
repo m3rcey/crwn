@@ -1,5 +1,45 @@
 # CRWN Brain — Changelog
 
+## 2026-08-01 - Onboarding music upload is project-centric (albums/EPs/singles/loose tracks)
+
+**What/why:** the wizard's music step bulk-uploaded independent tracks and could ask for artwork
+per track even when every track belonged to one album. It now asks WHAT you are adding first
+(one OptionSelect): **an album/EP/mixtape** (one container, one title, ONE cover upload, bulk
+audio, per-item title edit, up/down reorder; saved as an `albums` row + `album_tracks` in queue
+order), **one featured track** (the existing single path, now with an OPTIONAL cover), or **a
+batch of loose tracks** (the existing bulk path; no artwork required, 🎵 fallback stands).
+
+**Key decisions from repository evidence:** NO migration — `albums.album_art_url` +
+`album_tracks.track_number` is sufficient, and a "single" is by convention a standalone track
+(no release_type exists). Artwork inheritance does NOT exist at render time (all 12 surfaces
+read `track.album_art_url` only), so the project flow follows the AlbumManager convention:
+upload the cover ONCE, store it on the album, and copy the URL STRING onto linked tracks that
+have no art of their own (`.is('album_art_url', null)` guard; one storage object, N references).
+Everything runs on the browser client under the existing albums/album_tracks RLS ownership
+policies; no service role.
+
+**Idempotency:** album created once per session (ref), `album_tracks` UPSERTs on
+`(album_id, track_id)`, numbering continues from the album's max, duplicate ids dropped in the
+pure layer, so retry/double-click cannot duplicate rows or renumber.
+
+**Fixed along the path:** bulk upload failures used to fabricate a dead
+`crwn-media.r2.dev` URL and insert the track anyway — they now FAIL the item with a per-item
+Retry; bulk file selection now uses the shared `validateUpload` (100MB/audio types) instead of a
+private 50MB check; and album share/OG metadata queried nonexistent `albums.cover_art_url`, so
+every album OG card said "Album Not Found" — both duplicate album routes now use
+`album_art_url`.
+
+**Files:** `src/lib/projectUpload.ts` (+14 tests), `src/components/onboarding/OnboardingProjectUpload.tsx`,
+`src/components/artist/BulkUploadForm.tsx` (additive props `projectMode`/`onBatchComplete`,
+reorder, retry), `src/app/setup/page.tsx`, `src/lib/onboardingItems.ts` (optional single cover),
+milestone `first_project_created` (existing jsonb pattern, no migration).
+
+**DB impact:** none. **Migration status:** none needed. **Tests:** 781 pass, build passes.
+**Known limitations:** a reload mid-project after some tracks uploaded leaves them as loose
+tracks (manageable in Studio, linkable via the existing add-to-album flow); the studio bulk
+path (TrackUploadForm mount) still fires no `first_track_uploaded` milestone (pre-existing gap);
+`src/lib/albums.ts` remains dead schema-incompatible code (untouched, flagged).
+
 ## 2026-08-03 - The Constraint Engine: CRWN's first artist-facing closed loop
 
 Turns the evidence layer shipped earlier today into ONE next action. Deterministic end to end:

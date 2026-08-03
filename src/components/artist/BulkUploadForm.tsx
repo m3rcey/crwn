@@ -6,7 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePlatformLimits } from '@/hooks/usePlatformLimits';
 import { useToast } from '@/components/shared/Toast';
 import { hapticMedium } from '@/lib/haptics';
-import { audioContentType } from '@/lib/uploadValidation';
+import { audioContentType, validateUpload } from '@/lib/uploadValidation';
+import { moveItem } from '@/lib/projectUpload';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, X, Check, AlertCircle, ChevronDown, ChevronUp, Image } from 'lucide-react';
 
@@ -33,9 +34,25 @@ interface UploadItem {
 interface BulkUploadFormProps {
   artistProfileId: string;
   onComplete: () => void;
+  /**
+   * Project mode (onboarding "album/EP/mixtape" flow): the tracks belong to one
+   * project whose artwork is uploaded ONCE by the wrapper, so the per-track
+   * artwork controls are hidden. Everything else (queue, progress, access,
+   * retry, capacity warning) is the same pipeline: no second uploader exists.
+   */
+  projectMode?: boolean;
+  /**
+   * Called after each upload run with the ids of tracks inserted in THIS run,
+   * in queue order, plus the shared access settings. The project wrapper links
+   * them to the album. Fires only when at least one insert succeeded.
+   */
+  onBatchComplete?: (result: {
+    trackIds: string[];
+    access: { isFree: boolean; allowedTierIds: string[] };
+  }) => Promise<void> | void;
 }
 
-export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormProps) {
+export function BulkUploadForm({ artistProfileId, onComplete, projectMode = false, onBatchComplete }: BulkUploadFormProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const supabase = createBrowserSupabaseClient();
@@ -92,16 +109,19 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+
     if (files.length === 0) return;
 
-    const oversizedFiles = files.filter(f => f.size > 50 * 1024 * 1024);
-    if (oversizedFiles.length > 0) {
-      showToast(`${oversizedFiles.length} file(s) exceed 50MB limit`, 'error');
+    // The shared validator, not a private size check: same type + 100MB audio
+    // rules as every other upload path, and it NAMES the failing file.
+    const accepted: File[] = [];
+    for (const f of files) {
+      const verdict = validateUpload(f, 'audio');
+      if (verdict.valid) accepted.push(f);
+      else showToast(`${f.name}: ${verdict.error}`, 'error');
     }
 
-    const queueItems: UploadItem[] = files
-      .filter(f => f.size <= 50 * 1024 * 1024)
+    const queueItems: UploadItem[] = accepted
       .map((file, idx) => ({
         id: `${Date.now()}-${idx}-${file.name}`,
         file,
@@ -219,16 +239,13 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
     let position = await getMaxPosition();
     let successCount = 0;
     let failCount = 0;
+    // Ids of tracks inserted in THIS run, queue order: the project wrapper
+    // links them to the album via onBatchComplete.
+    const insertedIds: string[] = [];
     // Upload everything that FITS, and mark the overflow with the real reason
     // instead of letting each one fail against the database trigger one by one.
     // Refusing the whole batch would waste the tracks that are within the plan.
     let remainingCapacity = trackCapacity;
-
-    const { data: artistProfile } = await supabase
-      .from('artist_profiles')
-      .select('slug')
-      .eq('id', artistProfileId)
-      .maybeSingle();
 
     for (let i = 0; i < queue.length; i++) {
       const item = queue[i];
@@ -266,16 +283,18 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             contentType: audioContentType(item.file.name, item.file.type),
           });
 
-        let audioUrl = '';
         if (uploadError) {
+          // FAIL the item. The old behaviour fabricated a crwn-media.r2.dev URL
+          // for a file that was never uploaded anywhere, so the track row saved
+          // with permanently dead audio instead of telling the artist. A failed
+          // upload must look failed, and the retry button covers it.
           console.error('Audio upload error:', uploadError);
-          audioUrl = `https://crwn-media.r2.dev/${artistProfile?.slug || artistProfileId}/audio/${audioFileName}`;
-        } else {
-          const { data: { publicUrl } } = supabase.storage
-            .from('audio')
-            .getPublicUrl(audioPath);
-          audioUrl = publicUrl;
+          throw new Error('Audio upload failed. Tap retry to try this file again.');
         }
+        const { data: { publicUrl } } = supabase.storage
+          .from('audio')
+          .getPublicUrl(audioPath);
+        const audioUrl = publicUrl;
 
         // 2. Upload album art if provided
         let albumArtUrl: string | null = null;
@@ -311,7 +330,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
         const priceInCents = item.isFree ? null : (item.price ? Math.round(parseFloat(item.price) * 100) : null);
 
         // 5. Insert track metadata with per-track settings
-        const { error: insertError } = await supabase
+        const { data: insertedRow, error: insertError } = await supabase
           .from('tracks')
           .insert({
             artist_id: artistProfileId,
@@ -324,9 +343,12 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
             price: priceInCents,
             album_art_url: albumArtUrl,
             position: position++,
-          });
+          })
+          .select('id')
+          .single();
 
         if (insertError) throw insertError;
+        if (insertedRow?.id) insertedIds.push(insertedRow.id as string);
 
         if (remainingCapacity !== null) remainingCapacity -= 1;
 
@@ -365,7 +387,29 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
       showToast(`${successCount} of ${pendingItems.length} tracks uploaded. ${failCount} failed.`, 'error');
     }
 
+    // Project mode: hand the inserted tracks (queue order) to the wrapper so it
+    // can create/extend the album. Runs BEFORE onComplete so the caller's
+    // refresh sees the finished project. Linking failure must not orphan the
+    // artist: the tracks exist either way, and the wrapper's save is
+    // idempotent, so running the batch again just links the missing ones.
+    if (insertedIds.length > 0 && onBatchComplete) {
+      try {
+        await onBatchComplete({
+          trackIds: insertedIds,
+          access: { isFree: applyToAllIsFree, allowedTierIds: applyToAllTierIds },
+        });
+      } catch (err) {
+        console.error('[bulk-upload] onBatchComplete failed:', err);
+        showToast('Tracks uploaded, but saving the project failed. Tap Upload again to finish linking.', 'error');
+      }
+    }
+
     onComplete();
+  };
+
+  /** Failed item back to pending; the Upload button then re-runs just it. */
+  const retryItem = (id: string) => {
+    setQueue(prev => prev.map(q => (q.id === id ? { ...q, status: 'pending', error: undefined, progress: 0 } : q)));
   };
 
   const pendingCount = queue.filter(q => q.status === 'pending').length;
@@ -522,7 +566,7 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
 
           {/* Queue Items */}
           <div className="space-y-2 max-h-[500px] overflow-y-auto">
-            {queue.map((item) => (
+            {queue.map((item, itemIndex) => (
               <div
                 key={item.id}
                 className={`neu-raised rounded-lg overflow-hidden ${
@@ -530,20 +574,48 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                 } ${item.status === 'complete' ? 'opacity-60' : ''}`}
               >
                 {/* Collapsed View */}
-                <div 
+                <div
                   className="flex items-center gap-3 p-3 cursor-pointer"
                   onClick={() => toggleExpanded(item.id)}
                 >
-                  {/* Cover Art Thumbnail */}
-                  <div className="w-10 h-10 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden">
-                    {item.albumArtPreview ? (
-                      <img src={item.albumArtPreview} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Image size={16} className="text-crwn-text-secondary" />
-                      </div>
-                    )}
-                  </div>
+                  {/* Track order: queue order IS the album order in project mode,
+                      so give it real controls (large touch targets, no drag). */}
+                  {!isUploading && item.status === 'pending' && (
+                    <div className="flex flex-col shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        onClick={() => setQueue((prev) => moveItem(prev, itemIndex, itemIndex - 1))}
+                        disabled={itemIndex === 0}
+                        className="text-crwn-text-secondary hover:text-crwn-gold disabled:opacity-30 p-0.5"
+                        aria-label="Move up"
+                      >
+                        <ChevronUp size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQueue((prev) => moveItem(prev, itemIndex, itemIndex + 1))}
+                        disabled={itemIndex === queue.length - 1}
+                        className="text-crwn-text-secondary hover:text-crwn-gold disabled:opacity-30 p-0.5"
+                        aria-label="Move down"
+                      >
+                        <ChevronDown size={14} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Cover Art Thumbnail (per-track art is hidden in project
+                      mode: the project cover, uploaded once, is the artwork) */}
+                  {!projectMode && (
+                    <div className="w-10 h-10 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden">
+                      {item.albumArtPreview ? (
+                        <img src={item.albumArtPreview} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Image size={16} className="text-crwn-text-secondary" />
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Status Icon */}
                   {item.status === 'pending' && !isUploading && (
@@ -553,6 +625,14 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                       title="Remove"
                     >
                       <X size={16} />
+                    </button>
+                  )}
+                  {item.status === 'error' && !isUploading && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); retryItem(item.id); }}
+                      className="text-xs font-semibold text-crwn-gold hover:underline shrink-0"
+                    >
+                      Retry
                     </button>
                   )}
                   {item.status === 'uploading' && (
@@ -612,8 +692,11 @@ export function BulkUploadForm({ artistProfileId, onComplete }: BulkUploadFormPr
                       />
                     </div>
 
-                    {/* Cover Art */}
-                    <div>
+                    {/* Cover Art (hidden in project mode: the project cover,
+                        uploaded once by the wrapper, is the artwork for every
+                        track, so asking again per track is the exact repeat
+                        work this flow exists to remove) */}
+                    <div className={projectMode ? 'hidden' : undefined}>
                       <label className="block text-xs font-medium text-crwn-text-secondary mb-1">Cover Art</label>
                       <div className="flex items-center gap-3">
                         <div className="w-16 h-16 rounded bg-crwn-elevated flex-shrink-0 overflow-hidden">
