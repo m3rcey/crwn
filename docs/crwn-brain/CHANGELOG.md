@@ -1,5 +1,67 @@
 # CRWN Brain — Changelog
 
+## 2026-08-03 - The Constraint Engine: CRWN's first artist-facing closed loop
+
+Turns the evidence layer shipped earlier today into ONE next action. Deterministic end to end:
+no AI provider is involved at any point, and with every model offline the engine returns the
+same answer. It reads, it never writes. No tier, price, promise, campaign, quest, XP or Revenue
+Ramp state is touched by this path, and no roadmap step is ever marked complete from it.
+
+**Shape.** `src/lib/constraint/` holds four files: `thresholds.ts` (the ONE policy object,
+founder-adjustable, no migration to change), `types.ts` (vocabulary), `engine.ts` (pure
+`readConstraint(evidence)`), `assembler.ts` (server-only evidence gather), plus
+`presentation.ts` for the render decision. `GET /api/artist/constraint` derives on read and
+stores nothing. `ConstraintCard` renders above `RoadmapCard` on `/profile/artist`.
+
+**Evaluation order, and the one place it departs from the brief.** The obvious order is causal
+(reach, capture, convert, deliver, retain). That is right for diagnosing a machine and wrong
+for advising a person, because **fulfillment and retention protect revenue the artist has
+already been paid, while acquisition wins revenue they have not been paid yet.** Sending an
+artist to recruit fans into a system that is failing the fans already inside it makes the leak
+bigger. So the order is: launch gate (delegated) → FULFILLMENT → RETENTION → REACH →
+FREE_CAPTURE → FIRST_PAID → PAID_TIER_INTEREST → CHECKOUT_COMPLETION → DEPTH → none. The build
+brief's illustrative list put fulfillment 7th and retention 8th while its own acceptance
+criteria required fulfillment to outrank acquisition and retention to outrank expansion; those
+cannot both hold, and the criteria encode the intent.
+
+**Launch readiness stays owned by the Roadmap.** The engine checks only whether enough of the
+machine exists for its numbers to MEAN anything (page live, Stripe charges enabled, a
+purchasable paid tier, a track) and returns `insufficient_evidence` otherwise, letting the
+roadmap render unchanged. Those four facts come from the Quest Engine's own `evaluateCondition`
+via synthetic instances, the same pattern `/api/artist/roadmap` and `rampReconcile` use, so
+there is no second completion oracle.
+
+**Evidence discipline.** Every field the engine consumes is nullable, and null means "cannot
+evaluate this stage", never zero. A missing table therefore reads as silence rather than as a
+failing artist. Below a stage's minimum sample there is no diagnosis at all, not a low-confidence
+one: confidence is sample sufficiency (`medium` at the minimum, `high` at 2x), never a model's
+opinion. Every diagnosis renders its own evidence lines so an artist can DISAGREE with it, which
+is the difference between coaching someone and managing them.
+
+**Product-failure safety.** Checkout completion refuses to diagnose when joins exceed checkout
+starts, because that means the two are not measuring the same population (members who joined
+before instrumentation, or a fan who started on one day and paid on another) and the rate would
+be a fiction. Tier stages need `interactionDataAvailable` plus real sample sizes, so they stay
+quiet while tier evidence accumulates. Copy is neutral throughout: "Fans are viewing Silver but
+few are starting checkout", never "your Silver tier is bad". A test asserts no diagnosis ever
+mentions upgrades or downgrades, since the subscription schema cannot support that claim.
+
+**One churn definition.** `computeChurn` / `rateChurnAgainstBenchmark` /
+`lifespanMonthsFromChurn` moved out of `/api/analytics` into `src/lib/analytics/retention.ts`,
+and that route now imports them. The engine needed the same two numbers, and a second copy of a
+churn formula is the shape of bug that once produced a 5x commission overpay.
+
+**Fallback.** `decideNextAction` is pure and tested because the repo's harness is node-only with
+no jsdom: loading, error, insufficient evidence and "nothing is blocking you" all render the
+roadmap exactly as before. The constraint card never replaces the roadmap, so when a constraint
+clears, the next read simply stops showing it.
+
+767 tests pass (103 new across 4 files). Build clean. **No migration, no env var, no flag.**
+
+Deferred on purpose: platform-wide product-problem classification, AI phrasing of the
+deterministic result, and the Belief/Learning Profile. The thresholds are first guesses made
+with no cohort data and are in `TODO.md` as a thing to watch, exactly like the lead score bands.
+
 ## 2026-08-03 - Evidence layer: tier interactions, missed promises, and every paid rail
 
 Closes the measurement gaps in `docs/FEEDBACK_LOOPS.md` §18 Phase 0 and Phase 1. **Evidence only:

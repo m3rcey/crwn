@@ -27,6 +27,7 @@ import { Eye, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RiseMode } from '@/components/artist/RiseMode';
 import { RoadmapCard } from '@/components/artist/RoadmapCard';
+import { ConstraintCard } from '@/components/artist/ConstraintCard';
 import { StrategyCard } from '@/components/artist/StrategyCard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -128,6 +129,10 @@ function ArtistDashboardContent() {
         </div>
 
         <div className="px-4 sm:px-6 lg:px-8 py-8">
+          {/* The one corrective action, when the deterministic engine has enough evidence to
+              name a constraint. It renders NOTHING otherwise, so the roadmap below is the
+              unchanged default. It never replaces the roadmap and never mutates it. */}
+          <ConstraintCard />
           <RoadmapCard />
           {/* The membership strategy sits between the roadmap (what to do next)
               and Rise Mode (the quests): it is the WHY behind both. */}

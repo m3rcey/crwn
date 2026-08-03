@@ -839,7 +839,16 @@ mostly *deletion and repair* of things already half-built, which is why they com
   intentional. Building the screen before the constraint reading exists would be the dashboard
   §15 argues against.
 
-### Phase 2: the constraint reading
+### Phase 2: the constraint reading — SHIPPED 2026-08-03
+
+Built as specified below, with two deliberate departures, both explained in
+`docs/crwn-brain/CHANGELOG.md`: the evaluation order puts fulfillment and retention FIRST
+(protecting revenue already earned outranks winning revenue not yet earned), and launch
+readiness is delegated entirely to the Roadmap rather than re-derived. Thresholds live in
+`src/lib/constraint/thresholds.ts`. The card renders nothing unless a diagnosis clears its
+evidence bar, so the default experience is unchanged.
+
+### Phase 2 as originally specified
 
 - `src/lib/constraint.ts`, pure, tested, with explicit thresholds and an
   `insufficient_evidence` return.

@@ -202,6 +202,20 @@ Things that are never finished. Cadence, then the thing.
   If a lead you would personally chase is banded `nurture` or `unqualified`, that is a scoring
   bug, not a bad lead. Tell Claude.
 
+- **Sanity-check the Constraint Engine's verdicts as real artists accumulate data.** Live since
+  2026-08-03. Rise Mode now shows ONE corrective action above the roadmap when the engine has
+  enough evidence, and nothing at all when it does not. Every threshold is a first guess made
+  with zero cohort data, in one file:
+  [`src/lib/constraint/thresholds.ts`](src/lib/constraint/thresholds.ts). Same situation as the
+  lead score bands, and they were wrong once.
+
+  **If you see an artist told to fix something you would not have told them to fix, that is a
+  threshold bug, not a bad artist. Tell Claude.** The likeliest first offenders: the free-capture
+  floor (2% of visitors joining) and the retention multiplier (1.5x the platform average) will
+  both behave oddly while the platform has few artists, because the benchmark is computed from
+  everyone. Nothing here can change an artist's tiers, prices, promises or campaigns; it only
+  recommends.
+
 ### Weekly
 
 - **Check the "Failed" tab.** `/admin` → **Acquisition** → **Failed**. Should be empty. Each

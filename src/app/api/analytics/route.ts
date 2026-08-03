@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireArtistOwner } from '@/lib/apiAuth';
+import { computeChurn, rateChurnAgainstBenchmark, lifespanMonthsFromChurn } from '@/lib/analytics/retention';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -135,11 +136,11 @@ export async function GET(req: NextRequest) {
   // ARPU
   const arpu = activeSubs.length > 0 ? Math.round(mrr / activeSubs.length) : 0;
 
-  // Churn rate (canceled this month / total at start of month)
-  const totalAtMonthStart = subs.filter(s =>
-    s.created_at < thisMonthStart && (s.status === 'active' || (s.canceled_at && s.canceled_at >= thisMonthStart))
-  ).length;
-  const churnRate = totalAtMonthStart > 0 ? (canceledThisMonth.length / totalAtMonthStart) * 100 : 0;
+  // Churn rate (canceled this month / total at start of month). The arithmetic lives in
+  // src/lib/analytics/retention.ts so the Constraint Engine reads the SAME definition; a
+  // second copy of a churn formula is how two surfaces start telling an artist different
+  // things about the same month.
+  const { churnRatePct: churnRate } = computeChurn(subs, thisMonthStart);
 
   // LTV = ARPU / monthly churn rate (if churn > 0)
   const monthlyChurnDecimal = churnRate / 100;
@@ -214,7 +215,7 @@ export async function GET(req: NextRequest) {
   }
 
   // ---- AVERAGE SUBSCRIBER LIFESPAN ----
-  const avgLifespanMonths = churnRate > 0 ? Number((100 / churnRate).toFixed(1)) : 24;
+  const avgLifespanMonths = lifespanMonthsFromChurn(churnRate);
 
   // ---- HYPOTHETICAL MAX ----
   // Sales velocity: new subscribers per month (trailing 3 months)
@@ -413,34 +414,12 @@ export async function GET(req: NextRequest) {
 
   const retentionBenchmark = (() => {
     const platformSubs = allPlatformSubs || [];
-    const platformActiveSubs = platformSubs.filter(s => s.status === 'active');
-    const platformCanceledThisMonth = platformSubs.filter(s =>
-      s.status === 'canceled' && s.canceled_at && s.canceled_at >= thisMonthStart
-    );
-    const platformTotalAtStart = platformSubs.filter(s =>
-      s.created_at < thisMonthStart && (s.status === 'active' || (s.canceled_at && s.canceled_at >= thisMonthStart))
-    ).length;
-    const platformChurnRate = platformTotalAtStart > 0
-      ? Number(((platformCanceledThisMonth.length / platformTotalAtStart) * 100).toFixed(1))
-      : 0;
-    const platformAvgLifespan = platformChurnRate > 0 ? Number((100 / platformChurnRate).toFixed(1)) : 24;
+    const platformChurnRate = Number(computeChurn(platformSubs, thisMonthStart).churnRatePct.toFixed(1));
+    const platformAvgLifespan = lifespanMonthsFromChurn(platformChurnRate);
 
     // Percentile: how does this artist's churn compare?
     // Below average = better, above = worse
-    let rating: 'excellent' | 'good' | 'average' | 'below_average' | 'needs_work';
-    if (churnRate === 0) {
-      rating = 'excellent';
-    } else if (churnRate < platformChurnRate * 0.5) {
-      rating = 'excellent';
-    } else if (churnRate < platformChurnRate * 0.8) {
-      rating = 'good';
-    } else if (churnRate <= platformChurnRate * 1.2) {
-      rating = 'average';
-    } else if (churnRate <= platformChurnRate * 1.5) {
-      rating = 'below_average';
-    } else {
-      rating = 'needs_work';
-    }
+    const rating = rateChurnAgainstBenchmark(churnRate, platformChurnRate);
 
     return {
       platformAvgChurnRate: platformChurnRate,
