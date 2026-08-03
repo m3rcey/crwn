@@ -69,6 +69,9 @@
   --color-crwn-gold-muted: var(--crwn-gold-muted);
   --color-crwn-text: var(--crwn-text);
   --color-crwn-text-secondary: var(--crwn-text-secondary);
+  /* text-crwn-muted-tint — muted ink that survives an accent-tinted ground.
+     See --crwn-muted-on-tint in neumorphic.css for the measurements. */
+  --color-crwn-muted-tint: var(--crwn-muted-on-tint);
   --color-crwn-success: var(--crwn-success);
   --color-crwn-error: var(--crwn-error);
   /* layout.tsx loads Inter as --font-inter. This used to point at

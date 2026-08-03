@@ -307,7 +307,7 @@ export default function HomePage() {
             {copy && (
               <>
                 <div className="mt-3 text-lg font-semibold text-crwn-text">{copy.title}</div>
-                <p className="mt-1 text-sm text-crwn-text-secondary leading-relaxed">{copy.body}</p>
+                <p className="mt-1 text-sm text-crwn-muted-tint leading-relaxed">{copy.body}</p>
               </>
             )}
             <Link

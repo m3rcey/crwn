@@ -452,21 +452,21 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
                   <>
                     <p className="text-3xl font-bold text-crwn-text mt-2">
                       ${perMo.toFixed(2)}
-                      <span className="text-sm font-normal text-crwn-text-secondary">/mo</span>
+                      <span className="text-sm font-normal text-crwn-muted-tint">/mo</span>
                     </p>
                     {showAnnual && (
-                      <p className="text-xs text-crwn-text-secondary mt-1">
+                      <p className="text-xs text-crwn-muted-tint mt-1">
                         ${((tier.price * 12 * (1 - pct / 100)) / 100).toFixed(2)}/year (save ${((tier.price * 12 * (pct / 100)) / 100).toFixed(2)})
                       </p>
                     )}
                     {billingInterval === 'year' && tier.price > 0 && !tierOffersAnnual(tier) && (
-                      <p className="text-xs text-crwn-text-secondary mt-1">Monthly billing only</p>
+                      <p className="text-xs text-crwn-muted-tint mt-1">Monthly billing only</p>
                     )}
                   </>
                 );
               })()}
               {tier.description && (
-                <p className="text-crwn-text-secondary text-sm mt-2">{tier.description}</p>
+                <p className="text-crwn-muted-tint text-sm mt-2">{tier.description}</p>
               )}
               
               {tier.benefits && tier.benefits.length > 0 && (

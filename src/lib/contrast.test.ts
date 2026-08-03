@@ -103,6 +103,38 @@ describe('auditContrast (the sweep core)', () => {
   });
 });
 
+describe('muted ink on an accent-tinted card', () => {
+  // The tinted cards are `tint% accent` composited over the #1a1a1a card, which
+  // is a LIGHTER ground than the page. The token being fine on #0f0f0f says
+  // nothing about it here -- this is the case groundOf() exists for, and a
+  // token audit cannot see it because the token itself is valid.
+  const over = (fg: RGB, a: number, bg: RGB): RGB =>
+    [0, 1, 2].map((i) => a * fg[i] + (1 - a) * bg[i]) as RGB;
+  const CARD: RGB = [26, 26, 26];
+  const GOLD = hexToRgb('#D4AF37');
+  const RED = hexToRgb('#fe0000'); // a real lifted accent (m3rcey)
+  const MUTED = hexToRgb('#8a8a9a');       // --crwn-text-secondary
+  const MUTED_TINT = hexToRgb('#a4a4b2');  // --crwn-muted-on-tint
+
+  it('documents why the plain muted token is not usable there', () => {
+    expect(contrast(MUTED, [15, 15, 15])).toBeGreaterThanOrEqual(4.5); // fine on the page
+    expect(contrast(MUTED, over(GOLD, 0.15, CARD))).toBeLessThan(4.5); // not on the tint
+  });
+
+  it('keeps --crwn-muted-on-tint above AA on every tint we ship', () => {
+    for (const accent of [GOLD, RED]) {
+      for (const pct of [0.09, 0.15, 0.18]) {
+        expect(contrast(MUTED_TINT, over(accent, pct, CARD))).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it('stays legible on the plain page too, so one token covers both grounds', () => {
+    expect(contrast(MUTED_TINT, [15, 15, 15])).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(MUTED_TINT, CARD)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
 describe('accentPageVars', () => {
   it('returns null for missing or malformed input (page keeps CRWN gold)', () => {
     expect(accentPageVars(null)).toBeNull();

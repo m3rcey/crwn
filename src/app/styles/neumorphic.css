@@ -7,6 +7,14 @@
   --crwn-border: #222222;
   --crwn-border-soft: #262626;
   --crwn-muted: #8a8a9a;
+  /* Muted ink for text sitting on an ACCENT-TINTED surface (the gold/accent
+     radial cards). A tint lifts the ground a few points, which is enough to
+     push the normal muted token under AA: #8a8a9a measures 5.12:1 on a flat
+     #1a1a1a card but only 3.85:1 once a 15% gold tint composites over it.
+     Measured, not eyeballed: this clears 4.5:1 against the WORST tint we ship
+     (18% gold over the card = 4.97:1) as well as the sampled-accent tints and
+     the plain page. Use it anywhere muted text sits on a tinted ground. */
+  --crwn-muted-on-tint: #a4a4b2;
 
   /* elevation: gradient body, one 1px top highlight, one ambient shadow */
   --crwn-raised: linear-gradient(180deg, #1e1e21 0%, #151517 100%);
