@@ -1,5 +1,24 @@
 # CRWN Brain — Changelog
 
+## 2026-08-03 - The homepage server-renders again (loading gate was hiding the whole page)
+
+**What/why:** the funnel reuse below shipped a real SEO regression, caught on the LIVE page. The
+shared `PublicToolClient` opens on a `'loading'` phase so an emailed `?result=<token>` link does
+not flash the hero before it resumes. `/` prerenders, so that first render was the served HTML:
+production was shipping a nav plus "Loading…" (167 characters of text) where the old homepage
+served its full marketing body. Every `?result=` link is built from `config.publicRoute`
+(`/tools/<slug>`), so **nothing ever points at `/?result=`** and the gate bought the homepage
+nothing.
+
+**Fix:** the initial phase is now `surface === 'homepage' ? 'hero' : 'loading'` (one line). The
+tool route is byte-identical: `/tools/opportunity-calculator` still prerenders its "Loading…"
+placeholder exactly as before. Prerendered `/` went from 167 to 21,178 characters of text and
+again contains the hero, the CTA, wizard step 1, and every marketing section below the funnel
+(verified against `.next/server/app/index.html`, not inferred).
+
+**Files:** `src/components/lead-magnets/PublicToolClient.tsx`. **Tests:** 794 pass (1 new
+`pageComposition.test.ts` case pinning the homepage's initial phase). **DB impact:** none.
+
 ## 2026-08-01 - The homepage runs the Opportunity Calculator funnel (structural reuse)
 
 **What/why:** `/` led with the Streaming Loss Calculator (`WorthExperience homepage`) while the

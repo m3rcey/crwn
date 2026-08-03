@@ -283,4 +283,12 @@ describe('Homepage funnel reuse', () => {
     expect(publicToolClient).toContain("surface === 'tool' &&");
     expect(publicToolClient).toContain('All tools');
   });
+
+  it('does not hide the homepage behind a loading phase (its body IS its SEO)', () => {
+    // The homepage prerenders. If its first render is the 'loading' placeholder,
+    // the served HTML is a nav plus "Loading…" and every marketing section the
+    // homepage kept is invisible to crawlers. It shipped that way once. The tool
+    // route keeps the gate, because emailed ?result= links land THERE.
+    expect(publicToolClient).toContain("useState<Phase>(surface === 'homepage' ? 'hero' : 'loading')");
+  });
 });

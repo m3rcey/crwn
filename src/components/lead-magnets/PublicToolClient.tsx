@@ -55,7 +55,15 @@ export function PublicToolClient({
   below?: ReactNode;
 }) {
   const router = useRouter();
-  const [phase, setPhase] = useState<Phase>('loading');
+  // The 'loading' first render exists to avoid flashing the hero at someone who
+  // arrived on an emailed ?result=<token> link before the resume resolves. Every
+  // one of those links is built from `config.publicRoute` (/tools/<slug>), so
+  // NOTHING ever points at `/?result=`, and on the homepage that gate would only
+  // cost the page its server-rendered body: the marketing sections below the
+  // funnel are the homepage's SEO, and a "Loading…" placeholder ships none of
+  // them. The homepage therefore starts at the hero. A token would still resume
+  // (the effect sets 'full'), just with a flash nobody can reach.
+  const [phase, setPhase] = useState<Phase>(surface === 'homepage' ? 'hero' : 'loading');
   // Signup-timing experiment variant for the Own Your Fans builder. 'save' = control (current).
   const [signupBoundary, setSignupBoundary] = useState<'save' | 'preview'>('save');
   // Anchor for the result-to-builder transition ("the builder is the CTA").
