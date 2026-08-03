@@ -233,13 +233,14 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   `.neu-raised`/`.neu-inset` surface treatment (75+ call sites upgraded through two classes), the
   nav rail marker (no more filled gold block), the spring motion vocabulary on every shared
   pressable class, `src/lib/contrast.ts` (tested) / `palette.ts` / `useLivingPhoto.ts`, the Home
-  next-action card (the one structural change), Rise Mode progressive disclosure (side quests
-  collapse to rows, expand in place), and palette sampling at banner upload (persists once the
-  migration above runs). Still mine, in order: the artist-page accent render (apply
-  `accentTheme()` to the Join CTA, active tab, play glyphs, tier card), setup wizard composition
-  (85KB file, one decision per screen with the desktop step rail), Studio Music + Fan CRM layout,
-  the shared calculator-intro pattern, the ambient layer (artist page + homepage only), the
-  living-photo heroes, and the CI contrast sweep. Each is its own session per the handoff's
+  next-action card (the one structural change), and Rise Mode progressive disclosure. Landed
+  2026-08-03: the whole artist page (accent wash, banner media card, tier cards, self-healing
+  palette backfill, drag-to-reframe banner, measured-ink fixes, the contrast sweep dev tool,
+  the sampler hue fix). All its migrations are applied and probe-verified. Still mine, in
+  order: setup wizard composition (85KB file, one decision per screen with the desktop step
+  rail), Studio Music + Fan CRM layout, the shared calculator-intro pattern, the homepage
+  ambient layer (WebGL tier; the CSS pool shipped), the living-photo heroes, the player
+  accent, and wiring the contrast sweep into CI. Each is its own session per the handoff's
   PR plan (`IMPLEMENTATION.md` in the design handoff).
 
 - **NEXT UP: realign the quest catalog to the membership strategies, then flip the Quest Engine

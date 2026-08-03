@@ -1,5 +1,26 @@
 # CRWN Brain — Changelog
 
+## 2026-08-03 - The artist page redesign lands end to end (interface v2, PR10)
+
+Four commits finish the artist-page pass of the v2 redesign. (1) **The page looks like the
+mock**: contained ambient accent pool (pure CSS color-mix), banner as a rounded media card with
+accent glow, lifted avatar tile, display-size name, accent-tinted verified chip and tier cards
+with pill Join buttons; `GatedTrackPlayer` untouched on purpose (entitlement logic; its glyphs
+already ride the accent variable). (2) **Self-healing palette**: `PaletteBackfill` samples in
+place when the owner views their page with a banner but no stored palette (sampling needs a
+browser canvas), persists, refreshes; m3rcey backfilled `#d50000` live. (3) **Banner
+reposition**: drag to reframe stores two object-position percentages
+(`schema-phase2-banner-position.sql`, applied and probe-verified), never a re-encoded image.
+(4) **Ink correctness, measured not guessed**: derived accent variants clamped so hover/muted
+survive being used as ink (hover brightens toward white, muted clamps to the AA floor);
+`--crwn-muted-on-tint` fixes muted text on gold-tinted cards (the failure was on the DEFAULT
+gold theme, 3.85:1 under a 15% tint, solved against the worst shipped 18%); TrackList's Locked
+badge moved off `gold-muted` (3.88:1 even in base gold). `auditContrast()`/`sweepContrast()`
+ship as a tested dev tool (`window.__crwnContrastSweep()`); CI wiring pending. The reference's
+sampler bug (`180 - dh > 35` accepted identical hues, rejected exact complements) is fixed to
+`dh > 35` and pinned by `palette.test.ts`. All migrations verified applied in production via
+`npm run verify:migrations` (including plan recommendation, palette, banner position).
+
 ## 2026-08-01 - Release strategy phase 1: the membership strategy brain + content classes
 
 Implements the core of `CRWN_UPDATED_RELEASE_STRATEGY.md`. (1) **The brain**:
