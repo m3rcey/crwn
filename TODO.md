@@ -27,14 +27,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **RE-RUN the artist-palette migration (the version you ran was missing its grants):**
-      [`supabase/schema-phase2-artist-palette.sql`](supabase/schema-phase2-artist-palette.sql).
-      You ran v1 on 2026-08-02 and the columns exist, but `artist_profiles` has no table-level
-      SELECT grant since the stripe-id hardening, so the new columns read as 42501 and the public
-      page can never see the palette. The file now adds the per-column SELECT grants and is
-      idempotent: just run the whole thing again. Self-verifies, including the grants. Until then
-      artist pages keep CRWN gold; nothing is broken, the accent just cannot appear.
-
 - [ ] **Run the membership-strategy migration:**
       [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql).
       Adds `artist_profiles.membership_strategy` (the explicit Release Club vs Vault override)
