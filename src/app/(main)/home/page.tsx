@@ -251,16 +251,7 @@ export default function HomePage() {
           <h1 className="text-2xl md:text-3xl font-bold text-crwn-text">
             {getGreeting()}{profile?.display_name ? `, ${profile.display_name.split(' ')[0]}` : ''}!
           </h1>
-          {setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length ? (
-            <Link
-              href="/profile/artist"
-              data-tour="home-help"
-              className="flex-shrink-0 whitespace-nowrap mt-1 inline-flex items-center gap-1.5 rounded-full bg-crwn-elevated px-3 py-1.5 text-xs font-semibold text-crwn-gold hover:bg-crwn-elevated/80 transition-colors"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Finish setup {setup.steps.filter((s) => s.done).length}/{setup.steps.length}
-            </Link>
-          ) : (
+          {!(setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length) && (
             <Link
               href={`/getting-started?role=${profile?.role || 'fan'}`}
               data-tour="home-help"
@@ -275,6 +266,61 @@ export default function HomePage() {
           {getDailyWelcome()}
         </p>
       </div>
+
+      {/* Next-action card. The one structural change of the v2 redesign: setup
+          used to hide behind a low-contrast pill top-right while other artists'
+          cards took the prime slot. The next move an artist should make is the
+          first thing under the greeting, full width, with visible progress.
+          Same route, same "Finish setup X/Y" label as the old chip. */}
+      {setup.isArtist && !setup.loading && setup.steps.filter((s) => s.done).length < setup.steps.length && (() => {
+        const done = setup.steps.filter((s) => s.done).length;
+        const total = setup.steps.length;
+        const next = setup.steps.find((s) => !s.done);
+        const stepCopy: Record<string, { title: string; body: string }> = {
+          profile: { title: 'Add your profile photo', body: 'Fans decide in one glance. A page with no face gets skipped.' },
+          monetize: { title: 'Confirm your membership ladder', body: 'Without a paid tier, every superfan visit leaves money uncollected.' },
+          music: { title: 'Upload your first track', body: 'The audio file fans will hear. This one starts free.' },
+          shop: { title: 'Add something to sell', body: 'A page with nothing to buy turns ready-to-pay fans away.' },
+        };
+        const copy = next ? stepCopy[next.key] : undefined;
+        return (
+          <div
+            className="rounded-2xl p-6"
+            style={{
+              border: '1px solid var(--crwn-gold-tint-border)',
+              background: 'radial-gradient(110% 130% at 12% 0%, rgba(212,175,55,0.16) 0%, rgba(26,26,26,0) 62%), #1a1a1a',
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-crwn-gold">
+                <Sparkles className="w-4 h-4" />
+                <span className="text-xs font-bold uppercase tracking-wider">Finish setup</span>
+              </div>
+              <span className="text-xs text-crwn-gold">{done}/{total}</span>
+            </div>
+            <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(212,175,55,0.16)' }}>
+              <div
+                className="h-full rounded-full bg-crwn-gold transition-all"
+                style={{ width: `${Math.round((done / total) * 100)}%` }}
+              />
+            </div>
+            {copy && (
+              <>
+                <div className="mt-3 text-lg font-semibold text-crwn-text">{copy.title}</div>
+                <p className="mt-1 text-sm text-crwn-text-secondary leading-relaxed">{copy.body}</p>
+              </>
+            )}
+            <Link
+              href="/profile/artist"
+              data-tour="home-help"
+              className="neu-button-accent mt-4 inline-flex h-12 w-full items-center justify-center gap-1.5 text-sm md:w-auto md:px-6"
+            >
+              <Sparkles className="w-4 h-4" />
+              Finish setup {done}/{total}
+            </Link>
+          </div>
+        );
+      })()}
 
       {/* Supporter Mode — fans only (users without an artist profile). Renders
           nothing while the quest engine is dark-launched. Artists keep the

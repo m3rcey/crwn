@@ -13,6 +13,23 @@ import Link from 'next/link';
 import { Eye } from 'lucide-react';
 import { ArtistProfile } from '@/types';
 import { isReservedSlug } from '@/lib/reservedSlugs';
+import { samplePalette, type Palette } from '@/lib/palette';
+
+// Sample the artist palette from the cropped banner blob, once, at upload time.
+// The result is persisted on the artist record; the public page never recomputes.
+async function paletteFromBlob(blob: Blob): Promise<Palette | null> {
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new window.Image();
+    img.src = url;
+    await img.decode();
+    return samplePalette(img);
+  } catch {
+    return null;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 
 const GENRE_OPTIONS = [
   'Pop', 'R&B', 'Hip-Hop', 'Rap', 'Rock', 'Alternative', 'Indie',
@@ -53,6 +70,8 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
   const [artistProfile, setArtistProfile] = useState<ArtistProfile | null>(null);
   const platformLimits = usePlatformLimits(artistProfile?.id || null);
   const [cropModal, setCropModal] = useState<{ src: string; type: 'avatar' | 'banner' } | null>(null);
+  // Palette sampled from the most recent banner upload, persisted on save.
+  const [bannerPalette, setBannerPalette] = useState<Palette | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<ArtistFormData>({
@@ -176,6 +195,10 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
       
       console.log('Profile saved successfully');
 
+      // Which artist row the palette write below should target (the insert
+      // branch's setArtistProfile has not re-rendered this closure yet).
+      let savedArtistId: string | null = artistProfile?.id || null;
+
       // Update or create artist profile
       if (artistProfile) {
         const { error: updateError } = await supabase
@@ -245,6 +268,7 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
         }
 
         if (data) {
+          savedArtistId = data.id;
           setArtistProfile(data);
           // Role is promoted to 'artist' SERVER-SIDE by the artist_profiles INSERT
           // trigger (schema-phase2-promote-artist-role.sql). The client cannot set
@@ -252,6 +276,23 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
           // the old client-side role update here always failed silently and left
           // new artists stuck as 'fan'. Founder is notified by the same trigger.
         }
+      }
+
+      // Persist the sampled banner palette as its OWN write, never in the main
+      // update: before schema-phase2-artist-palette.sql runs the columns do not
+      // exist, and one unknown column fails an entire supabase update. A failed
+      // palette write costs nothing (the page falls back to CRWN gold), so the
+      // error is logged and swallowed.
+      if (bannerPalette && savedArtistId) {
+        const { error: paletteError } = await supabase
+          .from('artist_profiles')
+          .update({
+            accent_hex: bannerPalette.accent,
+            accent2_hex: bannerPalette.accent2,
+            surface_hex: bannerPalette.surface,
+          })
+          .eq('id', savedArtistId);
+        if (paletteError) console.warn('Palette save skipped (migration pending?):', paletteError.message);
       }
 
       showToast('Profile saved successfully!', 'success');
@@ -321,6 +362,9 @@ export function ArtistProfileForm({ mode = 'full' }: { mode?: 'full' | 'onboardi
         setFormData(prev => ({ ...prev, avatar_url: urlData.publicUrl }));
       } else {
         setFormData(prev => ({ ...prev, banner_url: urlData.publicUrl }));
+        // Sample once at upload; saved with the profile. Null (no usable
+        // colour) means the page keeps default CRWN gold.
+        paletteFromBlob(croppedBlob).then(setBannerPalette).catch(() => {});
       }
 
       showToast(`${type === 'avatar' ? 'Profile photo' : 'Banner'} updated!`, 'success');

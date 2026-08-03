@@ -170,12 +170,18 @@ export function Navigation() {
                   href={href}
                   data-tour={item.tourId}
                   onClick={() => hapticLight()}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors press-scale tap-highlight ${
-                    active 
-                      ? 'bg-crwn-gold text-crwn-bg font-semibold' 
-                      : 'text-crwn-text-secondary hover:bg-crwn-elevated/50'
+                  className={`relative flex items-center gap-3 px-4 py-3 rounded-lg crwn-interactive ${
+                    active
+                      ? 'bg-crwn-surface-solid text-crwn-gold font-semibold'
+                      : 'text-crwn-text-secondary hover:bg-crwn-elevated/50 hover:text-crwn-text'
                   }`}
                 >
+                  {active && (
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-crwn-gold"
+                    />
+                  )}
                   <Icon className="w-5 h-5" />
                   <span>{item.label}</span>
                 </Link>

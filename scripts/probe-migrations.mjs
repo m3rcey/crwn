@@ -26,6 +26,7 @@ const PROBES = [
   ['experiments', 'experiments?select=id&limit=1', 'schema-phase2-experiments.sql'],
   ['community channels', 'community_channels?select=id&limit=1', 'schema-phase2-community-channels.sql'],
   ['quest engine', 'quest_instances?select=id&limit=1', 'schema-phase2-quest-engine.sql'],
+  ['artist palette columns', 'artist_profiles?select=accent_hex&limit=1', 'schema-phase2-artist-palette.sql'],
 ];
 
 const env = readFileSync(new URL('../.env.local', import.meta.url), 'utf8');

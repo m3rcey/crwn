@@ -71,8 +71,12 @@
   --color-crwn-text-secondary: var(--crwn-text-secondary);
   --color-crwn-success: var(--crwn-success);
   --color-crwn-error: var(--crwn-error);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* layout.tsx loads Inter as --font-inter. This used to point at
+     --font-geist-sans, a starter leftover nothing defines, so body text was
+     silently falling back to system-ui. Inter is the brand font (CLAUDE.md,
+     v2 design brief). */
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 body {

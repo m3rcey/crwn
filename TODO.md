@@ -27,6 +27,14 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the artist-palette migration:**
+      [`supabase/schema-phase2-artist-palette.sql`](supabase/schema-phase2-artist-palette.sql).
+      Adds `accent_hex` / `accent2_hex` / `surface_hex` to `artist_profiles` (nullable, format-checked)
+      for the v2 redesign: the public artist page takes its accent colour from the artist's own
+      banner, sampled once at upload. Until it runs, nothing breaks: the palette write is a separate
+      fail-soft update and every page keeps CRWN gold. Self-verifies. `npm run verify:migrations`
+      now probes for it.
+
 - [ ] **Run the membership-strategy migration:**
       [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql).
       Adds `artist_profiles.membership_strategy` (the explicit Release Club vs Vault override)
@@ -228,6 +236,19 @@ Things that are never finished. Cadence, then the thing.
 ## On Claude's plate (not yours)
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
+
+- **v2 interface redesign, remaining screens.** Landed 2026-08-02: tokens + the
+  `.neu-raised`/`.neu-inset` surface treatment (75+ call sites upgraded through two classes), the
+  nav rail marker (no more filled gold block), the spring motion vocabulary on every shared
+  pressable class, `src/lib/contrast.ts` (tested) / `palette.ts` / `useLivingPhoto.ts`, the Home
+  next-action card (the one structural change), Rise Mode progressive disclosure (side quests
+  collapse to rows, expand in place), and palette sampling at banner upload (persists once the
+  migration above runs). Still mine, in order: the artist-page accent render (apply
+  `accentTheme()` to the Join CTA, active tab, play glyphs, tier card), setup wizard composition
+  (85KB file, one decision per screen with the desktop step rail), Studio Music + Fan CRM layout,
+  the shared calculator-intro pattern, the ambient layer (artist page + homepage only), the
+  living-photo heroes, and the CI contrast sweep. Each is its own session per the handoff's
+  PR plan (`IMPLEMENTATION.md` in the design handoff).
 
 - **NEXT UP: realign the quest catalog to the membership strategies, then flip the Quest Engine
   on.** The release strategy (`CRWN_UPDATED_RELEASE_STRATEGY.md`) is otherwise implemented end

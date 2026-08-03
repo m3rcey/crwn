@@ -2,6 +2,21 @@
 
 > Grounded in `src/app/globals.css`, `src/app/styles/neumorphic.css`, `src/app/layout.tsx`, `src/components/ui/*`, `src/components/layout/Navigation.tsx`. Tailwind CSS v4 (CSS-first config; **there is no `tailwind.config.*` file**). `Confirmed` unless noted.
 
+## 0. v2 redesign (2026-08-02) — what changed and the new rules
+
+The interface v2 handoff landed its foundation. All in `neumorphic.css` (custom CSS never goes in `globals.css`, Tailwind v4 purges it):
+
+- **New tokens** in `:root`: `--crwn-raised` (gradient body), `--crwn-raised-edge` (1px top highlight), `--crwn-inset-bg`, `--crwn-ambient`, gold hi/lo/raised/tint/glow, radius scale, and the motion vocabulary (`--crwn-ease-spring` 260ms for movement, `--crwn-ease-out` 180ms for colour). Existing tokens were NOT redefined; `--crwn-surface` keeps its deliberate 40% alpha.
+- **`.neu-raised` / `.neu-inset` redefined** (75+ call sites upgraded through the two classes): flat surfaces with a gradient body + one top highlight + one ambient shadow. Not stacked soft shadows.
+- **Motion:** `.crwn-interactive` is the shared transition class; `:active` scales to 0.965. The shared `.neu-button*` / `.neu-icon-button` classes already carry it. Primary actions that navigate should swap their label for `.crwn-btn-spinner` (in the button's own ink, width pinned). Springs collapse under reduced-motion; the spinner stays.
+- **Nav active state:** desktop sidebar is a rail marker (surface bg, gold ink, 3px gold left bar), never a filled gold block. Mobile stays gold-text-no-fill.
+- **Contrast is measured, never guessed:** `src/lib/contrast.ts` (tested, `contrast.test.ts`) — `inkOn` / `fillFor` / `liftForInk` / `groundOf` / `accentTheme`. Any surface tinted by an arbitrary (sampled) colour must resolve its ink through these, not a constant.
+- **Artist palette:** `src/lib/palette.ts` (`samplePalette`) runs ONCE at banner upload (`ArtistProfileForm`) and persists `accent_hex`/`accent2_hex`/`surface_hex` on `artist_profiles` (migration `schema-phase2-artist-palette.sql`, fail-soft before it runs). Never recompute per visit. Null palette = keep CRWN gold.
+- **`src/lib/useLivingPhoto.ts`**: the living-photo idle motion + hero parallax hooks for calculator intros (not yet consumed).
+- **Font fixed:** `--font-sans` now points at `--font-inter` (it pointed at the undefined `--font-geist-sans`, so the app was silently rendering system-ui). Inter is the brand font.
+- **Home structural change:** the next-action (finish-setup) card is the first thing under the greeting, full width with progress; the old top-right pill is gone. Rise Mode secondary quests collapse to rows (`CollapsedQuestRow`) and expand in place.
+- Still pending from the handoff (see TODO "On Claude's plate"): artist-page accent render, setup-wizard composition, Studio Music/Fan CRM layout, calculator-intro pattern, ambient layer, CI contrast sweep.
+
 ## 1. Brand & theme
 Dark-mode only, black canvas + gold accent, "flat dark" (no neumorphic shadows despite the `neu-` class prefix, which is a naming leftover). **Gold = interactive** (if it's gold, it's tappable). Layered surfaces for depth, dividers over borders for lists. Mobile-first. `Confirmed` (`neumorphic.css:1` header, `CLAUDE.md`).
 

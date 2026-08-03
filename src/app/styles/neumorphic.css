@@ -1,14 +1,89 @@
 /* CRWN Design System — Flat Dark */
 
-/* Raised - cards, containers */
+/* ---- Design tokens (v2 redesign, 2026-08). Additive: existing tokens in
+   globals.css keep their values (notably --crwn-surface, whose 40% alpha is
+   deliberate); only net-new tokens live here. */
+:root {
+  --crwn-border: #222222;
+  --crwn-border-soft: #262626;
+  --crwn-muted: #8a8a9a;
+
+  /* elevation: gradient body, one 1px top highlight, one ambient shadow */
+  --crwn-raised: linear-gradient(180deg, #1e1e21 0%, #151517 100%);
+  --crwn-raised-edge: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  --crwn-inset-bg: #0c0c0d;
+  --crwn-inset-edge: inset 0 1px 3px rgba(0, 0, 0, 0.55);
+  --crwn-ambient: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --crwn-ambient-lg: 0 30px 80px rgba(0, 0, 0, 0.65);
+
+  /* gold */
+  --crwn-gold-hi: #f3dc8e;
+  --crwn-gold-lo: #BE9B2E;
+  --crwn-gold-raised: linear-gradient(180deg, #E5C04A 0%, #D4AF37 55%, #BE9B2E 100%);
+  --crwn-gold-tint: rgba(212, 175, 55, 0.07);
+  --crwn-gold-tint-border: rgba(212, 175, 55, 0.32);
+  --crwn-gold-glow: 0 14px 40px rgba(212, 175, 55, 0.22);
+
+  /* radius */
+  --crwn-r-control: 8px;
+  --crwn-r-input: 12px;
+  --crwn-r-card: 16px;
+  --crwn-r-media: 20px;
+  --crwn-r-pill: 999px;
+
+  /* motion: one vocabulary, nothing linear */
+  --crwn-ease-spring: cubic-bezier(.34, 1.24, .64, 1);  /* movement, 260ms */
+  --crwn-ease-out: cubic-bezier(.33, 1, .68, 1);        /* colour/opacity, 180ms */
+  --crwn-ease-entrance: cubic-bezier(.16, 1, .3, 1);    /* entrances, 900-1500ms */
+  --crwn-dur-move: 260ms;
+  --crwn-dur-tint: 180ms;
+}
+
+/* One transition vocabulary for every pressable surface. Press reads as
+   weight under the thumb, not a colour change you have to notice. */
+.crwn-interactive {
+  transition:
+    transform var(--crwn-dur-move) var(--crwn-ease-spring),
+    background-color var(--crwn-dur-tint) var(--crwn-ease-out),
+    border-color var(--crwn-dur-tint) var(--crwn-ease-out),
+    color var(--crwn-dur-tint) var(--crwn-ease-out),
+    opacity var(--crwn-dur-tint) var(--crwn-ease-out),
+    box-shadow 220ms var(--crwn-ease-out);
+}
+.crwn-interactive:active { transform: scale(0.965); }
+
+/* In-button spinner for primary actions that navigate: label swaps for a
+   spinner in the button's own ink; width is pinned by the caller so nothing
+   reflows. Exempt from reduced-motion — progress is information. */
+@keyframes crwn-spin { to { transform: rotate(360deg); } }
+.crwn-btn-spinner {
+  display: inline-block;
+  width: clamp(14px, 1.1em, 20px);
+  height: clamp(14px, 1.1em, 20px);
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: crwn-spin 640ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crwn-interactive { transition-duration: 1ms !important; }
+}
+
+/* Raised - cards, containers. Restrained depth: gradient body, single 1px top
+   highlight, one ambient shadow — not stacked soft shadows. */
 .neu-raised {
-  background: rgba(26, 26, 26, 0.4);
+  background: var(--crwn-raised);
+  border: 1px solid var(--crwn-border);
+  box-shadow: var(--crwn-raised-edge), var(--crwn-ambient);
   border-radius: 16px;
 }
 
 /* Inset - inputs, wells */
 .neu-inset {
-  background: #0f0f0f;
+  background: var(--crwn-inset-bg);
+  border: 1px solid #202022;
+  box-shadow: var(--crwn-inset-edge);
   border-radius: 12px;
 }
 
@@ -17,42 +92,57 @@
   background: #222222;
   border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    transform var(--crwn-dur-move) var(--crwn-ease-spring),
+    background-color var(--crwn-dur-tint) var(--crwn-ease-out),
+    border-color var(--crwn-dur-tint) var(--crwn-ease-out),
+    color var(--crwn-dur-tint) var(--crwn-ease-out),
+    opacity var(--crwn-dur-tint) var(--crwn-ease-out),
+    box-shadow 220ms var(--crwn-ease-out);
 }
 .neu-button:hover {
   background: #2a2a2a;
 }
 .neu-button:active {
   background: #1a1a1a;
+  transform: scale(0.965);
 }
 
-/* Accent button - gold gradient */
+/* Accent button - gold */
 .neu-button-accent {
   background: #D4AF37;
   border-radius: 9999px;
   color: #0f0f0f;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    transform var(--crwn-dur-move) var(--crwn-ease-spring),
+    background-color var(--crwn-dur-tint) var(--crwn-ease-out),
+    opacity var(--crwn-dur-tint) var(--crwn-ease-out),
+    box-shadow 220ms var(--crwn-ease-out);
 }
 .neu-button-accent:hover {
   background: #e5c04a;
 }
 .neu-button-accent:active {
-  opacity: 0.9;
+  transform: scale(0.965);
 }
 
 /* Circular icon buttons */
 .neu-icon-button {
   background: transparent;
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition:
+    transform var(--crwn-dur-move) var(--crwn-ease-spring),
+    background-color var(--crwn-dur-tint) var(--crwn-ease-out),
+    color var(--crwn-dur-tint) var(--crwn-ease-out);
 }
 .neu-icon-button:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 .neu-icon-button:active {
   background: rgba(255, 255, 255, 0.05);
+  transform: scale(0.965);
 }
 
 /* Card hover effect */

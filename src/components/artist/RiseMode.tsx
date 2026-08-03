@@ -11,7 +11,7 @@ import { Confetti } from '@/components/quests/Confetti';
 import { RoyaltyReadinessCard } from '@/components/artist/RoyaltyReadinessCard';
 import { StarterOfferCard } from '@/components/artist/StarterOfferCard';
 import { getArtistBuild } from '@/lib/quests/builds';
-import { Flame, Zap, Loader2, Sparkles } from 'lucide-react';
+import { Flame, Zap, Loader2, Sparkles, Lock, Check } from 'lucide-react';
 
 interface QuestsResponse {
   enabled: boolean;
@@ -68,6 +68,8 @@ export function RiseMode() {
   const [focus, setFocus] = useState(false);
   const [recapDismissed, setRecapDismissed] = useState(false);
   const [showMap, setShowMap] = useState(false);
+  // Progressive disclosure: which collapsed quest row is expanded to its card.
+  const [expandedQuestId, setExpandedQuestId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -520,13 +522,21 @@ export function RiseMode() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Side quests + rewards */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Progressive disclosure (v2 redesign): the hero quest above is the
+              one expanded mission. Everything below collapses to single rows;
+              tapping a row expands that quest's card in place, so every quest
+              that rendered before still renders and keeps its actions. */}
           {sideQuests.length > 0 && (
             <div>
               <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">Side Quests</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {sideQuests.slice(0, 6).map((q) => (
-                  <QuestCard key={q.id} quest={q} variant="compact" onManualComplete={load} />
-                ))}
+              <div className="space-y-2">
+                {sideQuests.slice(0, 6).map((q) =>
+                  expandedQuestId === q.id ? (
+                    <QuestCard key={q.id} quest={q} variant="compact" onManualComplete={load} />
+                  ) : (
+                    <CollapsedQuestRow key={q.id} quest={q} onExpand={() => setExpandedQuestId(q.id)} />
+                  )
+                )}
               </div>
             </div>
           )}
@@ -536,10 +546,14 @@ export function RiseMode() {
               <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">
                 Rewards Close to Unlock
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {rewardsClose.slice(0, 4).map((q) => (
-                  <QuestCard key={q.id} quest={q} variant="compact" />
-                ))}
+              <div className="space-y-2">
+                {rewardsClose.slice(0, 4).map((q) =>
+                  expandedQuestId === q.id ? (
+                    <QuestCard key={q.id} quest={q} variant="compact" />
+                  ) : (
+                    <CollapsedQuestRow key={q.id} quest={q} onExpand={() => setExpandedQuestId(q.id)} />
+                  )
+                )}
               </div>
             </div>
           )}
@@ -549,9 +563,9 @@ export function RiseMode() {
               <h3 className="text-base font-bold uppercase tracking-wide text-crwn-text-secondary mb-2">
                 Recent Milestones
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
                 {completed.slice(-4).reverse().map((q) => (
-                  <QuestCard key={q.id} quest={q} variant="compact" />
+                  <CollapsedQuestRow key={q.id} quest={q} done />
                 ))}
               </div>
             </div>
@@ -600,6 +614,54 @@ export function RiseMode() {
         </div>
       </div>
     </div>
+  );
+}
+
+// A quest collapsed to a single row (v2 progressive disclosure). Locked shows a
+// lock, completed a check; tapping an open row expands its full card in place.
+function CollapsedQuestRow({
+  quest,
+  done,
+  onExpand,
+}: {
+  quest: QuestInstance;
+  done?: boolean;
+  onExpand?: () => void;
+}) {
+  const locked = quest.status === 'locked';
+  const xp = quest.reward?.xp ?? 0;
+  const inner = (
+    <>
+      <span className="flex min-w-0 items-center gap-2.5">
+        {done ? (
+          <Check className="w-4 h-4 shrink-0 text-crwn-success" />
+        ) : locked ? (
+          <Lock className="w-4 h-4 shrink-0 text-crwn-text-secondary" />
+        ) : null}
+        <span className={`truncate text-sm ${done || locked ? 'text-crwn-text-secondary' : 'text-crwn-text'}`}>
+          {quest.title}
+        </span>
+      </span>
+      <span className="shrink-0 text-xs text-crwn-gold">
+        {locked ? <span className="text-crwn-text-secondary">locked</span> : xp > 0 ? `+${xp}` : null}
+      </span>
+    </>
+  );
+  if (done || !onExpand) {
+    return (
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-crwn-elevated bg-[#1A1A1A] px-4 py-3">
+        {inner}
+      </div>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onExpand}
+      className="crwn-interactive flex w-full items-center justify-between gap-3 rounded-2xl border border-crwn-elevated bg-[#1A1A1A] px-4 py-3 text-left hover:border-crwn-gold/40"
+    >
+      {inner}
+    </button>
   );
 }
 
