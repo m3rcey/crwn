@@ -4,6 +4,7 @@ import { notifyNewTrack } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { presaveReleaseEmail } from '@/lib/emails/presaveRelease';
 import { sendPromiseReminders } from '@/lib/promiseReminders';
+import { sweepMissedPromises } from '@/lib/promiseSweep';
 import { dueOpenings } from '@/lib/waterfall';
 
 const supabaseAdmin = createClient(
@@ -267,5 +268,22 @@ export async function GET(req: NextRequest) {
   // Best-effort; a reminder failure never breaks release publishing.
   const promiseReminders = await sendPromiseReminders(supabaseAdmin);
 
-  return NextResponse.json({ published, notified, presaveNotified, promiseReminders, tiersOpened });
+  // Piggybacked for the same reason: record long-overdue promises as MISSED. Until this ran,
+  // `missed` was a status nine readers understood and nothing ever wrote, so an undelivered
+  // promise stayed pending forever and promise reliability could not be measured over time.
+  // Runs AFTER the reminders on purpose: an artist gets nudged about a promise before it is
+  // scored against them. Best-effort, and it can only ever move `pending` rows.
+  const missedPromises = await sweepMissedPromises(supabaseAdmin);
+  if (missedPromises.error) {
+    console.error('Missed-promise sweep failed (non-fatal):', missedPromises.error);
+  }
+
+  return NextResponse.json({
+    published,
+    notified,
+    presaveNotified,
+    promiseReminders,
+    tiersOpened,
+    missedPromises: missedPromises.marked,
+  });
 }

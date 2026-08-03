@@ -6,6 +6,8 @@ import { getArtistFeePercent } from '@/lib/platformTier';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateAndApplyDiscount } from '@/lib/discountCodes';
 import { resolveClipperRate } from '@/lib/clipperRate';
+import { hashVisitor } from '@/lib/analytics/visitorHash';
+import { recordTierEvent } from '@/lib/analytics/tierEvents';
 
 export async function POST(req: NextRequest) {
   try {
@@ -277,6 +279,27 @@ export async function POST(req: NextRequest) {
         is_founder: isFounder ? 'true' : '',
       },
     });
+
+    // Tier evidence: the authoritative checkout-start boundary. It sits AFTER
+    // sessions.create resolved, so a session that fails to be created is never counted, and
+    // it is server-side, so a client cannot forge a start for a tier nobody opened. The free
+    // path returned above and never reaches here, which is what keeps the free rung out of a
+    // metric it has no checkout for. Deduped per visitor per day at the DB; best-effort, and
+    // deliberately not awaited into the response path's failure modes.
+    try {
+      const visitorHash = await hashVisitor(req.headers);
+      await recordTierEvent(svcConnect, {
+        tierId,
+        eventType: 'tier_checkout_started',
+        visitorHash,
+        fanId,
+        expectArtistId: tier.artist_id,
+        source: attributionSource === 'clipper' ? 'clipper' : safeReferralCode ? 'referral' : null,
+        metadata: { interval: interval === 'year' ? 'year' : 'month' },
+      });
+    } catch {
+      // Analytics never breaks a checkout.
+    }
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error) {

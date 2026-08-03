@@ -37,6 +37,17 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       Until it runs, everything works on the derived recommendation; only saving answers or
       switching strategy reports it cannot save yet. Self-verifies, including the grants.
 
+- [ ] **Run the tier-events migration:**
+      [`supabase/schema-phase2-tier-events.sql`](supabase/schema-phase2-tier-events.sql).
+      Adds `tier_events`, the first per-rung measurement CRWN has ever had: which of your four
+      tiers fans actually look at, and which ones they start paying for. Without it the product
+      cannot tell "nobody came" apart from "they came and did not click", which is the fork every
+      future recommendation depends on.
+      Server-write only (no client INSERT grant), owner-only reads, self-verifying including a
+      check that no client write grant survived. Until it runs, nothing breaks: the recorder
+      no-ops and `/api/artist/tier-evidence` returns real member counts with null view rates and
+      says why.
+
 - [ ] **Run the track-waterfall migration:**
       [`supabase/schema-phase2-track-waterfall.sql`](supabase/schema-phase2-track-waterfall.sql).
       Adds `tracks.waterfall` (the staggered tier-by-tier rollout schedule) with its SELECT

@@ -1,5 +1,68 @@
 # CRWN Brain — Changelog
 
+## 2026-08-03 - Evidence layer: tier interactions, missed promises, and every paid rail
+
+Closes the measurement gaps in `docs/FEEDBACK_LOOPS.md` §18 Phase 0 and Phase 1. **Evidence only:
+no recommendations, no adaptive Rise Mode, no pricing or tier changes, no new artist-facing
+screen.** The deterministic Constraint Engine is deliberately still unbuilt.
+
+**(1) One finding was WRONG and is retracted.** The audit claimed `stripe_connected` and
+`first_paid_conversion` were declared but never emitted. Both were emitted all along
+(`connectReconcile.ts`, `webhookHandlers.ts`); the audit's grep was truncated by a `head -30`.
+`stripe_connected` already fired only on a live `accounts.retrieve` reporting `charges_enabled`,
+which is the correct authoritative state. Two real, smaller gaps sat underneath it. **Rail
+coverage:** only the subscription and product paths emitted, and because the stage dedupes per
+artist and only the first event ever lands, an artist whose first dollar came from a track,
+booking, live ticket or tip read as "never converted" forever. **Attribution:** the event carried
+`artistId` and nothing else, so it could not join back to the calculator the artist came in
+through, which is the whole reason the funnel extends below signup. Both fixed by one shared
+recorder, `src/lib/analytics/paidConversion.ts`, now called from all six rails and stamping
+`calculator` + `resultId` from the artist's claimed result. A tip is tagged `live_tip` in metadata
+so a stricter "recurring only" reading stays available without a backfill.
+
+**(2) Missed promises are recorded.** `fulfillment_events.status = 'missed'` was read in nine
+places and written in none, so promise reliability could only be sampled at this instant and never
+measured over time. `MISSED_GRACE_DAYS = 14` in `src/lib/fulfillment.ts` is the ONE
+founder-adjustable threshold (no founder-approved value existed, so this is a documented temporary
+default). `sweepMissedPromises` (`src/lib/promiseSweep.ts`) runs piggybacked on the existing 6am
+`scheduled-releases` cron, AFTER the reminders so an artist is nudged before being scored. Guarded
+by `status = 'pending'` on the UPDATE itself, so it is idempotent, cannot touch a terminal status,
+and cannot lose a race with a concurrent completion. It creates nothing. **Lateness is derived**
+from `due_at`/`completed_at`, with no new column: `latenessDays`, `wasLate` and
+`summarizePromiseHealth` give completion rate, missed rate, late-completion rate and median
+lateness, all null (never 0) on an empty denominator.
+
+**(3) Tier interaction instrumentation, the keystone.** New `tier_events` table (migration
+`supabase/schema-phase2-tier-events.sql`, **unrun**), deliberately NOT an extension of
+`funnel_events`: tier events are per-tier and higher volume, and folding them in would inflate the
+acquisition funnel's stage counts and add a column 20 of 22 stages leave null. Grain is
+`(artist, tier, event_type, visitor_hash, event_date)` UNIQUE, matching `artist_page_visits` so the
+two reconcile, which is what makes both counts mean "unique visitors per day" and a view-to-checkout
+rate arithmetically honest. `tier_card_viewed` comes from the browser at half-card visibility
+(`useTierViewTracker`, IntersectionObserver, unobserve-on-fire + a per-page-load Set + the DB grain:
+three layers, so rerenders cannot duplicate). `tier_checkout_started` is recorded SERVER-side in
+`/api/stripe/checkout` after `sessions.create` resolves, so a failed session records nothing and a
+client cannot forge one; the free path returns before it, so a free rung never gets a checkout it
+does not have. **The caller never supplies an artist id**: `recordTierEvent` reads the artist off
+the tier row, so cross-artist forgery is impossible by construction rather than by policy. Metadata
+is key-blacklisted and shape-whitelisted so no Stripe id can ever land in an analytics row.
+
+**(4) Derived tier evidence reader.** `src/lib/analytics/tierEvidence.ts` +
+`GET /api/artist/tier-evidence` (owner-gated by `requireArtistOwner`, same as `/api/analytics`).
+Per rung: views, checkout starts, joins, active and churned members, and the three conversion
+rates. Derived on read, nothing stored. **Upgrade and downgrade rates are reported as unavailable,
+not estimated**: `subscriptions` is UNIQUE (fan_id, artist_id) and every write upserts on that
+pair, so an upgrade overwrites `tier_id` in place and no transition history exists.
+
+**(5) One visitor identity.** `hashVisitor` moved from private-in-middleware to
+`src/lib/analytics/visitorHash.ts` and middleware imports it. Tier events must use the SAME hash as
+page visits or the two tables can never be reconciled, and two copies would be one edit from
+disagreeing silently.
+
+664 tests pass (86 new across 5 files). Build clean. **Josh must run
+`supabase/schema-phase2-tier-events.sql`**; until then the recorder no-ops and the reader returns
+counts with null view rates plus a stated limitation, never a confident zero.
+
 ## 2026-08-03 - The artist page redesign lands end to end (interface v2, PR10)
 
 Four commits finish the artist-page pass of the v2 redesign. (1) **The page looks like the

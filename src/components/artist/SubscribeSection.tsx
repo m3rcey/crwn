@@ -9,6 +9,7 @@ import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { TierConfig } from '@/types';
 import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics';
 import { getPersistedReferralCode, getPersistedAttributionSource } from '@/components/shared/ReferralPersist';
+import { useTierViewTracker } from '@/hooks/useTierViewTracker';
 import { Check, Loader2, X } from 'lucide-react';
 
 interface SubscribeButtonProps {
@@ -198,6 +199,12 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
   const [confirmTier, setConfirmTier] = useState<TierConfig | null>(null);
   const [confirmAction, setConfirmAction] = useState<'upgrade' | 'downgrade' | null>(null);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('year');
+
+  // Tier evidence. Attribution reuses the persisted referral state the checkout call already
+  // reads, so a view and the checkout start it leads to carry the same source.
+  const trackTierRef = useTierViewTracker({
+    source: attributionSource === 'clipper' ? 'clipper' : referralCode ? 'referral' : null,
+  });
 
   useEffect(() => {
     // Check for success param in URL
@@ -428,6 +435,9 @@ export function TierCards({ tiers, artistSlug, artistId }: TierCardsProps) {
           return (
             <div
               key={tier.id}
+              // Tier evidence: reports this rung as viewed once half the card is on screen,
+              // once per page load and once per visitor per day at the DB.
+              ref={trackTierRef(tier.id)}
               className={`neu-card-hover p-6 flex flex-col rounded-2xl ${
                 isThisTierSubscribed ? 'ring-2 ring-crwn-gold' : ''
               }`}

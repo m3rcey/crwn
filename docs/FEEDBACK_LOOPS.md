@@ -3,7 +3,17 @@
 Investigation date: 2026-08-03. Branch `claude/rise-mode-full-journey`.
 Implementation source of truth: the repository. CRWN Brain reconciled against it below.
 
-**Nothing was implemented, no code changed, no schema changed, no existing doc edited.**
+**Original pass: investigation only.** A follow-up task on 2026-08-03 implemented the evidence-layer
+repairs in §18 Phase 0 and Phase 1 and corrected one wrong finding. Sections carrying an
+implementation status say so inline; everything else is still analysis, and the Constraint Engine
+(§9, §11) remains deliberately unbuilt.
+
+**Correction log**
+- **§4.1 was WRONG and is retracted.** `stripe_connected` and `first_paid_conversion` were both
+  emitted all along; the audit's grep was truncated. The real, smaller gaps underneath it (4 of 6
+  paid rails unwired, and no calculator attribution on the event) are fixed. See §4.1.
+- §4.2 (missed never written) and §4.3 (no tier-level measurement) were **confirmed correct** and
+  are now fixed.
 
 ---
 
@@ -160,21 +170,34 @@ Two things deserve explicit credit, because a redesign should not break them:
 
 Ordered by cost, most critical first.
 
-### 4.1 The money-close funnel stages are declared and never emitted (REPO DRIFT)
+### 4.1 ~~The money-close funnel stages are declared and never emitted~~ WRONG, RETRACTED 2026-08-03
 
-`FUNNEL_STAGES` in `funnelEvents.ts:18` declares 20 stages. Grepping every `recordFunnelEvent`
-call site and every `trackFunnel` client call finds emitters for 18 of them. **`stripe_connected`
-and `first_paid_conversion` have no emitter anywhere.**
+**This finding was incorrect and is withdrawn.** The original grep for `recordFunnelEvent` call
+sites was truncated by a `head -30`, which cut off the two files that matter:
+`src/lib/stripe/connectReconcile.ts` and `src/lib/webhookHandlers.ts`. Both stages WERE emitted,
+and both were emitted correctly:
 
-This matters more than it sounds. `docs/UNIFIED_OPPORTUNITY.md` §8 and
-`docs/crwn-brain/13-CURRENT-STATE.md` both state that five new stages "connect the anonymous
-calculator run to the artist's first real dollar". Three of those five fire. The two that carry
-the journey across the money line do not. The funnel therefore ends at `fan_invited` and cannot
-answer the one question the whole acquisition engine exists to answer: **which calculator, which
-video, which campaign produces artists who actually get paid.**
+- `stripe_connected` fires in `reconcileStripeConnect` only when a live `accounts.retrieve`
+  reports `charges_enabled`, deduped per artist. That is the authoritative state, not "returned
+  from Stripe" and not "has an account id".
+- `first_paid_conversion` fired from the subscription and product webhook paths, deduped per
+  artist, so it could not fire for a free tier (a free join never reaches Stripe checkout) and
+  could not repeat.
 
-Cost: every acquisition decision (which tool to promote, which video to cut, what the ICP really
-is) is being made on top-of-funnel proxies.
+Two REAL and smaller gaps were found underneath the wrong one, and both were fixed on
+2026-08-03:
+
+1. **Rail coverage.** Only 2 of 6 paid rails emitted. Because the stage is deduped per artist and
+   only the first event ever lands, an artist whose first dollar came from a track sale, a
+   booking, a live ticket or a tip read as "never converted" permanently. All six rails now go
+   through one shared recorder (`src/lib/analytics/paidConversion.ts`).
+2. **Attribution.** The inline calls passed `artistId` and nothing else, so the row could not be
+   joined back to the calculator the artist came in through, which is the entire reason the
+   funnel extends below signup. The shared recorder now stamps `calculator` and `resultId` from
+   the artist's own claimed result.
+
+Lesson worth keeping: a truncated grep is indistinguishable from an absent result. Verify a
+"nothing emits this" claim by grepping the symbol with no pipe limit.
 
 ### 4.2 A missed promise is never recorded (REPO DRIFT)
 
@@ -763,23 +786,22 @@ artist acquisition or breaks money flows.
 
 **P0 (breaks the money loop or the acquisition decision)**
 
-1. **Emit `stripe_connected` and `first_paid_conversion`.** Two `recordFunnelEvent` calls in
-   existing routes (the Connect status route and the subscription webhook handler). Roughly an
-   hour of work, and it is the difference between knowing and not knowing which acquisition
-   channel produces paid artists. Nothing else on this list is cheaper per unit of decision
-   quality.
-2. **`tier_events`: tier card viewed and checkout started.** The keystone. Without it, constraint
-   stages 4 and 5 are unevaluable, per-rung optimization is impossible, and price recommendations
-   would be fabricated. One small table, one client beacon reusing the `artist_page_visits`
-   visitor-hash pattern, one derived read.
+1. ~~**Emit `stripe_connected` and `first_paid_conversion`.**~~ **DONE 2026-08-03, and the premise
+   was wrong** (see §4.1). Both already emitted. What was actually missing and is now fixed: 4 of
+   6 paid rails were unwired, and the event carried no calculator attribution, so it could not be
+   joined back to the funnel it exists to close.
+2. ~~**`tier_events`: tier card viewed and checkout started.**~~ **DONE 2026-08-03.** Table +
+   migration (`supabase/schema-phase2-tier-events.sql`), server recorder, view beacon at half-card
+   visibility, checkout start recorded server-side at the Stripe session boundary, and a derived
+   reader. Still the keystone: constraint stages 4 and 5 become evaluable once data accumulates.
 
 **P1 (real risk, nothing on fire)**
 
-3. **Write `fulfillment_events.status = 'missed'` and record lateness.** Until this exists, the
-   product cannot measure the promise-keeping thesis it is built on, and nine existing read sites
-   evaluate to zero forever.
+3. ~~**Write `fulfillment_events.status = 'missed'` and record lateness.**~~ **DONE 2026-08-03.**
+   `MISSED_GRACE_DAYS = 14` (one constant, founder-adjustable), swept daily on the existing 6am
+   cron, lateness derived from `due_at`/`completed_at` with no new column.
 4. **`readConstraint()` plus the Rise Mode slot.** The pure function and one render. Safe because
-   it falls back to today's `nextStep` on insufficient evidence.
+   it falls back to today's `nextStep` on insufficient evidence. **This is now the next task.**
 5. **Route campaign and promise evidence to the artist.** Both are already computed. This is
    plumbing, not new measurement: `/api/promise-calendar/health` to Rise Mode, campaign open and
    unsubscribe rates to the composer.
@@ -799,21 +821,23 @@ Each phase is independently shippable, independently reversible, and leaves the 
 the next phase never happens. Applying the five-step pass to the roadmap itself: phases 0 and 1 are
 mostly *deletion and repair* of things already half-built, which is why they come first.
 
-### Phase 0: close what is already declared (no new concepts)
+### Phase 0: close what is already declared (no new concepts) — SHIPPED 2026-08-03
 
-- Emit the two dead funnel stages.
-- Write `missed`; record lateness.
-- Raise the cross-artist sample floor.
+- ~~Emit the two dead funnel stages.~~ They were never dead. Instead: all six paid rails now
+  emit `first_paid_conversion` through one shared recorder, stamped with the artist's calculator.
+- Write `missed`; derive lateness. Done, on the existing 6am cron.
+- Raise the cross-artist sample floor. **NOT done, deliberately deferred**: it changes what the AI
+  Manager says, which is recommendation behavior and out of scope for an evidence-layer task.
 - **Founder-blocking:** none. No migration. No env var.
-- **Ships value alone?** Yes: the acquisition funnel becomes complete.
 
-### Phase 1: one new measurement
+### Phase 1: one new measurement — SHIPPED 2026-08-03
 
-- `tier_events` table plus beacon (migration required, self-verifying per house rule).
-- Derived per-rung ledger read, no storage.
-- **Founder-blocking:** one migration to apply.
-- **Ships value alone?** Yes: the tier editor can show per-rung conversion immediately, with no
-  recommendation attached.
+- `tier_events` table plus beacon. Migration required and self-verifying, per the house rule.
+- Derived per-rung reader, no storage.
+- **Founder-blocking:** one migration to apply (`supabase/schema-phase2-tier-events.sql`).
+- **Note:** the reader exists as an API, and no artist-facing surface renders it yet. That is
+  intentional. Building the screen before the constraint reading exists would be the dashboard
+  §15 argues against.
 
 ### Phase 2: the constraint reading
 

@@ -18,7 +18,7 @@ import { recordDiscountCodeUse } from '@/lib/discountCodes';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
 import { getArtistFeePercent } from '@/lib/platformTier';
 import { maybeCreateVipWelcomeTask } from '@/lib/promiseTasks';
-import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { recordFirstPaidConversion } from '@/lib/analytics/paidConversion';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -196,13 +196,14 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         console.error('Activation milestone failed:', err);
       }
 
-      // Funnel: First Paid Conversion. Deduped per artist at the DB, so only the first
-      // paid event (subscription or product) ever lands; renewals and later sales collapse.
-      await recordFunnelEvent(supabaseAdmin, {
-        stage: 'first_paid_conversion',
+      // Funnel: First Paid Conversion. Deduped per artist at the DB, so only the first paid
+      // event across ALL rails ever lands; renewals and later sales collapse. The shared
+      // recorder also stamps the artist's calculator, which is what lets an acquisition
+      // channel be traced to a real dollar.
+      await recordFirstPaidConversion(supabaseAdmin, {
         artistId: artist_id,
-        dedupeKey: artist_id,
-        metadata: { kind: 'subscription' },
+        kind: 'subscription',
+        userId: artistProfile?.user_id,
       });
 
       // Promise Calendar: high-ticket (VIP) supporters get a 48h personal-welcome
@@ -895,13 +896,12 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
       console.error('Milestone check failed:', err);
     }
 
-    // Funnel: First Paid Conversion (product path). Same per-artist dedupe as the
-    // subscription path; whichever paid event lands first wins, the rest collapse.
-    await recordFunnelEvent(supabaseAdmin, {
-      stage: 'first_paid_conversion',
+    // Funnel: First Paid Conversion (product path). Same per-artist dedupe as every other
+    // rail; whichever paid event lands first wins, the rest collapse.
+    await recordFirstPaidConversion(supabaseAdmin, {
       artistId: artist_id,
-      dedupeKey: artist_id,
-      metadata: { kind: 'product' },
+      kind: 'product',
+      userId: artistProfile?.user_id,
     });
   }
 
@@ -1199,6 +1199,14 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
     }
   }
 
+  // Funnel: First Paid Conversion (track path). A track sale is real money from a fan, so an
+  // artist whose first dollar arrived this way must not read as "never converted".
+  await recordFirstPaidConversion(supabaseAdmin, {
+    artistId: artist_id,
+    kind: 'track',
+    userId: artistProfile?.user_id,
+  });
+
   // Send receipts
   try {
     const fanEmail = session.customer_email || session.customer_details?.email;
@@ -1388,6 +1396,13 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
     }
   }
 
+  // Funnel: First Paid Conversion (booking path).
+  await recordFirstPaidConversion(supabaseAdmin, {
+    artistId: artist_id,
+    kind: 'booking',
+    userId: artistProfile?.user_id,
+  });
+
   console.log('Booking purchase recorded:', { booking_session_id, buyer_id, artist_id, netAmount });
 }
 
@@ -1525,6 +1540,13 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
     }
   }
 
+  // Funnel: First Paid Conversion (live ticket path).
+  await recordFirstPaidConversion(supabaseAdmin, {
+    artistId: artist_id,
+    kind: 'live_ticket',
+    userId: artistProfile?.user_id,
+  });
+
   console.log('Live ticket recorded:', { live_session_id, buyer_id, artist_id, netAmount });
 }
 
@@ -1642,6 +1664,16 @@ export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.
   } catch (err) {
     console.error('Live goal settle failed:', err);
   }
+
+  // Funnel: First Paid Conversion (tip path). A tip buys no entitlement, so it is tagged
+  // `live_tip` in metadata and a stricter "recurring only" reading stays possible later. It
+  // still counts: an artist who has been paid by a fan has converted, and pretending
+  // otherwise would make the first-dollar funnel disagree with the revenue milestones.
+  await recordFirstPaidConversion(supabaseAdmin, {
+    artistId: artist_id,
+    kind: 'live_tip',
+    userId: artistProfile?.user_id,
+  });
 
   console.log('Live tip recorded:', { live_session_id, buyer_id, artist_id, netAmount });
 }

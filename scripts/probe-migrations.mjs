@@ -28,6 +28,9 @@ const PROBES = [
   ['quest engine', 'quest_instances?select=id&limit=1', 'schema-phase2-quest-engine.sql'],
   ['artist palette columns', 'artist_profiles?select=accent_hex&limit=1', 'schema-phase2-artist-palette.sql'],
   ['banner position columns', 'artist_profiles?select=banner_pos_x&limit=1', 'schema-phase2-banner-position.sql'],
+  // tier_events is server-write / owner-read, so the anon probe expects the TABLE to resolve
+  // (RLS then returns zero rows, which is correct). A missing table 404s and fails the probe.
+  ['tier events table', 'tier_events?select=id&limit=1', 'schema-phase2-tier-events.sql'],
   ['membership strategy columns', 'artist_profiles?select=membership_strategy&limit=1', 'schema-phase2-membership-strategy.sql'],
   ['track waterfall column', 'tracks?select=waterfall&limit=1', 'schema-phase2-track-waterfall.sql'],
   ['support chat resolution columns', 'support_conversations?select=resolved_by&limit=1', 'schema-phase2-support-chat-resolution.sql'],
