@@ -126,6 +126,26 @@ describe('accentPageVars', () => {
       expect(contrast(c, [15, 15, 15])).toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  it('makes EVERY derived variant legible as ink, not just the base', () => {
+    // Tailwind exposes all three as text utilities, so any of them can end up
+    // as ink on the dark ground. Naive scaling from a base sitting exactly at
+    // 4.5:1 produced ~3.9:1 (hover) and ~2.2:1 (muted) -- both invisible to
+    // inspection because the base measured fine.
+    for (const hex of ['#d50000', '#F5A800', '#4F8DF5', '#7B5BD6', '#960F23', '#3FB27F']) {
+      const vars = accentPageVars(hex)!;
+      for (const key of ['--crwn-gold', '--crwn-gold-hover', '--crwn-gold-muted']) {
+        expect(contrast(hexToRgb(vars[key]), [15, 15, 15])).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  });
+
+  it('brightens on hover rather than darkening (a hover must not lose contrast)', () => {
+    const vars = accentPageVars('#d50000')!;
+    const base = contrast(hexToRgb(vars['--crwn-gold']), [15, 15, 15]);
+    const hover = contrast(hexToRgb(vars['--crwn-gold-hover']), [15, 15, 15]);
+    expect(hover).toBeGreaterThan(base);
+  });
 });
 
 describe('accentTheme', () => {

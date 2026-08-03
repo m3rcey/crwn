@@ -185,11 +185,26 @@ export function accentPageVars(accent: string | null | undefined): Record<string
   const safe = liftForInk(accent, 4.5);
   if (safe === toHex(LIGHT)) return null; // hue unusable; keep gold
   const [r, g, b] = hexToRgb(safe);
-  const scale = (k: number): string => toHex([r * k, g * k, b * k]);
+
+  // EVERY derived variant must survive being used as INK, because Tailwind
+  // exposes all three as text utilities (text-crwn-gold-hover,
+  // text-crwn-gold-muted) and any component may reach for them. Deriving them
+  // by naive scaling is the trap: liftForInk puts the base right AT 4.5:1, so
+  // x0.9 lands ~3.9:1 and x0.62 lands ~2.2:1 -- both illegible, and invisible
+  // to inspection because the base looked fine.
+  //
+  // Hover therefore BRIGHTENS (toward white) rather than darkening: it reads as
+  // a hover and it cannot fall below the base's contrast. Muted keeps its
+  // darker derivation but is clamped back up to the AA floor; call sites that
+  // want a genuinely dim edge already express that with alpha (`/30`), which
+  // is a compositing choice, not an ink one.
+  const towardWhite = (t: number): string =>
+    toHex([r + (255 - r) * t, g + (255 - g) * t, b + (255 - b) * t]);
+
   return {
     '--crwn-gold': safe,
-    '--crwn-gold-hover': scale(0.9),
-    '--crwn-gold-muted': scale(0.62),
+    '--crwn-gold-hover': towardWhite(0.18),
+    '--crwn-gold-muted': liftForInk(toHex([r * 0.62, g * 0.62, b * 0.62]), 4.5),
   };
 }
 

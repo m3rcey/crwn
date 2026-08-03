@@ -23,7 +23,10 @@ export function TrackList({ tracks }: TrackListProps) {
     // No audio URL means the database withheld it: this listener is not entitled.
     // The old label said "Preview", but no preview was ever implemented.
     if (!canPlayTrack(track)) {
-      return <span className="text-xs text-crwn-gold-muted flex items-center gap-1"><Lock size={12} /> Locked</span>;
+      // text-secondary, not gold-muted: gold-muted is a BORDER token (3.88:1 on
+      // the dark ground even in the base theme, worse on an accented artist
+      // page) and this is a 12px status label that has to be readable.
+      return <span className="text-xs text-crwn-text-secondary flex items-center gap-1"><Lock size={12} /> Locked</span>;
     }
     
     switch (track.access_level) {
