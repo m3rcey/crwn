@@ -141,6 +141,33 @@ export function groundOf(el: Element, base: RGB = DARK): RGB {
 export const requiredRatio = (fontSizePx: number, fontWeight: number) =>
   fontSizePx >= 24 || (fontSizePx >= 18.66 && fontWeight >= 700) ? 3 : 4.5;
 
+export interface ContrastVerdict {
+  pass: boolean;
+  /** Measured ratio of ink against the composited ground. */
+  ratio: number;
+  /** Threshold this node had to clear, from its rendered size and weight. */
+  required: number;
+}
+
+/**
+ * The pure core of the contrast sweep: one text node's ink against the ground
+ * it ACTUALLY composites onto. Kept free of the DOM so it unit-tests in the
+ * repo's node-env vitest; `sweepContrast` (browser) supplies the measurements.
+ */
+export function auditContrast(
+  ink: RGB,
+  ground: RGB,
+  fontSizePx: number,
+  fontWeight: number
+): ContrastVerdict {
+  const required = requiredRatio(fontSizePx, fontWeight);
+  const ratio = contrast(ink, ground);
+  // Round to 2dp before comparing: a node measuring 4.499999 is not a real
+  // failure, and float noise in a CI gate trains people to ignore it.
+  const rounded = Math.round(ratio * 100) / 100;
+  return { pass: rounded >= required, ratio: rounded, required };
+}
+
 /**
  * Scoped CSS-variable overrides for an artist-accented page.
  *

@@ -87,11 +87,19 @@ export function samplePalette(img: HTMLImageElement): Palette | null {
 
     // Monochrome upload -> secondary collapses to primary, degrading to
     // single-hue behaviour rather than inventing a hue not in the image.
+    //
+    // DEVIATION FROM THE REFERENCE (deliberate, caught by palette.test.ts):
+    // the reference tested `180 - dh > 35`, but `dh` already IS the circular
+    // hue distance, so that accepted an IDENTICAL hue (dh 0 -> 180 > 35) and
+    // rejected an exact complement (dh 180 -> 0 > 35 false). Complementary
+    // banners -- the most obviously two-hue case there is -- lost their second
+    // gradient stop, while monochrome ones passed by accident. The spec's
+    // stated rule is "largest cluster >=35deg away", which is `dh > 35`.
     let secondary = primary;
     for (const cand of byArea) {
       if (cand === primary) continue;
       const dh = Math.abs(((hue(cand) - ph + 540) % 360) - 180);
-      if (180 - dh > 35) { secondary = cand; break; }
+      if (dh > 35) { secondary = cand; break; }
     }
 
     const avg = dn ? { r: dr / dn, g: dg / dn, b: db / dn } : primary;

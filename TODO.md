@@ -27,6 +27,14 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the banner-position migration:**
+      [`supabase/schema-phase2-banner-position.sql`](supabase/schema-phase2-banner-position.sql).
+      Adds `banner_pos_x` / `banner_pos_y` (0-100, default 50) so an artist can drag their banner
+      to reframe it and have that stick. What persists is two numbers, never a re-encoded image.
+      Includes the per-column grants and the view rebuild (the rule the palette migration taught
+      us). Until it runs, the Reposition control appears for owners but saving says it could not
+      save; every banner stays centred. Self-verifies.
+
 - [ ] **Run the membership-strategy migration:**
       [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql).
       Adds `artist_profiles.membership_strategy` (the explicit Release Club vs Vault override)

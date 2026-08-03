@@ -8,6 +8,7 @@ import {
   requiredRatio,
   accentTheme,
   accentPageVars,
+  auditContrast,
   type RGB,
 } from './contrast';
 
@@ -67,6 +68,38 @@ describe('requiredRatio', () => {
     expect(requiredRatio(19, 700)).toBe(3);
     expect(requiredRatio(14, 400)).toBe(4.5);
     expect(requiredRatio(18, 400)).toBe(4.5);
+  });
+});
+
+describe('auditContrast (the sweep core)', () => {
+  const DARK_GROUND: RGB = [15, 15, 15];
+  const GOLD_TINTED_CARD: RGB = [45, 40, 25]; // what a gold-tinted card really composites to
+
+  it('passes body text in the primary ink on the page ground', () => {
+    expect(auditContrast([240, 240, 240], DARK_GROUND, 14, 400).pass).toBe(true);
+  });
+
+  it('applies the large-text threshold, so 24px passes where 14px fails', () => {
+    // A ratio that clears 3:1 but not 4.5:1 must depend on size/weight alone.
+    const ink: RGB = [122, 122, 122];
+    const small = auditContrast(ink, DARK_GROUND, 14, 400);
+    const large = auditContrast(ink, DARK_GROUND, 24, 400);
+    expect(small.required).toBe(4.5);
+    expect(large.required).toBe(3);
+    expect(small.ratio).toBe(large.ratio);
+    expect(large.pass).toBe(true);
+    expect(small.pass).toBe(false);
+  });
+
+  it('catches the real review bug: muted ink valid on the page ground, invalid in a tinted card', () => {
+    const muted: RGB = [138, 138, 154]; // --crwn-text-secondary
+    expect(auditContrast(muted, DARK_GROUND, 13, 400).pass).toBe(true);
+    expect(auditContrast(muted, GOLD_TINTED_CARD, 13, 400).pass).toBe(false);
+  });
+
+  it('does not fail a node on float noise just under the threshold', () => {
+    const v = auditContrast([240, 240, 240], DARK_GROUND, 16, 400);
+    expect(v.ratio).toBe(Math.round(v.ratio * 100) / 100);
   });
 });
 

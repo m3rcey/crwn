@@ -27,6 +27,7 @@ const PROBES = [
   ['community channels', 'community_channels?select=id&limit=1', 'schema-phase2-community-channels.sql'],
   ['quest engine', 'quest_instances?select=id&limit=1', 'schema-phase2-quest-engine.sql'],
   ['artist palette columns', 'artist_profiles?select=accent_hex&limit=1', 'schema-phase2-artist-palette.sql'],
+  ['banner position columns', 'artist_profiles?select=banner_pos_x&limit=1', 'schema-phase2-banner-position.sql'],
 ];
 
 const env = readFileSync(new URL('../.env.local', import.meta.url), 'utf8');

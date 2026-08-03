@@ -18,6 +18,7 @@ import type { Metadata } from 'next';
 import { getBenefitDisplayText, BENEFIT_CATALOG } from '@/lib/benefitCatalog';
 import { accentPageVars } from '@/lib/contrast';
 import { PaletteBackfill } from '@/components/artist/PaletteBackfill';
+import { BannerReposition } from '@/components/artist/BannerReposition';
 import type { CSSProperties } from 'react';
 
 interface ArtistPageProps {
@@ -338,23 +339,24 @@ export default async function ArtistPage({ params, searchParams }: ArtistPagePro
         {/* Banner (v2): a rounded media card inset from the page edges, not a
             full-bleed strip. The soft shadow below it is the accent glow. */}
         <div className="px-4 sm:px-6 lg:px-8 pt-4">
-          <div
-            className="relative h-48 sm:h-64 md:h-72 w-full rounded-2xl md:rounded-[20px] overflow-hidden"
-            style={{ boxShadow: '0 24px 60px color-mix(in srgb, var(--crwn-gold) 20%, transparent)' }}
-          >
-            {artist.banner_url ? (
-              <Image
-                src={artist.banner_url}
-                alt={`${artist.profile?.display_name || 'Artist'} banner`}
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
+          {artist.banner_url ? (
+            <BannerReposition
+              artistId={artist.id}
+              bannerUrl={artist.banner_url}
+              alt={`${artist.profile?.display_name || 'Artist'} banner`}
+              isOwner={isOwner}
+              initialX={Number((artist as { banner_pos_x?: number | null }).banner_pos_x ?? 50)}
+              initialY={Number((artist as { banner_pos_y?: number | null }).banner_pos_y ?? 50)}
+            />
+          ) : (
+            <div
+              className="relative h-48 sm:h-64 md:h-72 w-full rounded-2xl md:rounded-[20px] overflow-hidden"
+              style={{ boxShadow: '0 24px 60px color-mix(in srgb, var(--crwn-gold) 20%, transparent)' }}
+            >
               <div className="w-full h-full bg-gradient-to-b from-crwn-elevated to-crwn-bg" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
-          </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-crwn-bg/70 via-transparent to-transparent" />
+            </div>
+          )}
         </div>
 
         {/* Profile Header */}
