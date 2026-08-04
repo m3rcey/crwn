@@ -12,40 +12,66 @@ zero-filled).
 
 ## 1. The taxonomy (Implemented)
 
-`src/lib/avatars/taxonomy.ts`, version `subAvatar@1`, pinned by `taxonomy.test.ts`. Four stable
-machine ids that must never be renamed once analytics data exists under them:
+`src/lib/avatars/taxonomy.ts`, version `subAvatar@2`, pinned by `taxonomy.test.ts`. These are
+IDENTITY segments (priority tier, operating maturity, genre), which is why all four share ONE
+calculator: who the artist is decides the framing, the question order, the first offer and the
+cohort, while the money model stays the single unified model that refuses to double-count.
 
-| id | Label | Entry calculator | First CRWN offer |
+**ORDER IS PRECEDENCE.** These segments deliberately overlap (a large R&B seller qualifies as
+both an R&B Empire Builder and a highest-priority lead), and a lead counted in two cohorts
+corrupts every comparison. Exactly one primary is assigned, ties break toward the earlier entry,
+and the runner-up is reported as secondary. Reordering the array is the only change needed to
+reorder precedence, and it is a **founder decision**.
+
+| # | id | Label | First CRWN offer |
 |---|---|---|---|
-| `membership_stack_consolidator` | Membership Stack Consolidator | `fan-stack-calculator` (NEW) | Rebuild the existing monetization as the four-tier ladder |
-| `touring_access_seller` | Touring Access Seller | `between-tour-calculator` (NEW) | A recurring VIP access membership (Gold rung) |
-| `live_community_creator` | Live Community Creator | `live-experience-calculator` (+ `executive-producer-session`) | Free public live into a paid continuation or replay |
-| `catalog_vault_seller` | Catalog and Vault Seller | `vault-revenue-planner` | A paid monthly vault from the existing backlog |
+| 0 | `highest_priority_empire_builder` | Highest Priority Empire Builder | The full four-tier ladder, launched to buyers who already pay |
+| 1 | `established_independent_operator` | Established Independent Minded Operator | A membership built from the catalog and audience already in hand |
+| 2 | `brand_led_hip_hop_artist` | Brand-Led Hip-Hop Artist | A membership fed by the content engine, with fans promoting it |
+| 3 | `rnb_empire_builder` | R&B Empire Builder | A depth-first membership: the vault plus a members-only experience |
 
-**The avatar of an event is the avatar of its calculator, mapped at read time.** No event or
-result row stores an avatar column; `calculatorToSubAvatar()` re-slices history under whatever
-taxonomy version is current. Calculators outside the four (worth, opportunity-calculator, own
-your fans, the mission/demand tools) deliberately map to **null**: running them is real funnel
-activity but not avatar evidence, and cohort reports carry them as one labeled "unassigned"
-bucket so totals never silently shrink.
+**Every avatar's front door is the all-in-one calculator** (founder decision, 2026-08-03):
+`/tools/opportunity-calculator?from=<avatar id>`. The existing `entryContexts` mechanism leads
+with that avatar's questions and shows its note; it REORDERS only, never adding or dropping a
+question, so all four cohorts run the identical model off identical inputs. The individual
+single-opportunity calculators (vault, live, fan-stack, between-tour, and the rest) still exist
+in the tools directory and can still carry `?from=` links; they are simply no longer the
+avatar-defining front doors, and a `?from=` naming a TOOL is a topic, not an identity claim.
+
+### Version history
+
+`subAvatar@1` (2026-08-03, retired the same day) was a pain-based taxonomy keyed to four separate
+entry calculators: Membership Stack Consolidator, Touring Access Seller, Live Community Creator,
+Catalog and Vault Seller. It was replaced before any data accumulated, and safely, because the
+avatar was never stored on an event: it has always been re-derived at read time. The migration's
+CHECK constraint is dropped and recreated rather than added-if-absent, so re-running it is safe
+whether or not the v1 version ever ran.
 
 ## 2. Deterministic assignment (Implemented)
 
-`src/lib/avatars/assignment.ts`, pure, no LLM, tested. `assignSubAvatar(evidence)` scores three
-evidence classes, each point paired with a human-readable line:
+`src/lib/avatars/assignment.ts`, pure, no LLM, tested. Because all four avatars share one
+calculator, assignment is built on the ANSWERS, not on which tool was run.
+`assignSubAvatar(evidence)` scores three evidence classes, each point paired with a
+human-readable line:
 
-- **acquisition_path**: mapped calculators the lead ran (+3 for the first, +2 for later ones).
-- **declared**: what they typed into a calculator (platform count, paid members elsewhere,
-  shows per year, VIP buyers, live willingness, video output, unreleased count).
-- **behavioral**: what the account contains (Patreon-tagged imports, live sessions hosted,
-  gated tracks).
+- **acquisition_path** (+3): the `?from=` avatar funnel they arrived through. A strong declared
+  signal, deliberately not decisive, so answers that plainly disagree can outvote the hypothesis
+  the content made about them.
+- **declared**: audience against the ICP Tier 1 floor (250k) crossed with proven direct sales,
+  real supporter counts or real monthly direct revenue, platform count, years releasing or
+  catalog depth, genre family, video output, fan promotion, unreleased count, live willingness.
+- **behavioral**: Patreon-tagged imports, live sessions hosted, member-gated tracks.
 
-Rules: a valid `manualOverride` wins outright (source `manual`); below 2 points there is NO
-assignment (unassigned is honest, guessed is poison); ties break toward the acquisition-path
-avatar; confidence is score-banded (2 low, 3 medium, 4+ high). **The original acquisition
-avatar is never overwritten**: `deriveAcquisitionAvatar()` is a pure function of the oldest
-claimed result, which is permanent data, so it needs no storage. Acquisition and observed
-avatars are reported side by side by `GET /api/artist/avatar`.
+Rules: a valid `manualOverride` wins outright; below 2 points there is NO assignment; ties break
+by declared precedence; confidence is score-banded (2 to 3 low, 4 to 5 medium, 6+ high).
+**Genre alone is never enough** to call someone brand-led or an empire builder: the content
+engine or the depth inventory is what makes the claim assignable, which is why genre scores 2
+rather than 3.
+
+**Two questions, two answers, never merged.** `deriveAcquisitionAvatar()` is which content
+brought them (the first avatar link they ever clicked, pure and storage-free);
+`assignSubAvatar()` is who they appear to be now. `GET /api/artist/avatar` reports both side by
+side, and the acquisition avatar is never overwritten by later behavior.
 
 Storage (migration `supabase/schema-phase2-sub-avatar.sql`, fail-soft until applied):
 `artist_profiles.sub_avatar_override` (manual override, CHECK-constrained to the four ids, no
@@ -53,13 +79,28 @@ client column grants by design) and `sub_avatar_audit` (override history: previo
 source, actor, timestamp). `POST /api/artist/avatar` sets the owner's override and writes the
 audit row; pre-migration it answers `409 { pending: true }`.
 
-## 3. The two new calculators (Implemented)
+## 2b. How the shared calculator serves four avatars (Implemented)
 
-Both are ordinary 19th/20th entries in the shared lead-magnet registry, so they inherit the
-public page (`/tools/<slug>`), wizard, server-side recompute + storage (`/api/lead-magnets/capture`),
-tokenized result, result email, prospect nurture enrollment, draft claiming, funnel events, and
-the journey resolver with zero new infrastructure. Results render through the shared loss engine
-(`buildLossResult`), so web and DM outputs are structurally identical.
+- **One new question.** `genre_family` (hip-hop / R&B / something else), on its own opening step.
+  It is **not required**: the calculator's standing invariant is that an artist can reach a real
+  result from one number, so an unanswered genre reads as `other` rather than blocking the
+  funnel. It never touches the money model, exactly like `monetization_status`.
+- **Four entry contexts**, keyed by avatar id, each with its own priority step order and note.
+  A test asserts every avatar has one, that its priority steps are real step ids, and that the
+  reorder never changes which questions get asked.
+- **The `?from=` value is persisted** (`crwn_entry_avatar`, first-touch discipline) and rides
+  every analytics beacon, so the cohort survives a multi-page visit rather than living in one URL.
+- **It is stored server-side** on the result row under the reserved key `_entry_context`
+  (validated against the taxonomy at the capture route), which is what carries the acquisition
+  cohort past signup as server-side truth.
+
+## 3. The single-opportunity calculators (Implemented, no longer avatar front doors)
+
+Two calculators were built for the retired v1 taxonomy and are KEPT, because they are honest,
+tested, and cost nothing to leave in the 19-tool directory. They are ordinary registry entries
+inheriting the public page, wizard, server-side recompute, tokenized result, result email,
+nurture, claiming, funnel events and the journey resolver. They can still carry `?from=` links
+into the all-in-one calculator, and both are declared as tool entry contexts there.
 
 ### 3.1 Fan Stack Consolidation Calculator (`fan-stack-calculator`)
 
@@ -93,40 +134,37 @@ monetization status. Formula:
 - One paid livestream per off-month sold **only to reachable non-members** (Live Experience
   rates), averaged across the year. Members and ticket buyers are disjoint by construction.
 
-### 3.3 Existing calculators (verified, reused)
+### 3.3 The other calculators (verified, unchanged)
 
-- **Live Community Creator** rides `live-experience-calculator` (ticket + tips model,
-  `lossResult@1`) and `executive-producer-session`. Their DeliverableSpecs already cover the
-  free/paid split (concept, ticket, replay, run of show; session seats + access rules).
-  Free-to-paid *scheduling* automation is the live templates' job (membershipStrategy), not the
-  calculator's. No changes were needed or made.
-- **Catalog and Vault Seller** rides `vault-revenue-planner`. Known pre-existing wart, now
-  documented rather than hidden: its WEB result runs `resultGenerators.vaultRevenuePlan` (a
-  readiness/plan result) while its DM adapter runs `buildLossResult` (a money reveal), the one
-  slug where the web/DM parity guarantee does not hold. Unifying them is **Deferred**: both
-  outputs are honest, and rewriting the web generator was out of scope for this build.
+- `live-experience-calculator` and `executive-producer-session` keep their ticket/seat models and
+  their builder specs (concept, ticket, replay, run of show; seats + access rules).
+- `vault-revenue-planner` keeps its readiness/plan result. Known pre-existing wart, documented
+  rather than hidden: its WEB result runs `resultGenerators.vaultRevenuePlan` while its DM adapter
+  runs `buildLossResult`, the one slug where the web/DM parity guarantee does not hold. Unifying
+  them is **Deferred**: both outputs are honest.
+- All 17 pre-existing tools are untouched by this work.
 
-## 4. The journey (Implemented, per avatar)
+## 4. The journey (Implemented, one shared path, four framings)
 
 ```text
-entry page (/tools/<slug>, loss-framed hero, one CTA)
--> calculator wizard (shared, server recompute)
--> result (hero number, derivation chain, scenarios, assumptions, estimate disclaimer)
--> ResultToBuilder transition -> DeliverableBuilder (avatar spec in deliverableSpecs.ts:
-   consolidated_membership = mapping step + four-tier ladder; vip_membership = one VIP tier
-   with capacity + cadence) with the ladder/offer preview
--> email-my-results (capture route) / save boundary (opportunity-drafts, unclaimed
-   lead_magnet_results row, 30-day token)
--> signup (token in user_metadata) -> auto-claim (verified email or token; emits
-   account_created/email_verified stamped with the calculator)
--> setup wizard: "Your CRWN plan is saved" intro now speaks the avatar promise; ladder screen
-   opens on THEIR prices with THEIR projected buyers; vault avatar defaults the catalog step
-   to the project path
+avatar entry link  /tools/opportunity-calculator?from=<avatar id>
+-> the all-in-one wizard, question order led by that avatar's entry context + note
+-> ONE unified model (unifiedOpportunity@1), identical inputs for all four cohorts
+-> result (hero range, derivation chain, scenarios, assumptions, estimate disclaimer)
+-> ResultToBuilder -> DeliverableBuilder `crwn_business_system` spec: the four-tier ladder,
+   growth systems, premium experience and launch order, with recalcUnified re-running the model
+   on the artist's own edits
+-> email-my-results (capture stores the avatar as `_entry_context` beside the answers) /
+   save boundary (unclaimed lead_magnet_results row, 30-day token)
+-> signup -> auto-claim derives the avatar from those stored answers and stamps it on
+   account_created / email_verified
+-> setup wizard: "Your CRWN plan is saved" speaks the avatar's promise; the ladder opens on
+   THEIR prices with THEIR projected buyers; catalog-led avatars default to the project path
 -> tier create via applyTierTemplate (Promise Calendar seeds), Stripe in-wizard, launch review
--> post-launch: buildStarterOffer has avatar cases (consolidator = migrate-and-invite framing,
-   touring = the VIP tier with touring-safe promises); revenue ramp target from their number
+-> post-launch: buildStarterOffer reframes the SAME offer per avatar (audience line and reason
+   only, never the offer, price or benefits); revenue ramp targets their own number
 -> measurement: funnel_events spine + tier_events (views, checkout starts) +
-   first_paid_conversion (all six rails, calculator-stamped) + opportunity_ledger (refund-netted)
+   first_paid_conversion (all six rails) + opportunity_ledger (refund-netted)
 -> admin Avatars tab: cohort comparison + deterministic largest-drop constraint
 ```
 
@@ -146,7 +184,9 @@ entry page (/tools/<slug>, loss-framed hero, one CTA)
   emitted from all six paid rails in the webhook, stamped with the artist's calculator (verified,
   unchanged).
 - **Artist GMV / CRWN revenue, refund-netted**: `opportunity_ledger.captured_cents` (earnings
-  net of refunds), grouped by calculator, mapped to avatar at read time.
+  net of refunds), attributed by the ARTIST's resolved avatar. Deliberately not by calculator:
+  every avatar now runs the same calculator, so a calculator-keyed rollup would put all four
+  cohorts' money in one pile.
 - **Product activation**: paid tier live + Stripe usable + page launched, already derivable via
   the Quest Engine DomainChecks and the roadmap; the cohort tab reports `setup_completed` and
   `stripe_connected` per avatar. Fifth paid fan / first $100 / first $1,000 are **Deferred**
@@ -159,14 +199,25 @@ entry page (/tools/<slug>, loss-framed hero, one CTA)
 
 ## 6. Attribution (Implemented)
 
-- Calculator attribution rides the existing rails: capture stamps `email_submitted`, auto-claim
-  stamps `account_created`/`email_verified`, paidConversion stamps `first_paid_conversion`, all
-  with `calculator` + `resultId`. Avatar = read-time mapping of `calculator`.
-- **First-touch UTM persistence (NEW)**: `readUtm()` snapshots the first attributed visit into
-  `localStorage (crwn_first_touch)` and falls back to it when the current URL carries no UTMs.
-  Current-URL values always win, so last-touch is preserved and first-touch fills silence.
-- Experiment attribution is unchanged (`crwn_aid` cookie + server-side variant re-derivation).
-  Avatar-specific experiment experiences are **Deferred** until there is a variant worth testing.
+Because all four avatars share one calculator, the `calculator` dimension can no longer separate
+their cohorts. Three mechanisms carry the avatar instead, in this order of trust:
+
+1. **Stamped on the event.** `funnel_events.metadata.subAvatar`, written by the analytics mirror
+   for every anonymous top-of-funnel stage and by auto-claim for the two account stages. The
+   client-sent value is VALIDATED against the taxonomy server-side, so a hostile body cannot
+   invent a cohort.
+2. **Stored beside the answers.** The capture route writes the validated `?from=` avatar to
+   `lead_magnet_results.input_data._entry_context`, which is what makes the acquisition cohort
+   server-side truth that survives signup.
+3. **Resolved per identity.** The cohort report resolves each artist or user once from their own
+   stored answers, covering every post-signup stage emitted by routes that know nothing about
+   avatars. Identity resolution never overrides a stamp, so a cohort cannot gain members halfway
+   down its own funnel.
+
+Also: **first-touch UTM persistence** (`crwn_first_touch`) and **avatar entry-context
+persistence** (`crwn_entry_avatar`), both first-touch: current-URL values win, the snapshot fills
+silence. Experiment attribution is unchanged (`crwn_aid` + server-side variant re-derivation);
+avatar-specific experiment experiences are **Deferred** until there is a variant worth testing.
 
 ## 7. Cohort reporting + the feedback loop (Implemented)
 
@@ -182,28 +233,39 @@ entry page (/tools/<slug>, loss-framed hero, one CTA)
   INVESTIGATION ("Investigate offer clarity, benefit strength, pricing presentation...") and
   never a causal verdict. Admin-only; nothing reaches an artist.
 
-## 8. Nurture (Implemented)
+## 8. Nurture and post-launch recommendations (Implemented)
 
-One universal prospect-nurture core sequence, avatar-personalized through the existing
-calculator-module mechanism: bespoke modules for `fan-stack-calculator` (fragmentation, fan
-data, migration, revenue per fan) and `between-tour-calculator` (off-month revenue, VIP
-conversion, sustainable promises) in `src/lib/prospectNurture/calculatorModules.ts`. Consent,
-suppression, dedup, idempotent sends and exit-on-signup are inherited unchanged. Four separate
-sequence systems were deliberately NOT built; the module layer is the architecture.
+One universal prospect-nurture core sequence, personalized by AVATAR rather than by slug, since
+all four avatars now run the same calculator and the slug alone would give every one of them
+identical copy. `moduleFor(slug, subAvatar?)` prefers the avatar module; the nurture cron derives
+the avatar from the enrollment's stored result. The two single-opportunity tool modules remain
+for leads who ran those tools directly. Consent, suppression, dedup, idempotent sends and
+exit-on-signup are inherited unchanged. Four separate sequence systems were deliberately NOT
+built; the module layer is the architecture.
+
+`buildStarterOffer` takes an optional `subAvatar` and reframes the SAME recommended offer per
+avatar: the audience line and the reason change, never the offer, the price or the benefits. A
+recommendation can therefore never cost an artist money because a segment guess was wrong.
 
 ## 9. How to add a future avatar safely
 
-1. Add its entry calculator to the lead-magnet registry (+ adapter + DeliverableSpec + nurture
-   module + starterOffer case), exactly like the two added here.
-2. Add the avatar to `SUB_AVATARS` with its `calculatorSlugs`; bump
-   `SUB_AVATAR_TAXONOMY_VERSION`; extend the migration CHECK constraint in a NEW migration.
-3. Never rename an existing id, never remove a calculator slug from a mapping (history is
-   re-sliced at read time), and never let a calculator map to two avatars.
-4. `taxonomy.test.ts` pins all of this; it fails before an artist sees drift.
+1. Add the avatar to `SUB_AVATARS` (position in the array IS its precedence) with its entry
+   context, priority steps, note, nurture themes and post-launch focus.
+2. Add the matching `entryContexts` entry to the all-in-one calculator in the lead-magnet
+   registry, using the avatar id as the key. Tests assert both halves exist and agree.
+3. Add its nurture module (`AVATAR_MODULES`) and, if the framing differs, its `AVATAR_FRAMING`
+   entry in `starterOffer.ts`.
+4. Bump `SUB_AVATAR_TAXONOMY_VERSION`, and update the migration's CHECK constraint (it is
+   drop-and-recreate, so re-running the same file is safe).
+5. Never rename a live id once data exists under it. Renaming is only free while nothing has
+   accumulated, which is exactly why v1 to v2 was safe on its first day and would not be later.
 
 ## 10. Founder decisions still open
 
-- When the two new funnels get first traffic and which creative angles run (TODO.md item).
+- **The precedence order** (the array order in `taxonomy.ts`). A large R&B seller currently lands
+  in Highest Priority Empire Builder rather than R&B Empire Builder, because "highest priority"
+  is read as a priority tier that outranks genre. One line to change if that is wrong.
+- When each avatar funnel gets first traffic and which creative angles run (TODO.md item).
 - Whether an artist-facing avatar picker should exist (the override API supports it; no UI
   surfaces it beyond the derived intro copy, deliberately, until the journeys have data).
-- Bespoke hero photos for the two new calculators (placeholders documented in TODO.md).
+- Bespoke hero photos for the two single-opportunity calculators (documented in TODO.md).

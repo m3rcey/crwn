@@ -1,10 +1,18 @@
 // Admin: the four sub-avatar cohorts, compared on the same acquisition-to-revenue spine.
 //
-// GROUPING RULE: an event belongs to an avatar when its `calculator` dimension maps to one under
-// the versioned taxonomy (src/lib/avatars/taxonomy.ts). Mapping happens AT READ TIME, so there is
-// no backfill, no stored avatar column on events, and a taxonomy change re-slices history
-// correctly. Events whose calculator maps to no avatar are reported once as the "unassigned"
-// cohort so nothing silently disappears from totals.
+// GROUPING RULE. All four avatars share ONE calculator (docs/SUB_AVATARS.md), so the `calculator`
+// dimension can no longer tell their cohorts apart. An event is attributed in this order:
+//   1. `metadata.subAvatar` stamped on the row itself, which is the `?from=` funnel the visit
+//      arrived through. This covers every anonymous top-of-funnel stage (mirrored beacons) and
+//      the two account stages (auto-claim).
+//   2. Otherwise, the avatar of the row's IDENTITY, resolved once per artist/user from the entry
+//      context stored beside their own calculator answers. This covers every post-signup stage,
+//      which is emitted by routes that have no idea an avatar exists.
+//   3. Otherwise "unassigned", reported as its own cohort so nothing silently leaves the totals.
+//
+// Attribution is therefore ACQUISITION-first (which content brought them), which is the question
+// an acquisition budget is actually asking. Identity resolution never overrides a stamp, so a
+// cohort cannot gain members halfway down its own funnel.
 //
 // HONESTY RULES:
 //  - Realized metrics only. GMV comes from opportunity_ledger.captured_cents (refund-netted,
@@ -18,7 +26,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { SUB_AVATARS, calculatorToSubAvatar, SUB_AVATAR_TAXONOMY_VERSION } from '@/lib/avatars/taxonomy';
+import { SUB_AVATARS, SUB_AVATAR_TAXONOMY_VERSION, isSubAvatarId } from '@/lib/avatars/taxonomy';
+import { assignSubAvatar, deriveAcquisitionAvatar, evidenceFromInputs, mergeEvidence } from '@/lib/avatars/assignment';
 import { AVATAR_FUNNEL_SPINE, readCohortConstraint } from '@/lib/avatars/cohortConstraint';
 
 const supabaseAdmin = createClient(
@@ -58,7 +67,7 @@ export async function GET(req: NextRequest) {
   // 1. The funnel spine, from canonical funnel_events.
   const { data: events, error } = await supabaseAdmin
     .from('funnel_events')
-    .select('stage, calculator, artist_id, user_id, anon_id, occurred_at, dedupe_key')
+    .select('stage, calculator, artist_id, user_id, anon_id, occurred_at, dedupe_key, metadata')
     .gte('occurred_at', sinceIso)
     .order('occurred_at', { ascending: false })
     .limit(ROW_CAP);
@@ -75,6 +84,65 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // Step 1: resolve each IDENTITY in the window to an avatar, once, from the entry context stored
+  // beside their own calculator answers (falling back to what those answers say about them). This
+  // is what carries a cohort past signup, where the emitting routes know nothing about avatars.
+  const identityIds = new Set<string>();
+  for (const e of events ?? []) {
+    if (e.user_id) identityIds.add(String(e.user_id));
+  }
+  const avatarByUser = new Map<string, string>();
+  if (identityIds.size) {
+    try {
+      const { data: rows } = await supabaseAdmin
+        .from('lead_magnet_results')
+        .select('user_id, input_data, created_at')
+        .in('user_id', [...identityIds].slice(0, 1000))
+        .order('created_at', { ascending: true })
+        .limit(ROW_CAP);
+      const byUser = new Map<string, Record<string, unknown>[]>();
+      for (const r of rows ?? []) {
+        const uid = String(r.user_id);
+        if (!byUser.has(uid)) byUser.set(uid, []);
+        byUser.get(uid)!.push((r.input_data ?? {}) as Record<string, unknown>);
+      }
+      for (const [uid, inputs] of byUser) {
+        const fragments = inputs.map((i) => evidenceFromInputs(i));
+        const contexts = fragments.flatMap((f) => (f.entryContexts ?? []).filter((c): c is string => !!c));
+        const resolved =
+          deriveAcquisitionAvatar(contexts) ??
+          assignSubAvatar(mergeEvidence({ entryContexts: contexts }, ...fragments))?.primarySubAvatar ??
+          null;
+        if (resolved) avatarByUser.set(uid, resolved);
+      }
+    } catch {
+      /* identity resolution is additive: without it, post-signup rows read as unassigned */
+    }
+  }
+
+  // Many rows are artist-scoped and carry no user_id, so map artist -> user once and reuse the
+  // same resolution. Built for EVERY artist in the window, because the ledger rollup below keys
+  // on artist too.
+  const artistIds = new Set<string>();
+  for (const e of events ?? []) {
+    if (e.artist_id) artistIds.add(String(e.artist_id));
+  }
+  const avatarByArtist = new Map<string, string>();
+  if (artistIds.size) {
+    try {
+      const { data: artistRows } = await supabaseAdmin
+        .from('artist_profiles')
+        .select('id, user_id')
+        .in('id', [...artistIds].slice(0, 1000));
+      for (const a of artistRows ?? []) {
+        const v = avatarByUser.get(String(a.user_id));
+        if (v) avatarByArtist.set(String(a.id), v);
+      }
+    } catch {
+      /* silence */
+    }
+  }
+
   const cohorts = new Map<CohortKey, CohortAccumulator>();
   const cohortOf = (key: CohortKey): CohortAccumulator => {
     let c = cohorts.get(key);
@@ -86,7 +154,12 @@ export async function GET(req: NextRequest) {
   };
 
   for (const e of events ?? []) {
-    const avatar = calculatorToSubAvatar(e.calculator) ?? 'unassigned';
+    const stamped = (e.metadata as Record<string, unknown> | null)?.subAvatar;
+    const avatar =
+      (isSubAvatarId(stamped) ? stamped : null) ??
+      (e.user_id ? avatarByUser.get(String(e.user_id)) : null) ??
+      (e.artist_id ? avatarByArtist.get(String(e.artist_id)) : null) ??
+      'unassigned';
     const c = cohortOf(avatar);
     // Unit of count: the most durable identity available, falling back to the deduped row key so
     // a stage with no identity still counts occurrences without double-counting retries.
@@ -106,15 +179,17 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // 2. Realized, refund-netted GMV per avatar from the opportunity ledger (calculator-attributed).
+  // 2. Realized, refund-netted GMV per avatar from the opportunity ledger. Attributed by the
+  // ARTIST's resolved avatar, not by calculator: every avatar now runs the same calculator, so a
+  // calculator-keyed rollup would put all four cohorts' money in one pile.
   const gmvByAvatar = new Map<CohortKey, number>();
   try {
     const { data: ledger } = await supabaseAdmin
       .from('opportunity_ledger')
-      .select('calculator, captured_cents')
+      .select('artist_id, captured_cents')
       .limit(ROW_CAP);
     for (const row of ledger ?? []) {
-      const avatar = calculatorToSubAvatar(row.calculator) ?? 'unassigned';
+      const avatar = avatarByArtist.get(String(row.artist_id)) ?? 'unassigned';
       gmvByAvatar.set(avatar, (gmvByAvatar.get(avatar) ?? 0) + (Number(row.captured_cents) || 0));
     }
   } catch {
@@ -178,8 +253,8 @@ export async function GET(req: NextRequest) {
 
       return {
         avatar: id,
-        label: def?.label ?? 'Unassigned (calculator not mapped to an avatar)',
-        calculatorSlugs: def?.calculatorSlugs ?? [],
+        label: def?.label ?? 'Unassigned (no avatar funnel and no resolvable identity)',
+        entryRoute: def?.entryRoute ?? null,
         stages,
         conversions,
         accountsCreated: c?.accountCreatedAt.size ?? 0,
@@ -202,12 +277,14 @@ export async function GET(req: NextRequest) {
     truncated: (events?.length ?? 0) >= ROW_CAP,
     cohorts: report,
     // Metrics the platform does not yet measure at cohort grain. Named, never zero-filled.
+    attributionNote:
+      'Rows are attributed by the sub-avatar funnel stamped on the event, then by the avatar of the row identity resolved from that artist\'s own stored answers. Identity never overrides a stamp, so a cohort cannot gain members halfway down its own funnel.',
     notMeasured: [
       'artist 30/60/90-day retention (needs a per-artist activity definition at cohort grain)',
-      'paid-fan churn per avatar (subscriptions carry no calculator attribution)',
-      'referral rate per avatar (referrals are not calculator-attributed)',
+      'paid-fan churn per avatar (subscriptions carry no avatar attribution)',
+      'referral rate per avatar (referrals are not avatar-attributed)',
       'CAC / net contribution (no acquisition-cost inputs exist in the repository)',
-      'support burden per avatar (support conversations are not calculator-attributed)',
+      'support burden per avatar (support conversations are not avatar-attributed)',
     ],
   });
 }

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { recordLmEvent } from '@/lib/leadMagnets/server';
 import { recordFunnelEvent, LM_EVENT_TO_STAGE } from '@/lib/analytics/funnelEvents';
 import { ALL_OPPORTUNITY_EVENT_NAMES } from '@/lib/opportunityFunnels/analytics';
+import { isSubAvatarId } from '@/lib/avatars/taxonomy';
 
 // PUBLIC analytics sink. Append-only. The server allowlists fields (recordLmEvent),
 // so no raw email/phone/answers/payloads can land here even if a client sends them.
@@ -74,7 +75,15 @@ export async function POST(req: NextRequest) {
       resultId: typeof meta.resultId === 'string' ? meta.resultId : null,
       anonId: eventId ?? null,
       dedupeKey: eventId ?? null,
-      metadata: { context: meta.context, authed: meta.authed },
+      // The sub-avatar funnel this visit arrived through. All four avatars share one calculator
+      // (docs/SUB_AVATARS.md), so the `calculator` dimension can no longer separate their cohorts
+      // and this stamp is what does. VALIDATED against the real taxonomy: a client-sent value
+      // that is not a declared avatar id is dropped, never stored.
+      metadata: {
+        context: meta.context,
+        authed: meta.authed,
+        ...(isSubAvatarId(meta.entryContext) ? { subAvatar: meta.entryContext } : {}),
+      },
     });
   }
 

@@ -6,6 +6,7 @@ import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { isEmailSuppressed, recordLmEvent } from '@/lib/leadMagnets/server';
 import { PROSPECT_NURTURE_SEQUENCE } from '@/lib/prospectNurture/sequence';
 import { moduleFor } from '@/lib/prospectNurture/calculatorModules';
+import { deriveAcquisitionAvatar, evidenceFromInputs } from '@/lib/avatars/assignment';
 import { buildNurtureTokens } from '@/lib/prospectNurture/tokens';
 import { renderNurtureEmail } from '@/lib/prospectNurture/render';
 
@@ -124,7 +125,7 @@ export async function GET(req: NextRequest) {
         const [{ data: lead }, { data: result }] = await Promise.all([
           supabaseAdmin.from('lead_magnet_leads').select('artist_name').eq('id', e.lead_id).maybeSingle(),
           e.result_id
-            ? supabaseAdmin.from('lead_magnet_results').select('result_data, public_token, public_token_expires_at').eq('id', e.result_id).maybeSingle()
+            ? supabaseAdmin.from('lead_magnet_results').select('result_data, input_data, public_token, public_token_expires_at').eq('id', e.result_id).maybeSingle()
             : Promise.resolve({ data: null }),
         ]);
 
@@ -146,7 +147,13 @@ export async function GET(req: NextRequest) {
           ctaLabel: continueCtaFor(String(e.tool_slug)),
         });
 
-        const rendered = renderNurtureEmail({ email, tokens, module: moduleFor(String(e.tool_slug)), hasNumber });
+        // The sub-avatar funnel stored beside their answers (docs/SUB_AVATARS.md). All four
+        // avatars run the same calculator, so without this every avatar would get identical copy.
+        const subAvatar = deriveAcquisitionAvatar(
+          (evidenceFromInputs(result?.input_data as Record<string, unknown>).entryContexts ?? []) as (string | null)[],
+        );
+
+        const rendered = renderNurtureEmail({ email, tokens, module: moduleFor(String(e.tool_slug), subAvatar), hasNumber });
 
         const { data: sendResult, error: sendError } = await resend.emails.send({
           from: FROM_EMAIL,

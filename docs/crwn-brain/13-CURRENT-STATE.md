@@ -20,23 +20,29 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   `StrategyCard` on the command screen with the two declared questions that can flip the pick;
   live-session templates prefill the live form. Spec tier names are roles on the pinned
   Bronze/Silver/Gold/Platinum ladder. `Confirmed`.
-- **Sub-avatar system (2026-08-03).** The ICP segmented into four founder-approved acquisition
-  journeys (Membership Stack Consolidator / Touring Access Seller / Live Community Creator /
-  Catalog and Vault Seller), taxonomy `subAvatar@1` in `src/lib/avatars/` with deterministic,
-  explainable assignment (no LLM; unassigned stays honest). TWO NEW calculators on the shared
-  registry: `fan-stack-calculator` (fanStack@1: consolidation uplift, tool cost separate from
-  revenue, partial migration) and `between-tour-calculator` (betweenTour@1: unique-attendee
-  deflation, VIP conversion to a Gold-priced recurring tier, disjoint member/ticket
-  populations), each with a DeliverableSpec builder, postSetup prefill, CTA, nurture module and
-  starterOffer case. Avatar = read-time mapping of the funnel's `calculator` dimension, so no
-  event stores an avatar. Admin **Avatars** tab (`/api/admin/avatar-cohorts`) compares the four
-  cohorts on the 12-stage spine with realized refund-netted GMV, maturity splits, sample
-  warnings and a deterministic largest-drop constraint (`readCohortConstraint`, min-sample 30,
-  investigation-only copy). First-touch UTMs now persist client-side (`crwn_first_touch`).
-  Onboarding: auto-claim derives the avatar, PlanIntro speaks its promise, vault avatars
-  default to the project upload path. Only stored piece: `artist_profiles.sub_avatar_override`
-  + `sub_avatar_audit` (migration `schema-phase2-sub-avatar.sql`, fail-soft, UNRUN, in
-  TODO.md). Full spec: `docs/SUB_AVATARS.md`. `Confirmed`.
+- **Sub-avatar system (2026-08-03, `subAvatar@2`).** The ICP segmented into four founder-approved
+  IDENTITY segments, in precedence order: **Highest Priority Empire Builder / Established
+  Independent Minded Operator / Brand-Led Hip-Hop Artist / R&B Empire Builder**. **All four share
+  ONE front door**, the all-in-one calculator at `?from=<avatar id>`, which reorders the wizard
+  and reframes the copy while every cohort runs the identical unified model. Because the tool no
+  longer identifies the segment, assignment (`src/lib/avatars/assignment.ts`, deterministic, no
+  LLM) scores the ANSWERS: audience against the ICP Tier 1 floor crossed with proven direct
+  sales, real supporter/revenue numbers, platform count, years or catalog depth, genre family
+  (one new optional question on the calculator), video output, unreleased count. Overlapping
+  segments resolve to exactly ONE primary by declared precedence, so cohorts stay disjoint.
+  Avatar attribution: stamped on `funnel_events.metadata.subAvatar` (validated server-side),
+  stored beside the answers as `_entry_context` at capture, and resolved per identity for
+  post-signup stages. Admin **Avatars** tab (`/api/admin/avatar-cohorts`) compares the four
+  cohorts on the 12-stage spine with realized refund-netted GMV (attributed per artist, not per
+  calculator), maturity splits, sample warnings and a deterministic largest-drop constraint
+  (`readCohortConstraint`, min-sample 30, investigation-only copy). Nurture and starter-offer
+  copy are avatar-personalized; the starter offer reframes only, never changing the offer, price
+  or benefits. First-touch UTM and avatar entry-context both persist client-side. Two
+  single-opportunity calculators from the retired v1 taxonomy (`fan-stack-calculator`,
+  `between-tour-calculator`) remain as ordinary tools. Only stored piece:
+  `artist_profiles.sub_avatar_override` + `sub_avatar_audit` (migration
+  `schema-phase2-sub-avatar.sql`, drop-and-recreate CHECK so a re-run is safe, fail-soft, UNRUN,
+  in TODO.md). Full spec: `docs/SUB_AVATARS.md`. `Confirmed`.
 - **Evidence layer + Constraint Engine (2026-08-03).** The first artist-facing closed feedback
   loop. Evidence: `tier_events` (per-rung views + checkout starts, migration APPLIED and
   probe-verified), `first_paid_conversion` emitted from all six paid rails through one shared

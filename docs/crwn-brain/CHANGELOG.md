@@ -1,5 +1,56 @@
 # CRWN Brain — Changelog
 
+## 2026-08-04 - subAvatar@2: four identity segments, one front door
+
+**What/why:** founder call, one day after `subAvatar@1` shipped. The four sub-avatars are renamed
+to **Highest Priority Empire Builder / Established Independent Minded Operator / Brand-Led
+Hip-Hop Artist / R&B Empire Builder**, and every one of them now enters through the ALL-IN-ONE
+calculator (`/tools/opportunity-calculator?from=<avatar id>`) instead of a calculator of its own.
+
+**Why this was a rebuild, not a rename.** v1's avatars were PAIN segments, so `calculator ->
+avatar` was the entire assignment mechanism. The new names are IDENTITY segments (priority tier,
+operating maturity, genre), and routing all four at one calculator deletes that mechanism: every
+lead now runs the same tool. Renaming without rebuilding assignment would have produced one cohort
+wearing four labels, and a report that lies is worse than no report. So:
+
+- **Assignment moved onto the ANSWERS** (`assignment.ts`): the ICP Tier 1 audience floor crossed
+  with proven direct sales, real supporter and revenue numbers, platform count, years or catalog
+  depth, genre family, video output, unreleased count, plus the `?from=` funnel as a strong but
+  outvotable declared signal. Genre alone deliberately scores 2, never enough on its own, because
+  being a hip-hop artist does not make someone brand-led.
+- **Overlap is handled explicitly.** These segments intersect by construction, so exactly ONE
+  primary is assigned and ties break by declared precedence (the array order in `taxonomy.ts`,
+  a founder decision). Disjoint cohorts are what make any comparison mean anything.
+- **One new question**, `genre_family`, on its own opening step and NOT required: the calculator's
+  standing invariant is that an artist can reach a real result from one number, and the existing
+  invariant test caught the attempt to make it mandatory. Two of the four avatars are
+  genre-defined, so without it they could never be assigned from an answer.
+- **Cohort attribution rebuilt** for a world where `calculator` is a constant: stamped on
+  `funnel_events.metadata.subAvatar` (client value validated against the taxonomy server-side),
+  stored beside the answers as `_entry_context` at capture, and resolved per identity for
+  post-signup stages, in that order of trust. Identity never overrides a stamp, so a cohort cannot
+  gain members halfway down its own funnel. Ledger GMV is now attributed per ARTIST rather than
+  per calculator, which would otherwise pool all four cohorts' money into one pile.
+- **Personalization follows the avatar, not the slug:** nurture modules
+  (`moduleFor(slug, subAvatar?)`, wired through the cron from the stored result) and starter-offer
+  framing (audience line and reason only, never the offer, price or benefits).
+
+**Safe because nothing had accumulated.** v1 lived for a day, the avatar was never stored on an
+event, and its migration was unrun, so the taxonomy was replaced outright rather than migrated.
+The migration's CHECK is now drop-and-recreate, so re-running the same file is safe either way.
+The two v1 calculators (`fan-stack-calculator`, `between-tour-calculator`) are KEPT as ordinary
+single-opportunity tools, each with its own entry context into the all-in-one calculator.
+
+**Files:** `src/lib/avatars/{taxonomy,assignment}.ts` + both test files (rewritten),
+`leadMagnets/registry.ts` (genre question, 6 new entry contexts), `leadMagnets/analytics.ts`
+(entry-context persistence on every beacon), `api/lead-magnets/analytics` (validated stamp),
+`api/lead-magnets/capture` + `PublicToolClient` (server-side entry context), `auto-claim`,
+`api/admin/avatar-cohorts` (identity resolution), `AvatarCohortsView`, `api/artist/avatar`,
+`starterOffer.ts` + `api/starter-offer`, `prospectNurture/calculatorModules.ts` +
+`cron/prospect-nurture`, `setup/page.tsx`, `unifiedFunnel.test.ts`,
+`supabase/schema-phase2-sub-avatar.sql`, `docs/SUB_AVATARS.md`, ICP.md, 13-CURRENT-STATE.md,
+TODO.md. 881 tests pass.
+
 ## 2026-08-04 - The entry hero stops assuming the visitor has met CRWN before
 
 **What/why:** the Opportunity Calculator's hero led with "The all-in-one calculator" and "You are

@@ -50,6 +50,44 @@ export interface LmEventMeta {
   eventId?: string;
   /** document.referrer, captured automatically. The funnel's referrer dimension. */
   referrer?: string;
+  /**
+   * The sub-avatar funnel this visit arrived through (`?from=` on the all-in-one calculator).
+   * Captured and persisted automatically by trackLeadMagnet, so every beacon carries it and the
+   * server can stamp it onto the canonical funnel row. Validated server-side; a value that is not
+   * a declared avatar id is dropped rather than trusted.
+   */
+  entryContext?: string;
+}
+
+// The sub-avatar entry context (docs/SUB_AVATARS.md). All four avatars share one calculator, so
+// `?from=` is what separates their cohorts, and it has to survive the visit rather than living
+// only in the URL of the first page. Same first-touch discipline as the UTM snapshot: the FIRST
+// avatar link they arrive through is the one that owns the visit, because that is the content
+// that actually brought them.
+const ENTRY_AVATAR_KEY = 'crwn_entry_avatar';
+// Kept as a plain list rather than importing the taxonomy, so this client-side analytics helper
+// stays dependency-free. The server validates against the real taxonomy before storing anything.
+const ENTRY_AVATAR_IDS = [
+  'highest_priority_empire_builder',
+  'established_independent_operator',
+  'brand_led_hip_hop_artist',
+  'rnb_empire_builder',
+];
+
+/** Snapshot the avatar entry context from the current URL, then return the remembered one. */
+function captureEntryAvatar(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const from = (new URLSearchParams(window.location.search).get('from') || '').trim().toLowerCase();
+    const stored = window.localStorage.getItem(ENTRY_AVATAR_KEY) || '';
+    if (ENTRY_AVATAR_IDS.includes(from) && !ENTRY_AVATAR_IDS.includes(stored)) {
+      window.localStorage.setItem(ENTRY_AVATAR_KEY, from);
+      return from;
+    }
+    return ENTRY_AVATAR_IDS.includes(stored) ? stored : ENTRY_AVATAR_IDS.includes(from) ? from : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 // Fire-and-forget. Uses sendBeacon when available so it survives navigation.
@@ -61,6 +99,8 @@ export function trackLeadMagnet(event: LmEvent, meta: LmEventMeta): void {
       ...meta,
       eventId: meta.eventId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
       referrer: meta.referrer || (typeof document !== 'undefined' && document.referrer ? document.referrer : undefined),
+      // Every beacon carries the avatar funnel, so no call site has to remember to pass it.
+      entryContext: meta.entryContext || captureEntryAvatar(),
     };
     const body = JSON.stringify({ event, meta: enriched });
     if (navigator.sendBeacon) {

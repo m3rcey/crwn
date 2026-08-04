@@ -1,21 +1,32 @@
 // Deterministic sub-avatar assignment. No model, no LLM, no guessing.
 //
-// A pure, explainable scorer over evidence CRWN already collects: which calculators a lead ran
-// (acquisition path), what they declared inside them (platforms, shows, unreleased count, live
-// willingness), and what their account actually contains after launch (behavioral). Every point
-// of score is paired with a human-readable evidence line, so any assignment can be read back and
-// disagreed with. Below the evidence floor there is NO assignment, not a low-confidence guess:
-// an unmapped lead is honestly unmapped, and cohort reports count them as unassigned.
+// Every avatar now shares ONE calculator, so which tool the artist ran can no longer tell them
+// apart. Assignment is therefore built on the ANSWERS they typed, the entry context they arrived
+// through, and what their account contains. It is a pure, explainable scorer: every point of
+// score is paired with a human-readable evidence line, so any assignment can be read back and
+// disagreed with. Below the evidence floor there is NO assignment: an unmapped lead is honestly
+// unmapped, and cohort reports count them as unassigned rather than inventing a segment.
 //
-// The ORIGINAL ACQUISITION AVATAR is never overwritten by later behavior. It is a pure function
-// of the oldest claimed calculator result (deriveAcquisitionAvatar), which is permanent data, so
-// it needs no storage and cannot drift. The CURRENT OBSERVED AVATAR is assignSubAvatar over all
-// evidence including behavior. The two are reported side by side, never merged.
+// TWO QUESTIONS, TWO ANSWERS, NEVER MERGED:
+//  - deriveAcquisitionAvatar(entryContexts) is WHICH CONTENT BROUGHT THEM: the avatar whose link
+//    they first clicked. It is a pure function of permanent data, so it needs no storage and can
+//    never be overwritten by later behavior. This is the cohort key for acquisition decisions.
+//  - assignSubAvatar(evidence) is WHO THEY APPEAR TO BE now, over all evidence including
+//    behavior. Reported beside the acquisition avatar, never merged into it.
+//
+// Overlap is real (a large R&B seller qualifies as both an R&B Empire Builder and a highest
+// priority lead), so exactly ONE primary is assigned and ties break by the precedence order
+// declared in taxonomy.ts. That keeps cohorts disjoint, which is what makes any comparison
+// between them mean anything.
 
 import {
+  ENTRY_CONTEXT_INPUT_KEY,
+  SUB_AVATAR_PRECEDENCE,
   SUB_AVATAR_TAXONOMY_VERSION,
+  type GenreFamily,
   type SubAvatarId,
-  calculatorToSubAvatar,
+  entryContextToSubAvatar,
+  genreFamilyOf,
   getSubAvatar,
   isSubAvatarId,
 } from './taxonomy';
@@ -33,33 +44,44 @@ export interface SubAvatarAssignment {
 }
 
 /**
- * Everything the scorer may look at. All fields optional and nullable: routes assemble whatever
- * they have, and a missing fact is silence, never a zero (same null discipline as the Constraint
- * Engine). Calculator slugs are OLDEST FIRST so index 0 is the acquisition path.
+ * Everything the scorer may look at. All fields optional and nullable: callers assemble whatever
+ * they have, and a missing fact is silence, never a zero (the same null discipline as the
+ * Constraint Engine). Entry contexts are OLDEST FIRST so index 0 is the acquisition path.
  */
 export interface SubAvatarEvidence {
-  /** tool_slug of every claimed calculator result, oldest first. */
-  claimedCalculatorSlugs?: string[] | null;
-  /** Declared stack: platforms the artist says they run today (fan-stack calculator input). */
+  /** `?from=` values the artist arrived through, oldest first. */
+  entryContexts?: (string | null)[] | null;
+  /** Picked or typed genre. Mapped to a family; anything unrecognized is `other`. */
+  genre?: string | null;
+  genreFamily?: GenreFamily | null;
+  /** The larger platform figure, never a sum. */
+  audience?: number | null;
+  /** `direct_established | direct_some | merch_only | streaming_only | none`. */
+  monetizationStatus?: string | null;
+  /** Fans already paying them directly, anywhere. */
+  currentSupporters?: number | null;
+  /** What that earns per month, in cents. */
+  directRevenueCents?: number | null;
+  /** Platforms they say they run today. */
   platformsUsed?: string[] | null;
-  /** Declared: paying members on other platforms today. */
-  paidMembersElsewhere?: number | null;
-  /** Declared: shows or tour dates per year (between-tour calculator input). */
-  showsPerYear?: number | null;
-  /** Declared: VIP buyers per show. */
-  vipBuyersPerShow?: number | null;
-  /** Declared: 'yes' | 'maybe' | 'no' (opportunity calculator live_willing). */
-  liveWilling?: string | null;
-  /** Declared: 'lots' | 'some' | 'none' (opportunity calculator video_output). */
-  videoOutput?: string | null;
-  /** Declared: unreleased songs / demos / voice notes. */
+  /** Unreleased songs, demos and voice notes. */
   unreleasedCount?: number | null;
-  /** Behavioral: the artist imported Patreon-tagged contacts. */
-  patreonImported?: boolean | null;
+  /** Released catalog size, when known. */
+  catalogSize?: number | null;
+  /** Years releasing, when known (lead profile only; the calculator does not ask). */
+  yearsReleasing?: number | null;
+  /** `lots | some | none`. */
+  videoOutput?: string | null;
+  /** `already | would | unlikely`. */
+  fansPromote?: string | null;
+  /** `yes | maybe | no`. */
+  liveWilling?: string | null;
   /** Behavioral: live sessions actually hosted on CRWN. */
   liveSessionsHosted?: number | null;
   /** Behavioral: member-gated (non-free) tracks in the catalog. */
   gatedTracks?: number | null;
+  /** Behavioral: the artist imported Patreon-tagged contacts. */
+  patreonImported?: boolean | null;
   /** Stored manual override (artist_profiles.sub_avatar_override). Wins outright when valid. */
   manualOverride?: string | null;
 }
@@ -71,84 +93,134 @@ interface ScoreLine {
   source: Exclude<AssignmentSource, 'manual'>;
 }
 
-const n = (v: number | null | undefined): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+// ICP Tier 1 floor (docs/ICP.md). The one place these numbers appear in the avatar layer.
+const TIER1_AUDIENCE = 250_000;
+const TIER1_CATALOG = 40;
+const ESTABLISHED_YEARS = 3;
+/** Monthly direct revenue that marks a real income stream rather than an experiment. Cents. */
+const REAL_INCOME_CENTS = 100_000;
+const REAL_SUPPORTER_COUNT = 25;
 
-/** The acquisition avatar: the oldest claimed calculator that maps to one. Pure, storage-free. */
-export function deriveAcquisitionAvatar(claimedCalculatorSlugsOldestFirst: string[] | null | undefined): SubAvatarId | null {
-  for (const slug of claimedCalculatorSlugsOldestFirst ?? []) {
-    const a = calculatorToSubAvatar(slug);
+const n = (v: number | null | undefined): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+const hasSoldDirect = (status: string | null | undefined): boolean =>
+  status === 'direct_established' || status === 'direct_some';
+
+/** The acquisition avatar: the oldest entry context that names one. Pure, storage-free. */
+export function deriveAcquisitionAvatar(entryContextsOldestFirst: (string | null)[] | null | undefined): SubAvatarId | null {
+  for (const ctx of entryContextsOldestFirst ?? []) {
+    const a = entryContextToSubAvatar(ctx);
     if (a) return a;
   }
   return null;
 }
 
-/** Every score line the evidence supports. Exported for tests and for the admin explain view. */
+/** Resolve the genre family from either the picked family or a typed genre. */
+export function resolveGenreFamily(e: SubAvatarEvidence): GenreFamily {
+  if (e.genreFamily === 'hiphop' || e.genreFamily === 'rnb' || e.genreFamily === 'other') return e.genreFamily;
+  return genreFamilyOf(e.genre);
+}
+
+/** Every score line the evidence supports. Exported for tests and the admin explain view. */
 export function scoreEvidence(e: SubAvatarEvidence): ScoreLine[] {
   const lines: ScoreLine[] = [];
   const push = (avatar: SubAvatarId, points: number, line: string, source: ScoreLine['source']) =>
     lines.push({ avatar, points, line, source });
 
-  // Acquisition path: the calculators they chose to run. The FIRST mapped one is the strongest
-  // single signal in the system (they self-selected into that pain), later ones still count.
-  const slugs = e.claimedCalculatorSlugs ?? [];
-  let firstMapped = true;
-  for (const slug of slugs) {
-    const a = calculatorToSubAvatar(slug);
-    if (!a) continue;
-    const def = getSubAvatar(a)!;
-    if (firstMapped) {
-      push(a, 3, `Entered through the ${def.label} funnel (ran ${slug} first)`, 'acquisition_path');
-      firstMapped = false;
-    } else {
-      push(a, 2, `Also ran ${slug}`, 'acquisition_path');
-    }
+  // 1. Acquisition path: the avatar whose link they clicked. A strong DECLARED signal, but
+  // deliberately not decisive, so answers that plainly disagree can outvote the hypothesis the
+  // content made about them.
+  const acq = deriveAcquisitionAvatar(e.entryContexts);
+  if (acq) {
+    push(acq, 3, `Entered through the ${getSubAvatar(acq)!.label} funnel`, 'acquisition_path');
   }
 
-  // Declared facts, from calculator inputs the lead typed themselves.
+  // 2. Highest Priority Empire Builder: the ICP Tier 1 bar, which is audience AND proven sales.
+  const audience = n(e.audience);
+  const sold = hasSoldDirect(e.monetizationStatus);
+  if (audience >= TIER1_AUDIENCE && sold) {
+    push(
+      'highest_priority_empire_builder',
+      3,
+      `${audience.toLocaleString('en-US')} audience and a proven history of selling directly`,
+      'declared',
+    );
+  } else if (audience >= TIER1_AUDIENCE) {
+    push('highest_priority_empire_builder', 1, `${audience.toLocaleString('en-US')} audience`, 'declared');
+  }
+  if (e.monetizationStatus === 'direct_established') {
+    push('highest_priority_empire_builder', 2, 'Direct-to-fan sales are already a real income stream', 'declared');
+  }
+  if (n(e.currentSupporters) >= REAL_SUPPORTER_COUNT || n(e.directRevenueCents) >= REAL_INCOME_CENTS) {
+    const detail =
+      n(e.currentSupporters) >= REAL_SUPPORTER_COUNT
+        ? `${n(e.currentSupporters).toLocaleString('en-US')} fans already paying them directly`
+        : `about $${Math.round(n(e.directRevenueCents) / 100).toLocaleString('en-US')} a month already coming direct`;
+    push('highest_priority_empire_builder', 2, detail, 'declared');
+  }
+
+  // 3. Established Independent Minded Operator: longevity, catalog depth, and a self-run stack.
+  if (sold) {
+    push('established_independent_operator', 2, 'Has sold directly to fans without a label doing it', 'declared');
+  }
   const platforms = (e.platformsUsed ?? []).filter(Boolean);
   if (platforms.length >= 2) {
     push(
-      'membership_stack_consolidator',
+      'established_independent_operator',
       2,
-      `Runs ${platforms.length} separate platforms today (${platforms.slice(0, 4).join(', ')}${platforms.length > 4 ? ', ...' : ''})`,
+      `Runs ${platforms.length} platforms themselves (${platforms.slice(0, 4).join(', ')}${platforms.length > 4 ? ', ...' : ''})`,
       'declared',
     );
   }
-  if (n(e.paidMembersElsewhere) > 0) {
-    push(
-      'membership_stack_consolidator',
-      1,
-      `${n(e.paidMembersElsewhere).toLocaleString('en-US')} paying members on other platforms already`,
-      'declared',
-    );
-  }
-  if (n(e.showsPerYear) >= 4) {
-    push('touring_access_seller', 2, `Plays ${n(e.showsPerYear)} shows a year`, 'declared');
-  }
-  if (n(e.vipBuyersPerShow) > 0) {
-    push('touring_access_seller', 1, `Sells VIP at shows (${n(e.vipBuyersPerShow)} buyers per show)`, 'declared');
-  }
-  if (e.liveWilling === 'yes') {
-    push('live_community_creator', 1, 'Willing to run a monthly live for fans', 'declared');
-  }
-  if (e.videoOutput === 'lots') {
-    push('live_community_creator', 1, 'Already on camera or live often', 'declared');
+  if (n(e.yearsReleasing) >= ESTABLISHED_YEARS || n(e.catalogSize) >= TIER1_CATALOG) {
+    const detail =
+      n(e.yearsReleasing) >= ESTABLISHED_YEARS
+        ? `${n(e.yearsReleasing)} years of releases`
+        : `${n(e.catalogSize)} released songs`;
+    push('established_independent_operator', 2, detail, 'declared');
   }
   if (n(e.unreleasedCount) >= 10) {
-    push('catalog_vault_seller', 2, `${n(e.unreleasedCount)} unreleased pieces sitting in the catalog`, 'declared');
-  } else if (n(e.unreleasedCount) >= 5) {
-    push('catalog_vault_seller', 1, `${n(e.unreleasedCount)} unreleased pieces sitting in the catalog`, 'declared');
+    push('established_independent_operator', 1, `${n(e.unreleasedCount)} unreleased pieces already in hand`, 'declared');
   }
 
-  // Behavioral facts, from what the account actually contains.
+  // 4. Brand-Led Hip-Hop Artist: the genre plus an actual content engine. Genre alone is not
+  // enough to call someone brand-led, so the content signal is what makes this assignable.
+  const family = resolveGenreFamily(e);
+  if (family === 'hiphop') {
+    push('brand_led_hip_hop_artist', 2, 'Hip-hop artist', 'declared');
+  }
+  if (e.videoOutput === 'lots') {
+    push('brand_led_hip_hop_artist', 2, 'Puts out video or goes live often', 'declared');
+  } else if (e.videoOutput === 'some') {
+    push('brand_led_hip_hop_artist', 1, 'Puts out some video', 'declared');
+  }
+  if (e.fansPromote === 'already' || e.fansPromote === 'would') {
+    push('brand_led_hip_hop_artist', 1, 'Fans already promote them, or would', 'declared');
+  }
+
+  // 5. R&B Empire Builder: the genre plus the depth inventory that rewards devoted fans.
+  if (family === 'rnb') {
+    push('rnb_empire_builder', 2, 'R&B or soul artist', 'declared');
+  }
+  if (n(e.unreleasedCount) >= 10) {
+    push('rnb_empire_builder', 2, `${n(e.unreleasedCount)} unreleased pieces to go deeper with`, 'declared');
+  }
+  if (n(e.currentSupporters) > 0) {
+    push('rnb_empire_builder', 1, 'Already has fans paying for closeness', 'declared');
+  }
+  if (e.liveWilling === 'yes') {
+    push('rnb_empire_builder', 1, 'Willing to host live sessions for fans', 'declared');
+  }
+
+  // 6. Behavioral: what the CRWN account actually contains.
   if (e.patreonImported === true) {
-    push('membership_stack_consolidator', 2, 'Imported a Patreon member list into CRWN', 'behavioral');
+    push('established_independent_operator', 2, 'Imported a Patreon member list into CRWN', 'behavioral');
   }
   if (n(e.liveSessionsHosted) >= 2) {
-    push('live_community_creator', 2, `Hosted ${n(e.liveSessionsHosted)} live sessions on CRWN`, 'behavioral');
+    push('brand_led_hip_hop_artist', 1, `Hosted ${n(e.liveSessionsHosted)} live sessions on CRWN`, 'behavioral');
+    push('rnb_empire_builder', 1, `Hosted ${n(e.liveSessionsHosted)} live sessions on CRWN`, 'behavioral');
   }
   if (n(e.gatedTracks) >= 5) {
-    push('catalog_vault_seller', 2, `${n(e.gatedTracks)} member-gated tracks in the CRWN catalog`, 'behavioral');
+    push('rnb_empire_builder', 2, `${n(e.gatedTracks)} member-gated tracks in the CRWN catalog`, 'behavioral');
   }
 
   return lines;
@@ -175,14 +247,12 @@ export function assignSubAvatar(e: SubAvatarEvidence): SubAvatarAssignment | nul
   const totals = new Map<SubAvatarId, number>();
   for (const l of lines) totals.set(l.avatar, (totals.get(l.avatar) ?? 0) + l.points);
 
-  // Winner: highest total. Tie-break: the acquisition-path avatar (they chose that funnel), then
-  // the order evidence first appeared (stable and deterministic).
-  const acqAvatar = deriveAcquisitionAvatar(e.claimedCalculatorSlugs);
+  // Winner: highest total, ties broken by the precedence order declared in taxonomy.ts. That
+  // order is a founder decision, and it is the reason these overlapping segments still produce
+  // disjoint cohorts.
   const ranked = [...totals.entries()].sort((a, b) => {
     if (b[1] !== a[1]) return b[1] - a[1];
-    if (a[0] === acqAvatar) return -1;
-    if (b[0] === acqAvatar) return 1;
-    return lines.findIndex((l) => l.avatar === a[0]) - lines.findIndex((l) => l.avatar === b[0]);
+    return SUB_AVATAR_PRECEDENCE[a[0]] - SUB_AVATAR_PRECEDENCE[b[0]];
   });
 
   const [primary, primaryScore] = ranked[0];
@@ -198,8 +268,7 @@ export function assignSubAvatar(e: SubAvatarEvidence): SubAvatarAssignment | nul
       ? 'declared'
       : 'behavioral';
 
-  const confidence: AssignmentConfidence =
-    primaryScore >= 4 ? 'high' : primaryScore >= 3 ? 'medium' : 'low';
+  const confidence: AssignmentConfidence = primaryScore >= 6 ? 'high' : primaryScore >= 4 ? 'medium' : 'low';
 
   return {
     primarySubAvatar: primary,
@@ -212,23 +281,42 @@ export function assignSubAvatar(e: SubAvatarEvidence): SubAvatarAssignment | nul
 }
 
 /**
- * Pull declared avatar evidence out of a stored calculator result's input_data. Tolerant of any
- * shape: unknown keys are ignored, wrong types read as absent. Keys match the calculator input
- * definitions in the lead-magnet registry.
+ * Pull avatar evidence out of a stored calculator result's input_data. Tolerant of any shape:
+ * unknown keys are ignored, wrong types read as absent. Keys match the input definitions in the
+ * lead-magnet registry (chiefly the all-in-one calculator, plus the single-opportunity tools that
+ * still ask their own questions).
  */
 export function evidenceFromInputs(inputData: Record<string, unknown> | null | undefined): Partial<SubAvatarEvidence> {
   const d = inputData ?? {};
   const num = (k: string): number | null => (typeof d[k] === 'number' && Number.isFinite(d[k] as number) ? (d[k] as number) : null);
   const str = (k: string): string | null => (typeof d[k] === 'string' && d[k] ? (d[k] as string) : null);
   const arr = (k: string): string[] | null => (Array.isArray(d[k]) ? (d[k] as unknown[]).map(String) : null);
+
+  const followers = num('social_followers');
+  const listeners = num('monthly_listeners');
+  const audience = followers !== null || listeners !== null ? Math.max(followers ?? 0, listeners ?? 0) : null;
+
+  const storedEntry = str(ENTRY_CONTEXT_INPUT_KEY);
+
   return {
+    // Provenance stored beside the answers by the capture route: which avatar funnel brought them.
+    entryContexts: entryContextToSubAvatar(storedEntry) ? [storedEntry] : null,
+    genreFamily: (() => {
+      const fam = str('genre_family');
+      return fam === 'hiphop' || fam === 'rnb' || fam === 'other' ? fam : null;
+    })(),
+    genre: str('genre'),
+    audience,
+    monetizationStatus: str('monetization_status'),
+    currentSupporters: num('current_supporters') ?? num('supporterCount'),
+    directRevenueCents: num('direct_fan_revenue_cents'),
     platformsUsed: arr('platforms_used'),
-    paidMembersElsewhere: num('paid_members_elsewhere'),
-    showsPerYear: num('shows_per_year'),
-    vipBuyersPerShow: num('vip_buyers_per_show'),
-    liveWilling: str('live_willing'),
-    videoOutput: str('video_output'),
     unreleasedCount: num('unreleased_count') ?? num('unreleasedSongs'),
+    catalogSize: num('catalog_size'),
+    yearsReleasing: num('years_releasing'),
+    videoOutput: str('video_output'),
+    fansPromote: str('fans_promote'),
+    liveWilling: str('live_willing'),
   };
 }
 

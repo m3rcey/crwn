@@ -19,22 +19,32 @@
 -- 1. The override column.
 ALTER TABLE artist_profiles ADD COLUMN IF NOT EXISTS sub_avatar_override text;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'chk_sub_avatar_override_valid'
-  ) THEN
-    ALTER TABLE artist_profiles
-      ADD CONSTRAINT chk_sub_avatar_override_valid CHECK (
-        sub_avatar_override IS NULL OR sub_avatar_override IN (
-          'membership_stack_consolidator',
-          'touring_access_seller',
-          'live_community_creator',
-          'catalog_vault_seller'
-        )
-      );
-  END IF;
-END $$;
+-- The CHECK is DROPPED AND RECREATED rather than created only when absent, so this file is safe
+-- to run whether or not an earlier version of it already ran. The taxonomy was replaced the day
+-- it shipped (subAvatar@1 -> subAvatar@2, see src/lib/avatars/taxonomy.ts), and a stale CHECK
+-- listing the retired ids would reject every valid override forever while looking correct.
+-- Any row still holding a retired id is cleared first: v1 existed for hours with no data, so this
+-- clears nothing in practice and is here to make a re-run safe rather than to migrate anything.
+UPDATE artist_profiles
+SET sub_avatar_override = NULL
+WHERE sub_avatar_override IS NOT NULL
+  AND sub_avatar_override NOT IN (
+    'highest_priority_empire_builder',
+    'established_independent_operator',
+    'brand_led_hip_hop_artist',
+    'rnb_empire_builder'
+  );
+
+ALTER TABLE artist_profiles DROP CONSTRAINT IF EXISTS chk_sub_avatar_override_valid;
+ALTER TABLE artist_profiles
+  ADD CONSTRAINT chk_sub_avatar_override_valid CHECK (
+    sub_avatar_override IS NULL OR sub_avatar_override IN (
+      'highest_priority_empire_builder',
+      'established_independent_operator',
+      'brand_led_hip_hop_artist',
+      'rnb_empire_builder'
+    )
+  );
 
 -- 2. The audit history. One row per override change, written only by the service role.
 CREATE TABLE IF NOT EXISTS sub_avatar_audit (

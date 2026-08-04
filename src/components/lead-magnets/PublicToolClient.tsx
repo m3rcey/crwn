@@ -234,6 +234,9 @@ export function PublicToolClient({
             emailConsent: lead.emailConsent,
           },
           utm: { source: utm.utmSource, medium: utm.utmMedium, campaign: utm.utmCampaign, content: utm.utmContent },
+          // Which sub-avatar funnel brought them (docs/SUB_AVATARS.md). Stored server-side on the
+          // result so the acquisition cohort survives signup, instead of living only in analytics.
+          entryContext,
           sourceUrl: window.location.href.split('?')[0],
         }),
       });

@@ -278,10 +278,12 @@ function SetupWizard() {
         if (s?.ladderPrefill && !ladderTouchedRef.current) {
           setLadderDraft(buildLadderDraft(s.ladderPrefill));
         }
-        // Avatar-aware default for the catalog path: a Catalog and Vault Seller came in about
-        // an inventory of unreleased projects, so the project upload is the natural opening.
-        // A default only; the content-plan screen still offers every path.
-        if (s?.subAvatar?.id === 'catalog_vault_seller') setContentPlan('project');
+        // Avatar-aware default for the catalog path (docs/SUB_AVATARS.md): the two avatars whose
+        // leverage is a deep catalog open on the project upload rather than a single track. A
+        // default only; the content-plan screen still offers every path.
+        if (s?.subAvatar?.id === 'rnb_empire_builder' || s?.subAvatar?.id === 'established_independent_operator') {
+          setContentPlan('project');
+        }
       })
       .catch(() => {});
   }, [user]);

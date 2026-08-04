@@ -31,22 +31,39 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       [`supabase/schema-phase2-sub-avatar.sql`](supabase/schema-phase2-sub-avatar.sql).
       Adds `artist_profiles.sub_avatar_override` (manual override of the four-avatar
       assignment) and the `sub_avatar_audit` history table. Everything else about the avatar
-      system is derived on read and already live: the two new calculators, the admin Avatars
+      system is derived on read and already live: the four avatar funnels, the admin Avatars
       cohort tab, and the avatar-aware onboarding all work without it. Until it runs, only
-      setting a manual override reports "migration not applied yet". Self-verifies. The
-      override column deliberately has NO client grants (server-only reads), so no
+      setting a manual override reports "migration not applied yet". Self-verifies.
+      **If you already ran an earlier copy of this file, run it again**: the avatar names
+      changed the day after they shipped, and the file now DROPS and recreates its CHECK
+      constraint so a re-run is safe and a stale constraint cannot reject every valid value.
+      The override column deliberately has NO client grants (server-only reads), so no
       `select('*')` breakage and no view rebuild is needed; the migration says so inline.
 
-- [ ] **Launch content for the two NEW avatar funnels.** The four sub-avatar journeys are live
-      (spec: [`docs/SUB_AVATARS.md`](docs/SUB_AVATARS.md)). Two have brand-new entry
-      calculators that need their first traffic, same pattern as your existing video links:
-      - Fragmented-stack video (Patreon/Discord/Shopify pain) → `thecrwn.app/tools/fan-stack-calculator`
-      - Between-tours video (VIP buyers, off-months pain) → `thecrwn.app/tools/between-tour-calculator`
-      DM keywords for ManyChat when you want them: `stack` / `consolidate` and `tour` /
-      `touring` (routing exists automatically; only the ManyChat trigger words need creating).
-      The other two avatars ride the existing vault (`vault`) and live (`live`) funnels.
-      Tag every video with `?utm_content=<video-label>` so the admin Avatars tab can compare
-      creatives; first-touch attribution now persists across the visit.
+- [ ] **Launch content for the four avatar funnels. These are the exact links.** All four
+      sub-avatars now point at the ALL-IN-ONE calculator, which leads with that avatar's
+      questions and framing (spec: [`docs/SUB_AVATARS.md`](docs/SUB_AVATARS.md)). Paste these
+      wherever that avatar's video, ad or bio link lives:
+      - Empire builder (big audience, already sells direct)
+        thecrwn.app/tools/opportunity-calculator?from=highest_priority_empire_builder
+      - Established independent operator (years in, runs it themselves)
+        thecrwn.app/tools/opportunity-calculator?from=established_independent_operator
+      - Brand-led hip-hop artist (content engine, attention they do not own)
+        thecrwn.app/tools/opportunity-calculator?from=brand_led_hip_hop_artist
+      - R&B empire builder (devoted fans with nowhere to go deeper)
+        thecrwn.app/tools/opportunity-calculator?from=rnb_empire_builder
+
+      A typo in `?from=` is harmless: the calculator just asks in its normal order. Add
+      `&utm_content=<video-label>` on each so the admin Avatars tab can compare creatives;
+      both the avatar and first-touch UTMs now persist across the whole visit.
+
+- [ ] **ONE decision, one line of code: is the precedence order right?** The four avatars
+      overlap (a large R&B seller is both an R&B Empire Builder and a highest-priority lead),
+      so exactly one cohort claims each artist, in the order you listed them: Highest Priority
+      Empire Builder wins, then Established Independent Operator, then Brand-Led Hip-Hop, then
+      R&B Empire Builder. That means **a big R&B seller lands in the Empire Builder cohort, not
+      the R&B one.** If you would rather genre won, say so and I reorder the array in
+      [`src/lib/avatars/taxonomy.ts`](src/lib/avatars/taxonomy.ts); nothing else changes.
 
 - [ ] **Run the membership-strategy migration:**
       [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql).
@@ -276,16 +293,17 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-- **Bespoke hero photos for the two new avatar calculators.** `fan-stack-calculator` and
-  `between-tour-calculator` currently reuse the own-your-fans and live-experience photos (the
-  registry's documented placeholder pattern). Generate on-brand charcoal+gold images (artist
-  18-32 rule) and swap the two `hero.image` paths in `src/lib/leadMagnets/registry.ts`.
+- **Bespoke hero photos for the two single-opportunity calculators.** `fan-stack-calculator` and
+  `between-tour-calculator` reuse the own-your-fans and live-experience photos (the registry's
+  documented placeholder pattern). They are no longer avatar front doors, so this is cosmetic.
+  Generate on-brand charcoal+gold images (artist 18-32 rule) and swap the two `hero.image` paths.
 
-- **Avatar follow-ups, in order:** unified-calculator `entryContexts` for the two new slugs
-  (so a stack or tour video can also point at the all-in-one calculator with `?from=`);
-  per-avatar experiment experience keys in `src/lib/experiments/registry.ts` once there is a
-  message variant worth testing; artist 30/60/90-day retention at cohort grain in the admin
-  Avatars tab (needs a per-artist activity definition first, see the tab's "not measured" list).
+- **Avatar follow-ups, in order:** per-avatar hero copy on the all-in-one calculator page (today
+  the entry context reorders the questions and shows its note, but the hero headline is still
+  one shared line); per-avatar experiment experience keys in `src/lib/experiments/registry.ts`
+  once there is a message variant worth testing; artist 30/60/90-day retention at cohort grain
+  in the admin Avatars tab (needs a per-artist activity definition first, see the tab's "not
+  measured" list).
 
 - **Pre-signup live preview (the half of the preview ask that is still open).** The live fan
   preview now runs from the artist-link screen through launch, showing their real page in an

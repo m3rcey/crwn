@@ -10,6 +10,7 @@ import { getTool, ACQUISITION_TOOL_IDS } from '@/lib/acquisition/toolAdapters';
 import { getDeliverableSpec, specFields, sanitizeDeliverableValues } from '@/lib/opportunityDrafts/deliverableSpecs';
 import { buildDraftConfig, postSetupDestination } from '@/lib/leadResults/postSetupDestination';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
+import { SUB_AVATAR_IDS } from '@/lib/avatars/taxonomy';
 import { buildUnifiedResult } from './unifiedAdapter';
 import type { LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
@@ -153,10 +154,20 @@ describe('entry context personalizes without changing the model', () => {
     expect(visibleSteps(ANSWERS, null)).toEqual(visibleSteps(ANSWERS, resolveEntryContext(config, 'nonsense')));
   });
 
-  it('declares an entry context for every tool likely to point here', () => {
+  it('every entry context key is a real tool slug or a real sub-avatar id', () => {
+    // Two legitimate kinds of key now: a TOOL slug (this video was about that topic) and a
+    // SUB-AVATAR id (this video was aimed at that kind of artist, docs/SUB_AVATARS.md, where all
+    // four avatars share this one calculator). Anything else is a typo that would silently
+    // degrade to the default question order.
+    const known = [...LEAD_MAGNETS.map((m) => m.slug), ...EXTERNAL_TOOLS.map((t) => t.key), ...SUB_AVATAR_IDS];
     for (const key of Object.keys(config.entryContexts || {})) {
-      const known = [...LEAD_MAGNETS.map((m) => m.slug), ...EXTERNAL_TOOLS.map((t) => t.key)];
       expect(known, key).toContain(key);
+    }
+  });
+
+  it('declares an entry context for every sub-avatar, since each one is a front door', () => {
+    for (const id of SUB_AVATAR_IDS) {
+      expect(Object.keys(config.entryContexts || {}), id).toContain(id);
     }
   });
 });

@@ -805,6 +805,25 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   },
   inputs: [
     {
+      // Identity, not arithmetic. The money model never reads this: it decides which sub-avatar
+      // journey the artist belongs to (docs/SUB_AVATARS.md), which shapes the framing, the first
+      // offer and the cohort they are compared in. Two of the four avatars are genre-defined, so
+      // without this question those two can never be assigned from an answer.
+      key: 'genre_family',
+      type: 'option',
+      label: 'What do you make?',
+      help: 'This shapes what we recommend and how we say it. It does not change the number.',
+      // NOT required, deliberately. The calculator's standing invariant is that an artist can
+      // reach a real result from one number (the audience question is the only mandatory one),
+      // and an unanswered genre simply reads as `other` rather than blocking the funnel.
+      step: 'sound',
+      options: [
+        { value: 'hiphop', label: 'Hip-hop or rap', icon: '🎤' },
+        { value: 'rnb', label: 'R&B or soul', icon: '🎶' },
+        { value: 'other', label: 'Something else', icon: '🎸' },
+      ],
+    },
+    {
       key: 'social_followers',
       type: 'number',
       label: 'Your social following',
@@ -957,6 +976,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     },
   ],
   wizardSteps: [
+    { id: 'sound', group: 'You', title: 'What do you make?', subtitle: 'One tap. It shapes the plan, never the number.' },
     { id: 'audience', group: 'Audience', title: 'How big is your audience?', subtitle: 'One number to start. Everything is built on this.' },
     { id: 'platforms', group: 'Audience', title: 'And your monthly listeners?', subtitle: 'We use the larger of the two, never the sum.' },
     { id: 'owned', group: 'Audience', title: 'How many fans do you own?', subtitle: 'Contacts no platform can take away from you.' },
@@ -971,6 +991,43 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
     { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see the whole picture.' },
   ],
   entryContexts: {
+    // ---- The four sub-avatar front doors (docs/SUB_AVATARS.md) ----
+    // Every avatar's acquisition link is this calculator with its own `?from=`. The keys ARE the
+    // avatar ids, so a campaign link needs no lookup table, and `entryContextToSubAvatar` can
+    // recognize an avatar arrival without a second registry. Reordering only: all four run the
+    // identical model off the identical questions, which is the entire reason one calculator
+    // serves four segments.
+    highest_priority_empire_builder: {
+      label: 'Empire Builder',
+      note: 'You already sell to your fans, so we start with what you have proven and what it is worth in one place, not with whether fans will pay.',
+      priorityStepIds: ['audience', 'proof', 'platforms'],
+    },
+    established_independent_operator: {
+      label: 'Independent Operator',
+      note: 'You have been doing this a while and you run it yourself, so we start with the catalog and the buyers you already have rather than with growth advice.',
+      priorityStepIds: ['vault', 'proof', 'audience'],
+    },
+    brand_led_hip_hop_artist: {
+      label: 'Brand-Led Artist',
+      note: 'Your brand already moves people, so we start with the reach and the content you put out, then work out what owning that audience is worth.',
+      priorityStepIds: ['audience', 'clips', 'promote'],
+    },
+    rnb_empire_builder: {
+      label: 'R&B Empire',
+      note: 'Your closest fans want more of you, so we start with the unreleased work and the experiences that give them somewhere to go.',
+      priorityStepIds: ['vault', 'live', 'audience'],
+    },
+    // ---- Single-opportunity tool contexts (a topic, not an identity claim) ----
+    'fan-stack-calculator': {
+      label: 'Fan Stack',
+      note: 'You came here about the tools your fan business is split across, so we start with what you already sell and where.',
+      priorityStepIds: ['proof', 'audience'],
+    },
+    'between-tour-calculator': {
+      label: 'Between Tours',
+      note: 'You came here about the months between shows, so we start with your audience and the experiences that fill the gap.',
+      priorityStepIds: ['audience', 'live', 'session'],
+    },
     'vault-revenue-planner': {
       label: 'Vault',
       note: 'You came here about your vault, so we will start there. The rest of the questions decide where it sits in your business.',

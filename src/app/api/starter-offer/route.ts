@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getClaimedResults } from '@/lib/leadResults/handoffSeed';
+import { deriveAcquisitionAvatar, evidenceFromInputs } from '@/lib/avatars/assignment';
 import { buildStarterOffer } from '@/lib/leadResults/starterOffer';
 import { getConnectAccountByArtistId } from '@/lib/stripe/connectAccount';
 
@@ -68,7 +69,26 @@ export async function GET() {
     getConnectAccountByArtistId(artistId).catch(() => null),
   ]);
 
+  // The artist's sub-avatar funnel (docs/SUB_AVATARS.md), derived from the entry context stored
+  // beside their own answers. Reframes the SAME recommended offer; never changes what it is.
+  let subAvatar: string | null = null;
+  try {
+    const { data: inputRows } = await supabaseAdmin
+      .from('lead_magnet_results')
+      .select('input_data, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(10);
+    const contexts = (inputRows ?? []).flatMap(
+      (r) => evidenceFromInputs(r.input_data as Record<string, unknown>).entryContexts ?? [],
+    );
+    subAvatar = deriveAcquisitionAvatar(contexts);
+  } catch {
+    /* framing is additive; without it the copy is the neutral default */
+  }
+
   const offer = buildStarterOffer({
+    subAvatar,
     seeds,
     platformTier: (artist.platform_tier as string | null) ?? null,
     paidTierCount: paidTiersRes.count ?? 0,

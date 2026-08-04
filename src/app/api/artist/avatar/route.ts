@@ -15,7 +15,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { getClaimedResults } from '@/lib/leadResults/handoffSeed';
 import {
   assignSubAvatar,
   deriveAcquisitionAvatar,
@@ -53,12 +52,12 @@ export async function GET() {
   const { user, artist } = await requireArtist();
   if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
-  // Evidence assembly, all best-effort. A missing table is silence, never a failure.
-  let slugsOldestFirst: string[] = [];
+  // Evidence assembly, all best-effort. A missing table is silence, never a failure. All four
+  // avatars share one calculator, so the evidence is the ANSWERS plus the `?from=` funnel stored
+  // beside them, read oldest first so the acquisition avatar is the first link they ever clicked.
+  let entryContexts: string[] = [];
   let inputEvidence: ReturnType<typeof evidenceFromInputs>[] = [];
   try {
-    const claimed = await getClaimedResults(supabaseAdmin, { userId: user.id, artistId: artist?.id ?? null });
-    slugsOldestFirst = [...claimed].reverse().map((r) => r.toolSlug);
     const { data: inputRows } = await supabaseAdmin
       .from('lead_magnet_results')
       .select('input_data, created_at')
@@ -66,6 +65,7 @@ export async function GET() {
       .order('created_at', { ascending: true })
       .limit(10);
     inputEvidence = (inputRows ?? []).map((r) => evidenceFromInputs(r.input_data as Record<string, unknown>));
+    entryContexts = inputEvidence.flatMap((f) => (f.entryContexts ?? []).filter((c): c is string => !!c));
   } catch {
     /* silence */
   }
@@ -115,12 +115,12 @@ export async function GET() {
   }
 
   const evidence = mergeEvidence(
-    { claimedCalculatorSlugs: slugsOldestFirst, patreonImported, liveSessionsHosted, gatedTracks, manualOverride: override },
+    { entryContexts, patreonImported, liveSessionsHosted, gatedTracks, manualOverride: override },
     ...inputEvidence,
   );
 
   const observed = assignSubAvatar(evidence);
-  const acquisition = deriveAcquisitionAvatar(slugsOldestFirst);
+  const acquisition = deriveAcquisitionAvatar(entryContexts);
 
   return NextResponse.json({
     taxonomyVersion: SUB_AVATAR_TAXONOMY_VERSION,

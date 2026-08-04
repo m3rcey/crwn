@@ -11,6 +11,7 @@ import { CONSENT_TEXT_VERSION } from '@/lib/leadMagnets/disclaimers';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { enrollProspect } from '@/lib/prospectNurture/enroll';
+import { isSubAvatarId, ENTRY_CONTEXT_INPUT_KEY } from '@/lib/avatars/taxonomy';
 
 // PUBLIC endpoint. No auth (middleware excludes /api). It authorizes/rate-limits itself.
 // Recomputes the result SERVER-SIDE from the inputs (never trusts a client-sent result),
@@ -45,6 +46,8 @@ export async function POST(req: NextRequest) {
       emailConsent?: boolean;
     };
     utm?: { source?: string; medium?: string; campaign?: string; content?: string };
+    /** The sub-avatar funnel `?from=` value, validated below against the real taxonomy. */
+    entryContext?: string;
     sourceUrl?: string;
   };
   try {
@@ -66,6 +69,13 @@ export async function POST(req: NextRequest) {
     string,
     string | number | boolean | string[] | null
   >;
+
+  // The sub-avatar funnel this lead arrived through (docs/SUB_AVATARS.md). All four avatars share
+  // one calculator, so `tool_slug` cannot separate their cohorts: this is what does. Stored under
+  // a reserved, underscore-prefixed key alongside the answers so it survives signup as server-side
+  // truth, and VALIDATED against the taxonomy so a hostile body cannot invent a cohort.
+  const entryContext = isSubAvatarId(body.entryContext) ? body.entryContext : null;
+  if (entryContext) inputs[ENTRY_CONTEXT_INPUT_KEY] = entryContext;
 
   // SERVER-SIDE recompute. This is the source of truth we persist and email. Loss-engine tools
   // run their adapter (config.resultGeneratorKey is not a generateResult key for them); the four

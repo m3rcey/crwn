@@ -94,15 +94,19 @@ all live together.
 
 ## The four sub-avatars (2026-08-03)
 
-The ICP is segmented into four founder-approved sub-avatars, each with its own entry
-calculator, builder path, onboarding emphasis, nurture module and admin cohort report:
-Membership Stack Consolidator (`fan-stack-calculator`), Touring Access Seller
-(`between-tour-calculator`), Live Community Creator (`live-experience-calculator`), Catalog
-and Vault Seller (`vault-revenue-planner`). Taxonomy + deterministic assignment live in
+The ICP is segmented into four founder-approved sub-avatars, in PRECEDENCE order: **Highest
+Priority Empire Builder**, **Established Independent Minded Operator**, **Brand-Led Hip-Hop
+Artist**, **R&B Empire Builder**. These are identity segments (priority tier, operating
+maturity, genre), not pain segments, so **all four share ONE front door**: the all-in-one
+calculator at `/tools/opportunity-calculator?from=<avatar id>`, which leads with that avatar's
+questions and framing while every cohort runs the identical model.
+
+Taxonomy (`subAvatar@2`) and deterministic assignment live in
 [`src/lib/avatars/`](../src/lib/avatars/); the full spec is
-[`docs/SUB_AVATARS.md`](SUB_AVATARS.md). The comparison metric is retained economic value per
-avatar, in the admin Avatars tab. The consolidator IS this document's core thesis given its
-own front door.
+[`docs/SUB_AVATARS.md`](SUB_AVATARS.md). Assignment is scored on the calculator's own answers
+(audience against the Tier 1 floor above, proven direct sales, catalog depth, genre, content
+output), never on which tool was run. The comparison metric is retained economic value per
+avatar, in the admin Avatars tab.
 
 ## Still open
 

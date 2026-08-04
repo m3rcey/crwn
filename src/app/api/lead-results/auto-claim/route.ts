@@ -14,7 +14,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { autoClaimForUser } from '@/lib/leadResults/resultAccess';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { getLeadMagnetSeed, getClaimedResults } from '@/lib/leadResults/handoffSeed';
+import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { recommendPlan } from '@/lib/planRecommendation';
@@ -56,7 +56,36 @@ export async function POST() {
   // ever no matter how often the client re-hits auto-claim. The originating calculator is attached
   // so the whole funnel stays sliceable by calculator.
   const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id });
-  const dims = { calculator: seed?.toolSlug ?? null, userId: user.id, resultId: seed?.resultId ?? null };
+
+  // The sub-avatar this artist arrived through and appears to be (docs/SUB_AVATARS.md), derived
+  // from their own stored answers. Derived here rather than stored, and stamped onto the funnel
+  // rows so the acquisition cohort stays sliceable past signup: all four avatars share one
+  // calculator, so the `calculator` dimension alone can no longer tell their cohorts apart.
+  let avatarAssignment: ReturnType<typeof assignSubAvatar> = null;
+  let acquisitionAvatar: string | null = null;
+  try {
+    const { data: inputRows } = await supabaseAdmin
+      .from('lead_magnet_results')
+      .select('input_data, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(10);
+    const fragments = (inputRows ?? []).map((r) => evidenceFromInputs(r.input_data as Record<string, unknown>));
+    // Oldest-first entry contexts: the first avatar link they ever clicked owns the acquisition.
+    const entryContexts = fragments.flatMap((f) => f.entryContexts ?? []);
+    acquisitionAvatar = deriveAcquisitionAvatar(entryContexts);
+    avatarAssignment = assignSubAvatar(mergeEvidence({ entryContexts }, ...fragments));
+  } catch {
+    /* avatar derivation must never fail the claim */
+  }
+  const cohortAvatar = acquisitionAvatar ?? avatarAssignment?.primarySubAvatar ?? null;
+
+  const dims = {
+    calculator: seed?.toolSlug ?? null,
+    userId: user.id,
+    resultId: seed?.resultId ?? null,
+    ...(cohortAvatar ? { metadata: { subAvatar: cohortAvatar } } : {}),
+  };
   await recordFunnelEvent(supabaseAdmin, { stage: 'account_created', dedupeKey: user.id, ...dims });
   if (user.email_confirmed_at) {
     await recordFunnelEvent(supabaseAdmin, { stage: 'email_verified', dedupeKey: user.id, ...dims });
@@ -114,43 +143,19 @@ export async function POST() {
         )
         .map((t) => ({ name: t.name, projectedSubs: Math.max(0, Math.floor(t.projectedSubs)) }))
     : [];
-  // Sub-avatar, DERIVED at claim time from the artist's own claimed results (acquisition path +
-  // declared inputs). Stored nowhere here: the display copy is the only consumer, and the same
-  // derivation re-runs anywhere it is needed (docs/SUB_AVATARS.md). Best-effort by construction.
-  let subAvatar: { id: string; label: string; promise: string; source: string; confidence: string } | null = null;
-  try {
-    const claimedRows = await getClaimedResults(supabaseAdmin, { userId: user.id });
-    const oldestFirst = [...claimedRows].reverse();
-    const slugs = oldestFirst.map((r) => r.toolSlug);
-    // Declared evidence comes from the stored inputs of the oldest mapped result: read raw rows.
-    const { data: inputRows } = await supabaseAdmin
-      .from('lead_magnet_results')
-      .select('tool_slug, input_data, created_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: true })
-      .limit(10);
-    const inputEvidence = (inputRows ?? []).map((r) => evidenceFromInputs(r.input_data as Record<string, unknown>));
-    const assignment = assignSubAvatar(mergeEvidence({ claimedCalculatorSlugs: slugs }, ...inputEvidence));
-    if (assignment) {
-      const def = getSubAvatar(assignment.primarySubAvatar);
-      if (def) {
-        subAvatar = {
-          id: def.id,
-          label: def.label,
-          promise: def.promise,
-          source: assignment.source,
-          confidence: assignment.confidence,
-        };
+  // The display-ready avatar summary for the wizard's restored-plan intro. Prefers the assignment
+  // (all evidence) and falls back to the acquisition avatar alone, so an artist who clicked an
+  // avatar link but answered little still gets the framing their content promised them.
+  const avatarDef = getSubAvatar(avatarAssignment?.primarySubAvatar ?? acquisitionAvatar);
+  const subAvatar = avatarDef
+    ? {
+        id: avatarDef.id,
+        label: avatarDef.label,
+        promise: avatarDef.promise,
+        source: avatarAssignment?.source ?? 'acquisition_path',
+        confidence: avatarAssignment?.confidence ?? 'low',
       }
-    } else {
-      // Even without a full assignment, the acquisition avatar alone personalizes the intro.
-      const acq = deriveAcquisitionAvatar(slugs);
-      const def = getSubAvatar(acq);
-      if (def) subAvatar = { id: def.id, label: def.label, promise: def.promise, source: 'acquisition_path', confidence: 'low' };
-    }
-  } catch {
-    /* avatar derivation must never fail the claim */
-  }
+    : null;
 
   const planSeed = seed
     ? {

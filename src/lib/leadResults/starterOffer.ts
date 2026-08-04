@@ -57,6 +57,13 @@ export interface StarterOfferInput {
   stripeConnected: boolean | null;
   /** Public slug for preview links. */
   artistSlug?: string | null;
+  /**
+   * The artist's sub-avatar (docs/SUB_AVATARS.md), when it is known. All four avatars run the one
+   * all-in-one calculator, so the tool slug alone would give every one of them identical copy;
+   * this reframes the SAME recommended offer for who they are. It never changes the offer, the
+   * price or the benefits, only the words around them.
+   */
+  subAvatar?: string | null;
 }
 
 export interface StarterOffer {
@@ -274,10 +281,41 @@ export function buildStarterOffer(input: StarterOfferInput): StarterOffer {
     });
   };
 
+  // Avatar framing for the shared calculator. Same offer, same price, same benefits: only the
+  // audience line and the reason change, so the recommendation an artist gets can never depend on
+  // a segment guess in a way that costs them money.
+  const AVATAR_FRAMING: Record<string, { audience: string; why: string }> = {
+    highest_priority_empire_builder: {
+      audience: 'The fans who already pay you somewhere else, first. They are the proof, and the fastest yes',
+      why: monthlyLabel
+        ? `You already sell to your fans, so this is not a test of whether they will pay. It is ${monthlyLabel} sitting in fans you converted once and cannot reach in one place.`
+        : 'You already sell to your fans, so the question is not whether they pay. It is whether every offer you make can see every fan you have.',
+    },
+    established_independent_operator: {
+      audience: 'The list you have built yourself over the years, starting with anyone who ever bought',
+      why: monthlyLabel
+        ? `You run this yourself, which is why it is worth ${monthlyLabel} a month to stop running it across tools that cannot see each other.`
+        : 'You have been doing this a while and you run it yourself. One membership is the smallest way to make the whole thing one system instead of five.',
+    },
+    brand_led_hip_hop_artist: {
+      audience: 'The people who show up for the brand every week and currently cost you nothing and pay you nothing',
+      why: monthlyLabel
+        ? `Your content already earns the attention. Without somewhere of your own for it to land, ${monthlyLabel} a month stays a platform metric instead of your revenue.`
+        : 'Your content already earns the attention. This is the destination it has been missing, and it is the only one you own.',
+    },
+    rnb_empire_builder: {
+      audience: 'Your closest listeners: the ones who play the same record over and are given nowhere to go deeper',
+      why: monthlyLabel
+        ? `Your most devoted fans have nothing to buy. That is what makes it ${monthlyLabel} a month, and it is why depth tiers matter more for you than reach.`
+        : 'Your most devoted fans have nothing to buy. A depth tier is how that devotion stops being free.',
+    },
+  };
+  const avatarFraming = input.subAvatar ? AVATAR_FRAMING[input.subAvatar] : undefined;
+
   switch (seed?.toolSlug) {
     case 'worth':
     case 'opportunity-calculator':
-      return membership();
+      return membership(avatarFraming ?? {});
 
     // Membership Stack Consolidator: the consolidated ladder IS the membership, with the
     // avatar-specific framing (recreate what members already pay for, invite them personally).

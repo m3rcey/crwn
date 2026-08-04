@@ -15,7 +15,7 @@ interface StageRow {
 interface CohortReport {
   avatar: string;
   label: string;
-  calculatorSlugs: string[];
+  entryRoute: string | null;
   stages: StageRow[];
   accountsCreated: number;
   matureCohorts: { d30: number; d60: number; d90: number };
@@ -38,6 +38,7 @@ interface Report {
   days: number;
   truncated: boolean;
   cohorts: CohortReport[];
+  attributionNote?: string;
   notMeasured: string[];
 }
 
@@ -74,8 +75,9 @@ export default function AvatarCohortsView() {
         <div>
           <h2 className="text-xl font-semibold text-crwn-text">Sub-avatar cohorts</h2>
           <p className="text-sm text-crwn-text-secondary">
-            The four acquisition journeys compared on the same spine. Realized numbers only; grouping is by
-            entry calculator under {report?.taxonomyVersion ?? 'subAvatar@1'}.
+            The four acquisition journeys compared on the same spine, all running the one all-in-one calculator.
+            Realized numbers only; grouping is by the funnel they arrived through under{' '}
+            {report?.taxonomyVersion ?? 'subAvatar@2'}.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -120,9 +122,7 @@ export default function AvatarCohortsView() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h3 className="font-semibold text-crwn-text">{c.label}</h3>
-                  {c.calculatorSlugs.length > 0 && (
-                    <p className="text-xs text-crwn-text-secondary">via {c.calculatorSlugs.join(', ')}</p>
-                  )}
+                  {c.entryRoute && <p className="text-xs text-crwn-text-secondary break-all">{c.entryRoute}</p>}
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-semibold text-crwn-gold">{usd(c.gmvCapturedCents)}</div>
@@ -186,6 +186,10 @@ export default function AvatarCohortsView() {
             </div>
           ))}
         </div>
+      )}
+
+      {!loading && report?.attributionNote && (
+        <p className="text-xs text-crwn-text-secondary">{report.attributionNote}</p>
       )}
 
       {!loading && report && report.notMeasured.length > 0 && (

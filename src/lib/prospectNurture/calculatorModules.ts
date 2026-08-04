@@ -10,7 +10,50 @@
 // No em dashes. "the CRWN app", never bare "CRWN". Nothing here invents a number.
 
 import { getLeadMagnet, EXTERNAL_TOOLS } from '@/lib/leadMagnets/registry';
+import { isSubAvatarId, type SubAvatarId } from '@/lib/avatars/taxonomy';
 import type { CalculatorModule } from './types';
+
+// Sub-avatar modules (docs/SUB_AVATARS.md). All four avatars run the SAME calculator, so the tool
+// slug can no longer personalize their nurture: the avatar does. When the enrollment's stored
+// result names an avatar funnel, its module wins over the slug's; otherwise nothing changes.
+const AVATAR_MODULES: Record<SubAvatarId, Omit<CalculatorModule, 'slug'>> = {
+  highest_priority_empire_builder: {
+    featureName: 'Membership',
+    quickWin:
+      'Pull the list of every fan who has ever paid you anything, anywhere. That list is the launch audience, and it is the one asset your platforms cannot take back.',
+    firstBuild: 'Build the full four-tier ladder, not just an entry tier, and open it to the buyers you already have.',
+    useCase:
+      'The empire you are already running across separate platforms becomes one business where every fan and every offer compounds instead of resetting.',
+    destinationRoute: '/offers/new',
+  },
+  established_independent_operator: {
+    featureName: 'Membership',
+    quickWin:
+      'Pick the one tool in your stack you would most like to stop paying for, and write down exactly what it holds. That is your migration list, and it is shorter than it feels.',
+    firstBuild: 'Build one membership that covers what your current tools cover, then move fans over on your own schedule.',
+    useCase:
+      'The business you already run yourself gets one operating system, so a new offer starts from your existing fans instead of from zero.',
+    destinationRoute: '/offers/new',
+  },
+  brand_led_hip_hop_artist: {
+    featureName: 'Membership',
+    quickWin:
+      'Change one link. Send this week\'s attention to a page you own instead of a platform profile, and watch how many of them you can still reach next month.',
+    firstBuild: 'Build the membership your content has been missing a destination for, then point every caption at it.',
+    useCase:
+      'The attention your brand earns every week starts converting into members and contacts you own, instead of into metrics on somebody else\'s platform.',
+    destinationRoute: '/offers/new',
+  },
+  rnb_empire_builder: {
+    featureName: 'Membership',
+    quickWin:
+      'Choose five unreleased pieces your closest fans have never heard. That is a depth tier, and it is already recorded.',
+    firstBuild: 'Build a depth-first membership: the vault plus one members-only listening session.',
+    useCase:
+      'The fans who already stayed get somewhere real to go deeper, and the devotion that paid nothing becomes recurring support.',
+    destinationRoute: '/offers/new',
+  },
+};
 
 const MODULES: Record<string, Omit<CalculatorModule, 'slug'>> = {
   'vault-revenue-planner': {
@@ -164,8 +207,14 @@ function fallbackModule(slug: string): CalculatorModule {
   };
 }
 
-/** The calculator module for a slug. Always returns a usable module (bespoke or derived). */
-export function moduleFor(slug: string): CalculatorModule {
+/**
+ * The nurture module for a lead. The sub-avatar wins when one is known, because all four avatars
+ * run the same calculator and the slug alone would give every one of them identical copy. Falls
+ * back to the tool's bespoke module, then to one derived from the registry, so a calculator with
+ * no module is still nurtured.
+ */
+export function moduleFor(slug: string, subAvatar?: string | null): CalculatorModule {
+  if (isSubAvatarId(subAvatar)) return { slug, ...AVATAR_MODULES[subAvatar] };
   const bespoke = MODULES[slug];
   if (bespoke) return { slug, ...bespoke };
   return fallbackModule(slug);
