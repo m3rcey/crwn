@@ -788,7 +788,7 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   artistRoute: '/artist/tools/opportunity-calculator',
   icon: '👑',
   timeToComplete: '3 min',
-  dmKeywords: ['opportunity', 'system', 'plan', 'audit'],
+  dmKeywords: ['opportunity', 'system', 'plan', 'free'],
   // The hero speaks to a COLD first-time visitor. It may not mention the other
   // calculators, "five separate numbers", or anything else that assumes the
   // reader has already met CRWN's tool family: on this page and on `/` they are

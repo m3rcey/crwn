@@ -157,12 +157,12 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P2 — worth doing, nothing breaks if you never do it
 
-- [ ] **Add the AUDIT keyword to ManyChat before posting the Akeem Ali all-in video.** The
-      script ([videos/scripts/lead-magnets/audit-akeem-ali.md](videos/scripts/lead-magnets/audit-akeem-ali.md))
-      says "Comment AUDIT and I'll DM you the link", and ManyChat keywords are pills configured
+- [ ] **Add the FREE keyword to ManyChat before posting the Akeem Ali all-in video.** The
+      script ([videos/scripts/lead-magnets/free-akeem-ali.md](videos/scripts/lead-magnets/free-akeem-ali.md))
+      says "Comment FREE and I'll DM you the link", and ManyChat keywords are pills configured
       in its UI, so only you can add the trigger (point it at the same flow as the other
       calculator keywords; the tool link is `/tools/opportunity-calculator`). The code side is
-      done: `audit` is in the opportunity-calculator `dmKeywords`, live once the branch lands
+      done: `free` is in the opportunity-calculator `dmKeywords`, live once the branch lands
       on master.
 
 - [ ] **Quest Engine: LEAVE IT DARK until the release-strategy build lands.** My recommendation,
