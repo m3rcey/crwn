@@ -45,6 +45,7 @@ Let's say touring brings in around $40,000 a month, and merch like $10,000.
 So all in, call it like $77,000 a month that he's currently bringing in, which is like $924,000 a year. Hold that number cause 77k a month sounds like a lot, but when you add all the membership numbers I gave you, the number is CRAZY compared to 77k. Before I reveal it, quick sidenote: everything I just walked through, the levels, the vault, the links, the paid lives, is what K Camp OR an artist movin at his level can build on the CRWN app. Tag K Camp or an artist LIKE him in the comments so they can see this. ANYWAY...
 
 After fees, and after his fans get they cut for bringin people in, K Camp would be walkin with over 7 TIMES the money he currently make. Every single month.
+And if you just compare it to his streaming checks? Over 20 TIMES what Spotify pay him.
 Cause what he's missin out on is like **$473,000 a month**. That's like $5.7 million a year, all because the things his fans want most, he give away free or dont give at all.
 The real number may be higher or lower. This is a plan, not a promise.
 BUT, real question...if you an independent artist movin at ANY level, this about you too. How much are YOU missing out on?

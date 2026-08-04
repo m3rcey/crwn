@@ -92,10 +92,12 @@ tension line ("When you add all this up, the amount he's missing out on is CRAZY
 Sidenote opening "Before I reveal the big number here's a sidenote:", naming "[Artist] OR an
 artist operating on his level", and CARRYING the tag CTA inside it ("Tag [Artist] or an artist
 LIKE him in the comments so they can see this.") before "ANYWAY...", then a paragraph break,
-then the MULTIPLE FIRST ("[Artist] would be walkin with over N TIMES the money he currently
-make", N = (reveal + baseline) ÷ baseline), and only THEN the dollar reveal (monthly and
-yearly) with the premise bookend attached (reveal order flipped per Josh, 2026-08-04: the
-multiple sets the scale, the dollar number lands as the payoff), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
+then a two-step MULTIPLE LADDER before any dollars: first vs his whole current income
+("[Artist] would be walkin with over N TIMES the money he currently make", N = (reveal +
+baseline) ÷ baseline), then vs streaming alone ("over M TIMES what Spotify pay him", M =
+(reveal + baseline) ÷ streaming), and only THEN the dollar reveal (monthly and yearly) with
+the premise bookend attached (reveal order per Josh, 2026-08-04: the multiples escalate the
+scale, the dollar number lands as the payoff), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
 artists operating on his level (im talking to YOU) how much are you missing out on?"), CTA
 (comment **FREE**). The hook's loss theme is a BOOKEND: restate it nearly verbatim at the
 reveal ("all because he's giving the things that fans want more than music away for free")
