@@ -88,13 +88,23 @@ console.log(`people: ${peopleSlugs.length ? peopleSlugs.join(", ") : "(none)"}`)
 let personRefs;
 let personRefParts;
 if (refOverride) {
-  personRefs = peopleSlugs.length ? [{ slug: peopleSlugs[0] }] : [];
-  personRefParts = refOverride.map((file) => {
+  // Each override photo needs the SAME labeled preamble buildPersonRefParts emits. Without it
+  // the model reads a bare image as another style reference, not as the person's face, and the
+  // likeness gets WORSE the better the photo is.
+  const slug = peopleSlugs[0] || scriptSlug.replace(/^free-/, "");
+  personRefs = [{ slug }];
+  const known = loadKnownPeople();
+  const name = known[slug]?.name || slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  personRefParts = [];
+  refOverride.forEach((file, i) => {
     const p = path.join(PEOPLE_DIR, file);
     if (!fs.existsSync(p)) { console.error(`ref not found: ${p}`); process.exit(1); }
-    return { inlineData: { mimeType: mimeFromExt(path.extname(file).slice(1)), data: fs.readFileSync(p).toString("base64") } };
+    personRefParts.push({
+      text: `Reference photo ${i + 1} of ${refOverride.length} of ${name} (all ${refOverride.length} attached photos are the SAME person, ${name}, from different angles; study them together and use this exact likeness, especially the face, hair and facial hair, when drawing anyone labeled "${name.toUpperCase()}" in the image):`,
+    });
+    personRefParts.push({ inlineData: { mimeType: mimeFromExt(path.extname(file).slice(1)), data: fs.readFileSync(p).toString("base64") } });
   });
-  console.log(`refs (override): ${refOverride.join(", ")}`);
+  console.log(`refs (override, labeled as ${name}): ${refOverride.join(", ")}`);
 } else {
   personRefs = await ensurePersonRefs(peopleSlugs);
   personRefParts = buildPersonRefParts(personRefs);

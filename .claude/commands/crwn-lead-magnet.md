@@ -476,7 +476,15 @@ each headed exactly `**SHEET N — LABEL:**` so the runner can find them:
 including the math sheet: on the funnel sheet he grips and tips the funnel himself rather than
 standing beside it pointing.
 
-**Likeness comes from HEAD SIZE and INK DENSITY, not from better reference photos.** The K Camp
+**A person photo does nothing unless it is LABELED as that person.** `buildPersonRefParts`
+emits a text part before each image ("Reference photo of NAME (use this exact likeness when
+drawing anyone labeled "NAME")"). The first `--refs` implementation attached the photos BARE,
+so the model read them as extra STYLE references and the likeness got worse the better the
+photo was (2026-08-04). The runner now labels every override photo and states that all attached
+photos are the same person from different angles. If a likeness ever regresses right after
+swapping refs, check that the labels are still being emitted before blaming the prompt.
+
+**Likeness also comes from HEAD SIZE and INK DENSITY, not just reference photos.** The K Camp
 sheets proved it (2026-08-04): the sheet that looked most like him was a WAIST-UP figure drawn
 as a detailed inked portrait; the full-length versions put the head at half that size and the
 face collapsed into generic line work, and swapping in hand-picked reference photos did not
