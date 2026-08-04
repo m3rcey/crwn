@@ -476,12 +476,31 @@ each headed exactly `**SHEET N — LABEL:**` so the runner can find them:
 including the math sheet: on the funnel sheet he grips and tips the funnel himself rather than
 standing beside it pointing.
 
+**Likeness comes from HEAD SIZE and INK DENSITY, not from better reference photos.** The K Camp
+sheets proved it (2026-08-04): the sheet that looked most like him was a WAIST-UP figure drawn
+as a detailed inked portrait; the full-length versions put the head at half that size and the
+face collapsed into generic line work, and swapping in hand-picked reference photos did not
+fix it. Draw the artist as a THREE-QUARTER figure from the thighs up so the head is roughly a
+sixth of the page height, ask explicitly for "a detailed comic-book INKED PORTRAIT with fine
+cross-hatching on the face and on the folds of his clothes, not a simplified cartoon face",
+and spell out the two or three features that identify them (hair length, facial hair, headwear,
+build). Pass ALL available refs, including the auto-fetched one: `--refs=k-camp.jpg,kcamp1.jpg,
+kcamp2.jpg` beat either set alone.
+
 **Text-density is the failure mode.** Sheet 2 first came back with an invented "37.6K TIKTOK"
 tile and nonsense words ("FIUNCH", "SORTIFY"), because the page carried too many small labeled
 objects. The fix that worked: cut drawn objects (no staircase, no ticket stub), move those
 values into ONE tidy hand-lettered column, state "exactly THREE tiles, no more and no fewer",
 and add "invent no extra words, no nonsense words, no partial words, and no extra numbers."
-Look at every sheet before shipping it and regenerate any garbled text.
+Sheet 1 needed the same treatment: it invented a "SINGLE METRICS" label, then a phantom
+"SOME $30" tier, then ran the stat column sideways up the page and printed two notes twice.
+What finally fixed it: cut the stats that belong to the math sheet (keep only the platform
+counts), cut the price ladder from the cover entirely (the cover states the PROBLEM and must
+not preview the ladder), add "every piece of text is written HORIZONTALLY and upright, never
+rotated or sideways", and add "EVERY quoted note appears EXACTLY ONCE on the whole page: once
+written somewhere, never written again anywhere else, at any size."
+Look at every sheet before shipping it and regenerate any garbled text. Budget roughly 8 to 10
+text objects per sheet; past that, the model starts inventing.
 
 ## Generating the image
 
