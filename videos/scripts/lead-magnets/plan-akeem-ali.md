@@ -16,13 +16,17 @@ You are guessing what your fans are worth, and the fans who were ready to pay mo
 
 **SCRIPT:**
 
-How much money could Akeem Ali be missing because he aint never seen one real number for his whole fan business? You bout to find out.
+How much money could Akeem Ali and artists like him be missing because he aint never seen one real number for his whole fan business? You bout to find out.
 Keemy got about 1 million followers on Instagram. The skits, the whole 70s thing. Fans LOVE him.
-But here go the problem. All them fans live on apps he dont own. And them apps pay pennies.
-Right now he got like 161,000 monthly listeners on Spotify. That's only like $1,600 a month in streaming money.
+But here go the problems.
+First: streaming. He got like 161,000 monthly listeners on Spotify. That's only like $1,600 a month.
 A million followers. $1,600. Somethin aint addin up.
-The fix aint another app. It's one system in one place. A membership with levels. His unreleased music in a vault inside it. Share links that pay his fans for bringin people in. And ticketed live nights.
-And every fan only get counted one time.
+The fix is a membership with levels. Fans pay him direct every month, and his unreleased music live in a vault inside it.
+Second: his fans already promote him for FREE. Clips, reposts, edits. They make him money and dont see none of it.
+The fix is Share-to-Earn. Every fan get they own link, and a cut of every member they bring in.
+Third: fans can only WATCH him make music. They cant be in the room while it happen.
+The fix is Executive Producer Sessions. Private studio sessions where his top members in the room with him.
+One system. One place. And every fan only get counted one time.
 Let's run it.
 We aint gon add his followers and his listeners. Most of em the same people. So we use the bigger number: 1 million.
 Say only 15% of em can really be reached. That's 150,000 fans.
@@ -30,10 +34,10 @@ Say only 3% of them ever pay for anything. His clips push that up a lil. Call it
 Now the sharers. Say 4,500 fans share his link for a cut. They reach 90,000 new people. If just 2% join, that's 1,800 more.
 So like 7,400 paying members. One count. No overlap.
 Most pay $10 a month. Some $25. A few $100. Plus a lil extra spend here and there.
-That's like $174,000 a month, every month.
-Now add one ticketed live a month, sold only to fans who aint members. Like 1,400 tickets at $15, plus tips. $23,000 more.
+Now add one ticketed live a month, sold only to fans who aint members. Like 1,400 tickets at $15, plus tips.
 His private studio sessions? Already inside the $100 level. They add zero. That's what make that level worth $100.
 Sidenote: this exact system, the levels, the vault, the share links, the ticketed lives, is what an artist can build on the CRWN app. ANYWAY...
+Before I give you this number, tag Akeem Ali or an artist like him in the comments, so they can see this.
 After fees, and the cut his fans get for bringin people in, Akeem Ali could be missin like **$175,000 a month**. That's like **$2.1 million a year**. Off fans he already got.
 Remember that $1,600 from streaming? This is 100 times that.
 The real number may be higher or lower. This is a plan, not a promise.
@@ -49,4 +53,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 ---
 
-**NOTES:** First script in the all-in (PLAN) series. Voice is the urban conversational register from /crwn-shortform (Josh's call, 2026-08-04), not the neutral lead-magnet voice; structure is hook > problem > solution > stage-setter (what he makes now) > breakdown > total > turn > CTA. Runs long (~360 words); if splitting into two parts, Part 1 ends after "So like 7,400 paying members. One count. No overlap." and Part 2 opens on "Most pay $10 a month." Every figure mirrors the shipped unified model (`unifiedOpportunity@1`, expected scenario) with sessions structured as INCLUDED in the top tier, which is why they add $0: that line is the honesty beat this magnet owns. The $1,600/mo streaming stage-setter uses the reference set's ~1 cent per monthly listener heuristic; it is an estimate, keep the "like" hedge. Follower and listener counts searched 2026-08-04 (IG @akeem__ali ~1M; Spotify ~161K); re-verify before filming. Akeem Ali is not yet in `known-people.json`; add him (slug, Brave query, Wikipedia/press page, aliases like "Keemy Casanova") before running the image pipeline.
+**NOTES:** First script in the all-in (PLAN) series. Voice is the urban conversational register from /crwn-shortform (Josh's call, 2026-08-04), not the neutral lead-magnet voice; structure is hook (names "artists like him" for the ICP) > three problem/solution pairs (streaming pennies > membership ladder; free promo > Share-to-Earn; watch-only fans > Executive Producer Sessions) > breakdown > tag CTA ("tag Akeem Ali or an artist like him") > total reveal > turn > CTA. Dollar subtotals are WITHHELD in the spoken script (no $174K core, no $23K live line); the only spoken money before the reveal is the $1,600 streaming stage-setter, which is what he makes NOW, not part of the payoff. Numbers verified 2026-08-04 by executing `calculateUnifiedOpportunity()` with Akeem's inputs (1M followers, 161K listeners, sessions included in top tier): net $175,238.81/mo, $2,102,865.72/yr. Runs long (~360 words); if splitting into two parts, Part 1 ends after "So like 7,400 paying members. One count. No overlap." and Part 2 opens on "Most pay $10 a month." Every figure mirrors the shipped unified model (`unifiedOpportunity@1`, expected scenario) with sessions structured as INCLUDED in the top tier, which is why they add $0: that line is the honesty beat this magnet owns. The $1,600/mo streaming stage-setter uses the reference set's ~1 cent per monthly listener heuristic; it is an estimate, keep the "like" hedge. Follower and listener counts searched 2026-08-04 (IG @akeem__ali ~1M; Spotify ~161K); re-verify before filming. Akeem Ali is not yet in `known-people.json`; add him (slug, Brave query, Wikipedia/press page, aliases like "Keemy Casanova") before running the image pipeline.
