@@ -460,9 +460,43 @@ hand-colored with marker streaks; pure white #FFFFFF; 3:4 vertical. The pipeline
 auto-fetches the artist's face ref from `known-people.json` and binds a portrait directive,
 so name the artist in the prompt (do NOT `skip-people`).
 
+## All-in (FREE) scripts get THREE sheets, not one
+
+A 2-3 minute all-in script has three acts, and one sheet cannot hold four problem/solution
+vignettes plus a math funnel plus a reveal without going illegible. Write three prompt blocks,
+each headed exactly `**SHEET N — LABEL:**` so the runner can find them:
+
+1. **SHEET 1 — THE PROBLEMS** (the COVER; payoff withheld, "$?" on the cash only).
+2. **SHEET 2 — RUN THE NUMBERS** (airs at "Let's run it"): a funnel with the audience stages,
+   counts and prices ONLY, still no dollar total.
+3. **SHEET 3 — THE REVEAL** (airs at the reveal moment ONLY, never as the cover or thumbnail):
+   the number is the point here, plus the multiples and the superfan anchor.
+
+**The artist must be the biggest element and MID-ACTION on every sheet** (Josh, 2026-08-04),
+including the math sheet: on the funnel sheet he grips and tips the funnel himself rather than
+standing beside it pointing.
+
+**Text-density is the failure mode.** Sheet 2 first came back with an invented "37.6K TIKTOK"
+tile and nonsense words ("FIUNCH", "SORTIFY"), because the page carried too many small labeled
+objects. The fix that worked: cut drawn objects (no staircase, no ticket stub), move those
+values into ONE tidy hand-lettered column, state "exactly THREE tiles, no more and no fewer",
+and add "invent no extra words, no nonsense words, no partial words, and no extra numbers."
+Look at every sheet before shipping it and regenerate any garbled text.
+
 ## Generating the image
 
-Reuse the existing pipeline verbatim. Write the prompt(s) into
+Multi-sheet lead-magnet scripts use `generate-lead-magnet-images.mjs` (not the shortform
+runner, which expects one numbered script per image):
+
+`bash -c 'source /home/merce/workspace-crwn/load-env.sh; node generate-lead-magnet-images.mjs free-k-camp'`
+
+- `--sheets=2` regenerates one sheet instead of all of them.
+- `--refs=kcamp1.jpg,kcamp2.jpg` REPLACES the Brave-fetched person photo with hand-picked files
+  from the people folder. Use it whenever the auto-fetched shot yields a weak likeness; Josh
+  dropping better refs in that folder is the normal fix.
+- Output lands in `.../Shortform Posts/<script-slug>-<n>-<label>.jpg`.
+
+For single-sheet scripts, reuse the existing pipeline verbatim. Write the prompt(s) into
 `/home/merce/workspace-crwn/generate-images.mjs` (3:4, `responseModalities:["IMAGE"]`,
 style + person refs as that script already does) and run:
 
