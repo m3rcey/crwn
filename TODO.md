@@ -57,13 +57,14 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       `&utm_content=<video-label>` on each so the admin Avatars tab can compare creatives;
       both the avatar and first-touch UTMs now persist across the whole visit.
 
-- [ ] **ONE decision, one line of code: is the precedence order right?** The four avatars
-      overlap (a large R&B seller is both an R&B Empire Builder and a highest-priority lead),
-      so exactly one cohort claims each artist, in the order you listed them: Highest Priority
-      Empire Builder wins, then Established Independent Operator, then Brand-Led Hip-Hop, then
-      R&B Empire Builder. That means **a big R&B seller lands in the Empire Builder cohort, not
-      the R&B one.** If you would rather genre won, say so and I reorder the array in
-      [`src/lib/avatars/taxonomy.ts`](src/lib/avatars/taxonomy.ts); nothing else changes.
+- [ ] **When you read the Avatars tab, read the genre rows, not just the cohort totals.**
+      Nothing to do today; this is a one-time "how to not misread your own report". The
+      qualification bar means every big seller lands in Highest Priority whatever their genre,
+      so that cohort will always look richest: it is defined as your biggest artists. The
+      comparison that actually tells you where to spend is the **"Who this funnel brought"** rows
+      inside each cohort card (hip-hop vs R&B vs other, with the first-paid rate per genre), plus
+      the genre filter at the top. And it only compares CONTENT if your links carry `?from=`;
+      untagged traffic falls back to scoring, which compares artist size instead.
 
 - [ ] **Run the membership-strategy migration:**
       [`supabase/schema-phase2-membership-strategy.sql`](supabase/schema-phase2-membership-strategy.sql).

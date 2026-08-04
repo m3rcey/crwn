@@ -233,6 +233,30 @@ avatar-specific experiment experiences are **Deferred** until there is a variant
   INVESTIGATION ("Investigate offer clarity, benefit strength, pricing presentation...") and
   never a causal verdict. Admin-only; nothing reaches an artist.
 
+### 7a. Genre is a DIMENSION, not a fifth cohort (Implemented 2026-08-04)
+
+The scorer's qualification bar (large audience plus proven direct sales, 7 points) reliably
+outscores every genre segment, so **every big seller lands in Highest Priority Empire Builder
+whatever they make**, and the genre cohorts quietly become "artists who did not qualify as big
+sellers". Comparing cohort revenue would then answer "which cohort holds the biggest artists?"
+(tautologically, the one defined that way) rather than "which content works?".
+
+Genre and priority are orthogonal, so genre cuts each cohort instead of competing with it:
+
+- `buildGenreBreakdown()` (`src/lib/avatars/cohortGenre.ts`, pure, tested) returns all four genre
+  rows in fixed order per cohort: identities, first-paid artists, refund-netted GMV, and a
+  within-genre first-paid rate that is **null below 5 identities** rather than a noisy percentage.
+- **`other` and `unknown` are never merged.** `other` means the artist told us a genre outside the
+  two families; `unknown` means they never told us (every anonymous row, plus anyone who skipped
+  the optional question). Folding them would report an absence as a measured result.
+- One identity is counted once however many events it produced, and an artist row and its owning
+  user are canonicalized to ONE person so nobody is double-counted.
+- `?genre=` filters the whole report. Genre costs no extra query: it is read from the same stored
+  answers the identity resolution already loads.
+
+The question this makes answerable, which the cohorts alone could not: *did the empire-builder
+funnel bring more hip-hop or R&B artists, and which of them converted better?*
+
 ## 8. Nurture and post-launch recommendations (Implemented)
 
 One universal prospect-nurture core sequence, personalized by AVATAR rather than by slug, since
@@ -260,11 +284,20 @@ recommendation can therefore never cost an artist money because a segment guess 
 5. Never rename a live id once data exists under it. Renaming is only free while nothing has
    accumulated, which is exactly why v1 to v2 was safe on its first day and would not be later.
 
-## 10. Founder decisions still open
+## 10. Founder decisions
 
-- **The precedence order** (the array order in `taxonomy.ts`). A large R&B seller currently lands
-  in Highest Priority Empire Builder rather than R&B Empire Builder, because "highest priority"
-  is read as a priority tier that outranks genre. One line to change if that is wrong.
+**SETTLED 2026-08-04: the precedence order stays as declared.** Verified against the real scorer
+rather than assumed: a big R&B seller scores Highest Priority 7 vs R&B Empire 6, so it wins on
+POINTS, not on the tiebreak. Precedence only decides an exact tie, which is rare, and where it
+does apply, qualification-first is the right default for a stranger. The genuine issue underneath
+it (the qualification bar absorbing every big seller, making cross-cohort revenue comparisons
+tautological) is addressed by §7a's genre dimension rather than by reordering. **Consequence worth
+knowing:** in the derived fallback, "R&B Empire Builder" means an R&B artist not yet at Tier 1
+scale. To make it mean *all* R&B artists, genre would have to outscore the qualification bar,
+which is a scoring change and not a reorder.
+
+Still open:
+
 - When each avatar funnel gets first traffic and which creative angles run (TODO.md item).
 - Whether an artist-facing avatar picker should exist (the override API supports it; no UI
   surfaces it beyond the derived intro copy, deliberately, until the journeys have data).

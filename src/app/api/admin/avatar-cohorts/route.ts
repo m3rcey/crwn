@@ -27,8 +27,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SUB_AVATARS, SUB_AVATAR_TAXONOMY_VERSION, isSubAvatarId } from '@/lib/avatars/taxonomy';
-import { assignSubAvatar, deriveAcquisitionAvatar, evidenceFromInputs, mergeEvidence } from '@/lib/avatars/assignment';
+import {
+  assignSubAvatar,
+  deriveAcquisitionAvatar,
+  evidenceFromInputs,
+  mergeEvidence,
+  resolveGenreFamily,
+} from '@/lib/avatars/assignment';
 import { AVATAR_FUNNEL_SPINE, readCohortConstraint } from '@/lib/avatars/cohortConstraint';
+import { buildGenreBreakdown, parseGenreFilter, type GenreKey } from '@/lib/avatars/cohortGenre';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -48,6 +55,10 @@ interface CohortAccumulator {
   accountCreatedAt: Map<string, number>; // identity -> epoch ms of account_created
   firstPaidArtists: Set<string>;
   firstPaidAt: Map<string, number>;
+  /** Canonical person -> their genre, for the genre cut of this cohort. */
+  identityGenre: Map<string, GenreKey>;
+  /** Canonical person -> whether they reached a first paid fan in the window. */
+  identityFirstPaid: Set<string>;
 }
 
 export async function GET(req: NextRequest) {
@@ -63,6 +74,8 @@ export async function GET(req: NextRequest) {
   const days = Math.min(365, Math.max(7, Number(url.searchParams.get('days')) || 90));
   const sinceIso = new Date(Date.now() - days * DAY_MS).toISOString();
   const avatarFilter = url.searchParams.get('avatar') || null;
+  // Genre is a DIMENSION, not a cohort: it cuts each avatar rather than competing with it.
+  const genreFilter = parseGenreFilter(url.searchParams.get('genre'));
 
   // 1. The funnel spine, from canonical funnel_events.
   const { data: events, error } = await supabaseAdmin
@@ -91,7 +104,11 @@ export async function GET(req: NextRequest) {
   for (const e of events ?? []) {
     if (e.user_id) identityIds.add(String(e.user_id));
   }
+  // Genre rides along from the SAME query and the same answers, because genre and priority are
+  // orthogonal: the qualification bar outscores every genre segment, so genre has to be a cut of
+  // each cohort rather than a cohort competing with them (src/lib/avatars/cohortGenre.ts).
   const avatarByUser = new Map<string, string>();
+  const genreByUser = new Map<string, GenreKey>();
   if (identityIds.size) {
     try {
       const { data: rows } = await supabaseAdmin
@@ -114,6 +131,11 @@ export async function GET(req: NextRequest) {
           assignSubAvatar(mergeEvidence({ entryContexts: contexts }, ...fragments))?.primarySubAvatar ??
           null;
         if (resolved) avatarByUser.set(uid, resolved);
+
+        // Genre only counts when they actually answered. A merged fragment with no genre at all
+        // stays UNKNOWN rather than falling into `other`, which would report an absence as a fact.
+        const merged = mergeEvidence(...fragments);
+        if (merged.genreFamily || merged.genre) genreByUser.set(uid, resolveGenreFamily(merged));
       }
     } catch {
       /* identity resolution is additive: without it, post-signup rows read as unassigned */
@@ -128,6 +150,10 @@ export async function GET(req: NextRequest) {
     if (e.artist_id) artistIds.add(String(e.artist_id));
   }
   const avatarByArtist = new Map<string, string>();
+  const genreByArtist = new Map<string, GenreKey>();
+  // Canonicalizes a person: an artist row and its owning user are ONE identity, so a genre
+  // breakdown cannot count the same human twice under two different ids.
+  const userByArtist = new Map<string, string>();
   if (artistIds.size) {
     try {
       const { data: artistRows } = await supabaseAdmin
@@ -135,8 +161,11 @@ export async function GET(req: NextRequest) {
         .select('id, user_id')
         .in('id', [...artistIds].slice(0, 1000));
       for (const a of artistRows ?? []) {
+        userByArtist.set(String(a.id), String(a.user_id));
         const v = avatarByUser.get(String(a.user_id));
         if (v) avatarByArtist.set(String(a.id), v);
+        const g = genreByUser.get(String(a.user_id));
+        if (g) genreByArtist.set(String(a.id), g);
       }
     } catch {
       /* silence */
@@ -147,7 +176,14 @@ export async function GET(req: NextRequest) {
   const cohortOf = (key: CohortKey): CohortAccumulator => {
     let c = cohorts.get(key);
     if (!c) {
-      c = { stageUnits: new Map(), accountCreatedAt: new Map(), firstPaidArtists: new Set(), firstPaidAt: new Map() };
+      c = {
+        stageUnits: new Map(),
+        accountCreatedAt: new Map(),
+        firstPaidArtists: new Set(),
+        firstPaidAt: new Map(),
+        identityGenre: new Map(),
+        identityFirstPaid: new Set(),
+      };
       cohorts.set(key, c);
     }
     return c;
@@ -160,7 +196,23 @@ export async function GET(req: NextRequest) {
       (e.user_id ? avatarByUser.get(String(e.user_id)) : null) ??
       (e.artist_id ? avatarByArtist.get(String(e.artist_id)) : null) ??
       'unassigned';
+
+    // The canonical person behind this row, and their genre. Genre is UNKNOWN until they answer,
+    // which is every anonymous top-of-funnel row, and unknown is reported as such.
+    const canonical =
+      String(e.user_id || '') ||
+      (e.artist_id ? userByArtist.get(String(e.artist_id)) || String(e.artist_id) : '');
+    const genre: GenreKey = canonical
+      ? (e.user_id ? genreByUser.get(String(e.user_id)) : null) ??
+        (e.artist_id ? genreByArtist.get(String(e.artist_id)) : null) ??
+        'unknown'
+      : 'unknown';
+
+    // A genre filter restricts to people we can actually place in that genre.
+    if (genreFilter && genre !== genreFilter) continue;
+
     const c = cohortOf(avatar);
+    if (canonical) c.identityGenre.set(canonical, genre);
     // Unit of count: the most durable identity available, falling back to the deduped row key so
     // a stage with no identity still counts occurrences without double-counting retries.
     const identity = String(e.user_id || e.artist_id || e.anon_id || e.dedupe_key);
@@ -176,6 +228,7 @@ export async function GET(req: NextRequest) {
     if (e.stage === 'first_paid_conversion' && e.artist_id) {
       c.firstPaidArtists.add(String(e.artist_id));
       if (Number.isFinite(t)) c.firstPaidAt.set(String(e.artist_id), t);
+      if (canonical) c.identityFirstPaid.add(canonical);
     }
   }
 
@@ -183,14 +236,19 @@ export async function GET(req: NextRequest) {
   // ARTIST's resolved avatar, not by calculator: every avatar now runs the same calculator, so a
   // calculator-keyed rollup would put all four cohorts' money in one pile.
   const gmvByAvatar = new Map<CohortKey, number>();
+  const gmvByIdentity = new Map<string, number>();
   try {
     const { data: ledger } = await supabaseAdmin
       .from('opportunity_ledger')
       .select('artist_id, captured_cents')
       .limit(ROW_CAP);
     for (const row of ledger ?? []) {
-      const avatar = avatarByArtist.get(String(row.artist_id)) ?? 'unassigned';
-      gmvByAvatar.set(avatar, (gmvByAvatar.get(avatar) ?? 0) + (Number(row.captured_cents) || 0));
+      const artistId = String(row.artist_id);
+      const cents = Number(row.captured_cents) || 0;
+      const avatar = avatarByArtist.get(artistId) ?? 'unassigned';
+      gmvByAvatar.set(avatar, (gmvByAvatar.get(avatar) ?? 0) + cents);
+      const canonical = userByArtist.get(artistId) || artistId;
+      gmvByIdentity.set(canonical, (gmvByIdentity.get(canonical) ?? 0) + cents);
     }
   } catch {
     /* ledger absent: reported as notMeasured below */
@@ -251,6 +309,18 @@ export async function GET(req: NextRequest) {
 
       const constraint = readCohortConstraint(stages);
 
+      // The genre cut of this cohort: which kind of artist the funnel actually brought, and how
+      // each kind did. This is the question the cohorts alone cannot answer, because the
+      // qualification bar outscores genre and would otherwise hide it.
+      const genreBreakdown = buildGenreBreakdown(
+        [...(c?.identityGenre.entries() ?? [])].map(([identityId, genre]) => ({
+          id: identityId,
+          genre,
+          firstPaid: c!.identityFirstPaid.has(identityId),
+          gmvCents: gmvByIdentity.get(identityId) ?? 0,
+        })),
+      );
+
       return {
         avatar: id,
         label: def?.label ?? 'Unassigned (no avatar funnel and no resolvable identity)',
@@ -262,6 +332,7 @@ export async function GET(req: NextRequest) {
         firstPaidArtists: c?.firstPaidArtists.size ?? 0,
         medianDaysToFirstPaid,
         gmvCapturedCents: gmvByAvatar.get(id) ?? 0,
+        genreBreakdown,
         constraint,
         sampleWarning:
           (c?.stageUnits.get('calculator_completed')?.size ?? 0) < 30
@@ -274,8 +345,11 @@ export async function GET(req: NextRequest) {
     taxonomyVersion: SUB_AVATAR_TAXONOMY_VERSION,
     since: sinceIso,
     days,
+    genreFilter,
     truncated: (events?.length ?? 0) >= ROW_CAP,
     cohorts: report,
+    genreNote:
+      'Genre is a cut of each cohort, not a cohort of its own: the qualification bar outscores every genre segment, so a big seller lands in Highest Priority whatever they make. "Not stated yet" means the artist had not answered the optional genre question, which is every visitor before they reach it, and it is never folded into "Other genre".',
     // Metrics the platform does not yet measure at cohort grain. Named, never zero-filled.
     attributionNote:
       'Rows are attributed by the sub-avatar funnel stamped on the event, then by the avatar of the row identity resolved from that artist\'s own stored answers. Identity never overrides a stamp, so a cohort cannot gain members halfway down its own funnel.',

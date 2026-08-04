@@ -22,6 +22,7 @@ interface CohortReport {
   firstPaidArtists: number;
   medianDaysToFirstPaid: number | null;
   gmvCapturedCents: number;
+  genreBreakdown: GenreRow[];
   constraint: {
     constraintId: string;
     severity: string;
@@ -32,13 +33,24 @@ interface CohortReport {
   sampleWarning: string | null;
 }
 
+interface GenreRow {
+  genre: string;
+  label: string;
+  identities: number;
+  firstPaidArtists: number;
+  gmvCapturedCents: number;
+  firstPaidRate: number | null;
+}
+
 interface Report {
   taxonomyVersion: string;
   since: string;
   days: number;
+  genreFilter: string | null;
   truncated: boolean;
   cohorts: CohortReport[];
   attributionNote?: string;
+  genreNote?: string;
   notMeasured: string[];
 }
 
@@ -47,6 +59,7 @@ const usd = (cents: number) => `$${Math.round(cents / 100).toLocaleString('en-US
 export default function AvatarCohortsView() {
   const [report, setReport] = useState<Report | null>(null);
   const [days, setDays] = useState(90);
+  const [genre, setGenre] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +67,7 @@ export default function AvatarCohortsView() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/avatar-cohorts?days=${days}`);
+      const res = await fetch(`/api/admin/avatar-cohorts?days=${days}${genre ? `&genre=${genre}` : ''}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load');
       setReport(data);
@@ -63,7 +76,7 @@ export default function AvatarCohortsView() {
     } finally {
       setLoading(false);
     }
-  }, [days]);
+  }, [days, genre]);
 
   useEffect(() => {
     void load();
@@ -90,6 +103,17 @@ export default function AvatarCohortsView() {
             <option value={90}>Last 90 days</option>
             <option value={180}>Last 180 days</option>
             <option value={365}>Last year</option>
+          </select>
+          <select
+            value={genre}
+            onChange={(e) => setGenre(e.target.value)}
+            className="bg-crwn-surface border border-crwn-elevated rounded-full px-3 py-1.5 text-sm text-crwn-text"
+          >
+            <option value="">All genres</option>
+            <option value="hiphop">Hip-hop only</option>
+            <option value="rnb">R&B only</option>
+            <option value="other">Other genre only</option>
+            <option value="unknown">Not stated yet</option>
           </select>
           <button
             onClick={() => void load()}
@@ -174,6 +198,26 @@ export default function AvatarCohortsView() {
                 </div>
               </div>
 
+              {c.genreBreakdown?.some((g) => g.identities > 0) && (
+                <div className="space-y-1">
+                  <div className="text-[11px] uppercase tracking-wide text-crwn-text-secondary">Who this funnel brought</div>
+                  {c.genreBreakdown
+                    .filter((g) => g.identities > 0)
+                    .map((g) => (
+                      <div key={g.genre} className="flex items-center gap-2 text-xs">
+                        <span className="w-24 shrink-0 text-crwn-text-secondary">{g.label}</span>
+                        <span className="w-10 text-right text-crwn-text tabular-nums">{g.identities}</span>
+                        <span className="flex-1 text-crwn-text-secondary">
+                          {g.firstPaidRate !== null
+                            ? `${Math.round(g.firstPaidRate * 100)}% reached a first paid fan`
+                            : 'too few to rate'}
+                        </span>
+                        <span className="text-crwn-text tabular-nums">{usd(g.gmvCapturedCents)}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+
               {c.constraint && (
                 <div className="border border-crwn-elevated rounded-xl p-3 text-xs space-y-1">
                   <div className="text-crwn-text font-medium">
@@ -191,6 +235,7 @@ export default function AvatarCohortsView() {
       {!loading && report?.attributionNote && (
         <p className="text-xs text-crwn-text-secondary">{report.attributionNote}</p>
       )}
+      {!loading && report?.genreNote && <p className="text-xs text-crwn-text-secondary">{report.genreNote}</p>}
 
       {!loading && report && report.notMeasured.length > 0 && (
         <div className="text-xs text-crwn-text-secondary space-y-1">

@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-08-04 - Genre becomes a dimension of the avatar cohorts, not a fifth cohort
+
+**What/why:** the precedence question ("should a big R&B seller land in Empire Builder or R&B
+Empire Builder?") was checked against the real scorer instead of reasoned about, and the answer
+was that precedence barely matters: that artist scores Highest Priority 7 vs R&B Empire 6 and wins
+on POINTS. Precedence only breaks an exact tie. **The order stays as declared.**
+
+The check surfaced the real problem underneath it. The qualification bar (large audience plus
+proven direct sales) outscores every genre segment, so every big seller lands in Highest Priority
+whatever they make, and the genre cohorts silently become "artists who did not qualify as big
+sellers". Comparing cohort revenue would then answer "which cohort holds the biggest artists?",
+tautologically the one defined that way, while looking like a content result. That would have
+misled exactly the acquisition decision the report exists to inform.
+
+**The fix, because genre and priority are orthogonal:** genre now CUTS each cohort instead of
+competing with it. `buildGenreBreakdown()` (`src/lib/avatars/cohortGenre.ts`, pure, tested)
+returns all four genre rows per cohort with identities, first-paid artists, refund-netted GMV and
+a within-genre first-paid rate that is null below 5 identities rather than a noisy percentage.
+`?genre=` filters the whole report. It costs no extra query: genre is read from the same stored
+answers the identity resolution already loads, and an artist row plus its owning user canonicalize
+to one person so nobody is double-counted.
+
+**The honesty rule it encodes:** `other` (they told us a genre outside the two families) and
+`unknown` (they never told us, which is every anonymous row) are counted separately and never
+merged, because folding them would report an absence of data as a measured result. Pinned by test.
+
+**Files:** `src/lib/avatars/cohortGenre.ts` + test (new), `api/admin/avatar-cohorts/route.ts`,
+`AvatarCohortsView.tsx`, `docs/SUB_AVATARS.md` (§7a, and §10 records the precedence decision as
+settled). 889 tests pass. No migration, no founder action.
+
 ## 2026-08-04 - subAvatar@2: four identity segments, one front door
 
 **What/why:** founder call, one day after `subAvatar@1` shipped. The four sub-avatars are renamed
