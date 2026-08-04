@@ -35,7 +35,7 @@ Save each script to:
 ## Cross-Platform Audience — the overlap equation (MANDATORY wherever followers are counted)
 
 A fan who follows the artist on two apps is ONE fan. Never add raw platform counts. Wherever a
-magnet's math calls for "combined followers" (Vault, OWN, LIVE, and the all-in PLAN script),
+magnet's math calls for "combined followers" (Vault, OWN, LIVE, and the all-in AUDIT script),
 build the audience base with this equation instead of a naive sum:
 
   **C = P1 + 0.4 × (P2 + P3 + ... + Pn)**
@@ -56,10 +56,11 @@ build the audience base with this equation instead of a naive sum:
 - Worked check: Akeem Ali, 1M IG + 533K TikTok + 223K YouTube → 1,000,000 + 0.4 × 756,000 =
   1,302,400 ≈ **1.3 million**, vs 161K listeners → base stays 1.3M.
 
-## The all-in calculator — keyword `PLAN` (added 2026-08-04)
+## The all-in calculator — keyword `AUDIT` (added 2026-08-04; renamed from PLAN same day)
 
 The sixth-plus magnet: the **CRWN Opportunity Calculator** (`/tools/opportunity-calculator`),
-invoked as `all-in` / `plan` / `opportunity`. It models the WHOLE business at once and its math
+invoked as `all-in` / `audit` / `plan` / `opportunity`. The comment keyword is **AUDIT**
+(echoes the CTA's "audits your brand"; registered in the registry's dmKeywords). It models the WHOLE business at once and its math
 MUST mirror `src/lib/opportunity/unifiedModel.ts` (expected scenario) exactly; when in doubt,
 run `calculateUnifiedOpportunity()` in a throwaway vitest file and read the printed numbers.
 Structure differs from the five single-loss scripts (per Josh's own edit, 2026-08-04): hook
@@ -94,14 +95,14 @@ the single total reveal, then the callback to the held baseline stating how many
 total money he would have ((reveal + baseline) ÷ baseline, e.g. "over 11 times the money he got
 now"), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
 artists operating on his level (im talking to YOU) how much are you missing out on?"), CTA
-(comment **PLAN**). The hook's loss theme is a BOOKEND: restate it nearly verbatim at the
+(comment **AUDIT**). The hook's loss theme is a BOOKEND: restate it nearly verbatim at the
 reveal ("all because he's giving the things that fans want more than music away for free")
 and once more inside the CTA, so the payoff answers the exact question the hook asked. The problem/solution block flows straight into "Let's run it." with just a
 paragraph break, no bridge line between them. Never state touring/merch estimates as reported figures; they are "say/like" hedged
 illustrations, and the reveal is never reduced by them (CRWN does not replace the road or the
 merch table). Voice is the urban conversational register
 from `/crwn-shortform`, not the neutral voice the five scripts above use. Reference script:
-`plan-akeem-ali.md` (Josh-edited; copy its beats).
+`audit-akeem-ali.md` (Josh-edited; copy its beats).
 
 ## The Five Lead Magnets (pick ONE per script; it drives everything)
 
