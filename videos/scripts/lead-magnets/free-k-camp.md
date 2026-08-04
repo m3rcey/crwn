@@ -46,10 +46,10 @@ So all in, call it like $77,000 a month that he's currently bringing in, which i
 
 After fees, and after his fans get they cut for bringin people in, K Camp would be walkin with over 7 TIMES the money he currently make. Every single month.
 And if you just compare it to his streaming checks? Over 20 TIMES what Spotify pay him.
-Cause what he's missin out on is like **$473,000 a month**. That's like $5.7 million a year, all because the things his fans want most, he give away free or dont give at all.
+Cause when you add it all up from just 20,000 superfans, K CAMP is missin out on like **$473,000 a month**. That's like $5.7 million a year, all because the things his fans want most, he's either giving it away free or not offering it at all.
 The real number may be higher or lower. This is a plan, not a promise.
 BUT, real question...if you an independent artist movin at ANY level, this about you too. How much are YOU missing out on?
-I built a free calculator that look at your whole operation and show you what YOU'RE leaving on the table because the things YOUR fans want most, you either givin away free or not at all.
+I built a free calculator that look at your whole operation and show you what YOU'RE leaving on the table because the things YOUR fans want most you're either givin away free or not at all.
 Comment "FREE" and I'll DM you the link.
 
 ---

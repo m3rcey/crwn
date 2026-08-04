@@ -95,9 +95,11 @@ LIKE him in the comments so they can see this.") before "ANYWAY...", then a para
 then a two-step MULTIPLE LADDER before any dollars: first vs his whole current income
 ("[Artist] would be walkin with over N TIMES the money he currently make", N = (reveal +
 baseline) ÷ baseline), then vs streaming alone ("over M TIMES what Spotify pay him", M =
-(reveal + baseline) ÷ streaming), and only THEN the dollar reveal (monthly and yearly) with
-the premise bookend attached (reveal order per Josh, 2026-08-04: the multiples escalate the
-scale, the dollar number lands as the payoff), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
+(reveal + baseline) ÷ streaming), and only THEN the dollar reveal (monthly and yearly), ANCHORED to the
+superfan count ("Cause when you add it all up from just [N] superfans, [Artist] is missin out
+on like $X a month"), with the premise bookend attached (reveal order per Josh, 2026-08-04:
+the multiples escalate the scale, the small-count anchor makes it believable, the dollar
+number lands as the payoff), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
 artists operating on his level (im talking to YOU) how much are you missing out on?"), CTA
 (comment **FREE**). The hook's loss theme is a BOOKEND: restate it nearly verbatim at the
 reveal ("all because he's giving the things that fans want more than music away for free")
