@@ -484,7 +484,19 @@ photo was (2026-08-04). The runner now labels every override photo and states th
 photos are the same person from different angles. If a likeness ever regresses right after
 swapping refs, check that the labels are still being emitted before blaming the prompt.
 
-**Likeness also comes from HEAD SIZE and INK DENSITY, not just reference photos.** The K Camp
+**A written feature list COMPETES with the reference photo, and usually wins.** Describing the
+artist in words ("slim young Black man, long thin locs, thin mustache, fitted cap") gives the
+model a spec it can satisfy without ever consulting the attached photos, and the result is a
+generic rapper who ticks every box and looks like nobody. When a likeness will not land, DELETE
+the feature list and replace it with a directive pointing at the photos: "HIS FACE MUST BE
+COPIED DIRECTLY FROM THE ATTACHED REFERENCE PHOTOS. Reproduce that specific man's face shape
+and jawline, eye shape and spacing, nose and mouth, hairline and how the hair hangs, and facial
+hair. Do not draw a generic handsome rapper; do not invent features that are not in the photos."
+Also pass ONLY photos of the same current look; an off-era shot (different hair, grillz,
+headwear) drags the face toward an average of the two. Learned across ~6 K Camp passes,
+2026-08-04.
+
+**Likeness also comes from HEAD SIZE and INK DENSITY.** The K Camp
 sheets proved it (2026-08-04): the sheet that looked most like him was a WAIST-UP figure drawn
 as a detailed inked portrait; the full-length versions put the head at half that size and the
 face collapsed into generic line work, and swapping in hand-picked reference photos did not
