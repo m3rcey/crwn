@@ -64,9 +64,12 @@ MUST mirror `src/lib/opportunity/unifiedModel.ts` (expected scenario) exactly; w
 run `calculateUnifiedOpportunity()` in a throwaway vitest file and read the printed numbers.
 Structure differs from the five single-loss scripts (per Josh's own edit, 2026-08-04): hook
 names "[Artist] and artists like him", then "Fans LOVE [Artist]." (platform counts are NOT
-spoken up top), then FOUR problem/solution pairs each with SPECIFICS (streaming pennies → the
-membership ladder with named benefits: early drops, vault, private posts, behind the scenes,
-direct line; fans promoting free → Share-to-Earn; watch-only fans who "cant pitch a beat, cant
+spoken up top), then FOUR problem/solution pairs each with SPECIFICS but NO artist-specific
+numbers (the pairs are universal; every current-income figure waits for the baseline block):
+streaming "a fraction of a penny per stream and fans get nothing but a song" → the membership
+ladder with named benefits: early drops, Q&As and listening sessions, video and song
+commentary, vault, private posts, behind the scenes, direct line; fans promoting free →
+Share-to-Earn; watch-only fans who "cant pitch a beat, cant
 throw a hook idea, cant add they vocals" → Executive Producer Sessions where top members pitch
 while the song gets made; free promo-only lives that vanish when they end → Live Experiences:
 an intimate Tiny Desk-style paid stream with real-time shoutouts between songs, tips all night,
@@ -77,9 +80,10 @@ breakdown WITH the platform counts
 and the overlap equation spoken plainly, then a counts-only breakdown including the per-tier
 headcounts ("Like 6,800 of em pay $10..."), with ALL dollar subtotals WITHHELD (fan counts and
 prices may be spoken; computed dollars may not; the exception is the CURRENT-income baseline
-since it is money he makes NOW: streaming ≈ 1 cent per monthly listener spoken inside problem
-1, while the touring/merch estimates and the combined total go AFTER the breakdown, NEVER
-between the problem/solution pairs, as the held setup right before the tension line: "So all
+since it is money he makes NOW: the WHOLE baseline including streaming ≈ 1 cent per monthly
+listener goes AFTER the breakdown, NEVER inside the problem/solution pairs, as the held setup
+right before the tension line: "remember: He got like 161,000 monthly listeners on Spotify.
+That's only like $1,600 a month. But he makes money from touring and selling merch... So all
 in, call it like $22,000 a month, which is like $264,000 a year. Hold that number." Touring
 and merch get hedged round estimates only IF the artist verifiably tours/sells merch), then the
 tension line ("When you add all this up, the amount he's missing out on is CRAZY."), then the
