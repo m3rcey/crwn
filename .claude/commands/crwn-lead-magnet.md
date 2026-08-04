@@ -87,12 +87,15 @@ That's only like $1,600 a month. But he makes money from touring and selling mer
 in, call it like $22,000 a month, which is like $264,000 a year. Hold that number." Touring
 and merch get hedged round estimates only IF the artist verifiably tours/sells merch), then the
 tension line ("When you add all this up, the amount he's missing out on is CRAZY."), then the
-Sidenote CARRYING the tag CTA inside it ("Tag [Artist] or an artist like him in the comments so
-they can see this.") before "ANYWAY...", then a paragraph break, the single total reveal, then
-the callback to the held baseline stating how many times MORE total money he would have
-((reveal + baseline) ÷ baseline, e.g. "over 11 times the money he got now"), the disclaimer,
-the turn ("BUT, the bigger question is this...how much are YOU missing out on?"), CTA (comment
-**PLAN**). Never state touring/merch estimates as reported figures; they are "say/like" hedged
+Sidenote opening "Before I reveal the big number here's a sidenote:", naming "[Artist] OR an
+artist operating on his level", and CARRYING the tag CTA inside it ("Tag [Artist] or an artist
+LIKE him in the comments so they can see this.") before "ANYWAY...", then a paragraph break,
+the single total reveal, then the callback to the held baseline stating how many times MORE
+total money he would have ((reveal + baseline) ÷ baseline, e.g. "over 11 times the money he got
+now"), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
+artists operating on his level (im talking to YOU) how much are you missing out on?"), CTA
+(comment **PLAN**). The problem/solution block flows straight into "Let's run it." with just a
+paragraph break, no bridge line between them. Never state touring/merch estimates as reported figures; they are "say/like" hedged
 illustrations, and the reveal is never reduced by them (CRWN does not replace the road or the
 merch table). Voice is the urban conversational register
 from `/crwn-shortform`, not the neutral voice the five scripts above use. Reference script:

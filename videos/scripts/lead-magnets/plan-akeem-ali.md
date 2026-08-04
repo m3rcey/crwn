@@ -19,7 +19,7 @@ You are guessing what your fans are worth, and the fans who were ready to pay mo
 How much money could Akeem Ali and artists like him be missing because he aint never seen one real number for his whole fan business? You bout to find out.
 Fans LOVE Akeem Ali.
 But here go the problems.
-First: streaming. Artists only see a fraction of a penny per stream and fans get nothing but a song.
+First: streaming. Artists only see a fraction of a penny per stream and fans get nothing but a song when they really want more access and an experience.
 The fix is a membership with levels. Fans pay him direct every month and get somethin real back. Early drops. Q&As and listening sessions. Video and song commentary. Unreleased music in a vault. Private posts. Behind the scenes. A direct line no algorithm sit in front of.
 Second: his fans already promote him for FREE. Clips, reposts, edits. They make him money and dont see none of it.
 The fix is Share-to-Earn. Every fan get they own link, and a cut of every member they bring in.
@@ -27,8 +27,8 @@ Third: fans can only WATCH him make music. They cant pitch a beat. Cant throw hi
 The fix is Executive Producer Sessions. Private studio sessions where his top members in the room with him, pitchin beats and hook ideas while the song get made.
 Fourth: when he do go live, it's to promote somethin. Pull up for a minute, thank everybody, gone. Free to watch, and gone when it end.
 The fix is Live Experiences. An intimate lil concert on the app, Tiny Desk vibe, and fans pay to get in. He shoutin out names in real time between songs. Fans tippin all night. He might even pull a fan up on screen, face to face, mid show. And it get recorded, so everybody who paid still got the replay.
-One system. One place. And every fan only get counted one time.
-Let's run it. Now Keemy got about 1 million followers on Instagram. Over 500,000 more on TikTok. 223,000 on YouTube.
+
+Let's run it. Now Akeem Ali got about 1 million followers on Instagram. Over 500,000 more on TikTok. 223,000 on YouTube.
 But a fan that follow you on two apps aint two fans.
 So we count his biggest app in full, and only 40% of the rest as new people.
 That put his real audience around 1.3 million.
@@ -39,15 +39,15 @@ So like 9,700 paying members.
 Like 6,800 of em pay $10 a month. Like 2,100 pay $25. And like 770 pay $100. Plus a lil extra spend here and there.
 Now add one ticketed live a month, sold only to fans who aint members. Like 1,900 tickets at $15, plus tips.
 His private studio sessions? Already inside the $100 level. They add zero. That's what make that level worth $100.
-Now before the big number, remember: He got like 161,000 monthly listeners on Spotify. That's only like $1,600 a month. But he makes money from touring and selling merch.
+Now remember: He got like 161,000 monthly listeners on Spotify. That's only like $1,600 a month. But he makes money from touring and selling merch.
 Let's say touring brings him like $15,000 a month, and merch add like $5,000 more.
 So all in, call it like $22,000 a month, which is like $264,000 a year. Hold that number.
-When you add all this up, the amount he's missing out on is CRAZY. Sidenote: this exact system, the levels, the vault, the share links, the ticketed lives, is what an artist can build on the CRWN app. Tag Akeem Ali or an artist like him in the comments so they can see this. ANYWAY...
+When you add all this up, the amount he's missing out on is CRAZY. Before I reveal the big number here's a sidenote: this exact system, the levels, the vault, the share links, the ticketed lives, is what Akeem Ali OR an artist operating on his level can build on the CRWN app. Tag Akeem Ali or an artist LIKE him in the comments so they can see this. ANYWAY...
 
 After fees, and the cut his fans get for bringin people in, Akeem Ali could be missin out on like **$228,000 a month**. That's like **$2.7 million a year**. Off fans he already got.
 Remember that $22,000 he already pull in from streaming, the road, and merch? Put this on top, and he sittin on over 11 times the money he got now. Every month.
 The real number may be higher or lower. This is a plan, not a promise.
-BUT, the bigger question is this...how much are YOU missing out on?
+BUT, the bigger question is this...how much are independent artists operating on his level (im talking to YOU) how much are you missing out on?
 I built a free calculator that run your WHOLE business one time, and never count the same fan twice.
 Comment "PLAN" and I'll DM you the link.
 
