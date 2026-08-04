@@ -92,9 +92,10 @@ tension line ("When you add all this up, the amount he's missing out on is CRAZY
 Sidenote opening "Before I reveal the big number here's a sidenote:", naming "[Artist] OR an
 artist operating on his level", and CARRYING the tag CTA inside it ("Tag [Artist] or an artist
 LIKE him in the comments so they can see this.") before "ANYWAY...", then a paragraph break,
-the single total reveal, then the callback to the held baseline stating how many times MORE
-total money he would have ((reveal + baseline) ÷ baseline, e.g. "over 11 times the money he got
-now"), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
+then the MULTIPLE FIRST ("[Artist] would be walkin with over N TIMES the money he currently
+make", N = (reveal + baseline) ÷ baseline), and only THEN the dollar reveal (monthly and
+yearly) with the premise bookend attached (reveal order flipped per Josh, 2026-08-04: the
+multiple sets the scale, the dollar number lands as the payoff), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
 artists operating on his level (im talking to YOU) how much are you missing out on?"), CTA
 (comment **FREE**). The hook's loss theme is a BOOKEND: restate it nearly verbatim at the
 reveal ("all because he's giving the things that fans want more than music away for free")
@@ -105,6 +106,25 @@ the MOST, the artist either gives away for free or does not give them at all. Ev
 reveal bookend, and CTA must express THIS premise, reworded per artist. Do not shrink it to
 "everything is free": half the loss is the access and experiences that were never offered
 (the seat in the session, the paid live, the direct line). Josh's correction, 2026-08-04.
+
+**Beat patterns from Josh's K Camp edit (2026-08-04), follow these moving forward:**
+- Problems are labeled "First:" then "Second problem:", "Third problem:", "Fourth problem:".
+- Problem 1 ends by NAMING the premise: no access, no experience, "which is what they want
+  more than the music nowadays."
+- The share problem carries the incentive insight: the fans promoting made no money
+  themselves, "so they would've shared it even more if they did."
+- Share-to-Earn: the cut is "based on the percentage [Artist] sets." This is REAL
+  (`artist_profiles.referral_commission_rate` is per-artist); keep saying it.
+- The producer fix opens "The fix is what I call Executive Producer Sessions" (Josh brands the
+  concept as his), and pairs watching with participating: submit beats, vocals, or ideas while
+  the record comes together.
+- Live Experiences is a CONCRETE SCENE, not a feature list: a stripped-down Tiny Desk style
+  show, a small in-person room (20-30 people) streamed live to the fans who paid, shoutouts in
+  real time, tips through the whole set, "maybe he even calls a fan on FaceTime", replay saved
+  for everybody who bought in.
+- The baseline flows INTO the tension line as one breath: "Hold that number cause $X a month
+  sounds like a lot, but when you add all the membership numbers I gave you, the number is
+  CRAZY compared to $X." Then the sidenote, then "ANYWAY...".
 
 **FORMAT IS FIXED; WORDING IS NOT.** The beat order above is the format and repeats on every
 all-in script. The reference script's sentences are NOT stock copy: before writing a new one,
