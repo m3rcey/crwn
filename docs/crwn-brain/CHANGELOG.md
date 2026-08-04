@@ -1,5 +1,33 @@
 # CRWN Brain — Changelog
 
+## 2026-08-04 - The entry hero stops assuming the visitor has met CRWN before
+
+**What/why:** the Opportunity Calculator's hero led with "The all-in-one calculator" and "You are
+guessing at your own business with five separate numbers." Both only make sense to someone who
+already knows CRWN has a family of single-opportunity calculators. On `/` and on
+`/tools/opportunity-calculator` the reader is usually meeting us for the first time, so the pitch
+was answering a question they had never asked, about a product they had never seen.
+
+**New hero** (loss-framed per the copy rule, cost of inaction first): eyebrow "For independent
+artists", headline "The fans you already have are worth more than they pay you.", subheadline
+naming what not knowing costs (pricing by guessing, building the wrong thing first, ready-to-buy
+fans moving on), CTA "See what my fans are worth".
+
+**One config, both pages.** The homepage and the tool route render the same registry hero, so this
+is a single edit in `src/lib/leadMagnets/registry.ts` and neither page has its own copy. Nothing
+about the wizard, the model, the result, or the builder changed.
+
+**Guarded:** a new test fails if the hero ever again contains "all-in-one", "five separate",
+"other calculators" or similar, plus an em-dash check on the hero lines.
+
+**Files:** `src/lib/leadMagnets/registry.ts`, `src/lib/leadMagnets/homepageFunnel.test.ts`.
+**DB impact:** none. **Tests:** 876 pass.
+
+**Left alone deliberately:** `videoAngle` (the source Josh writes video scripts from, where
+contrasting with separate calculators is the actual argument), the `/tools` index `description`
+(shown in a list where the other tools are visible anyway), and the post-result overlap note
+(which names CRWN features the result just explained, not other calculators).
+
 ## 2026-08-03 - Four sub-avatars: two new calculators, one taxonomy, one cohort report
 
 **What/why:** CRWN could not answer "which kind of artist should acquisition money chase?"

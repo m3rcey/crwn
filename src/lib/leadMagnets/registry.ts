@@ -789,12 +789,18 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   icon: '👑',
   timeToComplete: '3 min',
   dmKeywords: ['opportunity', 'system', 'plan'],
+  // The hero speaks to a COLD first-time visitor. It may not mention the other
+  // calculators, "five separate numbers", or anything else that assumes the
+  // reader has already met CRWN's tool family: on this page and on `/` they are
+  // usually seeing us for the first time, and copy that references things they
+  // have never seen reads as being about somebody else. Loss-framed per the
+  // copy rule: the cost of not knowing comes first, the fix second.
   hero: {
-    eyebrow: 'The all-in-one calculator',
-    headline: 'You are guessing at your own business with five separate numbers.',
+    eyebrow: 'For independent artists',
+    headline: 'The fans you already have are worth more than they pay you.',
     subheadline:
-      'Memberships, your vault, fan sharing, clips, live nights, premium sessions. Priced separately they all describe the same fans, so the total is fiction and the plan built on it fails. See one honest number for the whole thing, and the order to build it in.',
-    primaryCta: 'Model my whole business',
+      'Not knowing how much is what keeps it that way. You price by guessing, build the wrong thing first, and the fans who were ready to buy quietly move on. Answer a few questions about your audience and see one honest number for your whole business, plus what to build first.',
+    primaryCta: 'See what my fans are worth',
     image: '/tool-opportunity.jpg',
     imageAlt: 'An artist in a dark studio touching the point where gold threads from every part of his plan converge on one wall',
   },

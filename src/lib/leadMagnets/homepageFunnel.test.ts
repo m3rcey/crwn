@@ -49,4 +49,30 @@ describe('homepage funnel config (opportunity-calculator)', () => {
   it('keeps its own public route, so existing links to the tool page stay valid', () => {
     expect(config!.publicRoute).toBe('/tools/opportunity-calculator');
   });
+
+  it('speaks to a COLD visitor: the hero never references CRWN\'s other tools', () => {
+    // This page and `/` are usually a first impression. Copy that leans on "the
+    // all-in-one calculator" or "five separate numbers" assumes the reader has
+    // already met the rest of the tool family, and to someone who has not it
+    // reads as being about a product they have never seen. It shipped that way.
+    const hero = [config!.hero.eyebrow ?? '', config!.hero.headline, config!.hero.subheadline, config!.hero.primaryCta]
+      .join(' ')
+      .toLowerCase();
+    for (const presumptuous of [
+      'all-in-one',
+      'five separate',
+      'other calculator',
+      'other tools',
+      'separate calculators',
+    ]) {
+      expect(hero, presumptuous).not.toContain(presumptuous);
+    }
+  });
+
+  it('writes the hero without em dashes', () => {
+    for (const line of [config!.hero.eyebrow ?? '', config!.hero.headline, config!.hero.subheadline]) {
+      expect(line).not.toContain('—');
+      expect(line).not.toContain('–');
+    }
+  });
 });
