@@ -32,6 +32,46 @@ Save each script to:
   90-day calendar reels). Do NOT number these by the calendar. If a file already exists
   for that magnet+artist, append `-v2` rather than overwriting.
 
+## Cross-Platform Audience — the overlap equation (MANDATORY wherever followers are counted)
+
+A fan who follows the artist on two apps is ONE fan. Never add raw platform counts. Wherever a
+magnet's math calls for "combined followers" (Vault, OWN, LIVE, and the all-in PLAN script),
+build the audience base with this equation instead of a naive sum:
+
+  **C = P1 + 0.4 × (P2 + P3 + ... + Pn)**
+
+- **P1 is the artist's BIGGEST platform, counted in full** (those people are distinct by
+  definition). Every OTHER platform contributes only **40%** of its count as new people: the
+  default assumption is that roughly **60%** of a smaller platform's followers already follow
+  the artist on the biggest one, because the same persona attracts the same superfans everywhere.
+- **Streaming monthly listeners are NEVER added, not even at 40%.** Listeners overlap followers
+  in an unknowable way (this is the shipped unified model's rule). The final audience base is
+  `max(C, monthly listeners)`.
+- Web-verify each platform count separately (IG, TikTok, YouTube, X, Facebook). **Skip any
+  platform you cannot verify** rather than guessing a number for it.
+- Say the rule out loud in the script in plain words, e.g.: "A fan that follow you twice aint
+  two fans. So we count his biggest app in full, and only 40% of the rest as new people."
+- This equation SUPERSEDES the older "combined followers across all socials" wording in the
+  magnet sections below: wherever they say combined/C, compute C with this equation.
+- Worked check: Akeem Ali, 1M IG + 533K TikTok + 223K YouTube → 1,000,000 + 0.4 × 756,000 =
+  1,302,400 ≈ **1.3 million**, vs 161K listeners → base stays 1.3M.
+
+## The all-in calculator — keyword `PLAN` (added 2026-08-04)
+
+The sixth-plus magnet: the **CRWN Opportunity Calculator** (`/tools/opportunity-calculator`),
+invoked as `all-in` / `plan` / `opportunity`. It models the WHOLE business at once and its math
+MUST mirror `src/lib/opportunity/unifiedModel.ts` (expected scenario) exactly; when in doubt,
+run `calculateUnifiedOpportunity()` in a throwaway vitest file and read the printed numbers.
+Structure differs from the five single-loss scripts (per Josh, 2026-08-04): hook names
+"[Artist] and artists like him", then THREE problem/solution pairs (streaming pennies → the
+membership ladder; fans promoting free → Share-to-Earn; watch-only fans → Executive Producer
+Sessions), then the stage-setter (current streaming income ≈ 1 cent per monthly listener), then
+the breakdown with ALL dollar subtotals WITHHELD (fan counts and prices may be spoken; computed
+dollars may not), then "tag [Artist] or an artist like him in the comments so they can see this"
+immediately before the single total reveal, then the ~Nx streaming contrast, disclaimer, turn,
+CTA (comment **PLAN**). Voice is the urban conversational register from `/crwn-shortform`, not
+the neutral voice the five scripts above use. Reference script: `plan-akeem-ali.md`.
+
 ## The Five Lead Magnets (pick ONE per script; it drives everything)
 
 Each magnet answers a different loss. Loss-framing is mandatory (see CLAUDE.md): lead
