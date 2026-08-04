@@ -797,9 +797,8 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   // copy rule: the cost of not knowing comes first, the fix second.
   hero: {
     eyebrow: 'For independent artists',
-    headline: 'The fans you already have are worth more than they pay you.',
-    subheadline:
-      'Not knowing how much is what keeps it that way. You price by guessing, build the wrong thing first, and the fans who were ready to buy quietly move on. Answer a few questions about your audience and see one honest number for your whole business, plus what to build first.',
+    headline: 'Your fans are worth more than they pay you.',
+    subheadline: 'One number, and what to build first.',
     primaryCta: 'See what my fans are worth',
     image: '/tool-opportunity.jpg',
     imageAlt: 'An artist in a dark studio touching the point where gold threads from every part of his plan converge on one wall',

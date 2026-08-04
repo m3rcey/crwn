@@ -8,10 +8,11 @@ already knows CRWN has a family of single-opportunity calculators. On `/` and on
 `/tools/opportunity-calculator` the reader is usually meeting us for the first time, so the pitch
 was answering a question they had never asked, about a product they had never seen.
 
-**New hero** (loss-framed per the copy rule, cost of inaction first): eyebrow "For independent
-artists", headline "The fans you already have are worth more than they pay you.", subheadline
-naming what not knowing costs (pricing by guessing, building the wrong thing first, ready-to-buy
-fans moving on), CTA "See what my fans are worth".
+**New hero** (loss-framed per the copy rule, cost of inaction first, then cut to the bone on
+Josh's call the same day): eyebrow "For independent artists", headline "Your fans are worth more
+than they pay you.", subheadline "One number, and what to build first.", CTA "See what my fans are
+worth". The first rewrite kept a three-sentence subheadline explaining the cost of guessing; it was
+correct and too wordy for a hero. The loss is already carried by the headline.
 
 **One config, both pages.** The homepage and the tool route render the same registry hero, so this
 is a single edit in `src/lib/leadMagnets/registry.ts` and neither page has its own copy. Nothing
