@@ -64,11 +64,16 @@ MUST mirror `src/lib/opportunity/unifiedModel.ts` (expected scenario) exactly; w
 run `calculateUnifiedOpportunity()` in a throwaway vitest file and read the printed numbers.
 Structure differs from the five single-loss scripts (per Josh's own edit, 2026-08-04): hook
 names "[Artist] and artists like him", then "Fans LOVE [Artist]." (platform counts are NOT
-spoken up top), then THREE problem/solution pairs each with SPECIFICS (streaming pennies → the
+spoken up top), then FOUR problem/solution pairs each with SPECIFICS (streaming pennies → the
 membership ladder with named benefits: early drops, vault, private posts, behind the scenes,
 direct line; fans promoting free → Share-to-Earn; watch-only fans who "cant pitch a beat, cant
 throw a hook idea, cant add they vocals" → Executive Producer Sessions where top members pitch
-while the song gets made), then "Let's run it." opens the breakdown WITH the platform counts
+while the song gets made; free promo-only lives that vanish when they end → Live Experiences:
+an intimate Tiny Desk-style paid stream with real-time shoutouts between songs, tips all night,
+pulling a fan up on screen face to face, and the recording there for everyone who paid. The
+LIVE magnet's no-fabrication rule applies here too: the replay is INCLUDED with the ticket or
+membership, NEVER spoken as a separate replay purchase), then "Let's run it." opens the
+breakdown WITH the platform counts
 and the overlap equation spoken plainly, then a counts-only breakdown including the per-tier
 headcounts ("Like 6,800 of em pay $10..."), with ALL dollar subtotals WITHHELD (fan counts and
 prices may be spoken; computed dollars may not; the current streaming income ≈ 1 cent per
