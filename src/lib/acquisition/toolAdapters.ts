@@ -27,6 +27,9 @@ import { buildLossResult } from './lossResult';
 import { scoreReadiness, sanitizeAnswers } from '../royalty/readiness';
 import { buildUnifiedResult } from '../opportunity/unifiedAdapter';
 import { UNIFIED_MODEL_VERSION } from '../opportunity/unifiedModel';
+import { computeFanStack, fanStackScenarios, FAN_STACK_MODEL_VERSION } from '../avatars/fanStackModel';
+import { computeBetweenTour, betweenTourScenarios, BETWEEN_TOUR_MODEL_VERSION } from '../avatars/betweenTourModel';
+import { RECOMMENDED_LADDER } from '../tierTemplate';
 
 export interface AcquisitionTool {
   /** Stable id. For the four registry tools this IS the registry slug. */
@@ -1654,6 +1657,268 @@ const unifiedOpportunity: AcquisitionTool = {
   },
 };
 
+// The 19th tool: the Membership Stack Consolidator's calculator. Math in
+// src/lib/avatars/fanStackModel.ts (pure, versioned fanStack@1). The pitch is docs/ICP.md's own
+// thesis: consolidation of a fragmented stack, never "streaming pays pennies". The headline is the
+// ADDED monthly opportunity only; the tool-cost line renders as its own tile and is never summed
+// into the revenue figure, and existing revenue is context, never claimed as new.
+const fanStack: AcquisitionTool = {
+  id: 'fan-stack-calculator',
+  name: 'Fan Stack Consolidation Calculator',
+  requiredFields: ['social_followers'],
+  optionalFields: ['artist_name', 'email_list_size', 'direct_fan_revenue_cents'],
+  resultRouteBase: '/tools/fan-stack-calculator/result',
+  formulaVersion: FAN_STACK_MODEL_VERSION,
+  calculatorId: 'fanStack',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'setup_monetize',
+  execute(profile) {
+    const p = profile as unknown as Record<string, unknown>;
+    const extra = (profile.extra ?? {}) as Record<string, unknown>;
+    const read = (k: string): unknown => (p[k] !== undefined && p[k] !== null ? p[k] : extra[k]);
+    const num = (k: string): number => {
+      const v = read(k);
+      return typeof v === 'number' && Number.isFinite(v) ? v : 0;
+    };
+    const platforms = Array.isArray(read('platforms_used')) ? (read('platforms_used') as unknown[]).map(String) : [];
+
+    const inputs = {
+      platformsUsed: platforms,
+      monthlySoftwareCostCents: num('monthly_software_cost_cents'),
+      paidMembersElsewhere: num('paid_members_elsewhere'),
+      avgRevenuePerFanCents: num('avg_fan_revenue_cents'),
+      otherDirectMonthlyCents: num('other_direct_monthly_cents'),
+      audience: num('social_followers') || n(profile.monthly_listeners),
+    };
+    const r = computeFanStack(inputs);
+    const band = fanStackScenarios(inputs);
+    const a = r.assumptions;
+
+    const artist = s(profile.artist_name);
+    const monthly = r.addedMonthlyCents;
+    const toolLine = r.toolCostCents > 0 ? ` On top of that, your tools cost ${fmtDollars(r.toolCostCents)} a month to keep the pieces apart.` : '';
+    const headline =
+      monthly > 0
+        ? `${artist ? `${artist}, about` : 'About'} ${fmtDollars(monthly)} a month is lost to running your fan business in pieces`
+        : 'Your fan business is split across tools that never talk to each other';
+
+    // Projected members on the canonical ladder, split by the model's own tier shares, published
+    // in the SAME `ladder` shape `worth` publishes so tierProjections + ladderPrefill just work.
+    const totalMembers = r.migratedMembers + r.newPayers;
+    const [, silver, gold, platinum] = RECOMMENDED_LADDER;
+    const ladder = [
+      { name: silver.name, priceCents: silver.priceCents, projectedSubs: Math.round(totalMembers * 0.7) },
+      { name: gold.name, priceCents: gold.priceCents, projectedSubs: Math.round(totalMembers * 0.22) },
+      { name: platinum.name, priceCents: platinum.priceCents, projectedSubs: Math.round(totalMembers * 0.08) },
+    ];
+
+    return buildLossResult({
+      generatorVersion: FAN_STACK_MODEL_VERSION,
+      headline,
+      summary: `${r.toolCount > 0 ? `${r.toolCount} separate tools hold your fans, payments and content today.` : 'Your fans, payments and content live in separate tools today.'} Consolidated in one place, the same fans support more of what you make.${toolLine}`,
+      derivation: [
+        ...(r.migratedMembers > 0
+          ? [
+              { label: 'Members who follow you over', value: r.migratedMembers.toLocaleString('en-US'), note: `${Math.round(a.migrationRate * 100)}% of ${inputs.paidMembersElsewhere.toLocaleString('en-US')} when personally invited` },
+              { label: 'More per fan, offers in one place', value: fmtDollars(r.perFanUpliftCents), note: 'ladder pricing vs what each fan pays now' },
+              { label: 'Member one-off spend', value: fmtDollars(r.memberAlacarteCents), note: `about ${fmtDollars(a.memberAlacarteCents)} per member per month` },
+            ]
+          : []),
+        ...(r.newPayers > 0
+          ? [{ label: 'Fans not yet paying anywhere', value: r.newPayers.toLocaleString('en-US'), note: 'superfans in your reachable audience' }]
+          : []),
+        { label: 'Added every month', value: `${fmtDollars(monthly)}/mo` },
+      ],
+      cause:
+        'Every tool in the stack holds one piece of the fan relationship: the membership in one place, the shop in another, the community in a third, the email list in a fourth. None of them can see the others, so a fan who buys in one tool is a stranger in the rest, and every next offer starts from zero.',
+      estimate: [
+        { label: 'Tools in your stack today', value: String(r.toolCount || '?') },
+        { label: 'Monthly, consolidated', value: fmtDollars(monthly) },
+        { label: 'A year of it', value: fmtDollars(r.addedAnnualCents) },
+        { label: 'Tool costs you could retire', value: `${fmtDollars(r.toolCostCents)}/mo`, note: 'separate from the revenue figure' },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(band.conservative.addedMonthlyCents)}/mo`, note: '40% of members follow' },
+        { label: 'Expected', value: `${fmtDollars(band.expected.addedMonthlyCents)}/mo`, note: '60% of members follow' },
+        { label: 'High', value: `${fmtDollars(band.high.addedMonthlyCents)}/mo`, note: '80% of members follow' },
+      ],
+      assumptions: [
+        `About ${Math.round(a.migrationRate * 100)}% of your existing paid members follow a direct, personal invitation. Nobody is migrated automatically, and their current subscriptions are not touched.`,
+        `Revenue per fan on the recommended ladder averages ${fmtDollars(a.ladderArpuCents)} a month (70/22/8 across ${silver.name} $${silver.priceCents / 100} / ${gold.name} $${gold.priceCents / 100} / ${platinum.name} $${platinum.priceCents / 100}). Uplift is only counted above what each fan already pays you.`,
+        `About ${Math.round(a.reachRate * 100)}% of your audience actually sees a post, and about ${Math.round(a.superfanRate * 100)}% of those ever pay, capped at ${Math.round(a.maxConversion * 100)}%.`,
+        'Tool-cost reduction is shown separately and is never added into the revenue figure. CRWN does not replace every tool in every stack.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'Every fan list lives in a different tool, so no single list can be invited to anything.',
+        'A fan who pays in one place is invisible in the rest, so the next offer never finds your proven buyers.',
+        'Each tool takes its own cut and its own subscription, and the fees stack while the data does not.',
+      ],
+      fanLoss:
+        'Your fans miss one home: one place where the membership, the music, the shop and the community all recognize them, instead of five logins that each know a fragment.',
+      flow: [
+        'Your fan business runs in pieces across separate tools',
+        'Rebuild the membership as one four-tier ladder in one place',
+        'Invite your existing members and your reachable superfans',
+        `${fmtDollars(monthly)} a month added, from fans you already have`,
+      ],
+      fix: {
+        title: 'How CRWN consolidates it',
+        steps: [
+          'Rebuild your existing tiers as the four-rung CRWN ladder, so current members recognize what they are moving to.',
+          'Import your member and contact lists (with permission) so the invitation reaches your proven buyers first.',
+          'Put the shop, the vault and the community behind the same membership, so every offer sees every fan.',
+        ],
+      },
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'Migrate members without losing them',
+          body: 'Never cancel anyone. Open the CRWN membership beside the old one, personally invite your top members first with a founder perk, and let the old tool wind down as people move. A forced switch loses members; a better home moves them.',
+        },
+        {
+          title: 'The order that works',
+          body: 'Ladder first, then import, then the announcement. An invitation with nowhere to land is how a migration stalls.',
+        },
+      ],
+      conversionPayload: {
+        subAvatar: 'membership_stack_consolidator',
+        ladder,
+        migratedMembers: r.migratedMembers,
+        newPayers: r.newPayers,
+        toolCount: r.toolCount,
+        toolCostCents: r.toolCostCents,
+        platformsUsed: platforms,
+      },
+      shareSummary: `Consolidating my fan business into one place could add about ${fmtDollars(monthly)} a month.`,
+    });
+  },
+};
+
+// The 20th tool: the Touring Access Seller's calculator. Math in
+// src/lib/avatars/betweenTourModel.ts (pure, versioned betweenTour@1). Members and one-off ticket
+// buyers are disjoint populations by construction, and annual attendance is deflated to unique
+// fans before any conversion is applied, so no fan or dollar is counted twice.
+const betweenTour: AcquisitionTool = {
+  id: 'between-tour-calculator',
+  name: 'Between-Tour Revenue Calculator',
+  requiredFields: ['social_followers'],
+  optionalFields: ['artist_name'],
+  resultRouteBase: '/tools/between-tour-calculator/result',
+  formulaVersion: BETWEEN_TOUR_MODEL_VERSION,
+  calculatorId: 'betweenTour',
+  requiresEstimateDisclaimer: true,
+  destinationId: 'setup_monetize',
+  execute(profile) {
+    const p = profile as unknown as Record<string, unknown>;
+    const extra = (profile.extra ?? {}) as Record<string, unknown>;
+    const read = (k: string): unknown => (p[k] !== undefined && p[k] !== null ? p[k] : extra[k]);
+    const num = (k: string): number => {
+      const v = read(k);
+      return typeof v === 'number' && Number.isFinite(v) ? v : 0;
+    };
+
+    const inputs = {
+      showsPerYear: num('shows_per_year'),
+      avgAttendance: num('avg_attendance'),
+      vipBuyersPerShow: num('vip_buyers_per_show'),
+      avgVipPriceCents: num('avg_vip_price_cents'),
+      audience: num('social_followers') || n(profile.monthly_listeners),
+      offMonths: num('off_months') || 8,
+    };
+    const r = computeBetweenTour(inputs);
+    const band = betweenTourScenarios(inputs);
+    const a = r.assumptions;
+    const gold = RECOMMENDED_LADDER[2];
+
+    const artist = s(profile.artist_name);
+    const monthly = r.totalMonthlyCents;
+    const headline =
+      monthly > 0
+        ? `${artist ? `${artist}, about` : 'About'} ${fmtDollars(monthly)} a month goes unearned in the months between your shows`
+        : 'The fans who pay on show night have nothing to pay for the rest of the year';
+
+    return buildLossResult({
+      generatorVersion: BETWEEN_TOUR_MODEL_VERSION,
+      headline,
+      summary: `${r.uniqueAttendees > 0 ? `${r.uniqueAttendees.toLocaleString('en-US')} different people see you live in a year, and ${r.uniqueVipBuyers.toLocaleString('en-US')} of them already pay VIP prices.` : 'Your audience proves it will pay on show nights.'} For ${r.offMonths} months of the year, none of them are offered anything recurring.`,
+      derivation: [
+        { label: 'Unique fans through the door yearly', value: r.uniqueAttendees.toLocaleString('en-US'), note: `repeat visits removed (${Math.round(a.repeatAttendance * 100)}%)` },
+        { label: 'Proven VIP buyers among them', value: r.uniqueVipBuyers.toLocaleString('en-US') },
+        { label: 'VIP buyers who join a membership', value: r.vipMembers.toLocaleString('en-US'), note: `${Math.round(a.vipConversion * 100)}% when personally offered` },
+        { label: 'Other attendees who join', value: r.attendeeMembers.toLocaleString('en-US'), note: `${(a.attendeeConversion * 100).toFixed(1)}% of non-VIP fans` },
+        { label: `Recurring VIP membership at $${a.vipTierCents / 100}/mo`, value: fmtDollars(r.recurringMonthlyCents) },
+        ...(r.streamMonthlyAvgCents > 0
+          ? [{ label: 'Off-month livestream tickets (non-members)', value: fmtDollars(r.streamMonthlyAvgCents), note: 'averaged across the year' }]
+          : []),
+        { label: 'Every month, year-round', value: `${fmtDollars(monthly)}/mo` },
+      ],
+      cause:
+        'Touring revenue is a spike with a cliff after it. The VIP buyer who paid a premium on Friday walks out unowned: no membership to join, no early ticket access to keep, no backstage feed between runs. So the proof of demand a tour generates expires the night it happens, and the months between runs earn nothing.',
+      estimate: [
+        { label: 'Recurring members', value: r.members.toLocaleString('en-US') },
+        { label: 'Monthly, year-round', value: fmtDollars(monthly) },
+        { label: 'A year of it', value: fmtDollars(r.totalAnnualCents) },
+        { label: 'Your VIP gross today (yearly)', value: fmtDollars(r.currentVipAnnualCents), note: 'context, not added to the number' },
+      ],
+      scenarios: [
+        { label: 'Conservative', value: `${fmtDollars(band.conservative.totalMonthlyCents)}/mo`, note: '15% of VIP buyers join' },
+        { label: 'Expected', value: `${fmtDollars(monthly)}/mo`, note: '25% of VIP buyers join' },
+        { label: 'High', value: `${fmtDollars(band.high.totalMonthlyCents)}/mo`, note: '40% of VIP buyers join' },
+      ],
+      assumptions: [
+        `About ${Math.round(a.repeatAttendance * 100)}% of annual attendance is the same fans coming back, so conversions run on unique people, never turnstile counts.`,
+        `About ${Math.round(a.vipConversion * 100)}% of proven VIP buyers take a recurring VIP membership at $${a.vipTierCents / 100}/mo when personally offered. They already paid more than that for one night.`,
+        `About ${(a.attendeeConversion * 100).toFixed(1)}% of other unique attendees join, and total members are capped at ${Math.round(a.maxConversion * 100)}% of the fans you can actually reach.`,
+        'Livestream tickets are sold only to fans who are NOT members, in off-tour months, so nobody is counted twice.',
+        'A planning estimate, not a prediction or a guarantee.',
+      ],
+      consequences: [
+        'The fan data a tour generates (who paid, who came back) leaves with the ticketing company.',
+        'Momentum resets between runs, so every tour announcement starts from cold.',
+        'Your highest-proof buyers, the VIP purchasers, are the least likely to be offered anything again.',
+      ],
+      fanLoss:
+        'Your VIP fans miss the year-round version of what they already paid for once: early ticket access, member presales, backstage and soundcheck streams, and first claim on the limited experiences.',
+      flow: [
+        'Show-night revenue spikes, then the months between earn nothing',
+        `Open a recurring VIP membership (${gold.name} tier) built on access you already control`,
+        'Invite your VIP buyers and show audiences first',
+        `${fmtDollars(monthly)} a month, every month, tour or no tour`,
+      ],
+      fix: {
+        title: 'How CRWN closes the gap between tours',
+        steps: [
+          `Build the recurring VIP tier: early ticket access, presales, backstage content and member streams, priced around $${a.vipTierCents / 100}/mo.`,
+          'Import your VIP and ticket-buyer contacts (with permission) and invite them first: they are your proven spenders.',
+          'Schedule one member session in each off-tour month so the membership is alive between runs.',
+        ],
+      },
+      monthlyLossCents: monthly,
+      emailInsights: [
+        {
+          title: 'Sell it at the show, not after',
+          body: 'The best moment to offer the membership is the night the fan is in the room. A QR at the merch table and a line from the stage beats any email you send two weeks later.',
+        },
+        {
+          title: 'Promise only what touring allows',
+          body: 'Do not promise weekly anything. One member stream a month and early ticket access are promises a touring schedule can keep, and kept promises are what make members stay.',
+        },
+      ],
+      conversionPayload: {
+        subAvatar: 'touring_access_seller',
+        ladder: [{ name: gold.name, priceCents: a.vipTierCents, projectedSubs: r.members }],
+        tierName: gold.name,
+        priceCents: a.vipTierCents,
+        members: r.members,
+        offMonths: r.offMonths,
+        streamTicketCents: a.streamTicketCents,
+      },
+      shareSummary: `A recurring VIP membership could be worth about ${fmtDollars(monthly)} a month to me between tours.`,
+    });
+  },
+};
+
 export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   worth: worth,
   'vault-revenue-planner': vault,
@@ -1673,6 +1938,8 @@ export const ACQUISITION_TOOLS: Record<string, AcquisitionTool> = {
   'live-experience-calculator': liveExperience,
   'royalty-readiness-check': royaltyReadiness,
   'opportunity-calculator': unifiedOpportunity,
+  'fan-stack-calculator': fanStack,
+  'between-tour-calculator': betweenTour,
 };
 
 export { royaltyReadiness };

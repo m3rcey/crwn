@@ -73,15 +73,55 @@ export function trackLeadMagnet(event: LmEvent, meta: LmEventMeta): void {
   }
 }
 
-// Pull UTM params from the current URL (client only).
-export function readUtm(): Pick<LmEventMeta, 'utmSource' | 'utmMedium' | 'utmCampaign' | 'utmContent' | 'source'> {
+// First-touch UTM snapshot. UTMs used to be read from the live URL only, so a visitor who landed
+// with campaign params, browsed, and converted on a bare URL lost the attribution of the visit
+// that actually brought them. The FIRST visit that carries any utm/ref is snapshotted here, and
+// readUtm falls back to it when the current URL has none. Current-URL values always win (a newer
+// campaign touch is a real touch); the snapshot only fills silence, so first-touch is preserved
+// without erasing last-touch.
+const FIRST_TOUCH_KEY = 'crwn_first_touch';
+
+type UtmSnapshot = Pick<LmEventMeta, 'utmSource' | 'utmMedium' | 'utmCampaign' | 'utmContent' | 'source'>;
+
+function readFirstTouch(): UtmSnapshot {
+  try {
+    const raw = window.localStorage.getItem(FIRST_TOUCH_KEY);
+    if (!raw) return {};
+    const p = JSON.parse(raw) as Record<string, unknown>;
+    const s = (k: string) => (typeof p[k] === 'string' && p[k] ? (p[k] as string) : undefined);
+    return { utmSource: s('utmSource'), utmMedium: s('utmMedium'), utmCampaign: s('utmCampaign'), utmContent: s('utmContent'), source: s('source') };
+  } catch {
+    return {};
+  }
+}
+
+// Pull UTM params from the current URL (client only), snapshotting the first touch and falling
+// back to it when the current URL carries none.
+export function readUtm(): UtmSnapshot {
   if (typeof window === 'undefined') return {};
   const q = new URLSearchParams(window.location.search);
-  return {
+  const current: UtmSnapshot = {
     utmSource: q.get('utm_source') || undefined,
     utmMedium: q.get('utm_medium') || undefined,
     utmCampaign: q.get('utm_campaign') || undefined,
     utmContent: q.get('utm_content') || undefined,
-    source: q.get('utm_source') || q.get('ref') || 'direct',
+    source: q.get('utm_source') || q.get('ref') || undefined,
   };
+
+  const hasCurrent = !!(current.utmSource || current.utmMedium || current.utmCampaign || current.utmContent || q.get('ref'));
+  const first = readFirstTouch();
+  const hasFirst = !!(first.utmSource || first.utmMedium || first.utmCampaign || first.utmContent || first.source);
+
+  // Snapshot only the FIRST attributed visit; never overwrite it.
+  if (hasCurrent && !hasFirst) {
+    try {
+      window.localStorage.setItem(FIRST_TOUCH_KEY, JSON.stringify(current));
+    } catch {
+      /* storage unavailable is fine */
+    }
+  }
+
+  if (hasCurrent) return { ...current, source: current.source || 'direct' };
+  if (hasFirst) return { ...first, source: first.source || 'direct' };
+  return { source: 'direct' };
 }

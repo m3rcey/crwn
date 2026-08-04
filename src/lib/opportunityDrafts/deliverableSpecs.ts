@@ -1064,6 +1064,162 @@ const SPECS: DeliverableSpec[] = [
     // original wizard answers, so the artist never carries a headline their own edits invalidated.
     recalc: (v, cp) => recalcUnified(v, cp),
   },
+
+  // 19. Fan Stack Consolidation -> the four-tier ladder, opened with a mapping step so the artist
+  // rebuilds what their members ALREADY pay for. Same ladder architecture as `worth`; the only
+  // avatar-specific parts are the mapping step and the migration-honest preview note. Nothing here
+  // migrates a member or touches an existing subscription.
+  {
+    toolSlug: 'fan-stack-calculator',
+    deliverableType: 'consolidated_membership',
+    title: 'Rebuild your membership in one place',
+    subtitle: 'Map what your members get today, then review the four-tier home it all moves into. Change anything.',
+    saveLabel: 'Save my consolidated membership',
+    transition: 'Turn the fragmented stack into one membership your members will recognize.',
+    buildCta: 'Build my consolidated membership',
+    signupContext: 'Create your account to save your consolidated membership and open it beside your existing tools.',
+    claimLine: 'Claim it by signing up, publishing the ladder, and personally inviting your existing members first.',
+    continueRoute: '/offers/new',
+    continueParams: (v) => ({
+      lm_prefill: '1',
+      lm_goal: 'grow-supporters',
+      lm_tier_name: String(v.t1Name || ''),
+      ...(v.t1Price ? { lm_price: String(v.t1Price) } : {}),
+    }),
+    steps: [
+      {
+        id: 'map', group: 'Your stack', label: 'What members get today', fields: [
+          { key: 'existingTiers', type: 'lines', label: 'Your current tiers, one per line', max: 600, help: 'Name and price, e.g. "Backstage $5". This is the checklist the new ladder has to cover.' },
+          { key: 'existingBenefits', type: 'lines', label: 'What those members are promised', max: 600, help: 'One per line. Anything you promise today must exist in the new home before anyone moves.' },
+        ],
+      },
+      {
+        id: 'wave', group: 'Ladder', label: 'Free front door', fields: [
+          { key: 't0Name', type: 'text', label: 'Free tier name', max: 40, help: 'Free followers and list members land here first.' },
+          { key: 't0Benefits', type: 'checklist', label: 'What free members get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[0]).map((b) => ({ value: b, label: b })) },
+        ],
+      },
+      {
+        id: 'inner', group: 'Ladder', label: 'Entry paid tier', fields: [
+          { key: 't1Name', type: 'text', label: 'Tier name', max: 40 },
+          { key: 't1Price', type: 'currency', label: 'Monthly price', max: 500, help: 'Match or beat your current entry price so moving is an upgrade, not a re-decision.' },
+          { key: 't1Benefits', type: 'checklist', label: 'What they get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[1]).map((b) => ({ value: b, label: b })) },
+        ],
+      },
+      {
+        id: 'vault', group: 'Ladder', label: 'Mid tier', fields: [
+          { key: 't2Name', type: 'text', label: 'Tier name', max: 40 },
+          { key: 't2Price', type: 'currency', label: 'Monthly price', max: 500 },
+          { key: 't2Benefits', type: 'checklist', label: 'What they get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[2]).map((b) => ({ value: b, label: b })) },
+        ],
+      },
+      {
+        id: 'throne', group: 'Ladder', label: 'Top tier', fields: [
+          { key: 't3Name', type: 'text', label: 'Tier name', max: 40 },
+          { key: 't3Price', type: 'currency', label: 'Monthly price', max: 1000 },
+          { key: 't3Benefits', type: 'checklist', label: 'What they get', max: 800, options: benefitLabels(RECOMMENDED_LADDER[3]).map((b) => ({ value: b, label: b })) },
+        ],
+      },
+    ],
+    preview: {
+      kind: 'ladder',
+      tiers: [
+        { nameKey: 't0Name', benefitsKey: 't0Benefits' },
+        { nameKey: 't1Name', priceKey: 't1Price', benefitsKey: 't1Benefits' },
+        { nameKey: 't2Name', priceKey: 't2Price', benefitsKey: 't2Benefits' },
+        { nameKey: 't3Name', priceKey: 't3Price', benefitsKey: 't3Benefits' },
+      ],
+      note: 'Preview only. Nothing migrates automatically: your existing platforms and subscriptions are untouched until you invite members yourself.',
+    },
+    prefill: (cp) => {
+      const modeled = Array.isArray(cp.ladder) ? (cp.ladder as { name?: string; priceCents?: number }[]) : [];
+      const paidPrice = (i: number, fallbackCents: number) => dollars(modeled[i]?.priceCents ?? fallbackCents);
+      const [wave, inner, vault, throne] = RECOMMENDED_LADDER;
+      const platforms = Array.isArray(cp.platformsUsed) ? (cp.platformsUsed as unknown[]).map(String) : [];
+      return {
+        existingTiers: [],
+        existingBenefits: platforms.length ? platforms.map((p) => `Whatever fans get on ${p} today`) : [],
+        t0Name: wave.name,
+        t0Benefits: benefitLabels(wave),
+        t1Name: inner.name,
+        t1Price: paidPrice(0, inner.priceCents),
+        t1Benefits: benefitLabels(inner),
+        t2Name: vault.name,
+        t2Price: paidPrice(1, vault.priceCents),
+        t2Benefits: benefitLabels(vault),
+        t3Name: throne.name,
+        t3Price: paidPrice(2, throne.priceCents),
+        t3Benefits: benefitLabels(throne),
+      };
+    },
+  },
+
+  // 20. Between-Tour Revenue -> one recurring VIP membership. Benefits default to promises a
+  // touring schedule can actually keep (the calculator's own honesty rule), and capacity is a
+  // real editable field because limited experiences are the product.
+  {
+    toolSlug: 'between-tour-calculator',
+    deliverableType: 'vip_membership',
+    title: 'Build your VIP membership',
+    subtitle: 'The year-round version of what your VIP buyers already paid for once. Edit anything before you save it.',
+    saveLabel: 'Save my VIP membership',
+    transition: 'Turn show-night buyers into members who pay every month.',
+    buildCta: 'Build my VIP membership',
+    signupContext: 'Create your account to save your VIP membership and invite your show audiences to it.',
+    claimLine: 'Claim it by signing up, publishing the tier, and inviting your VIP buyers first.',
+    continueRoute: '/offers/new',
+    continueParams: (v) => ({
+      lm_prefill: '1',
+      lm_goal: 'grow-supporters',
+      lm_tier_name: String(v.tierName || ''),
+      ...(v.price ? { lm_price: String(v.price) } : {}),
+    }),
+    steps: [
+      {
+        id: 'offer', group: 'Offer', label: 'The membership', fields: [
+          { key: 'tierName', type: 'text', label: 'Membership name', max: 40 },
+          { key: 'price', type: 'currency', label: 'Monthly price', max: 500, help: 'The calculator modeled this. Your VIP buyers paid more for one night.' },
+          { key: 'capacity', type: 'number', label: 'Member cap (0 for uncapped)', max: 100000, help: 'Limited access is the product. A real cap you will hold to.' },
+        ],
+      },
+      {
+        id: 'benefits', group: 'Offer', label: 'What members get', fields: [
+          { key: 'benefits', type: 'lines', label: 'VIP benefits', max: 600, help: 'One per line. Only promise what a touring schedule can keep.' },
+        ],
+      },
+      {
+        id: 'cadence', group: 'Rhythm', label: 'The off-month rhythm', fields: [
+          { key: 'streamCadence', type: 'option', label: 'Member livestreams', options: [
+            { value: 'monthly', label: 'One per month' },
+            { value: 'quarterly', label: 'One per quarter' },
+            { value: 'none', label: 'None for now' },
+          ], help: 'What keeps the membership alive between runs.' },
+          { key: 'firstAction', type: 'text', label: 'The first thing members get', max: 160, help: 'e.g. presale codes for the next run, or the soundcheck stream.' },
+        ],
+      },
+    ],
+    preview: {
+      kind: 'offer',
+      titleKey: 'tierName',
+      priceKey: 'price',
+      benefitsKey: 'benefits',
+      note: 'Preview only. No membership is live and no fan is charged until you publish it. Early access and presales apply to events you control.',
+    },
+    prefill: (cp) => ({
+      tierName: str(cp.tierName, RECOMMENDED_LADDER[2].name),
+      price: dollars(cp.priceCents ?? RECOMMENDED_LADDER[2].priceCents),
+      capacity: '',
+      benefits: [
+        'Early ticket access and member presales',
+        'Member-only tour updates first',
+        'Backstage and soundcheck content',
+        'Priority access to meet-and-greets and limited experiences',
+        'A member livestream in the off months',
+      ],
+      streamCadence: 'monthly',
+      firstAction: 'Presale access for the next run of shows',
+    }),
+  },
 ];
 
 const BY_SLUG: Record<string, DeliverableSpec> = Object.fromEntries(SPECS.map((s) => [s.toolSlug, s]));

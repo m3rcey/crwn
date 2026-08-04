@@ -14,10 +14,12 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { autoClaimForUser } from '@/lib/leadResults/resultAccess';
 import { checkRateLimit } from '@/lib/rateLimit';
-import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { getLeadMagnetSeed, getClaimedResults } from '@/lib/leadResults/handoffSeed';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { recommendPlan } from '@/lib/planRecommendation';
+import { assignSubAvatar, deriveAcquisitionAvatar, mergeEvidence, evidenceFromInputs } from '@/lib/avatars/assignment';
+import { getSubAvatar } from '@/lib/avatars/taxonomy';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -112,6 +114,44 @@ export async function POST() {
         )
         .map((t) => ({ name: t.name, projectedSubs: Math.max(0, Math.floor(t.projectedSubs)) }))
     : [];
+  // Sub-avatar, DERIVED at claim time from the artist's own claimed results (acquisition path +
+  // declared inputs). Stored nowhere here: the display copy is the only consumer, and the same
+  // derivation re-runs anywhere it is needed (docs/SUB_AVATARS.md). Best-effort by construction.
+  let subAvatar: { id: string; label: string; promise: string; source: string; confidence: string } | null = null;
+  try {
+    const claimedRows = await getClaimedResults(supabaseAdmin, { userId: user.id });
+    const oldestFirst = [...claimedRows].reverse();
+    const slugs = oldestFirst.map((r) => r.toolSlug);
+    // Declared evidence comes from the stored inputs of the oldest mapped result: read raw rows.
+    const { data: inputRows } = await supabaseAdmin
+      .from('lead_magnet_results')
+      .select('tool_slug, input_data, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(10);
+    const inputEvidence = (inputRows ?? []).map((r) => evidenceFromInputs(r.input_data as Record<string, unknown>));
+    const assignment = assignSubAvatar(mergeEvidence({ claimedCalculatorSlugs: slugs }, ...inputEvidence));
+    if (assignment) {
+      const def = getSubAvatar(assignment.primarySubAvatar);
+      if (def) {
+        subAvatar = {
+          id: def.id,
+          label: def.label,
+          promise: def.promise,
+          source: assignment.source,
+          confidence: assignment.confidence,
+        };
+      }
+    } else {
+      // Even without a full assignment, the acquisition avatar alone personalizes the intro.
+      const acq = deriveAcquisitionAvatar(slugs);
+      const def = getSubAvatar(acq);
+      if (def) subAvatar = { id: def.id, label: def.label, promise: def.promise, source: 'acquisition_path', confidence: 'low' };
+    }
+  } catch {
+    /* avatar derivation must never fail the claim */
+  }
+
   const planSeed = seed
     ? {
         toolName: seed.toolName,
@@ -133,6 +173,9 @@ export async function POST() {
           const pct = Math.round(Number(dv.shareCommission));
           return Number.isFinite(pct) && pct > 0 && pct <= 50 ? { percent: pct } : null;
         })(),
+        // The derived sub-avatar (docs/SUB_AVATARS.md): which of the four founder-approved
+        // journeys this artist entered through. Display-only summary; never stored here.
+        subAvatar,
       }
     : null;
 

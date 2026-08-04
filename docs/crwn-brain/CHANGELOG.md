@@ -1,5 +1,46 @@
 # CRWN Brain — Changelog
 
+## 2026-08-03 - Four sub-avatars: two new calculators, one taxonomy, one cohort report
+
+**What/why:** CRWN could not answer "which kind of artist should acquisition money chase?"
+because every lead pooled into one funnel. The ICP is now segmented into four founder-approved
+sub-avatars (Membership Stack Consolidator, Touring Access Seller, Live Community Creator,
+Catalog and Vault Seller), each a complete journey from a loss-framed entry calculator through
+builder, signup restoration, avatar-aware onboarding, launch, and calculator-attributed revenue,
+compared side by side in a new admin Avatars tab. Spec: `docs/SUB_AVATARS.md`.
+
+**The five-step pass applied:** no new funnel infrastructure. The two missing calculators
+(`fan-stack-calculator`, `between-tour-calculator`) are ordinary registry entries riding the
+shared wizard/loss-engine/capture/claiming rails; the two existing ones (vault, live) were
+verified and reused untouched; the avatar of an event is a READ-TIME mapping of the funnel's
+existing `calculator` dimension (`src/lib/avatars/taxonomy.ts`, `subAvatar@1`), so nothing is
+backfilled and nothing stored can drift. Assignment is deterministic and explainable
+(`assignment.ts`: acquisition path > declared > behavioral, manual override wins, below the
+evidence floor there is NO assignment). The only storage is the override + its audit trail
+(`schema-phase2-sub-avatar.sql`, fail-soft, UNRUN, in TODO.md).
+
+**Model honesty:** `fanStack@1` claims only ADDED revenue (partial 60% migration, uplift only
+above current per-fan revenue, tool costs a separate tile never summed into the headline);
+`betweenTour@1` deflates attendance to unique fans, converts VIP buyers at 25% into the
+Gold-priced tier, and sells off-month stream tickets only to non-members (disjoint
+populations). Both are pure, versioned, and pinned by tests (54 new tests, suite at 874).
+
+**Feedback loop:** `readCohortConstraint()` finds each cohort's largest observed drop under the
+Constraint Engine's house rules (min sample 30, null is silence, investigation-only copy, no
+causal claims). Cohort metrics without a trusted source (retention, churn, referral, CAC,
+contribution) are listed as "not measured" with reasons, never zero-filled. Also new:
+first-touch UTM persistence (`crwn_first_touch` snapshot with current-URL-wins fallback), the
+`/api/artist/avatar` derive/override endpoint, avatar promise copy on the wizard's PlanIntro,
+and the vault avatar defaulting the catalog step to the project path.
+
+**Files:** `src/lib/avatars/*` (new: taxonomy, assignment, fanStackModel, betweenTourModel,
+cohortConstraint + 5 test files), registry + toolAdapters (+2 tools), deliverableSpecs (+2),
+postSetupDestination, continuationCta, calculatorModules (+2), starterOffer (+2 cases),
+auto-claim, setup wizard, leadMagnets/analytics (first touch), `api/admin/avatar-cohorts` (new),
+`AvatarCohortsView` (new), admin page tab, `api/artist/avatar` (new),
+`supabase/schema-phase2-sub-avatar.sql` (new), `docs/SUB_AVATARS.md` (new), ICP.md,
+13-CURRENT-STATE.md, TODO.md, sw.js v364.
+
 ## 2026-08-03 - The live fan preview runs beside the whole setup wizard
 
 **What/why:** an artist building their CRWN could not see what they were building. The only fan

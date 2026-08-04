@@ -279,6 +279,50 @@ export function buildStarterOffer(input: StarterOfferInput): StarterOffer {
     case 'opportunity-calculator':
       return membership();
 
+    // Membership Stack Consolidator: the consolidated ladder IS the membership, with the
+    // avatar-specific framing (recreate what members already pay for, invite them personally).
+    case 'fan-stack-calculator':
+      return membership({
+        featureLabel: 'Consolidated membership',
+        audience: 'Your existing paid members first, then the fans not yet paying anywhere',
+        fulfillmentNote:
+          'Rebuilt from benefits your members already get today. Nothing migrates automatically, and their current subscriptions are untouched until they choose to move.',
+        why: monthlyLabel
+          ? `Your stack numbers put about ${monthlyLabel} a month in consolidated support on the table. Until the one-place membership exists, every fan you already converted stays split across tools that cannot see each other.`
+          : 'Your members already pay you in pieces across separate tools. One consolidated ladder is the offer they move to, and it is built from benefits you already deliver.',
+        overlapNote:
+          'The consolidated ladder replaces your scattered memberships; it never stacks on top of them. Members who move are the same members, counted once.',
+      });
+
+    // Touring Access Seller: one recurring VIP tier built from access the artist already controls.
+    case 'between-tour-calculator': {
+      const vipPrice = positive(cp.priceCents) ?? vault.priceCents;
+      return finish({
+        kind: 'membership',
+        featureLabel: 'VIP membership',
+        offerName: typeof cp.tierName === 'string' && cp.tierName ? cp.tierName : vault.name,
+        priceCents: vipPrice,
+        cadence: 'monthly',
+        audience: 'Your VIP buyers and show audiences: fans who already paid for access once',
+        benefits: [
+          'Early ticket access and member presales',
+          'Member-only tour updates first',
+          'Backstage and soundcheck content',
+          'A member livestream in the off months',
+        ],
+        fulfillment: 'moderate',
+        fulfillmentNote: 'One member stream a month and presale access. Promises a touring schedule can keep.',
+        why: monthlyLabel
+          ? `Your show numbers put about ${monthlyLabel} a month in between-tour membership on the table. Every off-month without the tier is a month your proven VIP buyers have nothing to pay for.`
+          : 'Your VIP buyers proved they pay for access. The recurring tier is the year-round version of what they already bought once.',
+        overlapNote:
+          'Members get the off-month streams inside the tier. One-off tickets are only ever sold to fans who are not members, so nobody pays twice.',
+        builderHref: builderHrefFor(seed),
+        confidence: positive(cp.priceCents) || monthlyCents ? 'high' : 'medium',
+        constraintNote: null,
+      });
+    }
+
     case 'vault-revenue-planner': {
       const priceCents = positive(cp.priceCents) ?? vault.priceCents;
       return finish({

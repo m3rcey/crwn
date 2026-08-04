@@ -92,6 +92,18 @@ all live together.
 | [`registry.ts`](../src/lib/leadMagnets/registry.ts) | Every loss tool now asks the 40% question (`monetization_status`) as a second one-tap step. It used to ask follower count and nothing else. |
 | [`WorthExperience.tsx`](../src/app/%28public%29/worth/WorthExperience.tsx) | Killed "Small is the whole point... built for the artist streaming can't pay yet." Objections and hero reframed on the fragmented stack. Input defaults raised from 50k listeners / 20k followers to 150k / 250k. |
 
+## The four sub-avatars (2026-08-03)
+
+The ICP is segmented into four founder-approved sub-avatars, each with its own entry
+calculator, builder path, onboarding emphasis, nurture module and admin cohort report:
+Membership Stack Consolidator (`fan-stack-calculator`), Touring Access Seller
+(`between-tour-calculator`), Live Community Creator (`live-experience-calculator`), Catalog
+and Vault Seller (`vault-revenue-planner`). Taxonomy + deterministic assignment live in
+[`src/lib/avatars/`](../src/lib/avatars/); the full spec is
+[`docs/SUB_AVATARS.md`](SUB_AVATARS.md). The comparison metric is retained economic value per
+avatar, in the admin Avatars tab. The consolidator IS this document's core thesis given its
+own front door.
+
 ## Still open
 
 **The consolidation on-ramp is partially built.** An earlier version of this section claimed CRWN

@@ -512,14 +512,17 @@ describe('result tokens', () => {
 // ---------------------------------------------------------------------------
 describe('tool adapters (parity with the five existing lead magnets)', () => {
   it('registers every tool (the original five plus the later batches)', () => {
-    // Grew from the original 5 to the full inventory (17 LeadMagnetConfig tools + worth).
-    expect(ACQUISITION_TOOL_IDS).toHaveLength(18);
+    // Grew from the original 5 to the full inventory (19 LeadMagnetConfig tools + worth).
+    // 2026-08-03: +2 sub-avatar calculators (fan-stack, between-tour), see docs/SUB_AVATARS.md.
+    expect(ACQUISITION_TOOL_IDS).toHaveLength(20);
     expect(ACQUISITION_TOOL_IDS).toContain('worth');
     expect(ACQUISITION_TOOL_IDS).toContain('opportunity-calculator');
     expect(ACQUISITION_TOOL_IDS).toContain('vault-revenue-planner');
     expect(ACQUISITION_TOOL_IDS).toContain('proof-of-demand-test-builder');
     expect(ACQUISITION_TOOL_IDS).toContain('fan-mission-generator');
     expect(ACQUISITION_TOOL_IDS).toContain('clip-to-earn-campaign-planner');
+    expect(ACQUISITION_TOOL_IDS).toContain('fan-stack-calculator');
+    expect(ACQUISITION_TOOL_IDS).toContain('between-tour-calculator');
   });
 
   it('does not greet an anonymous lead by name (there is no name to greet)', () => {

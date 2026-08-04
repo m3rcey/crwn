@@ -25,6 +25,8 @@ const CTA_OVERRIDES: Record<string, string> = {
   'team-split-deal-builder': 'Set Up My Team Splits',
   'own-your-fans-calculator': 'Start Owning My Fans',
   'royalty-readiness-check': 'Start My Royalty Setup',
+  'fan-stack-calculator': 'Build My Consolidated Membership',
+  'between-tour-calculator': 'Build My VIP Membership',
 };
 
 /** The continuation CTA label for a calculator slug. Feature-specific for every calculator. */

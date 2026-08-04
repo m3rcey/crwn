@@ -113,6 +113,36 @@ export function buildDraftConfig(seed: LeadMagnetSeed): DraftConfig | null {
       };
     }
 
+    // Fan Stack Consolidation -> the same membership builder as `worth`: the consolidated ladder
+    // IS the first offer, drafted at the entry tier with the full ladder as the suggestion.
+    case 'fan-stack-calculator': {
+      const ladder = Array.isArray(cp.ladder) ? (cp.ladder as LadderTier[]) : [];
+      const entry = ladder[0];
+      return {
+        path: '/offers/new',
+        prefill: {
+          lm_goal: 'grow-supporters',
+          lm_tier_name: entry?.name || 'Silver',
+          ...(entry ? { lm_price: dollars(entry.priceCents) } : {}),
+        },
+        suggest: ladder.length ? { lm_suggest_ladder: encodeLadder(ladder) } : {},
+      };
+    }
+
+    // Between-Tour -> ONE recurring VIP tier (the calculator's Gold rung), drafted directly.
+    case 'between-tour-calculator': {
+      const price = positive(cp.priceCents);
+      return {
+        path: '/offers/new',
+        prefill: {
+          lm_goal: 'grow-supporters',
+          lm_tier_name: typeof cp.tierName === 'string' ? cp.tierName : 'Gold',
+          ...(price ? { lm_price: dollars(price) } : {}),
+        },
+        suggest: {},
+      };
+    }
+
     // Vault Planner -> the Vault tier. Cadence has no scheduler, so it is a suggestion only.
     case 'vault-revenue-planner': {
       const price = positive(cp.priceCents);

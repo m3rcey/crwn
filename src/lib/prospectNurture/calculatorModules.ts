@@ -125,6 +125,20 @@ const MODULES: Record<string, Omit<CalculatorModule, 'slug'>> = {
     useCase: 'The royalty streams you have earned from but nobody is collecting get someone assigned to them before the back claims expire.',
     destinationRoute: '/royalty-readiness',
   },
+  'fan-stack-calculator': {
+    featureName: 'Consolidated Membership',
+    quickWin: 'List every tool currently holding a piece of your fan business and what each one knows that the others do not. That list is the cost of fragmentation, and it is also your migration checklist.',
+    firstBuild: 'Rebuild your existing tiers as one four-tier membership in the CRWN app, priced so moving is an upgrade for your current members.',
+    useCase: 'The members, buyers and community scattered across Patreon, Discord and your shop become one fan relationship in one place, where every offer can see every fan.',
+    destinationRoute: '/offers/new',
+  },
+  'between-tour-calculator': {
+    featureName: 'VIP Membership',
+    quickWin: 'Pull the list of everyone who ever bought VIP or premium access from you. Those fans already proved they pay for access, and they are the first invite to a year-round membership.',
+    firstBuild: 'Open one recurring VIP tier with early ticket access and a member stream in the off months.',
+    useCase: 'The revenue that stops the night the tour ends becomes a membership your VIP buyers pay every month, tour or no tour.',
+    destinationRoute: '/offers/new',
+  },
   worth: {
     featureName: 'Membership',
     quickWin: 'Set one price the real fans among your listeners would happily pay each month. Streaming pays you fractions of a cent. A membership pays you directly.',

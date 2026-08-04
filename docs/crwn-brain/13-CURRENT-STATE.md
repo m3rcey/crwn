@@ -20,6 +20,23 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   `StrategyCard` on the command screen with the two declared questions that can flip the pick;
   live-session templates prefill the live form. Spec tier names are roles on the pinned
   Bronze/Silver/Gold/Platinum ladder. `Confirmed`.
+- **Sub-avatar system (2026-08-03).** The ICP segmented into four founder-approved acquisition
+  journeys (Membership Stack Consolidator / Touring Access Seller / Live Community Creator /
+  Catalog and Vault Seller), taxonomy `subAvatar@1` in `src/lib/avatars/` with deterministic,
+  explainable assignment (no LLM; unassigned stays honest). TWO NEW calculators on the shared
+  registry: `fan-stack-calculator` (fanStack@1: consolidation uplift, tool cost separate from
+  revenue, partial migration) and `between-tour-calculator` (betweenTour@1: unique-attendee
+  deflation, VIP conversion to a Gold-priced recurring tier, disjoint member/ticket
+  populations), each with a DeliverableSpec builder, postSetup prefill, CTA, nurture module and
+  starterOffer case. Avatar = read-time mapping of the funnel's `calculator` dimension, so no
+  event stores an avatar. Admin **Avatars** tab (`/api/admin/avatar-cohorts`) compares the four
+  cohorts on the 12-stage spine with realized refund-netted GMV, maturity splits, sample
+  warnings and a deterministic largest-drop constraint (`readCohortConstraint`, min-sample 30,
+  investigation-only copy). First-touch UTMs now persist client-side (`crwn_first_touch`).
+  Onboarding: auto-claim derives the avatar, PlanIntro speaks its promise, vault avatars
+  default to the project upload path. Only stored piece: `artist_profiles.sub_avatar_override`
+  + `sub_avatar_audit` (migration `schema-phase2-sub-avatar.sql`, fail-soft, UNRUN, in
+  TODO.md). Full spec: `docs/SUB_AVATARS.md`. `Confirmed`.
 - **Evidence layer + Constraint Engine (2026-08-03).** The first artist-facing closed feedback
   loop. Evidence: `tier_events` (per-rung views + checkout starts, migration APPLIED and
   probe-verified), `first_paid_conversion` emitted from all six paid rails through one shared

@@ -260,6 +260,8 @@ function SetupWizard() {
     ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
     /** The Share-to-Earn config they set in the builder (null = not configured). */
     shareToEarn?: { percent: number } | null;
+    /** The derived sub-avatar journey they entered through (docs/SUB_AVATARS.md). */
+    subAvatar?: { id: string; label: string; promise: string } | null;
   } | null>(null);
   const [planIntroSeen, setPlanIntroSeen] = useState(false);
   // Once the artist edits the ladder draft, their edits win over any prefill.
@@ -276,6 +278,10 @@ function SetupWizard() {
         if (s?.ladderPrefill && !ladderTouchedRef.current) {
           setLadderDraft(buildLadderDraft(s.ladderPrefill));
         }
+        // Avatar-aware default for the catalog path: a Catalog and Vault Seller came in about
+        // an inventory of unreleased projects, so the project upload is the natural opening.
+        // A default only; the content-plan screen still offers every path.
+        if (s?.subAvatar?.id === 'catalog_vault_seller') setContentPlan('project');
       })
       .catch(() => {});
   }, [user]);
@@ -1595,6 +1601,7 @@ function PlanIntro({
     heroSuffix: string | null;
     estimatedMonthlyCents: number | null;
     ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
+    subAvatar?: { id: string; label: string; promise: string } | null;
   };
   onContinue: () => void;
 }) {
@@ -1624,7 +1631,9 @@ function PlanIntro({
         </div>
         <h1 className="text-3xl font-bold text-crwn-text mb-2">Your CRWN plan is saved</h1>
         <p className="text-crwn-text-secondary mb-8">
-          This is the plan you just built. Every answer carried over. Now let&apos;s get it ready to launch.
+          {plan.subAvatar?.promise
+            ? `${plan.subAvatar.promise} Every answer carried over. Now let's get it ready to launch.`
+            : "This is the plan you just built. Every answer carried over. Now let's get it ready to launch."}
         </p>
 
         <div className="neu-raised rounded-2xl p-6 mb-8 text-left">
