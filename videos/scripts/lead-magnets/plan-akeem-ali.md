@@ -4,6 +4,7 @@
 **Followers used:** ~1 million Instagram followers · ~161K Spotify monthly listeners (searched 2026-08-04; model uses the LARGER, never the sum)
 **Math (unified model, expected scenario, mirrors `src/lib/opportunity/unifiedModel.ts`):** 1M audience × 15% reach = 150,000 addressable → 3% pay, lifted to 3.75% by clips = 5,625 + (4,500 sharers × 20 reach × 2%) = 1,800 referred → 7,425 paying members → ladder 70/22/8 at $10/$25/$100 = $152,212 + $3/member extras = $174,487 recurring → + 1,444 non-member tickets × $15 + 361 tips × $5 = $23,461 → $197,948 gross − 8% fee ($15,836) − 10% fan commissions ($6,874) = ~$175,239/mo net
 **Loss:** ~$175,000/month · ~$2.1 million/year
+**Stage-setter:** 161K monthly listeners × ~1 cent (reference heuristic) ≈ $1,600/mo streaming today; the modeled net is ~100x that
 
 ---
 
@@ -15,28 +16,29 @@ You are guessing what your fans are worth, and the fans who were ready to pay mo
 
 **SCRIPT:**
 
-How much money could Akeem Ali be missing because he has never seen one honest number for his whole fan business? Let's run the numbers. All of them, one time, and no fan gets counted twice.
-Akeem Ali has about 1 million followers on Instagram.
-He also has about 161,000 monthly listeners on Spotify.
-Most of those are the same people. So we do not add them. We use the bigger number: 1 million.
-Let's say only 15% of those fans can really be reached.
-That is 150,000 fans.
-Only about 3% of them would ever pay for anything. His clips and skits nudge that a little higher.
-Call it about 5,600 paying members.
-Now his sharers. Say just 3% of reachable fans share his link for a small cut.
-That is 4,500 fans, reaching about 90,000 new people.
-If only 2% of those join, that is 1,800 more members.
-So about 7,400 paying members, total. One count. No overlap.
-Most join at $10 a month. Some at $25. A few at $100. Plus a little extra member spend.
-That is about $174,000 a month, recurring.
-Now add one ticketed live night a month, sold ONLY to fans who are not members.
-About 1,400 tickets at $15, plus tips. About $23,000 more.
-And his private studio sessions? Included in the $100 tier. They add zero. That is what makes the tier worth $100.
-Sidenote: this exact system, the ladder, the vault, the share links, the ticketed lives, is what an artist can build on the CRWN app. ANYWAY...
-After the platform fee, and the cut his own fans earn for bringing people in, Akeem Ali could be missing about **$175,000 each month** and about **$2.1 million each year**, because this system does not exist yet.
+How much money could Akeem Ali be missing because he aint never seen one real number for his whole fan business? You bout to find out.
+Keemy got about 1 million followers on Instagram. The skits, the whole 70s thing. Fans LOVE him.
+But here go the problem. All them fans live on apps he dont own. And them apps pay pennies.
+Right now he got like 161,000 monthly listeners on Spotify. That's only like $1,600 a month in streaming money.
+A million followers. $1,600. Somethin aint addin up.
+The fix aint another app. It's one system in one place. A membership with levels. His unreleased music in a vault inside it. Share links that pay his fans for bringin people in. And ticketed live nights.
+And every fan only get counted one time.
+Let's run it.
+We aint gon add his followers and his listeners. Most of em the same people. So we use the bigger number: 1 million.
+Say only 15% of em can really be reached. That's 150,000 fans.
+Say only 3% of them ever pay for anything. His clips push that up a lil. Call it 5,600 members.
+Now the sharers. Say 4,500 fans share his link for a cut. They reach 90,000 new people. If just 2% join, that's 1,800 more.
+So like 7,400 paying members. One count. No overlap.
+Most pay $10 a month. Some $25. A few $100. Plus a lil extra spend here and there.
+That's like $174,000 a month, every month.
+Now add one ticketed live a month, sold only to fans who aint members. Like 1,400 tickets at $15, plus tips. $23,000 more.
+His private studio sessions? Already inside the $100 level. They add zero. That's what make that level worth $100.
+Sidenote: this exact system, the levels, the vault, the share links, the ticketed lives, is what an artist can build on the CRWN app. ANYWAY...
+After fees, and the cut his fans get for bringin people in, Akeem Ali could be missin like **$175,000 a month**. That's like **$2.1 million a year**. Off fans he already got.
+Remember that $1,600 from streaming? This is 100 times that.
 The real number may be higher or lower. This is a plan, not a promise.
-BUT... Akeem is independent. He built that fanbase himself. Which means YOUR fanbase has a number too.
-I built a free Opportunity Calculator that runs your WHOLE business at once, and never counts the same fan twice.
+BUT... Keemy built that fanbase independent. Which mean YOUR fanbase got a number too.
+I built a free calculator that run your WHOLE business one time, and never count the same fan twice.
 Comment "PLAN" and I'll DM you the link.
 
 ---
@@ -47,4 +49,4 @@ Flat scan of a white sheet of paper filling the entire frame. No desk, no surfac
 
 ---
 
-**NOTES:** First script in the all-in (PLAN) series. Runs long (~330 words); if splitting into two parts, Part 1 ends after "So about 7,400 paying members, total. One count. No overlap." and Part 2 opens on "Most join at $10 a month." Every figure mirrors the shipped unified model (`unifiedOpportunity@1`, expected scenario) with sessions structured as INCLUDED in the top tier, which is why they add $0: that line is the honesty beat this magnet owns. Follower and listener counts searched 2026-08-04 (IG @akeem__ali ~1M; Spotify ~161K); re-verify before filming. Akeem Ali is not yet in `known-people.json`; add him (slug, Brave query, Wikipedia/press page, aliases like "Keemy Casanova") before running the image pipeline.
+**NOTES:** First script in the all-in (PLAN) series. Voice is the urban conversational register from /crwn-shortform (Josh's call, 2026-08-04), not the neutral lead-magnet voice; structure is hook > problem > solution > stage-setter (what he makes now) > breakdown > total > turn > CTA. Runs long (~360 words); if splitting into two parts, Part 1 ends after "So like 7,400 paying members. One count. No overlap." and Part 2 opens on "Most pay $10 a month." Every figure mirrors the shipped unified model (`unifiedOpportunity@1`, expected scenario) with sessions structured as INCLUDED in the top tier, which is why they add $0: that line is the honesty beat this magnet owns. The $1,600/mo streaming stage-setter uses the reference set's ~1 cent per monthly listener heuristic; it is an estimate, keep the "like" hedge. Follower and listener counts searched 2026-08-04 (IG @akeem__ali ~1M; Spotify ~161K); re-verify before filming. Akeem Ali is not yet in `known-people.json`; add him (slug, Brave query, Wikipedia/press page, aliases like "Keemy Casanova") before running the image pipeline.
