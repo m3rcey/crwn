@@ -94,7 +94,9 @@ the single total reveal, then the callback to the held baseline stating how many
 total money he would have ((reveal + baseline) ÷ baseline, e.g. "over 11 times the money he got
 now"), the disclaimer, the turn ("BUT, the bigger question is this...how much are independent
 artists operating on his level (im talking to YOU) how much are you missing out on?"), CTA
-(comment **PLAN**). The problem/solution block flows straight into "Let's run it." with just a
+(comment **PLAN**). The hook's loss theme is a BOOKEND: restate it nearly verbatim at the
+reveal ("all because he's giving the things that fans want more than music away for free")
+and once more inside the CTA, so the payoff answers the exact question the hook asked. The problem/solution block flows straight into "Let's run it." with just a
 paragraph break, no bridge line between them. Never state touring/merch estimates as reported figures; they are "say/like" hedged
 illustrations, and the reveal is never reduced by them (CRWN does not replace the road or the
 merch table). Voice is the urban conversational register
