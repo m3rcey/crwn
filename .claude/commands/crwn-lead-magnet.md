@@ -76,13 +76,19 @@ membership, NEVER spoken as a separate replay purchase), then "Let's run it." op
 breakdown WITH the platform counts
 and the overlap equation spoken plainly, then a counts-only breakdown including the per-tier
 headcounts ("Like 6,800 of em pay $10..."), with ALL dollar subtotals WITHHELD (fan counts and
-prices may be spoken; computed dollars may not; the current streaming income ≈ 1 cent per
-monthly listener stage-setter is the one exception since it is money he makes NOW), then the
+prices may be spoken; computed dollars may not; the exception is the CURRENT-income baseline
+since it is money he makes NOW: streaming ≈ 1 cent per monthly listener, plus hedged round
+estimates for touring and merch IF the artist verifiably tours/sells merch, folded into one
+held number, e.g. "So all in, call it like $22,000 a month. Hold that number."), then the
 tension line ("When you add all this up, the amount he's missing out on is CRAZY."), then the
 Sidenote CARRYING the tag CTA inside it ("Tag [Artist] or an artist like him in the comments so
-they can see this.") before "ANYWAY...", then a paragraph break, the single total reveal, the
-~Nx streaming contrast, the disclaimer, the turn ("BUT, the bigger question is this...how much
-are YOU missing out on?"), CTA (comment **PLAN**). Voice is the urban conversational register
+they can see this.") before "ANYWAY...", then a paragraph break, the single total reveal, then
+the callback to the held baseline stating how many times MORE total money he would have
+((reveal + baseline) ÷ baseline, e.g. "over 11 times the money he got now"), the disclaimer,
+the turn ("BUT, the bigger question is this...how much are YOU missing out on?"), CTA (comment
+**PLAN**). Never state touring/merch estimates as reported figures; they are "say/like" hedged
+illustrations, and the reveal is never reduced by them (CRWN does not replace the road or the
+merch table). Voice is the urban conversational register
 from `/crwn-shortform`, not the neutral voice the five scripts above use. Reference script:
 `plan-akeem-ali.md` (Josh-edited; copy its beats).
 
