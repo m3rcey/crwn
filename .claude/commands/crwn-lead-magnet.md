@@ -77,9 +77,11 @@ breakdown WITH the platform counts
 and the overlap equation spoken plainly, then a counts-only breakdown including the per-tier
 headcounts ("Like 6,800 of em pay $10..."), with ALL dollar subtotals WITHHELD (fan counts and
 prices may be spoken; computed dollars may not; the exception is the CURRENT-income baseline
-since it is money he makes NOW: streaming ≈ 1 cent per monthly listener, plus hedged round
-estimates for touring and merch IF the artist verifiably tours/sells merch, folded into one
-held number, e.g. "So all in, call it like $22,000 a month. Hold that number."), then the
+since it is money he makes NOW: streaming ≈ 1 cent per monthly listener spoken inside problem
+1, while the touring/merch estimates and the combined total go AFTER the breakdown, NEVER
+between the problem/solution pairs, as the held setup right before the tension line: "So all
+in, call it like $22,000 a month, which is like $264,000 a year. Hold that number." Touring
+and merch get hedged round estimates only IF the artist verifiably tours/sells merch), then the
 tension line ("When you add all this up, the amount he's missing out on is CRAZY."), then the
 Sidenote CARRYING the tag CTA inside it ("Tag [Artist] or an artist like him in the comments so
 they can see this.") before "ANYWAY...", then a paragraph break, the single total reveal, then
