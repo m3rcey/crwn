@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { usePlayer } from '@/hooks/usePlayer';
 import { Flag, Loader2, CheckCircle, X } from 'lucide-react';
 
 // The everywhere bug reporter. A quiet flag in the corner of every page: mostly
@@ -17,6 +18,7 @@ import { Flag, Loader2, CheckCircle, X } from 'lucide-react';
 // ancestors otherwise), z-[100], solid surface.
 export function BugReportButton() {
   const { user, profile } = useAuth();
+  const { currentTrack, isExpanded } = usePlayer();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -28,8 +30,21 @@ export function BugReportButton() {
     setMounted(true);
   }, []);
 
-  // Hide where it would be noise: auth screens and the setup wizard's focused flow.
-  const hidden = !pathname || pathname === '/login' || pathname === '/signup' || pathname.startsWith('/setup') || pathname.startsWith('/verify');
+  // Hide where it would be noise: auth screens, the setup wizard's focused flow, and
+  // behind the full-screen player (which owns the whole viewport at z-100).
+  const hidden =
+    !pathname ||
+    pathname === '/login' ||
+    pathname === '/signup' ||
+    pathname.startsWith('/setup') ||
+    pathname.startsWith('/verify') ||
+    isExpanded;
+
+  // The mini player is fixed full-width at bottom-16 on mobile / bottom-0 on desktop
+  // and stands ~72px tall. This button sits ABOVE it in the stacking order, so any
+  // overlap silently eats taps on the player's own controls (that is exactly how it
+  // blocked expanding the player). Ride above the player whenever a track is loaded.
+  const offset = currentTrack ? 'bottom-36 md:bottom-24' : 'bottom-24 md:bottom-6';
 
   if (!mounted || hidden) return null;
 
@@ -73,7 +88,7 @@ export function BugReportButton() {
         onClick={() => setOpen(true)}
         aria-label="Report a bug"
         title="Report a bug"
-        className="fixed bottom-24 md:bottom-6 right-3 z-[90] w-9 h-9 rounded-full bg-crwn-surface-solid border border-crwn-elevated flex items-center justify-center text-crwn-text-secondary opacity-40 hover:opacity-100 hover:text-crwn-gold focus:opacity-100 transition-all"
+        className={`fixed ${offset} right-3 z-[90] w-9 h-9 rounded-full bg-crwn-surface-solid border border-crwn-elevated flex items-center justify-center text-crwn-text-secondary opacity-40 hover:opacity-100 hover:text-crwn-gold focus:opacity-100 transition-all`}
       >
         <Flag className="w-4 h-4" />
       </button>
