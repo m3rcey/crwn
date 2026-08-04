@@ -21,11 +21,11 @@ Keemy got about 1 million followers on Instagram. Over 500,000 more on TikTok. 2
 But here go the problems.
 First: streaming. He got like 161,000 monthly listeners on Spotify. That's only like $1,600 a month.
 A million followers. $1,600. Somethin aint addin up.
-The fix is a membership with levels. Fans pay him direct every month, and his unreleased music live in a vault inside it.
+The fix is a membership with levels. Fans pay him direct every month and get somethin real back. Early drops. Unreleased music in a vault. Private posts. Behind the scenes. A direct line no algorithm sit in front of.
 Second: his fans already promote him for FREE. Clips, reposts, edits. They make him money and dont see none of it.
 The fix is Share-to-Earn. Every fan get they own link, and a cut of every member they bring in.
-Third: fans can only WATCH him make music. They cant be in the room while it happen.
-The fix is Executive Producer Sessions. Private studio sessions where his top members in the room with him.
+Third: fans can only WATCH him make music. They cant pitch a beat. Cant throw him a hook idea. Cant add they vocals. Cant be in the room while it happen.
+The fix is Executive Producer Sessions. Private studio sessions where his top members in the room with him, pitchin beats and hook ideas while the song get made.
 One system. One place. And every fan only get counted one time.
 Let's run it.
 First, his audience. A fan that follow you on two apps aint two fans.
@@ -36,7 +36,7 @@ Say only 15% of that 1.3 million can really be reached. That's 195,000 fans.
 Say only 3% of them ever pay for anything. His clips push that up a lil. Call it 7,300 members.
 Now the sharers. Say 5,800 fans share his link for a cut. They reach 117,000 new people. If just 2% join, that's 2,300 more.
 So like 9,700 paying members. One count. No overlap.
-Most pay $10 a month. Some $25. A few $100. Plus a lil extra spend here and there.
+Like 6,800 of em pay $10 a month. Like 2,100 pay $25. And like 770 pay $100. Plus a lil extra spend here and there.
 Now add one ticketed live a month, sold only to fans who aint members. Like 1,900 tickets at $15, plus tips.
 His private studio sessions? Already inside the $100 level. They add zero. That's what make that level worth $100.
 Sidenote: this exact system, the levels, the vault, the share links, the ticketed lives, is what an artist can build on the CRWN app. ANYWAY...
