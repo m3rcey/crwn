@@ -56,6 +56,12 @@
 - **OptionSelect** — the shared single-choice dropdown component (mandated for pick-one-of-3+).
 - **Canary** — synthetic health check: `onboarding-health` (publish/RLS/upload) and `rls-canary` (entitlement from the outside), both email the founder on failure. `__canary*` slugs are skipped by hooks.
 - **Setup wizard** — the mandatory post-signup `/setup` flow (one field per screen).
+- **Constraint Engine** — the deterministic, read-only brain (`src/lib/constraint/*`) that names the ONE thing currently blocking an artist's direct-to-fan revenue, shows the evidence, and returns exactly one action. No AI, no writes.
+- **Constraint** — one of eight diagnosed states (FULFILLMENT, RETENTION, REACH, FREE_CAPTURE, FIRST_PAID, PAID_TIER_INTEREST, CHECKOUT_COMPLETION, DEPTH), evaluated earliest-failing-stage-first.
+- **`insufficient_evidence`** — the engine's other return value, and the DEFAULT. Means "no diagnosis", so the normal roadmap step renders unchanged. Below a stage's minimum sample this is what you get, never a low-confidence diagnosis.
+- **Evidence sufficiency** — the only input to confidence. `medium` at a stage's minimum sample, `high` at 2x. Never a model's judgement.
+- **Tier events** — `tier_card_viewed` / `tier_checkout_started`, the per-rung interaction evidence in `tier_events`. Forward-looking from 2026-08-03; there is no history before it.
+- **Missed promise** — a `fulfillment_events` row swept to `status='missed'` after `MISSED_GRACE_DAYS` (14) past `due_at`. Distinct from **overdue**, which is pending and past due but still deliverable today.
 
 ## Potentially confusing name pairs
 - **Tier** (fan subscription) vs **Platform tier** (artist SaaS plan).
@@ -66,6 +72,8 @@
 - **`[slug]`** (canonical artist pages) vs **`artist/[slug]`** (legacy redirect + dead dupes).
 - **`empire`** — a dead platform tier, fully deleted 2026-07-31 (`resolveTierKey()` aliases any stray string to `scale`).
 - **`neu-*` CSS classes** — flat design, NOT neumorphic (naming leftover).
+- **Roadmap** (`src/lib/artistRoadmap.ts`, "what to do next in the plan") vs **Constraint Engine** ("what is blocking you right now"). The constraint card sits ABOVE the roadmap and never replaces, mutates or completes it; when the constraint clears, the roadmap is already there unchanged.
+- **Overdue** (pending, past due, still deliverable) vs **missed** (swept to a terminal verdict after the grace period). The engine acts on the first and scores the second.
 
 ---
 

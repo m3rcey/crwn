@@ -43,7 +43,7 @@
 - Read `07-BUSINESS-RULES.md`. Especially: unique `(fan_id, artist_id)` subscription (resubscribe = upsert); founding-artist 5% override; Team Split net-basis + cap + fenced-source-only; free-tier bypasses Stripe; deferred downgrade.
 
 ## How to test your change
-- **Run `npm test` first** (vitest, 392 tests across 23 files). It covers the pure business layers, so if you touched pricing, the opportunity model, adapters, drafts, journey resolution, experiments or analytics, a failure here is your bug. **Add a `.test.ts` beside any new pure business logic.** Several of these suites are deliberate guards that fail when a new tool is added without its deliverable or its analytics entry, so a red test may be telling you work is missing rather than broken.
+- **Run `npm test` first** (vitest, 820 tests across 50 files (a moving figure: run it)). It covers the pure business layers, so if you touched pricing, the opportunity model, adapters, drafts, journey resolution, experiments or analytics, a failure here is your bug. **Add a `.test.ts` beside any new pure business logic.** Several of these suites are deliberate guards that fail when a new tool is added without its deliverable or its analytics entry, so a red test may be telling you work is missing rather than broken.
 - **Then run `npm run build`** (inside WSL in this environment) — it must pass clean. No component/integration/e2e test exists, so the build remains the gate for everything the suite does not reach.
 - **`npm run lint` is not a gate** (~635 pre-existing errors). Check your own files only.
 - Manually exercise the affected flow (the `verify`/`run` skills can drive the app). For entitlement/money changes, reason through the `rls-canary`/`onboarding-health` assertions.

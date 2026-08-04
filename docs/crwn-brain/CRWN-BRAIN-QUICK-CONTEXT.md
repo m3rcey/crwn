@@ -1,15 +1,15 @@
 # CRWN Brain — Quick Context
 
-> Short context for routine tasks. If you need depth, load `CRWN-BRAIN-COMBINED.md` or the numbered docs. Reflects commit `86e3e8c` (2026-07-29); see the delta blocks atop `CRWN-BRAIN-COMBINED.md` for 2026-07-30 through 2026-08-01 (release strategy shipped end to end: membership strategies, content classes as the ONE track access control, the additive release waterfall, live-session templates; money-path guards; plan limits made real or removed; support chat rework). Test count grew to ~550.
+> Short context for routine tasks. If you need depth, load `CRWN-BRAIN-COMBINED.md` or the numbered docs. Reflects commit `86e3e8c` (2026-07-29); see the delta blocks atop `CRWN-BRAIN-COMBINED.md` for 2026-07-30 through **2026-08-03** (release strategy shipped end to end: membership strategies, content classes as the ONE track access control, the additive release waterfall, live-session templates; money-path guards; plan limits made real or removed; support chat rework; and the **evidence layer + Constraint Engine**, CRWN's first artist-facing closed feedback loop).
 
 ## What it is
-CRWN (thecrwn.app) = music-monetization SaaS. Independent artists sell subscriptions + tracks/albums/products/experiences directly to fans via Stripe Connect, and own the fan CRM. Also bundles marketing automation, gamified engagement, live streaming, team revenue-splits, an AI manager, and an acquisition funnel of 18 public calculator tools. **Live and large.** `npm test` = 392 vitest tests, but they cover the **pure business layers only** (no component/integration/e2e), so `npm run build` is still the gate for everything else. `npm run lint` is not a gate (~635 pre-existing errors).
+CRWN (thecrwn.app) = music-monetization SaaS. Independent artists sell subscriptions + tracks/albums/products/experiences directly to fans via Stripe Connect, and own the fan CRM. Also bundles marketing automation, gamified engagement, live streaming, team revenue-splits, an AI manager, and an acquisition funnel of 18 public calculator tools. **Live and large.** `npm test` = 820 vitest tests (2026-08-03), but they cover the **pure business layers only** (no component/integration/e2e), so `npm run build` is still the gate for everything else. `npm run lint` is not a gate (~635 pre-existing errors).
 
 ## Roles
 `profiles.role = fan | artist | admin`. Overlay actors: recruiter/partner (refer artists), collaborator (Team Splits). Role is frozen at the column level; fan→artist promotion is a **server-side trigger on publish** — never client-`update({role})`.
 
 ## Architecture
-Next.js 16 App Router (mostly client components) on Vercel · Supabase (Postgres/Auth/Storage/Realtime + RLS) · Stripe Connect · Cloudflare R2 (audio/VOD) · LiveKit (live) · Resend (email) · DeepSeek/OpenAI (AI, incl. the /support chat). State = React Context + direct Supabase queries in hooks. No tests, no analytics vendor. (Twilio SMS was removed entirely 2026-07-31; TWILIO_* env vars are dead.)
+Next.js 16 App Router (mostly client components) on Vercel · Supabase (Postgres/Auth/Storage/Realtime + RLS) · Stripe Connect · Cloudflare R2 (audio/VOD) · LiveKit (live) · Resend (email) · DeepSeek/OpenAI (AI, incl. the /support chat). State = React Context + direct Supabase queries in hooks. Vitest covers the pure business layers (see above); no analytics vendor, and analytics is first-party (`funnel_events`, `tier_events`, `opportunity_ledger`). (Twilio SMS was removed entirely 2026-07-31; TWILIO_* env vars are dead.)
 
 **Two Supabase clients:** anon+RLS (components) vs service-role (API routes only, bypasses RLS). Middleware excludes `/api/` → every API route self-authenticates + checks ownership.
 
@@ -23,6 +23,9 @@ Next.js 16 App Router (mostly client components) on Vercel · Supabase (Postgres
 - **Content gating:** `is_free` + `allowed_tier_ids` + `price`. Legacy `access_level` is DEAD.
 - **Subscriptions:** UNIQUE(fan_id, artist_id) → resubscribe = upsert; free tier bypasses Stripe.
 - **Column locations:** `display_name`/`avatar_url`/`role` on `profiles`; `slug`/`banner_url`/`stripe_connect_id` on `artist_profiles`. `album_tracks.track_number`, `playlist_tracks.position`.
+- **Constraint Engine (2026-08-03):** `src/lib/constraint/*` names the ONE thing blocking an artist and returns ONE action, rendered above the roadmap. **Pure, deterministic, no AI, never writes.** Order: launch gate (Roadmap owns it) → FULFILLMENT → RETENTION → REACH → FREE_CAPTURE → FIRST_PAID → PAID_TIER_INTEREST → CHECKOUT_COMPLETION → DEPTH. Thresholds in ONE file (`thresholds.ts`) and nowhere else. Below the minimum sample there is NO diagnosis; null evidence means "cannot evaluate", never zero. Renders nothing by default.
+- **Promise reliability:** `MISSED_GRACE_DAYS = 14` (one constant) sweeps overdue-pending → `missed` on the 6am cron; lateness is DERIVED from `due_at`/`completed_at`, never stored.
+- **Never claim an upgrade or downgrade:** `subscriptions` is UNIQUE(fan_id, artist_id) and an upgrade overwrites `tier_id`, so there is no transition history to read.
 
 ## Design & UX conventions
 Dark-only, gold `#D4AF37`, flat, mobile-first, Inter, lucide, recharts, Tailwind v4 (no config file). Reuse `OptionSelect` (pick-one-of-3+ = dropdown), `Wizard`, `ConfirmModal`, `EmptyState`, `Skeleton`. **No em dashes.** Internal nav `router.push`; back = `smartBack(router, fallback)`; Rise-Mode flows honor `?returnTo=`. ⚠️ Use `bg-crwn-surface`, NOT the undefined `bg-crwn-card`.

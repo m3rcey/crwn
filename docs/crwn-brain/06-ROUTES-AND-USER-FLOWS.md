@@ -104,6 +104,26 @@ Artist accepts agreement → `/api/live/session` (Pro-gated) starts room + best-
 ### Lead-gen (smart links / pre-save)
 `(public)/link/[slug]` → `SmartLinkCapture`/`PreSaveCapture` collects email/phone → `/api/smart-links/capture` → `smart_link_captures`; pre-save release-day email via `scheduled-releases` cron. The SMS consent checkbox on lead capture was removed 2026-07-31 with the SMS feature. `Confirmed`.
 
+### Artist next action (Constraint Engine, shipped 2026-08-03)
+`/profile/artist` mounts `ConstraintCard` above `RoadmapCard`. It calls `GET
+/api/artist/constraint`, which takes **no parameters**: the artist is resolved from the SESSION,
+so the request cannot name a subject and one artist can never read another's evidence (a fan
+session has no `artist_profiles` row and gets 403). The route assembles evidence
+(`src/lib/constraint/assembler.ts`, reusing `evaluateCondition`, `readTierEvidence`,
+`summarizePromiseHealth` and `computeChurn`), runs the pure engine, and returns ONLY the result:
+the raw snapshot carries visitor hashes and tier ids that never cross the wire. Any failure
+returns `{constraint: null}` with a 200, and the card renders nothing, so the roadmap below is
+never the casualty of a broken engine. Nothing on this path writes. `Confirmed`.
+
+### Tier interaction evidence (shipped 2026-08-03)
+Views: the artist page's tier cards report through `useTierViewTracker` (IntersectionObserver at
+half-card visibility) → `POST /api/tier-events`, which derives `visitor_hash` from the request
+headers with the same hash middleware uses for page visits and reads `artist_id` off the tier
+row. Bots resolve to a null hash and are dropped. Checkout starts: recorded server-side in
+`/api/stripe/checkout` AFTER `sessions.create` resolves, so a session that fails to create
+records nothing, and the free-tier path returns before it. Read back by `GET
+/api/artist/tier-evidence` (owner-gated by `requireArtistOwner`). `Confirmed`.
+
 ### Support (help center, shipped 2026-07-31)
 `/support` = guide search (14 getting-started guides) + link to `/getting-started` + live chat + contact form (CCs joshn.wms@gmail.com, accepts auto-captured context). Chat: user posts via `POST /api/support/chat` (session-auth, service-role writes); AI reply from DeepSeek `deepseek-chat` with a knowledge prompt built from real guide content (`src/lib/supportKnowledge.ts`). Client reads the conversation via RLS + realtime on `support_conversations`/`support_messages` (migration `schema-phase2-support-chat.sql` PENDING; UI falls back to the contact form until it runs). Escalation (no `DEEPSEEK_API_KEY`, AI flags the question, or "Talk to a human") sets status `human_requested` and emails the founder a link to `/admin?tab=support` (SupportChatView); admin replies email the user. A global `BugReportButton` (root layout, hidden on auth/setup screens) posts to `/api/support` with category Bug Report + auto-captured page URL/user agent/user id. `Confirmed`.
 

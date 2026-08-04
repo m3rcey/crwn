@@ -133,6 +133,33 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Bug-report widget | `BugReportButton`, mounted in the root layout (hidden on auth/setup screens): subtle flag button bottom-right on every page, posts to `/api/support` with category Bug Report + auto-captured page URL/user agent/user id | **Production-ready** |
 | Launch announcement | One-time popup `announce_support_chat` (2026-07-31) in the popup registry | **Production-ready** |
 
+## Constraint Engine (artist next-action, shipped 2026-08-03)
+
+CRWN's first artist-facing closed feedback loop, and the consumer of the evidence layer shipped
+the same day. **Deterministic end to end: no AI provider is involved, and with every model
+offline it returns the same answer.** It reads and never writes: no tier, price, promise,
+campaign, quest, XP or Revenue Ramp state is touched, and no roadmap step is ever marked
+complete from it.
+
+- **Pure brain** `src/lib/constraint/engine.ts` (`readConstraint(evidence)`), thresholds in ONE
+  policy object (`thresholds.ts`, founder-adjustable, no migration to change), evidence
+  assembled server-side by `assembler.ts`, surfaced by `GET /api/artist/constraint` (session-only
+  ownership, no `artistId` parameter by design) and rendered by `ConstraintCard` **above**
+  `RoadmapCard` on `/profile/artist`.
+- **Order:** launch gate (delegated to the Roadmap) → FULFILLMENT → RETENTION → REACH →
+  FREE_CAPTURE → FIRST_PAID → PAID_TIER_INTEREST → CHECKOUT_COMPLETION → DEPTH → none.
+  Fulfillment and retention run FIRST because they protect revenue already earned, while
+  acquisition wins revenue not yet earned.
+- **Launch readiness stays owned by the Roadmap.** The engine only asks whether enough of the
+  machine exists for its numbers to mean anything, via the Quest Engine's own
+  `evaluateCondition`. There is no second completion oracle.
+- **Evidence discipline:** every input is nullable and null means "cannot evaluate", never zero,
+  so a missing table reads as silence rather than as a failing artist. Below a stage's minimum
+  sample there is NO diagnosis, not a low-confidence one. Confidence is sample sufficiency
+  (`medium` at the minimum, `high` at 2x).
+- **Renders nothing** on loading, error, insufficient evidence or a healthy artist, so the
+  default experience is exactly today's roadmap. `Confirmed`.
+
 ## Cross-cutting
 - **PWA** (`sw.js`, manifest) — Production-ready, no push. **Visitor analytics** (hashed fingerprint, bot-filtered) — Production-ready. **Legal pages** (`(public)/{terms,privacy,dmca,artist-agreement,live-agreement}`) — Production-ready. **Marketing pages** (`/about` stale, `getting-started` guides) — mixed. `(public)/worth` is NO LONGER mock UI: it is the Streaming Loss Calculator (renamed 2026-07-18), a real loss-engine experience that also hosts the reusable `IndependenceSection`.
 

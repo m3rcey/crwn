@@ -117,7 +117,7 @@ public/            sw.js, manifest.json, icons
 - **Caching:** `admin_metrics_cache` table for expensive KPI aggregation; service worker HTTP cache. No Redis/CDN app cache. `Confirmed`.
 - **Error handling / logging:** `try/catch` → `console.error` + 500; no Sentry/structured logging.
 - **Monitoring:** first-party canaries (`onboarding-health`, `rls-canary`, `agent-health`, `cron_heartbeat`) + email alerts to the founder. No third-party APM.
-- **Testing:** vitest, `npm test`, 392 tests across 23 files, covering the **pure business layers only** (`src/lib/opportunity`, `acquisition`, `opportunityDrafts`, `opportunityFunnels`, `leadResults`, `journey`, `experiments`, `prospectNurture`, `analytics`, `revenueRamp`). No component/integration/e2e test, so the build gate + canaries still carry everything else.
+- **Testing:** vitest, `npm test`, 820 tests across 50 files (a moving figure: run it), covering the **pure business layers only** (`src/lib/opportunity`, `acquisition`, `opportunityDrafts`, `opportunityFunnels`, `leadResults`, `journey`, `experiments`, `prospectNurture`, `analytics`, `revenueRamp`). No component/integration/e2e test, so the build gate + canaries still carry everything else.
 
 ## 7. Important patterns to preserve
 - Two Supabase clients (anon+RLS vs service-role in API only).
@@ -134,7 +134,7 @@ public/            sw.js, manifest.json, icons
 - **Undefined `bg-crwn-card`** token in 56 files; color/font token mismatches.
 - **Money tables lack CREATE TABLE migrations** — repo can't rebuild prod schema. `Critical` for portability.
 - **RLS is per-table opt-in** — a new table is wide open until policies are added.
-- **Tests cover the pure business layers only** (392 vitest tests); the huge surface (241 API routes) is otherwise unguarded, so regression risk stays high everywhere a route, component or DB path is involved.
+- **Tests cover the pure business layers only** (820 vitest tests as of 2026-08-03; run it for the current figure); the huge surface (241 API routes) is otherwise unguarded, so regression risk stays high everywhere a route, component or DB path is involved.
 - **Unauthenticated webhooks / client-bundled cron-secret pattern** (see `11-SECURITY`).
 
 ## 9. Boundaries future agents should preserve

@@ -20,6 +20,17 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   `StrategyCard` on the command screen with the two declared questions that can flip the pick;
   live-session templates prefill the live form. Spec tier names are roles on the pinned
   Bronze/Silver/Gold/Platinum ladder. `Confirmed`.
+- **Evidence layer + Constraint Engine (2026-08-03).** The first artist-facing closed feedback
+  loop. Evidence: `tier_events` (per-rung views + checkout starts, migration APPLIED and
+  probe-verified), `first_paid_conversion` emitted from all six paid rails through one shared
+  recorder that stamps the artist's calculator, and `fulfillment_events.status = 'missed'` now
+  actually written (it was read in nine places and written in none) with lateness derived from
+  the existing timestamps. Decision: `src/lib/constraint/*` diagnoses the earliest blocking
+  constraint, shows its evidence, and returns exactly ONE action, rendered by `ConstraintCard`
+  above the roadmap. **Deterministic: no AI provider is involved, and it reads without ever
+  writing.** It renders nothing on insufficient evidence, so the default experience is unchanged.
+  Full rules in `07-BUSINESS-RULES.md` §15a/§15b; audit context in `docs/FEEDBACK_LOOPS.md`.
+  `Confirmed`.
 - **Stripe webhook** (idempotent, signed, refunds/disputes handled).
 - **Team Splits** (capped-hybrid, accrual cron, deliverables/disputes/release, separate cashout ledger) — carefully engineered.
 - **Email**: campaigns + multi-step sequences + attribution + suppression + fan digest.
@@ -157,7 +168,7 @@ spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
 
 ## Testing
 
-**Vitest is configured and the suite is real: `npm test` runs 392 tests across 23 files.** This
+**Vitest is configured and the suite is real: `npm test` runs 820 tests across 50 files (a moving figure: run it).** This
 supersedes the earlier "zero automated tests" claim in this package, which was written before the
 Opportunity Funnel work landed. Coverage is concentrated in the pure business layers (the
 acquisition adapters, the opportunity model + funnel, drafts, journey resolution, experiments,

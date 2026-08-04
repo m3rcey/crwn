@@ -122,6 +122,23 @@ Ownership is almost always expressed in RLS as `auth.uid() IN (SELECT user_id FR
 ### Opportunity Funnel / lead-magnet analytics + experiments
 `lead_magnet_leads` (email + UTM), `lead_magnet_results` (public tool results AND anonymous value-before-signup drafts: `public_token` + `public_token_expires_at`, nullable `user_id`/`artist_id`, `status IN (draft,completed,converted,archived)`; owner-RLS by `artist_id`, deny-public, service-role token reads), `lead_magnet_events` (append-only beacon sink; also carries the 7 `opportunity_*` + 16 journey + 9 personalized-journey event names). `funnel_events` (**20-stage** deduped acquisition funnel since 2026-07-30 — the five journey stages `call_requested`, `stripe_connected`, `fans_imported`, `fan_invited`, `first_paid_conversion` extend it to first money; 6 reporting dims, admin-read RLS; **migration APPLIED 2026-07-30**, verified from outside via an anon-key probe; the widening `schema-phase2-funnel-events-journey-stages.sql` exists for re-runs and is a safe no-op). `opportunity_ledger` (revealed[projection]/activated/captured[actual, refund-netted] money per artist/feature/month). Experiments: `experiments` (operational state — status/allocation/conclusion — for a **code-defined** config in `src/lib/experiments/registry.ts`) + `experiment_events` (measurement sink: `aid`/variant/event, admin-only READ RLS, **no insert policy** so only the service-role track route writes). `schema-phase2-{funnel-events,opportunity-ledger,experiments}.sql`. `Confirmed`.
 
+### Tier interaction evidence (per-rung, 2026-08-03)
+`tier_events` (`schema-phase2-tier-events.sql`, **APPLIED**, probe-verified). Two event types only:
+`tier_card_viewed` and `tier_checkout_started`, per `(artist_id, tier_id)`. Grain is
+**UNIQUE (artist_id, tier_id, event_type, visitor_hash, event_date)**, matching
+`artist_page_visits` so the two reconcile; that is what makes both counts mean "unique visitors
+per day" and a view-to-checkout rate arithmetically honest. Deliberately NOT folded into
+`funnel_events`: tier events are per-tier and far higher volume, and merging them would inflate
+the acquisition funnel's stage counts while adding a column 20 of 22 stages leave null.
+**Server-write only** — RLS owner-read plus an explicit `REVOKE INSERT, UPDATE, DELETE FROM anon,
+authenticated`, and the migration self-verifies that no client write grant survived. Views are
+recorded by `POST /api/tier-events` (the caller sends a TIER id and never an artist id; the
+recorder reads `artist_id` off the tier row, so cross-artist forgery is impossible by
+construction); checkout starts are recorded server-side in `/api/stripe/checkout` after
+`sessions.create` resolves. Metadata is key-blacklisted and shape-whitelisted, so no Stripe id
+can land in an analytics row. **Forward-looking from 2026-08-03**; there is no history before it.
+`Confirmed`.
+
 ### Redacting views (entitlement layer)
 | View | Migration | Purpose |
 |---|---|---|

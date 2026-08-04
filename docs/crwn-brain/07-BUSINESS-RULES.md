@@ -178,6 +178,51 @@ Full spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
   edited structure. Keeping a headline the artist's own edits invalidated is the same dishonesty as
   double-counting, pointed at a stale number instead of an inflated one.
 
+## 15a. Constraint diagnosis rules (Constraint Engine, 2026-08-03)
+
+The engine recommends and NEVER acts. It cannot change a tier, a price, a promise, a campaign, a
+quest, XP or the Revenue Ramp, and it never marks a roadmap step complete.
+
+- **Evaluation order** (earliest failing stage wins, exactly one action returned):
+  launch gate → FULFILLMENT → RETENTION → REACH → FREE_CAPTURE → FIRST_PAID →
+  PAID_TIER_INTEREST → CHECKOUT_COMPLETION → DEPTH → none.
+  Fulfillment and retention run first **because they protect revenue already earned**, while
+  acquisition wins revenue not yet earned. Sending an artist to recruit fans into a system that
+  is failing the fans already inside it makes the leak bigger.
+- **Launch readiness is NOT diagnosed here.** The Roadmap owns it. The engine checks only that
+  the page is live, Stripe charges are enabled, a paid tier is purchasable and a track exists,
+  all through the Quest Engine's `evaluateCondition`, and returns `insufficient_evidence`
+  otherwise. Do not add a second completion oracle.
+- **Thresholds live in exactly one file**: `src/lib/constraint/thresholds.ts`. They are FIRST
+  GUESSES made with zero cohort data (same status as the lead score bands) and are founder-
+  adjustable with no migration. Never inline a threshold in a route or a component.
+- **Below the minimum sample there is NO diagnosis**, not a low-confidence one. Confidence is
+  sample sufficiency only: `medium` at the minimum, `high` at 2x. `low` is reserved for a
+  categorical signal (one overdue promise is real at n=1 but is not yet a pattern).
+- **Null is not zero.** Every evidence input is nullable, and null means "cannot evaluate this
+  stage". A missing table must read as silence, never as a failing artist.
+- **Product-failure safety.** Checkout completion refuses to diagnose when joins exceed checkout
+  starts, because the two are then not measuring the same population (members from before
+  instrumentation, or a fan who started one day and paid the next) and the rate would be a
+  fiction. Copy stays neutral: "Fans are viewing Silver but few are starting checkout", never
+  "your Silver tier is bad".
+- **No upgrade or downgrade claim, ever.** `subscriptions` is UNIQUE (fan_id, artist_id) and an
+  upgrade overwrites `tier_id` in place, so there is no transition history. A test asserts no
+  diagnosis mentions either word.
+
+## 15b. Promise reliability (2026-08-03)
+
+- **`MISSED_GRACE_DAYS = 14`** in `src/lib/fulfillment.ts` is the ONE threshold: days past
+  `due_at` before a still-pending promise is recorded as `missed`. Founder-adjustable, no
+  founder-approved value existed when it was set, so it is a documented temporary default.
+- The sweep (`src/lib/promiseSweep.ts`) runs on the existing 6am cron **after** the reminders, so
+  an artist is nudged before being scored. It is guarded by `status = 'pending'` on the UPDATE
+  itself, so it is idempotent, cannot touch a terminal status, and cannot lose a race with a
+  concurrent completion. It creates nothing.
+- **Lateness is DERIVED** from `due_at` and `completed_at`, with no stored column. Completion
+  rate, missed rate, late-completion rate and median lateness all come from
+  `summarizePromiseHealth`, and every rate is null (never 0) on an empty denominator.
+
 ## 15. UX-enforced product rules (from CLAUDE.md, verified in code)
 - Multi-option (pick-one-of-3+) selectors must use `OptionSelect` dropdown, not a grid. `Confirmed`.
 - Flows launched from Rise Mode honor `?returnTo=` on exit/success; back arrows use `smartBack(router, fallback)`. `Confirmed`.

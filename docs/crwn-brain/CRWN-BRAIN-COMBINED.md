@@ -1,5 +1,29 @@
 # CRWN Brain — Combined Context
 
+> **Delta 2026-08-03, not yet folded into the sections below: the evidence layer and the
+> Constraint Engine.** CRWN now measures the artist journey through first paid conversion and
+> per-tier fan behavior, and turns that into ONE next action.
+> **Evidence:** `tier_events` (`tier_card_viewed` / `tier_checkout_started`, migration APPLIED,
+> server-write only, grain `(artist, tier, type, visitor_hash, day)` matching
+> `artist_page_visits`); `first_paid_conversion` now emitted from ALL six paid rails through one
+> shared recorder that stamps the artist's calculator (it previously fired from two, and since
+> the stage dedupes per artist, an artist whose first dollar came any other way read as never
+> converted forever); and `fulfillment_events.status='missed'` is finally WRITTEN (it was read in
+> nine places and written in none) by a sweep on the existing 6am cron after
+> `MISSED_GRACE_DAYS = 14`, with lateness derived from `due_at`/`completed_at`, no new column.
+> **Decision:** `src/lib/constraint/*` is a pure, deterministic, read-only engine.
+> Order: launch gate (delegated to the Roadmap) → FULFILLMENT → RETENTION → REACH → FREE_CAPTURE
+> → FIRST_PAID → PAID_TIER_INTEREST → CHECKOUT_COMPLETION → DEPTH → none, because fulfillment and
+> retention protect revenue ALREADY EARNED while acquisition wins revenue not yet earned.
+> Thresholds live in ONE file (`src/lib/constraint/thresholds.ts`, founder-adjustable, first
+> guesses). Below a stage's minimum sample there is NO diagnosis, not a low-confidence one; null
+> evidence means "cannot evaluate", never zero. `ConstraintCard` renders above `RoadmapCard` and
+> renders NOTHING unless a diagnosis clears its bar, so the default experience is unchanged.
+> **No AI provider is involved anywhere in it, and nothing on the path writes.** Upgrade and
+> downgrade rates remain underivable (subscriptions overwrite `tier_id`). Details:
+> `07-BUSINESS-RULES.md` §15a/§15b, `02-FEATURE-MAP.md`, `18-SOURCE-MAP.md`,
+> `docs/FEEDBACK_LOOPS.md`.
+
 > **Delta 2026-08-01, not yet folded into the sections below:** (1) **The release strategy
 > shipped end to end** (`CRWN_UPDATED_RELEASE_STRATEGY.md`): `src/lib/membershipStrategy.ts` is
 > the pure deterministic brain (The Release Club vs The Vault Membership; spec tier names are
@@ -32,7 +56,7 @@
 > Single-file, compressed context pack for uploading into ChatGPT or another AI. Rewritten (not concatenated) from the full CRWN Brain. Reflects branch `master`, commit `86e3e8c` (2026-07-29). Certainty labels: `Confirmed` / `Strongly inferred` / `Unclear` / `Needs founder confirmation`. **The code is the source of truth; the repo's `PRD.md` is stale on pricing/AI provider/booking/onboarding.**
 
 ## 1. What CRWN is
-CRWN ("Crown", thecrwn.app) is a **music-monetization SaaS** for independent artists to sell subscriptions, tracks, albums, products, and experiences **directly to fans**, owning the fan relationship + data. It has grown into a full artist growth suite: monetization + email marketing (SMS removed 2026-07-31) + CRM + referral/recruiter acquisition + gamified engagement + live streaming + team revenue-splits + an AI manager. **Live in production**, large and layered (241 API routes, 25 crons, 134 migrations, 115 pages). Current frontier is the **Opportunity Funnel** (18 public calculator tools → value-before-signup builders → one post-signup journey resolver → a live experiments engine); the Quest Engine / Rise Mode is built but still dark. **`npm test` runs 392 vitest tests across 23 files, covering the pure business layers only** (no component/integration/e2e), so `npm run build` remains the gate for everything else. `npm run lint` is not a gate (~635 pre-existing errors). `Confirmed`.
+CRWN ("Crown", thecrwn.app) is a **music-monetization SaaS** for independent artists to sell subscriptions, tracks, albums, products, and experiences **directly to fans**, owning the fan relationship + data. It has grown into a full artist growth suite: monetization + email marketing (SMS removed 2026-07-31) + CRM + referral/recruiter acquisition + gamified engagement + live streaming + team revenue-splits + an AI manager. **Live in production**, large and layered (241 API routes, 25 crons, 134 migrations, 115 pages). Current frontier is the **Opportunity Funnel** (18 public calculator tools → value-before-signup builders → one post-signup journey resolver → a live experiments engine); the Quest Engine / Rise Mode is built but still dark. **`npm test` runs 820 vitest tests across 50 files (a moving figure: run it), covering the pure business layers only** (no component/integration/e2e), so `npm run build` remains the gate for everything else. `npm run lint` is not a gate (~635 pre-existing errors). `Confirmed`.
 
 Users: **Fan** (subscribes/buys/promotes), **Artist** (publishes/monetizes), **Admin** (operator), plus overlay actors **Recruiter/Partner** (refer artists for commission) and **Collaborator** (Team Splits). `profiles.role = fan|artist|admin`.
 
