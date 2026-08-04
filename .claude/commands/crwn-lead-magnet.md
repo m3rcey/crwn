@@ -100,6 +100,12 @@ artists operating on his level (im talking to YOU) how much are you missing out 
 reveal ("all because he's giving the things that fans want more than music away for free")
 and once more inside the CTA, so the payoff answers the exact question the hook asked.
 
+**THE SERIES PREMISE (constant concept, fresh wording every script):** the things fans want
+the MOST, the artist either gives away for free or does not give them at all. Every hook fill,
+reveal bookend, and CTA must express THIS premise, reworded per artist. Do not shrink it to
+"everything is free": half the loss is the access and experiences that were never offered
+(the seat in the session, the paid live, the direct line). Josh's correction, 2026-08-04.
+
 **FORMAT IS FIXED; WORDING IS NOT.** The beat order above is the format and repeats on every
 all-in script. The reference script's sentences are NOT stock copy: before writing a new one,
 read the existing `free-*.md` scripts in the folder and give every beat FRESH wording for the
