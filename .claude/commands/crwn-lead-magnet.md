@@ -522,6 +522,13 @@ written somewhere, never written again anywhere else, at any size."
 Look at every sheet before shipping it and regenerate any garbled text. Budget roughly 8 to 10
 text objects per sheet; past that, the model starts inventing.
 
+**Re-check every number in the sheet prompts against the model run before generating.** Sheet
+prompts get copied from the previous artist's script, and a stale figure survives the copy
+silently: K Camp's sheet 2 shipped "1,900 TICKETS" because that was AKEEM's ticket count, while
+his script and the calculator both said 3,900 (Josh caught it, 2026-08-04). Extract every
+quoted number from the prompts and reconcile it against the `calculateUnifiedOpportunity()`
+output line by line; the script and the image must never disagree.
+
 ## Generating the image
 
 Multi-sheet lead-magnet scripts use `generate-lead-magnet-images.mjs` (not the shortform
