@@ -19,6 +19,8 @@ import {
   type StrategyFacts,
 } from '@/lib/membershipStrategy';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { evidenceFromInputs } from '@/lib/avatars/assignment';
+import { recommendRevenueModel, getRevenueModel } from '@/lib/avatars/revenueModels';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -50,7 +52,7 @@ export async function GET() {
   // Facts, all observed. Declared facts (unreleased count, release cadence) are
   // not collected anywhere yet, so they stay null and the brain treats them as
   // unknown; when a builder asks those questions, they flow in here.
-  const [{ count: trackCount }, { count: liveCount }] = await Promise.all([
+  const [{ count: trackCount }, { count: liveCount }, { count: productCount }] = await Promise.all([
     supabaseAdmin
       .from('tracks')
       .select('id', { count: 'exact', head: true })
@@ -61,12 +63,19 @@ export async function GET() {
       .select('id', { count: 'exact', head: true })
       .eq('artist_id', artist.id)
       .eq('status', 'ended'),
+    supabaseAdmin
+      .from('products')
+      .select('id', { count: 'exact', head: true })
+      .eq('artist_id', artist.id)
+      .not('is_active', 'is', false),
   ]);
 
   let projected: number | null = null;
+  let seedInputs: Record<string, unknown> | null = null;
   try {
     const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId: artist.id });
     projected = seed?.estimatedMonthlyCents ?? null;
+    seedInputs = seed?.inputData ?? null;
   } catch {
     // The strategy stands without a calculator seed.
   }
@@ -99,12 +108,25 @@ export async function GET() {
   const recommendationWithDeclared = recommendStrategy(facts);
   const active = isMembershipStrategyKey(override) ? override : recommendationWithDeclared.strategy;
 
+  // The revenue-model prescription (offer archetype), derived on read like
+  // everything else here: calculator answers where a claimed seed exists, plus
+  // what the account observably contains. Orthogonal to the sub-avatar
+  // (acquisition avatar -> revenue model -> launch plan); see revenueModels.ts.
+  const revenueModel = recommendRevenueModel(
+    { ...evidenceFromInputs(seedInputs), liveSessionsHosted: liveCount ?? 0 },
+    { productsListed: productCount ?? 0 },
+  );
+
   return NextResponse.json({
     recommendation: recommendationWithDeclared,
     override: isMembershipStrategyKey(override) ? override : null,
     active,
     strategy: MEMBERSHIP_STRATEGIES[active],
     facts,
+    revenueModel: {
+      recommendation: revenueModel,
+      def: getRevenueModel(revenueModel.model),
+    },
     // Which monthly promise applies (spec section 4 scales it by platform plan).
     platformPlan: (artist as { platform_tier?: string | null }).platform_tier || 'starter',
   });

@@ -21,6 +21,7 @@ import type {
   MembershipStrategyKey,
   StrategyRecommendation,
 } from '@/lib/membershipStrategy';
+import type { RevenueModelDef, RevenueModelRecommendation } from '@/lib/avatars/revenueModels';
 
 interface StrategyResponse {
   recommendation: StrategyRecommendation;
@@ -29,6 +30,8 @@ interface StrategyResponse {
   strategy: MembershipStrategyDef;
   platformPlan: string;
   facts: { unreleasedTracks?: number | null; releasesPerYear?: number | null };
+  /** The offer-archetype prescription (revenueModels.ts). Absent on older responses. */
+  revenueModel?: { recommendation: RevenueModelRecommendation; def: RevenueModelDef | null } | null;
 }
 
 // The two DECLARED questions that actually separate the strategies (spec
@@ -146,6 +149,37 @@ export function StrategyCard() {
           A promise you skip is a fan you lose. The Promise Calendar keeps every one dated.
         </p>
       </div>
+
+      {/* The revenue-model prescription: WHICH monetization system to run first.
+          Orthogonal to the strategy above (how the tiers are run) and to the
+          sub-avatar (who the artist is). Derived server-side, never stored. */}
+      {data.revenueModel?.def && (
+        <div className="mt-3 rounded-xl bg-crwn-bg border border-crwn-elevated p-3">
+          <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-1">
+            Your revenue model{data.revenueModel.recommendation.isDefault ? ' (the proven default)' : ''}
+          </p>
+          <p className="text-sm font-semibold text-crwn-text">{data.revenueModel.def.label}</p>
+          <p className="text-xs text-crwn-text-secondary mt-1">{data.revenueModel.def.bestFor}</p>
+          <p className="text-xs text-crwn-text mt-1.5">{data.revenueModel.def.initialOffer}</p>
+          {!data.revenueModel.recommendation.isDefault && data.revenueModel.recommendation.evidence[0] && (
+            <p className="text-[11px] text-crwn-text-secondary mt-1.5 italic">
+              Why: {data.revenueModel.recommendation.evidence[0]}.
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {data.revenueModel.def.firstMoves.map((m) => (
+              <Link
+                key={m.route}
+                prefetch
+                href={m.route}
+                className="text-xs font-medium px-3 py-1.5 rounded-full border border-crwn-elevated text-crwn-text-secondary hover:text-crwn-text hover:border-crwn-gold/50 transition-colors"
+              >
+                {m.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!isRecommended && (
         <p className="text-xs text-crwn-text-secondary mt-2">

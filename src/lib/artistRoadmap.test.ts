@@ -48,6 +48,16 @@ describe('buildRoadmapDefs', () => {
     const keys = buildRoadmapDefs({}).flatMap((s) => s.steps.map((x) => x.key));
     expect(new Set(keys).size).toBe(keys.length);
   });
+
+  it('fan import is FOUNDATION work, before the private launch (2026-08-06)', () => {
+    // The private launch invites the warmest imported contacts, so the list
+    // must exist before that stage. Do not move this step back down.
+    const defs = buildRoadmapDefs({});
+    const foundation = defs.find((s) => s.key === 'foundation')!;
+    expect(foundation.steps.some((s) => s.key === 'audience-contacts')).toBe(true);
+    const audience = defs.find((s) => s.key === 'audience-launch')!;
+    expect(audience.steps.some((s) => s.key === 'audience-contacts')).toBe(false);
+  });
 });
 
 describe('assembleRoadmap', () => {

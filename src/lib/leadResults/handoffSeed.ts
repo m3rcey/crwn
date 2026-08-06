@@ -34,6 +34,10 @@ export interface LeadMagnetSeed {
   /** Deep link to the matching builder (prefilled) or the tool's own route. */
   convertHref: string;
   createdAt: string;
+  /** The raw calculator answers, for derived-on-read layers (sub-avatar evidence,
+   *  revenue-model prescription). Already selected by every seed query; exposing
+   *  it costs nothing and saves a second read of the same row. */
+  inputData: Record<string, unknown>;
 }
 
 function toolName(slug: string): string {
@@ -99,6 +103,7 @@ export function rowToSeed(row: ResultRow): LeadMagnetSeed {
         : null,
     convertHref,
     createdAt: String(row.created_at),
+    inputData,
   };
 }
 

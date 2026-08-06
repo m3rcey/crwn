@@ -772,7 +772,7 @@ export function WorthExperience({
         )}
 
         {homepage && (
-          <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. No pitch.">
+          <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="A 15-minute Zoom. We map your exact setup. Qualified artists get hands-on launch help.">
             {hasNumber ? `Show me how to capture my ${monthlyLabel}` : 'Show me how it works'}
           </PrimaryCTA>
         )}
@@ -965,7 +965,7 @@ export function WorthExperience({
         </section>
         )}
 
-        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Need help setting this up? A 15-minute call, no pitch.">
+        <PrimaryCTA homepage={homepage} claimHref={claimHref} sub="Need help setting this up? A 15-minute call. Qualified artists get hands-on launch help.">
           {homepage ? 'Start free on CRWN' : 'See it on your own catalog'}
         </PrimaryCTA>
 

@@ -24,7 +24,7 @@ export function artistWelcomeEmail(params: { name?: string | null }) {
               Josh here, founder of CRWN. I saw your page just went live. Congrats, and welcome. I'm personally onboarding our first artists one by one, and I'd genuinely love to help you get yours making money.
             </p>
             <p style="color: #CCCCCC; font-size: 15px; line-height: 1.6; margin: 0 0 16px 0;">
-              Grab a time and hop on a quick call with me. I'll walk your page with you: your tiers, your first drop, your Promise Calendar, and getting your first fans subscribing. No pitch, just setup.
+              Grab a time and hop on a quick call with me. I'll walk your page with you: your tiers, your first drop, your Promise Calendar, and the fastest path to your first paid member. If you already sell to fans somewhere else, I'll show you how we help move it all over.
             </p>
             <div style="text-align: center; margin: 28px 0 8px 0;">
               <a href="${BOOKING_URL}" style="display: inline-block; background-color: #D4AF37; color: #000000; font-size: 14px; font-weight: 600; text-decoration: none; padding: 12px 28px; border-radius: 999px;">Book your onboarding call</a>

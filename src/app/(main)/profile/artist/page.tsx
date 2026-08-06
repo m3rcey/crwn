@@ -28,6 +28,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { RiseMode } from '@/components/artist/RiseMode';
 import { RoadmapCard } from '@/components/artist/RoadmapCard';
 import { ConstraintCard } from '@/components/artist/ConstraintCard';
+import { LaunchPartnerChecklist } from '@/components/artist/LaunchPartnerChecklist';
 import { StrategyCard } from '@/components/artist/StrategyCard';
 import { PlatformTierModal } from '@/components/onboarding/PlatformTierModal';
 import { BackgroundImage } from '@/components/ui/BackgroundImage';
@@ -133,6 +134,9 @@ function ArtistDashboardContent() {
               name a constraint. It renders NOTHING otherwise, so the roadmap below is the
               unchanged default. It never replaces the roadmap and never mutates it. */}
           <ConstraintCard />
+          {/* Cohort-only: the First Paid Member Guarantee made visible. Renders
+              nothing unless the founder flipped launch_partner for this artist. */}
+          <LaunchPartnerChecklist />
           <RoadmapCard />
           {/* The membership strategy sits between the roadmap (what to do next)
               and Rise Mode (the quests): it is the WHY behind both. */}

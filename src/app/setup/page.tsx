@@ -1829,7 +1829,8 @@ function LaunchReview({
           </div>
           <h1 className="text-3xl font-bold text-crwn-text mb-2">Your CRWN launch system</h1>
           <p className="text-crwn-text-secondary mb-8">
-            Everything you built, in one place. Review it, then launch.
+            Everything you built, in one place. Review it, then launch. A live page is not the finish
+            line: your first paid member is.
           </p>
         </div>
 
@@ -1969,6 +1970,13 @@ function LaunchReview({
           </button>
         </div>
 
+        {/* First-paid-member activation: the private launch beats the public
+            blast. Steer the first sends at the warmest fans, not the feed. */}
+        <p className="text-xs text-crwn-text-secondary mb-3 text-left">
+          Send your link to your warmest fans first: past buyers, day-one supporters, your imported
+          contacts. Ten direct messages get member one faster than one public post.
+        </p>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           {socials.map((s) => (
             <a
@@ -1995,7 +2003,7 @@ function LaunchReview({
           </button>
           <p className="text-xs text-crwn-text-secondary mt-4">
             Launching opens the rest of CRWN and lands you on your command screen: your next move, your promises,
-            your numbers.
+            your numbers. The roadmap there walks you to your first paid member.
           </p>
         </div>
       </div>

@@ -1,5 +1,49 @@
 # CRWN Brain — Changelog
 
+## 2026-08-06 - The First Revenue Launch offer layer: activation is the first paid member
+
+**What/why:** the founder settled the updated offer ("The CRWN First Revenue Launch", a premium
+concierge migration + launch service) as a LAYER ON TOP of the open self-serve funnel, never a
+replacement for it. Nothing was gated; the calculators, free plan and wizard stay open. Five
+product changes encode the offer:
+
+1. **Activation is redefined as the first paid member**, not a published page. The roadmap's
+   private-launch stage now reads "Get member number one before the world hears about it," its
+   money step is "Get your first paid member," and the wizard's LaunchReview says a live page is
+   not the finish line and steers the first shares at warm fans (ten DMs beat one public post).
+2. **Fan import moved from the audience-launch stage into Foundation** (`artistRoadmap.ts`,
+   pinned by a test): you cannot privately launch to warm contacts before the list exists.
+3. **CRWN Revenue Models** (`src/lib/avatars/revenueModels.ts`, `revenueModel@1`): a second,
+   ORTHOGONAL axis to the sub-avatars. The avatar answers "who is this artist" (acquisition);
+   the revenue model answers "which monetization system runs first" (offer prescription):
+   Membership Consolidation / Between-Tour Revenue / Live Community Monetization / Independent
+   Empire Expansion. Deterministic explainable scorer over the same evidence shape as the
+   avatar scorer plus touring/shop extras; below the floor it returns the ICP baseline
+   (consolidation) marked `isDefault`. Touring is never prescribed without touring evidence.
+   Derived on read in `/api/artist/strategy` (seed answers + live sessions + product count) and
+   rendered as a block in `StrategyCard`. The acquisition chain is
+   avatar -> revenue model -> launch plan; the two layers must never merge.
+4. **First Paid Member Guarantee checklist** (launch-partner cohort, dark):
+   `src/lib/launchPartner.ts` (pure, tested) maps every guarantee condition to the SAME quest
+   evaluator the roadmap uses (Stripe, free door, purchasable paid tier, 100 imported contacts,
+   welcome post, campaign drafted + sent) with one outcome condition (first real dollar).
+   `/api/artist/launch-partner` serves it only when `artist_profiles.launch_partner` is true
+   (migration `schema-phase2-launch-partner.sql`, SERVER-ONLY column, no client grants, fail-soft
+   42703); `LaunchPartnerChecklist` renders on the command screen above the roadmap. Cohort
+   flips via `supabase/enable-launch-partner.sql`. Three partners first, manual Stripe invoice
+   for the implementation fee, no checkout built on purpose.
+5. **Stack Replacement Report** (`src/lib/stackReplacement.ts`, pure, tested, NO UI yet): the
+   audit tool that prices the artist's CURRENT fragmented stack (per-tool subscriptions + each
+   tool's fee on the GMV it processes) against every CRWN plan from TIER_PRICING/TIER_LIMITS,
+   with `CRWN_REPLACES` keeping ticketing/scheduling honestly out of the savings claim, and a
+   plain-text renderer for the audit conversation. Whether it becomes a public calculator is a
+   post-cohort founder decision.
+
+Copy: the three "no pitch" lines (worth page x2, artist welcome email) became honest
+qualified-artists-get-hands-on-help lines, and two nurture objection emails
+(switching-cost, no-time) now mention assisted migration for artists with an existing paid
+fanbase. `handoffSeed.ts` now exposes `inputData` (already selected, previously dropped).
+
 ## 2026-08-04 - Genre becomes a dimension of the avatar cohorts, not a fifth cohort
 
 **What/why:** the precedence question ("should a big R&B seller land in Empire Builder or R&B

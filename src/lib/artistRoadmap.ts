@@ -131,6 +131,16 @@ export function buildRoadmapDefs(opts: {
           source: { kind: 'check', check: 'artist_has_track' },
         },
         {
+          // Deliberately BEFORE the private launch (2026-08-06): you cannot
+          // privately launch to your warmest fans if the list of them does not
+          // exist yet. The import is foundation work, not audience-launch work.
+          key: 'audience-contacts',
+          label: 'Import your fan contacts',
+          detail: 'The fans scattered across your other platforms become a list you own. The private launch invites the warmest of them.',
+          href: '/studio/fans',
+          source: { kind: 'check', check: 'artist_has_fan_contacts' },
+        },
+        {
           key: 'foundation-promises',
           label: 'Get your promises on the calendar',
           detail: 'Your tier benefits become dated, scheduled promises so nothing slips.',
@@ -142,7 +152,7 @@ export function buildRoadmapDefs(opts: {
     {
       key: 'private-launch',
       title: 'Private launch',
-      goal: 'Prove it with the people who already love you.',
+      goal: 'Get member number one before the world hears about it.',
       steps: [
         {
           key: 'private-checkout',
@@ -168,14 +178,14 @@ export function buildRoadmapDefs(opts: {
         {
           key: 'private-first-10',
           label: 'Invite your first 10 fans',
-          detail: 'Ten trusted fans through the free front door. Send your link directly, one at a time.',
+          detail: 'Ten trusted fans through the free front door. Your imported contacts are the list; start with the warmest, one at a time.',
           href: share,
           source: { kind: 'check', check: 'artist_free_supporter_count', count: 10 },
         },
         {
           key: 'private-first-money',
-          label: 'First dollar in',
-          detail: 'One real purchase or membership. It proves the system end to end.',
+          label: 'Get your first paid member',
+          detail: 'One real membership or sale. A live page is setup; member one paying is the launch.',
           href: share,
           source: { kind: 'check', check: 'artist_revenue_milestone', count: 100 },
         },
@@ -186,13 +196,6 @@ export function buildRoadmapDefs(opts: {
       title: 'Audience launch',
       goal: 'Bring over the audience you already own.',
       steps: [
-        {
-          key: 'audience-contacts',
-          label: 'Import your fan contacts',
-          detail: 'The fans scattered across your other platforms become a list you own.',
-          href: '/studio/fans',
-          source: { kind: 'check', check: 'artist_has_fan_contacts' },
-        },
         {
           key: 'audience-announce',
           label: 'Send your launch announcement',

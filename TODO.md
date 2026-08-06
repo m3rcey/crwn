@@ -27,6 +27,20 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the launch-partner migration:**
+      [`supabase/schema-phase2-launch-partner.sql`](supabase/schema-phase2-launch-partner.sql).
+      Adds `artist_profiles.launch_partner` (the First Revenue Launch cohort flag, server-only
+      reads, no client grants, no view rebuild). Until it runs, the First Paid Member Guarantee
+      checklist stays invisible for everyone, which is the correct fail-soft. Self-verifies.
+
+- [ ] **Pick the first THREE launch partners and flip their flag:**
+      [`supabase/enable-launch-partner.sql`](supabase/enable-launch-partner.sql). Edit the slug
+      list, run it, and the guarantee checklist appears on their command screen. Pick
+      strategically (prior direct sales + an exportable list + will actually send the campaign),
+      not whoever agrees first. Three, not five to ten: you are learning delivery hours, not
+      scaling yet. Charge the implementation fee (0 to $500 for the founding cohort) by a
+      MANUAL Stripe invoice from the dashboard; there is deliberately no checkout for it.
+
 - [ ] **Run the sub-avatar migration:**
       [`supabase/schema-phase2-sub-avatar.sql`](supabase/schema-phase2-sub-avatar.sql).
       Adds `artist_profiles.sub_avatar_override` (manual override of the four-avatar
