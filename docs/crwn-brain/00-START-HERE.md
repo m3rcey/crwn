@@ -43,7 +43,7 @@ Next.js 16 (App Router, mostly client components) on Vercel · Supabase (Postgre
 - ✅ Already fixed (don't reopen): `/api/audience` fan-email leak, paid-track audio leak, entitlement-oracle outage. Money/entitlement paths are canary-monitored. → `11-SECURITY-AND-PRIVACY.md`
 
 ## Recommended reading order
-1. `00-START-HERE` (this) → 2. `01-PRODUCT-VISION` → 3. `02-FEATURE-MAP` → 4. `03-USER-ROLES` → 5. `04-ARCHITECTURE` → 6. `05-DATABASE` → 7. `06-ROUTES-AND-USER-FLOWS` → 8. `07-BUSINESS-RULES` → 9. `08-DESIGN` + `09-CODING-CONVENTIONS` → 10. `10-INTEGRATIONS` → 11. `11-SECURITY` → 12. `12-ENVIRONMENT` → 13. `13-CURRENT-STATE` → 14. `14-ROADMAP-INFERRED` → 15. `15-AI-AGENT-INSTRUCTIONS` → 16. `16-GLOSSARY` → 17. `17-OPEN-QUESTIONS` → 18. `18-SOURCE-MAP`.
+1. `00-START-HERE` (this) → 2. `01-PRODUCT-VISION` → 3. `02-FEATURE-MAP` → 4. `03-USER-ROLES` → 5. `04-ARCHITECTURE` → 6. `05-DATABASE` → 7. `06-ROUTES-AND-USER-FLOWS` → 8. `07-BUSINESS-RULES` → 9. `08-DESIGN` + `09-CODING-CONVENTIONS` → 10. `10-INTEGRATIONS` → 11. `11-SECURITY` → 12. `12-ENVIRONMENT` → 13. `13-CURRENT-STATE` → 14. `14-ROADMAP-INFERRED` → 15. `15-AI-AGENT-INSTRUCTIONS` → 16. `16-GLOSSARY` → 17. `17-OPEN-QUESTIONS` → 18. `18-SOURCE-MAP` → 19. `19-ONBOARDING-FLOW` → 20. `20-FIRST-REVENUE-LAUNCH-OFFER` (the settled premium offer, 2026-08-06: layered on the open funnel, activation = first paid member).
 For routine work, `CRWN-BRAIN-QUICK-CONTEXT.md` may suffice; to load one file into ChatGPT, use `CRWN-BRAIN-COMBINED.md`.
 
 ## Before making changes (checklist)

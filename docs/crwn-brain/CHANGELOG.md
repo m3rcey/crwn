@@ -112,6 +112,13 @@ qualified-artists-get-hands-on-help lines, and two nurture objection emails
 (switching-cost, no-time) now mention assisted migration for artists with an existing paid
 fanbase. `handoffSeed.ts` now exposes `inputData` (already selected, previously dropped).
 
+**The full settled offer lives in `20-FIRST-REVENUE-LAUNCH-OFFER.md`** (added same day):
+promise, qualification, the Fan Revenue Loop, the complete offer stack with
+shipped/concierge/deferred status, the guarantee and its measured conditions, pricing (three
+founding partners, manual invoice), scarcity, what not to promise yet, and the superseded
+draft decisions listed so they are not resurrected. That doc wins over any earlier offer
+draft.
+
 ## 2026-08-04 - Genre becomes a dimension of the avatar cohorts, not a fifth cohort
 
 **What/why:** the precedence question ("should a big R&B seller land in Empire Builder or R&B
