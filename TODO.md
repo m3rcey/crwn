@@ -30,7 +30,11 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
       migration, nothing to deploy: build each link at /admin -> Lead Magnets -> **Campaign link
-      builder**, then paste it into the matching ManyChat keyword flow. Read once:
+      builder**, then tag the matching ManyChat flow. **Two kinds of flow, tagged in different
+      places:** a CRWN engine flow (has an Actions -> External Request node) takes the tag in the
+      node-2 request BODY, not as a pasted URL, because the link it sends is `{{crwn_result_url}}`.
+      A plain link flow takes the pasted URL in its button. Click-by-click: section 2b of
+      [`docs/acquisition/campaign-tagging.md`](docs/acquisition/campaign-tagging.md). Read once:
       [`docs/acquisition/campaign-tagging.md`](docs/acquisition/campaign-tagging.md) (naming
       convention, allowed values, worked examples, and what CRWN can never see). Results land at
       /admin -> Lead Magnets -> **Content scorecard**.

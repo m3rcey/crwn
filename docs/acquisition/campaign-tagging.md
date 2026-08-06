@@ -63,8 +63,101 @@ platform, the channel, and type the campaign / creative / angle / keyword. It em
 URL and copies it. Everything it emits goes through the same normalizer the server parses with, so
 a link built there can never produce a tag the reports silently drop.
 
-Paste that URL into the ManyChat flow that answers the comment keyword. **No ManyChat API
-integration is required.** ManyChat is just sending a link.
+Then tag the ManyChat flow that answers the comment keyword. **No ManyChat API integration is
+required.** Section 2b is the click-by-click procedure, and there are two kinds of flow.
+
+---
+
+## 2b. Tagging a ManyChat flow, step by step
+
+**Read this first.** You have two kinds of flow and they are tagged in completely different places.
+Look at the flow in ManyChat and check whether it contains an **Actions → External Request** node
+pointing at `thecrwn.app`.
+
+- **Has an External Request node** = a CRWN engine flow (the comment to DM conversation, the one in
+  `manychat-setup-guide.md`). **There is no URL to paste.** The link it sends is
+  `{{crwn_result_url}}`, which CRWN generates at runtime, so a pasted URL would be ignored. The tag
+  goes in the **body of the External Request**. Use **Procedure A**.
+- **No External Request node**, just a message with a button that opens a website = a simple link
+  flow. **Use Procedure B**: paste the tagged URL into the button.
+
+Do one flow at a time, all the way through the verify step, before starting the next.
+
+### Procedure A: a CRWN engine flow (comment to DM)
+
+Repeat these steps once per flow. One flow per video.
+
+1. Open the **Campaign link builder** (`/admin` → Lead Magnets) and fill it in for this video
+   anyway. You will not paste the URL, but the builder is what tells you the exact normalized
+   values to type. Write down the four you need: **campaign**, **creative**, **platform**,
+   **keyword**.
+2. In ManyChat, open **Automation** and click the flow for this video's keyword.
+3. Click the **Actions** node that runs right after the opening DM button. This is node 2 in the
+   setup guide, the `session_start` External Request.
+4. Click **External Request** inside it to open the request editor.
+5. Open the **Body** tab.
+6. Find the text you pasted when you built the flow. It starts:
+   `{"event_type":"session_start","lead_magnet_id":"worth","keyword":"WORTH","consent_dm":true,"contact":`
+7. Click just **before** `"contact":` and paste these four fields, exactly, with your own values:
+   ```
+   "utm_source":"instagram","utm_medium":"organic","utm_campaign":"kcamp_streaming_loss","utm_content":"kcamp_v1",
+   ```
+   Keep the trailing comma. Do not touch the `+ Add Full Contact Data` pill after `"contact":`, and
+   do not retype it. If you delete that pill by accident, re-insert it with the button; it cannot be
+   typed.
+8. Check the whole body is still one line of valid JSON. It should now read:
+   ```
+   {"event_type":"session_start","lead_magnet_id":"worth","keyword":"WORTH","consent_dm":true,"utm_source":"instagram","utm_medium":"organic","utm_campaign":"kcamp_streaming_loss","utm_content":"kcamp_v1","contact": <Full Contact Data pill> }
+   ```
+9. Leave the **Headers** tab and the **Response mapping** tab completely alone. Five mapped fields,
+   `x-webhook-secret` still set.
+10. Click **Test Request**. A `503 engine_disabled` or a normal `200` are both fine. What you are
+    checking is that it is **not** a `400`: a 400 means the JSON is broken, almost always a missing
+    comma or a smart quote from pasting out of a document. Fix it before moving on.
+11. Click **Save**, then **Publish** the flow.
+12. Only node 2 needs this. Node 4 (`event_type: answer`) reads the session that node 2 created, so
+    it inherits the tag. Do not add the fields there.
+13. **Verify:** comment your keyword on the real post from a test account and run the DM to the
+    result. Then open `/admin` → Lead Magnets → **Content scorecard**, group by **Video**, and
+    confirm a row appears under your `utm_content` value. Until you see that row, the flow is not
+    tagged.
+
+**Note on the `angle` dimension.** This path has no `angle` field. Put the angle inside the campaign
+name (`kcamp_streaming_loss` already carries it) and group by **Campaign** instead.
+
+**Note on `source_post_id`.** If your flow already sends `source_post_id`, it WINS over
+`utm_content` as the video dimension. Either remove it, or set it to the same value you use for
+`utm_content` so the DM flow and any link version of the same video land on one row.
+
+### Procedure B: a simple link flow (a button that opens a website)
+
+1. Build the link in the **Campaign link builder** and click **Copy link**.
+2. In ManyChat, open **Automation** and click the flow for this video's keyword.
+3. Click the **Send Message** node that carries the link.
+4. Click the **button** in that node (the one labelled something like "Send me the link").
+5. Set the action to **Open Website** if it is not already.
+6. Select the whole existing URL and **paste the tagged link over it**. Do not append it. Do not
+   leave the old untagged URL anywhere in the flow.
+7. If the same flow sends the link more than once (a follow-up message, a reminder), repeat steps
+   3 to 6 for every one of them. A single untagged copy is enough to split the video's numbers
+   across two rows.
+8. Click **Save**, then **Publish**.
+9. **Verify:** open the flow's Preview, tap the button, and check the address bar contains
+   `utm_campaign=` and `utm_content=`. Then check the **Content scorecard** as in Procedure A
+   step 13.
+
+### Common mistakes
+
+- **Pasting a URL into an engine flow.** It does nothing. The engine sends `{{crwn_result_url}}`.
+- **Smart quotes.** Pasting the JSON snippet out of a word processor turns `"` into `"` and the
+  request 400s. Paste into a plain-text editor first if you are unsure.
+- **Typing a pill.** `{{cuf_1234}}` typed by hand is dead text. Pills only work when inserted with
+  the `{}` or `+ Add Full Contact Data` buttons.
+- **Editing the flow but not publishing.** ManyChat keeps serving the published version.
+- **Reusing one flow for two videos.** Then both videos are one row forever. One flow per creative,
+  or accept that you can only compare at the campaign level.
+- **Changing the tag on a live flow.** The old value keeps its historic rows and the new value
+  starts a fresh row. Neither is wrong, but the video now spans two rows. Pick names once.
 
 ---
 

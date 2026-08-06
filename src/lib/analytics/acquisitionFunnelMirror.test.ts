@@ -21,12 +21,25 @@ describe('igFunnelDims maps ManyChat attribution onto funnel dimensions', () => 
       calculator: 'executive-producer-session',
       video: 'reel_12345',
       referrer: 'ig:m3rcey',
-      campaign: 'PRODUCER', // no utm_campaign on IG -> the trigger keyword stands in
+      // No utm_campaign on IG, so the trigger keyword stands in, normalized like every other tag.
+      campaign: 'producer',
     });
   });
 
   it('prefers a real utm_campaign over the keyword when present', () => {
     expect(igFunnelDims({ keyword: 'LIVE', campaign: 'summer_push' }).campaign).toBe('summer_push');
+  });
+
+  it('normalizes hand-typed tags, so a DM flow and a tagged link land on ONE row', () => {
+    // The DM path's tags are typed by hand into a ManyChat body; the web path's arrive normalized.
+    expect(igFunnelDims({ campaign: 'KCamp Streaming Loss', video: 'KCamp_V1' })).toMatchObject({
+      campaign: 'kcamp-streaming-loss',
+      video: 'kcamp_v1',
+    });
+  });
+
+  it('drops a tag that normalizes to nothing rather than storing junk', () => {
+    expect(igFunnelDims({ campaign: '!!!', keyword: '???' }).campaign).toBeNull();
   });
 
   it('falls back to a plain "instagram" source when no creator is known', () => {

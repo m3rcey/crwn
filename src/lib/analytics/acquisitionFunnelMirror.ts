@@ -9,6 +9,7 @@
 
 import type { Db } from '@/lib/leadResults/handoffSeed';
 import { recordFunnelEvent, type FunnelStage } from './funnelEvents';
+import { normalizeTag } from './campaignAttribution';
 
 export interface Attribution {
   calculator?: string | null; // lead_magnet_id
@@ -19,7 +20,11 @@ export interface Attribution {
 }
 
 /** Map IG/ManyChat attribution onto the funnel's dimensions. Pure and exported for tests: the
- *  post is the video, the creator is the source, the keyword stands in for campaign. */
+ *  post is the video, the creator is the source, the keyword stands in for campaign.
+ *
+ *  campaign and video run through the SAME normalizer the web path uses. The DM funnel gets its
+ *  tags typed by hand into a ManyChat External Request body, so without this a flow typed
+ *  `KCamp_V1` and a video link carrying `kcamp_v1` would be two rows for one piece of content. */
 export function igFunnelDims(a: Attribution): {
   calculator: string | null;
   campaign: string | null;
@@ -28,9 +33,10 @@ export function igFunnelDims(a: Attribution): {
 } {
   return {
     calculator: a.calculator ?? null,
-    campaign: a.campaign ?? a.keyword ?? null, // IG has no utm_campaign; the trigger keyword is the closest tag
+    // IG has no utm_campaign of its own; the trigger keyword is the closest tag.
+    campaign: normalizeTag(a.campaign) ?? normalizeTag(a.keyword),
     referrer: a.creatorAccount ? `ig:${a.creatorAccount}` : 'instagram',
-    video: a.video ?? null,
+    video: normalizeTag(a.video),
   };
 }
 
@@ -46,7 +52,14 @@ export async function mirrorFunnelDirect(
     stage,
     dedupeKey,
     resultId: extra?.resultId ?? null,
-    metadata: { channel: 'instagram' },
+    // `platform` and `keyword` mirror the web path's metadata tags, so the admin scorecard can
+    // group ManyChat traffic by platform or by trigger keyword alongside tagged link traffic.
+    // There is no `angle` on this path: encode it in the campaign name instead.
+    metadata: {
+      channel: 'instagram',
+      platform: 'instagram',
+      ...(normalizeTag(a.keyword) ? { keyword: normalizeTag(a.keyword)! } : {}),
+    },
     ...igFunnelDims(a),
   });
 }
