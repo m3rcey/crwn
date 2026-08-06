@@ -19,7 +19,7 @@
 import type { DomainCheck } from '@/lib/quests/types';
 
 /** Reads the evaluator has no DomainCheck for. */
-export type LaunchPartnerQuery = 'campaign_drafted';
+export type LaunchPartnerQuery = 'eligible_contacts';
 
 export type LaunchPartnerSource =
   | { kind: 'check'; check: DomainCheck; count?: number }
@@ -62,6 +62,31 @@ export interface LaunchPartnerChecklist {
  *  needs a warm list to invite; below this the odds are not worth guaranteeing. */
 export const GUARANTEE_MIN_CONTACTS = 100;
 
+/** The quality alternative (founder review, 2026-08-06): a smaller list of
+ *  PROVEN buyers beats a bigger list of strangers, so 40 imported contacts who
+ *  already paid the artist monthly (Patreon-tagged by the import) satisfy the
+ *  requirement on their own. Quantity or quality; either path opens the gate. */
+export const GUARANTEE_MIN_PROVEN_BUYERS = 40;
+
+/**
+ * The eligible-contacts verdict, pure. Done on EITHER path; progress is
+ * reported along whichever path is closer, so an artist importing 35 Patreon
+ * members sees "35 of 40 proven buyers", not "35 of 100".
+ */
+export function eligibleContactsResult(
+  totalContacts: number,
+  provenBuyers: number,
+): LaunchPartnerConditionResult {
+  const total = Math.max(0, Math.floor(totalContacts) || 0);
+  const proven = Math.max(0, Math.floor(provenBuyers) || 0);
+  const done = total >= GUARANTEE_MIN_CONTACTS || proven >= GUARANTEE_MIN_PROVEN_BUYERS;
+  // Cross-multiplied ratio compare: proven/40 vs total/100, no floats.
+  const provenCloser = proven * GUARANTEE_MIN_CONTACTS > total * GUARANTEE_MIN_PROVEN_BUYERS;
+  return provenCloser
+    ? { done, current: proven, target: GUARANTEE_MIN_PROVEN_BUYERS }
+    : { done, current: total, target: GUARANTEE_MIN_CONTACTS };
+}
+
 export function buildLaunchPartnerDefs(opts: { slug?: string | null }): LaunchPartnerConditionDef[] {
   const share = opts.slug ? `/${opts.slug}` : '/account/profile';
   return [
@@ -91,11 +116,11 @@ export function buildLaunchPartnerDefs(opts: { slug?: string | null }): LaunchPa
     },
     {
       key: 'lp-contacts',
-      label: `${GUARANTEE_MIN_CONTACTS} eligible contacts imported`,
-      detail: 'The warm list the private launch invites. Below this, no launch can be guaranteed.',
+      label: `${GUARANTEE_MIN_CONTACTS} contacts imported, or ${GUARANTEE_MIN_PROVEN_BUYERS} proven buyers`,
+      detail: 'The warm list the private launch invites. A smaller list of fans who already paid you counts on its own.',
       href: '/studio/fans',
       role: 'required',
-      source: { kind: 'check', check: 'artist_has_fan_contacts', count: GUARANTEE_MIN_CONTACTS },
+      source: { kind: 'query', query: 'eligible_contacts' },
     },
     {
       key: 'lp-welcome-post',
@@ -104,14 +129,6 @@ export function buildLaunchPartnerDefs(opts: { slug?: string | null }): LaunchPa
       href: '/community',
       role: 'required',
       source: { kind: 'check', check: 'artist_has_community_post' },
-    },
-    {
-      key: 'lp-campaign-drafted',
-      label: 'Launch campaign drafted',
-      detail: 'The announcement and follow-up, written and approved before anything sends.',
-      href: '/studio/fans?view=campaigns',
-      role: 'required',
-      source: { kind: 'query', query: 'campaign_drafted' },
     },
     {
       key: 'lp-campaign-sent',
@@ -133,7 +150,12 @@ export function buildLaunchPartnerDefs(opts: { slug?: string | null }): LaunchPa
 }
 
 function defaultResult(def: LaunchPartnerConditionDef): LaunchPartnerConditionResult {
-  const target = def.source.kind === 'check' ? def.source.count ?? 1 : 1;
+  const target =
+    def.source.kind === 'check'
+      ? def.source.count ?? 1
+      : def.source.query === 'eligible_contacts'
+        ? GUARANTEE_MIN_CONTACTS
+        : 1;
   return { done: false, current: 0, target };
 }
 

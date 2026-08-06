@@ -23,6 +23,7 @@ import type { QuestInstance } from '@/lib/quests/types';
 import {
   assembleLaunchPartnerChecklist,
   buildLaunchPartnerDefs,
+  eligibleContactsResult,
   type LaunchPartnerConditionResult,
   type LaunchPartnerQuery,
 } from '@/lib/launchPartner';
@@ -35,13 +36,21 @@ const supabaseAdmin = createClient(
 
 async function evalQuery(artistId: string, query: LaunchPartnerQuery): Promise<LaunchPartnerConditionResult> {
   try {
-    if (query === 'campaign_drafted') {
-      const { count } = await supabaseAdmin
-        .from('campaigns')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId);
-      const n = count || 0;
-      return { done: n >= 1, current: n, target: 1 };
+    if (query === 'eligible_contacts') {
+      // Quantity OR quality: the full list, and the slice who already paid the
+      // artist monthly (the Patreon import always tags those 'patreon').
+      const [{ count: total }, { count: proven }] = await Promise.all([
+        supabaseAdmin
+          .from('fan_contacts')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId),
+        supabaseAdmin
+          .from('fan_contacts')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .contains('tags', ['patreon']),
+      ]);
+      return eligibleContactsResult(total || 0, proven || 0);
     }
   } catch {
     // fall through to fail-safe

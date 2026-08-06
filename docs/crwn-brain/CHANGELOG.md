@@ -25,8 +25,11 @@ product changes encode the offer:
    avatar -> revenue model -> launch plan; the two layers must never merge.
 4. **First Paid Member Guarantee checklist** (launch-partner cohort, dark):
    `src/lib/launchPartner.ts` (pure, tested) maps every guarantee condition to the SAME quest
-   evaluator the roadmap uses (Stripe, free door, purchasable paid tier, 100 imported contacts,
-   welcome post, campaign drafted + sent) with one outcome condition (first real dollar).
+   evaluator the roadmap uses (Stripe, free door, purchasable paid tier, contacts, welcome
+   post, campaign SENT) with one outcome condition (first real dollar). Founder review same
+   day: the contacts rule is 100 imported contacts OR 40 proven buyers (Patreon-tagged), so
+   quality never auto-disqualifies a small warm list, and "campaign drafted" was dropped as a
+   requirement because sent subsumes it.
    `/api/artist/launch-partner` serves it only when `artist_profiles.launch_partner` is true
    (migration `schema-phase2-launch-partner.sql`, SERVER-ONLY column, no client grants, fail-soft
    42703); `LaunchPartnerChecklist` renders on the command screen above the roadmap. Cohort
