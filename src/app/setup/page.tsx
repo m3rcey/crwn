@@ -196,8 +196,6 @@ const planFromDraft = (draft: LadderDraft): PlannedPromise[] =>
     }),
   );
 
-/** The (possibly adjusted) cadence + first date for a planned promise. The
- *  offset staggers untouched defaults one day apart (no same-day stacking). */
 /** The paid rungs, cheapest first. Prices are read from the template, never
  *  retyped into copy: a price change in tierTemplate.ts must not leave the
  *  wizard quoting a number no rung actually carries. */
@@ -205,6 +203,8 @@ const PAID_RUNGS = RECOMMENDED_LADDER.filter((r) => r.priceCents > 0).sort((a, b
 const middlePaidDollars = Math.round((PAID_RUNGS[Math.floor(PAID_RUNGS.length / 2)]?.priceCents ?? 0) / 100);
 const topPaidDollars = Math.round((PAID_RUNGS[PAID_RUNGS.length - 1]?.priceCents ?? 0) / 100);
 
+/** The (possibly adjusted) cadence + first date for a planned promise. The
+ *  offset staggers untouched defaults one day apart (no same-day stacking). */
 const promiseSettings = (p: PlannedPromise, draft: PromiseDraft, offsetDays = 0) => ({
   recurrence: draft[p.key]?.recurrence ?? p.defaultRecurrence,
   firstDueDate: draft[p.key]?.firstDueDate ?? defaultPromiseDate(offsetDays),
@@ -795,6 +795,7 @@ function SetupWizard() {
             promiseDraft={promiseDraft}
             setPromiseDraft={setPromiseDraft}
             tierProjections={plan?.tierProjections ?? []}
+            hasPlan={plan !== null}
             toolName={plan?.toolName ?? null}
             contentPlan={contentPlan}
             setContentPlan={setContentPlan}
@@ -886,6 +887,7 @@ function FieldBody({
   promiseDraft,
   setPromiseDraft,
   tierProjections,
+  hasPlan,
   toolName,
   contentPlan,
   setContentPlan,
@@ -911,6 +913,8 @@ function FieldBody({
   promiseDraft: PromiseDraft;
   setPromiseDraft: React.Dispatch<React.SetStateAction<PromiseDraft>>;
   tierProjections: TierProjection[];
+  /** False only for a COLD signup: no claimed calculator result at all. */
+  hasPlan: boolean;
   toolName: string | null;
   contentPlan: 'single' | 'bulk' | 'project';
   setContentPlan: React.Dispatch<React.SetStateAction<'single' | 'bulk' | 'project'>>;
@@ -997,6 +1001,7 @@ function FieldBody({
           setDraft={setLadderDraft}
           projections={tierProjections}
           toolName={toolName}
+          hasPlan={hasPlan}
         />
       );
     case 'promises':
@@ -1289,12 +1294,15 @@ function LadderConfirm({
   setDraft,
   projections,
   toolName,
+  hasPlan,
 }: {
   draft: LadderDraft;
   setDraft: React.Dispatch<React.SetStateAction<LadderDraft>>;
   /** Per-tier buyer counts from the artist's own claimed calculator (may be empty). */
   projections: TierProjection[];
   toolName: string | null;
+  /** False only for a COLD signup: no claimed calculator result at all. */
+  hasPlan: boolean;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const patch = (key: string, p: Partial<LadderRungDraft>) =>
@@ -1302,11 +1310,13 @@ function LadderConfirm({
 
   return (
     <div className="space-y-3">
-      {/* An artist who came from a calculator gets a per-rung reason to keep each
-          tier ("about N fans in range for this one"). An artist who signed up
-          cold has no projections, so they would see four rungs and a Drop link
-          with nothing arguing the other way. Same template, same counterweight. */}
-      {projections.length === 0 && (
+      {/* COLD SIGNUPS ONLY. An artist who came from a calculator gets a per-rung
+          reason to keep each tier ("about N fans in range for this one"), and
+          that path is untouched: this renders only when there is no claimed
+          calculator result at all. Gated on `hasPlan`, not on an empty
+          projections array, so a calculator artist whose result happened to
+          model no buyers still sees their own flow rather than this. */}
+      {!hasPlan && (
         <p className="text-xs text-crwn-text-secondary">
           {`Keep all three paid rungs to start. A fan who would happily pay you $${middlePaidDollars} has no way to do it if the only options are free or $${topPaidDollars}.`}
         </p>

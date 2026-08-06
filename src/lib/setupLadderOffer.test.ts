@@ -64,11 +64,19 @@ describe('the ladder is offered without a calculator', () => {
 });
 
 describe('the cold signup gets the same counterweight as the calculator signup', () => {
-  it('argues for keeping the paid rungs when there are no projections', () => {
+  it('argues for keeping the paid rungs, for cold signups only', () => {
     // The calculator path renders "about N fans in range for this tier"; without
     // it the artist saw four rungs and a Drop link with nothing arguing back.
-    expect(wizard).toContain('projections.length === 0 && (');
+    expect(wizard).toContain('{!hasPlan && (');
     expect(wizard).toContain('Keep all three paid rungs to start');
+  });
+
+  it('leaves the calculator signup completely untouched', () => {
+    // `hasPlan` is the presence of a claimed calculator result, NOT an empty
+    // projections array: a calculator artist whose result modelled no buyers
+    // must still get their own flow, not the cold-signup line.
+    expect(wizard).toContain('hasPlan={plan !== null}');
+    expect(wizard).not.toContain('projections.length === 0');
   });
 
   it('reads its prices from the template instead of retyping them', () => {
