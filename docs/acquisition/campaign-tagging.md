@@ -129,6 +129,32 @@ name (`kcamp_streaming_loss` already carries it) and group by **Campaign** inste
 `utm_content` as the video dimension. Either remove it, or set it to the same value you use for
 `utm_content` so the DM flow and any link version of the same video land on one row.
 
+### The one-flow ceiling (read before you tag anything)
+
+**A ManyChat comment trigger set to "any post or reel" means one flow serves EVERY video that uses
+that keyword.** The tag lives in the flow, so `utm_content` on that flow describes all of them at
+once, and the video dimension becomes a lie. This is the live setup on the WORTH flow, and Josh
+says the same keyword aloud in every streaming video, so it is the normal case, not an edge case.
+
+Three honest options, in the order they cost effort:
+
+1. **Campaign-level only (zero effort, the default).** Drop `utm_content` and set `utm_campaign` to
+   the SERIES (`streaming_loss`), not one video. You can then compare Streaming Loss against Vault
+   against Share-to-Earn all the way to first paid conversion, and the video dimension honestly
+   reads `unknown` for this path. You cannot answer "which video".
+2. **A post-id pill, if ManyChat exposes one (one edit, unverified).** If a system variable for the
+   triggering post/Reel id exists in your ManyChat plan, inserting it as `"source_post_id"` in the
+   node-2 body gives per-video attribution for EVERY video from ONE flow, no cloning. CRWN already
+   prefers `source_post_id` as the video dimension. **Nobody has confirmed this variable exists**;
+   check before promising it.
+3. **A flow per video (about 5 minutes each).** Duplicate the flow, change its trigger from "any
+   post or reel" to that specific post (same keyword), and give the clone its own `utm_content`.
+   Precedence when a specific-post and an any-post trigger both match the same keyword is
+   **untested**; prove it on one post before cloning ten.
+
+Do NOT tag a shared "any post" flow with a single video's `utm_content`. It looks like per-video
+data and is not, which is worse than an honest `unknown`.
+
 ### Procedure B: a simple link flow (a button that opens a website)
 
 1. Build the link in the **Campaign link builder** and click **Copy link**.
