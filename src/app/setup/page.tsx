@@ -198,6 +198,13 @@ const planFromDraft = (draft: LadderDraft): PlannedPromise[] =>
 
 /** The (possibly adjusted) cadence + first date for a planned promise. The
  *  offset staggers untouched defaults one day apart (no same-day stacking). */
+/** The paid rungs, cheapest first. Prices are read from the template, never
+ *  retyped into copy: a price change in tierTemplate.ts must not leave the
+ *  wizard quoting a number no rung actually carries. */
+const PAID_RUNGS = RECOMMENDED_LADDER.filter((r) => r.priceCents > 0).sort((a, b) => a.priceCents - b.priceCents);
+const middlePaidDollars = Math.round((PAID_RUNGS[Math.floor(PAID_RUNGS.length / 2)]?.priceCents ?? 0) / 100);
+const topPaidDollars = Math.round((PAID_RUNGS[PAID_RUNGS.length - 1]?.priceCents ?? 0) / 100);
+
 const promiseSettings = (p: PlannedPromise, draft: PromiseDraft, offsetDays = 0) => ({
   recurrence: draft[p.key]?.recurrence ?? p.defaultRecurrence,
   firstDueDate: draft[p.key]?.firstDueDate ?? defaultPromiseDate(offsetDays),
@@ -1295,6 +1302,15 @@ function LadderConfirm({
 
   return (
     <div className="space-y-3">
+      {/* An artist who came from a calculator gets a per-rung reason to keep each
+          tier ("about N fans in range for this one"). An artist who signed up
+          cold has no projections, so they would see four rungs and a Drop link
+          with nothing arguing the other way. Same template, same counterweight. */}
+      {projections.length === 0 && (
+        <p className="text-xs text-crwn-text-secondary">
+          {`Keep all three paid rungs to start. A fan who would happily pay you $${middlePaidDollars} has no way to do it if the only options are free or $${topPaidDollars}.`}
+        </p>
+      )}
       {RECOMMENDED_LADDER.map((rung) => {
         const r =
           draft[rung.key] ?? { include: true, priceDollars: (rung.priceCents / 100).toString(), name: rung.name };
