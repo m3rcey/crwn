@@ -72,6 +72,19 @@ live data (`useArtistSetup`), never stored per-step; the only stored flag is
      ("Dropping it leaves them with no way to pay you"), inline price edit, per-rung drop,
      benefits expandable, Share-to-Earn note when their plan configured it. Returning artists
      see their real tiers read-only.
+     **A COLD signup (no calculator) gets the same screen and the same full ladder.** The
+     draft is seeded from `RECOMMENDED_LADDER` for everyone (`buildLadderDraft()` takes no
+     argument); a claimed calculator result is an OVERRIDE applied afterwards, guarded by
+     `if (s?.ladderPrefill && !ladderTouchedRef.current)`. If the prefill ever became the
+     SOURCE of the draft, cold signups would land on an empty ladder and nothing would fail,
+     so `src/lib/setupLadderOffer.test.ts` pins it. What a cold signup lacks is the per-rung
+     buyer line, so it gets one loss-framed counterweight instead ("a fan who would happily
+     pay you $25 has no way to do it if the only options are free or $100", prices derived
+     from the template, never retyped). That line is gated on `hasPlan === false`, NOT on an
+     empty projections array: a calculator artist whose result modelled no buyers still sees
+     their own flow. Skipped ladders are offered again by the launch review's "Offers ready"
+     item (`fix: 'ladder'`) and, post-launch, by `TierLadderTemplate` in `TierManager`
+     (mounted on the artist id alone, not behind the dark Quest Engine).
    - `promises`: the workload review. Each promise the confirmed benefits create (via the
      shared generator, see E) shows serves-which-tiers, prep minutes, delivery method,
      reminder schedule, an editable cadence (shared `OptionSelect`) and first-due date

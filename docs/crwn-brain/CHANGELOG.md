@@ -1,5 +1,32 @@
 # CRWN Brain — Changelog
 
+## 2026-08-06 - A cold signup gets the same argument for the ladder, and the guard that keeps it
+
+**What/why:** the question was whether an artist who signs up OUTSIDE a calculator is offered the
+same tier template. Verified: they already are. `buildLadderDraft()` takes no argument, so
+`RECOMMENDED_LADDER` is the draft for every artist; a claimed calculator result is an OVERRIDE
+applied afterwards behind `if (s?.ladderPrefill && !ladderTouchedRef.current)`. The `ladder` screen
+is in a flat `SCREENS` list with no plan condition, and `LadderConfirm` maps the template, not the
+projections. Nothing needed building.
+
+**What was actually missing** was the argument, not the offer. The calculator path renders a
+per-rung "about N fans in range for this tier, dropping it leaves them with no way to pay you". A
+cold signup saw four rungs and a "Drop this tier" link with nothing pushing back. It now gets one
+loss-framed line, with prices derived from `RECOMMENDED_LADDER` rather than retyped, so a template
+price change can never leave the wizard quoting a number no rung carries.
+
+**The calculator signup is untouched.** The line is gated on `hasPlan === false` (a threaded
+`plan !== null`), deliberately NOT on `projections.length === 0`: those are different facts, and
+the second would have caught a calculator artist whose result modelled no buyers.
+
+**Guarded:** `src/lib/setupLadderOffer.test.ts` (12 tests) pins the whole chain, including the
+silent failure where prefill becomes the SOURCE of the draft and cold signups land on an empty
+ladder with nothing failing, plus both second chances (the launch review's "Offers ready" fix, and
+`TierLadderTemplate` mounted ungated in `TierManager`).
+
+**Files:** `src/app/setup/page.tsx`, `src/lib/setupLadderOffer.test.ts`. **DB impact:** none.
+**Migration:** none. **Tests:** 935 pass.
+
 ## 2026-08-06 - The First Revenue Launch offer layer: activation is the first paid member
 
 **What/why:** the founder settled the updated offer ("The CRWN First Revenue Launch", a premium
