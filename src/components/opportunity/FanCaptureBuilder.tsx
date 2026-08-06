@@ -6,6 +6,7 @@ import { OptionSelect } from '@/components/ui/OptionSelect';
 import { Wizard } from '@/components/ui/Wizard';
 import { visibleSteps, type SignupBoundary } from './fanCaptureSteps';
 import { JOURNEY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
+import { readCampaignAttribution } from '@/lib/leadMagnets/analytics';
 import {
   OYF_GOALS,
   OYF_CAPTURE_TYPES,
@@ -133,7 +134,9 @@ export function FanCaptureBuilder({
         const res = await fetch('/api/opportunity-drafts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ inputs, draft: next }),
+          // The tagged link that brought them, so a pre-signup draft carries the same attribution
+          // an emailed result does. Re-normalized server-side before anything is stored.
+          body: JSON.stringify({ inputs, draft: next, attribution: readCampaignAttribution() }),
         });
         const data = await res.json();
         if (res.ok && data.token) {

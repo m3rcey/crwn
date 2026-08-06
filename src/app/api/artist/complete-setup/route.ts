@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
 import { seedRevenueRamp } from '@/lib/revenueRampSeed';
 
 // Marks the artist's setup wizard as finished (artist_profiles.setup_completed).
@@ -47,12 +48,16 @@ export async function POST(request: NextRequest) {
   // came in on so activation can be measured per acquisition source.
   const artistId = String(data[0].id);
   const seed = await getLeadMagnetSeed(supabaseAdmin, { userId: user.id, artistId });
+  // ...and with the campaign/video that brought them, so onboarding completion is comparable per
+  // piece of content and not only per calculator.
+  const attributionDims = await attributionDimsFor(supabaseAdmin, { userId: user.id, artistId });
   await recordFunnelEvent(supabaseAdmin, {
     stage: 'setup_completed',
     artistId,
     userId: user.id,
     calculator: seed?.toolSlug ?? null,
     dedupeKey: artistId,
+    ...attributionDims,
   });
 
   // Lay the 12-month revenue ramp into their Promise Calendar, aimed at the number THEY

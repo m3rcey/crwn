@@ -16,9 +16,28 @@ export interface FunnelRow {
   campaign: string | null;
   referrer: string | null;
   video: string | null;
+  /** The extra campaign tags (platform, angle, keyword, variant) and the ICP band / sub-avatar. */
+  metadata?: Record<string, unknown> | null;
 }
 
 export type Dimension = 'calculator' | 'campaign' | 'referrer' | 'video';
+
+/**
+ * Everything a campaign scorecard can be grouped by. The four column dimensions plus the tags that
+ * ride in metadata, so "which angle converts" is one call rather than a second table.
+ */
+export type ScorecardDimension = Dimension | 'platform' | 'angle' | 'keyword' | 'variant';
+
+const METADATA_DIMENSIONS = new Set<string>(['platform', 'angle', 'keyword', 'variant']);
+
+/** The grouping key for one row on one dimension. `unknown` groups untagged rows. */
+export function dimensionKey(row: FunnelRow, dim: ScorecardDimension): string {
+  if (METADATA_DIMENSIONS.has(dim)) {
+    const v = (row.metadata ?? {})[dim];
+    return typeof v === 'string' && v ? v : 'unknown';
+  }
+  return (row[dim as Dimension] as string | null) || 'unknown';
+}
 
 export function stageCounts(rows: FunnelRow[]): Record<string, number> {
   const c: Record<string, number> = {};
@@ -127,4 +146,141 @@ export function calculatorPerformance(rows: FunnelRow[]): CalculatorPerformance[
 /** The single best of each ranking, or null if empty. Convenience for the headline tiles. */
 export function topOf<T>(ranked: T[]): T | null {
   return ranked.length ? ranked[0] : null;
+}
+
+// ---------------------------------------------------------------------------
+// Campaign scorecard: one campaign/video/angle, all the way down to money.
+// ---------------------------------------------------------------------------
+//
+// The rankings above answer "which source converts a view into a completed calculator". That was
+// enough while the funnel stopped at the builder. It is not enough to decide which VIDEO to make
+// more of, because a video can produce a flood of completions and no artists, and another can
+// produce forty leads of which four are the actual ICP. This walks one dimension through the whole
+// spine, so lead VOLUME and lead QUALITY are visible side by side and the largest drop is named.
+
+/** The scorecard's stage spine, in funnel order. Every column is a real, deduped stage. */
+export const SCORECARD_STAGES = [
+  'page_viewed',
+  'calculator_started',
+  'calculator_completed',
+  'email_submitted',
+  'account_created',
+  'setup_completed',
+  'stripe_connected',
+  'fans_imported',
+  'first_paid_conversion',
+] as const;
+
+export type ScorecardStage = (typeof SCORECARD_STAGES)[number];
+
+/** The band the canonical server-side scorer assigns to a sales-priority lead. */
+export const SALES_PRIORITY_BAND = 'sales_priority';
+
+export interface CampaignScorecardRow {
+  key: string;
+  /** Stage counts, in SCORECARD_STAGES order. Always every key, zero-filled. */
+  stages: Record<ScorecardStage, number>;
+  /** Leads the CANONICAL server-side scorer put in the sales-priority band. Quality, not volume. */
+  salesPriority: number;
+  /** Hand-raisers: an explicit request for a call. The strongest intent signal in the funnel. */
+  callsRequested: number;
+  /** How many distinct sub-avatars this content pulled, and which one it pulled most. */
+  topSubAvatar: string | null;
+  /** completions / views. The old headline rate, kept so nothing regresses. */
+  completionRate: number;
+  /** first_paid_conversion / account_created. What the content is actually worth. */
+  paidRate: number;
+  /** Where this campaign loses the most people, by absolute count. Null when nothing entered. */
+  biggestDrop: { from: ScorecardStage; to: ScorecardStage; lost: number; lossRate: number } | null;
+}
+
+function emptyStages(): Record<ScorecardStage, number> {
+  return Object.fromEntries(SCORECARD_STAGES.map((s) => [s, 0])) as Record<ScorecardStage, number>;
+}
+
+/**
+ * The consecutive stage transition that loses the most people, by absolute count. Absolute rather
+ * than rate on purpose: at the bottom of a young funnel every rate is ~100% loss, and "you lost
+ * 400 people between viewing and starting" is the sentence that changes what gets made next.
+ */
+export function biggestDropOf(
+  stages: Record<ScorecardStage, number>,
+): CampaignScorecardRow['biggestDrop'] {
+  let worst: CampaignScorecardRow['biggestDrop'] = null;
+  for (let i = 0; i < SCORECARD_STAGES.length - 1; i++) {
+    const from = SCORECARD_STAGES[i];
+    const to = SCORECARD_STAGES[i + 1];
+    const prev = stages[from];
+    if (prev <= 0) continue;
+    const lost = Math.max(0, prev - stages[to]);
+    const lossRate = lost / prev;
+    if (!worst || lost > worst.lost || (lost === worst.lost && lossRate > worst.lossRate)) {
+      worst = { from, to, lost, lossRate };
+    }
+  }
+  return worst;
+}
+
+/**
+ * Walk one dimension (campaign, video, angle, ...) through the whole funnel spine.
+ * Sorted by first paid conversions, then accounts, then completions: the ordering a founder
+ * deciding what to publish next actually needs, rather than raw view count.
+ */
+export function campaignScorecard(rows: FunnelRow[], dim: ScorecardDimension): CampaignScorecardRow[] {
+  interface Acc {
+    stages: Record<ScorecardStage, number>;
+    salesPriority: number;
+    callsRequested: number;
+    avatars: Map<string, number>;
+  }
+  const byKey = new Map<string, Acc>();
+  const stageSet = new Set<string>(SCORECARD_STAGES);
+
+  for (const row of rows) {
+    const key = dimensionKey(row, dim);
+    const acc =
+      byKey.get(key) ??
+      byKey.set(key, { stages: emptyStages(), salesPriority: 0, callsRequested: 0, avatars: new Map() }).get(key)!;
+
+    if (stageSet.has(row.stage)) acc.stages[row.stage as ScorecardStage] += 1;
+    if (row.stage === 'call_requested') acc.callsRequested += 1;
+
+    const meta = row.metadata ?? {};
+    // The band is written by the server-side scorer at capture; it is never client-supplied.
+    if (meta.band === SALES_PRIORITY_BAND) acc.salesPriority += 1;
+    if (typeof meta.subAvatar === 'string' && meta.subAvatar) {
+      acc.avatars.set(meta.subAvatar, (acc.avatars.get(meta.subAvatar) || 0) + 1);
+    }
+  }
+
+  const out: CampaignScorecardRow[] = [];
+  for (const [key, acc] of byKey) {
+    let topSubAvatar: string | null = null;
+    let topCount = 0;
+    for (const [id, n] of acc.avatars) {
+      if (n > topCount) {
+        topCount = n;
+        topSubAvatar = id;
+      }
+    }
+    out.push({
+      key,
+      stages: acc.stages,
+      salesPriority: acc.salesPriority,
+      callsRequested: acc.callsRequested,
+      topSubAvatar,
+      completionRate: rate(acc.stages.calculator_completed, acc.stages.page_viewed),
+      paidRate: rate(acc.stages.first_paid_conversion, acc.stages.account_created),
+      biggestDrop: biggestDropOf(acc.stages),
+    });
+  }
+
+  out.sort(
+    (a, b) =>
+      b.stages.first_paid_conversion - a.stages.first_paid_conversion ||
+      b.stages.account_created - a.stages.account_created ||
+      b.stages.calculator_completed - a.stages.calculator_completed ||
+      a.key.localeCompare(b.key),
+  );
+  return out;
 }

@@ -65,6 +65,31 @@ describe('buildPaidConversionEvent', () => {
     expect(buildPaidConversionEvent({ artistId: 'a', kind: 'live_tip' })!.metadata).toEqual({ kind: 'live_tip' });
   });
 
+  it('carries the campaign attribution, which is what joins the first dollar to a VIDEO', () => {
+    const ev = buildPaidConversionEvent({
+      artistId: 'artist-1',
+      kind: 'subscription',
+      attribution: {
+        campaign: 'kcamp_streaming_loss',
+        referrer: 'instagram',
+        video: 'kcamp_v1',
+        metadata: { angle: 'streaming_loss', keyword: 'vault' },
+      },
+    })!;
+    const row = buildFunnelRow(ev)!;
+    expect(row.campaign).toBe('kcamp_streaming_loss');
+    expect(row.referrer).toBe('instagram');
+    expect(row.video).toBe('kcamp_v1');
+    expect(row.metadata).toEqual({ angle: 'streaming_loss', keyword: 'vault', kind: 'subscription' });
+  });
+
+  it('an unattributed artist still produces a valid, recorded row', () => {
+    const row = buildFunnelRow(buildPaidConversionEvent({ artistId: 'artist-1', kind: 'booking', attribution: {} })!)!;
+    expect(row.campaign).toBeNull();
+    expect(row.video).toBeNull();
+    expect(row.metadata).toEqual({ kind: 'booking' });
+  });
+
   it('is unattributed rather than unrecorded when the artist ran no calculator', () => {
     const row = buildFunnelRow(buildPaidConversionEvent({ artistId: 'artist-1', kind: 'track' })!)!;
     expect(row.calculator).toBeNull();

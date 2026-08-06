@@ -4,6 +4,7 @@ import { recordLmEvent } from '@/lib/leadMagnets/server';
 import { recordFunnelEvent, LM_EVENT_TO_STAGE } from '@/lib/analytics/funnelEvents';
 import { ALL_OPPORTUNITY_EVENT_NAMES } from '@/lib/opportunityFunnels/analytics';
 import { isSubAvatarId } from '@/lib/avatars/taxonomy';
+import { attributionToFunnelDims, sanitizeStoredAttribution } from '@/lib/analytics/campaignAttribution';
 
 // PUBLIC analytics sink. Append-only. The server allowlists fields (recordLmEvent),
 // so no raw email/phone/answers/payloads can land here even if a client sends them.
@@ -62,16 +63,24 @@ export async function POST(req: NextRequest) {
   const stage = LM_EVENT_TO_STAGE[event];
   if (stage) {
     const eventId = typeof meta.eventId === 'string' ? meta.eventId : undefined;
+    // The campaign tag on the link that brought this visit. RE-PARSED server-side from the client's
+    // values, so only normalized, allowlisted slugs reach a stored row: the browser cannot inject
+    // marketing copy, HTML, or an unbounded string into a reporting dimension. Attribution fills the
+    // campaign/video/platform dimensions; the older raw UTM meta stays as the fallback so an
+    // untagged link behaves exactly as it did.
+    const attr = sanitizeStoredAttribution(meta.attribution);
+    const dims = attributionToFunnelDims(attr);
     await recordFunnelEvent(supabaseAdmin, {
       stage,
       calculator: typeof meta.toolSlug === 'string' ? meta.toolSlug : null,
-      campaign: typeof meta.utmCampaign === 'string' ? meta.utmCampaign : null,
+      campaign: dims.campaign ?? (typeof meta.utmCampaign === 'string' ? meta.utmCampaign : null),
       referrer:
-        (typeof meta.referrer === 'string' && meta.referrer) ||
-        (typeof meta.source === 'string' && meta.source) ||
-        (typeof meta.utmSource === 'string' && meta.utmSource) ||
-        null,
-      video: typeof meta.utmContent === 'string' ? meta.utmContent : null,
+        dims.referrer ??
+        ((typeof meta.referrer === 'string' && meta.referrer) ||
+          (typeof meta.source === 'string' && meta.source) ||
+          (typeof meta.utmSource === 'string' && meta.utmSource) ||
+          null),
+      video: dims.video ?? (typeof meta.utmContent === 'string' ? meta.utmContent : null),
       resultId: typeof meta.resultId === 'string' ? meta.resultId : null,
       anonId: eventId ?? null,
       dedupeKey: eventId ?? null,
@@ -80,6 +89,7 @@ export async function POST(req: NextRequest) {
       // and this stamp is what does. VALIDATED against the real taxonomy: a client-sent value
       // that is not a declared avatar id is dropped, never stored.
       metadata: {
+        ...(dims.metadata ?? {}),
         context: meta.context,
         authed: meta.authed,
         ...(isSubAvatarId(meta.entryContext) ? { subAvatar: meta.entryContext } : {}),

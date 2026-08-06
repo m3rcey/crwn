@@ -161,6 +161,28 @@ third state.
 If you add a plan limit, it needs an enforcement point that a browser cannot route around, or it
 does not go in the marketing copy.
 
+## Campaign attribution — one normalizer, one durable home, no new table
+
+Organic video links are TAGGED (`docs/acquisition/campaign-tagging.md`).
+`src/lib/analytics/campaignAttribution.ts` is the ONE normalizer: it turns a query string into
+eight allowlisted slugs (channel / platform / campaign / creative / variant / angle / keyword / ref,
+plus `from`). Never read a raw `utm_*` value into a stored row, a grouping key, or admin output;
+parse it through this module, which is also the length limit and the HTML-safety boundary.
+
+- **The durable copy lives on `lead_magnet_results.input_data._attribution`**, not a new table and
+  not a cookie. That row is what the existing claim path binds to the account at signup, so the
+  video survives the anonymous/authenticated boundary and a delayed signup on another device.
+  Read it back with `attributionDimsFor()` (`attributionLookup.ts`) and spread it onto the funnel
+  event. **If you add a funnel stage below signup, stamp it**, or that stage is invisible per video.
+- **Two policies, on purpose.** The client beacon is LAST touch (current URL wins, the snapshot
+  fills silence): existing behavior, do not change it. Persisted attribution is FIRST touch:
+  `mergeAttribution` never replaces a set field, so a later untagged visit cannot erase the video.
+- Attribution is a REPORTING dimension. It may never reach a calculator input, a price, a fee, the
+  lead scorer, or an authorization decision. Lead quality comes from the canonical server-side
+  scorer (`decideCallRequest`), stamped as `metadata.band`; never trust a client-sent band.
+- Funnel stage names stay server-controlled (`FUNNEL_STAGES`), and the admin scorecard's group-by
+  dimension is allowlisted server-side. A query string can never name a stage or a column.
+
 ## Interruptions are governed — one engine, one cap
 
 Every surface that interrupts a user (pop-ups, artist broadcasts, fan notifications, surveys)

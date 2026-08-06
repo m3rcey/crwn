@@ -17,6 +17,7 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
 import { buildLadderPrefill } from '@/lib/leadResults/ladderPrefill';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
 import { recommendPlan } from '@/lib/planRecommendation';
 import { assignSubAvatar, deriveAcquisitionAvatar, mergeEvidence, evidenceFromInputs } from '@/lib/avatars/assignment';
 import { getSubAvatar } from '@/lib/avatars/taxonomy';
@@ -80,11 +81,22 @@ export async function POST() {
   }
   const cohortAvatar = acquisitionAvatar ?? avatarAssignment?.primarySubAvatar ?? null;
 
+  // The campaign that brought them, read back off their now-claimed result row. This is the join
+  // that makes "which video produced an artist" answerable: without it the funnel below signup
+  // knows the calculator but not the content, and every video looks identical from here down.
+  const attributionDims = await attributionDimsFor(supabaseAdmin, { userId: user.id });
+
   const dims = {
     calculator: seed?.toolSlug ?? null,
     userId: user.id,
     resultId: seed?.resultId ?? null,
-    ...(cohortAvatar ? { metadata: { subAvatar: cohortAvatar } } : {}),
+    campaign: attributionDims.campaign ?? null,
+    referrer: attributionDims.referrer ?? null,
+    video: attributionDims.video ?? null,
+    metadata: {
+      ...(attributionDims.metadata ?? {}),
+      ...(cohortAvatar ? { subAvatar: cohortAvatar } : {}),
+    },
   };
   await recordFunnelEvent(supabaseAdmin, { stage: 'account_created', dedupeKey: user.id, ...dims });
   if (user.email_confirmed_at) {

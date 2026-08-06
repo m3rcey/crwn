@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
   let query = supabaseAdmin
     .from('funnel_events')
-    .select('stage, calculator, campaign, referrer')
+    .select('stage, calculator, campaign, referrer, video')
     .gte('occurred_at', since)
     .limit(100_000);
   if (calculator) query = query.eq('calculator', calculator);
@@ -55,6 +55,7 @@ export async function GET(req: NextRequest) {
       byCalculator: {},
       byCampaign: {},
       byReferrer: {},
+      byVideo: {},
     });
   }
 
@@ -62,6 +63,9 @@ export async function GET(req: NextRequest) {
   const byCalculator: Record<string, Record<string, number>> = {};
   const byCampaign: Record<string, Record<string, number>> = {};
   const byReferrer: Record<string, Record<string, number>> = {};
+  // The specific video/creative. Now that every stage below signup carries it, this breakdown runs
+  // the whole spine instead of stopping at the calculator.
+  const byVideo: Record<string, Record<string, number>> = {};
 
   const bump = (bucket: Record<string, Record<string, number>>, key: string | null, stage: string) => {
     const k = key || 'unknown';
@@ -75,7 +79,8 @@ export async function GET(req: NextRequest) {
     bump(byCalculator, (row.calculator as string) ?? null, stage);
     bump(byCampaign, (row.campaign as string) ?? null, stage);
     bump(byReferrer, (row.referrer as string) ?? null, stage);
+    bump(byVideo, (row.video as string) ?? null, stage);
   }
 
-  return NextResponse.json({ since, stages: FUNNEL_STAGES, funnel, byCalculator, byCampaign, byReferrer });
+  return NextResponse.json({ since, stages: FUNNEL_STAGES, funnel, byCalculator, byCampaign, byReferrer, byVideo });
 }

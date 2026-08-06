@@ -11,8 +11,13 @@ import {
   computeMetrics,
   conversionByDimension,
   calculatorPerformance,
+  campaignScorecard,
+  biggestDropOf,
+  dimensionKey,
   topOf,
+  SCORECARD_STAGES,
   type FunnelRow,
+  type ScorecardStage,
 } from './leadMagnetDashboard';
 
 const row = (stage: string, extra: Partial<FunnelRow> = {}): FunnelRow => ({
@@ -95,5 +100,120 @@ describe('calculatorPerformance ranks by completions', () => {
     expect(perf[0].completions).toBe(25);
     const worth = perf.find((p) => p.calculator === 'worth');
     expect(worth).toMatchObject({ views: 50, completions: 20, accounts: 5 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Campaign scorecard: the report the founder publishes videos against.
+// ---------------------------------------------------------------------------
+
+describe('dimensionKey', () => {
+  it('reads the column dimensions off the row', () => {
+    expect(dimensionKey(row('page_viewed', { campaign: 'c1' }), 'campaign')).toBe('c1');
+    expect(dimensionKey(row('page_viewed', { video: 'v1' }), 'video')).toBe('v1');
+  });
+
+  it('reads the tag dimensions out of metadata', () => {
+    const r = row('page_viewed', { metadata: { angle: 'streaming_loss', platform: 'instagram' } });
+    expect(dimensionKey(r, 'angle')).toBe('streaming_loss');
+    expect(dimensionKey(r, 'platform')).toBe('instagram');
+  });
+
+  it('groups untagged and malformed rows under "unknown" rather than inventing a key', () => {
+    expect(dimensionKey(row('page_viewed'), 'campaign')).toBe('unknown');
+    expect(dimensionKey(row('page_viewed'), 'angle')).toBe('unknown');
+    expect(dimensionKey(row('page_viewed', { metadata: { angle: 42 } }), 'angle')).toBe('unknown');
+    expect(dimensionKey(row('page_viewed', { metadata: null }), 'angle')).toBe('unknown');
+  });
+});
+
+describe('biggestDropOf', () => {
+  it('names the transition that loses the most people', () => {
+    const stages = {
+      page_viewed: 1000,
+      calculator_started: 900,
+      calculator_completed: 200,
+      email_submitted: 150,
+      account_created: 100,
+      setup_completed: 90,
+      stripe_connected: 40,
+      fans_imported: 30,
+      first_paid_conversion: 10,
+    } as Record<ScorecardStage, number>;
+    const drop = biggestDropOf(stages);
+    expect(drop).toMatchObject({ from: 'calculator_started', to: 'calculator_completed', lost: 700 });
+    expect(drop!.lossRate).toBeCloseTo(700 / 900);
+  });
+
+  it('is null when nothing ever entered the funnel', () => {
+    const empty = Object.fromEntries(SCORECARD_STAGES.map((s) => [s, 0])) as Record<ScorecardStage, number>;
+    expect(biggestDropOf(empty)).toBeNull();
+  });
+});
+
+describe('campaignScorecard', () => {
+  const rows: FunnelRow[] = [
+    // kcamp_v1: a lot of noise, one paying artist.
+    ...Array(100).fill(0).map(() => row('page_viewed', { campaign: 'kcamp', video: 'kcamp_v1' })),
+    ...Array(40).fill(0).map(() => row('calculator_completed', { campaign: 'kcamp', video: 'kcamp_v1' })),
+    row('email_submitted', { campaign: 'kcamp', video: 'kcamp_v1', metadata: { band: 'sales_priority' } }),
+    row('email_submitted', { campaign: 'kcamp', video: 'kcamp_v1', metadata: { band: 'nurture' } }),
+    row('account_created', { campaign: 'kcamp', video: 'kcamp_v1', metadata: { subAvatar: 'rnb_empire_builder' } }),
+    row('setup_completed', { campaign: 'kcamp', video: 'kcamp_v1' }),
+    row('stripe_connected', { campaign: 'kcamp', video: 'kcamp_v1' }),
+    row('first_paid_conversion', { campaign: 'kcamp', video: 'kcamp_v1' }),
+    // vault_v3: more completions, no artist ever got paid.
+    ...Array(80).fill(0).map(() => row('page_viewed', { campaign: 'vault', video: 'vault_v3' })),
+    ...Array(60).fill(0).map(() => row('calculator_completed', { campaign: 'vault', video: 'vault_v3' })),
+    row('call_requested', { campaign: 'vault', video: 'vault_v3' }),
+  ];
+
+  it('ranks by artists who got PAID, not by views or completions', () => {
+    const sc = campaignScorecard(rows, 'video');
+    expect(sc[0].key).toBe('kcamp_v1');
+    expect(sc[0].stages.first_paid_conversion).toBe(1);
+    expect(sc[1].key).toBe('vault_v3');
+    expect(sc[1].stages.calculator_completed).toBe(60); // more completions, still second
+  });
+
+  it('separates lead VOLUME from ICP quality using the server-scored band', () => {
+    const kcamp = campaignScorecard(rows, 'video')[0];
+    expect(kcamp.stages.email_submitted).toBe(2);
+    expect(kcamp.salesPriority).toBe(1);
+  });
+
+  it('counts hand-raisers and reports the sub-avatar the content actually pulled', () => {
+    const sc = campaignScorecard(rows, 'video');
+    expect(sc.find((r) => r.key === 'vault_v3')!.callsRequested).toBe(1);
+    expect(sc[0].topSubAvatar).toBe('rnb_empire_builder');
+  });
+
+  it('walks the whole spine, not just the top of the funnel', () => {
+    const kcamp = campaignScorecard(rows, 'video')[0];
+    expect(kcamp.stages.setup_completed).toBe(1);
+    expect(kcamp.stages.stripe_connected).toBe(1);
+    expect(kcamp.paidRate).toBe(1); // 1 paid / 1 account
+    expect(kcamp.completionRate).toBeCloseTo(0.4);
+  });
+
+  it('names the biggest drop per row', () => {
+    const kcamp = campaignScorecard(rows, 'video')[0];
+    expect(kcamp.biggestDrop).toMatchObject({ from: 'page_viewed', to: 'calculator_started', lost: 100 });
+  });
+
+  it('groups every untagged row under one "unknown" bucket instead of dropping it', () => {
+    const sc = campaignScorecard([row('page_viewed'), row('calculator_completed')], 'campaign');
+    expect(sc).toHaveLength(1);
+    expect(sc[0].key).toBe('unknown');
+    expect(sc[0].stages.page_viewed).toBe(1);
+  });
+
+  it('ignores stages outside the spine rather than miscounting them', () => {
+    const sc = campaignScorecard([row('assumptions_changed', { campaign: 'c1' })], 'campaign');
+    expect(Object.values(sc[0].stages).every((n) => n === 0)).toBe(true);
+  });
+
+  it('returns nothing for no rows', () => {
+    expect(campaignScorecard([], 'campaign')).toEqual([]);
   });
 });

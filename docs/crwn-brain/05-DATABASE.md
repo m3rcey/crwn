@@ -122,6 +122,16 @@ Ownership is almost always expressed in RLS as `auth.uid() IN (SELECT user_id FR
 ### Opportunity Funnel / lead-magnet analytics + experiments
 `lead_magnet_leads` (email + UTM), `lead_magnet_results` (public tool results AND anonymous value-before-signup drafts: `public_token` + `public_token_expires_at`, nullable `user_id`/`artist_id`, `status IN (draft,completed,converted,archived)`; owner-RLS by `artist_id`, deny-public, service-role token reads), `lead_magnet_events` (append-only beacon sink; also carries the 7 `opportunity_*` + 16 journey + 9 personalized-journey event names). `funnel_events` (**20-stage** deduped acquisition funnel since 2026-07-30 — the five journey stages `call_requested`, `stripe_connected`, `fans_imported`, `fan_invited`, `first_paid_conversion` extend it to first money; 6 reporting dims, admin-read RLS; **migration APPLIED 2026-07-30**, verified from outside via an anon-key probe; the widening `schema-phase2-funnel-events-journey-stages.sql` exists for re-runs and is a safe no-op). `opportunity_ledger` (revealed[projection]/activated/captured[actual, refund-netted] money per artist/feature/month). Experiments: `experiments` (operational state — status/allocation/conclusion — for a **code-defined** config in `src/lib/experiments/registry.ts`) + `experiment_events` (measurement sink: `aid`/variant/event, admin-only READ RLS, **no insert policy** so only the service-role track route writes). `schema-phase2-{funnel-events,opportunity-ledger,experiments}.sql`. `Confirmed`.
 
+**Campaign attribution rides existing columns; there is NO attribution table** (2026-08-06). The
+normalized tag from a video link (channel/platform/campaign/creative/variant/angle/keyword/ref)
+persists on `lead_magnet_results.input_data._attribution` — the row the claim path already binds to
+the account at signup, which is what carries a video past the anonymous/authenticated boundary
+without a cookie or a second identity system. On `funnel_events` it fills the EXISTING `campaign` /
+`referrer` (platform) / `video` (creative) columns, with the extra tags plus the server-scored ICP
+`band` and `subAvatar` in `metadata`. Persisted merges are FIRST-TOUCH (never overwrite a set
+field); the client beacon keeps its existing last-touch behavior. See
+`docs/acquisition/campaign-tagging.md`.
+
 ### Tier interaction evidence (per-rung, 2026-08-03)
 `tier_events` (`schema-phase2-tier-events.sql`, **APPLIED**, probe-verified). Two event types only:
 `tier_card_viewed` and `tier_checkout_started`, per `(artist_id, tier_id)`. Grain is

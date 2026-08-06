@@ -1,5 +1,43 @@
 # CRWN Brain — Changelog
 
+## 2026-08-06 - Campaign attribution: the funnel below signup learns which VIDEO produced the artist
+
+**What existed:** more than expected. `funnel_events` was already applied in production with 20
+stages and four reporting dimensions (`calculator`, `campaign`, `referrer`, `video`), the client
+already snapshotted first-touch UTMs, and the beacon route already mirrored the top of the funnel.
+
+**What was missing was the join below signup.** `account_created`, `setup_completed`,
+`stripe_connected`, `fans_imported` and `first_paid_conversion` carried the CALCULATOR and nothing
+else. `leadMagnetDashboard.ts` said so in its own header comment ("account_created is not tagged
+with the source dimension"), which is why every ranking stopped at completion rate. A video could be
+compared on completions and never on artists produced. `email_submitted` also dropped `utm_content`
+entirely, and every UTM value was stored raw: unallowlisted marketing copy in a grouping key.
+
+**The fix is one durable place, not a new system.** `src/lib/analytics/campaignAttribution.ts`
+normalizes a tagged link into eight allowlisted slugs; the result is written onto the artist's own
+`lead_magnet_results` row under `input_data._attribution`, which is exactly the row the existing
+claim path binds at signup. `attributionLookup.ts` reads it back oldest-first and every downstream
+stage stamps it. No migration, no new table, no cookie, no second identity system: attribution
+survives a delayed signup on another device, because the claim matches on the verified email.
+
+**Two attribution policies, both documented rather than invented.** The client beacon keeps its
+existing last-touch behavior (current URL wins, snapshot fills silence). PERSISTED attribution is
+FIRST-TOUCH: `mergeAttribution` never replaces a set field, so a later untagged visit cannot erase
+the video that brought them, and can only ADD dimensions the first visit left empty.
+
+**Quality, not just volume.** Capture now stamps the band from the CANONICAL server-side scorer
+(`decideCallRequest`), so the admin scorecard reads "40 leads, 4 sales-priority" instead of "40
+leads". The scorer, the ICP definition and the calculator formulas are untouched.
+
+**Admin:** a Content scorecard (group by campaign / video / angle / platform / keyword / variant,
+walked to first paid conversion, with the biggest drop named per row) plus a Campaign link builder
+that emits links through the same normalizer the server parses with. Founder procedure:
+`docs/acquisition/campaign-tagging.md`.
+
+**Deliberately not built:** the affiliate/partner funnel, paid-ad attribution, a ManyChat API
+integration, and a campaign dimension on `opportunity_ledger` (so per-campaign CRWN revenue is a
+named limitation, not a silent gap).
+
 ## 2026-08-06 - A cold signup gets the same argument for the ladder, and the guard that keeps it
 
 **What/why:** the question was whether an artist who signs up OUTSIDE a calculator is offered the

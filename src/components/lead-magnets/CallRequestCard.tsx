@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Phone } from 'lucide-react';
 import { CALL_CONSENT_TEXT } from '@/lib/acquisition/callRequest';
 import { OPPORTUNITY_EVENTS, trackOpportunity } from '@/lib/opportunityFunnels/analytics';
-import { readUtm } from '@/lib/leadMagnets/analytics';
+import { readUtm, readCampaignAttribution } from '@/lib/leadMagnets/analytics';
 import type { LeadMagnetInputValues } from '@/lib/leadMagnets/types';
 
 // The optional hand-raiser at the opportunity calculator's save boundary. Renders BELOW the
@@ -57,6 +57,9 @@ export function CallRequestCard({ toolSlug, calculatorInputs, planSummary, publi
           planSummary: planSummary || undefined,
           publicToken: publicToken || undefined,
           utm: { source: utm.utmSource, campaign: utm.utmCampaign, content: utm.utmContent },
+          // The normalized campaign tag, so a hand-raiser is attributable to the video that
+          // produced them. Re-validated server-side; reporting only, never part of qualification.
+          attribution: readCampaignAttribution(),
         }),
       });
       const data = await res.json();

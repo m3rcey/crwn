@@ -21,6 +21,8 @@
 
 import { recordFunnelEvent, type RecordFunnelInput } from './funnelEvents';
 import { getLeadMagnetSeed } from '@/lib/leadResults/handoffSeed';
+import { attributionDimsFor } from './attributionLookup';
+import type { FunnelAttributionDims } from './campaignAttribution';
 
 /**
  * Which rail produced the first dollar. Kept in metadata rather than in the stage name so the
@@ -53,6 +55,8 @@ export interface BuildPaidConversionInput {
   /** The claimed result row id, so the event joins straight back to the modeled number. */
   resultId?: string | null;
   userId?: string | null;
+  /** The campaign tag the artist arrived through, so the first dollar joins back to a VIDEO. */
+  attribution?: FunnelAttributionDims;
 }
 
 /**
@@ -66,15 +70,21 @@ export function buildPaidConversionEvent(input: BuildPaidConversionInput): Recor
   if (!input.artistId || typeof input.artistId !== 'string') return null;
   if (!isPaidConversionKind(input.kind)) return null;
 
+  const attr = input.attribution ?? {};
   return {
     stage: 'first_paid_conversion',
     artistId: input.artistId,
     userId: input.userId || null,
     calculator: input.calculator || null,
     resultId: input.resultId || null,
+    // The content that produced this artist. This is the row the whole attribution layer exists
+    // for: it is the only place a video can be connected to real money.
+    campaign: attr.campaign ?? null,
+    referrer: attr.referrer ?? null,
+    video: attr.video ?? null,
     // Per ARTIST, not per payment: this stage means "this artist has been paid, once, ever".
     dedupeKey: input.artistId,
-    metadata: { kind: input.kind },
+    metadata: { ...(attr.metadata ?? {}), kind: input.kind },
   };
 }
 
@@ -111,12 +121,22 @@ export async function recordFirstPaidConversion(
       /* unattributed is acceptable; unrecorded is not */
     }
 
+    // Which video/campaign produced this artist. Same best-effort discipline: an unattributed
+    // first dollar is still a first dollar, and must still be recorded.
+    let attribution: FunnelAttributionDims = {};
+    try {
+      attribution = await attributionDimsFor(db, { userId: args.userId, artistId: args.artistId });
+    } catch {
+      /* unattributed is acceptable; unrecorded is not */
+    }
+
     const event = buildPaidConversionEvent({
       artistId: args.artistId,
       kind: args.kind,
       calculator,
       resultId,
       userId: args.userId,
+      attribution,
     });
     if (!event) return;
 

@@ -20,7 +20,13 @@ import {
   TrendingUp,
   DollarSign,
   Trophy,
+  Link as LinkIcon,
 } from 'lucide-react';
+import {
+  ACQUISITION_CHANNELS,
+  SOURCE_PLATFORMS,
+  buildCampaignUrl,
+} from '@/lib/analytics/campaignAttribution';
 import {
   BarChart,
   Bar,
@@ -72,6 +78,22 @@ interface DashboardData {
   bySource: ConversionRank[];
   byVideo: ConversionRank[];
   byCampaign: ConversionRank[];
+  scorecard?: {
+    dimension: string;
+    stages: string[];
+    rows: ScorecardRow[];
+  };
+}
+
+interface ScorecardRow {
+  key: string;
+  stages: Record<string, number>;
+  salesPriority: number;
+  callsRequested: number;
+  topSubAvatar: string | null;
+  completionRate: number;
+  paidRate: number;
+  biggestDrop: { from: string; to: string; lost: number; lossRate: number } | null;
 }
 
 const PERIODS = [
@@ -92,6 +114,31 @@ const CALCULATORS = [
 ];
 
 const GOLD = '#D4AF37';
+
+// Which tag the content scorecard groups by. Mirrors the route's own allowlist; a value not on it
+// is ignored server-side and falls back to campaign.
+const SCORECARD_DIMENSIONS = [
+  { id: 'campaign', label: 'Campaign' },
+  { id: 'video', label: 'Video / creative' },
+  { id: 'angle', label: 'Content angle' },
+  { id: 'platform', label: 'Platform' },
+  { id: 'keyword', label: 'ManyChat keyword' },
+  { id: 'variant', label: 'Creative variant' },
+  { id: 'calculator', label: 'Calculator' },
+];
+
+// Short column headers for the scorecard's stage spine. Keyed by the canonical stage name.
+const STAGE_LABELS: Record<string, string> = {
+  page_viewed: 'Views',
+  calculator_started: 'Starts',
+  calculator_completed: 'Results',
+  email_submitted: 'Leads',
+  account_created: 'Accounts',
+  setup_completed: 'Launched',
+  stripe_connected: 'Stripe',
+  fans_imported: 'Fans',
+  first_paid_conversion: 'Paid',
+};
 
 function sinceFromPeriod(days: string): string {
   return new Date(Date.now() - Number(days) * 86_400_000).toISOString().slice(0, 10);
@@ -154,6 +201,132 @@ function ConversionChart({ title, data }: { title: string; data: ConversionRank[
   );
 }
 
+// The tools a video can point at. Same public routes the registry declares; kept as a short list
+// because these are the ones the founder actually links from content.
+const LINK_DESTINATIONS = [
+  { id: '/tools/opportunity-calculator', label: 'Opportunity Calculator (all-in-one)' },
+  { id: '/tools/worth', label: 'Streaming Loss' },
+  { id: '/tools/vault-revenue-planner', label: 'Vault Revenue Planner' },
+  { id: '/tools/share-to-earn-planner', label: 'Share-to-Earn Planner' },
+  { id: '/tools/live-experience-calculator', label: 'Live Experience Calculator' },
+  { id: '/tools/royalty-readiness-check', label: 'Royalty Readiness Check' },
+  { id: '/tools/fan-stack-calculator', label: 'Fan Stack Calculator' },
+  { id: '/', label: 'Homepage funnel' },
+];
+
+/**
+ * The campaign link builder. It exists for one reason: a hand-typed link is the single easiest way
+ * to lose a whole video's attribution, and it fails silently (the visit still works, it just lands
+ * in 'unknown' forever). Everything it emits goes through buildCampaignUrl, the same normalizer the
+ * server parses with, so a link built here can never produce a tag the reports drop.
+ */
+function CampaignLinkBuilder() {
+  const [destination, setDestination] = useState(LINK_DESTINATIONS[0].id);
+  const [platform, setPlatform] = useState<string>('instagram');
+  const [channel, setChannel] = useState<string>('organic');
+  const [campaignName, setCampaignName] = useState('');
+  const [creative, setCreative] = useState('');
+  const [angle, setAngle] = useState('');
+  const [keyword, setKeyword] = useState('');
+  const [variant, setVariant] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://thecrwn.app';
+  const url = buildCampaignUrl(`${origin}${destination}`, {
+    platform: platform as never,
+    channel: channel as never,
+    campaign: campaignName,
+    creative,
+    angle,
+    keyword,
+    variant,
+  });
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard blocked: the link is on screen and selectable */
+    }
+  };
+
+  const field = (label: string, value: string, onChange: (v: string) => void, placeholder: string) => (
+    <label className="flex flex-col gap-1">
+      <span className="text-xs text-crwn-text-secondary">{label}</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="bg-crwn-surface border border-crwn-elevated rounded-lg px-3 py-1.5 text-xs text-crwn-text focus:outline-none focus:border-crwn-gold"
+      />
+    </label>
+  );
+
+  const select = (label: string, value: string, onChange: (v: string) => void, options: readonly string[]) => (
+    <label className="flex flex-col gap-1">
+      <span className="text-xs text-crwn-text-secondary">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="bg-crwn-surface border border-crwn-elevated rounded-lg px-3 py-1.5 text-xs text-crwn-text focus:outline-none focus:border-crwn-gold"
+      >
+        {options.map((o) => (
+          <option key={o} value={o}>{o}</option>
+        ))}
+      </select>
+    </label>
+  );
+
+  return (
+    <div className="bg-crwn-surface-solid rounded-xl p-4 border border-crwn-elevated">
+      <div className="flex items-center gap-2 mb-1">
+        <LinkIcon className="w-4 h-4 text-crwn-gold" />
+        <h4 className="text-sm font-semibold text-crwn-text">Campaign link builder</h4>
+      </div>
+      <p className="text-xs text-crwn-text-secondary mb-3">
+        Build one link per video, then paste it into ManyChat. An untagged link still works: it just
+        lands in &quot;unknown&quot; and that video can never be compared to any other.
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <label className="flex flex-col gap-1 sm:col-span-2">
+          <span className="text-xs text-crwn-text-secondary">Destination</span>
+          <select
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+            className="bg-crwn-surface border border-crwn-elevated rounded-lg px-3 py-1.5 text-xs text-crwn-text focus:outline-none focus:border-crwn-gold"
+          >
+            {LINK_DESTINATIONS.map((d) => (
+              <option key={d.id} value={d.id}>{d.label}</option>
+            ))}
+          </select>
+        </label>
+        {select('Platform', platform, setPlatform, SOURCE_PLATFORMS)}
+        {select('Channel', channel, setChannel, ACQUISITION_CHANNELS)}
+        {field('Campaign', campaignName, setCampaignName, 'kcamp_streaming_loss')}
+        {field('Creative (video id)', creative, setCreative, 'kcamp_v1')}
+        {field('Angle', angle, setAngle, 'streaming_loss')}
+        {field('ManyChat keyword', keyword, setKeyword, 'vault')}
+        {field('Variant', variant, setVariant, 'b')}
+      </div>
+
+      <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+        <code className="flex-1 block overflow-x-auto whitespace-nowrap bg-crwn-surface rounded-lg px-3 py-2 text-xs text-crwn-gold border border-crwn-elevated">
+          {url}
+        </code>
+        <button
+          onClick={copy}
+          className="shrink-0 px-4 py-2 rounded-full bg-crwn-gold text-black text-xs font-semibold hover:opacity-90 transition-opacity"
+        >
+          {copied ? 'Copied' : 'Copy link'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function LeadMagnetsView() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -161,11 +334,12 @@ export default function LeadMagnetsView() {
   const [calculator, setCalculator] = useState('');
   const [campaign, setCampaign] = useState('');
   const [artistId, setArtistId] = useState('');
+  const [dimension, setDimension] = useState('campaign');
 
   const load = useCallback(async () => {
     setIsLoading(true);
     try {
-      const qs = new URLSearchParams({ since: sinceFromPeriod(period) });
+      const qs = new URLSearchParams({ since: sinceFromPeriod(period), dimension });
       if (calculator) qs.set('calculator', calculator);
       if (campaign) qs.set('campaign', campaign);
       if (artistId) qs.set('artistId', artistId);
@@ -177,7 +351,7 @@ export default function LeadMagnetsView() {
     } finally {
       setIsLoading(false);
     }
-  }, [period, calculator, campaign, artistId]);
+  }, [period, calculator, campaign, artistId, dimension]);
 
   useEffect(() => {
     load();
@@ -296,6 +470,79 @@ export default function LeadMagnetsView() {
         <ConversionChart title="Converting by Video" data={data.byVideo} />
         <ConversionChart title="Converting by Campaign" data={data.byCampaign} />
       </div>
+
+      {/* Content scorecard: one tag, all the way down to money. */}
+      <div className="bg-crwn-surface-solid rounded-xl p-4 border border-crwn-elevated">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
+          <h4 className="text-sm font-semibold text-crwn-text">Content scorecard</h4>
+          <select
+            value={dimension}
+            onChange={(e) => setDimension(e.target.value)}
+            className="bg-crwn-surface border border-crwn-elevated rounded-full px-3 py-1.5 text-xs text-crwn-text focus:outline-none focus:border-crwn-gold w-fit"
+          >
+            {SCORECARD_DIMENSIONS.map((d) => (
+              <option key={d.id} value={d.id}>Group by {d.label.toLowerCase()}</option>
+            ))}
+          </select>
+        </div>
+        <p className="text-xs text-crwn-text-secondary mb-3">
+          Sorted by artists who actually got paid, not by views. &quot;ICP&quot; is the count the
+          server-side lead scorer put in the sales-priority band, so lead quality reads next to lead
+          volume.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-crwn-text-secondary text-xs">
+                <th className="py-2 pr-4 font-medium sticky left-0 bg-crwn-surface-solid">
+                  {SCORECARD_DIMENSIONS.find((d) => d.id === (data.scorecard?.dimension ?? dimension))?.label ?? 'Campaign'}
+                </th>
+                {(data.scorecard?.stages ?? []).map((s) => (
+                  <th key={s} className="py-2 px-3 font-medium text-right whitespace-nowrap">{STAGE_LABELS[s] ?? s}</th>
+                ))}
+                <th className="py-2 px-3 font-medium text-right whitespace-nowrap">ICP</th>
+                <th className="py-2 px-3 font-medium text-right whitespace-nowrap">Calls</th>
+                <th className="py-2 pl-3 font-medium text-left whitespace-nowrap">Biggest drop</th>
+              </tr>
+            </thead>
+            <tbody>
+              {!data.scorecard?.rows.length ? (
+                <tr>
+                  <td colSpan={13} className="py-6 text-center text-crwn-text-secondary text-xs">
+                    No tagged traffic yet. Build a link above and put it in ManyChat.
+                  </td>
+                </tr>
+              ) : (
+                data.scorecard.rows.map((r) => (
+                  <tr key={r.key} className="border-t border-crwn-elevated">
+                    <td className="py-2 pr-4 text-crwn-text sticky left-0 bg-crwn-surface-solid max-w-[180px] truncate" title={r.key}>
+                      {r.key}
+                    </td>
+                    {(data.scorecard?.stages ?? []).map((s) => (
+                      <td
+                        key={s}
+                        className={`py-2 px-3 text-right ${s === 'first_paid_conversion' ? 'text-crwn-gold font-semibold' : 'text-crwn-text-secondary'}`}
+                      >
+                        {num(r.stages[s] || 0)}
+                      </td>
+                    ))}
+                    <td className="py-2 px-3 text-right text-crwn-text">{num(r.salesPriority)}</td>
+                    <td className="py-2 px-3 text-right text-crwn-text-secondary">{num(r.callsRequested)}</td>
+                    <td className="py-2 pl-3 text-crwn-text-secondary text-xs whitespace-nowrap">
+                      {r.biggestDrop
+                        ? `${STAGE_LABELS[r.biggestDrop.from] ?? r.biggestDrop.from} to ${STAGE_LABELS[r.biggestDrop.to] ?? r.biggestDrop.to} (${num(r.biggestDrop.lost)} lost, ${pct(r.biggestDrop.lossRate)})`
+                        : '—'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Campaign link builder */}
+      <CampaignLinkBuilder />
 
       {/* Per-calculator table */}
       <div className="bg-crwn-surface-solid rounded-xl p-4 border border-crwn-elevated">

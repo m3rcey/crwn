@@ -16,6 +16,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe/client';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Db = SupabaseClient<any, any, any>;
@@ -107,6 +108,9 @@ export async function reconcileStripeConnect(
       artistId: args.artistId,
       userId: args.userId,
       dedupeKey: args.artistId,
+      // The campaign that brought them, so "which video produced an artist who can actually take
+      // money" is answerable. Deduped per artist, so only the first reconcile writes a row.
+      ...(await attributionDimsFor(db, { userId: args.userId, artistId: args.artistId })),
     });
     await backfillTierPrices(db, args.artistId);
   }

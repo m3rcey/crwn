@@ -27,6 +27,14 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
+      just lands under "unknown" forever and that video can never be compared to another one. No
+      migration, nothing to deploy: build each link at /admin -> Lead Magnets -> **Campaign link
+      builder**, then paste it into the matching ManyChat keyword flow. Read once:
+      [`docs/acquisition/campaign-tagging.md`](docs/acquisition/campaign-tagging.md) (naming
+      convention, allowed values, worked examples, and what CRWN can never see). Results land at
+      /admin -> Lead Magnets -> **Content scorecard**.
+
 - [ ] **Run the launch-partner migration:**
       [`supabase/schema-phase2-launch-partner.sql`](supabase/schema-phase2-launch-partner.sql).
       Adds `artist_profiles.launch_partner` (the First Revenue Launch cohort flag, server-only

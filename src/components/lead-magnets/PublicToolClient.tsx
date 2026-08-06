@@ -18,7 +18,7 @@ import { ConvertToFeatureButton } from './ConvertToFeatureButton';
 import { generateResult } from '@/lib/leadMagnets/resultGenerators';
 import { resolveEntryContext } from '@/lib/leadMagnets/entryContext';
 import { getTool, type LeadProfileValues } from '@/lib/acquisition/toolAdapters';
-import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
+import { LM_EVENTS, trackLeadMagnet, readUtm, readCampaignAttribution } from '@/lib/leadMagnets/analytics';
 import { OPPORTUNITY_EVENTS, JOURNEY_EVENTS, trackOpportunity, type OpportunityEventMeta } from '@/lib/opportunityFunnels/analytics';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 import { FanCaptureBuilder } from '@/components/opportunity/FanCaptureBuilder';
@@ -234,6 +234,10 @@ export function PublicToolClient({
             emailConsent: lead.emailConsent,
           },
           utm: { source: utm.utmSource, medium: utm.utmMedium, campaign: utm.utmCampaign, content: utm.utmContent },
+          // The normalized campaign tag (which video, angle, ManyChat keyword). Persisted onto the
+          // RESULT ROW server-side, which is what carries the video past signup: the claim path
+          // already binds that row to the account. Re-validated server-side; never trusted raw.
+          attribution: readCampaignAttribution(),
           // Which sub-avatar funnel brought them (docs/SUB_AVATARS.md). Stored server-side on the
           // result so the acquisition cohort survives signup, instead of living only in analytics.
           entryContext,

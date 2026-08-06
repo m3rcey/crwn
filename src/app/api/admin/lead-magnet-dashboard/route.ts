@@ -12,8 +12,11 @@ import {
   computeMetrics,
   conversionByDimension,
   calculatorPerformance,
+  campaignScorecard,
   topOf,
+  SCORECARD_STAGES,
   type FunnelRow,
+  type ScorecardDimension,
 } from '@/lib/analytics/leadMagnetDashboard';
 
 const supabaseAdmin = createClient(
@@ -46,9 +49,11 @@ export async function GET(req: NextRequest) {
   }
   let all: RawRow[] = [];
   try {
+    // metadata carries the extra campaign tags (platform/angle/keyword/variant), the server-scored
+    // ICP band, and the sub-avatar. It is what makes lead QUALITY reportable next to lead volume.
     const { data } = await supabaseAdmin
       .from('funnel_events')
-      .select('stage, calculator, campaign, referrer, video, artist_id')
+      .select('stage, calculator, campaign, referrer, video, artist_id, metadata')
       .gte('occurred_at', since)
       .limit(200_000);
     all = (data ?? []) as RawRow[];
@@ -81,6 +86,25 @@ export async function GET(req: NextRequest) {
 
   const metrics = computeMetrics(rows);
   const byCalculator = calculatorPerformance(rows);
+  // The content scorecard: one dimension walked all the way to first paid conversion, so a video
+  // can be judged on artists produced rather than on views. `?dimension=` picks which tag to group
+  // by, allowlisted here so a query string can never name an arbitrary column.
+  const requested = p.get('dimension');
+  const ALLOWED_DIMENSIONS: ScorecardDimension[] = [
+    'campaign',
+    'video',
+    'angle',
+    'platform',
+    'keyword',
+    'variant',
+    'calculator',
+    'referrer',
+  ];
+  const dimension: ScorecardDimension = ALLOWED_DIMENSIONS.includes(requested as ScorecardDimension)
+    ? (requested as ScorecardDimension)
+    : 'campaign';
+  const scorecard = campaignScorecard(rows, dimension).slice(0, 100);
+
   const bySource = conversionByDimension(rows, 'referrer', { minViews: MIN_VIEWS });
   const byVideo = conversionByDimension(rows, 'video', { minViews: MIN_VIEWS });
   const byCampaign = conversionByDimension(rows, 'campaign', { minViews: MIN_VIEWS });
@@ -123,8 +147,9 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
-    filters: { since, campaign, calculator, artistId },
-    options: { campaigns, artists },
+    filters: { since, campaign, calculator, artistId, dimension },
+    options: { campaigns, artists, dimensions: ALLOWED_DIMENSIONS },
+    scorecard: { dimension, stages: SCORECARD_STAGES, rows: scorecard },
     metrics,
     revenue: {
       revealedCents,

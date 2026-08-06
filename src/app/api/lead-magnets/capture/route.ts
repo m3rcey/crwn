@@ -12,6 +12,13 @@ import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
 import { continueCtaFor } from '@/lib/leadMagnets/continuationCta';
 import { enrollProspect } from '@/lib/prospectNurture/enroll';
 import { isSubAvatarId, ENTRY_CONTEXT_INPUT_KEY } from '@/lib/avatars/taxonomy';
+import {
+  ATTRIBUTION_INPUT_KEY,
+  attributionToFunnelDims,
+  hasAttribution,
+  sanitizeStoredAttribution,
+} from '@/lib/analytics/campaignAttribution';
+import { sanitizeCalculatorInputs, decideCallRequest } from '@/lib/acquisition/callRequest';
 
 // PUBLIC endpoint. No auth (middleware excludes /api). It authorizes/rate-limits itself.
 // Recomputes the result SERVER-SIDE from the inputs (never trusts a client-sent result),
@@ -48,6 +55,8 @@ export async function POST(req: NextRequest) {
     utm?: { source?: string; medium?: string; campaign?: string; content?: string };
     /** The sub-avatar funnel `?from=` value, validated below against the real taxonomy. */
     entryContext?: string;
+    /** The campaign tag from the link that brought them. Re-normalized below; never trusted raw. */
+    attribution?: unknown;
     sourceUrl?: string;
   };
   try {
@@ -76,6 +85,18 @@ export async function POST(req: NextRequest) {
   // truth, and VALIDATED against the taxonomy so a hostile body cannot invent a cohort.
   const entryContext = isSubAvatarId(body.entryContext) ? body.entryContext : null;
   if (entryContext) inputs[ENTRY_CONTEXT_INPUT_KEY] = entryContext;
+
+  // The campaign tag (which video, which angle, which ManyChat keyword) that brought them here.
+  // RE-NORMALIZED server-side, then stored on the RESULT ROW under a reserved key. The result row
+  // is the thing the existing claim path binds to the account at signup, so persisting it here is
+  // what carries the video past the anonymous/authenticated boundary without a cookie, a new table,
+  // or a second identity system.
+  // Attached to input_data at INSERT time, never before the result is computed: a reporting tag
+  // must not be able to reach a calculator's inputs.
+  const attribution = sanitizeStoredAttribution(body.attribution);
+  const attributionDims = attributionToFunnelDims(attribution);
+  const storedInputs = (): Record<string, unknown> =>
+    hasAttribution(attribution) ? { ...inputs, [ATTRIBUTION_INPUT_KEY]: attribution } : inputs;
 
   // SERVER-SIDE recompute. This is the source of truth we persist and email. Loss-engine tools
   // run their adapter (config.resultGeneratorKey is not a generateResult key for them); the four
@@ -138,7 +159,7 @@ export async function POST(req: NextRequest) {
       lead_id: lead.id,
       status: 'completed',
       title: result.headline.slice(0, 200),
-      input_data: inputs,
+      input_data: storedInputs(),
       result_data: result as unknown as Record<string, unknown>,
       generator_version: result.generatorVersion,
       source: 'public',
@@ -178,15 +199,36 @@ export async function POST(req: NextRequest) {
 
   await recordLmEvent(supabaseAdmin, 'lead_magnet_lead_submitted', { toolSlug: config.slug, context: 'public', resultId: saved.id, source: body.utm?.source || 'direct' });
 
+  // The ICP band for this lead, from the CANONICAL server-side scorer (the same one the call
+  // request gate uses). Recomputed from the artist's own sanitized answers, never sent by the
+  // client and never used for anything but reporting here: it is what lets the founder tell "this
+  // video produced 40 leads" apart from "this video produced 4 sales-priority artists". A tool
+  // whose inputs the scorer knows nothing about simply produces no band.
+  let band: string | null = null;
+  try {
+    const scored = decideCallRequest(sanitizeCalculatorInputs(config.inputs, inputs));
+    band = scored.band;
+  } catch {
+    /* unscored is fine; unrecorded is not */
+  }
+
   // Funnel: Email Submitted. Server-side and deduped per result (one email per stored result).
+  // Campaign/video/platform come from the normalized tag, with the raw UTM as the fallback so an
+  // untagged link behaves exactly as before.
   await recordFunnelEvent(supabaseAdmin, {
     stage: 'email_submitted',
     calculator: config.slug,
-    campaign: body.utm?.campaign || null,
-    referrer: body.utm?.source || null,
+    campaign: attributionDims.campaign ?? body.utm?.campaign ?? null,
+    referrer: attributionDims.referrer ?? body.utm?.source ?? null,
+    video: attributionDims.video ?? body.utm?.content ?? null,
     resultId: saved.id,
     dedupeKey: saved.id,
-    metadata: { hasPhone: !!phone },
+    metadata: {
+      ...(attributionDims.metadata ?? {}),
+      hasPhone: !!phone,
+      ...(band ? { band } : {}),
+      ...(entryContext ? { subAvatar: entryContext } : {}),
+    },
   });
 
   // 4. Enroll into long-term prospect nurture. MARKETING, so it runs only with explicit email

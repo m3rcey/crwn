@@ -16,6 +16,7 @@ import {
 import { SCORE_VERSION } from '@/lib/acquisition/leadScoring';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { attributionToFunnelDims, sanitizeStoredAttribution } from '@/lib/analytics/campaignAttribution';
 
 // PUBLIC endpoint (middleware excludes /api). The hand-raiser at the opportunity calculator's
 // save boundary: "Want help launching this? Get a call now."
@@ -61,6 +62,9 @@ export async function POST(req: NextRequest) {
     planSummary?: string;
     publicToken?: string;
     utm?: { source?: string; campaign?: string; content?: string };
+    /** The campaign tag from the link that brought them. Re-normalized below; never trusted raw,
+     *  and never read by the qualification gate. */
+    attribution?: unknown;
   };
   try {
     body = await req.json();
@@ -237,15 +241,19 @@ export async function POST(req: NextRequest) {
     resultId: resultId || undefined,
     source: body.utm?.source || 'direct',
   });
+  // Reporting only. The normalized tag fills the campaign/video/platform dimensions, with the raw
+  // UTM as the fallback so an untagged link behaves exactly as before. Qualification above is
+  // untouched by any of it.
+  const callAttributionDims = attributionToFunnelDims(sanitizeStoredAttribution(body.attribution));
   await recordFunnelEvent(supabaseAdmin, {
     stage: 'call_requested',
     calculator: config.slug,
-    campaign: body.utm?.campaign || null,
-    referrer: body.utm?.source || null,
-    video: body.utm?.content || null,
+    campaign: callAttributionDims.campaign ?? body.utm?.campaign ?? null,
+    referrer: callAttributionDims.referrer ?? body.utm?.source ?? null,
+    video: callAttributionDims.video ?? body.utm?.content ?? null,
     resultId,
     dedupeKey: `${phone}:${day}`,
-    metadata: { qualified: decision.qualified, band: decision.band },
+    metadata: { ...(callAttributionDims.metadata ?? {}), qualified: decision.qualified, band: decision.band },
   });
 
   return NextResponse.json({ ok: true });

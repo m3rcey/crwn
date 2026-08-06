@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { IMPORT_ATTESTATION_VERSION } from '@/lib/fanImportConsent';
 import { recordFunnelEvent } from '@/lib/analytics/funnelEvents';
+import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -137,12 +138,14 @@ export async function POST(req: NextRequest) {
   // Funnel: Fans Imported. Deduped per artist, so only the FIRST import marks the stage;
   // later imports collapse into it. Fail-safe by construction.
   if (imported > 0) {
+    const attributionDims = await attributionDimsFor(supabaseAdmin, { userId: user.id, artistId });
     await recordFunnelEvent(supabaseAdmin, {
       stage: 'fans_imported',
       artistId,
       userId: user.id,
       dedupeKey: artistId,
-      metadata: { imported },
+      ...attributionDims,
+      metadata: { ...(attributionDims.metadata ?? {}), imported },
     });
   }
 

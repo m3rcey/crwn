@@ -4,6 +4,14 @@
 // into an event. Only slugs, ids, counts, and enum-ish metadata (enforced by the API
 // route allowlist too).
 
+import {
+  parseCampaignAttribution,
+  mergeAttribution,
+  hasAttribution,
+  sanitizeStoredAttribution,
+  type CampaignAttribution,
+} from '@/lib/analytics/campaignAttribution';
+
 export const LM_EVENTS = {
   directoryViewed: 'lead_magnet_directory_viewed',
   viewed: 'lead_magnet_viewed',
@@ -57,6 +65,12 @@ export interface LmEventMeta {
    * a declared avatar id is dropped rather than trusted.
    */
   entryContext?: string;
+  /**
+   * The normalized campaign tag this visit arrived through (which video, which angle, which
+   * ManyChat keyword). Captured automatically by trackLeadMagnet from the tagged link, first-touch
+   * snapshotted, and RE-VALIDATED server-side before anything is stored.
+   */
+  attribution?: CampaignAttribution;
 }
 
 // The sub-avatar entry context (docs/SUB_AVATARS.md). All four avatars share one calculator, so
@@ -90,6 +104,34 @@ function captureEntryAvatar(): string | undefined {
   }
 }
 
+// The campaign tag on the link that brought this visit (which video, which angle, which ManyChat
+// keyword). Same first-touch discipline as the avatar entry context above: the FIRST tagged link
+// they arrive through owns the visit, because that is the content that actually brought them. A
+// later visit can only ADD dimensions the first one left empty, never replace them, so navigating
+// from the calculator to the result to signup on a bare URL cannot erase the video.
+const FIRST_TOUCH_ATTR_KEY = 'crwn_first_touch_attr';
+
+/**
+ * The merged campaign attribution for this visit. Reads the current URL, folds it into the stored
+ * first-touch snapshot (first touch wins per field), persists the result, and returns it.
+ * Storage-safe: a private-mode browser that refuses localStorage still gets URL attribution.
+ */
+export function readCampaignAttribution(): CampaignAttribution {
+  const current = parseCampaignAttribution(
+    typeof window === 'undefined' ? null : new URLSearchParams(window.location.search),
+  );
+  if (typeof window === 'undefined') return current;
+  try {
+    const raw = window.localStorage.getItem(FIRST_TOUCH_ATTR_KEY);
+    const stored = raw ? sanitizeStoredAttribution(JSON.parse(raw)) : null;
+    const merged = mergeAttribution(stored, current);
+    if (hasAttribution(merged)) window.localStorage.setItem(FIRST_TOUCH_ATTR_KEY, JSON.stringify(merged));
+    return merged;
+  } catch {
+    return current;
+  }
+}
+
 // Fire-and-forget. Uses sendBeacon when available so it survives navigation.
 export function trackLeadMagnet(event: LmEvent, meta: LmEventMeta): void {
   if (typeof window === 'undefined') return;
@@ -101,6 +143,9 @@ export function trackLeadMagnet(event: LmEvent, meta: LmEventMeta): void {
       referrer: meta.referrer || (typeof document !== 'undefined' && document.referrer ? document.referrer : undefined),
       // Every beacon carries the avatar funnel, so no call site has to remember to pass it.
       entryContext: meta.entryContext || captureEntryAvatar(),
+      // Same for the campaign tag: the video/angle/keyword rides on every stage, so the funnel
+      // stays sliceable by content without touching a single call site.
+      attribution: meta.attribution || readCampaignAttribution(),
     };
     const body = JSON.stringify({ event, meta: enriched });
     if (navigator.sendBeacon) {
