@@ -659,9 +659,14 @@ async function loadOrCreateSession(
 
   // Mirror into the funnel with the IG post as the video dimension (attribution is right here on
   // the payload, so no extra query). One per session -> page_viewed for the ManyChat funnel.
+  //
+  // The `?? utm_content` fallback matches mirrorFunnelForSession, and it is NOT cosmetic: a flow
+  // tagged with utm_content but no source_post_id would otherwise file its VIEW under 'unknown'
+  // while every later stage filed under the creative, which reads as a funnel that converts
+  // strangers into results out of nowhere.
   await mirrorFunnelDirect(supabaseAdmin, 'page_viewed', `ig_view:${data.id}`, {
     calculator: toolId,
-    video: payload.source_post_id,
+    video: payload.source_post_id ?? payload.utm_content,
     creatorAccount: payload.creator_account,
     keyword: payload.keyword,
     campaign: payload.utm_campaign,
