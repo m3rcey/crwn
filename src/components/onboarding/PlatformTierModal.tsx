@@ -7,7 +7,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/shared/Toast';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, Check, Crown, X } from 'lucide-react';
-import { TIER_PRICING } from '@/lib/platformTier';
+import { TIER_PRICING, TIER_LIMITS } from '@/lib/platformTier';
+import { proBreakEvenGmvCents, scaleBreakEvenGmvCents } from '@/lib/planRecommendation';
+
+// Break-even claims are DERIVED (subscription price over the fee-point spread),
+// never retyped: repricing a plan moves these strings automatically, and a
+// stale figure here would be a false savings claim.
+const breakEvenUsd = (cents: number) => `$${Math.round(cents / 100).toLocaleString('en-US')}`;
 
 interface PlatformTier {
   id: string;
@@ -42,7 +48,7 @@ const PLATFORM_TIERS: PlatformTier[] = [
       '1 email campaign / month',
       'Fan CRM + CSV fan import',
       'Basic analytics',
-      '12% platform fee',
+      `${TIER_LIMITS.starter.platformFeePercent}% platform fee`,
     ],
   },
   {
@@ -61,7 +67,7 @@ const PLATFORM_TIERS: PlatformTier[] = [
       'Bundles, discount codes, Share-to-Earn',
       '20 email campaigns / month + sequences',
       'Advanced analytics + team splits',
-      '8% platform fee (saves money above $1,225/mo in sales)',
+      `${TIER_LIMITS.pro.platformFeePercent}% platform fee (saves money above ${breakEvenUsd(proBreakEvenGmvCents())}/mo in sales)`,
     ],
     popular: true,
   },
@@ -80,7 +86,7 @@ const PLATFORM_TIERS: PlatformTier[] = [
       '100 email campaigns / month',
       'Advanced reporting + exports',
       'Priority support + strategy review',
-      '5% platform fee (saves money above $5,000/mo in sales)',
+      `${TIER_LIMITS.scale.platformFeePercent}% platform fee (saves money above ${breakEvenUsd(scaleBreakEvenGmvCents())}/mo in sales)`,
     ],
   },
 ];

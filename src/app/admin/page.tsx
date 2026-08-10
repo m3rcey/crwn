@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical, LifeBuoy } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical, LifeBuoy, Banknote } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import LeadMagnetsView from '@/components/admin/LeadMagnetsView';
 import AvatarCohortsView from '@/components/admin/AvatarCohortsView';
@@ -20,10 +20,11 @@ import AgentInsights from '@/components/admin/AgentInsights';
 import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
 import SupportChatView from '@/components/admin/SupportChatView';
+import MoneyModelView from '@/components/admin/MoneyModelView';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'avatars' | 'experiments' | 'support';
+type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'avatars' | 'experiments' | 'support' | 'moneymodel';
 
-const TAB_IDS: AdminTab[] = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm', 'access', 'acquisition', 'leadmagnets', 'avatars', 'experiments', 'support'];
+const TAB_IDS: AdminTab[] = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm', 'access', 'acquisition', 'leadmagnets', 'avatars', 'experiments', 'support', 'moneymodel'];
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -192,6 +193,15 @@ export default function AdminPage() {
             <LifeBuoy className="w-4 h-4" />
             Support
           </button>
+          <button
+            onClick={() => setActiveTab('moneymodel')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'moneymodel' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Banknote className="w-4 h-4" />
+            Money Model
+          </button>
         </div>
       </div>
 
@@ -266,6 +276,12 @@ export default function AdminPage() {
       {activeTab === 'support' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <SupportChatView />
+        </div>
+      )}
+
+      {activeTab === 'moneymodel' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <MoneyModelView />
         </div>
       )}
     </div>

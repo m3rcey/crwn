@@ -228,6 +228,27 @@ quest, XP or the Revenue Ramp, and it never marks a roadmap step complete.
 - Flows launched from Rise Mode honor `?returnTo=` on exit/success; back arrows use `smartBack(router, fallback)`. `Confirmed`.
 - **No em dashes** in any user-facing copy. `Confirmed` (recent commits removed them app-wide).
 
+## 16. Money Model measurement rules (First Revenue Launch economics, 2026-08-10)
+
+Internal, admin-only (doc 21 is the full spec). The rules, all `Confirmed` in code + tests:
+- **Activation is the first paid member** (doc 20); timing runs from `frl_engagements.started_on`.
+- **The service window (30 days from engagement start) and the guarantee window (30 days from
+  the date all required guarantee conditions first verified) are separate and never conflated.**
+  Eligibility is stamped once on first observation and never overwritten.
+- **Null is never zero.** Every money metric carries `complete | modeled | missing` and a
+  missing input names itself. CAC, labor cost, and contribution margin have NO invented
+  defaults: unset founder hourly cost or acquisition cost means the metric reads missing.
+- **Revenue sources are never mixed:** implementation (manual invoice, typed in), platform
+  fees (`sum(earnings.platform_fee)`, per-row snapshot, refund-netted), and plan subscription
+  (MODELED monthly from `TIER_PRICING`; no invoice table exists) are separate lines; artist
+  GMV is never counted as CRWN revenue.
+- **Derived checklist items cannot be manually overridden** (server rejects derived keys);
+  the guarantee checklist reuses the exact `launchPartner.ts` defs + quest evaluator.
+- **Consent defaults to not_granted** on every evidence right; private/anonymized never
+  silently becomes public. Nothing publishes from the evidence record.
+- **Predictive LTV is unavailable by policy**; lifetime figures are historical sums.
+- Implementation fees are never charged through the app: manual Stripe invoice only.
+
 ---
 
 *See also: [05-DATABASE.md](05-DATABASE.md) · [10-INTEGRATIONS.md](10-INTEGRATIONS.md) · [02-FEATURE-MAP.md](02-FEATURE-MAP.md) · [17-OPEN-QUESTIONS.md](17-OPEN-QUESTIONS.md)*

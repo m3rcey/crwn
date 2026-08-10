@@ -53,6 +53,23 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       scaling yet. Charge the implementation fee (0 to $500 for the founding cohort) by a
       MANUAL Stripe invoice from the dashboard; there is deliberately no checkout for it.
 
+- [ ] **Run the Money Model migration:**
+      [`supabase/schema-phase2-frl-engagements.sql`](supabase/schema-phase2-frl-engagements.sql).
+      Creates the First Revenue Launch engagement, labor and evidence tables (admin-only RLS,
+      self-verifying, probe-verified by `npm run verify:migrations`). Until it runs, the new
+      /admin -> **Money Model** tab shows an empty state saying exactly that. Then, in that tab:
+      1. Set your **founder hourly cost** (Cost assumptions box). No default exists on purpose;
+         until you set it, labor cost and contribution margin read "missing", never zero.
+      2. Create one engagement per launch partner (type the artist slug), enter the agreed fee,
+         start date, and the allocated acquisition cost, and log your hours as you work.
+      Recording the fee here does not charge anyone; the invoice stays manual in Stripe.
+
+- [ ] **Run the earnings live-tip fix:**
+      [`supabase/schema-phase2-earnings-live-tip-type.sql`](supabase/schema-phase2-earnings-live-tip-type.sql).
+      The earnings type allowlist was missing `live_tip`, so wherever the old constraint is
+      applied, every live-tip earning insert is silently rejected and tip money is absent from
+      GMV, fees, and payout math. Self-verifying; safe to re-run.
+
 - [ ] **Run the sub-avatar migration:**
       [`supabase/schema-phase2-sub-avatar.sql`](supabase/schema-phase2-sub-avatar.sql).
       Adds `artist_profiles.sub_avatar_override` (manual override of the four-avatar

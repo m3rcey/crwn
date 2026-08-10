@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-08-10 - Money Model measurement: the First Revenue Launch gets a ledger
+
+**What existed:** every artist-side truth (the `earnings` ledger with per-row snapshotted
+platform fees, `first_paid_conversion` across six rails, the guarantee evaluator, first-touch
+attribution) and NO cost side at all: no record of the implementation invoice, founder hours,
+acquisition cost, or contribution margin. Doc 20's "What remains" list (track hours, document
+first-paid results, convert to case studies) was founder work with no instrument.
+
+**What shipped:** three admin-only tables (`frl_engagements` terms/scope/consent,
+`frl_work_entries` labor + external cents, `frl_evidence` case-study record + dated metrics
+snapshot; manual checklist state in `frl_checklist_state`), one pure finance module
+(`src/lib/frl/economics.ts`, 43 tests: 7/30-day UTC windows, revenue by source, contribution
+margin, CAC payback, replication diagnostic, cohort aggregates with per-metric sample sizes),
+a 20-item operator checklist (10 derived through the quest evaluator and never storable, 10
+manual), and the `/admin` Money Model tab with the founding-cohort comparison. Full spec:
+`21-MONEY-MODEL-MEASUREMENT.md`.
+
+**Rules that held:** null is never zero (a missing input names itself); plan-subscription
+revenue is labeled MODELED because no invoice table exists; consent defaults to not_granted;
+predictive LTV is unavailable by policy; no checkout, no pricing change, no public surface.
+
+**DB impact:** `supabase/schema-phase2-frl-engagements.sql` (admin-only RLS, service-role
+writes, self-verifying, probed) + `supabase/schema-phase2-earnings-live-tip-type.sql` (the
+earnings type CHECK was missing `live_tip`, silently rejecting every live-tip earning row
+wherever applied). Both unrun until Josh applies them; everything fails soft before that.
+
+**Also:** `PlatformTierModal`'s hardcoded "$1,225"/"$5,000" break-even bullets and fee
+percents now derive from `proBreakEvenGmvCents()`/`scaleBreakEvenGmvCents()`/`TIER_LIMITS`.
+Tests 1030 pass; build clean.
+
 ## 2026-08-06 - Campaign attribution: the funnel below signup learns which VIDEO produced the artist
 
 **What existed:** more than expected. `funnel_events` was already applied in production with 20

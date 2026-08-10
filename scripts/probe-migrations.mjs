@@ -34,6 +34,12 @@ const PROBES = [
   ['membership strategy columns', 'artist_profiles?select=membership_strategy&limit=1', 'schema-phase2-membership-strategy.sql'],
   ['track waterfall column', 'tracks?select=waterfall&limit=1', 'schema-phase2-track-waterfall.sql'],
   ['support chat resolution columns', 'support_conversations?select=resolved_by&limit=1', 'schema-phase2-support-chat-resolution.sql'],
+  // launch_partner is a server-only column (no client grants), so 42501 = applied.
+  ['launch partner flag', 'artist_profiles?select=launch_partner&limit=1', 'schema-phase2-launch-partner.sql'],
+  // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.
+  ['frl engagements', 'frl_engagements?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
+  ['frl work entries', 'frl_work_entries?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
+  ['frl evidence', 'frl_evidence?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
 ];
 
 const env = readFileSync(new URL('../.env.local', import.meta.url), 'utf8');

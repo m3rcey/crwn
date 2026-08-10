@@ -263,6 +263,12 @@ limiting revision/migration scope · running the audit calls (use
 results · converting results into case studies. The next major improvement to this offer comes
 from real launches and proof, not another feature build.
 
+**Measurement (2026-08-10):** the hours / results / case-study items above now have an
+instrument: the internal Money Model system (`21-MONEY-MODEL-MEASUREMENT.md`, `/admin` →
+Money Model) records engagement terms, labor, consent and evidence, and computes 30-day
+contribution margin per launch partner. The work itself is still the founder's; the offer,
+pricing, and guarantee are unchanged by it.
+
 ## Source map
 
 `src/lib/launchPartner.ts` (+test) · `src/app/api/artist/launch-partner/route.ts` ·

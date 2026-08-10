@@ -22,7 +22,8 @@
 
 ## Database
 - Base: `supabase/schema.sql`; tickets `schema-ticket{3,4,5,7}.sql`
-- Money ledger RLS + retrofit: `schema-phase2-money-ledger-rls.sql`, `-attribution-hardening.sql`, `-earnings-type-check.sql`
+- Money ledger RLS + retrofit: `schema-phase2-money-ledger-rls.sql`, `-attribution-hardening.sql`, `-earnings-type-check.sql`, `-earnings-live-tip-type.sql` (adds `live_tip` to the type allowlist)
+- Money Model measurement (First Revenue Launch economics, 2026-08-10, doc 21): `src/lib/frl/{economics,checklist,server}.ts` (+`economics.test.ts`), routes `src/app/api/admin/frl/engagements/**`, UI `src/components/admin/MoneyModelView.tsx`, migration `schema-phase2-frl-engagements.sql`. Guarantee evaluator it reuses: `src/lib/launchPartner.ts` + `/api/artist/launch-partner` + `schema-phase2-launch-partner.sql`; revenue models `src/lib/avatars/revenueModels.ts`; stack replacement `src/lib/stackReplacement.ts`
 - Entitlement: `schema-phase2-tracks-audio-view.sql`, `-tracks-audio-column-privs.sql`, `-community-posts-rls.sql`, `-fix-entitlement-oracle-via-authuid.sql`, `-revoke-entitlement-oracle-execute.sql`
 - Stripe id lockdown: `schema-phase2-artist-profiles-public-view.sql`, `-stripe-id-column-privs.sql`
 - Team splits: `schema-phase2-team-splits.sql`, `-team-splits-cashout-rpc.sql`
