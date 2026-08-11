@@ -23,7 +23,10 @@ const CTA_OVERRIDES: Record<string, string> = {
   'clip-to-earn-campaign-planner': 'Turn On Clip-to-Earn',
   'artist-quest-path': 'Start Rise Mode',
   'team-split-deal-builder': 'Set Up My Team Splits',
-  'own-your-fans-calculator': 'Start Owning My Fans',
+  // The TOOL name "Own Your Fans" stays (running experiment, analytics and route identity).
+  // This is a CLAIM, though, and an artist does not own people. Accurate version of the same
+  // promise: the relationship and the contact are theirs. See POSITIONING.md section 24.
+  'own-your-fans-calculator': 'Build My Direct Fan List',
   'royalty-readiness-check': 'Start My Royalty Setup',
   'fan-stack-calculator': 'Build My Consolidated Membership',
   'between-tour-calculator': 'Build My VIP Membership',
