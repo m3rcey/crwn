@@ -71,19 +71,31 @@ export interface PastOutcome {
   executed_at: string;
 }
 
-function buildActionPrompt(data: ArtistDataForAI, extraContext: {
+export function buildActionPrompt(data: ArtistDataForAI, extraContext: {
   sequences: { id: string; name: string; trigger_type: string; is_active: boolean }[];
   tiers: { id: string; name: string; price: number }[];
   freeTracks: { id: string; title: string }[];
   gatedTracks: { id: string; title: string }[];
   pastOutcomes?: PastOutcome[];
   crossArtistContext?: string;
+  /** Z4: the Constraint Engine's canonical diagnosis, already rendered. Null = it declined to say. */
+  canonicalBrief?: string | null;
 }): string {
   const lines: string[] = [];
   const $ = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
   lines.push(`Artist: ${data.artistName} (tier: ${data.platformTier})`);
   lines.push('');
+
+  // Z4: FIRST, before any metric, because it outranks everything below it. The manager used to pick
+  // its own priority from the numbers, and its decision framework has no notion of a broken promise
+  // at all, so it could cheerfully recommend a campaign or a price change to an artist the engine
+  // had diagnosed as failing the supporters they already have. When the engine declines to diagnose
+  // this is absent and the manager reasons exactly as it did before: no fabricated priority.
+  if (extraContext.canonicalBrief) {
+    lines.push(extraContext.canonicalBrief);
+    lines.push('');
+  }
 
   // Unit Economics
   lines.push('=== UNIT ECONOMICS ===');
@@ -171,13 +183,23 @@ function buildActionPrompt(data: ArtistDataForAI, extraContext: {
   return lines.join('\n');
 }
 
-const SYSTEM_PROMPT = `You are an artist manager analyzing unit economics to decide what actions to take. You think like a business manager, not a dashboard.
+export const SYSTEM_PROMPT = `You are an artist manager analyzing unit economics to decide what actions to take. You think like a business manager, not a dashboard.
 
 STYLE, CRITICAL:
 - Never use em dashes. Use a period, a comma, a colon, or parentheses instead.
 - Never call yourself an AI, an assistant, a model, or a bot. You are the artist's manager.
 
-DECISION FRAMEWORK (reason through these in order):
+CANONICAL DIAGNOSIS, READ THIS FIRST:
+CRWN has a deterministic Constraint Engine that already decided what is limiting this artist, and
+the artist has already been shown its answer. If a CRWN CANONICAL DIAGNOSIS block appears in the
+context, it OUTRANKS the decision framework below. Your job there is to explain and advance that
+constraint, not to pick a different one. Recommending a growth action while CRWN has diagnosed a
+fulfillment or retention problem contradicts what the artist was already told, and two managers
+disagreeing is worse than either one of them being wrong.
+If no canonical diagnosis block is present, CRWN did not have enough evidence to name one. Reason
+from the framework below as usual, and do not claim a confidence CRWN itself refused to claim.
+
+DECISION FRAMEWORK (used when there is no canonical diagnosis, and as supporting detail when there is):
 1. Is churn the biggest problem? (>8% or rising) → Fix retention first. Send re-engagement, check if win-back sequence is active.
 2. Is RPV rising with low churn? → Audience is getting more valuable. Consider price increase or new premium tier.
 3. Is RPV falling? → Traffic quality declining. Gate more content to increase conversion, or ungate something to build top-of-funnel.
@@ -226,6 +248,8 @@ export async function generateActions(
     gatedTracks: { id: string; title: string }[];
     pastOutcomes?: PastOutcome[];
     crossArtistContext?: string;
+    /** Z4: canonical diagnosis context. Read-only: the manager never ISSUES a recommendation. */
+    canonicalBrief?: string | null;
   },
 ): Promise<{ diagnosis: string; severity: string; actions: AgentActionInput[] }> {
   try {

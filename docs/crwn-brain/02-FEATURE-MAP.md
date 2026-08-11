@@ -159,6 +159,20 @@ complete from it.
   (`medium` at the minimum, `high` at 2x).
 - **Renders nothing** on loading, error, insufficient evidence or a healthy artist, so the
   default experience is exactly today's roadmap. `Confirmed`.
+- **Readership contract (Z4, 2026-08-11):** `src/lib/constraint/readership.ts`, pure.
+  **One fact, one owner, many readers.** `readConstraint` owns "what is limiting this artist and
+  what is the one next move"; every other surface READS it. A reader MAY re-word it (a manager
+  coaches, a mission instructs, a card states). A reader MAY NOT: re-rank it, issue a Z3
+  recommendation record (only `/api/artist/constraint` issues, so one diagnosis on five surfaces is
+  still ONE logical recommendation), turn `insufficient_evidence` into confident generic advice, or
+  touch product state. `constraintRank`/`outranks`/`protectsEarnedRevenue` derive from the ORDER OF
+  `CONSTRAINT_TYPES`, so there is no second threshold system to drift.
+  **Current readers:** `ConstraintCard` (via `/api/artist/constraint`), the `constraint-outcomes`
+  cron (Z3 measurement), and the **AI Manager** cron, which receives `canonicalPriorityBrief()` at
+  the top of its prompt and is told it outranks its own decision framework. Growth actions are
+  explicitly forbidden while FULFILLMENT or RETENTION stands, because those protect revenue already
+  earned. Fail-soft everywhere: a failed read means a null brief and prior behavior, never a
+  fabricated priority.
 
 ## Cross-cutting
 - **PWA** (`sw.js`, manifest) — Production-ready, no push. **Visitor analytics** (hashed fingerprint, bot-filtered) — Production-ready. **Legal pages** (`(public)/{terms,privacy,dmca,artist-agreement,live-agreement}`) — Production-ready. **Marketing pages** (`/about` stale, `getting-started` guides) — mixed. `(public)/worth` is NO LONGER mock UI: it is the Streaming Loss Calculator (renamed 2026-07-18), a real loss-engine experience that also hosts the reusable `IndependenceSection`.

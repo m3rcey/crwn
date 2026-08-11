@@ -6,6 +6,9 @@ import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
 import { generateFulfillmentInsights } from '@/lib/ai/fulfillmentInsights';
 import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generateActions';
+import { assembleConstraintEvidence } from '@/lib/constraint/assembler';
+import { readConstraint } from '@/lib/constraint/engine';
+import { canonicalPriorityBrief } from '@/lib/constraint/readership';
 import { getCrossArtistPatterns, formatPatternsForPrompt } from '@/lib/ai/crossArtistPatterns';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
@@ -151,6 +154,20 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
       };
     });
 
+    // Z4: the canonical diagnosis, READ from the one engine that owns it. The manager may re-word
+    // this priority but may not re-rank it. Fail-soft on purpose: if evidence assembly breaks, the
+    // brief is null and the manager reasons exactly as it did before Z4 rather than the whole cron
+    // dying over context it can technically run without. Nothing here ISSUES a Z3 recommendation
+    // record: only /api/artist/constraint does, so rendering the same diagnosis on another surface
+    // still leaves exactly one logical recommendation.
+    let canonicalBrief: string | null = null;
+    try {
+      const evidence = await assembleConstraintEvidence(supabaseAdmin, { artistId, userId: artistUserId });
+      canonicalBrief = canonicalPriorityBrief(readConstraint(evidence));
+    } catch (err) {
+      console.error('ai-manager: canonical constraint read failed for', artistId, err);
+    }
+
     const result = await generateActions(data, {
       sequences: (sequences || []).map(s => ({ id: s.id, name: s.name, trigger_type: s.trigger_type, is_active: s.is_active })),
       tiers: (tiers || []).map(t => ({ id: t.id, name: t.name, price: t.price })),
@@ -158,6 +175,7 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
       gatedTracks,
       pastOutcomes,
       crossArtistContext,
+      canonicalBrief,
     });
 
     let actionsExecuted = 0;

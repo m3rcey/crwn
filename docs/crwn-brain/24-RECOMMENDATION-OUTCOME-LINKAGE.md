@@ -115,6 +115,20 @@ cron /api/cron/constraint-outcomes  (daily, 02:00)
 
 ---
 
+## 3b. Readers do not issue (Z4)
+
+Z4 widened who READS the canonical diagnosis (the AI Manager now receives it as authoritative prompt
+context). That deliberately changed nothing here, and the rule that keeps it true is worth stating
+where the issuance semantics live:
+
+**Only `/api/artist/constraint` issues.** Every other reader consumes. So a diagnosis rendered on the
+constraint card, coached by the Manager and later executed through a mission is still **one logical
+recommendation with one durable identity**, not three. A future reader that wanted to issue would
+have to justify why the artist received a second recommendation for the same constraint, and the
+partial unique index would refuse it anyway while the first is open.
+
+See `src/lib/constraint/readership.ts` for the contract.
+
 ## 4. Identity
 
 `action_key = "<CONSTRAINT>:<DomainCheck | advisory>"`, e.g. `FULFILLMENT:artist_promise_fulfilled`.
