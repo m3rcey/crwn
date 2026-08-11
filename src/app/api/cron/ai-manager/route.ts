@@ -10,7 +10,6 @@ import { assembleConstraintEvidence } from '@/lib/constraint/assembler';
 import { readConstraint } from '@/lib/constraint/engine';
 import { canonicalPriorityBrief, observedRatesBrief } from '@/lib/constraint/readership';
 import { activeObservedRates } from '@/lib/constraint/artistObserved';
-import { getCrossArtistPatterns, formatPatternsForPrompt } from '@/lib/ai/crossArtistPatterns';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
 import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
@@ -295,13 +294,20 @@ export async function GET(req: NextRequest) {
     const results: { artistId: string; status: string; insightsCreated?: number; actionsExecuted?: number; actionsEscalated?: number; error?: string }[] = [];
 
     // Fetch cross-artist patterns once (shared across all artists in this run)
-    let crossArtistContext = '';
-    try {
-      const patterns = await getCrossArtistPatterns(supabaseAdmin);
-      crossArtistContext = formatPatternsForPrompt(patterns);
-    } catch (err) {
-      console.error('Cross-artist pattern fetch failed (non-fatal):', err);
-    }
+    // Z10: cross-artist patterns are NO LONGER injected into any artist's prompt.
+    //
+    // What this used to do: compute one global pattern set and hand it to every artist's manager
+    // with "Weight these patterns when choosing actions". That is an adaptive cross-artist
+    // recommendation, which CRWN's claim ladder does not yet support, and it leaked. `n` counted
+    // outcome ROWS while the summary said "Across n artists", so two rows from ONE other artist
+    // produced a "cross-artist" claim carrying that artist's MRR movement in dollars. It also ran
+    // without excludeArtistId, so an artist could be shown a pattern derived from their own data.
+    // And it was all built on the Manager's own outcome snapshots, which self-derive MRR and
+    // default every metric to zero.
+    //
+    // Cross-artist evidence now lives in `src/lib/crossArtistEvidence.ts`, admin-only and gated.
+    // Re-enabling any artist-facing benchmark is a founder claim-maturity decision, not a code one.
+    const crossArtistContext = '';
 
     // Process artists in batches of 5 for parallelism
     for (let i = 0; i < artists.length; i += 5) {

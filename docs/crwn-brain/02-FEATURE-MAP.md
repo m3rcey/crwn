@@ -159,6 +159,29 @@ complete from it.
   (`medium` at the minimum, `high` at 2x).
 - **Renders nothing** on loading, error, insufficient evidence or a healthy artist, so the
   default experience is exactly today's roadmap. `Confirmed`.
+### Cross-artist evidence (Z10, 2026-08-11) — the rule to apply
+
+`src/lib/crossArtistEvidence.ts` (pure, `crossArtistEvidence@1`). **Admin/internal evidence only. It
+must not reach an artist.**
+
+**A live leak was found and closed.** `ai/crossArtistPatterns.ts` was injecting a global benchmark
+into EVERY artist's Manager prompt with "Weight these patterns when choosing actions". Three defects:
+its `n` counted outcome ROWS while the copy said *"Across n artists"* (two rows from ONE artist made
+a "cross-artist" claim); that claim carried the other artist's **MRR movement in dollars**; and it
+ran without `excludeArtistId`, so an artist could be shown a pattern derived from their own data. It
+was also built on Manager's self-derived, zero-defaulted snapshots. **The injection is removed.**
+
+**Three separate gates, never collapsed into one `n`:**
+- **Privacy floor** — `PRIVACY_MIN_ARTISTS = 8` **distinct artists**, deduped, before an aggregate may exist.
+- **Evidence floor** — `EVIDENCE_MIN_OBSERVATIONS = 200` underlying observations.
+- **Reliability gate** — no single artist over `RELIABILITY_MAX_ARTIST_SHARE = 50%` of observations, or the "cohort" is one artist in disguise.
+
+**Method: median of per-artist rates, not a pooled event rate.** Pooled lets the largest artist set
+the number for everyone; the median answers "what is typical for an artist here". Unavailable is a
+first-class result with a reason, and never a 0. No money is aggregated, no score, no percentile, no
+artist id ever appears in the output, and the module holds no database client so it cannot widen its
+own cohort.
+
 ### Artist-specific learning (Z9, 2026-08-11) — the rule to apply
 
 **Artist A's own past may inform Artist A's own future. Nothing else.** `src/lib/constraint/artistObserved.ts`
