@@ -115,6 +115,35 @@ function derivationFor(r: UnifiedResult): ResultSection {
   return { key: 'derivation', title: 'How we get to the number', kind: 'derivation', metrics: rows };
 }
 
+/**
+ * The artist's OWN concentration, stated in their own numbers.
+ *
+ * Pure arithmetic over `core.tiers`, which the model already produced: no new rate, no new
+ * assumption, and nothing summed across opportunities. Returns null rather than a vague sentence
+ * when the split cannot carry the claim (fewer than two paid rungs, no supporters, or no revenue),
+ * because a concentration statement with nothing behind it is exactly the fake precision the
+ * house rules forbid.
+ */
+export function unifiedFanDepth(
+  tiers: { name: string; supporters: number; monthlyCents: number }[],
+): string | null {
+  const paid = (tiers ?? []).filter((t) => t.supporters > 0 && t.monthlyCents > 0);
+  if (paid.length < 2) return null;
+
+  const totalSupporters = paid.reduce((n, t) => n + t.supporters, 0);
+  const totalMonthly = paid.reduce((n, t) => n + t.monthlyCents, 0);
+  if (totalSupporters <= 0 || totalMonthly <= 0) return null;
+
+  const top = paid.reduce((a, b) => (b.monthlyCents > a.monthlyCents ? b : a));
+  const peopleShare = Math.round((top.supporters / totalSupporters) * 100);
+  const moneyShare = Math.round((top.monthlyCents / totalMonthly) * 100);
+
+  // Only worth saying when the top rung genuinely earns out of proportion to its headcount.
+  if (moneyShare <= peopleShare) return null;
+
+  return `Look at the split above. ${top.name} is about ${peopleShare}% of your paying fans and roughly ${moneyShare}% of your recurring revenue. The people who pay you most are the smallest group and the last to arrive, which is why an artist who launches one flat tier stalls well short of this number. Your follower count cannot tell these fans apart. That is the part CRWN is built to operate.`;
+}
+
 /** Build the full result an artist reads. `scenario` fixes the point estimate inside the range. */
 export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResult {
   const inputs = toUnifiedInputs(raw);
@@ -222,6 +251,14 @@ export function buildUnifiedResult(raw: Record<string, unknown>): GeneratedResul
 
   // 8. The overlap explanation. Prominent on purpose: it is the reason this number is smaller
   //    than the sum of the individual calculators, and the artist deserves to know why.
+  // Zero To One beat 3, personalized. The `core` section already prints the per-rung supporter
+  // and dollar split; this is the one line that says what it MEANS. Derived purely from those
+  // existing canonical outputs: no new formula, no new assumption, no double counting.
+  const depth = unifiedFanDepth(r.core.tiers);
+  if (depth) {
+    sections.push({ key: 'fanDepth', title: 'Your audience is not one group', kind: 'summary', text: depth });
+  }
+
   sections.push({
     key: 'overlap',
     title: 'What we did not count twice',
