@@ -31,44 +31,70 @@ const supabaseAdmin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } },
 );
 
+// The Revenue Ramp writes the artist's PRIVATE growth plan into the promise tables
+// (`src/lib/revenueRampSeed.ts`). Those rows are not promises to fans, so no roadmap step about
+// promises may count them: seeding the ramp used to mark "you have scheduled a promise" as done
+// before the artist had promised a supporter anything, and one stale personal to-do made
+// `promises_on_track` permanently false.
+//
+// Obligations carry `benefit_type = 'ramp_step'`; events carry `metadata.ramp_step_key`. The
+// obligation filter is written as an OR rather than `.neq(...)` on purpose: in SQL,
+// `benefit_type <> 'ramp_step'` is NULL for a NULL benefit_type, which would silently drop every
+// ordinary obligation that has no benefit type.
+const RAMP_STEP = 'ramp_step';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fanObligations = (q: any) => q.or(`benefit_type.is.null,benefit_type.neq.${RAMP_STEP}`);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fanPromiseEvents = (q: any) => q.is('metadata->>ramp_step_key', null);
+
 async function evalFact(artistId: string, fact: RoadmapFact): Promise<RoadmapStepResult> {
   try {
     if (fact === 'promises_scheduled') {
-      const { count } = await supabaseAdmin
-        .from('fulfillment_obligations')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId)
-        .eq('status', 'active');
+      const { count } = await fanObligations(
+        supabaseAdmin
+          .from('fulfillment_obligations')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('status', 'active'),
+      );
       const n = count || 0;
       return { done: n >= 1, current: n, target: 1 };
     }
     if (fact === 'promises_completed') {
-      const { count } = await supabaseAdmin
-        .from('fulfillment_events')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId)
-        .eq('status', 'completed');
+      const { count } = await fanPromiseEvents(
+        supabaseAdmin
+          .from('fulfillment_events')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('status', 'completed'),
+      );
       const n = count || 0;
       return { done: n >= 1, current: n, target: 1 };
     }
     // promises_on_track: promises exist AND nothing is overdue or missed.
     const [{ count: active }, { count: overdue }, { count: missed }] = await Promise.all([
-      supabaseAdmin
-        .from('fulfillment_obligations')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId)
-        .eq('status', 'active'),
-      supabaseAdmin
-        .from('fulfillment_events')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId)
-        .eq('status', 'pending')
-        .lt('due_at', new Date().toISOString()),
-      supabaseAdmin
-        .from('fulfillment_events')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId)
-        .eq('status', 'missed'),
+      fanObligations(
+        supabaseAdmin
+          .from('fulfillment_obligations')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('status', 'active'),
+      ),
+      fanPromiseEvents(
+        supabaseAdmin
+          .from('fulfillment_events')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('status', 'pending')
+          .lt('due_at', new Date().toISOString()),
+      ),
+      fanPromiseEvents(
+        supabaseAdmin
+          .from('fulfillment_events')
+          .select('id', { count: 'exact', head: true })
+          .eq('artist_id', artistId)
+          .eq('status', 'missed'),
+      ),
     ]);
     const ok = (active || 0) >= 1 && (overdue || 0) === 0 && (missed || 0) === 0;
     return { done: ok, current: ok ? 1 : 0, target: 1 };

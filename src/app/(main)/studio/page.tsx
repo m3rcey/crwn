@@ -49,17 +49,24 @@ const STUDIO_CARDS: StudioCard[] = [
   { href: '/clip-controls', title: 'Live Clip Controls', image: '/studio_clips.jpg', hueRotate: 310 },
 
   // 4. GROW — get discovered and pull demand
+  // Z12 dilution audit: this grid carried NINE campaign-shaped destinations, and none of them was
+  // a decision. "Five nav slots for one concept" is the exact dilution doc 23 section 17 named.
+  // Four have been pulled from the grid (Road To, Proof of Demand, City Unlocks, Fan Suggestions).
+  // NOTHING WAS DELETED: every route, table and row is untouched, and all four remain in the
+  // hamburger AccountHub, which is deliberately the complete index. This removes PROMINENCE, not
+  // functionality, which is the right trade while there is no usage evidence either way.
   { href: '/campaign-hub',    title: 'Campaign Hub',    image: '/studio_campaign.jpg',    hueRotate: 90 },
-  { href: '/campaigns',       title: 'Road To',         image: '/studio_campaigns.jpg',   hueRotate: 90 },
-  { href: '/proof-of-demand', title: 'Proof of Demand', image: '/studio_demand.jpg',      hueRotate: 90 },
-  { href: '/city-unlocks',    title: 'City Unlocks',    image: '/studio_cityunlocks.jpg', hueRotate: 90 },
   { href: '/studio/sync',     title: 'Sync',            image: '/studio_sync.jpg',        hueRotate: 90 },
 
-  // 5. ACTIVATE FANS — turn listeners into a movement
+  // 5. ACTIVATE FANS — turn listeners into a movement.
+  // Fan Drives is the Z11 Campaign spine and the only campaign surface that starts from a
+  // DIAGNOSIS: it refuses to run when the Constraint Engine says something else matters more.
+  // It leads this group for that reason. The primitives below it stay because each carries real
+  // fan-facing state (missions and squads) or a live money rail (Clip-to-Earn).
+  { href: '/fan-campaigns',        title: 'Fan Drives',      image: '/studio_campaign.jpg',    hueRotate: 255 },
   { href: '/missions',             title: 'Fan Missions',    image: '/studio_missions.jpg',    hueRotate: 255 },
   { href: '/bounties',             title: 'Clip Bounties',   image: '/studio_bounties.jpg',    hueRotate: 310 },
   { href: '/squads',               title: 'Fan Squads',      image: '/studio_squads.jpg',      hueRotate: 255 },
-  { href: '/missions/suggestions', title: 'Fan Suggestions', image: '/studio_suggestions.jpg', hueRotate: 255 },
 
   // 6. RUN THE BUSINESS — the brain and the strategy tools you ACT in.
   // Reference views (Analytics, Fan CRM) and set-once config (Team Splits, Promise

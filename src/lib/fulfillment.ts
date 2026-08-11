@@ -196,12 +196,60 @@ export interface PromiseHealth {
   medianLatenessDays: number | null;
 }
 
+// ---------------------------------------------------------------------------
+// Fan promise vs the artist's own plan (Z12)
+// ---------------------------------------------------------------------------
+
+/**
+ * The Revenue Ramp writes the artist's PRIVATE growth plan into the same tables the Promise
+ * Calendar uses (`src/lib/revenueRampSeed.ts`), on purpose: it puts dated work in the place the
+ * artist already looks instead of an article they have to remember to open. Each of those rows
+ * carries `metadata.ramp_step_key`, and `auto_create_fan_items: false` keeps it off every fan's
+ * calendar.
+ *
+ * WHAT THAT PRIVACY BOUNDARY DID NOT COVER, and this predicate does.
+ * Three readers counted those rows as promises owed to paying fans:
+ *   - the Constraint Engine's evidence assembler,
+ *   - the Manager's fulfillment insights,
+ *   - the Roadmap's `promises_on_track` step.
+ * So "Personally message your 50 most engaged fans" going a day past due made CRWN tell the artist
+ * *"These fans have already paid for something they have not received."* Nobody paid for it. And
+ * because FULFILLMENT is evaluated first and outranks every growth stage, one stale private to-do
+ * could suppress REACH and FIRST_PAID indefinitely, which also gates the Virality Engine off.
+ *
+ * A ramp step is work the artist owes THEMSELVES. A promise is work they owe someone who paid.
+ * The two are not the same fact and must never be counted together.
+ */
+export function isFanPromiseEvent(event: {
+  metadata?: Record<string, unknown> | null;
+}): boolean {
+  const key = event?.metadata?.ramp_step_key;
+  return typeof key !== 'string' || key.length === 0;
+}
+
+/** Drop the artist's own ramp steps, keeping only promises owed to fans. */
+export function onlyFanPromises<T extends { metadata?: Record<string, unknown> | null }>(
+  events: T[],
+): T[] {
+  return events.filter(isFanPromiseEvent);
+}
+
+/**
+ * The PostgREST filter that expresses the same rule for a `count`/`head` query, where there are no
+ * rows to filter in JavaScript. Kept beside the predicate so the two definitions cannot drift.
+ */
+export const FAN_PROMISE_FILTER = { column: 'metadata->>ramp_step_key', value: null } as const;
+
 /**
  * Summarize promise reliability from raw events. Pure, so the definitions of "completion rate"
  * and "late" exist once and any surface that shows them shows the same number.
  *
  * Rates are null rather than 0 on an empty denominator, because "no promises have resolved
  * yet" and "every promise was missed" are opposite facts and must not render identically.
+ *
+ * Callers that mean "promises owed to FANS" must pass events through `onlyFanPromises` first. This
+ * function deliberately does not filter: the Promise Calendar shows ramp steps on purpose, and a
+ * filter buried in here would silently change what that surface displays.
  */
 export function summarizePromiseHealth(
   events: PromiseHealthEvent[],

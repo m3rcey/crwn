@@ -15,7 +15,7 @@ import { evaluateCondition } from '@/lib/quests/evaluator';
 import type { DomainCheck, QuestInstance } from '@/lib/quests/types';
 import { readTierEvidence } from '@/lib/analytics/tierEvidence';
 import { computeChurn } from '@/lib/analytics/retention';
-import { summarizePromiseHealth } from '@/lib/fulfillment';
+import { onlyFanPromises, summarizePromiseHealth } from '@/lib/fulfillment';
 import { CONSTRAINT_THRESHOLDS, type ConstraintThresholds } from './thresholds';
 import type { ConstraintEvidence } from './types';
 
@@ -245,18 +245,26 @@ export async function assembleConstraintEvidence(
   try {
     const { data, error } = await db
       .from('fulfillment_events')
-      .select('title, status, due_at, completed_at')
+      .select('title, status, due_at, completed_at, metadata')
       .eq('artist_id', artistId)
       .gte('due_at', promiseFrom.toISOString())
       .order('due_at', { ascending: true })
       .limit(500);
     if (!error) {
-      const events = (data ?? []) as {
-        title: string;
-        status: string | null;
-        due_at: string | null;
-        completed_at: string | null;
-      }[];
+      // ONLY promises owed to FANS. The Revenue Ramp writes the artist's own private growth plan
+      // into these same tables (that is deliberate, it puts dated work where they already look),
+      // and counting it here made a stale personal to-do read as a broken promise to someone who
+      // had paid. FULFILLMENT outranks every growth stage, so that one row could suppress the real
+      // diagnosis indefinitely. See `isFanPromiseEvent` in src/lib/fulfillment.ts.
+      const events = onlyFanPromises(
+        (data ?? []) as {
+          title: string;
+          status: string | null;
+          due_at: string | null;
+          completed_at: string | null;
+          metadata: Record<string, unknown> | null;
+        }[],
+      );
       promiseSummary = summarizePromiseHealth(events, now);
 
       const stillOverdue = events.filter(

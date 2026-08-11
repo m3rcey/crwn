@@ -10,7 +10,9 @@
 
 CRWN (pronounced "Crown") is a **music-monetization SaaS platform** for independent artists to sell subscriptions, tracks, albums, digital/physical products, and experiences **directly to fans**, and to own the fan relationship, revenue, and data. `Confirmed` (`CLAUDE.md`, `PRD.md §1`).
 
-The kickoff brief positions it as **"Skool meets EVEN meets YouTube, purpose-built for music creators"** (`CRWN_Kickoff_Brief.md`). In practice the codebase has grown well past a storefront into an **artist growth/operations suite**: email marketing automation (SMS was removed 2026-07-31), a CRM, referral/recruiter/partner acquisition programs, gamified fan engagement (missions/squads/bounties/city-unlocks), live streaming + VOD, team revenue-splits, and an autonomous AI "manager" that diagnoses an artist's business and proposes/executes growth actions. `Confirmed` (feature audit across `src/`).
+**The original kickoff brief positioned CRWN as a mashup of three other products. That framing is RETIRED and must not come back** (it is pinned by `src/lib/brainContract.test.ts`): naming three competitors describes a feature bundle, and CRWN's ratified category is a **Fan Economy Operating System** (doc 23, expressed outwardly through `../POSITIONING.md`). The historical wording is preserved in `CRWN_Kickoff_Brief.md` and in `CHANGELOG.md`; it is not current positioning.
+
+In practice the codebase has grown well past a storefront into an operating system for the direct-to-fan business: email marketing automation (SMS was removed 2026-07-31), a CRM, referral/recruiter/partner acquisition programs, fan participation primitives (missions/squads/bounties/city-unlocks), live streaming + VOD, team revenue-splits, an AI Manager that COACHES against a diagnosis it does not own, and, since the Zero To One programme, the deterministic **Constraint Engine** that owns the diagnosis and the one next action. `Confirmed` (feature audit across `src/`).
 
 ## 2. Core problem it solves
 

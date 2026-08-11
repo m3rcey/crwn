@@ -1083,12 +1083,14 @@ clipper ramp resolver, the checkout-time rate cap and Stripe metadata lock, and
 
 ### 19.2 Gaps found during this investigation
 
-1. **`/api/leaderboard`: score is an invertible function of a fan's lifetime spend.**
-   Re-verified 2026-08-10 by reading the full route. **See 19.2a below for the full write-up,
-   including a correction to an earlier overstated claim.**
-2. **`/api/ai-manager/generate` has no ownership check** (already recorded in
-   `11-SECURITY-AND-PRIVACY.md` and `00-START-HERE.md`). Relevant because campaign recommendation
-   would plausibly land near it.
+1. ~~**`/api/leaderboard`: score is an invertible function of a fan's lifetime spend.**~~
+   **FIXED in Z11 (2026-08-11)** and production-verified: the score is no longer published. See
+   19.2a for the write-up and 28.3 for the remediation actually taken.
+2. ~~**`/api/ai-manager/generate` has no ownership check.**~~ **RETRACTED 2026-08-11 (Z12): the
+   route calls `requireArtistOwner(artistId)` and never trusts a caller-supplied user id.** This
+   warning outlived its fix and was still being copied between docs. A stale security warning is
+   worse than none: it burns the next reader's time and invites a "fix" to correct code. Pinned by
+   `src/lib/brainContract.test.ts`.
 3. **No bot or velocity control on referral clicks or signups** was found. `referral_clicks` is
    recorded; nothing rate-limits or scores it.
 4. **No duplicate-identity detection.** Nothing links accounts by device, IP or payment

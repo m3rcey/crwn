@@ -5,6 +5,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { InsightInput } from '@/lib/ai/starterNudges';
+import { onlyFanPromises } from '@/lib/fulfillment';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = SupabaseClient<any, any, any>;
@@ -24,14 +25,14 @@ export async function generateFulfillmentInsights(
     const [overdueRes, soonRes] = await Promise.all([
       admin
         .from('fulfillment_events')
-        .select('id, title')
+        .select('id, title, metadata')
         .eq('artist_id', artistId)
         .eq('status', 'pending')
         .lt('due_at', nowIso)
         .limit(50),
       admin
         .from('fulfillment_events')
-        .select('id, title')
+        .select('id, title, metadata')
         .eq('artist_id', artistId)
         .eq('status', 'pending')
         .gte('due_at', nowIso)
@@ -39,8 +40,11 @@ export async function generateFulfillmentInsights(
         .limit(50),
     ]);
 
-    const overdue = overdueRes.data || [];
-    const soon = soonRes.data || [];
+    // "Promises to supporters" must mean promises to SUPPORTERS. The Revenue Ramp stores the
+    // artist's own private growth plan in these same rows, and counting it here told the artist
+    // their fans were owed something when nobody had paid for it.
+    const overdue = onlyFanPromises(overdueRes.data || []);
+    const soon = onlyFanPromises(soonRes.data || []);
 
     // Overdue takes precedence — it's the retention risk.
     if (overdue.length > 0) {

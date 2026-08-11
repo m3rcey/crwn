@@ -813,10 +813,96 @@ document depends on it and it is cheap relative to its leverage.
 | **Z9** | Observed-input substitution (intelligence layer 2). **COMPLETE 2026-08-11.** Rule and contract in [`02-FEATURE-MAP.md`](02-FEATURE-MAP.md): **Artist A's own past may inform Artist A's own future, nothing else.** `src/lib/constraint/artistObserved.ts` is pure and derives two measured rates (free capture, checkout completion) from the ConstraintEvidence the assembler ALREADY builds, so Z9 added **no query, no schema and no persistence**. Sample floors and windows come from `thresholds.ts` and are **policy, read-only**: an artist's own history may never move the bar that judges it. Three honest states, and the middle one is the one most "learning" systems skip: CRWN can HAVE the data and still refuse to lean on it (`insufficient_sample`). Missing is `null`, never 0. `rateOrModel()` makes the generic fallback mandatory and always reports which was used, so a modelled number can never be presented as measured. Every rate carries numerator, denominator, sample, window and a plain sentence: **no index, no rating, no confidence score.** Consumer is the AI Manager prompt, which may QUOTE an eligible rate and is explicitly forbidden from calculating one or comparing this artist to anyone else. **Cross-artist is impossible by signature** (the module takes one evidence object and has no database client). **Deliberately NOT done:** Manager's own outcome loop stays quarantined, not canonicalised, because `snapshotArtistMetrics` self-derives MRR and zero-defaults every field; retention-by-depth needs tenure Z8 has not accumulated yet; no pricing, tiers or policy are auto-optimised | Z3, Z8 | Medium |
 | **Z10** | Matched-cohort benchmarks (layer 3). **COMPLETE 2026-08-11 as an admin-only evidence primitive, and it began by closing a live leak.** `ai/crossArtistPatterns.ts` was injecting a global benchmark into EVERY artist's Manager prompt telling it to "weight these patterns when choosing actions" (layer 5 behaviour CRWN's claim ladder does not support). Its `n` counted outcome ROWS while its copy said "Across n artists", so TWO rows from ONE artist produced a "cross-artist" claim **carrying that artist's MRR movement in dollars**, and it ran without `excludeArtistId` so an artist could be shown a pattern built from their own data, all on Manager's self-derived zero-defaulted snapshots. **That injection is removed.** The replacement, `src/lib/crossArtistEvidence.ts` (`crossArtistEvidence@1`, pure, no database client so it cannot widen its own cohort), enforces **three separate gates rather than one n**: privacy = **8 DISTINCT artists** (deduped, so one artist cannot impersonate a cohort), evidence = 200 observations, reliability = no artist over 50% of observations. Method is the **median of per-artist rates, not a pooled event rate**, because pooled lets the largest artist set the number for everyone. Unavailable is a first-class answer with a reason and never a 0; no money is aggregated; no artist id, list or per-artist value appears in the output; no score or percentile exists. **Constraint Engine, Z9 and Manager are unchanged, and no cross-artist value reaches any artist.** Deferred by evidence, not preference: Z3 and Z8 cohorts (both prospective, near-empty), sub-avatar cohorts (too few artists to clear the privacy floor), and the admin display surface | Z3, volume | Medium |
 | **Z11** | Virality Engine V1. **COMPLETE 2026-08-11: migration applied to production (`ecpqtuidtsncjfwtkvwc`) and verified live.** `npm run verify:migrations` reports both `fan campaigns` and `fan campaign participants` as `applied (readable)`. **Verified dynamically by driving the CANONICAL writers against the real database** (32 checks, full grid in [`22-VIRALITY-ENGINE-ARCHITECTURE.md`](22-VIRALITY-ENGINE-ARCHITECTURE.md) section 28.0), not hand-written SQL: the live one-active index refused a second drive with a usable message, the DB CHECK refused `incentive_kind = 'cash'` with `23514`, the launch gate refused an empty toolkit and named all three slots, a double join produced ONE row, ending twice produced ONE badge row, an ended drive refused participation, the live row carries **13 columns and zero money columns**, `referrals.campaign_id` is **absent (`42703`)**, and the public payload shipped exactly 8 allowlisted keys with no `source_constraint`. **Cross-tenant boundaries were driven with REAL JWTs** (canary artist A/B and fan A/B): artist A saw only their own campaign, could not INSERT at all (`42501`), could not claim ownership by naming artist B's `artist_id` (`42501`), and A's UPDATE/DELETE of B's campaign affected **zero rows** with B's row unchanged; a signed-in fan saw zero campaigns, saw only their own participation, and could not enrol anyone (`42501`). Recorded precisely: cross-tenant INSERT raises, while UPDATE/DELETE silently affect zero rows, which is correct Postgres behavior with no write policy. **The paid-member leg is integration-verified, not production-driven**: no real payment was made and writing a referral row by hand was refused on purpose, because that is the money rail; the derivation query ran against the live `referrals` table and correctly returned 0 with state `complete`. Both tables held **0 rows before and 0 after**, so collection is prospective and no verification row survives. **Phase 0's `/api/leaderboard` score inversion is fixed and production-verified** on a live 16-entry response: no `score`, no `spent`. The canonical architecture ([`22-VIRALITY-ENGINE-ARCHITECTURE.md`](22-VIRALITY-ENGINE-ARCHITECTURE.md) section 28) was revalidated against the live repository and held; the thin Campaign spine was built rather than generalizing `clip_bounties`, and **exactly one archetype ships** (Fan Recruitment Drive), because it is the only one whose whole chain already exists: no submission, no asset, no moderation, no licensing, and an outcome the Stripe webhook already writes. **Zero new attribution:** no campaign dimension was added to `referrals`, the cookie, Stripe metadata or any money row. A participant's outcome is derived by asking the canonical rail a narrower question (this artist, this participant set, this window), and one active campaign per artist (partial unique index) is what makes that unambiguous. **Zero new money:** `incentive_kind` is CHECK-constrained to `non_cash` at the database, the only reward is the EXISTING `promoter` badge granted on a fact the rail already established, and `processReferral`/`insertHeldReferralEarning` are untouched. **The gate is server-side and fails closed:** REACH and FIRST_PAID only; FULFILLMENT and RETENTION are refused and the canonical action is restated instead; `insufficient_evidence` and a failed constraint read both refuse. FREE_CAPTURE is deliberately NOT served, correcting the architecture's "partly". **One correction to the architecture, found by reading the code:** free joins attributed to a participant are NOT measurable (`/api/stripe/free-subscribe` writes no referral row), so they are reported `missing` and never 0. **Phase 0's `/api/leaderboard` score inversion was re-verified as live and fixed** with the smallest of the three remediations (the invertible score is no longer shipped; order still comes from the full score server-side), and no campaign leaderboard ships. Deferred by evidence: Live Clip, all UGC archetypes (blocked on decisions 25.4/25.5/25.6), cash prizes, free-join attribution, Rise Mode wiring, Manager integration, and the versioned campaign evidence record | Z1, Phase 0 | Medium. Schema change, founder-gated |
-| **Z12** | Dilution audit: decide the section 17 candidates | Z0 | Low, founder-gated |
+| **Z12** | Dilution audit. **COMPLETE 2026-08-11.** Full findings and the post-programme re-score are in section 21 below. Headline: the audit found a **P0 correctness defect in the canonical decision system**, not a positioning problem. **93 of 97 `fulfillment_events` rows in production were Revenue Ramp steps** (the artist's own private growth plan), and three readers were counting them as promises owed to paying fans, so the "overdue promise to your supporters" CRWN named on the live artist was *"Connect Stripe so fans can actually pay you"*. Because FULFILLMENT is evaluated first and outranks every growth stage, one stale personal to-do could suppress REACH and FIRST_PAID indefinitely, gate the Virality Engine off, and cause Z3 to record recommendations against obligations nobody was owed. Fixed with ONE shared predicate (`isFanPromiseEvent`) applied at the three readers that mean "owed to a fan": the Constraint assembler, the Manager's fulfillment insights and the Roadmap's promise steps. The Promise Calendar is deliberately NOT filtered, because showing the artist their own dated plan is the point. Measured on the live artist: overdue 7 → 2, and the named promise became "Monthly Vault unlock", a real tier benefit. **The fix did not conveniently unblock the newest feature** (the Fan Drive gate still refuses, now for a true reason), which is the honest outcome. Also: Studio cut from 18 tiles to 15 (four undirected campaign primitives de-emphasized to the hamburger, Fan Drives added, nothing deleted), `/about` redirected because it still called CRWN an all-in-one platform, and **a Brain contract test added** which caught six stale canonical claims on its first run | Z0 | Low, founder-gated |
 
 **Preserved from the unified plan:** security and evidence integrity (Phase 0) precede all of the
 above; Zero To One precedes Virality V1; recommendation consolidation follows positioning.
+
+---
+
+## 21. Z12 Dilution Audit and Post-Programme Certification (2026-08-11)
+
+### 21.1 The re-score, from live evidence only
+
+Same dimensions as section 18. **Nothing scores for a roadmap promise.** Section 18's column is the
+original audit; this one is the product after Z2 to Z12.
+
+| Dimension | Was | Now | Near-term potential | Why it moved, or did not |
+|---|---|---|---|---|
+| Contrarian truth | 5 | **6** | 9 | Ratified, and now expressed on the homepage and all 20 calculators (Z2). Still absent from most in-product surfaces, so an artist using CRWN daily is not told the belief |
+| Technology / 10x | 4 | **6** | 8 | The Constraint Engine went from one consumer to being the spine: it gates the Manager (Z4), owns priority (Z5) and admits or refuses campaigns (Z11). Still one artist-facing card |
+| Monopoly wedge | 5 | **6** | 9 | Stack Replacement is real and seeded from the artist's own answers (Z6); onboarding speaks to a proven seller (Z7). Acquisition is still four journeys at tiny n |
+| Timing | 7 | **7** | 8 | Exogenous, unchanged |
+| Distribution | 5 | **5** | 8 | Unchanged by this programme. Campaign attribution exists; there is still no paid loop |
+| Durability | 3 | **5** | 7 | Switching costs deepened materially: tier-transition history (Z8) and recommendation history (Z3) are data an artist cannot export out of a competitor's absence |
+| Proprietary intelligence | 3 | **5** | 9 | The primitives exist and are correct. **The tables are nearly empty and prospective-only.** Accumulating history is not yet a moat |
+| Network effects | 2 | **2** | 5 | **Unchanged, deliberately.** Z10 is admin-only and reaches no artist. Nothing about artist B improves the product for artist A today |
+| Switching costs | 5 | **6** | 8 | Ledger, contacts, Stripe prices, calendar, plus depth and recommendation history |
+| Category ownership | 2 | **5** | 7 | Ratified, expressed outwardly (`POSITIONING.md`), and Z12 removed the surviving contradictions. Still not expressed inside the product |
+| Product coherence | 3 | **5** | 8 | One diagnosis owner enforced by test; Action Plan reduced to events; Studio 18 → 15. Still 261 API routes and ~33 hamburger destinations |
+| Evidence loop | n/a | **6** | 9 | The loop is real end to end and was corrected by this audit. It has almost no data in it yet |
+| Claim credibility | n/a | **8** | 9 | The strongest score. No unsupported intelligence, virality or network claim survives in artist-facing copy, and three separate tests now pin that |
+| **Average** | **4.0** | **5.5** | **8.0** | |
+
+**Read the gap honestly.** The architecture is close to the thesis; the DATA is not. Nine of these
+dimensions are limited by the same fact: every learning table is prospective and nearly empty. That
+is a calendar problem, not an engineering one, and no further building fixes it.
+
+### 21.2 What the audit actually found
+
+The expected finding was positioning dilution. The real finding was **a correctness defect in the
+canonical decision system**, and it invalidated the very evidence the rest of the programme rests on.
+
+`src/lib/revenueRampSeed.ts` writes the artist's private growth plan into the Promise Calendar's
+tables on purpose. It set `auto_create_fan_items: false`, so fans never saw it. **That privacy
+boundary was mistaken for a semantic one.** Three readers that mean "owed to a fan" counted those
+rows: the Constraint assembler, the Manager's fulfillment insights, and the Roadmap's promise steps.
+
+Measured in production, not inferred: **93 of 97 `fulfillment_events` were ramp steps.** The oldest
+"overdue promise to your supporters" on the live artist was *"Connect Stripe so fans can actually pay
+you"*, presented with the sentence *"These fans have already paid for something they have not
+received."*
+
+Fixed by one shared predicate (`isFanPromiseEvent` / `onlyFanPromises` in `src/lib/fulfillment.ts`)
+applied at exactly those three readers. The Promise Calendar is deliberately unfiltered. Pinned by
+`src/lib/fanPromiseBoundary.test.ts`, including the trap that `.neq('benefit_type', 'ramp_step')`
+would silently drop every obligation with a NULL benefit type.
+
+### 21.3 Ownership, re-verified
+
+The Z5 table holds. Constraint Engine owns diagnosis and priority; Roadmap owns launch readiness;
+Promise Calendar owns fan obligations; Manager coaches and cannot rank; Needs You is three event
+rules and no standing-gap strategy; Rise Mode and the builders execute; Z3/Z8 measure; Z9 is
+single-artist by function signature; Z10 is admin-only; the Virality Engine executes only when
+admitted. No violation was found. The one contamination was Promise Calendar CONTENT, fixed above.
+
+### 21.4 Honest answers
+
+- **Fan Economy Operating System: PARTIALLY earned.** The decision layer is real, deterministic,
+  single-owner and now correct. It is not yet expressed as one operating flow: the artist still
+  meets Rise Mode, Constraint, Manager, Needs You, Roadmap, Promise Calendar and Studio as separate
+  concepts. The OS exists underneath; the interface still shows the subsystems.
+- **Proprietary intelligence: NOT earned.** The primitives are right and the discipline is
+  unusually strict. Every table is prospective and close to empty, no decision has yet been improved
+  by accumulated history, and raw data is not a moat.
+- **Network effects: NO, and near zero.** Z10 changed nothing here on purpose. What CRWN has is a
+  data advantage in waiting plus real switching costs, and those are different things.
+- **10x advantage: CLOSER, not delivered.** Independent decision owners went from six to one, and
+  diagnosis now reaches the Manager and the campaign gate without the artist re-entering anything.
+  But the artist still inspects several surfaces to act, so the compression is architectural rather
+  than experienced.
+
+### 21.5 What prevents a 10, ranked by impact
+
+1. **Time and usage.** Z3, Z8 and Z11 are all prospective. No closed campaign, few transitions, few
+   measured recommendations. Nothing can be learned yet, and nothing should be claimed.
+2. **One operating flow.** The subsystems are correct and separately visible. This is a UX
+   consolidation, and it must not be solved with another aggregator.
+3. **The truth is absent in-product.** Z2 put it on the homepage and the calculators. A daily user
+   is never told what CRWN believes.
+4. **Distribution.** No paid loop; acquisition runs at tiny n across four journeys.
+5. **Free-join attribution.** Campaign outcomes can only ever count paying members until the free
+   join path records a referral.
 
 ---
 
