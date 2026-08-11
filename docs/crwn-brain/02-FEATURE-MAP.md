@@ -159,6 +159,29 @@ complete from it.
   (`medium` at the minimum, `high` at 2x).
 - **Renders nothing** on loading, error, insufficient evidence or a healthy artist, so the
   default experience is exactly today's roadmap. `Confirmed`.
+### Artist-specific learning (Z9, 2026-08-11) — the rule to apply
+
+**Artist A's own past may inform Artist A's own future. Nothing else.** `src/lib/constraint/artistObserved.ts`
+(pure) derives this artist's measured rates from the ConstraintEvidence the assembler already
+builds: no new query, no schema, no persistence.
+
+- **Two rates today:** free capture (`freeJoinsInWindow / uniqueVisits`) and checkout completion
+  (`joins / checkoutStarts`, summed across rungs, never a mean of per-rung rates).
+- **Three states:** `no_evidence` / `insufficient_sample` / `artist_observed`. Only the last is
+  `active`. A missing value is `null`, **never 0** — "we cannot see your traffic" and "nobody
+  visited" are opposite facts.
+- **Sample floors and windows are POLICY, read from `thresholds.ts`, never learned.** An artist's
+  own history may not move the bar that judges it.
+- **Fallback is mandatory.** `rateOrModel()` returns the generic model whenever the artist's rate is
+  absent, thin or stale, and always reports which was used. Nobody gets a worse product because
+  learning has no data.
+- **Provenance, not a score.** Every rate carries numerator, denominator, sample, window, status and
+  a plain sentence. Nothing is combined into an index, rating or confidence number.
+- **Consumer:** the AI Manager prompt, which may QUOTE an eligible rate and is explicitly forbidden
+  from calculating one, estimating an unlisted one, or comparing this artist to anyone else.
+- **Cross-artist is impossible by signature:** the module takes one artist's evidence object and has
+  no database client at all. Benchmarks, cohorts and "artists like you" remain Z10 questions.
+
 ### Recommendation ownership (Z5, 2026-08-11) — the rule to apply
 
 **One recommendation owner, many execution and read surfaces.** Before changing any surface that

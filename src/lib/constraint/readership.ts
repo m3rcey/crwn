@@ -86,3 +86,26 @@ export function canonicalPriorityBrief(result: ConstraintResult | null | undefin
   );
   return lines.join('\n');
 }
+
+/**
+ * Z9: this artist's OWN measured rates, for a coaching surface to explain.
+ *
+ * Only rates that passed their canonical sample floor appear, so the manager is never handed a
+ * number CRWN itself would not lean on. Returns null when the artist has nothing eligible yet,
+ * which keeps the prompt identical to before rather than inviting the model to reason from silence.
+ *
+ * The instruction is deliberately blunt: the manager may REPEAT these figures and may not compute,
+ * extrapolate or invent one. An LLM producing its own "your conversion rate is about 4%" is exactly
+ * the failure this whole evidence chain exists to prevent.
+ */
+export function observedRatesBrief(rates: { explanation: string; active: boolean }[]): string | null {
+  const active = rates.filter((r) => r.active);
+  if (!active.length) return null;
+  return [
+    '=== THIS ARTIST OWN MEASURED RATES (use these instead of general assumptions) ===',
+    ...active.map((r) => `- ${r.explanation}`),
+    'These are measured from this artist own account only. Quote them as given. Do NOT calculate a ' +
+      'rate yourself, do NOT estimate one that is not listed here, and do NOT compare this artist to ' +
+      'any other artist: you have no data about anyone else and CRWN makes no such claim.',
+  ].join('\n');
+}

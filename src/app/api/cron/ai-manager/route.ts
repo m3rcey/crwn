@@ -8,7 +8,8 @@ import { generateFulfillmentInsights } from '@/lib/ai/fulfillmentInsights';
 import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generateActions';
 import { assembleConstraintEvidence } from '@/lib/constraint/assembler';
 import { readConstraint } from '@/lib/constraint/engine';
-import { canonicalPriorityBrief } from '@/lib/constraint/readership';
+import { canonicalPriorityBrief, observedRatesBrief } from '@/lib/constraint/readership';
+import { activeObservedRates } from '@/lib/constraint/artistObserved';
 import { getCrossArtistPatterns, formatPatternsForPrompt } from '@/lib/ai/crossArtistPatterns';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
@@ -164,6 +165,11 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
     try {
       const evidence = await assembleConstraintEvidence(supabaseAdmin, { artistId, userId: artistUserId });
       canonicalBrief = canonicalPriorityBrief(readConstraint(evidence));
+      // Z9: this artist's OWN measured rates, from the SAME evidence read (no extra queries), and
+      // only the ones that cleared their canonical sample floor. The manager may quote these; it
+      // may not compute one, and it has no data about any other artist to compare against.
+      const rates = observedRatesBrief(activeObservedRates(evidence));
+      if (rates) canonicalBrief = canonicalBrief ? `${canonicalBrief}\n\n${rates}` : rates;
     } catch (err) {
       console.error('ai-manager: canonical constraint read failed for', artistId, err);
     }
