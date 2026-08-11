@@ -256,14 +256,15 @@ function proofOfDemandTest(v: LeadMagnetInputValues): GeneratedResult {
 // 3. Fan Mission Generator
 // ============================================================
 function fanMission(v: LeadMagnetInputValues): GeneratedResult {
-  const goal = str(v.goal, 'grow');
   const action = str(v.fanAction, 'share'); // share | clip | referral | subscribe | rsvp | presave | comment
   const destination = str(v.destinationUrl);
   const target = Math.max(1, int(v.participantCount, 50));
   const rewardType = str(v.rewardType, 'points'); // points | badge | access | custom
   const rewardDetail = str(v.rewardDetail);
   const leaderboard = bool(v.leaderboard);
-  const proof = str(v.proof, 'link');
+  // Verification is derived from the action below (`a.verify`), never asked: a pre-save is
+  // automatic, a share needs a link or a screenshot. Older saved rows may still carry a `proof`
+  // answer in input_data; nothing reads it, and their stored result is unchanged.
 
   const actionCopy: Record<string, { title: string; do: string; verify: string }> = {
     share: { title: 'Share the track', do: 'Share the link to your story or feed', verify: 'Screenshot or link to your post' },

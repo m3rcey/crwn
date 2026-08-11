@@ -75,7 +75,9 @@ export function LeadCaptureForm({ config, submitting, onSubmit }: { config: Lead
         disabled={submitting}
         className="w-full py-3.5 rounded-full bg-crwn-gold text-crwn-bg font-semibold disabled:opacity-40"
       >
-        {submitting ? 'Unlocking…' : 'Unlock my result'}
+        {/* Never "unlock": the result is already on the screen above this form. The button says
+            what the email actually does, in the tool's own words. */}
+        {submitting ? 'Sending…' : config.cta.publicSecondary || 'Email me a copy'}
       </button>
 
       <p className="text-[11px] text-crwn-text-secondary text-center leading-relaxed">

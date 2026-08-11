@@ -173,16 +173,11 @@ const FAN_MISSION: LeadMagnetConfig = {
     image: '/tool-fan-mission.jpg',
     imageAlt: 'An artist on stage reaching out to clasp the hand of a fan in the crowd',
   },
+  // `goal` and `proof` were asked here and read by nothing: the generator derives the mission from
+  // `fanAction` and derives verification from that same action (a pre-save is automatic, a share
+  // needs a link or screenshot), which is more accurate than what the artist would have picked.
+  // Two required screens that could only ever contradict the result, so they are gone.
   inputs: [
-    {
-      key: 'goal', type: 'option', label: 'What is your goal?', required: true, step: 'goal',
-      options: [
-        { value: 'grow', label: 'Grow my audience', icon: '📈' },
-        { value: 'streams', label: 'Get more streams', icon: '🎧' },
-        { value: 'subscribers', label: 'Get more supporters', icon: '👑' },
-        { value: 'launch', label: 'Launch a release', icon: '🚀' },
-      ],
-    },
     {
       key: 'fanAction', type: 'option', label: 'What do fans do?', required: true, step: 'action',
       options: [
@@ -205,21 +200,11 @@ const FAN_MISSION: LeadMagnetConfig = {
     },
     { key: 'rewardDetail', type: 'text', label: 'Describe the reward (optional)', maxLength: 120, step: 'reward' },
     { key: 'leaderboard', type: 'toggle', label: 'Show a leaderboard?', step: 'reward' },
-    {
-      key: 'proof', type: 'option', label: 'How is it verified?', required: true, step: 'proof',
-      options: [
-        { value: 'auto', label: 'Automatic', hint: 'Counted by the platform', icon: '⚙️' },
-        { value: 'link', label: 'They submit a link', icon: '🔗' },
-        { value: 'screenshot', label: 'They submit a screenshot', icon: '📸' },
-      ],
-    },
   ],
   wizardSteps: [
-    { id: 'goal', group: 'Goal', title: 'What are you trying to move?', subtitle: 'Pick the one goal this mission serves.' },
     { id: 'action', group: 'Action', title: 'What is the one fan action?', subtitle: 'One action is easier to complete and to count.' },
     { id: 'target', group: 'Target', title: 'What is the number?', subtitle: 'How many fans complete it.' },
     { id: 'reward', group: 'Reward', title: 'What do they get?', subtitle: 'Make the reward worth it.' },
-    { id: 'proof', group: 'Proof', title: 'How do you verify it?', subtitle: 'Pick something you can actually check.' },
     { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check it, then see your mission.' },
   ],
   resultGeneratorKey: 'fanMission',
@@ -275,7 +260,8 @@ const CLIP_TO_EARN: LeadMagnetConfig = {
         { value: 'other', label: 'Something else', icon: '✨' },
       ],
     },
-    { key: 'sourceUrl', type: 'url', label: 'Link to the content you own (optional)', help: 'For the artist version, only content you own can convert.', step: 'source', placeholder: 'https://' },
+    // No `sourceUrl` ask: nothing read it back, and the rights reminder it carried is already in the
+    // generated clip rules ("Only clip content you have the rights to use") and the step subtitle.
     {
       key: 'platforms', type: 'checkboxGroup', label: 'Where should fans post?', required: true, step: 'format',
       options: [

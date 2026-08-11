@@ -245,14 +245,15 @@ export function PublicToolClient({
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Could not unlock your result');
+      // Nothing is being unlocked here: the result is already rendered. This ask only emails a copy.
+      if (!res.ok) throw new Error(data.error || 'Could not send your result');
       setResult(data.result);
       setResultId(data.resultId);
       setPublicToken(data.publicToken);
       trackLeadMagnet(LM_EVENTS.resultUnlocked, { toolSlug: config.slug, context: 'public', resultId: data.resultId });
       setPhase('full');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not unlock your result');
+      setError(e instanceof Error ? e.message : 'Could not send your result');
     } finally {
       setSubmitting(false);
     }
