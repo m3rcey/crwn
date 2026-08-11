@@ -638,10 +638,10 @@ export function WorthExperience({
               <Crown className="w-8 h-8 text-crwn-gold" />
             </div>
             <h1 className="font-bold mb-3 text-3xl sm:text-4xl">
-              How much money are you leaving on the table?
+              What is the direct fan economy inside the audience you already built?
             </h1>
             <p className="text-crwn-text-secondary max-w-xl mx-auto text-xl sm:text-2xl">
-              {"Streaming pays pennies, and the fans who would pay you properly are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers, see what you're walking away from every month, and get the exact offer to launch, what to charge, and what to do first."}
+              {"Streaming built your reach. It just cannot tell you which of those listeners would pay you directly, how much, or for how long. Those fans are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers, see what that group is worth every month, and get the exact offer to launch, what to charge, and what to do first."}
             </p>
           </div>
         )}
@@ -649,8 +649,8 @@ export function WorthExperience({
         {useEntryWizard && !marketingOnly && (
           <ToolHero
             eyebrow="Streaming Loss"
-            headline="How much money are you leaving on the table?"
-            subheadline="Streaming pays pennies, and the fans who would pay you properly are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers and see what you are walking away from every month."
+            headline="What is the direct fan economy inside the audience you already built?"
+            subheadline="Streaming built your reach. It just cannot tell you which of those listeners would pay you directly, how much, or for how long. Those fans are scattered across a store here, a community there, a link in bio holding it together. Punch in your numbers and see what that group is worth every month."
             timeToComplete="1 min"
             image="/tool-worth.jpg"
             imageAlt="An artist alone in a dark studio staring at a disappointing number on his phone"
@@ -696,7 +696,9 @@ export function WorthExperience({
         <section className="mb-14">
           <SectionHeading icon={Crown}>The setup that captures it</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
-            A free tier to capture everyone, then three paid tiers built to catch the whale.
+            A free tier to capture everyone, then three paid tiers so your most committed fans have
+            somewhere to go. The top rung is the smallest and carries the most money, which is why
+            an artist who only launches one flat tier stalls at a fraction of their number.
             {hasNumber ? ` Here's how your ${fmtCount(result.payers)} paying fans split across them:` : ''}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -736,9 +738,10 @@ export function WorthExperience({
         <section className="mb-14">
           <SectionHeading icon={Music}>Wait, what is CRWN?</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
-            A platform to sell directly to your fans: memberships, songs, stems, live sessions, even
-            access to you. No label. No middleman. No algorithm. You keep up to 92%, paid to your bank.
-            Fans pick a tier and pay you every month:
+            CRWN runs your fan economy: the people who actually pay you, what you sell them, what
+            you owe them, and what to do next. It shows you which fans create the value, tells you
+            the one move that grows it, and tracks whether it worked. No label. No middleman. You
+            keep up to 92%, paid to your bank. Fans pick a tier and pay you every month:
           </p>
           <TiersMock subs={hasNumber ? { t1: result.tier1Subs, t2: result.tier2Subs, t3: result.tier3Subs } : undefined} />
         </section>
@@ -747,7 +750,9 @@ export function WorthExperience({
         <section className="mb-14">
           <SectionHeading icon={DollarSign}>Streaming vs. CRWN</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
-            Same fans. Wildly different math. Streaming rents your audience back to you.
+            Same fans, two different jobs. Streaming is how people find you, and it is good at that.
+            It just was never built to tell you who among them will pay you directly, or to let you
+            do anything about it.
           </p>
           <CompareTable />
         </section>
@@ -755,9 +760,11 @@ export function WorthExperience({
         {/* Fan math */}
         {homepage && (
         <section className="mb-6">
-          <SectionHeading icon={Users}>You don&apos;t need millions of streams</SectionHeading>
+          <SectionHeading icon={Users}>Your income is decided by a fraction of your audience</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
-            A small group of real supporters changes everything. Do the math on paying fans, not plays:
+            Reach is worth having, and more of it helps. It is just not the same number as your
+            income. Only a small, identifiable part of any audience ever pays, and that part is not
+            evenly valuable either. Here is what it looks like at real supporter counts:
           </p>
           <div className="grid grid-cols-3 gap-3">
             {FAN_MATH.map((m) => (
@@ -781,7 +788,9 @@ export function WorthExperience({
         <section className="mb-14">
           <SectionHeading icon={Sparkles}>Everything you can charge for</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-5">
-            Every one of these is a revenue stream you switch on. Stack them, and the number adds up fast.
+            Each of these is a way the same fans can go deeper with you. They are not separate
+            audiences, so the totals do not simply add up, and we will not pretend they do. The
+            number above already models them together, counting every fan once.
           </p>
           <div className="grid sm:grid-cols-2 gap-3">
             {MONETIZE_WAYS.map((w) => (

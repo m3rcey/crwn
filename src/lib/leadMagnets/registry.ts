@@ -21,7 +21,7 @@ const VAULT_REVENUE_PLANNER: LeadMagnetConfig = {
   hero: {
     eyebrow: 'Artist Vault',
     headline: 'The music on your phone is earning you nothing.',
-    subheadline: 'Every demo, voice memo and unreleased track you sit on is money your supporters would already be paying you. See what sitting on it costs you, and get a 30-day plan to release it.',
+    subheadline: 'Every demo, voice memo and unreleased track you sit on is money your supporters would already be paying you. The fans who want that access are the ones who pay you most, and right now you have nothing to give them. See what sitting on it costs you, and get a 30-day plan to release it.',
     primaryCta: 'Plan my Vault',
     image: '/tool-vault.jpg',
     imageAlt: 'An artist in a dim studio surrounded by shelves of unreleased music',
@@ -612,7 +612,9 @@ const SHARE_TO_EARN = lossToolBase({
   hero: {
     eyebrow: 'Fan Referrals',
     headline: 'Your fans would bring their friends, for a cut.',
-    subheadline: 'Word of mouth you already earn goes untracked and unpaid, so it never scales. See the referred subscribers you are leaving on the table.',
+    // Zero To One spine beat 3: not every fan is the same. A few bring other people,
+    // and that contribution is economic value nothing in the artist's stack can see.
+    subheadline: 'A handful of your fans already recommend you, and they are worth more than a fan who only listens. Untracked and unpaid, that contribution never scales. See the referred subscribers you are leaving on the table.',
     primaryCta: 'See what I am leaving',
     image: '/tool-share-to-earn.jpg',
     imageAlt: 'A dim, gold-lit studio with an artist at the center',
@@ -657,7 +659,7 @@ const LIVE_EXPERIENCE = lossToolBase({
   hero: {
     eyebrow: 'Live Experiences',
     headline: 'Going live only to promote is why nobody pays to watch.',
-    subheadline: 'A few minutes of "thanks for pulling up" is not an event, so no one buys a ticket, no one tips, and there is nothing left to sell when it ends. See what one real ticketed live a month is worth.',
+    subheadline: 'A few minutes of "thanks for pulling up" is not an event, so no one buys a ticket, no one tips, and there is nothing left to sell when it ends. Your most committed fans will pay for real access, and they are a small part of your audience worth far more than the rest. See what one real ticketed live a month is worth.',
     primaryCta: 'See what I am losing',
     image: '/tool-live-experience.jpg',
     imageAlt: 'An artist performing a stripped-down set under warm gold light',
@@ -797,8 +799,13 @@ const UNIFIED_OPPORTUNITY: LeadMagnetConfig = {
   // copy rule: the cost of not knowing comes first, the fix second.
   hero: {
     eyebrow: 'For independent artists',
-    headline: 'Your fans are worth more than they pay you.',
-    subheadline: 'One number, and what to build first.',
+    // Zero To One positioning (docs/POSITIONING.md section 17). The headline names the
+    // LOSS and the concentration: the artist already has the audience, and the part of it
+    // that carries the money is the part nothing in their stack can see. Reach is never
+    // dismissed here, because every number in the model scales with it.
+    headline: 'The fans who would pay you most are the ones you cannot see.',
+    subheadline:
+      'You built the audience. Your follower count cannot tell you who inside it actually pays, who stays, or who is worth ten times the rest. Put in your numbers and see what that group is worth.',
     primaryCta: 'See what my fans are worth',
     image: '/tool-opportunity.jpg',
     imageAlt: 'An artist in a dark studio touching the point where gold threads from every part of his plan converge on one wall',

@@ -18,8 +18,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://thecrwn.app"),
-  title: "CRWN | Music Monetization for Independent Artists",
-  description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
+  title: "CRWN | The Fan Economy Operating System for Independent Artists",
+  description: "Most of an artist's income comes from a small part of their audience. CRWN shows you who those fans are, what to offer them, and the one move that grows it next.",
   keywords: ["music", "artists", "monetization", "fans", "community", "streaming", "independent"],
   manifest: "/manifest.json",
   icons: {
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "CRWN | Music Monetization for Independent Artists",
-    description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
+    title: "CRWN | The Fan Economy Operating System for Independent Artists",
+    description: "Most of an artist's income comes from a small part of their audience. CRWN shows you who those fans are, what to offer them, and the one move that grows it next.",
     url: "https://thecrwn.app",
     siteName: "CRWN",
     images: [
@@ -47,8 +47,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "CRWN | Music Monetization for Independent Artists",
-    description: "The all-in-one platform for independent artists to stream music, run fan subscriptions, sell digital products, and build community.",
+    title: "CRWN | The Fan Economy Operating System for Independent Artists",
+    description: "Most of an artist's income comes from a small part of their audience. CRWN shows you who those fans are, what to offer them, and the one move that grows it next.",
     images: ["/icon-512x512.png"],
   },
   appleWebApp: {
