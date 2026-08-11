@@ -1,5 +1,55 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Manager reconciliation: the second strategist Z4 missed
+
+**What existed:** Z4 gave Manager the canonical diagnosis and Z5 declared it a coach that may
+re-word the priority but never re-rank it. Verified against the repository, that was true of ONE
+of Manager's two model calls. `generateActions` received `canonicalPriorityBrief()`;
+`generateInsights`, which fills the largest block on the Manager screen, did not, at either call
+site. It carried its own priority policy in prose ("fix retention before anything else",
+"consider price increases", "acquisition problem"), emitted the result as `urgent`, and its title
+format demanded an action verb. So an artist the engine had diagnosed as FULFILLMENT could open
+Manager and read *"Raise Silver tier to $15"* in gold, contradicting the Constraint Card one
+screen away. The artist's own Refresh button was the worse path: it ran that model with **no
+canonical context at all**. The same prompt hardcoded *"ARPU low relative to peers ($8-15/mo is
+typical)"*, a cross-artist claim that survived Z10 because it was never a query. The Manager
+screen itself showed no canonical priority anywhere, billed itself as a "24/7 assistant", called
+its own page "What to do next", and rendered a **"Worked" / "No lift"** verdict plus a dollar MRR
+figure beside each executed action, derived from `snapshotArtistMetrics` (self-derived MRR,
+missing metrics defaulted to `0`, fixed 7-day window, no control).
+
+**What shipped:** `src/lib/ai/coachingBrief.ts`, the ONE builder of coaching context (Z4 brief +
+Z9 rates from a single evidence read, fail-soft to null), used by both Manager routes. The insight
+prompt now states the canonical diagnosis outranks its guides, forbids peer/benchmark comparison,
+forbids computing a rate, and forbids implying a past action caused a money change; the peer line
+is deleted. The Manager screen renders the canonical priority ABOVE its own output with a link back
+to Rise Mode (no second gold CTA: Manager reads the priority, it does not own it), and its chrome
+now describes coaching rather than strategy. The artist-facing causal verdict is removed.
+`ai/crossArtistPatterns.ts` (zero importers since Z10) is deleted. `agent-health`'s stale
+"cross-artist intelligence needs more data" alert now names what it actually measures.
+
+**Deliberately NOT changed:** Manager's outcome measurement stays quarantined rather than repaired
+or merged into Z3/Z9. Only its unsupported artist-facing presentation was removed; the loop still
+records and still feeds Manager's own prompt. Repairing it touches financial derivation and is a
+founder decision (TODO). Constraint Engine priority, thresholds, ordering and issuance are
+untouched: `/api/artist/constraint` remains the only Z3 issuer.
+
+**Admin finding:** there is **no admin Manager**, verified rather than assumed. `admin/agent/*`,
+`AgentInsights` and `AutonomousOpsBar` are CRWN's own business agent (funnel/pipeline/partners/
+CRM) writing `autonomous_run_log`; `ApprovalsManager` is user and invite-code approval. No `/admin`
+surface reads `artist_agent_actions`, `artist_agent_runs` or `ai_insights`. That gap is logged as
+observability work, explicitly not a second strategist.
+
+**Also reconciled:** two stale canonical claims. `11-SECURITY-AND-PRIVACY.md` HIGH-2 and
+`12-ENVIRONMENT-AND-SETUP.md` still listed `NEXT_PUBLIC_CRON_SECRET` as a live client-bundled
+risk; it appears nowhere in `src/` except historical comments, and the route has used session auth
+plus `requireArtistOwner` since. Marked FIXED and RETIRED respectively.
+
+**Pinned by:** `src/lib/ai/managerBoundaries.test.ts` (25 assertions). It fails if any Manager path
+calls `generateInsights(data)` without a brief, issues a Z3 record, imports cross-artist evidence,
+reasserts a peer claim, renders an outcome verdict, duplicates itself in navigation, or loses an
+approval/ownership gate.
+
 ## 2026-08-10 - Money Model measurement: the First Revenue Launch gets a ledger
 
 **What existed:** every artist-side truth (the `earnings` ledger with per-row snapshotted

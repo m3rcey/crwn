@@ -39,7 +39,7 @@ npm test             # vitest, 820 tests across 50 files (a moving figure: run i
 | `NEXT_PUBLIC_LIVEKIT_URL` | LiveKit ws URL | `livekit.ts`, live components |
 | `NEXT_PUBLIC_R2_PUBLIC_URL` | R2 public base | `r2/client.ts` |
 | `NEXT_PUBLIC_APP_URL` / `NEXT_PUBLIC_BASE_URL` / `NEXT_PUBLIC_SITE_URL` | absolute link building | emails, links |
-| `NEXT_PUBLIC_CRON_SECRET` | ⚠️ **HIGH risk** — client-bundled, mirrors `CRON_SECRET` | `AiManagerCard.tsx` |
+| ~~`NEXT_PUBLIC_CRON_SECRET`~~ | **RETIRED.** Was client-bundled and mirrored `CRON_SECRET`. Gone from `src/`; the Manager Refresh button now uses the session cookie | (none) |
 
 **Server-only (never expose):**
 | Name | Purpose |

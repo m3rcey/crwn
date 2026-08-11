@@ -313,11 +313,43 @@ its route, tour steps and analytics are unchanged.
   touch product state. `constraintRank`/`outranks`/`protectsEarnedRevenue` derive from the ORDER OF
   `CONSTRAINT_TYPES`, so there is no second threshold system to drift.
   **Current readers:** `ConstraintCard` (via `/api/artist/constraint`), the `constraint-outcomes`
-  cron (Z3 measurement), and the **AI Manager** cron, which receives `canonicalPriorityBrief()` at
-  the top of its prompt and is told it outranks its own decision framework. Growth actions are
-  explicitly forbidden while FULFILLMENT or RETENTION stands, because those protect revenue already
-  earned. Fail-soft everywhere: a failed read means a null brief and prior behavior, never a
-  fabricated priority.
+  cron (Z3 measurement), the **AI Manager** (BOTH model calls, see below), and the **Manager
+  screen itself**, which renders the canonical priority above its own output and links back to
+  Rise Mode rather than duplicating the gold CTA. Growth actions are explicitly forbidden while
+  FULFILLMENT or RETENTION stands, because those protect revenue already earned. Fail-soft
+  everywhere: a failed read means a null brief and prior behavior, never a fabricated priority.
+
+- **Manager reconciliation (2026-08-11).** Z4 wired the canonical brief into `generateActions` and
+  **missed `generateInsights`**, which renders the largest block on the Manager screen. That feed
+  carried its own priority policy in prose ("fix retention before anything else", "consider a price
+  increase", "acquisition problem"), emitted it as `urgent`, and its title format demanded an
+  action verb, so an artist diagnosed as FULFILLMENT could open Manager and read *"Raise Silver
+  tier to $15"* in gold. It also hardcoded a cross-artist claim (*"ARPU low relative to peers
+  ($8-15/mo is typical)"*) that survived every Z10 gate because it was never a query. Fixed:
+  - `src/lib/ai/coachingBrief.ts` is the ONE builder of coaching context (Z4 brief + Z9 rates,
+    one evidence read, fail-soft to null). Both Manager routes use it, including the artist's own
+    "Refresh" button, which previously ran the insight model with **no canonical context at all**.
+  - The insight prompt now states the canonical diagnosis outranks its guides, forbids peer or
+    benchmark comparison, forbids computing a rate, and forbids implying a past action CAUSED a
+    money change. The peer line is deleted.
+  - The Manager screen no longer says "What to do next" or "24/7 assistant": it renders the
+    canonical priority first and describes itself as help working that priority.
+  - The artist-facing outcome verdict ("Worked" / "No lift" / an MRR figure per action) is
+    **removed**. The measurement is unchanged and still feeds Manager's own prompt; it is simply
+    no longer presented as a causal result. See the quarantine note under Z3/Z9.
+  - `ai/crossArtistPatterns.ts` (the removed Z10 injection) had zero importers and is **deleted**.
+  Pinned by `src/lib/ai/managerBoundaries.test.ts` (25 assertions), which fails if any Manager path
+  calls `generateInsights(data)` without a brief, issues a Z3 record, reintroduces a peer claim, or
+  renders an outcome verdict.
+
+- **There is NO admin Manager, by verification.** `admin/agent/*`, `AgentInsights` and
+  `AutonomousOpsBar` are **CRWN's own business agent** (scopes: dashboard, pipeline, partners,
+  funnel, sequences, email, CRM) writing `autonomous_run_log`. `ApprovalsManager` is user and
+  invite-code approval. Neither is Manager, and **no `/admin` surface reads
+  `artist_agent_actions`, `artist_agent_runs` or `ai_insights`.** The only observability of the
+  artist Manager is the daily `agent-health` cron, which emails the founder. If one is ever built
+  it must be **observability, not a second strategist**: an admin may inspect what Manager did and
+  why, never decide what an artist should do next.
 
 ## Cross-cutting
 - **PWA** (`sw.js`, manifest) — Production-ready, no push. **Visitor analytics** (hashed fingerprint, bot-filtered) — Production-ready. **Legal pages** (`(public)/{terms,privacy,dmca,artist-agreement,live-agreement}`) — Production-ready. **Marketing pages** (`/about` stale, `getting-started` guides) — mixed. `(public)/worth` is NO LONGER mock UI: it is the Streaming Loss Calculator (renamed 2026-07-18), a real loss-engine experience that also hosts the reusable `IndependenceSection`.

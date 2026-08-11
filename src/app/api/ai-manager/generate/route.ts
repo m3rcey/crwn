@@ -6,6 +6,7 @@ import { collectArtistData } from '@/lib/ai/collectArtistData';
 import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
+import { buildCoachingBrief } from '@/lib/ai/coachingBrief';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -44,11 +45,17 @@ export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   const isCron = !!process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`;
 
+  // Captured from the SESSION when there is one. Never read off the request body: the constraint
+  // evidence read is keyed on (artistId, userId) and a caller-supplied user id would let one
+  // account assemble evidence under another's identity.
+  let ownerUserId: string | null = null;
+
   if (!isCron) {
     // Not the cron. Then it must be the artist who OWNS this artistId, proven by session.
     // requireArtistOwner does the 401/403 for us and never trusts a caller-supplied user id.
     const owner = await requireArtistOwner(artistId);
     if (!owner.ok) return owner.error;
+    ownerUserId = owner.userId;
 
     // Each refresh spends real money on a model call, so a logged-in artist does not get to
     // hammer it. The cron is exempt: it runs once a day by definition.
@@ -83,7 +90,23 @@ export async function POST(req: NextRequest) {
     if (effectiveTier === 'starter') {
       insights = generateStarterNudges(data);
     } else {
-      insights = await generateInsights(data);
+      // Z4 + Z9. This route is the artist's own "Refresh" button, and it used to run the insight
+      // model with NO canonical context at all, so a manual refresh could produce exactly the
+      // growth advice the engine had ruled out. The cron path is identical by construction now.
+      let userId = ownerUserId;
+      if (!userId) {
+        const { data: row } = await supabaseAdmin
+          .from('artist_profiles')
+          .select('user_id')
+          .eq('id', artistId)
+          .maybeSingle();
+        userId = row?.user_id ?? null;
+      }
+      const canonicalBrief = userId
+        ? await buildCoachingBrief(supabaseAdmin, artistId, userId)
+        : null;
+
+      insights = await generateInsights(data, canonicalBrief);
       const syncInsights = generateSyncInsights(data);
       insights = [...insights, ...syncInsights];
     }

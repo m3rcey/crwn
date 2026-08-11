@@ -135,7 +135,14 @@ export async function GET(req: NextRequest) {
       issues.push({ severity: 'info', message: `${pendingActions} actions pending artist approval — artists may not be checking` });
     }
 
-    // 7. Cross-artist pattern coverage
+    // 7. Manager outcome-measurement coverage.
+    //
+    // NOT "cross-artist pattern coverage" any more. Z10 removed the cross-artist injection built
+    // on these rows, and the replacement primitive (`crossArtistEvidence.ts`) is admin-only with
+    // its own privacy/evidence/reliability gates and does not read this table. Telling the
+    // operator that "cross-artist intelligence needs more data" would point them at a system this
+    // number no longer feeds. What it actually measures is whether the Manager's own quarantined
+    // outcome loop is collecting anything.
     const { count: measuredOutcomes } = await supabaseAdmin
       .from('artist_agent_actions')
       .select('id', { count: 'exact', head: true })
@@ -144,7 +151,7 @@ export async function GET(req: NextRequest) {
 
     stats.measuredOutcomes90d = measuredOutcomes || 0;
     if ((measuredOutcomes || 0) < 5) {
-      issues.push({ severity: 'info', message: `Only ${measuredOutcomes} measured outcomes in 90 days — cross-artist intelligence needs more data` });
+      issues.push({ severity: 'info', message: `Only ${measuredOutcomes} measured Manager outcomes in 90 days (its own learning loop has little to calibrate on)` });
     }
 
     // Determine overall health

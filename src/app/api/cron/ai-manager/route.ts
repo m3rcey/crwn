@@ -6,10 +6,7 @@ import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
 import { generateFulfillmentInsights } from '@/lib/ai/fulfillmentInsights';
 import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generateActions';
-import { assembleConstraintEvidence } from '@/lib/constraint/assembler';
-import { readConstraint } from '@/lib/constraint/engine';
-import { canonicalPriorityBrief, observedRatesBrief } from '@/lib/constraint/readership';
-import { activeObservedRates } from '@/lib/constraint/artistObserved';
+import { buildCoachingBrief } from '@/lib/ai/coachingBrief';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
 import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
@@ -99,7 +96,13 @@ async function insertInsights(artistId: string, artistUserId: string, insights: 
 
 // ─── Autonomous Agent: generate + execute actions per artist ────────────────
 
-async function runAutonomousAgent(artistId: string, artistUserId: string, effectiveTier: string, crossArtistContext: string) {
+async function runAutonomousAgent(
+  artistId: string,
+  artistUserId: string,
+  effectiveTier: string,
+  crossArtistContext: string,
+  canonicalBrief: string | null,
+) {
   // Only Pro+ artists get autonomous actions
   if (effectiveTier === 'starter') return { actionsExecuted: 0, actionsEscalated: 0, diagnosis: '' };
 
@@ -154,25 +157,8 @@ async function runAutonomousAgent(artistId: string, artistUserId: string, effect
       };
     });
 
-    // Z4: the canonical diagnosis, READ from the one engine that owns it. The manager may re-word
-    // this priority but may not re-rank it. Fail-soft on purpose: if evidence assembly breaks, the
-    // brief is null and the manager reasons exactly as it did before Z4 rather than the whole cron
-    // dying over context it can technically run without. Nothing here ISSUES a Z3 recommendation
-    // record: only /api/artist/constraint does, so rendering the same diagnosis on another surface
-    // still leaves exactly one logical recommendation.
-    let canonicalBrief: string | null = null;
-    try {
-      const evidence = await assembleConstraintEvidence(supabaseAdmin, { artistId, userId: artistUserId });
-      canonicalBrief = canonicalPriorityBrief(readConstraint(evidence));
-      // Z9: this artist's OWN measured rates, from the SAME evidence read (no extra queries), and
-      // only the ones that cleared their canonical sample floor. The manager may quote these; it
-      // may not compute one, and it has no data about any other artist to compare against.
-      const rates = observedRatesBrief(activeObservedRates(evidence));
-      if (rates) canonicalBrief = canonicalBrief ? `${canonicalBrief}\n\n${rates}` : rates;
-    } catch (err) {
-      console.error('ai-manager: canonical constraint read failed for', artistId, err);
-    }
-
+    // Z4 + Z9 context is now built ONCE per artist by the caller (`buildCoachingBrief`) and shared
+    // by BOTH model calls, because the insight feed used to run without it. See coachingBrief.ts.
     const result = await generateActions(data, {
       sequences: (sequences || []).map(s => ({ id: s.id, name: s.name, trigger_type: s.trigger_type, is_active: s.is_active })),
       tiers: (tiers || []).map(t => ({ id: t.id, name: t.name, price: t.price })),
@@ -327,11 +313,18 @@ export async function GET(req: NextRequest) {
 
           const effectiveTier = artist.platform_tier || 'starter';
 
+          // Z4 + Z9: ONE evidence read per artist, shared by the insight feed and the action
+          // generator. Skipped for `starter`, whose only path is the deterministic nudge list:
+          // it runs no prompt, so a brief would buy nothing and cost a query per artist per day.
+          const canonicalBrief = effectiveTier === 'starter'
+            ? null
+            : await buildCoachingBrief(supabaseAdmin, artist.id, artist.user_id);
+
           let insights: InsightInput[];
           if (effectiveTier === 'starter') {
             insights = generateStarterNudges(data);
           } else {
-            insights = await generateInsights(data);
+            insights = await generateInsights(data, canonicalBrief);
             // Add rule-based sync match insights for Pro+
             const syncInsights = generateSyncInsights(data);
             insights = [...insights, ...syncInsights];
@@ -345,7 +338,7 @@ export async function GET(req: NextRequest) {
           const inserted = await insertInsights(artist.id, artist.user_id, insights, existingTypes);
 
           // Run autonomous agent (generates + executes/escalates actions)
-          const agentResult = await runAutonomousAgent(artist.id, artist.user_id, effectiveTier, crossArtistContext);
+          const agentResult = await runAutonomousAgent(artist.id, artist.user_id, effectiveTier, crossArtistContext, canonicalBrief);
 
           results.push({
             artistId: artist.id,

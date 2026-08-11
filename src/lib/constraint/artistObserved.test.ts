@@ -9,6 +9,8 @@ const RAW = readFileSync('src/lib/constraint/artistObserved.ts', 'utf8');
 /** CODE only. A comment explaining that a thing is forbidden is not that thing. */
 const SRC = RAW.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 const CRON = readFileSync('src/app/api/cron/ai-manager/route.ts', 'utf8');
+const GENERATE = readFileSync('src/app/api/ai-manager/generate/route.ts', 'utf8');
+const BRIEF = readFileSync('src/lib/ai/coachingBrief.ts', 'utf8');
 
 const base = (over: Partial<ConstraintEvidence> = {}): ConstraintEvidence => ({
   now: '2026-08-11T00:00:00.000Z',
@@ -162,8 +164,18 @@ describe('the cross-artist boundary', () => {
   });
 
   it('is fed from the SAME single-artist evidence read the constraint engine uses', () => {
-    expect(CRON).toContain('activeObservedRates(evidence)');
-    expect(CRON).toContain('assembleConstraintEvidence(supabaseAdmin, { artistId, userId: artistUserId })');
+    // This assembly moved OUT of the cron and into `ai/coachingBrief.ts`, because the cron was
+    // not the only Manager path that needed it: the artist's own Refresh button ran the insight
+    // model with no canonical context at all. One builder now serves both, so the property this
+    // test protects (Z9 rates come from the SAME single-artist evidence read, never a second
+    // query and never a wider one) is asserted at that builder.
+    expect(BRIEF).toContain('activeObservedRates(evidence)');
+    expect(BRIEF).toContain('assembleConstraintEvidence(admin, { artistId, userId })');
+    // ...and every Manager path must go through it rather than assembling its own.
+    for (const src of [CRON, GENERATE]) {
+      expect(src).toContain('buildCoachingBrief');
+      expect(src).not.toContain('activeObservedRates');
+    }
   });
 });
 

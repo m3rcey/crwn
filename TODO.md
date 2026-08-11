@@ -377,6 +377,27 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Manager's outcome measurement stays quarantined, and that is a live decision, not an
+  oversight.** `src/lib/ai/snapshotMetrics.ts` derives its OWN MRR instead of reading the
+  canonical rails, defaults every missing metric to `0` (so "no data" and "zero" are the same
+  number), measures a fixed 7-day window and has no control group. The artist-facing verdict it
+  powered ("Worked" / "No lift" / an MRR figure beside each action) is now removed, because that
+  was an unsupported causal money claim. The measurement itself still records and still feeds
+  Manager's own prompt, which is artist-specific learning that predates Z3. **Repairing it means
+  touching financial derivation, so it needs your call**: either point it at the canonical rails
+  and adopt `complete | modeled | missing` (real work, real risk), or retire it and let Z3 be the
+  only outcome linkage CRWN has. Do not let it drift into "canonical" by accident.
+
+- **No admin surface can see what Manager did to an artist's account.** Verified, not assumed:
+  `admin/agent/*` and `AutonomousOpsBar` are CRWN's OWN business agent (funnel, pipeline, CRM),
+  `ApprovalsManager` is user and invite-code approval, and NOTHING under `/admin` reads
+  `artist_agent_actions`, `artist_agent_runs` or `ai_insights`. The only observability is the
+  daily `agent-health` cron, which computes exactly the right stats and then throws them into a
+  notification. Latent rather than urgent today (auto-execute is Pro-only and there are no Pro
+  artists), but it becomes real the first time Manager auto-executes on a paying artist. The fix
+  is an observability panel, NOT a second strategist: surface the existing `agent-health` payload
+  plus a read-only action log. Say the word and I will build it.
+
 - **Bespoke hero photos for the two single-opportunity calculators.** `fan-stack-calculator` and
   `between-tour-calculator` reuse the own-your-fans and live-experience photos (the registry's
   documented placeholder pattern). They are no longer avatar front doors, so this is cosmetic.

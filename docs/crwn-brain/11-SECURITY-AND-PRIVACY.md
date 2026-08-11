@@ -30,8 +30,14 @@
 - **Secrets (one per Resend endpoint; Svix secrets are per-endpoint):** `RESEND_WEBHOOK_SECRET` (fan campaigns/sequences), `RESEND_OUTREACH_SECRET` (outreach bounces), `RESEND_INBOUND_SECRET` (lead replies). Twilio reused the existing `TWILIO_AUTH_TOKEN`.
 - **2026-07-31 update:** `src/app/api/sms/webhook/route.ts` (and every other `/api/sms/*` route) was deleted with the SMS feature removal, so the Twilio half of this finding no longer applies. The three Resend endpoints remain as described.
 
-### 🔴 HIGH-2 — `NEXT_PUBLIC_CRON_SECRET` is a client-bundled variable gating a cron-secret code path
-**Files:** `src/components/artist/AiManagerCard.tsx:194`, `src/app/api/ai-manager/generate/route.ts:17`. `Confirmed` pattern; `Strongly inferred` exploitability (env values not readable).
+### ✅ HIGH-2 — FIXED. `NEXT_PUBLIC_CRON_SECRET` was a client-bundled variable gating a cron-secret code path
+**Files:** `src/components/artist/AiManagerCard.tsx`, `src/app/api/ai-manager/generate/route.ts`. `Confirmed` pattern; `Strongly inferred` exploitability (env values not readable).
+- **Remediation shipped, re-verified 2026-08-11:** `NEXT_PUBLIC_CRON_SECRET` appears **nowhere in
+  `src/`** except two historical comments. The Refresh button sends no `Authorization` header at
+  all; it proves identity with the session cookie the browser already has. The route accepts EITHER
+  the cron bearer (server to server) OR a session, and the session path runs `requireArtistOwner`
+  plus a 10-per-hour rate limit, so the "no ownership check on body `artistId`" half is closed too.
+  `src/lib/brainContract.test.ts` pins the ownership check so this cannot silently regress.
 - **Evidence:** the dashboard "Refresh" button sends `Authorization: Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET}`; the route checks it against `Bearer ${process.env.CRON_SECRET}` — the **same env var name that gates all 25 cron routes** (including `weekly-payout`, `team-split-accruals`). `NEXT_PUBLIC_*` is bundled into every browser. If the two are set equal (required for the button to work), the master cron secret is extractable from client JS. Separately, `/api/ai-manager/generate` does **no ownership check** on the body `artistId` — only the bearer token gates it.
 - **Why it matters:** if the secrets match, any visitor could invoke any cron endpoint (force payouts/accruals). Even if not, anyone with the public value can trigger AI generation against arbitrary artists.
 - **Remediation:** switch `/api/ai-manager/generate` to normal session auth (`requireArtistOwner`); eliminate the `NEXT_PUBLIC_CRON_SECRET` ↔ `CRON_SECRET` naming/value coupling and rotate.

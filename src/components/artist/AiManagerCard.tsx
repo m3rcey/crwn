@@ -26,7 +26,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
+import Link from 'next/link';
 import { FadeIn } from '@/components/ui/FadeIn';
+import type { ConstraintResult } from '@/lib/constraint/types';
+import { resolveOperatingFlow } from '@/lib/constraint/presentation';
 
 const TYPE_CONFIG: Record<AiInsightType, { icon: React.ElementType; label: string }> = {
   revenue: { icon: TrendingUp, label: 'Revenue' },
@@ -94,6 +97,76 @@ interface AiManagerCardProps {
   platformTier: string;
 }
 
+/**
+ * The canonical priority, rendered ABOVE everything Manager has to say.
+ *
+ * Manager is a READER of this, never its owner. That is why this banner carries no gold primary
+ * button: the one "Do it now" lives on Rise Mode, where the Constraint Engine owns it, and a
+ * second copy here would be the same coordination problem the One Operating Flow removed. The
+ * link sends the artist back to that flow instead.
+ *
+ * Renders NOTHING when the engine declined to diagnose and nothing is blocking launch. Silence is
+ * a real answer, and manufacturing a priority so this box has something confident to say is
+ * precisely what a reader may not do.
+ */
+function CanonicalPriorityBanner({ result }: { result: ConstraintResult | null }) {
+  const flow = resolveOperatingFlow(result);
+
+  if (flow.phase === 'priority' && flow.constraint) {
+    return (
+      <div className="mb-6 p-4 rounded-xl border border-crwn-gold/40 bg-crwn-gold/5">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-crwn-text-secondary/60">
+          CRWN&apos;s priority right now
+        </p>
+        <h3 className="text-sm font-semibold text-crwn-text mt-1">{flow.constraint.title}</h3>
+        <p className="text-xs text-crwn-text-secondary mt-1 leading-relaxed">
+          Everything below serves this. Your manager helps you work it and can handle some of it
+          for you. It does not pick a different priority.
+        </p>
+        <Link
+          prefetch
+          href="/profile/artist"
+          className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-crwn-gold hover:text-crwn-gold/80 transition-colors"
+        >
+          Open it in Rise Mode
+          <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+    );
+  }
+
+  if (flow.phase === 'launch') {
+    return (
+      <div className="mb-6 p-4 rounded-xl border border-crwn-elevated bg-crwn-elevated/20">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-crwn-text-secondary/60">
+          Still setting up
+        </p>
+        <p className="text-xs text-crwn-text-secondary mt-1 leading-relaxed">
+          Growth coaching is on hold until a fan can actually pay you. Finish these first:
+        </p>
+        <ul className="mt-2 space-y-1">
+          {flow.launchBlockers.slice(0, 3).map((b) => (
+            <li key={b} className="flex items-start gap-2 text-xs text-crwn-text">
+              <span className="mt-1.5 w-1 h-1 rounded-full bg-crwn-gold shrink-0" />
+              {b}
+            </li>
+          ))}
+        </ul>
+        <Link
+          prefetch
+          href="/profile/artist"
+          className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-crwn-gold hover:text-crwn-gold/80 transition-colors"
+        >
+          Finish setup in Rise Mode
+          <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
   const supabase = createBrowserSupabaseClient();
   const router = useRouter();
@@ -105,8 +178,23 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
   const [refreshing, setRefreshing] = useState(false);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [constraint, setConstraint] = useState<ConstraintResult | null>(null);
 
   const isStarterOnly = platformTier === 'starter';
+
+  // The SAME route Rise Mode reads, deliberately. It is the single Z3 issuer and its write is
+  // idempotent (one open row per artist per constraint), so the diagnosis appearing on a second
+  // surface is still exactly one recommendation with one identity. Ownership comes from the
+  // session inside that route: it takes no artistId, so this cannot ask about another artist.
+  // Fails silently to null, which renders no banner and leaves the page as it was.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/artist/constraint')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (!cancelled) setConstraint(j?.constraint ?? null); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const fetchAll = useCallback(async () => {
     // Fetch insights
@@ -237,7 +325,7 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
             <div>
               <h2 className="text-xl font-bold text-crwn-text">Manager</h2>
               <p className="text-sm text-crwn-text-secondary">
-                Your 24/7 assistant analyzing your data and taking action
+                Works the priority CRWN set with you, and can handle some of it for you
               </p>
             </div>
           </div>
@@ -252,6 +340,9 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
             </button>
           )}
         </div>
+
+        {/* The canonical priority leads. Nothing Manager says outranks it. */}
+        <CanonicalPriorityBanner result={constraint} />
 
         {/* Starter Tier Upsell */}
         {isStarterOnly && (
@@ -357,16 +448,21 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
               {recentActions.map((action) => {
                 const isSuccess = action.status === 'auto_executed' || action.status === 'executed';
                 const isRejected = action.status === 'rejected';
-                const delta = action.outcome_delta;
-                const hasMeasurement = action.outcome_measured_at && delta;
 
-                // Compute simple outcome score for badge
-                let outcomeVerdict: 'positive' | 'negative' | 'neutral' | null = null;
-                if (hasMeasurement) {
-                  const score = (delta.mrr || 0) + (delta.activeSubs || 0) * 100 - (delta.churnRate || 0) * 500;
-                  outcomeVerdict = score > 0 ? 'positive' : score < 0 ? 'negative' : 'neutral';
-                }
-
+                // This row deliberately shows WHAT MANAGER DID, never what it CAUSED.
+                //
+                // It used to render "Worked" / "No lift" and a dollar MRR movement beside each
+                // action. That is a causal claim CRWN cannot support: the delta comes from
+                // `snapshotArtistMetrics`, which derives its own MRR rather than reading the
+                // canonical rails, defaults every missing metric to 0 (so "no data" and "zero"
+                // are indistinguishable), measures a fixed 7-day window, and has no control
+                // group. Attributing a revenue change to one action on that basis is the money
+                // claim the whole evidence chain exists to prevent.
+                //
+                // The measurement itself is UNCHANGED and still recorded. It remains quarantined
+                // input to Manager's own prompt, which is artist-specific and predates Z3. It is
+                // simply no longer presented to the artist as a verdict. Repairing or retiring it
+                // touches financial derivation and is a separate, justified investigation.
                 return (
                   <div key={action.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-crwn-elevated/30">
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
@@ -390,36 +486,8 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
                       {action.result_message && (
                         <p className="text-[10px] text-crwn-text-secondary/60 truncate">{action.result_message}</p>
                       )}
-                      {hasMeasurement && (
-                        <div className="flex items-center gap-2 mt-1">
-                          {delta.mrr !== 0 && (
-                            <span className={`text-[10px] font-medium ${delta.mrr > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              MRR {delta.mrr > 0 ? '+' : ''}{(delta.mrr / 100).toFixed(0)}
-                            </span>
-                          )}
-                          {delta.activeSubs !== 0 && (
-                            <span className={`text-[10px] font-medium ${delta.activeSubs > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              {delta.activeSubs > 0 ? '+' : ''}{delta.activeSubs} subs
-                            </span>
-                          )}
-                          {delta.churnRate !== 0 && (
-                            <span className={`text-[10px] font-medium ${delta.churnRate < 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              churn {delta.churnRate > 0 ? '+' : ''}{delta.churnRate}%
-                            </span>
-                          )}
-                        </div>
-                      )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      {outcomeVerdict && (
-                        <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                          outcomeVerdict === 'positive' ? 'bg-green-500/10 text-green-400' :
-                          outcomeVerdict === 'negative' ? 'bg-red-500/10 text-red-400' :
-                          'bg-crwn-elevated text-crwn-text-secondary'
-                        }`}>
-                          {outcomeVerdict === 'positive' ? 'Worked' : outcomeVerdict === 'negative' ? 'No lift' : 'Flat'}
-                        </span>
-                      )}
                       <span className="text-[10px] text-crwn-text-secondary/40">
                         {new Date(action.executed_at || action.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </span>

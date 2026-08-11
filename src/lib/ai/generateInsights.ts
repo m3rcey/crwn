@@ -52,13 +52,23 @@ const INSIGHT_FUNCTION = {
   },
 };
 
-function buildPrompt(data: ArtistDataForAI): string {
+function buildPrompt(data: ArtistDataForAI, canonicalBrief?: string | null): string {
   const lines: string[] = [];
   const $ = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   const pct = (n: number) => `${n}%`;
 
   lines.push(`Artist: ${data.artistName} | Tier: ${data.platformTier}`);
   lines.push('');
+
+  // Z4: FIRST, before any metric, because it outranks every number below it. This feed used to
+  // pick its own priority out of the unit economics and label the result `urgent`, so an artist
+  // CRWN had diagnosed as failing the supporters they already have could open Manager and read
+  // "Raise Silver tier to $15" in gold. When the engine declines to diagnose this block is
+  // absent and the model reasons as it did before: no fabricated priority.
+  if (canonicalBrief) {
+    lines.push(canonicalBrief);
+    lines.push('');
+  }
 
   // Unit Economics — this is what matters
   lines.push('=== UNIT ECONOMICS ===');
@@ -161,11 +171,29 @@ function buildPrompt(data: ArtistDataForAI): string {
   return lines.join('\n');
 }
 
-const SYSTEM_PROMPT = `You are an artist manager analyzing an independent artist's analytics dashboard on CRWN, a music monetization platform. Your job is to find the ONE OR TWO most important signals in the data and explain what they mean in plain language, like a smart manager would to their artist.
+export const SYSTEM_PROMPT = `You are an artist manager analyzing an independent artist's analytics dashboard on CRWN, a music monetization platform. Your job is to find the ONE OR TWO most important signals in the data and explain what they mean in plain language, like a smart manager would to their artist.
 
 STYLE, CRITICAL:
 - Never use em dashes. Use a period, a comma, a colon, or parentheses instead.
 - Never call yourself an AI, an assistant, a model, or a bot. You are the artist's manager.
+
+CANONICAL DIAGNOSIS, READ THIS FIRST:
+CRWN has a deterministic Constraint Engine that already decided what is limiting this artist, and
+the artist has already been shown its answer on their home screen. If a CRWN CANONICAL DIAGNOSIS
+block appears in the context, it OUTRANKS the reasoning guides below. Every insight you write must
+serve that constraint or be a smaller observation that clearly does not compete with it. Do not
+label a different problem urgent or high. Two managers disagreeing in front of the artist is worse
+than either one of them being wrong.
+If no canonical diagnosis block is present, CRWN did not have enough evidence to name one. Reason
+from the guides below as usual, and do not claim a confidence CRWN itself refused to claim.
+
+EVIDENCE RULES, NON NEGOTIABLE:
+- You have data about THIS ARTIST ONLY. Never compare them to other artists, to "typical" artists,
+  to peers, to averages or to benchmarks you were not given. CRWN makes no such claim and you have
+  no data to support one.
+- If a MEASURED RATES block is present, quote those figures as given. Do not calculate a rate
+  yourself and do not estimate one that is not listed.
+- Never state or imply that a past action CAUSED a change in revenue, subscribers or churn.
 
 THINK LIKE A MANAGER, NOT A DASHBOARD:
 - Don't just restate numbers ("revenue is up 39%"). Explain what's DRIVING the change and what to DO about it.
@@ -174,15 +202,14 @@ THINK LIKE A MANAGER, NOT A DASHBOARD:
 - If a specific fan is at risk, name them and suggest a specific outreach.
 - If community engagement is dropping but revenue is flat, explain why that's a leading indicator.
 
-UNIT ECONOMICS REASONING:
+UNIT ECONOMICS REASONING (used when there is no canonical diagnosis, and as supporting detail when there is):
 - LTV > $50 with churn < 5% = healthy, can invest in growth
 - LTV < $20 or churn > 10% = fix retention before anything else
 - RPV rising = audience quality improving, consider price increases
 - RPV falling = traffic quality declining, tighten targeting
-- ARPU low relative to peers ($8-15/mo is typical) = tier pricing may be too low
 - Sales velocity declining = acquisition problem, need more content or promotion
 
-BENCHMARKS:
+GENERAL HEURISTICS (rules of thumb, NOT CRWN measurements and NOT other artists' numbers):
 - Churn: <5% excellent, 5-8% okay, 8-15% concerning, >15% urgent
 - M0→M1 retention drop >40% = onboarding problem (welcome sequence not working)
 - M3+ still dropping = product/content problem (not enough new music)
@@ -199,14 +226,23 @@ Every title MUST lead with the ACTION, then the data justification. Format: "[Ve
 
 Be specific. Use exact numbers and fan names from the data. Each insight should teach the artist something they can't see just by looking at the dashboard.`;
 
-export async function generateInsights(data: ArtistDataForAI): Promise<InsightInput[]> {
+/**
+ * @param canonicalBrief the Z4 canonical diagnosis (+ Z9 measured rates) from
+ *   `buildCoachingBrief`. Optional so a caller that genuinely has no artist context still
+ *   compiles, but every live caller passes it: this feed is a READER of the diagnosis, never
+ *   an owner of it.
+ */
+export async function generateInsights(
+  data: ArtistDataForAI,
+  canonicalBrief?: string | null,
+): Promise<InsightInput[]> {
   try {
     const response = await deepseek.chat.completions.create({
       model: 'deepseek-chat',
       max_tokens: 1024,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildPrompt(data) },
+        { role: 'user', content: buildPrompt(data, canonicalBrief) },
       ],
       tools: [{ type: 'function', function: INSIGHT_FUNCTION }],
       tool_choice: { type: 'function', function: { name: 'generate_insights' } },
