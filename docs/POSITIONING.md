@@ -349,6 +349,25 @@ addressable pool is small.
 **This spine is the input to the upcoming Hormozi-style conversion pass.** That work optimizes how
 hard each beat lands. It must not delete a beat, and specifically must not delete beat 3.
 
+### The beat-3 rule: specific where supported, generic where honesty requires it
+
+Implemented 2026-08-10 as `depth` on `buildLossResult` and `unifiedFanDepth` on the Opportunity
+Calculator. The rule this established, and it generalizes beyond calculators:
+
+> **A tool states a specific concentration only when its own model produces one. Otherwise it
+> states the general truth without numbers, and that is the better answer, not the lazy one.**
+
+Three tools deliberately keep the generic line because their models describe the artist's missing
+structure rather than a distribution among fans: **movement page** and **quest path** (both model
+the absence of a participation route, not differences in fan value) and **team split** (models
+collaborator economics; the fans are not the segmented party). Writing bespoke concentration copy
+for these would be inventing specificity, which is the failure mode this rule exists to prevent.
+
+One tool, **royalty readiness**, carries a bespoke line that says the beat does **not** apply to
+it: it recovers money already earned elsewhere, and its own result copy states that fans lose
+nothing. Forcing fan-depth framing there would have been a non-sequitur. Naming the mismatch is
+more honest than silence.
+
 **Already aligned:** the Opportunity Calculator hero currently reads *"Your fans are worth more than
 they pay you. One number, and what to build first."* That is close to the spine already and should
 be treated as the reference tone.

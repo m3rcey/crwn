@@ -264,6 +264,8 @@ const vault: AcquisitionTool = {
         'You keep making new free public content while the music you already own earns nothing.',
         'Fans who would go deeper have nowhere to, so they stay casual or drift to a platform.',
       ],
+      depth:
+        'The fans who want the demos and the voice notes are not your average listener. They are the small group already closest to you, and access is the thing they will pay the most for. A catalog sitting on your phone is worth nothing to a casual fan and a great deal to them.',
       fanLoss:
         'Your fans miss the unreleased music, the demos and voice notes, the early access, and the feeling of being genuinely close to you. Right now that door does not exist.',
       fix: {
@@ -393,6 +395,8 @@ const fanMission: AcquisitionTool = {
         'Launches and releases go out to silence because there is no action to rally around.',
         'Your most willing fans stay on the sidelines, waiting to be told how to help.',
       ],
+      depth:
+        'Most of your audience will never take part in anything, and that is normal. A small number will, every time you ask, and those are the people who bring others with them. Nothing in a follower count separates the fans who act from the fans who scroll.',
       fanLoss:
         'Your fans miss a clear assignment, visible progress toward a goal, recognition when they finish, a reward worth earning, and proof that what they did actually mattered.',
       flow: [
@@ -484,6 +488,8 @@ const clipToEarn: AcquisitionTool = {
         'Each livestream and release disappears after one view instead of becoming a month of clips.',
         'All your reach stays trapped on your own accounts, capped by one algorithm.',
       ],
+      depth:
+        'Only a handful of your fans will ever cut and post your content, and one of them can reach more new people than a month of your own posting. That handful is worth far more to you than a passive listener, and right now nothing tells you who they are.',
       fanLoss:
         'Your fans miss the chance to clip you, earn a recurring commission when their clip brings a subscriber, get recognized on a leaderboard, and genuinely help shape your growth.',
       flow: [
@@ -580,6 +586,8 @@ const founderWindow: AcquisitionTool = {
         'You cannot tell who believed early, so you cannot reward them or build around them.',
         'Every release cycle you wait is another batch of "later" that quietly becomes never.',
       ],
+      depth:
+        'The fans who join in the first window are not the same as the ones who join eventually. They decide fast, they spend more, and they stay longest. A deadline does not create those people, it just reveals which of your fans they are.',
       fanLoss:
         'Your fans miss permanent proof they were early, founding-supporter recognition, a spot in your First 100, and a real place in the story before everyone else showed up.',
       flow: [
@@ -755,6 +763,8 @@ const fanJourney: AcquisitionTool = {
         'Fans who wanted to go deeper find no next step, so they stay casual.',
         'Lifetime value evaporates through weak retention you never see.',
       ],
+      depth:
+        'Fans do not arrive at their most valuable. They get there, or they stall. The difference between a listener and someone paying you every month is a series of steps, and most artists have no structure that moves anyone along them.',
       fanLoss:
         'Your fans miss a clear next action at every stage, real progression, stronger access as they go, earned roles, leadership opportunities, and permanent proof of what they contributed.',
       flow: [
@@ -839,6 +849,8 @@ const topFan: AcquisitionTool = {
         'Your future community leaders and city captains go unidentified.',
         'Your most valuable fan data stays hidden because everyone looks equal.',
       ],
+      depth:
+        'A leaderboard is the concentration made visible. A small number of names produce most of the support, most of the referrals and most of the noise, and everyone else is somewhere behind them. That ranking already exists in your business. Right now you just cannot see it.',
       fanLoss:
         'Your fans miss status, recognition, visible progress, healthy competition, earned access, leadership roles, and permanent proof of the impact they made.',
       flow: [
@@ -999,6 +1011,8 @@ const supporterPromise: AcquisitionTool = {
         'Perks priced too low for the work quietly cost you on every single delivery.',
         'Disappointed supporters do not just cancel, they tell other fans not to bother.',
       ],
+      depth:
+        'The fans who pay you most are also owed the most, and they are the first to leave when what was promised does not arrive. Depth and reliability are the same problem: you cannot keep your highest-value supporters without keeping your commitments to them.',
       fanLoss:
         'Your fans miss the benefits they paid for, predictable access, honest communication about timing, recognition, and the confidence that you actually value their support.',
       flow: [
@@ -1603,6 +1617,8 @@ const royaltyReadiness: AcquisitionTool = {
         'Unregistered songs cannot be matched to you even when an organization is trying to pay.',
         'The longer a song circulates unregistered, the more it earns for somebody who is not you.',
       ],
+      depth:
+        'This one is not about your fans at all, and it would be dishonest to pretend otherwise. This is money you already earned elsewhere and never collected. It is worth recovering on its own terms, separately from anything you build with the fans who pay you directly.',
       fanLoss:
         'Your fans lose nothing here, and that is exactly why this goes unnoticed for years. No fan complains, no dashboard turns red, and the money simply never arrives.',
       flow: [
@@ -1762,6 +1778,8 @@ const fanStack: AcquisitionTool = {
         'A fan who pays in one place is invisible in the rest, so the next offer never finds your proven buyers.',
         'Each tool takes its own cut and its own subscription, and the fees stack while the data does not.',
       ],
+      depth:
+        'Five tools each hold a piece of the same person, and none of them can tell you which fans are worth the most. That is the real cost of a split stack: not the subscriptions you pay for, but the fact that your best supporters are invisible in every system you own.',
       fanLoss:
         'Your fans miss one home: one place where the membership, the music, the shop and the community all recognize them, instead of five logins that each know a fragment.',
       flow: [
@@ -1886,6 +1904,8 @@ const betweenTour: AcquisitionTool = {
         'Momentum resets between runs, so every tour announcement starts from cold.',
         'Your highest-proof buyers, the VIP purchasers, are the least likely to be offered anything again.',
       ],
+      depth:
+        'The fans who bought a VIP package already told you what they are worth, and it is far more than the average ticket buyer. Then the tour ends and they go back to being names on a list, with nothing to buy until the next run.',
       fanLoss:
         'Your VIP fans miss the year-round version of what they already paid for once: early ticket access, member presales, backstage and soundcheck streams, and first claim on the limited experiences.',
       flow: [
