@@ -114,14 +114,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   // Non-cash recognition, granted once at the close. The rule is the referral rail's own verdict
   // (it already recorded a paying member against this person), never a campaign-invented one, and
   // `awardFanBadge` is idempotent per fan+artist+badge so a repeat end grants nothing new.
-  let badgesGranted = 0;
+  // Named for what it is: how many participants HOLD the badge after this call, not how many rows
+  // were inserted. The badge upsert ignores duplicates silently, so "newly granted" is not a number
+  // this path can honestly produce, and reporting it as one would overstate a repeat close.
+  let promotersRecognized = 0;
   if (to === 'ended') {
     const ended = await readCampaign(supabaseAdmin, campaign.id);
     if (ended) {
       const results = await readCampaignResults(supabaseAdmin, ended);
-      badgesGranted = await awardCampaignBadges(supabaseAdmin, ended, badgeEarners(results));
+      promotersRecognized = await awardCampaignBadges(supabaseAdmin, ended, badgeEarners(results));
     }
   }
 
-  return NextResponse.json({ status: to, badgesGranted });
+  return NextResponse.json({ status: to, promotersRecognized });
 }

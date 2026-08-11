@@ -67,13 +67,12 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 - **Recruiter/partner** program (dashboard, Stripe payouts, qualification crons).
 - **Opportunity Funnel system** (live 2026-07-27) — the 17 public tools unified under one config/lifecycle/promotion layer (`src/lib/opportunityFunnels/*`); the **Own Your Fans value-before-signup** builder (anonymous fan-page draft reusing `lead_magnet_results`, claimed at signup via the existing `user_metadata` token); ONE post-signup **journey resolver** (`src/lib/journey/resolveJourneyDestination.ts`: account gate → setup gate → prefilled builder → safe dashboard, validated returnTo); and a holistic-experience **experiments engine** (`src/lib/experiments/*`, `experiments` + `experiment_events` tables, admin Experiments tab). Experiment behavior is **prebuilt code**, so an experiment can never change pricing/fees/ownership/RLS. **The engine is ON** (`admin_settings.experiments`) and `oyf-signup-timing-v1` is **running** (save vs preview signup boundary, 50/50), assigning + recording variant-attributed outcomes. Full detail in `CHANGELOG.md` (2026-07-27 entries) + `18-SOURCE-MAP.md`. `Confirmed`.
 
-## Experimental / dark-launched
-
-- **Fan Drives / Virality Engine V1 (Z11, 2026-08-11)** — the thin Campaign spine plus ONE
-  archetype (Fan Recruitment Drive). Artist surface `/fan-campaigns`, fan surface
+- **Fan Drives / Virality Engine V1 (Z11, 2026-08-11)** — **LIVE. Migration applied to production
+  and verified with 32 dynamic checks** against the real database and the live site, including
+  cross-tenant RLS driven with real JWTs (full grid: doc 22 section 28.0). The thin Campaign spine
+  plus ONE archetype (Fan Recruitment Drive). Artist surface `/fan-campaigns`, fan surface
   `/{slug}/campaign`, four routes under `/api/fan-campaigns`, pure logic in `src/lib/campaigns/*`.
-  **Dark until `supabase/schema-phase3-fan-campaigns.sql` runs**, and harmlessly: the page shows the
-  constraint gate and creating a drive answers "not switched on yet". Non-cash only
+  Both tables held 0 rows before and after verification, so collection is prospective. Non-cash only
   (`incentive_kind` is CHECK-constrained at the database, the spine has no money column, the reward
   is the existing `promoter` badge). **No attribution, payout, commission or cookie behavior was
   changed**: outcomes are derived from `referrals` by (this artist, this participant set, this
@@ -83,6 +82,9 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   attribution is reported `missing`, never 0, because `/api/stripe/free-subscribe` writes no
   referral row. Full live/deferred split:
   [`22-VIRALITY-ENGINE-ARCHITECTURE.md`](22-VIRALITY-ENGINE-ARCHITECTURE.md) section 28. `Confirmed`.
+
+## Experimental / dark-launched
+
 - **Money Model measurement (First Revenue Launch economics, 2026-08-10)** — admin-only
   system for engagement terms, founder labor, guarantee evidence, revenue by source and
   30-day contribution margin per artist (`docs/crwn-brain/21-MONEY-MODEL-MEASUREMENT.md`).

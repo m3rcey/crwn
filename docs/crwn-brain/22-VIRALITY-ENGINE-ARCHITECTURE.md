@@ -1,6 +1,7 @@
 # VIRALITY ENGINE: Canonical Architecture
 
-> **Status: V1 IMPLEMENTED 2026-08-11 (Z11). Everything beyond V1 in this document remains
+> **Status: V1 LIVE IN PRODUCTION 2026-08-11 (Z11). Migration applied to `ecpqtuidtsncjfwtkvwc`
+> and verified against the real database. Everything beyond V1 in this document remains
 > architecture only.** What is live, and what is explicitly not, is section 28. Read that first
 > if you are about to build on this.
 >
@@ -1633,6 +1634,69 @@ Any future implementation of the Virality Engine must satisfy all of these.
 
 ## 28. What actually shipped (Z11, 2026-08-11)
 
+### 28.0 Production verification, 2026-08-11
+
+**Migration applied to `ecpqtuidtsncjfwtkvwc` and confirmed by three independent means:** the founder's
+SQL result grid (both tables, both SELECT policies, RLS on both, all six indexes, **money columns =
+0**), `npm run verify:migrations` reporting `fan campaigns` / `fan campaign participants` as
+**applied (readable)**, and 32 dynamic checks driven against the live database and the live site
+(production is serving `crwn-v381`, the deploy carrying this code).
+
+**Driven through the canonical writers, never hand-written SQL.** The harness imported
+`src/lib/campaigns/store.ts` and `lifecycle.ts` and drove the real implementation, then deleted
+every row. Both tables held **0 rows before and 0 rows after**, so collection is genuinely
+prospective and no verification row survives looking like artist activity.
+
+| Verified dynamically in production | Result |
+|---|---|
+| Anonymous INSERT on both tables | denied `42501` |
+| Anonymous `GET /api/fan-campaigns` / `POST` / `PATCH` / join | `403` / `403` / `401` / `401`, campaign unchanged |
+| Draft invisible to the public route | `campaign: null` while a draft existed |
+| Draft invisible to another artist, a fan, and anon; visible to its owner | `0 / 0 / 0`, owner `1` |
+| Launch gate with an empty toolkit | refused, all three required slots named |
+| Launch gate with the stored toolkit | passed, `draft -> active`, `starts_at` stamped |
+| Replaying `draft -> active` on an ACTIVE row | row unchanged |
+| Second concurrent drive (live `idx_fan_campaigns_one_active`) | refused: "You already have a drive running." |
+| `UPDATE incentive_kind = 'cash'` | refused by the DB CHECK, `23514` |
+| Live row column set | 13 columns, **zero money columns** |
+| Join, then join again | `joined` then `alreadyJoined`, **one row**, role `recruiter` |
+| Artist joining their own drive | refused |
+| Ended drive accepting a join | refused |
+| Results from canonical rails | participants 1, paid 0 `complete`, free `null/missing`, reach `null/missing`, commission `0 complete` |
+| Promoter badge, awarded twice | **one** `fan_badge_awards` row, `source_id` = campaign id |
+| `badgeEarners` on the real result | `[]`, because the rail credited nobody |
+| `archived` state | not publicly visible, no active campaign remains |
+| Archetypes resolvable in the production build | `fan_recruitment` only |
+| `GET /api/leaderboard` (public, 16 real entries) | no `score`, no `spent`; keys are rank, fanId, name, avatar, referralCount, commentCount, likeCount, tier |
+| `referrals.campaign_id` | absent (`42703`). The money rail carries no campaign column |
+| Public campaign payload | exactly 8 allowlisted keys; no `source_constraint`, no `REACH`, no `artist_id`, no revenue |
+
+**Cross-tenant boundaries were driven with REAL JWTs** (a canary artist A, artist B, fan A and
+fan B, created and deleted; the `__canary-` slug convention the daily onboarding cron already uses):
+
+| Cross-tenant check | Result |
+|---|---|
+| Artist A reads campaigns | own only; artist B's absent |
+| Artist A UPDATE/DELETE artist B's campaign | **zero rows affected**, B's title and status unchanged |
+| Artist A direct INSERT (even for themselves) | denied `42501`; there is no client write policy |
+| Artist A INSERT naming artist B's `artist_id` | denied `42501`; B still has exactly 1 campaign |
+| A signed-in FAN reading `fan_campaigns` | 0 rows |
+| Fan A reading participants | own row only, fan B's absent |
+| Fan A UPDATE/DELETE fan B's participation | **zero rows affected**, B's row survives with `role = recruiter` |
+| Fan A direct INSERT (self or someone else) | denied `42501` |
+| Artist A vs artist B reading participants | A sees both of their own, B sees 0 |
+
+**Stated precisely, because it matters:** cross-tenant **INSERT** raises `42501`, while cross-tenant
+**UPDATE and DELETE silently affect zero rows** rather than erroring. That is correct PostgreSQL
+behavior when no write policy exists (no row qualifies), and the data was verified unchanged after
+each attempt. It is recorded here so nobody later reads "no error" as "it worked".
+
+**Not dynamically verified, and why.** No real payment was made, so the paid-member leg of the loop
+is integration-verified rather than production-driven: the query that derives it ran against the
+live `referrals` table and correctly returned 0 with state `complete`, and the counting rule itself
+is unit-tested. Writing a referral row by hand to manufacture a conversion was refused on purpose,
+because that is the money rail. See the closed-loop matrix in the Z11 report.
+
 ### 28.1 V1 LIVE
 
 | Piece | Where |
@@ -1697,6 +1761,26 @@ term), both of which change what the leaderboard means.
 
 **No campaign leaderboard shipped**, and the archetype registry declares no `ranked` capability, so
 one cannot be added by configuration alone.
+
+### 28.3a Fraud and abuse: the V1 boundary as verified
+
+Reused unchanged, and confirmed still in place: the **self-referral guard** in
+`src/lib/referrals.ts` (the money-side protection, untouched), the **referral code format guard**
+that blocks PostgREST filter injection, the **7-day payout hold** and `atomic_fan_cashout`, and the
+**one-referral-per (artist, referred fan)** overwrite guard that keeps the ORIGINAL referrer.
+
+Added by V1, all production-verified: **duplicate participation is impossible** (UNIQUE
+`(campaign_id, fan_id)`), **the artist cannot join their own drive**, **an ended drive refuses
+participation**, **the role is taken from the archetype and never from the request body**, joining
+is **rate-limited** (10/min per user), and **participation grants nothing of value**, which is what
+makes sybil participation pointless.
+
+**Residual limitations, stated rather than papered over.** There is still no duplicate-identity
+detection (no device, IP or payment-instrument linkage), no click-velocity control, and no bot
+scoring. V1 does not need them, because **nothing in a drive pays and nothing ranks**: the only
+outcome is a referral the Stripe webhook already recorded, and the only reward is a badge. Those
+controls become prerequisites the moment a drive ranks participants or pays on volume, which is
+exactly why neither ships here.
 
 ### 28.4 Deferred, explicitly
 

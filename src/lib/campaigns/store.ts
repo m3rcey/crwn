@@ -324,9 +324,15 @@ export async function readCampaignResults(
 /**
  * Grant the archetype's non-cash badge at the end of a drive.
  *
- * Called once, on the ended transition. `awardFanBadge` is idempotent per (fan, artist, badge_key),
- * so a repeat call grants nothing new. It is recognition on a fact the referral rail already
- * established, not a payout, not an entitlement, and not a new reward vocabulary.
+ * Called once, on the ended transition. `awardFanBadge` is idempotent per (fan, artist, badge_key)
+ * and only notifies on a genuinely new award, so a repeat call adds no row and sends nothing. It is
+ * recognition on a fact the referral rail already established, not a payout, not an entitlement, and
+ * not a new reward vocabulary.
+ *
+ * RETURNS the number of participants who HOLD the badge afterwards, not the number of rows this
+ * call inserted. `awardFanBadge` returns true for an already-held badge (its upsert ignores
+ * duplicates without erroring), so a count of "newly granted" is not something this layer can
+ * honestly report, and the caller's field is named for what the number actually means.
  */
 export async function awardCampaignBadges(
   db: SupabaseClient,
