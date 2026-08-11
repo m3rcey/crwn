@@ -34,20 +34,21 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       is broken, but **no evidence is being collected**: every day it stays unrun is a day of
       recommendations CRWN cannot later measure, and the data cannot be backfilled (the engine reads
       live tables, so a reconstructed baseline would be a fabrication).
-      **It did not land. Checked again 2026-08-11 after you ran it, and the table is still not
-      there.** Do this first, before re-running anything: open
-      [supabase/diagnose-z3-recommendation-outcomes.sql](supabase/diagnose-z3-recommendation-outcomes.sql)
-      and run the whole file. It is read-only and tells you in one grid whether the table exists.
-      Two possibilities, and it distinguishes them: either the migration rolled back (the SQL editor
-      runs the whole script in ONE transaction, so a single error anywhere, including the
-      self-verify block at the bottom firing, undoes the CREATE TABLE and leaves nothing behind), or
-      it landed and only the API's schema cache is stale, which the NOTIFY at the end of the
-      diagnostic fixes. If the grid says MISSING, re-run the migration and **read the error the
-      editor prints** rather than trusting a green tick. Evidence for the diagnosis: the production
-      API answers `PGRST205 could not find the table` for this table while `support_conversations`
-      and `artist_profiles` resolve normally through the same API in the same project, so it is not
-      an outage and not the wrong project.
-      I cannot run either file myself: there is no DATABASE_URL, no psql, no Supabase CLI and no
+      **Attempt 1 (2026-08-11) reported success and left no table.** Your diagnostic run confirmed
+      it: `table | MISSING`. The schema-cache theory is dead too, since the diagnostic queries the
+      catalog directly. So the script rolled back, or never ran against this project.
+      **Two things to do differently this time, both in the header of the migration file:**
+      (1) confirm the browser URL says project `ecpqtuidtsncjfwtkvwc`, because the editor reopens
+      whatever project you had last and a wrong-project run looks identical to a good one; and
+      (2) **press Ctrl+A before Run.** If any text is selected the Supabase editor runs only the
+      selection and still reports success. That is my leading suspect for a green tick with no table.
+      The whole script is one transaction, so any error rolls back the CREATE TABLE and leaves no
+      trace but the message on screen: **if it fails, that message is the thing to send me.**
+      I have rewritten the end of the migration so this cannot be ambiguous again: it now ends with
+      a `NOTIFY pgrst` cache reload and a **result grid listing the table, its 3 indexes, its single
+      SELECT policy, RLS on/off and its column count. No grid means it did not commit.** Paste the
+      grid back and I will run the full production verification immediately.
+      I cannot run it myself: there is no DATABASE_URL, no psql, no Supabase CLI and no
       SQL-execution RPC here, and the service-role key talks to PostgREST, which cannot execute DDL.
       Straight after running it, run `npm run verify:migrations` again: the line
       `constraint recommendation outcomes` must read **applied (readable)**. A 200 with an empty

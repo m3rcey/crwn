@@ -24,6 +24,21 @@
 -- Apply manually in the Supabase SQL editor. Additive only, no destructive statement. Self-verifies
 -- at the end. Until it runs, the issuance path swallows 42P01 and the product behaves exactly as it
 -- does today, so applying it IS the launch.
+--
+-- ---------------------------------------------------------------------------------------------
+-- HOW TO RUN THIS, because the first attempt (2026-08-11) reported success and left no table.
+--
+--  1. Check the project ref in the browser URL is ecpqtuidtsncjfwtkvwc. The editor remembers the
+--     last project you had open, and running this against a different one looks identical.
+--  2. Click into the editor and press Ctrl+A (Cmd+A) before Run. If ANY text is selected, the
+--     Supabase editor runs ONLY THE SELECTION, silently, and reports success for the part it ran.
+--     That is the single most likely explanation for a green tick and no table.
+--  3. The whole script runs in ONE transaction, so any error anywhere rolls back everything,
+--     including the CREATE TABLE. A failure leaves no trace except the message in the editor.
+--     If it fails, the message IS the thing to send back.
+--  4. On success the LAST statement prints a result grid listing the table, its indexes, its
+--     policy, whether RLS is on, and its columns. **If you see no grid, it did not commit.**
+-- ---------------------------------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS constraint_recommendations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -136,3 +151,37 @@ BEGIN
     RAISE EXCEPTION 'baseline_evidence column missing';
   END IF;
 END $$;
+
+-- Make the API pick the new table up immediately. Without this, PostgREST can keep answering
+-- PGRST205 "could not find the table in the schema cache" for a table that genuinely exists, which
+-- is indistinguishable from a failed migration when probed from outside.
+NOTIFY pgrst, 'reload schema';
+
+-- PROOF OF COMMIT, and the last statement on purpose.
+--
+-- A rolled-back migration prints an error and no grid. A committed one prints the rows below. This
+-- exists because the previous attempt reported success while leaving no table behind, and there was
+-- no way to tell those two outcomes apart from the editor afterwards.
+--
+-- Expect: 1 table row, 3 indexes, exactly 1 policy and its cmd must be SELECT, rls enabled = yes,
+-- and 15 columns. Any INSERT/UPDATE/DELETE/ALL policy here is a defect: writes are service-role only.
+SELECT 'table'::text AS what,
+       COALESCE(to_regclass('public.constraint_recommendations')::text, 'MISSING - did not commit') AS detail
+UNION ALL
+SELECT 'index: ' || indexname, 'present'
+  FROM pg_indexes
+ WHERE schemaname = 'public' AND tablename = 'constraint_recommendations'
+UNION ALL
+SELECT 'policy: ' || policyname, 'FOR ' || cmd
+  FROM pg_policies
+ WHERE schemaname = 'public' AND tablename = 'constraint_recommendations'
+UNION ALL
+SELECT 'rls enabled', CASE WHEN c.relrowsecurity THEN 'yes' ELSE 'NO - stop and tell Claude' END
+  FROM pg_class c
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+ WHERE n.nspname = 'public' AND c.relname = 'constraint_recommendations'
+UNION ALL
+SELECT 'column count', count(*)::text
+  FROM information_schema.columns
+ WHERE table_schema = 'public' AND table_name = 'constraint_recommendations'
+ ORDER BY 1;
