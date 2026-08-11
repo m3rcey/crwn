@@ -27,6 +27,18 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the Z3 recommendation-outcome migration, or CRWN records nothing about its own advice.**
+      Open [supabase/schema-phase3-recommendation-outcomes.sql](supabase/schema-phase3-recommendation-outcomes.sql)
+      in the Supabase SQL editor and run it. Additive only, one new table, self-verifies at the end.
+      Until it runs the code fails soft and the product behaves exactly as it does today, so nothing
+      is broken, but **no evidence is being collected**: every day it stays unrun is a day of
+      recommendations CRWN cannot later measure, and the data cannot be backfilled (the engine reads
+      live tables, so a reconstructed baseline would be a fabrication). Verify afterwards with
+      `npm run verify:migrations`. What it turns on: `/api/artist/constraint` starts recording what
+      it recommended, and the new daily `constraint-outcomes` cron reads whether the artist acted
+      and whether the constraint cleared. Background: docs/crwn-brain/24-RECOMMENDATION-OUTCOME-LINKAGE.md
+
+
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
       migration, nothing to deploy: build each link at /admin -> Lead Magnets -> **Campaign link

@@ -85,6 +85,10 @@
       "schedule": "0 1 * * *"
     },
     {
+      "path": "/api/cron/constraint-outcomes",
+      "schedule": "0 2 * * *"
+    },
+    {
       "path": "/api/cron/agent-health",
       "schedule": "0 23 * * *"
     },
