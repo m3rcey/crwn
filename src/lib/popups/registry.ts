@@ -34,6 +34,16 @@ export interface PopupContext {
    * popup_engine alone announces a feature the user cannot reach.
    */
   featureFlags: Record<string, boolean>;
+  /**
+   * Artists only: Rise Mode work that is genuinely PART DONE right now, or null.
+   *
+   * DERIVED, never stored. It reads the existing `quest_instances` rows the Quest Engine already
+   * maintains (open status, progress strictly between 0 and 100), so there is no second progress
+   * system and nothing to keep in sync. "Part done" is the whole test: a quest at 0% is not
+   * something the artist left in the middle, it is just the next thing, and prompting about it
+   * would be nagging rather than resuming.
+   */
+  resumable: { title: string; progressPercent: number } | null;
 }
 
 export interface PopupCta {
@@ -104,6 +114,37 @@ export const POPUPS: PopupDef[] = [
     body: 'Until your payouts are connected, every subscribe and every sale hits a dead end. The fan gives up, and that money never reaches you. Connecting takes about two minutes.',
     cta: { label: 'Connect payouts', href: '/account/payouts' },
     dismissLabel: 'Later',
+  },
+
+  // ---- Artist: resume Rise Mode work already part done ----
+  //
+  // The founder-requested "continue where you left off" prompt, deferred through several phases and
+  // implemented here because both prerequisites are now live in production (`quest_engine` and
+  // `popup_engine` are both on, and there is real quest state to resume).
+  //
+  // FOUR THINGS THAT KEEP IT FROM BECOMING NAGGING, and each is deliberate:
+  //  1. `c.resumable` is null unless a quest is strictly between 0% and 100%. Work never started is
+  //     not work left in the middle, and CRWN already has a surface for what to do next.
+  //  2. `pages` excludes `/profile/artist`. Rise Mode IS the destination, so prompting someone who
+  //     is already looking at it would be absurd.
+  //  3. Priority 40 puts it BELOW connecting Stripe (100), the first broadcast (80) and the upgrade
+  //     nudges. Unfinished progress must never outrank money that cannot reach the artist, and the
+  //     engine's one-pop-up-per-user-per-day cap applies on top.
+  //  4. `everyN` 4 days, max 3. If someone has ignored it three times, they have answered.
+  //
+  // It stores nothing. The resumable state is derived from the rows the Quest Engine already keeps.
+  {
+    key: 'artist_resume_rise',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/library', '/explore'],
+    audience: (c) => c.isArtist && !!c.featureFlags.quest_engine && !!c.resumable,
+    frequency: { type: 'everyN', days: 4, max: 3 },
+    priority: 40,
+    goal: 'Artist finishes the Rise Mode work they already started instead of abandoning it.',
+    title: 'You left something half done.',
+    body: 'Work you already started is sitting there unfinished, and unfinished is worth nothing. Picking it back up is faster than starting anything new.',
+    cta: { label: 'Pick it back up', href: '/profile/artist' },
+    dismissLabel: 'Not now',
   },
 
   // ---- Artist: first broadcast (activation, protects retention) ----

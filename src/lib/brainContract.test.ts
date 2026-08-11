@@ -69,6 +69,27 @@ describe('a canonical doc may not call a SHIPPED system unbuilt', () => {
   });
 });
 
+describe('a canonical doc may not call a LIVE feature flag dark', () => {
+  // Production `admin_settings` (checked 2026-08-11) has quest_engine ON and popup_engine ON, with
+  // 326 real quest_instances rows. Several docs still called both "dark", and that drift nearly
+  // caused the Rise Mode resume prompt to be deferred a fourth time on a false premise. A flag's
+  // state is not greppable from code, so what is pinned here is the SHAPE of the stale claim.
+  const LIVE_FLAGS = ['quest_engine', 'popup_engine'];
+
+  it.each(LIVE_FLAGS)('%s is not described as dark or off', (flag) => {
+    for (const [path, src] of CANONICAL_DOCS) {
+      const stale = src
+        .split('\n')
+        .filter((line) => line.includes(flag))
+        .filter((line) => /\bdark\b|"enabled": ?false|\{"enabled":false\}|flag is off/i.test(line))
+        // A line that ALSO states the flag is live is explaining the history, not asserting the
+        // stale claim. That is exactly what a corrected doc looks like, so it must pass.
+        .filter((line) => !/\bLIVE\b|"enabled": ?true|is ON\b/.test(line));
+      expect(stale, `${path} calls ${flag} dark, but it is ON in production`).toEqual([]);
+    }
+  });
+});
+
 describe('a canonical doc may not warn about a hole that is closed', () => {
   it('does not claim /api/ai-manager/generate lacks an ownership check', () => {
     const route = read('src/app/api/ai-manager/generate/route.ts');

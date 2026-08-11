@@ -217,7 +217,7 @@ and an operating system. Everything else is table stakes that already partly exi
 | Geographic mobilization with contribution goals | **Existing** | `src/lib/cityUnlocks.ts` `GOAL_TYPES` (5), `CONTRIBUTION` types |
 | Demand testing before building | **Existing** | `proof_of_demand` with `response_count` / `goal_count` |
 | Status and recognition | **Existing** | `src/lib/fanBadges.ts` `awardFanBadge` (idempotent per fan+artist+badge_key), 6 global badges incl. `promoter`, `top_clipper`, `city_captain`, `bounty_winner`; `source` enum already includes `squad | city_unlock | bounty | mission | milestone | manual` |
-| XP / levels / progression | **Existing, DARK** | `src/lib/quests/*`, `user_progression`, `xp_ledger`. Flag `admin_settings.quest_engine` is off |
+| XP / levels / progression | **Existing, LIVE** | `src/lib/quests/*`, `user_progression`, `xp_ledger`. `admin_settings.quest_engine` is ON in production (verified 2026-08-11); the CODE default is off, which is what this row was reading |
 | Per-artist promoter leaderboard | **Partial** | `/api/leaderboard` exists but takes `artistId` from the query string with **no session or ownership check**. See section 19 |
 | Cross-feature promotion rollup | **Existing, read-only** | `/api/campaign-hub` aggregates referral earnings, promoters, missions, clipper timeline. Explicitly states there is **no campaign entity** |
 
@@ -980,8 +980,10 @@ must stay artist-approved. **Nothing in this task changes the Manager.**
 
 ### 17.1 Rise Mode
 
-Rise Mode is the execution layer (DARK, flag `admin_settings.quest_engine`). The quest catalog is
-**pending a rewrite** before the flag flips, because quest progress is STORED (`TODO.md`).
+Rise Mode is the execution layer, and it is **LIVE**: `admin_settings.quest_engine` is ON in
+production (verified 2026-08-11, with 326 `quest_instances` rows). This section previously said DARK
+because the CODE default is off; the flag had already been flipped. The quest catalog rewrite is
+still **pending** (`TODO.md`), but it was never what gated the flag.
 
 **Therefore: do not wire campaigns into Rise Mode in this or the next task.** The correct future
 integration, once the catalog rewrite lands:

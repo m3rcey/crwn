@@ -107,6 +107,7 @@ async function buildContext(userId: string): Promise<PopupContext> {
     gmv30dCents: 0,
     accountCreatedAt: null,
     featureFlags: {},
+    resumable: null,
   };
 
   try {
@@ -169,6 +170,29 @@ async function buildContext(userId: string): Promise<PopupContext> {
         (sum, row) => sum + (Number(row.gross_amount) || 0),
         0,
       );
+
+      // Rise Mode work that is genuinely PART DONE. Derived from the rows the Quest Engine already
+      // maintains, so there is no second progress system: strictly between 0 and 100 percent, and
+      // still open. A quest at 0 is the next thing to do, not something left in the middle, and
+      // prompting about it would be nagging rather than resuming. Highest progress first, matching
+      // `recommendNextQuest`'s own "finish what is underway" rule so the prompt and Rise Mode
+      // cannot disagree about which piece of work is meant.
+      const { data: openQuests } = await supabaseAdmin
+        .from('quest_instances')
+        .select('title, progress_percent, status')
+        .eq('user_id', userId)
+        .in('status', ['active', 'in_progress'])
+        .gt('progress_percent', 0)
+        .lt('progress_percent', 100)
+        .order('progress_percent', { ascending: false })
+        .limit(1);
+      const partDone = openQuests?.[0];
+      if (partDone) {
+        base.resumable = {
+          title: String(partDone.title ?? 'your next step'),
+          progressPercent: Number(partDone.progress_percent) || 0,
+        };
+      }
     } else {
       const { count: subs } = await supabaseAdmin
         .from('subscriptions')

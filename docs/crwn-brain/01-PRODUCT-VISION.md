@@ -47,7 +47,7 @@ Independent artists on streaming platforms (Spotify/Apple) earn fractions of a c
 - Split revenue with **collaborators** via capped-hybrid Team Splits.
 - Get **AI Manager** insights + one-click actions (Pro+; `starter` gets rule-based nudges).
 - **Go live** (LiveKit) with paid/gated access, recorded to VOD.
-- Gamified growth toolkit: **missions, squads, clip bounties, city-unlocks, road-campaigns, proof-of-demand, smart-links/pre-save** (Rise Mode / Quest Engine wraps these; the quest layer itself is **dark-launched**, flag `admin_settings.quest_engine` defaults off). `Confirmed`.
+- Fan participation toolkit: **missions, squads, clip bounties, city-unlocks, road-campaigns, proof-of-demand, smart-links/pre-save**, plus the Z11 Fan Drives campaign spine. Rise Mode / the Quest Engine wraps these, and **the quest layer is LIVE in production** (`admin_settings.quest_engine` was flipped on; the code default is off, which is why several docs described it as dark long after it shipped). `Confirmed 2026-08-11 by reading production `admin_settings`.`
 
 ## 6. Fan use cases
 

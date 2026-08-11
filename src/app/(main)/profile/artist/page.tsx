@@ -37,6 +37,8 @@ import { getPostSetupTourSteps } from '@/lib/artistTourSteps';
 import { usePageTour } from '@/hooks/usePageTour';
 import { useArtistContext } from '@/hooks/useArtistContext';
 import { resolveTabRoute } from '@/lib/dashboardRoutes';
+import { resolveOperatingFlow } from '@/lib/constraint/presentation';
+import type { ConstraintResult } from '@/lib/constraint/types';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 
 function ArtistDashboardContent() {
@@ -45,6 +47,28 @@ function ArtistDashboardContent() {
   const router = useRouter();
   const { status, context } = useArtistContext();
   const [showPlatformTierModal, setShowPlatformTierModal] = useState(false);
+  const [constraintResult, setConstraintResult] = useState<ConstraintResult | null>(null);
+
+  // ONE read of the canonical diagnosis for the whole screen. The cards used to fetch
+  // independently, which is how each of them came to believe it was the most important thing on
+  // the page. A failure leaves `null`, which resolves to the pre-existing behavior (roadmap leads).
+  useEffect(() => {
+    if (status !== 'artist') return;
+    let active = true;
+    fetch('/api/artist/constraint')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (active) setConstraintResult(j?.constraint ?? null);
+      })
+      .catch(() => {
+        /* Silent: the roadmap is unaffected. */
+      });
+    return () => {
+      active = false;
+    };
+  }, [status]);
+
+  const flow = resolveOperatingFlow(constraintResult);
 
   // Legacy ?tab= forwarding, computed during render rather than in an effect:
   // Rise Mode is expensive to mount and must not paint for a frame just to
@@ -130,16 +154,50 @@ function ArtistDashboardContent() {
         </div>
 
         <div className="px-4 sm:px-6 lg:px-8 py-8">
-          {/* The one corrective action, when the deterministic engine has enough evidence to
-              name a constraint. It renders NOTHING otherwise, so the roadmap below is the
-              unchanged default. It never replaces the roadmap and never mutates it. */}
-          <ConstraintCard />
+          {/* ONE PRIMARY ACTION.
+              The canonical diagnosis is fetched once here and handed down, so exactly one card
+              renders a gold CTA. Before this, the constraint, the roadmap and the strategy card
+              each rendered their own primary button (two of them labelled "Do it now") pointing at
+              different destinations, and the artist had to decide which CRWN subsystem to believe.
+              `resolveOperatingFlow` adds no opinion: it reads back which canonical owner should
+              hold the action from what the engine already returned. */}
+          {flow.phase === 'launch' && flow.launchBlockers.length > 0 && (
+            <div className="neu-raised rounded-2xl p-5 mb-6 border border-crwn-gold/40">
+              <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary">
+                Finish launching first
+              </p>
+              <h3 className="font-bold text-crwn-text mt-1">
+                Your page cannot take money yet, so there is nothing to grow.
+              </h3>
+              <p className="text-xs text-crwn-text-secondary mt-1">
+                CRWN is holding back growth advice on purpose. Until this is done, any number it
+                showed you would be measuring a business that does not exist yet.
+              </p>
+              <ul className="mt-3 space-y-1.5">
+                {flow.launchBlockers.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-xs text-crwn-text">
+                    <span className="mt-1.5 w-1 h-1 rounded-full bg-crwn-gold shrink-0" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Renders nothing unless a constraint was diagnosed. */}
+          <ConstraintCard constraint={flow.constraint} />
+
           {/* Cohort-only: the First Paid Member Guarantee made visible. Renders
               nothing unless the founder flipped launch_partner for this artist. */}
           <LaunchPartnerChecklist />
-          <RoadmapCard />
+
+          {/* Launch-gated or steady: the roadmap leads. Diagnosed: it recedes to context. */}
+          <RoadmapCard emphasis={flow.primary === 'roadmap' ? 'primary' : 'secondary'} />
+
           {/* The membership strategy sits between the roadmap (what to do next)
-              and Rise Mode (the quests): it is the WHY behind both. */}
+              and Rise Mode (the quests): it is the WHY behind both. Deliberately UNCHANGED: its
+              only gold control sits behind a collapsed disclosure, so it never competed for the
+              primary action on first paint and needed no emphasis prop. */}
           <StrategyCard />
           <RiseMode />
         </div>

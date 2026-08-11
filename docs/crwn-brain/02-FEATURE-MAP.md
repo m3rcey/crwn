@@ -72,7 +72,7 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 ## Gamified growth & fan engagement
 | Feature | Routes / files | Status |
 |---|---|---|
-| Quest Engine / Rise Mode / Supporter Mode | `RiseMode`, `SupporterMode`, `src/lib/quests/*`, `/api/quests/*`; `admin_settings.quest_engine` flag **off** | **Experimental/dark-launched** (stays dark until the quest catalog is realigned to the membership strategies) |
+| Quest Engine / Rise Mode / Supporter Mode | `RiseMode`, `SupporterMode`, `src/lib/quests/*`, `/api/quests/*`; `admin_settings.quest_engine` is **ON in production** (verified 2026-08-11, 326 `quest_instances` rows) | **LIVE.** The code default is `false`, which is why this row said dark-launched long after the flag was flipped. The quest-catalog realignment to the membership strategies is still outstanding, but it is not gating anything |
 | Membership strategy (Release Club / Vault) | `src/lib/membershipStrategy.ts` (pure, tested, deterministic), `/api/artist/strategy` (derived on read; override + declared facts stored on `artist_profiles`, migration `schema-phase2-membership-strategy.sql`), `StrategyCard` on `/profile/artist`, `announce_membership_strategy` pop-up. Spec tier names are ROLES mapped onto the pinned Bronze/Silver/Gold/Platinum rungs | **Live** (2026-08-01) |
 | Content classes (free forever / paid first / member only) | `classifyTrack`/`fieldsForClass` in `membershipStrategy.ts`; the ONE access control in `TrackUploadForm` (OptionSelect), encoded onto existing `is_free`/`allowed_tier_ids`/`public_release_date`. Replaced the two-toggle UI whose free+early-access combo locked a track for EVERYONE during the window | **Live** (2026-08-01) |
 | Release waterfall (higher tiers first) | `src/lib/waterfall.ts` (spec offsets 30/14/7 by PRICE order, tested), schedule on `tracks.waterfall` (migration `schema-phase2-track-waterfall.sql`), opened ADDITIVELY by the daily scheduled-releases cron; entitlement gate untouched by design. Upload form offers all-at-once vs staggered; fail-soft pre-migration | **Live** (2026-08-01) |
@@ -159,6 +159,34 @@ complete from it.
   (`medium` at the minimum, `high` at 2x).
 - **Renders nothing** on loading, error, insufficient evidence or a healthy artist, so the
   default experience is exactly today's roadmap. `Confirmed`.
+### One operating flow (2026-08-11) — the rule to apply
+
+**One priority, one action, one return point.** `/profile/artist` is the artist's operating home and
+composes the existing owners; it is NOT a new dashboard, aggregator or priority engine.
+
+`resolveOperatingFlow` (`src/lib/constraint/presentation.ts`, pure) reads back which canonical owner
+holds the single primary CTA, from the `ConstraintResult` the engine already returned:
+
+| Phase | Trigger | Primary CTA owner |
+|---|---|---|
+| `launch` | `insufficient_evidence` **with** `missingEvidence` (engine Stage 0) | **Roadmap.** Growth advice is withheld and the artist is told why, in the engine's own words |
+| `priority` | `diagnosed` | **Constraint.** The Roadmap drops to a quiet contextual link |
+| `steady` | `insufficient_evidence` with **no** `missingEvidence` | **Roadmap.** No priority is invented to have something to say |
+| `unknown` | read failed or in flight | **Roadmap**, exactly as before |
+
+- **The page fetches `/api/artist/constraint` ONCE and hands it down.** Cards must not fetch it for
+  themselves: two components each deciding they are the most important thing on the page is how two
+  identical gold "Do it now" buttons ended up stacked, pointing at different destinations.
+- **`withReturnTo(href)` on both canonical CTAs**, so acting on the priority returns the artist to
+  the flow instead of stranding them in Studio. Same-site paths only: an absolute or
+  protocol-relative URL is left alone rather than becoming an open redirect.
+- **Nothing is persisted.** No current-constraint row, no operating state, no second Z3 issuance.
+  Only `/api/artist/constraint` issues, so a diagnosis rendered here is still ONE recommendation.
+- **`artist_resume_rise`** (Pop-up Engine) prompts an artist to finish Rise Mode work that is
+  strictly part done (`quest_instances` open, progress between 0 and 100). Priority 40, below
+  Stripe (100) and first broadcast (80); never on `/profile/artist`, which is where it sends them.
+  Derived from existing rows, so there is no second progress system.
+
 ### Fan Drives / Virality Engine V1 (Z11, 2026-08-11) — the rule to apply
 
 `src/lib/campaigns/*`, `supabase/schema-phase3-fan-campaigns.sql`, `/fan-campaigns` (artist),

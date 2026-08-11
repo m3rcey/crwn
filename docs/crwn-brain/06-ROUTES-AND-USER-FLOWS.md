@@ -127,6 +127,22 @@ records nothing, and the free-tier path returns before it. Read back by `GET
 ### Support (help center, shipped 2026-07-31)
 `/support` = guide search (14 getting-started guides) + link to `/getting-started` + live chat + contact form (CCs joshn.wms@gmail.com, accepts auto-captured context). Chat: user posts via `POST /api/support/chat` (session-auth, service-role writes); AI reply from DeepSeek `deepseek-chat` with a knowledge prompt built from real guide content (`src/lib/supportKnowledge.ts`). Client reads the conversation via RLS + realtime on `support_conversations`/`support_messages` (migration `schema-phase2-support-chat.sql` PENDING; UI falls back to the contact form until it runs). Escalation (no `DEEPSEEK_API_KEY`, AI flags the question, or "Talk to a human") sets status `human_requested` and emails the founder a link to `/admin?tab=support` (SupportChatView); admin replies email the user. A global `BugReportButton` (root layout, hidden on auth/setup screens) posts to `/api/support` with category Bug Report + auto-captured page URL/user agent/user id. `Confirmed`.
 
+### The daily artist flow (one operating flow, 2026-08-11)
+`/profile/artist` is the operating home (unchanged route: it is where login, the setup gate, the
+bottom nav "Rise" slot and every legacy `?tab=` link already land). It fetches
+`/api/artist/constraint` once and composes the existing owners around the answer.
+
+**Launch-gated** (engine Stage 0 refuses and names what is missing): a panel states that the page
+cannot take money yet and lists the blockers, the Constraint card renders nothing, and the Roadmap
+holds the only gold CTA. **Post-launch diagnosed:** the Constraint card holds the only gold CTA with
+its evidence, and the Roadmap drops to "Go to this when you are ready". **Steady** (nothing
+blocking) and **unknown** (read failed): the Roadmap leads, exactly as before, and no priority is
+invented.
+
+Both canonical CTAs carry `?returnTo=/profile/artist`, so completing the action returns the artist
+here and the engine re-reads on the next load. There is no cached or persisted priority, so a
+completed action simply stops being diagnosed.
+
 ### Fan Drive (Virality Engine V1, shipped dark 2026-08-11)
 Artist: `/fan-campaigns` (one page, `HubBackControl`, listed in AccountHub under Reach and fans) →
 `GET /api/fan-campaigns` returns the artist's drives with results AND the constraint verdict. If the

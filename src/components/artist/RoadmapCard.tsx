@@ -10,13 +10,22 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, CalendarCheck, Check, ChevronDown, Map } from 'lucide-react';
 import type { ArtistRoadmap } from '@/lib/artistRoadmap';
+import { withReturnTo } from '@/lib/constraint/presentation';
 
 interface LaunchExtras {
   upcomingPromises: { title: string; dueAt: string }[];
   stats: { members: number; paidMembers: number; mrrCents: number; goalMonthlyCents: number };
 }
 
-export function RoadmapCard() {
+/**
+ * `emphasis` is set by the page from the canonical operating phase, never by this card.
+ *
+ * When the Constraint Engine has diagnosed something, the roadmap is CONTEXT (where am I in the
+ * lifecycle), not the instruction, so its milestone drops to a quiet link. Its old gold "Do it now"
+ * was visually identical to the constraint's and pointed somewhere else, which made the artist
+ * arbitrate between two CRWN subsystems. The roadmap is never hidden: it stays the artist's map.
+ */
+export function RoadmapCard({ emphasis = 'primary' }: { emphasis?: 'primary' | 'secondary' }) {
   const [roadmap, setRoadmap] = useState<ArtistRoadmap | null>(null);
   const [extras, setExtras] = useState<LaunchExtras | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -65,7 +74,13 @@ export function RoadmapCard() {
       <p className="text-xs text-crwn-text-secondary mt-0.5">{stage?.goal}</p>
 
       {next ? (
-        <div className="mt-4 border border-crwn-gold/40 bg-crwn-gold/5 rounded-xl p-4">
+        <div
+          className={
+            emphasis === 'primary'
+              ? 'mt-4 border border-crwn-gold/40 bg-crwn-gold/5 rounded-xl p-4'
+              : 'mt-4 border border-crwn-elevated rounded-xl p-4'
+          }
+        >
           <p className="text-[11px] uppercase tracking-wide text-crwn-text-secondary mb-1">Next milestone</p>
           <p className="font-semibold text-crwn-text">
             {next.label}
@@ -77,14 +92,25 @@ export function RoadmapCard() {
             )}
           </p>
           <p className="text-xs text-crwn-text-secondary mt-1">{next.detail}</p>
-          <Link
-            prefetch
-            href={next.href}
-            className="inline-flex items-center gap-2 mt-3 bg-crwn-gold text-crwn-bg text-sm font-semibold px-5 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
-          >
-            Do it now
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          {emphasis === 'primary' ? (
+            <Link
+              prefetch
+              href={withReturnTo(next.href)}
+              className="inline-flex items-center gap-2 mt-3 bg-crwn-gold text-crwn-bg text-sm font-semibold px-5 py-2 rounded-full hover:bg-crwn-gold/90 transition-colors"
+            >
+              Do it now
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          ) : (
+            <Link
+              prefetch
+              href={withReturnTo(next.href)}
+              className="inline-flex items-center gap-1.5 mt-3 text-xs text-crwn-gold hover:underline"
+            >
+              Go to this when you are ready
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
         </div>
       ) : (
         <div className="mt-4 border border-crwn-gold/40 bg-crwn-gold/5 rounded-xl p-4">
