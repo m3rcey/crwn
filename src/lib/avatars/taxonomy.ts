@@ -97,7 +97,7 @@ export const SUB_AVATARS: SubAvatarDef[] = [
     entryContext: 'highest_priority_empire_builder',
     entryRoute: '/tools/opportunity-calculator?from=highest_priority_empire_builder',
     // Lead with proof and scale: this artist wants to know the size of the number, fast.
-    priorityStepIds: ['audience', 'proof', 'platforms'],
+    priorityStepIds: ['audience', 'proof'],
     entryNote:
       'You already sell to your fans, so we start with what you have proven and what it is worth in one place, not with whether fans will pay.',
     firstOffer: 'The full four-tier membership, launched to the buyers who already pay.',
@@ -153,7 +153,7 @@ export const SUB_AVATARS: SubAvatarDef[] = [
     entryContext: 'brand_led_hip_hop_artist',
     entryRoute: '/tools/opportunity-calculator?from=brand_led_hip_hop_artist',
     // Lead with reach and the content engine: this artist's asset is attention and output.
-    priorityStepIds: ['audience', 'clips', 'promote'],
+    priorityStepIds: ['audience', 'fans'],
     entryNote:
       'Your brand already moves people, so we start with the reach and the content you put out, then work out what owning that audience is worth.',
     firstOffer: 'A membership fed by the content engine, with fans promoting it.',

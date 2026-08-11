@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Wizard } from '@/components/ui/Wizard';
 import { LeadMagnetField } from './LeadMagnetField';
-import { validateStep, isInputVisible, isStepVisible } from '@/lib/leadMagnets/validation';
+import { validateStep, validateAll, isInputVisible, isStepVisible } from '@/lib/leadMagnets/validation';
 import { orderStepsForEntry, entryNote } from '@/lib/leadMagnets/entryContext';
 import { LM_EVENTS, trackLeadMagnet, readUtm } from '@/lib/leadMagnets/analytics';
 import type { LeadMagnetConfig, LeadMagnetInputValues } from '@/lib/leadMagnets/types';
@@ -21,6 +21,7 @@ export function LeadMagnetWizard({
   entryContext = null,
   submitting = false,
   submitLabel = 'See my result',
+  trackStart = true,
   onComplete,
   onClose,
 }: {
@@ -32,6 +33,13 @@ export function LeadMagnetWizard({
   entryContext?: string | null;
   submitting?: boolean;
   submitLabel?: string;
+  /**
+   * Fire `lead_magnet_started` on mount. TRUE for a real start; FALSE when the artist is RE-OPENING
+   * the wizard to correct an answer after seeing their result. That second mount is not a new
+   * visitor beginning the calculator, and counting it would inflate `calculator_started` and quietly
+   * depress every completion rate measured against it.
+   */
+  trackStart?: boolean;
   onComplete: (values: LeadMagnetInputValues) => void;
   onClose?: () => void;
 }) {
@@ -76,10 +84,10 @@ export function LeadMagnetWizard({
   }, [values, storageKey]);
 
   useEffect(() => {
-    if (started.current) return;
+    if (started.current || !trackStart) return;
     started.current = true;
     trackLeadMagnet(LM_EVENTS.started, { toolSlug: config.slug, context, totalSteps: steps.length, ...readUtm() });
-  }, [config.slug, context, steps.length]);
+  }, [config.slug, context, steps.length, trackStart]);
 
   const stepInputs = useMemo(
     () => config.inputs.filter((d) => d.step === step?.id && isInputVisible(d, values)),
@@ -96,6 +104,19 @@ export function LeadMagnetWizard({
 
   const advance = () => {
     if (isReview || isLast) {
+      // Submitting used to skip validation entirely, which was only safe because every tool ended on
+      // a `review` step that owns no inputs. A tool whose LAST step carries a required question (a
+      // two-question loss tool with no review screen) would have submitted it empty. Validate the
+      // WHOLE config here, and if the offending question lives on an earlier screen, go back to it:
+      // an invalid value the artist cannot see is a dead Continue button.
+      const allErrors = validateAll(config, values);
+      const firstBad = config.inputs.find((d) => allErrors[d.key]);
+      if (firstBad) {
+        setErrors(allErrors);
+        const i = steps.findIndex((s) => s.id === firstBad.step);
+        if (i >= 0 && i !== safeIndex) setStepIndex(i);
+        return;
+      }
       onComplete(values);
       return;
     }

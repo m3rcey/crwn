@@ -216,6 +216,36 @@ against the source, so breaking it fails `npm test` rather than reaching an arti
   was exactly invertible back to a fan's lifetime spend given the counts beside it
   (`src/lib/leaderboardPrivacy.ts` holds the scoring and the public projection, with a test).
 
+## The public calculators — one shared funnel, and speed is never bought by asking less
+
+20 active calculators: 19 `LEAD_MAGNETS` registry tools plus the standalone `/worth`. Almost
+everything is shared (`PublicToolClient` → `ToolHero` / `LeadMagnetWizard` / `LeadMagnetResult` /
+`DeliverableBuilder`); per-calculator differences are DATA in `src/lib/leadMagnets/registry.ts`. The
+homepage mounts the SAME component with the Opportunity Calculator config, so fix the shared
+primitive, never 19 copies. `src/lib/leadMagnets/conversionContract.test.ts` pins all of this.
+
+- **Optimize qualified downstream progression, not opt-ins.** A change that lifts completion while
+  thinning the result loses. The unified model derives money from the ANSWERS, so an artist who
+  skips questions gets a SMALLER number: buy speed by MERGING SCREENS, never by dropping,
+  optionalizing or defaulting a field. Every removal needs the Z2B-1 consumption trace first.
+- **The result is never gated and always correctable.** `leadCapture.required` is false on all 20,
+  there is no `preview` phase, and nothing (email, signup, booking) may appear between the result
+  and the builder. The post-result "change an answer and recalculate" control must keep working:
+  a number the artist cannot touch is a number they do not believe.
+- **A re-run after a correction is NOT a new completion.** It emits only
+  `opportunity_estimate_recalculated`; the wizard remounts with `trackStart={false}`. Never let a
+  correction add a second `calculator_started` / `calculator_completed`, or every ratio measured
+  against them silently drops.
+- **Never rename a calculator slug, `analyticsMetadata.toolId`, a DM keyword or a funnel stage.**
+  ManyChat triggers, campaign links and every historical `funnel_events` row are keyed to them.
+- **A wizard step id lives in three places**: the input's `step`, the tool's `wizardSteps`, and
+  `priorityStepIds` in BOTH `registry.ts` entry contexts and `src/lib/avatars/taxonomy.ts`. Change
+  one and change all four, or a screen renders empty or an avatar silently stops being personalized.
+- **The wizard's last screen is validated on submit** (`validateAll`, jumping back to the offending
+  question). That is what lets a tool end on a required question instead of a `review` screen.
+- **The launch call layers on top, it never gates.** No page may present booking a call as step one
+  of the self-serve path.
+
 ## Interruptions are governed — one engine, one cap
 
 Every surface that interrupts a user (pop-ups, artist broadcasts, fan notifications, surveys)

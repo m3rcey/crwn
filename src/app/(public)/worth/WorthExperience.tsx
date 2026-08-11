@@ -127,9 +127,17 @@ const OBJECTIONS = [
   { q: 'Is it really free to start?', a: 'Yes. Free to sign up, no card required. You only ever pay a fee on money you actually earn, and nothing on the tools you cancel to move here.' },
 ];
 
+// How it ACTUALLY works, which is self-serve.
+//
+// This section used to open with "1. Book a quick call", on a page (and a homepage) whose every
+// other CTA is "start free" and whose builder has already prefilled the artist's offer by the time
+// they read this. Naming a 15-minute Zoom as step one turns an open funnel into a human-gated one in
+// copy: the artist who will not book is told there is no path for them, and the artist who will book
+// is told to stop building and wait. The launch call is a real offer and it stays on the page, once,
+// framed as help beside the CTA. It is not the first step.
 const STEPS = [
-  { n: '1', title: 'Book a quick call', body: 'We build your setup live on a 15-minute Zoom: tiers, pricing, the plan.' },
-  { n: '2', title: 'Publish your page', body: 'Your artist page and tiers go live in minutes. No tech skills.' },
+  { n: '1', title: 'Build your offer here', body: 'Your tiers and prices come prefilled from the numbers you put in above. Edit anything.' },
+  { n: '2', title: 'Publish your page', body: 'Your artist page and tiers go live in minutes. No tech skills, no card required.' },
   { n: '3', title: 'Point your fans to it', body: 'Drop the link in your bio. Earn from the fans you already have.' },
 ];
 

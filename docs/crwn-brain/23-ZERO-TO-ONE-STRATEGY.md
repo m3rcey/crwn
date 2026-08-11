@@ -906,6 +906,111 @@ admitted. No violation was found. The one contamination was Promise Calendar CON
 
 ---
 
+## 22. Calculator Conversion Optimization (2026-08-11)
+
+Z2 made the calculators say the right thing. This pass asked a different question: after Z2 to Z12,
+what still stops a qualified Empire Builder from getting through **calculator visit → completion →
+result → builder → account → onboarding → launch → first paid member**. Copy was audited and mostly
+left alone; the friction was structural.
+
+### 22.1 The optimization objective
+
+**Qualified downstream progression, never raw opt-ins or completions.** A change that lifts
+completion while thinning the result, shrinking the artist's estimate, or removing a segmentation
+field is a losing change. Two rules follow from that and both were applied here:
+
+- **Never reach the result by asking less.** The unified model derives money from the answers
+  (`unifiedModel.ts`), so an artist who skips questions gets a SMALLER number. Speed was bought by
+  merging screens, not by dropping or optionalizing a single field.
+- **A shorter path must not cost measurement.** No event was renamed, no stage added, no calculator
+  id, slug, DM keyword or experiment key touched.
+
+### 22.2 Architecture, re-derived from the repository
+
+**20 active calculators: 19 `LEAD_MAGNETS` registry tools plus the standalone `/worth` route.**
+Pinned by `src/lib/leadMagnets/conversionContract.test.ts`.
+
+Almost everything is shared: `/tools/[slug]` → `PublicToolClient` (one funnel: hero → wizard →
+result → transition → builder → save boundary → optional email) → `ToolHero`, `LeadMagnetWizard`,
+`LeadMagnetResult`, `DeliverableBuilder`. Per-calculator differences are DATA in `registry.ts`
+(hero, inputs, wizard steps, CTA, entry contexts). The homepage mounts the same component with the
+Opportunity Calculator config; `/worth` owns its own page but reuses `ToolHero` and
+`LeadMagnetWizard`. So a shared fix reaches 20 surfaces, which is where this pass spent its effort.
+
+### 22.3 Acquisition tiering (from evidence, not preference)
+
+| Tier | Calculators | Evidence |
+|---|---|---|
+| **A** | `opportunity-calculator`, `worth`, `share-to-earn-planner`, `executive-producer-session`, `vault-revenue-planner`, `own-your-fans-calculator` | `opportunity-calculator` is the front door: **all four sub-avatars enter through it** (`docs/SUB_AVATARS.md`, `?from=<avatar id>`), the homepage mounts it, and it owns the `free`/`plan` DM keywords. The rest are the five magnets the shortform pipeline is actually built around (`.claude/commands/crwn-lead-magnet.md`), and the script inventory shows where the volume is: **worth 21 scripts, share 12, producer 7, vault 5, own 3, free/plan 3** |
+| **B** | `fan-stack-calculator`, `between-tour-calculator`, `live-experience-calculator`, `royalty-readiness-check`, `clip-to-earn-campaign-planner` | Real strategic roles (the fragmented-stack pitch is the beachhead's opening argument) but no organic script volume yet. They inherit every shared improvement |
+| **C** | `movement-page-blueprint`, `fan-journey-builder`, `top-fan-leaderboard-builder`, `founder-window-builder`, `supporter-promise-calendar`, `team-split-deal-builder`, `fan-mission-generator`, `proof-of-demand-test-builder`, `artist-quest-path` | Supporting. Bespoke conversion work here would be premature; several promote features section 17 lists as dilution candidates |
+
+### 22.4 What Z2 built that this pass VERIFIED rather than redid
+
+Heroes, subheads, primary and result CTAs, the fan-depth beat, field consumption (Z2B-1),
+result-to-builder continuity and the email boundary all still hold. Specifically confirmed:
+`leadCapture.required` is false on all 20, no `preview` phase exists, no "Unlock my result" copy
+survives, all 20 have a real builder spec (19 in `deliverableSpecs.ts` plus Own Your Fans'
+`FanCaptureBuilder`), and the funnel spine already records page view → started → completed → result
+→ builder → signup → account → setup → launch → **first paid conversion** (20 `FUNNEL_STAGES`).
+None of it was churned.
+
+### 22.5 The four things that were actually wrong
+
+1. **The result was not correctable, on any of the 19 tool pages or the homepage.** Once the result
+   rendered, the wizard unmounted and nothing brought it back. An artist who mistyped 25,000 for
+   250,000 read a figure ten times too small with no way to fix it, and `/worth`'s own code comment
+   states the principle it violated: *a number she cannot touch is a number she does not believe.*
+   Fixed once in `PublicToolClient`, which is every tool page plus the homepage. `/worth` was the
+   only surface that already allowed it, through its own inputs card, which is how the missing
+   affordance was noticed.
+2. **The primary front door asked fourteen questions across THIRTEEN screens.** Now **eight**, with
+   all fourteen questions intact. Z2B-1 audited whether each FIELD had a consumer; nobody had
+   audited how many DECISIONS TO CONTINUE stood between a cold visitor and the promised number.
+3. **The ten two-question loss tools ended on a `review` screen** replaying two answers the artist
+   typed seconds earlier: a tap at peak intent buying nothing. Deleted (2 screens, not 3).
+4. **"How it works" on `/worth` AND the homepage said step 1 was "Book a quick call"** while every
+   CTA on those pages said start free and the builder had already prefilled the artist's offer. That
+   turns the open funnel into a human-gated one in copy, which contradicts
+   `20-FIRST-REVENUE-LAUNCH-OFFER.md` (the concierge offer layers ON TOP, it never gates). The call
+   stays on the page once, beside the CTA, framed as help.
+
+Plus one latent correctness defect found on the way: `LeadMagnetWizard.advance()` skipped validation
+entirely on the final screen, which was safe only while every tool ended on an input-free `review`.
+It now validates the whole config and jumps back to the offending question, which is what keeps
+`monetization_status` (the ICP scorer's 40% factor) genuinely required now that it sits last.
+
+### 22.6 What was deliberately NOT changed
+
+- **No formula, price, fee, projection, attribution rule, permission, schema or Constraint Engine
+  threshold.** No calculator input was removed or optionalized: this pass found no unjustified field,
+  because Z2B-1 had already removed the three dead ones.
+- **No hero copy, subhead, hero image or fan-depth line.** Verified as passing and left alone.
+- **`/worth`'s body typography.** The oversized secondary text looks like a defect and is not: two
+  founder commits (*"Bump page body text for readability"*, and *"up another size"*) chose it
+  deliberately. It does invert hierarchy in a few places (a slider's label is larger than its value);
+  that is a founder call, recorded here, not silently reverted.
+- **No new experiment.** The Own Your Fans signup-timing experiment keeps running untouched. These
+  changes are a friction removal and a defect fix, not competing hypotheses, and the funnel table
+  already separates cohorts by `total_steps`.
+
+### 22.7 Measurement plan and the honest gap
+
+Every stage is already recorded, so no analytics were added. Read the effect as:
+`calculator_started → calculator_completed` per calculator (the step-count changes), and then
+`result_revealed → builder_opened → signup_clicked → account_created → setup_completed →
+first_paid_conversion` to confirm the extra completions are still QUALIFIED. A correction after the
+result deliberately emits only `opportunity_estimate_recalculated`, which is not mirrored into
+`funnel_events`, so no funnel ratio moves when an artist fixes a typo.
+
+**The gap: step-level abandonment is stored but not surfaced.** `lead_magnet_events` carries `step`
+and `total_steps` per `lead_magnet_step_completed`, so "which screen do they quit on" is answerable
+by query today; the admin dashboard reads `funnel_events` only and has no step view. Left as SQL in
+`TODO.md` rather than a second dashboard. Everything below signup was already stamped with campaign
+attribution, so this is sliceable per video.
+
+---
+
 *Companion documents:
 [`22-VIRALITY-ENGINE-ARCHITECTURE.md`](22-VIRALITY-ENGINE-ARCHITECTURE.md),
 [`21-MONEY-MODEL-MEASUREMENT.md`](21-MONEY-MODEL-MEASUREMENT.md),

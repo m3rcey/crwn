@@ -237,6 +237,16 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **In about two weeks, run the calculator step-abandonment query and tell me what it says.**
+      Open [supabase/query-calculator-step-abandonment.sql](supabase/query-calculator-step-abandonment.sql)
+      in the Supabase SQL editor and run it (read only, four queries, nothing writes). I shortened the
+      Opportunity Calculator from 13 screens to 8 and the ten two-question tools from 3 to 2, and I
+      cannot see production data. Query 2 says whether completion rose. **Query 3 is the one that
+      decides whether it was a good change**: if completion rose but `builder`, `accounts` and
+      `first_paid` did not follow, the shorter wizard bought opt-ins instead of artists and I should
+      put screens back. `total_steps` in query 1 separates the old cohort from the new one on its own,
+      so no flag or experiment is needed.
+
 - [ ] **Decide the public "you keep" number, because the homepage states two.** The fee source of
       truth is `TIER_LIMITS` in [src/lib/platformTier.ts](src/lib/platformTier.ts): Launch 12%
       (keep 88), Pro 8% (keep 92), Scale 5% (keep 95). Eight public strings say **"up to 92%"**

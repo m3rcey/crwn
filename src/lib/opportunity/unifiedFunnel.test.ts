@@ -81,16 +81,32 @@ describe('the tool is registered everywhere it needs to be', () => {
   });
 });
 
+// The questions the wizard actually renders on a screen, which is what the artist experiences.
+// Branching used to be observable at STEP level because each of these questions owned a screen of
+// its own; the fourteen questions now share eight screens, so a branched-away question disappears
+// from its screen instead of removing one. Same rule (`isInputVisible`), same guarantee, asserted
+// where it now applies.
+const visibleInputs = (values: LeadMagnetInputValues, entry: string | null = null) =>
+  orderStepsForEntry(config, entry)
+    .filter((s) => isStepVisible(config, s.id, values))
+    .flatMap((s) => config.inputs.filter((d) => d.step === s.id && isInputVisible(d, values)))
+    .map((d) => d.key);
+
 describe('the wizard branches instead of asking everything', () => {
   it('asks the overlap question only when the artist has BOTH sharers and clippers', () => {
-    expect(visibleSteps(ANSWERS)).toContain('overlap');
-    expect(visibleSteps({ ...ANSWERS, video_output: 'none' })).not.toContain('overlap');
-    expect(visibleSteps({ ...ANSWERS, fans_promote: 'unlikely' })).not.toContain('overlap');
+    expect(visibleInputs(ANSWERS)).toContain('promoter_overlap');
+    expect(visibleInputs({ ...ANSWERS, video_output: 'none' })).not.toContain('promoter_overlap');
+    expect(visibleInputs({ ...ANSWERS, fans_promote: 'unlikely' })).not.toContain('promoter_overlap');
   });
 
   it('asks how a session is structured only when the artist will go live', () => {
-    expect(visibleSteps(ANSWERS)).toContain('session');
-    expect(visibleSteps({ ...ANSWERS, live_willing: 'no' })).not.toContain('session');
+    expect(visibleInputs(ANSWERS)).toContain('session_structure');
+    expect(visibleInputs({ ...ANSWERS, live_willing: 'no' })).not.toContain('session_structure');
+  });
+
+  it('asks all fourteen questions across eight screens, so no question was traded for the shorter path', () => {
+    expect(visibleInputs(ANSWERS)).toHaveLength(14);
+    expect(visibleSteps(ANSWERS)).toHaveLength(8);
   });
 
   it('never renders a step whose every question was branched away', () => {
@@ -129,14 +145,20 @@ describe('entry context personalizes without changing the model', () => {
     expect(entryNote(config, key)).toMatch(/vault/i);
   });
 
-  it('leads with fan promotion for a Share-to-Earn video and clips for a Clip-to-Earn video', () => {
-    expect(visibleSteps(ANSWERS, resolveEntryContext(config, 'share-to-earn-planner'))[0]).toBe('promote');
-    expect(visibleSteps(ANSWERS, resolveEntryContext(config, 'clip-to-earn-campaign-planner'))[0]).toBe('clips');
+  it('leads with fan labor for a Share-to-Earn or Clip-to-Earn video', () => {
+    // Sharing and clipping are one screen now, so both videos land on it first and the artist sees
+    // the question their video was about as question one.
+    for (const from of ['share-to-earn-planner', 'clip-to-earn-campaign-planner']) {
+      expect(visibleSteps(ANSWERS, resolveEntryContext(config, from))[0], from).toBe('fans');
+    }
+    expect(visibleInputs(ANSWERS, resolveEntryContext(config, 'share-to-earn-planner'))[0]).toBe('fans_promote');
   });
 
   it('leads with audience and current earnings for a Streaming Loss video', () => {
     const ordered = visibleSteps(ANSWERS, resolveEntryContext(config, 'worth'));
-    expect(ordered.slice(0, 3)).toEqual(['audience', 'platforms', 'proof']);
+    expect(ordered.slice(0, 2)).toEqual(['audience', 'proof']);
+    // Monthly listeners is what that video was about, and it now shares the audience screen.
+    expect(visibleInputs(ANSWERS, resolveEntryContext(config, 'worth'))).toContain('monthly_listeners');
   });
 
   it('reorders only: same questions, same count, review still last', () => {

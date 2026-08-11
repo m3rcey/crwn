@@ -64,6 +64,16 @@ export function PublicToolClient({
   // them. The homepage therefore starts at the hero. A token would still resume
   // (the effect sets 'full'), just with a flash nobody can reach.
   const [phase, setPhase] = useState<Phase>(surface === 'homepage' ? 'hero' : 'loading');
+  // The artist is back in the wizard CORRECTING an answer after seeing the result. A number built on
+  // a typo (25,000 followers instead of 250,000) used to be unfixable: the wizard unmounted with the
+  // result and nothing brought it back, so the only move left was to leave. A number you cannot
+  // touch is a number you do not believe.
+  const [editing, setEditing] = useState(false);
+  // Whether the funnel-stage events for this run have already fired. A re-run after a correction is
+  // the SAME visitor completing the SAME calculator, so it must not add a second
+  // `calculator_completed` / `result_revealed`; it emits `estimateRecalculated` instead, which is
+  // deliberately not mirrored into `funnel_events`.
+  const completedOnce = useRef(false);
   // Signup-timing experiment variant for the Own Your Fans builder. 'save' = control (current).
   const [signupBoundary, setSignupBoundary] = useState<'save' | 'preview'>('save');
   // Anchor for the result-to-builder transition ("the builder is the CTA").
@@ -152,21 +162,31 @@ export function PublicToolClient({
         r = generateResult(config.resultGeneratorKey, v);
       }
       setResult(r);
-      trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: config.slug, context: 'public', generatorVersion: r.generatorVersion });
-      trackLeadMagnet(LM_EVENTS.resultUnlocked, { toolSlug: config.slug, context: 'public' });
-      trackOpportunity(OPPORTUNITY_EVENTS.funnelCompleted, opportunityMeta({ resultVersion: r.generatorVersion }));
-      trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
-      trackOpportunity(OPPORTUNITY_EVENTS.recommendationViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
-      // A result that models several opportunities at once has to show what it deliberately did
-      // NOT add together. Recording that the disclosure was shown is how we can tell later whether
-      // artists actually read it.
-      if (r.sections.some((s) => s.key === 'overlap')) {
-        trackOpportunity(OPPORTUNITY_EVENTS.overlapExplained, opportunityMeta({ resultVersion: r.generatorVersion }));
+      const isCorrection = completedOnce.current;
+      if (isCorrection) {
+        // A correction, not a new completion. One non-funnel event so the behavior is observable
+        // without moving a single funnel ratio.
+        trackOpportunity(OPPORTUNITY_EVENTS.estimateRecalculated, opportunityMeta({ resultVersion: r.generatorVersion }));
+      } else {
+        completedOnce.current = true;
+        trackLeadMagnet(LM_EVENTS.resultGenerated, { toolSlug: config.slug, context: 'public', generatorVersion: r.generatorVersion });
+        trackLeadMagnet(LM_EVENTS.resultUnlocked, { toolSlug: config.slug, context: 'public' });
+        trackOpportunity(OPPORTUNITY_EVENTS.funnelCompleted, opportunityMeta({ resultVersion: r.generatorVersion }));
+        trackOpportunity(OPPORTUNITY_EVENTS.resultViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
+        trackOpportunity(OPPORTUNITY_EVENTS.recommendationViewed, opportunityMeta({ resultVersion: r.generatorVersion }));
+        // A result that models several opportunities at once has to show what it deliberately did
+        // NOT add together. Recording that the disclosure was shown is how we can tell later whether
+        // artists actually read it.
+        if (r.sections.some((s) => s.key === 'overlap')) {
+          trackOpportunity(OPPORTUNITY_EVENTS.overlapExplained, opportunityMeta({ resultVersion: r.generatorVersion }));
+        }
       }
       // Experiment entry (inert unless an experiment is running for this experience). The server
       // derives the variant deterministically; if it assigns the 'preview' arm of the signup-timing
       // experiment, the builder moves its save boundary one step earlier. Default stays 'save'.
-      if (config.slug === OYF_TOOL_KEY) {
+      // Entered ONCE per visitor: correcting an answer is not a second entry into the experiment,
+      // and recording it as one would inflate the arm's denominator.
+      if (config.slug === OYF_TOOL_KEY && !isCorrection) {
         const utm = readUtm();
         void recordExperimentEntry('own-your-fans', { toolKey: config.slug, sourceVideo: utm.utmContent, campaign: utm.utmCampaign }).then(
           (variant) => {
@@ -175,6 +195,7 @@ export function PublicToolClient({
         );
       }
       // Straight to the full result. No email wall.
+      setEditing(false);
       setPhase('full');
       // The wizard was mid-page; the result replaces it, so start the artist at the top of it.
       window.scrollTo({ top: 0, behavior: 'auto' });
@@ -296,7 +317,10 @@ export function PublicToolClient({
               context="public"
               entryContext={entryContext}
               storageKey={`lm:${config.slug}:public`}
-              submitLabel="See my result"
+              // The submit button is the real conversion moment, so it repeats the promise the hero
+              // CTA made instead of a generic "See my result": the artist clicked "See what I am
+              // leaving", and that is what the button that reveals it should say.
+              submitLabel={config.hero.primaryCta}
               onComplete={onComplete}
               onClose={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             />
@@ -315,7 +339,24 @@ export function PublicToolClient({
         </>
       )}
 
-      {phase === 'full' && result && (
+      {phase === 'full' && result && editing && (
+        <div className="max-w-lg mx-auto">
+          <LeadMagnetWizard
+            config={config}
+            context="public"
+            entryContext={entryContext}
+            initialValues={values}
+            storageKey={`lm:${config.slug}:public`}
+            submitLabel="Update my result"
+            // Not a new start: see `trackStart`.
+            trackStart={false}
+            onComplete={onComplete}
+            onClose={() => setEditing(false)}
+          />
+        </div>
+      )}
+
+      {phase === 'full' && result && !editing && (
         // Universal Opportunity Funnel page order: result -> transition -> BUILDER -> save boundary,
         // then (and only then) secondary actions and supporting content. The builder IS the CTA.
         // No signup link, email gate, or booking block may appear before the builder.
@@ -333,6 +374,23 @@ export function PublicToolClient({
               />
             }
           />
+
+          {/* The number is theirs to correct. Low emphasis, so it never competes with the builder
+              below, but present: an artist who reads a figure built on a mistyped follower count
+              (or who wants to see what a different answer does) has somewhere to go other than away.
+              Hidden when there are no answers to adjust: a tool with no questions, or an emailed
+              ?result= link resumed on a device that never ran the wizard. */}
+          {config.inputs.length > 0 && Object.keys(values).length > 0 && (
+            <button
+              onClick={() => {
+                setEditing(true);
+                window.scrollTo({ top: 0, behavior: 'auto' });
+              }}
+              className="w-full text-sm text-crwn-text-secondary underline decoration-crwn-text-secondary/40 underline-offset-4"
+            >
+              These are your numbers. Change an answer and recalculate.
+            </button>
+          )}
 
           {/* THE BUILDER: the immediate continuation of the result. */}
           <div ref={builderRef} className="scroll-mt-4 pt-1">
