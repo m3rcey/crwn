@@ -121,8 +121,10 @@ NOTIFY pgrst, 'reload schema';
 
 -- PROOF OF COMMIT, and the last statement on purpose. No grid means it did not commit.
 -- Expect: 1 table, 3 indexes plus the primary key, exactly 1 policy (FOR SELECT), rls = yes.
-SELECT 'table'::text AS what,
-       COALESCE(to_regclass('public.tier_transitions')::text, 'MISSING - did not commit') AS detail
+SELECT 'A. THIS GRID IS FROM'::text AS what,
+       'schema-phase3-tier-transitions.sql (THE MIGRATION, it creates the table)'::text AS detail
+UNION ALL
+SELECT 'B. table', COALESCE(to_regclass('public.tier_transitions')::text, 'MISSING - did not commit')
 UNION ALL
 SELECT 'index: ' || indexname, 'present' FROM pg_indexes
  WHERE schemaname = 'public' AND tablename = 'tier_transitions'

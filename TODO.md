@@ -27,21 +27,21 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the tier-transition migration. Attempt 1 did not commit.** Checked 2026-08-11 after you
-      ran it: the table is not there. Evidence it is not an outage or the wrong project: the API
-      answers `PGRST205 could not find the table` for `tier_transitions` while
-      `constraint_recommendations` (created in this same project one session ago) and
-      `subscriptions` both resolve through the same API, so the schema cache is demonstrably fresh.
-      **Do this first:** run [supabase/diagnose-z8-tier-transitions.sql](supabase/diagnose-z8-tier-transitions.sql)
-      (read-only, one grid). It reads the catalog directly, so it answers table-exists definitively
-      and also prints the indexes, the policy, RLS, the CHECK and the foreign-key delete rules.
-      **If it says MISSING**, re-run
-      [supabase/schema-phase3-tier-transitions.sql](supabase/schema-phase3-tier-transitions.sql):
-      check the project ref is `ecpqtuidtsncjfwtkvwc`, and **press Ctrl+A before Run** (with any
-      text selected the editor runs only the selection and still reports success). The script is one
-      transaction, so a single error rolls the CREATE TABLE back and leaves no trace but the message
-      on screen. **That message is the one thing I still cannot get myself, so send it to me.**
-      It ends with a result grid: **no grid means it did not commit.**
+- [ ] **Run ONE file: [supabase/schema-phase3-tier-transitions.sql](supabase/schema-phase3-tier-transitions.sql).**
+      Checked again 2026-08-11: `tier_transitions` still does not exist. `constraint_recommendations`
+      (created in this same project one session ago) resolves fine through the same API, so the
+      schema cache is fresh and this is not an outage, not a stale cache and not the wrong project.
+      **This is probably my fault.** I shipped a *diagnostic* that also ends in a result grid, and my
+      own note told you to run it first, so "the grid came back" is ambiguous between the two files.
+      Both grids now say which file produced them in their FIRST row. The diagnostic's says
+      **"READ ONLY. It creates NOTHING."** If that is the grid you saw, the migration never ran.
+      So: open the migration itself, confirm the project ref is `ecpqtuidtsncjfwtkvwc`, click into
+      the editor, **press Ctrl+A**, then Run. Row A of the grid must read
+      **"schema-phase3-tier-transitions.sql (THE MIGRATION, it creates the table)"** and row B must
+      show the table name, not MISSING.
+      The script is one transaction, so any error rolls the CREATE TABLE back and leaves nothing but
+      the message on screen. **That message is the one piece of evidence I cannot get from here.**
+      Paste back row A + row B, or the error, and I close Z8 in one pass.
       Why it matters: a tier change overwrites `subscriptions.tier_id` in place, and the checkout
       upsert also resets `started_at`, so today an upgrade destroys both the tier they came from and
       the date the relationship began. Nothing can answer "who went deeper, from what, and did they

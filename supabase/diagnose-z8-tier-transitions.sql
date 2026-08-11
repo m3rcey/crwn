@@ -13,9 +13,12 @@
 --
 -- Run this whole file (Ctrl+A first). Read the single result grid.
 
-SELECT 'table'::text AS what,
+SELECT 'A. THIS GRID IS FROM'::text AS what,
+       'diagnose-z8-tier-transitions.sql (READ ONLY. It creates NOTHING. Running this is not running the migration.)'::text AS detail
+UNION ALL
+SELECT 'B. table',
        COALESCE(to_regclass('public.tier_transitions')::text,
-                'MISSING - the migration did NOT commit. Re-run schema-phase3-tier-transitions.sql and send me the error the editor prints') AS detail
+                'MISSING - the migration did NOT commit. Now run schema-phase3-tier-transitions.sql and send me the error the editor prints')
 UNION ALL
 SELECT 'index: ' || indexname, 'present'
   FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'tier_transitions'
