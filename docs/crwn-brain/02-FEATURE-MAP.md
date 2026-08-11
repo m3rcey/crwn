@@ -159,6 +159,37 @@ complete from it.
   (`medium` at the minimum, `high` at 2x).
 - **Renders nothing** on loading, error, insufficient evidence or a healthy artist, so the
   default experience is exactly today's roadmap. `Confirmed`.
+### Recommendation ownership (Z5, 2026-08-11) — the rule to apply
+
+**One recommendation owner, many execution and read surfaces.** Before changing any surface that
+tells an artist what to do, place it in exactly one of these five roles. If it wants two, it is
+wrong.
+
+| Role | Owner | Answers |
+|---|---|---|
+| **Diagnosis + priority** | **Constraint Engine** (`readConstraint`) | What matters most right now, and the one corrective action |
+| **Launch readiness** | **Roadmap** | What must exist before any of that means anything |
+| **Fulfillment obligations** | **Promise Calendar** | What this artist owes a fan, and when |
+| **Coaching + execution of the canonical action** | **Manager** | Why it matters and how to handle it (it may re-word the priority, never re-rank it) |
+| **Events, deadlines, and unfinished work** | **`/action-plan`, surfaced as "Needs You"** | What happened, what is due, what fans are waiting on |
+
+Everything else (Rise Mode, quests, builders, Studio, playbooks, campaign flows) is **execution**:
+it helps complete an action chosen elsewhere and must not select priority.
+
+**Z5 removed, rather than coordinated.** Three Action Plan rules (`no-offer-yet`, `promotion-off`,
+`no-demand-test`) fired on a STANDING STATE and were therefore strategy: `no-offer-yet` re-derived
+launch readiness the Roadmap already owns, and the other two were evidence-free growth advice that
+could appear while the engine had diagnosed FULFILLMENT. They were deleted, not moved: the engine
+covers them from evidence and stays silent when the evidence is thin. Every event and deadline rule
+was kept, because "a fan pitched you a mission" is a fact, not an opinion about what matters most.
+No aggregator, ranking layer or unified-recommendations table was created. Pinned by
+`src/lib/constraint/ownership.test.ts`.
+
+**Manager and Action Plan are NOT redundant** (they answer different questions) but they *looked*
+redundant: two adjacent Studio tiles with the same category hue, both reading as "tell me what to
+do". That is what made Manager appear listed twice. The events feed is now labelled **"Needs You"**;
+its route, tour steps and analytics are unchanged.
+
 - **Readership contract (Z4, 2026-08-11):** `src/lib/constraint/readership.ts`, pure.
   **One fact, one owner, many readers.** `readConstraint` owns "what is limiting this artist and
   what is the one next move"; every other surface READS it. A reader MAY re-word it (a manager

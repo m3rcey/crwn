@@ -65,7 +65,10 @@ const STUDIO_CARDS: StudioCard[] = [
   // Reference views (Analytics, Fan CRM) and set-once config (Team Splits, Promise
   // Calendar) deliberately live in the hamburger AccountHub only, not this grid:
   // Studio is for doing the work, the hamburger is the complete manage-it index.
-  { href: '/action-plan',    title: 'Action Plan', image: '/studio_actionplan.jpg', hueRotate: 170 },
+  // Z5: named for what it actually holds (events, deadlines, things fans are waiting on) rather
+  // than "Action Plan", which read as a second strategy surface sitting next to Manager. Route and
+  // analytics are unchanged; only the label moved.
+  { href: '/action-plan',    title: 'Needs You',   image: '/studio_actionplan.jpg', hueRotate: 170 },
   { href: '/studio/manager', title: 'Manager',     image: '/studio_manager.jpg',    hueRotate: 170 },
   { href: '/playbooks',      title: 'Playbooks',   image: '/studio_playbooks.jpg',  hueRotate: 170 },
 ];

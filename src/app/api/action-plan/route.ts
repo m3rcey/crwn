@@ -208,78 +208,25 @@ export async function GET() {
     // Fail open — skip this rule.
   }
 
-  // ---- Rule 5: NO OFFER YET (medium) -------------------------------------
-  try {
-    const [tiersRes, productsRes] = await Promise.all([
-      supabaseAdmin
-        .from('subscription_tiers')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId)
-        .eq('is_active', true),
-      supabaseAdmin
-        .from('products')
-        .select('id', { count: 'exact', head: true })
-        .eq('artist_id', artistId)
-        .eq('is_active', true),
-    ]);
-    if (!tiersRes.error && !productsRes.error &&
-        (tiersRes.count ?? 0) === 0 && (productsRes.count ?? 0) === 0) {
-      medium.push({
-        id: 'no-offer-yet',
-        priority: 'medium',
-        title: "You haven't built an offer yet",
-        why: 'Fans who want to support you have nothing to buy. One tier or product changes that.',
-        ctaLabel: 'Build your first offer',
-        href: '/offers/new',
-        icon: 'shopping-bag',
-      });
-    }
-  } catch {
-    // Fail open — skip this rule.
-  }
-
-  // ---- Rule 6: PROMOTION OFF (medium) ------------------------------------
-  try {
-    const referralOff = !artist.referral_commission_rate || artist.referral_commission_rate <= 0;
-    const clipperOff = !artist.clipper_commission_rate || artist.clipper_commission_rate <= 0;
-    const noLadder = !Array.isArray(artist.clipper_rate_schedule) ||
-      artist.clipper_rate_schedule.length === 0 ||
-      !artist.clipper_campaign_started_at;
-    if (referralOff && clipperOff && noLadder) {
-      medium.push({
-        id: 'promotion-off',
-        priority: 'medium',
-        title: 'Turn on fan promotion',
-        why: 'Let fans earn by promoting you. A share of what they bring in costs nothing up front.',
-        ctaLabel: 'Set it up',
-        href: '/offers/new',
-        icon: 'megaphone',
-      });
-    }
-  } catch {
-    // Fail open — skip this rule.
-  }
-
-  // ---- Rule 7: NO DEMAND TEST (low) ---------------------------------------
-  try {
-    const { count, error } = await supabaseAdmin
-      .from('proof_of_demand')
-      .select('id', { count: 'exact', head: true })
-      .eq('artist_id', artistId);
-    if (!error && (count ?? 0) === 0) {
-      low.push({
-        id: 'no-demand-test',
-        priority: 'low',
-        title: 'Test an idea before you build it',
-        why: 'A demand test proves fans want something before you spend time making it.',
-        ctaLabel: 'Run a demand test',
-        href: '/proof-of-demand/new',
-        icon: 'flask',
-      });
-    }
-  } catch {
-    // Fail open — skip this rule.
-  }
+  // ---- Z5: THE THREE STANDING-GAP RULES WERE REMOVED HERE -----------------
+  //
+  // `no-offer-yet`, `promotion-off` and `no-demand-test` all fired on a STANDING STATE ("you have
+  // no tiers", "promotion is off", "you have never run a demand test") rather than on something
+  // that happened or is due. That made them strategic recommendations, and strategy is no longer
+  // this surface's job:
+  //
+  //   - `no-offer-yet` re-derived launch readiness from tier and product counts, which the ROADMAP
+  //     already owns through the Quest Engine's DomainChecks and which gates the Constraint Engine.
+  //     Two places deciding whether an artist has an offer is exactly the duplicate the roadmap
+  //     delegation exists to prevent.
+  //   - `promotion-off` and `no-demand-test` were evidence-free growth advice. They could, and did,
+  //     appear while the Constraint Engine had diagnosed FULFILLMENT, telling an artist who is
+  //     failing the supporters they already have to go recruit promoters.
+  //
+  // Nothing was moved anywhere: the Constraint Engine already covers these from evidence, and it
+  // stays silent rather than guessing when the evidence is thin. Every EVENT and DEADLINE rule
+  // above is untouched, because "a fan pitched you a mission" and "your clip window closes in two
+  // days" are facts about what happened, not opinions about what matters most.
 
   return NextResponse.json({ recommendations: [...high, ...medium, ...low] });
 }

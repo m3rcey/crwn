@@ -187,7 +187,7 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Rise Mode', href: '/profile/artist', icon: TrendingUp },
         { label: 'Studio (all tools)', href: '/studio', icon: LayoutDashboard },
         { label: 'Manager', href: '/studio/manager', icon: Sparkles, hub: true },
-        { label: 'Action Plan', href: '/action-plan', icon: ClipboardList, hub: true },
+        { label: 'Needs You', href: '/action-plan', icon: ClipboardList, hub: true },
         { label: 'Playbooks', href: '/playbooks', icon: BookOpen, hub: true },
         { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
         { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },

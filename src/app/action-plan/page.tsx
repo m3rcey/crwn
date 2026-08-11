@@ -116,7 +116,7 @@ export default function ActionPlanPage() {
   if (!isArtist) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <p className="text-crwn-text mb-4">The Action Plan is for artists. Publish your artist page first.</p>
+        <p className="text-crwn-text mb-4">This is for artists. Publish your artist page first.</p>
         <button
           onClick={() => router.push('/home')}
           className="bg-crwn-gold text-crwn-bg font-semibold px-6 py-2.5 rounded-full hover:bg-crwn-gold/90 transition-colors"
@@ -139,7 +139,7 @@ export default function ActionPlanPage() {
         <div className="flex items-center justify-between gap-3 mb-2" data-tour="action-plan-header">
           <div className="flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-purple-400" />
-            <h1 className="text-3xl font-bold text-crwn-text">Your Action Plan</h1>
+            <h1 className="text-3xl font-bold text-crwn-text">What needs you</h1>
           </div>
           <TourReplayButton onClick={replay} />
         </div>
