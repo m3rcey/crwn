@@ -1,5 +1,12 @@
 // tierTransitions.ts — the membership-depth history primitive (Z8).
 //
+// LIVE IN PRODUCTION 2026-08-11 (`ecpqtuidtsncjfwtkvwc`). Verified against the real table: a new
+// membership records `null -> tier`, a tier change preserves raw from/to, three writes of one
+// redelivered Stripe event produce ONE row against the live unique index, a same-tier insert is
+// rejected by the database (`23514`) as well as by the writer, anonymous reads return `[]` while
+// rows exist, and anonymous writes are denied. History starts 2026-08-11: there is NO backfill,
+// because Stripe does not carry CRWN tier ids and a reconstructed movement would be a fabrication.
+//
 // PURE. No database, no network, no clock of its own. The writer lives in `tierTransitionStore.ts`.
 //
 // WHAT THIS MEASURES, AND WHAT IT DOES NOT

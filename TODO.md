@@ -27,31 +27,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run ONE file: [supabase/schema-phase3-tier-transitions.sql](supabase/schema-phase3-tier-transitions.sql).**
-      Checked again 2026-08-11: `tier_transitions` still does not exist. `constraint_recommendations`
-      (created in this same project one session ago) resolves fine through the same API, so the
-      schema cache is fresh and this is not an outage, not a stale cache and not the wrong project.
-      **This is probably my fault.** I shipped a *diagnostic* that also ends in a result grid, and my
-      own note told you to run it first, so "the grid came back" is ambiguous between the two files.
-      Both grids now say which file produced them in their FIRST row. The diagnostic's says
-      **"READ ONLY. It creates NOTHING."** If that is the grid you saw, the migration never ran.
-      So: open the migration itself, confirm the project ref is `ecpqtuidtsncjfwtkvwc`, click into
-      the editor, **press Ctrl+A**, then Run. Row A of the grid must read
-      **"schema-phase3-tier-transitions.sql (THE MIGRATION, it creates the table)"** and row B must
-      show the table name, not MISSING.
-      The script is one transaction, so any error rolls the CREATE TABLE back and leaves nothing but
-      the message on screen. **That message is the one piece of evidence I cannot get from here.**
-      Paste back row A + row B, or the error, and I close Z8 in one pass.
-      Why it matters: a tier change overwrites `subscriptions.tier_id` in place, and the checkout
-      upsert also resets `started_at`, so today an upgrade destroys both the tier they came from and
-      the date the relationship began. Nothing can answer "who went deeper, from what, and did they
-      stay". The code is shipped and fails soft, so nothing is broken until it runs, but **every day
-      it stays unrun is movement that cannot be recovered later** (there is no backfill: Stripe does
-      not carry CRWN tier ids, so history starts the day the table exists).
-      Verify straight after with `npm run verify:migrations`: the line `tier transition history`
-      must read **applied (readable)**. A 200 with an empty array is correct for the anon key,
-      because the table is artist-read-only.
-
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
       migration, nothing to deploy: build each link at /admin -> Lead Magnets -> **Campaign link
