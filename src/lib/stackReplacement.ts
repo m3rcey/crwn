@@ -6,10 +6,16 @@
 // models an invoice they can go read. Loss-framed by construction.
 //
 // v1 is the AUDIT tool for the First Revenue Launch cohort: pure math plus a
-// plain-text report for the audit conversation and email. It deliberately has
-// NO UI yet; whether it becomes a public calculator is a founder decision made
-// after the concierge cohort proves which lines land (registry entry then, not
-// now). Do not bolt a wizard onto this file.
+// plain-text report for the audit conversation and email.
+//
+// SURFACED 2026-08-11 (Z6), operator-side only: the admin Money Model engagement
+// detail renders this through GET /api/admin/stack-replacement, seeded from the
+// artist's own Fan Stack Calculator answers by `stackReplacementSource.ts`. That
+// mapper is the ONLY approved way to build an input from stored data, and it
+// deliberately leaves per-tool costs at zero because the calculator collects one
+// declared total, not a breakdown. Whether this becomes a PUBLIC calculator is
+// still a founder decision after the concierge cohort proves which lines land
+// (registry entry then, not now). Do not bolt a wizard onto this file.
 //
 // HONESTY RULES (same discipline as fanStackModel):
 //  - Tool-cost savings and platform-fee comparisons are SEPARATE lines, never

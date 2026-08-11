@@ -559,6 +559,7 @@ function EngagementDetail({ detail, onBack, onChanged, setError }: {
           <DiagnosticSection d={econ.diagnostic} />
           <GuaranteeSection g={detail.guarantee} eligibleOn={e.guarantee_eligible_on} deadline={econ.guaranteeDeadlineOn} />
           <AttributionSection a={detail.attribution} artist={detail.artist} />
+          <StackReplacementSection artistId={e.artist_id} />
         </div>
         <div>
           <TermsSection e={e} patch={patch} />
@@ -569,6 +570,77 @@ function EngagementDetail({ detail, onBack, onChanged, setError }: {
       </div>
     </div>
   );
+}
+
+/**
+ * Z6: the Stack Replacement audit, for the delivery call.
+ *
+ * Everything here is the ARTIST'S OWN Fan Stack Calculator answer, run through the pure
+ * `stackReplacement@1` report. CRWN observes none of it (there is no Patreon or Mailchimp
+ * integration), so the panel says so rather than letting a number imply a connected account. It
+ * loads on demand: an operator opening an engagement to log hours should not pay for an audit they
+ * did not ask for.
+ */
+function StackReplacementSection({ artistId }: { artistId: string }) {
+  const [state, setState] = useState<{ loading: boolean; data: StackAudit | null; error: string | null }>({
+    loading: false, data: null, error: null,
+  });
+
+  const load = async () => {
+    setState({ loading: true, data: null, error: null });
+    try {
+      const res = await fetch(`/api/admin/stack-replacement?artistId=${encodeURIComponent(artistId)}`);
+      const data = await res.json();
+      if (!res.ok) setState({ loading: false, data: null, error: data.error || 'Could not load' });
+      else setState({ loading: false, data, error: null });
+    } catch {
+      setState({ loading: false, data: null, error: 'Could not load' });
+    }
+  };
+
+  return (
+    <Section title="Stack Replacement audit">
+      {!state.data && !state.loading && (
+        <button className={btnCls} onClick={load}>{state.error ? 'Retry' : 'Build the audit'}</button>
+      )}
+      {state.loading && <p className="text-xs text-crwn-text-secondary">Building…</p>}
+      {state.error && <p className="text-xs text-crwn-error mt-2">{state.error}</p>}
+
+      {state.data && !state.data.available && (
+        <p className="text-xs text-crwn-text-secondary">{state.data.reason}</p>
+      )}
+
+      {state.data?.available && (
+        <div className="space-y-3">
+          {/* The report verbatim, so what the operator reads on the call is what the tested pure
+              function produced, not a second rendering that can drift from it. */}
+          <pre className="text-xs text-crwn-text whitespace-pre-wrap font-mono leading-relaxed">{state.data.text}</pre>
+
+          {typeof state.data.unallocatedToolSpendCents === 'number' && (
+            <p className="text-xs text-crwn-text-secondary">
+              Declared software spend: ${Math.round(state.data.unallocatedToolSpendCents / 100).toLocaleString('en-US')}/mo,
+              not itemized per tool. Split it live on the call before quoting any per-tool saving.
+            </p>
+          )}
+
+          <div className="text-[11px] text-crwn-text-secondary leading-relaxed border-t border-crwn-elevated pt-2">
+            <p className="font-semibold mb-1">How CRWN knows this</p>
+            <ul className="list-disc pl-4 space-y-0.5">
+              {state.data.limitations.map((l) => <li key={l}>{l}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
+    </Section>
+  );
+}
+
+interface StackAudit {
+  available: boolean;
+  reason?: string;
+  text?: string;
+  unallocatedToolSpendCents?: number | null;
+  limitations: string[];
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {

@@ -130,7 +130,8 @@ product changes encode the offer:
    42703); `LaunchPartnerChecklist` renders on the command screen above the roadmap. Cohort
    flips via `supabase/enable-launch-partner.sql`. Three partners first, manual Stripe invoice
    for the implementation fee, no checkout built on purpose.
-5. **Stack Replacement Report** (`src/lib/stackReplacement.ts`, pure, tested, NO UI yet): the
+5. **Stack Replacement Report** (`src/lib/stackReplacement.ts`, pure, tested; had NO UI and no
+   callers at all until **Z6 surfaced it operator-side on 2026-08-11**): the
    audit tool that prices the artist's CURRENT fragmented stack (per-tool subscriptions + each
    tool's fee on the GMV it processes) against every CRWN plan from TIER_PRICING/TIER_LIMITS,
    with `CRWN_REPLACES` keeping ticketing/scheduling honestly out of the savings claim, and a
