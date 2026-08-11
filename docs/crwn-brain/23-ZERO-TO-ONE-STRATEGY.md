@@ -20,6 +20,12 @@ Evidence labels: **Verified** (cited to a file), **Derived** (arithmetic from ve
 
 ---
 
+**Market expression of this strategy: [`docs/POSITIONING.md`](../POSITIONING.md).** This document
+is why CRWN wins; that one is how it is said out loud. Every outward-facing surface inherits from
+it, and no surface invents its own positioning.
+
+---
+
 ## 0. Ratification status
 
 ### RATIFIED by the founder, 2026-08-10
@@ -796,7 +802,7 @@ document depends on it and it is cheap relative to its leverage.
 | Phase | Objective | Depends on | Risk |
 |---|---|---|---|
 | **Z0** | Sign off the truth sentence and the label (section 19) | Nothing | None. Blocks copy |
-| **Z1** | `docs/POSITIONING.md` written from section 14. **No copy constant in `src/lib`** | Z0 | Low |
+| **Z1** | ~~`docs/POSITIONING.md` written from section 14~~ **DONE 2026-08-10.** [`../POSITIONING.md`](../POSITIONING.md) is the canonical market expression of this strategy: the messaging ladder, the calculator spine, the feature-to-outcome map, the binding claim-maturity table, and the copy guardrails. **No copy constant was added to `src/lib`** | Z0 | Low |
 | **Z2** | Homepage + calculator result express the value distribution | Z1 | Low. Route through the experiments engine |
 | **Z3** | **Recommendation to outcome linkage.** The prerequisite primitive | Phase 0 evidence integrity | Medium. **Highest leverage item in this document** |
 | **Z4** | Widen `readConstraint` readership: weekly report first | Z3 | Low |
