@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { recordTierTransition } from '@/lib/tierTransitionStore';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 const supabaseAdmin = createClient(
@@ -103,6 +104,19 @@ export async function POST(req: NextRequest) {
         .from('subscriptions')
         .update({ tier_id: newTierId, updated_at: new Date().toISOString() })
         .eq('id', currentSubscription.id);
+
+      // Z8: recorded AFTER Stripe accepted the item change, so this is a confirmed state change
+      // rather than a button press. An upgrade takes effect immediately with prorations, so the
+      // moment of the write is the moment the membership actually deepened.
+      await recordTierTransition(supabaseAdmin, {
+        artistId,
+        fanId: currentSubscription.fan_id,
+        subscriptionId: currentSubscription.id,
+        fromTierId: currentSubscription.tier_id ?? null,
+        toTierId: newTierId,
+        source: 'stripe_subscription_update',
+        evidence: 'observed',
+      });
 
       return NextResponse.json({ success: true });
     } else {

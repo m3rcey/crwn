@@ -10,6 +10,8 @@ import { purchaseEmail } from '@/lib/emails/purchase';
 import { bookingTokenEmail } from '@/lib/emails/bookingToken';
 import { artistNewSubscriberEmail } from '@/lib/emails/artistNewSubscriber';
 import { artistNewPurchaseEmail } from '@/lib/emails/artistNewPurchase';
+// Z8: membership depth history. Read-only helper + the single centralized writer.
+import { currentTierId, recordTierTransition } from '@/lib/tierTransitionStore';
 import { receiptEmail } from '@/lib/emails/receipt';
 import { checkAndAwardMilestones } from '@/lib/milestones';
 import { processReferral } from '@/lib/referrals';
@@ -85,12 +87,30 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
 
   console.log('Upserting subscription:', JSON.stringify(insertData));
 
+  // Z8: read the tier they are LEAVING before the upsert overwrites it. This upsert conflicts on
+  // (fan_id, artist_id), so it replaces tier_id in place and also resets started_at: after it runs
+  // there is no way to learn what they were on a moment ago. Read-only, and never blocks checkout.
+  const prior = await currentTierId(supabaseAdmin, artist_id, fan_id);
+
   const { data, error } = await supabaseAdmin.from('subscriptions').upsert(insertData, { onConflict: 'fan_id,artist_id' }).select();
 
   if (error) {
     console.error('Supabase insert error:', JSON.stringify(error));
   } else {
     console.log('Supabase insert success:', JSON.stringify(data));
+
+    // Z8: the movement, recorded only once the subscription state is actually committed. A fan
+    // clicking checkout is not a transition; a paid subscription that exists is. Same-tier renewals
+    // are dropped by the writer, so a resubscribe to the tier they already had records nothing.
+    await recordTierTransition(supabaseAdmin, {
+      artistId: artist_id,
+      fanId: fan_id,
+      subscriptionId: prior.subscriptionId ?? (data?.[0]?.id as string | undefined) ?? null,
+      fromTierId: prior.tierId,
+      toTierId: tier_id,
+      source: 'stripe_checkout',
+      evidence: 'observed',
+    });
 
     // Get fan display name
     const { data: fanProfile } = await supabaseAdmin
@@ -602,6 +622,19 @@ export async function handleSubscriptionUpdated(supabaseAdmin: AdminClient, subs
         subscriptionId: subData.id,
         pendingTierId: subData.pending_tier_id,
         pendingChangeDate: subData.pending_change_date
+      });
+
+      // Z8: a scheduled downgrade becomes a transition HERE, when Stripe confirms the new price is
+      // in force, not when the fan requested it. The request only set pending_tier_id; access and
+      // billing did not change until this moment, so this is when the state actually moved.
+      await recordTierTransition(supabaseAdmin, {
+        artistId: subData.artist_id as string,
+        fanId: subData.fan_id as string,
+        subscriptionId: subData.id as string,
+        fromTierId: (subData.tier_id as string) ?? null,
+        toTierId: subData.pending_tier_id as string,
+        source: 'scheduled_downgrade',
+        evidence: 'observed',
       });
 
       await supabaseAdmin

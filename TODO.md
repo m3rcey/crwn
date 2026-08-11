@@ -27,6 +27,22 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Run the tier-transition migration, or CRWN keeps forgetting how every membership grew.**
+      Open [supabase/schema-phase3-tier-transitions.sql](supabase/schema-phase3-tier-transitions.sql)
+      and run the whole file. **Same two rules as last time: check the project ref is
+      `ecpqtuidtsncjfwtkvwc`, and press Ctrl+A before Run** (with text selected the editor runs only
+      the selection and still says success). It ends with a result grid: **no grid means it did not
+      commit**, and if it errors, that message is the thing to send me.
+      Why it matters: a tier change overwrites `subscriptions.tier_id` in place, and the checkout
+      upsert also resets `started_at`, so today an upgrade destroys both the tier they came from and
+      the date the relationship began. Nothing can answer "who went deeper, from what, and did they
+      stay". The code is shipped and fails soft, so nothing is broken until it runs, but **every day
+      it stays unrun is movement that cannot be recovered later** (there is no backfill: Stripe does
+      not carry CRWN tier ids, so history starts the day the table exists).
+      Verify straight after with `npm run verify:migrations`: the line `tier transition history`
+      must read **applied (readable)**. A 200 with an empty array is correct for the anon key,
+      because the table is artist-read-only.
+
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
       migration, nothing to deploy: build each link at /admin -> Lead Magnets -> **Campaign link
