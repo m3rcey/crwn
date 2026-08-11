@@ -2,20 +2,43 @@
 
 > Shipped 2026-08-11 (dark until its migration runs). The evidence primitive that lets CRWN ask:
 >
-> **Deployment status, verified 2026-08-11:** `constraint_recommendations` is **NOT APPLIED** in
-> production, confirmed by `npm run verify:migrations` (anon-key probe, the repo's own convention),
-> not by assumption. Nothing else blocks it: the code is shipped, the cron is scheduled, and every
-> check that does not need a database has passed. This environment has **no path to apply DDL** and
-> that is by design, not by omission: there is no `DATABASE_URL`, no `pg`/`postgres` client, no
-> Supabase CLI, no psql, and no SQL-execution RPC. The service-role key authenticates to PostgREST,
-> which executes table operations, never `CREATE TABLE` or `CREATE POLICY`. CLAUDE.md's standing
-> rule is that Josh applies migrations manually in the Supabase SQL editor, and that rule is the
-> authorization model rather than an obstacle to route around.
+> **LIVE 2026-08-11.** Migration applied to production (`ecpqtuidtsncjfwtkvwc`) and verified
+> against the real database, not inferred. `npm run verify:migrations` reports
+> `constraint recommendation outcomes → applied (readable)`.
 >
-> **The live-database half of the verification (table shape, indexes, RLS owner/cross-artist/anon
-> reads, client write denial, issuance idempotency against the real index) has therefore NOT been
-> performed and cannot be until the migration runs.** Everything below describes intended and
-> unit-tested behavior. Z3 stays open until those checks pass. See TODO.md.
+> **Verified at the PostgreSQL level** (SQL editor result grid at apply time): table exists, 15
+> columns, primary key + `idx_constraint_rec_artist` + `idx_constraint_rec_due` +
+> `idx_constraint_rec_open_unique`, one policy `owner_reads_own_recommendations` `FOR SELECT`, RLS
+> enabled.
+>
+> **Verified dynamically** by driving the real production writer against production:
+> - Service-role read and write both succeed.
+> - A **real** diagnosis was issued: the engine returned `FULFILLMENT` at `high` confidence for the
+>   test artist, and `recordIssuedRecommendation` stored it with identity
+>   `FULFILLMENT:artist_promise_fulfilled`, a 90-day window from `thresholds.ts`, and
+>   `outcome = not_measured_yet`.
+> - **Evidence semantics survive the round trip:** baseline persisted as `["complete","missing"]`.
+>   A null metric came back MISSING, not zero.
+> - **Idempotency against the live partial unique index:** three issuances, including one carrying a
+>   different evaluatedAt and different evidence, produced ONE row. `issued_at` did not reset and the
+>   baseline did not move.
+> - **Baseline stayed immutable through measurement**, which writes only the observation columns.
+> - A measured row frees the index, so the same constraint can be diagnosed again later.
+> - **Anonymous read returned `200 []` while a row existed** (the isolation test that an empty table
+>   cannot prove). Anonymous INSERT/UPDATE/DELETE were all denied and the row survived them.
+> - **Cron** (`/api/cron/constraint-outcomes`): 401 unauthenticated, 401 on a wrong secret, 200
+>   authenticated; queries the live table with no `PGRST205`; a not-yet-due row was `considered` but
+>   left `not_measured_yet` with `measured_at` and `observed_evidence` still null. `actionsSeen: 0`
+>   confirms the canonical DomainCheck evaluator ran and did not mark an unearned completion.
+>
+> **Environment limitation, stated rather than papered over:** authenticated Artist A vs Artist B
+> read isolation was NOT dynamically tested, because this environment has no user credentials. It
+> rests on the SQL-verified owner-only `FOR SELECT` policy, the absence of any other policy, and the
+> anonymous denial above. The 90-day outcome classification is proven by unit tests, not by waiting.
+>
+> **Prospective-only holds.** The table held 0 rows before verification and 0 after: every row the
+> harness created was removed, because a verification row is not a recommendation CRWN made. No
+> backfill, and no synthetic fulfillment event was ever created in any artist's history.
 > **what did we recommend, did the artist act, and did the metric we were trying to move change
 > afterwards?**
 >

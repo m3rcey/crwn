@@ -27,38 +27,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Run the Z3 recommendation-outcome migration, or CRWN records nothing about its own advice.**
-      Open [supabase/schema-phase3-recommendation-outcomes.sql](supabase/schema-phase3-recommendation-outcomes.sql)
-      in the Supabase SQL editor and run it. Additive only, one new table, self-verifies at the end.
-      Until it runs the code fails soft and the product behaves exactly as it does today, so nothing
-      is broken, but **no evidence is being collected**: every day it stays unrun is a day of
-      recommendations CRWN cannot later measure, and the data cannot be backfilled (the engine reads
-      live tables, so a reconstructed baseline would be a fabrication).
-      **Attempt 1 (2026-08-11) reported success and left no table.** Your diagnostic run confirmed
-      it: `table | MISSING`. The schema-cache theory is dead too, since the diagnostic queries the
-      catalog directly. So the script rolled back, or never ran against this project.
-      **Two things to do differently this time, both in the header of the migration file:**
-      (1) confirm the browser URL says project `ecpqtuidtsncjfwtkvwc`, because the editor reopens
-      whatever project you had last and a wrong-project run looks identical to a good one; and
-      (2) **press Ctrl+A before Run.** If any text is selected the Supabase editor runs only the
-      selection and still reports success. That is my leading suspect for a green tick with no table.
-      The whole script is one transaction, so any error rolls back the CREATE TABLE and leaves no
-      trace but the message on screen: **if it fails, that message is the thing to send me.**
-      I have rewritten the end of the migration so this cannot be ambiguous again: it now ends with
-      a `NOTIFY pgrst` cache reload and a **result grid listing the table, its 3 indexes, its single
-      SELECT policy, RLS on/off and its column count. No grid means it did not commit.** Paste the
-      grid back and I will run the full production verification immediately.
-      I cannot run it myself: there is no DATABASE_URL, no psql, no Supabase CLI and no
-      SQL-execution RPC here, and the service-role key talks to PostgREST, which cannot execute DDL.
-      Straight after running it, run `npm run verify:migrations` again: the line
-      `constraint recommendation outcomes` must read **applied (readable)**. A 200 with an empty
-      array is the CORRECT result for the anon key, because the table is owner-read-only.
-      What it turns on: `/api/artist/constraint` starts recording what it recommended, and the new
-      daily `constraint-outcomes` cron reads whether the artist acted and whether the constraint
-      cleared. **This is the only thing standing between Z3 and closed.**
-      Background: docs/crwn-brain/24-RECOMMENDATION-OUTCOME-LINKAGE.md
-
-
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
       migration, nothing to deploy: build each link at /admin -> Lead Magnets -> **Campaign link
