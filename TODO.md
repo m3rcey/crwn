@@ -342,6 +342,15 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   documented placeholder pattern). They are no longer avatar front doors, so this is cosmetic.
   Generate on-brand charcoal+gold images (artist 18-32 rule) and swap the two `hero.image` paths.
 
+- **Artist Quest Path asks two questions its result ignores.** `artist-quest-path` collects
+  `primary_goal` and `primary_blocker` (both required, free text), but its adapter's `execute()`
+  in `src/lib/acquisition/toolAdapters.ts` takes NO arguments and returns a fully static result:
+  every artist gets the identical "8 to 16 weeks lost" answer regardless of what they typed. Found
+  in the Z2B-1 field audit and deliberately NOT fixed there, because the honest fix is writing
+  result logic keyed on the blocker, which is result-generation work outside that audit's scope.
+  Two options when it comes up: branch the result on `primary_blocker` (needs a formulaVersion
+  bump), or drop both inputs and let the tool be a one-tap diagnostic. Mine.
+
 - **Avatar follow-ups, in order:** per-avatar hero copy on the all-in-one calculator page (today
   the entry context reorders the questions and shows its note, but the hero headline is still
   one shared line); per-avatar experiment experience keys in `src/lib/experiments/registry.ts`
