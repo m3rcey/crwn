@@ -245,26 +245,303 @@ Rules when you touch any of this:
 
 ## Problem-Solving Principles
 
-Three tools. Each answers a different question. Use the one that matches.
+Four tools. Each answers a different question. Use the one that matches.
 
 WHEN EXECUTING EACH AND EVERY PROMPT, EXECUTE THIS PROCESS:
-{
-**"Which of these should I do first?"** → Most-critical-first.
-When you have a list, queue, or backlog, pick the item that most threatens the current goal. Critical means "what fails worst if ignored," not "what's quickest" or "what's loudest." Pre-PMF, critical = blocks artist acquisition or breaks money flows.
 
-**"What's actually true here?"** → First principles.
-Before fixing, diagnosing, or arguing about anything: list what you KNOW is true. Reason up from there. Use this when the situation is murky, when you've inherited assumptions, or when you suspect you're reasoning from someone else's frame.
+### **"Which of these should I do first?" → Most-Critical-First**
 
-**"What should I do about this one thing?"** → Five-step pass.
-Apply in order, never reversed:
-1. Question the requirement. Should this exist at all? Challenge it regardless of who gave it.
-2. Delete. Try to remove parts/steps. If you're not occasionally adding things back, you're not deleting enough.
-3. Simplify. Only after confirming it should exist and can't be deleted.
-4. Accelerate. Go faster — but only after steps 1–3.
-5. Automate. Always last. Never automate what shouldn't exist.
+When you have a list, queue, backlog, multiple failures, or several possible changes, start with the item that most threatens the current goal.
 
-**The full loop:** triage with most-critical-first → diagnose with first principles → decide with five-step.
-}
+Critical means:
+
+**"What fails worst if ignored?"**
+
+Not:
+
+* What's quickest
+* What's easiest
+* What's loudest
+* What's most interesting
+
+Pre-PMF, critical usually means something that blocks artist acquisition, activation, first revenue, retention, fan value, or secure money movement.
+
+Fix the dominant constraint before optimizing downstream symptoms.
+
+---
+
+### **"What's actually true here?" → First Principles**
+
+Before fixing, diagnosing, implementing, or arguing about anything, establish reality.
+
+List what you KNOW is true from authoritative evidence.
+
+Verify:
+
+* The current repository
+* Runtime behavior where relevant
+* Tests
+* Database/schema state
+* Logs or events
+* Existing CRWN Brain documentation
+* Existing business rules
+* Current permissions and ownership boundaries
+
+Separate:
+
+* Verified fact
+* Assumption
+* Inference
+* Stale documentation
+* Previous-agent claim
+* Hypothesis
+
+Never implement a fix solely because a previous report, audit, prompt, TODO, documentation file, or founder assumption says a problem exists.
+
+Verify the underlying reality first.
+
+When documentation and implementation disagree, investigate the discrepancy rather than automatically trusting either one.
+
+---
+
+### **"What should I do about this one thing?" → Five-Step Pass**
+
+Apply in order. Never reverse the sequence.
+
+1. **Question the requirement.**
+   Should this exist at all? Challenge the requirement regardless of who created it.
+
+2. **Delete.**
+   Try to remove parts, steps, abstractions, state, code, dependencies, processes, or requirements.
+   If you are never adding something back, you probably are not deleting aggressively enough.
+
+3. **Simplify.**
+   Only after confirming the thing should exist and cannot be deleted.
+
+4. **Accelerate.**
+   Make the correct system faster only after steps 1–3.
+
+5. **Automate.**
+   Always last.
+   Never automate something that should not exist, has not been validated, or is not reliably correct.
+
+Prefer the smallest safe implementation that solves the verified problem and preserves existing architecture.
+
+---
+
+### **"Did reality match what I expected?" → Feedback Loop**
+
+Every implementation is a hypothesis until reality confirms it.
+
+Before making the change, explicitly establish:
+
+**Expected outcome**
+
+* What should be different after this implementation?
+
+**Success evidence**
+
+* What observable evidence would prove it worked?
+
+**Failure evidence**
+
+* What observable evidence would show the implementation is incomplete, wrong, or caused a regression?
+
+Then execute the smallest safe change.
+
+After implementation:
+
+1. **Observe**
+   Run the relevant tests, build, type checks, runtime checks, database verification, event inspection, or manual flow needed to observe the actual result.
+
+2. **Compare**
+   Compare the actual result against the expected result.
+
+3. **Diagnose the gap**
+   If they differ, determine WHY before making another change.
+
+   Ask:
+
+   * Was the original assumption wrong?
+   * Was the implementation wrong?
+   * Was the measurement wrong?
+   * Was there another upstream constraint?
+   * Did the change expose a deeper problem?
+   * Did the fix improve one thing while breaking another?
+
+4. **Correct**
+   Apply the Five-Step Pass again to the newly verified problem.
+
+5. **Re-test**
+   Run the loop again.
+
+Do not declare the task complete merely because:
+
+* Code was written
+* A migration exists
+* Tests were added
+* The build passes
+* The requested UI appears
+* The original error disappeared
+
+Completion requires evidence that the intended outcome is satisfied without unacceptable regressions.
+
+When the intended product outcome cannot be fully observed immediately, distinguish between:
+
+* **Implementation verified**
+* **Product outcome not yet measurable**
+
+Do not pretend future user behavior, conversion, retention, revenue, or other delayed outcomes have been validated when they have not.
+
+Instead ensure the correct instrumentation exists so reality can provide the answer later.
+
+---
+
+## The Full Execution Loop
+
+For every prompt:
+
+### 1. TRIAGE
+
+Use Most-Critical-First.
+
+Ask:
+
+**What threatens the requested outcome most if ignored?**
+
+Start there.
+
+### 2. ESTABLISH REALITY
+
+Use First Principles.
+
+Ask:
+
+**What is actually true right now?**
+
+Verify before assuming.
+
+### 3. DEFINE THE HYPOTHESIS
+
+Before editing, state internally:
+
+**If I make this change, I expect ______ because ______.**
+
+Define the evidence that would confirm or reject it.
+
+### 4. DECIDE
+
+Use the Five-Step Pass:
+
+**Question → Delete → Simplify → Accelerate → Automate**
+
+Choose the smallest safe change.
+
+### 5. EXECUTE
+
+Implement using existing architecture, components, business rules, security boundaries, and patterns wherever possible.
+
+### 6. OBSERVE
+
+Collect the relevant evidence after implementation.
+
+### 7. COMPARE
+
+Ask:
+
+**Did reality match the expected outcome?**
+
+### 8. CORRECT
+
+If not:
+
+**Identify the earliest/root constraint revealed by the evidence, not merely the visible symptom.**
+
+Run:
+
+**First Principles → Five-Step Pass → Execute**
+
+again.
+
+### 9. RE-TEST
+
+Repeat until:
+
+* The intended implementation outcome is verified
+* Relevant tests pass
+* No unacceptable regression remains
+* Security and permissions remain intact
+* Money/data behavior remains correct where applicable
+
+### 10. LEARN
+
+Before finishing, state what the execution taught us:
+
+* Which assumption was confirmed?
+* Which assumption was disproven?
+* What changed because of the evidence?
+* Did we discover documentation or repository drift?
+* Is there anything the CRWN Brain should now reflect?
+
+Update CRWN Brain documentation when implemented behavior or confirmed product truth has changed.
+
+---
+
+## Core Rule
+
+**Do not merely execute the requested change. Close the loop.**
+
+Every meaningful change should follow:
+
+**Hypothesis → Implementation → Evidence → Comparison → Correction → Verification → Learning**
+
+The objective is not to be right on the first attempt.
+
+The objective is to stay wrong for the shortest possible amount of time.
+
+---
+
+## Feedback Loop Guardrails
+
+The feedback loop must not create unnecessary complexity.
+
+Do not:
+
+* Add analytics solely because "feedback loops need data"
+* Build dashboards when direct verification is sufficient
+* Create permanent storage for values that can safely be derived
+* Add AI where deterministic verification works
+* Add instrumentation with no clear decision it will influence
+* Continue iterating after the requested outcome is already verified
+* Optimize downstream stages while an upstream constraint is still failing
+* Treat small samples as established truth
+* Treat missing evidence as zero
+* Confuse correlation with causation
+* Change multiple unrelated variables when one controlled correction will answer the question
+
+Prefer the shortest trustworthy loop between:
+
+**Action → Reality → Correction**
+
+---
+
+## Final Report Requirement
+
+For implementation prompts, the final report should clearly state:
+
+1. **Triage:** What was actually most critical?
+2. **Reality:** What did repository/runtime investigation establish?
+3. **Hypothesis:** What outcome was the implementation expected to produce?
+4. **Five-Step Pass:** What was questioned, deleted, simplified, accelerated, or deliberately not automated?
+5. **Change:** What was implemented?
+6. **Evidence:** What happened when it was tested?
+7. **Gap:** Did actual behavior differ from expected behavior?
+8. **Correction:** What changed because of that evidence?
+9. **Verification:** What proves the final implementation works?
+10. **Learning:** What assumption was confirmed or disproven?
+11. **Remaining uncertainty:** What cannot yet be known from available evidence?
+
+Do not manufacture content for a section when nothing meaningful occurred. Keep the final report proportional to the task.
 
 ## Project Overview
 
