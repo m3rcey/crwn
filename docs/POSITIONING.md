@@ -519,6 +519,24 @@ what it costs you to skip it
 | "Followers do not matter" | False in our own model (section 9) |
 | Em dashes, anywhere | Project-wide rule. Use a comma, a colon, or two sentences |
 | Beginner framing to the beachhead | Section 5 |
+| "They keep most of it" / "if at all", about streaming | CRWN cannot evidence a DSP's split or imply it may not pay. State the MECHANIC ("split before it reaches you", "months later"). Streaming is the discovery job this product depends on, never the villain (Z2, 2026-08-11) |
+
+### A tool that measures nothing may not render a measurement
+
+Discovered in Z2B-2, when the Artist Quest Path was found asking two required questions its adapter
+never read, and answering every artist with the same "Execution leakage 68/100" and "8 to 16 weeks
+lost". The rule, for any acquisition surface:
+
+1. **If an input does not change the output, do not ask for it.** A question the result ignores buys
+   fake personalization at the price of real friction, and it is the reader who pays.
+2. **A score, a gauge, or a per-artist figure is a claim that CRWN measured THIS artist.** With no
+   inputs there is nothing to measure, so there is no score. A fixed number shown to everyone reads
+   as a diagnosis and is not one.
+3. **If a personalized result would need a business rule CRWN does not have, do not invent the rule.**
+   Prefer the honest static version, and say plainly that it is the same for every artist. That is a
+   feature (nothing to fill in), not an apology.
+4. **A tool with no numeric model is still allowed to be valuable.** Give the reader the real thing it
+   knows (an order, a checklist, a sequence) instead of a number it does not.
 
 ### Accurate replacements for "own your fans"
 

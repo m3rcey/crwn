@@ -22,6 +22,7 @@ import * as copy from '../emails/acquisitionFollowUp';
 import { TRUST_RANK } from './types';
 import { scoreLead, EMPTY_BEHAVIOR } from './leadScoring';
 import { getTool, missingRequiredFields, ACQUISITION_TOOL_IDS } from './toolAdapters';
+import { LEAD_MAGNET_BY_SLUG } from '@/lib/leadMagnets/registry';
 import { validateInbound, normalizeUsername, normalizeEmailLoose, type ManyChatInboundPayload } from '../manychat/schemas';
 import { deriveIdempotencyKey } from '../manychat/idempotency';
 import { verifyManyChatRequest } from '../manychat/verifyWebhook';
@@ -562,6 +563,47 @@ describe('tool adapters (parity with the five existing lead magnets)', () => {
     for (const id of ACQUISITION_TOOL_IDS) {
       expect(() => getTool(id)!.execute({})).not.toThrow();
     }
+  });
+});
+
+// Z2B-2. This tool used to require a goal and a blocker in free text and then ignore both, so every
+// artist got an identical "Execution leakage 68/100" and "8 to 16 weeks lost". CRWN models neither,
+// so the questions and the fabricated figures are gone and the result says plainly that it is the
+// same for everyone.
+describe('Quest Path is honestly static (no fake personalization, no unsupported numbers)', () => {
+  const questPath = () => getTool('artist-quest-path')!;
+
+  it('asks the web visitor nothing at all', () => {
+    const cfg = LEAD_MAGNET_BY_SLUG['artist-quest-path'];
+    expect(cfg.inputs).toEqual([]);
+    // ...and leaves behind no wizard step that would render as a blank screen.
+    expect(cfg.wizardSteps.map((s) => s.id)).toEqual(['review']);
+  });
+
+  it('renders no score gauge, because nothing about the artist is measured', () => {
+    const r = questPath().execute({});
+    expect(r.sections.find((s) => s.kind === 'score')).toBeUndefined();
+  });
+
+  it('states no number of weeks, months or missing foundations', () => {
+    const r = questPath().execute({});
+    const text = JSON.stringify(r);
+    expect(text).not.toMatch(/8 to 16|2 to 4 months|Execution leakage/);
+    // No bare week/month counts anywhere in the result.
+    expect(text).not.toMatch(/\d+\s*(wks|weeks)\b/i);
+  });
+
+  it('is identical whatever the profile says, and says so in its own assumptions', () => {
+    const blank = questPath().execute({});
+    const full = questPath().execute({ primary_goal: 'replace_day_job', primary_blocker: 'no_audience' });
+    expect(full).toEqual(blank);
+    const assumptions = blank.sections.find((s) => s.kind === 'assumptions')?.items ?? [];
+    expect(assumptions.join(' ').toLowerCase()).toContain('not a diagnosis of your career');
+  });
+
+  it('stamps its own version so its analytics are not pooled with the shared loss engine', () => {
+    expect(questPath().formulaVersion).toBe('questPath@1');
+    expect(questPath().execute({}).generatorVersion).toBe('questPath@1');
   });
 });
 

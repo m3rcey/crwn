@@ -889,45 +889,48 @@ const topFan: AcquisitionTool = {
 const questPath: AcquisitionTool = {
   id: 'artist-quest-path',
   name: 'Artist Quest Path Quiz',
-  // No audience needed: the loss here is TIME, from doing the right work in the wrong order.
+  // The DM still collects goal + blocker, and there they are NOT wasted: they land on
+  // `lead_profiles`, where leadScoring reads primary_blocker and the admin and nurture surfaces read
+  // both. The result never claims to be built from them (see the copy below), which is what keeps
+  // that honest. The WEB tool asks nothing at all, because on that surface the answers were stored
+  // and then ignored.
   requiredFields: ['primary_goal', 'primary_blocker'],
   optionalFields: ['artist_name'],
   resultRouteBase: '/tools/artist-quest-path/result',
-  formulaVersion: 'lossResult@1',
+  // Its own version, not the shared lossResult@1. The output below is materially different from the
+  // one this tool used to emit (the fixed score and the week/month ranges are gone), and the shared
+  // label is also what pooled its analytics with sixteen other tools. Same fix, and same reason, as
+  // the royalty-readiness `readiness@1` overlay. Rows saved before this keep `lossResult@1`.
+  formulaVersion: 'questPath@1',
   calculatorId: 'questPath',
   requiresEstimateDisclaimer: true,
   destinationId: 'rise_mode',
   execute() {
-    // Sequencing risk is high whenever there is no ordered path; the honest output is a leakage
-    // SCORE and a delayed-progress range, not a fabricated dollar figure (no audience was asked).
+    // NO score and NO week/month figures. This tool takes no inputs, so it has nothing to measure:
+    // the old "Execution leakage 68/100", "8 to 16 weeks lost" and "2 to 3 foundations missing" were
+    // fixed constants shown to every artist, which read as a diagnosis of the reader while measuring
+    // nothing. Nothing in CRWN models a sequencing cost in weeks, and inventing one was not an
+    // option, so the result now delivers the thing that IS real and canonical: the order itself.
     return buildLossResult({
-      generatorVersion: 'lossResult@1',
-      headline: 'You are doing the right work in the wrong order, and it is costing you months',
-      score: {
-        value: 68,
-        max: 100,
-        label: 'Execution leakage',
-        band: 'High: effort is going into tasks that need earlier steps built first',
-      },
+      generatorVersion: 'questPath@1',
+      headline: 'Most artists build in the wrong order, and the work never compounds',
       summary:
-        'Most artists build a store before they have an audience to sell to, or chase followers before there is anything to convert them into. Order is the difference between months of progress and months of spinning.',
+        'This one is the same for every artist, so it asks you nothing. Most artists build a store before they have an audience to sell to, or chase followers before there is anything to convert them into. Order is the difference between months of progress and months of spinning.',
       cause:
         'Every next step depends on a foundation being in place first. Build in the wrong order and the work does not compound: you launch tools with no one to use them, run campaigns with nothing to convert to, and repeat work you sequenced wrong. The cost is not money spent, it is time and momentum lost.',
+      // The order, which is the actual deliverable. It matches the stages CRWN already sequences an
+      // artist through in Rise Mode and the roadmap, so it is a statement of existing product logic
+      // rather than a new claim. No counts, no durations: none of that is modeled anywhere.
       estimate: [
-        { label: 'Weeks likely lost', value: '8 to 16', note: 'to out-of-order work' },
-        { label: 'Monetization delayed', value: '2 to 4 months' },
-        { label: 'Foundations still missing', value: '2 to 3' },
-        { label: 'The next unlock, blocked', value: 'until the prior step exists' },
-      ],
-      scenarios: [
-        { label: 'On track', value: '~4 wks', note: 'small resequence' },
-        { label: 'Typical', value: '~10 wks', note: 'lost to order' },
-        { label: 'Stuck', value: '~20 wks', note: 'rebuilding twice' },
+        { label: 'First', value: 'An audience you can reach', note: 'contacts that are yours, not followers on a platform that rents them to you' },
+        { label: 'Second', value: 'One thing worth paying for', note: 'an offer comes before a store' },
+        { label: 'Third', value: 'The tools to sell it', note: 'tiers, checkout and links, once there is something to sell' },
+        { label: 'Fourth', value: 'Promises you can keep', note: 'delivery is what turns a sale into a recurring one' },
       ],
       assumptions: [
-        'Sequencing cost is estimated as a range, not a precise figure, because it depends on your foundations.',
+        'This is the general order, not a diagnosis of your career. The tool asks you nothing, so it knows nothing about where you already are.',
         'Delay compounds: a missing early step blocks every later one that needs it.',
-        'A planning estimate, not a prediction or a guarantee.',
+        'CRWN does not put a number of weeks on this, because nothing here measures your foundations.',
       ],
       consequences: [
         'Revenue stays delayed while you stay busy on work that cannot pay off yet.',

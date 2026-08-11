@@ -142,6 +142,9 @@ export interface RecalcSummary {
 const dollars = (cents: unknown): number | '' =>
   typeof cents === 'number' && cents > 0 ? Math.round(cents / 100) : '';
 const str = (v: unknown, fallback = ''): string => (typeof v === 'string' && v ? v : fallback);
+/** A string[] payload value, or the fallback when the key is absent (a result saved before it existed). */
+const lines = (v: unknown, fallback: string[]): string[] =>
+  Array.isArray(v) && v.length ? v.map((x) => String(x)).filter(Boolean) : fallback;
 
 const CADENCE = [
   { value: 'weekly', label: 'Weekly' },
@@ -597,15 +600,18 @@ const SPECS: DeliverableSpec[] = [
       },
     ],
     preview: { kind: 'list', titleKey: 'sourceContent', itemKeys: ['moments', 'rules', 'eligibility', 'rewardConcept'], note: 'A plan only. No campaign runs, no clipper is paid, and no commission is set until you create it in CRWN.' },
-    // `rewardDetail` is the artist's own answer (their top-clip award, or the label for the reward
-    // type they picked), so the reward step opens with what they already chose instead of blank.
-    // sourceContent/moments/rules are still generic: the calculator HAS those answers, but they
-    // only exist on the generated result's sections, and prefill is handed the conversionPayload
-    // alone. Carrying them needs new payload keys, so it is filed rather than guessed at here.
+    // Every field here that the calculator already asked for is carried across, so the artist is
+    // never asked twice: `sourceContent` is their own words, `moments` and `rules` are the exact
+    // lists their result rendered (derived from the clip types, length, platforms, caption, hashtags
+    // and approval they chose), and `rewardConcept` is their top-clip award or the label for the
+    // reward they picked. Each falls back to the original generic default, so a result saved before
+    // those payload keys existed prefills exactly as it did before.
+    // `durationDays` and `eligibility` stay defaulted: the calculator never asks for either, and
+    // inventing a campaign length the artist did not choose is the thing this rule exists to stop.
     prefill: (cp) => ({
-      sourceContent: '',
-      moments: ['The hook everyone repeats', 'The story before the song', 'The unreleased snippet'],
-      rules: ['Use the original audio', 'Tag me so it can be tracked', 'Keep it under 60 seconds'],
+      sourceContent: str(cp.sourceContent, ''),
+      moments: lines(cp.moments, ['The hook everyone repeats', 'The story before the song', 'The unreleased snippet']),
+      rules: lines(cp.rules, ['Use the original audio', 'Tag me so it can be tracked', 'Keep it under 60 seconds']),
       eligibility: 'Any fan',
       durationDays: 30,
       rewardConcept: str(cp.rewardDetail, ''),

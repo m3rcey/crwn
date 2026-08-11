@@ -100,9 +100,13 @@ const MIX_OPACITY = [1, 0.78, 0.6, 0.44, 0.3];
 const COMPARE = [
   { label: 'Pay per fan', streaming: 'Fractions of a cent', crwn: '$10–$200 / month' },
   { label: 'Who you reach', streaming: 'The algorithm decides', crwn: 'Every fan, directly' },
-  { label: 'Your cut', streaming: 'They keep most of it', crwn: 'You keep up to 92%' },
+  // The comparison is between two different JOBS, not a villain and a hero: this page says a few
+  // lines down that streaming is how people find you and is good at that. So the rows state the
+  // mechanics ("split before it reaches you", "months later") rather than accusing the DSPs of
+  // keeping money or not paying, neither of which CRWN can evidence.
+  { label: 'Your cut', streaming: 'Split before it reaches you', crwn: 'You keep up to 92%' },
   { label: 'Fan data', streaming: 'You get none', crwn: 'Names and emails, yours' },
-  { label: 'Payout', streaming: 'Months later, if at all', crwn: 'Straight to your bank' },
+  { label: 'Payout', streaming: 'Months later', crwn: 'Straight to your bank' },
 ];
 
 const AUDIENCE_TOOLS = [
@@ -912,7 +916,9 @@ export function WorthExperience({
         {/* Independence: the apps you built on can change owners overnight */}
         {homepage && (
         <section className="mb-14">
-          <IndependenceSection href="/signup" ctaLabel="Claim your fans on CRWN" />
+          {/* Not "claim your fans": an artist does not own people. The thing CRWN actually hands
+              them is the list and the relationship (POSITIONING section 24). */}
+          <IndependenceSection href="/signup" ctaLabel="Claim your fan list on CRWN" />
         </section>
         )}
 
@@ -933,8 +939,9 @@ export function WorthExperience({
         <section className="mb-14">
           <SectionHeading icon={Wallet}>Keep up to 92%, paid to your bank</SectionHeading>
           <p className="text-crwn-text-secondary text-xl mb-6">
-            Streaming pays fractions of a cent and keeps most of it. On CRWN the money flows straight
-            to you, powered by Stripe. No label cut, no 30% middleman.
+            Streaming pays per play, and it is split several ways before it reaches you. On CRWN a fan
+            pays you directly and the money flows straight to your bank, powered by Stripe. No label
+            cut in the middle.
           </p>
           <MoneyFlow />
           <div className="bg-crwn-surface border border-crwn-elevated rounded-2xl p-6 mt-4">

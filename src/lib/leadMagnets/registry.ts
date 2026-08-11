@@ -511,14 +511,14 @@ const QUEST_PATH: LeadMagnetConfig = {
     name: 'Artist Quest Path Quiz',
     featureName: 'Rise Mode',
     category: 'Grow',
-    description: 'See how much time you lose doing the right work in the wrong order.',
+    description: 'See the order most artists build in, and the order that actually compounds.',
     videoAngle: 'Most artists build a store before they have an audience, or chase followers before there is anything to convert them into.',
     icon: '🗺️',
     dmKeywords: ['quest', 'path'],
     hero: {
       eyebrow: 'Rise Mode',
-      headline: 'You are doing the right work in the wrong order.',
-      subheadline: 'Order is the difference between months of progress and months of spinning. See where your sequencing is costing you time.',
+      headline: 'Most artists build in the wrong order.',
+      subheadline: 'Order is the difference between months of progress and months of spinning. This one is the same for every artist: no questions, just the order that compounds.',
       primaryCta: 'See the right order',
       image: '/tool-quest-path.jpg',
       imageAlt: 'A dim, gold-lit studio with an artist at the center',
@@ -526,14 +526,15 @@ const QUEST_PATH: LeadMagnetConfig = {
     resultGeneratorKey: 'questPath',
     analyticsMetadata: { toolId: 'artist-quest-path', category: 'Grow', promotedFeature: 'Rise Mode' },
   }),
-  // Quest Path asks goal + blocker, not audience.
-  inputs: [
-    { key: 'primary_goal', type: 'text', label: 'What are you trying to do in the next 90 days?', required: true, maxLength: 200, step: 'goal', placeholder: 'e.g. make my first $1,000 from fans' },
-    { key: 'primary_blocker', type: 'text', label: 'What is the single biggest thing in your way?', required: true, maxLength: 200, step: 'goal', placeholder: 'e.g. I have no idea what to build first' },
-  ],
+  // NO INPUTS, deliberately. This tool used to require a goal and a blocker in free text, and its
+  // adapter's execute() took no arguments: every artist typed two answers and received the identical
+  // result. CRWN has no canonical mapping from a blocker to an ordered quest path or to lost time
+  // (the Constraint Engine needs a real artist's measured world and returns insufficient_evidence
+  // without it), so branching the result would have meant inventing a business rule. The honest shape
+  // is the one below: no questions, and a result that says plainly it is the same for everyone.
+  inputs: [],
   wizardSteps: [
-    { id: 'goal', group: 'You', title: 'Where are you headed?', subtitle: 'Your goal and your biggest blocker.' },
-    { id: 'review', group: 'Review', title: 'Review', subtitle: 'Check your answers, then see the order most artists get wrong.' },
+    { id: 'review', group: 'The order', title: 'The order that compounds', subtitle: 'No questions. This is the same for every artist, so there is nothing to fill in.' },
   ],
 };
 

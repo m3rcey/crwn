@@ -192,7 +192,14 @@ function ReviewStep({
           <span className="text-sm text-crwn-text text-right">{display(def, value)}</span>
         </button>
       ))}
-      {rows.length === 0 && <p className="text-sm text-crwn-text-secondary">Add a few details on the previous steps to see your result.</p>}
+      {/* A tool with NO questions at all (its result is the same for every artist) must not be told
+          to go back and fill in steps that do not exist. Say plainly why there is nothing here. */}
+      {rows.length === 0 && config.inputs.length === 0 && (
+        <p className="text-sm text-crwn-text-secondary">Nothing to fill in. This result is the same for every artist.</p>
+      )}
+      {rows.length === 0 && config.inputs.length > 0 && (
+        <p className="text-sm text-crwn-text-secondary">Add a few details on the previous steps to see your result.</p>
+      )}
     </div>
   );
 }

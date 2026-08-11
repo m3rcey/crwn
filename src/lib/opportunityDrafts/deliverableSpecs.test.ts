@@ -84,6 +84,40 @@ describe('sensitive tools stay honest', () => {
     expect(spec.subtitle.toLowerCase()).toContain('not a result computed from your answers');
   });
 
+  // Z2B-2: the artist answered these in the calculator, so the builder must not ask again.
+  describe('Clip-to-Earn carries the calculator answers into the builder', () => {
+    const spec = () => getDeliverableSpec('clip-to-earn-campaign-planner')!;
+
+    it('prefills source, moments, rules and reward from the conversion payload', () => {
+      const v = spec().prefill({
+        sourceContent: 'my new single "Crown"',
+        moments: ['A hook moment from my new single "Crown"'],
+        rules: ['Length: 7-15s', 'Platforms: TikTok'],
+        rewardDetail: 'a signed vinyl',
+      });
+      expect(v.sourceContent).toBe('my new single "Crown"');
+      expect(v.moments).toEqual(['A hook moment from my new single "Crown"']);
+      expect(v.rules).toEqual(['Length: 7-15s', 'Platforms: TikTok']);
+      expect(v.rewardConcept).toBe('a signed vinyl');
+    });
+
+    // A result saved before those payload keys existed must behave exactly as it did before.
+    it('falls back to the generic defaults for a historical payload with none of the new keys', () => {
+      const v = spec().prefill({ title: 'Clip x', rewardType: 'badge' });
+      expect(v.sourceContent).toBe('');
+      expect(v.rewardConcept).toBe('');
+      expect((v.moments as string[])[0]).toBe('The hook everyone repeats');
+      expect((v.rules as string[])[0]).toBe('Use the original audio');
+    });
+
+    // Never invented: the calculator asks for neither, so they stay defaulted.
+    it('does not invent a campaign length or eligibility the calculator never asked for', () => {
+      const v = spec().prefill({ sourceContent: 'a live set' });
+      expect(v.durationDays).toBe(30);
+      expect(v.eligibility).toBe('Any fan');
+    });
+  });
+
   it('every preview note makes clear nothing is published yet', () => {
     for (const spec of DELIVERABLE_SPECS) {
       expect(spec.preview.note, spec.toolSlug).toBeTruthy();

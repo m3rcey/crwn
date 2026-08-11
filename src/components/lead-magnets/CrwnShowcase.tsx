@@ -57,9 +57,11 @@ const MONETIZE = [
 const COMPARE = [
   { label: 'Pay per fan', streaming: 'Fractions of a cent', crwn: '$10 to $200 / month' },
   { label: 'Who you reach', streaming: 'The algorithm decides', crwn: 'Every fan, directly' },
-  { label: 'Your cut', streaming: 'They keep most of it', crwn: 'You keep up to 92%' },
+  // Mechanics, not accusations. CRWN cannot evidence that a DSP "keeps most of it" or might not
+  // pay at all, and streaming is the discovery job this product depends on rather than an enemy.
+  { label: 'Your cut', streaming: 'Split before it reaches you', crwn: 'You keep up to 92%' },
   { label: 'Fan data', streaming: 'You get none', crwn: 'Names, emails, phones' },
-  { label: 'Payout', streaming: 'Months later, if at all', crwn: 'Straight to your bank' },
+  { label: 'Payout', streaming: 'Months later', crwn: 'Straight to your bank' },
 ];
 
 const FAN_MATH = [

@@ -218,6 +218,17 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P2 — worth doing, nothing breaks if you never do it
 
+- [ ] **Decide the public "you keep" number, because the homepage states two.** The fee source of
+      truth is `TIER_LIMITS` in [src/lib/platformTier.ts](src/lib/platformTier.ts): Launch 12%
+      (keep 88), Pro 8% (keep 92), Scale 5% (keep 95). Eight public strings say **"up to 92%"**
+      (both comparison tables, the money-flow bar, the FAQ, `IndependenceSection`, two CTA subs),
+      while the money-flow detail line right under the "Keep up to 92%" heading says **"Scale 95%"**.
+      One of the two is wrong and it is a pricing-communication call, not a code fix, so I left both
+      alone: /terms and /artist-agreement are hand-kept and mention only 12% and 8%, so raising the
+      headline to 95% would also mean touching the legal pages, and lowering it means dropping a real
+      rate. Tell me which and I will make all eight strings plus the legal pages agree in one pass.
+      Found in the Z2B-2 homepage audit; nothing is broken today, the page is just inconsistent.
+
 - [ ] **Add the FREE keyword to ManyChat before posting the Akeem Ali all-in video.** The
       script ([videos/scripts/lead-magnets/free-akeem-ali.md](videos/scripts/lead-magnets/free-akeem-ali.md))
       says "Comment FREE and I'll DM you the link", and ManyChat keywords are pills configured
@@ -341,15 +352,6 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   `between-tour-calculator` reuse the own-your-fans and live-experience photos (the registry's
   documented placeholder pattern). They are no longer avatar front doors, so this is cosmetic.
   Generate on-brand charcoal+gold images (artist 18-32 rule) and swap the two `hero.image` paths.
-
-- **Artist Quest Path asks two questions its result ignores.** `artist-quest-path` collects
-  `primary_goal` and `primary_blocker` (both required, free text), but its adapter's `execute()`
-  in `src/lib/acquisition/toolAdapters.ts` takes NO arguments and returns a fully static result:
-  every artist gets the identical "8 to 16 weeks lost" answer regardless of what they typed. Found
-  in the Z2B-1 field audit and deliberately NOT fixed there, because the honest fix is writing
-  result logic keyed on the blocker, which is result-generation work outside that audit's scope.
-  Two options when it comes up: branch the result on `primary_blocker` (needs a formulaVersion
-  bump), or drop both inputs and let the tool be a one-tap diagnostic. Mine.
 
 - **Avatar follow-ups, in order:** per-avatar hero copy on the all-in-one calculator page (today
   the entry context reorders the questions and shows its note, but the hero headline is still

@@ -341,22 +341,23 @@ function clipToEarnCampaign(v: LeadMagnetInputValues): GeneratedResult {
   const platformList = platforms.length ? platforms.join(', ') : 'TikTok, Reels, Shorts';
   const clipList = clipTypes.length ? clipTypes : ['hook moment', 'emotional line', 'beat drop'];
 
+  // Named so the SAME derived lists can ride into conversionPayload for the builder's prefill,
+  // instead of the builder re-asking for rules and moments the artist already answered for. Nothing
+  // is recomputed and nothing new is derived: these are the exact strings the result renders.
+  const clipRules = [
+    `Length: ${clipLength}`,
+    `Platforms: ${platformList}`,
+    caption ? `Caption must include: ${caption}` : 'Use your own hook in the caption',
+    hashtags.length ? `Hashtags: ${hashtags.map((h) => (h.startsWith('#') ? h : '#' + h)).join(' ')}` : 'Add the campaign hashtag',
+    approvalRequired ? 'Clips are reviewed before they count' : 'Clips count automatically once posted',
+    'Only clip content you have the rights to use',
+  ];
+  const bestMoments = clipList.map((c) => `A ${c} from ${source}`);
+
   const sections: ResultSection[] = [
     { key: 'brief', title: 'Clipper brief', kind: 'summary', text: `Clip ${source} (${sourceType}) into ${clipLength} vertical clips for ${platformList}. Post them, tag the campaign, and climb the board.` },
-    {
-      key: 'rules',
-      title: 'Clip rules',
-      kind: 'list',
-      items: [
-        `Length: ${clipLength}`,
-        `Platforms: ${platformList}`,
-        caption ? `Caption must include: ${caption}` : 'Use your own hook in the caption',
-        hashtags.length ? `Hashtags: ${hashtags.map((h) => (h.startsWith('#') ? h : '#' + h)).join(' ')}` : 'Add the campaign hashtag',
-        approvalRequired ? 'Clips are reviewed before they count' : 'Clips count automatically once posted',
-        'Only clip content you have the rights to use',
-      ],
-    },
-    { key: 'bestMoments', title: 'Best moments to clip', kind: 'checklist', items: clipList.map((c) => `A ${c} from ${source}`) },
+    { key: 'rules', title: 'Clip rules', kind: 'list', items: clipRules },
+    { key: 'bestMoments', title: 'Best moments to clip', kind: 'checklist', items: bestMoments },
     { key: 'reward', title: 'Reward structure', kind: 'summary', text: `${rewardLabel(rewardType)}${topClipAward ? `. Top clip wins: ${topClipAward}.` : ''}` },
     { key: 'captions', title: 'Approved captions', kind: 'copy', text: `1) You have not heard ${source} until you have heard this part.\n2) POV: this ${sourceType} lives in your head rent free.\n3) Tag someone who needs ${source} today.` },
     { key: 'moderation', title: 'Moderation checklist', kind: 'checklist', items: ['Clip uses only approved source content', 'Caption and hashtags present', 'Length within range', 'No misleading edits'] },
@@ -380,6 +381,14 @@ function clipToEarnCampaign(v: LeadMagnetInputValues): GeneratedResult {
       rewardDetail: topClipAward || rewardLabel(rewardType),
       eligibility: 'all',
       approvalRequired,
+      // ADDITIVE, for the deliverable builder's prefill only. The bounty adapter (bountyParams)
+      // reads named keys and is unaffected, the rendered sections are byte-identical, and no number
+      // changes, so GENERATOR_VERSION is deliberately NOT bumped: it is shared with the vault,
+      // proof-of-demand and fan-mission generators, whose output did not change. Results saved
+      // before this simply lack these keys and the builder falls back to its generic defaults.
+      sourceContent: str(v.sourceContent),
+      moments: bestMoments,
+      rules: clipRules,
     },
     shareSummary: `Launching a clip-to-earn campaign. Clip it, post it, climb the board.`,
   };
