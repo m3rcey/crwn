@@ -1,6 +1,21 @@
 # 24. Recommendation-to-outcome linkage (Z3)
 
 > Shipped 2026-08-11 (dark until its migration runs). The evidence primitive that lets CRWN ask:
+>
+> **Deployment status, verified 2026-08-11:** `constraint_recommendations` is **NOT APPLIED** in
+> production, confirmed by `npm run verify:migrations` (anon-key probe, the repo's own convention),
+> not by assumption. Nothing else blocks it: the code is shipped, the cron is scheduled, and every
+> check that does not need a database has passed. This environment has **no path to apply DDL** and
+> that is by design, not by omission: there is no `DATABASE_URL`, no `pg`/`postgres` client, no
+> Supabase CLI, no psql, and no SQL-execution RPC. The service-role key authenticates to PostgREST,
+> which executes table operations, never `CREATE TABLE` or `CREATE POLICY`. CLAUDE.md's standing
+> rule is that Josh applies migrations manually in the Supabase SQL editor, and that rule is the
+> authorization model rather than an obstacle to route around.
+>
+> **The live-database half of the verification (table shape, indexes, RLS owner/cross-artist/anon
+> reads, client write denial, issuance idempotency against the real index) has therefore NOT been
+> performed and cannot be until the migration runs.** Everything below describes intended and
+> unit-tested behavior. Z3 stays open until those checks pass. See TODO.md.
 > **what did we recommend, did the artist act, and did the metric we were trying to move change
 > afterwards?**
 >

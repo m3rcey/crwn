@@ -58,7 +58,7 @@ export async function recordIssuedRecommendation(
   if (!issued) return;
 
   try {
-    await db.from(TABLE).insert({
+    const { error } = await db.from(TABLE).insert({
       artist_id: artistId,
       constraint_type: issued.constraint,
       action_key: issued.actionKey,
@@ -69,11 +69,30 @@ export async function recordIssuedRecommendation(
       issued_at: issued.issuedAt,
       outcome: 'not_measured_yet',
     });
-    // A 23505 from the partial unique index is the SUCCESS case on a repeat render: the open
-    // recommendation already exists. Swallowed with everything else below.
-  } catch {
-    /* evidence is best-effort; the artist's page is not */
+    // supabase-js RETURNS an {error} rather than throwing (CLAUDE.md: the single most common
+    // silent-failure bug in this codebase), so the catch below is not what handles a rejected
+    // insert. This is.
+    //
+    // Two codes are EXPECTED and stay silent:
+    //   23505 - the partial unique index rejected a duplicate. That is the idempotency guarantee
+    //           doing its job on a repeat dashboard load, i.e. the success case.
+    //   42P01 - the table does not exist because the migration has not been applied yet. Silent by
+    //           design: the product must behave exactly as before until it runs.
+    // Anything else is a real fault. It must not cost the artist their dashboard, but CRWN needs to
+    // be able to see it, or evidence collection could fail silently forever and look like an artist
+    // who was simply never diagnosed.
+    if (error && !isExpectedWriteError(error)) {
+      console.error('constraint recommendation not recorded:', error.code, error.message);
+    }
+  } catch (err) {
+    // A genuine throw (network, client misconfiguration). Same rule: soft for the artist, visible.
+    console.error('constraint recommendation insert threw:', err);
   }
+}
+
+/** Codes that mean "working as intended", not "something is wrong". */
+function isExpectedWriteError(error: { code?: string | null }): boolean {
+  return error.code === '23505' || error.code === '42P01';
 }
 
 /**
@@ -90,9 +109,18 @@ export async function markActionCompleted(
   at: string,
 ): Promise<void> {
   try {
-    await db.from(TABLE).update({ action_completed_at: at }).eq('id', recommendationId).is('action_completed_at', null);
-  } catch {
-    /* best effort */
+    const { error } = await db
+      .from(TABLE)
+      .update({ action_completed_at: at })
+      .eq('id', recommendationId)
+      .is('action_completed_at', null);
+    // Silent only where silence is correct (table not yet created). A real failure here means CRWN
+    // would record recommendations forever and never notice anyone acting on them.
+    if (error && !isExpectedWriteError(error)) {
+      console.error('constraint action completion not recorded:', error.code, error.message);
+    }
+  } catch (err) {
+    console.error('constraint action completion threw:', err);
   }
 }
 
@@ -138,8 +166,12 @@ export async function recordMeasuredOutcome(
       })
       .eq('id', recommendationId)
       .eq('outcome', 'not_measured_yet'); // idempotent: a second cron pass writes nothing
+    if (error && !isExpectedWriteError(error)) {
+      console.error('constraint outcome not recorded:', error.code, error.message);
+    }
     return !error;
-  } catch {
+  } catch (err) {
+    console.error('constraint outcome write threw:', err);
     return false;
   }
 }

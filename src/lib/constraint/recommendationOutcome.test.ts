@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { recordIssuedRecommendation } from './recommendationStore';
 import {
   actionKeyFor,
   baselineFrom,
@@ -166,6 +167,47 @@ describe('a completed action is not a successful recommendation', () => {
     // classifyOutcome takes no completion flag at all: the two facts cannot be conflated.
     const o = classifyOutcome({ constraint: 'FULFILLMENT' }, diagnosed(), NOW);
     expect(o.outcome).toBe('constraint_persists');
+  });
+});
+
+// Fail soft for the artist, observable for CRWN. supabase-js RETURNS an {error} rather than
+// throwing, so a swallowed write is the single easiest silent failure in this codebase to ship.
+describe('write failures never reach the artist, but the real ones are visible', () => {
+  const fakeDb = (error: { code: string; message: string } | null) =>
+    ({ from: () => ({ insert: async () => ({ error }) }) }) as never;
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it('stays silent on a duplicate: that is the idempotency guarantee working', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await recordIssuedRecommendation(fakeDb({ code: '23505', message: 'duplicate key' }), 'a1', diagnosed());
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('stays silent before the migration has been applied', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await recordIssuedRecommendation(fakeDb({ code: '42P01', message: 'relation does not exist' }), 'a1', diagnosed());
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('reports any other fault instead of hiding it forever', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await recordIssuedRecommendation(fakeDb({ code: '42501', message: 'permission denied' }), 'a1', diagnosed());
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('never throws, whatever the database says, so the dashboard cannot break on bookkeeping', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const exploding = { from: () => ({ insert: async () => { throw new Error('network down'); } }) } as never;
+    await expect(recordIssuedRecommendation(exploding, 'a1', diagnosed())).resolves.toBeUndefined();
+    await expect(recordIssuedRecommendation(fakeDb({ code: '42501', message: 'x' }), 'a1', diagnosed())).resolves.toBeUndefined();
+  });
+
+  it('writes nothing at all when the engine declined to diagnose', async () => {
+    let called = false;
+    const watching = { from: () => ({ insert: async () => { called = true; return { error: null }; } }) } as never;
+    await recordIssuedRecommendation(watching, 'a1', insufficient);
+    expect(called).toBe(false);
   });
 });
 

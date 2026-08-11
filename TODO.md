@@ -33,10 +33,17 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       Until it runs the code fails soft and the product behaves exactly as it does today, so nothing
       is broken, but **no evidence is being collected**: every day it stays unrun is a day of
       recommendations CRWN cannot later measure, and the data cannot be backfilled (the engine reads
-      live tables, so a reconstructed baseline would be a fabrication). Verify afterwards with
-      `npm run verify:migrations`. What it turns on: `/api/artist/constraint` starts recording what
-      it recommended, and the new daily `constraint-outcomes` cron reads whether the artist acted
-      and whether the constraint cleared. Background: docs/crwn-brain/24-RECOMMENDATION-OUTCOME-LINKAGE.md
+      live tables, so a reconstructed baseline would be a fabrication).
+      **Re-confirmed still unapplied 2026-08-11** by `npm run verify:migrations`. I cannot run it
+      myself: there is no DATABASE_URL, no psql, no Supabase CLI and no SQL-execution RPC here, and
+      the service-role key talks to PostgREST, which cannot execute DDL.
+      Straight after running it, run `npm run verify:migrations` again: the line
+      `constraint recommendation outcomes` must read **applied (readable)**. A 200 with an empty
+      array is the CORRECT result for the anon key, because the table is owner-read-only.
+      What it turns on: `/api/artist/constraint` starts recording what it recommended, and the new
+      daily `constraint-outcomes` cron reads whether the artist acted and whether the constraint
+      cleared. **This is the only thing standing between Z3 and closed.**
+      Background: docs/crwn-brain/24-RECOMMENDATION-OUTCOME-LINKAGE.md
 
 
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
