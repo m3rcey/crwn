@@ -1,9 +1,16 @@
 # VIRALITY ENGINE: Canonical Architecture
 
-> **Status: ARCHITECTURE AND PRODUCT DESIGN ONLY. Nothing in this document has been
-> implemented.** No routes, migrations, UI, flags, campaign execution, fraud systems,
-> attribution changes, payout changes or commission changes were created by the task that
-> produced this file.
+> **Status: V1 IMPLEMENTED 2026-08-11 (Z11). Everything beyond V1 in this document remains
+> architecture only.** What is live, and what is explicitly not, is section 28. Read that first
+> if you are about to build on this.
+>
+> V1 is: the thin Campaign spine (`fan_campaigns` + `fan_campaign_participants`), ONE archetype
+> (Fan Recruitment Drive), a required participant toolkit, a server-side constraint gate, results
+> derived from the existing referral rail, and a non-cash badge. **No attribution change, no payout
+> change, no commission change, no new cash mechanism, no leaderboard, no UGC archetype, no social
+> API, no Rise Mode wiring and no Manager change** were made. The V1 boundary in section 23 was
+> revalidated against the live repository before implementation and held, with one correction
+> recorded in section 28.2.
 >
 > Authored 2026-08-10 on branch `claude/rise-mode-full-journey`.
 > Founder-approved product direction, reconciled against the live repository.
@@ -1621,6 +1628,107 @@ Any future implementation of the Virality Engine must satisfy all of these.
     upside.
 25. `npm run build` passes clean in WSL, `npm test` passes, and `public/sw.js` `CACHE_NAME` is
     bumped if the frontend changed.
+
+---
+
+## 28. What actually shipped (Z11, 2026-08-11)
+
+### 28.1 V1 LIVE
+
+| Piece | Where |
+|---|---|
+| Campaign spine, thin, additive | `supabase/schema-phase3-fan-campaigns.sql` (`fan_campaigns`, `fan_campaign_participants`) |
+| Archetype registry, DATA not branches | `src/lib/campaigns/archetypes.ts`. One archetype: `fan_recruitment` |
+| Lifecycle + launch preflight + participation gate | `src/lib/campaigns/lifecycle.ts`. `draft -> active -> ended -> archived` |
+| Constraint admission gate (reader, never a ranker) | `src/lib/campaigns/eligibility.ts` |
+| Results from canonical rails, `MoneyMetric` discipline | `src/lib/campaigns/results.ts` |
+| The only reader/writer of the spine tables | `src/lib/campaigns/store.ts` |
+| Artist surface, one page | `/fan-campaigns` (`HubBackControl`, listed in `AccountHub` under Reach and fans) |
+| Fan surface, one page | `/{slug}/campaign` |
+| API | `GET/POST /api/fan-campaigns`, `PATCH /api/fan-campaigns/[id]`, `GET /api/fan-campaigns/active`, `POST /api/fan-campaigns/join` |
+| Tests | `src/lib/campaigns/campaigns.test.ts` (41), `src/lib/campaigns/boundaries.test.ts` (32), `src/lib/leaderboardPrivacy.test.ts` (3) |
+
+**Constraint eligibility as implemented.** `REACH` and `FIRST_PAID` only. `FULFILLMENT`,
+`RETENTION`, `PAID_TIER_INTEREST`, `CHECKOUT_COMPLETION` and `DEPTH` are refused, and so is
+`insufficient_evidence`, and so is a failed constraint read (it fails CLOSED). The refusal restates
+the canonical action verbatim rather than leaving the artist on a dead end. **`FREE_CAPTURE` is NOT
+served**, correcting section 2.2's "partly": its diagnosis is that visitors arrive and do not join,
+so sending more visitors treats a symptom upstream of the fault. No V1 archetype honestly serves it,
+so it is left uncovered rather than covered for coverage's sake.
+
+**The attribution decision, and it is the one that kept the boundary clean.** No campaign dimension
+was added to `referrals`, to the cookie, to Stripe metadata or to any money row. A participant's
+outcome is found by asking the canonical rail a narrower question: referrals for THIS artist,
+credited to someone in THIS participant set, created inside THIS window. `processReferral`,
+`ReferralPersist`, `insertHeldReferralEarning` and the 30-day cookie are byte-for-byte unchanged.
+The partial unique index `idx_fan_campaigns_one_active` (one active campaign per artist) is what
+makes that derivation unambiguous: without it two overlapping windows could report one referral as
+the outcome of two campaigns.
+
+**Non-cash incentive.** The existing `promoter` badge via the existing `awardFanBadge`, granted once
+at the ended transition to participants the referral rail has ALREADY credited with a paying member.
+`incentive_kind` is CHECK-constrained to `non_cash` at the database, so introducing a cash reward
+takes a migration, which is the founder gate it should have.
+
+### 28.2 The one correction to this document
+
+**Section 12 tier 2 says "New free members in window: Yes". For a CAMPAIGN that is wrong, and V1
+reports it as MISSING.** `/api/stripe/free-subscribe` (verified 2026-08-11) writes a `subscriptions`
+row and reads no referral cookie, so no free join is attributable to any participant. CRWN can count
+an artist's free joins; it cannot say who sent them. Reporting 0 would be a claim CRWN cannot make,
+so `freeJoinsAttributed` is `{ value: null, state: 'missing' }` with the reason on screen, and both
+the artist and fan surfaces say so in words.
+
+Fixing it would mean writing a referral row from the free-join path, which is a new attribution
+write on a table three other surfaces already count (`/api/campaign-hub`, `/api/leaderboard`, the
+recruiter dashboards). That is a money-adjacent semantic change and is explicitly out of scope here.
+It is the single highest-value follow-up for this archetype.
+
+### 28.3 The security prerequisite, closed
+
+Section 19.2a's `/api/leaderboard` score inversion was **re-verified as still live on 2026-08-11 and
+fixed**: `spent = (score - referrals*50 - comments*5 - likes*2) * 100` recovered a fan's lifetime
+spend for any caller who could load the public artist page. Remediation (a) was taken, the smallest
+of the three: the score is no longer shipped. Ranking is unchanged, because the ORDER still comes
+from the full score computed server-side. The scoring and the public projection now live in
+`src/lib/leaderboardPrivacy.ts` so the property is covered by a test rather than a comment. Founder
+decision 25.11 remains open for the richer options (a bucketed score, or a score without the spend
+term), both of which change what the leaderboard means.
+
+**No campaign leaderboard shipped**, and the archetype registry declares no `ranked` capability, so
+one cannot be added by configuration alone.
+
+### 28.4 Deferred, explicitly
+
+- **V1.5 Live Clip** via a `clip_bounties` adapter. Needs submission intake and ranking; ranking is
+  also where the leaderboard question returns.
+- **V2 Local Ambassador** (geo, `city_unlocks`), Treasure Hunt, Fan Lore.
+- **V3, all ten UGC archetypes.** Blocked, not merely unbuilt: founder decisions 25.4 (submission
+  licensing), 25.5 (stem/music licensing) and 25.6 (contest legal mechanics), plus campaign audio
+  assets, song section metadata and moderation. Nothing in Z11 touched any of them.
+- **Cash prizes, prize pools, commission overrides, campaign payouts.** Decision 25.1 holds.
+- **Free-join attribution** (28.2).
+- **Rise Mode wiring.** The quest catalog rewrite has not landed and the engine is dark. A drive is
+  reachable from the hamburger and from the campaign page's own constraint gate, not from a quest.
+- **Manager integration.** The Manager already receives the canonical priority brief (Z4) and is
+  unchanged; it is not told about drives and cannot launch one.
+- **Needs You / Promise Calendar integration.** A drive is not a promise to a fan and must never
+  become a Promise Calendar obligation.
+- **Retention cohorted by acquisition source**, which is what would tell an artist whether the
+  members a drive brought in actually stayed.
+- **A campaign evidence record** (section 21). V1 stores the configuration and derives the outcome;
+  it does not yet store a versioned record of what was recommended versus what happened.
+
+### 28.5 What may and may not be claimed after Z11
+
+**May:** CRWN can turn a campaign-shaped artist constraint into a measurable fan participation
+campaign, and trace verified paying-member outcomes back to individual participants through the same
+referral rail the rest of the product uses.
+
+**May not:** that CRWN makes anything go viral, guarantees or predicts virality, knows which
+mechanic will work, optimises campaigns from other artists' data, or produces network effects. One
+archetype and zero closed campaigns is Stage 0 to 1 on section 13.1's ladder, and no cross-artist or
+personalised claim is rendered anywhere.
 
 ---
 

@@ -39,6 +39,10 @@ const PROBES = [
   ['constraint recommendation outcomes', 'constraint_recommendations?select=id&limit=1', 'schema-phase3-recommendation-outcomes.sql'],
   // Z8. Artist-read-only, so anon gets 200 with [] once applied; 42P01/PGRST205 means not run.
   ['tier transition history', 'tier_transitions?select=id&limit=1', 'schema-phase3-tier-transitions.sql'],
+  // Z11. Artist-read-only RLS on both, so anon resolves the table and gets []; 42P01/PGRST205
+  // means the migration has not run and the whole Virality surface is dark by design.
+  ['fan campaigns', 'fan_campaigns?select=id&limit=1', 'schema-phase3-fan-campaigns.sql'],
+  ['fan campaign participants', 'fan_campaign_participants?select=id&limit=1', 'schema-phase3-fan-campaigns.sql'],
   // launch_partner is a server-only column (no client grants), so 42501 = applied.
   ['launch partner flag', 'artist_profiles?select=launch_partner&limit=1', 'schema-phase2-launch-partner.sql'],
   // FRL tables are admin-only RLS: anon resolves the table (zero rows) = applied.

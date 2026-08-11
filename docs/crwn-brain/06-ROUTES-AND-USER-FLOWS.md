@@ -127,6 +127,30 @@ records nothing, and the free-tier path returns before it. Read back by `GET
 ### Support (help center, shipped 2026-07-31)
 `/support` = guide search (14 getting-started guides) + link to `/getting-started` + live chat + contact form (CCs joshn.wms@gmail.com, accepts auto-captured context). Chat: user posts via `POST /api/support/chat` (session-auth, service-role writes); AI reply from DeepSeek `deepseek-chat` with a knowledge prompt built from real guide content (`src/lib/supportKnowledge.ts`). Client reads the conversation via RLS + realtime on `support_conversations`/`support_messages` (migration `schema-phase2-support-chat.sql` PENDING; UI falls back to the contact form until it runs). Escalation (no `DEEPSEEK_API_KEY`, AI flags the question, or "Talk to a human") sets status `human_requested` and emails the founder a link to `/admin?tab=support` (SupportChatView); admin replies email the user. A global `BugReportButton` (root layout, hidden on auth/setup screens) posts to `/api/support` with category Bug Report + auto-captured page URL/user agent/user id. `Confirmed`.
 
+### Fan Drive (Virality Engine V1, shipped dark 2026-08-11)
+Artist: `/fan-campaigns` (one page, `HubBackControl`, listed in AccountHub under Reach and fans) →
+`GET /api/fan-campaigns` returns the artist's drives with results AND the constraint verdict. If the
+canonical diagnosis is FULFILLMENT or RETENTION, or there is no diagnosis, the page shows THAT
+priority and its action and `POST /api/fan-campaigns` refuses with 409: the gate is server-side, not
+a UI suggestion. Otherwise the artist gets a prefilled drive (title, window, three toolkit fields)
+and `POST` creates it active. A drive cannot launch with a required toolkit slot empty
+(`checkLaunchReady`). `PATCH /api/fan-campaigns/[id]` is the only mutation (launch / end / archive /
+edit a draft); it loads the campaign server-side and 404s when `artist_id` is not the session
+artist's.
+
+Fan: `/{slug}/campaign` → `GET /api/fan-campaigns/active?slug=`, a service-role route returning a
+field-by-field allowlist (the row is never publicly readable, because `source_constraint` is private
+commercial evidence and RLS is row-level). A draft is invisible. `POST /api/fan-campaigns/join`
+takes only the campaign id; the participant is the session user, the role comes from the archetype,
+the artist cannot join their own drive, and UNIQUE (campaign_id, fan_id) makes a repeat join a
+no-op. The participant then sees their EXISTING referral link (no campaign-specific link and no
+second attribution system) and their own verified paying-member count for the window.
+
+Ending a drive grants the existing `promoter` badge to participants the referral rail has already
+credited with a paying member. Nothing on this path writes to `referrals`, `referral_earnings`,
+`earnings`, `subscriptions` or any payout table. `Confirmed` (dark until
+`supabase/schema-phase3-fan-campaigns.sql` runs).
+
 ---
 
 *See also: [02-FEATURE-MAP.md](02-FEATURE-MAP.md) · [07-BUSINESS-RULES.md](07-BUSINESS-RULES.md) · [03-USER-ROLES-AND-PERMISSIONS.md](03-USER-ROLES-AND-PERMISSIONS.md)*

@@ -249,6 +249,39 @@ Internal, admin-only (doc 21 is the full spec). The rules, all `Confirmed` in co
 - **Predictive LTV is unavailable by policy**; lifetime figures are historical sums.
 - Implementation fees are never charged through the app: manual Stripe invoice only.
 
+## 17. Fan Drive rules (Virality Engine V1, 2026-08-11)
+
+Full architecture: doc 22 section 28. The rules, all `Confirmed` in code + tests
+(`src/lib/campaigns/boundaries.test.ts` asserts most of them against the source):
+
+- **A drive introduces NO new cash mechanism.** `fan_campaigns.incentive_kind` is
+  CHECK-constrained to `non_cash`, the spine carries no money column (the migration asserts it),
+  and the only reward is the existing `promoter` badge. Cash bounties, prize pools, commission
+  overrides and campaign payouts remain founder decisions, unbuilt.
+- **A drive never attributes anything.** `processReferral` at the Stripe webhook is still the only
+  thing that decides who referred whom and what it is worth. A campaign asks that rail a narrower
+  question (this artist, this participant set, this window) and adds no column to it.
+- **ONE active drive per artist** (partial unique index). This is not merely tidiness: overlapping
+  windows over the same participant would report one referral as two campaigns' outcome.
+- **Only REACH and FIRST_PAID may route to a drive.** FULFILLMENT and RETENTION never do, because
+  they protect money already collected. `insufficient_evidence` never does. A failed constraint
+  read never does: eligibility fails CLOSED. FREE_CAPTURE is deliberately unserved.
+- **A drive cannot launch with a required toolkit slot empty**, and cannot launch without a live
+  public page (there would be no link to share).
+- **An ended drive accepts no new participants**, and an active drive's terms cannot be edited.
+- **An artist cannot join their own drive.** The rail's self-referral guard is unchanged and still
+  the money-side protection.
+- **Verified means the payment happened.** Only `referrals` rows count, and they are written after
+  a subscription is created. Free joins attributed to a participant are UNMEASURABLE and report
+  `missing`, never 0. External views are unmeasurable and are never displayed as a number, ranked
+  on, paid on, or fed to a recommendation.
+- **No public ranking.** A participant sees only their own progress; the artist sees only their own
+  participants. The archetype registry declares no `ranked` capability, so a leaderboard cannot be
+  added by configuration.
+- **The public fan leaderboard publishes no score.** The points total was exactly invertible back
+  to a fan's lifetime spend given the counts shipped beside it. Order still comes from the full
+  score, computed server-side (`src/lib/leaderboardPrivacy.ts`).
+
 ---
 
 *See also: [05-DATABASE.md](05-DATABASE.md) · [10-INTEGRATIONS.md](10-INTEGRATIONS.md) · [02-FEATURE-MAP.md](02-FEATURE-MAP.md) · [17-OPEN-QUESTIONS.md](17-OPEN-QUESTIONS.md)*

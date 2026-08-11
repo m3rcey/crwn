@@ -119,6 +119,29 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       Until it runs, everything works on the derived recommendation; only saving answers or
       switching strategy reports it cannot save yet. Self-verifies, including the grants.
 
+- [ ] **Run the Fan Drives migration (Z11, the Virality Engine's campaign spine):**
+      [`supabase/schema-phase3-fan-campaigns.sql`](supabase/schema-phase3-fan-campaigns.sql).
+      Creates `fan_campaigns` and `fan_campaign_participants`: one artist, one drive, one window,
+      one toolkit, one participant list. Artist-read-only RLS on both, no client write policy,
+      self-verifying (it asserts its own indexes, policies, and that no money column exists).
+      Until it runs the whole surface is dark and harmless: `/fan-campaigns` shows the
+      constraint gate and creating a drive answers "not switched on yet". After running it,
+      confirm with `npm run verify:migrations` (two new probe lines: "fan campaigns" and
+      "fan campaign participants").
+      **Then check one thing on the live site**, because a migration only proves the tables
+      exist: open `/fan-campaigns`. If CRWN has diagnosed reach or first-paid as your blocker you
+      get a prefilled drive; if it has diagnosed an overdue promise or churn you get that
+      priority instead and no drive, which is the gate working, not a bug.
+
+- [ ] **Decide what the public fan leaderboard is allowed to show.** Not urgent, and nothing is
+      leaking now: the points total is no longer published, because it was exactly invertible
+      back to a fan's lifetime spend given the referral, comment and like counts shipped beside
+      it. The public list now shows rank, name, tier and those three counts, and it is still
+      ORDERED by the full score (spend included) server-side. The open question is whether you
+      want a visible number back, in which case the options are a bucketed score or a score with
+      the spend term removed. Both change what the leaderboard means, so it is your call, not a
+      bug fix. No migration.
+
 - [ ] **Run the tier-events migration:**
       [`supabase/schema-phase2-tier-events.sql`](supabase/schema-phase2-tier-events.sql).
       Adds `tier_events`, the first per-rung measurement CRWN has ever had: which of your four

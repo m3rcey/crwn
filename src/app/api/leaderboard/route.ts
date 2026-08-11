@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { fanScore, toPublicLeaderboardEntry, type FanScoreInput } from '@/lib/leaderboardPrivacy';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -109,40 +110,21 @@ export async function GET(req: NextRequest) {
   Object.keys(commentCounts).forEach(id => allFanIds.add(id));
   Object.keys(likeCounts).forEach(id => allFanIds.add(id));
 
-  // Scoring: $1 spent = 1pt, 1 referral = 50pts, 1 comment = 5pts, 1 like = 2pts
-  const fanScores: {
-    fanId: string;
-    score: number;
-    spent: number;
-    referralCount: number;
-    commentCount: number;
-    likeCount: number;
-    tier: string;
-  }[] = [];
+  // Scoring lives in src/lib/leaderboardPrivacy.ts, together with the public projection, so the
+  // "spend is not recoverable" property is covered by a test instead of a comment.
+  const fanScores: (FanScoreInput & { score: number })[] = [];
 
   allFanIds.forEach(fanId => {
-    const spent = fanSpend[fanId] || 0;
-    const refs = fanReferrals[fanId] || 0;
-    const comments = commentCounts[fanId] || 0;
-    const likes = likeCounts[fanId] || 0;
-
-    const spendPoints = Math.round(spent / 100);
-    const referralPoints = refs * 50;
-    const commentPoints = comments * 5;
-    const likePoints = likes * 2;
-    const score = spendPoints + referralPoints + commentPoints + likePoints;
-
-    if (score > 0) {
-      fanScores.push({
-        fanId,
-        score,
-        spent,
-        referralCount: refs,
-        commentCount: comments,
-        likeCount: likes,
-        tier: fanTier[fanId] || '',
-      });
-    }
+    const entry: FanScoreInput = {
+      fanId,
+      spentCents: fanSpend[fanId] || 0,
+      referralCount: fanReferrals[fanId] || 0,
+      commentCount: commentCounts[fanId] || 0,
+      likeCount: likeCounts[fanId] || 0,
+      tier: fanTier[fanId] || '',
+    };
+    const score = fanScore(entry);
+    if (score > 0) fanScores.push({ ...entry, score });
   });
 
   // Sort by score descending
@@ -173,18 +155,30 @@ export async function GET(req: NextRequest) {
   // `spent` (a fan's lifetime spend on this artist, in cents) is NOT rendered
   // anywhere and used to be returned to anyone holding an artist UUID. Fans did
   // not agree to publish what they spend. It stays server-side, where it still
-  // feeds `score`.
-  const leaderboard = top25.map((f, i) => ({
-    rank: i + 1,
-    fanId: f.fanId,
-    name: fanProfiles[f.fanId]?.name || 'Fan',
-    avatar: fanProfiles[f.fanId]?.avatar || null,
-    score: f.score,
-    referralCount: f.referralCount,
-    commentCount: f.commentCount,
-    likeCount: f.likeCount,
-    tier: f.tier,
-  }));
+  // feeds `score` and therefore the ORDER below.
+  //
+  // `score` IS NOT SHIPPED EITHER, and that is the fix rather than an omission.
+  // Redacting `spent` alone did not work: the formula above is
+  //   score = round(spent/100) + referralCount*50 + commentCount*5 + likeCount*2
+  // and referralCount, commentCount and likeCount were all returned in the same
+  // response, so
+  //   spent = (score - referralCount*50 - commentCount*5 - likeCount*2) * 100
+  // recovered a fan's lifetime spend to the nearest dollar for anyone who could
+  // load the public artist page. A redaction defeated by the fields shipped
+  // beside it is not a redaction.
+  //
+  // Ranking is unchanged: the ORDER still comes from the full score, spend
+  // included, computed and kept server-side. Only the invertible number is gone.
+  // The richer options (a bucketed score, or dropping the spend term from a
+  // public score) change what the leaderboard MEANS and stay a founder decision.
+  const leaderboard = top25.map((f, i) =>
+    toPublicLeaderboardEntry(
+      f,
+      i + 1,
+      fanProfiles[f.fanId]?.name || 'Fan',
+      fanProfiles[f.fanId]?.avatar || null,
+    ),
+  );
 
   return NextResponse.json({ leaderboard });
 }

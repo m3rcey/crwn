@@ -69,6 +69,20 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 
 ## Experimental / dark-launched
 
+- **Fan Drives / Virality Engine V1 (Z11, 2026-08-11)** — the thin Campaign spine plus ONE
+  archetype (Fan Recruitment Drive). Artist surface `/fan-campaigns`, fan surface
+  `/{slug}/campaign`, four routes under `/api/fan-campaigns`, pure logic in `src/lib/campaigns/*`.
+  **Dark until `supabase/schema-phase3-fan-campaigns.sql` runs**, and harmlessly: the page shows the
+  constraint gate and creating a drive answers "not switched on yet". Non-cash only
+  (`incentive_kind` is CHECK-constrained at the database, the spine has no money column, the reward
+  is the existing `promoter` badge). **No attribution, payout, commission or cookie behavior was
+  changed**: outcomes are derived from `referrals` by (this artist, this participant set, this
+  window), which one active campaign per artist makes unambiguous. Server-side constraint gate
+  (REACH and FIRST_PAID only; FULFILLMENT, RETENTION and insufficient evidence refuse). No
+  leaderboard, no UGC archetype, no social API, no Rise Mode or Manager wiring. Free-join
+  attribution is reported `missing`, never 0, because `/api/stripe/free-subscribe` writes no
+  referral row. Full live/deferred split:
+  [`22-VIRALITY-ENGINE-ARCHITECTURE.md`](22-VIRALITY-ENGINE-ARCHITECTURE.md) section 28. `Confirmed`.
 - **Money Model measurement (First Revenue Launch economics, 2026-08-10)** — admin-only
   system for engagement terms, founder labor, guarantee evidence, revenue by source and
   30-day contribution margin per artist (`docs/crwn-brain/21-MONEY-MODEL-MEASUREMENT.md`).

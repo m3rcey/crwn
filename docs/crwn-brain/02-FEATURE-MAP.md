@@ -159,6 +159,46 @@ complete from it.
   (`medium` at the minimum, `high` at 2x).
 - **Renders nothing** on loading, error, insufficient evidence or a healthy artist, so the
   default experience is exactly today's roadmap. `Confirmed`.
+### Fan Drives / Virality Engine V1 (Z11, 2026-08-11) — the rule to apply
+
+`src/lib/campaigns/*`, `supabase/schema-phase3-fan-campaigns.sql`, `/fan-campaigns` (artist),
+`/{slug}/campaign` (fan). Canonical architecture and the full live/deferred split:
+[`22-VIRALITY-ENGINE-ARCHITECTURE.md`](22-VIRALITY-ENGINE-ARCHITECTURE.md) section 28.
+**DARK until its migration is applied**, and harmlessly so: the surface renders the constraint gate
+and creating a drive answers "not switched on yet".
+
+**A campaign is a DIMENSION over existing evidence, never a second source of truth.** The falsifiable
+rule: if a campaign row and the canonical rail can disagree about who earned what, the boundary is
+wrong and one of the two is paying real money. `src/lib/campaigns/boundaries.test.ts` asserts this
+against the source, so a future change has to argue with a test.
+
+- **Zero new attribution.** No campaign dimension exists on `referrals`, the referral cookie, Stripe
+  metadata or any money row. Outcomes are derived by asking the rail a narrower question: referrals
+  for THIS artist, credited to someone in THIS participant set, created inside THIS window.
+  `idx_fan_campaigns_one_active` (ONE active campaign per artist) is what makes that unambiguous;
+  without it, overlapping windows would report one referral as two campaigns' outcome.
+- **Zero new money.** `incentive_kind` is CHECK-constrained to `non_cash` at the database, the spine
+  carries no money column (the migration asserts it), and the only reward is the EXISTING `promoter`
+  badge via `awardFanBadge`, granted on a fact the referral rail already established.
+- **Archetypes are DATA.** `src/lib/campaigns/archetypes.ts`. Adding one must touch that registry
+  and toolkit copy, never the spine, the results reader or the attribution path. An archetype
+  declaring a capability the spine has not built is refused rather than half-run.
+- **The constraint gate is server-side and fails CLOSED.** REACH and FIRST_PAID only. FULFILLMENT
+  and RETENTION are refused and the canonical action is restated verbatim instead;
+  `insufficient_evidence` refuses; a failed constraint read refuses. **FREE_CAPTURE is not served**
+  by any V1 archetype: its diagnosis is that visitors arrive and do not join, so more visitors treats
+  a symptom upstream of the fault.
+- **Reader, never a second recommender (Z4/Z5).** `campaignOfferFor` takes a `ConstraintResult` the
+  engine already produced. No campaign surface calls `recordIssuedRecommendation`, so a diagnosis
+  shown here and on the dashboard is still ONE logical recommendation; the campaign row stores Z3's
+  existing `actionKey`. **There is no `VIRALITY` constraint type and there must never be one.**
+- **Null is never zero.** Free members brought in by a participant are UNMEASURABLE
+  (`/api/stripe/free-subscribe` writes no referral row), so they report `missing` with the reason on
+  screen. So does external reach: CRWN has no social integration and will not rank, pay or recommend
+  on a number someone typed in.
+- **No leaderboard, and no `ranked` capability declared**, so one cannot appear by configuration.
+  Participants see their OWN verified progress; the artist sees their own participant list.
+
 ### Cross-artist evidence (Z10, 2026-08-11) — the rule to apply
 
 `src/lib/crossArtistEvidence.ts` (pure, `crossArtistEvidence@1`). **Admin/internal evidence only. It

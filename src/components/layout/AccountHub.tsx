@@ -202,6 +202,7 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
       // their X returns to this menu just like every HubPage screen does.
       title: 'Reach and fans',
       links: [
+        { label: 'Fan Drives', href: '/fan-campaigns', icon: Megaphone, hub: true },
         { label: 'Campaign Hub', href: '/campaign-hub', icon: Megaphone, hub: true },
         { label: 'Road To', href: '/campaigns', icon: Milestone, hub: true },
         { label: 'Proof of Demand', href: '/proof-of-demand', icon: Flame, hub: true },

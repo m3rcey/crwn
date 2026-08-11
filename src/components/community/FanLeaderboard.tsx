@@ -10,9 +10,10 @@ interface LeaderboardEntry {
   fanId: string;
   name: string;
   avatar: string | null;
-  score: number;
-  // `spent` is intentionally absent: the API no longer publishes a fan's lifetime
-  // spend on a public endpoint, and this component never rendered it.
+  // `spent` AND `score` are both intentionally absent. The public endpoint no
+  // longer publishes either, because the points total was an exactly invertible
+  // function of a fan's lifetime spend given the three counts below. Order still
+  // comes from the full score; it is computed server-side and stays there.
   referralCount: number;
   commentCount: number;
   likeCount: number;
@@ -126,9 +127,8 @@ export function FanLeaderboard({ artistId, limit }: FanLeaderboardProps) {
               )}
             </div>
 
-            {/* Score + Stats */}
+            {/* Public stats only. No points total: see the interface comment. */}
             <div className="text-right flex-shrink-0">
-              <p className="text-sm font-semibold text-crwn-gold">{entry.score.toLocaleString()} pts</p>
               <div className="flex items-center gap-2 text-[10px] text-crwn-text-secondary">
                 {entry.referralCount > 0 && (
                   <span>{entry.referralCount} ref{entry.referralCount !== 1 ? 's' : ''}</span>

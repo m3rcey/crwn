@@ -183,6 +183,39 @@ parse it through this module, which is also the length limit and the HTML-safety
 - Funnel stage names stay server-controlled (`FUNNEL_STAGES`), and the admin scorecard's group-by
   dimension is allowlisted server-side. A query string can never name a stage or a column.
 
+## Fan Drives (Virality Engine) — the campaign is a DIMENSION, never a source of truth
+
+`src/lib/campaigns/*` is the thin campaign spine (V1 shipped 2026-08-11, dark until
+`supabase/schema-phase3-fan-campaigns.sql` runs). Canonical architecture:
+`docs/crwn-brain/22-VIRALITY-ENGINE-ARCHITECTURE.md`, and section 28 is what is actually live.
+
+**The falsifiable rule: if a campaign row and a canonical rail can disagree about who earned what,
+the boundary is wrong and one of the two is paying real money.** `boundaries.test.ts` asserts this
+against the source, so breaking it fails `npm test` rather than reaching an artist.
+
+- **Never add a campaign dimension to `referrals`, the referral cookie, Stripe metadata or any
+  money row.** Outcomes are DERIVED: referrals for this artist, credited to someone in this
+  participant set, created inside this window. The partial unique index (ONE active campaign per
+  artist) is what makes that unambiguous, so do not remove it.
+- **Archetypes are DATA** (`archetypes.ts`). Adding one touches that registry and its toolkit copy.
+  If archetype logic appears as `if (archetype === '...')` anywhere else, the abstraction has failed.
+  An archetype declaring a capability the spine has not built is refused, not half-run.
+- **The constraint gate is server-side and fails CLOSED.** Only REACH and FIRST_PAID route to a
+  drive. FULFILLMENT and RETENTION never do. `insufficient_evidence` never does. **Never add a
+  `VIRALITY` constraint type**: virality is a mechanism, and putting it in the list of problems
+  destroys the engine's causal clarity.
+- **No campaign surface calls `recordIssuedRecommendation`.** Only `/api/artist/constraint` issues,
+  so a diagnosis shown in two places is still ONE Z3 recommendation. The campaign row stores Z3's
+  existing `actionKey`, never a new identity.
+- **V1 is non-cash at the database** (`incentive_kind` CHECK). Introducing a cash reward takes a
+  migration, which is the founder gate it should have.
+- **Free joins attributed to a participant are UNMEASURABLE** (`/api/stripe/free-subscribe` writes
+  no referral row). Report `missing`, never 0. Same for external views: CRWN has no social
+  integration, and a self-reported number may never rank, pay or feed a recommendation.
+- **No campaign leaderboard**, and `/api/leaderboard` publishes no score, because the points total
+  was exactly invertible back to a fan's lifetime spend given the counts beside it
+  (`src/lib/leaderboardPrivacy.ts` holds the scoring and the public projection, with a test).
+
 ## Interruptions are governed — one engine, one cap
 
 Every surface that interrupts a user (pop-ups, artist broadcasts, fan notifications, surveys)
