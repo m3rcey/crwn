@@ -21,6 +21,10 @@ import { attributionDimsFor } from '@/lib/analytics/attributionLookup';
 import { recommendPlan } from '@/lib/planRecommendation';
 import { assignSubAvatar, deriveAcquisitionAvatar, mergeEvidence, evidenceFromInputs } from '@/lib/avatars/assignment';
 import { getSubAvatar } from '@/lib/avatars/taxonomy';
+// Z7 reuses the Z6 audit's category map so the wizard and the Stack Replacement report can never
+// disagree about which tools CRWN actually covers.
+import { categoryForPlatform } from '@/lib/stackReplacementSource';
+import { CRWN_REPLACES } from '@/lib/stackReplacement';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -193,6 +197,22 @@ export async function POST() {
         // The derived sub-avatar (docs/SUB_AVATARS.md): which of the four founder-approved
         // journeys this artist entered through. Display-only summary; never stored here.
         subAvatar,
+        // Z7: the stack the artist ALREADY told CRWN they run on, from their own Fan Stack
+        // Calculator answer. The beachhead is an established business, and onboarding that never
+        // mentions the Patreon and the Discord they just told us about reads as if CRWN forgot.
+        // Reused, never re-asked, and split by the SAME map the Stack Replacement audit uses so
+        // the wizard cannot claim a replacement the audit would refuse.
+        declaredStack: (() => {
+          const raw = (seed.inputData ?? {}).platforms_used;
+          const names = Array.isArray(raw) ? raw.map(String).map((s) => s.trim()).filter(Boolean) : [];
+          if (!names.length) return null;
+          const covered: string[] = [];
+          const stays: string[] = [];
+          for (const name of names) {
+            (CRWN_REPLACES[categoryForPlatform(name)] ? covered : stays).push(name);
+          }
+          return { covered, stays };
+        })(),
       }
     : null;
 

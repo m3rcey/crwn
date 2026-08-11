@@ -106,7 +106,9 @@ const SCREENS: ScreenDef[] = [
   // mounts the EXISTING BulkUploadForm (per-track access + artwork + progress),
   // not an onboarding-only media system.
   { key: 'content-plan', group: 'music', groupRequired: true, title: 'How do you want to add your music?', subtitle: 'Start with one track or bring your catalog. A page with nothing to hear converts nobody.', icon: Music },
-  { key: 'track-audio', group: 'music', groupRequired: true, title: 'Upload your first track', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
+  // Not "your first track": the beachhead is an established artist who may have a catalog and a
+  // decade of releases. The first track ON CRWN is a true statement; their first track is not.
+  { key: 'track-audio', group: 'music', groupRequired: true, title: 'Add a track to your page', subtitle: 'The audio file fans will hear. This one starts free.', icon: Music },
   { key: 'track-title', group: 'music', groupRequired: true, title: 'Name your track', subtitle: 'What’s this one called?', icon: Music, create: 'track' },
   { key: 'product-type', group: 'shop', groupRequired: false, title: 'What are you selling?', subtitle: 'Pick the kind of product.', icon: ShoppingBag },
   { key: 'product-title', group: 'shop', groupRequired: false, title: 'Name your product', subtitle: 'What’s it called?', icon: ShoppingBag },
@@ -269,6 +271,9 @@ function SetupWizard() {
     shareToEarn?: { percent: number } | null;
     /** The derived sub-avatar journey they entered through (docs/SUB_AVATARS.md). */
     subAvatar?: { id: string; label: string; promise: string } | null;
+    /** The tools they told the Fan Stack Calculator they already run on, split by whether CRWN
+     *  covers that job. Reused evidence, never a question the wizard asks again. */
+    declaredStack?: { covered: string[]; stays: string[] } | null;
   } | null>(null);
   const [planIntroSeen, setPlanIntroSeen] = useState(false);
   // Once the artist edits the ladder draft, their edits win over any prefill.
@@ -1630,6 +1635,7 @@ function PlanIntro({
     estimatedMonthlyCents: number | null;
     ladderPrefill?: { key: string; name: string; priceCents: number }[] | null;
     subAvatar?: { id: string; label: string; promise: string } | null;
+    declaredStack?: { covered: string[]; stays: string[] } | null;
   };
   onContinue: () => void;
 }) {
@@ -1698,6 +1704,22 @@ function PlanIntro({
             <p className="text-xs text-crwn-text-secondary">
               <span className="text-crwn-text">Timeline:</span> launch-ready in about ten minutes, right here
             </p>
+            {/* Z7: say back the business they already told us they run. This asks nothing new, and
+                it splits by the same map the Stack Replacement audit uses, so the wizard never
+                claims to cover a tool the audit would leave in their stack. */}
+            {plan.declaredStack && (plan.declaredStack.covered.length > 0 || plan.declaredStack.stays.length > 0) && (
+              <p className="text-xs text-crwn-text-secondary">
+                <span className="text-crwn-text">You already run on:</span>{' '}
+                {[...plan.declaredStack.covered, ...plan.declaredStack.stays].join(', ')}
+                {plan.declaredStack.covered.length > 0
+                  ? `. CRWN covers ${plan.declaredStack.covered.join(', ')}, so bring those fans over first`
+                  : ''}
+                {plan.declaredStack.stays.length > 0
+                  ? `. Keep ${plan.declaredStack.stays.join(' and ')} where ${plan.declaredStack.stays.length === 1 ? 'it is' : 'they are'}`
+                  : ''}
+                .
+              </p>
+            )}
           </div>
         </div>
 

@@ -11,6 +11,27 @@ The shape, in one line:
 > the model → review the workload → connect Stripe → add music → review the whole system →
 > Launch my CRWN → the command screen.**
 
+**Z7 reconciliation, 2026-08-11.** The flow above was verified against code and is accurate. Two
+things changed, both about who CRWN thinks it is talking to:
+
+- The track screen said **"Upload your first track"**. The beachhead is an Independent Empire
+  Builder who may have released for a decade, so it now reads **"Add a track to your page"**, which
+  is true whether it is their first or their four hundredth. The rest of the wizard already used
+  established-artist verbs (*confirm* the ladder, *review* the workload) and was left alone.
+- The restored-plan intro now says back **the stack they already declared**. If the Fan Stack
+  Calculator was told Patreon, Discord and Shopify, `PlanIntro` names them and splits them into what
+  CRWN covers and what stays, using the SAME map as the Stack Replacement audit (doc 23, Z6) so the
+  two can never disagree. It is reused evidence rendered as a statement, **never a new question**:
+  `/api/lead-results/auto-claim` returns `declaredStack`, and no screen was added.
+
+**Boundaries, now pinned by `src/lib/onboardingBoundary.test.ts`:** onboarding owns
+`setup_completed` and nothing else. The **Roadmap** owns launch readiness, the **Constraint Engine**
+is never called from the wizard, no Z3 recommendation is issued during setup, no Promise Calendar
+obligation is created for a setup chore (those come from tier benefits through the canonical
+applier, once the obligation is real), and the artist is never asked to self-select a sub-avatar.
+Step completion stays **derived from live data**, which is what makes an established artist resume
+instead of restart.
+
 ---
 
 ## A. Before signup: the calculator and the saved plan
