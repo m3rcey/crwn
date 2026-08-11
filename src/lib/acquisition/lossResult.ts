@@ -40,6 +40,18 @@ export interface LossResultParams {
   // 5. CONSERVATIVE / EXPECTED / HIGH scenarios (optional; three columns).
   scenarios?: { label: string; value: string; note?: string }[];
 
+  /**
+   * ZERO TO ONE, spine beat 3 (docs/POSITIONING.md section 18): the paying minority is not
+   * evenly valuable. Every loss tool reveals a number; this is the one line that explains what
+   * the number MEANS, and it is the beat every calculator used to skip.
+   *
+   * Pass a tool-specific sentence naming the depth dimension that tool's own model actually
+   * supports (willingness to pay, recurrence, advocacy, access, participation, retention).
+   * Omit it and `defaultFanDepth()` supplies an accurate, non-numeric fallback: no fake
+   * precision, and never the membership ladder's 10x unless the tool models that ladder.
+   */
+  depth?: string;
+
   // 4. ASSUMPTIONS behind the estimate.
   assumptions: string[];
 
@@ -72,6 +84,17 @@ export interface LossResultParams {
  * (Element 6, monthly/annual, lives inside `estimate`; element 10, the disclaimer, is rendered by
  * the result page itself whenever the tool sets requiresEstimateDisclaimer.)
  */
+/**
+ * The fallback beat-3 line, used when a tool does not supply its own.
+ *
+ * Deliberately NON-NUMERIC. A tool that does not model a distribution must not imply one, and it
+ * must never borrow the membership ladder's 10x figure, which is only true where Silver and
+ * Platinum are the economics being modeled. Accurate and vague beats precise and invented.
+ */
+export function defaultFanDepth(): string {
+  return 'A number like this is never spread evenly. A small part of any audience ever pays at all, and inside that part a few people go far deeper than the rest: they buy more, they stay longer, and they bring other people. Your follower count cannot tell those people apart, which is why the number above is the beginning of the work rather than the end of it.';
+}
+
 export function buildLossResult(p: LossResultParams): GeneratedResult {
   const sections: ResultSection[] = [];
 
@@ -100,6 +123,15 @@ export function buildLossResult(p: LossResultParams): GeneratedResult {
   if (p.scenarios && p.scenarios.length) {
     sections.push({ key: 'scenarios', title: 'Conservative to high', kind: 'scenarios', metrics: p.scenarios });
   }
+
+  // Beat 3, between the number and the fix: what the number MEANS. A total hides the fact that
+  // the people producing it are not interchangeable, and that is the whole CRWN argument.
+  sections.push({
+    key: 'fanDepth',
+    title: 'Your audience is not one group',
+    kind: 'summary',
+    text: p.depth ?? defaultFanDepth(),
+  });
 
   sections.push({ key: 'fanLoss', title: 'What your fans miss', kind: 'fanLoss', text: p.fanLoss });
 

@@ -1189,6 +1189,8 @@ const shareToEarn: AcquisitionTool = {
         'You keep paying for reach with ads and your own time while your fans would bring it for a small cut.',
         'The friends your fans would have brought never hear a reason to join now.',
       ],
+      depth:
+        'Only a small share of any audience ever recommends anyone, and the few who do are worth more to you than a fan who only listens. One fan who brings three paying people is doing something your reach numbers cannot show, and nothing you use today can tell you who they are.',
       fanLoss:
         'Your fans miss a personal share link, a real reward for bringing people in, recognition for the friends they convert, and a way to be part of your growth instead of just watching it.',
       flow: [
@@ -1283,6 +1285,8 @@ const execProducer: AcquisitionTool = {
         'Your most devoted fans have no way to get closer than a finished upload, so they stay at arm\'s length.',
         'You trade studio hours for streaming pennies instead of selling the one seat no other artist can offer.',
       ],
+      depth:
+        'Most of your audience will never want a seat in the room. A small number want it badly, and they will pay many times what a listener pays for it. That group is invisible in a follower count and shows up only when you offer something worth their money.',
       fanLoss:
         'Your fans miss being in the room while it happens, hearing the take that did not make it, putting an idea in front of you live, and the story that they were there for it.',
       flow: [
@@ -1377,6 +1381,8 @@ const ownYourFans: AcquisitionTool = {
         'You cannot reach the fans who made you without paying an algorithm to deliver you to them.',
         'If you ever leave a platform, you start over from zero instead of taking your audience with you.',
       ],
+      depth:
+        'A follower is not a contact. The people who would actually pay you are a small part of your audience, and you only find out who they are once you can reach them without an algorithm deciding whether the message lands. Everyone else stays a number on a page you do not control.',
       fanLoss:
         'Your fans miss a direct line to you that no app can cut off, a place that is actually yours, and the feeling of being part of something you own together instead of renting from a platform.',
       flow: [
@@ -1489,6 +1495,8 @@ const liveExperience: AcquisitionTool = {
         'Your best moments happen once and are never recorded, so there is nothing to sell or clip afterward.',
         'You find out what your fans want by guessing, instead of watching what they pay for in real time.',
       ],
+      depth:
+        'Everyone can watch a free stream. Only a fraction will buy a ticket, and a smaller fraction again will tip on top of it. Those are your most committed fans, they are worth far more per head than the rest of the room, and a free promo stream never tells you which ones they are.',
       fanLoss:
         'Your fans miss the front row: a stripped-down set, the story behind the song, requesting what you play next, hearing unreleased music first, being answered by name, and the replay they get to keep.',
       flow: [
