@@ -63,16 +63,51 @@ and stayed green over an open hole.
 | SEC-014 | HIGH | **FIXED (LIVE)** | `audienceId` ownership proven on write; the squad lookup is scoped to the artist, matching the tier branch. |
 | SEC-018 | HIGH/MED | **FIXED (LIVE)** | `fanIsInArtistAudience()` checks subscriptions / earnings / fan_contacts before a badge or notification can target a user. |
 | SEC-019 | HIGH | **FIXED (LIVE)** | Per-IP and per-recipient rate limits; strict email validation; `name` bounded (this is the text the admin agent later reads, so it is also SEC-010 defense in depth). |
-| F-3 Team Split funding | HIGH (structural) | **ARITHMETIC PROVEN, RAIL STILL CLOSED, FOUNDER DECISION OUTSTANDING** | Topology confirmed at the Stripe level: CRWN sells through DESTINATION charges (`transfer_data.destination` + `application_fee_percent`), so Stripe settles gross minus the fee straight into the ARTIST's Connect account and leaves only the fee with CRWN. Paying a collaborator therefore spent CRWN's own money. `src/lib/teamSplits/funding.ts` computes the charge-time reserve using the referral rail's proven pattern, and 18 tests assert conservation (CRWN revenue + commission + collaborator funding + artist proceeds == what the fan paid) across plans, discounts, referrals, caps, concurrent deals, over-allocation and refunds, in integer cents. NOT wired in and `cashoutFundingReady` stays false: see FUNDING_OPEN_QUESTIONS. Production still holds 0 deals, 0 accruals, 0 payouts. |
+| Unsigned unsubscribe | MEDIUM | **FIXED** | The GET now only RENDERS a confirmation page; the mutation needs a POST carrying a server-minted HMAC token bound to recipient AND scope, plus a rate limit. That is what actually defeats a link-prefetching mail client, which was the reported vector. A token for one artist cannot be replayed onto another or onto "all". Unsigned legacy links stay honored behind an explicit flag because stranding a real unsubscribe is a compliance failure; the confirm step protects them until the flag flips. Still one click, still no login. |
+| `producer/polls` unauthenticated | MEDIUM | **FIXED** | Now 401s and delegates to the canonical producer access resolver (the same one `vote` and `submissions` use) instead of re-deriving the rules a fourth time. Paid and private Executive Producer Session polls are no longer readable by anyone holding a session UUID. |
+| `live/tips` per-fan spend | MEDIUM | **FIXED** | Exact per-fan amounts against raw fan UUIDs are no longer published to unauthenticated callers. Brought in line with `leaderboardPrivacy.ts`, which had already settled that a fan never agreed to publish what they spend. The on-stream alert and the artist's own reporting still work. |
+| Notification `link` unvalidated | MEDIUM | **FIXED** | `link` goes through `safeInternalPath` (the strictest of the canonical validator's three policies), `type` is checked against an allowlist DERIVED from the notification taxonomy rather than restated, title/message are capped, and the render side is hardened so a legacy row already in the database cannot produce a dangerous href. |
+| `check-limit` enumeration | MEDIUM | **FIXED** | Both routes now use `requireArtistOwner`, matching how `platform/limits` was fixed for this same class. |
+| `earnings`/`recruiters` SELECT policies | MEDIUM | **MIGRATION WRITTEN, PENDING APPLY** | `schema-phase2-sec-earnings-recruiters-select-policies.sql`. They were excluded from SEC-012 on purpose (browser readers, so a bare RLS enable would break an artist's own earnings view). Protected in production today; the migration makes that protection reproducible from the repo. |
+| Dependency (`sharp`/`next`) | INFO→**FIXED** | **FIXED** | next 16.3.0 / sharp 0.35.3. Closes the four libvips CVEs reachable UNAUTHENTICATED via `/_next/image` plus the image SVG DoS, postcss and nanoid. `npm audit` 6 high → 2, and both survivors verified dev-only (`npm ls --omit=dev` returns empty; they reach the tree only through eslint). The blocking premise was DISPROVEN: the 9 type errors reproduced on the untouched 16.2.9 baseline, so the checker was identical and only `next build`'s file coverage changed. The real finding is that the build had silently not been type-checking committed test files, hiding 9 defects including one genuine unhandled optional. That gap is now closed permanently. |
+| CSP Report-Only | LOW | **FIXED (Report-Only), enforcement DEFERRED** | Verified LIVE in production this session, header captured in full below. No external `script-src` origin, because the code proves Stripe/Calendly are never loaded as scripts. Enforcement deliberately deferred: `script-src` still needs `'unsafe-inline'` for the App Router bootstrap, so it provides no XSS containment yet, and there is no report collector. Documented rather than overstated. |
+| SEC-021 service worker | MEDIUM | **FIXED** | Authenticated navigations are network-only and never cached; `CACHE_NAME` bumped to purge pages already sitting on devices. |
+| HSTS `includeSubDomains` | LOW | **DEFERRED, PLATFORM-LEVEL** | Production STS comes from the Vercel edge, not from code. Emitting a second header risks two competing values where a browser processes only one, so adding it in app code could WEAKEN HSTS. Belongs in the Vercel dashboard. Founder action, recorded in TODO.md. |
+| Hard delete / data export | n/a | **DEFERRED FOR PRIVACY/RETENTION POLICY** | Unchanged. Financial, fraud, tax and dispute records may need retention; deactivate/reactivate remain safe and self-scoped. Does not block security completion. |
+| F-3 Team Split funding | HIGH (structural) | **FUNDING BOUNDARY ENFORCED, RAIL SAFELY CLOSED** | Topology confirmed at the Stripe level: CRWN sells through DESTINATION charges (`transfer_data.destination` + `application_fee_percent`), so Stripe settles gross minus the fee straight into the ARTIST's Connect account and leaves only the fee with CRWN. Paying a collaborator therefore spent CRWN's own money. `src/lib/teamSplits/funding.ts` computes the charge-time reserve using the referral rail's proven pattern, and 18 tests assert conservation (CRWN revenue + commission + collaborator funding + artist proceeds == what the fan paid) across plans, discounts, referrals, caps, concurrent deals, over-allocation and refunds, in integer cents. NOT wired in and `cashoutFundingReady` stays false: see FUNDING_OPEN_QUESTIONS. Production still holds 0 deals, 0 accruals, 0 payouts. |
 | SEC-016 open redirect | MEDIUM | **FIXED** | `src/lib/safeRedirect.ts` (3 policies) wired into all three email click-tracking routes. Origins are compared by PARSING, never string-matching, because `https://evil.example\@thecrwn.app/` reads as thecrwn.app to a person and evil.example to a parser. 17 adversarial tests cover scheme case, whitespace/tab/newline-in-scheme, percent-encoded schemes, NUL and Unicode separators, protocol-relative, backslash tricks, suffix/path/credential confusion, and signature replay. An origin allowlist was deliberately NOT used: artists legitimately link out (evidence: `appendUtmParams` short-circuits on `!url.includes('thecrwn.app')`), so the fix removes the hostile SCHEME and the SILENT hop, not the destination. |
 | SEC-015 private live thumbnail | MEDIUM | **FIXED** | `live/thumbnail` now reads `visibility` and requires ownership for private sessions, answering 404 rather than 403 so a private session does not confirm it exists. Its own redirect was already safe (server-generated signed R2 URL, not request input). |
-| Unsigned unsubscribe, `producer/polls`, `live/tips`, notification `link`, `check-limit` enumeration | MEDIUM | **OPEN** | Two delegated agents were killed by a session limit and an API disconnect before landing edits. Re-queued in TODO.md. |
-| Dependency (`sharp`/`next`), CSP Report-Only, HSTS includeSubDomains, SW cache (SEC-021) | LOW/INFO | **OPEN** | Same interruption. Re-queued. |
 | Hard delete / data export | n/a | **DEFERRED FOR PRIVACY/RETENTION POLICY** | Per the ratified direction: security must not wait on deletion design, and financial/fraud/tax/dispute records may need retention. Deactivate/reactivate remain safe and self-scoped. |
 
-**Why 8.5 and not higher.** Every CRITICAL and every HIGH is now closed and, where observable,
-verified in production by replaying the original exploit. The live open redirect is dead. What
-still holds the score down, honestly:
+### Update, second continuation (2026-08-12): score **9 / 10**
+
+Every reachable finding is now closed. The remaining gap is not an unfixed vulnerability, it is
+that CSP is Report-Only and therefore contains nothing yet, plus two platform/policy items that
+are deliberately not code changes.
+
+**Team Split funding is now enforced rather than merely designed.** The three ratified decisions
+collapsed into ONE mechanism: an earning may only produce an accrual if that earning carries proof
+a reserve was withheld (`earnings.metadata.team_split_reserved`), and the accrual is capped at what
+was withheld. That single check enforces the effective-date rule, the no-pre-deal-accrual rule and
+the no-unfunded-accrual rule at once, because an earning predating the deal simply has no reserve.
+The failure mode is "the collaborator is owed nothing", never "owed money nobody funded". The
+cashout rail stays closed, but it is now closed over a system where an unfunded payout is
+**structurally impossible** rather than merely forbidden. Production still holds 0 deals, 0
+accruals, 0 payouts.
+
+**Why 9 and not 10.** CSP is Report-Only with `script-src 'unsafe-inline'`, so there is still no
+XSS containment and no report collector; enforcement needs a middleware nonce. HSTS
+`includeSubDomains` is a Vercel dashboard action that must not be faked in code. Hard delete
+remains a retention-policy decision. The Team Split rail is safely disabled rather than correctly
+funded end to end, because proving the Stripe source needs a canary that cannot be run without
+real money. And one migration (`earnings`/`recruiters` SELECT policies) is written but not yet
+applied. None of these is a reachable exploit; all are honest residual.
+
+---
+
+**Why 8.5 and not higher (first continuation, superseded above).** Every CRITICAL and every HIGH is
+closed and, where observable, verified in production by replaying the original exploit. The live
+open redirect is dead. What held the score down at that point:
 
 - **CSP has no `script-src`.** The enforced policy is still `frame-ancestors` only, so there is no
   containment if an XSS ever lands. Cookies are `SameSite=Lax` with `httpOnly:false` (inherent to

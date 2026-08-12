@@ -51,27 +51,34 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Finish the security MEDIUM/LOW tail (cybersecurity audit 2026-08-12).** Two agent runs
-      were killed mid-task, so these never landed. None is exploitable for money or admin access,
-      which is why they are P1 and not P0. In rough priority:
-        - Unsigned unsubscribe links. `api/campaigns/unsubscribe-all/[sendId]` opts a fan out of
-          EVERY artist's marketing from a bare row id, and these are plain GETs sitting in inboxes,
-          so a link-prefetching mail client or a corporate URL scanner can trigger them. The
-          correct pattern already exists in-repo: src/lib/acquisition/unsubscribe.ts (HMAC,
-          timingSafeEqual, stateless). Unsubscribe must stay one click and must not require login.
-        - `api/producer/polls` GET has no session gate, so anyone with a session UUID reads poll
-          questions and full tallies for PAID or PRIVATE Executive Producer Sessions.
-        - `api/live/tips` publishes exact per-fan spend against raw fan UUIDs, unauthenticated,
-          which contradicts the leaderboard's deliberate refusal to publish what fans spend.
-        - `api/notifications/notify-subscribers` takes an unvalidated `link` that the bell renders
-          as an href, so an artist can push a phishing URL to all their paying fans.
-        - `api/tiers/check-limit` and `api/tracks/check-limit` return any artist's plan and catalog
-          size with zero auth.
-        - CSP still has no `script-src` (staged Report-Only first), HSTS lacks `includeSubDomains`,
-          and `npm update next` closes the reachable sharp/libvips advisory that is exposed through
-          `/_next/image` by wildcard `remotePatterns`.
-        - `public/sw.js` caches authenticated pages with deploy-only invalidation, so a shared
-          device can serve the previous user's page after logout.
+- [ ] **Apply the earnings/recruiters SELECT policy migration.** Open and run:
+        supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql
+      Both tables were deliberately excluded from the earlier SEC-012 migration because they have
+      browser readers, so a bare RLS enable would have broken an artist's own earnings view. They
+      are protected in production today, but that protection lives only in the live database and
+      is not reproducible from the repo, so a branch database or a PITR restore would come up
+      open. Verify after with: npm run verify:migrations
+
+- [ ] **DONE and no longer blocking, kept only so the flip is not forgotten:** flip
+      `ALLOW_UNSIGNED_LEGACY_LINKS` to false in src/lib/emails/unsubscribeToken.ts once every
+      unsubscribe link generated before 2026-08-12 has aged out of inboxes (realistically a few
+      months). Unsigned links are honored today ON PURPOSE, because stranding a real unsubscribe
+      is a compliance failure and those links are already protected by the confirm step. Flipping
+      it stops a bare row id from being a capability at all.
+
+- [ ] **Migrate src/middleware.ts to the "proxy" convention.** Next 16.3.0 prints a deprecation
+      warning for the middleware file convention. It builds clean today so this is not urgent, but
+      that file carries the load-bearing rule that the matcher MUST exclude api/, and getting it
+      wrong makes every POST 404. It needs a deliberate pass, not a codemod run in passing.
+
+- [ ] **Enforce CSP (currently Report-Only).** `Content-Security-Policy-Report-Only` is live in
+      production and its origins were derived from the code, but it carries `script-src 'self'
+      'unsafe-inline'`, so it provides ZERO XSS containment today. Removing `unsafe-inline` needs a
+      per-request nonce minted in middleware, because the static `headers()` block in
+      next.config.ts cannot produce one. Once a nonce is present browsers ignore `'unsafe-inline'`,
+      so it is a single cutover rather than a gradual one. There is also no report collector, so
+      violations only reach the console of whoever is looking; a `/api/csp-report` sink would need
+      its own rate limit and body cap. Until both land, do not describe CSP as protecting users.
 
 - [ ] **Set HSTS `includeSubDomains` at the Vercel domain layer, not in code.** Production's
       `Strict-Transport-Security: max-age=63072000` comes from the Vercel edge, not from
@@ -81,26 +88,6 @@ responsible for. Do not work those.
       found only the apex resolving, so it looks safe, but that is a dictionary sample and not
       proof. Set it in the Vercel dashboard, then confirm exactly one STS header comes back:
         curl -sI https://thecrwn.app
-
-- [ ] **Unblock `npm update next` by fixing 9 pre-existing test type errors.** The upgrade is
-      clean on its own (next 16.3.0, sharp 0.35.3, npm audit 6 high to 2) and closes the one
-      genuinely reachable advisory: the sharp/libvips CVEs and the image SVG DoS, both hit
-      unauthenticated through /_next/image. It is blocked because 16.3.0 type-checks test files
-      that 16.2.9 did not, surfacing errors that already existed. Application code compiles clean.
-      Fix these, then run the update:
-        src/lib/experiments/experiments.test.ts:89 and opportunityFunnels/registry.test.ts:169
-          TS2352, the cast to Record<string, unknown> needs `as unknown as`
-        src/lib/leadResults/leadMagnetMissions.test.ts:14, postSetupDestination.test.ts:19,
-          starterOffer.test.ts:6  TS2322, optional inputData vs required on LeadMagnetSeed
-        src/lib/opportunity/unifiedFunnel.test.ts:367  TS2345, union with undefined members
-        src/lib/riseResume.test.ts:66,102,123  TS18048, resume.cta possibly undefined
-      Mitigation already in place: remotePatterns were narrowed, so only CRWN's own public
-      buckets can feed sharp now instead of any Supabase or R2 host on the internet.
-
-- [ ] **Give `earnings` and `recruiters` explicit SELECT policies.** They were deliberately left
-      out of the SEC-012 migration: both have browser readers, so a bare RLS enable would have
-      broken an artist's own earnings view. They are protected in production today, but their
-      protection is not reproducible from the repo, so a branch or restore would come up open.
 
 - [ ] **Three crons filter on `artist_profiles.is_active`, a column that DOES NOT EXIST, and all
       three have been silently doing nothing for months.** Found 2026-08-11 while tracing the
