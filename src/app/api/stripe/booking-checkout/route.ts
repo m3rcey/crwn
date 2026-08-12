@@ -18,10 +18,16 @@ const supabaseAdmin = createClient(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sessionId, artistId } = body;
+    // SEC-005: the request body used to carry an `artistId` that was written straight into the
+    // Stripe metadata and the booking_purchases row. The money destination was never at risk (the
+    // transfer always used the artist derived from the booking session), but the LEDGER was: the
+    // webhook trusts that metadata into `earnings`, milestone awards and first_paid_conversion, so
+    // a fan could pay artist A and credit artist B. The artist is now derived server-side from the
+    // booking session, and only from there. Clients may still send the field; it is ignored.
+    const { sessionId } = body;
 
-    if (!sessionId || !artistId) {
-      return NextResponse.json({ error: 'Missing sessionId or artistId' }, { status: 400 });
+    if (!sessionId) {
+      return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
     }
 
     // Referral attribution (capture only, no payout for one-time purchases yet).
@@ -56,7 +62,13 @@ export async function POST(request: NextRequest) {
 
     // Check if artist has Stripe Connect. Read the account id with the admin
     // client: the caller is a fan, and fans hold no grant on that column.
+    // SEC-005: this is the ONLY artist identity in this route. It comes from the booking session
+    // row, so it is the artist who actually owns the session being paid for.
     const artistIdFromArtist = (session.artist as unknown as { id?: string }).id || '';
+
+    if (!artistIdFromArtist) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    }
 
     const { data: connectRow } = await supabaseAdmin
       .from('artist_profiles')
@@ -103,7 +115,8 @@ export async function POST(request: NextRequest) {
       metadata: {
         booking_session_id: session.id,
         buyer_id: user.id,
-        artist_id: artistId,
+        // SEC-005: server-derived, never the request body.
+        artist_id: artistIdFromArtist,
         referral_code: referralCode,
         attribution_source: attributionSource,
       },
@@ -113,7 +126,8 @@ export async function POST(request: NextRequest) {
     await supabase.from('booking_purchases').insert({
       booking_session_id: session.id,
       buyer_id: user.id,
-      artist_id: artistId,
+      // SEC-005: server-derived, never the request body.
+      artist_id: artistIdFromArtist,
       stripe_checkout_session_id: checkoutSession.id,
       amount: session.price,
       platform_fee: platformFee,

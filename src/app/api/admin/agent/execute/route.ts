@@ -1,8 +1,29 @@
+// The admin agent's EXECUTION boundary.
+//
+// SEC-010 (cybersecurity audit 2026-08-12): the model that proposes these actions reads public,
+// attacker-writable text (lead names, slugs, cancellation reasons), so every value arriving here is
+// treated as hostile even though the caller is an authenticated admin. Three things must happen
+// before any mutation, in this order, and none of them may be skipped:
+//
+//   1. requireAdmin      identity, re-derived from the session cookie at execution time
+//   2. validateActionParams   shape, allowlisted values, bounds, no unknown keys
+//   3. verifyActionSignature  these exact params are the ones the server proposed to THIS admin
+//
+// Only the normalized params returned by step 2 reach a handler. The raw client object is never
+// passed to a query, never logged as truth, and never used to build the lock key.
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { buildLockKey, acquireLock, releaseLock } from '@/lib/ai/coordinationLock';
 import { requireAdmin } from '@/lib/auth/requireAdmin';
 import { PUBLIC_ORIGIN } from '@/lib/publicOrigin';
+import {
+  validateActionParams,
+  MAX_PIPELINE_STAGE_MOVE,
+  MAX_FLAG_AT_RISK,
+  MAX_STALE_ENROLLMENT_CANCEL,
+  type ValidatedParams,
+} from '@/lib/ai/adminAgentActions';
+import { verifyActionSignature } from '@/lib/ai/adminAgentSignature';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -15,14 +36,27 @@ interface AgentAction {
   description: string;
   risk: 'low' | 'medium' | 'high';
   params: Record<string, unknown>;
+  /** Issued by /api/admin/agent/analyze over the validated params. Required; see adminAgentSignature.ts. */
+  signature?: string;
 }
 
-async function logAction(adminId: string, action: AgentAction, result: 'success' | 'failed', resultMessage: string) {
+/**
+ * The audit log records the VALIDATED params, not the client's object. Logging the raw payload
+ * would leave a record of something that never ran, which is exactly the wrong artifact to hold
+ * after an injection attempt.
+ */
+async function logAction(
+  adminId: string,
+  action: AgentAction,
+  params: ValidatedParams,
+  result: 'success' | 'failed',
+  resultMessage: string,
+) {
   await supabaseAdmin.from('agent_action_log').insert({
     admin_id: adminId,
     action_type: action.type,
     action_label: action.label,
-    action_params: action.params,
+    action_params: params,
     result,
     result_message: resultMessage,
   });
@@ -59,36 +93,46 @@ async function executeToggleSequence(params: Record<string, unknown>): Promise<s
   return `Sequence "${seq.name}" ${enable ? 'enabled' : 'disabled'} successfully`;
 }
 
+/**
+ * BOUNDED bulk stage move. Stages are already enum-checked by `validateActionParams`; what this
+ * adds is blast radius.
+ *
+ * Before SEC-010 this ran `update(...).eq('pipeline_stage', from_stage)`, which is "every artist on
+ * the platform in that stage" with no ceiling. Now the matching rows are SELECTED first, refused
+ * outright above the cap, and the update names those exact ids. The mutation can no longer be
+ * larger than the set that was counted, and a single approval can never exceed the cap that the
+ * approval card told the admin about.
+ */
 async function executeUpdatePipelineStages(params: Record<string, unknown>): Promise<string> {
   const { from_stage, to_stage } = params as { from_stage: string; to_stage: string };
 
-  const validStages = ['signed_up', 'onboarding', 'free', 'paid', 'at_risk', 'churned'];
-
-  if (!from_stage || !to_stage) {
-    throw new Error('Missing from_stage or to_stage parameter');
-  }
-  if (!validStages.includes(from_stage) || !validStages.includes(to_stage)) {
-    throw new Error(`Invalid stage. Valid stages: ${validStages.join(', ')}`);
-  }
-
-  // Count how many artists will be affected
-  const { count } = await supabaseAdmin
+  const { data: matches, error: readError } = await supabaseAdmin
     .from('artist_profiles')
-    .select('id', { count: 'exact', head: true })
-    .eq('pipeline_stage', from_stage);
+    .select('id')
+    .eq('pipeline_stage', from_stage)
+    .limit(MAX_PIPELINE_STAGE_MOVE + 1);
 
-  if (!count || count === 0) {
+  if (readError) throw new Error(readError.message);
+
+  const rows = matches || [];
+  if (rows.length === 0) {
     return `No artists found in "${from_stage}" stage. Nothing to update`;
   }
+  if (rows.length > MAX_PIPELINE_STAGE_MOVE) {
+    throw new Error(
+      `Refused: more than ${MAX_PIPELINE_STAGE_MOVE} artists are in "${from_stage}". One approval may not rewrite that many rows. Move them in smaller, deliberate batches.`
+    );
+  }
 
+  const ids = rows.map(r => r.id);
   const { error } = await supabaseAdmin
     .from('artist_profiles')
     .update({ pipeline_stage: to_stage })
-    .eq('pipeline_stage', from_stage);
+    .in('id', ids);
 
   if (error) throw new Error(error.message);
 
-  return `Moved ${count} artist${count === 1 ? '' : 's'} from "${from_stage}" to "${to_stage}"`;
+  return `Moved ${ids.length} artist${ids.length === 1 ? '' : 's'} from "${from_stage}" to "${to_stage}"`;
 }
 
 async function executeAddPipelineNote(params: Record<string, unknown>, adminId: string): Promise<string> {
@@ -117,35 +161,37 @@ async function executeAddPipelineNote(params: Record<string, unknown>, adminId: 
   return `Added note to ${artist_ids.length} artist${artist_ids.length === 1 ? '' : 's'}`;
 }
 
+/** BOUNDED. Same defect and same fix as executeUpdatePipelineStages: select, cap, update by id. */
 async function executeFlagAtRisk(params: Record<string, unknown>): Promise<string> {
-  const { from_stage, criteria } = params as { from_stage: string; criteria: string };
+  const { from_stage, criteria } = params as { from_stage: string; criteria?: string };
 
-  if (!from_stage) {
-    throw new Error('Missing from_stage parameter');
-  }
-
-  const validStages = ['signed_up', 'onboarding', 'free', 'paid'];
-  if (!validStages.includes(from_stage)) {
-    throw new Error(`Can only flag artists from stages: ${validStages.join(', ')}`);
-  }
-
-  const { count } = await supabaseAdmin
+  const { data: matches, error: readError } = await supabaseAdmin
     .from('artist_profiles')
-    .select('id', { count: 'exact', head: true })
-    .eq('pipeline_stage', from_stage);
+    .select('id')
+    .eq('pipeline_stage', from_stage)
+    .limit(MAX_FLAG_AT_RISK + 1);
 
-  if (!count || count === 0) {
+  if (readError) throw new Error(readError.message);
+
+  const rows = matches || [];
+  if (rows.length === 0) {
     return `No artists found in "${from_stage}" stage. Nothing to flag`;
   }
+  if (rows.length > MAX_FLAG_AT_RISK) {
+    throw new Error(
+      `Refused: more than ${MAX_FLAG_AT_RISK} artists are in "${from_stage}". One approval may not flag that many rows. Narrow it down first.`
+    );
+  }
 
+  const ids = rows.map(r => r.id);
   const { error } = await supabaseAdmin
     .from('artist_profiles')
     .update({ pipeline_stage: 'at_risk' })
-    .eq('pipeline_stage', from_stage);
+    .in('id', ids);
 
   if (error) throw new Error(error.message);
 
-  return `Flagged ${count} artist${count === 1 ? '' : 's'} from "${from_stage}" as at_risk (${criteria || 'agent recommendation'})`;
+  return `Flagged ${ids.length} artist${ids.length === 1 ? '' : 's'} from "${from_stage}" as at_risk (${criteria || 'agent recommendation'})`;
 }
 
 async function executeEnrollInSequence(params: Record<string, unknown>): Promise<string> {
@@ -224,21 +270,26 @@ async function executePauseRecruiter(params: Record<string, unknown>): Promise<s
 
   if (!recruiter) throw new Error(`Recruiter "${recruiter_id}" not found`);
 
-  // Deactivate all their partner codes
+  // Deactivate their ACTIVE partner codes, by id.
+  // The update used to re-select on `recruiter_id`, so it could touch rows the count above never
+  // saw (including codes already inactive). Mutating exactly the rows that were counted is what
+  // makes the reported number honest.
   const { data: codes } = await supabaseAdmin
     .from('partner_codes')
     .select('id')
     .eq('recruiter_id', recruiter_id)
     .eq('is_active', true);
 
-  if (codes && codes.length > 0) {
-    await supabaseAdmin
+  const codeIds = (codes || []).map(c => c.id);
+  if (codeIds.length > 0) {
+    const { error } = await supabaseAdmin
       .from('partner_codes')
       .update({ is_active: false })
-      .eq('recruiter_id', recruiter_id);
+      .in('id', codeIds);
+    if (error) throw new Error(error.message);
   }
 
-  return `Paused recruiter ${recruiter.referral_code}, deactivated ${codes?.length || 0} referral code${(codes?.length || 0) === 1 ? '' : 's'}. Reason: ${reason || 'agent recommendation'}`;
+  return `Paused recruiter ${recruiter.referral_code}, deactivated ${codeIds.length} referral code${codeIds.length === 1 ? '' : 's'}. Reason: ${reason || 'agent recommendation'}`;
 }
 
 async function executeApproveApplication(params: Record<string, unknown>): Promise<string> {
@@ -319,9 +370,15 @@ async function executeCancelStaleEnrollments(params: Record<string, unknown>): P
     .eq('sequence_id', sequence_id)
     .eq('status', 'active')
     .eq('current_step', 0)
-    .lte('enrolled_at', cutoff);
+    .lte('enrolled_at', cutoff)
+    .limit(MAX_STALE_ENROLLMENT_CANCEL + 1);
 
   if (!stale?.length) return `No stale enrollments found in sequence (stuck ${stuck_days || 30}+ days at step 0)`;
+  if (stale.length > MAX_STALE_ENROLLMENT_CANCEL) {
+    throw new Error(
+      `Refused: more than ${MAX_STALE_ENROLLMENT_CANCEL} enrollments match. One approval may not cancel that many. Raise stuck_days to narrow it.`
+    );
+  }
 
   const { error } = await supabaseAdmin
     .from('platform_sequence_enrollments')
@@ -449,6 +506,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing action' }, { status: 400 });
     }
 
+    // STEP 2 of the boundary: shape, allowlisted values, bounds, no unknown keys.
+    // `validated.params` is a fresh object rebuilt from checked values, so anything the model (or a
+    // tampered client) added that the schema does not name cannot reach a query.
+    const validated = validateActionParams(action.type, action.params);
+    if (!validated.ok) {
+      return NextResponse.json({ success: false, message: `Refused: ${validated.error}` }, { status: 400 });
+    }
+    const params = validated.params;
+
+    // STEP 3: the params about to run must be the params the server proposed to THIS admin, within
+    // the last hour. Fails closed: no signature, wrong admin, edited value, or expired all refuse.
+    const signatureCheck = verifyActionSignature(action.signature, admin.id, validated.type, params);
+    if (!signatureCheck.ok) {
+      await logAction(admin.id, action, params, 'failed', signatureCheck.error);
+      return NextResponse.json({ success: false, message: `Refused: ${signatureCheck.error}` }, { status: 400 });
+    }
+
     const actionHandlers: Record<string, (params: Record<string, unknown>) => Promise<string>> = {
       toggle_sequence: (p) => executeToggleSequence(p),
       update_pipeline_stages: (p) => executeUpdatePipelineStages(p),
@@ -466,33 +540,34 @@ export async function POST(req: NextRequest) {
       add_crm_tags: (p) => executeAddCrmTags(p),
     };
 
-    const handler = actionHandlers[action.type];
+    const handler = actionHandlers[validated.type];
     if (!handler) {
-      return NextResponse.json({ error: `Invalid action type: ${action.type}` }, { status: 400 });
+      return NextResponse.json({ error: `Invalid action type: ${validated.type}` }, { status: 400 });
     }
 
-    // Acquire coordination lock
-    const lockKey = buildLockKey(action.type, 'platform', action.params);
-    const lock = await acquireLock(supabaseAdmin, 'platform', 'admin_agent', null, action.type, lockKey);
+    // Acquire coordination lock. Keyed off the VALIDATED params so the lock names the same
+    // resource the mutation will touch.
+    const lockKey = buildLockKey(validated.type, 'platform', params);
+    const lock = await acquireLock(supabaseAdmin, 'platform', 'admin_agent', null, validated.type, lockKey);
 
     if (!lock.acquired) {
       const msg = `Action blocked: another agent is already running: ${lock.conflict}`;
-      await logAction(admin.id, action, 'failed', msg);
+      await logAction(admin.id, action, params, 'failed', msg);
       return NextResponse.json({ success: false, message: msg }, { status: 409 });
     }
 
     let message: string;
 
     try {
-      message = await handler(action.params);
+      message = await handler(params);
 
       await releaseLock(supabaseAdmin, lock.lockId!, 'completed');
-      await logAction(admin.id, action, 'success', message);
+      await logAction(admin.id, action, params, 'success', message);
       return NextResponse.json({ success: true, message });
     } catch (execError: unknown) {
       const errMsg = execError instanceof Error ? execError.message : 'Execution failed';
       await releaseLock(supabaseAdmin, lock.lockId!, 'failed');
-      await logAction(admin.id, action, 'failed', errMsg);
+      await logAction(admin.id, action, params, 'failed', errMsg);
       return NextResponse.json({ success: false, message: errMsg }, { status: 400 });
     }
   } catch (error: unknown) {

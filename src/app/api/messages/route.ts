@@ -11,6 +11,7 @@ import {
   artistAllowsDMs,
   repliesAreDisabled,
 } from '@/lib/messaging';
+import { voiceNotePathForOwner } from '@/lib/storage/signedAudio';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -156,8 +157,18 @@ export async function POST(req: NextRequest) {
 
   const { conversationId, artistId, body, audioUrl, audioDurationMs } = await req.json().catch(() => ({}));
   const rawText = typeof body === 'string' ? body.trim() : '';
-  // A voice note is a valid message with no typed body — accept it as an audio-only send.
-  const isVoice = typeof audioUrl === 'string' && /^https?:\/\//.test(audioUrl);
+  // A voice note is a valid message with no typed body, so accept it as an
+  // audio-only send. The value stored is the STORAGE KEY the recorder uploaded,
+  // and it is accepted only when it sits in this sender's own `voice/<uid>/`
+  // folder. Anything else (an absolute URL, another user's folder, a track
+  // master key) is refused here, because /api/messages/[id]/voice-urls signs
+  // whatever is stored with the service role and only proves conversation
+  // MEMBERSHIP, never path ownership (SEC-009).
+  const voicePath = voiceNotePathForOwner(audioUrl, user.id);
+  const isVoice = voicePath !== null;
+  if (audioUrl != null && audioUrl !== '' && !isVoice) {
+    return NextResponse.json({ error: 'Invalid voice note' }, { status: 400 });
+  }
   if (!rawText && !isVoice) return NextResponse.json({ error: 'Empty message' }, { status: 400 });
   if (rawText.length > 2000) return NextResponse.json({ error: 'Message too long' }, { status: 400 });
   // Body is NOT NULL in the schema, so voice-only messages carry a label as their body.
@@ -247,7 +258,7 @@ export async function POST(req: NextRequest) {
       sender_id: user.id,
       sender_is_artist: senderIsArtist,
       body: text,
-      audio_url: isVoice ? audioUrl : null,
+      audio_url: voicePath,
       audio_duration_ms: audioDuration,
     })
     .select('id, conversation_id, sender_id, sender_is_artist, body, audio_url, audio_duration_ms, is_deleted, created_at')

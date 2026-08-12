@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Sparkles, AlertTriangle, AlertCircle, Info, Loader2, Play, X, CheckCircle2, ShieldAlert, Shield, ShieldCheck, ArrowRight, CircleDot } from 'lucide-react';
+import { describeAction } from '@/lib/ai/adminAgentActions';
 
 interface Diagnosis {
   bottleneck: string;
@@ -23,6 +24,11 @@ interface AgentAction {
   description: string;
   risk: 'low' | 'medium' | 'high';
   params: Record<string, unknown>;
+  /**
+   * Issued server-side by /api/admin/agent/analyze over these exact params. The execute route
+   * recomputes it, so an action without one can never run. See src/lib/ai/adminAgentSignature.ts.
+   */
+  signature?: string;
 }
 
 type ActionStatus = 'pending' | 'executing' | 'done' | 'failed' | 'dismissed';
@@ -69,6 +75,10 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
   const [actions, setActions] = useState<AgentAction[]>([]);
   const [actionStatuses, setActionStatuses] = useState<Record<number, ActionStatus>>({});
   const [actionMessages, setActionMessages] = useState<Record<number, string>>({});
+  // Destructive actions require the admin to tick "I read the exact change". SEC-010 was approvable
+  // precisely because the card showed prose and hid the mutation; a deliberate second beat here is
+  // what turns reading the payload into part of approving it.
+  const [confirmedScope, setConfirmedScope] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -110,6 +120,7 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
     setActions([]);
     setActionStatuses({});
     setActionMessages({});
+    setConfirmedScope({});
 
     try {
       const controller = new AbortController();
@@ -315,6 +326,11 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
 
                   const riskConfig = RISK_CONFIG[action.risk];
                   const RiskIcon = riskConfig.icon;
+                  // The structured mutation this card is asking approval FOR. Derived from the same
+                  // module the executor validates against, so the two cannot describe it differently.
+                  const detail = describeAction(action.type, action.params || {});
+                  const unsigned = !action.signature;
+                  const approvalBlocked = unsigned || (detail.destructive && !confirmedScope[i]);
 
                   return (
                     <div
@@ -343,10 +359,70 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
                           <p className="text-white text-sm font-medium mb-1">{action.label}</p>
                           <p className="text-[#999] text-sm leading-relaxed">{action.description}</p>
 
+                          {/*
+                            WHAT ACTUALLY RUNS. The label and description above are model prose,
+                            written from data that anonymous people can influence. Everything below
+                            is the structured payload the server will execute. Never remove it: the
+                            approval is only meaningful if the human sees the mutation.
+                          */}
+                          <div className="mt-3 rounded-lg border border-[#2a2a2a] bg-[#0D0D0D] p-3">
+                            <p className="text-[#666] text-[10px] font-bold uppercase tracking-wider mb-2">
+                              What this actually runs
+                            </p>
+                            <p className="text-[#ddd] text-xs leading-relaxed mb-2">{detail.summary}</p>
+
+                            {detail.scopeWarning && (
+                              <div
+                                className="rounded-md px-2.5 py-2 mb-2"
+                                style={{ backgroundColor: 'rgba(229, 57, 53, 0.10)', border: '1px solid rgba(229, 57, 53, 0.35)' }}
+                              >
+                                <p className="text-[#E53935] text-xs font-semibold leading-relaxed">{detail.scopeWarning}</p>
+                              </div>
+                            )}
+
+                            <dl className="space-y-1">
+                              {detail.fields.map(field => (
+                                <div key={field.label} className="flex gap-2 text-xs">
+                                  <dt className="text-[#666] shrink-0 w-28">{field.label}</dt>
+                                  <dd className="text-[#ccc] break-all">{field.value}</dd>
+                                </div>
+                              ))}
+                            </dl>
+
+                            <details className="mt-2">
+                              <summary className="text-[#555] text-[11px] cursor-pointer hover:text-[#888]">
+                                Exact payload sent to the server
+                              </summary>
+                              <pre className="mt-1.5 text-[10px] text-[#888] bg-black/40 rounded p-2 overflow-x-auto">
+                                {JSON.stringify({ type: action.type, params: action.params }, null, 2)}
+                              </pre>
+                            </details>
+                          </div>
+
+                          {unsigned && (
+                            <p className="text-[#E53935] text-xs mt-2">
+                              This recommendation has no server signature, so it cannot be executed. Re-run the analysis.
+                            </p>
+                          )}
+
                           {actionMessages[i] && (
                             <p className={`text-xs mt-2 ${status === 'done' ? 'text-emerald-400' : 'text-red-400'}`}>
                               {actionMessages[i]}
                             </p>
+                          )}
+
+                          {status === 'pending' && detail.destructive && !unsigned && (
+                            <label className="flex items-start gap-2 mt-3 cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={!!confirmedScope[i]}
+                                onChange={e => setConfirmedScope(prev => ({ ...prev, [i]: e.target.checked }))}
+                                className="mt-0.5 accent-[#D4AF37]"
+                              />
+                              <span className="text-[#999] text-xs leading-relaxed">
+                                I read the exact change above and I approve that scope.
+                              </span>
+                            </label>
                           )}
 
                           <div className="flex items-center gap-2 mt-3">
@@ -354,7 +430,8 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
                               <>
                                 <button
                                   onClick={() => executeAction(i, action)}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-crwn-gold text-black text-xs font-medium hover:brightness-110 transition"
+                                  disabled={approvalBlocked}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-crwn-gold text-black text-xs font-medium hover:brightness-110 transition disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
                                   <Play className="w-3 h-3" />
                                   Approve
@@ -388,7 +465,8 @@ export default function AgentInsights({ userId, scope = 'dashboard' }: AgentInsi
                                 </div>
                                 <button
                                   onClick={() => executeAction(i, action)}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition"
+                                  disabled={unsigned}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2a2a2a] text-[#999] text-xs font-medium hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
                                   Retry
                                 </button>

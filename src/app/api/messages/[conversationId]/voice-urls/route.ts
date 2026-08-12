@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { conversationRole } from '@/lib/messaging';
-import { signAudioValue, SIGNED_URL_TTL_SECONDS } from '@/lib/storage/signedAudio';
+import {
+  signAudioValue,
+  storagePathFromAudioValue,
+  isVoiceNotePath,
+  SIGNED_URL_TTL_SECONDS,
+} from '@/lib/storage/signedAudio';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -31,6 +36,13 @@ const MAX_IDS = 50;
  * Membership is proven before anything is signed, and the id list is constrained
  * to this conversation, so a participant cannot sign another thread's audio by
  * passing its message ids.
+ *
+ * Membership is not enough on its own. This route signs with the SERVICE ROLE,
+ * so it also refuses to sign anything that is not shaped like a voice note
+ * (`voice/<uploader uuid>/<file>`). The write gate in /api/messages already
+ * refuses to store anything else, so this is the second lock: a row written
+ * before that gate existed, or by any future path, cannot turn a track master
+ * key into a signed URL (SEC-009).
  */
 export async function POST(
   req: NextRequest,
@@ -67,9 +79,12 @@ export async function POST(
   const urls: Record<string, string> = {};
   await Promise.all(
     (rows || [])
-      .filter((r) => r.audio_url)
+      // Normalize first (a legacy row may hold the old public URL), then sign
+      // ONLY a voice-note key. Anything else stays unsigned.
+      .map((r) => ({ id: r.id, path: storagePathFromAudioValue(r.audio_url) }))
+      .filter((r) => isVoiceNotePath(r.path))
       .map(async (r) => {
-        const signed = await signAudioValue(r.audio_url);
+        const signed = await signAudioValue(r.path);
         if (signed) urls[r.id] = signed;
       })
   );

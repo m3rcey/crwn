@@ -59,16 +59,23 @@ export async function POST(req: NextRequest) {
     // holds 0 team_split_deals, 0 team_split_earnings and 0 team_split_payouts, so
     // no collaborator is owed anything and nobody is harmed by refusing. A loud
     // refusal is strictly better than a silent transfer of CRWN's own money.
-    return NextResponse.json(
-      {
-        error:
-          'Team Split cashout is temporarily unavailable while we finalise how collaborator payouts are funded. Your balance is safe and nothing has been lost. Please contact support and we will settle it manually.',
-        code: 'TEAM_SPLIT_FUNDING_PENDING',
-      },
-      { status: 503 },
-    );
+    // Annotated `boolean` rather than inferred as the literal `false` on purpose:
+    // a literal would let TypeScript prove the rest of this handler unreachable, and
+    // narrowing is discarded in unreachable code, which turns every already-guarded
+    // value below into a "possibly null" error. Flip this to true in the same commit
+    // that implements the funding change.
+    const cashoutFundingReady: boolean = false;
+    if (!cashoutFundingReady) {
+      return NextResponse.json(
+        {
+          error:
+            'Team Split cashout is temporarily unavailable while we finalise how collaborator payouts are funded. Your balance is safe and nothing has been lost. Please contact support and we will settle it manually.',
+          code: 'TEAM_SPLIT_FUNDING_PENDING',
+        },
+        { status: 503 },
+      );
+    }
 
-    // eslint-disable-next-line no-unreachable
     const { data: payoutId } = await supabaseAdmin.rpc('atomic_team_split_cashout', {
       p_collaborator_id: user.id,
       p_min_amount: 2500,

@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { getOwnedArtistIds, artistAllowsDMs } from '@/lib/messaging';
 import { buildAudience, applyAudienceFilters, type AudienceFilters, type FanRecord } from '@/lib/audience';
+import { voiceNotePathForOwner } from '@/lib/storage/signedAudio';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -155,7 +156,15 @@ export async function POST(req: NextRequest) {
   const artistId = raw.artistId as string;
 
   const rawText = typeof raw.body === 'string' ? raw.body.trim() : '';
-  const isVoice = typeof raw.audioUrl === 'string' && /^https?:\/\//.test(raw.audioUrl);
+  // Same trust boundary as /api/messages: store the recorder's storage key, and
+  // only when it sits in this sender's own `voice/<uid>/` folder. A broadcast
+  // fans one row out to every subscriber, so an unvalidated path here would
+  // hand a signed URL for that object to the artist's whole audience (SEC-009).
+  const voicePath = voiceNotePathForOwner(raw.audioUrl, user.id);
+  const isVoice = voicePath !== null;
+  if (raw.audioUrl != null && raw.audioUrl !== '' && !isVoice) {
+    return NextResponse.json({ error: 'Invalid voice note' }, { status: 400 });
+  }
   if (!rawText && !isVoice) return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   if (rawText.length > 2000) return NextResponse.json({ error: 'Message too long' }, { status: 400 });
   const text = rawText || (isVoice ? '🎤 Voice message' : '');
@@ -245,7 +254,7 @@ export async function POST(req: NextRequest) {
       sender_id: user.id,
       sender_is_artist: true,
       body: text,
-      audio_url: isVoice ? raw.audioUrl : null,
+      audio_url: voicePath,
       audio_duration_ms: audioDuration,
       is_broadcast: true,
       replies_disabled: repliesDisabled,

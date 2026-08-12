@@ -130,7 +130,16 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
       .single();
 
     const tierName = tierData?.name || 'Unknown tier';
-    const grossAmount = tierData?.price || 0;
+    const tierPriceCents = tierData?.price || 0;
+
+    // SEC-006: record the amount ACTUALLY charged, not the sticker price. A promo code or a
+    // discount reduces what Stripe collected, and `session.amount_total` is the authoritative
+    // charged total in cents. Booking the tier's catalog price instead minted a full-price
+    // earning (and full net) behind a $0 charge, and that phantom net funds REAL platform-funded
+    // transfers (recruiter commission, Team Split payouts) plus GMV, milestones and break-even
+    // pop-ups. `??` not `||`: a 100%-off checkout has amount_total 0, and a $0 charge is a real
+    // $0 that must book as 0. Only a null/undefined amount_total falls back to the tier price.
+    const grossAmount = session.amount_total ?? tierPriceCents;
 
     // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
     // session.application_fee_percent does NOT exist on a Checkout Session, so the old
@@ -175,7 +184,9 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         // charge.invoice -> invoice.subscription.
         metadata: {
           tierName,
-          tierPrice: grossAmount,
+          // The tier's catalog price. gross_amount above is what was actually charged, so a
+          // discounted signup is reconcilable: the two differ by the discount.
+          tierPrice: tierPriceCents,
           fanDisplayName: fanName,
           ...(subStripeId ? { subscription_id: subStripeId } : {}),
           // F-01 audit trail: the pass-through commission subtracted from net, so a
@@ -249,7 +260,9 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
           tierName,
           fanId: fan_id,
           fanName,
-          tierPriceCents: grossAmount,
+          // The VIP welcome is owed because of the RUNG the fan joined, so this stays the tier's
+          // standing price. A first month discounted to $0 does not make a Platinum member less VIP.
+          tierPriceCents,
         });
       } catch (err) {
         console.error('VIP welcome task creation failed:', err);
@@ -460,7 +473,14 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
 
   const fanName = fanProfile?.display_name || 'A fan';
   const tierName = tier?.name || 'Unknown tier';
-  const grossAmount = tier?.price || 0;
+  const tierPriceCents = tier?.price || 0;
+
+  // SEC-006 (renewal side, same bug): a repeating coupon or a mid-cycle proration means the
+  // invoice collected something other than the tier's catalog price. `invoice.amount_paid` is the
+  // authoritative collected total in cents for this invoice. `??` not `||`: a fully discounted
+  // renewal pays 0, and that real 0 must book as 0 rather than silently re-inflating to sticker.
+  const invoiceAmountPaid = (invoice as unknown as { amount_paid?: number | null }).amount_paid;
+  const grossAmount = invoiceAmountPaid ?? tierPriceCents;
 
   // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
   const feePercent = await getArtistFeePercent(sub.artist_id);
@@ -518,7 +538,8 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
       stripe_payment_id: invoiceWithPayment.payment_intent || invoiceWithPayment.id,
       metadata: {
         tierName,
-        tierPrice: grossAmount,
+        // Catalog price; gross_amount is what the invoice actually collected.
+        tierPrice: tierPriceCents,
         fanDisplayName: fanName,
         renewal: true,
         ...(referralCommission > 0 ? { attributed_commission: referralCommission } : {}),
@@ -1325,24 +1346,36 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
 
 export async function handleBookingPurchase(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {
   const metadata = session.metadata;
-  if (!metadata?.booking_session_id || !metadata?.buyer_id || !metadata?.artist_id) {
+  if (!metadata?.booking_session_id || !metadata?.buyer_id) {
     console.log('No booking purchase metadata found');
     return;
   }
 
-  const { booking_session_id, buyer_id, artist_id } = metadata;
+  const { booking_session_id, buyer_id } = metadata;
 
   const { fanCity, fanState, fanCountry, fanCountryCode } = extractGeo(session);
 
   // Get booking session info
   const { data: booking } = await supabaseAdmin
     .from('booking_sessions')
-    .select('title, price, duration_minutes')
+    .select('artist_id, title, price, duration_minutes')
     .eq('id', booking_session_id)
     .single();
 
   if (!booking) {
     console.error('Booking session not found:', booking_session_id);
+    return;
+  }
+
+  // SEC-005: the artist credited is the OWNER of the booking session, read here, NOT
+  // `metadata.artist_id`. The checkout route used to copy a request-body artist id into that
+  // metadata key, so a fan could pay artist A while this handler wrote the earning, the milestone
+  // and the first_paid_conversion for artist B. The route is fixed; deriving it again here means a
+  // checkout session created before that fix (or any future writer that gets the metadata wrong)
+  // still settles against the real owner.
+  const artist_id = booking.artist_id as string | undefined;
+  if (!artist_id) {
+    console.error('Booking session has no artist:', booking_session_id);
     return;
   }
 

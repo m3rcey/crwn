@@ -42,9 +42,19 @@ async function notifyFansOfFulfillment(
       .eq('artist_id', artistId).eq('status', 'active').in('tier_id', tierIds);
     fanIds = (data || []).map((r: any) => r.fan_id);
   } else if (obligation.audience_kind === 'squad' && obligation.audience_id) {
+    // artist_squad_members carries no artist_id, so prove the squad belongs to
+    // this artist FIRST, exactly as the tier branch above scopes by artist_id.
+    // Defense in depth for SEC-014: the write gate refuses a foreign audience_id,
+    // and a row that predates that gate still cannot notify another artist's squad.
+    const { data: squad } = await supabaseAdmin
+      .from('artist_squads').select('id')
+      .eq('id', obligation.audience_id)
+      .eq('artist_id', artistId)
+      .maybeSingle();
+    if (!squad) return;
     const { data } = await supabaseAdmin
       .from('artist_squad_members').select('fan_id')
-      .eq('squad_id', obligation.audience_id);
+      .eq('squad_id', squad.id);
     fanIds = (data || []).map((r: any) => r.fan_id);
   } else {
     return; // unknown/campaign audience — don't over-notify
