@@ -22,23 +22,6 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Apply the four security migrations from the cybersecurity remediation (2026-08-12).**
-      Open each file in the Supabase SQL Editor and run it. Each one ends with a self-verify
-      block that raises loudly if it only half-applies, so a silent partial apply is not possible.
-      Run them in this order:
-        supabase/schema-phase2-sec-002-rpc-execute-lockdown.sql
-        supabase/schema-phase2-sec-003-profiles-identity-freeze.sql
-        supabase/schema-phase2-sec-004-007-rls-notifications-tier-benefits.sql
-        supabase/schema-phase2-sec-012-money-table-rls-reproducibility.sql
-      Until these run, four confirmed holes stay open in production: an anonymous caller can
-      execute `check_rate_limit` and wipe the whole `rate_limits` table (disabling every rate
-      limit on the platform), any user can self-approve and rewrite their own `profiles.email`
-      (which is how a Team Split payout could be hijacked), anyone can insert a notification
-      into any user's feed, and `tier_benefits` has no RLS at all so paid-tier entitlements are
-      editable. The code changes that ship alongside them are already live; these are the
-      database half. Verify after with: npm run verify:migrations
-      Details: docs/CYBERSECURITY_AUDIT_2026-08-12.md
-
 - [ ] **Decide how Team Split collaborator payouts are FUNDED, then re-enable the cashout rail.**
       The rail is currently disabled and returns 503 (`TEAM_SPLIT_FUNDING_PENDING`) in
       src/app/api/stripe/team-split-cashout/route.ts. That is deliberate: today the transfer
@@ -52,8 +35,48 @@ responsible for. Do not work those.
       it ever reaches the artist. Applying that to splits changes what an artist takes home per
       sale and cannot retroactively fund accruals from charges that already settled, which is why
       it is your call and not a refactor. Full trace: docs/CYBERSECURITY_AUDIT_2026-08-12.md (F-3).
+      The arithmetic is now written and proven: src/lib/teamSplits/funding.ts, with 18 tests
+      asserting CRWN revenue + commission + collaborator funding + artist proceeds always equals
+      what the fan paid. What is left is three questions only you can answer, recorded in
+      FUNDING_OPEN_QUESTIONS in that file, because each changes what an artist takes home:
+        1. Do splits apply to subscriptions that ALREADY exist? A subscription's fee percent is
+           fixed at creation, so either CRWN updates every live subscription in Stripe when a deal
+           is accepted (bulk, rate-limited, partially failing), or splits apply only to new
+           subscriptions. The second is safer; the first is what artists will expect.
+        2. Can a deal accrue against earnings that PREDATE it and were never reserved? Those
+           accruals are structurally unfunded.
+        3. When a cap makes reserved money unowed, how does the surplus get back to the artist?
+           That is a platform-to-artist transfer that does not exist today.
+      Answer those three and the wiring is mechanical.
 
 ### P1 — real risk or real friction, but nothing is on fire
+
+- [ ] **Finish the security MEDIUM/LOW tail (cybersecurity audit 2026-08-12).** Two agent runs
+      were killed mid-task, so these never landed. None is exploitable for money or admin access,
+      which is why they are P1 and not P0. In rough priority:
+        - Unsigned unsubscribe links. `api/campaigns/unsubscribe-all/[sendId]` opts a fan out of
+          EVERY artist's marketing from a bare row id, and these are plain GETs sitting in inboxes,
+          so a link-prefetching mail client or a corporate URL scanner can trigger them. The
+          correct pattern already exists in-repo: src/lib/acquisition/unsubscribe.ts (HMAC,
+          timingSafeEqual, stateless). Unsubscribe must stay one click and must not require login.
+        - `api/producer/polls` GET has no session gate, so anyone with a session UUID reads poll
+          questions and full tallies for PAID or PRIVATE Executive Producer Sessions.
+        - `api/live/tips` publishes exact per-fan spend against raw fan UUIDs, unauthenticated,
+          which contradicts the leaderboard's deliberate refusal to publish what fans spend.
+        - `api/notifications/notify-subscribers` takes an unvalidated `link` that the bell renders
+          as an href, so an artist can push a phishing URL to all their paying fans.
+        - `api/tiers/check-limit` and `api/tracks/check-limit` return any artist's plan and catalog
+          size with zero auth.
+        - CSP still has no `script-src` (staged Report-Only first), HSTS lacks `includeSubDomains`,
+          and `npm update next` closes the reachable sharp/libvips advisory that is exposed through
+          `/_next/image` by wildcard `remotePatterns`.
+        - `public/sw.js` caches authenticated pages with deploy-only invalidation, so a shared
+          device can serve the previous user's page after logout.
+
+- [ ] **Give `earnings` and `recruiters` explicit SELECT policies.** They were deliberately left
+      out of the SEC-012 migration: both have browser readers, so a bare RLS enable would have
+      broken an artist's own earnings view. They are protected in production today, but their
+      protection is not reproducible from the repo, so a branch or restore would come up open.
 
 - [ ] **Three crons filter on `artist_profiles.is_active`, a column that DOES NOT EXIST, and all
       three have been silently doing nothing for months.** Found 2026-08-11 while tracing the

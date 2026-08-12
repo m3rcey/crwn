@@ -1,5 +1,44 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Security migrations verified in production, and the open redirect closed
+
+The founder applied the four security migrations. They were verified by REPLAYING each
+audit exploit rather than by trusting the SQL editor, which is the only thing that
+distinguishes "the migration ran" from "the hole is closed".
+
+- **SEC-002/011 closed.** `check_rate_limit`, `redeem_invite` and `user_passes_artist_gate`
+  now answer `42501` to anon where they previously answered `25006`. That difference is the
+  whole finding: `25006` ("cannot execute DELETE in a read-only transaction") means the
+  privilege check PASSED and the function was still reachable, and PostgREST only produced it
+  because a GET runs in a read-only transaction. A negative window is now rejected with
+  `22023`, and the limiter still returns `true`, so no rate-limit state was damaged.
+- **SEC-003 closed.** An authenticated throwaway user could not self-approve, rewrite
+  `profiles.email`, or promote its own role: every attempt returned 204 and changed nothing,
+  which is the freeze trigger's silent revert working as designed. Legitimate writes still land.
+- **SEC-004/007/012 closed.** Anonymous notification INSERT is `42501` where it was `23503`
+  (RLS letting the write through with only a fake uuid stopping it), `tier_benefits` refuses
+  anon writes while keeping its public read for the storefront, and all 15 money and CRM tables
+  answer `42501`.
+- **The SEC-002 migration failed on first run with `42P13`**, because production declared
+  parameter defaults the repo had never described (`schema-phase2-rate-limit.sql` only creates
+  the function IF NOT EXISTS, so the live copy predates it). It was rebuilt signature-agnostically
+  via `pg_get_function_arguments()` rather than `DROP FUNCTION`, which would have left a window
+  with no rate limiter, and the limiter fails closed, so every rate-limited route would have
+  429'd real users. The rebuild is also now non-fatal: it aborted before reaching the revokes,
+  which is the one failure direction that leaves the vulnerability fully open while looking like
+  a tidy migration failure.
+- **`verify:migrations` now covers security migrations under the OPPOSITE contract**: a security
+  migration is proved applied by access becoming DENIED, so `42501` is the pass and anything else
+  fails the run.
+- **SEC-016 closed.** thecrwn.app was an open redirect: three email click-tracking routes
+  redirected to a raw `?url=`. `src/lib/safeRedirect.ts` now decides, comparing PARSED origins
+  rather than string-matching hostnames. An origin allowlist was deliberately rejected because
+  artists legitimately link out of CRWN, so the fix removes the hostile scheme and the silent hop,
+  not the destination. `live/thumbnail` also stopped serving private recordings' cover art.
+- **Team Split funding arithmetic is proven but NOT wired**, and the cashout rail stays disabled.
+  Three questions that change artist take-home are the founder's to answer, recorded in
+  `FUNDING_OPEN_QUESTIONS`.
+
 ## 2026-08-12 - Cybersecurity remediation: admin authority, the money ledger, and the private bucket
 
 Executed the findings of `docs/CYBERSECURITY_AUDIT_2026-08-12.md`. Shipped as `0ae065cf`,
