@@ -73,6 +73,30 @@ responsible for. Do not work those.
         - `public/sw.js` caches authenticated pages with deploy-only invalidation, so a shared
           device can serve the previous user's page after logout.
 
+- [ ] **Set HSTS `includeSubDomains` at the Vercel domain layer, not in code.** Production's
+      `Strict-Transport-Security: max-age=63072000` comes from the Vercel edge, not from
+      next.config.ts. Adding a second STS header from the app risks two competing values, and a
+      browser processes only one, so a well-meant `includeSubDomains` could silently WEAKEN HSTS.
+      It is also a two-year, hard-to-reverse commitment. A DNS probe of 18 likely subdomain names
+      found only the apex resolving, so it looks safe, but that is a dictionary sample and not
+      proof. Set it in the Vercel dashboard, then confirm exactly one STS header comes back:
+        curl -sI https://thecrwn.app
+
+- [ ] **Unblock `npm update next` by fixing 9 pre-existing test type errors.** The upgrade is
+      clean on its own (next 16.3.0, sharp 0.35.3, npm audit 6 high to 2) and closes the one
+      genuinely reachable advisory: the sharp/libvips CVEs and the image SVG DoS, both hit
+      unauthenticated through /_next/image. It is blocked because 16.3.0 type-checks test files
+      that 16.2.9 did not, surfacing errors that already existed. Application code compiles clean.
+      Fix these, then run the update:
+        src/lib/experiments/experiments.test.ts:89 and opportunityFunnels/registry.test.ts:169
+          TS2352, the cast to Record<string, unknown> needs `as unknown as`
+        src/lib/leadResults/leadMagnetMissions.test.ts:14, postSetupDestination.test.ts:19,
+          starterOffer.test.ts:6  TS2322, optional inputData vs required on LeadMagnetSeed
+        src/lib/opportunity/unifiedFunnel.test.ts:367  TS2345, union with undefined members
+        src/lib/riseResume.test.ts:66,102,123  TS18048, resume.cta possibly undefined
+      Mitigation already in place: remotePatterns were narrowed, so only CRWN's own public
+      buckets can feed sharp now instead of any Supabase or R2 host on the internet.
+
 - [ ] **Give `earnings` and `recruiters` explicit SELECT policies.** They were deliberately left
       out of the SEC-012 migration: both have browser readers, so a bare RLS enable would have
       broken an artist's own earnings view. They are protected in production today, but their
