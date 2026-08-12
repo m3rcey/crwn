@@ -119,6 +119,44 @@ Source: `src/lib/teamSplits/*`. `Confirmed`.
 - **Refund clawbacks:** proportional negative accrual, `status:'released'` immediately (nets against balance now).
 - **Deliverables** gate release if `payout_starts_after_deliverable_approval`; **disputes** freeze the deal (`status:'disputed'`, excluded from accrual + release); **release** is artist-only (`held`→`released`).
 
+### 8a. Team Split FUNDING (ratified 2026-08-12, cybersecurity audit F-3)
+- **A Team Split is ARTIST-FUNDED.** It is carved from the artist's qualifying net. CRWN platform
+  revenue never funds a collaborator, and the reserve is never CRWN revenue, gross margin or
+  earnings. `crwnRevenueCents()` returns exactly the platform fee, pinned by TS-MONEY-002.
+- **Why this needed stating.** CRWN sells through Stripe DESTINATION charges
+  (`transfer_data.destination` + `application_fee_percent`), so Stripe settles gross minus the
+  application fee straight into the ARTIST's Connect account and leaves only the fee with CRWN.
+  On a $100 Launch sale CRWN holds $12 and the artist holds $88, so the old cashout, a
+  `transfers.create` with no `source_transaction`, paid a $44 collaborator share out of CRWN's
+  own balance. The ledger said artist-funded; the cash movement was CRWN-funded.
+- **The funding boundary.** An earning may only produce an accrual if that EARNING carries proof a
+  reserve was withheld, recorded at `earnings.metadata.team_split_reserved` (a dealId to cents map,
+  reusing the column that already carries `attributed_commission` for the same artist-funded
+  pass-through idea). The accrual is capped at what was withheld. Every unproven shape reads as
+  zero, so the guard fails safe. `src/lib/teamSplits/funding.ts`.
+- **No retroactive split.** A split never applies to a payment that settled before the deal was
+  effective. Historical artist money is not rewritten, even for an `all_earnings` deal with cap
+  headroom (TS-MONEY-003).
+- **Existing subscriptions.** A split may apply to a FUTURE payment from an already-running
+  subscription only if the reserve was established before that payment settled. A subscription's
+  `application_fee_percent` is fixed at creation, so where CRWN cannot amend the invoice in time,
+  **that renewal accrues nothing**. Never accrue money that was not funded.
+- **No unfunded accrual, ever.** CRWN must not create a positive collaborator payable balance
+  without funded or irrevocably reserved money (TS-MONEY-001). The failure mode is "the
+  collaborator is owed nothing", never "the collaborator is owed money nobody funded".
+- **Surplus belongs to the ARTIST** (TS-MONEY-004): a cap landing below the reserve, a deal
+  cancelled under valid terms, rounding, or downward reconciliation. Never absorbed into the
+  application fee, CRWN revenue, or another collaborator's deal. Money still at risk in a refund
+  window, dispute, deliverable condition or hold is NOT yet surplus.
+- **Holds, deliverables and disputes affect RELEASE, not funding ownership.** None of them turns a
+  reserve into CRWN revenue.
+- **Refunds** unwind the reserve proportionally (`reserveClawback`), so a refunded sale cannot
+  leave both artist and collaborator holding the same money.
+- **The cashout rail is DISABLED** (503, `TEAM_SPLIT_FUNDING_PENDING`) until the reserve is wired
+  into checkout and a Stripe canary proves the payout source. Because an accrual now requires a
+  funded reserve, an unfunded payout is structurally impossible rather than merely forbidden.
+  Production holds 0 deals, 0 accruals, 0 payouts, so nobody is owed anything.
+
 ## 9. Discount codes
 - `percent` or `fixed`, scoped to tier/product/all, usage limits + expiry. Pro-tier-gated to create (`discount-codes/route.ts:60`). Applied at checkout as a Stripe coupon on the **discounted** unit amount (fee computed post-discount). `Confirmed`.
 
