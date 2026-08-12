@@ -1,5 +1,43 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Post-Win Referral: architecture only, implementation blocked
+
+**No code was written.** `src/` and `public/` are clean. New canonical doc
+[`25-POST-WIN-REFERRAL.md`](25-POST-WIN-REFERRAL.md), marked NOT SHIPPED.
+
+**The win is solid.** `first_paid_conversion` is genuinely canonical: one definition covering all
+six paid rails (subscription, product, track, booking, live ticket, live tip), deduped per artist
+so only the first ever lands, already carrying attribution, emitted from five call sites in
+`webhookHandlers.ts`. Prerequisites like connecting Stripe were rejected as triggers: those are
+CRWN chores, and a referral ask after a chore trades on trust that has not been earned.
+
+**The blocker is attribution, and it is not a small gap.** CRWN has five referral systems and none
+of them is artist → artist. The obvious slot, the allowlisted `ref` dimension, already means
+"partner/referrer code" and flows into `partner_code_used` / `recruited_by` / `artist_referrals` —
+a table whose rows carry `flat_fee_amount: 5000`, written from a Stripe webhook. Putting an artist
+referral code there would sit one branch away from a $50 commission obligation. There is no
+`artist_referrer` dimension, so artist identity has nowhere canonical to live, and its precedence
+against `ref`, a paid campaign or an organic video is undefined.
+
+**And the carrier is unproven:** `_attribution` on `lead_magnet_results.input_data` is the
+documented durable home, and production holds a value on **0 of 41 rows**. Survival across signup
+and auto-claim is asserted in docs, never demonstrated in data.
+
+**Two founder decisions gate it**, and inventing either was explicitly out of bounds: whether an
+artist is ever paid for referring (retrofitting economics onto already-distributed codes is the
+irreversible move), and whether artist referrals ever enter the recruiter rail.
+
+**Nothing is lost by waiting.** Only **2 of 9** artists have a paying member and
+`first_paid_conversion` has fired **0** times, so the trigger population is two and the win has
+never been recorded. Building hard-to-reverse attribution semantics for that population, before the
+event has occurred once, is the wrong order.
+
+Recommended V1 once unblocked: one win, one `celebration` pop-up reusing the existing governor and
+its caps, one copy-link, one additive reporting-only `artist_referrer` dimension that never
+overwrites an existing acquisition owner, and referred artists measured to first paid rather than
+to shares. No cash, no badge, no leaderboard, no dashboard, no navigation, no Virality Engine
+merge, no Z3, no Manager.
+
 ## 2026-08-11 - One owner per promise: the duplicate reminder is gone
 
 **The duplicate was never fixed, only narrowed.** The earlier Part A work corrected which
