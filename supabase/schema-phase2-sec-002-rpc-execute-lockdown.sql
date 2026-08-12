@@ -44,6 +44,12 @@
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------------------
+-- 0. ORDER OF OPERATIONS. The REVOKES in section 2 are the actual security control and
+--    they do not depend on section 1 at all. Section 1 is defence in depth. If section 1
+--    ever fails on your database, the revokes still close SEC-002 on their own.
+-- ---------------------------------------------------------------------------------------
+
+-- ---------------------------------------------------------------------------------------
 -- 1. check_rate_limit: validate arguments so a DIRECT invocation is still safe.
 -- ---------------------------------------------------------------------------------------
 -- Defence in depth: the revoke below is the real control, but a SECURITY DEFINER
@@ -51,14 +57,48 @@
 -- caller (or a re-grant) reaches it. Real callers pass windows of 60..86400 and
 -- max_requests of 1..300, so these bounds reject only nonsense.
 --
--- CREATE OR REPLACE preserves the existing ACL, so the grants are re-stated in
--- section 2 regardless.
-CREATE OR REPLACE FUNCTION public.check_rate_limit(
-  p_user_id        uuid,
-  p_action         text,
-  p_window_seconds integer,
-  p_max_requests   integer
-)
+-- WHY THIS IS BUILT WITH DYNAMIC SQL RATHER THAN A LITERAL SIGNATURE:
+-- The first version of this migration spelled the signature out and failed with
+--   42P13 cannot remove parameter defaults from existing function
+-- because the LIVE function declares parameter DEFAULTS that the repo's
+-- schema-phase2-rate-limit.sql does not. That migration only creates the function
+-- IF NOT EXISTS, so production's copy predates it and the repo has never described
+-- it accurately. Postgres lets CREATE OR REPLACE add defaults but never remove them.
+--
+-- The suggested fix (DROP FUNCTION first) is NOT taken deliberately. checkRateLimit()
+-- in src/lib/rateLimit.ts treats an RPC error as "denied" and fails CLOSED, so for the
+-- window between DROP and CREATE every rate-limited route would 429 real users, and
+-- DROP also discards the function's existing ACL. Instead the live argument list is
+-- read back with pg_get_function_arguments(), which INCLUDES each DEFAULT, and reused
+-- verbatim. The signature is therefore preserved exactly, whatever it is, and this file
+-- is safe to run against a database whose signature differs from the repo's.
+DO $rebuild$
+DECLARE
+  v_args text;
+  v_oid  oid;
+BEGIN
+  SELECT p.oid, pg_get_function_arguments(p.oid)
+    INTO v_oid, v_args
+    FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+   WHERE n.nspname = 'public' AND p.proname = 'check_rate_limit'
+   ORDER BY p.oid
+   LIMIT 1;
+
+  IF v_oid IS NULL THEN
+    RAISE NOTICE 'check_rate_limit() does not exist; nothing to harden. Run schema-phase2-rate-limit.sql first.';
+    RETURN;
+  END IF;
+
+  RAISE NOTICE 'SEC-002: rebuilding check_rate_limit(%) with argument validation', v_args;
+
+  -- Non-fatal ON PURPOSE. This block is defence in depth; the REVOKES in section 2
+  -- are the control that actually closes SEC-002. The first version of this file
+  -- aborted here on 42P13 and therefore never reached the revokes, which left the
+  -- vulnerability fully open while looking like a migration failure. If the rebuild
+  -- cannot proceed for any reason, say so loudly and let the revokes still run.
+  BEGIN
+    EXECUTE format($fmt$
+CREATE OR REPLACE FUNCTION public.check_rate_limit(%s)
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -71,12 +111,12 @@ BEGIN
   -- application treats an RPC error as "denied" (fails closed), so a bad call
   -- can never accidentally become "allowed".
   IF p_window_seconds IS NULL OR p_window_seconds <= 0 OR p_window_seconds > 86400 THEN
-    RAISE EXCEPTION 'check_rate_limit: p_window_seconds must be between 1 and 86400 (got %)', p_window_seconds
+    RAISE EXCEPTION 'check_rate_limit: p_window_seconds must be between 1 and 86400 (got %%)', p_window_seconds
       USING ERRCODE = '22023';
   END IF;
 
   IF p_max_requests IS NULL OR p_max_requests < 0 OR p_max_requests > 100000 THEN
-    RAISE EXCEPTION 'check_rate_limit: p_max_requests must be between 0 and 100000 (got %)', p_max_requests
+    RAISE EXCEPTION 'check_rate_limit: p_max_requests must be between 0 and 100000 (got %%)', p_max_requests
       USING ERRCODE = '22023';
   END IF;
 
@@ -105,14 +145,35 @@ BEGIN
   RETURN true;      -- allowed
 END;
 $body$;
+$fmt$, v_args);
+
+    RAISE NOTICE 'SEC-002: check_rate_limit rebuilt, signature preserved.';
+  EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'SEC-002: could not add argument validation to check_rate_limit (%). The EXECUTE revokes below still apply and are what closes the vulnerability. Investigate separately.', SQLERRM;
+  END;
+END $rebuild$;
 
 -- ---------------------------------------------------------------------------------------
 -- 2. Revoke EXECUTE from the Data API roles BY NAME.
 -- ---------------------------------------------------------------------------------------
-REVOKE ALL ON FUNCTION public.check_rate_limit(uuid, text, integer, integer) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.check_rate_limit(uuid, text, integer, integer) FROM anon;
-REVOKE ALL ON FUNCTION public.check_rate_limit(uuid, text, integer, integer) FROM authenticated;
-GRANT EXECUTE ON FUNCTION public.check_rate_limit(uuid, text, integer, integer) TO service_role;
+-- Signature-agnostic for the same reason as section 1: the live argument list is not
+-- necessarily the one the repo declares. Looping over pg_proc by NAME and casting to
+-- regprocedure revokes from every overload that actually exists.
+DO $$
+DECLARE r record;
+BEGIN
+  FOR r IN
+    SELECT p.oid::regprocedure AS sig
+      FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+     WHERE n.nspname = 'public' AND p.proname = 'check_rate_limit'
+  LOOP
+    EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC', r.sig);
+    EXECUTE format('REVOKE ALL ON FUNCTION %s FROM anon', r.sig);
+    EXECUTE format('REVOKE ALL ON FUNCTION %s FROM authenticated', r.sig);
+    EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO service_role', r.sig);
+    RAISE NOTICE 'SEC-002: locked down %', r.sig;
+  END LOOP;
+END $$;
 
 -- SEC-011: redeem_invite burns invite-code uses and sets profiles.is_approved.
 -- Service-role only; the browser never calls it.
@@ -186,15 +247,27 @@ END $$;
 --    a pg_policies existence check, which passes vacuously for a superuser.
 -- ---------------------------------------------------------------------------------------
 DO $$
+DECLARE r record; v_found boolean := false;
 BEGIN
-  IF has_function_privilege('anon', 'public.check_rate_limit(uuid, text, integer, integer)', 'EXECUTE') THEN
-    RAISE EXCEPTION 'MIGRATION FAILED: anon can still EXECUTE check_rate_limit';
-  END IF;
-  IF has_function_privilege('authenticated', 'public.check_rate_limit(uuid, text, integer, integer)', 'EXECUTE') THEN
-    RAISE EXCEPTION 'MIGRATION FAILED: authenticated can still EXECUTE check_rate_limit';
-  END IF;
-  IF NOT has_function_privilege('service_role', 'public.check_rate_limit(uuid, text, integer, integer)', 'EXECUTE') THEN
-    RAISE EXCEPTION 'MIGRATION FAILED: service_role LOST EXECUTE on check_rate_limit — every rate limit would fail closed and 429 real users';
+  FOR r IN
+    SELECT p.oid::regprocedure AS sig
+      FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+     WHERE n.nspname = 'public' AND p.proname = 'check_rate_limit'
+  LOOP
+    v_found := true;
+    IF has_function_privilege('anon', r.sig, 'EXECUTE') THEN
+      RAISE EXCEPTION 'MIGRATION FAILED: anon can still EXECUTE % (SEC-002 is still open)', r.sig;
+    END IF;
+    IF has_function_privilege('authenticated', r.sig, 'EXECUTE') THEN
+      RAISE EXCEPTION 'MIGRATION FAILED: authenticated can still EXECUTE %', r.sig;
+    END IF;
+    IF NOT has_function_privilege('service_role', r.sig, 'EXECUTE') THEN
+      RAISE EXCEPTION 'MIGRATION FAILED: service_role LOST EXECUTE on %. Every rate limit would fail closed and 429 real users. Re-grant immediately.', r.sig;
+    END IF;
+  END LOOP;
+
+  IF NOT v_found THEN
+    RAISE EXCEPTION 'MIGRATION FAILED: check_rate_limit does not exist, so nothing was locked down';
   END IF;
   RAISE NOTICE 'SEC-002 verified: check_rate_limit is service_role only.';
 END $$;
@@ -225,9 +298,15 @@ BEGIN
     v_ok := true;   -- rejected, as required
   END;
   IF NOT v_ok THEN
-    RAISE EXCEPTION 'MIGRATION FAILED: check_rate_limit accepted a negative p_window_seconds (the table-truncation vector is still open)';
+    -- A WARNING, not an EXCEPTION. Argument validation is defence in depth; the revokes
+    -- above are the control, and they have already been verified as applied. Failing the
+    -- whole migration here would report failure for a run that actually closed SEC-002,
+    -- and would tempt a re-run that is not needed. Only anon/authenticated could reach
+    -- this function with a hostile window, and they no longer can.
+    RAISE WARNING 'SEC-002: check_rate_limit still accepts a negative p_window_seconds. The EXECUTE revokes ARE applied, so this is no longer reachable by anon or authenticated, but the defence-in-depth layer did not install. See the WARNING earlier in this run.';
+  ELSE
+    RAISE NOTICE 'SEC-002 verified: negative window rejected.';
   END IF;
-  RAISE NOTICE 'SEC-002 verified: negative window rejected.';
 END $$;
 
 -- ============================================================================
