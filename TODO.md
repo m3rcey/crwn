@@ -27,6 +27,23 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **CRWN is emailing artists that they owe their fans things they never promised.** This is a
+      one-line bug, not a governor project, and it should be fixed on its own. Found 2026-08-11
+      while inventorying communications. The Z12 fix added `onlyFanPromises` / `isFanPromiseEvent`
+      to the three systems that DECIDE things (Constraint assembler, Manager insights, Roadmap) and
+      missed both systems that COMMUNICATE:
+      `src/lib/promiseReminders.ts` (selects `metadata`, never filters) and
+      `src/lib/calendarReminders.ts` (does not even select `metadata`, so it cannot filter).
+      Both are LIVE and daily: promise reminders ride `/api/cron/scheduled-releases` at 06:00,
+      calendar reminders ride `/api/cron/sequences` at 09:00. **Production right now: 97
+      `fulfillment_events`, of which 93 are Revenue Ramp steps (the artist's own private plan) and
+      only 4 are real fan promises. 11 of those ramp steps fall inside the 8-day "Promise due in N
+      days" email window.** So an artist can be told "Promise due in 3 days: Connect Stripe" as
+      though a paying fan were waiting on it. The two senders also dedupe only against themselves,
+      so the same event can produce an email at 06:00 and another at 09:00.
+      **Fix:** apply `onlyFanPromises` in `promiseReminders`, add `metadata` to the
+      `calendarReminders` select and filter there too. Say go and it is a small, tested change.
+
 - [ ] **Three crons filter on `artist_profiles.is_active`, a column that DOES NOT EXIST, and all
       three have been silently doing nothing for months.** Found 2026-08-11 while tracing the
       Manager loop. Verified against production: `artist_profiles.is_active` returns
@@ -402,6 +419,17 @@ Things that are never finished. Cadence, then the thing.
 ## On Claude's plate (not yours)
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
+
+- **Communications governor: architecture designed 2026-08-11, NOT built.** Full findings in
+  `docs/crwn-brain/02-FEATURE-MAP.md`. Headline: CRWN has **one** real attention governor (the
+  pop-up engine: one pop-up per user per day, priority-sorted, per-pop-up frequency) and it is
+  channel-local. Notifications have **none** at all: `createNotification` is a bare INSERT with no
+  cap, dedupe, priority or expiry, and production shows **41 notifications in a single day**.
+  Lifecycle email has only per-sender local suppression (a column stamp here, an enrollment row
+  there) and **no send history table at all**, so CRWN cannot currently answer "did we email this
+  artist yesterday?" First slice when you want it: the taxonomy plus a pure governance function
+  with no integration, then wrap `createNotification` (one chokepoint, biggest volume, fully
+  reversible). **Two founder decisions block anything beyond that** and are listed there.
 
 - **Manager measurement loop: PARTIAL RETIREMENT SHIPPED 2026-08-11.** The learning half is gone
   (baseline capture, `outcome_delta`/`outcome_metrics` writes, `outcome_score`, the `pastOutcomes`

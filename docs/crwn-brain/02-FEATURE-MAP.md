@@ -516,6 +516,52 @@ its route, tour steps and analytics are unchanged.
   `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
   decision, not a bug fix, and is sequenced after the retirement above.
 
+- **Communications governance: INVESTIGATED 2026-08-11. Architecture proposed, NOT built. Do not
+  document any governor as shipped.**
+
+  **How many systems can independently decide "the artist should pay attention to this now"?**
+  That is the question that decides whether a governor is needed. Answer, from code: **one channel
+  is governed, two are not.**
+  - **Pop-ups: genuinely governed.** `src/lib/popups/index.ts` enforces max ONE pop-up per user per
+    calendar day, per-pop-up frequency (once / max N / every N days), eligibility targeting, and
+    priority-sorted single-winner selection. It is a real attention governor. It is also
+    **channel-local**: it cannot see email or notifications, and they cannot see it. LIVE in
+    production (`admin_settings.popup_engine = {enabled:true}`; CLAUDE.md still says "off by
+    default", which is stale, `13-CURRENT-STATE.md` is correct).
+  - **Notifications: ungoverned.** `createNotification` is a bare INSERT with no cap, no dedupe,
+    no priority, no expiry. Any feature may create unlimited notifications, and 12 modules do.
+    Production: 183 rows, **41 in a single day**, with quest/level-up/milestone celebrations the
+    largest share. One quest completion can fire three notifications.
+  - **Lifecycle email: locally suppressed, globally ungoverned.** Each sender has its own
+    mechanism (a `onboarding_nudge_sent_at` column stamp, a sequence-enrollment row, a claim
+    table, a rate-limit key). **There is no email send-history table**: `email_suppressions` is a
+    bounce/complaint list for deliverability, not a log. So cross-channel frequency governance is
+    **impossible today without new persistence**, and any claim otherwise is wrong.
+  - Every `checkRateLimit` in the codebase is an **abuse limit on user-initiated actions**, not a
+    cap on CRWN-originated attention. Different concept; do not count them as governance. The one
+    genuine outbound cap is artist→fan `notify-subscribers` (burst + 8/day), which is correct and
+    is **artist-authored**, not CRWN-originated.
+
+  **The distinction that must survive into any implementation:** the governor governs ATTENTION,
+  never diagnosis. It may decide which of several legitimately-owned communications is delivered,
+  deferred or suppressed. It may never decide what the artist's problem is: that is
+  `readConstraint`, and a second one would undo Z4/Z5.
+
+  **Provable collisions (not hypothetical):** `promiseReminders` (06:00, via `scheduled-releases`)
+  and `calendarReminders` (09:00, via `sequences`) can email the same artist about the SAME
+  `fulfillment_event` on the same morning; each dedupes only against itself. Uncapped quest
+  celebrations can burst alongside anything. See the fan-obligation defect below, which is a bug
+  to fix directly, NOT something to defer into a governor.
+
+  **Proposed shape (for review, not built):** a pure `governCommunications(context, candidates)`
+  over candidates that already carry an owner, with classes ordered by CRWN's EXISTING decisions
+  rather than a new hierarchy: `critical` (security/billing/transactional, always bypasses) >
+  `fan_obligation` (Promise Calendar) > `launch_blocker` (Roadmap) > `constraint` (Constraint
+  Engine) > `event_deadline` (Needs You) > `continuation` > `growth` > `celebration`. Dominance
+  alone is insufficient: a payment failure and a fan promise due tomorrow both need delivery, so
+  the model needs coexist/defer/suppress, not one winner. Fail OPEN for `critical`, defer for
+  optional coaching, and treat unknown history as unknown (never as "nothing was sent").
+
 - **Manager admin observability SHIPPED 2026-08-11: `/admin?tab=managerops`, labelled "Artist
   Manager". Read-only. It is an instrument, not a strategist and not a cockpit.**
 
