@@ -70,13 +70,6 @@ export const ADMIN_ROUTE_EXCEPTIONS: readonly ArchException[] = [
   },
   {
     invariant: 'AUTH-001',
-    subject: 'src/app/api/admin/approvals/route.ts',
-    owner: 'artist approval gate',
-    reason:
-      'Inline profiles.role === admin check, semantics identical to requireAdmin. Verified correct in F-15; consolidate opportunistically when the route is next touched.',
-  },
-  {
-    invariant: 'AUTH-001',
     subject: 'src/app/api/admin/crm/outreach/track/[sendId]/route.ts',
     owner: 'CRM outreach tracking',
     reason:

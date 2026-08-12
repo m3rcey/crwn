@@ -20,7 +20,7 @@ interface CodeRow {
   created_at: string;
 }
 
-export default function ApprovalsManager({ userId }: { userId: string }) {
+export default function ApprovalsManager() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [codes, setCodes] = useState<CodeRow[]>([]);
   const [gateEnabled, setGateEnabled] = useState(false);
@@ -32,7 +32,8 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
   const [copied, setCopied] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/admin/approvals?userId=${userId}`);
+    // Admin authority comes from the session cookie (SEC-001); never send an id.
+    const res = await fetch('/api/admin/approvals');
     if (res.ok) {
       const json = await res.json();
       setUsers(json.users || []);
@@ -40,7 +41,7 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
       setGateEnabled(json.gateEnabled === true);
     }
     setLoading(false);
-  }, [userId]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -49,7 +50,7 @@ export default function ApprovalsManager({ userId }: { userId: string }) {
     await fetch('/api/admin/approvals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminUserId: userId, ...body }),
+      body: JSON.stringify(body),
     });
     await load();
     setBusy(null);

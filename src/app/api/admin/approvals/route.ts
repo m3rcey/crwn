@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 // Service-role client (bypasses RLS) — admin-only route.
 const supabaseAdmin = createClient(
@@ -7,20 +8,17 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
 );
 
-async function isAdmin(userId: string | null | undefined): Promise<boolean> {
-  if (!userId) return false;
-  const { data } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single();
-  return data?.role === 'admin';
-}
+// SECURITY (SEC-001): the acting admin is derived from the SESSION cookie via
+// requireAdmin(), never from a client-supplied `userId`/`adminUserId`. The old
+// code looked up the role of whatever id the request carried, so any request
+// presenting a known admin UUID — trivially harvested from the public profile
+// surface — was treated as admin, unauthenticated. Caller identity (`actor`) is
+// now strictly separate from any TARGET id in the request body.
 
-// GET ?userId=<admin> — list recent users (with approval status) and invite codes.
-export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get('userId');
-  if (!(await isAdmin(userId))) {
+// GET — list recent users (with approval status) and invite codes.
+export async function GET(_req: NextRequest) {
+  const actor = await requireAdmin();
+  if (!actor) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
@@ -45,21 +43,23 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ users: users || [], codes: codes || [], gateEnabled });
 }
 
-// POST { adminUserId, action, ... } — approve/revoke a user, or mint/toggle invite codes.
+// POST { action, ... } — approve/revoke a user, or mint/toggle invite codes.
+// The acting admin comes from the session; the body carries only TARGET ids.
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { adminUserId, action } = body;
-
-  if (!(await isAdmin(adminUserId))) {
+  const actor = await requireAdmin();
+  if (!actor) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
+
+  const body = await req.json();
+  const { action } = body;
 
   if (action === 'setGate') {
     const { enabled } = body;
     const { error } = await supabaseAdmin
       .from('admin_settings')
       .upsert(
-        { key: 'artist_gate', value: { enabled: !!enabled }, updated_at: new Date().toISOString(), updated_by: adminUserId },
+        { key: 'artist_gate', value: { enabled: !!enabled }, updated_at: new Date().toISOString(), updated_by: actor.id },
         { onConflict: 'key' }
       );
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

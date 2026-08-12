@@ -282,7 +282,7 @@ export default function AdminPage() {
 
       {activeTab === 'access' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
-          <ApprovalsManager userId={user.id} />
+          <ApprovalsManager />
         </div>
       )}
 
