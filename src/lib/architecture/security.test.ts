@@ -263,6 +263,34 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     ).toBe(true);
   });
 
+  // TS-ID-001. Payout authority is `collaborator_user_id`, an authenticated
+  // identity. It must never be derived from a column the account itself can
+  // rewrite, which is what made a payout hijack possible: claim a producer's
+  // address before they sign up and their revenue share binds to you.
+  it('TS-ID-001 payout authority is an authenticated id, never a mutable profile email', () => {
+    const accrual = readStripped('src/app/api/cron/team-split-accruals/route.ts');
+    const cashout = readStripped('src/app/api/stripe/team-split-cashout/route.ts');
+    expect(accrual.length + cashout.length, 'positive control').toBeGreaterThan(600);
+
+    // Both money paths must key on collaborator_user_id.
+    expect(
+      /collaborator_user_id/.test(accrual) && /p_collaborator_id|collaborator_user_id/.test(cashout),
+      violation('TS-ID-001', 'a Team Split money path no longer keys on collaborator_user_id.'),
+    ).toBe(true);
+
+    // And neither may resolve a collaborator through profiles.email.
+    const offenders = [CREATE, ACCEPT, 'src/app/api/cron/team-split-accruals/route.ts',
+      'src/app/api/stripe/team-split-cashout/route.ts']
+      .filter(f => /from\(\s*['"]profiles['"]\s*\)[\s\S]{0,200}?(ilike|eq)\(\s*['"]email['"]/.test(readStripped(f)));
+    expect(
+      offenders,
+      violation(
+        'TS-ID-001',
+        `Team Split path(s) resolve an identity through profiles.email: ${offenders.join(', ')}. That column is a self-writable mirror of the verified auth identity. Email may INVITE; only an authenticated id may AUTHORIZE.`,
+      ),
+    ).toEqual([]);
+  });
+
   // TS-MONEY-001. The accrual loop must never write a payable row straight from
   // the split math. It did, which is "accrue first and hope the funds exist
   // later", and it is how the platform ended up paying collaborators from its
