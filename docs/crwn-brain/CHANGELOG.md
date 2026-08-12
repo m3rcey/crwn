@@ -1,5 +1,46 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Verified feature-state reconciliation: the last four unknowns closed
+
+The founder ran `supabase/check-unverified-feature-state.sql`. All four disputed migrations came
+back **applied**, and a read-only flag probe then showed all three disputed flags **ON**. Every
+`unverified` state in the drift registry is now resolved, and the Brain's dark claims were wrong
+in the same direction every time: they were written from CODE DEFAULTS, not from production.
+
+- **Migrations, now `applied`** in `EXPECTED_MIGRATION_STATE`: royalty-readiness,
+  producer-sessions, sub-avatar, earnings-live-tip-type. Probe lines added for the first three;
+  the fourth carries the new `liveCheck: 'sql-check'` because it only widens a CHECK constraint,
+  which PostgREST cannot see (an anon probe there would return 200 either way and certify
+  nothing).
+- **New live layer: `npm run verify:flags`** (`scripts/probe-flags.mjs`, read-only, service-role
+  because `admin_settings` is admin-gated). Production 2026-08-12: `quest_engine`, `popup_engine`,
+  `acquisition_engine`, `experiments`, `live_tips`, `royalty_readiness`, `producer_sessions` all
+  ON; `artist_gate` OFF.
+- **Royalty Readiness: LIVE** (was documented dark "because the migration is unrun" — it was
+  applied and the flag was on). The unconditional AccountHub entry is correct, not a leak.
+- **Executive Producer Sessions: Phase 1 LIVE.** The documented launch blocker ("pending attorney
+  review, `consent.ts` stamped `2026-07-24.draft1`") **did not exist in code**: the agreement has
+  been final at `2026-07-24.v1` and 13-CURRENT-STATE contradicted itself twelve lines apart.
+  Surfaces are grafted onto Live, not a separate page.
+- **Live tips: LIVE, with all four facts now separately true** (schema accepts
+  `earnings.type = live_tip`; the webhook records the earning and the funnel conversion; flag ON;
+  the fan tip bar is mounted and server-gated). Worth knowing: `recordFirstPaidConversion` fires
+  OUTSIDE the earnings-insert guard, so before the CHECK migration a tip could record a first-paid
+  conversion with no GMV behind it. The migration closes that; the code shape is unchanged.
+- **Sub-avatar: applied, and deliberately NOT artist-facing.** Internal acquisition/evidence data,
+  surfaced admin-only (`sub_avatar_audit` is admin-read/service-write, the override column has no
+  client grant, and a test pins that the artist is never asked to self-select). Added to `FEATURES`
+  with that boundary written down so a future reader cannot mistake "table exists" for "ship it".
+- **Docs corrected:** 02-FEATURE-MAP (3 rows), 13-CURRENT-STATE (producer heading, flag/migration
+  line, the self-contradicting agreement block, sub-avatar, live-tip), 21-MONEY-MODEL,
+  23-ZERO-TO-ONE ("blocked on legal" for producer), CRWN-BRAIN-COMBINED's dark list, 26 (the two
+  live layers + the migration-vs-feature distinction).
+- **TODO:** removed the four-way verification item and the two now-applied migration items; the
+  announcement-flag note now cites the verified flag values.
+- **Drift tests:** DOCS-002 gained a `liveCheck` branch, a by-name pin that the four stay
+  `applied`, and a new assertion that no doc calls an applied migration's feature dark BECAUSE of
+  that migration. No schema, no production mutations, no flags flipped.
+
 ## 2026-08-12 - Permanent product drift prevention system: LIVE
 
 The whiteboard item after the consistency remediation. Not another audit: the system that makes

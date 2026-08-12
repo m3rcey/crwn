@@ -41,8 +41,14 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
   single-opportunity calculators from the retired v1 taxonomy (`fan-stack-calculator`,
   `between-tour-calculator`) remain as ordinary tools. Only stored piece:
   `artist_profiles.sub_avatar_override` + `sub_avatar_audit` (migration
-  `schema-phase2-sub-avatar.sql`, drop-and-recreate CHECK so a re-run is safe, fail-soft, UNRUN,
-  in TODO.md). Full spec: `docs/SUB_AVATARS.md`. `Confirmed`.
+  `schema-phase2-sub-avatar.sql`, drop-and-recreate CHECK so a re-run is safe, fail-soft,
+  **APPLIED**, verified in production 2026-08-12). **Sub-avatar is INTERNAL acquisition/evidence
+  data surfaced ADMIN-ONLY, not an artist-facing feature:** `sub_avatar_audit` is admin-read /
+  service-write, `sub_avatar_override` carries no client grant, and the artist is never asked to
+  self-select (pinned by `onboardingBoundary.test.ts`). The only artist-visible output is one
+  derived sentence of setup copy that never names the avatar. `/api/artist/avatar` (the override
+  writer) has no UI caller; whether an artist-facing picker should exist is an open product
+  question in `docs/SUB_AVATARS.md` section 10, not an oversight. Full spec: `docs/SUB_AVATARS.md`. `Confirmed`.
 - **Evidence layer + Constraint Engine (2026-08-03).** The first artist-facing closed feedback
   loop. Evidence: `tier_events` (per-rung views + checkout starts, migration APPLIED and
   probe-verified), `first_paid_conversion` emitted from all six paid rails through one shared
@@ -88,11 +94,13 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 - **Money Model measurement (First Revenue Launch economics, 2026-08-10)** — admin-only
   system for engagement terms, founder labor, guarantee evidence, revenue by source and
   30-day contribution margin per artist (`docs/crwn-brain/21-MONEY-MODEL-MEASUREMENT.md`).
-  Code is live; the `/admin` Money Model tab renders empty (with a banner saying so) until
-  `supabase/schema-phase2-frl-engagements.sql` runs. Sibling fix
-  `supabase/schema-phase2-earnings-live-tip-type.sql` adds `live_tip` to the earnings type
-  CHECK (the webhook inserts it; the old allowlist silently rejected every live-tip earning
-  wherever applied). Null is never rendered as zero anywhere in it. `Confirmed`.
+  Code is live and `supabase/schema-phase2-frl-engagements.sql` is applied (probe-verified), so
+  the `/admin` Money Model tab renders once the founder hourly cost is set. Sibling fix
+  `supabase/schema-phase2-earnings-live-tip-type.sql` (adds `live_tip` to the earnings type
+  CHECK) is **applied**, verified 2026-08-12 by constraint introspection: before it, the webhook's
+  live-tip earning insert was silently rejected while the funnel event still recorded a conversion,
+  so a tip could show as a first-paid conversion with no GMV behind it. Null is never rendered as
+  zero anywhere in it. `Confirmed`.
 - **Quest Engine / Rise Mode / Supporter Mode** — **LIVE, not dark. Verified against production `admin_settings` on 2026-08-11: `quest_engine = {"enabled": true}`, with 326 real `quest_instances` rows.** The code default is `false`, which is why this entry (and doc 01, and doc 22 section 17.1) went on calling it dark long after the flag was flipped; that drift is now pinned by `src/lib/brainContract.test.ts`. Fully built and wired end-to-end (`src/lib/quests/*`, `src/components/quests/*`), consumers no-op gracefully when off. The catalog rewrite remains outstanding. `Confirmed`.
   - **`popup_engine` is LIVE too** (same check). The Rise Mode resume prompt (`artist_resume_rise`) rides it, derived from part-done `quest_instances` rows rather than any new state.
   - **Zero-to-hero artist journey (Prompt 2, shipped dark):** the artist catalog now covers the **Tutorial + Levels 1-4** (Foundation, Vault, Membership Ladder, Open the Gates), not just the old 1-3 seed. Level keys renamed to the journey labels (`progression.ts`); ~13 new artist quests with authoritative `DomainCheck` completion (profile-complete, socials, track-count, album, playlist, tier-count/benefits, plan-aware ladder, Stripe-connected, tier-purchasable, welcome-post) added to `evaluator.ts`. Level 2 catalog-shape planner (`VaultPlanner.tsx`, mounted atop `MusicManager`) using the shared `OptionSelect` to adapt recommended catalog steps and deep-link to the existing tracks/albums/playlists surfaces. Recommended four-tier ladder template (`src/lib/tierTemplate.ts` + `TierLadderTemplate.tsx`, mounted in `TierManager`) with edit/skip/preview and workload safeguards. Adaptive first-load recap in `/api/quests` (`recap` payload) + `RiseMode` banner; cascade loop raised to 12 for the deeper ladder. No migration required; all checks read existing tables. `Confirmed`.
@@ -111,13 +119,18 @@ CRWN is **live in production** (`thecrwn.app`) and the core money loop is real a
 - **No user-facing account hard-delete/GDPR erasure** path found. Deactivate/reactivate is now a working pair (deactivate genuinely hides the artist publicly at the app layer, reactivate fires on next login), just not a hard-delete. `Needs founder confirmation`.
 - **No web/push notifications** — `public/sw.js` has no push listener; notifications are foreground-only. `Confirmed`.
 
-## Executive Producer Sessions — Phase 1 shipped DARK 2026-07-24 (Confirmed)
+## Executive Producer Sessions — Phase 1 LIVE (Confirmed in production 2026-08-12)
 
 The `executive-producer-session` lead magnet and seven scripts sell a paid private session where
 fans submit beats/vocals/ideas and watch the artist work. Audited then built the same day. An
 Executive Producer Session is **not a new stream type** — it is a `live_session` with submissions
 and polls bolted on, so the build extends `live_sessions` rather than forking it. Flag
-`admin_settings.producer_sessions` (off), migration `schema-phase2-producer-sessions.sql` (unrun).
+`admin_settings.producer_sessions` is **ON** and migration `schema-phase2-producer-sessions.sql` is
+**applied**, both verified against production on 2026-08-12 (`npm run verify:flags`,
+`npm run verify:migrations`). This section said "off / unrun" for weeks while TODO.md said the
+opposite; neither had been checked. There is no dedicated page or Studio tile by design: the
+artist surfaces live in `/studio/live` (submission controls, review queue) and the fan surfaces on
+the watch page (session offer, polls).
 
 **Built (Phase 1):**
 - **Fan submissions.** `session_submissions`: a beat/vocal (private R2 upload via signed PUT under
@@ -131,15 +144,18 @@ and polls bolted on, so the build extends `live_sessions` rather than forking it
 - Dark-launch discipline: a `/api/producer/flag` probe hides every surface while off, AND the
   submit route refuses to run while off, so a fan cannot reach it early even by hand.
 
+**Fan submission AGREEMENT — FINAL and enforced.** `/submission-agreement`
+(`src/app/(public)/submission-agreement/page.tsx`) is conservative by design (a submission transfers
+NOTHING: no license, no guarantee, fan warrants originality + clears samples, unreleased material
+confidential), in the hand-written Live-Agreement style. The submit route rejects a submission
+unless the client echoes `PRODUCER_SUBMISSION_AGREEMENT_VERSION` (`src/lib/producer/consent.ts`,
+stamped **`2026-07-24.v1`**, founder-approved), and the submit panel makes the fan tick a linked box.
+An earlier version of this section described a `.draft1` tripwire and "one launch blocker: attorney
+review". That was stale on both counts: the code has never carried `.draft1` since the agreement was
+approved, no attorney gate exists anywhere in the codebase, and the "Live surfaces" section below
+already said the agreement was final. Corrected 2026-08-12.
+
 **Deliberately NOT built (Phase 2):**
-- **Fan submission AGREEMENT — DRAFTED + wired, pending attorney review.** `/submission-agreement`
-  (`src/app/(public)/submission-agreement/page.tsx`) is a conservative draft (a submission transfers
-  NOTHING: no license, no guarantee, fan warrants originality + clears samples, unreleased material
-  confidential), in the hand-written Live-Agreement style. The submit route rejects a submission
-  unless the client echoes `PRODUCER_SUBMISSION_AGREEMENT_VERSION` (`src/lib/producer/consent.ts`,
-  stamped `2026-07-24.draft1` as a tripwire), and the submit panel makes the fan tick a linked box.
-  **The flag stays off until an attorney clears the draft; then bump the version off `.draft1` and
-  flip.** This is the one launch blocker. In `TODO.md`.
 - **Stage / mic.** `'stage'` is in the type union, the LiveKit grants (`canPublish:true`) and the
   DB CHECK, but **nothing mints it** — `/api/live/token` returns only `broadcaster`/`viewer`. So a
   fan still cannot be on the mic. Needs a likeness release.

@@ -81,25 +81,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
          start date, and the allocated acquisition cost, and log your hours as you work.
       Recording the fee here does not charge anyone; the invoice stays manual in Stripe.
 
-- [ ] **Run the earnings live-tip fix:**
-      [`supabase/schema-phase2-earnings-live-tip-type.sql`](supabase/schema-phase2-earnings-live-tip-type.sql).
-      The earnings type allowlist was missing `live_tip`, so wherever the old constraint is
-      applied, every live-tip earning insert is silently rejected and tip money is absent from
-      GMV, fees, and payout math. Self-verifying; safe to re-run.
-
-- [ ] **Run the sub-avatar migration:**
-      [`supabase/schema-phase2-sub-avatar.sql`](supabase/schema-phase2-sub-avatar.sql).
-      Adds `artist_profiles.sub_avatar_override` (manual override of the four-avatar
-      assignment) and the `sub_avatar_audit` history table. Everything else about the avatar
-      system is derived on read and already live: the four avatar funnels, the admin Avatars
-      cohort tab, and the avatar-aware onboarding all work without it. Until it runs, only
-      setting a manual override reports "migration not applied yet". Self-verifies.
-      **If you already ran an earlier copy of this file, run it again**: the avatar names
-      changed the day after they shipped, and the file now DROPS and recreates its CHECK
-      constraint so a re-run is safe and a stale constraint cannot reject every valid value.
-      The override column deliberately has NO client grants (server-only reads), so no
-      `select('*')` breakage and no view rebuild is needed; the migration says so inline.
-
 - [ ] **Launch content for the four avatar funnels. These are the exact links.** All four
       sub-avatars now point at the ALL-IN-ONE calculator, which leads with that avatar's
       questions and framing (spec: [`docs/SUB_AVATARS.md`](docs/SUB_AVATARS.md)). Paste these
@@ -271,17 +252,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       calculator keywords; the tool link is `/tools/opportunity-calculator`). The code side is
       done: `free` is in the opportunity-calculator `dmKeywords`, live once the branch lands
       on master.
-
-- [ ] **Confirm the four unverified feature states so the drift registry stops saying
-      "unverified":** open and run
-      [`supabase/check-unverified-feature-state.sql`](supabase/check-unverified-feature-state.sql)
-      (read-only SELECTs, changes nothing) and paste Claude the output. It answers, from
-      production instead of from conflicting docs: are `producer_sessions` and `live_tips` on,
-      and are the royalty-readiness / producer-sessions / sub-avatar / live-tip-earnings
-      migrations applied. TODO and the Brain currently CONTRADICT each other on all four, which
-      is why the architecture registry marks them `unverified` rather than trusting either.
-      Claude then updates `EXPECTED_MIGRATION_STATE`, the FEATURES registry and docs 02/13 to
-      match reality, and adds probe lines so this never needs asking again.
 
 ---
 
@@ -562,9 +532,11 @@ compliant unsubscribe, the tool-education drip, booking detection, the no-show l
 and the admin panel. The privacy policy now discloses the funnel (live).
 
 - **Announcement pop-ups: the Pop-up Engine is ON (you flipped it 2026-07-24).** Announcements now
-  fire, each gated on its own feature flag: `announce_live_tips` and `announce_producer_sessions`
-  are live (both features are on); `announce_royalty_readiness` waits on the royalty flag (still
-  off, see the royalty migration item); `announce_hub_navigation` is live. When you add a new
+  fire, each gated on its own feature flag. Verified against production 2026-08-12 with
+  `npm run verify:flags`: `live_tips`, `producer_sessions`, `royalty_readiness`, `quest_engine`,
+  `acquisition_engine`, `experiments` and `popup_engine` are ALL on, so
+  `announce_live_tips`, `announce_producer_sessions`, `announce_royalty_readiness` and
+  `announce_hub_navigation` are all live. When you add a new
   dark-launched feature's announcement, add its flag to `ANNOUNCEABLE_FLAGS` in
   `src/app/api/popups/route.ts` or the gate reads `false` forever. Remaining gap I can fix any
   time: `PopupContext` carries no account-creation date, so "existing users only" is approximated

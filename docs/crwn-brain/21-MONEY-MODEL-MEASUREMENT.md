@@ -38,7 +38,12 @@ SELECT, service-role-only writes, self-verifying, probed by
 `verify:migrations`). Sibling fix shipped with it:
 `supabase/schema-phase2-earnings-live-tip-type.sql` widens the earnings type
 CHECK to include `live_tip` (the webhook inserts it; the old allowlist
-silently rejected every live-tip earning wherever applied).
+silently rejected every live-tip earning wherever applied). **Applied**, verified
+2026-08-12 by constraint introspection. It is deliberately absent from
+`verify:migrations`: PostgREST cannot see a CHECK constraint, so an anon probe
+would return 200 whether or not the fix ran. Its live check is
+`supabase/check-unverified-feature-state.sql`, recorded as `liveCheck: 'sql-check'`
+in `EXPECTED_MIGRATION_STATE`.
 
 ## The finance layer (one place, tested)
 

@@ -48,16 +48,26 @@ query-param names, compatibility routes (`/welcome`, `/action-plan`, `/api/admin
 **Which systems are live / dark / dormant?** The `FEATURES` registry in
 `src/lib/architecture/invariants.ts` is the static contract (state, flag, gate module, delivery
 surfaces, migration). `EXPECTED_MIGRATION_STATE` in the same file is the static migration
-contract: currently **pending = membership-strategy, track-waterfall**; four states are
-`unverified` because TODO and the Brain contradict each other (founder check file:
-`supabase/check-unverified-feature-state.sql`).
+contract: **pending = membership-strategy, track-waterfall; everything else applied**, and after
+the 2026-08-12 reconciliation **no entry is `unverified`**. Live flags (verified 2026-08-12): all
+of `quest_engine`, `popup_engine`, `acquisition_engine`, `experiments`, `live_tips`,
+`royalty_readiness`, `producer_sessions` are ON; `artist_gate` is OFF (open signup). The only
+`dormant` system is the autonomous scheduled Manager (founder decision open).
+
+**Migration applied is NOT feature live.** They are separate facts and the registry keeps them in
+separate structures on purpose. A feature is live only when its migration is applied AND its flag
+is on AND a delivery surface exists. Sub-avatar is the example that proves the third clause
+matters in reverse: its migration is applied and it has no flag, but it is INTERNAL
+acquisition/evidence data surfaced admin-only, and it must not be presented to artists on the
+strength of a table existing.
 
 **What do I run before shipping?**
 
-    npm run verify:architecture   (deterministic drift suite, ~2.5s, no credentials)
+    npm run verify:architecture   (deterministic drift suite, ~3s, no credentials)
     npm test                      (full suite)
     npm run build                 (inside WSL)
     npm run verify:migrations     (read-only production probe, when schema state matters)
+    npm run verify:flags          (read-only production flag probe, when live/dark state matters)
 
 ---
 
@@ -105,9 +115,17 @@ Two layers, never conflated:
   architecture tests, `EXPECTED_MIGRATION_STATE`, the `FEATURES` states. Runs in
   `verify:architecture` and `npm test`.
 - **LIVE PROBE** (read-only, production): what production actually has.
-  `npm run verify:migrations` (schema), `npm run verify:stripe` (prices). A unit test NEVER
-  asserts a production flag value; a flag's code default has lied about production more than
-  once.
+  `npm run verify:migrations` (schema), `npm run verify:flags` (feature flags),
+  `npm run verify:stripe` (prices). A unit test NEVER asserts a production flag value; a flag's
+  code default has lied about production more than once. `verify:flags` is the answer to that:
+  on 2026-08-12 it proved `live_tips`, `producer_sessions` and `royalty_readiness` were all ON
+  while four canonical docs still called them dark from their code defaults.
+
+Not every migration is visible to the same live layer. `EXPECTED_MIGRATION_STATE` entries carry
+`liveCheck`: `'anon-probe'` (the default, `scripts/probe-migrations.mjs`) or `'sql-check'` for
+objects PostgREST cannot see. A widened CHECK constraint is the case that forced this: probing
+`earnings?select=type` returns 200 whether or not the constraint was fixed, so a probe line there
+would certify nothing while looking green. Never add a probe that cannot fail.
 
 When a probe disagrees with the static contract, that disagreement IS the drift signal: update
 the contract, the docs, and (if needed) the code together. `brainContract.test.ts` (DOCS-002)

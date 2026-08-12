@@ -11,6 +11,7 @@
     "verify:architecture": "vitest run --config vitest.architecture.config.ts",
     "verify:quests": "node scripts/verify-quest-catalog.mjs",
     "verify:migrations": "node scripts/probe-migrations.mjs",
+    "verify:flags": "node scripts/probe-flags.mjs",
     "verify:stripe": "node scripts/probe-stripe-prices.mjs"
   },
   "dependencies": {

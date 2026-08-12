@@ -49,6 +49,22 @@ const PROBES = [
   ['frl engagements', 'frl_engagements?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
   ['frl work entries', 'frl_work_entries?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
   ['frl evidence', 'frl_evidence?select=id&limit=1', 'schema-phase2-frl-engagements.sql'],
+  // Added 2026-08-12 after the founder's SQL check proved all four applied. These four had gone
+  // unprobed for months, which is exactly why TODO and the Brain could disagree about them.
+  // Owner-only RLS: anon resolves the table and gets [] once applied.
+  ['royalty readiness', 'royalty_readiness?select=id&limit=1', 'schema-phase2-royalty-readiness.sql'],
+  // Producer Sessions ships several objects; session_submissions is the one that cannot pre-exist.
+  ['producer session submissions', 'session_submissions?select=id&limit=1', 'schema-phase2-producer-sessions.sql'],
+  // sub_avatar_override is a NEW artist_profiles column with no client grant, so 42501 is the
+  // correct applied signal here (42703 would mean the column is genuinely absent).
+  ['sub-avatar override column', 'artist_profiles?select=sub_avatar_override&limit=1', 'schema-phase2-sub-avatar.sql'],
+  ['sub-avatar audit table', 'sub_avatar_audit?select=id&limit=1', 'schema-phase2-sub-avatar.sql'],
+  // NOT PROBED HERE, deliberately: schema-phase2-earnings-live-tip-type.sql only widens a CHECK
+  // constraint (earnings_type_check), and PostgREST cannot see a constraint. Probing
+  // `earnings?select=type` would return 200 whether or not the fix ran, i.e. it would certify
+  // nothing while looking green. Its live check is the constraint introspection in
+  // supabase/check-unverified-feature-state.sql, and EXPECTED_MIGRATION_STATE records that with
+  // liveCheck: 'sql-check'.
 ];
 
 const env = readFileSync(new URL('../.env.local', import.meta.url), 'utf8');

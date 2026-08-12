@@ -197,15 +197,63 @@ describe('DOCS-002 — the static migration-state contract (drift prevention, 20
     }
   });
 
-  it('every applied-or-pending migration in the contract has a probe line (the live layer covers it)', async () => {
+  it('every applied-or-pending migration in the contract has a live check (probe line, or the SQL check file)', async () => {
     const { EXPECTED_MIGRATION_STATE } = await import('./architecture/invariants');
     const probe = read('scripts/probe-migrations.mjs');
+    const sqlCheck = read('supabase/check-unverified-feature-state.sql');
     for (const m of EXPECTED_MIGRATION_STATE) {
-      if (m.state === 'unverified') continue; // unverified means exactly: no trustworthy probe yet
+      if (m.state === 'unverified') continue; // unverified means exactly: no trustworthy check yet
+      if (m.liveCheck === 'sql-check') {
+        // Objects PostgREST cannot see (a widened CHECK constraint). The SQL file is the live
+        // layer; an anon probe here would return 200 either way and certify nothing.
+        expect(
+          sqlCheck.includes(m.file),
+          `${m.file} declares liveCheck 'sql-check' but supabase/check-unverified-feature-state.sql does not verify it — the static claim has no live check at all.`,
+        ).toBe(true);
+        continue;
+      }
       expect(
         probe.includes(m.file),
-        `${m.file} is '${m.state}' in EXPECTED_MIGRATION_STATE but scripts/probe-migrations.mjs has no probe line for it — the static claim has no live check. Add a probe line (the header explains how).`,
+        `${m.file} is '${m.state}' in EXPECTED_MIGRATION_STATE but scripts/probe-migrations.mjs has no probe line for it — the static claim has no live check. Add a probe line (the header explains how), or declare liveCheck: 'sql-check' if the object is invisible to PostgREST.`,
       ).toBe(true);
+    }
+  });
+
+  it('the four migrations reconciled 2026-08-12 stay pinned as applied', async () => {
+    // Production evidence: the founder ran supabase/check-unverified-feature-state.sql and all
+    // four returned applied=true. These spent months as "docs and TODO disagree", so they are
+    // pinned by name: reverting one to 'unverified'/'pending' without new live evidence fails here.
+    const { EXPECTED_MIGRATION_STATE } = await import('./architecture/invariants');
+    const RECONCILED = [
+      'schema-phase2-royalty-readiness.sql',
+      'schema-phase2-producer-sessions.sql',
+      'schema-phase2-sub-avatar.sql',
+      'schema-phase2-earnings-live-tip-type.sql',
+    ];
+    for (const file of RECONCILED) {
+      const entry = EXPECTED_MIGRATION_STATE.find((m) => m.file === file);
+      expect(entry, `${file} vanished from EXPECTED_MIGRATION_STATE`).toBeTruthy();
+      expect(
+        entry!.state,
+        `${file} was VERIFIED APPLIED in production on 2026-08-12. Only new live evidence (a probe or the SQL check) may change this, never a doc claim.`,
+      ).toBe('applied');
+    }
+  });
+
+  it('no doc claims a migration-applied feature is dark BECAUSE of its migration', async () => {
+    // The specific stale shape this task fixed: "dark (migration unrun)". A feature may still be
+    // dark for a FLAG reason, and that is a different sentence. Only the migration reason is banned.
+    const { EXPECTED_MIGRATION_STATE } = await import('./architecture/invariants');
+    const applied = EXPECTED_MIGRATION_STATE.filter((m) => m.state === 'applied').map((m) => m.file);
+    for (const [path, src] of MIGRATION_DOCS) {
+      for (const file of applied) {
+        const stale = src
+          .split('\n')
+          .filter((line) => line.includes(file))
+          .filter((line) => /\bunrun\b|\bnot run\b|\bunapplied\b|not applied/i.test(line))
+          .filter((line) => !/~~|RETRACTED|FIXED|applied/i.test(line));
+        expect(stale, `${path} still calls ${file} unrun; it is applied (live-verified).`).toEqual([]);
+      }
     }
   });
 

@@ -740,7 +740,7 @@ the Revenue Ramp; Stack Replacement; the Money Model.
 | **Missions, Squads, City Unlocks, Road To, Proof of Demand as five Studio destinations** | Virality primitives without a campaign wrapper. Five nav slots for one concept, none of them a decision |
 | **`/studio/sync`** | Different buyer (supervisors, not fans), different economy |
 | **Royalty Readiness** | `UNIFIED_OPPORTUNITY.md`: "already-earned money elsewhere. Different money entirely." Fine as a lead magnet, a distraction as a product surface |
-| **Executive Producer Sessions** | High complexity, blocked on legal, narrow. Correctly dark |
+| **Executive Producer Sessions** | High complexity, narrow. Phase 1 is LIVE as of the 2026-08-12 reconciliation (flag on, migration applied, agreement final), so the strategic judgment here is "not a focus area", NOT "blocked on legal" and NOT "dark" |
 | **Action Plan page** | Already queued for retirement |
 | **Legacy `posts`/`comments`/`likes` beside `community_posts`** | Two social layers |
 | **`src/app/artist/[slug]/*` duplicate subroutes** | Known drift |

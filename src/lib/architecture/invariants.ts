@@ -916,7 +916,7 @@ export const FEATURES: readonly FeatureContract[] = [
   {
     key: 'royalty_readiness',
     title: 'Royalty Readiness Check',
-    expectedState: 'dark',
+    expectedState: 'live',
     flag: 'royalty_readiness',
     gateModule: 'src/lib/royalty/readiness.ts',
     surfaces: [
@@ -924,26 +924,51 @@ export const FEATURES: readonly FeatureContract[] = [
       { file: 'src/components/layout/AccountHub.tsx', mustContain: "'/royalty-readiness'" },
     ],
     migration: 'schema-phase2-royalty-readiness.sql',
+    notes:
+      'Reconciled 2026-08-12: flag ON (verify:flags) + migration applied. Diagnostic only, deliberately no dollar figure. The AccountHub entry is unconditional and that is CORRECT now the flag is on; the Studio tile and the Rise Mode card self-hide via the /api/royalty-readiness probe, so a future flag-off would still degrade cleanly everywhere except the hub link.',
   },
   {
     key: 'live_tips',
     title: 'Live tips + tip goals',
-    expectedState: 'unverified',
+    expectedState: 'live',
     flag: 'live_tips',
     gateModule: 'src/lib/live/tips.ts',
-    surfaces: [{ file: 'src/app/api/stripe/live-tip-checkout/route.ts', mustContain: 'export' }],
+    surfaces: [
+      { file: 'src/app/api/stripe/live-tip-checkout/route.ts', mustContain: 'isLiveTipsEnabled' },
+      { file: 'src/components/live/LiveWatchRoom.tsx', mustContain: 'LiveTipBar' },
+    ],
     migration: 'schema-phase2-earnings-live-tip-type.sql',
-    notes: 'Doc 02 says flag off; TODO says on. Unresolved — founder verification item in TODO.md.',
+    notes:
+      'Reconciled 2026-08-12. FOUR SEPARATE FACTS, all now true: (1) schema accepts earnings.type=live_tip; (2) the money rail records it (webhook inserts the earning, recordFirstPaidConversion kind live_tip, live_tip classified in the notification taxonomy); (3) flag ON; (4) the fan-facing tip bar is mounted on the watch page and gated server-side through /api/live/tips. Before the CHECK migration, facts 1 and 2 could disagree: the funnel event fires OUTSIDE the earnings-insert guard, so a rejected insert recorded a conversion with no GMV.',
   },
   {
     key: 'producer_sessions',
     title: 'Executive Producer Sessions',
-    expectedState: 'unverified',
+    expectedState: 'live',
     flag: 'producer_sessions',
     gateModule: 'src/lib/producer/access.ts',
-    surfaces: [],
+    surfaces: [
+      { file: 'src/app/api/producer/flag/route.ts', mustContain: 'isProducerSessionsEnabled' },
+      { file: 'src/components/artist/LivestreamManager.tsx', mustContain: 'producerEnabled' },
+      { file: 'src/components/live/LiveWatchRoom.tsx', mustContain: 'producerEnabled' },
+    ],
     migration: 'schema-phase2-producer-sessions.sql',
-    notes: 'Docs 02/13 say dark; TODO says live. Unresolved — founder verification item in TODO.md.',
+    notes:
+      'Reconciled 2026-08-12: flag ON + migration applied. Phase 1 only. There is NO dedicated page or Studio tile by design: every surface is grafted onto Live (artist submission controls + review queue in LivestreamManager, fan-side offer and polls in LiveWatchRoom). The fan submission agreement is FINAL (consent.ts stamps 2026-07-24.v1) and enforced at the submit route; the docs claim of a .draft1 attorney-review blocker was stale and never existed in code. Phase 2 (stage/mic, moderation, seat types) remains unbuilt.',
+  },
+  {
+    key: 'sub_avatar',
+    title: 'Sub-avatar classification (internal evidence)',
+    expectedState: 'live',
+    flag: null,
+    gateModule: null,
+    surfaces: [
+      { file: 'src/app/api/admin/avatar-cohorts/route.ts', mustContain: 'export' },
+      { file: 'src/components/admin/AvatarCohortsView.tsx', mustContain: 'export' },
+    ],
+    migration: 'schema-phase2-sub-avatar.sql',
+    notes:
+      'INTERNAL ACQUISITION/EVIDENCE DATA, surfaced ADMIN-ONLY. Not an artist-facing feature and must not become one casually: sub_avatar_audit is admin-read/service-write, sub_avatar_override carries no client grant, and the artist is never asked to self-select (pinned by onboardingBoundary.test.ts). The only artist-visible output is one derived sentence of setup copy that never names the avatar. /api/artist/avatar (the override writer) has no UI caller today; whether an artist-facing picker should exist is an open product question in docs/SUB_AVATARS.md, not an oversight.',
   },
   {
     key: 'acquisition_engine',
@@ -999,12 +1024,22 @@ export const FEATURES: readonly FeatureContract[] = [
  * probe (npm run verify:migrations) is what production actually has. When the
  * probe disagrees with this list, update THIS LIST and the docs together —
  * that disagreement is exactly the drift this contract exists to surface.
- * States: 'applied' (probe-verified), 'pending' (known unapplied, fail-soft),
- * 'unverified' (docs disagree or no probe line exists — trust neither claim).
+ * States: 'applied' (live-verified), 'pending' (known unapplied, fail-soft),
+ * 'unverified' (docs disagree or no live check exists — trust neither claim).
+ *
+ * `liveCheck` names WHICH live layer verifies the entry, because not every
+ * migration is visible to the same tool:
+ *   'anon-probe' (default) — scripts/probe-migrations.mjs, run by verify:migrations.
+ *   'sql-check'            — supabase/check-unverified-feature-state.sql, for objects
+ *                            PostgREST cannot see. A widened CHECK constraint is the
+ *                            case: `earnings?select=type` returns 200 whether or not
+ *                            the constraint was fixed, so an anon probe there would
+ *                            certify nothing while looking green.
  */
 export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   file: string;
   state: 'applied' | 'pending' | 'unverified';
+  liveCheck?: 'anon-probe' | 'sql-check';
   note?: string;
 }> = [
   { file: 'schema-phase2-membership-strategy.sql', state: 'pending', note: 'fail-soft; only the strategy override save is blocked' },
@@ -1018,10 +1053,18 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   { file: 'schema-phase2-experiments.sql', state: 'applied' },
   { file: 'schema-phase2-support-chat.sql', state: 'applied' },
   { file: 'schema-phase2-quest-engine.sql', state: 'applied' },
-  { file: 'schema-phase2-royalty-readiness.sql', state: 'unverified', note: 'no probe line; doc 02 says unrun' },
-  { file: 'schema-phase2-producer-sessions.sql', state: 'unverified', note: 'docs and TODO disagree' },
-  { file: 'schema-phase2-earnings-live-tip-type.sql', state: 'unverified', note: 'docs and TODO disagree' },
-  { file: 'schema-phase2-sub-avatar.sql', state: 'unverified', note: 'doc 13 says unrun; needs re-run per TODO' },
+  // The four reconciled 2026-08-12: the founder ran check-unverified-feature-state.sql and all
+  // four returned applied=true. Probe lines were added the same day, so these are now covered by
+  // verify:migrations permanently and cannot drift back to "unverified" for lack of a check.
+  { file: 'schema-phase2-royalty-readiness.sql', state: 'applied', note: 'founder SQL check 2026-08-12; probe line added same day' },
+  { file: 'schema-phase2-producer-sessions.sql', state: 'applied', note: 'founder SQL check 2026-08-12; probe line added same day' },
+  { file: 'schema-phase2-sub-avatar.sql', state: 'applied', note: 'founder SQL check 2026-08-12; the override column probes 42501 (no client grant), which is the applied signal' },
+  {
+    file: 'schema-phase2-earnings-live-tip-type.sql',
+    state: 'applied',
+    liveCheck: 'sql-check',
+    note: 'founder SQL check 2026-08-12 (pg_constraint introspection). Widens earnings_type_check only; a CHECK constraint is invisible to PostgREST, so it is deliberately NOT in probe-migrations.mjs.',
+  },
 ];
 
 /** Words that mean "this migration has not been applied" when they share a doc line with its filename. */
