@@ -516,6 +516,49 @@ its route, tour steps and analytics are unchanged.
   `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
   decision, not a bug fix, and is sequenced after the retirement above.
 
+- **"Action Plan vs Manager" investigated 2026-08-11. Verdict: BOUNDARIES REQUIRED. NOT IMPLEMENTED
+  — nothing was renamed, moved, merged or removed.**
+
+  **The question is partly a naming artifact, and that is the first finding.** There is no surface
+  called "Action Plan" any more: Z5 renamed it and `ownership.test.ts` pins the rename in both
+  navigation surfaces. The Studio tile, the AccountHub entry and the page `<h1>` all say **"Needs
+  You"**. What still says "Action Plan" is the *internal* vocabulary: the route `/action-plan`, the
+  API path, `ActionPlanRecommendation`, `ActionPlanPriority`, `actionPlanTourSteps.ts` and the API
+  header comment ("the artist's next best moves, ranked"). The route path is kept deliberately so
+  existing links and analytics resolve, and that is pinned too. **The label moved; the code did
+  not, and that drift is why this question keeps getting asked.**
+
+  **Manager and Needs You are NOT the live redundancy.** Z5 separated them and Z4 subordinated
+  Manager to the Constraint Engine. Manager produces at most 5 insights or 4 approval-gated
+  actions, all under a canonical brief that outranks its own framework. It generates no ordered
+  multi-step plan and no launch sequencing.
+
+  **The live overlap is inside Needs You**, which does two different jobs:
+  1. **Events and deadlines** (3 deterministic rules: `clip-window-closing`,
+     `pending-fan-suggestions`, `proof-of-demand-met`). This is its canonical job and it is correct.
+  2. **The calculator commitment** (`buildLeadMagnetMissions`): the pre-signup calculator an artist
+     completed becomes a mission like "Build Membership ($X/mo)". **One source, two readers** by
+     design: Needs You renders them all ranked, Rise Mode leads with `missions[0]`.
+
+  **The conflict, stated precisely.** The top calculator mission is assigned
+  `priority: i === 0 ? 'high' : 'medium'` and the code comment says it "leads the whole plan". That
+  ranking is derived from a pre-signup calculator and is **not subordinate to the Constraint
+  Engine**. So an artist diagnosed FULFILLMENT can see "deliver your overdue promise" on Rise Mode
+  and "Build Membership ($X/mo) — high" on Needs You at the same time. Manager may not contradict
+  the canonical priority (Z4 forbids it); this path never received that constraint.
+
+  **Production, 2026-08-11 (supported, not proven — 9 artists is a tiny sample):** Rise Mode
+  dominates with **326 quest_instances**. Needs You's event rules have almost nothing to fire on
+  (0 pending mission suggestions, 0 clip bounties, 1 proof-of-demand). Of 17 claimed calculator
+  results, 7 map to a mission but they belong to **1 distinct artist**. Manager holds 7 actions and
+  7 insights. Z3 holds **0** rows, so the Constraint Engine has never actually issued.
+
+  **Recommended boundary (not implemented):** Needs You owns EVENTS. The calculator commitment
+  belongs where it is already primary (Rise Mode) or must be explicitly subordinated to the
+  canonical priority rather than self-ranking `high`. Then rename the internal vocabulary to match
+  the label so the surface stops re-inviting this question. Sequence and full reasoning in the
+  investigation report; no code was changed.
+
 - **Communications Governor V1 (G1 + G2) SHIPPED 2026-08-11. Scope is deliberately narrow; read
   the scope line before assuming anything else is governed.**
 

@@ -403,6 +403,19 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **"Action Plan vs Manager": investigated 2026-08-11, verdict BOUNDARIES REQUIRED, nothing
+  implemented.** Short version, because the framing surprised me: there IS no Action Plan surface
+  any more. Z5 renamed it to **Needs You** everywhere an artist can see (Studio tile, hamburger,
+  page heading) and pinned that in a test. Only the internal code still says "Action Plan" (the
+  route, the API types, the tour steps), which is exactly why the question keeps coming up.
+  **Manager is not the redundancy.** The real overlap is inside Needs You, which does two jobs: the
+  3 event rules it should own, and the calculator commitment ("Build Membership ($X/mo)") which it
+  ranks `high` and which Rise Mode ALSO renders from the same source. That ranking is not
+  subordinate to the Constraint Engine, so it is the one place left that can put a growth
+  recommendation on screen beside a FULFILLMENT diagnosis. Three small changes fix it, in order:
+  subordinate or relocate the calculator block, then rename the internals to match the label. Say
+  go and I will do them one at a time. Full reasoning in `docs/crwn-brain/02-FEATURE-MAP.md`.
+
 - **Communications Governor: G1 + G2 SHIPPED 2026-08-11. G3 (lifecycle email) is evidence-gated,
   not scheduled.** Governed today: artist-facing CRWN notifications, via one chokepoint, with no
   producer changes and no schema. Both your decisions are encoded and pinned by test (no global
