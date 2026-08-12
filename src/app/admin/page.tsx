@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical, LifeBuoy, Banknote } from 'lucide-react';
+import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical, LifeBuoy, Banknote, Bot } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import LeadMagnetsView from '@/components/admin/LeadMagnetsView';
 import AvatarCohortsView from '@/components/admin/AvatarCohortsView';
@@ -21,10 +21,14 @@ import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
 import SupportChatView from '@/components/admin/SupportChatView';
 import MoneyModelView from '@/components/admin/MoneyModelView';
+// ARTIST-facing Manager telemetry. Distinct from `AgentInsights` above, which is CRWN's OWN
+// business agent (funnel/pipeline/partners/CRM). Two agents, two subjects; the tab is labelled
+// "Artist Manager" so the founder is never asked to work out which one they are looking at.
+import ManagerOpsView from '@/components/admin/ManagerOpsView';
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'avatars' | 'experiments' | 'support' | 'moneymodel';
+type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'avatars' | 'experiments' | 'support' | 'moneymodel' | 'managerops';
 
-const TAB_IDS: AdminTab[] = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm', 'access', 'acquisition', 'leadmagnets', 'avatars', 'experiments', 'support', 'moneymodel'];
+const TAB_IDS: AdminTab[] = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm', 'access', 'acquisition', 'leadmagnets', 'avatars', 'experiments', 'support', 'moneymodel', 'managerops'];
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -202,6 +206,15 @@ export default function AdminPage() {
             <Banknote className="w-4 h-4" />
             Money Model
           </button>
+          <button
+            onClick={() => setActiveTab('managerops')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'managerops' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+            }`}
+          >
+            <Bot className="w-4 h-4" />
+            Artist Manager
+          </button>
         </div>
       </div>
 
@@ -282,6 +295,12 @@ export default function AdminPage() {
       {activeTab === 'moneymodel' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <MoneyModelView />
+        </div>
+      )}
+
+      {activeTab === 'managerops' && (
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          <ManagerOpsView />
         </div>
       )}
     </div>

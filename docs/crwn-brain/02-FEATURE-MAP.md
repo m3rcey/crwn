@@ -516,7 +516,48 @@ its route, tour steps and analytics are unchanged.
   `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
   decision, not a bug fix, and is sequenced after the retirement above.
 
-- **There is NO admin Manager, by verification.** `admin/agent/*`, `AgentInsights` and
+- **Manager admin observability SHIPPED 2026-08-11: `/admin?tab=managerops`, labelled "Artist
+  Manager". Read-only. It is an instrument, not a strategist and not a cockpit.**
+
+  **Placement:** a tab inside the EXISTING admin shell, not a new route, so it inherits the admin
+  gate, nav and layout. Labelled **Artist Manager** specifically so it cannot be confused with the
+  Agent Diagnosis panel on the Dashboard tab, which is CRWN's OWN business agent (funnel, pipeline,
+  partners, CRM → `autonomous_run_log`). Two agents, two subjects; the founder must never have to
+  work out which one they are looking at.
+
+  **What it answers:** is the daily job running and *doing anything*; is scheduled autonomy dormant
+  (yes, by decision); when Manager last produced anything artist-visible; how many actions are
+  awaiting approval vs expired unactioned; oldest valid pending age; approved / rejected /
+  abandoned as COUNTS; executed and failed; failures classified by cause; insight volume and
+  liveness; and a recent-actions table keyed by public artist slug.
+
+  **The health rule.** `deriveCronState` has THREE states, and the middle one is the whole point:
+  `running_no_work` is distinct from `running_with_work` and from `not_running`. CRWN has already
+  been burned once by health-by-completion, when the ai-manager heartbeat let `agent-health` report
+  a four-month outage as healthy. The heartbeat `detail` string is shown VERBATIM, because the cron
+  itself already records the reason ("No active artists" vs "processed N, insights X…"), which is
+  how "nothing to do" stays distinguishable from "broken" with no new telemetry.
+
+  **No schema was added.** Everything derives from `artist_agent_actions`, `artist_agent_runs`,
+  `ai_insights`, `cron_heartbeat` and `artist_profiles.slug`. Expiry is read from the ONE cutoff in
+  `ai/actionValidity.ts`, so the panel can never disagree with the execution gate about what
+  "expired" means.
+
+  **Refused on purpose:** no outcome score, no POSITIVE/NEGATIVE verdict, no "worked"/"no lift", no
+  MRR delta, no artist ranking, no cohort comparison, and **no approval percentage** (the sample is
+  single digits; a rate there reads as a finding and carries none, so only counts are shown). The
+  route selects explicit columns rather than `select('*')`, because the retired
+  `outcome_delta`/`outcome_metrics`/`baseline_metrics` columns still physically exist and their
+  existence is not permission to ship them. **No mutation exists**: no POST/PUT/PATCH/DELETE, no
+  write call, no button, no click handler, and no `?artistId=` to point at anyone. Pinned by
+  `src/lib/admin/managerOps.test.ts`.
+
+  **Known instrumentation gap, reported rather than faked:** provider/model failures are NOT
+  observable. When DeepSeek fails, `generateInsights` returns `[]` and `runAutonomousAgent` catches
+  and inserts no run row, so a failed model call leaves no queryable trace. There is deliberately
+  no provider-health panel guessing at it.
+
+- **There is NO admin Manager STRATEGIST, by verification.** `admin/agent/*`, `AgentInsights` and
   `AutonomousOpsBar` are **CRWN's own business agent** (scopes: dashboard, pipeline, partners,
   funnel, sequences, email, CRM) writing `autonomous_run_log`. `ApprovalsManager` is user and
   invite-code approval. Neither is Manager, and **no `/admin` surface reads

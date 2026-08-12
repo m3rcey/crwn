@@ -414,16 +414,6 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   its `outcome_score` expression. If you ever want them gone, that is a cosmetic migration, not a
   correctness one.
 
-- **No admin surface can see what Manager did to an artist's account.** Verified, not assumed:
-  `admin/agent/*` and `AutonomousOpsBar` are CRWN's OWN business agent (funnel, pipeline, CRM),
-  `ApprovalsManager` is user and invite-code approval, and NOTHING under `/admin` reads
-  `artist_agent_actions`, `artist_agent_runs` or `ai_insights`. The only observability is the
-  daily `agent-health` cron, which computes exactly the right stats and then throws them into a
-  notification. Latent rather than urgent today (auto-execute is Pro-only and there are no Pro
-  artists), but it becomes real the first time Manager auto-executes on a paying artist. The fix
-  is an observability panel, NOT a second strategist: surface the existing `agent-health` payload
-  plus a read-only action log. Say the word and I will build it.
-
 - **Bespoke hero photos for the two single-opportunity calculators.** `fan-stack-calculator` and
   `between-tour-calculator` reuse the own-your-fans and live-experience photos (the registry's
   documented placeholder pattern). They are no longer avatar front doors, so this is cosmetic.

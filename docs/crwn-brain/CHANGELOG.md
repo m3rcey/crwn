@@ -1,5 +1,46 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Manager admin observability: an instrument, not a cockpit
+
+Shipped `/admin?tab=managerops`, labelled **Artist Manager**. Read-only operational truth about the
+artist-facing Manager. Deferred through four prior tasks so it could be built against the
+architecture that actually exists rather than the one that did in April.
+
+**Placement:** a tab in the EXISTING admin shell, not a new route, inheriting the admin gate and
+nav. The label is deliberate: the Dashboard tab already carries CRWN's OWN business agent
+(funnel/pipeline/partners/CRM → `autonomous_run_log`), and the founder must never have to work out
+which agent a panel is about.
+
+**The health model is the point.** `deriveCronState` returns three states, not two:
+`running_with_work`, **`running_no_work`**, `not_running` (plus `unknown`). The middle state is
+exactly what CRWN lacked when the ai-manager heartbeat let `agent-health` certify a four-month
+outage as healthy. The cron's own heartbeat `detail` is rendered verbatim, because it already
+encodes the reason, so "nothing to do" stays distinguishable from "broken" without inventing a
+single new telemetry field.
+
+**Shown:** scheduled autonomy as *intentionally dormant* (founder decision, not an error); last
+artist-visible Manager output; awaiting-approval vs expired-unactioned; oldest valid pending age;
+approved / rejected / **abandoned**; executed vs auto-executed; failures classified from the
+structured `not_executed:<reason>` prefix the execution gate writes; insight volume and liveness;
+recent actions keyed by public slug.
+
+**Refused:** outcome scores, POSITIVE/NEGATIVE verdicts, "worked"/"no lift", MRR deltas, artist
+ranking, cohort comparison, and **approval percentages** (single-digit sample; a rate there reads
+as a finding and carries none, so only counts ship). The route selects explicit columns rather than
+`select('*')`, because the retired `outcome_delta`/`outcome_metrics`/`baseline_metrics` columns
+still physically exist and existence is not permission. **No mutation of any kind:** GET only, no
+write call, no button, no click handler, no `?artistId=`.
+
+**No schema.** Derived from `artist_agent_actions`, `artist_agent_runs`, `ai_insights`,
+`cron_heartbeat`, `artist_profiles.slug`. Expiry reads the ONE cutoff in `ai/actionValidity.ts`, so
+the panel cannot disagree with the execution gate.
+
+**Reported, not faked:** provider/model failures are unobservable. A failed DeepSeek call makes
+`generateInsights` return `[]` and `runAutonomousAgent` insert no run row, leaving no queryable
+trace, so there is no provider-health panel guessing at it.
+
+Autonomous Manager remains dormant (pinned). `weekly-payout` untouched. Artist Manager unchanged.
+
 ## 2026-08-11 - weekly-payout retired: Stripe was already paying the artists
 
 **Disposition: RETIRE.** The cron is deleted and unscheduled. No Stripe configuration was touched,
