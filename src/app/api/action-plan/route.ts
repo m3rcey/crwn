@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { capTimeline, resolveClipperRateTimeline } from '@/lib/clipperRate';
-import { buildLeadMagnetMissions } from '@/lib/leadResults/leadMagnetMissions';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -10,11 +9,23 @@ const supabaseAdmin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
-export type ActionPlanPriority = 'high' | 'medium' | 'low';
+/**
+ * How soon this needs attention, NOT how strategically important it is.
+ *
+ * "high" here means a deadline is close or something is already overdue. It does NOT mean this is
+ * the artist's most important business problem: the Constraint Engine owns that word and that
+ * answer. The distinction is the whole point of this surface's boundary, so the type is named for
+ * urgency rather than priority even though the wire field keeps its original name.
+ */
+export type NeedsYouUrgency = 'high' | 'medium' | 'low';
 
-export interface ActionPlanRecommendation {
+export interface NeedsYouItem {
   id: string;
-  priority: ActionPlanPriority;
+  /**
+   * Wire field name retained deliberately: the page reads `priority` and renaming it would be a
+   * compatibility break for terminology alone. Semantics are `NeedsYouUrgency` above.
+   */
+  priority: NeedsYouUrgency;
   title: string;
   why: string;
   ctaLabel: string;
@@ -25,13 +36,29 @@ export interface ActionPlanRecommendation {
 const MS_PER_DAY = 86_400_000;
 
 /**
- * AI Artist Action Plan — connector-aware, ADVISORY-ONLY next moves.
+ * NEEDS YOU — the artist's event, deadline and unfinished-attention feed.
  *
- * Deterministic rules over data that already exists: no LLM call, no new
- * tables, no writes. Every recommendation only explains why and deep-links to
- * the surface where the artist acts MANUALLY. This deliberately does NOT touch
- * the DeepSeek AI Manager pipeline (generateActions / artist_agent_actions /
- * execute) — nothing here can auto-execute or change money/prices.
+ * WHAT THIS OWNS: "what happened, what is due, and what is waiting on me". Every item exists
+ * because a FACT occurred (a deadline is closing, a fan pitched a mission, a demand goal was met)
+ * or because something the artist started is unresolved.
+ *
+ * WHAT THIS DOES NOT OWN, and this is the boundary that was violated until 2026-08-11:
+ * **strategic prioritization.** It does not decide what matters most about the artist's business.
+ * The Constraint Engine owns that, Manager explains it, Rise Mode is where the work happens and
+ * remembers progress. Items here are ordered by URGENCY (how soon), never ranked as business
+ * opportunities against each other. Ordering deadlines is legitimate; ranking strategy is not.
+ *
+ * THE ROUTE PATH IS LEGACY AND STAYS. The user-facing concept has been "Needs You" since Z5 (the
+ * Studio tile, the hamburger entry and the page heading all say so, pinned by
+ * `constraint/ownership.test.ts`). `/action-plan` and `/api/action-plan` are retained purely for
+ * compatibility: existing links, bookmarks, analytics and the `action-plan` tour id all resolve
+ * through them. Do not "fix" the path; renaming it would reset every artist's tour state and
+ * orphan historical analytics for nothing.
+ *
+ * Deterministic rules over data that already exists: no LLM call, no new tables, no writes. Every
+ * item only explains why and deep-links to the surface where the artist acts MANUALLY. This
+ * deliberately does NOT touch the DeepSeek AI Manager pipeline (generateActions /
+ * artist_agent_actions / execute) — nothing here can auto-execute or change money/prices.
  *
  * SECURITY: scoped strictly to the AUTHENTICATED session user's artist row.
  * No client-supplied artist/user id is ever read; the artist is resolved from
@@ -58,37 +85,25 @@ export async function GET() {
   }
 
   const artistId = artist.id;
-  const high: ActionPlanRecommendation[] = [];
-  const medium: ActionPlanRecommendation[] = [];
-  const low: ActionPlanRecommendation[] = [];
+  const high: NeedsYouItem[] = [];
+  const medium: NeedsYouItem[] = [];
+  const low: NeedsYouItem[] = [];
 
-  // ---- Rule 0: PERSONALIZED CALCULATOR MISSIONS (high, first) -------------
-  // A calculator the artist completed becomes their first, personalized mission ("Build
-  // Membership", not "launch a mission"), carrying the dollar they saw. One mission per completed
-  // calculator, ranked by opportunity, so the biggest one leads Rise Mode. These come from the
-  // shared mission generator, so the Action Plan and Rise Mode never drift into two systems.
-  try {
-    const missions = await buildLeadMagnetMissions(supabaseAdmin, { userId: user.id, artistId });
-    missions.forEach((m, i) => {
-      const value = m.monthlyValue ? ` (${m.monthlyValue})` : '';
-      const rec: ActionPlanRecommendation = {
-        id: `lead-magnet-mission-${m.toolSlug}`,
-        // The top mission leads the whole plan; the rest are still surfaced, one step down.
-        priority: i === 0 ? 'high' : 'medium',
-        title: `${m.title}${value}`,
-        why: m.monthlyValue
-          ? `You ran the ${m.toolName} and saw ${m.monthlyValue}. Until you build it here, that stays a screenshot, not income.`
-          : `You did the work in the ${m.toolName}. Building it here is the one step between the plan and the payout.`,
-        ctaLabel: 'Start this mission',
-        href: m.href,
-        icon: m.icon,
-      };
-      if (i === 0) high.push(rec);
-      else medium.push(rec);
-    });
-  } catch {
-    // Fail open — skip this rule.
-  }
+  // ---- REMOVED 2026-08-11: personalized calculator missions ---------------
+  //
+  // This rule turned a calculator the artist completed before signing up into a ranked
+  // recommendation ("Build Membership ($X/mo)") and hardcoded the top one to `high`, with a
+  // comment saying it "leads the whole plan". That is strategic prioritization, and this surface
+  // does not own it: the Constraint Engine does. An artist diagnosed FULFILLMENT could see
+  // "deliver your overdue promise" on Rise Mode and "Build Membership" ranked high here at the
+  // same moment, with nothing reconciling the two. Manager is explicitly forbidden from
+  // contradicting the canonical priority (Z4); this path had never been given that rule.
+  //
+  // NOTHING WAS LOST. The calculator commitment is not deleted and the shared generator
+  // (`buildLeadMagnetMissions`) is untouched: Rise Mode still calls it in `/api/quests` and leads
+  // with the top mission, which is where a long-term commitment belongs because Rise Mode is also
+  // what remembers progress against it. Removing the second reader ends the duplication and the
+  // ranking conflict in one step, and costs this route a database round trip it no longer needs.
 
   // ---- Rule 1: CLIP WINDOW CLOSING (high) --------------------------------
   // A clipper rate step-down lands within 3 days — the high-cut window is the

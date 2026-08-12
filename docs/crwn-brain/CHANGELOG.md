@@ -1,5 +1,42 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Needs You owns events, and only events
+
+Implements the boundary the Action Plan vs Manager investigation approved.
+
+**Removed from Needs You: the calculator-derived mission block.** It turned a calculator an artist
+completed BEFORE signing up into a ranked recommendation ("Build Membership ($X/mo)") and hardcoded
+the top one to `high`, with a code comment saying it "leads the whole plan". That is strategic
+prioritization on a surface that owns events. An artist diagnosed FULFILLMENT could see "deliver
+your overdue promise" on Rise Mode and a growth mission ranked high on Needs You in the same
+session, with nothing reconciling them. Manager is explicitly forbidden from contradicting the
+canonical priority (Z4); this path had simply never been given that rule.
+
+**Nothing was lost.** `buildLeadMagnetMissions` is untouched, Rise Mode still calls it and still
+leads with the top mission, and Rise Mode is also what remembers progress against it. Only the
+second reader was removed, so the duplication and the ranking conflict ended in one step. There is
+now exactly one reader, pinned by test. Production blast radius: **1 artist, 7 items**; 17 claimed
+calculator results and 326 quest_instances unchanged, nothing deleted.
+
+**Urgency is not priority.** `ActionPlanPriority` → `NeedsYouUrgency`, `ActionPlanRecommendation`
+→ `NeedsYouItem`. `high` now means a deadline is close or something is overdue, never "your most
+important business problem". Ordering deadlines is legitimate; ranking strategy is not. The API
+header no longer describes "the artist's next best moves, ranked".
+
+**Compatibility held deliberately.** The wire field stays `priority` (renaming would break the page
+for terminology alone). `/action-plan` and `/api/action-plan` stay: `tourId: 'action-plan'` is a
+persistence key, so renaming it would replay the tour for every artist who already dismissed it,
+and the surviving item ids (`clip-window-closing`, `pending-fan-suggestions`, `proof-of-demand-met`)
+are unchanged so historical analytics still group.
+
+**One prior assertion was deliberately reversed and the reasoning is inline.** Z5's
+`ownership.test.ts` listed `lead-magnet-mission` among the event signals that must SURVIVE. That
+classification was wrong: a pre-signup calculator is a commitment, not an event. It moved to the
+must-NOT-appear list.
+
+No frontend file changed, so no service-worker bump. Manager, Constraint Engine, Rise Mode, quests
+and attribution are untouched; autonomous Manager remains dormant.
+
 ## 2026-08-11 - Promise reminder boundary fixed, and Communications Governor V1 (G1 + G2)
 
 **Part A — CRWN was preparing to tell artists they owed fans their own to-do list.** Z12 applied

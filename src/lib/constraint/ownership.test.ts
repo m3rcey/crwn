@@ -15,7 +15,16 @@ const MANAGER_PROMPT = read('src/lib/ai/generateActions.ts');
 describe('Action Plan owns events and obligations, not strategy', () => {
   // These three fired on a STANDING STATE, which made them strategic recommendations competing
   // with the Constraint Engine. They were removed, not moved.
-  it.each(['no-offer-yet', 'promotion-off', 'no-demand-test'])(
+  //
+  // `lead-magnet-mission` JOINED THIS LIST ON 2026-08-11, and the reclassification is deliberate.
+  // Z5 originally kept it, filed under "reports something that happened". That was wrong: a
+  // calculator an artist completed before signing up is not an event, it is a strategic
+  // commitment, and this surface rendered it as a ranked recommendation with the top one hardcoded
+  // to `high`. That could put "Build Membership ($X/mo)" beside a FULFILLMENT diagnosis with
+  // nothing reconciling them. The commitment itself was NOT deleted: Rise Mode still reads the same
+  // generator and leads with the top mission, and Rise Mode is also what remembers progress
+  // against it. See `needsYouBoundary.test.ts`.
+  it.each(['no-offer-yet', 'promotion-off', 'no-demand-test', 'lead-magnet-mission'])(
     'no longer emits the standing-gap recommendation %s',
     (id) => {
       expect(ACTION_PLAN).not.toContain(`id: '${id}'`);
@@ -25,7 +34,6 @@ describe('Action Plan owns events and obligations, not strategy', () => {
   // Everything that reports something that HAPPENED or is DUE stays. Deleting useful event
   // intelligence was never the goal.
   it.each([
-    'lead-magnet-mission',
     'clip-window-closing',
     'pending-fan-suggestions',
     'proof-of-demand-met',

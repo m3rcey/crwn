@@ -1,10 +1,17 @@
 // Lead magnets as the starting point of Rise Mode.
 //
 // A calculator an artist completed becomes a PERSONALIZED first mission: not "launch a mission",
-// but "Build Membership", carrying the dollar figure they saw. This is the single source both
-// surfaces read from, so there is one mission system, not two:
-//   - the always-on Action Plan (/api/action-plan) turns each mission into a ranked recommendation
-//   - Rise Mode (/api/quests -> RiseMode banner) leads with the top one
+// but "Build Membership", carrying the dollar figure they saw.
+//
+// ONE READER, and that changed on 2026-08-11. Rise Mode (`/api/quests` -> RiseMode banner) leads
+// with the top mission and is the only consumer. Needs You (`/api/action-plan`) used to render
+// these as ranked recommendations too, hardcoding the top one to `high`; that was strategic
+// prioritization on a surface that owns events, and it could contradict the Constraint Engine.
+// The Needs You reader was removed, not this generator.
+//
+// Rise Mode is the right home because a calculator commitment is a long-term destination, and Rise
+// Mode is also what remembers progress against it. If a second reader is ever added, it must not
+// re-rank these against anything: the Constraint Engine owns what matters most.
 //
 // It invents no mission: a mission exists only for a calculator the artist actually completed, and
 // only for the five that map to a real builder. Everything is derived from stored results.

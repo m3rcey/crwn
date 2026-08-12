@@ -516,8 +516,39 @@ its route, tour steps and analytics are unchanged.
   `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
   decision, not a bug fix, and is sequenced after the retirement above.
 
-- **"Action Plan vs Manager" investigated 2026-08-11. Verdict: BOUNDARIES REQUIRED. NOT IMPLEMENTED
-  — nothing was renamed, moved, merged or removed.**
+- **Needs You boundary reconciliation SHIPPED 2026-08-11.** Needs You now owns **events, deadlines
+  and unfinished attention, and nothing else.**
+
+  **Removed:** the calculator-derived mission block. It turned a pre-signup calculator into a ranked
+  recommendation ("Build Membership ($X/mo)") and hardcoded the top one to `high`, so an artist
+  diagnosed FULFILLMENT could see "deliver your overdue promise" on Rise Mode and a growth mission
+  ranked high on Needs You at the same moment. Manager is forbidden from contradicting the canonical
+  priority (Z4); this path had never been given that rule.
+
+  **NOT removed: the calculator commitment itself.** `buildLeadMagnetMissions` is untouched and
+  Rise Mode still calls it in `/api/quests`, still leading with `missions[0]`. Rise Mode is the
+  right home because a calculator commitment is a long-term destination and Rise Mode is what
+  remembers progress against it. There is now exactly ONE reader, pinned by test. Production blast
+  radius: **1 artist, 7 items**, zero rows deleted (17 claimed results and 326 quest_instances
+  unchanged).
+
+  **Urgency is not priority.** `ActionPlanPriority`/`ActionPlanRecommendation` became
+  `NeedsYouUrgency`/`NeedsYouItem`. `high` here means a deadline is close or something is overdue,
+  never "this is your most important business problem". Ordering deadlines is legitimate; ranking
+  strategy is not. The wire field stays `priority` deliberately: renaming it would break the page
+  for terminology alone.
+
+  **`/action-plan` and `/api/action-plan` are LEGACY COMPATIBILITY PATHS and stay.** The
+  user-facing concept has been Needs You since Z5. Do not "fix" the path: `tourId: 'action-plan'`
+  is a persistence key, so renaming it would replay the tour for every artist who already dismissed
+  it, and historical analytics are keyed to the surviving item ids (`clip-window-closing`,
+  `pending-fan-suggestions`, `proof-of-demand-met`), which are unchanged.
+
+  **A prior test assertion was deliberately reversed.** Z5's `ownership.test.ts` listed
+  `lead-magnet-mission` as an event signal that must SURVIVE. That classification was wrong and is
+  now in the must-NOT-appear list, with the reasoning inline.
+
+- **"Action Plan vs Manager" investigation, 2026-08-11 (the reasoning behind the change above):**
 
   **The question is partly a naming artifact, and that is the first finding.** There is no surface
   called "Action Plan" any more: Z5 renamed it and `ownership.test.ts` pins the rename in both
