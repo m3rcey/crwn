@@ -95,3 +95,73 @@ for (const [label, path, file] of PROBES) {
 }
 
 console.log(`\n${missing} migration(s) not applied.`);
+
+// ---------------------------------------------------------------------------
+// SECURITY MIGRATIONS (cybersecurity audit 2026-08-12).
+// ---------------------------------------------------------------------------
+// These need the OPPOSITE contract to the probes above. A normal migration is
+// proved applied by data becoming READABLE; a security migration is proved
+// applied by access becoming DENIED. So here 42501 is the PASS, and anything
+// else is a failure, including a 200.
+//
+// The distinction that makes this worth a separate loop: an anon-executable
+// volatile RPC answers 25006 ("cannot execute DELETE in a read-only transaction")
+// over GET, because PostgREST runs GET in a READ ONLY transaction. 25006 means the
+// privilege check PASSED and the function is still reachable. The generic loop
+// above would file that under "unclear" and not count it, which is exactly how a
+// still-open hole would look green.
+//
+// Every probe below is non-destructive. The GETs cannot commit a write, and the
+// two POSTs carry a deliberately non-existent uuid, so even if a revoke were
+// missing the statement fails on the foreign key without writing a row.
+const RANDOM_UUID = '11111111-2222-3333-4444-555555555555';
+const SECURITY_PROBES = [
+  ['SEC-002 check_rate_limit locked', 'GET',
+    `rpc/check_rate_limit?p_user_id=${RANDOM_UUID}&p_action=probe&p_window_seconds=60&p_max_requests=5`,
+    null, 'schema-phase2-sec-002-rpc-execute-lockdown.sql'],
+  ['SEC-011 redeem_invite locked', 'GET',
+    `rpc/redeem_invite?p_code=__probe__&p_user=${RANDOM_UUID}`,
+    null, 'schema-phase2-sec-002-rpc-execute-lockdown.sql'],
+  ['V11 user_passes_artist_gate locked', 'GET',
+    `rpc/user_passes_artist_gate?p_user=${RANDOM_UUID}`,
+    null, 'schema-phase2-sec-002-rpc-execute-lockdown.sql'],
+  ['SEC-004 notifications INSERT denied', 'POST', 'notifications',
+    { user_id: RANDOM_UUID, type: 'probe', title: 'probe', message: 'probe' },
+    'schema-phase2-sec-004-007-rls-notifications-tier-benefits.sql'],
+  ['SEC-007 tier_benefits write denied', 'POST', 'tier_benefits',
+    { tier_id: RANDOM_UUID, benefit_type: 'probe' },
+    'schema-phase2-sec-004-007-rls-notifications-tier-benefits.sql'],
+  ['SEC-012 referrals grants revoked', 'GET', 'referrals?select=*&limit=1', null,
+    'schema-phase2-sec-012-money-table-rls-reproducibility.sql'],
+  ['SEC-012 crm_contacts grants revoked', 'GET', 'crm_contacts?select=*&limit=1', null,
+    'schema-phase2-sec-012-money-table-rls-reproducibility.sql'],
+];
+
+console.log('\nSecurity migrations (42501 = denied = PASS):\n');
+let insecure = 0;
+for (const [label, method, path, body, file] of SECURITY_PROBES) {
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    method,
+    headers: { apikey: anon, Authorization: `Bearer ${anon}`, 'Content-Type': 'application/json' },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  });
+  const text = await res.text();
+  let verdict;
+  if (text.includes('42501') || /permission denied/i.test(text)) {
+    verdict = 'DENIED (closed)';
+  } else if (text.includes('25006')) {
+    verdict = `STILL EXECUTABLE -> run supabase/${file}`;
+    insecure += 1;
+  } else {
+    verdict = `NOT DENIED (${res.status}) -> run supabase/${file}`;
+    insecure += 1;
+  }
+  console.log(`${label.padEnd(38)} ${verdict}`);
+}
+
+if (insecure > 0) {
+  console.log(`\n${insecure} SECURITY probe(s) FAILED. A finding from the cybersecurity audit is open in production.`);
+  process.exitCode = 1;
+} else {
+  console.log('\nAll security probes denied as expected.');
+}
