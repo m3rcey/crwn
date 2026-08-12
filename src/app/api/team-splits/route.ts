@@ -140,20 +140,23 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ---- resolve collaborator (email auto-binds to an existing account) ----
-    let collaboratorUserId: string | null = body.collaboratorUserId || null;
+    // ---- record the INVITED collaborator (email invites, it does not authorize) ----
+    // SEC-003: this used to resolve `collaboratorEmail` against `profiles.email`
+    // and pre-set `collaborator_user_id`. Two problems, both money:
+    //   1. `profiles.email` is self-writable, so anyone could claim a producer's
+    //      address before that producer signed up and be auto-bound to their deal.
+    //   2. `collaborator_user_id` IS the payout authority. The accrual cron selects
+    //      on it, and atomic_team_split_cashout pays whoever holds it. Setting it at
+    //      CREATE time grants a payout relationship nobody accepted.
+    // Canonical rule: email INVITES or FINDS a collaborator; an authenticated user
+    // id is the only enduring authorization. `collaborator_user_id` is now set in
+    // exactly one place, /api/team-splits/accept-invite, after the recipient
+    // authenticates and their VERIFIED auth email is matched to the invite.
     const collaboratorEmail: string | null = body.collaboratorEmail?.trim() || null;
     const collaboratorName: string | null = body.collaboratorName?.trim() || null;
+    const collaboratorUserId: string | null = null;
 
-    if (!collaboratorUserId && collaboratorEmail) {
-      const { data: match } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .ilike('email', collaboratorEmail)
-        .maybeSingle();
-      if (match) collaboratorUserId = match.id;
-    }
-    if (collaboratorUserId === user.id) {
+    if (collaboratorEmail && collaboratorEmail.toLowerCase() === (user.email || '').toLowerCase()) {
       return NextResponse.json({ error: 'You cannot make a Team Split with yourself.' }, { status: 400 });
     }
     if (action === 'send' && !collaboratorUserId && !collaboratorEmail) {

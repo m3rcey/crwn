@@ -28,6 +28,47 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Stripe not connected. Set up payouts first.' }, { status: 400 });
     }
 
+    // ---------------------------------------------------------------------
+    // F-3 FUNDING GUARD. Do not remove without the funding change below.
+    // ---------------------------------------------------------------------
+    // Ratified rule: a Team Split is an ARTIST-funded revenue share, carved from
+    // the artist's qualifying net. CRWN platform revenue must never fund it.
+    //
+    // Today the code cannot honour that rule. Trace it on a $100 sale, Launch plan:
+    //   - checkout takes application_fee_percent = 12, so CRWN receives $12 and
+    //     the remaining $88 is settled straight into the ARTIST's Connect account
+    //     (destination charge).
+    //   - earnings.net_amount records $88 for the artist.
+    //   - a 50% split accrues $44 to the collaborator.
+    //   - this route then calls stripe.transfers.create WITHOUT source_transaction,
+    //     so the $44 leaves CRWN's OWN platform balance, which only ever held $12.
+    //   - meanwhile /api/stripe/cashout still pays the artist their full $88.
+    // Net effect: CRWN collects $12 and pays out $44 on that sale. The platform
+    // subsidises every collaborator, silently, forever.
+    //
+    // The referral rail already solves this correctly and is the model to copy:
+    // src/app/api/stripe/checkout/route.ts adds the commission to
+    // application_fee_percent (effectiveFeePercent = platformFeePercent + attributedCut),
+    // so the money is WITHHELD at charge time and CRWN pays out of funds it holds.
+    // Applying that to splits changes what an artist receives per sale, and cannot
+    // retroactively fund accruals from charges that already settled, so it is a
+    // founder + Stripe topology decision, not a refactor. It is written up in
+    // docs/CYBERSECURITY_AUDIT_2026-08-12.md (F-3) and TODO.md.
+    //
+    // Until that lands, this rail fails CLOSED. Verified safe to close: production
+    // holds 0 team_split_deals, 0 team_split_earnings and 0 team_split_payouts, so
+    // no collaborator is owed anything and nobody is harmed by refusing. A loud
+    // refusal is strictly better than a silent transfer of CRWN's own money.
+    return NextResponse.json(
+      {
+        error:
+          'Team Split cashout is temporarily unavailable while we finalise how collaborator payouts are funded. Your balance is safe and nothing has been lost. Please contact support and we will settle it manually.',
+        code: 'TEAM_SPLIT_FUNDING_PENDING',
+      },
+      { status: 503 },
+    );
+
+    // eslint-disable-next-line no-unreachable
     const { data: payoutId } = await supabaseAdmin.rpc('atomic_team_split_cashout', {
       p_collaborator_id: user.id,
       p_min_amount: 2500,

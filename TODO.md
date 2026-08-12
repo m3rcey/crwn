@@ -22,8 +22,36 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webhook exists
-(both the main and outreach endpoints), and every migration is applied.
+- [ ] **Apply the four security migrations from the cybersecurity remediation (2026-08-12).**
+      Open each file in the Supabase SQL Editor and run it. Each one ends with a self-verify
+      block that raises loudly if it only half-applies, so a silent partial apply is not possible.
+      Run them in this order:
+        supabase/schema-phase2-sec-002-rpc-execute-lockdown.sql
+        supabase/schema-phase2-sec-003-profiles-identity-freeze.sql
+        supabase/schema-phase2-sec-004-007-rls-notifications-tier-benefits.sql
+        supabase/schema-phase2-sec-012-money-table-rls-reproducibility.sql
+      Until these run, four confirmed holes stay open in production: an anonymous caller can
+      execute `check_rate_limit` and wipe the whole `rate_limits` table (disabling every rate
+      limit on the platform), any user can self-approve and rewrite their own `profiles.email`
+      (which is how a Team Split payout could be hijacked), anyone can insert a notification
+      into any user's feed, and `tier_benefits` has no RLS at all so paid-tier entitlements are
+      editable. The code changes that ship alongside them are already live; these are the
+      database half. Verify after with: npm run verify:migrations
+      Details: docs/CYBERSECURITY_AUDIT_2026-08-12.md
+
+- [ ] **Decide how Team Split collaborator payouts are FUNDED, then re-enable the cashout rail.**
+      The rail is currently disabled and returns 503 (`TEAM_SPLIT_FUNDING_PENDING`) in
+      src/app/api/stripe/team-split-cashout/route.ts. That is deliberate: today the transfer
+      leaves CRWN's own Stripe balance. On a $100 sale at Launch, CRWN collects $12 in platform
+      fee, the artist's Connect account keeps $88, and a 50% split would transfer $44 out of
+      CRWN's pocket. The platform would subsidise every collaborator, silently. Safe to disable
+      right now because production holds 0 deals, 0 accruals and 0 payouts, so nobody is owed
+      anything and $0 has been lost.
+      The referral rail already solves this and is the model: it adds the commission to
+      `application_fee_percent` at checkout, so the money is withheld into CRWN's balance before
+      it ever reaches the artist. Applying that to splits changes what an artist takes home per
+      sale and cannot retroactively fund accruals from charges that already settled, which is why
+      it is your call and not a refactor. Full trace: docs/CYBERSECURITY_AUDIT_2026-08-12.md (F-3).
 
 ### P1 — real risk or real friction, but nothing is on fire
 
