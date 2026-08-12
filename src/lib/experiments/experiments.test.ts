@@ -86,14 +86,17 @@ describe('registry + config validation', () => {
 
   it('public projection hides private config (hypothesis/metrics/notes)', () => {
     const cfg = getExperimentConfig('oyf-signup-timing-v1')!;
-    const pub = toPublicExperiment(cfg) as Record<string, unknown>;
-    expect(pub.hypothesis).toBeUndefined();
-    expect(pub.primaryMetric).toBeUndefined();
-    expect(pub.secondaryMetrics).toBeUndefined();
+    const pub = toPublicExperiment(cfg);
+    // Assert the KEY is absent, not merely that its value reads undefined: a projection that
+    // copied `hypothesis: undefined` would still leak the field name over the wire.
+    const keys = Object.keys(pub);
+    expect(keys).not.toContain('hypothesis');
+    expect(keys).not.toContain('primaryMetric');
+    expect(keys).not.toContain('secondaryMetrics');
     expect(pub.variants).toHaveLength(cfg.variants.length);
-    expect((pub.variants as { key: string }[])[0].key).toBeDefined();
+    expect(pub.variants[0].key).toBeDefined();
     // No variant-level `config` behavior leaks either.
-    expect((pub.variants as Record<string, unknown>[])[0].config).toBeUndefined();
+    expect(Object.keys(pub.variants[0])).not.toContain('config');
   });
 });
 

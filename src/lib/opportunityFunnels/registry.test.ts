@@ -166,13 +166,16 @@ describe('live registry integrity', () => {
 
 describe('public projection', () => {
   it('toPublicFunnel strips internal-only fields', () => {
-    const pub = toPublicFunnel(getFunnelByToolKey('own-your-fans-calculator')!) as Record<string, unknown>;
-    expect(pub.internalTitle).toBeUndefined();
-    expect(pub.internalNotes).toBeUndefined();
-    expect(pub.unavailableReason).toBeUndefined();
-    expect(pub.featureFlag).toBeUndefined();
-    expect(pub.analytics).toBeUndefined();
-    expect(pub.dmKeywords).toBeUndefined();
+    const pub = toPublicFunnel(getFunnelByToolKey('own-your-fans-calculator')!);
+    // Assert the KEY is absent, not merely that its value reads undefined: a projection that
+    // copied `featureFlag: undefined` would still leak the field name over the wire.
+    const keys = Object.keys(pub);
+    expect(keys).not.toContain('internalTitle');
+    expect(keys).not.toContain('internalNotes');
+    expect(keys).not.toContain('unavailableReason');
+    expect(keys).not.toContain('featureFlag');
+    expect(keys).not.toContain('analytics');
+    expect(keys).not.toContain('dmKeywords');
     // ...but keeps what a browser legitimately needs
     expect(pub.publicRoute).toBe('/tools/own-your-fans-calculator');
     expect(pub.promotion).toBe('primary');

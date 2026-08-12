@@ -28,6 +28,9 @@ function seed(overrides: Partial<LeadMagnetSeed>): LeadMagnetSeed {
     conversionPayload: {},
     convertHref: '/studio',
     createdAt: '2026-07-25T00:00:00Z',
+    // rowToSeed always emits inputData (`row.input_data ?? {}`), so a fixture without it was
+    // describing a seed production never builds.
+    inputData: {},
     ...overrides,
   };
 }

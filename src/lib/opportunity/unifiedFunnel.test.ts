@@ -7,7 +7,12 @@ import { getLeadMagnet, LEAD_MAGNETS, EXTERNAL_TOOLS } from '@/lib/leadMagnets/r
 import { isInputVisible, isStepVisible, validateStep } from '@/lib/leadMagnets/validation';
 import { orderStepsForEntry, resolveEntryContext, entryNote } from '@/lib/leadMagnets/entryContext';
 import { getTool, ACQUISITION_TOOL_IDS } from '@/lib/acquisition/toolAdapters';
-import { getDeliverableSpec, specFields, sanitizeDeliverableValues } from '@/lib/opportunityDrafts/deliverableSpecs';
+import {
+  getDeliverableSpec,
+  specFields,
+  sanitizeDeliverableValues,
+  type DraftValues,
+} from '@/lib/opportunityDrafts/deliverableSpecs';
 import { buildDraftConfig, postSetupDestination } from '@/lib/leadResults/postSetupDestination';
 import { getFunnelByToolKey } from '@/lib/opportunityFunnels/registry';
 import { SUB_AVATAR_IDS } from '@/lib/avatars/taxonomy';
@@ -358,12 +363,15 @@ describe('the estimate is re-derived when the artist edits the plan', () => {
   });
 
   it('never silently keeps the old headline after a material change', () => {
-    for (const edit of [
+    // Typed as DraftValues so each literal is contextually typed. Left bare, TypeScript infers a
+    // union and synthesizes `clipOn?: undefined` on the shareOn member, which no real draft has.
+    const edits: DraftValues[] = [
       { shareOn: 'off' },
       { clipOn: 'off' },
       { vaultPlacement: 'none' },
       { sessionStructure: 'none' },
-    ]) {
+    ];
+    for (const edit of edits) {
       const r = spec.recalc!({ ...draft, ...edit }, cp)!;
       expect(r.changed, JSON.stringify(edit)).toBe(true);
       expect(r.note, JSON.stringify(edit)).toBeTruthy();

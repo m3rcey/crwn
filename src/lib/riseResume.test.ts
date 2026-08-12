@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { POPUPS } from './popups/registry';
+import { POPUPS, type PopupDef } from './popups/registry';
 import { recommendNextQuest } from './quests/recommend';
 import type { QuestInstance } from './quests/types';
 
@@ -28,6 +28,16 @@ const REGISTRY_RAW = readFileSync('src/lib/popups/registry.ts', 'utf8');
 const resume = POPUPS.find((p) => p.key === 'artist_resume_rise')!;
 const stripe = POPUPS.find((p) => p.key === 'artist_connect_stripe')!;
 const broadcast = POPUPS.find((p) => p.key === 'artist_first_broadcast')!;
+
+// `cta` is OPTIONAL on PopupDef, and legitimately so: a survey pop-up has no CTA. The resume
+// prompt's entire job is to return the artist to Rise Mode, so a missing CTA is a real product
+// defect rather than a typing detail. Assert it where it is read, so the failure names the
+// pop-up instead of surfacing as a TypeError on an undefined property.
+function requireCta(p: PopupDef): NonNullable<PopupDef['cta']> {
+  expect(p.cta, `${p.key} must define a CTA`).toBeDefined();
+  if (!p.cta) throw new Error(`${p.key} has no CTA`);
+  return p.cta;
+}
 
 const quest = (over: Partial<QuestInstance>): QuestInstance =>
   ({
@@ -63,7 +73,7 @@ describe('eligibility: only genuinely partial, open work', () => {
 
   it('never fires on its own destination', () => {
     expect(resume.pages).not.toContain('/profile/artist');
-    expect(resume.cta.href).toBe('/profile/artist');
+    expect(requireCta(resume).href).toBe('/profile/artist');
   });
 });
 
@@ -99,7 +109,7 @@ describe('selection: one source of truth, no second ranking', () => {
 
 describe('the prompt claims only what the data proves', () => {
   it('does not assert the artist started or abandoned anything', () => {
-    const copy = `${resume.title} ${resume.body} ${resume.cta.label} ${resume.goal}`.toLowerCase();
+    const copy = `${resume.title} ${resume.body} ${requireCta(resume).label} ${resume.goal}`.toLowerCase();
     for (const claim of ['you left', 'already started', 'half done', 'abandon', 'pick it back up', 'where you left off']) {
       expect(copy, `resume copy must not claim "${claim}"`).not.toContain(claim);
     }
@@ -120,7 +130,7 @@ describe('the prompt claims only what the data proves', () => {
   });
 
   it('carries no em dash, per the copy rule', () => {
-    expect(`${resume.title}${resume.body}${resume.cta.label}${resume.dismissLabel}`).not.toContain('—');
+    expect(`${resume.title}${resume.body}${requireCta(resume).label}${resume.dismissLabel}`).not.toContain('—');
   });
 });
 

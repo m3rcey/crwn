@@ -15,6 +15,9 @@ function seed(slug: string, over: Partial<LeadMagnetSeed> = {}): LeadMagnetSeed 
     conversionPayload: {},
     convertHref: '/tools',
     createdAt: '2026-01-01T00:00:00Z',
+    // rowToSeed always emits inputData (`row.input_data ?? {}`), so a fixture without it was
+    // describing a seed production never builds.
+    inputData: {},
     ...over,
   };
 }
