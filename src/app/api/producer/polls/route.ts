@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { canSubmitToSession, isProducerSessionsEnabled, ownsSession } from '@/lib/producer/access';
+import { isProducerSessionsEnabled, ownsSession } from '@/lib/producer/access';
+import { hasPaidLiveTicket, hasTierAccess } from '@/lib/live/access';
 import type { PollOption } from '@/types/producer';
 
 // In-session polls. ADVISORY: a poll never binds the artist, it is a temperature
@@ -13,13 +14,44 @@ const supabaseAdmin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
+/**
+ * May this user READ this session's polls? Free session, an allowed tier, or a paid ticket, which
+ * is the same entitlement the watch gate and the submission gate resolve through src/lib/live/access.
+ *
+ * Deliberately NOT canSubmitToSession: that helper answers "may they submit", and it returns
+ * 'not_accepting' / 'closed' BEFORE it evaluates access. A caller that tolerates those reasons (so
+ * results stay readable once the submission window shuts, which polls need) would skip the access
+ * check entirely on exactly the sessions where submissions are closed. Reading is not submitting,
+ * so it gets the access rule and nothing else.
+ */
+async function canReadSessionPolls(sessionId: string, userId: string): Promise<'ok' | 'not_found' | 'no_access'> {
+  const { data: session } = await supabaseAdmin
+    .from('live_sessions')
+    .select('id, artist_id, is_active, is_free, allowed_tier_ids')
+    .eq('id', sessionId)
+    .maybeSingle();
+  if (!session || !session.is_active) return 'not_found';
+  if (session.is_free) return 'ok';
+
+  const { data: sub } = await supabaseAdmin
+    .from('subscriptions')
+    .select('tier_id')
+    .eq('fan_id', userId)
+    .eq('artist_id', session.artist_id)
+    .eq('status', 'active')
+    .maybeSingle();
+  if (hasTierAccess(session.allowed_tier_ids, sub?.tier_id || null)) return 'ok';
+  if (await hasPaidLiveTicket(supabaseAdmin, session.id, userId)) return 'ok';
+  return 'no_access';
+}
+
 // GET /api/producer/polls?sessionId=...  → polls + aggregate tallies + my vote.
 //
-// READ ACCESS IS THE SAME GATE AS VOTING. This used to call auth.getUser() only to mark `myVote`,
-// with no 401 and no access check, so anyone could read the questions, the options, the artist_id
-// and the full tallies of a PAID or tier-restricted Executive Producer Session by passing its id.
-// The poll IS the session's private creative direction. Gate it the way ./vote does: signed in,
-// flag on, and either the artist who owns the session or a fan who can actually get into it.
+// READING A POLL IS AN ENTITLED ACT. This used to call auth.getUser() only to mark `myVote`, with
+// no 401 and no access check, so anyone could read the questions, the options, the artist_id and
+// the full tallies of a PAID or tier-restricted Executive Producer Session by passing its id. The
+// poll IS the session's private creative direction. It now needs a session, and either the artist
+// who owns it or a fan who can actually get in.
 export async function GET(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -32,16 +64,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ enabled: false, polls: [] });
   }
 
-  // The owner always reads their own session. Otherwise the fan must clear the session access
-  // resolver (free, allowed tier, or paid ticket). 'closed' and 'not_accepting' are submission
-  // states, not access states: results stay readable after the window shuts, exactly as ./vote
-  // treats them.
+  // The owner always reads their own session; everyone else clears the entitlement resolver.
   const owner = await ownsSession(supabaseAdmin, sessionId, user.id);
   if (!owner) {
-    const gate = await canSubmitToSession(supabaseAdmin, sessionId, user.id);
-    if (!gate.ok && gate.reason !== 'closed' && gate.reason !== 'not_accepting') {
-      const status = gate.reason === 'no_access' ? 403 : gate.reason === 'not_found' ? 404 : 409;
-      return NextResponse.json({ error: gate.reason }, { status });
+    const access = await canReadSessionPolls(sessionId, user.id);
+    if (access !== 'ok') {
+      // 404 for a session that does not exist or is inactive, so this endpoint cannot be used to
+      // confirm that a private session id is real.
+      return NextResponse.json({ error: access }, { status: access === 'no_access' ? 403 : 404 });
     }
   }
 

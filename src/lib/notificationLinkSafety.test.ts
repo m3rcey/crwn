@@ -1,5 +1,5 @@
 // ============================================================================
-// SEC-MED — notification link safety + check-limit enumeration
+// SEC-MED: notification link safety + check-limit enumeration
 // ============================================================================
 // The two MEDIUM findings from docs/CYBERSECURITY_AUDIT_2026-08-12.md that this
 // suite guards:
@@ -48,7 +48,7 @@ const readStripped = (p: string) => strip(read(p));
 // ---------------------------------------------------------------------------
 // 1. The rule itself
 // ---------------------------------------------------------------------------
-describe('SEC-MED — a notification link is a relative CRWN path or it is refused', () => {
+describe('SEC-MED: a notification link is a relative CRWN path or it is refused', () => {
   // Positive control. If these stopped being accepted the validator would be
   // rejecting everything, and every rejection assertion below would pass
   // vacuously while the notification bell quietly lost all its links.
@@ -116,7 +116,7 @@ describe('SEC-MED — a notification link is a relative CRWN path or it is refus
 // ---------------------------------------------------------------------------
 // 2. The write side is wired to that rule
 // ---------------------------------------------------------------------------
-describe('SEC-MED — notify-subscribers validates everything it writes', () => {
+describe('SEC-MED: notify-subscribers validates everything it writes', () => {
   it('found the route (positive control)', () => {
     expect(readStripped(ROUTE).length).toBeGreaterThan(500);
   });
@@ -173,7 +173,7 @@ describe('SEC-MED — notify-subscribers validates everything it writes', () => 
 // ---------------------------------------------------------------------------
 // 3. The render side cannot be poisoned by a legacy row
 // ---------------------------------------------------------------------------
-describe('SEC-MED — NotificationBell never renders a stored link as a raw href', () => {
+describe('SEC-MED: NotificationBell never renders a stored link as a raw href', () => {
   it('found the component (positive control)', () => {
     expect(readStripped(BELL).length).toBeGreaterThan(500);
   });
@@ -217,7 +217,7 @@ describe('SEC-MED — NotificationBell never renders a stored link as a raw href
 // ---------------------------------------------------------------------------
 // 4. check-limit enumeration
 // ---------------------------------------------------------------------------
-describe('SEC-MED — the check-limit routes prove ownership before answering', () => {
+describe('SEC-MED: the check-limit routes prove ownership before answering', () => {
   it('found both routes (positive control)', () => {
     expect(readStripped(TIERS_LIMIT).length).toBeGreaterThan(300);
     expect(readStripped(TRACKS_LIMIT).length).toBeGreaterThan(300);

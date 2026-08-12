@@ -168,9 +168,14 @@ const postVerifiesBeforeMutating = (src: string) => {
   const mutateAt = body.search(MUTATION);
   return verifyAt >= 0 && body.includes('status: 403') && (mutateAt < 0 || verifyAt < mutateAt);
 };
+/**
+ * The poll read must require a session AND resolve entitlement. `ownsSession` alone is not enough
+ * (fans legitimately read polls) and 401 alone is not enough (any signed-in stranger could then
+ * read a paid session's polls by id), so both marks are required.
+ */
 const gatesPollsGet = (src: string) => {
   const body = getHandlerBody(src);
-  return /status:\s*401/.test(body) && body.includes('canSubmitToSession(') && body.includes('ownsSession(');
+  return /status:\s*401/.test(body) && body.includes('canReadSessionPolls(') && body.includes('ownsSession(');
 };
 
 describe('unsubscribe routes verify the signature (SEC-016 family)', () => {
@@ -251,8 +256,8 @@ describe('producer/polls gates its GET', () => {
       gatesPollsGet(src),
       violation(
         'SEC-PRODUCER-POLLS',
-        'GET /api/producer/polls no longer answers 401 to an anonymous caller, or no longer routes through ownsSession + canSubmitToSession. The poll question, options, artist_id and full tallies of a PAID or tier-restricted Executive Producer Session would then be readable by anyone holding the session id.',
-        { owner: 'src/lib/producer/access.ts', docs: 'docs/CYBERSECURITY_AUDIT_2026-08-12.md' },
+        'GET /api/producer/polls no longer answers 401 to an anonymous caller, or no longer routes through ownsSession + canReadSessionPolls. The poll question, options, artist_id and full tallies of a PAID or tier-restricted Executive Producer Session would then be readable by anyone holding the session id.',
+        { owner: 'src/lib/live/access.ts', docs: 'docs/CYBERSECURITY_AUDIT_2026-08-12.md' },
       ),
     ).toBe(true);
   });
@@ -276,5 +281,27 @@ describe('producer/polls gates its GET', () => {
       }
     `;
     expect(gatesPollsGet(authOnly)).toBe(false);
+
+    // Ownership alone is not enough either: fans legitimately read polls, so the entitlement
+    // resolver has to be there too.
+    const ownerOnly = `
+      export async function GET(req) {
+        if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const owner = await ownsSession(admin, sessionId, user.id);
+        return NextResponse.json({ polls });
+      }
+    `;
+    expect(gatesPollsGet(ownerOnly)).toBe(false);
+
+    // Sanity: the compliant shape passes, so the predicate is not always-false.
+    const fixed = `
+      export async function GET(req) {
+        if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const owner = await ownsSession(admin, sessionId, user.id);
+        if (!owner) { const access = await canReadSessionPolls(sessionId, user.id); }
+        return NextResponse.json({ polls });
+      }
+    `;
+    expect(gatesPollsGet(fixed)).toBe(true);
   });
 });

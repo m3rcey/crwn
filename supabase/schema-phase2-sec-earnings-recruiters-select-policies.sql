@@ -1,5 +1,5 @@
 -- ============================================================================
--- SEC-012 follow-up — explicit least-privilege SELECT for `earnings` and `recruiters`
+-- SEC-012 follow-up: explicit least-privilege SELECT for `earnings` and `recruiters`
 -- ============================================================================
 -- Cybersecurity audit 2026-08-12, docs/CYBERSECURITY_AUDIT_2026-08-12.md
 --
