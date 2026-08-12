@@ -16,7 +16,11 @@ import {
   reconciles,
   crwnRevenueCents,
   reserveClawback,
-  FUNDING_OPEN_QUESTIONS,
+  FUNDING_RATIFIED_DECISIONS,
+  fundedReserveFor,
+  accruableAmount,
+  withinFundingBoundary,
+  surplusToArtist,
   type FundingDeal,
 } from './funding';
 
@@ -191,9 +195,67 @@ describe('Team Split funding — conservation matrix', () => {
     expect(reserveClawback(b, 999999)[0].clawbackCents).toBeLessThanOrEqual(4400);
   });
 
-  it('the founder decisions are recorded and non-empty (they gate re-enabling cashout)', () => {
-    expect(FUNDING_OPEN_QUESTIONS.length).toBe(3);
-    for (const q of FUNDING_OPEN_QUESTIONS) expect(q.length).toBeGreaterThan(20);
+
+});
+
+describe('Team Split funding boundary — no unfunded accrual, ever', () => {
+  const DEAL = 'deal-abc';
+
+  it('reads a funded reserve recorded on the earning (positive control)', () => {
+    expect(fundedReserveFor({ team_split_reserved: { [DEAL]: 4400 } }, DEAL)).toBe(4400);
+  });
+
+  it('treats every unproven shape as ZERO, so the guard fails safe', () => {
+    for (const bad of [
+      undefined, null, {}, 'nope', 42,
+      { team_split_reserved: null },
+      { team_split_reserved: 'x' },
+      { team_split_reserved: {} },
+      { team_split_reserved: { [DEAL]: 0 } },
+      { team_split_reserved: { [DEAL]: -100 } },      // negative funds nothing
+      { team_split_reserved: { [DEAL]: 'lots' } },     // non-numeric
+      { team_split_reserved: { [DEAL]: Number.NaN } },
+      { team_split_reserved: { [DEAL]: Infinity } },
+      { team_split_reserved: { 'other-deal': 4400 } }, // another deal's money is not this deal's
+    ]) {
+      expect(fundedReserveFor(bad, DEAL), `funded a reserve from ${JSON.stringify(bad)}`).toBe(0);
+    }
+  });
+
+  it('an accrual can never exceed what was funded (TS-MONEY-001)', () => {
+    expect(accruableAmount(4400, 4400)).toBe(4400); // fully funded
+    expect(accruableAmount(4400, 1000)).toBe(1000); // partially funded, accrue only the funded part
+    expect(accruableAmount(4400, 0)).toBe(0);       // unfunded, accrue NOTHING
+    expect(accruableAmount(0, 4400)).toBe(0);
+    expect(accruableAmount(-5, 4400)).toBe(0);
+    expect(accruableAmount(4400, -5)).toBe(0);
+    expect(accruableAmount(Number.NaN, 4400)).toBe(0);
+  });
+
+  it('an earning that PREDATES the deal can never accrue (TS-MONEY-003)', () => {
+    const dealStart = '2026-08-12T00:00:00.000Z';
+    expect(withinFundingBoundary('2026-08-11T23:59:59.000Z', dealStart)).toBe(false); // before
+    expect(withinFundingBoundary('2026-08-12T00:00:00.000Z', dealStart)).toBe(true);  // exactly at
+    expect(withinFundingBoundary('2026-08-13T00:00:00.000Z', dealStart)).toBe(true);  // after
+  });
+
+  it('a deal with no effective date funds nothing rather than everything', () => {
+    expect(withinFundingBoundary('2026-08-13T00:00:00.000Z', null)).toBe(false);
+    expect(withinFundingBoundary('2026-08-13T00:00:00.000Z', undefined)).toBe(false);
+    expect(withinFundingBoundary('not-a-date', '2026-08-12T00:00:00.000Z')).toBe(false);
+  });
+
+  it('surplus belongs to the ARTIST and is never negative (TS-MONEY-004)', () => {
+    expect(surplusToArtist(4400, 4400)).toBe(0);   // fully owed, no surplus
+    expect(surplusToArtist(4400, 700)).toBe(3700); // cap landed low, the rest is the artist's
+    expect(surplusToArtist(4400, 0)).toBe(4400);   // deal cancelled, all of it returns
+    expect(surplusToArtist(0, 4400)).toBe(0);      // never negative
+    expect(surplusToArtist(-1, -1)).toBe(0);
+  });
+
+  it('the ratified decisions are recorded', () => {
+    expect(FUNDING_RATIFIED_DECISIONS.length).toBe(3);
+    for (const d of FUNDING_RATIFIED_DECISIONS) expect(d.length).toBeGreaterThan(40);
   });
 });
 

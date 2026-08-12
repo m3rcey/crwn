@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getQualifyingEarnings, splitAmountForEarning, applyCap } from '@/lib/teamSplits/allocation';
+import { fundedReserveFor, accruableAmount, withinFundingBoundary } from '@/lib/teamSplits/funding';
 import { generateTeamSplitInsights } from '@/lib/teamSplits/insights';
 import type { TeamSplitDeal } from '@/lib/teamSplits/types';
 
@@ -35,6 +36,11 @@ export async function GET(req: NextRequest) {
   let clawbacksWritten = 0;
   let dealsProcessed = 0;
   let dealsExpired = 0;
+  // Earnings that qualified on the split math but carried no funded reserve.
+  // A non-zero value here is NOT an error: it is the guard refusing to promise
+  // money nobody withheld. It is surfaced so a silent zero-accrual state is
+  // visible rather than looking like "no sales".
+  let unfundedSkipped = 0;
 
   try {
     // Active revenue-share deals with a percentage.
@@ -69,9 +75,37 @@ export async function GET(req: NextRequest) {
 
           for (const e of qualifying) {
             const rawAmount = splitAmountForEarning(e, deal);
-            const amount = applyCap(rawAmount, accrued, deal.cap_amount);
-            if (amount <= 0) {
+            const capped = applyCap(rawAmount, accrued, deal.cap_amount);
+            if (capped <= 0) {
               if (deal.cap_amount != null && accrued >= deal.cap_amount) break; // cap reached
+              continue;
+            }
+
+            // ---- THE FUNDING GUARD (ratified 2026-08-12) ----
+            // A collaborator payable balance may exist ONLY where the money was
+            // actually withheld. This loop used to insert a `held` row straight
+            // from the split math, which is "accrue first and hope the funds
+            // exist later" and is exactly how the platform ended up paying
+            // collaborators out of its own Stripe balance.
+            //
+            // Three ratified rules collapse into this one check, because an
+            // earning only carries a reserve if CRWN withheld one at settlement:
+            //   * an earning predating the deal has none, so nothing accrues;
+            //   * a renewal CRWN could not amend in time has none, so nothing
+            //     accrues;
+            //   * nothing can accrue beyond what was withheld.
+            // The failure mode is "owed nothing", never "owed money nobody funded".
+            if (!withinFundingBoundary(e.created_at, (deal as unknown as { starts_at?: string | null }).starts_at ?? deal.created_at)) {
+              unfundedSkipped++;
+              continue;
+            }
+            const funded = fundedReserveFor(
+              (e as unknown as { metadata?: unknown }).metadata,
+              deal.id,
+            );
+            const amount = accruableAmount(capped, funded);
+            if (amount <= 0) {
+              unfundedSkipped++;
               continue;
             }
             const basisAmount = deal.payout_basis === 'gross_revenue' ? e.gross_amount : e.net_amount;
@@ -119,6 +153,10 @@ export async function GET(req: NextRequest) {
       success: true,
       period: periodKey,
       dealsProcessed, dealsExpired, accrualsWritten, clawbacksWritten, insightsWritten,
+      // Surfaced deliberately. If accrualsWritten is 0 and this is non-zero, the
+      // guard is refusing to promise money nobody withheld, which reads very
+      // differently from "there were no sales" and should not look the same.
+      unfundedSkipped,
     });
   } catch (e) {
     console.error('team-split-accruals cron error:', e);

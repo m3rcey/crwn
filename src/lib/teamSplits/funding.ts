@@ -213,11 +213,120 @@ export function reserveClawback(b: FundingBreakdown, refundCents: number): { dea
   }));
 }
 
+// ============================================================================
+// THE FUNDING BOUNDARY (ratified 2026-08-12)
+// ============================================================================
+// Three founder rules, and one mechanism that enforces all three at once.
+//
+//   1. EFFECTIVE DATE. A split never applies retroactively to a payment that
+//      settled before the deal became effective.
+//   2. NO PRE-DEAL ACCRUAL. An earning that was never reserved does not become a
+//      collaborator obligation later, even if the source qualifies, even for an
+//      all_earnings deal, even if the cap has room.
+//   3. NO UNFUNDED ACCRUAL. CRWN must never create a positive collaborator
+//      payable balance unless the money is actually reserved. The ledger promise
+//      follows the money, never the other way round.
+//
+// The mechanism: an earning may only produce an accrual if that EARNING ITSELF
+// carries proof that a reserve was withheld for that deal. Proof lives on
+// `earnings.metadata.team_split_reserved`, a map of dealId to cents, written at
+// settlement from what checkout actually withheld.
+//
+// Why this one rule covers all three: an earning that predates the deal has no
+// reserve recorded, so it cannot accrue (rules 1 and 2). An earning from an
+// existing subscription whose future invoice CRWN could not amend in time has no
+// reserve, so it cannot accrue (rule 1's renewal case). And nothing can ever
+// accrue beyond what was withheld (rule 3). The failure mode is "the collaborator
+// is owed nothing", never "the collaborator is owed money nobody funded".
+//
+// It reuses `earnings.metadata`, which already carries `attributed_commission`
+// for exactly the same concept: an artist-funded pass-through that must not be
+// mistaken for CRWN revenue. No new table, no wallet, no second revenue ledger.
+
+/** Where the funded reserve is recorded on an earning. */
+export const RESERVE_METADATA_KEY = 'team_split_reserved';
+
+/** The shape stored at `earnings.metadata.team_split_reserved`. */
+export type ReserveRecord = Record<string, number>;
+
 /**
- * The founder decisions that must be answered before the reserve is wired into
- * checkout and the cashout rail is re-enabled. These are ECONOMIC, not technical:
- * each one changes what an artist takes home, so none may be assumed.
+ * How many cents were actually withheld for this deal against this earning.
+ * Returns 0 for anything unproven, which is what makes the guard fail SAFE:
+ * a missing, malformed, negative or non-numeric record funds nothing.
  */
+export function fundedReserveFor(
+  earningMetadata: unknown,
+  dealId: string,
+): number {
+  if (!earningMetadata || typeof earningMetadata !== 'object') return 0;
+  const bag = (earningMetadata as Record<string, unknown>)[RESERVE_METADATA_KEY];
+  if (!bag || typeof bag !== 'object') return 0;
+  const raw = (bag as Record<string, unknown>)[dealId];
+  if (typeof raw !== 'number' || !Number.isFinite(raw) || raw <= 0) return 0;
+  return Math.floor(raw);
+}
+
+/**
+ * The accrual guard. Given what the split math WANTS to accrue and what was
+ * actually funded, return what may be accrued.
+ *
+ * This is the enforcement point for rule 3. It is deliberately a hard floor
+ * rather than a warning: if the reserve is absent the answer is zero, and an
+ * accrual of zero is simply not written. An artist is never billed for a
+ * collaborator obligation CRWN failed to fund, and a collaborator is never shown
+ * a balance that no money stands behind.
+ */
+export function accruableAmount(wantCents: number, fundedCents: number): number {
+  if (!Number.isFinite(wantCents) || wantCents <= 0) return 0;
+  if (!Number.isFinite(fundedCents) || fundedCents <= 0) return 0;
+  return Math.min(Math.floor(wantCents), Math.floor(fundedCents));
+}
+
+/**
+ * Reserve that is deterministically no longer owed to any collaborator and
+ * therefore belongs to the ARTIST. Never CRWN revenue.
+ *
+ * Ratified: surplus arises when a cap lands below what was reserved, a deal is
+ * cancelled under valid terms, multi-deal reconciliation leaves excess, or the
+ * payout rounds below the reserve. It is NOT surplus while money is still
+ * legitimately at risk (refund window, dispute, deliverable condition, hold), so
+ * callers must resolve those first and pass the settled figures.
+ */
+export function surplusToArtist(reservedCents: number, finallyOwedCents: number): number {
+  const reserved = Number.isFinite(reservedCents) ? Math.max(0, Math.floor(reservedCents)) : 0;
+  const owed = Number.isFinite(finallyOwedCents) ? Math.max(0, Math.floor(finallyOwedCents)) : 0;
+  return Math.max(0, reserved - owed);
+}
+
+/**
+ * Is this earning inside the deal's funding boundary?
+ *
+ * Belt and braces alongside the reserve check: even if a reserve record somehow
+ * appeared on an older earning, an earning that predates the deal's effective
+ * moment can never accrue. Rule 1 and rule 2 stated directly rather than inferred.
+ */
+export function withinFundingBoundary(
+  earningCreatedAt: string | Date,
+  dealEffectiveAt: string | Date | null | undefined,
+): boolean {
+  if (!dealEffectiveAt) return false; // no effective date means no funded boundary
+  const e = new Date(earningCreatedAt).getTime();
+  const d = new Date(dealEffectiveAt).getTime();
+  if (!Number.isFinite(e) || !Number.isFinite(d)) return false;
+  return e >= d;
+}
+
+/**
+ * The founder decisions, now RATIFIED (2026-08-12). Kept as the record of what
+ * was decided and why, because each one changes what an artist takes home.
+ */
+export const FUNDING_RATIFIED_DECISIONS = [
+  'Existing subscriptions: a split applies to a FUTURE payment only if the reserve was established before that payment settled. If CRWN could not amend the invoice in time, that renewal accrues nothing.',
+  'Pre-deal earnings: no accrual may ever be created from an earning that predates the deal effective funding boundary. Historical artist money is not rewritten.',
+  'Surplus: any reserve that becomes deterministically unowed belongs to the ARTIST, never CRWN revenue, and is released through a traceable idempotent path.',
+] as const;
+
+/** @deprecated Superseded by FUNDING_RATIFIED_DECISIONS. Retained so the history reads honestly. */
 export const FUNDING_OPEN_QUESTIONS = [
   // 1. Existing subscriptions. application_fee_percent is fixed when a subscription
   //    is created. A deal accepted later does not change subscriptions already

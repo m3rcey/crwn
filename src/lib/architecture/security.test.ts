@@ -263,11 +263,73 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     ).toBe(true);
   });
 
-  // F-3: destination charges settle the artist's share into the artist's Connect
-  // account, so a transfer to a collaborator with no reserve withheld draws on
-  // CRWN's own balance. Until the reserve is wired into checkout, the rail must
-  // fail closed.
-  it('collaborator cashout cannot pay from an unfunded platform balance', () => {
+  // TS-MONEY-001. The accrual loop must never write a payable row straight from
+  // the split math. It did, which is "accrue first and hope the funds exist
+  // later", and it is how the platform ended up paying collaborators from its
+  // own Stripe balance.
+  it('TS-MONEY-001 no collaborator payable balance without a funded reserve', () => {
+    const src = readStripped('src/app/api/cron/team-split-accruals/route.ts');
+    expect(src.length, 'positive control: accrual cron readable').toBeGreaterThan(500);
+    expect(src).toContain("from('team_split_earnings')"); // positive control: it still writes
+    expect(
+      /fundedReserveFor\s*\(/.test(src) && /accruableAmount\s*\(/.test(src),
+      violation(
+        'TS-MONEY-001',
+        'the Team Split accrual cron creates a payable balance without checking that the money was actually reserved. An accrual is a promise to pay: it must follow the money, never precede it. Gate every insert on fundedReserveFor()/accruableAmount() from src/lib/teamSplits/funding.ts.',
+        { file: 'src/app/api/cron/team-split-accruals/route.ts' },
+      ),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-003. A deal starts economically at its effective moment. Historical
+  // artist money is not rewritten because a deal was signed later.
+  it('TS-MONEY-003 an earning predating the deal cannot accrue', () => {
+    const src = readStripped('src/app/api/cron/team-split-accruals/route.ts');
+    expect(
+      /withinFundingBoundary\s*\(/.test(src),
+      violation(
+        'TS-MONEY-003',
+        'the accrual cron does not enforce the deal effective-date boundary, so a newly signed deal could accrue against earnings that settled before it existed and were never reserved.',
+        { file: 'src/app/api/cron/team-split-accruals/route.ts' },
+      ),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-002 + TS-MONEY-004. CRWN's fee is CRWN's revenue and is never a
+  // collaborator funding source; a reserve that stops being owed goes back to the
+  // ARTIST, never into platform revenue.
+  it('TS-MONEY-002/004 CRWN revenue is the platform fee, and surplus returns to the artist', () => {
+    const src = readStripped('src/lib/teamSplits/funding.ts');
+    expect(src.length, 'positive control: funding module readable').toBeGreaterThan(500);
+    // ANCHORED to the exact statement, terminator included. A substring match here
+    // is worthless: `return b.platformFeeCents + b.collaboratorReserveCents;` still
+    // contains `return b.platformFeeCents`, so a loose pattern would pass while CRWN
+    // booked custodial collaborator money as its own revenue. That is the SEC-001
+    // failure shape (asserting a string that the broken code also satisfies), caught
+    // here by mutation-testing this very assertion.
+    expect(
+      /export function crwnRevenueCents/.test(src) && /return b\.platformFeeCents;/.test(src),
+      violation(
+        'TS-MONEY-002',
+        'crwnRevenueCents no longer returns EXACTLY the platform fee. A Team Split reserve is custodial artist money held temporarily on the platform; counting it as CRWN revenue would make the platform the funding source, which is the one rule this rail exists to respect.',
+        { file: 'src/lib/teamSplits/funding.ts' },
+      ),
+    ).toBe(true);
+    expect(
+      /export function surplusToArtist/.test(src),
+      violation(
+        'TS-MONEY-004',
+        'surplusToArtist is gone. Reserve that becomes deterministically unowed belongs to the artist and must never be absorbed into the application fee, CRWN revenue, or another collaborator deal.',
+        { file: 'src/lib/teamSplits/funding.ts' },
+      ),
+    ).toBe(true);
+  });
+
+  // F-3 / TS-MONEY-005: destination charges settle the artist's share into the
+  // artist's Connect account, so a transfer to a collaborator with no reserve
+  // withheld draws on CRWN's own balance. Until the reserve is wired into
+  // checkout, the rail must fail closed.
+  it('TS-MONEY-005 collaborator cashout cannot pay from an unfunded platform balance', () => {
     const src = readStripped(CASHOUT);
     const failsClosed = /cashoutFundingReady/.test(src) && /TEAM_SPLIT_FUNDING_PENDING/.test(src);
     const reserveWired = /computeFunding\s*\(|collaboratorReserveCents/.test(

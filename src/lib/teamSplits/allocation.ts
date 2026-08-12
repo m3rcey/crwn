@@ -23,6 +23,8 @@ export interface EarningRow {
   net_amount: number;
   stripe_payment_id: string | null;
   created_at: string;
+  /** Carries `team_split_reserved`, the proof that money was actually withheld. */
+  metadata?: unknown;
 }
 
 /** Raw split amount (pre-cap) in cents for one earning under a deal. */
@@ -162,7 +164,10 @@ export async function getQualifyingEarnings(
   // Base candidate earnings for this artist in the window.
   const { data: earnings } = await admin
     .from('earnings')
-    .select('id, fan_id, type, gross_amount, net_amount, stripe_payment_id, created_at')
+    // `metadata` carries the funded reserve (team_split_reserved). The accrual
+    // guard reads it, so an earning fetched without it would look unfunded and
+    // silently accrue nothing. Selecting it here is load-bearing, not cosmetic.
+    .select('id, fan_id, type, gross_amount, net_amount, stripe_payment_id, created_at, metadata')
     .eq('artist_id', deal.artist_id)
     .in('type', types)
     .gt('net_amount', 0)
