@@ -81,7 +81,7 @@ The entire SMS feature was removed on 2026-07-31 (founder decision: the A2P 10DL
 
 ## Vercel — hosting + cron
 - 25 crons in `vercel.json`, all ≤ daily (Hobby-plan constraint). Each cron route checks `Authorization: Bearer ${CRON_SECRET}` (100% coverage). CLI is linked to project `crwn`.
-- Crons with external deps: `sync-opportunities`→OpenAI; `ai-manager`, `admin/agent/briefing`→DeepSeek(+Resend); `weekly-payout`/`recruiter-*`→Stripe; `onboarding-health`/`rls-canary`→Supabase+Resend.
+- Crons with external deps: `sync-opportunities`→OpenAI; `ai-manager`, `admin/agent/briefing`→DeepSeek(+Resend); `recruiter-*`→Stripe (`weekly-payout` retired 2026-08-11: Stripe pays artists on its own automatic daily schedule and CRWN runs no artist-payout cron); `onboarding-health`/`rls-canary`→Supabase+Resend.
 
 ## Analytics / error monitoring — ABSENT
 No Sentry, PostHog, Segment, Amplitude, Mixpanel, or GA anywhere in `src/`. CRWN relies entirely on first-party tables (`admin_metrics_cache`, funnel/visit tracking). Error handling is `console.log` + `try/catch` → 500. `Confirmed`.

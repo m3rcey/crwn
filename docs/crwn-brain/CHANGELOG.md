@@ -1,5 +1,53 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - weekly-payout retired: Stripe was already paying the artists
+
+**Disposition: RETIRE.** The cron is deleted and unscheduled. No Stripe configuration was touched,
+no balance moved, no payout created.
+
+**What it was designed to do:** every Monday 11:00 UTC, sweep each connected account's ENTIRE
+available balance to the artist's bank via `payouts.create`, no fee, no threshold.
+
+**What it actually did:** nothing, ever. It filtered `artist_profiles.is_active`, a column that does
+not exist, so it returned "No connected artists found" every week after taking its `cron_run_log`
+lock, which made a no-op look like a completed run (locks exist for 2026-W13 onward).
+
+**The decisive evidence, read-only against LIVE Stripe.** Across all 7 connected accounts:
+**5 payout objects, every one `automatic: true`, ZERO created through the API**, all `paid`, none
+failed, spanning 2026-05-14 to 2026-08-11. So Stripe has been paying artists the whole time and
+neither this cron nor the manual cashout has ever created a payout. Accounts are **Express**,
+`daily` automatic, `delay_days: 2`, USD, 6/7 payouts+charges enabled (the 7th has not finished
+onboarding). **Every available balance is currently zero**, because the daily sweep keeps them
+there.
+
+**Repairing it would have been worse than leaving it.** On a zero balance it would skip every
+artist and do nothing; in the rare window where funds had just become available it would have
+issued a manual payout for the full balance, racing Stripe's own automatic payout for the same
+money. It also hardcodes `currency: 'usd'` while summing `balance.available` across all
+currencies, records no payout id anywhere (CRWN would have had no ledger of its own payouts), and
+takes its idempotency lock before doing any work, so a mid-run failure cannot retry that week.
+
+**There was no canonical weekly payout rule to protect.** `07-BUSINESS-RULES` described the code,
+and `17-OPEN-QUESTIONS` #9 had the fee asymmetry (weekly free vs manual $2) logged as **unresolved**
+since the audit. Retirement resolves it: the free path is gone, so the only CRWN-initiated artist
+payout is the $2 cashout. **A new founder question replaces it:** with Stripe sweeping daily at
+`delay_days: 2`, artists rarely hold a balance (0 of 7 do today), so the $2 cashout may have
+nothing left to accelerate. That is pricing, not cleanup, and was not decided here.
+
+**CRWN never owned payout timing and still does not.** `accounts.create` passes no
+`settings.payouts`, so the schedule has always been Stripe's default. That is now the documented
+canonical answer rather than an accident.
+
+**Untouched, and pinned by test:** `earnings`, referral/fan cashout, team-split cashout, recruiter
+transfers (all `transfers.create`, platform → connected account, a different rail from
+connected → bank), Connect onboarding, platform fees, `/api/stripe/cashout`. New
+`payoutOwnership.test.ts` walks EVERY cron route and fails if any of them calls `payouts.create`,
+and asserts `/api/stripe/cashout` is the only `payouts.create` in the entire application.
+
+Also corrected: the Sage support agent was instructing staff to tell artists "weekly payouts run
+Monday 11am UTC", which was customer-facing misinformation about money. `POST_DEPLOY_CHECKLIST`
+no longer instructs anyone to trigger a payout cron.
+
 ## 2026-08-11 - Manager approval is not perpetual authorization
 
 **The defect.** `artist_agent_actions` had no expiry of any kind. `/api/ai-manager/execute` matched

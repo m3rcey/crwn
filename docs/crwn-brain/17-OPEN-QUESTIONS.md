@@ -26,7 +26,7 @@
 ## Pricing
 7. **Confirm the live pricing/fees**: **RESOLVED 2026-07-31** by `CRWN_PRICING STRATEGY.md` (founder call): **Launch $0 12% / Pro $49/mo 8% / Scale $199/mo 5%**, annual $490/$1,990. Code, legal pages and `recruit/page.tsx` now match; the PRD and `schema-platform-tiers.sql` remain historical.
 8. **Email limit**: **RESOLVED 2026-07-31** by the pricing strategy: Launch 1 / Pro 20 / Scale 100 email campaigns per month. The PRD's "2 campaigns/week" is stale.
-9. **Cashout fee asymmetry**: weekly auto-payout takes no fee, manual cashout takes $2. Intended?
+9. **Cashout fee asymmetry**: **RESOLVED 2026-08-11 by retirement, not by a pricing call.** The free side of the asymmetry was the `weekly-payout` cron, which had never created a single payout (live Stripe: 5 payout objects estate-wide, all `automatic: true`, zero API-created) because it filtered a column that does not exist. It is retired, so the only CRWN-initiated artist payout is the $2 manual cashout and there is nothing left to be asymmetric with. **A NEW question replaces it, and it is a pricing call:** Stripe sweeps every account daily at `delay_days: 2`, so artists rarely hold an available balance (0 of 7 do today) and the $2 cashout has little left to accelerate. Is that product still worth offering?
 
 ## User experience
 10. **Is the color `#0D0D0D` (hardcoded/docs) or `#0f0f0f` (CSS var) the intended background?**

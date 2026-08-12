@@ -79,8 +79,29 @@ only, the entitlement gate is never modified). `Confirmed` (2026-08-01, this ses
 ## 6. Stripe Connect / payouts
 - **Onboarding:** `/api/stripe/connect` creates an Express account (card_payments + transfers); `stripe_connect_id` saved via admin client (RLS-blocked otherwise). `Confirmed`.
 - **Backfill:** `/api/stripe/connect/status` — only when `charges_enabled`, records `stripe_connected` milestone and runs `backfillTierPrices()` (creates Stripe products/prices for onboarding-created tiers that skipped Stripe). `Confirmed`.
-- **Weekly payout cron** (`0 11 * * 1`): pays out the **entire** Connect available balance per artist; idempotent via `cron_run_log` per ISO week. **No fee deducted.** `Confirmed`.
-- **Manual cashout** (`/api/stripe/cashout`): deducts flat **$2** (`CASHOUT_FEE_CENTS=200`), requires balance > $2, rate-limited 1/60s. ⚠️ Asymmetry with weekly payout (which takes no fee) — confirm intended. `Confirmed`.
+- **WHO PAYS THE ARTIST: Stripe, not CRWN.** Every connected account is **Express**, on Stripe's
+  **own automatic `daily` schedule with `delay_days: 2`**, in USD. CRWN passes **no**
+  `settings.payouts` at `accounts.create`, so the schedule is Stripe's default and CRWN has never
+  configured it. Verified live 2026-08-11 across all 7 connected accounts. `Confirmed`.
+- **The `weekly-payout` cron was RETIRED 2026-08-11.** It never worked and never paid anyone: it
+  filtered `artist_profiles.is_active`, a column that does not exist, so it returned "No connected
+  artists found" every Monday after taking its `cron_run_log` lock. Live Stripe evidence: **5 payout
+  objects across the estate, every one `automatic: true`, zero created through the API**, while
+  balances sit at zero because the daily sweep keeps them there. Repairing it would have done
+  nothing on a zero balance, and in the rare non-zero window would have raced Stripe's own payout
+  for the same funds. There is no CRWN weekly payout rule; there never was one in force. `Confirmed`.
+- **Manual cashout** (`/api/stripe/cashout`) is the **only** CRWN-initiated artist payout: flat **$2**
+  (`CASHOUT_FEE_CENTS=200`), requires balance > $2, rate-limited 1/60s, artist-initiated from
+  `PayoutDashboard`. It emails a receipt with the Stripe payout id. `Confirmed`.
+  - The fee asymmetry logged as Open Question 9 (weekly free vs manual $2) is **resolved by the
+    retirement**: the free path is gone, so the only CRWN-initiated payout charges the fee.
+  - ⚠️ **Open, and a founder question, not a bug:** with Stripe sweeping daily at `delay_days: 2`,
+    an artist rarely holds an available balance, so the $2 cashout has little left to accelerate.
+    Live estate today: 0 accounts with a non-zero available balance. The product may be
+    economically inert. Deciding that is pricing, not cleanup.
+- **Fan cashout** ($25 min) and **team-split cashout** ($25 min) are `transfers.create`
+  (platform → connected account), a DIFFERENT rail from artist payouts (connected balance → bank),
+  in **separate ledgers**. Retiring the payout cron touched neither. `Confirmed`.
 - **Fan cashout** ($25 min) and **team-split cashout** ($25 min) use atomic RPCs + platform→fan `transfers.create`; kept in **separate ledgers**. `Confirmed`.
 
 ## 7. Referral / clipper commissions (fan → artist)

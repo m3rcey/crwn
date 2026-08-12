@@ -37,7 +37,7 @@
 - Routes: `src/app/api/stripe/*` (checkout, track/product/booking/live/platform-checkout, connect(+status), cashout, fan-cashout, team-split-cashout, subscription-update, webhook, create-price, balance, free-subscribe, fan-connect, fan-portal, login-link)
 - Subscription mgmt: `src/app/api/subscriptions/{cancel,pause}`
 - Team splits lib: `src/lib/teamSplits/{allocation,server,constants,types,warnings}.ts`; routes `src/app/api/team-splits/*`; crons `cron/team-split-accruals`, `cron/team-split-selfcheck`; audit `supabase/audit-team-split-road-campaign-accruals.sql`
-- Payout cron: `src/app/api/cron/weekly-payout/route.ts`
+- Artist bank payouts: **no CRWN cron.** Stripe pays each Express account on its own automatic daily schedule. The only CRWN-initiated artist payout is `src/app/api/stripe/cashout/route.ts` ($2, artist-triggered). The `weekly-payout` cron was retired 2026-08-11.
 - Discounts: `src/lib/discountCodes.ts`, `src/app/api/discount-codes/*`
 
 ## Content / entitlement / player
@@ -78,7 +78,7 @@
 - Hooks: `src/hooks/*`
 
 ## Cron (vercel.json ↔ routes)
-`src/app/api/cron/{weekly-payout,weekly-report,recruiter-qualify,recruiter-recurring,ai-manager,sequences,sync-opportunities,lead-scoring,inactive-subscribers,scheduled-releases,scheduled-campaigns,platform-crm,activation-nudges,onboarding-reminder,platform-sequences,fan-digest,sequence-conversions,outcome-measure,agent-health,clipper-rate-drops,team-split-accruals,rls-canary,onboarding-health,team-split-selfcheck}/route.ts` (`sms-reset` deleted 2026-07-31 with the SMS removal); briefing `src/app/api/admin/agent/briefing/route.ts`
+`src/app/api/cron/{weekly-report,recruiter-qualify,recruiter-recurring,ai-manager,sequences,sync-opportunities,lead-scoring,inactive-subscribers,scheduled-releases,scheduled-campaigns,platform-crm,activation-nudges,onboarding-reminder,platform-sequences,fan-digest,sequence-conversions,outcome-measure,agent-health,clipper-rate-drops,team-split-accruals,rls-canary,onboarding-health,team-split-selfcheck}/route.ts` (`sms-reset` deleted 2026-07-31 with the SMS removal); briefing `src/app/api/admin/agent/briefing/route.ts`
 
 ## Health / canaries
 `src/app/api/cron/onboarding-health/route.ts`, `src/app/api/cron/rls-canary/route.ts`, `schema-phase2-cron-heartbeat.sql`

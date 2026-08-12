@@ -75,7 +75,7 @@ Artist Music tab → `TrackUploadForm` → `validateUpload` → upload to R2/`au
 Manage → `/api/subscriptions/pause` (Stripe `pause_collection` 30d, keeps access) or `/api/subscriptions/cancel` (`cancel_at_period_end`, records `cancellation_reasons`) → optionally Stripe portal. `Confirmed`.
 
 ### Payout setup & payout
-Artist Payouts tab → `/api/stripe/connect` (Express onboarding) → return to `/api/stripe/connect/status` (on `charges_enabled`: milestone + `backfillTierPrices`). Weekly `weekly-payout` cron pays full Connect balance; manual `/api/stripe/cashout` ($2 fee). Fan/collaborator cash out via `fan-cashout`/`team-split-cashout` ($25 min). `Confirmed`.
+Artist Payouts tab → `/api/stripe/connect` (Express onboarding) → return to `/api/stripe/connect/status` (on `charges_enabled`: milestone + `backfillTierPrices`). Artist bank payouts are **Stripe's**, on each Express account's own automatic daily schedule; CRWN initiates none (`weekly-payout` retired 2026-08-11). The one CRWN-initiated artist payout is manual `/api/stripe/cashout` ($2 fee). Fan/collaborator cash out via `fan-cashout`/`team-split-cashout` ($25 min). `Confirmed`.
 
 ### Team Split lifecycle
 Artist `TeamSplitBuilder` → invite → collaborator `accept-invite` → deliverables submit/approve → daily accrual cron accrues capped, held earnings from `earnings` → artist `release` (`held`→`released`) → collaborator cashout. Disputes freeze the deal. `Confirmed`.

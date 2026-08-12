@@ -37,7 +37,7 @@ Managers under `src/components/artist/`: `MusicManager` (`TrackUploadForm`), `Al
 | Subscription tiers & benefits | `TierManager`, `TierBenefitsSelector/Editor`, `benefitCatalog.ts`, `/api/tier-benefits`; `subscription_tiers`, `tier_benefits` | **Production-ready** (some benefits `available:false` "coming soon") |
 | Content gating | `is_free`+`allowed_tier_ids`; `useSubscription`; `GatedTrackPlayer`, `GatedCommunityPost`; entitlement views | **Production-ready** (legacy `useContentAccess`/`access_level` deprecated) |
 | Checkout (sub/track/product/booking/live/platform/free) | 12 routes `src/app/api/stripe/*` | **Production-ready** |
-| Payouts / Connect | `connect`, `connect/status` (`backfillTierPrices`), `balance`, `cashout`, `fan-cashout`, `team-split-cashout`, weekly-payout cron; `PayoutDashboard` | **Production-ready** |
+| Payouts / Connect | `connect`, `connect/status` (`backfillTierPrices`), `balance`, `cashout`, `fan-cashout`, `team-split-cashout`; `PayoutDashboard`. **Artist bank payouts belong to Stripe** (Express, automatic daily, `delay_days: 2`); the `weekly-payout` cron was retired 2026-08-11 having never created a payout | **Production-ready** |
 | Discount codes | `DiscountCodeManager`, `/api/discount-codes(+validate)`; Pro-gated | **Production-ready** |
 | Stripe webhook | `/api/stripe/webhook`, `webhookHandlers.ts` | **Production-ready** |
 | Team Splits | `TeamSplitBuilder`, `src/lib/teamSplits/*`, `/api/team-splits/*`, `/team/*`, accrual cron | **Production-ready** |

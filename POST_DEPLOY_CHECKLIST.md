@@ -71,13 +71,16 @@ For product purchase additionally:
 
 ---
 
-## 7. Weekly Payout Cron
+## 7. Artist payouts (nothing to trigger)
 
-- [ ] Trigger `/api/cron/weekly-payout` with correct CRON_SECRET
-- [ ] Verify `cron_run_log` row created with current week's period key
-- [ ] Verify artists with positive balances received payouts
-- [ ] Verify artists with $0 balance were skipped
-- [ ] Trigger again same week — verify skipped (idempotency via period key)
+**CRWN does not initiate artist bank payouts. Stripe does**, on each Express account's own
+automatic daily schedule. The `weekly-payout` cron was retired 2026-08-11 after live inspection
+showed it had never created a single payout while Stripe had been paying artists all along.
+
+- [ ] Read-only sanity check only, if you want one: a connected account's `payouts_enabled` is
+      true and its recent payout objects show `automatic: true`. **Never create a payout to test.**
+- [ ] The one CRWN-initiated path is the artist's own $2 manual cashout (`/api/stripe/cashout`),
+      covered in section 6 above.
 
 ---
 

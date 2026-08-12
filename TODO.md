@@ -35,15 +35,12 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       as if there were simply no artists. Affected: `/api/cron/ai-manager` (proven dead: its
       heartbeat has said **"No active artists" every single day**, and `agent-health` reads that
       heartbeat as PROOF OF LIFE, so the safety net is masking the outage it exists to catch),
-      `/api/cron/weekly-report`, and `/api/cron/weekly-payout`.
-      **Nobody is unpaid.** I checked all 7 connected accounts read-only against live Stripe: every
-      one is on Stripe's own `daily` automatic payout schedule, so Stripe has been paying artists
-      directly the whole time and the weekly-payout cron is redundant. It is still worth fixing or
-      deleting, because it takes the `cron_run_log` idempotency lock for the week BEFORE it fails,
-      so it looks like it ran (locks exist for 2026-W13 through 2026-W31).
-      **Decide, then I implement:** (a) fix all three to drop the nonexistent filter, (b) delete
-      `weekly-payout` outright since Stripe already does it, and (c) whether to turn the AI Manager
-      cron back on at all, which is the real question and is below.
+      and `/api/cron/weekly-report`. **`weekly-payout` is no longer on this list: it was RETIRED
+      2026-08-11** after live Stripe inspection proved it had never created a single payout while
+      Stripe had been paying artists automatically the whole time.
+      **So this item is now only about `/api/cron/weekly-report`** (`ai-manager` has its own item
+      below). Decide: fix the filter so the weekly report resumes, or retire it too. It has been
+      sending nothing for months and nobody noticed, which is the same evidence pattern.
 
 - [ ] **Decide whether the autonomous (scheduled) AI Manager should run at all. My recommendation:
       keep it dormant, do not delete it.** Full reasoning in `docs/crwn-brain/02-FEATURE-MAP.md`.
