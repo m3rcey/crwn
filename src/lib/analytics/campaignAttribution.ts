@@ -171,6 +171,23 @@ export interface CampaignAttribution {
   keyword: string | null;
   /** A legitimate partner/referrer code that already exists (?ref=). */
   ref: string | null;
+  /**
+   * `?artist_ref=` — the PUBLIC SLUG of a CRWN artist who shared a Post-Win referral link.
+   *
+   * DELIBERATELY NOT `ref`. That field means "partner/recruiter code" and flows into
+   * `partner_code_used` / `recruited_by` / `artist_referrals`, whose rows carry a $50
+   * `flat_fee_amount` written from a Stripe webhook. Overloading it would put an organic
+   * artist-to-artist share one branch away from a commission obligation. This dimension is
+   * REPORTING ONLY and touches no money rail, by founder decision (see 25-POST-WIN-REFERRAL.md):
+   * Post-Win referrals are unpaid, are never retroactively commissionable, and never enter the
+   * recruiter rail.
+   *
+   * The slug is used as the identity because it is already public (it IS the artist's page URL),
+   * already unique, already stable, and server-resolvable back to one artist, so this needs no
+   * token table and no new schema. It is normalized like any other tag: a hostile value simply
+   * does not survive.
+   */
+  artistReferrer: string | null;
   /** The calculator entry context (?from=), the sub-avatar funnel. Normalized only; the
    *  sub-avatar itself is still validated against the taxonomy where it is stored. */
   entry: string | null;
@@ -185,6 +202,7 @@ export const EMPTY_ATTRIBUTION: CampaignAttribution = {
   angle: null,
   keyword: null,
   ref: null,
+  artistReferrer: null,
   entry: null,
 };
 
@@ -214,6 +232,8 @@ export function parseCampaignAttribution(src: ParamSource): CampaignAttribution 
     angle: normalizeTag(pick(src, 'angle')),
     keyword: normalizeTag(pick(src, 'keyword', 'kw'), 32),
     ref: normalizeTag(pick(src, 'ref'), 48),
+    // Only `artist_ref`. No alias, and deliberately never `ref`: see the field's note above.
+    artistReferrer: normalizeTag(pick(src, 'artist_ref'), 48),
     entry: normalizeTag(pick(src, 'from'), 48),
   };
 }
@@ -239,6 +259,10 @@ export function sanitizeStoredAttribution(v: unknown): CampaignAttribution {
     angle: (v as Record<string, unknown>).angle,
     keyword: (v as Record<string, unknown>).keyword,
     ref: (v as Record<string, unknown>).ref,
+    // Round-tripped under its QUERY-PARAM name, because this re-parses through
+    // `parseCampaignAttribution`. Omitting it here would silently drop the dimension on every
+    // read-back, so it would survive capture and die at the first reader.
+    artist_ref: (v as Record<string, unknown>).artistReferrer,
     from: (v as Record<string, unknown>).entry,
   });
 }
@@ -293,6 +317,10 @@ export function attributionToFunnelDims(a: CampaignAttribution | null | undefine
   if (a.angle) meta.angle = a.angle;
   if (a.keyword) meta.keyword = a.keyword;
   if (a.ref) meta.ref = a.ref;
+  // Rides the existing metadata bag, so the funnel gains a sliceable artist-referrer dimension
+  // with NO schema change. It never fills `referrer`, `campaign` or `video`: those belong to the
+  // marketing attribution contest and this dimension is purely additive.
+  if (a.artistReferrer) meta.artist_referrer = a.artistReferrer;
   if (Object.keys(meta).length) dims.metadata = meta;
   return dims;
 }
@@ -314,6 +342,9 @@ export function buildCampaignUrl(base: string, attr: Partial<CampaignAttribution
     angle: attr.angle,
     keyword: attr.keyword,
     ref: attr.ref,
+    // Under its QUERY-PARAM name, because this re-parses through `parseCampaignAttribution`.
+    // Omitting it here silently serialized null: the link looked right and carried nothing.
+    artist_ref: attr.artistReferrer,
     from: attr.entry,
   });
 
@@ -328,6 +359,7 @@ export function buildCampaignUrl(base: string, attr: Partial<CampaignAttribution
   set('keyword', a.keyword);
   set('variant', a.variant);
   set('ref', a.ref);
+  set('artist_ref', a.artistReferrer);
   set('from', a.entry);
 
   const qs = params.toString();

@@ -403,24 +403,16 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-- **Post-Win Referral: designed, NOT built, and I need two answers from you.** Full architecture in
-  `docs/crwn-brain/25-POST-WIN-REFERRAL.md`. The good news: the win is solid. First paid member is
-  canonical, covers all six ways a fan can pay, and dedupes per artist, so "this artist just got
-  paid on CRWN for the first time" is a fact CRWN can stand behind. The ask itself would be one
-  pop-up and a copy-link button, reusing what already exists.
-  **What stopped me is where the referral code would live.** There is no artist-to-artist
-  attribution in CRWN at all. The obvious slot, `ref`, already belongs to the recruiter/partner
-  rail, and that rail writes `artist_referrals` rows carrying a **$50 flat fee** from a Stripe
-  webhook. I am not putting an artist referral one branch away from a commission obligation on a
-  guess. Also worth knowing: the attribution carrier everything depends on holds a value on **0 of
-  41** production rows, so its survival through signup is documented but never demonstrated.
-  **Decision 1: will an artist ever be paid for referring another artist?** If it might ever be
-  yes, say so now. Links issued under a no-reward version would need economics retrofitted onto
-  codes already out in the world.
-  **Decision 2: do artist referrals ever enter the recruiter rail, or stay separate forever?**
-  That decides whether V1 can reuse `artist_referrals` or must stay analytics-only.
-  **No rush on my account:** only **2** of your artists have a paying member, and the win has fired
-  **0** times, so nothing is being lost by deciding this properly rather than quickly.
+- **Post-Win Referral V1: SHIPPED 2026-08-12.** Both your decisions are implemented and pinned by
+  test: unpaid forever, never retroactively commissionable, and structurally incapable of touching
+  the recruiter rail (the link uses `artist_ref`, not `ref`, precisely so it can never end up one
+  branch from that $50 fee). When an artist gets their first paid member on CRWN, they see one
+  pop-up that copies a share link; whoever they send it to lands on the calculator, and CRWN can
+  follow that person all the way to their own first paid member.
+  **Nothing to do, but one thing to know:** it will not fire until an artist actually records a
+  first paid conversion, which has happened **0** times so far. That is the correct behavior, not a
+  bug. Related: your P1 item about tagging calculator video links is the same underlying gap, since
+  the attribution carrier is wired correctly and simply has never received a tagged visit.
 
 - **Promise Calendar + email: reconciled 2026-08-11.** Your artists were getting two emails about
   the same promise, three hours apart, because two systems both owned it and neither could see the

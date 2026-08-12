@@ -44,11 +44,31 @@ export interface PopupContext {
    * would be nagging rather than resuming.
    */
   resumable: { title: string; progressPercent: number } | null;
+  /** Artists only: their public slug, which is also their Post-Win referral identity. */
+  artistSlug: string | null;
+  /**
+   * Artists only: has the canonical `first_paid_conversion` funnel stage fired for them?
+   *
+   * Read from the existing win, never recomputed. The stage is deduped per artist across all six
+   * paid rails, so this is idempotent by construction. It means "first paid member ON CRWN", not
+   * "the first person who has ever paid this artist": the ICP may already have customers elsewhere.
+   */
+  hasFirstPaidConversion: boolean;
 }
 
 export interface PopupCta {
   label: string;
   href: string;
+  /**
+   * When set, the CTA COPIES this text instead of navigating.
+   *
+   * A generic capability, not a Post-Win special case: any pop-up whose action is "take this with
+   * you" rather than "go here" can use it. Added because the alternative for the referral ask was
+   * a dedicated referral page, and a whole surface for one copy button is a worse trade.
+   *
+   * `href` stays required and remains the fallback for anything that cannot use the clipboard.
+   */
+  copyText?: string;
 }
 
 export interface PopupSurveyConfig {
@@ -168,6 +188,38 @@ export const POPUPS: PopupDef[] = [
     title: 'You are closer to a goal than you think.',
     body: 'One of your Rise Mode goals is already partway there. Progress that stops short pays you nothing, and finishing the closest one costs less than starting something new.',
     cta: { label: 'See how close', href: '/profile/artist' },
+    dismissLabel: 'Not now',
+  },
+
+  // ---- Artist: Post-Win referral ask (organic artist-to-artist acquisition) ----
+  //
+  // Fires after the CANONICAL win: `first_paid_conversion`, which is deduped per artist across all
+  // six paid rails. It reads that win, it does not redefine it, and there is no `post_win_events`
+  // table.
+  //
+  // WHAT THE COPY MAY CLAIM. "First paid member on CRWN", never "your first paying fan ever". The
+  // ICP is the Independent Empire Builder, who may already have customers elsewhere; beginner
+  // framing would be both wrong and insulting. It also may not claim CRWN CAUSED the payment.
+  //
+  // NO REWARD LANGUAGE, EVER. Founder decision: Post-Win referrals are unpaid, permanently, and
+  // never retroactively commissionable. Nothing here may mention earning, commission, credit,
+  // discount or a reward, because a hint of one is a promise CRWN has not made.
+  //
+  // Priority 30 puts it below Stripe (100), the first broadcast (80) and resume (40). A celebration
+  // never outranks money that cannot reach the artist, and the engine's one-per-day cap and
+  // single-winner sort mean a fan obligation or a launch blocker simply takes the moment instead.
+  // Losing that contest defers it: `everyN` keeps it eligible later rather than cancelling it.
+  {
+    key: 'artist_post_win_referral',
+    kind: 'modal',
+    pages: ['/home', '/studio', '/profile/artist'],
+    audience: (c) => c.isArtist && c.hasFirstPaidConversion && !!c.artistSlug,
+    frequency: { type: 'everyN', days: 30, max: 2 },
+    priority: 30,
+    goal: 'A trusted artist introduces CRWN to another artist right after CRWN visibly worked.',
+    title: 'Someone just paid you on CRWN.',
+    body: 'That is the part most artists never get to. If you know another independent artist still handing their fan relationships to a platform, send them the link and let them see their own numbers.',
+    cta: { label: 'Copy a link to share', href: '/tools/opportunity-calculator' },
     dismissLabel: 'Not now',
   },
 

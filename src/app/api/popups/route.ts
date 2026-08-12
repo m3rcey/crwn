@@ -10,6 +10,7 @@ import {
 } from '@/lib/popups';
 import type { PopupContext } from '@/lib/popups';
 import { resend, FROM_EMAIL } from '@/lib/resend';
+import { buildReferralLink } from '@/lib/postWinReferral';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -52,7 +53,19 @@ export async function GET(req: Request) {
       kind: def.kind,
       title: def.title,
       body: def.body,
-      cta: def.cta ?? null,
+      // The referral link is per-artist, so the static registry cannot hold it. Injected here
+      // rather than templated, because one explicit conditional is easier to audit than a
+      // substitution system, and this is the only pop-up that needs it. `buildReferralLink`
+      // returns null without a slug, which leaves the CTA as a plain link rather than a copy
+      // button that would silently copy nothing.
+      cta: def.cta
+        ? {
+            ...def.cta,
+            ...(def.key === 'artist_post_win_referral' && ctx.artistSlug
+              ? { copyText: buildReferralLink(ctx.artistSlug) ?? undefined }
+              : {}),
+          }
+        : null,
       dismissLabel: def.dismissLabel ?? 'Close',
       survey: def.survey ?? null,
     },
@@ -108,6 +121,8 @@ async function buildContext(userId: string): Promise<PopupContext> {
     accountCreatedAt: null,
     featureFlags: {},
     resumable: null,
+    artistSlug: null,
+    hasFirstPaidConversion: false,
   };
 
   try {
@@ -132,7 +147,7 @@ async function buildContext(userId: string): Promise<PopupContext> {
 
     const { data: artist } = await supabaseAdmin
       .from('artist_profiles')
-      .select('id, stripe_connect_id, platform_tier')
+      .select('id, stripe_connect_id, platform_tier, slug')
       .eq('user_id', userId)
       .maybeSingle();
 
@@ -141,6 +156,17 @@ async function buildContext(userId: string): Promise<PopupContext> {
       base.isArtist = true;
       base.platformTier = artist.platform_tier ?? 'starter';
       base.stripeConnected = !!artist.stripe_connect_id;
+      base.artistSlug = artist.slug ?? null;
+
+      // The Post-Win referral trigger, read from the CANONICAL win rather than recomputed.
+      // `first_paid_conversion` is deduped per artist across all six paid rails, so five webhook
+      // entry points cannot produce five asks, and this needs no second activation record.
+      const { count: firstPaid } = await supabaseAdmin
+        .from('funnel_events')
+        .select('id', { count: 'exact', head: true })
+        .eq('artist_id', artist.id)
+        .eq('stage', 'first_paid_conversion');
+      base.hasFirstPaidConversion = (firstPaid || 0) > 0;
 
       const { count: subs } = await supabaseAdmin
         .from('subscriptions')

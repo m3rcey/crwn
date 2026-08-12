@@ -1,5 +1,48 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Post-Win Referral V1 live: unpaid, additive, and nowhere near the money rail
+
+Both blocking founder decisions were ratified, so the thin V1 shipped. Doc
+[`25-POST-WIN-REFERRAL.md`](25-POST-WIN-REFERRAL.md) updated from NOT SHIPPED to LIVE.
+
+**Founder policy, now pinned by test:** organic Post-Win referrals are **unpaid forever** and
+**never retroactively commissionable**; a future paid Artist Affiliate program is a **separate**
+program with its own enrollment, economics and effective date; and Post-Win activity alone may
+never create `artist_referrals` or `recruiter_payouts`, assign the $50 flat fee, or promote anyone
+to recruiter/partner.
+
+**The loop:** canonical `first_paid_conversion` (deduped per artist across all six paid rails, so
+five webhook entry points cannot produce five asks) → a `celebration` pop-up at priority 30, below
+Stripe (100), first broadcast (80) and resume (40) → CTA **copies** a link → the referred artist
+lands on the Opportunity Calculator, never signup → `artist_referrer` rides the existing attribution
+carrier to first paid.
+
+**Attribution is a ninth dimension, `artistReferrer`, carried as `?artist_ref=<slug>`.**
+Deliberately NOT `ref`, which means "partner/recruiter code" and flows into `partner_code_used` /
+`recruited_by` / `artist_referrals` — rows carrying `flat_fee_amount: 5000` written from a Stripe
+webhook. Identity is the artist's **public slug**: already public, unique, stable and
+server-resolvable, so V1 needed **no token table and no schema**. It fills only the funnel's
+existing JSONB `metadata` bag, so an artist who clicks a referral link and later converts through a
+tagged video keeps **both** facts.
+
+**Two real bugs were caught by the tests while wiring it**, both the same shape:
+`sanitizeStoredAttribution` and `buildCampaignUrl` each re-parse through
+`parseCampaignAttribution` via an explicit key map, and both omitted the new field. Left alone, the
+dimension would have been captured and silently dropped at every read, and the shareable link would
+have serialized nothing while looking correct. **Anything added to `CampaignAttribution` must also
+be added to those two maps under its query-param name.** Documented in section 6.
+
+**One small generic addition:** `PopupCta.copyText`. Any pop-up whose action is "take this with
+you" can now use it, and it falls back to navigation when the clipboard is unavailable. The
+alternative was a whole referral page for a single button.
+
+**Prior finding corrected:** the durable carrier was reported unproven (0 of 41 rows). It is wired
+correctly and complete; production rows are empty because no visit has ever arrived tagged, which
+is a content-tagging gap, not a code gap. A Post-Win link is tagged by construction.
+
+Untouched: Virality Engine, Z3/Z9/Z10, autonomous Manager (still dormant), the Communications
+Governor (no G3, no cross-channel cap), and every existing money rail.
+
 ## 2026-08-11 - Post-Win Referral: architecture only, implementation blocked
 
 **No code was written.** `src/` and `public/` are clean. New canonical doc

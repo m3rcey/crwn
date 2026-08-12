@@ -85,6 +85,9 @@ describe('parseCampaignAttribution', () => {
       angle: 'streaming_loss',
       keyword: 'vault',
       ref: null,
+      // Added 2026-08-12 for Post-Win artist referrals. Null here on purpose: a marketing-tagged
+      // link carries no artist referrer, and the two dimensions are independent by design.
+      artistReferrer: null,
       entry: null,
     });
   });

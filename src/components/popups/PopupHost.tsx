@@ -21,7 +21,7 @@ interface Popup {
   kind: 'modal' | 'banner' | 'survey';
   title: string;
   body: string;
-  cta: { label: string; href: string } | null;
+  cta: { label: string; href: string; copyText?: string } | null;
   dismissLabel: string;
   survey: PopupSurvey | null;
 }
@@ -33,6 +33,7 @@ export function PopupHost() {
   const router = useRouter();
   const [popup, setPopup] = useState<Popup | null>(null);
   const [rating, setRating] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState('');
   const lastFetched = useRef<string>('');
   const shownFor = useRef<string>('');
@@ -88,9 +89,26 @@ export function PopupHost() {
     setPopup(null);
   };
 
-  const clickCta = () => {
+  const clickCta = async () => {
     report(popup.key, 'clicked');
     const href = popup.cta?.href;
+    const copyText = popup.cta?.copyText;
+
+    // COPY-style CTA: take something with you rather than go somewhere. Generic, not a Post-Win
+    // special case. The pop-up stays open briefly so the artist sees the confirmation, because
+    // closing instantly leaves them unsure whether the copy actually happened.
+    if (copyText) {
+      try {
+        await navigator.clipboard.writeText(copyText);
+        setCopied(true);
+        setTimeout(() => setPopup(null), 1200);
+        return;
+      } catch {
+        // Clipboard blocked (permissions, insecure context, older mobile browser). Fall through to
+        // the href so the CTA still does something rather than appearing broken.
+      }
+    }
+
     setPopup(null);
     if (href) {
       if (href.startsWith('http')) window.location.href = href;
@@ -119,7 +137,7 @@ export function PopupHost() {
               className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-black"
               style={{ backgroundColor: GOLD }}
             >
-              {popup.cta.label}
+              {copied ? "Link copied" : popup.cta.label}
             </button>
           )}
           <button onClick={close} aria-label="Dismiss" className="shrink-0 text-gray-500 hover:text-white">
@@ -192,7 +210,7 @@ export function PopupHost() {
                 className="w-full rounded-full py-3 text-sm font-semibold text-black"
                 style={{ backgroundColor: GOLD }}
               >
-                {popup.cta.label}
+                {copied ? "Link copied" : popup.cta.label}
               </button>
             )}
             <button onClick={close} className="w-full rounded-full py-3 text-sm font-medium text-gray-400 hover:text-white">

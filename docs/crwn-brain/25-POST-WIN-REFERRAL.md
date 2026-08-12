@@ -1,8 +1,19 @@
 # 25 — Post-Win Referral System
 
-> **STATUS: ARCHITECTURE ONLY. NOT SHIPPED. NO CODE EXISTS.**
-> Investigated 2026-08-11. Implementation is blocked on two founder decisions (section 12), not on
-> engineering. Nothing in this document describes live behavior. Do not cite it as shipped.
+> **STATUS: V1 LIVE (shipped 2026-08-12).** Both blocking founder decisions were ratified and are
+> implemented and pinned by test. Only the behavior described in sections 1 to 11 is live; every
+> expansion in section 14 remains unbuilt.
+>
+> **FOUNDER POLICY, PERMANENT:**
+> - **Organic Post-Win referral: UNPAID, forever.** No commission, credit, discount, free month or
+>   payout entitlement, and **never retroactively commissionable** if a paid Artist Affiliate
+>   program launches later.
+> - **A future paid Artist Affiliate program is a SEPARATE program**, requiring its own enrollment
+>   and approval, attribution type, economics and effective date.
+> - **The recruiter rail is never used.** Post-Win referral activity alone may not create
+>   `artist_referrals` or `recruiter_payouts`, assign the $50 flat fee or recurring recruiter
+>   economics, or promote anyone to recruiter/partner.
+> - **No retroactivity.** Historical Post-Win referrals stay unpaid regardless of later programs.
 
 ## 1. Purpose
 
@@ -22,7 +33,7 @@ carrying one link.
 | Recruiter / partner | recruiter | **artist** | `recruiters.referral_code` → `artist_profiles.recruited_by` | **$50 flat fee + recurring** | `artist_referrals` → `recruiter_payouts` | yes (0 referrals, 5 recruiters) |
 | Admin invite | admin | artist | `invite_codes` | none | none | yes |
 | Fan Drive (Z11) | artist | paying fan | derived, no new dimension | non-cash badge | none by DB CHECK | yes |
-| **Post-Win Referral** | **artist** | **artist** | **does not exist** | **undecided** | **must not exist in V1** | **no** |
+| **Post-Win Referral** | **artist** | **artist** | **`artist_ref` → `_attribution.artistReferrer`** | **none, permanently** | **NONE, by policy** | **yes (V1)** |
 
 **The recruiter row is the trap.** It is the only existing artist-acquisition rail, and reusing it
 means inheriting `flat_fee_amount: 5000` — a real $50 obligation written from a Stripe webhook
@@ -77,27 +88,39 @@ losing the moment is a deferral, not a cancellation.
 - **Destination:** the current acquisition journey (calculator → personalized result → builder →
   account), **not** signup. A referred artist is still a prospect who needs to see the value.
 
-## 6. Attribution — this is where it stops
+## 6. Attribution — LIVE, additive, non-financial
 
-The durable attribution layer (`campaignAttribution.ts`) allowlists eight dimensions:
-`channel / platform / campaign / creative / variant / angle / keyword / ref`, plus `from`.
+A ninth dimension, `artistReferrer`, was added to `campaignAttribution.ts`, carried on the query
+string as **`?artist_ref=<artist slug>`**.
 
-**`ref` already means "partner/referrer code"** and flows into `partner_code_used` /
-`recruited_by` / `artist_referrals`. Putting an artist code in `ref` is one webhook branch away
-from a $50 commission obligation. There is **no `artist_referrer` dimension**, so artist→artist
-identity has nowhere canonical to live.
+**Deliberately NOT `ref`.** That field means "partner/recruiter code" and flows into
+`partner_code_used` / `recruited_by` / `artist_referrals`, whose rows carry `flat_fee_amount: 5000`
+written from a Stripe webhook. Overloading it would put an organic share one branch from a
+commission obligation. `artist_ref` has no alias and is never populated from `ref`.
 
-**And the carrier is unproven.** `_attribution` is documented as the durable home on
-`lead_magnet_results.input_data`. Production: **0 of 41 rows carry it.** The mechanism exists in
-code and has never carried a value, so its survival across signup and auto-claim is asserted, not
-demonstrated.
+**Identity is the artist's public slug.** Already public (it is their page URL), already unique,
+already stable, resolvable server-side to exactly one artist. **No token table, no signed payload,
+no schema.** The slug is normalized like any other tag, so a hostile value does not survive.
 
-## 7. Collision semantics — undefined for this actor
+**It rides existing storage end to end**, so every reader inherits it: parsed at landing, stored on
+`lead_magnet_results.input_data._attribution` by `/api/lead-magnets/capture`, re-parsed by
+`sanitizeStoredAttribution`, first-touch merged by `mergeAttribution`, read back by
+`attributionDimsFor` (auto-claim, complete-setup, connectReconcile, paidConversion), and surfaced in
+the funnel through the existing JSONB `metadata` bag as `artist_referrer`.
 
-`mergeAttribution` is first-touch and never replaces a set field, which is canonical **for the
-dimensions that exist**. Artist-referrer is not one of them, so its precedence against `ref`, a
-paid campaign or an organic video is undefined. Post-Win Referral must be an **additional
-dimension**, never an overwrite of an existing acquisition owner.
+**Two real bugs were found and fixed while wiring it**, both the same shape: `sanitizeStoredAttribution`
+and `buildCampaignUrl` each re-parse through `parseCampaignAttribution` via an explicit key map, and
+both omitted the new field. The dimension would have been captured and then silently dropped on
+every read, and the link would have serialized nothing. **Anything added to `CampaignAttribution`
+must be added to those two maps under its query-param name.**
+
+## 7. Collision semantics — additive, never an overwrite
+
+`mergeAttribution` is first-touch and iterates the keys of `EMPTY_ATTRIBUTION`, so the new
+dimension inherited first-touch behavior automatically. `artistReferrer` fills **only** the funnel
+`metadata` bag: it never populates `campaign`, `video` or `referrer`, which belong to the marketing
+attribution contest. An artist who clicks a Post-Win link and later arrives through a tagged video
+keeps **both** facts: the campaign that converted them AND the artist who introduced them.
 
 ## 8. Incentive: none, and that is the point
 
@@ -124,7 +147,7 @@ Success is **not** "link copied". Reuse `funnel_events`, which already declares 
 **referred artists who reach first paid**, not shares. Same discipline as the calculators: more
 top-of-funnel only counts if qualified downstream outcomes follow.
 
-## 11. Production readiness (2026-08-11, read-only)
+## 11. Production state at ship (2026-08-12, read-only)
 
 | Fact | Value |
 |---|---|
@@ -137,28 +160,29 @@ top-of-funnel only counts if qualified downstream outcomes follow.
 
 The trigger population is **two artists**, and the win has never been recorded once.
 
-## 12. Why implementation is blocked
+## 12. What shipped (2026-08-12)
 
-Against the eight-condition gate: conditions 1 (no new financial rule, if non-cash), 4 (no
-destructive schema), 5 (win verified), 6 (deterministic eligibility) and 7 (funnel carries
-downstream) are **satisfied**. Three are not:
+- **Win:** the canonical deduped `first_paid_conversion`, read and never redefined. No
+  `post_win_events`, no second activation record. Five webhook rails cannot produce five asks
+  because the stage itself dedupes per artist.
+- **Ask:** one `PopupDef` (`artist_post_win_referral`), priority **30**, below Stripe (100), first
+  broadcast (80) and resume (40). `everyN` 30 days, max 2, on top of the engine's one-per-day cap
+  and single-winner sort. A fan obligation or launch blocker simply takes the day, and `everyN`
+  keeps the ask eligible afterwards, so losing an interruption is a deferral and never a
+  cancellation.
+- **Share:** the CTA **copies** the link. This needed one small generic addition to the pop-up
+  contract (`PopupCta.copyText`), reusable by any pop-up whose action is "take this with you"
+  rather than "go here". The alternative was a whole referral page for one button. It falls back to
+  navigation when the clipboard is unavailable.
+- **Destination:** `/tools/opportunity-calculator`, never signup.
+- **Self-referral:** `isSelfReferral` compares slugs case-insensitively. The stronger guard is
+  structural: an artist who already has an account emits no `account_created` event, so following
+  any referral link cannot register them as a new acquisition regardless of whose link it was.
+- **Measurement:** the existing funnel stages, sliceable by `metadata.artist_referrer`.
 
-- **(2) Attribution semantics are not unambiguous.** No `artist_referrer` dimension exists; `ref`
-  belongs to the partner rail; the documented carrier has never carried a value in production.
-- **(3) Collision behavior is not canonical** for this actor.
-- **(8) Two founder-sensitive rules remain.**
+**No schema, no new table, no new navigation, no cash, no AI, no new priority engine.**
 
-**FOUNDER DECISION 1 — will an artist ever be paid for referring another artist?**
-If the answer might become yes, links issued under a no-reward V1 would later need economics
-retrofitted onto already-distributed codes. Answering first is cheaper than migrating attribution
-that has already gone out into the world.
-
-**FOUNDER DECISION 2 — do artist referrals ever enter the recruiter rail?**
-`artist_referrals` carries a $50 flat fee. Either artist→artist stays permanently separate, or it
-becomes a recruiter tier with approval and payouts. That choice determines whether V1 may reuse
-the table or must stay analytics-only forever.
-
-## 13. Recommended V1, once unblocked
+## 13. Why this shape (options rejected)
 
 **Option A: post-win share ask, no reward.** One win (`first_paid_conversion`), one ask (a
 `celebration` pop-up), one share (copy link), one attribution path (a new reporting-only
