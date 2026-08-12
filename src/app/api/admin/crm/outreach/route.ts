@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { resend } from '@/lib/resend';
 import { outreachEmail, resolveOutreachTokens } from '@/lib/emails/outreachEmail';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -13,12 +13,9 @@ const BASE_URL = 'https://thecrwn.app';
 const CONCURRENCY = 10;
 
 export async function GET(req: NextRequest) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Admin only' }, { status: 403 });
 
   // Get outreach history
   const { data: outreaches } = await supabaseAdmin
@@ -31,12 +28,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Admin only' }, { status: 403 });
 
   const { subject, body, listId, statusFilter, tagFilter } = await req.json();
 
@@ -98,7 +92,7 @@ export async function POST(req: NextRequest) {
   const { data: outreach, error: outreachErr } = await supabaseAdmin
     .from('crm_outreaches')
     .insert({
-      admin_id: user.id,
+      admin_id: admin.id,
       subject: subject.trim(),
       body: body.trim(),
       list_id: listId || null,

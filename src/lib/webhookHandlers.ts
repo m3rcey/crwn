@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createPurchaseObligation } from '@/lib/purchaseObligations';
-import { notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
+import { createNotification, notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterArtistSignupEmail } from '@/lib/emails/recruiterArtistSignup';
 import { subscriptionEmail } from '@/lib/emails/subscription';
@@ -19,6 +19,7 @@ import { insertHeldReferralEarning } from '@/lib/attribution';
 import { recordDiscountCodeUse } from '@/lib/discountCodes';
 import { recordActivationMilestone } from '@/lib/activationMilestones';
 import { getArtistFeePercent } from '@/lib/platformTier';
+import { subscriptionEarningNet } from '@/lib/earningsNet';
 import { maybeCreateVipWelcomeTask } from '@/lib/promiseTasks';
 import { recordFirstPaidConversion } from '@/lib/analytics/paidConversion';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -138,7 +139,17 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
     const subStripeId = (session as unknown as { subscription?: string }).subscription;
     const feePercent = await getArtistFeePercent(artist_id);
     const platformFee = Math.round(grossAmount * (feePercent / 100));
-    const netAmount = grossAmount - platformFee;
+
+    // F-01: checkout charged `base fee + attributed_cut` (the referral/clipper commission is
+    // ARTIST-funded, added to application_fee_percent), so the artist's true take is gross
+    // minus BOTH. Sessions created before the attributed_cut metadata key existed carry no
+    // key, read as cut 0, and keep their historical behavior — never guess a commission.
+    const attributedCutPercent = Number(session.metadata?.attributed_cut ?? 0) || 0;
+    const { commissionCents: attributedCommission, netCents: netAmount } = subscriptionEarningNet({
+      grossCents: grossAmount,
+      platformFeeCents: platformFee,
+      attributedCutPercent,
+    });
 
     // Resolve campaign attribution from UTM params
     const utmSource = session.metadata?.utm_source || '';
@@ -162,7 +173,15 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
         // subscription_id is groundwork so a future refund resolver can match an
         // initial-subscription earning (keyed by session id) back from a refund's
         // charge.invoice -> invoice.subscription.
-        metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, ...(subStripeId ? { subscription_id: subStripeId } : {}) },
+        metadata: {
+          tierName,
+          tierPrice: grossAmount,
+          fanDisplayName: fanName,
+          ...(subStripeId ? { subscription_id: subStripeId } : {}),
+          // F-01 audit trail: the pass-through commission subtracted from net, so a
+          // reconciliation can always recompute gross - platform_fee - this = net.
+          ...(attributedCommission > 0 ? { attributed_commission: attributedCommission } : {}),
+        },
         fan_city: fanCity,
         fan_state: fanState,
         fan_country: fanCountry,
@@ -193,13 +212,7 @@ export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, sessio
 
       // Send earning notification
       if (earning) {
-        await supabaseAdmin.from('notifications').insert({
-          user_id: artistProfile.user_id,
-          type: 'earning',
-          title: `💰 +$${(netAmount / 100).toFixed(2)}`,
-          message: `${fanName} subscribed to ${tierName}`,
-          link: `/account/payouts?earning=${earning.id}`,
-        });
+        await createNotification(supabaseAdmin, artistProfile.user_id, 'earning', `💰 +$${(netAmount / 100).toFixed(2)}`, `${fanName} subscribed to ${tierName}`, `/account/payouts?earning=${earning.id}`);
       }
 
       // Check for milestone unlocks
@@ -452,7 +465,6 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
   // Fee is tier-driven (read from the artist's platform tier), not a flat 8%.
   const feePercent = await getArtistFeePercent(sub.artist_id);
   const platformFee = Math.round(grossAmount * (feePercent / 100));
-  const netAmount = grossAmount - platformFee;
 
   // Get geo from previous earnings for this artist+fan combo
   const { data: prevEarning } = await supabaseAdmin
@@ -483,9 +495,13 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
     .eq('referred_fan_id', sub.fan_id)
     .eq('status', 'active')
     .maybeSingle();
-  const referralCommission = existingReferral
-    ? Math.min(Math.round(grossAmount * (existingReferral.commission_rate / 100)), grossAmount - platformFee)
-    : 0;
+  // Same shared formula as the initial-checkout handler (F-01): commission capped at what
+  // the fee could cover, artist net = gross - base fee - commission.
+  const { commissionCents: referralCommission, netCents: artistNet } = subscriptionEarningNet({
+    grossCents: grossAmount,
+    platformFeeCents: platformFee,
+    attributedCutPercent: existingReferral ? existingReferral.commission_rate : 0,
+  });
 
   // Write earnings record for renewal
   const invoiceWithPayment = invoice as unknown as { payment_intent?: string; id: string };
@@ -498,9 +514,15 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
       description: `${fanName} renewed subscription to ${tierName}`,
       gross_amount: grossAmount,
       platform_fee: platformFee,
-      net_amount: netAmount - referralCommission,
+      net_amount: artistNet,
       stripe_payment_id: invoiceWithPayment.payment_intent || invoiceWithPayment.id,
-      metadata: { tierName, tierPrice: grossAmount, fanDisplayName: fanName, renewal: true },
+      metadata: {
+        tierName,
+        tierPrice: grossAmount,
+        fanDisplayName: fanName,
+        renewal: true,
+        ...(referralCommission > 0 ? { attributed_commission: referralCommission } : {}),
+      },
       fan_city: fanCity,
       fan_state: fanState,
       fan_country: fanCountry,
@@ -528,13 +550,9 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
     .single();
 
   if (artistProfile && earning) {
-    await supabaseAdmin.from('notifications').insert({
-      user_id: artistProfile.user_id,
-      type: 'earning',
-      title: `💰 +$${(netAmount / 100).toFixed(2)}`,
-      message: `${fanName} renewed subscription to ${tierName}`,
-      link: `/account/payouts?earning=${earning.id}`,
-    });
+    // F-09: the number the artist is told must be the number the ledger recorded.
+    // artistNet is what the earnings row stored, commission already subtracted.
+    await createNotification(supabaseAdmin, artistProfile.user_id, 'earning', `💰 +$${(artistNet / 100).toFixed(2)}`, `${fanName} renewed subscription to ${tierName}`, `/account/payouts?earning=${earning.id}`);
 
     // Check for milestone unlocks
     try {
@@ -568,7 +586,7 @@ export async function handleSubscriptionRenewal(supabaseAdmin: AdminClient, invo
     }
   }
 
-  console.log('Subscription renewal processed:', { subscriptionId, artistId: sub.artist_id, netAmount });
+  console.log('Subscription renewal processed:', { subscriptionId, artistId: sub.artist_id, artistNet });
 }
 
 // ─── Invoice payment failed ──────────────────────────────────────────────────
@@ -913,13 +931,7 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
 
     // Send earning notification
     if (earning) {
-      await supabaseAdmin.from('notifications').insert({
-        user_id: artistProfile.user_id,
-        type: 'earning',
-        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
-        message: `${fanName} purchased ${productTitle}`,
-        link: `/account/payouts?earning=${earning.id}`,
-      });
+      await createNotification(supabaseAdmin, artistProfile.user_id, 'earning', `💰 +$${(netAmount / 100).toFixed(2)}`, `${fanName} purchased ${productTitle}`, `/account/payouts?earning=${earning.id}`);
     }
 
     // Check for milestone unlocks
@@ -1216,13 +1228,7 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
     await notifyNewPurchase(supabaseAdmin, artistProfile.user_id, fanName, trackTitle);
 
     if (earning) {
-      await supabaseAdmin.from('notifications').insert({
-        user_id: artistProfile.user_id,
-        type: 'earning',
-        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
-        message: `${fanName} purchased ${trackTitle}`,
-        link: `/account/payouts?earning=${earning.id}`,
-      });
+      await createNotification(supabaseAdmin, artistProfile.user_id, 'earning', `💰 +$${(netAmount / 100).toFixed(2)}`, `${fanName} purchased ${trackTitle}`, `/account/payouts?earning=${earning.id}`);
     }
 
     try {
@@ -1402,23 +1408,11 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
 
   // Notify artist of booking and earning
   if (artistProfile) {
-    await supabaseAdmin.from('notifications').insert({
-      user_id: artistProfile.user_id,
-      type: 'new_booking',
-      title: '📅 New Booking',
-      message: `${fanName} booked: ${bookingTitle}`,
-      link: `/studio`,
-    });
+    await createNotification(supabaseAdmin, artistProfile.user_id, 'new_booking', '📅 New Booking', `${fanName} booked: ${bookingTitle}`, `/studio`);
 
     // Send earning notification
     if (earning) {
-      await supabaseAdmin.from('notifications').insert({
-        user_id: artistProfile.user_id,
-        type: 'earning',
-        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
-        message: `${fanName} booked: ${bookingTitle}`,
-        link: `/account/payouts?earning=${earning.id}`,
-      });
+      await createNotification(supabaseAdmin, artistProfile.user_id, 'earning', `💰 +$${(netAmount / 100).toFixed(2)}`, `${fanName} booked: ${bookingTitle}`, `/account/payouts?earning=${earning.id}`);
     }
 
     // Check for milestone unlocks
@@ -1518,22 +1512,10 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
     .single();
 
   if (artistProfile) {
-    await supabaseAdmin.from('notifications').insert({
-      user_id: artistProfile.user_id,
-      type: 'live_ticket',
-      title: '🎟️ Ticket sold',
-      message: `${fanName} bought a ticket to ${liveTitle}`,
-      link: `/studio/live`,
-    });
+    await createNotification(supabaseAdmin, artistProfile.user_id, 'live_ticket', '🎟️ Ticket sold', `${fanName} bought a ticket to ${liveTitle}`, `/studio/live`);
 
     if (earning) {
-      await supabaseAdmin.from('notifications').insert({
-        user_id: artistProfile.user_id,
-        type: 'earning',
-        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
-        message: `${fanName} bought a ticket to ${liveTitle}`,
-        link: `/account/payouts?earning=${earning?.id}`,
-      });
+      await createNotification(supabaseAdmin, artistProfile.user_id, 'earning', `💰 +$${(netAmount / 100).toFixed(2)}`, `${fanName} bought a ticket to ${liveTitle}`, `/account/payouts?earning=${earning?.id}`);
     }
 
     try {
@@ -1545,9 +1527,11 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
 
   // Buyer: in-app confirmation + email receipt (mirrors the product/track flow,
   // which previously left live-ticket buyers with no confirmation at all).
+  // F-06: its own type, distinct from the artist's 'live_ticket' sale notice — one type
+  // string carries exactly one classification, and this one is the FAN's own truth.
   await supabaseAdmin.from('notifications').insert({
     user_id: buyer_id,
-    type: 'live_ticket',
+    type: 'live_ticket_confirmed',
     title: "🎟️ You're in",
     message: `Your ticket to ${liveTitle} is confirmed.`,
     link: `/my-calendar`,
@@ -1670,22 +1654,10 @@ export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.
     .single();
 
   if (artistProfile) {
-    await supabaseAdmin.from('notifications').insert({
-      user_id: artistProfile.user_id,
-      type: 'live_tip',
-      title: `💸 ${fanName} tipped $${(grossAmount / 100).toFixed(2)}!`,
-      message: tip.message ? `"${tip.message}"` : `During ${liveTitle}`,
-      link: `/studio/live`,
-    });
+    await createNotification(supabaseAdmin, artistProfile.user_id, 'live_tip', `💸 ${fanName} tipped $${(grossAmount / 100).toFixed(2)}!`, tip.message ? `"${tip.message}"` : `During ${liveTitle}`, `/studio/live`);
 
     if (earning) {
-      await supabaseAdmin.from('notifications').insert({
-        user_id: artistProfile.user_id,
-        type: 'earning',
-        title: `💰 +$${(netAmount / 100).toFixed(2)}`,
-        message: `${fanName} tipped during ${liveTitle}`,
-        link: `/account/payouts?earning=${earning.id}`,
-      });
+      await createNotification(supabaseAdmin, artistProfile.user_id, 'earning', `💰 +$${(netAmount / 100).toFixed(2)}`, `${fanName} tipped during ${liveTitle}`, `/account/payouts?earning=${earning.id}`);
     }
   }
 
@@ -1764,13 +1736,7 @@ async function settleLiveGoals(
         sender_tier_name: 'Artist',
       });
 
-      await supabaseAdmin.from('notifications').insert({
-        user_id: artistUserId,
-        type: 'live_tip',
-        title: '🏆 Tip goal reached!',
-        message: `Your fans unlocked: ${goal.title}`,
-        link: `/studio/live`,
-      });
+      await createNotification(supabaseAdmin, artistUserId, 'live_tip', '🏆 Tip goal reached!', `Your fans unlocked: ${goal.title}`, `/studio/live`);
     }
   }
 
@@ -2228,13 +2194,7 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
     .single();
 
   if (artistProfile) {
-    await supabaseAdmin.from('notifications').insert({
-      user_id: artistProfile.user_id,
-      type: 'refund',
-      title: '⚠️ Refund processed',
-      message: `$${(amountRefunded / 100).toFixed(2)} refunded: ${originalEarning.description}`,
-      link: '/account/payouts',
-    });
+    await createNotification(supabaseAdmin, artistProfile.user_id, 'refund', '⚠️ Refund processed', `$${(amountRefunded / 100).toFixed(2)} refunded: ${originalEarning.description}`, '/account/payouts');
   }
 
   console.log('Refund recorded:', { artistId: originalEarning.artist_id, amount: amountRefunded });
@@ -2358,13 +2318,7 @@ export async function handleDisputeCreated(supabaseAdmin: AdminClient, dispute: 
 
   // Notify artist of dispute
   if (artistProfile) {
-    await supabaseAdmin.from('notifications').insert({
-      user_id: artistProfile.user_id,
-      type: 'dispute',
-      title: '🚨 Payment dispute opened',
-      message: `$${(disputeAmount / 100).toFixed(2)} disputed - ${originalEarning.description}. Evidence has been auto-submitted.`,
-      link: '/account/payouts',
-    });
+    await createNotification(supabaseAdmin, artistProfile.user_id, 'dispute', '🚨 Payment dispute opened', `$${(disputeAmount / 100).toFixed(2)} disputed - ${originalEarning.description}. Evidence has been auto-submitted.`, '/account/payouts');
   }
 
   // Send platform alert email

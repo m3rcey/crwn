@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, ExternalLink, Loader2, ShieldCheck } from 'lucide-react';
-import { smartBack } from '@/lib/navigation';
+import { smartBack, requestHubReopen } from '@/lib/navigation';
 import {
   READINESS_DISCLAIMER,
   type ReadinessAnswer,
@@ -41,6 +41,17 @@ const URGENCY_STYLE: Record<string, { label: string; className: string }> = {
 
 export default function RoyaltyReadinessPage() {
   const router = useRouter();
+  // F-10: this page is now indexed in the hamburger AccountHub (?from=hub). The wizard has
+  // no header X, so the footer Exit and the result's Done are the hub-aware controls: opened
+  // from the menu they return to it (same reopen flag as HubBackControl); reached any other
+  // way they are the normal smartBack.
+  const exitPage = useCallback(() => {
+    const fromHub =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('from') === 'hub';
+    if (fromHub) requestHubReopen();
+    smartBack(router, '/studio');
+  }, [router]);
   const [loading, setLoading] = useState(true);
   const [enabled, setEnabled] = useState(false);
   const [questions, setQuestions] = useState<ReadinessQuestion[]>([]);
@@ -177,7 +188,7 @@ export default function RoyaltyReadinessPage() {
           setPhase('questions');
           window.scrollTo({ top: 0 });
         }}
-        onDone={() => smartBack(router, '/studio')}
+        onDone={exitPage}
       />
     );
   }
@@ -284,7 +295,7 @@ export default function RoyaltyReadinessPage() {
       <footer className="border-t border-crwn-elevated">
         <div className="py-4 flex items-center justify-between gap-3">
           <button
-            onClick={() => (safeIndex === 0 ? smartBack(router, '/studio') : setIndex((i) => Math.max(0, i - 1)))}
+            onClick={() => (safeIndex === 0 ? exitPage() : setIndex((i) => Math.max(0, i - 1)))}
             disabled={saving}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-crwn-text-secondary hover:text-crwn-text disabled:opacity-30 transition-colors"
           >

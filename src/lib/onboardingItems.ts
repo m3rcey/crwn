@@ -6,7 +6,7 @@ type Supa = ReturnType<typeof createBrowserSupabaseClient>;
 type Result = { error?: string };
 
 function fireMilestone(milestone: string) {
-  fetch('/api/admin/milestone', {
+  fetch('/api/artist/milestone', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ milestone }),

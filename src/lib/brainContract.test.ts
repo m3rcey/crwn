@@ -29,6 +29,10 @@ const CANONICAL_DOCS = [
   'docs/crwn-brain/22-VIRALITY-ENGINE-ARCHITECTURE.md',
   'docs/crwn-brain/23-ZERO-TO-ONE-STRATEGY.md',
   'docs/crwn-brain/24-RECOMMENDATION-OUTCOME-LINKAGE.md',
+  // F-11 (2026-08-12): CLAUDE.md is where the stale "dark until fan-campaigns runs" claim
+  // actually lived, and it was not in this list, which is exactly how the drift escaped.
+  // CLAUDE.md is the doc every agent reads first; it is held to the same claims.
+  'CLAUDE.md',
 ].map((p) => [p, read(p)] as const);
 
 describe('a canonical doc may not call a SHIPPED system unbuilt', () => {

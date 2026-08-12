@@ -16,11 +16,12 @@ interface FunnelData {
     tiers_created: number;
     stripe_connected: number;
     paid_tier: number;
+    activated: number;
     first_subscriber: number;
   };
   timeToMilestone: Record<string, number | null>;
   sourceBreakdown: Record<string, number>;
-  weeklyTrend: { week: string; signups: number; activated: number }[];
+  weeklyTrend: { week: string; signups: number; setup_progress: number; activated: number }[];
   totalArtists: number;
   filteredArtists: number;
 }
@@ -46,8 +47,13 @@ const FUNNEL_STAGES = [
   { key: 'first_track', label: 'First Track', color: '#c084fc' },
   { key: 'tiers_created', label: 'Tiers Created', color: '#D4AF37' },
   { key: 'stripe_connected', label: 'Stripe Connected', color: '#d4af37' },
-  { key: 'paid_tier', label: 'Paid Tier', color: '#22c55e' },
-  { key: 'first_subscriber', label: 'First Subscriber', color: '#10b981' },
+  { key: 'paid_tier', label: 'Paid CRWN Plan', color: '#22c55e' },
+  // Canonical activation (Decision C): the artist's first paid fan conversion across ALL SIX
+  // rails, from the deduped funnel_events recorder. The milestone stages above are setup
+  // progress, not money.
+  { key: 'activated', label: 'Activated (First Paid, any rail)', color: '#D4AF37' },
+  // Membership-specific sub-metric, deliberately NOT labelled as first money.
+  { key: 'first_subscriber', label: 'First Member (memberships)', color: '#10b981' },
 ];
 
 const MILESTONE_LABELS: Record<string, string> = {
@@ -180,7 +186,7 @@ export default function FunnelView() {
             <span className="text-xs font-medium">Signup → Activated</span>
           </div>
           <p className="text-xl font-bold text-crwn-text">
-            {conversionRate(funnel.signups, funnel.first_subscriber)}
+            {conversionRate(funnel.signups, funnel.activated)}
           </p>
         </div>
         <div className="bg-crwn-surface rounded-xl p-4 border border-crwn-elevated">
@@ -198,7 +204,7 @@ export default function FunnelView() {
             <span className="text-xs font-medium">Overall Conversion</span>
           </div>
           <p className="text-xl font-bold text-crwn-text">
-            {conversionRate(topOfFunnel, funnel.first_subscriber)}
+            {conversionRate(topOfFunnel, funnel.activated)}
           </p>
         </div>
       </div>
@@ -295,7 +301,8 @@ export default function FunnelView() {
                   contentStyle={{ backgroundColor: '#1A1A1A', border: '1px solid #2A2A2A', borderRadius: 8, color: '#fff', fontSize: 12 }}
                 />
                 <Area type="monotone" dataKey="signups" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} strokeWidth={2} name="Signups" />
-                <Area type="monotone" dataKey="activated" stroke="#D4AF37" fill="#D4AF37" fillOpacity={0.2} strokeWidth={2} name="Activated" />
+                <Area type="monotone" dataKey="setup_progress" stroke="#a855f7" fill="#a855f7" fillOpacity={0.15} strokeWidth={2} name="Setup Progress (3 of 5)" />
+                <Area type="monotone" dataKey="activated" stroke="#D4AF37" fill="#D4AF37" fillOpacity={0.2} strokeWidth={2} name="Activated (First Paid)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -314,7 +321,8 @@ export default function FunnelView() {
                 contentStyle={{ backgroundColor: '#1A1A1A', border: '1px solid #2A2A2A', borderRadius: 8, color: '#fff', fontSize: 12 }}
               />
               <Area type="monotone" dataKey="signups" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} strokeWidth={2} name="Signups" />
-              <Area type="monotone" dataKey="activated" stroke="#D4AF37" fill="#D4AF37" fillOpacity={0.2} strokeWidth={2} name="Activated" />
+              <Area type="monotone" dataKey="setup_progress" stroke="#a855f7" fill="#a855f7" fillOpacity={0.15} strokeWidth={2} name="Setup Progress (3 of 5)" />
+              <Area type="monotone" dataKey="activated" stroke="#D4AF37" fill="#D4AF37" fillOpacity={0.2} strokeWidth={2} name="Activated (First Paid)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

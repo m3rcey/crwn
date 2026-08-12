@@ -1,5 +1,48 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Product consistency remediation: the audit's findings executed
+
+Executed `docs/PRODUCT_CONSISTENCY_AUDIT_2026-08-12.md` in dependency order (the audit doc now
+carries the full per-finding remediation status). The headline changes:
+
+- **F-01 (money).** `earnings.net_amount` on an INITIAL referred/clipper subscription now
+  subtracts the attributed commission, exactly like renewals: ONE shared formula
+  (`src/lib/earningsNet.ts`, `subscriptionEarningNet`), fed by a new `attributed_cut` echo in
+  checkout metadata. `platform_fee` stays the base cut. Historical impact probed read-only:
+  **zero** positive `referral_earnings` rows and **zero** `team_split_earnings` rows exist in
+  production, so no backfill was needed and no collaborator money moved.
+- **F-04 (milestone truth).** `src/lib/milestoneReconcile.ts` derives activation milestones from
+  canonical rows (tracks, albums, paid tiers, setup funnel event, subscription earnings) with
+  historical evidence timestamps, runs inside the daily activation-nudges cron before rule
+  evaluation, and never touches `stripe_connected`. Decision D holds: `shouldEnrollForRule`
+  refuses stalls older than 30 days, so backfilled truth cannot fire archaeology emails.
+- **F-02/F-03 (admin truth).** Admin funnel now carries BOTH series: `setup_progress` (the
+  preserved 3-of-5 computation, honestly named) and `activated` (canonical
+  `first_paid_conversion` across all six rails). `first_subscriber` is labelled
+  "First Member (memberships)", never first money.
+- **F-05 (pop-ups).** Production probe: `popup_engine` is **ON** with 16 events; the channel was
+  never dark. All 19 registered pop-ups audited safe (announcedAt + flag gates hold). Post-Win
+  is reachable and correctly silent until a first paid conversion exists.
+- **F-06 (comms).** Twelve unclassified notification types classified; 15 artist-facing direct
+  inserts (webhooks, milestones, VIP task) now route through `createNotification`; the buyer's
+  ticket confirmation got its own fan type `live_ticket_confirmed`. Source-walking test pins the
+  boundary with a documented allowlist (`src/lib/comms/chokepoint.test.ts`).
+- **F-07 (one interruption owner).** `selectSingleInterruption` retired; the Pop-up Engine is the
+  formal owner of interruption arbitration and the precedence invariants are asserted against
+  its registry.
+- **Navigation/copy.** Fan nav slot renamed Missions (`/command`), Earnings (`/earn`) + the fan's
+  own calendar/missions/squads/bounties/impact indexed in the hamburger; Royalty Readiness added
+  to the artist hub (hub-aware exit); "Action Plan" label purged from `/missions` and pinned
+  repo-wide; tours shipped for Manager, Promise Calendar, Team Splits, Fan Drives.
+- **F-15/F-16.** Eleven admin routes consolidated onto `requireAdmin`; the milestone route moved
+  to `/api/artist/milestone` with the old admin path kept as a compatibility wrapper.
+- **F-11.** CLAUDE.md + doc 22 corrected (fan-campaigns migration IS applied; quest/popup engines
+  are LIVE), and CLAUDE.md itself joined `brainContract.test.ts`'s canonical doc list, which is
+  the gap the drift escaped through.
+
+Suite grew 1604 → 1671 tests, all passing. No migrations. No production mutations (the one flag
+Decision A contemplated was already on).
+
 ## 2026-08-12 - Post-Win Referral V1 live: unpaid, additive, and nowhere near the money rail
 
 Both blocking founder decisions were ratified, so the thin V1 shipped. Doc

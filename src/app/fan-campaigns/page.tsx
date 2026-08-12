@@ -16,6 +16,8 @@ import Link from 'next/link';
 import { Check, Copy, Loader2, Megaphone, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { HubBackControl } from '@/components/shared/HubBackControl';
+import { HubPageTour } from '@/components/shared/HubPageTour';
+import { fanDrivesTourSteps } from '@/lib/fanDrivesTourSteps';
 import type { CampaignArchetype } from '@/lib/campaigns/archetypes';
 import type { CampaignResults } from '@/lib/campaigns/results';
 import type { CampaignRow } from '@/lib/campaigns/store';
@@ -166,8 +168,9 @@ export default function FanCampaignsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="max-w-2xl mx-auto px-4 py-6" data-tour="fan-drives-root">
       <HubBackControl fallback="/studio" label="Back to Studio" />
+      <HubPageTour tourId="fan-drives" steps={fanDrivesTourSteps} />
 
       <div className="flex items-center gap-3 mb-2">
         <Megaphone className="w-5 h-5 text-crwn-gold" />

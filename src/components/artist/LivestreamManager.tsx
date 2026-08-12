@@ -710,7 +710,7 @@ export function LivestreamManager({ artistId, artistSlug, artistName, tiers }: L
                 {!isFree && mode === 'live' && (
                   <div className="mt-4 ml-6">
                     <label className="block text-crwn-text-secondary text-sm mb-1">
-                      {ticketSuggested ? 'Seat price — suggested for your level' : 'Pre-sale ticket price (optional)'}
+                      {ticketSuggested ? 'Seat price (suggested for your level)' : 'Pre-sale ticket price (optional)'}
                     </label>
                     <div className="flex items-center gap-2">
                       <span className="text-crwn-text-secondary">$</span>

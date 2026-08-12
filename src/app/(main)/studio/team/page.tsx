@@ -2,6 +2,8 @@
 
 import { HubPage } from '@/components/layout/HubPage';
 import { TeamManager } from '@/components/artist/TeamManager';
+import { HubPageTour } from '@/components/shared/HubPageTour';
+import { teamSplitsTourSteps } from '@/lib/teamSplitsTourSteps';
 
 export default function StudioTeamPage() {
   return (
@@ -13,7 +15,12 @@ export default function StudioTeamPage() {
       artistOnlyMessage="Publish your artist page to put your splits in writing and pay them automatically."
       width="wide"
     >
-      {(ctx) => <TeamManager artistId={ctx.artistId} platformTier={ctx.platformTier} />}
+      {(ctx) => (
+        <div data-tour="team-root">
+          <HubPageTour tourId="studio-team" steps={teamSplitsTourSteps} />
+          <TeamManager artistId={ctx.artistId} platformTier={ctx.platformTier} />
+        </div>
+      )}
     </HubPage>
   );
 }

@@ -67,6 +67,30 @@ describe('the artist is not offered two strategy surfaces side by side', () => {
     expect(HUB).not.toContain("label: 'Action Plan'");
   });
 
+  it('the retired name has not escaped onto any other user-facing surface (F-14)', () => {
+    // /missions rendered a literal "Action Plan" button for months because this test only
+    // pinned Studio and the hub. Walk every page and component: the retired label may not
+    // appear in JSX text or a label/title string anywhere user-facing. Comments are fine.
+    const { readdirSync, statSync } = require('node:fs') as typeof import('node:fs');
+    const { join } = require('node:path') as typeof import('node:path');
+    const walk = (dir: string, acc: string[] = []): string[] => {
+      for (const name of readdirSync(dir)) {
+        const p = join(dir, name);
+        if (statSync(p).isDirectory()) walk(p, acc);
+        else if (/\.tsx$/.test(name)) acc.push(p);
+      }
+      return acc;
+    };
+    const stripComments = (s: string) =>
+      s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+    for (const f of [...walk('src/app'), ...walk('src/components')]) {
+      const src = stripComments(readFileSync(f, 'utf8'));
+      expect(src, `${f} still shows the retired "Action Plan" label`).not.toMatch(
+        />\s*Action Plan\s*<|label:\s*'Action Plan'|title:\s*'Action Plan'/,
+      );
+    }
+  });
+
   it('lists Manager exactly once in each navigation surface', () => {
     expect(STUDIO.match(/href: '\/studio\/manager'/g) ?? []).toHaveLength(1);
     expect(HUB.match(/href: '\/studio\/manager'/g) ?? []).toHaveLength(1);

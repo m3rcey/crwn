@@ -129,6 +129,14 @@ export async function GET(req: NextRequest) {
 /**
  * For each refund earning tied to an original earning this deal already accrued,
  * write a proportional negative clawback (idempotent via unique(deal_id, earning_id)).
+ *
+ * F-19 (audit 2026-08-12): this scan is O(refunds x deals) per day and re-reads every refund
+ * row for the artist on every deal. DEFERRED with evidence: production measured on 2026-08-12
+ * held 0 refund earnings, 0 active deals and 0 team_split_earnings rows, so bounding it now
+ * would trade audited correctness for a performance win nobody can feel. When refund volume
+ * becomes real, bound by a created_at horizon WITHOUT changing accounting completeness (a
+ * refund must never escape clawback by being older than the horizon; anchor on the deal's
+ * last-clawback watermark, not a fixed window).
  */
 async function applyClawbacks(deal: TeamSplitDeal, now: Date): Promise<number> {
   // Refund rows for this artist carry metadata.original_earning_id.

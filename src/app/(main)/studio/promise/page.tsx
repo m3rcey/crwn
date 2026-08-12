@@ -2,6 +2,8 @@
 
 import { HubPage } from '@/components/layout/HubPage';
 import { PromiseCalendar } from '@/components/artist/PromiseCalendar';
+import { HubPageTour } from '@/components/shared/HubPageTour';
+import { promiseCalendarTourSteps } from '@/lib/promiseCalendarTourSteps';
 
 export default function StudioPromisePage() {
   return (
@@ -13,7 +15,10 @@ export default function StudioPromisePage() {
       artistOnlyMessage="Publish your artist page and this becomes how you keep every promise you sold."
       width="wide"
     >
-      <PromiseCalendar />
+      <div data-tour="promise-root">
+        <HubPageTour tourId="studio-promise" steps={promiseCalendarTourSteps} />
+        <PromiseCalendar />
+      </div>
     </HubPage>
   );
 }

@@ -30,11 +30,7 @@
 // not withhold a communication on the strength of a fact it does not have. This is the same
 // discipline as `MetricState`'s missing-is-not-zero, applied to attention.
 
-import {
-  classRank,
-  isGovernable,
-  type CommunicationCandidate,
-} from './taxonomy';
+import { isGovernable, type CommunicationCandidate } from './taxonomy';
 
 export type CommunicationDecision =
   /** Send it. Used for critical and for ungoverned passthrough. */
@@ -122,60 +118,22 @@ export function governCommunications(
   });
 }
 
-/**
- * Choose ONE candidate for a single-interruption channel, and defer the rest.
+/*
+ * INTERRUPTION ARBITRATION LIVES IN THE POP-UP ENGINE, NOT HERE. (F-07, 2026-08-12)
  *
- * Nothing is suppressed here either. Losing this moment leaves a candidate eligible for the next
- * one, which is precisely what the founder rule requires for celebrations: a fan obligation takes
- * the interruption, and the celebration surfaces later if its own eligibility still holds.
+ * `selectSingleInterruption` used to sit here with zero production callers while the Pop-up
+ * Engine independently selected one pop-up per user per day by its own per-popup priorities.
+ * Two theoretical owners of "which interruption wins" is exactly the duplicate-authority
+ * failure this module exists to prevent, so the unwired one was retired.
  *
- * NOT wired to the pop-up engine in this task. The pop-up engine already governs its own channel
- * (one per user per day, priority-sorted) and migrating it is a separate decision. This exists so
- * the precedence rule is expressed and tested once, in the layer that owns it.
+ * The formal ownership split:
+ *   - Communications Governor (this file): classification and precedence for MULTI-ITEM
+ *     channels (the notification feed), through `createNotification`.
+ *   - Pop-up Engine (`src/lib/popups`): single-interruption arbitration, because its
+ *     per-popup priorities (Stripe 100, first broadcast 80, break-even 75, ... Post-Win
+ *     celebration 30) carry product semantics the eight taxonomy classes cannot represent.
+ *
+ * The precedence INVARIANTS the retired function encoded did not retire with it: they are
+ * asserted against the Pop-up Engine registry in `governor.test.ts`, in the layer that
+ * actually decides.
  */
-export function selectSingleInterruption(
-  context: CommsContext,
-  candidates: CommunicationCandidate[],
-): { winner: GovernedResult | null; deferred: GovernedResult[] } {
-  const governable = candidates.filter(isGovernable);
-  const ungoverned = candidates.filter((c) => !isGovernable(c));
-
-  if (!governable.length) {
-    return {
-      winner: null,
-      deferred: ungoverned.map((candidate) => ({
-        candidate,
-        decision: 'deliver' as const,
-        reason: 'ungoverned:not_crwn_artist_comm',
-      })),
-    };
-  }
-
-  // Stable sort by class precedence. Ties keep the caller's order rather than inventing a
-  // tiebreaker, because a tiebreaker would be an opinion the taxonomy has not licensed.
-  const ranked = governable
-    .map((candidate, i) => ({ candidate, i }))
-    .sort((a, b) => classRank(a.candidate.class) - classRank(b.candidate.class) || a.i - b.i);
-
-  const [first, ...rest] = ranked;
-
-  return {
-    winner: {
-      candidate: first.candidate,
-      decision: 'deliver',
-      reason: `interruption:won_as_${first.candidate.class}`,
-    },
-    deferred: [
-      ...rest.map(({ candidate }) => ({
-        candidate,
-        decision: 'defer' as const,
-        reason: `interruption:deferred_below_${first.candidate.class}`,
-      })),
-      ...ungoverned.map((candidate) => ({
-        candidate,
-        decision: 'deliver' as const,
-        reason: 'ungoverned:not_crwn_artist_comm',
-      })),
-    ],
-  };
-}

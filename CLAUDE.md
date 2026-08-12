@@ -185,8 +185,9 @@ parse it through this module, which is also the length limit and the HTML-safety
 
 ## Fan Drives (Virality Engine) — the campaign is a DIMENSION, never a source of truth
 
-`src/lib/campaigns/*` is the thin campaign spine (V1 shipped 2026-08-11, dark until
-`supabase/schema-phase3-fan-campaigns.sql` runs). Canonical architecture:
+`src/lib/campaigns/*` is the thin campaign spine (V1 shipped 2026-08-11; its migration
+`supabase/schema-phase3-fan-campaigns.sql` is APPLIED in production, verified by probe
+2026-08-12, so the feature is LIVE, not dark). Canonical architecture:
 `docs/crwn-brain/22-VIRALITY-ENGINE-ARCHITECTURE.md`, and section 28 is what is actually live.
 
 **The falsifiable rule: if a campaign row and a canonical rail can disagree about who earned what,
@@ -255,8 +256,9 @@ must pass a frequency governor. Do NOT add a new interruption path without one.
   enforces **max one pop-up per user per day** on top of each pop-up's own cap. **Every
   ANNOUNCEMENT pop-up ("we changed X" / "new feature") MUST carry `announcedAt`** (the date the
   change went live): the engine skips it for accounts created on/after that date, because those
-  users met the current product at signup and the announcement is noise to them. Dark-launched via
-  `admin_settings.popup_engine` (off by default), same pattern as `quest_engine`. Surveys are a
+  users met the current product at signup and the announcement is noise to them. Gated by
+  `admin_settings.popup_engine`, which is ON in production (verified 2026-08-12, 16 popup_events
+  recorded; the code default is false but the flag is LIVE, same as `quest_engine`). Surveys are a
   pop-up `kind` (1-5 + feedback), stored in `popup_survey_responses`; low scores email the founder.
 - **Broadcasts / fan notifications** already carry hourly + daily rate-limit caps in their routes
   (`api/messages/broadcast`, `api/notifications/notify-subscribers`). Keep them. A muted fan is a

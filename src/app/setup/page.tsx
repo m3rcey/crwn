@@ -483,7 +483,7 @@ function SetupWizard() {
           body: JSON.stringify({ markConverted: { recruiterCode, userId: user.id } }),
         }).catch(() => {});
       }
-      fetch('/api/admin/milestone', {
+      fetch('/api/artist/milestone', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ milestone: 'onboarding_completed' }),
@@ -807,7 +807,7 @@ function SetupWizard() {
             onBulkComplete={() => {
               // The single-track path fires this inside createOnboardingTrack;
               // the bulk form doesn't, so keep the activation milestone honest.
-              fetch('/api/admin/milestone', {
+              fetch('/api/artist/milestone', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ milestone: 'first_track_uploaded' }),

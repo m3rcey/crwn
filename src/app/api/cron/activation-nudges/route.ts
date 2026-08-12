@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { reconcileAllActivationMilestones, shouldEnrollForRule } from '@/lib/milestoneReconcile';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -53,14 +54,27 @@ export async function GET(req: NextRequest) {
   let enrolled = 0;
   let checked = 0;
 
-  // Fetch all artists with activation_milestones
+  // F-04: reconcile milestone TRUTH from canonical rows BEFORE evaluating nudge rules.
+  // The milestones used to be browser fire-and-forget writes; one lost write silenced the
+  // whole prerequisite chain forever. Reconciliation is idempotent, uses historical evidence
+  // timestamps, and the freshness window inside shouldEnrollForRule keeps backfilled truth
+  // from firing archaeology emails (Decision D: truth reconciliation is not communication
+  // eligibility). Fail-soft: a reconcile error must never stop the nudge pass.
+  let reconciled: { artistsChecked: number; artistsUpdated: number } = { artistsChecked: 0, artistsUpdated: 0 };
+  try {
+    reconciled = await reconcileAllActivationMilestones(supabaseAdmin);
+  } catch (err) {
+    console.error('[activation-nudges] milestone reconciliation failed:', err);
+  }
+
+  // Fetch all artists with activation_milestones (fresh, post-reconciliation)
   const { data: artists } = await supabaseAdmin
     .from('artist_profiles')
     .select('id, user_id, created_at, activation_milestones, pipeline_stage')
     .not('pipeline_stage', 'in', '("churned")');
 
   if (!artists || artists.length === 0) {
-    return NextResponse.json({ checked: 0, enrolled: 0 });
+    return NextResponse.json({ checked: 0, enrolled: 0, reconciled });
   }
 
   // Fetch all active activation sequences
@@ -71,7 +85,7 @@ export async function GET(req: NextRequest) {
     .eq('is_active', true);
 
   if (!sequences || sequences.length === 0) {
-    return NextResponse.json({ checked: artists.length, enrolled: 0, reason: 'no active sequences' });
+    return NextResponse.json({ checked: artists.length, enrolled: 0, reconciled, reason: 'no active sequences' });
   }
 
   const sequenceMap = new Map(sequences.map(s => [s.trigger_type, s.id]));
@@ -99,22 +113,11 @@ export async function GET(req: NextRequest) {
       // Check if already enrolled
       if (enrolledSet.has(`${sequenceId}:${artist.user_id}`)) continue;
 
-      // Check if the missing milestone is truly missing
-      if (milestones[rule.missingMilestone]) continue;
-
-      // Determine the anchor date (when the prerequisite was achieved)
-      let anchorDate: Date;
-      if (rule.requiresMilestone) {
-        const prereqTimestamp = milestones[rule.requiresMilestone];
-        if (!prereqTimestamp) continue; // Prerequisite not met yet — not stalled, just early
-        anchorDate = new Date(prereqTimestamp);
-      } else {
-        anchorDate = new Date(artist.created_at);
-      }
-
-      // Check if enough time has passed
-      const daysSinceAnchor = (now.getTime() - anchorDate.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceAnchor < rule.stallDays) continue;
+      // One shared, tested rule evaluation (milestoneReconcile.ts): prerequisite present,
+      // target missing, stalled >= stallDays AND within the freshness window. The window is
+      // what makes reconciliation backfill safe — a six-month-old stall is recorded truth,
+      // never a fresh lifecycle event (Decision D).
+      if (!shouldEnrollForRule(rule, milestones, artist.created_at, now)) continue;
 
       // Enroll in the sequence
       try {
@@ -145,5 +148,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ checked, enrolled });
+  return NextResponse.json({ checked, enrolled, reconciled });
 }

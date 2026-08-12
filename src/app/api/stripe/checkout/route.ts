@@ -272,6 +272,11 @@ export async function POST(req: NextRequest) {
         referral_code: referralCode || '',
         attribution_source: attributionSource || '',
         clipper_rate: String(clipperRate),
+        // The TOTAL cut (referral OR clipper) added to application_fee_percent above.
+        // The webhook subtracts exactly this from the earning's net, so the ledger
+        // reflects what Stripe actually left the artist (F-01). clipper_rate stays for
+        // processReferral compatibility; this key is the one the net calculation reads.
+        attributed_cut: String(attributedCut),
         discount_code_id: discountResult.discountId || '',
         utm_source: utmSource || '',
         utm_medium: utmMedium || '',

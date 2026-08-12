@@ -13,7 +13,7 @@ import { consumeHubReopen } from '@/lib/navigation';
 import {
   Home,
   Compass,
-  Coins,
+  Flag,
   MessageCircle,
   TrendingUp,
   Library,
@@ -30,7 +30,11 @@ import {
 //
 // Management screens are NOT here. They live in the hamburger AccountHub, which
 // is also where Profile went when it gave up the 5th slot to Rise Mode.
-const fanSlot = { href: '/command', label: 'Earn', icon: Coins, tourId: 'nav-earn' };
+// F-08 (Decision E): /command is the MISSIONS surface; the fan's money lives at /earn
+// (reachable from this page's Earnings card and the hamburger). Labelling this slot "Earn"
+// sent fans looking for their commission to a missions list. The tourId stays 'nav-earn'
+// so the existing fan tour anchor keeps working.
+const fanSlot = { href: '/command', label: 'Missions', icon: Flag, tourId: 'nav-earn' };
 const artistStudioSlot = { href: '/studio', label: 'Studio', icon: LayoutDashboard, tourId: 'nav-studio' };
 const artistRiseSlot = { href: '/profile/artist', label: 'Rise', icon: TrendingUp, tourId: 'nav-rise' };
 const fanLibrarySlot = { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' };

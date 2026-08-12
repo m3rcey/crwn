@@ -100,7 +100,7 @@ export async function applyTemplateTier(supabase: Supa, input: ApplyTierInput): 
       }
     }
 
-    fetch('/api/admin/milestone', {
+    fetch('/api/artist/milestone', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ milestone: 'tiers_created' }),

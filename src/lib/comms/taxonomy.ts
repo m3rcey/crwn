@@ -123,6 +123,13 @@ export const NOTIFICATION_TAXONOMY: Record<string, Classification> = {
   subscription_canceled: artist('critical', 'billing', false),
   team_split_payout: artist('critical', 'billing', false),
   system: artist('critical', 'system', false),
+  // F-06 (2026-08-12): the webhook money types the governor most needed to rank were the ones
+  // it had never heard of. All artist money truth; all fail open through governance.
+  refund: artist('critical', 'billing', false),
+  dispute: artist('critical', 'billing', false),
+  live_ticket: artist('critical', 'billing', false),
+  live_tip: artist('critical', 'billing', false),
+  new_booking: artist('critical', 'billing', false),
 
   // ── Events and deadlines. Factual: they report that something HAPPENED, so they are not
   //    suppressed for being strategically less important. Governance shapes urgency, not truth. ──
@@ -146,6 +153,8 @@ export const NOTIFICATION_TAXONOMY: Record<string, Classification> = {
   quest_completed: artist('celebration', 'system', true),
   quest_milestone: artist('celebration', 'system', true),
   level_up: artist('celebration', 'system', true),
+  // F-06: the earnings-milestone unlock ("first $100" etc.) is a celebration, same as quests.
+  milestone: artist('celebration', 'system', true),
 
   // ── NOT GOVERNED. The artist's own voice reaching their fans, or a fan's own truth. ──
   new_track: passthrough('fan', 'artist_authored'),
@@ -160,6 +169,20 @@ export const NOTIFICATION_TAXONOMY: Record<string, Classification> = {
   calendar_reminder: passthrough('fan', 'crwn'),
   invited: passthrough('fan', 'crwn'),
   active: passthrough('fan', 'crwn'),
+  // F-06: fan-facing truths that were unclassified. A referrer's commission, a clipper's rate
+  // change, a contributor's unlocked city, a credited release, an open bounty and a kept
+  // promise are all the FAN's own truth — recorded here so the registry is complete, exempt
+  // from governance by isGovernable exactly like the rest of this block.
+  referral_earning: passthrough('fan', 'crwn'),
+  // The buyer's ticket confirmation. Split from the artist's 'live_ticket' sale notice
+  // (F-06) because one type string carries exactly one classification, and the same webhook
+  // used to write both audiences under one type.
+  live_ticket_confirmed: passthrough('fan', 'crwn'),
+  clipper_rate_change: passthrough('fan', 'crwn'),
+  city_unlocked: passthrough('fan', 'crwn'),
+  release_credit: passthrough('fan', 'crwn'),
+  bounty_available: passthrough('fan', 'crwn'),
+  promise_fulfilled: passthrough('fan', 'crwn'),
 };
 
 /**

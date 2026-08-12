@@ -56,6 +56,8 @@ import {
   Film,
   Sparkles,
   CalendarCheck,
+  Flag,
+  Zap,
   Split,
   Megaphone,
   Milestone,
@@ -64,6 +66,7 @@ import {
   Target,
   Scissors,
   Shield,
+  ShieldCheck,
   Lightbulb,
   Tag,
   Clapperboard,
@@ -189,6 +192,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Manager', href: '/studio/manager', icon: Sparkles, hub: true },
         { label: 'Needs You', href: '/action-plan', icon: ClipboardList, hub: true },
         { label: 'Playbooks', href: '/playbooks', icon: BookOpen, hub: true },
+        // F-10: was Studio-only, violating the complete-index rule ("if you add a
+        // destination to Studio, add it here too").
+        { label: 'Royalty Readiness', href: '/royalty-readiness', icon: ShieldCheck, hub: true },
         { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
         { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },
         { label: 'Message your fans', href: '/messages', icon: MessageCircle },
@@ -259,7 +265,22 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
       links: [
         { label: 'Explore artists', href: '/explore', icon: Compass },
         { label: 'My library', href: '/library', icon: Library },
-        { label: 'Earn', href: '/command', icon: Coins },
+        { label: 'My calendar', href: '/my-calendar', icon: CalendarCheck },
+      ],
+    },
+    // F-08/F-12: "Earn" used to point at /command (missions), while the page with the fan's
+    // actual held/available/paid money (/earn) had no entry at all. Missions and Earnings are
+    // different jobs (Decision E) and the fan's own commitments now have a complete index,
+    // same rule as the artist hub.
+    {
+      title: 'Missions and earnings',
+      links: [
+        { label: 'Missions', href: '/command', icon: Flag },
+        { label: 'Earnings', href: '/earn', icon: Coins },
+        { label: 'My missions', href: '/my-missions', icon: Zap },
+        { label: 'My squads', href: '/my-squads', icon: Users },
+        { label: 'My bounties', href: '/my-bounties', icon: Scissors },
+        { label: 'My impact', href: '/impact', icon: TrendingUp },
       ],
     },
     {

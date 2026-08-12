@@ -422,10 +422,9 @@ Listed so you know what you are not carrying. Ask for any of these to jump the q
   **they are already state-aware**. A Stripe-connected artist genuinely cannot receive the
   connect-Stripe nudge, because having the milestone is what disqualifies them. I did not invent
   personalization work for a system that already had it.
-  **One gap I found and did not sweep:** 25 places still write notifications directly instead of
-  going through the governed chokepoint, 15 of them in the Stripe webhook handlers. Nothing is
-  broken today, but they are ungoverned and unclassified. Worth a dedicated pass; I left them alone
-  because most sit on money paths and that deserves its own task rather than a drive-by.
+  (The direct-notification-writer gap this note used to flag was closed 2026-08-12: every
+  artist-facing CRWN notification now goes through the governed chokepoint, and a source-walking
+  test enforces the boundary.)
 
 - **Rise Mode Resume: reconciled 2026-08-11, and one question is yours.** The prompt's plumbing was
   already right (it reads canonical quest state, matches Rise Mode's own selector, ranks below

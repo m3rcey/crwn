@@ -3,6 +3,7 @@
 // everything here is best-effort and must never throw into the webhook.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createNotification } from '@/lib/notifications';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = SupabaseClient<any, any, any>;
@@ -78,14 +79,16 @@ export async function maybeCreateVipWelcomeTask(
     metadata: { kind: 'vip_welcome', fan_id: fanId },
   });
 
-  // Nudge the artist. Reuse an existing notification type the schema already accepts.
-  await admin.from('notifications').insert({
-    user_id: artistUserId,
-    type: 'new_subscriber',
-    title: '👑 VIP welcome pending',
-    message: `Send ${fanName} a personal welcome, due in 48h`,
-    link: '/studio/promise',
-  });
+  // Nudge the artist through the chokepoint (F-06). Reuses an existing notification type
+  // the schema already accepts; new_subscriber is critical class, so it always delivers.
+  await createNotification(
+    admin,
+    artistUserId,
+    'new_subscriber',
+    '👑 VIP welcome pending',
+    `Send ${fanName} a personal welcome, due in 48h`,
+    '/studio/promise',
+  );
 
   return true;
 }

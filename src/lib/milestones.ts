@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { createNotification } from '@/lib/notifications';
 
 interface MilestoneDefinition {
   key: string;
@@ -148,14 +149,16 @@ export async function checkAndAwardMilestones(
     if (!error) {
       newlyUnlocked.push({ key: milestone.key, name: milestone.name, emoji: milestone.emoji });
 
-      // Send celebratory notification
-      await supabaseAdmin.from('notifications').insert({
-        user_id: artistUserId,
-        type: 'milestone',
-        title: `${milestone.emoji} ${milestone.name}!`,
-        message: `Congratulations! You just unlocked the "${milestone.name}" milestone on CRWN.`,
-        link: '/studio/analytics',
-      });
+      // Send celebratory notification through the chokepoint (F-06): milestone is a
+      // celebration class — it coexists in the feed, never outranks money truth.
+      await createNotification(
+        supabaseAdmin,
+        artistUserId,
+        'milestone',
+        `${milestone.emoji} ${milestone.name}!`,
+        `Congratulations! You just unlocked the "${milestone.name}" milestone on CRWN.`,
+        '/studio/analytics',
+      );
     }
   }
 

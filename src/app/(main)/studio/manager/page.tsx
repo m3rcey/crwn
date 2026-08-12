@@ -2,6 +2,8 @@
 
 import { HubPage } from '@/components/layout/HubPage';
 import { AiManagerCard } from '@/components/artist/AiManagerCard';
+import { HubPageTour } from '@/components/shared/HubPageTour';
+import { managerTourSteps } from '@/lib/managerTourSteps';
 
 // The subtitle is deliberately NOT "what to do next". That question belongs to the Constraint
 // Engine and is answered on Rise Mode. Manager coaches and executes around that answer, and the
@@ -18,7 +20,10 @@ export default function StudioManagerPage() {
       width="wide"
     >
       {(ctx) => (
-        <AiManagerCard artistId={ctx.artistId} platformTier={ctx.platformTier} />
+        <div data-tour="manager-root">
+          <HubPageTour tourId="studio-manager" steps={managerTourSteps} />
+          <AiManagerCard artistId={ctx.artistId} platformTier={ctx.platformTier} />
+        </div>
       )}
     </HubPage>
   );

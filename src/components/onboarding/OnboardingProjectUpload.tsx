@@ -97,7 +97,7 @@ export function OnboardingProjectUpload({ artistProfileId, onComplete }: Onboard
     setProjectSaved(true);
 
     // Activation milestone via the existing whitelist route (idempotent server-side).
-    fetch('/api/admin/milestone', {
+    fetch('/api/artist/milestone', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ milestone: 'first_project_created' }),

@@ -1,10 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import {
-  governCommunications,
-  selectSingleInterruption,
-  type CommsContext,
-} from './governor';
+import { governCommunications, type CommsContext } from './governor';
+// F-07: interruption arbitration is owned by the Pop-up Engine. The precedence invariants the
+// retired selectSingleInterruption encoded are asserted against the registry that decides.
+import { POPUPS } from '../popups/registry';
 import {
   CLASS_ORDER,
   classRank,
@@ -25,7 +24,6 @@ const NOTIF = read('src/lib/notifications.ts');
 const GOV_RAW = readFileSync('src/lib/comms/governor.ts', 'utf8');
 
 const FEED: CommsContext = { channel: 'feed' };
-const INTERRUPT: CommsContext = { channel: 'interruption' };
 
 const cand = (cls: CommunicationClass, over: Partial<CommunicationCandidate> = {}): CommunicationCandidate => ({
   key: `k:${cls}`,
@@ -90,12 +88,14 @@ describe('G1 — critical is never withheld', () => {
     }
   });
 
-  it('wins any single interruption', () => {
-    const { winner, deferred } = selectSingleInterruption(INTERRUPT, [
-      cand('celebration'), cand('growth'), cand('critical'), cand('fan_obligation'),
-    ]);
-    expect(winner?.candidate.class).toBe('critical');
-    expect(deferred.every((d) => d.decision === 'defer')).toBe(true);
+  it('wins any single interruption — asserted against the Pop-up Engine, the channel owner (F-07)', () => {
+    // The money-blocking pop-up (Stripe not connected) outranks every celebration and every
+    // growth/announcement pop-up in the registry that owns interruption arbitration.
+    const stripe = POPUPS.find((p) => p.key === 'artist_connect_stripe')!;
+    for (const p of POPUPS) {
+      if (p.key === 'artist_connect_stripe') continue;
+      expect(stripe.priority, `${p.key} must not outrank connect-Stripe`).toBeGreaterThan(p.priority);
+    }
   });
 
   it('no code path can return suppress for a critical candidate', () => {
@@ -117,40 +117,38 @@ describe('G1 — founder decision 2: celebrations coexist but never displace', (
     expect(results.every((r) => r.decision !== 'defer' && r.decision !== 'suppress')).toBe(true);
   });
 
-  it('a fan obligation takes the single interruption and the celebration is DEFERRED, not suppressed', () => {
-    const { winner, deferred } = selectSingleInterruption(INTERRUPT, [
-      cand('celebration'), cand('fan_obligation'),
-    ]);
-    expect(winner?.candidate.class).toBe('fan_obligation');
-    expect(deferred).toHaveLength(1);
-    expect(deferred[0].candidate.class).toBe('celebration');
-    expect(deferred[0].decision).toBe('defer');
-    expect(deferred[0].decision).not.toBe('suppress');
+  it('the Post-Win celebration is outranked by every operating pop-up (F-07)', () => {
+    // A celebration never displaces money truth or activation work in the interruption
+    // channel. Post-Win (priority 30) sits below Stripe (100), the first broadcast (80),
+    // both break-even modals (75) and resume (40) in the owning registry.
+    const postWin = POPUPS.find((p) => p.key === 'artist_post_win_referral')!;
+    for (const key of ['artist_connect_stripe', 'artist_first_broadcast', 'artist_pro_break_even', 'artist_scale_break_even', 'artist_resume_rise']) {
+      const p = POPUPS.find((x) => x.key === key)!;
+      expect(p.priority, `${key} must outrank the Post-Win celebration`).toBeGreaterThan(postWin.priority);
+    }
   });
 
-  it('a celebration is never permanently withheld just because an obligation exists', () => {
-    // Same celebration, obligation gone: it is eligible again. Nothing about the earlier loss
-    // persisted, because nothing persists at all.
-    const later = selectSingleInterruption(INTERRUPT, [cand('celebration')]);
-    expect(later.winner?.candidate.class).toBe('celebration');
-    expect(later.winner?.decision).toBe('deliver');
+  it('losing an interruption defers, never deletes: recurring pop-ups stay eligible later', () => {
+    // The engine has no suppress: a pop-up that loses today is re-eligible tomorrow under its
+    // own frequency. Every non-announcement recurring pop-up therefore uses everyN, and the
+    // celebration specifically is everyN, not once.
+    const postWin = POPUPS.find((p) => p.key === 'artist_post_win_referral')!;
+    expect(postWin.frequency.type).toBe('everyN');
   });
 });
 
-describe('G1 — precedence between the other classes', () => {
-  it('launch blocker outranks growth', () => {
-    const { winner } = selectSingleInterruption(INTERRUPT, [cand('growth'), cand('launch_blocker')]);
-    expect(winner?.candidate.class).toBe('launch_blocker');
+describe('G1 — the interruption channel has exactly ONE owner (F-07)', () => {
+  it('the retired second owner stays retired', () => {
+    expect(GOV_RAW).not.toContain('export function selectSingleInterruption');
   });
 
-  it('canonical constraint outranks unrelated growth', () => {
-    const { winner } = selectSingleInterruption(INTERRUPT, [cand('growth'), cand('constraint')]);
-    expect(winner?.candidate.class).toBe('constraint');
+  it('the Pop-up Engine still enforces one interruption per user per day', () => {
+    const engine = readFileSync('src/lib/popups/index.ts', 'utf8');
+    expect(engine).toMatch(/one (shown )?pop-?up per (user per )?(calendar )?day/i);
   });
 
-  it('continuation ranks below fan obligation', () => {
-    const { winner } = selectSingleInterruption(INTERRUPT, [cand('continuation'), cand('fan_obligation')]);
-    expect(winner?.candidate.class).toBe('fan_obligation');
+  it('the ownership split is documented where the retired function lived', () => {
+    expect(GOV_RAW).toContain('INTERRUPTION ARBITRATION LIVES IN THE POP-UP ENGINE');
   });
 
   it('growth defers in a feed only when the caller POSITIVELY knows a blocking state', () => {

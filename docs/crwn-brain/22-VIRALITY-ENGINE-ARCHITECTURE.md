@@ -1796,7 +1796,8 @@ exactly why neither ships here.
   assets, song section metadata and moderation. Nothing in Z11 touched any of them.
 - **Cash prizes, prize pools, commission overrides, campaign payouts.** Decision 25.1 holds.
 - **Free-join attribution** (28.2).
-- **Rise Mode wiring.** The quest catalog rewrite has not landed and the engine is dark. A drive is
+- **Rise Mode wiring.** The quest catalog rewrite has not landed (the Quest Engine itself is LIVE
+  in production; an earlier version of this line called it dark, which was stale). A drive is
   reachable from the hamburger and from the campaign page's own constraint gate, not from a quest.
 - **Manager integration.** The Manager already receives the canonical priority brief (Z4) and is
   unchanged; it is not told about drives and cannot launch one.

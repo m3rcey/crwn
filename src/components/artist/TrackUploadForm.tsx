@@ -570,7 +570,7 @@ export function TrackUploadForm() {
           setTracks(prev => [track as Track, ...prev]);
 
           // Record activation milestone (fire-and-forget)
-          fetch('/api/admin/milestone', {
+          fetch('/api/artist/milestone', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ milestone: 'first_track_uploaded' }),

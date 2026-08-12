@@ -6,8 +6,10 @@
 // splitAmountForEarning()/applyCap() per row and inserts held accruals.
 //
 // Basis: net_artist_revenue -> earnings.net_amount (already net of platform fee
-// and, on renewals, fan/clipper commission) so Team Splits sit AFTER fan/clipper
-// in the stack and a collaborator can never be owed more than the artist got.
+// AND fan/clipper commission on BOTH the initial payment and renewals — F-01
+// closed the initial-payment gap via the shared subscriptionEarningNet helper)
+// so Team Splits sit AFTER fan/clipper in the stack and a collaborator can never
+// be owed more than the artist got.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { TeamSplitDeal } from './types';

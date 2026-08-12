@@ -28,8 +28,8 @@ export const fanHomeTourSteps: DriveStep[] = [
   {
     element: '[data-tour="nav-earn"]',
     popover: {
-      title: 'Earn',
-      description: 'Your hub to promote artists and track your earnings. Your daily move, your missions, and your money all live there.',
+      title: 'Missions',
+      description: 'Your hub to promote artists: your daily move and your missions live here. Your money lives in Earnings, one tap away in the menu.',
       side: 'top',
       align: 'center',
     },

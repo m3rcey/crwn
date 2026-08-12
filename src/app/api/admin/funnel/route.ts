@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth/requireAdmin';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -8,19 +8,8 @@ const supabaseAdmin = createClient(
 );
 
 export async function GET(req: NextRequest) {
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (profile?.role !== 'admin') {
-    return NextResponse.json({ error: 'Admin only' }, { status: 403 });
-  }
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   const source = req.nextUrl.searchParams.get('source') || 'all';
   const period = req.nextUrl.searchParams.get('period') || '90';
@@ -71,6 +60,18 @@ export async function GET(req: NextRequest) {
   const milestones = (a: { activation_milestones?: Record<string, string> | null }) =>
     (a.activation_milestones || {}) as Record<string, string>;
 
+  // CANONICAL ACTIVATION (F-02/F-03, Decision C): an artist is activated when their first
+  // paid fan conversion exists — the deduped funnel_events stage covering ALL SIX paid rails
+  // (subscription, product, track, booking, live ticket, live tip). The milestone-based
+  // counts below are SETUP PROGRESS, not activation: they can all be true with zero dollars.
+  // first_subscriber stays as the membership-specific sub-metric, clearly not "first money".
+  const { data: paidEvents } = await supabaseAdmin
+    .from('funnel_events')
+    .select('artist_id, created_at')
+    .eq('stage', 'first_paid_conversion')
+    .not('artist_id', 'is', null);
+  const activatedArtistIds = new Set((paidEvents || []).map(e => e.artist_id as string));
+
   const funnel = {
     clicks: filteredClicks.length,
     signups: filtered.length,
@@ -79,6 +80,7 @@ export async function GET(req: NextRequest) {
     tiers_created: filtered.filter(a => milestones(a).tiers_created).length,
     stripe_connected: filtered.filter(a => milestones(a).stripe_connected).length,
     paid_tier: filtered.filter(a => a.platform_tier && a.platform_tier !== 'starter').length,
+    activated: filtered.filter(a => activatedArtistIds.has(a.id)).length,
     first_subscriber: filtered.filter(a => milestones(a).first_subscriber).length,
   };
 
@@ -109,8 +111,14 @@ export async function GET(req: NextRequest) {
     sourceBreakdown[src] = (sourceBreakdown[src] || 0) + 1;
   }
 
-  // Weekly trend data (signups + activated per week for last 12 weeks)
-  const weeklyTrend: { week: string; signups: number; activated: number }[] = [];
+  // Weekly signup-cohort trend for the last 12 weeks. Two distinct series (Decision C):
+  //   setup_progress — the PRESERVED historical 3-of-5-milestones computation, under its
+  //                    honest name. Old values are NOT reinterpreted as activation.
+  //   activated      — canonical: cohort members whose first_paid_conversion event exists.
+  //                    Truthful only for the period the canonical recorder has existed;
+  //                    earlier cohorts simply show what was observably recorded, never a
+  //                    fabricated pre-instrumentation number.
+  const weeklyTrend: { week: string; signups: number; setup_progress: number; activated: number }[] = [];
   const now = new Date();
   for (let i = 11; i >= 0; i--) {
     const weekStart = new Date(now);
@@ -124,16 +132,20 @@ export async function GET(req: NextRequest) {
       return c >= weekStart && c < weekEnd;
     });
 
-    // "Activated" = has at least 3 of 5 milestones
-    const activated = weekArtists.filter(a => {
+    // Setup Progress = has at least 3 of 5 setup milestones (the pre-audit "activated").
+    const setupProgress = weekArtists.filter(a => {
       const m = milestones(a);
       const count = milestoneKeys.filter(k => m[k]).length;
       return count >= 3;
     }).length;
 
+    // Activated = a real first paid conversion exists for the cohort member (any rail).
+    const activated = weekArtists.filter(a => activatedArtistIds.has(a.id)).length;
+
     weeklyTrend.push({
       week: weekStart.toISOString().split('T')[0],
       signups: weekArtists.length,
+      setup_progress: setupProgress,
       activated,
     });
   }

@@ -170,7 +170,7 @@ export default function MissionsPage() {
             className="inline-flex items-center gap-2 text-sm font-medium text-crwn-text-secondary hover:text-purple-400 transition-colors"
           >
             <Sparkles className="w-4 h-4" />
-            Action Plan
+            Needs You
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
           <button
