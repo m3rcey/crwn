@@ -1,5 +1,51 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Promise reminder boundary fixed, and Communications Governor V1 (G1 + G2)
+
+**Part A — CRWN was preparing to tell artists they owed fans their own to-do list.** Z12 applied
+the fan-promise boundary to the three readers that DECIDE (Constraint evidence, Manager insights,
+Roadmap) and missed both readers that COMMUNICATE. `promiseReminders` selected `metadata` and never
+filtered; `calendarReminders` did not select `metadata` at all, so it could not have filtered.
+Both ran daily, three hours apart, each deduping only against itself.
+
+Measured read-only on production at the moment of the fix: **all 12 events inside the 8-day
+reminder window were Revenue Ramp steps**, with titles including *"Personally message your 50 most
+engaged fans"* and *"Announce it everywhere you post"* — each queued to be emailed as "Promise due
+in N days" as though a paying fan were waiting on it. `calendarReminders` went from 94 eligible
+pending events to 4. Both readers now use the shared boundary (`onlyFanPromises` in JS,
+`FAN_PROMISE_FILTER` in the query), and neither re-expresses the rule with its own literal, which
+is what let the first three drift. Truthful urgency for real obligations is unchanged.
+
+**Part B — Communications Governor V1.** `src/lib/comms/taxonomy.ts` (eight classes in precedence
+order, owners, notification-type registry) and `src/lib/comms/governor.ts` (PURE: its only import
+is the taxonomy, asserted by test). It governs ATTENTION, never diagnosis — no `readConstraint`, no
+database, no AI. Integrated at `createNotification`, the one chokepoint all twelve producers
+already call. **No producer changed**: classification keys on the `type` string they already pass,
+so the information needed to govern had been flowing all along and was simply never read. No new
+query, no new schema.
+
+**Manager is not an owner of priority.** `ai_insight` is owned by `constraint`. Manager is the
+voice; the engine owns the answer. Z4/Z5 survives into communications.
+
+**Founder decisions encoded.** (1) **No global cross-channel cap** — no counter, budget, quota or
+cooldown exists anywhere in the governor, asserted by test, because CRWN has no shared send history
+and a cap would be enforced against evidence it does not have. Channel-local caps remain
+authoritative. (2) **Celebrations coexist but never displace** — always delivered alongside a fan
+obligation in a feed; where a channel admits one winner the obligation wins and the celebration is
+**deferred, never suppressed**.
+
+**V1 emits no `suppress` at all.** The only non-delivering outcome is `defer`, and only for growth
+when the caller POSITIVELY knows a blocking state (`=== true`; `undefined` stays unknown, never
+false). Critical fails OPEN everywhere. An unclassified type delivers ungoverned, because a
+boundary introduced under live traffic that failed closed would silently mute a new feature.
+Enforcement is deliberately thin: growth suppression against the canonical constraint would put a
+Constraint Engine read on every notification write, which was refused on performance grounds.
+
+**Untouched:** lifecycle email (G3, evidence-gated), the pop-up engine and its channel-local
+governor, artist-authored fan campaigns and broadcasts, fan transactional mail, Z3/Z9/Z10, and the
+dormant autonomous Manager. Production verified read-only: notifications 183 unchanged, popup_events
+16 unchanged, sequence_enrollments 10 unchanged, nothing sent, nothing migrated.
+
 ## 2026-08-11 - Manager admin observability: an instrument, not a cockpit
 
 Shipped `/admin?tab=managerops`, labelled **Artist Manager**. Read-only operational truth about the

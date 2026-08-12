@@ -37,6 +37,7 @@
 - Routes: `src/app/api/stripe/*` (checkout, track/product/booking/live/platform-checkout, connect(+status), cashout, fan-cashout, team-split-cashout, subscription-update, webhook, create-price, balance, free-subscribe, fan-connect, fan-portal, login-link)
 - Subscription mgmt: `src/app/api/subscriptions/{cancel,pause}`
 - Team splits lib: `src/lib/teamSplits/{allocation,server,constants,types,warnings}.ts`; routes `src/app/api/team-splits/*`; crons `cron/team-split-accruals`, `cron/team-split-selfcheck`; audit `supabase/audit-team-split-road-campaign-accruals.sql`
+- Communications Governor V1: taxonomy `src/lib/comms/taxonomy.ts`, pure governor `src/lib/comms/governor.ts`, integrated at the notification chokepoint `src/lib/notifications.ts` (`createNotification`). Promise reminder boundary: `src/lib/promiseReminders.ts` + `src/lib/calendarReminders.ts`, both via `src/lib/fulfillment.ts`.
 - Manager admin observability (read-only): `src/app/api/admin/manager-ops/route.ts` (GET only, `requireAdmin`), `src/components/admin/ManagerOpsView.tsx`, pure logic `src/lib/admin/managerOps.ts`, mounted as the **Artist Manager** tab in `src/app/admin/page.tsx`.
 - Artist bank payouts: **no CRWN cron.** Stripe pays each Express account on its own automatic daily schedule. The only CRWN-initiated artist payout is `src/app/api/stripe/cashout/route.ts` ($2, artist-triggered). The `weekly-payout` cron was retired 2026-08-11.
 - Discounts: `src/lib/discountCodes.ts`, `src/app/api/discount-codes/*`

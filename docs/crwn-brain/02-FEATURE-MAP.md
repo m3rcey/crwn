@@ -516,8 +516,61 @@ its route, tour steps and analytics are unchanged.
   `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
   decision, not a bug fix, and is sequenced after the retirement above.
 
-- **Communications governance: INVESTIGATED 2026-08-11. Architecture proposed, NOT built. Do not
-  document any governor as shipped.**
+- **Communications Governor V1 (G1 + G2) SHIPPED 2026-08-11. Scope is deliberately narrow; read
+  the scope line before assuming anything else is governed.**
+
+  **GOVERNED:** artist-facing, CRWN-authored **notifications**. That is all.
+  **NOT GOVERNED:** lifecycle email, the pop-up engine (it has its own channel-local governor and
+  was not migrated), artist-authored fan campaigns and broadcasts, fan transactional mail, and
+  receipts. Those are out of scope by decision, not by omission.
+
+  - **`src/lib/comms/taxonomy.ts`** — eight classes in precedence order (`critical`,
+    `fan_obligation`, `launch_blocker`, `constraint`, `event_deadline`, `continuation`, `growth`,
+    `celebration`), owners, and the notification-type registry. **Manager is never the owner of a
+    priority**: `ai_insight` is owned by `constraint`, because Manager is the voice and the engine
+    is the owner. That is Z4/Z5 surviving into communications.
+  - **`src/lib/comms/governor.ts`** — PURE. Its only import is the taxonomy, asserted by test. It
+    governs ATTENTION and never diagnosis: no `readConstraint`, no database, no AI, no clock. It
+    arbitrates between candidates whose legitimacy their owners already established.
+  - **Integrated at `createNotification`**, the one chokepoint all twelve producers already call.
+    **No producer changed**, because classification keys on the `type` string they already pass:
+    the information needed to govern was flowing all along and was simply never read. Cost is an
+    object lookup plus a pure call. **No new query, no new schema.**
+
+  **Founder decisions encoded (2026-08-11):**
+  1. **No global cross-channel cap.** There is no counter, budget, quota or cooldown anywhere in
+     the governor, asserted by test. CRWN has no shared send history across email, notifications
+     and pop-ups, so a global cap would be enforced against evidence CRWN does not have. Existing
+     channel-local caps (pop-up one-per-day, `notify-subscribers` 8/day) remain authoritative.
+  2. **Celebrations coexist but never displace.** In a feed a celebration is always delivered
+     alongside a fan obligation. Where a channel admits one winner the obligation wins and the
+     celebration is **deferred, never suppressed**: losing a moment is not being cancelled.
+
+  **V1 emits no `suppress` at all.** The only non-delivering outcome is `defer`, and only for a
+  growth-class notification when the caller **positively** knows the artist is launch-blocked or
+  owes a paying fan. Context fields are optional and `undefined` means UNKNOWN, never false
+  (`=== true` checks, asserted by test), so a producer that knows nothing gets exactly the previous
+  behavior. Critical fails OPEN in every channel. An unclassified type delivers ungoverned, because
+  a boundary introduced under live traffic that failed closed would silently mute a new feature.
+
+  **Deliberately thin enforcement, and why.** Growth suppression against the canonical constraint
+  would require a Constraint Engine read on every notification write, which was refused on
+  performance grounds. V1 is therefore a boundary plus a classification with narrow enforcement,
+  and enforcement grows only as producers supply context they already hold.
+
+- **Promise reminder boundary FIXED 2026-08-11 (both communication readers).** Z12 applied
+  `isFanPromiseEvent` to the three readers that DECIDE and missed both that COMMUNICATE.
+  `promiseReminders` selected `metadata` and never filtered; `calendarReminders` did not select
+  `metadata` at all, so it could not have filtered. Both were LIVE daily (06:00 and 09:00).
+  **Measured on production at the moment of the fix: all 12 events inside the 8-day reminder
+  window were Revenue Ramp steps** with titles like *"Personally message your 50 most engaged
+  fans"*, each about to be emailed as "Promise due in N days" as though a paying fan were waiting.
+  `calendarReminders` went from 94 pending events to 4. Both now use the shared boundary
+  (`onlyFanPromises` in JS, `FAN_PROMISE_FILTER` in the query); neither re-expresses the rule with
+  its own literal, asserted by test.
+
+- **Communications governance investigation (2026-08-11), retained because the findings still
+  describe what is NOT governed:**
 
   **How many systems can independently decide "the artist should pay attention to this now"?**
   That is the question that decides whether a governor is needed. Answer, from code: **one channel

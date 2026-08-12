@@ -8,6 +8,7 @@
 // new schedules). Best-effort: a reminder failure must never break its host.
 
 import { resend, FROM_EMAIL } from '@/lib/resend';
+import { onlyFanPromises } from '@/lib/fulfillment';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = any;
@@ -41,8 +42,22 @@ export async function sendPromiseReminders(admin: Admin): Promise<{ artistsEmail
       .limit(300);
     if (!events?.length) return { artistsEmailed: 0, reminders: 0 };
 
+    // FAN PROMISES ONLY. `fulfillment_events` holds two different kinds of row and this email
+    // speaks in the language of one of them: "Promise due in N days" is a claim that someone who
+    // PAID is waiting. A Revenue Ramp step is the artist's own private plan, owed to nobody.
+    //
+    // Z12 applied this boundary to the three readers that DECIDE (Constraint evidence, Manager
+    // insights, Roadmap) and missed both readers that COMMUNICATE, which is how a live daily cron
+    // came to be preparing "Promise due in 3 days: Connect Stripe". Production at the time of the
+    // fix: 97 fulfillment_events, 93 of them ramp steps, 11 of those inside this 8-day window.
+    //
+    // Same predicate as every other reader, imported rather than re-expressed, because a fourth
+    // interpretation of "is this owed to a fan" is exactly how the first three drifted.
+    const fanEvents = onlyFanPromises(events as DueEvent[]);
+    if (!fanEvents.length) return { artistsEmailed: 0, reminders: 0 };
+
     // Offsets + status come from the obligations; paused/archived never remind.
-    const obIds = [...new Set((events as DueEvent[]).map((e) => e.obligation_id))];
+    const obIds = [...new Set(fanEvents.map((e) => e.obligation_id))];
     const { data: obs } = await admin
       .from('fulfillment_obligations')
       .select('id, status, reminder_offsets')
@@ -53,7 +68,7 @@ export async function sendPromiseReminders(admin: Admin): Promise<{ artistsEmail
 
     // Which events cross an offset today, grouped per artist.
     const dueByArtist = new Map<string, { event: DueEvent; offset: number; daysLeft: number }[]>();
-    for (const e of events as DueEvent[]) {
+    for (const e of fanEvents) {
       const ob = obById.get(e.obligation_id);
       if (!ob || ob.status !== 'active') continue;
       const offsets = Array.isArray(ob.reminder_offsets) && ob.reminder_offsets.length ? ob.reminder_offsets : [7, 3, 1];

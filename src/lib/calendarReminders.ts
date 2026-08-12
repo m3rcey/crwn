@@ -17,6 +17,7 @@ import { resend, FROM_EMAIL } from '@/lib/resend';
 import { calendarReminderEmail, type ReminderLine } from '@/lib/emails/calendarReminder';
 import { relativeDueLabel } from '@/lib/calendar';
 import { paidTicketBuyersBySession } from '@/lib/live/access';
+import { FAN_PROMISE_FILTER } from '@/lib/fulfillment';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = SupabaseClient<any, any, any>;
@@ -41,10 +42,21 @@ export async function dispatchCalendarReminders(
   const candidates: Candidate[] = [];
 
   // ── A) Artist promise reminders (due soon OR overdue) ──────────────────────
+  //
+  // FAN PROMISES ONLY. This reminder speaks the Promise Calendar's language, so it may only ever
+  // name something a paying fan is actually waiting for. `fulfillment_events` also holds Revenue
+  // Ramp steps, which are the artist's own private plan and owed to nobody, and this reader used
+  // to send them: it did not even SELECT `metadata`, so it could not have filtered them if it
+  // tried. Fixed 2026-08-11 alongside `promiseReminders`, the other communication reader Z12
+  // missed while correcting the three readers that decide.
+  //
+  // Filtered in the QUERY rather than in JS, using the shared constant, so the boundary costs no
+  // extra column and cannot drift from `isFanPromiseEvent`.
   const { data: events, error: evErr } = await admin
     .from('fulfillment_events')
     .select('id, title, due_at, artist_id')
     .eq('status', 'pending')
+    .is(FAN_PROMISE_FILTER.column, FAN_PROMISE_FILTER.value)
     .lte('due_at', windowEndIso)
     .limit(500);
   if (evErr) {
