@@ -172,9 +172,11 @@ export async function loadRevenueRamp(db: Db, artistId: string): Promise<Ramp | 
 /**
  * The artist's live MRR in cents: active subscriptions priced at their tier.
  *
- * Same arithmetic as `snapshotArtistMetrics`, kept to two queries here because the progress bar
- * needs only this one number and that helper computes eight. Returns null (not zero) on failure,
- * so the bar falls back to counting steps instead of claiming the artist earns nothing.
+ * Returns null (not zero) on failure, so the bar falls back to counting steps instead of claiming
+ * the artist earns nothing. That distinction is the whole point: the Manager's retired
+ * `snapshotArtistMetrics` computed this same sum but swallowed errors into 0, which is one of the
+ * reasons its outcome loop was retired rather than repaired (2026-08-11). This is now the only
+ * live implementation of "the artist's current MRR" in the codebase.
  */
 export async function currentMrrCents(db: Db, artistId: string): Promise<number | null> {
   try {

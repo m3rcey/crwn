@@ -63,21 +63,28 @@ const ACTION_FUNCTION = {
   },
 };
 
-export interface PastOutcome {
-  action_type: string;
-  action_label: string;
-  outcome_delta: Record<string, number>;
-  outcome_score: number;
-  executed_at: string;
-}
+// RETIRED 2026-08-11: `PastOutcome` and the "PAST ACTION OUTCOMES" prompt block.
+//
+// Manager used to read its own last 10 measured actions, score each one
+// (`mrr + activeSubs*100 - churnRate*500`), label it POSITIVE/NEGATIVE/NEUTRAL and be told to
+// "repeat what worked, avoid what failed". That was a causal claim built on a snapshot that
+// derives its own MRR, cannot tell missing from zero, measures a window of unrecorded length
+// between 7 and 30 days, and attributes one artist-wide movement to every action pending
+// measurement at once. `constraint/recommendationOutcome.ts` (Z3) states that no field may be
+// named `caused`, `impact`, `attributed` or `score`, and this was all four in one line.
+//
+// It also never once fired: production held 0 measured outcomes, so `pastOutcomes` was never
+// non-empty. Retiring it changes no observed behavior and loses no history.
+//
+// Manager's learning need is met by canonical readers instead: Z4 gives it the priority, Z9 gives
+// it this artist's own eligible measured rates, and Z3 records whether the constraint later
+// cleared. There is deliberately NO replacement scoring system here.
 
 export function buildActionPrompt(data: ArtistDataForAI, extraContext: {
   sequences: { id: string; name: string; trigger_type: string; is_active: boolean }[];
   tiers: { id: string; name: string; price: number }[];
   freeTracks: { id: string; title: string }[];
   gatedTracks: { id: string; title: string }[];
-  pastOutcomes?: PastOutcome[];
-  crossArtistContext?: string;
   /** Z4: the Constraint Engine's canonical diagnosis, already rendered. Null = it declined to say. */
   canonicalBrief?: string | null;
 }): string {
@@ -158,27 +165,10 @@ export function buildActionPrompt(data: ArtistDataForAI, extraContext: {
     data.topFans.forEach(f => lines.push(`  ${f.name}: ${$(f.totalSpent)} total`));
   }
 
-  // Past action outcomes (learning from history)
-  if (extraContext.pastOutcomes && extraContext.pastOutcomes.length > 0) {
-    lines.push('');
-    lines.push('=== PAST ACTION OUTCOMES (learn from these) ===');
-    extraContext.pastOutcomes.forEach(o => {
-      const delta = o.outcome_delta;
-      const effects: string[] = [];
-      if (delta.mrr !== 0) effects.push(`MRR ${delta.mrr > 0 ? '+' : ''}${$(delta.mrr)}`);
-      if (delta.activeSubs !== 0) effects.push(`subs ${delta.activeSubs > 0 ? '+' : ''}${delta.activeSubs}`);
-      if (delta.churnRate !== 0) effects.push(`churn ${delta.churnRate > 0 ? '+' : ''}${delta.churnRate}%`);
-      if (delta.atRiskFans !== 0) effects.push(`at-risk ${delta.atRiskFans > 0 ? '+' : ''}${delta.atRiskFans}`);
-      const verdict = o.outcome_score > 0 ? 'POSITIVE' : o.outcome_score < 0 ? 'NEGATIVE' : 'NEUTRAL';
-      lines.push(`  ${o.action_type}: "${o.action_label}" → ${verdict} (${effects.join(', ') || 'no change'})`);
-    });
-    lines.push('Use these results to inform your recommendations. Repeat what worked. Avoid what failed.');
-  }
-
-  // Cross-artist intelligence (platform-wide patterns)
-  if (extraContext.crossArtistContext) {
-    lines.push(extraContext.crossArtistContext);
-  }
+  // No past-outcome block, and no cross-artist block. Both were injection points for claims CRWN
+  // cannot support (see the note above the signature, and Z10). `crossArtistContext` was already
+  // hardcoded to '' when the Z10 injection was removed; the parameter is gone too, so there is no
+  // longer a live channel that would put a benchmark into this prompt if someone set it.
 
   return lines.join('\n');
 }
@@ -225,11 +215,13 @@ RULES:
 - Return 0 actions if everything is healthy and no intervention needed.
 - All prices in CENTS. Convert to dollars in labels.
 
-LEARNING FROM OUTCOMES:
-If PAST ACTION OUTCOMES are provided, use them to calibrate your recommendations:
-- If an action type had POSITIVE outcomes, prefer recommending it again in similar conditions.
-- If an action type had NEGATIVE outcomes, avoid it unless conditions have changed significantly.
-- Reference specific past results in your description when relevant (e.g. "Last re-engagement gained +2 subs").
+EVIDENCE RULES, NON NEGOTIABLE:
+- Never claim that a past action produced a result. CRWN does not measure the effect of an action
+  and has no control group, so "this worked" is a claim you cannot support.
+- You have data about THIS ARTIST ONLY. Never compare them to other artists, to "typical" artists,
+  to peers, to averages or to benchmarks you were not given.
+- If a MEASURED RATES block is present, quote those figures as given. Do not calculate a rate
+  yourself and do not estimate one that is not listed.
 
 LABEL FORMAT, CRITICAL:
 Every label MUST lead with the ACTION VERB, then the justification. Format: "[Verb] [what]: [metric reason]"
@@ -246,8 +238,6 @@ export async function generateActions(
     tiers: { id: string; name: string; price: number }[];
     freeTracks: { id: string; title: string }[];
     gatedTracks: { id: string; title: string }[];
-    pastOutcomes?: PastOutcome[];
-    crossArtistContext?: string;
     /** Z4: canonical diagnosis context. Read-only: the manager never ISSUES a recommendation. */
     canonicalBrief?: string | null;
   },

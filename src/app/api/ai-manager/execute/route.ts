@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { snapshotArtistMetrics } from '@/lib/ai/snapshotMetrics';
 import { buildLockKey, acquireLock, releaseLock } from '@/lib/ai/coordinationLock';
 
 const supabaseAdmin = createClient(
@@ -395,14 +394,17 @@ async function executeAction(
   }
 
   try {
-    // Snapshot baseline metrics before executing
-    let baseline = null;
-    try {
-      baseline = await snapshotArtistMetrics(supabaseAdmin, artistId);
-    } catch (snapErr) {
-      console.error('Baseline snapshot failed (non-fatal):', snapErr);
-    }
-
+    // RETIRED 2026-08-11: the pre-execution baseline snapshot.
+    //
+    // `baseline_metrics` existed for exactly one reason, to be diffed later into `outcome_delta`
+    // and scored as evidence that the action worked. That scoring layer is retired (see
+    // generateActions.ts), so capturing a baseline now would be writing a column nothing reads.
+    // The snapshot also cost a per-execution burst of queries whose only output was an unusable
+    // number, so removing it makes execution cheaper as well as honest.
+    //
+    // The COLUMN is deliberately left in place. Dropping it needs a migration and buys no safety,
+    // and production holds zero rows with a baseline anyway. Execution semantics are unchanged:
+    // the same handler runs, under the same lock, and the same telemetry is recorded below.
     const message = await handler(artistId, action.params);
 
     if (existingActionId) {
@@ -414,7 +416,6 @@ async function executeAction(
           result_message: message,
           executed_at: new Date().toISOString(),
           reviewed_at: mode === 'approved' ? new Date().toISOString() : undefined,
-          baseline_metrics: baseline,
         })
         .eq('id', existingActionId);
     } else {
@@ -429,7 +430,6 @@ async function executeAction(
         status: 'auto_executed',
         result_message: message,
         executed_at: new Date().toISOString(),
-        baseline_metrics: baseline,
       });
     }
 

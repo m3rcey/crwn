@@ -1,5 +1,46 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Manager measurement loop: partial retirement SHIPPED
+
+Implements the decision from the investigation earlier the same day. Scope was the approved,
+non-financial, reversible half only.
+
+**Still live: Manager action telemetry.** `artist_agent_actions` and `artist_agent_runs` keep
+recording what Manager did, when, with what result and under what approval state. Nothing else in
+CRWN records that, which is why it survived.
+
+**Retired: the private outcome-scoring layer.** Gone from the application: pre-execution baseline
+capture, `outcome_delta` / `outcome_metrics` writes, `outcome_score` (all three copies, including
+the one the cron recomputed in TS), the `PastOutcome` type, the "PAST ACTION OUTCOMES" prompt
+block, the POSITIVE/NEGATIVE/NEUTRAL verdicts, and the instruction to "repeat what worked, avoid
+what failed". `src/lib/ai/snapshotMetrics.ts` is DELETED: after the two callers went, zero
+remained. Both Manager prompts now carry an explicit prohibition on claiming a past action produced
+a result. The dead `crossArtistContext` parameter went with it, because a channel that injects text
+into an artist's prompt the moment someone assigns to it is a latent version of the Z10 leak.
+
+**`cron/outcome-measure` was NOT deleted**, and tracing it first is why. Two live consumers there
+have nothing to do with Manager measurement: `expireStallLocks` (shared with the ADMIN agent's
+execute route, so it outlives Manager entirely) and `refreshAllOpportunities` (the opportunity
+ledger). Only the measurement block was removed; the route now reports
+`managerOutcomeMeasurement: 'retired'`. Two `agent-health` checks that measured the retired loop
+were removed rather than left reporting a permanent zero, since a health cron that reassures you
+about a system that no longer exists is how this codebase got a heartbeat certifying a dead cron.
+
+**Boundaries held, and are pinned.** Z3 remains the only recommendation-outcome linkage: no Manager
+action was migrated into it and it gained no notion of one. Z9 still reaches Manager through
+`coachingBrief` with sample floors, windows and eligibility untouched, and Manager grew no
+"learned rates" of its own. The Z4/Z5 reconciliation is intact. **No replacement learning system
+was built**, which is the point rather than an omission.
+
+**Deliberately NOT done:** the AI Manager's dormant activation query (`artist_profiles.is_active`,
+a column that does not exist) is UNCHANGED and now **guarded by a test**, because fixing it would
+reactivate an auto-executing AI across every artist account and that is a founder product decision.
+`weekly-payout` untouched. No admin observability built. No schema migration: the legacy JSONB
+columns and the `artist_action_outcomes` view remain structurally present, unread, and documented
+as legacy. No historical rows were deleted, migrated or reinterpreted.
+
+`managerBoundaries.test.ts` grew from 25 to 38 assertions. Full suite 1388/1388, build clean.
+
 ## 2026-08-11 - Manager measurement loop: investigation, and the loop that never closed
 
 **Investigation only. No code changed.** Architecture decided: **partial retirement**.

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { snapshotArtistMetrics, computeOutcomeDelta, MetricSnapshot } from '@/lib/ai/snapshotMetrics';
 import { expireStallLocks } from '@/lib/ai/coordinationLock';
 
 const supabaseAdmin = createClient(
@@ -11,9 +10,26 @@ const supabaseAdmin = createClient(
 export const maxDuration = 60;
 
 /**
- * Daily cron: measures outcomes for agent actions executed 7+ days ago.
- * Compares baseline_metrics (snapshot at execution) with current metrics
- * to determine whether the action had a positive or negative effect.
+ * Daily maintenance cron. The NAME is historical.
+ *
+ * It used to measure "outcomes" for Manager actions executed 7+ days ago: re-snapshot the artist,
+ * diff against `baseline_metrics`, store `outcome_delta`, and let the next Manager run score it.
+ * That layer was RETIRED on 2026-08-11 and nothing replaces it. Four reasons, in ascending order:
+ *
+ *  1. The snapshot self-derived MRR and zero-defaulted every field, so a failed query and an
+ *     artist with no revenue produced the same row.
+ *  2. The "7-day window" was a 7-day MINIMUM capped at 30 (`lte(7d)`, `gte(30d)`) and the elapsed
+ *     time was never recorded, so deltas of different lengths were compared to each other.
+ *  3. Measurement was per-ARTIST, not per-action: ONE snapshot was diffed against every pending
+ *     action's baseline, so everything the account did that week was credited to all of them.
+ *  4. The result was scored and fed back as "repeat what worked", which is the causal claim
+ *     `constraint/recommendationOutcome.ts` forbids by name.
+ *
+ * Canonical recommendation-to-outcome evidence is Z3 (`constraint-outcomes` cron). Manager keeps
+ * its ACTION TELEMETRY (what it did, when, result, status) and no longer scores itself.
+ *
+ * THE ROUTE IS NOT DELETED, and must not be: two live consumers that have nothing to do with
+ * Manager measurement still run here, and one of them serves the ADMIN agent, not the artist one.
  */
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
@@ -22,74 +38,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-    // Also cap at 30 days old to avoid measuring very stale actions
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
-
-    // Find executed actions that:
-    // 1. Were executed 7+ days ago
-    // 2. Have baseline_metrics (snapshot was captured)
-    // 3. Haven't been measured yet
-    const { data: actions } = await supabaseAdmin
-      .from('artist_agent_actions')
-      .select('id, artist_id, action_type, baseline_metrics')
-      .in('status', ['auto_executed', 'executed'])
-      .not('baseline_metrics', 'is', null)
-      .is('outcome_measured_at', null)
-      .lte('executed_at', sevenDaysAgo)
-      .gte('executed_at', thirtyDaysAgo)
-      .order('executed_at', { ascending: true })
-      .limit(50); // Process up to 50 per run
-
-    if (!actions || actions.length === 0) {
-      return NextResponse.json({ message: 'No actions to measure', measured: 0 });
-    }
-
-    // Group by artist to avoid duplicate snapshots
-    const artistActions: Record<string, typeof actions> = {};
-    for (const action of actions) {
-      if (!artistActions[action.artist_id]) {
-        artistActions[action.artist_id] = [];
-      }
-      artistActions[action.artist_id].push(action);
-    }
-
-    let measured = 0;
-    let failed = 0;
-
-    for (const [artistId, artistActionList] of Object.entries(artistActions)) {
-      try {
-        // One snapshot per artist (all their actions get the same "after" measurement)
-        const outcome = await snapshotArtistMetrics(supabaseAdmin, artistId);
-        const now = new Date().toISOString();
-
-        for (const action of artistActionList) {
-          try {
-            const baseline = action.baseline_metrics as MetricSnapshot;
-            const delta = computeOutcomeDelta(baseline, outcome);
-
-            await supabaseAdmin
-              .from('artist_agent_actions')
-              .update({
-                outcome_metrics: outcome,
-                outcome_delta: delta,
-                outcome_measured_at: now,
-              })
-              .eq('id', action.id);
-
-            measured++;
-          } catch (err) {
-            console.error(`Failed to measure action ${action.id}:`, err);
-            failed++;
-          }
-        }
-      } catch (err) {
-        console.error(`Failed to snapshot artist ${artistId}:`, err);
-        failed += artistActionList.length;
-      }
-    }
-
-    // Clean up expired coordination locks
+    // Clean up expired coordination locks. Shared infrastructure: `acquireLock` is called by BOTH
+    // /api/ai-manager/execute and /api/admin/agent/execute, so this outlives Manager entirely.
     let expiredLocks = 0;
     try {
       expiredLocks = await expireStallLocks(supabaseAdmin);
@@ -108,14 +58,14 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-      measured,
-      failed,
-      artists: Object.keys(artistActions).length,
+      // Explicit rather than absent, so an operator reading a cron log sees that the measurement
+      // is gone on purpose instead of wondering why `measured` stopped appearing.
+      managerOutcomeMeasurement: 'retired',
       expiredLocks,
       opportunityArtists,
     });
   } catch (error) {
-    console.error('Outcome measurement cron error:', error);
+    console.error('Maintenance cron error:', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

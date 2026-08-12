@@ -5,7 +5,7 @@ import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
 import { generateSyncInsights } from '@/lib/ai/syncInsights';
 import { generateFulfillmentInsights } from '@/lib/ai/fulfillmentInsights';
-import { generateActions, AgentActionInput, PastOutcome } from '@/lib/ai/generateActions';
+import { generateActions, AgentActionInput } from '@/lib/ai/generateActions';
 import { buildCoachingBrief } from '@/lib/ai/coachingBrief';
 import { SAFE_ACTION_TYPES } from '@/app/api/ai-manager/execute/route';
 import { createNotification } from '@/lib/notifications';
@@ -100,7 +100,6 @@ async function runAutonomousAgent(
   artistId: string,
   artistUserId: string,
   effectiveTier: string,
-  crossArtistContext: string,
   canonicalBrief: string | null,
 ) {
   // Only Pro+ artists get autonomous actions
@@ -132,40 +131,18 @@ async function runAutonomousAgent(
     const freeTracks = allTracks.filter(t => t.is_free !== false).map(t => ({ id: t.id, title: t.title }));
     const gatedTracks = allTracks.filter(t => t.is_free === false).map(t => ({ id: t.id, title: t.title }));
 
-    // Fetch past action outcomes for learning (last 90 days, measured only)
-    const ninetyDaysAgo = new Date(Date.now() - 90 * 86400000).toISOString();
-    const { data: pastOutcomeData } = await supabaseAdmin
-      .from('artist_agent_actions')
-      .select('action_type, action_label, outcome_delta, executed_at')
-      .eq('artist_id', artistId)
-      .in('status', ['auto_executed', 'executed'])
-      .not('outcome_measured_at', 'is', null)
-      .not('outcome_delta', 'is', null)
-      .gte('executed_at', ninetyDaysAgo)
-      .order('executed_at', { ascending: false })
-      .limit(10);
+    // RETIRED 2026-08-11: the past-outcome read that fed Manager's own scoring loop. It selected
+    // the last 10 measured actions, scored each `mrr + activeSubs*100 - churnRate*500`, and the
+    // prompt turned that into POSITIVE/NEGATIVE/NEUTRAL plus "repeat what worked". See the note in
+    // generateActions.ts. Nothing replaces it: Manager's evidence is the canonical brief below.
 
-    const pastOutcomes: PastOutcome[] = (pastOutcomeData || []).map(o => {
-      const delta = (o.outcome_delta || {}) as Record<string, number>;
-      const score = (delta.mrr || 0) + (delta.activeSubs || 0) * 100 - (delta.churnRate || 0) * 500;
-      return {
-        action_type: o.action_type,
-        action_label: o.action_label,
-        outcome_delta: delta,
-        outcome_score: score,
-        executed_at: o.executed_at,
-      };
-    });
-
-    // Z4 + Z9 context is now built ONCE per artist by the caller (`buildCoachingBrief`) and shared
+    // Z4 + Z9 context is built ONCE per artist by the caller (`buildCoachingBrief`) and shared
     // by BOTH model calls, because the insight feed used to run without it. See coachingBrief.ts.
     const result = await generateActions(data, {
       sequences: (sequences || []).map(s => ({ id: s.id, name: s.name, trigger_type: s.trigger_type, is_active: s.is_active })),
       tiers: (tiers || []).map(t => ({ id: t.id, name: t.name, price: t.price })),
       freeTracks,
       gatedTracks,
-      pastOutcomes,
-      crossArtistContext,
       canonicalBrief,
     });
 
@@ -279,8 +256,8 @@ export async function GET(req: NextRequest) {
 
     const results: { artistId: string; status: string; insightsCreated?: number; actionsExecuted?: number; actionsEscalated?: number; error?: string }[] = [];
 
-    // Fetch cross-artist patterns once (shared across all artists in this run)
-    // Z10: cross-artist patterns are NO LONGER injected into any artist's prompt.
+    // Z10: cross-artist patterns are NO LONGER injected into any artist's prompt, and as of
+    // 2026-08-11 there is no longer a PARAMETER to inject them through.
     //
     // What this used to do: compute one global pattern set and hand it to every artist's manager
     // with "Weight these patterns when choosing actions". That is an adaptive cross-artist
@@ -291,9 +268,11 @@ export async function GET(req: NextRequest) {
     // And it was all built on the Manager's own outcome snapshots, which self-derive MRR and
     // default every metric to zero.
     //
-    // Cross-artist evidence now lives in `src/lib/crossArtistEvidence.ts`, admin-only and gated.
+    // Z10 left `crossArtistContext = ''` threaded through the call as dead plumbing. A parameter
+    // that does nothing today but would inject text into an artist's prompt the moment someone
+    // assigned to it is a latent version of the same leak, so the whole channel is gone.
+    // Cross-artist evidence lives in `src/lib/crossArtistEvidence.ts`, admin-only and gated.
     // Re-enabling any artist-facing benchmark is a founder claim-maturity decision, not a code one.
-    const crossArtistContext = '';
 
     // Process artists in batches of 5 for parallelism
     for (let i = 0; i < artists.length; i += 5) {
@@ -338,7 +317,7 @@ export async function GET(req: NextRequest) {
           const inserted = await insertInsights(artist.id, artist.user_id, insights, existingTypes);
 
           // Run autonomous agent (generates + executes/escalates actions)
-          const agentResult = await runAutonomousAgent(artist.id, artist.user_id, effectiveTier, crossArtistContext, canonicalBrief);
+          const agentResult = await runAutonomousAgent(artist.id, artist.user_id, effectiveTier, canonicalBrief);
 
           results.push({
             artistId: artist.id,

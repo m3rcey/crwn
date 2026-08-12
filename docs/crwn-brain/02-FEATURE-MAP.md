@@ -342,10 +342,40 @@ its route, tour steps and analytics are unchanged.
   calls `generateInsights(data)` without a brief, issues a Z3 record, reintroduces a peer claim, or
   renders an outcome verdict.
 
-- **Manager measurement loop: PARTIAL RETIREMENT decided 2026-08-11, NOT YET IMPLEMENTED.**
-  Investigated against production. Do not mark this shipped.
+- **Manager measurement loop: PARTIAL RETIREMENT SHIPPED 2026-08-11.**
 
-  **What it is.** Manager recommends → action executes → `snapshotArtistMetrics` captures a
+  **STILL LIVE — Manager action telemetry.** `artist_agent_actions` and `artist_agent_runs` keep
+  recording what Manager did: action type, label, params, risk, approval state, execution
+  timestamp, result message, failure state, and the coordination lock. This is the one job nothing
+  else in CRWN does, and it is what any future admin observability panel reads.
+
+  **RETIRED — the private outcome-scoring layer.** Baseline capture, `outcome_delta` /
+  `outcome_metrics` writes, `outcome_score` (all three copies), the `pastOutcomes` prompt block,
+  the POSITIVE/NEGATIVE/NEUTRAL verdicts, and "repeat what worked, avoid what failed".
+  `src/lib/ai/snapshotMetrics.ts` is DELETED (zero live callers remained; the FRL
+  `snapshotMetrics: true` flag in the Money Model is an unrelated identifier). Both Manager
+  prompts now explicitly forbid claiming a past action produced a result.
+
+  **CANONICAL EVIDENCE is Z3 + Z9 + the Feedback Loop.** Z3 (`constraint-outcomes`) owns
+  recommendation-to-outcome linkage; Manager actions were NOT migrated into it and remain a
+  different entity. Z9 reaches Manager through `coachingBrief` unchanged (no sample floors,
+  windows or eligibility touched). No replacement learning system was built, deliberately.
+
+  **`cron/outcome-measure` was NOT deleted.** Its name is now historical. Two live consumers that
+  have nothing to do with Manager measurement still run there: `expireStallLocks` (shared with the
+  ADMIN agent's execute route) and `refreshAllOpportunities` (the opportunity ledger). It returns
+  `managerOutcomeMeasurement: 'retired'` so a cron log reads honestly. Two `agent-health` checks
+  that measured the retired loop were removed rather than left reporting a permanent zero.
+
+  **SEPARATE FOUNDER DECISION: whether autonomous Manager should be reactivated.** It has been
+  dormant since 2026-04-03 (see below) and this task deliberately did not wake it.
+  **SEPARATE INFRASTRUCTURE DECISION: what to do with the redundant `weekly-payout`.** Untouched.
+
+  **No admin Manager observability exists.** Not built, not started.
+
+  The original defect analysis, kept because it is the reasoning behind the disposition:
+
+  **What it was.** Manager recommends → action executes → `snapshotArtistMetrics` captures a
   baseline → the `outcome-measure` cron re-snapshots and stores `outcome_delta` → the next
   ai-manager run reads the last 10 measured outcomes, scores each
   (`mrr + activeSubs*100 - churnRate*500`), labels it POSITIVE/NEGATIVE/NEUTRAL and appends
@@ -383,9 +413,11 @@ its route, tour steps and analytics are unchanged.
   nothing to reinterpret, no reason to keep columns for history that does not exist. The JSONB
   columns may simply stop being written.
 
-  **Why it is not implemented yet:** retirement changes recommendation-learning semantics, a
-  declared stop condition for the investigation. It is small, reversible and non-financial; it is
-  waiting on a go, not on analysis.
+  **Schema cleanup deliberately deferred.** The `baseline_metrics` / `outcome_metrics` /
+  `outcome_delta` columns and the `artist_action_outcomes` view (with its `outcome_score`
+  expression) are still structurally present. Nothing reads or writes them. Dropping them needs a
+  migration that buys no safety on a table holding zero such rows, so they are marked legacy here
+  rather than removed. Do not treat their existence as evidence the loop is live.
 
 - **The Manager has not run since 2026-04-03.** `/api/cron/ai-manager` filters
   `artist_profiles.eq('is_active', true)` and **that column does not exist** (`42703` in

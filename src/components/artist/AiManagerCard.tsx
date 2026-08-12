@@ -77,8 +77,9 @@ interface PendingAction {
   result_message: string | null;
   created_at: string;
   executed_at: string | null;
-  outcome_delta: Record<string, number> | null;
-  outcome_measured_at: string | null;
+  // No outcome_delta / outcome_measured_at. The columns still exist on the row (dropping them
+  // would need a migration for no safety benefit) but nothing writes them since the Manager
+  // outcome loop was retired, and nothing here reads them.
 }
 
 interface AgentRun {
@@ -452,17 +453,15 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
                 // This row deliberately shows WHAT MANAGER DID, never what it CAUSED.
                 //
                 // It used to render "Worked" / "No lift" and a dollar MRR movement beside each
-                // action. That is a causal claim CRWN cannot support: the delta comes from
-                // `snapshotArtistMetrics`, which derives its own MRR rather than reading the
-                // canonical rails, defaults every missing metric to 0 (so "no data" and "zero"
-                // are indistinguishable), measures a fixed 7-day window, and has no control
-                // group. Attributing a revenue change to one action on that basis is the money
-                // claim the whole evidence chain exists to prevent.
+                // action, from a delta that self-derived MRR, could not tell missing from zero,
+                // covered a window of unrecorded length, and attributed one artist-wide movement
+                // to every action at once. That verdict was removed first; the measurement that
+                // produced it was RETIRED outright on 2026-08-11, so `outcome_delta` is no longer
+                // written and there is nothing left to render even if someone wanted to.
                 //
-                // The measurement itself is UNCHANGED and still recorded. It remains quarantined
-                // input to Manager's own prompt, which is artist-specific and predates Z3. It is
-                // simply no longer presented to the artist as a verdict. Repairing or retiring it
-                // touches financial derivation and is a separate, justified investigation.
+                // Manager keeps action TELEMETRY, which is what this list is: what was done, when,
+                // and whether the handler succeeded. Recommendation-to-outcome evidence is Z3's
+                // job and stays there.
                 return (
                   <div key={action.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-crwn-elevated/30">
                     <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${

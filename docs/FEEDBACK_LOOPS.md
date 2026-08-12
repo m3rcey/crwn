@@ -291,8 +291,16 @@ action type, and was returning `HTTP 402`. Two of those are wrong and the diagno
 
 **Measured truth, 2026-08-11:** 7 agent actions ever, all between 2026-03-29 and 2026-04-03;
 **0 with `baseline_metrics`, 0 with `outcome_delta`, 0 measured.** The one closed loop in CRWN has
-never closed once. Disposition decided (partial retirement) in
-[`02-FEATURE-MAP.md`](crwn-brain/02-FEATURE-MAP.md); tracked in `TODO.md`.
+never closed once.
+
+**RETIRED 2026-08-11 (partial).** The scoring/learning half is gone: no baseline capture, no
+`outcome_delta`, no `outcome_score`, no `pastOutcomes` prompt block, no "repeat what worked".
+Manager keeps its ACTION TELEMETRY. So CRWN's answer to "does the artist Manager learn from its own
+results" is now **no, on purpose**, and the honest statement of the learning architecture is
+Section 13's ladder: Tier 1 deterministic rules (the Constraint Engine), Tier 2 artist-specific
+rate substitution (**Z9, shipped**), Tier 3 cohort evidence (**Z10, admin-only**), Tier 4 predictive
+(**not built, still rejected**). The retired loop was a Tier 4 artifact wearing Tier 2 clothes.
+Disposition in [`02-FEATURE-MAP.md`](crwn-brain/02-FEATURE-MAP.md).
 
 ---
 

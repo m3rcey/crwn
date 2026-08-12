@@ -401,17 +401,16 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-- **Manager measurement loop: PARTIAL RETIREMENT decided, implementation not started.**
-  Investigated 2026-08-11 against production. Retire the LEARNING half (`outcome_score`,
-  `outcome_delta`, baseline capture, the `pastOutcomes` prompt block and its "Repeat what worked,
-  avoid what failed" instruction, the `artist_action_outcomes` view's score column). Keep the
-  TELEMETRY half (`artist_agent_actions` / `artist_agent_runs`: what Manager did, when, and
-  whether it succeeded), which is genuinely unique and is what the future admin panel needs.
-  **Historical cost is zero: production has 0 rows with `baseline_metrics` and 0 with
-  `outcome_delta`, ever.** Nothing to migrate, nothing to reinterpret. Full reasoning in
-  `docs/crwn-brain/02-FEATURE-MAP.md`. I did not implement it in the investigation task because
-  it changes recommendation-learning semantics, which is a declared stop condition. Say go and it
-  is a small, reversible, non-financial change.
+- **Manager measurement loop: PARTIAL RETIREMENT SHIPPED 2026-08-11.** The learning half is gone
+  (baseline capture, `outcome_delta`/`outcome_metrics` writes, `outcome_score`, the `pastOutcomes`
+  prompt block and its "repeat what worked" instruction, and `snapshotMetrics.ts`, which had zero
+  live callers left). The telemetry half is untouched: Manager still records what it did, when,
+  and whether it worked mechanically. No history was deleted, no rows migrated, no migration run.
+  Two legacy artifacts are deliberately LEFT IN THE DATABASE because removing them needs DDL for
+  no safety benefit and nothing reads them any more: the `baseline_metrics` / `outcome_metrics` /
+  `outcome_delta` columns on `artist_agent_actions`, and the `artist_action_outcomes` view with
+  its `outcome_score` expression. If you ever want them gone, that is a cosmetic migration, not a
+  correctness one.
 
 - **No admin surface can see what Manager did to an artist's account.** Verified, not assumed:
   `admin/agent/*` and `AutonomousOpsBar` are CRWN's OWN business agent (funnel, pipeline, CRM),

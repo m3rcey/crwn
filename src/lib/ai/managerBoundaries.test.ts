@@ -90,7 +90,7 @@ describe('Manager reads the canonical priority, it does not own one', () => {
       );
     }
     // And the reader contract itself returns null rather than a fallback string.
-    expect(canonicalPriorityBrief({ status: 'insufficient_evidence', reason: 'x', missingEvidence: [] })).toBeNull();
+    expect(canonicalPriorityBrief({ status: 'insufficient_evidence', reason: 'x', missingEvidence: [], evaluatedAt: new Date(0).toISOString() })).toBeNull();
     expect(canonicalPriorityBrief(null)).toBeNull();
   });
 
@@ -212,6 +212,156 @@ describe('no unsupported cross-artist claim reaches an artist', () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// PARTIAL RETIREMENT of the legacy outcome/learning loop (2026-08-11)
+//
+// KEPT: action telemetry (what Manager did, when, result, status).
+// RETIRED: baseline capture, outcome_delta/metrics, outcome_score, the pastOutcomes prompt block,
+//          and every causal verdict derived from them.
+// ---------------------------------------------------------------------------
+describe('the Manager outcome-scoring loop stays retired', () => {
+  const MANAGER_SOURCES: [string, string][] = [
+    ['action generator', ACTIONS_SRC],
+    ['insight feed', INSIGHTS_SRC],
+    ['coaching brief', BRIEF_SRC],
+    ['cron', CRON_SRC],
+    ['artist refresh', GENERATE_SRC],
+    ['execute', EXECUTE_SRC],
+    ['card', CARD_SRC],
+  ];
+
+  it('no Manager path reads or ranks by outcome_score', () => {
+    for (const [label, src] of MANAGER_SOURCES) {
+      expect(src, `${label} must not read outcome_score`).not.toContain('outcome_score');
+      expect(src, `${label} must not use a PastOutcome type`).not.toContain('PastOutcome');
+      expect(src, `${label} must not build a pastOutcomes list`).not.toContain('pastOutcomes');
+    }
+  });
+
+  it('the action prompt has no past-outcome block at all', () => {
+    expect(ACTIONS_SRC).not.toContain('PAST ACTION OUTCOMES');
+    // The scoring formula itself, in any of its three historical copies.
+    expect(ACTIONS_SRC).not.toMatch(/activeSubs\s*\|\|\s*0\)\s*\*\s*100/);
+    expect(CRON_SRC).not.toMatch(/activeSubs\s*\|\|\s*0\)\s*\*\s*100/);
+  });
+
+  it('no Manager prompt carries a POSITIVE/NEGATIVE/NEUTRAL action verdict mechanism', () => {
+    for (const [label, prompt] of [
+      ['insight feed', INSIGHTS_PROMPT],
+      ['action generator', ACTIONS_PROMPT],
+    ] as const) {
+      expect(prompt, `${label} must not label outcomes POSITIVE`).not.toContain('POSITIVE');
+      expect(prompt, `${label} must not label outcomes NEGATIVE`).not.toContain('NEGATIVE');
+      expect(prompt, `${label} must not instruct repetition of "what worked"`).not.toMatch(
+        /repeat what worked/i,
+      );
+      expect(prompt, `${label} must not instruct avoidance of "what failed"`).not.toMatch(
+        /avoid what failed/i,
+      );
+      expect(prompt, `${label} must not frame history as learning input`).not.toMatch(
+        /LEARNING FROM OUTCOMES/i,
+      );
+    }
+  });
+
+  it('both prompts explicitly forbid claiming a past action produced a result', () => {
+    for (const [label, prompt] of [
+      ['insight feed', INSIGHTS_PROMPT],
+      ['action generator', ACTIONS_PROMPT],
+    ] as const) {
+      const p = prompt.toLowerCase().replace(/\s+/g, ' ');
+      expect(p, `${label} must forbid the causal claim`).toMatch(
+        /never (state or imply that|claim that) a past action (caused|produced)/,
+      );
+    }
+  });
+
+  it('no new Manager action writes baseline_metrics', () => {
+    // Comments are stripped, so the retirement note explaining the column does not pass this.
+    expect(EXECUTE_SRC, 'execute must not write a baseline').not.toContain('baseline_metrics');
+    expect(CRON_SRC, 'cron must not write a baseline').not.toContain('baseline_metrics');
+  });
+
+  it('no Manager path computes its own MRR for learning', () => {
+    expect(
+      existsSync('src/lib/ai/snapshotMetrics.ts'),
+      'snapshotMetrics.ts had zero live callers after retirement and must stay deleted',
+    ).toBe(false);
+    for (const [label, src] of MANAGER_SOURCES) {
+      expect(src, `${label} must not snapshot metrics`).not.toContain('snapshotArtistMetrics');
+      expect(src, `${label} must not diff snapshots`).not.toContain('computeOutcomeDelta');
+    }
+  });
+
+  it('the retired measurement no longer runs on the maintenance cron', () => {
+    const outcomeCron = read('src/app/api/cron/outcome-measure/route.ts');
+    expect(outcomeCron).not.toContain('snapshotArtistMetrics');
+    expect(outcomeCron).not.toContain('outcome_delta');
+    expect(outcomeCron).not.toContain('outcome_measured_at');
+    // ...but its two live NON-Manager consumers must survive. One of them serves the admin agent.
+    expect(outcomeCron, 'coordination lock cleanup must remain').toContain('expireStallLocks');
+    expect(outcomeCron, 'opportunity ledger refresh must remain').toContain('refreshAllOpportunities');
+  });
+
+  it('Manager still records operational action telemetry', () => {
+    // Retirement removed the SCORING, not the record of what Manager did.
+    expect(EXECUTE_SRC).toContain('artist_agent_actions');
+    expect(EXECUTE_SRC).toMatch(/result_message/);
+    expect(EXECUTE_SRC).toMatch(/executed_at/);
+    expect(CRON_SRC, 'run history must still be written').toContain('artist_agent_runs');
+    expect(CARD_SRC, 'the artist can still see what Manager did').toContain('artist_agent_actions');
+  });
+
+  it('no historical Manager rows are deleted or migrated', () => {
+    for (const [label, src] of MANAGER_SOURCES) {
+      expect(src, `${label} must not delete action history`).not.toMatch(
+        /from\('artist_agent_(actions|runs)'\)[\s\S]{0,80}\.delete\(/,
+      );
+    }
+  });
+});
+
+describe('this task did NOT reactivate autonomous Manager', () => {
+  // The cron selects artists with `.eq('is_active', true)` on artist_profiles, and that column
+  // DOES NOT EXIST in production (42703). The query returns null, the cron early-returns, and
+  // autonomous Manager has been dormant since 2026-04-03.
+  //
+  // Fixing that is a FOUNDER PRODUCT DECISION, not a cleanup: it would turn an auto-executing AI
+  // back on across every artist account. This test exists so an unrelated tidy-up cannot silently
+  // do it. If you are here because this test failed, that is the point. Confirm the reactivation
+  // was intended and approved, then update this test deliberately.
+  it('the dormant activation query is unchanged', () => {
+    expect(
+      CRON_SRC,
+      'ai-manager still selects artists via artist_profiles.is_active (dormant on purpose)',
+    ).toMatch(/from\('artist_profiles'\)[\s\S]{0,200}\.eq\('is_active',\s*true\)/);
+  });
+
+  it('auto-execution is still limited to the low-risk allowlist', () => {
+    expect(CRON_SRC).toMatch(/action\.risk === 'low' && SAFE_ACTION_TYPES\.includes\(action\.type\)/);
+    expect(CRON_SRC).toContain('storePendingAction');
+  });
+});
+
+describe('canonical evidence ownership is unchanged by the retirement', () => {
+  it('Z3 remains the only recommendation-outcome linkage', () => {
+    const z3 = read('src/lib/constraint/recommendationOutcome.ts');
+    expect(z3).toBeTruthy();
+    // Manager actions were NOT migrated into Z3, and Z3 gained no notion of a Manager action.
+    expect(z3).not.toContain('artist_agent_actions');
+    expect(z3).not.toContain('action_type');
+  });
+
+  it('Z9 evidence still reaches Manager through the coaching brief', () => {
+    expect(BRIEF_SRC).toContain('activeObservedRates');
+    expect(BRIEF_SRC).toContain('observedRatesBrief');
+    // And Manager did not grow its own learned rates to replace what was retired.
+    for (const [label, src] of [['action generator', ACTIONS_SRC], ['insight feed', INSIGHTS_SRC]] as const) {
+      expect(src, `${label} must not compute learned rates`).not.toMatch(/learnedRate|learnedRates/);
+    }
+  });
+});
+
 describe('Manager makes no causal money claim to the artist', () => {
   it('the artist card renders no outcome verdict', () => {
     // `snapshotArtistMetrics` self-derives MRR, zero-defaults missing metrics, uses a fixed 7-day
@@ -261,12 +411,12 @@ describe('Manager stays distinct from the other canonical owners', () => {
 
   it('the priority banner renders nothing when the engine declined to diagnose', () => {
     // Steady state: nothing is blocking. CRWN does not manufacture a priority to fill a box.
-    const steady: ConstraintResult = { status: 'insufficient_evidence', reason: 'r', missingEvidence: [] };
+    const steady: ConstraintResult = { status: 'insufficient_evidence', reason: 'r', missingEvidence: [], evaluatedAt: new Date(0).toISOString() };
     expect(resolveOperatingFlow(steady).phase).toBe('steady');
     expect(resolveOperatingFlow(null).phase).toBe('unknown');
     // Launch-gated is a DIFFERENT answer and must stay distinguishable, or a half-launched artist
     // gets growth coaching.
-    const gated: ConstraintResult = { status: 'insufficient_evidence', reason: 'r', missingEvidence: ['Connect Stripe'] };
+    const gated: ConstraintResult = { status: 'insufficient_evidence', reason: 'r', missingEvidence: ['Connect Stripe'], evaluatedAt: new Date(0).toISOString() };
     expect(resolveOperatingFlow(gated).phase).toBe('launch');
   });
 

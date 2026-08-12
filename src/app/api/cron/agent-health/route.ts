@@ -72,20 +72,13 @@ export async function GET(req: NextRequest) {
 
     stats.adminRunsToday = adminRuns || 0;
 
-    // 3. Check for actions awaiting measurement that are overdue
-    const tenDaysAgo = new Date(Date.now() - 10 * 86400000).toISOString();
-    const { count: overdueMeasurements } = await supabaseAdmin
-      .from('artist_agent_actions')
-      .select('id', { count: 'exact', head: true })
-      .in('status', ['auto_executed', 'executed'])
-      .not('baseline_metrics', 'is', null)
-      .is('outcome_measured_at', null)
-      .lt('executed_at', tenDaysAgo);
-
-    stats.overdueMeasurements = overdueMeasurements || 0;
-    if ((overdueMeasurements || 0) > 10) {
-      issues.push({ severity: 'warning', message: `${overdueMeasurements} actions overdue for outcome measurement (10+ days)` });
-    }
+    // 3. REMOVED 2026-08-11: the "actions overdue for outcome measurement" check.
+    //
+    // It counted actions carrying a `baseline_metrics` snapshot that had not yet been measured.
+    // Manager outcome measurement is retired, so nothing writes a baseline and nothing measures
+    // one: this check could only ever report 0 and its warning could never fire again. Leaving it
+    // would imply to an operator that measurement still happens, which is exactly the kind of
+    // false reassurance this health cron already produced once with its liveness heartbeat.
 
     // 4. Check for stuck coordination locks
     const { count: stuckLocks } = await supabaseAdmin
@@ -135,24 +128,14 @@ export async function GET(req: NextRequest) {
       issues.push({ severity: 'info', message: `${pendingActions} actions pending artist approval — artists may not be checking` });
     }
 
-    // 7. Manager outcome-measurement coverage.
+    // 7. REMOVED 2026-08-11 with the Manager outcome loop it measured.
     //
-    // NOT "cross-artist pattern coverage" any more. Z10 removed the cross-artist injection built
-    // on these rows, and the replacement primitive (`crossArtistEvidence.ts`) is admin-only with
-    // its own privacy/evidence/reliability gates and does not read this table. Telling the
-    // operator that "cross-artist intelligence needs more data" would point them at a system this
-    // number no longer feeds. What it actually measures is whether the Manager's own quarantined
-    // outcome loop is collecting anything.
-    const { count: measuredOutcomes } = await supabaseAdmin
-      .from('artist_agent_actions')
-      .select('id', { count: 'exact', head: true })
-      .not('outcome_measured_at', 'is', null)
-      .gte('executed_at', new Date(Date.now() - 90 * 86400000).toISOString());
-
-    stats.measuredOutcomes90d = measuredOutcomes || 0;
-    if ((measuredOutcomes || 0) < 5) {
-      issues.push({ severity: 'info', message: `Only ${measuredOutcomes} measured Manager outcomes in 90 days (its own learning loop has little to calibrate on)` });
-    }
+    // This counted measured outcomes in 90 days and warned when there were fewer than 5. First it
+    // told the operator that "cross-artist intelligence needs more data" (stale after Z10, since
+    // `crossArtistEvidence.ts` does not read this table); then it described Manager's own learning
+    // loop. That loop is retired, so the number is permanently 0 and the warning is permanent
+    // noise about a system that no longer exists. Canonical recommendation-to-outcome coverage is
+    // Z3's, and if it ever needs a health check it should read Z3's own table, not this one.
 
     // Determine overall health
     const hasCritical = issues.some(i => i.severity === 'critical');
