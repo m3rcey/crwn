@@ -516,6 +516,34 @@ its route, tour steps and analytics are unchanged.
   `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
   decision, not a bug fix, and is sequenced after the retirement above.
 
+- **Promise reminders: ONE owner, settled 2026-08-11.** `promiseReminders` (via the
+  `scheduled-releases` cron) is the **only** system that emails an artist about a fan promise. It
+  filters through `onlyFanPromises` and honours each obligation's `reminder_offsets` (default
+  `[7,3,1]`). `calendarReminders` (via the `sequences` cron) **no longer reads
+  `fulfillment_events`** and is now **fan-only**: livestream reminders plus campaign / mission /
+  bounty / proof-of-demand deadlines.
+
+  **Why it changed:** both read the same table and emailed three hours apart, deduping against
+  ledgers that cannot see each other (`metadata.reminded_offsets` vs the `calendar_reminders` claim
+  table). Production had already claimed 16 `fulfillment_event` reminders on both channels. The
+  earlier eligibility fix made this worse in the sense that mattered, since what remained doubled
+  up was the genuine obligations. `promiseReminders` won because configurable lead times are a real
+  artist-facing setting the other sender structurally cannot honour.
+
+  **Ownership, durable:** Promise Calendar = what is owed to fans. Revenue Ramp = business
+  progression, never a fan obligation. Lifecycle email (`activation-nudges`, `onboarding-reminder`)
+  = state-aware CRWN coaching. Constraint = current priority. Manager = explanation and execution.
+
+  **Lifecycle email is already state-aware**, verified rather than assumed: `activation-nudges`
+  gates each rule on a milestone PRESENT and another ABSENT, so possessing `stripe_connected`
+  disqualifies an artist from the connect-Stripe nudge. Checked across all 9 production artists and
+  7 milestone combinations: **no reachable stale-stage email exists.** Nothing was invented to
+  "personalize" a system that already was.
+
+  **Known gap, logged not swept:** 25 direct `notifications` inserts still bypass the
+  `createNotification` chokepoint (15 in `webhookHandlers.ts`). `calendarReminders` was fixed
+  because it was in scope here; the rest mostly sit on money paths.
+
 - **Rise Mode Resume reconciled 2026-08-11. It is a POP-UP OVER CANONICAL QUEST STATE, not a
   Resume Engine.** There is no resume table, no resume progress store and no second ranking.
 

@@ -403,6 +403,19 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Promise Calendar + email: reconciled 2026-08-11.** Your artists were getting two emails about
+  the same promise, three hours apart, because two systems both owned it and neither could see the
+  other's dedupe. Now one owner: `promiseReminders` sends fan-promise reminders (honouring the
+  per-promise lead times you can set), and the calendar reminder is fan-only for livestreams and
+  deadlines. Also worth knowing: I checked the lifecycle emails against all 9 of your artists and
+  **they are already state-aware**. A Stripe-connected artist genuinely cannot receive the
+  connect-Stripe nudge, because having the milestone is what disqualifies them. I did not invent
+  personalization work for a system that already had it.
+  **One gap I found and did not sweep:** 25 places still write notifications directly instead of
+  going through the governed chokepoint, 15 of them in the Stripe webhook handlers. Nothing is
+  broken today, but they are ungoverned and unclassified. Worth a dedicated pass; I left them alone
+  because most sit on money paths and that deserves its own task rather than a drive-by.
+
 - **Rise Mode Resume: reconciled 2026-08-11, and one question is yours.** The prompt's plumbing was
   already right (it reads canonical quest state, matches Rise Mode's own selector, ranks below
   Stripe, caps at 3 shows / 4 days, works cross-device, stores nothing). What was wrong was the

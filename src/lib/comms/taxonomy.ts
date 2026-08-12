@@ -154,6 +154,10 @@ export const NOTIFICATION_TAXONOMY: Record<string, Classification> = {
   direct_message: passthrough('fan', 'artist_authored'),
   new_comment: passthrough('fan', 'crwn'),
   live_session: passthrough('fan', 'crwn'),
+  // Calendar reminders are fan-facing as of 2026-08-11: livestreams they can attend and deadlines
+  // for artists they support. Previously this path inserted into `notifications` DIRECTLY,
+  // bypassing the chokepoint entirely, which is why it had no classification until now.
+  calendar_reminder: passthrough('fan', 'crwn'),
   invited: passthrough('fan', 'crwn'),
   active: passthrough('fan', 'crwn'),
 };

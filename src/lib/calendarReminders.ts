@@ -6,18 +6,22 @@
 // ledger — the in_app claim is what decides "is this new?", so a re-run or the next
 // day never re-sends. One in-app notification + one email digest per user per run.
 //
-// v1 scope (highest value, bounded fan-out):
-//   • Artist: their own promise fulfillment_events that are due soon OR overdue.
-//   • Fan: scheduled livestreams they're eligible for (nothing reminds fans of
-//     live_sessions.scheduled_at today — this closes that gap).
-// Deferred: campaign/mission/bounty deadline reminders; a reminder-prefs UI.
+// SCOPE, and as of 2026-08-11 this file is FAN-ONLY:
+//   • Fan: scheduled livestreams they are eligible for (subscribers by tier, plus paid ticket
+//     holders, who are not necessarily subscribers).
+//   • Fan: campaign / mission / bounty / proof-of-demand deadlines for artists they support.
+//
+// It no longer reminds ARTISTS about anything. Artist fan-promise reminders moved out entirely
+// (see section A below) because `promiseReminders` was already sending them, and the two were
+// double-emailing the same obligation from two dedupe ledgers that cannot see each other.
+// Deferred: a reminder-prefs UI.
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { calendarReminderEmail, type ReminderLine } from '@/lib/emails/calendarReminder';
 import { relativeDueLabel } from '@/lib/calendar';
 import { paidTicketBuyersBySession } from '@/lib/live/access';
-import { FAN_PROMISE_FILTER } from '@/lib/fulfillment';
+import { createNotification } from '@/lib/notifications';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Admin = SupabaseClient<any, any, any>;
@@ -41,49 +45,29 @@ export async function dispatchCalendarReminders(
 
   const candidates: Candidate[] = [];
 
-  // ── A) Artist promise reminders (due soon OR overdue) ──────────────────────
+  // ── A) REMOVED 2026-08-11: artist promise reminders ────────────────────────
   //
-  // FAN PROMISES ONLY. This reminder speaks the Promise Calendar's language, so it may only ever
-  // name something a paying fan is actually waiting for. `fulfillment_events` also holds Revenue
-  // Ramp steps, which are the artist's own private plan and owed to nobody, and this reader used
-  // to send them: it did not even SELECT `metadata`, so it could not have filtered them if it
-  // tried. Fixed 2026-08-11 alongside `promiseReminders`, the other communication reader Z12
-  // missed while correcting the three readers that decide.
+  // Fan promises are `promiseReminders`' job, and they were BOTH doing it. This file read
+  // `fulfillment_events` and emailed about them at 09:00 (via the `sequences` cron) while
+  // `promiseReminders` emailed about the SAME event at 06:00 (via `scheduled-releases`). The two
+  // dedupe against different ledgers and cannot see each other: this one claims rows in
+  // `calendar_reminders`, that one stamps `metadata.reminded_offsets`. So one promise produced two
+  // emails three hours apart, plus an in-app notification, every time.
   //
-  // Filtered in the QUERY rather than in JS, using the shared constant, so the boundary costs no
-  // extra column and cannot drift from `isFanPromiseEvent`.
-  const { data: events, error: evErr } = await admin
-    .from('fulfillment_events')
-    .select('id, title, due_at, artist_id')
-    .eq('status', 'pending')
-    .is(FAN_PROMISE_FILTER.column, FAN_PROMISE_FILTER.value)
-    .lte('due_at', windowEndIso)
-    .limit(500);
-  if (evErr) {
-    // Table not applied yet (or transient) — nothing to do, fail soft.
-    return { sent: 0, users: 0, skipped: 0 };
-  }
-
-  const artistIds = [...new Set((events || []).map((e) => e.artist_id))];
-  const artistUserByArtist = new Map<string, string>();
-  if (artistIds.length) {
-    const { data: arts } = await admin
-      .from('artist_profiles')
-      .select('id, user_id')
-      .in('id', artistIds);
-    for (const a of arts || []) artistUserByArtist.set(a.id, a.user_id);
-  }
-  for (const e of events || []) {
-    const uid = artistUserByArtist.get(e.artist_id);
-    if (!uid) continue;
-    candidates.push({
-      userId: uid,
-      subjectType: 'fulfillment_event',
-      subjectId: e.id,
-      audience: 'artist',
-      line: { title: e.title, whenLabel: relativeDueLabel(e.due_at, now), context: 'Promise' },
-    });
-  }
+  // The earlier fix corrected only ELIGIBILITY (both now exclude Revenue Ramp steps). That made
+  // the duplication worse in the sense that mattered: what remained doubled up was the real fan
+  // obligations. Production had already claimed 16 `fulfillment_event` reminders on both channels.
+  //
+  // WHY THIS SIDE LOST. `promiseReminders` is the specialist: it honours each obligation's own
+  // `reminder_offsets` (default [7,3,1]), so an artist gets a reminder at each configured lead
+  // time. This file can only ever fire ONCE, when an item first enters the due-soon window, so
+  // keeping it would mean discarding a real artist-facing setting. One owner per subject type.
+  //
+  // WHAT THIS FILE STILL OWNS, unchanged: every other thing on the calendar (missions, road
+  // campaigns, clip bounties, proof-of-demand deadlines) and the fan-side livestream reminders.
+  // Known tradeoff, stated rather than hidden: promises no longer produce an in-app notification
+  // from here. They remain visible in the Promise Calendar, in Manager's fulfillment insights and
+  // in the Constraint Engine's FULFILLMENT diagnosis, so the promise is not going unspoken.
 
   // ── B) Fan livestream reminders (scheduled within the window) ──────────────
   const { data: lives } = await admin
@@ -234,21 +218,32 @@ export async function dispatchCalendarReminders(
     const lines = list.map((c) => c.line);
 
     // In-app notification (one, summarizing).
+    //
+    // The artist branch is currently UNREACHABLE: after section A was removed, every candidate
+    // this file produces is `audience: 'fan'`. It is kept as the guard for a future artist-side
+    // source rather than deleted, but its copy no longer says "Promise", because a fan promise is
+    // not something this file may ever speak about again.
     const title =
       audience === 'artist'
-        ? (lines.length === 1 ? '⏰ Promise coming up' : `⏰ ${lines.length} promises coming up`)
+        ? (lines.length === 1 ? '⏰ Deadline coming up' : `⏰ ${lines.length} deadlines coming up`)
         : (lines.length === 1 ? '📅 Coming up for you' : `📅 ${lines.length} things coming up`);
     const message =
       lines.length === 1
         ? `${lines[0].title}: ${lines[0].whenLabel}`
         : lines.slice(0, 3).map((l) => l.title).join(', ') + (lines.length > 3 ? '…' : '');
-    await admin.from('notifications').insert({
-      user_id: uid,
-      type: 'calendar_reminder',
+
+    // Routed through `createNotification` rather than inserting directly. This path used to write
+    // to `notifications` itself, which meant it bypassed the Communications Governor's G2
+    // chokepoint entirely and its type never appeared in the taxonomy. A governor with a hole in it
+    // governs nothing, and a direct insert is exactly how the next one gets added.
+    await createNotification(
+      admin,
+      uid,
+      'calendar_reminder',
       title,
       message,
-      link: audience === 'artist' ? '/studio/promise' : '/my-calendar',
-    });
+      audience === 'artist' ? '/studio/promise' : '/my-calendar',
+    );
     sent += 1;
 
     // Email digest (respect the suppression list). Record the email channel too so

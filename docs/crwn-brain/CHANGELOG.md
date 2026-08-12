@@ -1,5 +1,44 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - One owner per promise: the duplicate reminder is gone
+
+**The duplicate was never fixed, only narrowed.** The earlier Part A work corrected which
+`fulfillment_events` qualify (both readers stopped treating Revenue Ramp steps as fan promises). It
+did not touch the fact that TWO senders email about the same event: `promiseReminders` at 06:00 via
+`scheduled-releases`, `calendarReminders` at 09:00 via `sequences`, deduping against ledgers that
+cannot see each other (`metadata.reminded_offsets` vs the `calendar_reminders` claim table). So one
+obligation produced two emails three hours apart plus an in-app notification, and after the
+eligibility fix the thing still being doubled was the REAL fan obligations. Production had already
+claimed **16 `fulfillment_event` reminders across both channels**.
+
+**Resolution: one owner per subject type.** `calendarReminders` no longer reads
+`fulfillment_events` at all. `promiseReminders` won because it is the specialist: it honours each
+obligation's configurable `reminder_offsets` (default `[7,3,1]`), so an artist gets a reminder at
+every lead time they set, which the other sender structurally cannot do (it fires once, when an
+item first enters the window). **`calendarReminders` is now fan-only** and keeps its distinct job:
+livestream reminders and campaign / mission / bounty / proof-of-demand deadlines. Stated tradeoff:
+promises no longer produce an in-app notification from that path; they remain visible in the
+Promise Calendar, Manager's fulfillment insights and the FULFILLMENT diagnosis.
+
+**A hole in the Communications Governor was found and closed.** `calendarReminders` inserted into
+`notifications` DIRECTLY, bypassing the `createNotification` chokepoint G2 was built around, which
+is why its type had never appeared in the taxonomy. It now routes through the chokepoint and
+`calendar_reminder` is classified (fan-facing, ungoverned). **It is not the only bypass:** 25 other
+direct-insert sites remain, 15 of them in `webhookHandlers.ts`. Logged, not swept, because most sit
+on money paths and none belong to this task.
+
+**Honest negative finding: lifecycle email is NOT the blind drip it was thought to be.**
+`activation-nudges` gates every rule on a milestone being PRESENT and another being ABSENT
+(`onboarding_completed` → `first_track_uploaded` → `tiers_created` → `stripe_connected` →
+`first_subscriber`), so a Stripe-connected artist is disqualified from the connect-Stripe nudge by
+possessing the milestone. `onboarding-reminder` is send-once and gated on incomplete onboarding.
+Checked against all 9 production artists across 7 milestone combinations: **no reachable
+stale-stage email was found.** No personalization work was invented to fill the gap.
+
+No schema, no new email ledger, no G3, no cross-channel cap. No frontend asset changed, so no
+service-worker bump. Two prior assertions of mine were deliberately superseded with the reasoning
+left inline.
+
 ## 2026-08-11 - Rise Mode Resume: the plumbing was right, the claim was not
 
 The resume prompt shipped during One Operating Flow. Re-verified end to end, and the architecture

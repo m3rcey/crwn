@@ -53,10 +53,18 @@ describe('both reminder paths use the SAME canonical boundary', () => {
     expect(PROMISE).toContain("from '@/lib/fulfillment'");
   });
 
-  it('calendarReminders filters in the query through the shared constant', () => {
-    expect(CALENDAR).toContain('FAN_PROMISE_FILTER');
-    expect(CALENDAR).toMatch(/\.is\(FAN_PROMISE_FILTER\.column, FAN_PROMISE_FILTER\.value\)/);
-    // The constant expresses the identical rule as the predicate.
+  // SUPERSEDED 2026-08-11, and deliberately strengthened rather than deleted.
+  //
+  // This used to assert that `calendarReminders` FILTERED fulfillment events through
+  // `FAN_PROMISE_FILTER`. It no longer reads `fulfillment_events` at all: it was double-emailing
+  // every real fan promise alongside `promiseReminders`, three hours apart, from a dedupe ledger
+  // the other sender cannot see. Not reading the table is a stronger guarantee than filtering it,
+  // so the assertion is now the absence, and the shared constant is still checked for correctness
+  // because `promiseReminders` continues to express the same rule via `onlyFanPromises`.
+  it('calendarReminders cannot speak about fan promises at all', () => {
+    expect(CALENDAR).not.toContain("from('fulfillment_events')");
+    expect(CALENDAR).not.toContain('FAN_PROMISE_FILTER');
+    // The canonical rule itself is unchanged and still backs the one remaining reader.
     expect(FAN_PROMISE_FILTER.column).toBe('metadata->>ramp_step_key');
     expect(FAN_PROMISE_FILTER.value).toBeNull();
   });
