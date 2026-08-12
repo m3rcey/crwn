@@ -419,6 +419,46 @@ its route, tour steps and analytics are unchanged.
   migration that buys no safety on a table holding zero such rows, so they are marked legacy here
   rather than removed. Do not treat their existence as evidence the loop is live.
 
+- **Manager approval is not perpetual authorization (shipped 2026-08-11).**
+  `src/lib/ai/actionValidity.ts` is the deterministic gate. An action executes only when it is
+  **authorized AND approved where required AND still valid**, where validity is re-derived from
+  current state at the moment of execution, never assumed from the fact that it was once suggested.
+
+  **The defect it closes:** `artist_agent_actions` had no expiry of any kind.
+  `/api/ai-manager/execute` matched on `status = 'pending'` and nothing else, and the Manager
+  screen rendered an Approve button for every pending row regardless of age. Production carried
+  three actions generated 2026-04-03, still offered 130 days later, one of them an
+  `adjust_tier_price` marked risk=high. Approving it would have rewritten a live tier price from
+  April's analysis of April's numbers.
+
+  **TTL = 14 days, inherited not invented.** CRWN already decided how long Manager output stays
+  current: `ai_insights` rows are written `expires_at = now + 14 days` and every reader filters on
+  it. An insight is Manager's advice; an action is that advice plus a proposed write, so the write
+  may not outlive the reasoning behind it. Deliberately NOT reused: the 7-day action dedup window
+  and the 1-hour coordination lock, which are different concepts that happen to be durations.
+
+  **Validity is age THEN target state**, returning one of `expired` / `target_missing` /
+  `already_satisfied`. Target checks are artist-scoped, so a stored `tier_id` belonging to someone
+  else reads as `target_missing` rather than resolving: `action_params` is a generation-time
+  snapshot and is never treated as a trusted pointer. The gate runs BEFORE the coordination lock
+  and before any handler, so a stale action costs no lock and no partial write, and it sits inside
+  `executeAction`, the ONE function both callers funnel through, so the dormant autonomous path
+  inherits it automatically if canonical-priority automation is ever enabled.
+
+  **No schema.** Expiry is derived from `created_at`; the `status` CHECK is unchanged and no
+  `expired` value was added. A refused action is recorded `failed` with a structured
+  `result_message` (`not_executed:<reason> — <message>`), because `rejected` would falsely imply
+  the artist declined it. **No history is deleted or migrated**: the three April rows stay exactly
+  as they are and simply stop being offered.
+
+  **Canonical-priority revalidation is NOT implemented, and the reason is structural.** Action rows
+  store no constraint type, no `actionKey` and no diagnosis snapshot, so "was this generated under
+  REACH, and is the artist now FULFILLMENT?" is not answerable from the row. Adding a *current*
+  priority veto at the execution boundary would be a new product rule about what artists may do,
+  and a second constraint reader inside execution, so it was refused rather than guessed. Stamping
+  canonical context into `action_params` at generation time is the enabling step, and it belongs
+  with any future canonical-priority automation.
+
 - **Autonomous (scheduled) Manager: KEEP DORMANT, do not delete. Founder decision OPEN,
   investigated 2026-08-11. Nothing was implemented, reactivated or removed.**
 

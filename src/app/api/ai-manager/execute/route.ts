@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { buildLockKey, acquireLock, releaseLock } from '@/lib/ai/coordinationLock';
+import { validateManagerActionForExecution } from '@/lib/ai/actionValidity';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -364,7 +365,10 @@ export async function POST(req: NextRequest) {
     params: pendingAction.action_params || {},
   };
 
-  return executeAction(pendingAction.artist_id, action, 'approved', actionId);
+  // The stored `created_at` travels with the action so the execution boundary can judge its age.
+  // Read from the row, never from the request: a client-supplied timestamp would let a caller
+  // declare its own stale action fresh.
+  return executeAction(pendingAction.artist_id, action, 'approved', actionId, pendingAction.created_at);
 }
 
 async function executeAction(
@@ -372,10 +376,49 @@ async function executeAction(
   action: ArtistAgentAction,
   mode: 'autonomous' | 'approved',
   existingActionId?: string,
+  createdAt?: string | null,
 ) {
   const handler = ACTION_HANDLERS[action.type];
   if (!handler) {
     return NextResponse.json({ error: `Unknown action type: ${action.type}` }, { status: 400 });
+  }
+
+  // ─── Validity gate ──────────────────────────────────────────────────────────
+  //
+  // APPROVAL IS NOT PERPETUAL AUTHORIZATION. Before this existed, `status = 'pending'` was the
+  // only condition on execution, so an action generated in April was still executable in August
+  // against numbers it had never seen. Production carried three such rows, one of them a
+  // risk=high `adjust_tier_price`.
+  //
+  // Deliberately placed BEFORE the coordination lock and before any handler runs, so a stale
+  // action costs no lock, no mutation and no partial write. It sits on the ONE path both callers
+  // funnel through, which means the dormant autonomous path inherits it too: if canonical-priority
+  // automation is ever enabled, actions it generated cannot execute after they go stale either.
+  const validity = await validateManagerActionForExecution(
+    supabaseAdmin,
+    artistId,
+    { action_type: action.type, action_params: action.params, created_at: createdAt },
+  );
+
+  if (!validity.valid) {
+    // Recorded as a terminal state with a STRUCTURED reason, using the status vocabulary the table
+    // already has. `rejected` would be a lie (the artist did not decline it) and a new `expired`
+    // value would need a migration to the CHECK constraint for no safety gain, since expiry is
+    // derived from `created_at` anyway.
+    if (existingActionId) {
+      await supabaseAdmin
+        .from('artist_agent_actions')
+        .update({
+          status: 'failed',
+          result_message: `not_executed:${validity.reason} — ${validity.message}`,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('id', existingActionId);
+    }
+    return NextResponse.json(
+      { success: false, reason: validity.reason, message: validity.message },
+      { status: 409 },
+    );
   }
 
   // Acquire coordination lock to prevent conflicting concurrent actions

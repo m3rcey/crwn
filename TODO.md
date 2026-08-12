@@ -45,17 +45,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       `weekly-payout` outright since Stripe already does it, and (c) whether to turn the AI Manager
       cron back on at all, which is the real question and is below.
 
-- [ ] **Three Manager actions from 3 April are STILL sitting on the Approve button, one of them a
-      tier price change.** This is live right now and has nothing to do with the dormant cron.
-      `/studio/manager` lists pending actions with no age filter, and `/api/ai-manager/execute`
-      checks only `status = 'pending'`. There is **no expiry anywhere**. So the oldest pending row
-      (`adjust_tier_price`, risk=high, created 2026-04-03, 130 days old) would execute against
-      TODAY's tiers if anyone clicked Approve, on the strength of an analysis of April's numbers.
-      Options: expire pending actions after N days, or re-derive the action before executing, or
-      just clear the three rows. I did not touch it because the investigation task forbade changing
-      approval gates. **Tell me which and I will do it.** Lowest-effort safe move is clearing the
-      three stale rows.
-
 - [ ] **Decide whether the autonomous (scheduled) AI Manager should run at all. My recommendation:
       keep it dormant, do not delete it.** Full reasoning in `docs/crwn-brain/02-FEATURE-MAP.md`.
       Short version: there are TWO gates holding it shut, not one. Fixing `is_active` alone would

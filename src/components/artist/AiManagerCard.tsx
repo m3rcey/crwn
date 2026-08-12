@@ -30,6 +30,7 @@ import Link from 'next/link';
 import { FadeIn } from '@/components/ui/FadeIn';
 import type { ConstraintResult } from '@/lib/constraint/types';
 import { resolveOperatingFlow } from '@/lib/constraint/presentation';
+import { staleBefore } from '@/lib/ai/actionValidity';
 
 const TYPE_CONFIG: Record<AiInsightType, { icon: React.ElementType; label: string }> = {
   revenue: { icon: TrendingUp, label: 'Revenue' },
@@ -179,6 +180,7 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
   const [refreshing, setRefreshing] = useState(false);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [expiredCount, setExpiredCount] = useState(0);
   const [constraint, setConstraint] = useState<ConstraintResult | null>(null);
 
   const isStarterOnly = platformTier === 'starter';
@@ -216,16 +218,34 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
       }
     }
 
-    // Fetch pending actions
+    // Fetch pending actions, EXCLUDING ones that have gone stale.
+    //
+    // Same cutoff the execution route enforces (`staleBefore`), on purpose. Offering an Approve
+    // button the server would refuse is worse than not offering it: the button itself implies
+    // CRWN still stands behind the suggestion. Expiry is DERIVED from `created_at`, so no schema
+    // and no backfill: a 130-day-old row simply stops being offered the moment this ships.
+    const cutoff = staleBefore();
     const { data: pendingData } = await supabase
       .from('artist_agent_actions')
       .select('*')
       .eq('artist_id', artistId)
       .eq('status', 'pending')
+      .gte('created_at', cutoff)
       .order('created_at', { ascending: false })
       .limit(10);
 
     setPendingActions((pendingData || []) as PendingAction[]);
+
+    // Count the stale ones so their absence can be explained rather than just felt. They stay in
+    // the table as history; they are simply no longer actionable.
+    const { count: staleCount } = await supabase
+      .from('artist_agent_actions')
+      .select('id', { count: 'exact', head: true })
+      .eq('artist_id', artistId)
+      .eq('status', 'pending')
+      .lt('created_at', cutoff);
+
+    setExpiredCount(staleCount || 0);
 
     // Fetch recent executed/rejected actions (last 30 days to show measured outcomes)
     const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
@@ -366,6 +386,20 @@ export function AiManagerCard({ artistId, platformTier }: AiManagerCardProps) {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Suggestions that aged out. Shown as a quiet fact, not a task: the artist should know
+            why an Approve button they may remember is gone, without being asked to do anything
+            about it. The rows are untouched and still count as history. */}
+        {expiredCount > 0 && (
+          <div className="mb-6 flex items-start gap-2 px-3 py-2.5 rounded-lg bg-crwn-elevated/30">
+            <Clock className="w-3.5 h-3.5 text-crwn-text-secondary/50 mt-0.5 shrink-0" />
+            <p className="text-xs text-crwn-text-secondary">
+              {expiredCount} older suggestion{expiredCount === 1 ? '' : 's'} expired. They were
+              based on numbers that have since moved, so your manager no longer offers them. Hit
+              Refresh for a current read.
+            </p>
           </div>
         )}
 
@@ -655,11 +689,15 @@ export function AiManagerTeaser({ artistId, onNavigate }: AiManagerTeaserProps) 
 
       setUnreadCount(insightCount || 0);
 
+      // SAME cutoff as the Manager page and the execution route. A teaser that counts three
+      // pending actions while the page offers none, because the page filters stale ones and this
+      // did not, is how a safety fix turns into a bug report.
       const { count: actionCount } = await supabase
         .from('artist_agent_actions')
         .select('id', { count: 'exact', head: true })
         .eq('artist_id', artistId)
-        .eq('status', 'pending');
+        .eq('status', 'pending')
+        .gte('created_at', staleBefore());
 
       setPendingCount(actionCount || 0);
     }

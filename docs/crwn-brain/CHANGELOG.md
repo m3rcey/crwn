@@ -1,5 +1,50 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Manager approval is not perpetual authorization
+
+**The defect.** `artist_agent_actions` had no expiry of any kind. `/api/ai-manager/execute` matched
+on `status = 'pending'` and nothing else, and the Manager screen rendered an Approve button for
+every pending row regardless of age. Production carried three actions generated 2026-04-03, still
+offered **130 days later**, one an `adjust_tier_price` marked risk=high. Approving it would have
+rewritten a live tier price using April's analysis of April's numbers. The Approve button itself
+was the problem: it implied CRWN still stood behind a suggestion it had not re-examined since.
+
+**The rule now enforced:** authorized AND approved where required AND **still valid**, with
+validity re-derived from current state at execution time.
+
+**TTL = 14 days, inherited rather than invented.** CRWN had already decided how long Manager output
+stays current: `ai_insights` is written `expires_at = now + 14 days` and every reader filters on
+it. An insight is Manager's advice; an action is that advice plus a proposed write, and the write
+must not outlive the reasoning. The 7-day dedup window and the 1-hour coordination lock were
+explicitly NOT reused: different concepts that happen to be durations. No founder decision was
+needed because no number was invented.
+
+**`src/lib/ai/actionValidity.ts`** checks age, then target state, returning `expired` /
+`target_missing` / `already_satisfied`. Artist-scoped lookups, so a stored id belonging to another
+artist reads as missing rather than resolving. It runs **before the coordination lock and before
+any handler**, so a stale action costs no lock and no partial write, and it lives inside
+`executeAction`, the one function both the artist-approval and autonomous paths funnel through, so
+the dormant automation path inherits the guard if it is ever enabled. Fails OPEN on a read error,
+leaving the handlers' own existence checks to refuse: this is an additional gate, never a
+replacement for the ones already there.
+
+**No schema, no history loss.** Expiry is derived from `created_at`; the `status` CHECK is
+untouched and no `expired` value was added. A refusal is recorded `failed` with a structured
+`result_message` (`not_executed:<reason> — <message>`), since `rejected` would falsely imply the
+artist declined. The three April rows are unmodified and simply stop being offered. The UI and the
+teaser badge use the same cutoff as the server, so the badge cannot advertise actions the page will
+not show. `agent-health` no longer alerts on permanently-expired rows and reports
+`expiredPendingActions` separately.
+
+**Deliberately not done:** canonical-priority revalidation. Action rows store no constraint type,
+no `actionKey` and no diagnosis snapshot, so "was this generated under REACH while the artist is
+now FULFILLMENT?" is unanswerable from the row. A *current*-priority veto at the execution boundary
+would be a new product rule and a second constraint reader inside execution, so it was refused
+rather than guessed. Stamping canonical context at generation time is the enabling step and belongs
+with any future canonical-priority automation.
+
+Autonomous Manager remains dormant (test-pinned). `weekly-payout` untouched. No admin observability.
+
 ## 2026-08-11 - Autonomous Manager: keep dormant (investigation, no code changed)
 
 **Investigation and product decision only.** No code was changed: `src/` and `public/` are clean.

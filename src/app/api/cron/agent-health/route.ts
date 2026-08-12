@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createNotification } from '@/lib/notifications';
+import { staleBefore } from '@/lib/ai/actionValidity';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -118,15 +119,28 @@ export async function GET(req: NextRequest) {
     }
 
     // 6. Pending actions awaiting artist approval
+    // Only actions still WITHIN their validity window. A permanently-expired row is not something
+    // an artist can act on, so counting it here would produce an alert nobody can ever clear.
     const { count: pendingActions } = await supabaseAdmin
       .from('artist_agent_actions')
       .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending');
+      .eq('status', 'pending')
+      .gte('created_at', staleBefore());
 
     stats.pendingActions = pendingActions || 0;
     if ((pendingActions || 0) > 20) {
       issues.push({ severity: 'info', message: `${pendingActions} actions pending artist approval — artists may not be checking` });
     }
+
+    // Observable separately: rows that aged out unactioned. Not an alert (it is the safety
+    // mechanism working), but an operator should be able to see it happening.
+    const { count: expiredPending } = await supabaseAdmin
+      .from('artist_agent_actions')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .lt('created_at', staleBefore());
+
+    stats.expiredPendingActions = expiredPending || 0;
 
     // 7. REMOVED 2026-08-11 with the Manager outcome loop it measured.
     //
