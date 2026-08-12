@@ -27,6 +27,11 @@ export default defineConfig({
       'src/lib/architecture/identifiers.test.ts',
       'src/lib/architecture/reachability.test.ts',
       'src/lib/architecture/authorization.test.ts',
+      // Security invariants from the 2026-08-12 cybersecurity audit. These belong in
+      // the GATE, not merely in `npm test`: the whole lesson of SEC-001 is that a
+      // security assertion nobody runs on the way to production is decoration.
+      'src/lib/architecture/security.test.ts',
+      'src/lib/architecture/headers.test.ts',
       // Existing boundary/contract suites the registry references
       'src/lib/stripe/payoutOwnership.test.ts',
       'src/lib/earningsNet.test.ts',

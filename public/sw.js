@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crwn-v390';
+const CACHE_NAME = 'crwn-v391';
 const STATIC_ASSETS = [
   '/favicon.ico',
   '/icon-192x192.png',
@@ -50,22 +50,27 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.match(/\.(mp3|wav|flac|m4a|ogg|webm)$/i)) return;
   if (url.pathname.startsWith('/api/')) return;
 
-  // Navigation requests - network FIRST so a new deploy reaches the client on
-  // the next load (no manual cache-clear). Cache the shell only as an offline
-  // fallback. Previously this bypassed the SW entirely, which let iOS hold a
-  // stale app shell across deploys.
+  // Navigation requests - network ONLY, and the response is NEVER written to the
+  // cache.
+  //
+  // These are rendered PAGES, and a signed-in page carries that person's data:
+  // their admin screens, their fan list, their earnings. The cache was only ever
+  // invalidated by a deploy (the activate handler drops every cache whose name is
+  // not the current CACHE_NAME), and signing out does not touch it. On a shared
+  // device that meant the next person could be handed the previous person's
+  // rendered page straight out of the Cache Storage API, with no session and no
+  // network request involved.
+  //
+  // The cost of this is the offline navigation fallback, which was thin anyway:
+  // audio is skipped, /api/ is skipped, and JS/CSS are network-only, so an
+  // "offline" page was already a shell that could not load its own data. Freshness
+  // across deploys is unaffected, because that came from network-first, not from
+  // the cache write.
+  //
+  // Bumping CACHE_NAME above is what purges the authenticated pages earlier
+  // versions of this worker already stored on people's devices.
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() =>
-          caches.match(event.request).then((cached) => cached || caches.match('/'))
-        )
-    );
+    event.respondWith(fetch(event.request));
     return;
   }
 
