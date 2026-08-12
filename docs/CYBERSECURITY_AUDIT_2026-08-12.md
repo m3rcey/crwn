@@ -1,11 +1,63 @@
 # COMPREHENSIVE CRWN CYBERSECURITY AUDIT — 2026-08-12
 
-**FINDINGS ONLY — NOT SHIPPED. No product code, schema, data, credential, or flag was changed.**
+**STATUS: REMEDIATED (2026-08-12). The findings below are preserved AS WRITTEN; the
+remediation status of each is recorded in the disposition table immediately after this header.**
 
-This is a security investigation. Every fix is deferred to a separate task
-("Execute the Comprehensive CRWN Cybersecurity Audit Findings"). The canonical Brain is NOT updated
-to claim any of these are fixed. Companion reference: `docs/CYBERSECURITY_AUDIT_2026-08-12_ROUTE_MANIFEST.md`
-(full 262-route authorization table).
+The original investigation is unchanged so the evidence stays auditable. What follows the
+disposition table is the audit exactly as it was found. Companion reference:
+`docs/CYBERSECURITY_AUDIT_2026-08-12_ROUTE_MANIFEST.md` (full 262-route authorization table).
+
+---
+
+## REMEDIATION DISPOSITION (2026-08-12)
+
+Score after remediation: **7.5 / 10** (was 4.5). Reasoning at the end of this section.
+
+Shipped in three commits, all on master and live: `0ae065cf` (SEC-001 emergency),
+`7ec8d679` (SEC-002/003/012 + Team Split boundary), `70e133ea` (nine-finding batch).
+
+**FOUR MIGRATIONS ARE NOT YET APPLIED.** The code half of SEC-002/003/004/007/012 is live, but
+the database half needs Josh to run four files in the Supabase SQL editor (listed as P0 in
+TODO.md). Until then those four remain OPEN in production. This is the single most important
+caveat in this document.
+
+| ID | Severity | Status | Evidence |
+|---|---|---|---|
+| SEC-001 | CRITICAL | **FIXED + VERIFIED IN PRODUCTION** | `requireAdmin()` (session) replaces the query-string identity; caller-supplied id parameter deleted; `updated_by` now the session actor. Live probe: real admin UUID went from HTTP 200 + full user/invite dump to **403**; random UUID 403; no param 403. Drift test rewritten to assert authority SOURCE and mutation-tested. |
+| SEC-002 | CRITICAL | **CODE FIXED, MIGRATION PENDING** | `schema-phase2-sec-002-rpc-execute-lockdown.sql` revokes EXECUTE from anon+authenticated BY NAME and adds argument validation (window must be 1..86400), so a negative window can no longer truncate `rate_limits`. Not yet applied. |
+| SEC-003 | CRITICAL | **APP FIXED (LIVE), MIGRATION PENDING** | App half live: deals no longer pre-bind a collaborator from the mutable `profiles.email`; `collaborator_user_id` is set only at accept-invite, only when the accepting account's VERIFIED auth email matches. DB half pending: `schema-phase2-sec-003-profiles-identity-freeze.sql` freezes email/phone/is_approved. |
+| SEC-004 | HIGH | **MIGRATION PENDING** | `schema-phase2-sec-004-007-rls-...sql` scopes the notifications INSERT policy `TO service_role` and revokes INSERT from anon/authenticated. Verified safe: all 14 insert call sites use the service-role client. |
+| SEC-005 | HIGH | **FIXED (LIVE)** | Client `artistId` removed; metadata and `booking_purchases` use the server-derived owner; `handleBookingPurchase` re-reads the artist from the booking row, closing the in-flight window. Pinned by `ledgerIntegrity.test.ts`, mutation-tested. |
+| SEC-006 | HIGH | **FIXED (LIVE)** | Gross is now the charged amount (`session.amount_total`; `invoice.amount_paid` for renewals, which had the same bug). `??` not `||` so a real $0 charge books as 0. Mutation-tested. |
+| SEC-007 | HIGH | **MIGRATION PENDING** | Same migration gives `tier_benefits` RLS: public read (storefront), writes owner-only via a SECURITY DEFINER helper (avoids the revoked-column policy trap). |
+| SEC-008 | HIGH | **FIXED (LIVE)** | All interpolated values escaped and bounded; recipient must be one well-formed address; the confirmation carries NO submitter-authored content (escaping alone would still have delivered attacker prose from an aligned domain); added a per-recipient rate limit. |
+| SEC-009 | HIGH | **FIXED (LIVE)** | Stored audio values are now the bare owned key bound to the sender; the signer refuses caller-supplied absolute URLs. Also repaired DM voice notes, which were broken (the recorder returns a bare path the old http-only check rejected, so the only accepted values were attacker-shaped). |
+| SEC-010 | HIGH | **FIXED (LIVE)** | Three layers outside the model: action-type allowlist, `validateActionParams` (shape/enums/bounds/no unknown keys), and `verifyActionSignature` proving the executed params are the ones the server proposed. Approval card renders the exact `{type, params}`. Bulk stage move bounded. Autonomous loop deliberately left failing closed. |
+| SEC-011 | HIGH | **MIGRATION PENDING** | `redeem_invite` revoked by name in the SEC-002 migration. `user_passes_artist_gate` had the identical defect (found by the new invariant) and is locked the same way. |
+| SEC-012 | HIGH | **MIGRATION PENDING** | `schema-phase2-sec-012-...sql` enables RLS and revokes Data API grants on 16 service-role-only money/CRM tables, including the five CRM tables whose migration wrongly claimed "No RLS needed". `earnings` and `recruiters` deliberately excluded (they have browser readers and need real SELECT policies, tracked in TODO.md). |
+| SEC-013 | HIGH | **FIXED (LIVE)** | The smart link's own `artist_id` is now the only authority; body `artistId` ignored. Added the missing rate limit, format validation, and an incidental `capture_count` correctness fix. |
+| SEC-014 | HIGH | **FIXED (LIVE)** | `audienceId` ownership proven on write; the squad lookup is scoped to the artist, matching the tier branch. |
+| SEC-018 | HIGH/MED | **FIXED (LIVE)** | `fanIsInArtistAudience()` checks subscriptions / earnings / fan_contacts before a badge or notification can target a user. |
+| SEC-019 | HIGH | **FIXED (LIVE)** | Per-IP and per-recipient rate limits; strict email validation; `name` bounded (this is the text the admin agent later reads, so it is also SEC-010 defense in depth). |
+| F-3 Team Split funding | HIGH (structural) | **BLOCKED BY FOUNDER DECISION, made SAFE** | The cashout rail now returns 503 rather than transferring. It had no `source_transaction` and no split term in `application_fee_percent`, so a 50% split on a $100 Launch sale would pay $44 out of CRWN's balance against $12 collected. Verified safe to close: production holds **0 deals, 0 accruals, 0 payouts**, so $0 was ever lost and nobody is owed. Funding design is a founder + Stripe decision (P0 in TODO.md). |
+| SEC-015/016/017/021 and the MEDIUM/LOW tail | MEDIUM/LOW | **NOT STARTED** | The batch covering open redirects, unsigned unsubscribe links, private live thumbnails/polls/tips, notification link validation, unauthenticated plan enumeration, CSP Report-Only, and the service-worker cache was cut short by a session limit before any edit landed. All remain OPEN and are re-queued. |
+| Dependency (`sharp`/`next`) | INFO | **NOT STARTED** | One-command fix (`npm update next`) plus narrowing `remotePatterns`. |
+| Hard delete / data export | n/a | **DEFERRED FOR PRIVACY/RETENTION POLICY** | Per the ratified direction: security must not wait on deletion design, and financial/fraud/tax/dispute records may need retention. Deactivate/reactivate remain safe and self-scoped. |
+
+**Why 7.5 and not higher.** The two unauthenticated CRITICALs that made the platform trivially
+attackable are addressed (SEC-001 is verified dead in production; SEC-002's code half is written
+but its migration is unapplied). Every confirmed money-integrity defect is fixed and the one
+structural funding flaw is fenced off rather than left silently draining. What holds the score
+down: **four migrations are still unapplied**, so SEC-002/003/004/007/011/012 are only half-closed
+in production; the entire MEDIUM/LOW tail is untouched, including a live open redirect on
+thecrwn.app that is a genuine phishing vector; and CSP still has no `script-src`. It is not higher
+until Josh runs the four SQL files and the MEDIUM batch lands.
+
+**Why not lower.** No credential was exposed, git history and the supply chain remain clean, the
+positive controls all survived, and the drift system that previously certified a broken route as
+safe now asserts authority sources and is mutation-proven.
+
+---
 
 Method: 9 parallel evidence streams over the full repo (262 API routes, 162 migrations, 407 lib
 files), plus read-only production probes with the PUBLIC anon key and safe unauthenticated GET/HEAD.

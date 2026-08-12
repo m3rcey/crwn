@@ -1,5 +1,38 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Cybersecurity remediation: admin authority, the money ledger, and the private bucket
+
+Executed the findings of `docs/CYBERSECURITY_AUDIT_2026-08-12.md`. Shipped as `0ae065cf`,
+`7ec8d679` and `70e133ea`. Per-finding status lives in that document's disposition table.
+
+- **SEC-001 (critical), fixed and verified in production.** `/api/admin/approvals` authenticated
+  by reading the role of whatever user id the REQUEST carried, and called `auth.getUser()` nowhere.
+  Any unauthenticated caller who knew an admin UUID (returned to the public anon key by
+  `profiles?select=id,role&role=eq.admin`) could dump every profile and invite code, self-approve,
+  mint codes, and disable the artist gate. Now session-derived through `requireAdmin()`. Live probe
+  went from HTTP 200 with the full dump to 403.
+- **The drift system had certified that route as safe**, which is the more serious half. Its test
+  regex-matched the string `role === 'admin'`, which the vulnerable code contained. AUTH-001 now
+  asserts the authority SOURCE and is mutation-proven: reintroducing SEC-001 verbatim fails three
+  assertions, and a disguised variant with the parameter renamed still fails.
+- **Team Split identity is now ratified: email INVITES, an authenticated identity AUTHORIZES.**
+  Deals no longer pre-bind a collaborator by looking up the self-writable `profiles.email`;
+  `collaborator_user_id` (the column the accrual cron and cashout RPC pay on) is set only at
+  accept-invite, and only when the accepting account's VERIFIED auth email matches the invitation.
+- **Team Split cashout is disabled (503) pending a founder funding decision.** The transfer had no
+  `source_transaction` and no split term in `application_fee_percent`, so a 50% split on a $100
+  Launch sale would have paid $44 from CRWN's own balance against $12 collected. Production holds
+  0 deals, 0 accruals and 0 payouts, so nothing was lost and nobody is owed.
+- **Ledger truth:** booking checkout no longer writes a client-supplied artist into `earnings`, and
+  subscriptions book the amount actually charged rather than the sticker price (renewals had the
+  same bug), so a 100% off code can no longer mint phantom net that funds real payouts.
+- **New SEC-\* invariants** cover client-bundle secrets, unsigned webhooks, revoke-PUBLIC-only
+  grants, tables created without RLS, private-media signing, and service-role routes with no
+  established caller. "Public" is now a DECLARED authority class, not one inferred from a missing
+  check. All mutation-tested.
+- **Four security migrations are written but NOT YET APPLIED** (P0 in TODO.md). Until they run,
+  SEC-002/003/004/007/011/012 are only half-closed in production.
+
 ## 2026-08-12 - Verified feature-state reconciliation: the last four unknowns closed
 
 The founder ran `supabase/check-unverified-feature-state.sql`. All four disputed migrations came
