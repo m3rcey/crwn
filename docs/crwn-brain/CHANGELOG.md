@@ -1,5 +1,45 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Autonomous Manager: keep dormant (investigation, no code changed)
+
+**Investigation and product decision only.** No code was changed: `src/` and `public/` are clean.
+Verdict: **keep the scheduled autonomous Manager dormant, do not delete it, and revisit only
+against evidence gates.** Founder decision remains open.
+
+**Manager is not one feature**, and separating it makes the question answerable. Artist-requested
+Manager works and does not depend on the broken query. Execution under artist approval works.
+Telemetry works. Only *scheduled generation* and *auto-execution* are dormant.
+
+**Two gates hold it shut and only one is a bug.** Beyond the known `artist_profiles.is_active`
+defect, `runAutonomousAgent` returns early for `platform_tier === 'starter'`, and all 9 production
+artists are `starter`. Fixing the query alone would resume rule-based nudges and notifications for
+9 artists and generate **zero** actions. **Autonomy re-arms on the first Pro upgrade**, with no
+further code change, which is the real deadline on this decision and was not previously recorded.
+
+**Both auto-executable actions email fans without artist sight**, and `send_reengagement`
+duplicates `/api/cron/inactive-subscribers`, which already performs the same 14-day-inactive
+enrolment deterministically every day (7 active such sequences exist). The LLM path adds no
+capability there, only variance.
+
+**Two structural misalignments found.** None of the 8 action types can serve FULFILLMENT or
+RETENTION, the constraints that outrank everything, so when the canonical brief correctly forbids
+growth actions the whole toolkit is ineligible. And `canonicalPriorityBrief` returns null for BOTH
+launch-gated and steady-state artists, so Manager cannot distinguish them and falls back to its own
+framework in both cases (`resolveOperatingFlow` makes the distinction for the UI; the brief does
+not).
+
+**Evidence: proactive need is UNKNOWN.** Z3 holds 0 rows, so no canonical priority has ever been
+recorded going unresolved and no execution gap is demonstrable. Approval history is 1 approved,
+1 rejected, 3 abandoned. Nothing supports autonomous execution; absence of evidence was not
+converted into a need.
+
+**Separate live finding, unrelated to dormancy:** pending Manager actions have **no expiry**.
+Three actions from 2026-04-03, including a high-risk `adjust_tier_price`, are still rendered with
+an Approve button and would execute against today's state on April's analysis. Logged in `TODO.md`;
+not fixed here because the task forbade changing approval gates.
+
+`weekly-payout` untouched and its disposition unchanged. No admin observability built.
+
 ## 2026-08-11 - Manager measurement loop: partial retirement SHIPPED
 
 Implements the decision from the investigation earlier the same day. Scope was the approved,

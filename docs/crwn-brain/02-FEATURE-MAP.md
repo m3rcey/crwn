@@ -419,6 +419,53 @@ its route, tour steps and analytics are unchanged.
   migration that buys no safety on a table holding zero such rows, so they are marked legacy here
   rather than removed. Do not treat their existence as evidence the loop is live.
 
+- **Autonomous (scheduled) Manager: KEEP DORMANT, do not delete. Founder decision OPEN,
+  investigated 2026-08-11. Nothing was implemented, reactivated or removed.**
+
+  **Manager is not one feature.** Separate them or the decision is unanswerable:
+  *artist-requested* Manager (`/api/ai-manager/generate`, session-auth, works, does NOT depend on
+  the broken query), *scheduled* generation (`/api/cron/ai-manager`, dormant), *execution*
+  (`/api/ai-manager/execute`, artist-approved, works), *auto-execution* (cron to execute, dormant),
+  and *telemetry* (works). Only the scheduled and auto-execution halves are dormant.
+
+  **TWO gates hold it shut, and only one is a bug.** (1) The artist query filters
+  `artist_profiles.is_active`, which does not exist. (2) `runAutonomousAgent` returns early for
+  `platform_tier === 'starter'`, and **all 9 production artists are `starter`**. So fixing the
+  query alone would resume daily rule-based nudges and push notifications for 9 artists but
+  generate **zero** actions and execute nothing. **Autonomy re-arms itself the day one artist
+  upgrades to Pro**, with no further code change. That is the real deadline on this decision.
+
+  **The auto-execute allowlist is two actions and both email fans without the artist seeing it.**
+  `toggle_sequence` (activating a sequence starts its sends) and `send_reengagement` (enrols up to
+  50 inactive fans, which `/api/cron/sequences` then emails). **`send_reengagement` duplicates
+  `/api/cron/inactive-subscribers`**, which already does the same 14-day-inactive enrolment
+  deterministically, daily at 04:00, and 7 active `inactive_subscriber` sequences exist. If
+  autonomy ever returns, that action should be dropped from the allowlist rather than restored.
+
+  **The action vocabulary is misaligned with CRWN's own priority order.** None of the 8 action
+  types can serve FULFILLMENT or RETENTION, the two constraints that outrank everything else. So
+  when the canonical brief correctly forbids growth actions, Manager's entire toolkit is
+  ineligible and the best available outcome is zero actions.
+
+  **The coaching brief cannot tell launch-gated from steady-state.** `canonicalPriorityBrief`
+  returns null for BOTH (neither is `diagnosed`), so a half-launched artist and a healthy artist
+  produce the same null, and the model falls back to its own decision framework in both cases.
+  `resolveOperatingFlow` makes that distinction for the UI; the brief does not. Any future
+  automation must close this gap first.
+
+  **Evidence status: proactive need is UNKNOWN, not supported.** Z3
+  (`constraint_recommendations`) holds **0 rows**, so CRWN has never recorded a canonical priority
+  going unresolved and cannot yet show an execution gap exists. Approval history across the whole
+  dataset is 1 approved, 1 rejected, 3 abandoned for 130 days. Nothing here supports the claim that
+  artists want, trust, or benefit from autonomous execution, and absence of evidence is not
+  converted into a need.
+
+  **Reconsider only when:** Z3 shows canonical priorities repeatedly going unresolved (metric
+  exists, threshold is a founder call), artist-requested Manager shows real usage, and the same
+  safe action class is repeatedly approved by hand with low rejection. If autonomy returns it
+  should be **canonical-priority automation only** (act in service of the existing Constraint
+  Engine answer), never an independent strategist.
+
 - **The Manager has not run since 2026-04-03.** `/api/cron/ai-manager` filters
   `artist_profiles.eq('is_active', true)` and **that column does not exist** (`42703` in
   production; `profiles.is_active` is a different table). No error check, so `data` is `null` and

@@ -45,11 +45,27 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       `weekly-payout` outright since Stripe already does it, and (c) whether to turn the AI Manager
       cron back on at all, which is the real question and is below.
 
-- [ ] **Decide whether the AI Manager should run at all.** It has generated nothing since
-      2026-04-03 and no one noticed for four months. That is data. Fixing the `is_active` query
-      above would RESURRECT a system that auto-executes actions on artists' accounts, which is a
-      much bigger behavioral change than any cleanup. Do the measurement-loop retirement first
-      (on my plate), then decide. Turning it on is a product call, not a bug fix.
+- [ ] **Three Manager actions from 3 April are STILL sitting on the Approve button, one of them a
+      tier price change.** This is live right now and has nothing to do with the dormant cron.
+      `/studio/manager` lists pending actions with no age filter, and `/api/ai-manager/execute`
+      checks only `status = 'pending'`. There is **no expiry anywhere**. So the oldest pending row
+      (`adjust_tier_price`, risk=high, created 2026-04-03, 130 days old) would execute against
+      TODAY's tiers if anyone clicked Approve, on the strength of an analysis of April's numbers.
+      Options: expire pending actions after N days, or re-derive the action before executing, or
+      just clear the three rows. I did not touch it because the investigation task forbade changing
+      approval gates. **Tell me which and I will do it.** Lowest-effort safe move is clearing the
+      three stale rows.
+
+- [ ] **Decide whether the autonomous (scheduled) AI Manager should run at all. My recommendation:
+      keep it dormant, do not delete it.** Full reasoning in `docs/crwn-brain/02-FEATURE-MAP.md`.
+      Short version: there are TWO gates holding it shut, not one. Fixing `is_active` alone would
+      NOT restart autonomous actions today, because all 9 artists are on `starter` and the action
+      generator returns early for starter. It would restart daily rule-based nudges and push
+      notifications for 9 artists. **Autonomy switches itself on the day one artist upgrades to
+      Pro**, with no further code change, so this decision has a deadline set by your first Pro
+      signup. Also worth knowing before you decide: of the only two actions that can auto-execute
+      without you, one (`send_reengagement`) duplicates a deterministic cron that already runs
+      daily, and both end in emails to fans.
 
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
