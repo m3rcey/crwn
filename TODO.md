@@ -27,6 +27,30 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
 
 ### P1 — real risk or real friction, but nothing is on fire
 
+- [ ] **Three crons filter on `artist_profiles.is_active`, a column that DOES NOT EXIST, and all
+      three have been silently doing nothing for months.** Found 2026-08-11 while tracing the
+      Manager loop. Verified against production: `artist_profiles.is_active` returns
+      `42703 column does not exist`, while `profiles.is_active` (a different table) does exist.
+      None of the three checks the error, so `data` comes back `null` and each one early-returns
+      as if there were simply no artists. Affected: `/api/cron/ai-manager` (proven dead: its
+      heartbeat has said **"No active artists" every single day**, and `agent-health` reads that
+      heartbeat as PROOF OF LIFE, so the safety net is masking the outage it exists to catch),
+      `/api/cron/weekly-report`, and `/api/cron/weekly-payout`.
+      **Nobody is unpaid.** I checked all 7 connected accounts read-only against live Stripe: every
+      one is on Stripe's own `daily` automatic payout schedule, so Stripe has been paying artists
+      directly the whole time and the weekly-payout cron is redundant. It is still worth fixing or
+      deleting, because it takes the `cron_run_log` idempotency lock for the week BEFORE it fails,
+      so it looks like it ran (locks exist for 2026-W13 through 2026-W31).
+      **Decide, then I implement:** (a) fix all three to drop the nonexistent filter, (b) delete
+      `weekly-payout` outright since Stripe already does it, and (c) whether to turn the AI Manager
+      cron back on at all, which is the real question and is below.
+
+- [ ] **Decide whether the AI Manager should run at all.** It has generated nothing since
+      2026-04-03 and no one noticed for four months. That is data. Fixing the `is_active` query
+      above would RESURRECT a system that auto-executes actions on artists' accounts, which is a
+      much bigger behavioral change than any cleanup. Do the measurement-loop retirement first
+      (on my plate), then decide. Turning it on is a product call, not a bug fix.
+
 - [ ] **Tag every calculator video link BEFORE you publish it.** An untagged link still works, it
       just lands under "unknown" forever and that video can never be compared to another one. No
       migration, nothing to deploy: build each link at /admin -> Lead Magnets -> **Campaign link
@@ -377,16 +401,17 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
-- **Manager's outcome measurement stays quarantined, and that is a live decision, not an
-  oversight.** `src/lib/ai/snapshotMetrics.ts` derives its OWN MRR instead of reading the
-  canonical rails, defaults every missing metric to `0` (so "no data" and "zero" are the same
-  number), measures a fixed 7-day window and has no control group. The artist-facing verdict it
-  powered ("Worked" / "No lift" / an MRR figure beside each action) is now removed, because that
-  was an unsupported causal money claim. The measurement itself still records and still feeds
-  Manager's own prompt, which is artist-specific learning that predates Z3. **Repairing it means
-  touching financial derivation, so it needs your call**: either point it at the canonical rails
-  and adopt `complete | modeled | missing` (real work, real risk), or retire it and let Z3 be the
-  only outcome linkage CRWN has. Do not let it drift into "canonical" by accident.
+- **Manager measurement loop: PARTIAL RETIREMENT decided, implementation not started.**
+  Investigated 2026-08-11 against production. Retire the LEARNING half (`outcome_score`,
+  `outcome_delta`, baseline capture, the `pastOutcomes` prompt block and its "Repeat what worked,
+  avoid what failed" instruction, the `artist_action_outcomes` view's score column). Keep the
+  TELEMETRY half (`artist_agent_actions` / `artist_agent_runs`: what Manager did, when, and
+  whether it succeeded), which is genuinely unique and is what the future admin panel needs.
+  **Historical cost is zero: production has 0 rows with `baseline_metrics` and 0 with
+  `outcome_delta`, ever.** Nothing to migrate, nothing to reinterpret. Full reasoning in
+  `docs/crwn-brain/02-FEATURE-MAP.md`. I did not implement it in the investigation task because
+  it changes recommendation-learning semantics, which is a declared stop condition. Say go and it
+  is a small, reversible, non-financial change.
 
 - **No admin surface can see what Manager did to an artist's account.** Verified, not assumed:
   `admin/agent/*` and `AutonomousOpsBar` are CRWN's OWN business agent (funnel, pipeline, CRM),

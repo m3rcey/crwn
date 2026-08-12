@@ -276,11 +276,23 @@ conservative preset. `docs/UNIFIED_OPPORTUNITY.md` §10 names `clipConversionLif
 number in the model that would most benefit from real CRWN data". Nothing reads real data into any
 of them, and there is no code path that could.
 
-### 4.10 The AI Manager loop is real but structurally starved
+### 4.10 ~~The AI Manager loop is real but structurally starved~~ CORRECTED 2026-08-11: it is not starved, it is NOT RUNNING
 
-The one closed loop is gated to the artists least likely to need generic advice (`starter` gets
-`generateStarterNudges`, everyone else gets DeepSeek), requires `n >= 2` outcomes per action type,
-looks back only 90 days with a 200-row cap, and is currently returning `HTTP 402`.
+The original entry said the loop was gated to the wrong artists, required `n >= 2` outcomes per
+action type, and was returning `HTTP 402`. Two of those are wrong and the diagnosis was wrong.
+
+- The `n >= 2` floor belonged to `crossArtistPatterns.ts` (deleted at Z10), not to `pastOutcomes`,
+  which takes the last 10 measured outcomes with no sufficiency floor at all.
+- The `402` was a symptom seen once. **The actual cause is upstream of the model.** The cron reads
+  `artist_profiles ... .eq('is_active', true)` and **that column does not exist** (verified against
+  production: `42703`; `profiles.is_active` is a different table). The result is not checked, so
+  `data` is `null` and the cron early-returns "No active artists" **every day**. Its heartbeat then
+  reports it as alive, so `agent-health` sees a healthy cron.
+
+**Measured truth, 2026-08-11:** 7 agent actions ever, all between 2026-03-29 and 2026-04-03;
+**0 with `baseline_metrics`, 0 with `outcome_delta`, 0 measured.** The one closed loop in CRWN has
+never closed once. Disposition decided (partial retirement) in
+[`02-FEATURE-MAP.md`](crwn-brain/02-FEATURE-MAP.md); tracked in `TODO.md`.
 
 ---
 

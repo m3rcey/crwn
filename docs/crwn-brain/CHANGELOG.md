@@ -1,5 +1,42 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Manager measurement loop: investigation, and the loop that never closed
+
+**Investigation only. No code changed.** Architecture decided: **partial retirement**.
+
+**What the code says.** Manager recommends, the action executes, `snapshotArtistMetrics` captures a
+baseline, the `outcome-measure` cron re-snapshots and stores `outcome_delta`, and the next run
+feeds the last 10 scored outcomes back into the prompt with *"Repeat what worked. Avoid what
+failed."* Four defects, and the two the prior audit missed are the worse ones: the "7-day window"
+is a 7-day MINIMUM capped at 30 with the elapsed time never recorded, so deltas of different
+lengths are ranked against each other; and measurement is **per-artist, not per-action**, so one
+snapshot is diffed against every pending action's baseline and whatever the account did in the
+interval is credited to all of them. That is not weak attribution, it is none. The loop also
+carries `outcome_score` in three places, which `recommendationOutcome.ts` (Z3) explicitly forbids
+by name, alongside `caused`, `impact` and `attributed`.
+
+**What production says.** 7 agent actions have ever existed, all between 2026-03-29 and
+2026-04-03. **0 have `baseline_metrics`. 0 have `outcome_delta`. 0 were ever measured.** The
+`artist_action_outcomes` view returns 0 rows. `pastOutcomes` has therefore never been non-empty,
+so the causal instruction has never actually fired.
+
+**Why it stopped.** Not the `HTTP 402` recorded in `FEEDBACK_LOOPS.md` §4.10. The ai-manager cron
+filters `artist_profiles.eq('is_active', true)` and **that column does not exist** (`42703`
+verified; `profiles.is_active` is a different table). The result is not error-checked, so `data`
+is `null` and the cron early-returns "No active artists" every day, then writes a heartbeat that
+`agent-health` reads as proof of life. The safety net has been masking the outage it was built to
+catch. `/api/cron/weekly-report` and `/api/cron/weekly-payout` share the exact bug. **No artist is
+unpaid:** all 7 connected accounts run on Stripe's own `daily` automatic payout schedule, verified
+read-only, so weekly-payout is redundant rather than a money leak. §4.10 corrected.
+
+**Decision.** Retire the learning half (`outcome_score` ×3, `outcome_delta`, `outcome_metrics`,
+baseline capture, the `pastOutcomes` prompt block, the view's score column). Keep the telemetry
+half (`artist_agent_actions` / `artist_agent_runs`), which is the one job nothing else does: Z3
+records constraint recommendations, Z9 records rates, neither records what Manager DID. Replace the
+prompt input with facts ("already taken on date X") rather than verdicts. Historical cost is zero
+because there is no history. Not implemented: retirement changes recommendation-learning semantics,
+a declared stop condition. Full disposition in [`02-FEATURE-MAP.md`](02-FEATURE-MAP.md).
+
 ## 2026-08-11 - Manager reconciliation: the second strategist Z4 missed
 
 **What existed:** Z4 gave Manager the canonical diagnosis and Z5 declared it a coach that may

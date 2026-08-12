@@ -342,6 +342,61 @@ its route, tour steps and analytics are unchanged.
   calls `generateInsights(data)` without a brief, issues a Z3 record, reintroduces a peer claim, or
   renders an outcome verdict.
 
+- **Manager measurement loop: PARTIAL RETIREMENT decided 2026-08-11, NOT YET IMPLEMENTED.**
+  Investigated against production. Do not mark this shipped.
+
+  **What it is.** Manager recommends → action executes → `snapshotArtistMetrics` captures a
+  baseline → the `outcome-measure` cron re-snapshots and stores `outcome_delta` → the next
+  ai-manager run reads the last 10 measured outcomes, scores each
+  (`mrr + activeSubs*100 - churnRate*500`), labels it POSITIVE/NEGATIVE/NEUTRAL and appends
+  *"Use these results to inform your recommendations. Repeat what worked. Avoid what failed."*
+
+  **Four defects, in ascending order of severity:**
+  1. `snapshotArtistMetrics` zero-defaults everything (`subs || []`, no error check), so a failed
+     query is indistinguishable from an artist with no revenue. `revenueRampSeed.currentMrrCents`
+     computes the **identical MRR formula** and correctly returns `null` on failure, so the right
+     semantics already exist in the repo one file away.
+  2. The "7-day window" is a 7-day **minimum** with a 30-day cap (`lte(7d)`, `gte(30d)`), and the
+     elapsed time is never recorded. Deltas measured over 7 and 29 days are stored in the same
+     field and then ranked against each other.
+  3. Measurement is **per-artist, not per-action**: one snapshot per artist is diffed against every
+     pending action's own baseline. Whatever the artist's account did in the interval is attributed
+     to every action at once. This is not weak attribution, it is no attribution.
+  4. It makes the causal claim Z3 exists to forbid. `recommendationOutcome.ts` states no field may
+     be named `caused`, `impact`, `attributed` or `score`; this loop has `outcome_score` in three
+     places (TS in the cron, the `artist_action_outcomes` SQL view, and the `PastOutcome` type) and
+     instructs a model to repeat "what worked".
+
+  **The decision: retire the LEARNING half, keep the TELEMETRY half.**
+  - RETIRE: `outcome_score` (all three copies), `outcome_delta`, `outcome_metrics`, baseline
+    capture, the `pastOutcomes` prompt block, the view's score column.
+  - KEEP: `artist_agent_actions` and `artist_agent_runs` as **execution telemetry** (what Manager
+    did, when, result, status). That is the one job nothing else in CRWN does: Z3 records constraint
+    recommendations, not Manager actions; Z9 records rates; the Feedback Loop records neither.
+  - REPLACE the prompt input with facts rather than verdicts: "this action was already taken on
+    date X" prevents redundant recommendations with no causal claim attached.
+  - Manager's learning need is already met by Z4 (canonical priority), Z9 (its own eligible rates)
+    and Z3 (whether the constraint later cleared). It does not need a private scoring system.
+
+  **Historical cost is zero.** Production holds **0 rows with `baseline_metrics` and 0 with
+  `outcome_delta`**, ever; the `artist_action_outcomes` view returns 0 rows. Nothing to migrate,
+  nothing to reinterpret, no reason to keep columns for history that does not exist. The JSONB
+  columns may simply stop being written.
+
+  **Why it is not implemented yet:** retirement changes recommendation-learning semantics, a
+  declared stop condition for the investigation. It is small, reversible and non-financial; it is
+  waiting on a go, not on analysis.
+
+- **The Manager has not run since 2026-04-03.** `/api/cron/ai-manager` filters
+  `artist_profiles.eq('is_active', true)` and **that column does not exist** (`42703` in
+  production; `profiles.is_active` is a different table). No error check, so `data` is `null` and
+  the cron early-returns "No active artists" daily, while its heartbeat makes `agent-health`
+  report it healthy. `/api/cron/weekly-report` and `/api/cron/weekly-payout` share the bug.
+  **No artist is unpaid:** all 7 connected accounts are on Stripe's own `daily` automatic payout
+  schedule, so weekly-payout is redundant rather than a leak, though it still takes the weekly
+  `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
+  decision, not a bug fix, and is sequenced after the retirement above.
+
 - **There is NO admin Manager, by verification.** `admin/agent/*`, `AgentInsights` and
   `AutonomousOpsBar` are **CRWN's own business agent** (scopes: dashboard, pipeline, partners,
   funnel, sequences, email, CRM) writing `autonomous_run_log`. `ApprovalsManager` is user and
