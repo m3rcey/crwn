@@ -174,6 +174,116 @@ describe('SEC-RLS — new tables ship with row level security', () => {
   });
 });
 
+describe('SEC-REDIRECT — no route sends a person to an unvalidated destination', () => {
+  // SEC-016: three email click-tracking routes did
+  //   NextResponse.redirect(searchParams.get('url'), 302)
+  // so CRWN's own domain served attacker-chosen content. The sendId did not even
+  // need to exist. Any redirect whose target came from the request must go through
+  // src/lib/safeRedirect.ts.
+  it('no API route redirects to a raw request-supplied value', () => {
+    const offenders: string[] = [];
+    for (const f of API_ROUTES) {
+      const src = readStripped(f);
+      // Find the variable each redirect uses, then check it was not read straight
+      // from the query string in the same file without passing through a validator.
+      if (!/NextResponse\.redirect\s*\(\s*url\b/.test(src)) continue;
+      const readsRawUrl = /searchParams\.get\(\s*['"]url['"]\s*\)/.test(src);
+      const validates = /safeRedirect|resolveTrackedLink|safeInternalRedirect|safeExternalRedirect|safeInternalPath/.test(src);
+      if (readsRawUrl && !validates) offenders.push(f);
+    }
+    expect(
+      offenders,
+      violation(
+        'SEC-REDIRECT',
+        `route(s) redirect to a raw request-supplied url: ${offenders.join(', ')}. That turns thecrwn.app into an open redirect, which is phishing wearing a domain the recipient's mail client already trusts. Route the destination through src/lib/safeRedirect.ts.`,
+        { owner: 'src/lib/safeRedirect.ts', docs: 'docs/CYBERSECURITY_AUDIT_2026-08-12.md' },
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe('SEC-PROFILE — identity and approval columns are not self-service', () => {
+  // SEC-003: the freeze trigger guarded three columns, so email, phone and
+  // is_approved were writable by the account itself from the browser. That was
+  // money: Team Splits resolved a collaborator by profiles.email, and is_approved
+  // is the artist gate.
+  it('the profiles freeze trigger protects every identity and authority column', () => {
+    const src = MIGRATIONS.map(f => readRaw(f)).join('\n');
+    expect(src.length, 'positive control: migrations are readable').toBeGreaterThan(1000);
+    const missing = ['is_active', 'stripe_connect_id', 'email', 'phone', 'is_approved']
+      .filter(col => !new RegExp(`NEW\\.${col}\\s*:=\\s*OLD\\.${col}`).test(src));
+    expect(
+      missing,
+      violation(
+        'SEC-PROFILE',
+        `no migration freezes profiles.${missing.join(', profiles.')} against a browser write. A bare ownership UPDATE policy lets the OWNER rewrite their own row, so a column that carries identity (email, phone) or authority (is_approved, role, is_active) must be reverted by the trigger. Column privileges alone are not enough: schema-phase2-profiles-column-privileges.sql revoked SELECT and left UPDATE untouched, which is how SEC-003 happened.`,
+        { docs: 'docs/CYBERSECURITY_AUDIT_2026-08-12.md' },
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe('SEC-SPLIT — collaborator identity and funding', () => {
+  const CREATE = 'src/app/api/team-splits/route.ts';
+  const ACCEPT = 'src/app/api/team-splits/accept-invite/route.ts';
+  const CASHOUT = 'src/app/api/stripe/team-split-cashout/route.ts';
+
+  it('found the Team Split surface (positive control)', () => {
+    for (const f of [CREATE, ACCEPT, CASHOUT]) {
+      expect(readStripped(f).length, `${f} unreadable`).toBeGreaterThan(200);
+    }
+  });
+
+  // Ratified rule: email INVITES, an authenticated identity AUTHORIZES.
+  it('deal creation never binds a collaborator by looking up a mutable profile email', () => {
+    const src = readStripped(CREATE);
+    const bindsByEmail = /ilike\(\s*['"]email['"]/.test(src) || /\.eq\(\s*['"]email['"]/.test(src);
+    expect(
+      bindsByEmail,
+      violation(
+        'SEC-SPLIT',
+        `${CREATE} resolves a collaborator through profiles.email. That column is a self-writable mirror of the verified auth identity, and collaborator_user_id is the column the accrual cron selects on and atomic_team_split_cashout pays out on, so binding it from email hands a payout relationship to whoever claimed the address first. Email may INVITE; only an authenticated identity may AUTHORIZE.`,
+        { file: CREATE },
+      ),
+    ).toBe(false);
+  });
+
+  it('acceptance proves the accepting account IS the invited identity', () => {
+    const src = readStripped(ACCEPT);
+    // The binding must be gated on the VERIFIED auth email, not merely on holding
+    // the invite link: a forwarded invite must not bind a stranger to someone
+    // else's revenue share.
+    expect(
+      /collaborator_email/.test(src) && /user\.email/.test(src),
+      violation(
+        'SEC-SPLIT',
+        `${ACCEPT} sets collaborator_user_id without comparing the invitation's collaborator_email to the authenticated user's VERIFIED auth email. Possession of the invite link is not proof of identity.`,
+        { file: ACCEPT },
+      ),
+    ).toBe(true);
+  });
+
+  // F-3: destination charges settle the artist's share into the artist's Connect
+  // account, so a transfer to a collaborator with no reserve withheld draws on
+  // CRWN's own balance. Until the reserve is wired into checkout, the rail must
+  // fail closed.
+  it('collaborator cashout cannot pay from an unfunded platform balance', () => {
+    const src = readStripped(CASHOUT);
+    const failsClosed = /cashoutFundingReady/.test(src) && /TEAM_SPLIT_FUNDING_PENDING/.test(src);
+    const reserveWired = /computeFunding\s*\(|collaboratorReserveCents/.test(
+      readStripped('src/app/api/stripe/checkout/route.ts'),
+    );
+    expect(
+      failsClosed || reserveWired,
+      violation(
+        'SEC-SPLIT',
+        `${CASHOUT} can transfer to a collaborator, but checkout does not withhold a collaborator reserve. CRWN sells through Stripe destination charges, so the artist's share settles into the ARTIST's Connect account and only the application fee stays with CRWN. Transferring the collaborator's share therefore spends CRWN's own money. Either wire the reserve (src/lib/teamSplits/funding.ts) into checkout, or keep the rail failing closed.`,
+        { file: CASHOUT, docs: 'docs/CYBERSECURITY_AUDIT_2026-08-12.md' },
+      ),
+    ).toBe(true);
+  });
+});
+
 describe('SEC-MEDIA — private media is signed only for content the caller is entitled to', () => {
   it('the audio signer refuses caller-supplied absolute URLs', () => {
     const src = readStripped('src/lib/storage/signedAudio.ts');

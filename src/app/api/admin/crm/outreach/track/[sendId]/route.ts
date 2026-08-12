@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { resolveTrackedLink, leavingCrwnPage } from '@/lib/safeRedirect';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -40,7 +41,19 @@ export async function GET(
       .update({ status: 'clicked', clicked_at: new Date().toISOString() })
       .eq('id', sendId);
 
-    return NextResponse.redirect(url);
+    // SEC-016: this redirected to a raw `?url=` value, which made CRWN's own
+    // domain an open redirect for phishing. resolveTrackedLink refuses hostile
+    // schemes outright, passes CRWN and CRWN-signed destinations straight
+    // through, and gives an unsigned external destination an interstitial that
+    // names where it leads rather than a silent hop through a trusted host.
+    const decision = resolveTrackedLink(url, req.nextUrl.searchParams.get('sig'));
+    if (decision.action === 'redirect') {
+      return NextResponse.redirect(decision.url, 302);
+    }
+    return new NextResponse(leavingCrwnPage(decision.url), {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+    });
   }
 
   return NextResponse.redirect('https://thecrwn.app');

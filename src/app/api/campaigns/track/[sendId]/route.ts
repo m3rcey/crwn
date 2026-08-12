@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { resolveTrackedLink, leavingCrwnPage } from '@/lib/safeRedirect';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
@@ -51,7 +52,20 @@ export async function GET(
       .eq('id', sendId)
       .is('opened_at', null);
 
-    return NextResponse.redirect(url, 302);
+    // SEC-016: `url` is whatever the query string carried, so redirecting to it
+    // unvalidated made this an open redirect on CRWN's own domain. The sendId did
+    // not even have to exist. resolveTrackedLink decides: a CRWN destination or one
+    // CRWN itself signed goes straight through, a hostile scheme is refused
+    // outright, and an unsigned external destination gets an interstitial that
+    // names where it leads instead of a silent hop through a trusted host.
+    const decision = resolveTrackedLink(url, req.nextUrl.searchParams.get('sig'));
+    if (decision.action === 'redirect') {
+      return NextResponse.redirect(decision.url, 302);
+    }
+    return new NextResponse(leavingCrwnPage(decision.url), {
+      status: 200,
+      headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+    });
   }
 
   return NextResponse.json({ error: 'Bad request' }, { status: 400 });
