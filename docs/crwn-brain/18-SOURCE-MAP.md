@@ -9,6 +9,15 @@
 - Working rules (authoritative): `CLAUDE.md`, `DEV_RULES.md`, `CODEBASE.md`, `AGENT_INSTRUCTIONS.md`
 - Ops: `POST_DEPLOY_CHECKLIST.md`; handoffs: `CRWN_*_HANDOFF.md`, `CRWN_SESSION_CONTEXT_MAR10.md`, `CLIP_TO_SUBSCRIBE_PHASE1*.md`
 
+## Drift prevention (doc 26, LIVE 2026-08-12)
+- Invariant registry (+ frozen identifiers, `FEATURES` reachability, `EXPECTED_MIGRATION_STATE`): `src/lib/architecture/invariants.ts`
+- Centralized exceptions (the ONLY place intentional deviations live): `src/lib/architecture/exceptions.ts`
+- Shared scanner (cached walk, comment strip, `violation()` messages; test-time only): `src/lib/architecture/sourceScan.ts`
+- Registry-driven suites: `src/lib/architecture/{architecture,ownership,financial,communications,attribution,navigation,terminology,identifiers,reachability,authorization}.test.ts`
+- Suite manifest + command: `vitest.architecture.config.ts` via `npm run verify:architecture` (registry↔manifest parity asserted in `architecture.test.ts`)
+- Migration/doc contract: DOCS-002 describe block in `src/lib/brainContract.test.ts`
+- Doc-impact mapping: `.claude/hooks/doc-sync-reminder.sh` (code area → canonical docs)
+
 ## Config
 - `package.json` (deps/scripts), `next.config.ts` (env expose, headers, image hosts), `vercel.json` (25 crons), `tsconfig.json` (`@/` alias), `eslint.config.mjs`, `postcss.config.mjs`, `.gitignore`, `.env.local` (names only)
 
@@ -55,14 +64,14 @@
 - Live/VOD: `src/lib/livekit/livekit.ts`, `src/app/api/live/*`, `src/components/live/*`, `src/app/[slug]/live/*`
 - Gamification: `src/lib/quests/*`, `src/components/quests/*`, `src/components/artist/RiseMode.tsx`, `src/lib/{missions,squads,bounties,cityUnlocks}.ts`, routes `src/app/api/{missions,squads,bounties,city-unlocks,road-campaigns,quests,proof-of-demand}/*`
 - Marketing/CRM: `src/lib/emails/*`, `src/app/api/{campaigns,sequences,segments,crm,fan-contacts,smart-links}/*` (the `sms/*` routes and `src/lib/twilio.ts` were deleted 2026-07-31 with the SMS removal)
-- Support (2026-07-31): `/support` help center page, `src/lib/supportKnowledge.ts` (guide-derived AI knowledge prompt), `src/app/api/support/{route,chat}` + `src/app/api/admin/support-chat`, admin `SupportChatView` (`/admin?tab=support`), global `BugReportButton` in the root layout, tables `support_conversations`/`support_messages` (`schema-phase2-support-chat.sql`, pending)
+- Support (2026-07-31): `/support` help center page, `src/lib/supportKnowledge.ts` (guide-derived AI knowledge prompt), `src/app/api/support/{route,chat}` + `src/app/api/admin/support-chat`, admin `SupportChatView` (`/admin?tab=support`), global `BugReportButton` in the root layout, tables `support_conversations`/`support_messages` (`schema-phase2-support-chat.sql`, applied 2026-08-01)
 - Referrals/recruiters: `src/lib/referrals.ts`, `src/lib/attribution.ts`, `src/app/api/{referrals,recruit}/*`, `src/app/{join/[code],partner}/`
 - Admin/AI: `src/app/admin/`, `src/app/api/admin/*`, `src/lib/ai/*`, `src/app/api/ai-manager/*`, `src/components/admin/*`
 - Lead magnets / public tools: registry `src/lib/leadMagnets/*` (16 `LeadMagnetConfig` + `EXTERNAL_TOOLS` worth); DM/execution adapters `src/lib/acquisition/{toolAdapters,orchestration,lossResult}.ts`; result/claim `src/lib/leadResults/*`; pages `src/app/(public)/{tools,worth}/*`; DM ingress `src/app/api/integrations/manychat/webhook/route.ts`
 - Opportunity Funnels (shared config/lifecycle/promotion + funnel analytics over the tools): `src/lib/opportunityFunnels/{types,registry,analytics}.ts` (typed view over the registries; `promotion`/`lifecycle`; 7 `opportunity_*` + 16 `journey` events sanitized onto the existing `lead_magnet_events` sink). Own Your Fans = primary. Funnel event spine `src/lib/analytics/funnelEvents.ts`; money ledger `src/lib/analytics/opportunityLedger.ts`
 - Value-before-signup (Own Your Fans): pre-signup builder `src/components/opportunity/FanCaptureBuilder.tsx`; draft sanitizers `src/lib/opportunityDrafts/ownYourFansDraft.ts`; public draft capability routes `src/app/api/opportunity-drafts/{route,[token]/route}.ts` (reuse `lead_magnet_results` as an unclaimed draft, no migration); resume page `src/app/(main)/own-your-fans/plan/page.tsx` (reads claimed draft under RLS). Claim/resume reuse `src/lib/leadResults/{resultAccess,postSetupDestination}.ts` + the signup `user_metadata` token
 - Post-signup journey resolver (one place, no scattered conditionals): `src/lib/journey/resolveJourneyDestination.ts` (account gate -> setup gate -> restored builder via `buildDraftConfig` -> safe dashboard; `safeInternalPath` returnTo guard; Rise Mode only appends returnTo when quest_engine on). Entry `src/app/api/lead-results/post-setup-destination/route.ts` (server-side context, experiment variant re-derived from `aid`). 9 personalized-journey analytics events in `opportunityFunnels/analytics.ts`
-- Experiments (holistic experience A/B foundation, dark): `src/lib/experiments/{registry,assignment,anonId,taxonomy,metrics,insights,server,client}.ts` (behavior is prebuilt code, deterministic assignment, projection-vs-actual guard). Migration `supabase/schema-phase2-experiments.sql` (`experiments` + `experiment_events`, UNRUN). Routes `src/app/api/experiments/track/route.ts` (public, flag-gated) + `src/app/api/admin/{experiments,experiment-analytics}/route.ts` (requireAdmin). Admin UI tab `src/components/admin/ExperimentsView.tsx`. Flag: `admin_settings.experiments`
+- Experiments (holistic experience A/B foundation, LIVE: flag ON, `oyf-signup-timing-v1` running): `src/lib/experiments/{registry,assignment,anonId,taxonomy,metrics,insights,server,client}.ts` (behavior is prebuilt code, deterministic assignment, projection-vs-actual guard). Migration `supabase/schema-phase2-experiments.sql` (`experiments` + `experiment_events`, applied, probe-verified). Routes `src/app/api/experiments/track/route.ts` (public, flag-gated) + `src/app/api/admin/{experiments,experiment-analytics}/route.ts` (requireAdmin). Admin UI tab `src/components/admin/ExperimentsView.tsx`. Flag: `admin_settings.experiments`
 
 ## Evidence layer + Constraint Engine (2026-08-03)
 - Constraint Engine: `src/lib/constraint/{thresholds,types,engine,assembler,presentation}.ts` + `{engine,assembler,presentation}.test.ts`. Route `src/app/api/artist/constraint/route.ts` (session-only ownership, no artistId param). UI `src/components/artist/ConstraintCard.tsx`, mounted above `RoadmapCard` in `src/app/(main)/profile/artist/page.tsx`. **Pure, deterministic, no AI, read-only.**

@@ -62,15 +62,49 @@ DOCS=$(echo "$CHANGED" | grep -E '^docs/crwn-brain/' || true)
 # founder-only work (a migration to run, an env var, a flag to flip) most often lands in a code
 # commit and TODO.md has no other reminder.
 if [[ -n "$CODE" ]]; then
+  # Map changed code areas to the canonical docs that own their rules
+  # (doc ownership: docs/crwn-brain/26-PRODUCT-DRIFT-PREVENTION.md). Static
+  # path matching cannot judge semantic impact; it narrows WHERE to look, the
+  # agent still judges WHETHER a doc claim changed.
+  AREA_HITS=""
+  area() { # $1 = grep -E pattern over changed paths, $2 = docs to name
+    if echo "$CODE" | grep -qE "$1"; then AREA_HITS="${AREA_HITS}  - $2"$'\n'; fi
+  }
+  area 'src/lib/(stripe|earningsNet|webhookHandlers|teamSplits|referrals|platformTier)|src/app/api/stripe' \
+       'money/Stripe change -> 07-BUSINESS-RULES, 05-DATABASE, 13-CURRENT-STATE'
+  area 'src/lib/constraint|src/lib/ai/' \
+       'Constraint/Manager change -> 02-FEATURE-MAP, 23-ZERO-TO-ONE-STRATEGY, 24-RECOMMENDATION-OUTCOME-LINKAGE'
+  area 'src/app/setup|src/lib/onboarding|src/app/api/onboarding|useArtistSetup' \
+       'onboarding change -> 19-ONBOARDING-FLOW (+ the setup section of CLAUDE.md)'
+  area 'postWinReferral|campaignAttribution|attributionLookup|src/app/api/recruit|ReferralPersist' \
+       'referral/attribution change -> 25-POST-WIN-REFERRAL, 22-VIRALITY-ENGINE-ARCHITECTURE, 07-BUSINESS-RULES'
+  area 'src/lib/campaigns' \
+       'Fan Drives change -> 22-VIRALITY-ENGINE-ARCHITECTURE (section 28 is what is live)'
+  area 'src/lib/(popups|comms)|src/lib/notifications' \
+       'pop-up/comms change -> 02-FEATURE-MAP (governance sections), 13-CURRENT-STATE'
+  area 'src/app/api/admin|src/lib/analytics' \
+       'admin/metrics change -> 13-CURRENT-STATE, 18-SOURCE-MAP (metric->source pins live in adminActivation.test.ts)'
+  area 'src/lib/(fulfillment|promise|revenueRamp)' \
+       'promises/ramp change -> 02-FEATURE-MAP (promise ownership), docs/REVENUE_RAMP.md'
+  area 'src/lib/quests|artistRoadmap' \
+       'quests/roadmap change -> 02-FEATURE-MAP, 19-ONBOARDING-FLOW'
+  area 'src/lib/architecture|vitest\.architecture|supabase/' \
+       'architecture-contract or migration change -> 26-PRODUCT-DRIFT-PREVENTION (registry + EXPECTED_MIGRATION_STATE; add a probe line for a new migration)'
   {
     echo "SYNC REMINDER: the latest commit(s) changed code under src/ or supabase/."
     echo "Before ending the turn, reconcile the derived state:"
-    if [[ -z "$DOCS" ]]; then
+    if [[ -z "$DOCS" ]] && [[ -n "$AREA_HITS" ]]; then
+      echo "Canonical docs this change most likely touches (judge each, do not update blindly):"
+      printf '%s' "$AREA_HITS"
+    elif [[ -z "$DOCS" ]]; then
       echo "  - docs/crwn-brain/**  (routes/flows, business rules, database, security, source map, current-state, feature map)"
+    fi
+    if [[ -z "$DOCS" ]]; then
       echo "  - CLAUDE.md            (if a rule, flow, or convention changed)"
       echo "  - public/sw.js CACHE_NAME bump  (if the change is user-facing frontend)"
     fi
     echo "  - TODO.md             (ADD any founder-only work this created: a migration to run, an env var, a secret to rotate, a pricing/legal call, a dark-launched flag to flip. DELETE items it completed. Never leave done items.)"
+    echo "  - npm run verify:architecture  (2.5s; run it if the change touches anything the invariant registry names)"
     echo "If updates are warranted, make them now and commit. If none are needed, say so briefly and continue."
     echo
     echo "Changed src files in this range:"

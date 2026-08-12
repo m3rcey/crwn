@@ -308,6 +308,27 @@ Rules when you touch any of this:
   map, and `/profile/artist` redirects through it so links already sitting in emails and
   `notifications.link` rows keep working. It exists for history, not for new code.
 
+## Product Drift Prevention — the registry is the contract
+
+`docs/crwn-brain/26-PRODUCT-DRIFT-PREVENTION.md` is canonical. The short version:
+- **`src/lib/architecture/invariants.ts`** is the one inventory of ratified architecture
+  contracts (who owns what, what must never happen, which identifiers are frozen, which
+  features are live/dark/dormant, which migrations are expected applied vs pending).
+- **`src/lib/architecture/exceptions.ts`** is the ONLY place intentional deviations live; a
+  scattered "ignore this test" comment is forbidden, and stale exceptions fail the suite.
+- **To change a ratified rule**: founder decision → update the Brain doc → update the
+  implementation → update the registry/exceptions → update the tests → `npm run
+  verify:architecture` → `npm test` → `npm run build`. "The test failed, so weaken the test"
+  without that chain is drift, not evolution.
+- **When you add**: a Studio destination (hub parity is asserted), a notification type
+  (classify it in `src/lib/comms/taxonomy.ts`), an attribution dimension (register it in
+  `ATTRIBUTION_DIMENSIONS`), a migration (add an `EXPECTED_MIGRATION_STATE` row AND a probe
+  line), a pop-up (its key gets frozen; a flag-gated one needs its flag in
+  `ANNOUNCEABLE_FLAGS`), a cron (schedule it, at most daily), an earnings write (it lives in
+  `webhookHandlers.ts` or gets a registered exception).
+- New drift assertions use `src/lib/architecture/sourceScan.ts` and must be mutation-tested
+  (introduce the violation, watch the suite fail, revert) before they count as protection.
+
 ## Problem-Solving Principles
 
 Four tools. Each answers a different question. Use the one that matches.
@@ -618,6 +639,12 @@ CRWN is a music monetization platform where artists sell subscriptions, tracks, 
 - `npm run build` — Production build (**must pass before pushing**)
 - `npm run lint` — ESLint
 - `npm test` — vitest (node env, pure `src/**/*.test.ts` suites; no jsdom/component tests). Run it before pushing when you touch a tested lib.
+- `npm run verify:architecture` — the deterministic product-drift suite (~2.5s, no credentials):
+  the invariant registry's tests plus every boundary/contract suite it references. **Run it before
+  pushing anything that touches money, priority ownership, notifications, attribution, navigation,
+  identifiers, or docs.** A failure is either real drift (fix the code) or an intentional rule
+  change (follow the workflow in `docs/crwn-brain/26-PRODUCT-DRIFT-PREVENTION.md`); never weaken
+  the test alone.
 - `npm run verify:quests` — quest catalog integrity check
 - `npm run verify:stripe` — read-only check that the live CRWN Pro/Scale prices match
   `TIER_PRICING`, plus a count of anyone still on the old $9.99 Pro price. Proves the PRICES are

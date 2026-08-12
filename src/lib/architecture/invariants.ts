@@ -1,0 +1,1028 @@
+// ============================================================================
+// CRWN ARCHITECTURE INVARIANT REGISTRY
+// ============================================================================
+// The ONE developer-facing inventory of CRWN's ratified product-architecture
+// contracts. Every entry is a rule the product has DECIDED, not a convention:
+// violating one silently is drift; changing one deliberately follows the
+// rule-change workflow in docs/crwn-brain/26-PRODUCT-DRIFT-PREVENTION.md
+// (Brain rule first, then implementation, then this registry, then the test).
+//
+// This is DATA consumed by tests (src/lib/architecture/*.test.ts and the
+// existing boundary suites it references). It is not a runtime system: nothing
+// in src/app or src/components may import this module (architecture.test.ts
+// enforces that). Do not make it dynamic, admin-editable, or database-backed.
+//
+// severity:
+//   P0 = money, security, or data ownership. Wrong = real dollars or real access.
+//   P1 = priority / source-of-truth / product ownership. Wrong = two systems
+//        claim the same fact and the founder steers by a lie.
+//   P2 = navigation / communication / admin truth. Wrong = users or the founder
+//        cannot find or trust a surface.
+//   P3 = terminology / docs / education. Wrong = the product teaches its own
+//        retired ideas.
+//
+// enforcement:
+//   'test'    = deterministic vitest assertion (runs in npm run verify:architecture)
+//   'probe'   = live production check (npm run verify:migrations / verify:stripe)
+//   'runtime' = enforced by the code path itself (e.g. checkout price verification)
+//   'doc'     = documented contract with no automated check yet (the gap is stated)
+// ============================================================================
+
+export type InvariantSeverity = 'P0' | 'P1' | 'P2' | 'P3';
+
+export type InvariantCategory =
+  | 'money'
+  | 'ownership'
+  | 'measurement'
+  | 'communications'
+  | 'attribution'
+  | 'navigation'
+  | 'terminology'
+  | 'identifiers'
+  | 'reachability'
+  | 'authorization'
+  | 'docs';
+
+export interface Invariant {
+  id: string;
+  severity: InvariantSeverity;
+  category: InvariantCategory;
+  /** The rule, stated so a violation is falsifiable. */
+  rule: string;
+  /** The canonical owner (module, route, or external system). */
+  owner: string;
+  /** Where the truth lives (file, table, or system). */
+  sourceOfTruth: string;
+  /** How the rule is enforced. */
+  enforcement: 'test' | 'probe' | 'runtime' | 'doc';
+  /** Test files (repo-relative) or scripts that fail when the rule breaks. */
+  enforcedBy: string[];
+  /** Brain docs to review when this rule is touched. */
+  docs: string[];
+  notes?: string;
+}
+
+export const INVARIANTS: Invariant[] = [
+  // ------------------------------------------------------------------ MONEY
+  {
+    id: 'MONEY-001',
+    severity: 'P0',
+    category: 'money',
+    rule: 'Stripe owns automatic artist payout timing. No CRWN cron creates payouts, updates payout settings, or sets a payout schedule.',
+    owner: 'Stripe Express (delay_days: 2, automatic daily)',
+    sourceOfTruth: 'Stripe',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/stripe/payoutOwnership.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+    notes: 'weekly-payout cron retired 2026-08-11 and must not return.',
+  },
+  {
+    id: 'MONEY-002',
+    severity: 'P0',
+    category: 'money',
+    rule: 'stripe.payouts.create appears in exactly one file: the artist cashout route. Everything else moving money platform->connected uses transfers.create.',
+    owner: 'src/app/api/stripe/cashout/route.ts',
+    sourceOfTruth: 'Stripe balance',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/stripe/payoutOwnership.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+  },
+  {
+    id: 'MONEY-003',
+    severity: 'P0',
+    category: 'money',
+    rule: 'Both subscription earning paths (initial checkout and renewal) derive artist net through subscriptionEarningNet, so referral/clipper pass-through commission is removed from artist net wherever Stripe charged it. platform_fee stays the platform base cut.',
+    owner: 'src/lib/earningsNet.ts',
+    sourceOfTruth: 'earnings.net_amount',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/earningsNet.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+    notes:
+      'The five non-subscription rails (product, track, booking, live_ticket, live_tip) legitimately compute gross - platformFee: no commission is charged on them. Deliberately NOT routed through the helper; if a commission is ever attributed on one of those rails, extend earningsNet.ts first.',
+  },
+  {
+    id: 'MONEY-004',
+    severity: 'P0',
+    category: 'money',
+    rule: 'No new earnings writer: files inserting rows carrying net_amount are limited to the canonical webhook handler and the allowlisted self-check canary. A new rail must be added there or explicitly excepted.',
+    owner: 'src/lib/webhookHandlers.ts',
+    sourceOfTruth: 'earnings table',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/financial.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+  },
+  {
+    id: 'MONEY-005',
+    severity: 'P0',
+    category: 'money',
+    rule: 'Post-Win artist referral is unpaid forever and additive-attribution only. Post-Win code paths never write artist_referrals, recruiter_payouts, or referral earnings, never use the recruiter ref param, and never create a Stripe transfer or payout.',
+    owner: 'src/lib/postWinReferral.ts (pure) + founder policy in doc 25',
+    sourceOfTruth: 'docs/crwn-brain/25-POST-WIN-REFERRAL.md (ratified founder policy)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/postWinReferral.test.ts', 'src/lib/architecture/financial.test.ts'],
+    docs: ['docs/crwn-brain/25-POST-WIN-REFERRAL.md'],
+  },
+  {
+    id: 'MONEY-006',
+    severity: 'P0',
+    category: 'money',
+    rule: 'The Fan Drives campaign spine writes no money rows and adds no attribution dimension to referrals, cookies, or Stripe metadata. Campaign outcomes are DERIVED from canonical rails (referrals x participants x window).',
+    owner: 'src/lib/campaigns/*',
+    sourceOfTruth: 'referrals + referral_earnings (canonical rails)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/campaigns/boundaries.test.ts'],
+    docs: ['docs/crwn-brain/22-VIRALITY-ENGINE-ARCHITECTURE.md'],
+  },
+  {
+    id: 'MONEY-007',
+    severity: 'P0',
+    category: 'money',
+    rule: 'Team Splits allocate from the canonical earning basis (earnings.net_amount / gross_amount per deal) and never become a second ledger of CRWN revenue. Collaborator money moves by transfers.create through the team-split cashout only.',
+    owner: 'src/lib/teamSplits/allocation.ts',
+    sourceOfTruth: 'earnings table',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/earningsNet.test.ts', 'src/lib/stripe/payoutOwnership.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+  },
+  {
+    id: 'MONEY-008',
+    severity: 'P0',
+    category: 'money',
+    rule: 'Plan fees and prices come only from TIER_LIMITS / TIER_PRICING in src/lib/platformTier.ts. platform-checkout verifies the live Stripe amount against TIER_PRICING before selling.',
+    owner: 'src/lib/platformTier.ts',
+    sourceOfTruth: 'TIER_LIMITS / TIER_PRICING',
+    enforcement: 'runtime',
+    enforcedBy: ['scripts/probe-stripe-prices.mjs'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+    notes: 'Runtime verification in platform-checkout plus the read-only npm run verify:stripe probe. No deterministic test freezes prices; the probe is the check.',
+  },
+  {
+    id: 'MONEY-009',
+    severity: 'P0',
+    category: 'money',
+    rule: 'Refunds claw back proportionally on the same rail they were earned: referral commission and team-split accruals both reverse against the original earning.',
+    owner: 'src/lib/webhookHandlers.ts (refund path)',
+    sourceOfTruth: 'earnings + referral_earnings + team_split_earnings',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/earningsNet.test.ts'],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+  },
+
+  // -------------------------------------------------------------- OWNERSHIP
+  {
+    id: 'PRIORITY-001',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'The Constraint Engine is the sole owner of canonical operating priority when evidence supports diagnosis. No other surface ranks strategic priorities.',
+    owner: 'src/lib/constraint/engine.ts (readConstraint) via GET /api/artist/constraint',
+    sourceOfTruth: 'constraint evidence (assembler.ts), derived on read',
+    enforcement: 'test',
+    enforcedBy: [
+      'src/lib/constraint/ownership.test.ts',
+      'src/lib/constraint/readership.test.ts',
+      'src/lib/operatingFlow.test.ts',
+    ],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md', 'docs/crwn-brain/23-ZERO-TO-ONE-STRATEGY.md'],
+  },
+  {
+    id: 'PRIORITY-002',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'Only /api/artist/constraint issues canonical Z3 recommendation records. Everything else may read or reference recommendation identity, never create competing history.',
+    owner: 'src/app/api/artist/constraint/route.ts',
+    sourceOfTruth: 'recordIssuedRecommendation (src/lib/constraint/recommendationStore.ts)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/ownership.test.ts'],
+    docs: ['docs/crwn-brain/24-RECOMMENDATION-OUTCOME-LINKAGE.md'],
+    notes: 'Eleven per-surface tests also assert the negative; the architecture test walks the whole tree so a NEW file cannot become a second issuer.',
+  },
+  {
+    id: 'PRIORITY-003',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'Roadmap owns launch readiness, derived on read through the quest evaluator, stored nowhere. No second completion oracle.',
+    owner: 'src/lib/artistRoadmap.ts via /api/artist/roadmap',
+    sourceOfTruth: 'evaluateCondition (src/lib/quests/evaluator.ts)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/operatingFlow.test.ts', 'src/lib/artistRoadmap.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'PRIORITY-004',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'Needs You (/api/action-plan) owns event/deadline attention only: three deterministic event rules, no standing-gap strategy recommendations, no writes, no diagnosis. Urgency is not priority.',
+    owner: 'src/app/api/action-plan/route.ts',
+    sourceOfTruth: 'real events (clip windows, fan suggestions, proof-of-demand)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/needsYouBoundary.test.ts', 'src/lib/constraint/ownership.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'PRIORITY-005',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'Manager explains canonical priority and executes bounded approved actions. The canonical brief outranks its own framework; it never re-ranks, never claims peer comparison or causality, and never issues a Z3 record.',
+    owner: 'src/lib/ai/* (voice), subordinate to the Constraint Engine',
+    sourceOfTruth: 'canonicalPriorityBrief (src/lib/constraint/readership.ts)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/ai/managerBoundaries.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md', 'docs/crwn-brain/24-RECOMMENDATION-OUTCOME-LINKAGE.md'],
+  },
+  {
+    id: 'PRIORITY-006',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'The autonomous (scheduled) Manager stays dormant until founder-approved gates. The dormancy markers in the ai-manager cron are deliberate and must not be "fixed".',
+    owner: 'founder decision (open)',
+    sourceOfTruth: 'src/app/api/cron/ai-manager/route.ts (is_active filter + starter-tier early return)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/ai/managerBoundaries.test.ts', 'src/lib/ai/actionValidity.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'PRIORITY-007',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'A stale Manager action cannot execute: approval is not perpetual authorization. Validity is re-derived from current state at the moment of execution, before the lock and before any handler.',
+    owner: 'src/lib/ai/actionValidity.ts',
+    sourceOfTruth: 'artist_agent_actions.created_at + live target state',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/ai/actionValidity.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'PRIORITY-008',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'No cross-artist evidence reaches an artist-facing Manager surface. Cross-artist aggregation is admin-only, behind three privacy gates, median-of-artist-rates, no artist ids in output.',
+    owner: 'src/lib/crossArtistEvidence.ts',
+    sourceOfTruth: 'crossArtistEvidence@1',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/crossArtistEvidence.test.ts', 'src/lib/ai/managerBoundaries.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'PROMISE-001',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'A fan promise is something owed to a fan. A row carrying metadata.ramp_step_key is a Revenue Ramp step, never a fan promise. Decision readers of fulfillment_events go through onlyFanPromises / FAN_PROMISE_FILTER.',
+    owner: 'src/lib/fulfillment.ts (isFanPromiseEvent / onlyFanPromises)',
+    sourceOfTruth: 'fulfillment_events.metadata.ramp_step_key',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/fanPromiseBoundary.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md', 'docs/REVENUE_RAMP.md'],
+  },
+  {
+    id: 'PROMISE-002',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'Communication readers honor the fan-promise boundary too: exactly one sender (promiseReminders) emails an artist about a fan promise; calendarReminders never reads fulfillment_events; neither re-expresses the ramp marker as its own literal.',
+    owner: 'src/lib/promiseReminders.ts',
+    sourceOfTruth: 'src/lib/fulfillment.ts',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/promiseEmailBoundary.test.ts', 'src/lib/promiseReminderBoundary.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'INTERRUPT-001',
+    severity: 'P1',
+    category: 'ownership',
+    rule: 'The Pop-up Engine is the sole owner of interruption arbitration (one pop-up per user per day, priority-sorted single winner). The Communications Governor owns feed classification only. selectSingleInterruption stays retired.',
+    owner: 'src/lib/popups/index.ts (eligiblePopupFor)',
+    sourceOfTruth: 'popup_events + POPUPS registry priorities',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/comms/governor.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+
+  // ------------------------------------------------------------ MEASUREMENT
+  {
+    id: 'MEASURE-001',
+    severity: 'P1',
+    category: 'measurement',
+    rule: 'There is ONE first-paid definition: funnel_events stage first_paid_conversion, recorded by recordFirstPaidConversion across all six paid rails (subscription, product, track, booking, live_ticket, live_tip), deduped per artist.',
+    owner: 'src/lib/analytics/paidConversion.ts',
+    sourceOfTruth: 'funnel_events (stage = first_paid_conversion)',
+    enforcement: 'test',
+    enforcedBy: [
+      'src/lib/analytics/paidConversion.test.ts',
+      'src/lib/analytics/adminActivation.test.ts',
+      'src/lib/architecture/financial.test.ts',
+    ],
+    docs: ['docs/crwn-brain/20-FIRST-REVENUE-LAUNCH-OFFER.md', 'docs/crwn-brain/13-CURRENT-STATE.md'],
+    notes: 'Explicitly-narrower metrics (e.g. "First Member (memberships)") are allowed because they do not pretend to mean activation.',
+  },
+  {
+    id: 'MEASURE-002',
+    severity: 'P1',
+    category: 'measurement',
+    rule: 'Activation = first paid conversion. Setup Progress = 3-of-5 setup milestones. They are different concepts; an admin surface labeling setup progress "activated" is drift.',
+    owner: 'src/app/api/admin/funnel/route.ts (both series, honestly named)',
+    sourceOfTruth: 'funnel_events (activation) / activation_milestones (setup)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/analytics/adminActivation.test.ts', 'src/lib/architecture/financial.test.ts'],
+    docs: ['docs/crwn-brain/13-CURRENT-STATE.md'],
+  },
+  {
+    id: 'MEASURE-003',
+    severity: 'P1',
+    category: 'measurement',
+    rule: 'Milestone truth is server-derived from canonical rows with historical timestamps. Browser writes are optimization signals only. Reconciliation never manufactures "just completed now" lifecycle events (30-day stall freshness window).',
+    owner: 'src/lib/milestoneReconcile.ts',
+    sourceOfTruth: 'tracks / subscription_tiers / funnel_events / earnings rows',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/milestoneReconcile.test.ts'],
+    docs: ['docs/crwn-brain/13-CURRENT-STATE.md'],
+  },
+  {
+    id: 'MEASURE-004',
+    severity: 'P1',
+    category: 'measurement',
+    rule: 'Attribution is a reporting dimension. It never reaches a calculator input, a price, a fee, the lead scorer, or an authorization decision.',
+    owner: 'src/lib/analytics/campaignAttribution.ts',
+    sourceOfTruth: 'lead_magnet_results.input_data._attribution',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/postWinReferral.test.ts'],
+    docs: ['docs/crwn-brain/25-POST-WIN-REFERRAL.md'],
+    notes: 'Partially structural: the attribution lib holds no DB client and no money tokens (pinned). A full "no consumer uses attribution in pricing" walk is not written; the consumers are enumerated in the Brain instead.',
+  },
+  {
+    id: 'MEASURE-005',
+    severity: 'P1',
+    category: 'measurement',
+    rule: 'Cross-artist aggregation honors three separate privacy gates (8 distinct artists, 200 observations, max 50% single-artist share), reports unavailable states rather than numbers, and never appears artist-facing.',
+    owner: 'src/lib/crossArtistEvidence.ts',
+    sourceOfTruth: 'crossArtistEvidence@1',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/crossArtistEvidence.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'MEASURE-006',
+    severity: 'P1',
+    category: 'measurement',
+    rule: 'No public leaderboard publishes a score invertible back to a fan\'s lifetime spend.',
+    owner: 'src/lib/leaderboardPrivacy.ts',
+    sourceOfTruth: 'leaderboard public projection',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/leaderboardPrivacy.test.ts'],
+    docs: ['docs/crwn-brain/22-VIRALITY-ENGINE-ARCHITECTURE.md'],
+  },
+
+  // ---------------------------------------------------------- COMMUNICATIONS
+  {
+    id: 'COMMS-001',
+    severity: 'P2',
+    category: 'communications',
+    rule: 'CRWN-originated artist notifications go through createNotification (the chokepoint). Direct inserts into notifications are limited to the documented allowlist (artist-authored fan sends and fan-facing transactional truths), enforced in both directions.',
+    owner: 'src/lib/notifications.ts (createNotification)',
+    sourceOfTruth: 'DIRECT_WRITER_ALLOWLIST in src/lib/comms/chokepoint.test.ts',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/comms/chokepoint.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'COMMS-002',
+    severity: 'P2',
+    category: 'communications',
+    rule: 'Every source-defined CRWN notification type is classified in NOTIFICATION_TAXONOMY. Unknown runtime input still fails open (delivers ungoverned) by policy, but a type literal written in source must not ship unclassified.',
+    owner: 'src/lib/comms/taxonomy.ts',
+    sourceOfTruth: 'NOTIFICATION_TAXONOMY',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/comms/chokepoint.test.ts', 'src/lib/architecture/communications.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'COMMS-003',
+    severity: 'P2',
+    category: 'communications',
+    rule: 'The Communications Governor is pure (imports only its taxonomy), governs attention not diagnosis, emits no suppress in V1, and carries NO global cross-channel cap (a founder decision backed by absent evidence, not an omission).',
+    owner: 'src/lib/comms/governor.ts',
+    sourceOfTruth: 'CLASS_ORDER (founder-ratified precedence)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/comms/governor.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'COMMS-004',
+    severity: 'P2',
+    category: 'communications',
+    rule: 'Artist-authored broadcast and fan-notification routes keep their hourly/daily rate caps. A muted fan is a lost fan, so the platform caps even a well-meaning artist.',
+    owner: 'api/messages/broadcast + api/notifications/notify-subscribers',
+    sourceOfTruth: 'route-level rate limits',
+    enforcement: 'doc',
+    enforcedBy: [],
+    docs: ['docs/crwn-brain/07-BUSINESS-RULES.md'],
+    notes: 'No test pins the caps today. Named gap; add if the caps regress.',
+  },
+
+  // ------------------------------------------------------------- ATTRIBUTION
+  {
+    id: 'ATTR-001',
+    severity: 'P1',
+    category: 'attribution',
+    rule: 'campaignAttribution.ts is the ONE normalizer, and every dimension on CampaignAttribution is covered by the parser, the storage sanitizer, and the URL builder (or carries a registered exception). A new dimension silently dropped by one key map is the proven drift class.',
+    owner: 'src/lib/analytics/campaignAttribution.ts',
+    sourceOfTruth: 'EMPTY_ATTRIBUTION keys + ATTRIBUTION_DIMENSIONS in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/attribution.test.ts', 'src/lib/analytics/campaignAttribution.test.ts'],
+    docs: ['docs/crwn-brain/25-POST-WIN-REFERRAL.md', 'docs/acquisition/campaign-tagging.md'],
+  },
+  {
+    id: 'ATTR-002',
+    severity: 'P0',
+    category: 'attribution',
+    rule: 'artist_ref (Post-Win, reporting only) and ref (recruiter/partner, a money rail) are separate rails. artist_ref has no alias, no cookie, and is never read into recruited_by / partner_code_used / artist_referrals paths.',
+    owner: 'src/lib/analytics/campaignAttribution.ts (artistReferrer) vs src/components/shared/ReferralPersist.tsx (ref)',
+    sourceOfTruth: 'docs/crwn-brain/25-POST-WIN-REFERRAL.md',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/postWinReferral.test.ts', 'src/lib/architecture/attribution.test.ts'],
+    docs: ['docs/crwn-brain/25-POST-WIN-REFERRAL.md'],
+  },
+  {
+    id: 'ATTR-003',
+    severity: 'P1',
+    category: 'attribution',
+    rule: 'Persisted attribution is FIRST touch (mergeAttribution never replaces a set field); the client beacon stays LAST touch. Two policies, on purpose.',
+    owner: 'src/lib/analytics/campaignAttribution.ts (mergeAttribution)',
+    sourceOfTruth: 'lead_magnet_results.input_data._attribution',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/analytics/campaignAttribution.test.ts', 'src/lib/analytics/attributionLookup.test.ts'],
+    docs: ['docs/acquisition/campaign-tagging.md'],
+  },
+
+  // -------------------------------------------------------------- NAVIGATION
+  {
+    id: 'NAV-001',
+    severity: 'P2',
+    category: 'navigation',
+    rule: 'Every artist Studio destination also appears in the AccountHub hamburger (the COMPLETE index), unless a registered exception documents why.',
+    owner: 'src/components/layout/AccountHub.tsx',
+    sourceOfTruth: 'STUDIO_CARDS in src/app/(main)/studio/page.tsx',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/navigation.test.ts'],
+    docs: ['CLAUDE.md'],
+  },
+  {
+    id: 'NAV-002',
+    severity: 'P2',
+    category: 'navigation',
+    rule: 'The fan AccountHub indexes the canonical fan destinations (calendar, missions, earnings, squads, bounties, impact). Fans can always navigate to their own commitments and money.',
+    owner: 'src/components/layout/AccountHub.tsx (fan sections)',
+    sourceOfTruth: 'FAN_HUB_DESTINATIONS in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/navigation.test.ts'],
+    docs: ['CLAUDE.md'],
+  },
+  {
+    id: 'NAV-003',
+    severity: 'P2',
+    category: 'navigation',
+    rule: 'The fan bottom-nav slot is labeled for what it opens (Missions -> /command); the earnings page (/earn) has its own hub entry. The tour anchor tourId nav-earn is a persistence key and stays.',
+    owner: 'src/components/layout/Navigation.tsx',
+    sourceOfTruth: 'buildNavItems',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/navigation.test.ts'],
+    docs: ['CLAUDE.md'],
+  },
+
+  // ------------------------------------------------------------- TERMINOLOGY
+  {
+    id: 'TERM-001',
+    severity: 'P3',
+    category: 'terminology',
+    rule: 'Retired user-facing vocabulary does not reappear in user-facing copy: "Action Plan" (now Needs You), "24/7 assistant" (retired Manager claim), "All-In-One Platform" (retired positioning). Compatibility identifiers, comments, and legacyNames are excluded.',
+    owner: 'product vocabulary (Z5 renames + positioning)',
+    sourceOfTruth: 'RETIRED_TERMS in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/terminology.test.ts', 'src/lib/constraint/ownership.test.ts'],
+    docs: ['docs/POSITIONING.md', 'docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'TERM-002',
+    severity: 'P3',
+    category: 'terminology',
+    rule: 'No em dash in user-facing copy. Enforced per-surface where copy is data (tier templates, calculators, campaign surfaces); everywhere else by review.',
+    owner: 'copy rule (CLAUDE.md)',
+    sourceOfTruth: 'CLAUDE.md Copy Rule',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/tierTemplate.test.ts', 'src/lib/leadMagnets/conversionContract.test.ts', 'src/lib/campaigns/boundaries.test.ts'],
+    docs: ['CLAUDE.md'],
+  },
+
+  // ------------------------------------------------------------- IDENTIFIERS
+  {
+    id: 'ID-001',
+    severity: 'P1',
+    category: 'identifiers',
+    rule: 'FUNNEL_STAGES names are frozen: historical funnel_events rows and the funnel_events CHECK are keyed to them. Stages may be appended, never renamed or removed.',
+    owner: 'src/lib/analytics/funnelEvents.ts',
+    sourceOfTruth: 'FROZEN_FUNNEL_STAGES in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/identifiers.test.ts'],
+    docs: ['docs/crwn-brain/13-CURRENT-STATE.md'],
+  },
+  {
+    id: 'ID-002',
+    severity: 'P1',
+    category: 'identifiers',
+    rule: 'Calculator slugs, analyticsMetadata.toolId values, and DM keywords are frozen: ManyChat triggers, campaign links, and historical funnel rows are keyed to them.',
+    owner: 'src/lib/leadMagnets/registry.ts',
+    sourceOfTruth: 'src/lib/leadMagnets/conversionContract.test.ts (frozen slug list)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/leadMagnets/conversionContract.test.ts'],
+    docs: ['CLAUDE.md'],
+  },
+  {
+    id: 'ID-003',
+    severity: 'P1',
+    category: 'identifiers',
+    rule: 'Tier internal keys (wave | inner_circle | vault | throne) and every legacyNames entry are frozen: calculators, drafts, the offer builder, and duplicate-detection depend on them.',
+    owner: 'src/lib/tierTemplate.ts',
+    sourceOfTruth: 'RECOMMENDED_LADDER',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/tierTemplate.test.ts'],
+    docs: ['CLAUDE.md'],
+  },
+  {
+    id: 'ID-004',
+    severity: 'P1',
+    category: 'identifiers',
+    rule: 'Pop-up registry keys are frozen: popup_events history and frequency caps are keyed to them. A renamed key resets every user\'s frequency state for that pop-up.',
+    owner: 'src/lib/popups/registry.ts',
+    sourceOfTruth: 'FROZEN_POPUP_KEYS in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/identifiers.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'ID-005',
+    severity: 'P1',
+    category: 'identifiers',
+    rule: 'Attribution storage and wire identifiers are frozen: ATTRIBUTION_INPUT_KEY (_attribution), the query-param names (utm_* aliases, artist_ref, from), and ARTIST_REF_PARAM. Stored rows and live campaign links depend on them.',
+    owner: 'src/lib/analytics/campaignAttribution.ts',
+    sourceOfTruth: 'ATTRIBUTION_DIMENSIONS in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/attribution.test.ts', 'src/lib/postWinReferral.test.ts'],
+    docs: ['docs/crwn-brain/25-POST-WIN-REFERRAL.md'],
+  },
+  {
+    id: 'ID-006',
+    severity: 'P1',
+    category: 'identifiers',
+    rule: 'Tour persistence ids (tourId values) and compatibility routes (/action-plan, /welcome redirect, /api/admin/milestone wrapper, TAB_ROUTES) are stable. Renaming a tourId replays the tour for everyone who dismissed it; removing a compatibility route breaks deployed clients and sent emails.',
+    owner: 'navigation + route history',
+    sourceOfTruth: 'FROZEN_TOUR_IDS + COMPATIBILITY_ROUTES in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/identifiers.test.ts', 'src/lib/milestoneReconcile.test.ts'],
+    docs: ['CLAUDE.md', 'docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+
+  // ------------------------------------------------------------ REACHABILITY
+  {
+    id: 'REACH-001',
+    severity: 'P2',
+    category: 'reachability',
+    rule: 'Every feature in the FEATURES registry keeps its declared gate and at least one declared delivery surface in code. A feature declared live has a reachable surface; a dormant one has an explicit gate.',
+    owner: 'FEATURES registry (this file)',
+    sourceOfTruth: 'FEATURES in this registry',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/reachability.test.ts'],
+    docs: ['docs/crwn-brain/13-CURRENT-STATE.md'],
+    notes: 'Production flag VALUES are never asserted in unit tests; that is what verify:migrations-style probes are for.',
+  },
+  {
+    id: 'REACH-002',
+    severity: 'P2',
+    category: 'reachability',
+    rule: 'Every flag-gated announcement pop-up\'s flag is listed in ANNOUNCEABLE_FLAGS in the popups route, or its gate reads false forever and the announcement never fires.',
+    owner: 'src/app/api/popups/route.ts',
+    sourceOfTruth: 'POPUPS registry featureFlags vs ANNOUNCEABLE_FLAGS',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/reachability.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+  {
+    id: 'REACH-003',
+    severity: 'P2',
+    category: 'reachability',
+    rule: 'Every route under src/app/api/cron/ is scheduled in vercel.json (except registered manual-trigger exceptions), and every schedule is at most daily. More-frequent-than-daily crons block ALL Vercel deployments on the Hobby plan.',
+    owner: 'vercel.json',
+    sourceOfTruth: 'vercel.json crons',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/reachability.test.ts'],
+    docs: ['CLAUDE.md'],
+  },
+  {
+    id: 'REACH-004',
+    severity: 'P2',
+    category: 'reachability',
+    rule: 'A completion-only heartbeat is not evidence of meaningful work: dormant or conditional scheduled systems distinguish "ran" from "did work" (the ai-manager incident: a cron heartbeat certified a four-month outage as healthy).',
+    owner: 'src/app/api/cron/agent-health/route.ts',
+    sourceOfTruth: 'per-cron work counters',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/ai/actionValidity.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+    notes: 'The dormancy markers themselves are pinned. A general work-vs-heartbeat framework is deliberately NOT built; this is a design rule for new crons.',
+  },
+  {
+    id: 'REACH-005',
+    severity: 'P2',
+    category: 'reachability',
+    rule: 'Tour copy on architecture-sensitive surfaces teaches the real boundary: Manager explains priority and does not own it; the Promise Calendar holds fan promises only; Team Splits allocate and are not a payout rail; Fan Drives are non-cash and canonical-rail-derived.',
+    owner: 'src/lib/*TourSteps.ts',
+    sourceOfTruth: 'the invariants those tours describe (PRIORITY-005, PROMISE-001, MONEY-007, MONEY-006)',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/reachability.test.ts'],
+    docs: ['docs/crwn-brain/02-FEATURE-MAP.md'],
+  },
+
+  // ----------------------------------------------------------- AUTHORIZATION
+  {
+    id: 'AUTH-001',
+    severity: 'P0',
+    category: 'authorization',
+    rule: 'Every route under src/app/api/admin/ is gated by requireAdmin, or is a registered exception with a documented different-authority reason (cron secret, internal secret, compatibility wrapper, inline role check).',
+    owner: 'src/lib/auth/requireAdmin.ts',
+    sourceOfTruth: 'ADMIN_ROUTE_EXCEPTIONS in src/lib/architecture/exceptions.ts',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/architecture/authorization.test.ts'],
+    docs: ['docs/crwn-brain/11-SECURITY-AND-PRIVACY.md'],
+  },
+  {
+    id: 'AUTH-002',
+    severity: 'P0',
+    category: 'authorization',
+    rule: 'A route accepting an artistId from a client proves session ownership (requireArtistOwner or an inline user_id check) unless it is admin-authorized, secret-gated, or intentionally public read-only. Specialized inline checks are legitimate; unchecked client trust is not.',
+    owner: 'src/lib/apiAuth.ts (requireArtistOwner) + verified inline checks',
+    sourceOfTruth: 'route-level auth (middleware excludes /api/)',
+    enforcement: 'doc',
+    enforcedBy: ['src/lib/brainContract.test.ts'],
+    docs: ['docs/crwn-brain/11-SECURITY-AND-PRIVACY.md'],
+    notes: 'F-15 audited every inline check as correct and deliberately kept them. A full route-ownership manifest belongs to the upcoming security audit, not this registry.',
+  },
+  {
+    id: 'AUTH-003',
+    severity: 'P0',
+    category: 'authorization',
+    rule: 'Role promotion is server-side only (trg_promote_to_artist); no client path updates profiles.role. Revoked Stripe id columns are read only through the service-role helper.',
+    owner: 'database triggers + src/lib/stripe/connectAccount.ts',
+    sourceOfTruth: 'schema-phase2-rls-column-restrictions.sql / column privileges',
+    enforcement: 'probe',
+    enforcedBy: ['scripts/probe-migrations.mjs'],
+    docs: ['docs/crwn-brain/11-SECURITY-AND-PRIVACY.md', 'CLAUDE.md'],
+  },
+
+  // ------------------------------------------------------------------- DOCS
+  {
+    id: 'DOCS-001',
+    severity: 'P3',
+    category: 'docs',
+    rule: 'Canonical Brain docs (00, 01, 02, 13, 22, 23, 24 + CLAUDE.md) may not call a shipped system unbuilt, a live flag dark, or an applied migration pending.',
+    owner: 'src/lib/brainContract.test.ts',
+    sourceOfTruth: 'repository code + production probes',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/brainContract.test.ts'],
+    docs: ['docs/crwn-brain/00-START-HERE.md'],
+  },
+  {
+    id: 'DOCS-002',
+    severity: 'P3',
+    category: 'docs',
+    rule: 'EXPECTED_MIGRATION_STATE in this registry is the static contract for which migrations CRWN expects applied vs pending. Docs must agree with it; npm run verify:migrations is the live probe that validates the contract itself against production.',
+    owner: 'this registry (static) + scripts/probe-migrations.mjs (live)',
+    sourceOfTruth: 'EXPECTED_MIGRATION_STATE below',
+    enforcement: 'test',
+    enforcedBy: ['src/lib/brainContract.test.ts'],
+    docs: ['docs/crwn-brain/13-CURRENT-STATE.md', 'TODO.md'],
+  },
+];
+
+// ============================================================================
+// SHARED CANONICAL DATA consumed by the architecture tests. One list each,
+// referenced by id above, so no test hardcodes its own copy.
+// ============================================================================
+
+/**
+ * ATTR-001 / ID-005. The canonical attribution dimensions: CampaignAttribution
+ * field -> query-param name. Adding a dimension to the interface means adding
+ * it here AND to every key map the test walks (parser, sanitizer, builder).
+ * `coveredBy` marks which maps must carry it; 'dims' = attributionToFunnelDims.
+ */
+export const ATTRIBUTION_DIMENSIONS: ReadonlyArray<{
+  field: string;
+  param: string;
+  /** maps that must cover this dimension */
+  coveredBy: ReadonlyArray<'parser' | 'sanitizer' | 'builder' | 'dims'>;
+}> = [
+  { field: 'channel', param: 'utm_medium', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'platform', param: 'utm_source', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'campaign', param: 'utm_campaign', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'creative', param: 'utm_content', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'variant', param: 'variant', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'angle', param: 'angle', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'keyword', param: 'keyword', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'ref', param: 'ref', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  { field: 'artistReferrer', param: 'artist_ref', coveredBy: ['parser', 'sanitizer', 'builder', 'dims'] },
+  // 'entry' (?from=) is the sub-avatar entry context. It is persisted and merged
+  // but DELIBERATELY not mapped onto funnel dims: the entry avatar rides its own
+  // snapshot (ENTRY_AVATAR_KEY in leadMagnets/analytics.ts). See exceptions.ts.
+  { field: 'entry', param: 'from', coveredBy: ['parser', 'sanitizer', 'builder'] },
+];
+
+/** ID-001. Frozen copy of FUNNEL_STAGES. Append-only; never rename or remove. */
+export const FROZEN_FUNNEL_STAGES: readonly string[] = [
+  'page_viewed',
+  'calculator_started',
+  'calculator_completed',
+  'result_revealed',
+  'assumptions_changed',
+  'email_submitted',
+  'signup_clicked',
+  'account_created',
+  'email_verified',
+  'setup_started',
+  'setup_completed',
+  'builder_opened',
+  'builder_published',
+  'rise_mode_started',
+  'mission_completed',
+  'call_requested',
+  'stripe_connected',
+  'fans_imported',
+  'fan_invited',
+  'first_paid_conversion',
+];
+
+/** ID-004. Frozen pop-up keys: popup_events history + frequency caps key on these. Append-only. */
+export const FROZEN_POPUP_KEYS: readonly string[] = [
+  'artist_connect_stripe',
+  'artist_resume_rise',
+  'artist_post_win_referral',
+  'artist_first_broadcast',
+  'artist_upgrade_pro',
+  'artist_pro_break_even',
+  'artist_scale_break_even',
+  'announce_launch_limits',
+  'announce_fan_preview',
+  'announce_membership_strategy',
+  'fan_first_support',
+  'survey_artist_experience',
+  'announce_live_tips',
+  'announce_royalty_readiness',
+  'announce_producer_sessions',
+  'announce_hub_navigation',
+  'announce_support_chat',
+  'notice_terms_2026_07_24',
+];
+
+/** ID-006. Tour anchors that are persistence keys (localStorage dismissal state). */
+export const FROZEN_TOUR_IDS: readonly string[] = [
+  'nav-home',
+  'nav-explore',
+  'nav-earn',
+  'nav-studio',
+  'nav-rise',
+  'nav-library',
+  'nav-messages',
+  'action-plan',
+];
+
+/** ID-006. Routes kept alive purely for deployed clients, sent emails, and cached PWAs. */
+export const COMPATIBILITY_ROUTES: ReadonlyArray<{ path: string; reason: string }> = [
+  { path: 'src/app/(public)/welcome', reason: 'sent onboarding emails link to /welcome; it redirects to /setup' },
+  { path: 'src/app/action-plan', reason: 'legacy path for the Needs You surface; tourId + analytics keyed to it' },
+  { path: 'src/app/api/action-plan', reason: 'the Needs You API; wire field stays priority deliberately' },
+  { path: 'src/app/api/admin/milestone', reason: 'compatibility wrapper for cached PWA clients still POSTing the old path (F-16)' },
+  { path: 'src/lib/dashboardRoutes.ts', reason: 'TAB_ROUTES legacy ?tab= map; emails and notifications.link rows still use it' },
+];
+
+/** NAV-002. Fan destinations the fan AccountHub must index (F-08 / F-12). */
+export const FAN_HUB_DESTINATIONS: readonly string[] = [
+  '/earn',
+  '/my-calendar',
+  '/my-missions',
+  '/my-squads',
+  '/my-bounties',
+  '/impact',
+];
+
+/** TERM-001. Retired user-facing vocabulary. Matched only in label/title/JSX-text
+ * contexts by terminology.test.ts, so identifiers, hrefs, and comments never trip it. */
+export const RETIRED_TERMS: ReadonlyArray<{ term: string; replacement: string; reason: string }> = [
+  {
+    term: 'Action Plan',
+    replacement: 'Needs You',
+    reason: 'Z5 rename (2026-08-11). The /action-plan route and tourId are compatibility identifiers and stay.',
+  },
+  {
+    term: '24/7 assistant',
+    replacement: 'help working the canonical priority',
+    reason: 'Retired Manager claim: Manager explains priority, it does not own it.',
+  },
+  {
+    term: 'All-In-One Platform',
+    replacement: 'Fan Economy Operating System',
+    reason: 'Retired positioning (doc 23 ratified the category).',
+  },
+];
+
+/**
+ * REACH-001. Feature reachability registry: the static contract for every
+ * meaningful gated/dark/dormant system. `expectedState` documents intent;
+ * tests assert only CODE facts (gate exists, surface exists) — never
+ * production flag values (probes own that).
+ *
+ * expectedState:
+ *   live        = delivered to users today (flag on / no flag)
+ *   dark        = built + gated off, awaiting a founder flip or migration
+ *   dormant     = deliberately not running; founder decision open
+ *   compat_only = kept solely for backward compatibility
+ *   unverified  = docs disagree about production state; do not trust either claim
+ */
+export interface FeatureContract {
+  key: string;
+  title: string;
+  expectedState: 'live' | 'dark' | 'dormant' | 'compat_only' | 'unverified';
+  /** admin_settings flag key, or null when ungated. */
+  flag: string | null;
+  /** Module that reads the gate (must exist and mention the flag). */
+  gateModule: string | null;
+  /** Delivery surfaces: file must exist and contain the literal. */
+  surfaces: ReadonlyArray<{ file: string; mustContain: string }>;
+  /** Migration the feature depends on, if any (see EXPECTED_MIGRATION_STATE). */
+  migration: string | null;
+  notes?: string;
+}
+
+export const FEATURES: readonly FeatureContract[] = [
+  {
+    key: 'popup_engine',
+    title: 'Pop-up Engine (interruption owner)',
+    expectedState: 'live',
+    flag: 'popup_engine',
+    gateModule: 'src/lib/popups/index.ts',
+    surfaces: [
+      { file: 'src/app/api/popups/route.ts', mustContain: 'eligiblePopupFor' },
+      { file: 'src/app/(main)/layout.tsx', mustContain: 'Popup' },
+    ],
+    migration: null,
+    notes: 'Flag verified ON in production 2026-08-12 (16 popup_events).',
+  },
+  {
+    key: 'quest_engine',
+    title: 'Quest Engine / Rise Mode',
+    expectedState: 'live',
+    flag: 'quest_engine',
+    gateModule: 'src/lib/quests/index.ts',
+    surfaces: [{ file: 'src/app/(main)/profile/artist/page.tsx', mustContain: 'RiseMode' }],
+    migration: null,
+    notes: 'Flag verified ON in production 2026-08-11 (326 quest_instances). Code default false.',
+  },
+  {
+    key: 'fan_drives',
+    title: 'Fan Drives / Virality Engine V1',
+    expectedState: 'live',
+    flag: null,
+    gateModule: null,
+    surfaces: [
+      { file: 'src/app/(main)/studio/page.tsx', mustContain: "'/fan-campaigns'" },
+      { file: 'src/app/api/fan-campaigns/route.ts', mustContain: 'export' },
+    ],
+    migration: 'schema-phase3-fan-campaigns.sql',
+    notes: 'Migration APPLIED (probe 2026-08-12). Docs calling it dark are drift (F-11).',
+  },
+  {
+    key: 'membership_strategy',
+    title: 'Membership strategy (Release Club / Vault)',
+    expectedState: 'live',
+    flag: null,
+    gateModule: null,
+    surfaces: [{ file: 'src/app/(main)/profile/artist/page.tsx', mustContain: 'StrategyCard' }],
+    migration: 'schema-phase2-membership-strategy.sql',
+    notes: 'Derived on read; the PENDING migration only blocks saving the override, fail-soft.',
+  },
+  {
+    key: 'track_waterfall',
+    title: 'Release waterfall (higher tiers first)',
+    expectedState: 'live',
+    flag: null,
+    gateModule: null,
+    surfaces: [{ file: 'src/app/api/cron/scheduled-releases/route.ts', mustContain: 'waterfall' }],
+    migration: 'schema-phase2-track-waterfall.sql',
+    notes: 'Migration PENDING; fails soft (fenced try/catch — the template for dark features).',
+  },
+  {
+    key: 'royalty_readiness',
+    title: 'Royalty Readiness Check',
+    expectedState: 'dark',
+    flag: 'royalty_readiness',
+    gateModule: 'src/lib/royalty/readiness.ts',
+    surfaces: [
+      { file: 'src/app/(main)/studio/page.tsx', mustContain: "'/royalty-readiness'" },
+      { file: 'src/components/layout/AccountHub.tsx', mustContain: "'/royalty-readiness'" },
+    ],
+    migration: 'schema-phase2-royalty-readiness.sql',
+  },
+  {
+    key: 'live_tips',
+    title: 'Live tips + tip goals',
+    expectedState: 'unverified',
+    flag: 'live_tips',
+    gateModule: 'src/lib/live/tips.ts',
+    surfaces: [{ file: 'src/app/api/stripe/live-tip-checkout/route.ts', mustContain: 'export' }],
+    migration: 'schema-phase2-earnings-live-tip-type.sql',
+    notes: 'Doc 02 says flag off; TODO says on. Unresolved — founder verification item in TODO.md.',
+  },
+  {
+    key: 'producer_sessions',
+    title: 'Executive Producer Sessions',
+    expectedState: 'unverified',
+    flag: 'producer_sessions',
+    gateModule: 'src/lib/producer/access.ts',
+    surfaces: [],
+    migration: 'schema-phase2-producer-sessions.sql',
+    notes: 'Docs 02/13 say dark; TODO says live. Unresolved — founder verification item in TODO.md.',
+  },
+  {
+    key: 'acquisition_engine',
+    title: 'Instagram/ManyChat acquisition engine',
+    expectedState: 'live',
+    flag: 'acquisition_engine',
+    gateModule: 'src/lib/acquisition/db.ts',
+    surfaces: [{ file: 'src/app/api/integrations/manychat/webhook/route.ts', mustContain: 'isAcquisitionEngineEnabled' }],
+    migration: null,
+  },
+  {
+    key: 'experiments',
+    title: 'Experiments engine',
+    expectedState: 'live',
+    flag: 'experiments',
+    gateModule: 'src/lib/experiments/server.ts',
+    surfaces: [],
+    migration: 'schema-phase2-experiments.sql',
+  },
+  {
+    key: 'post_win_referral',
+    title: 'Post-Win artist referral',
+    expectedState: 'live',
+    flag: null,
+    gateModule: null,
+    surfaces: [{ file: 'src/app/api/popups/route.ts', mustContain: 'buildReferralLink' }],
+    migration: null,
+    notes: 'Delivery rides the artist_post_win_referral pop-up; correctly silent until a first_paid_conversion exists.',
+  },
+  {
+    key: 'autonomous_manager',
+    title: 'Autonomous (scheduled) AI Manager',
+    expectedState: 'dormant',
+    flag: null,
+    gateModule: 'src/app/api/cron/ai-manager/route.ts',
+    surfaces: [],
+    migration: null,
+    notes: 'Deliberately dormant (is_active filter + starter-tier early return). Founder decision open; dormancy markers pinned by managerBoundaries/actionValidity tests.',
+  },
+  {
+    key: 'support_chat',
+    title: 'Support live chat',
+    expectedState: 'live',
+    flag: null,
+    gateModule: null,
+    surfaces: [{ file: 'src/app/(public)/support/page.tsx', mustContain: 'export' }],
+    migration: 'schema-phase2-support-chat.sql',
+  },
+];
+
+/**
+ * DOCS-002. The STATIC migration-state contract. What CRWN expects; the live
+ * probe (npm run verify:migrations) is what production actually has. When the
+ * probe disagrees with this list, update THIS LIST and the docs together —
+ * that disagreement is exactly the drift this contract exists to surface.
+ * States: 'applied' (probe-verified), 'pending' (known unapplied, fail-soft),
+ * 'unverified' (docs disagree or no probe line exists — trust neither claim).
+ */
+export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
+  file: string;
+  state: 'applied' | 'pending' | 'unverified';
+  note?: string;
+}> = [
+  { file: 'schema-phase2-membership-strategy.sql', state: 'pending', note: 'fail-soft; only the strategy override save is blocked' },
+  { file: 'schema-phase2-track-waterfall.sql', state: 'pending', note: 'fail-soft; upload falls back to all-at-once' },
+  { file: 'schema-phase3-fan-campaigns.sql', state: 'applied', note: 'probe-verified 2026-08-12' },
+  { file: 'schema-phase3-recommendation-outcomes.sql', state: 'applied', note: 'probe-verified 2026-08-11' },
+  { file: 'schema-phase3-tier-transitions.sql', state: 'applied' },
+  { file: 'schema-phase2-tier-events.sql', state: 'applied' },
+  { file: 'schema-phase2-launch-partner.sql', state: 'applied' },
+  { file: 'schema-phase2-frl-engagements.sql', state: 'applied' },
+  { file: 'schema-phase2-experiments.sql', state: 'applied' },
+  { file: 'schema-phase2-support-chat.sql', state: 'applied' },
+  { file: 'schema-phase2-quest-engine.sql', state: 'applied' },
+  { file: 'schema-phase2-royalty-readiness.sql', state: 'unverified', note: 'no probe line; doc 02 says unrun' },
+  { file: 'schema-phase2-producer-sessions.sql', state: 'unverified', note: 'docs and TODO disagree' },
+  { file: 'schema-phase2-earnings-live-tip-type.sql', state: 'unverified', note: 'docs and TODO disagree' },
+  { file: 'schema-phase2-sub-avatar.sql', state: 'unverified', note: 'doc 13 says unrun; needs re-run per TODO' },
+];
+
+/** Words that mean "this migration has not been applied" when they share a doc line with its filename. */
+export const MIGRATION_PENDING_WORDS = /unapplied|not applied|unrun|not run|pending|waiting|dark until|until it runs|until the migration/i;

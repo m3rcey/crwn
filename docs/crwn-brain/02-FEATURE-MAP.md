@@ -187,13 +187,28 @@ holds the single primary CTA, from the `ConstraintResult` the engine already ret
   Stripe (100) and first broadcast (80); never on `/profile/artist`, which is where it sends them.
   Derived from existing rows, so there is no second progress system.
 
+### Product Drift Prevention (2026-08-12) — the rule to apply
+
+**LIVE.** Canonical doc: [`26-PRODUCT-DRIFT-PREVENTION.md`](26-PRODUCT-DRIFT-PREVENTION.md).
+CRWN's ratified ownership boundaries, money rails, identifiers, terminology, reachability and
+doc contracts are pinned by an invariant registry (`src/lib/architecture/invariants.ts`) and
+enforced by `npm run verify:architecture` (deterministic, ~2.5s, no credentials). Intentional
+deviations live ONLY in `src/lib/architecture/exceptions.ts`. The rule to apply: a failing
+drift test is either real drift (fix the code) or an intentional rule change (update Brain rule
+→ implementation → registry → test, in that order); weakening the test alone is forbidden.
+When you add a feature: new destination → hub parity test will hold you to CLAUDE.md's rule;
+new notification type → classify it in the taxonomy; new attribution dimension → register it in
+`ATTRIBUTION_DIMENSIONS`; new migration → add an `EXPECTED_MIGRATION_STATE` row + probe line;
+new pop-up → its key gets frozen and its flag must be in `ANNOUNCEABLE_FLAGS`.
+
 ### Fan Drives / Virality Engine V1 (Z11, 2026-08-11) — the rule to apply
 
 `src/lib/campaigns/*`, `supabase/schema-phase3-fan-campaigns.sql`, `/fan-campaigns` (artist),
 `/{slug}/campaign` (fan). Canonical architecture and the full live/deferred split:
 [`22-VIRALITY-ENGINE-ARCHITECTURE.md`](22-VIRALITY-ENGINE-ARCHITECTURE.md) section 28.
-**DARK until its migration is applied**, and harmlessly so: the surface renders the constraint gate
-and creating a drive answers "not switched on yet".
+**LIVE: the migration IS applied in production** (probe-verified 2026-08-12; both tables held 0
+rows at verification, so live means reachable, not yet used). An earlier version of this line
+called it dark, which is the F-11 drift class this file must not repeat.
 
 **A campaign is a DIMENSION over existing evidence, never a second source of truth.** The falsifiable
 rule: if a campaign row and the canonical rail can disagree about who earned what, the boundary is
@@ -540,9 +555,10 @@ its route, tour steps and analytics are unchanged.
   7 milestone combinations: **no reachable stale-stage email exists.** Nothing was invented to
   "personalize" a system that already was.
 
-  **Known gap, logged not swept:** 25 direct `notifications` inserts still bypass the
-  `createNotification` chokepoint (15 in `webhookHandlers.ts`). `calendarReminders` was fixed
-  because it was in scope here; the rest mostly sit on money paths.
+  **Gap CLOSED (F-06, 2026-08-12):** the artist-facing direct `notifications` inserts were routed
+  through `createNotification`, the remaining direct writers are the documented fan-facing /
+  artist-authored allowlist, and `src/lib/comms/chokepoint.test.ts` walks the whole tree and
+  enforces the allowlist in both directions.
 
 - **Rise Mode Resume reconciled 2026-08-11. It is a POP-UP OVER CANONICAL QUEST STATE, not a
   Resume Engine.** There is no resume table, no resume progress store and no second ranking.

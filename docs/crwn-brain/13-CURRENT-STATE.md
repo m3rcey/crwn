@@ -216,6 +216,14 @@ spec: `docs/UNIFIED_OPPORTUNITY.md`. `Confirmed`.
 
 ## Testing
 
+**The permanent drift-prevention system is LIVE (2026-08-12, doc 26).** `npm run verify:architecture`
+runs the deterministic architecture suite (the ten registry-driven files in `src/lib/architecture/`
+plus every boundary/contract suite the invariant registry references) in about 2.5 seconds with no
+credentials. The registry is `src/lib/architecture/invariants.ts`; intentional deviations live only
+in `src/lib/architecture/exceptions.ts`. Every high-risk invariant was mutation-verified at build
+time (11 deliberate violations, all caught). The live counterparts remain `npm run verify:migrations`
+and `npm run verify:stripe`.
+
 **Vitest is configured and the suite is real: `npm test` runs 820 tests across 50 files (a moving figure: run it).** This
 supersedes the earlier "zero automated tests" claim in this package, which was written before the
 Opportunity Funnel work landed. Coverage is concentrated in the pure business layers (the

@@ -246,7 +246,7 @@ and an operating system. Everything else is table stakes that already partly exi
 | Opportunity ledger (revealed / activated / captured / remaining) | **Existing** | `src/lib/analytics/opportunityLedger.ts`, refund-netted |
 | Experiment framework, prebuilt-code variants only | **Existing, ON** | `src/lib/experiments/*`, `admin_settings.experiments` |
 | Artist archetype / sub-avatar assignment, deterministic | **Existing** | `src/lib/avatars/assignment.ts`, four segments, no LLM, precedence-resolved |
-| Money Model unit economics with `complete | modeled | missing` states | **Existing, admin, tables unrun** | `src/lib/frl/economics.ts`, `supabase/schema-phase2-frl-engagements.sql` |
+| Money Model unit economics with `complete | modeled | missing` states | **Existing, admin, tables applied** (probe-verified) | `src/lib/frl/economics.ts`, `supabase/schema-phase2-frl-engagements.sql` |
 | **Campaign-level outcome measurement** | **Missing** | No campaign entity exists to attach an outcome to |
 | **Per-participant conversion quality (do their referrals retain)** | **Missing** | `referrals.status` exists; retention of referred fans is not computed anywhere |
 

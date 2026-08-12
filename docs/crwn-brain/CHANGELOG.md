@@ -1,5 +1,51 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Permanent product drift prevention system: LIVE
+
+The whiteboard item after the consistency remediation. Not another audit: the system that makes
+the next one mostly unnecessary. Canonical doc: `26-PRODUCT-DRIFT-PREVENTION.md`.
+
+- **One registry.** `src/lib/architecture/invariants.ts`: ~50 invariants (P0 money/security,
+  P1 ownership/measurement/identifiers, P2 navigation/comms/reachability, P3 terminology/docs),
+  each with canonical owner, source of truth, enforcing tests and docs. Plus the shared data:
+  frozen funnel stages / pop-up keys / tour ids / compatibility routes, `ATTRIBUTION_DIMENSIONS`,
+  the `FEATURES` reachability registry, and `EXPECTED_MIGRATION_STATE` (the static migration
+  contract; `npm run verify:migrations` stays the live layer).
+- **One exception file.** `src/lib/architecture/exceptions.ts` — every intentional deviation
+  with its reason; suites detect stale exceptions in both directions.
+- **One command.** `npm run verify:architecture` (~2.5s, deterministic, no credentials) runs the
+  ten new registry-driven suites in `src/lib/architecture/` PLUS the ~26 existing boundary
+  suites, via the manifest in `vitest.architecture.config.ts`; registry↔manifest parity is
+  itself asserted.
+- **New protections that did not exist before:** tree-wide Z3 single-issuer walk; earnings-writer
+  containment (`from('earnings').insert` allowlist); architecture-level Post-Win economic
+  firewall; funnel_events single-writer; admin "activated"-must-source-first_paid_conversion
+  walk; full Studio→AccountHub parity (the F-10 class); fan-hub canonical destinations;
+  registry-driven retired-vocabulary scan (.ts AND .tsx — F-14's escape path); frozen
+  compatibility identifiers; feature reachability + ANNOUNCEABLE_FLAGS parity (the "gate reads
+  false forever" trap); cron schedule discipline (everything scheduled, nothing more than
+  daily); admin-route gating walk with verified-authority exceptions; the DOCS-002
+  migration-state contract in `brainContract.test.ts`; tour boundary-copy pins.
+- **Real drift caught during the build:** five source-defined notification types were shipping
+  unclassified (`bounty_submission`, `campaign_reached`, `bounty_won`, `badge_awarded`,
+  `fan_milestone` — now classified in the taxonomy); three doc lines still called applied
+  migrations pending (doc 22 frl-engagements, doc 18 experiments + support-chat); doc 00 called
+  Post-Win "not shipped" and the Quest Engine "dark"; doc 02 called Fan Drives dark and the
+  chokepoint gap open; TODO still asked Josh to run three migrations the probe shows applied.
+  All corrected.
+- **Mutation-verified.** Eleven deliberate violations (second Z3 issuer, cron payout, Post-Win →
+  recruiter rail, notification bypass, unclassified type, activation off-canon, net helper
+  unwired, new raw earnings writer, retired label, hub-parity break, dropped attribution
+  dimension): every one failed the suite; all reverted; suite green after restore.
+- **Process layer.** `.claude/hooks/doc-sync-reminder.sh` now maps changed code areas to the
+  specific canonical docs that own their rules and reminds about `verify:architecture`.
+- **Founder item created:** `supabase/check-unverified-feature-state.sql` (read-only) resolves
+  the four states where TODO and the Brain contradict each other (producer_sessions, live_tips,
+  royalty-readiness / sub-avatar / live-tip-earnings migrations); the registry marks them
+  `unverified` until then rather than trusting either claim.
+- No schema. No production mutations. No new runtime subsystem (deliberately: no drift service,
+  no rules database, no dashboard, no LLM judge).
+
 ## 2026-08-12 - Product consistency remediation: the audit's findings executed
 
 Executed `docs/PRODUCT_CONSISTENCY_AUDIT_2026-08-12.md` in dependency order (the audit doc now

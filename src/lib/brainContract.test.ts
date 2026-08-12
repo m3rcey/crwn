@@ -161,3 +161,58 @@ describe('the process safeguard that complements this file still exists', () => 
     expect(settings).toContain('doc-sync-reminder.sh');
   });
 });
+
+describe('DOCS-002 — the static migration-state contract (drift prevention, 2026-08-12)', () => {
+  // Two layers, deliberately separate:
+  //   STATIC CONTRACT — EXPECTED_MIGRATION_STATE in src/lib/architecture/invariants.ts:
+  //     what CRWN expects applied vs pending. Checked here, deterministically.
+  //   LIVE PROBE — npm run verify:migrations: what production actually has.
+  //     When the probe disagrees with the contract, update the CONTRACT and the
+  //     docs together; that disagreement is the drift this exists to surface.
+  // F-11 was exactly this class: docs called an applied migration pending, and
+  // the phrase-level pins above only caught the exact wording.
+  const MIGRATION_DOCS = [
+    ...CANONICAL_DOCS,
+    ['docs/crwn-brain/18-SOURCE-MAP.md', read('docs/crwn-brain/18-SOURCE-MAP.md')] as const,
+    ['TODO.md', read('TODO.md')] as const,
+  ];
+
+  it('no scanned doc describes an APPLIED migration as pending', async () => {
+    const { EXPECTED_MIGRATION_STATE, MIGRATION_PENDING_WORDS } = await import('./architecture/invariants');
+    for (const m of EXPECTED_MIGRATION_STATE) {
+      if (m.state !== 'applied') continue;
+      for (const [path, src] of MIGRATION_DOCS) {
+        const stale = src
+          .split('\n')
+          .filter((line) => line.includes(m.file))
+          .filter((line) => MIGRATION_PENDING_WORDS.test(line))
+          // A corrected doc explains the history; a line that also says the
+          // migration is applied/live/ran is not asserting the stale claim.
+          .filter((line) => !/applied|~~|RETRACTED|FIXED|ran\b|is LIVE|probe-verified/i.test(line));
+        expect(
+          stale,
+          `${path} describes ${m.file} as pending, but the static contract (EXPECTED_MIGRATION_STATE) says it is applied. If production regressed, update the contract WITH the probe evidence; if the doc is stale, fix the doc.`,
+        ).toEqual([]);
+      }
+    }
+  });
+
+  it('every applied-or-pending migration in the contract has a probe line (the live layer covers it)', async () => {
+    const { EXPECTED_MIGRATION_STATE } = await import('./architecture/invariants');
+    const probe = read('scripts/probe-migrations.mjs');
+    for (const m of EXPECTED_MIGRATION_STATE) {
+      if (m.state === 'unverified') continue; // unverified means exactly: no trustworthy probe yet
+      expect(
+        probe.includes(m.file),
+        `${m.file} is '${m.state}' in EXPECTED_MIGRATION_STATE but scripts/probe-migrations.mjs has no probe line for it — the static claim has no live check. Add a probe line (the header explains how).`,
+      ).toBe(true);
+    }
+  });
+
+  it('every migration file the contract names still exists', async () => {
+    const { EXPECTED_MIGRATION_STATE } = await import('./architecture/invariants');
+    for (const m of EXPECTED_MIGRATION_STATE) {
+      expect(existsSync(`supabase/${m.file}`), `supabase/${m.file} named in EXPECTED_MIGRATION_STATE does not exist`).toBe(true);
+    }
+  });
+});

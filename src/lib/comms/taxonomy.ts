@@ -141,6 +141,8 @@ export const NOTIFICATION_TAXONOMY: Record<string, Classification> = {
   team_split_response: artist('event_deadline', 'needs_you', true),
   team_split_deliverable: artist('event_deadline', 'needs_you', true),
   team_split_viewed: artist('event_deadline', 'needs_you', true),
+  // COMMS-002 (2026-08-12): a fan submitted a clip to the artist's bounty; the artist reviews it.
+  bounty_submission: artist('event_deadline', 'needs_you', true),
 
   // ── Coaching. Owner is `constraint`, NOT `manager`: Manager is the voice, never the owner of
   //    the priority. `revenue` and `sync_match` are opportunity nudges, so they are growth. ──
@@ -155,6 +157,8 @@ export const NOTIFICATION_TAXONOMY: Record<string, Classification> = {
   level_up: artist('celebration', 'system', true),
   // F-06: the earnings-milestone unlock ("first $100" etc.) is a celebration, same as quests.
   milestone: artist('celebration', 'system', true),
+  // COMMS-002 (2026-08-12): a road campaign hit its goal — the artist's win, same family as quests.
+  campaign_reached: artist('celebration', 'system', true),
 
   // ── NOT GOVERNED. The artist's own voice reaching their fans, or a fan's own truth. ──
   new_track: passthrough('fan', 'artist_authored'),
@@ -183,6 +187,11 @@ export const NOTIFICATION_TAXONOMY: Record<string, Classification> = {
   release_credit: passthrough('fan', 'crwn'),
   bounty_available: passthrough('fan', 'crwn'),
   promise_fulfilled: passthrough('fan', 'crwn'),
+  // COMMS-002 (2026-08-12): three more fan truths that shipped unclassified — the clipper's own
+  // bounty win, a badge they earned, and their own support milestone. Same block, same exemption.
+  bounty_won: passthrough('fan', 'crwn'),
+  badge_awarded: passthrough('fan', 'crwn'),
+  fan_milestone: passthrough('fan', 'crwn'),
 };
 
 /**

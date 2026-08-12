@@ -88,6 +88,10 @@ describe('the one CRWN-initiated artist payout is unchanged', () => {
   it('is the ONLY payouts.create in the whole application', () => {
     const hits: string[] = [];
     const walk = (dir: string) => {
+      // src/lib/architecture holds the drift-prevention registry, whose rule
+      // TEXT names the banned call. It is test-infrastructure data, not
+      // production code, and its own suites scan everything else.
+      if (dir === 'src/lib/architecture') return;
       for (const e of readdirSync(dir, { withFileTypes: true })) {
         const p = `${dir}/${e.name}`;
         if (e.isDirectory()) walk(p);

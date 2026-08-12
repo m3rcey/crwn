@@ -65,12 +65,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       convention, allowed values, worked examples, and what CRWN can never see). Results land at
       /admin -> Lead Magnets -> **Content scorecard**.
 
-- [ ] **Run the launch-partner migration:**
-      [`supabase/schema-phase2-launch-partner.sql`](supabase/schema-phase2-launch-partner.sql).
-      Adds `artist_profiles.launch_partner` (the First Revenue Launch cohort flag, server-only
-      reads, no client grants, no view rebuild). Until it runs, the First Paid Member Guarantee
-      checklist stays invisible for everyone, which is the correct fail-soft. Self-verifies.
-
 - [ ] **Pick the first THREE launch partners and flip their flag:**
       [`supabase/enable-launch-partner.sql`](supabase/enable-launch-partner.sql). Edit the slug
       list, run it, and the guarantee checklist appears on their command screen. Pick
@@ -79,11 +73,8 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       scaling yet. Charge the implementation fee (0 to $500 for the founding cohort) by a
       MANUAL Stripe invoice from the dashboard; there is deliberately no checkout for it.
 
-- [ ] **Run the Money Model migration:**
-      [`supabase/schema-phase2-frl-engagements.sql`](supabase/schema-phase2-frl-engagements.sql).
-      Creates the First Revenue Launch engagement, labor and evidence tables (admin-only RLS,
-      self-verifying, probe-verified by `npm run verify:migrations`). Until it runs, the new
-      /admin -> **Money Model** tab shows an empty state saying exactly that. Then, in that tab:
+- [ ] **Set up the Money Model tab** (its migration already ran; probe-verified). In
+      /admin -> **Money Model**:
       1. Set your **founder hourly cost** (Cost assumptions box). No default exists on purpose;
          until you set it, labor cost and contribution margin read "missing", never zero.
       2. Create one engagement per launch partner (type the artist slug), enter the agreed fee,
@@ -163,17 +154,6 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       want a visible number back, in which case the options are a bucketed score or a score with
       the spend term removed. Both change what the leaderboard means, so it is your call, not a
       bug fix. No migration.
-
-- [ ] **Run the tier-events migration:**
-      [`supabase/schema-phase2-tier-events.sql`](supabase/schema-phase2-tier-events.sql).
-      Adds `tier_events`, the first per-rung measurement CRWN has ever had: which of your four
-      tiers fans actually look at, and which ones they start paying for. Without it the product
-      cannot tell "nobody came" apart from "they came and did not click", which is the fork every
-      future recommendation depends on.
-      Server-write only (no client INSERT grant), owner-only reads, self-verifying including a
-      check that no client write grant survived. Until it runs, nothing breaks: the recorder
-      no-ops and `/api/artist/tier-evidence` returns real member counts with null view rates and
-      says why.
 
 - [ ] **Run the track-waterfall migration:**
       [`supabase/schema-phase2-track-waterfall.sql`](supabase/schema-phase2-track-waterfall.sql).
@@ -292,19 +272,16 @@ Nothing. Cleared 2026-08-01: Stripe repricing live and verified, the Resend webh
       done: `free` is in the opportunity-calculator `dmKeywords`, live once the branch lands
       on master.
 
-- [ ] **Quest Engine: LEAVE IT DARK until the release-strategy build lands.** My recommendation,
-      2026-08-01, so this is a "do not do it yet" item rather than a decision waiting on you.
-      Quest progress is STORED (`quest_instances`, `xp_ledger`, `user_progression`); the roadmap
-      is DERIVED on read and stores nothing. `CRWN_UPDATED_RELEASE_STRATEGY.md` rewrites what the
-      right next action is (membership strategy presets, content classes, release waterfalls,
-      free-to-paid live progression), so flipping the engine first means artists accumulate real
-      progress against a catalog we are about to rewrite, and rewritten templates leave completed
-      instances pointing at dead keys. When that build lands I will ship the flip as a migration
-      file alongside it, so there is nothing for you to hand-copy. Nothing to do today.
-
-      Quests are guidance, never access control, so turning it on cannot gate a feature an artist
-      already had. Meanwhile the roadmap covers the activation loop (first visit, first dollar,
-      first delivered promise) and I can change it freely.
+- [ ] **Confirm the four unverified feature states so the drift registry stops saying
+      "unverified":** open and run
+      [`supabase/check-unverified-feature-state.sql`](supabase/check-unverified-feature-state.sql)
+      (read-only SELECTs, changes nothing) and paste Claude the output. It answers, from
+      production instead of from conflicting docs: are `producer_sessions` and `live_tips` on,
+      and are the royalty-readiness / producer-sessions / sub-avatar / live-tip-earnings
+      migrations applied. TODO and the Brain currently CONTRADICT each other on all four, which
+      is why the architecture registry marks them `unverified` rather than trusting either.
+      Claude then updates `EXPECTED_MIGRATION_STATE`, the FEATURES registry and docs 02/13 to
+      match reality, and adds probe lines so this never needs asking again.
 
 ---
 

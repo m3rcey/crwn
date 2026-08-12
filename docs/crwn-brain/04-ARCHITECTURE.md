@@ -112,7 +112,7 @@ public/            sw.js, manifest.json, icons
 - **Background jobs:** Vercel crons (≤ daily, 24 after `sms-reset` was deleted with the SMS removal 2026-07-31), each `CRON_SECRET`-gated. Cover payouts, sequences, activation nudges, lead scoring, AI, health canaries, team-split accrual, releases.
 - **Storage:** R2 for audio masters/art/VOD (signed URLs); Supabase Storage for avatars/community media; `audio` bucket is private.
 - **Realtime:** Supabase Realtime for live chat + notification bell.
-- **Feature flags:** one real flag store — `admin_settings` KV (`quest_engine`, `artist_gate`).
+- **Feature flags:** one real flag store — `admin_settings` KV. Current keys: `acquisition_engine`, `experiments`, `live_tips`, `popup_engine`, `producer_sessions`, `quest_engine`, `royalty_readiness`, plus `artist_gate` and `frl_cost_assumptions`. Production VALUES are only knowable by probe, never from code defaults (a code default of false has masked a live flag more than once).
 - **AI:** DeepSeek for AI Manager + autonomous agent (actions behind approval + coordination lock); degrade-gracefully on failure.
 - **Caching:** `admin_metrics_cache` table for expensive KPI aggregation; service worker HTTP cache. No Redis/CDN app cache. `Confirmed`.
 - **Error handling / logging:** `try/catch` → `console.error` + 500; no Sentry/structured logging.
