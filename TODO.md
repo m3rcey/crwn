@@ -403,6 +403,21 @@ Things that are never finished. Cadence, then the thing.
 
 Listed so you know what you are not carrying. Ask for any of these to jump the queue.
 
+- **Rise Mode Resume: reconciled 2026-08-11, and one question is yours.** The prompt's plumbing was
+  already right (it reads canonical quest state, matches Rise Mode's own selector, ranks below
+  Stripe, caps at 3 shows / 4 days, works cross-device, stores nothing). What was wrong was the
+  sentence: it said "You left something half done" when CRWN has no way to know that. Quest progress
+  is computed from live database state, so it rises when the ACCOUNT changes, not when an artist
+  opens anything. In production all 16 eligible quests were of that kind, including "Reach $1,000
+  per month in recurring support" at **4%** and "Reach 25 supporters" at 40%. Those are goals that
+  grow with the business, not tasks anybody abandoned. Copy now claims only that a goal is partway,
+  which is true at 4% and at 90%.
+  **Your call:** do you want CRWN to actually record when an artist starts a quest? That is the only
+  way the prompt could honestly say "continue where you left off" and the only way to answer
+  "does resuming increase completion". It means one new signal on quest engagement. I did not add
+  it because nothing yet proves it is worth the persistence, and the prompt has never once fired in
+  production (zero `artist_resume_rise` impressions), so there is no evidence of demand either.
+
 - **Needs You boundary: SHIPPED 2026-08-11.** The calculator mission block is out of Needs You,
   which now owns events and deadlines only, so nothing there can rank a growth opportunity beside a
   FULFILLMENT diagnosis any more. The calculator commitment itself is untouched and still lives in

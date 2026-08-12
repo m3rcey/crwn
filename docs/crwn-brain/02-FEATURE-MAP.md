@@ -516,6 +516,42 @@ its route, tour steps and analytics are unchanged.
   `cron_run_log` lock before failing. Tracked in `TODO.md`. Resurrecting the Manager is a product
   decision, not a bug fix, and is sequenced after the retirement above.
 
+- **Rise Mode Resume reconciled 2026-08-11. It is a POP-UP OVER CANONICAL QUEST STATE, not a
+  Resume Engine.** There is no resume table, no resume progress store and no second ranking.
+
+  **Source of truth:** `quest_instances`. `resumable` is derived in `/api/popups` as the single
+  highest-progress OPEN instance with `0 < progress_percent < 100`. That is the same rule as
+  `recommendNextQuest`'s "finish what is underway" branch, deliberately, so the prompt and Rise
+  Mode can never disagree about which piece of work is meant. **Cross-device works for free**
+  because nothing is stored client-side.
+
+  **Precedence and frequency:** priority 40, below Stripe (100) and first broadcast (80), so
+  continuation never outranks money that cannot reach the artist. `everyN` 4 days, max 3, plus the
+  engine's one-pop-up-per-user-per-day cap. `/profile/artist` is excluded from its pages, so it
+  cannot fire on its own destination. Dismissal is a pop-up-engine concern and never marks the
+  quest abandoned; completion ends eligibility naturally with no `resume_completed` record.
+
+  **THE CORRECTION: quest progress does not prove engagement.** The prompt used to open with
+  *"You left something half done"* and *"Work you already started is sitting there unfinished"*.
+  CRWN cannot support that. `syncQuest` sets `in_progress` automatically whenever an evaluated
+  condition rises above 0 (`nextStatus = result.progressPercent > 0 ? 'in_progress' : ...`), and
+  those conditions are DomainChecks over live database state. Progress climbs because the ACCOUNT
+  changed, not because anyone opened a quest. There is no `started_at`, no accept step and no quest
+  event log. Measured in production: **all 16 eligible instances were `domain`-kind**, including
+  *"Reach $1,000 per month in recurring support" at 4%* and *"Reach 25 supporters" at 40%* — outcome
+  targets that advance as the business grows, with no position to return to. The copy now claims
+  only that a goal is partway, which is true at 4% and at 90%.
+
+  **Known limitation, documented rather than hidden:** eligibility still cannot distinguish "the
+  artist began this and stopped" from "these conditions happen to be partly satisfied". Narrowing
+  it needs an engagement signal CRWN does not record, and changing this predicate alone would
+  desync it from `recommendNextQuest`. Founder decision, logged in TODO.
+
+  **Distinct from onboarding resume**, which is `/setup`'s own DB-derived completion gate, and
+  **distinct from the Constraint Engine**, which owns what matters now. Resume owns continuity of
+  unfinished execution only, and it does not diagnose, rank opportunities, issue Z3 or involve
+  Manager. Pinned by `src/lib/riseResume.test.ts`.
+
 - **Needs You boundary reconciliation SHIPPED 2026-08-11.** Needs You now owns **events, deadlines
   and unfinished attention, and nothing else.**
 

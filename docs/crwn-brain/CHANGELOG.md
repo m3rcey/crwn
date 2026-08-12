@@ -1,5 +1,41 @@
 # CRWN Brain — Changelog
 
+## 2026-08-11 - Rise Mode Resume: the plumbing was right, the claim was not
+
+The resume prompt shipped during One Operating Flow. Re-verified end to end, and the architecture
+held up: it is a pop-up over canonical quest state, with no resume table, no second progress store
+and no second ranking. `resumable` picks the highest-progress open instance strictly between 0 and
+100, which is the SAME rule as `recommendNextQuest`'s "finish what is underway" branch, so the
+prompt and Rise Mode cannot disagree. Priority 40 sits below Stripe (100) and first broadcast (80),
+`everyN` 4 days max 3 with the engine's one-per-day cap on top, `/profile/artist` excluded from its
+own pages, dismissal handled by the engine without marking work abandoned, completion ending
+eligibility with no `resume_completed` record, and cross-device working for free because nothing is
+client-side. All verified, none assumed.
+
+**What was wrong was the sentence.** It opened with *"You left something half done"* and *"Work you
+already started is sitting there unfinished"*. Quest progress does not prove engagement:
+`syncQuest` sets `in_progress` automatically whenever an evaluated condition rises above 0, and
+those conditions are DomainChecks over live database state. Progress climbs because the ACCOUNT
+changed, not because anyone opened a quest, and there is no `started_at`, no accept step and no
+quest event log anywhere.
+
+Production made it vivid: **all 16 eligible instances were `domain`-kind**, and they included
+*"Reach $1,000 per month in recurring support"* at **4%** and *"Reach 25 supporters"* at 40%. Those
+are outcome targets that advance as the business grows. Telling an artist they left them half done
+is false, and "pick it back up" is meaningless for a goal with no position to return to. The
+pop-up had also never actually fired: zero `artist_resume_rise` rows in `popup_events`.
+
+Copy now claims only what the row proves, and is true at 4% as well as 90%, since the pop-up does
+not interpolate. Still loss-framed, because partial progress genuinely does pay nothing.
+
+**Known limitation, logged rather than hidden:** eligibility cannot distinguish "began and stopped"
+from "conditions partly satisfied". Fixing that needs an engagement signal CRWN does not record,
+and changing this predicate alone would desync it from `recommendNextQuest`. Founder decision.
+
+No frontend asset changed (the registry is server-only; `PopupHost` fetches resolved copy from the
+API), so no service-worker bump. Constraint Engine, Roadmap, Manager, Needs You and the quest
+catalog are untouched.
+
 ## 2026-08-11 - Needs You owns events, and only events
 
 Implements the boundary the Action Plan vs Manager investigation approved.

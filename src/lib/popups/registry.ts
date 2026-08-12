@@ -123,8 +123,10 @@ export const POPUPS: PopupDef[] = [
   // `popup_engine` are both on, and there is real quest state to resume).
   //
   // FOUR THINGS THAT KEEP IT FROM BECOMING NAGGING, and each is deliberate:
-  //  1. `c.resumable` is null unless a quest is strictly between 0% and 100%. Work never started is
-  //     not work left in the middle, and CRWN already has a surface for what to do next.
+  //  1. `c.resumable` is null unless a quest is strictly between 0% and 100%, and it picks the
+  //     HIGHEST progress first. That is the same rule as `recommendNextQuest`'s "finish what is
+  //     underway" branch, on purpose: the prompt and Rise Mode must never disagree about which
+  //     piece of work is meant, and this prompt is not allowed its own ranking.
   //  2. `pages` excludes `/profile/artist`. Rise Mode IS the destination, so prompting someone who
   //     is already looking at it would be absurd.
   //  3. Priority 40 puts it BELOW connecting Stripe (100), the first broadcast (80) and the upgrade
@@ -133,6 +135,28 @@ export const POPUPS: PopupDef[] = [
   //  4. `everyN` 4 days, max 3. If someone has ignored it three times, they have answered.
   //
   // It stores nothing. The resumable state is derived from the rows the Quest Engine already keeps.
+  //
+  // WHAT THIS PROMPT MAY NOT SAY, corrected 2026-08-11.
+  // -------------------------------------------------
+  // It used to open with "You left something half done" and "Work you already started is sitting
+  // there unfinished". **CRWN cannot support that claim.** Quest progress is not a record of
+  // artist engagement: `syncQuest` sets `in_progress` automatically whenever an evaluated
+  // condition rises above 0 (`nextStatus = result.progressPercent > 0 ? 'in_progress' : ...`), and
+  // those conditions are DomainChecks over live database state. Progress climbs because the
+  // account changed, not because anyone opened a quest. There is no `started_at`, no accept step
+  // and no quest event log, so nothing anywhere proves the artist began this.
+  //
+  // Measured in production when this was corrected: all 16 eligible quests were `domain`-kind, and
+  // they included "Reach $1,000 per month in recurring support" at **4%** and "Reach 25
+  // supporters" at 40%. Those are outcome TARGETS that advance as the business grows. Telling an
+  // artist they "left them half done" is false, and "pick it back up" is meaningless for a goal
+  // there is no position to return to.
+  //
+  // The copy below therefore claims only what the row proves: a goal is genuinely partway. It is
+  // still loss-framed, because partial progress really does earn nothing until it is finished.
+  // Narrowing ELIGIBILITY instead would be the better fix, but it needs an engagement signal CRWN
+  // does not record, and changing this predicate alone would desync it from `recommendNextQuest`
+  // (see 1). That gap is documented rather than papered over.
   {
     key: 'artist_resume_rise',
     kind: 'modal',
@@ -140,10 +164,10 @@ export const POPUPS: PopupDef[] = [
     audience: (c) => c.isArtist && !!c.featureFlags.quest_engine && !!c.resumable,
     frequency: { type: 'everyN', days: 4, max: 3 },
     priority: 40,
-    goal: 'Artist finishes the Rise Mode work they already started instead of abandoning it.',
-    title: 'You left something half done.',
-    body: 'Work you already started is sitting there unfinished, and unfinished is worth nothing. Picking it back up is faster than starting anything new.',
-    cta: { label: 'Pick it back up', href: '/profile/artist' },
+    goal: 'Artist finishes the Rise Mode goal that is closest to done instead of leaving it short.',
+    title: 'You are closer to a goal than you think.',
+    body: 'One of your Rise Mode goals is already partway there. Progress that stops short pays you nothing, and finishing the closest one costs less than starting something new.',
+    cta: { label: 'See how close', href: '/profile/artist' },
     dismissLabel: 'Not now',
   },
 
