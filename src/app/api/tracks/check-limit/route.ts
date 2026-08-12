@@ -1,20 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { checkArtistLimit } from '@/lib/platformTier';
+import { requireArtistOwner } from '@/lib/apiAuth';
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy-service-key-for-build'
-);
-
+// Cybersecurity audit 2026-08-12, MEDIUM: this route read `artistId` from the body with
+// NO authentication at all and answered with that artist's platform plan and catalog
+// size. `checkArtistLimit` reads through the service-role client, so RLS never applied,
+// and middleware skips /api/, so nothing upstream applied either. Artist ids are handed
+// out by public surfaces, which turns internal plan and usage telemetry into an
+// enumerable dataset.
+//
+// The same class was already closed on /api/platform/limits. This uses the shared
+// `requireArtistOwner` helper rather than repeating that route's inline session check,
+// because an authorization rule copied by hand is a rule that drifts.
+//
+// The module-level service-role client this file used to construct was never referenced:
+// every read happens inside `checkArtistLimit`. It is deleted rather than left as a
+// standing invitation to read a row without an ownership check.
 export async function POST(req: NextRequest) {
-  const { artistId } = await req.json();
-
-  if (!artistId) {
-    return NextResponse.json({ error: 'Missing artistId' }, { status: 400 });
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid body' }, { status: 400 });
   }
+  const artistId = (body as { artistId?: unknown } | null)?.artistId;
 
-  const result = await checkArtistLimit(artistId, 'tracks');
+  // Also covers a missing or non-string artistId (400), so no separate presence check.
+  const owner = await requireArtistOwner(artistId);
+  if (!owner.ok) return owner.error;
+
+  const result = await checkArtistLimit(artistId as string, 'tracks');
 
   if (!result.allowed) {
     return NextResponse.json({

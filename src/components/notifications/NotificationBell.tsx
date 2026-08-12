@@ -17,6 +17,38 @@ interface Notification {
   created_at: string;
 }
 
+/**
+ * The RENDER-side backstop for a notification link (cybersecurity audit 2026-08-12).
+ *
+ * The write side is now validated (`src/app/api/notifications/notify-subscribers/route.ts`
+ * runs every link through `safeInternalPath` in `src/lib/safeRedirect.ts`), but rows
+ * written before that landed are still in the table, and `notifications` has had more
+ * than one write path over its life (SEC-004 was an anonymous INSERT hole). A stored
+ * `javascript:` value only becomes an attack when something renders it as an href, and
+ * this component is that something: next/link puts the raw value on the anchor, which
+ * runs in CRWN's origin against cookies that JS can read. So the guard belongs on both
+ * sides, and this one is what makes the legacy rows harmless.
+ *
+ * Deliberately a local copy of `safeInternalPath`'s SHAPE rather than an import:
+ * safeRedirect.ts imports node:crypto for its HMAC helpers, which cannot be bundled
+ * into a client component. The shared contract these two must keep is narrow and
+ * stable ("a single-slash relative CRWN path, nothing else"), and
+ * `src/lib/notificationLinkSafety.test.ts` pins them to the same hostile inputs.
+ */
+function safeNotificationHref(link: string | null): string {
+  if (typeof link !== 'string') return '#';
+  const value = link.trim();
+  if (!value || value.length > 512) return '#';
+  // Control characters are how `java\nscript:` survives a naive check. Escaped, never
+  // written literally: an invisible character in a filter is how the filter stops working.
+  if (/[\u0000-\u001f\u007f]/.test(value)) return '#';
+  if (!value.startsWith('/')) return '#';   // any scheme, and any bare host
+  if (value.startsWith('//')) return '#';   // protocol-relative
+  if (value.includes('\\')) return '#';     // backslash host confusion
+  if (value.includes('://')) return '#';
+  return value;
+}
+
 export function NotificationBell() {
   const { user } = useAuth();
   const supabase = createBrowserSupabaseClient();
@@ -174,7 +206,7 @@ export function NotificationBell() {
               notifications.map((notification) => (
                 <Link
                   key={notification.id}
-                  href={notification.link || '#'}
+                  href={safeNotificationHref(notification.link)}
                   onClick={() => handleNotificationClick(notification)}
                   className={`flex items-start gap-3 px-4 py-3 hover:bg-crwn-elevated transition-colors ${
                     !notification.is_read ? 'bg-crwn-elevated/50' : ''

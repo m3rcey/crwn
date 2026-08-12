@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { isProducerSessionsEnabled, ownsSession } from '@/lib/producer/access';
+import { canSubmitToSession, isProducerSessionsEnabled, ownsSession } from '@/lib/producer/access';
 import type { PollOption } from '@/types/producer';
 
 // In-session polls. ADVISORY: a poll never binds the artist, it is a temperature
@@ -14,9 +14,16 @@ const supabaseAdmin = createClient(
 );
 
 // GET /api/producer/polls?sessionId=...  → polls + aggregate tallies + my vote.
+//
+// READ ACCESS IS THE SAME GATE AS VOTING. This used to call auth.getUser() only to mark `myVote`,
+// with no 401 and no access check, so anyone could read the questions, the options, the artist_id
+// and the full tallies of a PAID or tier-restricted Executive Producer Session by passing its id.
+// The poll IS the session's private creative direction. Gate it the way ./vote does: signed in,
+// flag on, and either the artist who owns the session or a fan who can actually get into it.
 export async function GET(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const sessionId = req.nextUrl.searchParams.get('sessionId');
   if (!sessionId) return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
@@ -25,6 +32,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ enabled: false, polls: [] });
   }
 
+  // The owner always reads their own session. Otherwise the fan must clear the session access
+  // resolver (free, allowed tier, or paid ticket). 'closed' and 'not_accepting' are submission
+  // states, not access states: results stay readable after the window shuts, exactly as ./vote
+  // treats them.
+  const owner = await ownsSession(supabaseAdmin, sessionId, user.id);
+  if (!owner) {
+    const gate = await canSubmitToSession(supabaseAdmin, sessionId, user.id);
+    if (!gate.ok && gate.reason !== 'closed' && gate.reason !== 'not_accepting') {
+      const status = gate.reason === 'no_access' ? 403 : gate.reason === 'not_found' ? 404 : 409;
+      return NextResponse.json({ error: gate.reason }, { status });
+    }
+  }
+
+  // Scoped to this session's polls only, so a poll id from another session is unreachable here.
   const { data: polls } = await supabaseAdmin
     .from('session_polls')
     .select('id, session_id, artist_id, question, options, status, created_at, closed_at')

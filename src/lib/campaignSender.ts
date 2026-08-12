@@ -1,5 +1,6 @@
 import { resend } from '@/lib/resend';
 import { campaignEmail, resolveTokens } from '@/lib/emails/campaignEmail';
+import { appendUnsubscribeToken, fanRecipient } from '@/lib/emails/unsubscribeToken';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -290,16 +291,24 @@ export async function resolveAudienceAndSend(
           latest_release: latestTrack?.title || null,
         });
 
-        const unsubscribeUrl = `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`;
+        // Signed so the link cannot be edited onto another fan or another artist's list.
+        // The mail header below carries the same signature: RFC 8058 one-click posts to the URL
+        // itself, not to the confirm form, so the token has to survive in the query string.
+        const unsubscribeSigning = { recipient: fanRecipient(send.fan_id), artistId: campaign.artist_id };
+        const unsubscribeUrl = appendUnsubscribeToken(
+          `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`,
+          { kind: 'campaign-artist', id: send.id, artistId: campaign.artist_id, recipient: unsubscribeSigning.recipient },
+        );
         const trackingPixelUrl = `${BASE_URL}/api/campaigns/track/${send.id}?pixel=1`;
 
         const html = campaignEmail({
           body: personalizedBody,
           artistName,
           sendId: send.id,
-          unsubscribeUrl,
+          unsubscribeUrl: `${BASE_URL}/api/campaigns/unsubscribe/${send.id}`,
           trackingPixelUrl,
           platformTier,
+          unsubscribeSigning,
           utmParams: {
             source: 'crwn_campaign',
             medium: 'email',

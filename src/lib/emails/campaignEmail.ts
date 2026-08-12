@@ -1,3 +1,8 @@
+import {
+  ALL_ARTISTS,
+  appendUnsubscribeToken,
+} from '@/lib/emails/unsubscribeToken';
+
 const BASE_URL = 'https://thecrwn.app';
 
 interface CampaignEmailParams {
@@ -7,8 +12,19 @@ interface CampaignEmailParams {
   unsubscribeUrl: string;
   trackingPixelUrl: string;
   platformTier: string; // artist's platform tier
-  trackBasePath?: string; // e.g. '/api/sequences/track' — defaults to '/api/campaigns/track'
+  trackBasePath?: string; // e.g. '/api/sequences/track', defaults to '/api/campaigns/track'
   utmParams?: { source: string; medium: string; campaign: string };
+  /**
+   * Sign the unsubscribe links. Pass this ONLY when both unsubscribe URLs are keyed on `sendId`
+   * (the campaign sender is), because the signature binds the row id in the path. A caller that
+   * omits it still gets working links: the routes accept an unsigned legacy link and take the
+   * opt-out through a confirm POST instead. See src/lib/emails/unsubscribeToken.ts.
+   */
+  unsubscribeSigning?: {
+    /** fanRecipient(...) / contactRecipient(...) / emailRecipient(...) */
+    recipient: string;
+    artistId: string;
+  };
 }
 
 /**
@@ -74,9 +90,28 @@ export function campaignEmail({
   platformTier,
   trackBasePath,
   utmParams,
+  unsubscribeSigning,
 }: CampaignEmailParams): string {
   const showCrwnBranding = platformTier !== 'scale' && platformTier !== 'label' && platformTier !== 'empire';
   const wrappedBody = wrapLinks(bodyToHtml(body), sendId, trackBasePath, utmParams);
+
+  const allUrl = `${BASE_URL}/api/campaigns/unsubscribe-all/${sendId}`;
+  const signedUnsubscribeUrl = unsubscribeSigning
+    ? appendUnsubscribeToken(unsubscribeUrl, {
+        kind: 'campaign-artist',
+        id: sendId,
+        artistId: unsubscribeSigning.artistId,
+        recipient: unsubscribeSigning.recipient,
+      })
+    : unsubscribeUrl;
+  const signedAllUrl = unsubscribeSigning
+    ? appendUnsubscribeToken(allUrl, {
+        kind: 'campaign-all',
+        id: sendId,
+        artistId: ALL_ARTISTS,
+        recipient: unsubscribeSigning.recipient,
+      })
+    : allUrl;
 
   return `
 <!DOCTYPE html>
@@ -98,9 +133,9 @@ export function campaignEmail({
         You're receiving this because you subscribed to ${artistName} on CRWN.
       </p>
       <p style="color:#666;font-size:12px;margin:0 0 8px;">
-        <a href="${unsubscribeUrl}" style="color:#666;text-decoration:underline;">Unsubscribe</a> from this artist
+        <a href="${signedUnsubscribeUrl}" style="color:#666;text-decoration:underline;">Unsubscribe</a> from this artist
         &nbsp;&middot;&nbsp;
-        <a href="${BASE_URL}/api/campaigns/unsubscribe-all/${sendId}" style="color:#666;text-decoration:underline;">Unsubscribe from all</a>
+        <a href="${signedAllUrl}" style="color:#666;text-decoration:underline;">Unsubscribe from all</a>
       </p>
       ${showCrwnBranding ? `
       <p style="color:#555;font-size:11px;margin:16px 0 0;">
