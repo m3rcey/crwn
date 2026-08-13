@@ -59,12 +59,22 @@ responsible for. Do not work those.
       is not reproducible from the repo, so a branch database or a PITR restore would come up
       open. Verify after with: npm run verify:migrations
 
-- [ ] **DONE and no longer blocking, kept only so the flip is not forgotten:** flip
-      `ALLOW_UNSIGNED_LEGACY_LINKS` to false in src/lib/emails/unsubscribeToken.ts once every
-      unsubscribe link generated before 2026-08-12 has aged out of inboxes (realistically a few
-      months). Unsigned links are honored today ON PURPOSE, because stranding a real unsubscribe
-      is a compliance failure and those links are already protected by the confirm step. Flipping
-      it stops a bare row id from being a capability at all.
+- [ ] **Sign the three remaining unsubscribe senders, then flip the legacy flag.** Unsubscribe is
+      already safe (the GET only renders a confirm page; the mutation needs a POST with a
+      server-minted token), but three senders still emit UNSIGNED links, so
+      `ALLOW_UNSIGNED_LEGACY_LINKS` in src/lib/emails/unsubscribeToken.ts must stay true until they
+      are updated. Copy the pattern from src/lib/campaignSender.ts:294-305:
+        src/app/api/campaigns/[id]/send/route.ts:370 and :559
+          pass `unsubscribeSigning` to campaignEmail, and sign the List-Unsubscribe header too
+        src/app/api/cron/sequences/route.ts:210
+          cannot use `unsubscribeSigning` (that descriptor signs with sendId, this link is keyed on
+          enrollment.id). Use appendUnsubscribeToken(url, { kind: 'sequence-artist',
+          id: enrollment.id, artistId: enrollment.artist_id, recipient: fanRecipient(enrollment.fan_id) })
+        src/app/api/admin/crm/outreach/route.ts:157
+          appendUnsubscribeToken(url, { kind: 'crm-outreach', id: send.id,
+          artistId: CRWN_PLATFORM, recipient: emailRecipient(send.email) })
+      Then flip the flag to false, which stops a bare row id being a capability at all. Do not flip
+      it before, or you strand every already-sent email, which is a compliance failure.
 
 - [ ] **Migrate src/middleware.ts to the "proxy" convention.** Next 16.3.0 prints a deprecation
       warning for the middleware file convention. It builds clean today so this is not urgent, but
