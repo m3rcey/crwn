@@ -5,7 +5,6 @@ import { checkRateLimit } from '@/lib/rateLimit';
 import { collectArtistData } from '@/lib/ai/collectArtistData';
 import { generateStarterNudges, InsightInput } from '@/lib/ai/starterNudges';
 import { generateInsights } from '@/lib/ai/generateInsights';
-import { generateSyncInsights } from '@/lib/ai/syncInsights';
 import { buildCoachingBrief } from '@/lib/ai/coachingBrief';
 
 const supabaseAdmin = createClient(
@@ -107,8 +106,10 @@ export async function POST(req: NextRequest) {
         : null;
 
       insights = await generateInsights(data, canonicalBrief);
-      const syncInsights = generateSyncInsights(data);
-      insights = [...insights, ...syncInsights];
+      // Sync-match insights were removed with the synthetic sync generator (2026-08-13): every
+      // row they matched against was model-fabricated, so each "submit before it's gone" nudge
+      // pointed an artist at a listing that did not exist. If a REAL sync feed ever lands, its
+      // insight generator should be written against that feed, not resurrected from this one.
     }
 
     // Insert with dedup

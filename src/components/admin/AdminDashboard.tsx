@@ -11,8 +11,12 @@ import {
   Crown, Info, Heart, ArrowUpDown, ShieldCheck,
 } from 'lucide-react';
 import SettingsPanel from './SettingsPanel';
-import AgentInsights from './AgentInsights';
-import AutonomousOpsBar from './AutonomousOpsBar';
+// AutonomousOpsBar and AgentInsights (CRWN's OWN autonomous business agent: analyse, whitelisted
+// auto-execute, human escalation) were removed from this screen by the 2026-08-13 pre-PMF
+// surface reduction. HIDE + disable the daily briefing schedule, not delete: every route, the
+// signature scheme, the coordination lock and the tables remain. At nine artists the founder is
+// faster than the escalation queue, and a banner reporting an agent's activity is attention
+// spent on CRWN's own machinery instead of on the three pilots.
 import CohortRetentionChart from '@/components/shared/CohortRetentionChart';
 import CancelReasonChart from '@/components/shared/CancelReasonChart';
 import SurveySummary from '@/components/shared/SurveySummary';
@@ -446,16 +450,6 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
           <SettingsPanel userId={userId} onSaved={() => fetchMetrics(period, true)} />
         </div>
       )}
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* AUTONOMOUS OPS BAR */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <AutonomousOpsBar userId={userId} />
-
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* AGENT INSIGHTS */}
-      {/* ═══════════════════════════════════════════════════════════════ */}
-      <AgentInsights userId={userId} />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/* HERO — LGP:CAC Ratio */}

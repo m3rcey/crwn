@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   aggregateAcrossArtists,
   CROSS_ARTIST_EVIDENCE_VERSION,
@@ -12,7 +12,6 @@ import {
 const RAW = readFileSync('src/lib/crossArtistEvidence.ts', 'utf8');
 /** CODE only. A comment explaining a prohibition is not the prohibited thing. */
 const SRC = RAW.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-const CRON = readFileSync('src/app/api/cron/ai-manager/route.ts', 'utf8');
 
 const many = (n: number, obs = 100, rate = 0.05): ArtistContribution[] =>
   Array.from({ length: n }, (_, i) => ({ artistId: `a${i}`, rate, observations: obs }));
@@ -150,7 +149,9 @@ describe('boundaries', () => {
 
   it('no longer reaches any artist-facing prompt', () => {
     // The old path injected a global benchmark into every artist's Manager prompt.
-    expect(CRON).not.toContain('formatPatternsForPrompt(');
-    expect(CRON).not.toContain('getCrossArtistPatterns(');
+    // The cron that once injected cross-artist patterns into every artist's prompt was DELETED
+    // on 2026-08-13, so the channel cannot be reopened by editing it. Z10 had already removed the
+    // parameter; this removes the file.
+    expect(existsSync('src/app/api/cron/ai-manager/route.ts')).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   MANAGER_ACTION_TTL_MS,
   staleBefore,
@@ -24,7 +24,6 @@ function stripComments(src: string): string {
 const read = (p: string) => stripComments(readFileSync(p, 'utf8'));
 const EXECUTE_SRC = read('src/app/api/ai-manager/execute/route.ts');
 const CARD_SRC = read('src/components/artist/AiManagerCard.tsx');
-const CRON_SRC = read('src/app/api/cron/ai-manager/route.ts');
 const HEALTH_SRC = read('src/app/api/cron/agent-health/route.ts');
 
 /** Minimal stub of the two supabase-js chains this module uses. */
@@ -45,7 +44,9 @@ describe('the TTL is inherited, not invented', () => {
     expect(MANAGER_ACTION_TTL_MS).toBe(14 * DAY);
     // Same constant the Manager routes use for `ai_insights.expires_at`. If that policy ever
     // changes, this test is where the two are meant to be reconciled deliberately.
-    expect(CRON_SRC).toContain('14 * 24 * 60 * 60 * 1000');
+    // Read from the surviving artist-REQUESTED route now that the autonomous cron is deleted.
+    // Same constant, same policy, same reconciliation point.
+    expect(read('src/app/api/ai-manager/generate/route.ts')).toContain('14 * 24 * 60 * 60 * 1000');
   });
 
   it('is NOT the 7-day dedup window, which is a different concept', () => {
@@ -274,7 +275,12 @@ describe('boundaries this task must not cross', () => {
   });
 
   it('autonomous Manager remains dormant', () => {
-    expect(CRON_SRC).toMatch(/from\('artist_profiles'\)[\s\S]{0,200}\.eq\('is_active',\s*true\)/);
+    // DELETED 2026-08-13, which is strictly stronger than the tripwire this line used to be.
+    // The autonomous Manager was dormant only because of .eq('is_active', true) on a column that
+    // does not exist, so any unrelated schema tidy-up could have re-armed auto-executing AI across
+    // every artist account with no founder decision. The cron is gone; the artist-REQUESTED routes
+    // under /api/ai-manager are untouched.
+    expect(existsSync('src/app/api/cron/ai-manager/route.ts'), 'the autonomous Manager cron came back — that is a founder decision, not a cleanup').toBe(false);
   });
 
   it('no second constraint engine, no AI, no outcome score in the validator', () => {

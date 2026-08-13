@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   buildReferralLink,
   isSelfReferral,
@@ -271,8 +271,12 @@ describe('neighbouring systems are untouched', () => {
   });
 
   it('autonomous Manager remains dormant', () => {
-    const CRON = read('src/app/api/cron/ai-manager/route.ts');
-    expect(CRON).toMatch(/from\('artist_profiles'\)[\s\S]{0,200}\.eq\('is_active',\s*true\)/);
+    // DELETED 2026-08-13, which is strictly stronger than the tripwire this line used to be.
+    // The autonomous Manager was dormant only because of .eq('is_active', true) on a column that
+    // does not exist, so any unrelated schema tidy-up could have re-armed auto-executing AI across
+    // every artist account with no founder decision. The cron is gone; the artist-REQUESTED routes
+    // under /api/ai-manager are untouched.
+    expect(existsSync('src/app/api/cron/ai-manager/route.ts'), 'the autonomous Manager cron came back — that is a founder decision, not a cleanup').toBe(false);
   });
 
   it('no cross-channel cap or G3 was introduced', () => {

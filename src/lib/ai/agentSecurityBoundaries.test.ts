@@ -18,7 +18,7 @@
 // "the model refused politely" is not evidence, and no test here requires particular refusal
 // prose. Each one asks whether the capability exists at all.
 import { describe, it, expect } from 'vitest';
-import { readRaw, readStripped, violation } from '../architecture/sourceScan';
+import { existsSync, listSourceFiles, readRaw, readStripped, violation } from '../architecture/sourceScan';
 import { SUPPORT_ASSISTANT_PROMPT } from '../supportKnowledge';
 import { validateDecision, MAX_CLAUDE_SCORE_SIGNAL } from '../acquisition/decisionSchema';
 import type { DecisionAllowlists } from '../acquisition/decisionSchema';
@@ -247,36 +247,37 @@ describe('acquisition decision service fails safe', () => {
 // ---------------------------------------------------------------------------
 // Sync Opportunities
 // ---------------------------------------------------------------------------
-describe('sync opportunities: model text is content, never authority or a link', () => {
-  it('the stored URL is server-derived, never taken from model output', () => {
-    const src = readStripped(SYNC_ROUTE);
-    // registration_url comes from the SYNC_PLATFORMS constant; event_url is pinned null.
-    expect(
-      src,
-      violation('SECURITY', 'sync registration_url must come from the server-side platform list, never from model output', { file: SYNC_ROUTE }),
-    ).toMatch(/registration_url:\s*platform\.url/);
-    expect(src).toMatch(/event_url:\s*null/);
-    // The model must not be able to supply any url-ish field that gets stored.
-    expect(
-      src,
-      violation('SECURITY', 'no model-supplied url may be persisted on a sync opportunity', { file: SYNC_ROUTE }),
-    ).not.toMatch(/_url:\s*opp\./);
+describe('sync opportunities: the synthetic generator stays deleted', () => {
+  // DELETED 2026-08-13, surface reduction stage 7. The generator prompted a model for "8
+  // realistic sync opportunities" and stored them as `CRWN Curated via <platform>` pointing at
+  // the platform's homepage: fabricated listings presented to artists as real. That is a
+  // truthfulness defect, not a cost decision, so the code went rather than the tile alone.
+  // Every URL-injection property this block used to pin is now vacuously and permanently true.
+  // The sync_opportunities TABLE remains for a future REAL feed; if a real integration lands,
+  // reinstate the server-derived-URL assertions from git history against the new writer.
+  it('neither the cron nor the generator library exists', () => {
+    expect(existsSync(SYNC_ROUTE)).toBe(false);
+    expect(existsSync('src/lib/ai/syncInsights.ts')).toBe(false);
   });
 
-  it('forces its function call and refuses a response without one', () => {
-    const src = readStripped(SYNC_ROUTE);
-    expect(src).toMatch(/tool_choice:\s*\{\s*type:\s*'function'/);
-    expect(src).toMatch(/No function call in response/);
-  });
-
-  it('writes no authorization-bearing field from model output', () => {
-    const src = readStripped(SYNC_ROUTE);
-    const insert = src.slice(src.indexOf("from('sync_opportunities')"));
-    for (const forbidden of ['role', 'is_approved', 'user_id', 'artist_id']) {
-      expect(
-        insert.includes(`${forbidden}: opp.`),
-        violation('SECURITY', `sync must not write ${forbidden} from model output`, { file: SYNC_ROUTE }),
-      ).toBe(false);
+  it('no sync_opportunities writer is model-driven', () => {
+    // The property that made the generator a truthfulness defect was MODEL OUTPUT stored as real
+    // listings. Writers that ingest founder-supplied data are fine: the surviving
+    // /api/sync-opportunities POST is CRON_SECRET-authenticated manual ingestion, which is
+    // exactly the real-feed path the table is kept for. So the assertion is: any file that
+    // writes sync_opportunities must not also talk to an AI provider.
+    const writers = listSourceFiles('src').filter(
+      (f) => !f.endsWith('.test.ts') && readStripped(f).includes("from('sync_opportunities')") && /\.(insert|upsert)\(/.test(readStripped(f)),
+    );
+    expect(writers.length, 'expected the manual ingestion route to survive').toBeGreaterThan(0);
+    for (const f of writers) {
+      const src = readStripped(f);
+      for (const providerMark of ['openai', 'OpenAI', 'anthropic', 'deepseek', 'chat.completions', 'tool_choice']) {
+        expect(
+          src.includes(providerMark),
+          violation('SECURITY', `${f} writes sync_opportunities AND references '${providerMark}' — a model-driven sync writer is the deleted synthetic generator coming back`, { file: f }),
+        ).toBe(false);
+      }
     }
   });
 });

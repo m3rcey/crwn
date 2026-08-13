@@ -1129,13 +1129,22 @@ export const FEATURES: readonly FeatureContract[] = [
   },
   {
     key: 'autonomous_manager',
-    title: 'Autonomous (scheduled) AI Manager',
-    expectedState: 'dormant',
+    title: 'Autonomous (scheduled) AI Manager — DELETED 2026-08-13',
+    expectedState: 'compat_only',
     flag: null,
-    gateModule: 'src/app/api/cron/ai-manager/route.ts',
-    surfaces: [],
+    gateModule: null,
+    // The surviving surface is the artist-REQUESTED half: generate (insights on demand) and
+    // execute (approval-gated actions, session-owned). The scheduled autonomous cron was deleted
+    // because its dormancy rested on ONE accidental gate (an is_active filter on a nonexistent
+    // column) and it would have re-armed auto-executing AI across every artist account the moment
+    // that column appeared for any unrelated reason. Absence is pinned by managerBoundaries /
+    // actionValidity / governor / postWinReferral / needsYouBoundary / managerOps tests.
+    surfaces: [
+      { file: 'src/app/api/ai-manager/generate/route.ts', mustContain: 'requireArtistOwner' },
+      { file: 'src/app/api/ai-manager/execute/route.ts', mustContain: 'auth.getUser()' },
+    ],
     migration: null,
-    notes: 'Deliberately dormant (is_active filter + starter-tier early return). Founder decision open; dormancy markers pinned by managerBoundaries/actionValidity tests.',
+    notes: 'Reactivating scheduled autonomy is a FOUNDER decision requiring new code, a new cron entry, and deliberate updates to the six test files that pin its absence. Historical artist_agent_runs rows retained, nothing writes them now.',
   },
   {
     key: 'support_chat',

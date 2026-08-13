@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   deriveCronState,
   classifyFailure,
@@ -245,8 +245,12 @@ describe('boundaries with the rest of CRWN', () => {
   });
 
   it('does not reactivate autonomy or touch the dormant cron', () => {
-    const CRON = read('src/app/api/cron/ai-manager/route.ts');
-    expect(CRON).toMatch(/from\('artist_profiles'\)[\s\S]{0,200}\.eq\('is_active',\s*true\)/);
+    // DELETED 2026-08-13, which is strictly stronger than the tripwire this line used to be.
+    // The autonomous Manager was dormant only because of .eq('is_active', true) on a column that
+    // does not exist, so any unrelated schema tidy-up could have re-armed auto-executing AI across
+    // every artist account with no founder decision. The cron is gone; the artist-REQUESTED routes
+    // under /api/ai-manager are untouched.
+    expect(existsSync('src/app/api/cron/ai-manager/route.ts'), 'the autonomous Manager cron came back — that is a founder decision, not a cleanup').toBe(false);
     expect(ROUTE).not.toContain('runAutonomousAgent');
   });
 
@@ -273,15 +277,21 @@ describe('boundaries with the rest of CRWN', () => {
 });
 
 describe('navigation', () => {
-  it('registers exactly one Artist Manager tab', () => {
-    expect((ADMIN_PAGE.match(/'managerops'/g) || []).length).toBeGreaterThanOrEqual(3); // type, ids, button, render
-    expect((ADMIN_PAGE.match(/Artist Manager/g) || []).length).toBe(1);
-    expect((ADMIN_PAGE.match(/<ManagerOpsView \/>/g) || []).length).toBe(1);
+  it('is removed from admin navigation and stays removed', () => {
+    // 2026-08-13 surface reduction: the Artist Manager tab reported on a system with 7 lifetime
+    // actions whose scheduled half is deleted and whose artist-facing half is hidden. The VIEW
+    // and its API survive in the repo (this file still pins their read-only contract above);
+    // only the navigation entry is gone. If the tab returns, it returns as ONE tab.
+    expect((ADMIN_PAGE.match(/'managerops'/g) || []).length).toBe(0);
+    expect((ADMIN_PAGE.match(/<ManagerOpsView \/>/g) || []).length).toBe(0);
+    expect(existsSync('src/components/admin/ManagerOpsView.tsx'), 'the view itself is HIDDEN, not deleted').toBe(true);
+    expect(existsSync('src/app/api/admin/manager-ops/route.ts'), 'the API is HIDDEN, not deleted').toBe(true);
   });
 
   it('does not collide with the CRWN internal agent panel', () => {
-    // AgentInsights (CRWN's own agent) still lives on the Dashboard tab and is untouched.
-    expect(ADMIN_PAGE).toContain('AgentInsights');
+    // AgentInsights (CRWN's own agent) was also hidden from admin navigation the same day.
+    // Neither agent surface may quietly return under a name that confuses it with the other.
     expect(ADMIN_PAGE).not.toContain('Admin Manager');
+    expect(ADMIN_PAGE).not.toContain('<AgentInsights');
   });
 });

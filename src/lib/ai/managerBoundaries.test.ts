@@ -29,7 +29,12 @@ const read = (p: string) => stripComments(readFileSync(p, 'utf8'));
 const INSIGHTS_SRC = read('src/lib/ai/generateInsights.ts');
 const ACTIONS_SRC = read('src/lib/ai/generateActions.ts');
 const BRIEF_SRC = read('src/lib/ai/coachingBrief.ts');
-const CRON_SRC = read('src/app/api/cron/ai-manager/route.ts');
+// The autonomous cron (src/app/api/cron/ai-manager) was DELETED on 2026-08-13, surface
+// reduction stage 6. Its dormancy rested on ONE accidental gate (an is_active filter on a
+// column that does not exist), and it would have re-armed auto-executing AI across every
+// artist account the moment anyone added that column for an unrelated reason. Deleting it is
+// strictly stronger than every tripwire this file pointed at it. Assertions that read the
+// cron now either read the surviving artist-REQUESTED routes or assert the file stays gone.
 const GENERATE_SRC = read('src/app/api/ai-manager/generate/route.ts');
 const EXECUTE_SRC = read('src/app/api/ai-manager/execute/route.ts');
 const CARD_SRC = read('src/components/artist/AiManagerCard.tsx');
@@ -50,7 +55,7 @@ describe('Manager reads the canonical priority, it does not own one', () => {
   });
 
   it('every route that runs a Manager model builds the brief first', () => {
-    for (const [label, src] of [['cron', CRON_SRC], ['artist refresh', GENERATE_SRC]] as const) {
+    for (const [label, src] of [['artist refresh', GENERATE_SRC]] as const) {
       expect(src, `${label} must build the canonical brief`).toContain('buildCoachingBrief');
     }
   });
@@ -58,7 +63,7 @@ describe('Manager reads the canonical priority, it does not own one', () => {
   it('the insight feed is actually handed the brief at both call sites', () => {
     // The specific regression this file was written for: `generateInsights(data)` with no
     // second argument is the ungoverned call.
-    for (const [label, src] of [['cron', CRON_SRC], ['artist refresh', GENERATE_SRC]] as const) {
+    for (const [label, src] of [['artist refresh', GENERATE_SRC]] as const) {
       expect(src, `${label} calls generateInsights without the brief`).not.toMatch(
         /generateInsights\(\s*data\s*\)/,
       );
@@ -122,7 +127,6 @@ describe('Manager reads the canonical priority, it does not own one', () => {
       ['insight feed', INSIGHTS_SRC],
       ['action generator', ACTIONS_SRC],
       ['coaching brief', BRIEF_SRC],
-      ['cron', CRON_SRC],
       ['artist refresh', GENERATE_SRC],
       ['execute', EXECUTE_SRC],
       ['card', CARD_SRC],
@@ -156,7 +160,6 @@ describe('no unsupported cross-artist claim reaches an artist', () => {
       ['insight feed', INSIGHTS_SRC],
       ['action generator', ACTIONS_SRC],
       ['coaching brief', BRIEF_SRC],
-      ['cron', CRON_SRC],
       ['artist refresh', GENERATE_SRC],
       ['card', CARD_SRC],
     ];
@@ -224,7 +227,6 @@ describe('the Manager outcome-scoring loop stays retired', () => {
     ['action generator', ACTIONS_SRC],
     ['insight feed', INSIGHTS_SRC],
     ['coaching brief', BRIEF_SRC],
-    ['cron', CRON_SRC],
     ['artist refresh', GENERATE_SRC],
     ['execute', EXECUTE_SRC],
     ['card', CARD_SRC],
@@ -242,7 +244,6 @@ describe('the Manager outcome-scoring loop stays retired', () => {
     expect(ACTIONS_SRC).not.toContain('PAST ACTION OUTCOMES');
     // The scoring formula itself, in any of its three historical copies.
     expect(ACTIONS_SRC).not.toMatch(/activeSubs\s*\|\|\s*0\)\s*\*\s*100/);
-    expect(CRON_SRC).not.toMatch(/activeSubs\s*\|\|\s*0\)\s*\*\s*100/);
   });
 
   it('no Manager prompt carries a POSITIVE/NEGATIVE/NEUTRAL action verdict mechanism', () => {
@@ -279,7 +280,6 @@ describe('the Manager outcome-scoring loop stays retired', () => {
   it('no new Manager action writes baseline_metrics', () => {
     // Comments are stripped, so the retirement note explaining the column does not pass this.
     expect(EXECUTE_SRC, 'execute must not write a baseline').not.toContain('baseline_metrics');
-    expect(CRON_SRC, 'cron must not write a baseline').not.toContain('baseline_metrics');
   });
 
   it('no Manager path computes its own MRR for learning', () => {
@@ -308,7 +308,9 @@ describe('the Manager outcome-scoring loop stays retired', () => {
     expect(EXECUTE_SRC).toContain('artist_agent_actions');
     expect(EXECUTE_SRC).toMatch(/result_message/);
     expect(EXECUTE_SRC).toMatch(/executed_at/);
-    expect(CRON_SRC, 'run history must still be written').toContain('artist_agent_runs');
+    // artist_agent_runs was the AUTONOMOUS run log; its only writer was the deleted cron, so it
+    // is historical data now (rows retained, nothing new written). The artist-facing telemetry
+    // below is the record that still matters.
     expect(CARD_SRC, 'the artist can still see what Manager did').toContain('artist_agent_actions');
   });
 
@@ -330,16 +332,11 @@ describe('this task did NOT reactivate autonomous Manager', () => {
   // back on across every artist account. This test exists so an unrelated tidy-up cannot silently
   // do it. If you are here because this test failed, that is the point. Confirm the reactivation
   // was intended and approved, then update this test deliberately.
-  it('the dormant activation query is unchanged', () => {
+  it('the autonomous cron stays deleted', () => {
     expect(
-      CRON_SRC,
-      'ai-manager still selects artists via artist_profiles.is_active (dormant on purpose)',
-    ).toMatch(/from\('artist_profiles'\)[\s\S]{0,200}\.eq\('is_active',\s*true\)/);
-  });
-
-  it('auto-execution is still limited to the low-risk allowlist', () => {
-    expect(CRON_SRC).toMatch(/action\.risk === 'low' && SAFE_ACTION_TYPES\.includes\(action\.type\)/);
-    expect(CRON_SRC).toContain('storePendingAction');
+      existsSync('src/app/api/cron/ai-manager/route.ts'),
+      'the autonomous Manager cron came back — reactivating scheduled autonomy is a founder decision, not a cleanup',
+    ).toBe(false);
   });
 });
 
@@ -445,10 +442,13 @@ describe('Manager cannot bypass its approval or ownership gates', () => {
     expect(EXECUTE_SRC).toMatch(/eq\('user_id',\s*user\.id\)/);
   });
 
-  it('only low-risk allowlisted actions may auto-execute', () => {
-    expect(CRON_SRC).toMatch(/action\.risk === 'low' && SAFE_ACTION_TYPES\.includes\(action\.type\)/);
-    // Everything else is stored pending and waits for the artist.
-    expect(CRON_SRC).toContain('storePendingAction');
+  it('nothing auto-executes at all any more', () => {
+    // The low-risk auto-execute allowlist lived only in the deleted autonomous cron. With it
+    // gone, EVERY Manager action waits for the artist through /api/ai-manager/execute, which is
+    // the strongest form of the old "only low-risk may auto-execute" rule. If auto-execution is
+    // ever rebuilt, this test is where the allowlist requirement must be reinstated.
+    expect(existsSync('src/app/api/cron/ai-manager/route.ts')).toBe(false);
+    expect(EXECUTE_SRC).toContain('auth.getUser()');
   });
 
   it('the artist refresh route never trusts a client-supplied identity', () => {

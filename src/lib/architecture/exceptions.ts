@@ -137,6 +137,66 @@ export const UNSCHEDULED_CRON_EXCEPTIONS: readonly ArchException[] = [
     owner: 'Team Splits self-check',
     reason: 'Manual-trigger-only verification canary, documented in-file. Deliberately unscheduled.',
   },
+
+  // ── 2026-08-13 pre-PMF surface reduction: DISABLED, code kept ─────────────────────────────
+  // Founder decision. Each of these owns a feature that is hidden or has a zero-row population,
+  // so a daily run does nothing but spend attention and a Hobby cron slot. The IMPLEMENTATION is
+  // preserved so re-enabling is one vercel.json line; the `reason` names the re-enable trigger,
+  // which is the condition to check before restoring the schedule.
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/fan-digest/route.ts',
+    owner: 'Fan digest',
+    reason: 'DISABLED 2026-08-13: a weekly email about a nearly-empty platform risks unsubscribes from the few real fans. Re-enable when artists post enough that a digest has content (roughly: posts per week per artist > 3).',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/inactive-subscribers/route.ts',
+    owner: 'Inactive-subscriber re-engagement',
+    reason: 'DISABLED 2026-08-13: 14-day-inactivity emails across ~11 active subscriptions is noise. Re-enable when active subscriptions exceed ~50.',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/sequence-conversions/route.ts',
+    owner: 'Artist sequence conversion attribution',
+    reason: 'DISABLED 2026-08-13: attributes conversions for the artist sequence builder, which is hidden. Re-enable with the sequence builder.',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/lead-scoring/route.ts',
+    owner: 'Artist CRM fan engagement scoring',
+    reason: 'DISABLED 2026-08-13: per-fan engagement scoring across a 69-account platform. NOT the acquisition lead scorer (that is decideCallRequest, request-time, unaffected). Re-enable when a pilot artist has a fan base large enough that the CRM needs ranking.',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/clipper-rate-drops/route.ts',
+    owner: 'Clipper rate drops',
+    reason: 'DISABLED 2026-08-13: warns clippers ahead of a rate cut; 0 bounties and 1 VOD marker exist. Re-enable with the clipper program.',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/team-split-accruals/route.ts',
+    owner: 'Team Split accruals',
+    reason: 'DISABLED 2026-08-13: writes held accrual rows for collaborator deals; 0 deals exist. RE-ENABLE WITH THE FIRST REAL TEAM SPLIT DEAL, before any earning that deal should share in.',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/agent-health/route.ts',
+    owner: 'Agent swarm health check',
+    reason: 'DISABLED 2026-08-13: monitored the autonomous Manager (cron deleted) and the admin agent briefing (schedule disabled), and once certified a dead cron as healthy. Re-enable only if scheduled agent execution returns.',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/recruiter-qualify/route.ts',
+    owner: 'Recruiter qualification + flat-fee payout',
+    reason: 'DISABLED 2026-08-13 on production evidence: 0 artist_referrals rows, 0 recruiter_payouts rows, 0 invite-code uses, 0 artists on a paid plan, so it cannot fire. Recruiter DATA and code are retained. RE-ENABLE ON THE FIRST REAL artist_referrals ROW (or at the affiliate phase), BEFORE the referred artist can qualify: it pays real money via Stripe transfers.',
+  },
+  {
+    invariant: 'REACH-003',
+    subject: 'src/app/api/cron/recruiter-recurring/route.ts',
+    owner: 'Recruiter recurring revenue share',
+    reason: 'DISABLED 2026-08-13, same evidence as recruiter-qualify: it pays only on status=qualified referrals, and qualification can only come from recruiter-qualify. Same re-enable trigger, same money warning.',
+  },
 ];
 
 /**

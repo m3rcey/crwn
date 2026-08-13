@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
-import { Loader2, BarChart3, Users, Zap, Mail, Handshake, Filter, Contact, KeyRound, Instagram, Megaphone, FlaskConical, LifeBuoy, Banknote, Bot } from 'lucide-react';
+import { Loader2, BarChart3, Users, Mail, Filter, Instagram, Megaphone, LifeBuoy, Banknote } from 'lucide-react';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import LeadMagnetsView from '@/components/admin/LeadMagnetsView';
 import AvatarCohortsView from '@/components/admin/AvatarCohortsView';
@@ -16,19 +16,46 @@ import ProspectNurtureView from '@/components/admin/ProspectNurtureView';
 import EmailHealth from '@/components/admin/EmailHealth';
 import PartnersView from '@/components/admin/PartnersView';
 import CrmView from '@/components/admin/CrmView';
-import AgentInsights from '@/components/admin/AgentInsights';
+// AgentInsights (CRWN's OWN autonomous business agent) is hidden from every admin tab by the
+// 2026-08-13 surface reduction. HIDE + disable the schedule, not delete: the routes, signature
+// scheme, coordination lock and tables all remain, so re-enabling is a UI change.
 import ApprovalsManager from '@/components/admin/ApprovalsManager';
 import AcquisitionView from '@/components/admin/AcquisitionView';
 import SupportChatView from '@/components/admin/SupportChatView';
 import MoneyModelView from '@/components/admin/MoneyModelView';
-// ARTIST-facing Manager telemetry. Distinct from `AgentInsights` above, which is CRWN's OWN
-// business agent (funnel/pipeline/partners/CRM). Two agents, two subjects; the tab is labelled
-// "Artist Manager" so the founder is never asked to work out which one they are looking at.
-import ManagerOpsView from '@/components/admin/ManagerOpsView';
+// ManagerOpsView (ARTIST-facing Manager telemetry) was removed from admin navigation by the
+// 2026-08-13 surface reduction: it reports on a system with 7 actions and 7 insights all time,
+// whose scheduled half is being deleted and whose artist-facing half is hidden. The component
+// and its API remain in the repo.
 
-type AdminTab = 'dashboard' | 'pipeline' | 'partners' | 'funnel' | 'sequences' | 'email' | 'crm' | 'access' | 'acquisition' | 'leadmagnets' | 'avatars' | 'experiments' | 'support' | 'moneymodel' | 'managerops';
+type AdminTab =
+  | 'dashboard' | 'acquisition' | 'leadmagnets' | 'funnel' | 'pipeline' | 'support' | 'moneymodel' | 'email'
+  | 'avatars' | 'experiments' | 'crm' | 'partners' | 'access' | 'sequences';
 
-const TAB_IDS: AdminTab[] = ['dashboard', 'pipeline', 'partners', 'funnel', 'sequences', 'email', 'crm', 'access', 'acquisition', 'leadmagnets', 'avatars', 'experiments', 'support', 'moneymodel', 'managerops'];
+/** The eight buttons. Order is the founder's reading order, not alphabetical. */
+const PRIMARY_TABS: { id: AdminTab; label: string; Icon: typeof BarChart3 }[] = [
+  { id: 'dashboard',   label: 'Dashboard',   Icon: BarChart3 },
+  { id: 'acquisition', label: 'Acquisition', Icon: Instagram },
+  { id: 'leadmagnets', label: 'Lead Magnets', Icon: Megaphone },
+  { id: 'funnel',      label: 'Funnel',      Icon: Filter },
+  { id: 'pipeline',    label: 'Pipeline',    Icon: Users },
+  { id: 'support',     label: 'Support',     Icon: LifeBuoy },
+  { id: 'moneymodel',  label: 'Money Model', Icon: Banknote },
+  { id: 'email',       label: 'Email Health', Icon: Mail },
+];
+
+/**
+ * Reachable at /admin?tab=<id>, deliberately WITHOUT a button.
+ *
+ * Not deleted, because each still answers a real question occasionally: Avatars (which avatar did
+ * the qualified leads belong to) and Sequences (is prospect nurture enrolling) get promoted back
+ * the moment they have data to show. CRM and Partners duplicate Pipeline and a program with zero
+ * referrals. Access holds the invite codes for concierge onboarding while artist_gate is OFF.
+ * Experiments is one experiment and four events, which cannot decide anything yet.
+ */
+const SECONDARY_TABS: AdminTab[] = ['avatars', 'experiments', 'crm', 'partners', 'access', 'sequences'];
+
+const TAB_IDS: AdminTab[] = [...PRIMARY_TABS.map((t) => t.id), ...SECONDARY_TABS];
 
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -77,182 +104,59 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#0D0D0D]">
-      {/* Admin tab nav */}
+      {/* Admin tab nav.
+          PRE-PMF SURFACE REDUCTION, 2026-08-13. Fifteen buttons became EIGHT.
+          The founder should not operate a nine-artist business through a mature-SaaS cockpit.
+          The eight left answer, in reading order: is acquisition working (Acquisition, Lead
+          Magnets), where are the artists in activation (Funnel, Pipeline), what did my
+          intervention cost (Money Model), and is anything on fire (Support, Email Health).
+          Everything removed is still reachable at /admin?tab=<id> — see SECONDARY_TABS. */}
       <div className="max-w-7xl mx-auto px-4 pt-4 overflow-x-auto">
         <div className="flex items-center gap-1 bg-crwn-surface rounded-full p-1 w-fit mb-6">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'dashboard' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab('pipeline')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'pipeline' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            Pipeline
-          </button>
-          <button
-            onClick={() => setActiveTab('partners')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'partners' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Handshake className="w-4 h-4" />
-            Partners
-          </button>
-          <button
-            onClick={() => setActiveTab('funnel')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'funnel' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            Funnel
-          </button>
-          <button
-            onClick={() => setActiveTab('sequences')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'sequences' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Zap className="w-4 h-4" />
-            Sequences
-          </button>
-          <button
-            onClick={() => setActiveTab('crm')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'crm' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Contact className="w-4 h-4" />
-            CRM
-          </button>
-          <button
-            onClick={() => setActiveTab('email')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'email' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Mail className="w-4 h-4" />
-            Email Health
-          </button>
-          <button
-            onClick={() => setActiveTab('acquisition')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'acquisition' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Instagram className="w-4 h-4" />
-            Acquisition
-          </button>
-          <button
-            onClick={() => setActiveTab('leadmagnets')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'leadmagnets' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Megaphone className="w-4 h-4" />
-            Lead Magnets
-          </button>
-          <button
-            onClick={() => setActiveTab('avatars')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'avatars' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Megaphone className="w-4 h-4" />
-            Avatars
-          </button>
-          <button
-            onClick={() => setActiveTab('experiments')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'experiments' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <FlaskConical className="w-4 h-4" />
-            Experiments
-          </button>
-          <button
-            onClick={() => setActiveTab('access')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'access' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <KeyRound className="w-4 h-4" />
-            Access
-          </button>
-          <button
-            onClick={() => setActiveTab('support')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'support' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <LifeBuoy className="w-4 h-4" />
-            Support
-          </button>
-          <button
-            onClick={() => setActiveTab('moneymodel')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'moneymodel' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Banknote className="w-4 h-4" />
-            Money Model
-          </button>
-          <button
-            onClick={() => setActiveTab('managerops')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'managerops' ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
-            }`}
-          >
-            <Bot className="w-4 h-4" />
-            Artist Manager
-          </button>
+          {PRIMARY_TABS.map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeTab === id ? 'bg-crwn-elevated text-crwn-text' : 'text-crwn-text-secondary hover:text-crwn-text'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       {activeTab === 'dashboard' && <AdminDashboard userId={user.id} />}
       {activeTab === 'pipeline' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
-          <AgentInsights userId={user.id} scope="pipeline" />
           <PipelineView />
         </div>
       )}
       {activeTab === 'partners' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
-          <AgentInsights userId={user.id} scope="partners" />
           <PartnersView />
         </div>
       )}
       {activeTab === 'funnel' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
-          <AgentInsights userId={user.id} scope="funnel" />
           <FunnelView />
         </div>
       )}
       {activeTab === 'sequences' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
-          <AgentInsights userId={user.id} scope="sequences" />
           <PlatformSequences />
           <ProspectNurtureView />
         </div>
       )}
       {activeTab === 'crm' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
-          <AgentInsights userId={user.id} scope="crm" />
           <CrmView />
         </div>
       )}
       {activeTab === 'email' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
-          <AgentInsights userId={user.id} scope="email" />
           <EmailHealth userId={user.id} />
         </div>
       )}
@@ -298,11 +202,6 @@ export default function AdminPage() {
         </div>
       )}
 
-      {activeTab === 'managerops' && (
-        <div className="max-w-7xl mx-auto px-4 pb-12">
-          <ManagerOpsView />
-        </div>
-      )}
     </div>
   );
 }
