@@ -498,13 +498,20 @@ describe('the Rise Mode surface renders one decision and nothing that competes w
     expect(card).not.toContain('Your next move');
   });
 
-  it('carries no quest-board link, and the board stays indexed in the hamburger', () => {
+  it('carries no quest-board link, and the board route survives being hidden', () => {
     // Pointing at the board immediately after removing the board is architecture exposure: it
-    // helps nobody finish the move. Discoverability is the AccountHub's job.
+    // helps nobody finish the move. This half is unchanged and is the one that protects Rise Mode.
     expect(page).not.toContain("'/quests'");
     expect(page).not.toContain('quest board');
-    const hub = readStripped('src/components/layout/AccountHub.tsx');
-    expect(hub).toContain("href: '/quests'");
+
+    // The board was also removed from the AccountHub by the 2026-08-13 pre-PMF surface reduction.
+    // The ENGINE is untouched and this file's other tests still pin it: /profile/artist mounts
+    // RiseMode variant="driver", which renders nothing and exists purely to keep calling
+    // /api/quests (that route ASSIGNS and auto-completes quests server-side). Hiding the board
+    // must never become deleting the driver, so assert the route still exists rather than that
+    // some menu links to it.
+    const { existsSync } = require('node:fs') as typeof import('node:fs');
+    expect(existsSync('src/app/(main)/quests/page.tsx')).toBe(true);
   });
 
   it('the After this line is subordinate: one line, no button, no card', () => {

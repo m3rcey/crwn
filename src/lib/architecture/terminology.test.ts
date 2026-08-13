@@ -41,10 +41,12 @@ describe('TERM-001 — retired vocabulary stays retired', () => {
   );
 
   it('the scan itself still sees user-facing string surfaces (positive control)', () => {
-    // 'Needs You' is the live replacement label and must be visible to the same
-    // pattern shape the denylist uses; if extraction breaks, this fails first.
-    const pattern = /(?:label|title):\s*'Needs You'/;
+    // Vacuity guard: if label/title extraction breaks, every denylist check above passes while
+    // examining nothing, and this fails first. The control was 'Needs You' until the 2026-08-13
+    // surface reduction hid that tile; 'Offer Builder' is now a core, always-visible Studio and
+    // AccountHub label, which makes it a more durable anchor than a hideable one.
+    const pattern = /(?:label|title):\s*'Offer Builder'/;
     const seen = files.some(f => pattern.test(readStripped(f)));
-    expect(seen, 'the label/title extraction no longer matches even the live "Needs You" label — the terminology scan is examining nothing').toBe(true);
+    expect(seen, 'the label/title extraction no longer matches even the live "Offer Builder" label — the terminology scan is examining nothing').toBe(true);
   });
 });

@@ -19,7 +19,11 @@ describe('NAV-001 — every Studio destination appears in the AccountHub complet
     const studio = readStripped(STUDIO);
     const hub = readStripped(HUB);
     const hrefs = [...studio.matchAll(/href:\s*'([^']+)'/g)].map(m => m[1]);
-    expect(hrefs.length, 'no href literals found in the Studio grid — the card shape changed and this scan is examining nothing').toBeGreaterThan(10);
+    // Vacuity guard, not a size target. It only asserts this scan is looking at something: if
+    // the card shape changes and the regex stops matching, `missing` would be [] and the parity
+    // check would pass while proving nothing. Lowered from 10 on 2026-08-13 when the founder cut
+    // the grid to its five core destinations (Music, Albums, Shop, Offer Builder, Live).
+    expect(hrefs.length, 'no href literals found in the Studio grid — the card shape changed and this scan is examining nothing').toBeGreaterThanOrEqual(5);
 
     const excepted = new Set(STUDIO_HUB_PARITY_EXCEPTIONS.map(e => e.subject));
     const missing = [...new Set(hrefs)].filter(h => !excepted.has(h) && !hub.includes(`href: '${h}'`));
@@ -58,11 +62,34 @@ describe('NAV-002 — the fan hub indexes the canonical fan destinations (F-08/F
   });
 });
 
-describe('NAV-003 — nav slots say what they open', () => {
-  it('the fan slot is Missions -> /command with its stable tour anchor', () => {
+describe('NAV-003 — nav slots say what they open, and surviving slots keep their tour anchors', () => {
+  // Rewritten 2026-08-13 with the pre-PMF surface reduction. The fan slot was Missions ->
+  // /command; the whole fan mission economy is now hidden, and the fan's money lives on /library
+  // (ReferralDashboard). The PROPERTY this guards is unchanged: a fan looking for their
+  // commission must not be sent somewhere else, and a slot that survives must not have its
+  // tourId renamed underneath people who already dismissed the tour.
+  it('the fan slot is Library -> /library, the surviving money surface', () => {
     const nav = readStripped(NAV);
-    expect(nav, violation('NAV-003', "the fan nav slot must keep href '/command'")).toContain("href: '/command'");
-    expect(nav, violation('NAV-003', "the fan nav slot label regressed from 'Missions' (F-08: a fan looking for money must not land on missions unlabeled)")).toContain("label: 'Missions'");
-    expect(nav, violation('NAV-003', "tourId 'nav-earn' is a persistence key; renaming it replays the tour for everyone who dismissed it")).toContain("tourId: 'nav-earn'");
+    expect(nav, violation('NAV-003', "the fan nav slot must open '/library', which mounts ReferralDashboard (Share-to-Earn earnings + cashout)")).toContain("href: '/library'");
+    expect(nav, violation('NAV-003', "the fan nav slot must be labelled for what it opens")).toContain("label: 'Library'");
+  });
+
+  it('surviving slots keep their persistence keys', () => {
+    const nav = readStripped(NAV);
+    for (const tourId of ['nav-home', 'nav-studio', 'nav-rise', 'nav-library']) {
+      expect(
+        nav,
+        violation('NAV-003', `tourId '${tourId}' is a persistence key; renaming it replays the tour for everyone who dismissed it`),
+      ).toContain(`tourId: '${tourId}'`);
+    }
+  });
+
+  it('a retired anchor is not silently reused for a different destination', () => {
+    // 'nav-explore', 'nav-messages' and 'nav-earn' are no longer rendered. Reusing one of those
+    // ids on a NEW slot would replay a dismissed tour step pointing at the wrong thing.
+    const nav = readStripped(NAV);
+    for (const retired of ['nav-explore', 'nav-messages', 'nav-earn']) {
+      expect(nav, violation('NAV-003', `retired tour anchor '${retired}' was reused`)).not.toContain(`tourId: '${retired}'`);
+    }
   });
 });

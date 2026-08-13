@@ -22,30 +22,38 @@ import {
   LogOut
 } from 'lucide-react';
 
-// The 5 slots are Home, Explore, [Studio|Earn], Messages, [Rise|Library]. Studio
-// is back in the artist's 3rd slot: with the dashboard's 16-tab strip broken up
-// into real routes, Studio is now the front door to all the work screens (music,
-// shop, live, analytics, team), and burying the front door behind a Home tile
-// made every one of them three taps deep. Fans keep the Earn hub there.
+// PRE-PMF SURFACE REDUCTION, 2026-08-13. Founder decision. Five slots became THREE for an
+// artist and TWO for a fan.
 //
-// Management screens are NOT here. They live in the hamburger AccountHub, which
-// is also where Profile went when it gave up the 5th slot to Rise Mode.
-// F-08 (Decision E): /command is the MISSIONS surface; the fan's money lives at /earn
-// (reachable from this page's Earnings card and the hamburger). Labelling this slot "Earn"
-// sent fans looking for their commission to a missions list. The tourId stays 'nav-earn'
-// so the existing fan tour anchor keeps working.
-const fanSlot = { href: '/command', label: 'Missions', icon: Flag, tourId: 'nav-earn' };
+// Removed: Explore (nine artists is not a catalogue, and a discovery tab implies a marketplace
+// CRWN is not) and Messages (0 DM conversations ever, and DMs are Pro-gated to zero artists).
+// Both routes still exist; only the tab is gone.
+//
+// The fan's /command "Missions" slot went with the rest of the fan mission economy. Its money
+// destination is /library, which carries ReferralDashboard: referral links, commissions, fan
+// Stripe Connect and cashout. That is the whole Share-to-Earn loop and it is actively marketed,
+// so the fan keeps a one-tap route to it.
+//
+// tourIds are persistence keys. The surviving slots keep theirs unchanged, so nobody who
+// dismissed the tour sees it replay. The retired slots' anchors ('nav-explore', 'nav-messages',
+// 'nav-earn') simply stop being rendered; their ids are not reused for anything else.
+//
+// Management screens are NOT here. They live in the hamburger AccountHub.
 const artistStudioSlot = { href: '/studio', label: 'Studio', icon: LayoutDashboard, tourId: 'nav-studio' };
 const artistRiseSlot = { href: '/profile/artist', label: 'Rise', icon: TrendingUp, tourId: 'nav-rise' };
 const fanLibrarySlot = { href: '/library', label: 'Library', icon: Library, tourId: 'nav-library' };
 
-const buildNavItems = (isArtist: boolean) => [
-  { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
-  { href: '/explore', label: 'Explore', icon: Compass, tourId: 'nav-explore' },
-  isArtist ? artistStudioSlot : fanSlot,
-  { href: '/messages', label: 'Messages', icon: MessageCircle, tourId: 'nav-messages' },
-  isArtist ? artistRiseSlot : fanLibrarySlot,
-];
+const buildNavItems = (isArtist: boolean) =>
+  isArtist
+    ? [
+        { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
+        artistStudioSlot,
+        artistRiseSlot,
+      ]
+    : [
+        { href: '/home', label: 'Home', icon: Home, tourId: 'nav-home' },
+        fanLibrarySlot,
+      ];
 
 export function Navigation() {
   const pathname = usePathname();

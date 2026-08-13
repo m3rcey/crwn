@@ -134,13 +134,17 @@ describe('positioning may not drift back', () => {
 });
 
 describe('renamed surfaces stay renamed', () => {
-  it('Action Plan is presented as Needs You', () => {
+  it('Action Plan is presented as Needs You wherever it is presented at all', () => {
+    // The tile and hub entry were removed by the 2026-08-13 surface reduction, so the assertion
+    // moved to the surviving surface: the page itself. The retired name must not return anywhere.
+    const page = read('src/app/action-plan/page.tsx');
     const studio = read('src/app/(main)/studio/page.tsx');
     const hub = read('src/components/layout/AccountHub.tsx');
-    expect(studio).toContain("title: 'Needs You'");
-    expect(hub).toContain("label: 'Needs You'");
-    expect(studio).not.toContain("title: 'Action Plan'");
-    expect(hub).not.toContain("label: 'Action Plan'");
+    expect(page).toContain('What needs you');
+    for (const src of [page, studio, hub]) {
+      expect(src).not.toContain("title: 'Action Plan'");
+      expect(src).not.toContain("label: 'Action Plan'");
+    }
   });
 });
 

@@ -185,47 +185,32 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
   // Team and Promise Calendar were briefly Studio-grid-only and read as deleted.
   // Studio still shows the same destinations as a visual grid; neither surface is
   // exclusive, so there is no wrong place to look.
+  // PRE-PMF SURFACE REDUCTION, 2026-08-13. Founder decision.
+  //
+  // This index carried every destination CRWN has ever built, because it was written to be the
+  // COMPLETE index for an artist who had learned the old sixteen-tab strip. That artist does not
+  // exist yet: there are nine accounts and no qualified-market validation. What the index now
+  // holds is the path to a first paying member and the screens needed to run that, and nothing
+  // else.
+  //
+  // EVERY REMOVED DESTINATION STILL WORKS. Quest board, Manager, Needs You, Playbooks, Royalty
+  // Readiness, Fan Drives, Campaign Hub, Road To, Proof of Demand, City Unlocks, Fan Missions,
+  // Clip Bounties, Fan Squads, Fan Suggestions, Live Clip Controls, Sync, Team Splits and DMs keep
+  // their routes, tables, rows and APIs. Several are the landing destination of a public
+  // calculator's CTA (/missions/new, /proof-of-demand/new, /bounties/new, /royalty-readiness), so
+  // hiding the menu entry must never become a 404. Re-add an entry when a qualified pilot artist
+  // needs it to reach a first paying member.
   const artistSections: HubSection[] = [
     {
       title: 'Grow',
       links: [
         { label: 'Rise Mode', href: '/profile/artist', icon: TrendingUp },
-        // The quest board (levels, XP, daily and weekly moves) left Rise Mode on 2026-08-13 so
-        // that screen holds one move. The engine still runs on every Rise Mode load; this is
-        // where an artist goes to LOOK at it.
-        { label: 'Quest board', href: '/quests', icon: Trophy, hub: true },
         { label: 'Studio (all tools)', href: '/studio', icon: LayoutDashboard },
-        { label: 'Manager', href: '/studio/manager', icon: Sparkles, hub: true },
-        { label: 'Needs You', href: '/action-plan', icon: ClipboardList, hub: true },
-        { label: 'Playbooks', href: '/playbooks', icon: BookOpen, hub: true },
-        // F-10: was Studio-only, violating the complete-index rule ("if you add a
-        // destination to Studio, add it here too").
-        { label: 'Royalty Readiness', href: '/royalty-readiness', icon: ShieldCheck, hub: true },
         { label: 'Analytics', href: '/studio/analytics', icon: BarChart3, hub: true },
         { label: 'Fan CRM', href: '/studio/fans', icon: Users, hub: true },
-        { label: 'Message your fans', href: '/messages', icon: MessageCircle },
         { label: 'Promise Calendar', href: '/studio/promise', icon: CalendarCheck, hub: true },
-      ],
-    },
-    {
-      // The connector tools that were Studio-grid-only. This menu is meant to be
-      // the COMPLETE index, so demand/reach and fan-activation flows belong here
-      // too. They carry ?from=hub (hub: true) and render a HubBackControl, so
-      // their X returns to this menu just like every HubPage screen does.
-      title: 'Reach and fans',
-      links: [
-        { label: 'Fan Drives', href: '/fan-campaigns', icon: Megaphone, hub: true },
-        { label: 'Campaign Hub', href: '/campaign-hub', icon: Megaphone, hub: true },
-        { label: 'Road To', href: '/campaigns', icon: Milestone, hub: true },
-        { label: 'Proof of Demand', href: '/proof-of-demand', icon: Flame, hub: true },
-        { label: 'City Unlocks', href: '/city-unlocks', icon: MapPin, hub: true },
-        { label: 'Fan Missions', href: '/missions', icon: Target, hub: true },
-        { label: 'Clip Bounties', href: '/bounties', icon: Scissors, hub: true },
-        { label: 'Fan Squads', href: '/squads', icon: Shield, hub: true },
-        { label: 'Fan Suggestions', href: '/missions/suggestions', icon: Lightbulb, hub: true },
-        // Hub-only, like Analytics / Fan CRM / Team Splits / Promise Calendar: a proof library is
-        // a reference screen you review, not a destination you make things in, so it stays out of
-        // the Studio grid. NAV-001 asserts Studio -> Hub parity only, so this needs no exception.
+        // A proof library is a reference screen you review, not a destination you make things in,
+        // so it is hub-only. NAV-001 asserts Studio -> Hub parity only, so this needs no exception.
         { label: 'Fan Proof', href: '/studio/testimonials', icon: MessageSquareQuote, hub: true },
       ],
     },
@@ -237,8 +222,6 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Shop', href: '/studio/shop', icon: ShoppingBag, hub: true },
         { label: 'Offer Builder', href: '/offers', icon: Tag, hub: true },
         { label: 'Live', href: '/studio/live', icon: Radio, hub: true },
-        { label: 'Live Clip Controls', href: '/clip-controls', icon: Clapperboard, hub: true },
-        { label: 'Sync', href: '/studio/sync', icon: Film, hub: true },
       ],
     },
     {
@@ -248,7 +231,9 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
         { label: 'Fan tiers and pricing', href: '/account/tiers', icon: Coins, hub: true },
         { label: 'Payouts and tax', href: '/account/payouts', icon: Wallet, badge: !stripeConnected, hub: true },
         { label: 'Plan and billing', href: '/account/billing', icon: CreditCard, hub: true },
-        { label: 'Team Splits', href: '/studio/team', icon: Split, hub: true },
+        // STAYS. This is the artist-side control for the Share-to-Earn commission rate, and
+        // Share-to-Earn is an actively promoted calculator. Hiding it would make a live marketing
+        // promise unconfigurable.
         { label: 'Referrals and clippers', href: '/account/referrals', icon: Gift, hub: true },
       ],
     },
@@ -269,28 +254,18 @@ export function AccountHub({ open, onClose }: { open: boolean; onClose: () => vo
     },
   ];
 
+  // The fan product is the artist page they were sent to, their library, and their money.
+  // Explore, the fan calendar, and the whole missions/squads/bounties/impact economy are hidden:
+  // combined production usage across all of them is a handful of rows and zero fan referrals.
+  //
+  // /library is DELIBERATELY the money destination now (NAV-002). It carries ReferralDashboard,
+  // which is the full Share-to-Earn loop: referral links, commissions, fan Stripe Connect and the
+  // $25 cashout. /earn duplicated that and added clip earnings, so it is the one that goes.
   const fanSections: HubSection[] = [
     {
-      title: 'Explore and listen',
+      title: 'Your music and money',
       links: [
-        { label: 'Explore artists', href: '/explore', icon: Compass },
         { label: 'My library', href: '/library', icon: Library },
-        { label: 'My calendar', href: '/my-calendar', icon: CalendarCheck },
-      ],
-    },
-    // F-08/F-12: "Earn" used to point at /command (missions), while the page with the fan's
-    // actual held/available/paid money (/earn) had no entry at all. Missions and Earnings are
-    // different jobs (Decision E) and the fan's own commitments now have a complete index,
-    // same rule as the artist hub.
-    {
-      title: 'Missions and earnings',
-      links: [
-        { label: 'Missions', href: '/command', icon: Flag },
-        { label: 'Earnings', href: '/earn', icon: Coins },
-        { label: 'My missions', href: '/my-missions', icon: Zap },
-        { label: 'My squads', href: '/my-squads', icon: Users },
-        { label: 'My bounties', href: '/my-bounties', icon: Scissors },
-        { label: 'My impact', href: '/impact', icon: TrendingUp },
       ],
     },
     {

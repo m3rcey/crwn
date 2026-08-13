@@ -16,15 +16,9 @@ export const artistHomeTourSteps: DriveStep[] = [
       align: 'start',
     },
   },
-  {
-    element: '[data-tour="nav-explore"]',
-    popover: {
-      title: 'Discover artists',
-      description: 'Fans discover new artists here. Once your page is set up, you will show up in the browse and search results.',
-      side: 'top',
-      align: 'center',
-    },
-  },
+  // The Explore step was removed with the Explore nav slot (2026-08-13 pre-PMF surface
+  // reduction). A tour step whose element never renders makes driver.js skip silently, but it
+  // also leaves a lie in the script: it told fans to browse a catalogue of nine artists.
   {
     element: '[data-tour="home-help"]',
     popover: {

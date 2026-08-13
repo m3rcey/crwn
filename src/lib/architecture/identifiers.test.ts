@@ -9,6 +9,7 @@ import {
   FROZEN_FUNNEL_STAGES,
   FROZEN_POPUP_KEYS,
   FROZEN_TOUR_IDS,
+  RETIRED_TOUR_IDS,
   COMPATIBILITY_ROUTES,
 } from './invariants';
 import { existsSync, listSourceFiles, readStripped, violation } from './sourceScan';
@@ -63,6 +64,22 @@ describe('ID-006 — tour persistence ids and compatibility routes', () => {
       ).toBe(true);
     }
   });
+  it('a retired anchor is never reused for a different surface', () => {
+    // Retiring a step (its surface was removed) replays nothing. REUSING the id for a new
+    // destination would: everyone who dismissed the old step would silently skip the new one,
+    // or worse, see it pointing somewhere else. So retired ids must stay absent from source.
+    const files = listSourceFiles('src');
+    for (const id of RETIRED_TOUR_IDS) {
+      const found = files.filter(f => readStripped(f).includes(`tourId: '${id}'`) || readStripped(f).includes(`data-tour="${id}"`));
+      expect(
+        found,
+        violation('ID-006', `retired tourId '${id}' was reused in ${found.join(', ')}. Pick a new id instead.`, {
+          docs: 'docs/crwn-brain/02-FEATURE-MAP.md',
+        }),
+      ).toEqual([]);
+    }
+  });
+
 
   it('every compatibility route survives', () => {
     for (const r of COMPATIBILITY_ROUTES) {

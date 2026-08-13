@@ -145,16 +145,23 @@ describe('route, label and analytics compatibility', () => {
     expect(PAGE).toContain("fetch('/api/action-plan')");
   });
 
-  it('the user-facing label is Needs You in exactly one place per surface', () => {
-    expect(STUDIO.match(/title: 'Needs You'/g) ?? []).toHaveLength(1);
-    expect(HUB.match(/label: 'Needs You'/g) ?? []).toHaveLength(1);
-    expect(STUDIO).not.toContain("title: 'Action Plan'");
-    expect(HUB).not.toContain("label: 'Action Plan'");
+  // The 2026-08-13 pre-PMF surface reduction removed the Needs You tile and hub entry: all three
+  // of its rules read features that are now hidden (0 clip bounties, 0 fan suggestions, 1 proof of
+  // demand), so the surface had nothing to say. The RENAME still has to hold wherever the surface
+  // is presented, and the route still has to resolve, so those properties moved to the page.
+  it('the user-facing label is the renamed one, and the retired name never comes back', () => {
+    expect(PAGE).toContain('What needs you');
+    for (const src of [PAGE, STUDIO, HUB]) {
+      expect(src).not.toContain("title: 'Action Plan'");
+      expect(src).not.toContain("label: 'Action Plan'");
+    }
   });
 
-  it('nav still points at the legacy href, so existing links keep working', () => {
-    expect(STUDIO).toContain("href: '/action-plan'");
-    expect(HUB).toContain("href: '/action-plan'");
+  it('the legacy href is not resurrected in navigation while the surface is hidden', () => {
+    // Hidden means hidden. If a nav entry comes back it must come back as 'Needs You', never as
+    // the retired 'Action Plan' label (asserted above), and this test should be updated with it.
+    expect(STUDIO).not.toContain("href: '/action-plan'");
+    expect(HUB).not.toContain("href: '/action-plan'");
   });
 
   it('the tour id is unchanged, so no artist loses their dismissed-tour state', () => {

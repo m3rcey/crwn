@@ -468,7 +468,7 @@ export const INVARIANTS: Invariant[] = [
     id: 'NAV-002',
     severity: 'P2',
     category: 'navigation',
-    rule: 'The fan AccountHub indexes the canonical fan destinations (calendar, missions, earnings, squads, bounties, impact). Fans can always navigate to their own commitments and money.',
+    rule: 'The fan AccountHub indexes the fan MONEY destination, so a fan who earned a commission can always navigate to it. Narrowed 2026-08-13 (pre-PMF surface reduction): the missions/squads/bounties/impact economy is hidden, so those entries went with it, but Share-to-Earn is actively marketed and its earnings + cashout surface (ReferralDashboard, on /library) must stay reachable. The PROPERTY is unchanged: a fan can always reach their own money.',
     owner: 'src/components/layout/AccountHub.tsx (fan sections)',
     sourceOfTruth: 'FAN_HUB_DESTINATIONS in this registry',
     enforcement: 'test',
@@ -479,7 +479,7 @@ export const INVARIANTS: Invariant[] = [
     id: 'NAV-003',
     severity: 'P2',
     category: 'navigation',
-    rule: 'The fan bottom-nav slot is labeled for what it opens (Missions -> /command); the earnings page (/earn) has its own hub entry. The tour anchor tourId nav-earn is a persistence key and stays.',
+    rule: 'Every bottom-nav slot is labeled for what it opens, and a surviving slot never changes its tourId (a persistence key: renaming one replays the tour for everyone who dismissed it). Rewritten 2026-08-13 (pre-PMF surface reduction): the fan slot is Library -> /library, which is where the fan money surface now lives; the Explore, Messages and Missions slots were removed and their anchors are simply no longer rendered, never reused.',
     owner: 'src/components/layout/Navigation.tsx',
     sourceOfTruth: 'buildNavItems',
     enforcement: 'test',
@@ -884,14 +884,23 @@ export const FROZEN_POPUP_KEYS: readonly string[] = [
 /** ID-006. Tour anchors that are persistence keys (localStorage dismissal state). */
 export const FROZEN_TOUR_IDS: readonly string[] = [
   'nav-home',
-  'nav-explore',
-  'nav-earn',
   'nav-studio',
   'nav-rise',
   'nav-library',
-  'nav-messages',
   'action-plan',
 ];
+
+/**
+ * ID-006. Anchors whose SURFACE was retired (2026-08-13 pre-PMF surface reduction removed the
+ * Explore, Messages and fan Missions nav slots).
+ *
+ * The rule these came from is "never RENAME a tour id, because dismissal state persists under it
+ * and renaming replays the tour for everyone". Removing the step entirely does not replay
+ * anything: it just never fires. What WOULD hurt is reusing one of these ids for a different
+ * destination later, which is why they are listed here and asserted absent rather than deleted
+ * from the registry.
+ */
+export const RETIRED_TOUR_IDS: readonly string[] = ['nav-explore', 'nav-earn', 'nav-messages'];
 
 /** ID-006. Routes kept alive purely for deployed clients, sent emails, and cached PWAs. */
 export const COMPATIBILITY_ROUTES: ReadonlyArray<{ path: string; reason: string }> = [
@@ -904,12 +913,13 @@ export const COMPATIBILITY_ROUTES: ReadonlyArray<{ path: string; reason: string 
 
 /** NAV-002. Fan destinations the fan AccountHub must index (F-08 / F-12). */
 export const FAN_HUB_DESTINATIONS: readonly string[] = [
-  '/earn',
-  '/my-calendar',
-  '/my-missions',
-  '/my-squads',
-  '/my-bounties',
-  '/impact',
+  // Narrowed by the 2026-08-13 pre-PMF surface reduction. /library is the fan's money surface:
+  // it mounts ReferralDashboard (referral links, commissions, fan Stripe Connect, $25 cashout),
+  // which is the complete Share-to-Earn loop and an actively promoted calculator's payoff.
+  // /earn duplicated that dashboard and added clip earnings, so it was the copy that went.
+  // The missions/squads/bounties/impact routes still exist and still work; they are simply not
+  // indexed by default while zero fan referrals and near-zero mission rows exist.
+  '/library',
 ];
 
 /** TERM-001. Retired user-facing vocabulary. Matched only in label/title/JSX-text
@@ -998,8 +1008,11 @@ export const FEATURES: readonly FeatureContract[] = [
     expectedState: 'live',
     flag: null,
     gateModule: null,
+    // Hidden from the Studio grid by the 2026-08-13 pre-PMF surface reduction (0 campaigns, 0
+    // participants, and its only measurement source `referrals` is also 0). The delivery surface
+    // is now the ROUTE, which is what "reachable" has to mean for a hidden feature.
     surfaces: [
-      { file: 'src/app/(main)/studio/page.tsx', mustContain: "'/fan-campaigns'" },
+      { file: 'src/app/fan-campaigns/page.tsx', mustContain: 'export' },
       { file: 'src/app/api/fan-campaigns/route.ts', mustContain: 'export' },
     ],
     migration: 'schema-phase3-fan-campaigns.sql',
@@ -1031,9 +1044,13 @@ export const FEATURES: readonly FeatureContract[] = [
     expectedState: 'live',
     flag: 'royalty_readiness',
     gateModule: 'src/lib/royalty/readiness.ts',
+    // Hidden from Studio AND the hub by the 2026-08-13 pre-PMF surface reduction. The FLAG STAYS
+    // ON and the feature is untouched: its delivery surface is now its own route plus the
+    // royalty-readiness-check calculator's conversionTarget, which is the funnel path that
+    // actually matters. A diagnostic does not need a default nav slot before anyone has data.
     surfaces: [
-      { file: 'src/app/(main)/studio/page.tsx', mustContain: "'/royalty-readiness'" },
-      { file: 'src/components/layout/AccountHub.tsx', mustContain: "'/royalty-readiness'" },
+      { file: 'src/app/(main)/royalty-readiness/page.tsx', mustContain: 'export' },
+      { file: 'src/lib/leadMagnets/registry.ts', mustContain: "route: '/royalty-readiness'" },
     ],
     migration: 'schema-phase2-royalty-readiness.sql',
     notes:

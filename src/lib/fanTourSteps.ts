@@ -16,24 +16,11 @@ export const fanHomeTourSteps: DriveStep[] = [
       align: 'start',
     },
   },
-  {
-    element: '[data-tour="nav-explore"]',
-    popover: {
-      title: 'Discover artists',
-      description: 'Search for artists or browse the full catalog. When you find someone you like, tap their page to listen.',
-      side: 'top',
-      align: 'center',
-    },
-  },
-  {
-    element: '[data-tour="nav-earn"]',
-    popover: {
-      title: 'Missions',
-      description: 'Your hub to promote artists: your daily move and your missions live here. Your money lives in Earnings, one tap away in the menu.',
-      side: 'top',
-      align: 'center',
-    },
-  },
+  // The Explore step was removed with the Explore nav slot (2026-08-13 pre-PMF surface
+  // reduction). A tour step whose element never renders makes driver.js skip silently, but it
+  // also leaves a lie in the script: it told fans to browse a catalogue of nine artists.
+  // The Missions step went with the fan missions nav slot. The fan's money is on /library now
+  // (ReferralDashboard), which the Library step below already covers.
   {
     popover: {
       title: 'Music never stops',

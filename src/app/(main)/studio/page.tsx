@@ -46,54 +46,36 @@ const STUDIO_CARDS: StudioCard[] = [
 
   // 3. GO LIVE — perform for the room
   { href: '/studio/live',   title: 'Live',               image: '/studio_live.jpg',  hueRotate: 310 },
-  { href: '/clip-controls', title: 'Live Clip Controls', image: '/studio_clips.jpg', hueRotate: 310 },
 
-  // 4. GROW — get discovered and pull demand
-  // Z12 dilution audit: this grid carried NINE campaign-shaped destinations, and none of them was
-  // a decision. "Five nav slots for one concept" is the exact dilution doc 23 section 17 named.
-  // Four have been pulled from the grid (Road To, Proof of Demand, City Unlocks, Fan Suggestions).
-  // NOTHING WAS DELETED: every route, table and row is untouched, and all four remain in the
-  // hamburger AccountHub, which is deliberately the complete index. This removes PROMINENCE, not
-  // functionality, which is the right trade while there is no usage evidence either way.
-  { href: '/campaign-hub',    title: 'Campaign Hub',    image: '/studio_campaign.jpg',    hueRotate: 90 },
-  { href: '/studio/sync',     title: 'Sync',            image: '/studio_sync.jpg',        hueRotate: 90 },
-
-  // 5. ACTIVATE FANS — turn listeners into a movement.
-  // Fan Drives is the Z11 Campaign spine and the only campaign surface that starts from a
-  // DIAGNOSIS: it refuses to run when the Constraint Engine says something else matters more.
-  // It leads this group for that reason. The primitives below it stay because each carries real
-  // fan-facing state (missions and squads) or a live money rail (Clip-to-Earn).
-  { href: '/fan-campaigns',        title: 'Fan Drives',      image: '/studio_campaign.jpg',    hueRotate: 255 },
-  { href: '/missions',             title: 'Fan Missions',    image: '/studio_missions.jpg',    hueRotate: 255 },
-  { href: '/bounties',             title: 'Clip Bounties',   image: '/studio_bounties.jpg',    hueRotate: 310 },
-  { href: '/squads',               title: 'Fan Squads',      image: '/studio_squads.jpg',      hueRotate: 255 },
-
-  // 6. RUN THE BUSINESS — the brain and the strategy tools you ACT in.
-  // Reference views (Analytics, Fan CRM) and set-once config (Team Splits, Promise
-  // Calendar) deliberately live in the hamburger AccountHub only, not this grid:
-  // Studio is for doing the work, the hamburger is the complete manage-it index.
-  // Z5: named for what it actually holds (events, deadlines, things fans are waiting on) rather
-  // than "Action Plan", which read as a second strategy surface sitting next to Manager. Route and
-  // analytics are unchanged; only the label moved.
-  { href: '/action-plan',    title: 'Needs You',   image: '/studio_actionplan.jpg', hueRotate: 170 },
-  { href: '/studio/manager', title: 'Manager',     image: '/studio_manager.jpg',    hueRotate: 170 },
-  { href: '/playbooks',      title: 'Playbooks',   image: '/studio_playbooks.jpg',  hueRotate: 170 },
+  // PRE-PMF SURFACE REDUCTION, 2026-08-13. Founder decision.
+  //
+  // This grid carried FIFTEEN tiles for a product with nine artists and no qualified-market
+  // validation. It now carries the five an artist needs to build something that can take money:
+  // make it (Music, Albums), sell it (Shop, Offer Builder), perform it (Live).
+  //
+  // ELEVEN TILES WERE REMOVED AND NOTHING WAS DELETED. Live Clip Controls, Campaign Hub, Sync,
+  // Fan Drives, Fan Missions, Clip Bounties, Fan Squads, Needs You, Manager, Playbooks and
+  // Royalty Readiness all keep their routes, tables, rows, APIs and crons. This removes DEFAULT
+  // PROMINENCE, which is the only cost that was being paid: every visible tile is a thing the
+  // founder maintains, explains, keeps truthful in marketing, and that an artist must decide
+  // about before doing the one thing that earns them a first paying member.
+  //
+  // THEY ARE STILL REACHABLE, AND THAT IS LOAD-BEARING. Several are the landing destination of a
+  // public calculator's CTA, so hiding the tile must not orphan the funnel:
+  //   /missions/new        <- fan-mission-generator
+  //   /proof-of-demand/new <- proof-of-demand-test-builder
+  //   /bounties/new        <- clip-to-earn-campaign-planner
+  //   /royalty-readiness   <- royalty-readiness-check
+  // Old shared links and ManyChat keywords keep working for the same reason.
+  //
+  // Re-add a tile when a qualified pilot artist needs it to reach a first paying member, not
+  // because it looks empty here.
 ];
 
-// Dark-launched tiles. Each stays hidden until its admin_settings flag is on, so
-// flipping the flag alone launches the feature with no code change. The answer is
-// cached for the session: Studio is a hub artists bounce in and out of all day
-// and must not pay a round trip on every mount.
-const ROYALTY_READINESS_CARD: StudioCard = {
-  href: '/royalty-readiness',
-  title: 'Royalty Readiness',
-  image: '/studio_royalty.jpg',
-  // Blue = the strategy/planning cluster (Playbooks, Action Plan, Promise Calendar),
-  // which is where a diagnostic belongs. Verified by applying the same feColorMatrix
-  // the browser will: 170 lands on a clean blue, 200 drifts periwinkle.
-  hueRotate: 170,
-};
-let royaltyReadinessEnabled: boolean | null = null;
+// The Royalty Readiness tile lived here behind its admin_settings flag. The FLAG IS STILL ON and
+// the feature is untouched: /royalty-readiness works, and the royalty-readiness-check calculator's
+// CTA still lands on it, which is the funnel path that matters. Only the Studio tile is gone, so
+// the grid is not asking an artist to consider a diagnostic before they have anything to diagnose.
 
 // Studio is a hub artists bounce in and out of all day. Without a cache the
 // page blocks on a Supabase round trip behind a full-page spinner on EVERY
@@ -119,27 +101,7 @@ export default function StudioPage() {
   const [isArtist, setIsArtist] = useState<boolean | null>(
     () => (user && knownArtists.has(user.id) ? true : null)
   );
-  const [showRoyalty, setShowRoyalty] = useState<boolean>(() => royaltyReadinessEnabled === true);
 
-  // Dark-launch flag for the Royalty Readiness tile. Fetched once per session and
-  // never blocks the grid: if it fails, the tile stays hidden, which is the safe
-  // direction for a feature that is not launched yet.
-  useEffect(() => {
-    if (!user || royaltyReadinessEnabled !== null) return;
-    let active = true;
-    fetch('/api/royalty-readiness')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        royaltyReadinessEnabled = !!data?.enabled;
-        if (active) setShowRoyalty(royaltyReadinessEnabled);
-      })
-      .catch(() => {
-        royaltyReadinessEnabled = false;
-      });
-    return () => {
-      active = false;
-    };
-  }, [user]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -210,7 +172,7 @@ export default function StudioPage() {
             tile's route chunk while the grid is on screen, so tapping a tool
             paints immediately instead of spinning while its code downloads.
             That download-on-tap was what made the old dashboard tabs feel slow. */}
-        {(showRoyalty ? [...STUDIO_CARDS, ROYALTY_READINESS_CARD] : STUDIO_CARDS).map((card) => (
+        {STUDIO_CARDS.map((card) => (
           <Link
             key={card.href}
             href={card.href}

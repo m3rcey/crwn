@@ -421,9 +421,19 @@ describe('Manager stays distinct from the other canonical owners', () => {
   });
 
   it('Manager is not duplicated in navigation', () => {
+    // The property is NOT DUPLICATED, so zero satisfies it. The 2026-08-13 pre-PMF surface
+    // reduction hid Manager from both surfaces (7 actions and 7 insights all time; 1 approved,
+    // 1 rejected, 3 abandoned for 130 days). The route and the on-demand API are untouched, and
+    // the founder handles "why does this matter" by hand during the three-artist pilot. If it
+    // comes back it comes back ONCE per surface, which is what this still enforces.
     const count = (src: string) => (src.match(/\/studio\/manager/g) || []).length;
-    expect(count(ACCOUNT_HUB_SRC), 'AccountHub must list Manager exactly once').toBe(1);
-    expect(count(STUDIO_SRC), 'Studio must list Manager exactly once').toBe(1);
+    expect(count(ACCOUNT_HUB_SRC), 'AccountHub must not list Manager more than once').toBeLessThanOrEqual(1);
+    expect(count(STUDIO_SRC), 'Studio must not list Manager more than once').toBeLessThanOrEqual(1);
+  });
+
+  it('the Manager route survives being hidden, so old links and analytics still resolve', () => {
+    const { existsSync } = require('node:fs') as typeof import('node:fs');
+    expect(existsSync('src/app/(main)/studio/manager/page.tsx')).toBe(true);
   });
 });
 

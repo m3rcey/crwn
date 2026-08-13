@@ -61,10 +61,13 @@ describe('Action Plan owns events and obligations, not strategy', () => {
 
 describe('the artist is not offered two strategy surfaces side by side', () => {
   it('no longer labels the events feed as a plan competing with Manager', () => {
-    expect(STUDIO).toContain("title: 'Needs You'");
-    expect(STUDIO).not.toContain("title: 'Action Plan'");
-    expect(HUB).toContain("label: 'Needs You'");
-    expect(HUB).not.toContain("label: 'Action Plan'");
+    // Strengthened by the 2026-08-13 surface reduction: BOTH surfaces are now hidden from
+    // navigation entirely, so they cannot compete at all. The retired label must still never
+    // reappear (F-14), which the walk below enforces across every user-facing file.
+    for (const src of [STUDIO, HUB]) {
+      expect(src).not.toContain("title: 'Action Plan'");
+      expect(src).not.toContain("label: 'Action Plan'");
+    }
   });
 
   it('the retired name has not escaped onto any other user-facing surface (F-14)', () => {
@@ -91,14 +94,19 @@ describe('the artist is not offered two strategy surfaces side by side', () => {
     }
   });
 
-  it('lists Manager exactly once in each navigation surface', () => {
-    expect(STUDIO.match(/href: '\/studio\/manager'/g) ?? []).toHaveLength(1);
-    expect(HUB.match(/href: '\/studio\/manager'/g) ?? []).toHaveLength(1);
+  it('never lists Manager more than once in a navigation surface', () => {
+    // Zero is the current state and satisfies the property (see managerBoundaries.test.ts).
+    expect((STUDIO.match(/href: '\/studio\/manager'/g) ?? []).length).toBeLessThanOrEqual(1);
+    expect((HUB.match(/href: '\/studio\/manager'/g) ?? []).length).toBeLessThanOrEqual(1);
   });
 
-  it('keeps the route itself, so existing links and analytics still resolve', () => {
-    expect(STUDIO).toContain("href: '/action-plan'");
-    expect(HUB).toContain("href: '/action-plan'");
+  it('keeps both ROUTES alive while they are hidden, so old links and analytics still resolve', () => {
+    // This is the assertion that actually protects the artist: hiding a surface must never 404
+    // a link that is already in an email, a notifications.link row, or a calculator CTA.
+    const { existsSync } = require('node:fs') as typeof import('node:fs');
+    expect(existsSync('src/app/action-plan/page.tsx')).toBe(true);
+    expect(existsSync('src/app/api/action-plan/route.ts')).toBe(true);
+    expect(existsSync('src/app/(main)/studio/manager/page.tsx')).toBe(true);
   });
 });
 
