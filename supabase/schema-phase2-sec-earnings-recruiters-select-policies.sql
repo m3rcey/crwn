@@ -161,17 +161,31 @@ REVOKE ALL ON public.earnings FROM anon;
 -- ---------------------------------------------------------------------------------------
 ALTER TABLE public.recruiters ENABLE ROW LEVEL SECURITY;
 
+-- NOTE the condition here is BROADER than the earnings loop above, and deliberately so.
+-- `earnings` keeps two scoped policies because it has two legitimate browser readers, so
+-- there only a permissive USING(true) is wrong. `recruiters` has ZERO browser readers and
+-- is meant to be deny-all over the Data API, so ANY policy naming a Data API role is wrong,
+-- permissive or not. The first run of this migration (2026-08-12) proved why that matters:
+-- the loop dropped nothing, the COMMIT succeeded, and then assertion 5 failed because a
+-- NON-permissive recruiters policy reachable by a Data API role had survived. The migration
+-- was asserting a property it never actually enforced. This predicate is now character for
+-- character the one assertion 5 checks, so enforcement and assertion cannot drift apart.
+--
+-- Dropping these is functionally a no-op: the REVOKEs below strip the table grants, and
+-- Postgres checks table privileges BEFORE it evaluates RLS policies, so such a policy is
+-- already unreachable. service_role is untouched and bypasses RLS regardless, which is why
+-- /api/recruit/dashboard and the /join/[code] server component keep working.
 DO $$
 DECLARE pol record;
 BEGIN
   FOR pol IN
     SELECT policyname FROM pg_policies
      WHERE schemaname = 'public' AND tablename = 'recruiters'
-       AND (qual = 'true' OR with_check = 'true')
-       AND roles <> ARRAY['service_role']::name[]
+       AND ('anon' = ANY(roles) OR 'authenticated' = ANY(roles)
+            OR '-' = ANY(roles) OR 'public' = ANY(roles))
   LOOP
     EXECUTE format('DROP POLICY IF EXISTS %I ON public.recruiters', pol.policyname);
-    RAISE NOTICE 'Dropped permissive recruiters policy % (was reachable by non-service roles)', pol.policyname;
+    RAISE NOTICE 'Dropped recruiters policy % (was reachable by a Data API role)', pol.policyname;
   END LOOP;
 END $$;
 

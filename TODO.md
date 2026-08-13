@@ -51,13 +51,21 @@ responsible for. Do not work those.
 
 ### P1 — real risk or real friction, but nothing is on fire
 
-- [ ] **Apply the earnings/recruiters SELECT policy migration.** Open and run:
+- [ ] **RE-RUN the earnings/recruiters SELECT policy migration (the fixed version).** Open and run:
         supabase/schema-phase2-sec-earnings-recruiters-select-policies.sql
-      Both tables were deliberately excluded from the earlier SEC-012 migration because they have
-      browser readers, so a bare RLS enable would have broken an artist's own earnings view. They
-      are protected in production today, but that protection lives only in the live database and
-      is not reproducible from the repo, so a branch database or a PITR restore would come up
-      open. Verify after with: npm run verify:migrations
+      Your first run on 2026-08-12 DID take effect: the transaction committed, and both tables now
+      answer the anon key with 42501 instead of 200, so the access hole is closed. What failed was
+      the self-verify block that runs after COMMIT, on this line:
+        MIGRATION FAILED: recruiters has a policy reachable by anon/authenticated/PUBLIC
+      That was a real defect in the migration, not a fluke. Its cleanup loop only dropped policies
+      whose USING clause was literally `true`, but its assertion forbids ANY policy naming a Data
+      API role, so a non-permissive recruiters policy survived and the file was asserting something
+      it never enforced. The loop now uses the exact predicate the assertion checks. Re-running is
+      safe and idempotent: everything else in the file is CREATE OR REPLACE / DROP IF EXISTS /
+      REVOKE. Watch for a `NOTICE: Dropped recruiters policy <name>` line, and tell me the name,
+      because nothing in version control records what that policy was.
+      Expected on success: `earnings + recruiters verified: ...` and no exception.
+      Verify after with: npm run verify:migrations (both SEC-EARN lines must read DENIED (closed))
 
 - [ ] **Sign the three remaining unsubscribe senders, then flip the legacy flag.** Unsubscribe is
       already safe (the GET only renders a confirm page; the mutation needs a POST with a
