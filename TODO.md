@@ -397,8 +397,8 @@ Things that are never finished. Cadence, then the thing.
   bug, not a bad lead. Tell Claude.
 
 - **Sanity-check the Constraint Engine's verdicts as real artists accumulate data.** Live since
-  2026-08-03. Rise Mode now shows ONE corrective action above the roadmap when the engine has
-  enough evidence, and nothing at all when it does not. Every threshold is a first guess made
+  2026-08-03. Since 2026-08-13 the engine's verdict IS Rise Mode's next move when it has enough
+  evidence, and the roadmap milestone leads when it does not. Every threshold is a first guess made
   with zero cohort data, in one file:
   [`src/lib/constraint/thresholds.ts`](src/lib/constraint/thresholds.ts). Same situation as the
   lead score bands, and they were wrong once.
