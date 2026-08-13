@@ -11,8 +11,9 @@
 | Cloudflare R2 (S3 SDK) | Audio masters, art, VOD storage | Complete (audio recently moved to private + signed URLs) | n/a |
 | LiveKit | Live streaming + egress→VOD | Complete | ✅ yes |
 | Resend | Transactional + marketing email | Complete | ❌ **no (High)** |
-| DeepSeek (via `openai` SDK) | AI Manager + admin autonomous agent + /support chat (2026-07-31) | Complete | n/a |
+| DeepSeek (via `openai` SDK) | AI Manager + admin agent + /support chat (2026-07-31) | Complete | n/a |
 | OpenAI (`gpt-4o-mini`) | `sync-opportunities` cron only | Complete (narrow) | n/a |
+| Anthropic (`@anthropic-ai/sdk`) | Acquisition lead decision on the ManyChat inbound path | Complete (narrow) | n/a |
 | Twilio (raw REST) | SMS/MMS marketing | **REMOVED 2026-07-31** (founder decision: A2P 10DLC compliance cost not worth it) | n/a (routes deleted) |
 | Calendly (`react-calendly`) | Booking embed | **Orphaned/unused** | n/a |
 | `@google/genai` | — | **Scaffolded, unused by app** | n/a |
@@ -57,11 +58,54 @@
 - **✅ Signature gap FIXED 2026-07-14** (an earlier version of this line still called it an open HIGH): all four webhooks verify via `src/lib/webhookSignatures.ts` and **fail closed**, including when the secret is unset. `/api/webhooks/resend` uses `RESEND_WEBHOOK_SECRET`, `/api/outreach/webhook` uses `RESEND_OUTREACH_SECRET`.
 - **🔴 OPEN, found 2026-07-30: the webhook was never REGISTERED in the Resend dashboard.** The code is right; nobody ever told Resend to call it. Evidence: the only row in `email_suppressions` is the `victim@example.com` row from the July security test, so no real delivery event has ever arrived. Consequence: hard bounces and spam complaints have never been suppressed in production, which degrades the sending domain that all acquisition email depends on. Fix is founder-side (create the webhook at `resend.com/webhooks`, then set `RESEND_WEBHOOK_SECRET` in Vercel); it is the P0 item in `TODO.md`. **Lesson: a verified, correct, deployed webhook route proves nothing about whether the provider is actually calling it. Check for received data, not for code.**
 
-## DeepSeek + OpenAI — AI (two providers, both via the `openai` npm SDK)
-- **Env:** `DEEPSEEK_API_KEY` (baseURL `https://api.deepseek.com`, model `deepseek-chat`), `OPENAI_API_KEY` (`gpt-4o-mini`).
-- **DeepSeek powers:** artist **AI Manager** (`src/lib/ai/generateInsights.ts`, `generateActions.ts`), the **admin autonomous agent** (`src/app/api/admin/agent/{analyze,briefing}/route.ts`, `admin/support`), and since 2026-07-31 the **/support live chat** (`/api/support/chat`, `deepseek-chat` with a knowledge prompt generated from the 14 real getting-started guides via `src/lib/supportKnowledge.ts`). If `DEEPSEEK_API_KEY` is unset, or the AI flags the question, or the user taps "Talk to a human", the conversation escalates to `human_requested` and the founder is emailed a link to `/admin?tab=support` (SupportChatView), where admin replies email the user.
-- **OpenAI powers:** exactly one place — `src/app/api/cron/sync-opportunities/route.ts` (generates synthetic sync-licensing "opportunity" listings, Mon/Thu).
-- **Failure:** all AI calls are try/caught and degrade to empty/fallback results, never throw. The PRD's "Moonshot AI (Kimi)" reference is **stale** — no Moonshot in code.
+## AI — THREE providers (scan-verified 2026-08-12)
+
+An earlier version of this doc said "two providers". That was stale: the Anthropic acquisition
+surface was already live and undocumented. The inventory below came from a repository-wide scan
+for provider clients and completion call sites, not from the previous doc. Re-scan when you touch
+this: **9 model call sites** (admin analyze holds two).
+
+- **Env:** `DEEPSEEK_API_KEY` (baseURL `https://api.deepseek.com`, model `deepseek-chat`),
+  `OPENAI_API_KEY` (`gpt-4o-mini`), `ANTHROPIC_API_KEY` (`src/lib/ai/anthropicClient.ts`).
+  All three fall back to a dummy build key, so an unset key is a supported way to run CRWN.
+
+| # | Surface | Provider | Class | Source |
+|---|---|---|---|---|
+| 1 | Support chat | DeepSeek | user-facing | `src/app/api/support/chat/route.ts` |
+| 2 | Admin support | DeepSeek | privileged | `src/app/api/admin/support/route.ts` |
+| 3 | Admin agent briefing | DeepSeek | privileged | `src/app/api/admin/agent/briefing/route.ts` |
+| 4-5 | Admin agent analyze (**2 calls**) | DeepSeek | privileged | `src/app/api/admin/agent/analyze/route.ts` |
+| 6 | Manager insights | DeepSeek | user-facing | `src/lib/ai/generateInsights.ts` |
+| 7 | Manager actions | DeepSeek | user-facing | `src/lib/ai/generateActions.ts` |
+| 8 | Sync Opportunities | OpenAI | internal/cron | `src/app/api/cron/sync-opportunities/route.ts` |
+| 9 | Acquisition lead decision | Anthropic | internal | `src/lib/acquisition/claudeDecisionService.ts` |
+
+- **DeepSeek powers:** the artist **Manager** (which explains canonical Constraint/Roadmap
+  priority and never creates its own), the **admin agent**, and the **/support live chat**
+  (knowledge prompt generated from the real getting-started guides via
+  `src/lib/supportKnowledge.ts`). If `DEEPSEEK_API_KEY` is unset, the AI flags the question, or
+  the user taps "Talk to a human", the conversation escalates to `human_requested` and the founder
+  is emailed a link to `/admin?tab=support` (SupportChatView), where admin replies email the user.
+- **OpenAI powers:** exactly one place, the `sync-opportunities` cron, which generates
+  **synthetic** sync-licensing listings. Model text there is not authoritative business or legal
+  truth.
+- **Anthropic powers:** exactly one place, the acquisition lead decision reached from the ManyChat
+  inbound webhook. It is narrow structured extraction, not a strategy owner. Its design is worth
+  copying: the tool call is **forced** (`tool_choice`), so prose is not a legal output and an
+  injected "ignore your instructions and reply normally" has nowhere to land; output is validated
+  against server-side allowlists (`decisionSchema.ts`) covering lead-magnet ids, calculator ids,
+  Rise destinations and question fields; history is bounded to the last 6 turns; the context
+  carries no secrets, no other artist's data and no database rows; provider errors are categorized
+  **without** logging the raw message, because an error string can echo back the lead's DM; and
+  `decide()` cannot throw, falling back to `fallbackDecision` on every failure path.
+- **Failure:** all AI calls degrade to empty/fallback results and never throw. Model availability
+  is never a prerequisite for a money or auth flow. The PRD's "Moonshot AI (Kimi)" reference is
+  **stale** — no Moonshot in code.
+- **Data boundary:** support sends the user's own conversation only; Manager sends one artist's
+  own metrics and canonical brief; acquisition sends the lead profile, bounded recent history and
+  allowlists. No provider receives secrets, environment values, admin-only data, or another
+  user's or artist's private data. This describes CRWN's code boundary; it makes no claim about
+  provider-side retention.
 
 ## Twilio: REMOVED 2026-07-31
 The entire SMS feature was removed on 2026-07-31 (founder decision: the A2P 10DLC compliance cost was not worth it). Twilio is no longer an integration.

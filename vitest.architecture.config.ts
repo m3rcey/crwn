@@ -7,11 +7,23 @@ import path from 'node:path';
 // network. The live counterparts are npm run verify:migrations (schema state)
 // and npm run verify:stripe (price state).
 //
-// This include list is the SUITE MANIFEST. Every test file named in an
-// invariant's enforcedBy (src/lib/architecture/invariants.ts) must appear here;
-// architecture.test.ts asserts that parity, so removing a line fails the suite
-// instead of silently shrinking it. All of these files also run in plain
-// `npm test` — this config is a fast, named subset, not a second test system.
+// This include list is the SUITE MANIFEST, protected by TWO assertions in
+// architecture.test.ts, because one of them was never enough:
+//
+//   1. Every test file named in an invariant's enforcedBy
+//      (src/lib/architecture/invariants.ts) must appear here.
+//   2. Every file in REQUIRED_SECURITY_SUITES must appear here.
+//
+// Assertion 2 exists because assertion 1 does not cover the cybersecurity
+// suites: no invariant names security.test.ts or headers.test.ts in enforcedBy,
+// so until 2026-08-12 deleting their two lines below shrank the security gate
+// and the whole suite still went green. This comment previously claimed the
+// parity check covered them. It did not. Verified by mutation on 2026-08-12:
+// with the security.test.ts line removed, assertion 1 passed and only
+// assertion 2 failed.
+//
+// All of these files also run in plain `npm test` — this config is a fast,
+// named subset, not a second test system.
 export default defineConfig({
   test: {
     environment: 'node',

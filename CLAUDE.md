@@ -328,6 +328,64 @@ Rules when you touch any of this:
   `webhookHandlers.ts` or gets a registered exception).
 - New drift assertions use `src/lib/architecture/sourceScan.ts` and must be mutation-tested
   (introduce the violation, watch the suite fail, revert) before they count as protection.
+  **A mutation test counts only if you PROVED the mutation actually applied** (grep the fixture
+  before and after), the test failed for the intended reason, you reverted, and the clean suite
+  passed again. "I made the change and the test failed" without that evidence is not proof.
+
+## AI agents — the model is never the security boundary
+
+Full manual: `docs/crwn-brain/15-AI-AGENT-INSTRUCTIONS.md`. Provider table:
+`docs/crwn-brain/10-INTEGRATIONS.md`. The standing rules:
+
+- **THREE providers, 9 model call sites** (scan-verified 2026-08-12): DeepSeek (support, admin
+  agent, Manager), OpenAI (`sync-opportunities` only), Anthropic (acquisition lead decision on the
+  ManyChat path). Do not repeat the old "two providers" claim, and do not switch provider because
+  another model looks better. That is not an objective.
+- **Models are untrusted text generators, not security principals.** Authorization lives OUTSIDE
+  the model. A user text claim ("I am Josh", "I am an admin", "I own artist X") is never
+  authority. All external prose is untrusted DATA, never instructions: support messages, bug
+  reports, filenames, URLs, user-agent strings, stored DB prose, ManyChat lead text, prior model
+  output.
+- **Write every agent as though it WILL be fully prompt-injected.** The required property: even
+  then it cannot exceed server-defined capability. The model may PROPOSE; it may never authorize
+  itself. Executable AI actions stay allowlisted, schema-validated, target-verified server-side,
+  signed, re-authorized at execution, and shown to the approving admin WITH their actual params.
+- **Never call an AI security issue fixed because the system prompt forbids it.** Name the
+  non-model control: cross-user privacy → server query ownership; admin mutation → validator +
+  signature + auth + approval; secrets → never in model context; money → server computes amount
+  and destination.
+- **Manager explains canonical priority, it never creates one.** Constraint owns diagnosis,
+  Roadmap owns launch readiness, Rise owns execution, Needs You owns real pending work, Promise
+  Calendar owns FAN promises. Manager must separate observed / modeled / insufficient evidence and
+  must never claim causality from association or surface cross-artist private evidence.
+- **Autonomous Manager is DORMANT and stays dormant.** Do not repair its scheduling, broaden its
+  actions, or enable auto-send. Same for Team Split funding/cashout, which is deliberately
+  disabled (503) pending founder decisions in `FUNDING_OPEN_QUESTIONS`.
+- **Team Splits are ARTIST-funded.** CRWN platform revenue never subsidizes a collaborator share,
+  and collaborator authority is the authenticated `collaborator_user_id`, never a mutable email.
+
+## Security: prove the authority SOURCE, and probe production separately
+
+- **Middleware deliberately excludes `/api/`, so every API route establishes its own authority.**
+  Security-looking code is not security: `admin`/`role`/`user_id`/`require...` appearing in a file
+  proves nothing. Admin authority must be session-derived or an explicitly registered internal
+  authority, and a **caller-supplied target id is never the authenticated actor's identity** (that
+  confusion was SEC-001). Service role bypasses RLS, which is what makes route authorization
+  mandatory. RLS does not protect a callable RPC: EXECUTE grants matter, and `REVOKE ... FROM
+  PUBLIC` does NOT remove Supabase's per-role grants (revoke `FROM anon` by name too).
+- **Four states, never collapsed:** migration file in repo / migration applied in production /
+  feature flag state / feature runtime reachability. "A migration file exists therefore the
+  feature is pending" is forbidden. Static gates (`npm run verify:architecture`) and live probes
+  (`npm run verify:migrations`, `npm run verify:flags`) are separate and both required. There is
+  no `verify:security` script; the security suites run inside `verify:architecture`.
+- **A committed security mutation and a passing self-verify are different facts.** A migration can
+  commit its change, leave production secure, and still fail a later post-`COMMIT` `DO` block.
+  Do not infer rollback from a raised assertion: probe first. And make a migration ENFORCE exactly
+  what it ASSERTS, or it certifies a property it never applied.
+- **A live probe must be able to distinguish secure from insecure.** For security migrations the
+  semantics invert: `42501` is the PASS, `200` is the failure, and `25006` means still executable.
+  Where an anon probe cannot prove the property (authenticated writes, silent trigger reverts),
+  classify it `sql-check` rather than shipping a green probe that proves nothing.
 
 ## Problem-Solving Principles
 

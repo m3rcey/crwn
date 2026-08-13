@@ -62,6 +62,34 @@ describe('invariant registry integrity', () => {
       ).toBe(true);
     }
   });
+
+  // The test above only protects files an invariant NAMES in enforcedBy. The cybersecurity
+  // suites are named by NO invariant, so until this existed they sat in the manifest on trust:
+  // deleting their two lines from vitest.architecture.config.ts silently shrank the security
+  // gate and every remaining test still passed. The config comment claimed otherwise, which is
+  // how a false assurance claim survives review. That is the SEC-001 lesson exactly, applied to
+  // the gate itself rather than to a route: an assertion nobody runs on the way to production
+  // is decoration. This list is deliberately hardcoded. These suites are load-bearing for the
+  // shipping gate, so their membership must be asserted directly and not derived from a
+  // registry that may or may not happen to mention them.
+  it('the cybersecurity suites are in the shipping gate, not merely present on disk', () => {
+    const config = readRaw('vitest.architecture.config.ts');
+    const REQUIRED_SECURITY_SUITES = [
+      'src/lib/architecture/security.test.ts',
+      'src/lib/architecture/headers.test.ts',
+      'src/lib/architecture/authorization.test.ts',
+      'src/lib/ai/actionValidity.test.ts',
+      'src/lib/ai/managerBoundaries.test.ts',
+      'src/lib/stripe/payoutOwnership.test.ts',
+    ];
+    for (const f of REQUIRED_SECURITY_SUITES) {
+      expect(existsSync(f), violation('REGISTRY', `required security suite ${f} does not exist`, { file: f })).toBe(true);
+      expect(
+        config.includes(f),
+        violation('REGISTRY', `${f} is a required security suite but is missing from vitest.architecture.config.ts, so verify:architecture would pass while a security invariant is broken`, { file: 'vitest.architecture.config.ts' }),
+      ).toBe(true);
+    }
+  });
 });
 
 describe('the drift system is test-time only', () => {
