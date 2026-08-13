@@ -18,10 +18,10 @@ interface FixedCosts {
   [key: string]: number;
 }
 
-// Variable costs stored as dollars per unit (e.g. $0.0079 per SMS)
+// Variable costs stored as dollars per unit. SMS/MMS rows were removed 2026-08-13: the SMS
+// feature was retired 2026-07-31 (A2P cost), so a cost input for it was a knob wired to nothing.
+// Any stale sms/mms keys already stored in admin_settings.variable_costs are simply ignored.
 interface VariableCosts {
-  sms_per_message: number;
-  mms_per_message: number;
   email_per_message: number;
 }
 
@@ -35,8 +35,6 @@ const COST_LABELS: Record<string, string> = {
 };
 
 const VARIABLE_COST_LABELS: Record<string, { label: string; hint: string }> = {
-  sms_per_message: { label: 'SMS (per message)', hint: 'Twilio ~$0.0079' },
-  mms_per_message: { label: 'MMS (per message)', hint: 'Twilio ~$0.02' },
   email_per_message: { label: 'Email (per message)', hint: 'Resend ~$0.00023' },
 };
 
@@ -50,8 +48,6 @@ export default function SettingsPanel({ userId, onSaved }: SettingsPanelProps) {
     cloudflare: 0,
   });
   const [variableCosts, setVariableCosts] = useState<VariableCosts>({
-    sms_per_message: 0.0079,
-    mms_per_message: 0.02,
     email_per_message: 0.00023,
   });
   const [saving, setSaving] = useState(false);

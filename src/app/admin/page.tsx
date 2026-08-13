@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createBrowserSupabaseClient } from '@/lib/supabase/client';
 import { Loader2, BarChart3, Users, Mail, Filter, Instagram, Megaphone, LifeBuoy, Banknote } from 'lucide-react';
-import AdminDashboard from '@/components/admin/AdminDashboard';
+// The old 1,000-line dashboard (AdminDashboard.tsx) is preserved in the repo, unmounted: it read
+// LGP:CAC, per-tier Hormozi economics, payback period, cohort retention and projections over nine
+// artists. The Dashboard tab now renders the 90-day experiment scorecard instead.
+import ExperimentScorecard from '@/components/admin/ExperimentScorecard';
 import LeadMagnetsView from '@/components/admin/LeadMagnetsView';
 import AvatarCohortsView from '@/components/admin/AvatarCohortsView';
 import ExperimentsView from '@/components/admin/ExperimentsView';
@@ -128,7 +131,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {activeTab === 'dashboard' && <AdminDashboard userId={user.id} />}
+      {activeTab === 'dashboard' && <ExperimentScorecard userId={user.id} />}
       {activeTab === 'pipeline' && (
         <div className="max-w-7xl mx-auto px-4 pb-12">
           <PipelineView />
