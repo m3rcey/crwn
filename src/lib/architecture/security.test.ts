@@ -17,6 +17,7 @@
 // violation reverted) before being committed. An assertion nobody has watched
 // fail is not protection: that is precisely how AUTH-001 certified SEC-001 as safe.
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { listSourceFiles, readStripped, readRaw, violation } from './sourceScan';
 
 const API_ROUTES = listSourceFiles('src/app/api').filter(f => f.endsWith('/route.ts'));
@@ -350,6 +351,81 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
         'surplusToArtist is gone. Reserve that becomes deterministically unowed belongs to the artist and must never be absorbed into the application fee, CRWN revenue, or another collaborator deal.',
         { file: 'src/lib/teamSplits/funding.ts' },
       ),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-006 (D4, ratified 2026-08-12). A deal must not become economically binding if CRWN
+  // cannot honour its literal percentage. The pure rule is commitment.ts; the ENFORCEMENT is the
+  // accept_team_split_deal RPC, which holds an advisory lock on the artist so two acceptances
+  // cannot both read the old world and commit 110% between them.
+  it('TS-MONEY-006 over-commitment is refused atomically, not merely warned', () => {
+    const commitment = readStripped('src/lib/teamSplits/commitment.ts');
+    expect(
+      /MAX_COMMITTED_PERCENT_OF_NET\s*=\s*100/.test(commitment),
+      violation('TS-MONEY-006', 'the 100%-of-net ceiling is gone from commitment.ts.', {
+        file: 'src/lib/teamSplits/commitment.ts',
+      }),
+    ).toBe(true);
+
+    // The acceptance route must go through the enforced path, never a bare status update.
+    const respond = readStripped('src/app/api/team-splits/[id]/respond/route.ts');
+    // The CALL, not merely the identifier: a bypass that leaves the import in place while routing
+    // around the RPC would satisfy a name check. Found by mutation on 2026-08-12.
+    expect(
+      /await acceptDealEnforced\(supabaseAdmin,/.test(respond),
+      violation('TS-MONEY-006', 'the accept path no longer calls the enforced acceptance against the service-role client, so two overlapping deals could both become binding.', {
+        file: 'src/app/api/team-splits/[id]/respond/route.ts',
+      }),
+    ).toBe(true);
+    // And no bare status write may bypass it.
+    expect(
+      /update\(\s*\{[^}]*status:\s*goActive/.test(respond),
+      violation('TS-MONEY-006', 'the accept path writes the deal status directly, bypassing the atomic commitment check.', {
+        file: 'src/app/api/team-splits/[id]/respond/route.ts',
+      }),
+    ).toBe(false);
+    expect(
+      /over_committed/.test(respond),
+      violation('TS-MONEY-006', 'the accept path does not refuse an over-committed deal.', {
+        file: 'src/app/api/team-splits/[id]/respond/route.ts',
+      }),
+    ).toBe(true);
+
+    // The enforcement is in the DATABASE, under a lock, or the race is open.
+    const migration = readFileSync('supabase/schema-phase2-team-split-funded-reserve.sql', 'utf8');
+    expect(
+      /pg_advisory_xact_lock/.test(migration),
+      violation('TS-MONEY-006', 'the acceptance check is not serialized, so concurrent acceptances can over-commit.', {
+        file: 'supabase/schema-phase2-team-split-funded-reserve.sql',
+      }),
+    ).toBe(true);
+    expect(
+      /IF v_total > 100 THEN/.test(migration),
+      violation('TS-MONEY-006', 'the database no longer refuses above 100% of net.', {
+        file: 'supabase/schema-phase2-team-split-funded-reserve.sql',
+      }),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-002. Conservation is a PRECONDITION of withholding, not a report written afterwards.
+  // If the cents do not add up the reserve must be zero, because a number nobody can reconcile is
+  // exactly how CRWN ends up funding a collaborator. Found missing by mutation on 2026-08-12.
+  it('TS-MONEY-002 the charge-time reserve refuses to withhold an unreconciled amount', () => {
+    const src = readStripped('src/lib/teamSplits/reserve.ts');
+    expect(
+      /reconciles\(breakdown\)/.test(src),
+      violation('TS-MONEY-002', 'reserve.ts no longer checks conservation before withholding, so a breakdown with phantom cents could reach Stripe.', {
+        file: 'src/lib/teamSplits/reserve.ts',
+      }),
+    ).toBe(true);
+    // And the reserve must ride the APPLICATION FEE, which is what keeps it out of the artist's
+    // Connect balance and therefore out of Stripe's automatic daily payout sweep.
+    const track = readStripped('src/app/api/stripe/track-checkout/route.ts');
+    expect(
+      /application_fee_amount:\s*applicationFeeAmount/.test(track) && /reserve\.reserveCents/.test(track),
+      violation('TS-MONEY-002', 'a one-time rail stopped adding the collaborator reserve to the application fee, so the artist would be paid money already promised to a collaborator.', {
+        file: 'src/app/api/stripe/track-checkout/route.ts',
+      }),
     ).toBe(true);
   });
 

@@ -1,5 +1,35 @@
 # CRWN Brain — Changelog
 
+## 2026-08-12 - Team Splits: over-commitment is now refused, and the reserve has a money path
+
+Phase 1 of the funded reserve. **The collaborator cashout rail is still 503** and the migration is
+not applied. Detail: doc 28 section 21.
+
+- **D4 is enforced, not warned.** Deal creation used to warn about over-commitment and allow it, so
+  two collaborators could each accept more of one product than was left, and the first sale would
+  silently decide who was short-changed by row order. Acceptance now refuses anything committing
+  more than 100% of the artist's net on an OVERLAPPING scope. Overlap is per-fence, not per-artist:
+  60% of Product X and 50% of Product Y coexist; 60% and 50% of Product X do not; `all_earnings`
+  overlaps every fenceable source.
+- **The check runs in the database**, under `pg_advisory_xact_lock` on the artist, in the same
+  transaction that flips the status. An application-side read-then-write cannot close that race.
+- **A gross-basis percentage is converted to percent-of-net** before comparison, because 88% of
+  gross IS 100% of net at the Launch fee. Converting with no referral is the low end on purpose:
+  the validator should only refuse contracts impossible even in the artist's best case.
+- **`computeFunding` is finally on a money path.** `reserve.ts` resolves the qualifying deals for a
+  sale and adds the collaborator share to the application fee, so it is withheld before Stripe
+  settles the artist's proceeds. Wired into track checkout as the reference; four one-time rails
+  and the subscription invoice hook remain.
+- Conservation is a PRECONDITION of withholding, not a report: an unreconciled breakdown reserves
+  zero rather than sending Stripe a number nobody can reconcile.
+- Six mutations proven applied and caught. Three found real gaps first: the D4 suite was not in the
+  architecture gate at all, the accept-path assertion matched an identifier rather than the call,
+  and nothing asserted that the reserve checks conservation.
+- **The refund subsidy is still open and now blocks the payout rail.** CRWN issues no refunds in
+  code, so a Dashboard refund on a destination charge leaves the artist whole and CRWN absorbing
+  it. True today with or without Team Splits, and it is the next task.
+
+
 ## 2026-08-12 - Fan Testimonials verified in production (migration applied)
 
 The founder applied `schema-phase2-fan-testimonials.sql`. Verified rather than assumed, then the

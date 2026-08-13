@@ -22,34 +22,24 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **ONE decision unblocks Team Split funding: what happens when two deals over-commit the
-      same revenue?**
-      The three questions this item used to carry (existing subscriptions, pre-deal earnings,
-      unowed surplus) are RATIFIED and closed. The funding architecture is now written up in
-      [docs/crwn-brain/28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md](docs/crwn-brain/28-TEAM-SPLIT-FUNDING-ARCHITECTURE.md),
-      and the good news is that Stripe supports the safe model directly: CRWN sets an exact
-      `application_fee_amount` on each subscription invoice, so the collaborator's money is
-      withheld BEFORE the artist is paid, existing subscriptions are covered with no change to
-      the fan's price or billing date, and no new money topology is introduced. The rail stays at
-      503 until it is built.
-      What I cannot decide for you: deal creation WARNS about over-commitment but does not block
-      it, so two accepted deals can each claim more of one source than is left. Today the code
-      would allocate in whatever order the rows came back, which silently decides that one
-      collaborator is paid in full and another is short-changed. Two real people, and neither
-      outcome is obviously right. Pick one:
-        1. **Refuse to over-commit** (my recommendation). Block accepting a deal that would push
-           the combined active percentage on a source past 100% of the artist's net. Nobody is
-           ever surprised, and it forces the conversation before the work instead of after.
-        2. **Pro-rata.** Allow it, and scale every collaborator down proportionally when the net
-           runs short. Nobody is refused, but each person's take now depends on deals they cannot
-           see.
-        3. **First accepted wins.** Defensible, and it makes whoever signs last absorb every
-           shortfall.
-      Answer that and the build is mechanical: section 18 of doc 28 is the acceptance criteria.
-      Two things I found on the way that are worth knowing regardless: production still holds 0
-      deals / 0 accruals / 0 payouts, so there is nothing to migrate; and CRWN issues no refunds
-      in code, so whether a refund pulls the artist's share back is currently a checkbox choice in
-      the Stripe Dashboard, which the implementation should make explicit.
+- [ ] **Run the Team Split funding migration. The payout rail still stays closed after it, and
+      that is not about Team Splits.** Open and run:
+        supabase/schema-phase2-team-split-funded-reserve.sql
+      Your over-commitment decision is built: a deal that would commit more than 100% of what you
+      keep from the same revenue is now REFUSED at acceptance, atomically, under a lock, so two
+      collaborators cannot both accept 60% and 50% of the same product and leave one of them short.
+      Until this file runs, accepting a Team Split returns 503 on purpose, because binding a
+      commitment CRWN cannot enforce is worse than making someone wait. Nothing is owed to anyone:
+      production still holds 0 deals, 0 accruals, 0 payouts.
+      Expected on success: a NOTICE starting "OK: team split funded reserve". Verify with the last
+      query block in supabase/check-unverified-feature-state.sql (expect applied = true), then tell
+      me and I will flip the registry entry.
+      **Collaborator cashout stays at 503 after this migration**, and the reason is a separate
+      defect I found while tracing the money: CRWN issues no refunds in code, so refunds are made in
+      the Stripe Dashboard, and on a destination charge the default leaves the artist holding their
+      share while CRWN's balance absorbs the whole refund. That is a subsidy on ordinary refunds
+      today, with or without a split. I would not reopen a payout rail on top of it. Closing it is
+      the next task.
 
 ### P1 — real risk or real friction, but nothing is on fire
 

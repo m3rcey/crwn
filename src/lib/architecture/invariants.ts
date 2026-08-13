@@ -1161,6 +1161,18 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   { file: 'schema-phase2-sec-012-money-table-rls-reproducibility.sql', state: 'applied', note: 'SEC-012; probe-verified 2026-08-12, all 15 service-role-only money/CRM tables answer 42501 to anon' },
   { file: 'schema-phase2-sec-earnings-recruiters-select-policies.sql', state: 'applied', note: 'SEC-012 remainder. earnings and recruiters were deliberately excluded from the migration above because a bare RLS enable with no policy would have broken an artist reading their OWN earnings. Run 2026-08-12: the transaction COMMITTED and the probe flipped 200 [] -> 42501 on both tables, which is why this is applied. The post-COMMIT self-verify still raised on assertion 5 (recruiters had a NON-permissive policy naming a Data API role, and the cleanup loop only dropped USING(true) ones, so the file asserted a property it never enforced). The loop now uses assertion 5\'s exact predicate; a re-run to a clean self-verify is open in TODO.md. Access state is closed either way: the REVOKEs committed, and Postgres checks table privileges before RLS, so the surviving policy was already unreachable.' },
 
+  // Team Split funded reserve. D4 enforcement + D3 surplus + reserve traceability. PENDING: the
+  // collaborator cashout rail stays 503 either way, and every reserve writer treats a missing
+  // column/function as "no reserve", which accrues nothing. The live check is a sql-check because
+  // the two functions are REVOKED from anon and authenticated by design, so an anon probe can only
+  // ever say "denied", which is indistinguishable from "not created".
+  {
+    file: 'schema-phase2-team-split-funded-reserve.sql',
+    state: 'pending',
+    liveCheck: 'sql-check',
+    note: 'authored 2026-08-12. Adds accept_team_split_deal (advisory-locked D4 enforcement), team_split_committed_percent, team_split_earnings.funded_reserve_cents, and the artist_surplus payout kind with a durable idempotency key. Until it runs, deal ACCEPTANCE returns 503 rather than binding an unenforceable commitment.',
+  },
+
   // Fan Testimonials V1. Its live check INVERTS the usual contract on the base tables (42501 is
   // the PASS, because they are closed to every client role) and runs the normal way on the public
   // view (200 is the PASS, because the artist page must be able to read it). BOTH probe lines are

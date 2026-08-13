@@ -79,6 +79,10 @@ export default defineConfig({
       // Fan Testimonials V1. In the GATE and not merely in `npm test`, because two of its nine
       // invariants are P0: publishing without fan consent, and pairing tier with tenure into a
       // lifetime-spend disclosure. Both are irreversible for a real fan.
+      // TS-MONEY-006 (D4): over-commitment refusal. In the GATE because accepting an
+      // unhonourable percentage is a money defect that reaches two real people.
+      'src/lib/teamSplits/commitment.test.ts',
+      'src/lib/teamSplits/funding.test.ts',
       'src/lib/architecture/testimonials.test.ts',
       'src/lib/testimonials/core.test.ts',
       'src/lib/brainContract.test.ts',

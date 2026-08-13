@@ -49,3 +49,22 @@ SELECT 'schema-phase2-sec-003-profiles-identity-freeze.sql' AS migration,
          WHERE n.nspname = 'public'
            AND p.proname = 'freeze_profiles_protected_cols'
        ) AS applied;
+
+-- 4. Team Split funded reserve (2026-08-12). Declares liveCheck 'sql-check' because both
+--    functions it adds are deliberately REVOKED from anon and authenticated, so an anonymous
+--    probe can only ever answer "denied", which is indistinguishable from "never created". The
+--    honest check asks the catalog whether the objects exist AND whether they are still closed to
+--    the Data API roles, which is the security property that matters.
+--    Expect applied = true after running supabase/schema-phase2-team-split-funded-reserve.sql.
+SELECT 'schema-phase2-team-split-funded-reserve.sql' AS migration,
+       (
+         to_regprocedure('public.accept_team_split_deal(uuid,uuid,boolean,numeric)') IS NOT NULL
+         AND to_regprocedure('public.team_split_committed_percent(uuid,uuid,text,uuid,numeric,text,numeric)') IS NOT NULL
+         AND EXISTS (SELECT 1 FROM information_schema.columns
+                      WHERE table_name = 'team_split_earnings' AND column_name = 'funded_reserve_cents')
+         AND EXISTS (SELECT 1 FROM information_schema.columns
+                      WHERE table_name = 'team_split_payouts' AND column_name = 'payee_kind')
+         AND EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_tsp_idempotency')
+         AND NOT has_function_privilege('authenticated', 'public.accept_team_split_deal(uuid,uuid,boolean,numeric)', 'EXECUTE')
+         AND NOT has_function_privilege('anon', 'public.accept_team_split_deal(uuid,uuid,boolean,numeric)', 'EXECUTE')
+       ) AS applied;

@@ -612,3 +612,51 @@ proves funding end to end.
 
 Do not flip the gate before Phase 3. A passing test suite proves the arithmetic; only a canary
 proves the money.
+
+---
+
+## 21. Implementation status (2026-08-12)
+
+**Phase 1 shipped. The rail is still 503. `cashoutFundingReady` is still `false`.**
+
+### Built
+
+| Piece | Where |
+|---|---|
+| D4 over-commitment rule (pure, 26 tests) | `src/lib/teamSplits/commitment.ts` |
+| D4 ATOMIC enforcement, advisory-locked | `accept_team_split_deal` in the funded-reserve migration |
+| Enforced acceptance wired into the accept path | `src/lib/teamSplits/acceptance.ts`, `api/team-splits/[id]/respond` |
+| Charge-time reserve resolver (the one money path) | `src/lib/teamSplits/reserve.ts` |
+| First one-time rail withholding the reserve | `api/stripe/track-checkout` |
+| Reserve traceability, D3 surplus payout kind, payout idempotency key | the funded-reserve migration |
+| TS-MONEY-006 and a strengthened TS-MONEY-002, in the gate | `src/lib/architecture/security.test.ts` |
+
+`resolveReserveForSale` never throws: every failure returns a zero reserve, so a checkout cannot
+fail because a split could not be computed, and nobody can accrue against money never withheld.
+
+Deal ACCEPTANCE returns 503 until the migration runs. Deliberate: binding a commitment CRWN cannot
+enforce is worse than making an artist wait, and the payout rail is closed anyway.
+
+### NOT built yet, and why the rail stays closed
+
+1. **The other four one-time rails** (product, booking, live ticket, live tip) still pass the bare
+   platform fee. Track is the reference wiring; the rest are mechanical and identical.
+2. **The `invoice.created` handler** for subscription invoices, which is what brings existing
+   subscriptions into scope (section 7).
+3. **Settlement does not yet write `earnings.metadata.team_split_reserved`.** Until it does, the
+   accrual guard sees no proof of funding and correctly accrues zero, which is why no collaborator
+   can be owed anything today.
+4. **The destination-charge refund subsidy is NOT closed** (section 2.4). `refunds.create` and
+   `reverse_transfer` still appear nowhere. **This alone blocks re-enabling cashout**, independently
+   of Team Splits.
+5. **The D3 surplus TRANSFER** (platform to artist) is representable now but not implemented.
+6. **The refund clawback still runs in the daily cron**, not the refund webhook.
+
+### Stripe premise re-verified, with one correction
+
+`application_fee_amount` on a subscription invoice still overrides `application_fee_percent` and is
+capped at the invoice's final charge amount. **Correction to section 7:** the API reference adds
+that *"Draft invoices are fully editable. Once an invoice is finalized, monetary values ... become
+uneditable."* So `invoice.created` is not merely the convenient hook, it is the ONLY window, and a
+handler that is slow or throws loses it. Stripe delays finalization up to 72 hours without a
+successful response, which is the safety margin, not a licence to be slow.
