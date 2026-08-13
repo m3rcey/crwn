@@ -429,6 +429,92 @@ describe('SEC-SPLIT — collaborator identity and funding', () => {
     ).toBe(true);
   });
 
+  // TS-MONEY-007. A destination-charge refund debits the PLATFORM and, by default, lets the artist
+  // keep what was transferred. CRWN creates no refunds in code, so the control cannot be a dashboard
+  // checkbox: it must run from the refund webhook, where it also covers refunds CRWN never issued.
+  it('TS-MONEY-007 a refund recovers the artist share instead of CRWN absorbing it', () => {
+    const wh = readStripped('src/lib/webhookHandlers.ts');
+    expect(
+      /recoverArtistShareOnRefund\(/.test(wh),
+      violation('TS-MONEY-007', 'the refund handler no longer recovers the artist share, so CRWN silently funds the artist portion of every destination-charge refund.', {
+        file: 'src/lib/webhookHandlers.ts',
+      }),
+    ).toBe(true);
+    const rec = readStripped('src/lib/stripe/refundRecovery.ts');
+    // The double-reversal guard is the load-bearing half: Stripe already tracks amount_reversed.
+    expect(
+      /alreadyReversed/.test(rec) && /amount_reversed/.test(rec),
+      violation('TS-MONEY-010', 'refund recovery stopped consulting the already-reversed amount, so a redelivered webhook or a dashboard refund that already reversed would reverse twice.', {
+        file: 'src/lib/stripe/refundRecovery.ts',
+      }),
+    ).toBe(true);
+    // Unrecovered money must be reported, never rounded away.
+    expect(
+      /shortfall/.test(rec),
+      violation('TS-MONEY-007', 'refund recovery no longer reports a shortfall, so unrecoverable loss would be invisible.', {
+        file: 'src/lib/stripe/refundRecovery.ts',
+      }),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-009. A reserve predicted at checkout is not money. Only the settled charge proves it.
+  it('TS-MONEY-009 accrual eligibility comes from settlement proof, not from checkout intent', () => {
+    const wh = readStripped('src/lib/webhookHandlers.ts');
+    // COUNT, not presence: removing the proof from ONE of the five earnings writers leaves the
+    // identifier in the file and silently strands that rail's collaborators. Found by mutation
+    // on 2026-08-13.
+    const proofSites = (wh.match(/\.\.\.settledReserveFor\(/g) || []).length;
+    expect(
+      proofSites,
+      violation('TS-MONEY-009', `only ${proofSites} earnings writer(s) record the funded reserve; all five one-time rails must, or a funded charge on a missing rail can never pay its collaborator.`, {
+        file: 'src/lib/webhookHandlers.ts',
+      }),
+    ).toBeGreaterThanOrEqual(5);
+    // Read from the SETTLED Stripe object, never recomputed from what checkout intended.
+    expect(
+      /reserveFromStripeMetadata/.test(wh),
+      violation('TS-MONEY-009', 'settlement proof is being recomputed rather than read from the settled charge.', {
+        file: 'src/lib/webhookHandlers.ts',
+      }),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-010. The refund event is the ONE authoritative clawback writer.
+  it('TS-MONEY-010 the Team Split clawback happens at the refund event', () => {
+    const wh = readStripped('src/lib/webhookHandlers.ts');
+    // The CALL must be reached, not merely present. A mutation that wrapped it in `if (false)`
+    // kept the identifier and passed a presence check. Found by mutation on 2026-08-13.
+    expect(
+      /try \{\s*await clawbackTeamSplitsForRefund\(supabaseAdmin, \{/.test(wh),
+      violation('TS-MONEY-010', 'the Team Split clawback is no longer unconditionally awaited in the refund handler, reopening the window in which a collaborator can cash out against refunded money.', {
+        file: 'src/lib/webhookHandlers.ts',
+      }),
+    ).toBe(true);
+  });
+
+  // TS-MONEY-002 extended: every eligible one-time rail withholds the reserve. A rail that forgets
+  // pays the artist money already promised to a collaborator, and Stripe sweeps it the same day.
+  it('TS-MONEY-002 every one-time payment rail withholds the collaborator reserve', () => {
+    const rails = [
+      'src/app/api/stripe/track-checkout/route.ts',
+      'src/app/api/stripe/product-checkout/route.ts',
+      'src/app/api/stripe/booking-checkout/route.ts',
+      'src/app/api/stripe/live-checkout/route.ts',
+      'src/app/api/stripe/live-tip-checkout/route.ts',
+    ];
+    for (const f of rails) {
+      const src = readStripped(f);
+      expect(
+        /resolveReserveForSale\(/.test(src) && /application_fee_amount:\s*applicationFeeAmount/.test(src),
+        violation('TS-MONEY-002', `${f} does not withhold the collaborator reserve in its application fee. The artist would be paid money already promised to a collaborator.`, { file: f }),
+      ).toBe(true);
+      expect(
+        /reserveToStripeMetadata\(/.test(src),
+        violation('TS-MONEY-009', `${f} does not carry the per-deal reserve on the charge, so settlement cannot prove what was funded.`, { file: f }),
+      ).toBe(true);
+    }
+  });
+
   // F-3 / TS-MONEY-005: destination charges settle the artist's share into the
   // artist's Connect account, so a transfer to a collaborator with no reserve
   // withheld draws on CRWN's own balance. Until the reserve is wired into

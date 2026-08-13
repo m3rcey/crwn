@@ -200,7 +200,8 @@ async function applyClawbacks(deal: TeamSplitDeal, now: Date): Promise<number> {
       .maybeSingle();
     if (!original) continue;
 
-    // Already clawed back for this refund row?
+    // Already clawed back for this refund row? (The refund webhook is the AUTHORITATIVE
+    // writer since 2026-08-13; this cron is now a repair pass and skips what it already wrote.)
     const { data: existing } = await supabaseAdmin
       .from('team_split_earnings')
       .select('id')

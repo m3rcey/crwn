@@ -1,5 +1,37 @@
 # CRWN Brain — Changelog
 
+## 2026-08-13 - The refund hole is closed, and every one-time rail now funds the collaborator
+
+Continuation of the funded reserve. `schema-phase2-team-split-funded-reserve.sql` is APPLIED and
+live-verified. **Cashout is still 503**; doc 28 section 22.3 says exactly why.
+
+- **Migration verified by behaviour.** Probed via the service role because both functions are
+  revoked from the Data API roles, so an anon probe could only ever say "denied". 89% of GROSS reads
+  as 101.14% of net at the Launch fee and is refused; 88% lands exactly on 100. That conversion
+  working in production is the part that mattered.
+- **All five one-time rails withhold the reserve** (track, product, booking, live ticket, live tip),
+  through one canonical calculation. No rail does its own split math.
+- **Settlement records proof of what was actually funded**, read from the settled charge rather than
+  recomputed from checkout's intention. Without it nothing could ever accrue, which is why accruals
+  were correctly zero until now.
+- **The destination-charge refund subsidy is closed.** CRWN creates no refunds in code, so every
+  refund is a Dashboard action, and Stripe's default leaves the artist whole while CRWN's balance
+  absorbs the whole thing. That was a live loss on ordinary refunds, unrelated to Team Splits. The
+  refund webhook now recovers the artist's share, reversing only what is still owed against
+  `transfer.amount_reversed`, so an already-reversed refund, a redelivered webhook and a run of
+  partial refunds all converge without double-reversing. What cannot be recovered is recorded as a
+  shortfall, not rounded away.
+- **The Team Split clawback moved from the daily cron to the refund event**, closing a 24-hour
+  window in which a collaborator could cash out against money already refunded. One authoritative
+  writer; the cron is now repair.
+- The application-fee refund policy was NOT a founder question: the refund handler already wrote
+  `platform_fee: -refundedFee`, so the ledger has always booked the fee as refunded. Stripe now
+  matches the ledger.
+- Eight mutations proven applied and caught. Two escaped first and exposed weak assertions: removing
+  the settlement proof from ONE of five earnings writers left the identifier in place, and wrapping
+  the clawback in `if (false)` did too. Both are now counted and position-checked.
+
+
 ## 2026-08-12 - Team Splits: over-commitment is now refused, and the reserve has a money path
 
 Phase 1 of the funded reserve. **The collaborator cashout rail is still 503** and the migration is

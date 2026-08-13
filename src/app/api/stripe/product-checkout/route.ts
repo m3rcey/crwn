@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
+import { resolveReserveForSale, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { validateAndApplyDiscount } from '@/lib/discountCodes';
 
@@ -146,6 +147,22 @@ export async function POST(request: NextRequest) {
     // Calculate fee as percentage of discounted price (in cents)
     const platformFee = Math.round(unitAmount * (platformFeePercent / 100));
 
+    // TEAM SPLIT FUNDED RESERVE. Withhold the collaborator's share HERE, before Stripe settles the
+    // artist's proceeds. Destination charges send everything but the application fee to the
+    // artist's Connect account, which Stripe then sweeps automatically, so a reserve taken any
+    // later would be CRWN's own money. ONE canonical calculation: this route does no split math.
+    // Never throws, and returns 0 on any failure, so a checkout cannot fail because a split could
+    // not be computed. Reserving nothing simply means nobody can accrue.
+    const reserve = await resolveReserveForSale(svcConnect, {
+      artistId: product.artist_id,
+      sourceType: 'product',
+      sourceId: productId,
+      grossCents: unitAmount,
+      platformFeePercent,
+      attributedCutPercent: 0,
+    });
+    const applicationFeeAmount = platformFee + reserve.reserveCents;
+
     // Build statement descriptor from artist name
     const artistDisplayName = (artist as any).profile?.display_name || '';
     const statementSuffix = artistDisplayName
@@ -180,12 +197,15 @@ export async function POST(request: NextRequest) {
       ],
       mode: 'payment',
       payment_intent_data: {
-        application_fee_amount: platformFee,
+        application_fee_amount: applicationFeeAmount,
         transfer_data: {
           destination: artistStripeAccountId,
         },
         ...(statementSuffix ? { statement_descriptor_suffix: statementSuffix } : {}),
         metadata: {
+          // The per-deal reserve rides WITH the charge so settlement records PROVEN funding on
+          // the earnings row rather than recomputing what checkout merely intended.
+          ...reserveToStripeMetadata(reserve.reservedByDeal),
           fan_id: fanId,
           product_id: productId,
           artist_id: product.artist_id,

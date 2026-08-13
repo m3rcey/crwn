@@ -660,3 +660,68 @@ that *"Draft invoices are fully editable. Once an invoice is finalized, monetary
 uneditable."* So `invoice.created` is not merely the convenient hook, it is the ONLY window, and a
 handler that is slow or throws loses it. Stripe delays finalization up to 72 hours without a
 successful response, which is the safety margin, not a licence to be slow.
+
+---
+
+## 22. Phase 2 (2026-08-13): migration live, rails funded, refund subsidy closed
+
+**`schema-phase2-team-split-funded-reserve.sql` is APPLIED and live-verified.** The cashout rail is
+**still 503**, and section 22.3 says exactly why.
+
+### 22.1 Migration verified by BEHAVIOUR, not existence
+
+Probed through the service role (both functions are REVOKED from anon/authenticated, so an anon
+probe can only answer "denied", which is indistinguishable from "absent"):
+
+| Probe | Result |
+|---|---|
+| `team_split_committed_percent` 101% of net | 101.00, over the ceiling |
+| 100% of net | 100.00, allowed |
+| **89% of GROSS at the Launch fee** | **101.14 of net, refused** |
+| 88% of GROSS | 100.00, exactly at the ceiling |
+| `custom` / fenced-with-no-id at 90% | 0, commits nothing |
+| anon executing either function | denied |
+| `accept_team_split_deal` on an unknown deal | no row |
+| `funded_reserve_cents`, `payee_kind`, `artist_id`, `idempotency_key` | all present |
+
+The gross-to-net conversion working in production is the one that mattered: 88% of gross really is
+100% of net at Launch, and a validator that missed it would let a deal commit more than the artist
+keeps.
+
+### 22.2 Built in this pass
+
+- **All five one-time rails now withhold the reserve**: track, product, booking, live ticket, live
+  tip. One canonical calculation (`resolveReserveForSale`); no rail does split math.
+- **Settlement proof** (TS-MONEY-009). All five earnings writers record
+  `metadata.team_split_reserved` from the map the SETTLED charge carried, never from what checkout
+  intended. Idempotent by construction: it derives a value onto a row already deduped by
+  `stripe_payment_id`.
+- **The destination-charge refund subsidy is CLOSED** (TS-MONEY-007). `recoverArtistShareOnRefund`
+  runs from the refund webhook, so it covers Dashboard refunds CRWN never issued. It reverses only
+  what is still owed, computed from the CUMULATIVE refunded amount against
+  `transfer.amount_reversed`, so a refund already created with `reverse_transfer`, a redelivered
+  webhook, and a sequence of partial refunds all converge without double-reversing.
+- **Unrecovered money is reported, never hidden.** `RecoveryOutcome.shortfall` lands on the negative
+  earnings row as `metadata.refund_recovery`.
+- **The Team Split clawback moved to the refund event** (TS-MONEY-010). It was in the daily cron,
+  leaving up to 24 hours in which a collaborator could cash out against refunded money. The refund
+  webhook is now the authoritative writer and the cron is a repair pass.
+
+**Application-fee refund policy was NOT a founder question.** The repository already defines it: the
+refund handler writes `platform_fee: -refundedFee` on the negative earnings row, so CRWN's own ledger
+has always booked its fee as proportionally refunded. Stripe is being made to match the ledger.
+
+### 22.3 Why the rail is still 503
+
+Not superstition, and not the refund defect any more. These are genuinely unbuilt:
+
+1. **Subscription renewals are not funded.** The `invoice.created` handler does not exist yet, so no
+   renewal carries a reserve. Subscriptions are 48 of the 55 earnings rows in production, so this is
+   the majority of the money.
+2. **D3 surplus is representable but not returned.** No platform-to-artist transfer exists.
+3. **Stripe dispute lifecycle** (created / won / lost) is unhandled for reserves.
+4. **Cap concurrency** still relies on over-collection being the safe direction rather than a lock.
+5. **No canary.** Nothing has been proved end to end against real Stripe money movement.
+
+Flipping `cashoutFundingReady` with 1, 2 and 3 open would pay collaborators from a rail whose
+majority revenue source funds nothing.

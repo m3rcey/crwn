@@ -22,24 +22,20 @@ responsible for. Do not work those.
 
 ### P0 — money flows or acquisition are blocked
 
-- [ ] **Run the Team Split funding migration. The payout rail still stays closed after it, and
-      that is not about Team Splits.** Open and run:
-        supabase/schema-phase2-team-split-funded-reserve.sql
-      Your over-commitment decision is built: a deal that would commit more than 100% of what you
-      keep from the same revenue is now REFUSED at acceptance, atomically, under a lock, so two
-      collaborators cannot both accept 60% and 50% of the same product and leave one of them short.
-      Until this file runs, accepting a Team Split returns 503 on purpose, because binding a
-      commitment CRWN cannot enforce is worse than making someone wait. Nothing is owed to anyone:
-      production still holds 0 deals, 0 accruals, 0 payouts.
-      Expected on success: a NOTICE starting "OK: team split funded reserve". Verify with the last
-      query block in supabase/check-unverified-feature-state.sql (expect applied = true), then tell
-      me and I will flip the registry entry.
-      **Collaborator cashout stays at 503 after this migration**, and the reason is a separate
-      defect I found while tracing the money: CRWN issues no refunds in code, so refunds are made in
-      the Stripe Dashboard, and on a destination charge the default leaves the artist holding their
-      share while CRWN's balance absorbs the whole refund. That is a subsidy on ordinary refunds
-      today, with or without a split. I would not reopen a payout rail on top of it. Closing it is
-      the next task.
+- [ ] **Nothing for you here yet on Team Splits. Recorded so you know where it stands.**
+      The migration you ran is verified live (I probed the behaviour, not just the objects: 89% of
+      gross correctly reads as 101% of net and is refused). All five one-time payment rails now
+      withhold the collaborator's share before the artist is paid, settlement records proof of what
+      was actually funded, and the destination-charge refund hole is closed in code.
+      That refund hole was costing you money on ORDINARY refunds, with or without Team Splits: a
+      refund made in the Stripe Dashboard debited CRWN and left the artist holding their share.
+      The webhook now claws the artist's share back automatically, and reports anything it cannot
+      recover instead of hiding it.
+      **Collaborator cashout is still 503**, and the honest reason is that subscription renewals do
+      not fund a reserve yet. Subscriptions are 48 of your 55 earnings rows, so opening the rail now
+      would pay collaborators from a system that funds almost none of your actual revenue. Renewal
+      funding, the surplus return, and disputes are the next task. I will not flip that gate until a
+      canary proves the money moves correctly.
 
 ### P1 — real risk or real friction, but nothing is on fire
 

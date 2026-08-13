@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 import { getArtistFeePercent } from '@/lib/platformTier';
+import { resolveReserveForSale, reserveToStripeMetadata } from '@/lib/teamSplits/reserve';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build');
@@ -92,6 +93,22 @@ export async function POST(request: NextRequest) {
     const platformFeePercent = await getArtistFeePercent(artist.id || '');
     const platformFee = Math.round(price * (platformFeePercent / 100));
 
+    // TEAM SPLIT FUNDED RESERVE. Withhold the collaborator's share HERE, before Stripe settles the
+    // artist's proceeds. Destination charges send everything but the application fee to the
+    // artist's Connect account, which Stripe then sweeps automatically, so a reserve taken any
+    // later would be CRWN's own money. ONE canonical calculation: this route does no split math.
+    // Never throws, and returns 0 on any failure, so a checkout cannot fail because a split could
+    // not be computed. Reserving nothing simply means nobody can accrue.
+    const reserve = await resolveReserveForSale(svcConnect, {
+      artistId: session.artist_id,
+      sourceType: 'live_session',
+      sourceId: session.id,
+      grossCents: price,
+      platformFeePercent,
+      attributedCutPercent: 0,
+    });
+    const applicationFeeAmount = platformFee + reserve.reserveCents;
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thecrwn.app';
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -110,11 +127,14 @@ export async function POST(request: NextRequest) {
         },
       ],
       payment_intent_data: {
-        application_fee_amount: platformFee,
+        application_fee_amount: applicationFeeAmount,
         transfer_data: {
           destination: artistStripeAccountId,
         },
         metadata: {
+          // The per-deal reserve rides WITH the charge so settlement records PROVEN funding on
+          // the earnings row rather than recomputing what checkout merely intended.
+          ...reserveToStripeMetadata(reserve.reservedByDeal),
           live_session_id: session.id,
           buyer_id: user.id,
           artist_id: session.artist_id,

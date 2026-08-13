@@ -1168,9 +1168,9 @@ export const EXPECTED_MIGRATION_STATE: ReadonlyArray<{
   // ever say "denied", which is indistinguishable from "not created".
   {
     file: 'schema-phase2-team-split-funded-reserve.sql',
-    state: 'pending',
+    state: 'applied',
     liveCheck: 'sql-check',
-    note: 'authored 2026-08-12. Adds accept_team_split_deal (advisory-locked D4 enforcement), team_split_committed_percent, team_split_earnings.funded_reserve_cents, and the artist_surplus payout kind with a durable idempotency key. Until it runs, deal ACCEPTANCE returns 503 rather than binding an unenforceable commitment.',
+    note: 'founder-applied 2026-08-12, live-verified 2026-08-13 through the service role (the two functions are REVOKED from anon/authenticated, so an anon probe cannot distinguish denied from absent). Verified BEHAVIOUR, not existence: team_split_committed_percent returns 101 for 101% of net, 100 for 100%, and converts 89% of GROSS to 101.14% of net at the Launch fee while 88% lands exactly on 100; custom/unfenced sources return 0; anon execution of both functions is denied; accept_team_split_deal returns no row for an unknown deal. Columns funded_reserve_cents, payee_kind, artist_id, idempotency_key all present. Superseded note: authored 2026-08-12. Adds accept_team_split_deal (advisory-locked D4 enforcement), team_split_committed_percent, team_split_earnings.funded_reserve_cents, and the artist_surplus payout kind with a durable idempotency key. Until it runs, deal ACCEPTANCE returns 503 rather than binding an unenforceable commitment.',
   },
 
   // Fan Testimonials V1. Its live check INVERTS the usual contract on the base tables (42501 is

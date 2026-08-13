@@ -1,6 +1,9 @@
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createPurchaseObligation } from '@/lib/purchaseObligations';
+import { reserveFromStripeMetadata } from '@/lib/teamSplits/reserve';
+import { recoverArtistShareOnRefund } from '@/lib/stripe/refundRecovery';
+import { stripe as stripeClient } from '@/lib/stripe/client';
 import { createNotification, notifyNewSubscriber, notifyNewPurchase, notifySubscriptionCanceled } from '@/lib/notifications';
 import { resend, FROM_EMAIL } from '@/lib/resend';
 import { recruiterArtistSignupEmail } from '@/lib/emails/recruiterArtistSignup';
@@ -60,6 +63,33 @@ function extractShippingAddress(session: Stripe.Checkout.Session) {
 }
 
 // ─── Fan subscription checkout ───────────────────────────────────────────────
+
+
+/**
+ * TEAM SPLIT SETTLEMENT PROOF (TS-MONEY-009).
+ *
+ * Returns the `earnings.metadata` fragment recording how many cents of collaborator reserve were
+ * ACTUALLY withheld by this settled charge, per deal. The accrual cron reads it through
+ * `fundedReserveFor()` and refuses to create a payable without it, so this function is the only
+ * thing that makes a Team Split payable at all.
+ *
+ * It reads the map that checkout attached to the Stripe object, NOT a recomputation: what checkout
+ * intended and what Stripe settled can differ (a coupon, a partial capture, a Stripe-side cap on
+ * the application fee), and the money that exists is the money Stripe moved.
+ *
+ * IDEMPOTENT BY CONSTRUCTION. It derives a value rather than performing a write, and the earnings
+ * row it lands on is already deduped by `stripe_payment_id`, so a redelivered webhook produces the
+ * same fragment on the same row instead of a second reserve.
+ *
+ * Returns {} when nothing was reserved, which is the overwhelmingly common case and the safe one:
+ * no proof, no accrual.
+ */
+function settledReserveFor(stripeMetadata: unknown): Record<string, unknown> {
+  const map = reserveFromStripeMetadata(stripeMetadata);
+  const total = Object.values(map).reduce((a, b) => a + b, 0);
+  if (total <= 0) return {};
+  return { team_split_reserved: map, team_split_reserved_total: total };
+}
 
 export async function handleCheckoutCompleted(supabaseAdmin: AdminClient, session: Stripe.Checkout.Session) {
   const { fan_id, artist_id, tier_id } = session.metadata || {};
@@ -923,6 +953,8 @@ export async function handleProductPurchase(supabaseAdmin: AdminClient, session:
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
       metadata: {
+        // Proof that collaborator money was actually withheld by THIS charge (TS-MONEY-009).
+        ...settledReserveFor(session.metadata),
         productTitle,
         fanDisplayName: fanName,
         ...(prodReferralCode && { referral_code: prodReferralCode }),
@@ -1226,6 +1258,8 @@ export async function handleTrackPurchase(supabaseAdmin: AdminClient, session: S
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
       metadata: {
+        // Proof that collaborator money was actually withheld by THIS charge (TS-MONEY-009).
+        ...settledReserveFor(session.metadata),
         trackTitle,
         fanDisplayName: fanName,
         track_id,
@@ -1424,6 +1458,8 @@ export async function handleBookingPurchase(supabaseAdmin: AdminClient, session:
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
       metadata: {
+        // Proof that collaborator money was actually withheld by THIS charge (TS-MONEY-009).
+        ...settledReserveFor(session.metadata),
         bookingTitle,
         durationMinutes: booking.duration_minutes,
         fanDisplayName: fanName,
@@ -1531,6 +1567,8 @@ export async function handleLiveTicketPurchase(supabaseAdmin: AdminClient, sessi
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
       metadata: {
+        // Proof that collaborator money was actually withheld by THIS charge (TS-MONEY-009).
+        ...settledReserveFor(session.metadata),
         liveTitle,
         fanDisplayName: fanName,
         ...(metadata.referral_code && { referral_code: metadata.referral_code }),
@@ -1673,6 +1711,8 @@ export async function handleLiveTip(supabaseAdmin: AdminClient, session: Stripe.
       net_amount: netAmount,
       stripe_payment_id: session.payment_intent || session.id,
       metadata: {
+        // Proof that collaborator money was actually withheld by THIS charge (TS-MONEY-009).
+        ...settledReserveFor(session.metadata),
         liveTitle,
         fanDisplayName: fanName,
         liveSessionId: live_session_id,
@@ -2042,12 +2082,88 @@ export async function handlePlatformInvoicePaymentFailed(supabaseAdmin: AdminCli
 
 // ─── Charge refunded ─────────────────────────────────────────────────────────
 
+
+/**
+ * Mirror a refund into the Team Split ledger IMMEDIATELY, in proportion to what was refunded.
+ *
+ * Writes a negative `team_split_earnings` row per affected deal, released and cleared at once, so
+ * it reduces the collaborator's cashable balance the moment the fan's money goes back rather than
+ * on the next cron. `atomic_team_split_cashout` counts negative rows unconditionally, so this is
+ * what closes the refund/cashout race.
+ *
+ * Idempotent: one row per (deal_id, earning_id), and the refund earning id is the key, so a
+ * redelivered webhook and the repair cron converge on the same single row.
+ */
+async function clawbackTeamSplitsForRefund(
+  supabaseAdmin: AdminClient,
+  input: { originalEarningId: string; refundEarningId: string; artistId: string; refundRatio: number },
+): Promise<number> {
+  const { data: accruals } = await supabaseAdmin
+    .from('team_split_earnings')
+    .select('id, deal_id, collaborator_user_id, commission_amount, basis, basis_amount, gross_amount, percentage, source_type, source_id')
+    .eq('earning_id', input.originalEarningId)
+    .gt('commission_amount', 0);
+  if (!accruals || accruals.length === 0) return 0;
+
+  let written = 0;
+  for (const a of accruals as any[]) {
+    const { data: existing } = await supabaseAdmin
+      .from('team_split_earnings')
+      .select('id')
+      .eq('deal_id', a.deal_id)
+      .eq('earning_id', input.refundEarningId)
+      .maybeSingle();
+    if (existing) continue; // already clawed back for this refund
+
+    const clawback = -Math.round(a.commission_amount * Math.min(1, Math.max(0, input.refundRatio)));
+    if (clawback >= 0) continue;
+
+    const now = new Date().toISOString();
+    const { error } = await supabaseAdmin.from('team_split_earnings').insert({
+      deal_id: a.deal_id,
+      artist_id: input.artistId,
+      collaborator_user_id: a.collaborator_user_id,
+      earning_id: input.refundEarningId,
+      source_type: a.source_type,
+      source_id: a.source_id,
+      basis: a.basis,
+      basis_amount: -Math.round((a.basis_amount || 0) * input.refundRatio),
+      percentage: a.percentage,
+      gross_amount: a.gross_amount,
+      commission_amount: clawback,
+      status: 'released',
+      cleared_at: now,
+      released_at: now,
+      reason: 'refund_clawback',
+    });
+    if (!error) written++;
+  }
+  return written;
+}
+
 export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: Stripe.Charge) {
   const paymentIntentId = charge.payment_intent as string;
   if (!paymentIntentId) return;
 
   const amountRefunded = charge.amount_refunded;
   console.log('Charge refunded:', paymentIntentId, 'amount:', amountRefunded);
+
+  // TS-MONEY-007. RECOVER THE ARTIST'S SHARE FIRST.
+  //
+  // On a destination charge Stripe debits the PLATFORM for a refund and, by default, leaves the
+  // artist holding what was transferred to them. CRWN issues no refunds in code, so every refund is
+  // made in the Dashboard and that default has been silently making CRWN fund the artist's portion.
+  // This runs on the webhook, so it covers refunds created anywhere by anyone, and it is idempotent
+  // against a redelivered event because it reverses only what is still owed.
+  //
+  // Deliberately BEFORE the ledger writes and never fatal: an unrecovered refund must still be
+  // recorded, because a ledger that drops a refund is worse than one that records a loss.
+  const recovery = await recoverArtistShareOnRefund(stripeClient, charge);
+  if (recovery.shortfall > 0) {
+    console.error('[refund] UNRECOVERED artist share', {
+      charge: charge.id, shortfall: recovery.shortfall, reason: recovery.reason,
+    });
+  }
 
   // Match the original earning. One-time purchases are keyed by the payment intent
   // (pi_). Subscription RENEWALS are keyed by the invoice id (in_) because
@@ -2161,6 +2277,14 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
       metadata: {
         original_earning_id: originalEarning.id,
         refund_amount: amountRefunded,
+        // TS-MONEY-007 audit trail: what was actually clawed back from the artist, and what was
+        // not. `shortfall` is real CRWN exposure and is never rounded away.
+        refund_recovery: {
+          reason: recovery.reason,
+          reversed_cents: recovery.reversedCents,
+          shortfall_cents: recovery.shortfall,
+          ...(recovery.transferReversalId ? { transfer_reversal: recovery.transferReversalId } : {}),
+        },
       },
     })
     .select('id')
@@ -2209,6 +2333,24 @@ export async function handleChargeRefunded(supabaseAdmin: AdminClient, charge: S
     }
   } catch (err) {
     console.error('Referral clawback failed:', err);
+  }
+
+  // TEAM SPLIT CLAWBACK, AT THE REFUND EVENT (TS-MONEY-010).
+  //
+  // This used to live only in the daily accruals cron, which left up to 24 hours in which a
+  // collaborator could cash out against money the fan had already been given back. The refund event
+  // is now the AUTHORITATIVE writer; the cron is a repair pass that skips anything already written.
+  // Exactly one authoritative writer, and the (deal_id, earning_id) uniqueness makes a double
+  // negative row impossible even if both run.
+  try {
+    await clawbackTeamSplitsForRefund(supabaseAdmin, {
+      originalEarningId: originalEarning.id,
+      refundEarningId: refundEarning.id,
+      artistId: originalEarning.artist_id,
+      refundRatio,
+    });
+  } catch (err) {
+    console.error('Team Split refund clawback failed (cron will repair):', err);
   }
 
   // Update purchase status if it was a product purchase
